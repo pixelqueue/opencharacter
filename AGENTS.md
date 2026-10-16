@@ -32,7 +32,7 @@ The documentation website (https://opencharacterformat.org/) is built from these
 
 | Command                 | Does                                                                                                               |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `pnpm install`          | Install (Node 22, pnpm 10)                                                                                         |
+| `pnpm install`          | Install (Node 26, pnpm 10)                                                                                         |
 | `pnpm lint`             | oxlint, then oxfmt in check mode                                                                                   |
 | `pnpm format`           | Format everything with oxfmt (TS, JSON, YAML, Markdown)                                                            |
 | `pnpm typecheck`        | TypeScript, strict                                                                                                 |

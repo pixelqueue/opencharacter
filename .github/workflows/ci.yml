@@ -1,8 +1,9 @@
 name: CI
 
-# Three parallel jobs; together they run what `pnpm release` and `pnpm build:website`
-# run locally. `pnpm validate` has no step of its own: `build:packs` validates first and fails
-# on any error.
+# Parallel jobs; together they run what `pnpm release` and `pnpm build:website` run locally,
+# on the Node in .nvmrc. `pnpm validate` has no step of its own: `build:packs` validates first and
+# fails on any error. The published packages support Node 22 and later, so the tests also run on
+# Node 22 and 24.
 
 on:
   push:
@@ -44,6 +45,23 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test --shard=${{ matrix.shard }}/3
+
+  test-node:
+    name: test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
 
   build:
     name: build:packs + release:check + build:website
