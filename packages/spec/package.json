@@ -2,10 +2,24 @@
   "name": "@opencharacter/spec",
   "version": "0.1.0",
   "description": "Open Character Format (OCF) specification: written spec, JSON Schemas, fixed sets and the shared test suite.",
+  "keywords": [
+    "character-sheet",
+    "json-schema",
+    "ocf",
+    "open-character-format",
+    "rpg",
+    "specification",
+    "tabletop",
+    "ttrpg"
+  ],
+  "homepage": "https://opencharacterformat.org",
+  "bugs": {
+    "url": "https://github.com/pixelqueue/opencharacter/issues"
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pixelqueue/opencharacter.git",
+    "url": "git+https://github.com/pixelqueue/opencharacter.git",
     "directory": "packages/spec"
   },
   "files": [
@@ -15,13 +29,24 @@
     "docs",
     "i18n",
     "tests",
-    "src",
+    "README.md",
     "LICENSE"
   ],
   "type": "module",
+  "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts",
-    "./node": "./src/node.ts",
+    ".": {
+      "@opencharacter/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./node": {
+      "@opencharacter/source": "./src/node.ts",
+      "types": "./dist/node.d.ts",
+      "import": "./dist/node.js",
+      "default": "./dist/node.js"
+    },
     "./schemas/*": "./schemas/*",
     "./data/*": "./data/*",
     "./i18n/*.yaml": "./i18n/*.yaml",
@@ -32,14 +57,39 @@
     }
   },
   "publishConfig": {
-    "access": "public"
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      },
+      "./node": {
+        "types": "./dist/node.d.ts",
+        "import": "./dist/node.js",
+        "default": "./dist/node.js"
+      },
+      "./schemas/*": "./schemas/*",
+      "./data/*": "./data/*",
+      "./i18n/*.yaml": "./i18n/*.yaml",
+      "./i18n/*": {
+        "types": "./dist/i18n/*.d.ts",
+        "import": "./dist/i18n/*.js",
+        "default": "./dist/i18n/*.json"
+      }
+    },
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
-    "prepack": "node -e \"require('node:fs').existsSync('dist')||(console.error('No dist/: run pnpm build:packs from the repo root first'),process.exit(1))\""
+    "prepack": "node -e \"for(const f of ['dist/index.js','dist/node.js','dist/i18n/en.js'])require('node:fs').existsSync(f)||(console.error('Missing '+f+': run pnpm build from the repo root first'),process.exit(1))\"",
+    "build": "tsc -p tsconfig.build.json"
   },
   "devDependencies": {
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
     "yaml": "2.9.1"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

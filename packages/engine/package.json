@@ -2,24 +2,64 @@
   "name": "@opencharacter/engine",
   "version": "0.1.0",
   "description": "Open Character Format (OCF) reference engine in TypeScript: formulas, sheets, options, changes, actions and upgrades.",
+  "keywords": [
+    "character-sheet",
+    "dice",
+    "ocf",
+    "open-character-format",
+    "rpg",
+    "rules-engine",
+    "tabletop",
+    "ttrpg"
+  ],
+  "homepage": "https://opencharacterformat.org",
+  "bugs": {
+    "url": "https://github.com/pixelqueue/opencharacter/issues"
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pixelqueue/opencharacter.git",
+    "url": "git+https://github.com/pixelqueue/opencharacter.git",
     "directory": "packages/engine"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "type": "module",
+  "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "@opencharacter/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
   },
   "publishConfig": {
-    "access": "public"
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      }
+    },
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
+    "prepack": "node -e \"for(const f of ['dist/index.js'])require('node:fs').existsSync(f)||(console.error('Missing '+f+': run pnpm build from the repo root first'),process.exit(1))\""
   },
   "dependencies": {
-    "@opencharacter/spec": "workspace:*",
+    "@opencharacter/spec": "workspace:^",
     "semver": "^7.8.5"
   },
   "devDependencies": {
     "@types/semver": "^7.8.0"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

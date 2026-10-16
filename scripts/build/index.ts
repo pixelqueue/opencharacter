@@ -150,7 +150,7 @@ export function specText(specRoot: string): Record<string, Record<string, string
 export function writeSpecText(specRoot: string): string[] {
   const text = specText(specRoot);
   const out = join(specRoot, 'dist', 'i18n');
-  rmSync(join(specRoot, 'dist'), { recursive: true, force: true });
+  rmSync(out, { recursive: true, force: true });
   mkdirSync(out, { recursive: true });
   for (const [language, messages] of Object.entries(text)) {
     writeFileSync(join(out, `${language}.json`), json(messages));

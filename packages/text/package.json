@@ -1,25 +1,67 @@
 {
   "name": "@opencharacter/text",
   "version": "0.1.0",
-  "private": true,
   "description": "Open Character Format (OCF) wording helper: turns engine output (choices, pauses, options, issues, roll summaries and dice) into finished text from pack and spec messages.",
+  "keywords": [
+    "character-sheet",
+    "i18n",
+    "icu-messageformat",
+    "ocf",
+    "open-character-format",
+    "rpg",
+    "tabletop",
+    "ttrpg"
+  ],
+  "homepage": "https://opencharacterformat.org",
+  "bugs": {
+    "url": "https://github.com/pixelqueue/opencharacter/issues"
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pixelqueue/opencharacter.git",
+    "url": "git+https://github.com/pixelqueue/opencharacter.git",
     "directory": "packages/text"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "type": "module",
+  "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "@opencharacter/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      }
+    },
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
+    "prepack": "node -e \"for(const f of ['dist/index.js'])require('node:fs').existsSync(f)||(console.error('Missing '+f+': run pnpm build from the repo root first'),process.exit(1))\""
   },
   "dependencies": {
     "@formatjs/icu-messageformat-parser": "3.5.20",
-    "@opencharacter/spec": "workspace:*",
+    "@opencharacter/spec": "workspace:^",
     "intl-messageformat": "12.1.2"
   },
   "devDependencies": {
     "@opencharacter/engine": "workspace:*",
     "yaml": "2.9.1"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

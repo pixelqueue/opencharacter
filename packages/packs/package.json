@@ -1,18 +1,37 @@
 {
   "name": "@opencharacter/packs",
   "version": "0.1.0",
-  "private": true,
   "description": "Every official Open Character Format pack, as releases by pack ID, and their English text.",
+  "keywords": [
+    "character-sheet",
+    "content-pack",
+    "ocf",
+    "open-character-format",
+    "rpg",
+    "tabletop",
+    "ttrpg"
+  ],
+  "homepage": "https://opencharacterformat.org",
+  "bugs": {
+    "url": "https://github.com/pixelqueue/opencharacter/issues"
+  },
   "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pixelqueue/opencharacter.git",
+    "directory": "packages/packs"
+  },
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./i18n/*": {
@@ -21,16 +40,26 @@
       "default": "./dist/i18n/*.json"
     }
   },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
-    "prepack": "node -e \"require('node:fs').existsSync('dist')||(console.error('No dist/: run pnpm build:packs from the repo root first'),process.exit(1))\""
+    "prepack": "node -e \"for(const f of ['dist/index.js'])require('node:fs').existsSync(f)||(console.error('Missing '+f+': run pnpm build from the repo root first'),process.exit(1))\""
   },
   "dependencies": {
-    "@opencharacter/5e-srd-5.1": "workspace:*",
-    "@opencharacter/fate-core": "workspace:*",
-    "@opencharacter/fitd-crew": "workspace:*",
-    "@opencharacter/fitd-scoundrel": "workspace:*",
-    "@opencharacter/mork-borg-core": "workspace:*",
-    "@opencharacter/mothership-1e": "workspace:*",
-    "@opencharacter/orc-2e": "workspace:*"
+    "@opencharacter/5e-srd-5.1": "workspace:^",
+    "@opencharacter/fate-core": "workspace:^",
+    "@opencharacter/fitd-crew": "workspace:^",
+    "@opencharacter/fitd-scoundrel": "workspace:^",
+    "@opencharacter/mork-borg-core": "workspace:^",
+    "@opencharacter/mothership-1e": "workspace:^",
+    "@opencharacter/orc-2e": "workspace:^"
+  },
+  "devDependencies": {
+    "@opencharacter/engine": "workspace:*"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
