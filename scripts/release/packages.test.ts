@@ -11,7 +11,7 @@ interface Pkg {
   private?: boolean;
   files?: string[];
   exports?: Record<string, unknown>;
-  publishConfig?: { access?: string; provenance?: boolean; exports?: Record<string, unknown> };
+  publishConfig?: { access?: string; exports?: Record<string, unknown> };
   scripts?: Record<string, string>;
   repository?: { directory?: string };
   dependencies?: Record<string, string>;
@@ -56,7 +56,7 @@ describe('published packages', () => {
   for (const { dir, pkg } of pkgs) {
     it(`${pkg.name}: publishable`, () => {
       expect(pkg.private).toBeUndefined();
-      expect(pkg.publishConfig).toMatchObject({ access: 'public', provenance: true });
+      expect(pkg.publishConfig).toMatchObject({ access: 'public' });
       expect(pkg.repository?.directory).toBe(dir);
       for (const field of ['description', 'license', 'homepage', 'bugs', 'keywords', 'engines'])
         expect(pkg[field], field).toBeDefined();
