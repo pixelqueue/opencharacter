@@ -171,7 +171,10 @@ function releaseAt(root: string, tag: string, packDir: string): PackRelease {
   const tmp = mkdtempSync(join(tmpdir(), 'ocf-release-'));
   try {
     const rel = relative(root, packDir);
-    const archive = execFileSync('git', ['archive', '--format=tar', tag, rel], { cwd: root });
+    const archive = execFileSync('git', ['archive', '--format=tar', tag, rel], {
+      cwd: root,
+      maxBuffer: 1 << 30,
+    });
     execFileSync('tar', ['-x', '-C', tmp], { input: archive });
     const pack = loadPack(join(tmp, rel), tmp, new SchemaValidator(), new Reporter());
     if (!pack) throw new Error(`could not read ${rel} at ${tag}`);
