@@ -1,0 +1,34 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 1
+    mode: item
+    dc: 18
+    defense: fortitude
+    basic: true
+    damage: 4
+    healing: 12
+proposedChanges:
+  - to: self
+    step: cost
+    change:
+      type: setState
+      entry: wand
+      key: overcharged
+      value: true
+  - to: self
+    step: overcharged
+    change:
+      type: removeItem
+      entry: wand
+  - to: ally
+    character: fighter
+    step: restore[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: 12
+      tags:
+        - healing
+        - spell

@@ -1,0 +1,12 @@
+description: '5E: a Rope of Entanglement (item-power) restrains a target that fails its DC 15 Dexterity save'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:item-power, entry: rope }
+  participants:
+    target:
+      - { id: ogre }
+answers:
+  - { outcome: { result: failure, data: { total: 9 } } }

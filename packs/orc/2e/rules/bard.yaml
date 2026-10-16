@@ -1,0 +1,54 @@
+fields:
+  bard.muse: { type: enum, values: [none, enigma, maestro, polymath, warrior], formula: "'none'" }
+  bard.muses: { type: set, of: tag, members: { under: [muse] } }
+  bard.grantedFeats: { type: set, of: feat }
+  # Bardic Lore has no increases input: it is trained by the feat and becomes expert only when
+  # legendary in Occultism.
+  skills.lore.bardic.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.bardic]
+    formula: >-
+      @feats.bard.bardic-lore in feats.held ? (skills.occultism.rank >= 4 ? 2 : 1) : 0
+  skills.lore.bardic.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.bardic
+      - attr.int
+      - { formula: "skills.lore.bardic.rank == 0 ? ['untrained'] : []" }
+    formula: 'attributes.int.mod + (skills.lore.bardic.rank > 0 ? 2 * skills.lore.bardic.rank + proficiency.level : proficiency.untrained)'
+
+tags:
+  - muse
+  - muse.enigma
+  - muse.maestro
+  - muse.polymath
+  - muse.warrior
+  - skill.lore.bardic
+
+situational:
+  - id: wellVersed
+    type: boolean
+    default: false
+    rolls: [save]
+    available: '@feats.bard.well-versed in feats.held'
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 1
+        stackKey: circumstance-bonus
+        when: situational.wellVersed
+
+display:
+  fields:
+    bard.muse: { groups: [summary], priority: 2 }
+    bard.muses: { hidden: true }
+    bard.grantedFeats: { hidden: true }
+    skills.lore.bardic.rank:
+      { groups: [skill-ranks], format: { bands: rank }, showWhen: skills.lore.bardic.rank > 0 }
+    skills.lore.bardic.mod:
+      groups: [skills]
+      format: signed
+      showWhen: skills.lore.bardic.rank > 0
+      rolls: [{ action: check, params: { check: skills.lore.bardic.mod } }]

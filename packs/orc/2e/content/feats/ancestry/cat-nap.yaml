@@ -1,0 +1,12 @@
+id: feats.ancestry.cat-nap
+type: feat
+tags: [trait.concentrate, trait.exploration]
+fields: { level: 1, category: ancestry, ancestry: ancestries.catfolk }
+actions:
+  - id: cat-nap
+    tags: [exploration-action]
+    steps:
+      - id: nap
+        kind: changes
+        changes:
+          - { type: set, field: hp.temp, value: 'max(hp.temp, level)' }

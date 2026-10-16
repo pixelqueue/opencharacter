@@ -1,0 +1,23 @@
+# The untagged adjust lists nothing; the tagged one lists only the ally's help (focus isn't held),
+# with no character since no view fills the slot.
+ok: true
+followUps:
+  - id: call-ally-1
+    kind: ephemeral
+    followUp: test-follow-ups:call-ally
+    to:
+      link: test-follow-ups:ally
+    required: false
+    action:
+      id: test-ally:help
+    params:
+      lost: 1
+    cause:
+      field: test-follow-ups:hp.current
+      by: -1
+      requested: -1
+      taken: -1
+      reason: requested
+      clamped: false
+      tags:
+        - damage

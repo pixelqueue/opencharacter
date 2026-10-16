@@ -1,0 +1,10 @@
+id: heritages.shadow-rat
+type: heritage
+fields: { ancestry: ancestries.ratfolk }
+# Demoralize's `noSharedLanguage` is the player's to leave off against an animal.
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.intimidation }
+    when: "!('skill.intimidation' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }

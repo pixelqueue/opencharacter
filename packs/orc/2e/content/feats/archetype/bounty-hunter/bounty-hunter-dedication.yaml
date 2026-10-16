@@ -1,0 +1,14 @@
+id: feats.archetype.bounty-hunter.bounty-hunter-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.bounty-hunter }
+
+grants:
+  - { item: classes.ranger.hunt-prey }
+effects:
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.ranger.monster-hunter }
+  - target: { fields: { where: "'archetype-extra.at14' in item.tags" } }
+    op: grant
+    value: { item: feats.ranger.double-prey }

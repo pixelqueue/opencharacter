@@ -1,0 +1,21 @@
+# 15 + Strength 3 + expert 11 = 29 hits AC 20; the fist's die is a d6 (6) + Strength 3 = 9.
+status: finished
+outcome:
+  result: success
+  data: { attack: 29, dc: 20, map: 0, flatCheck: true, damage: 9 }
+log:
+  - { step: attack, action: orc-2e:strike, kind: dice, faces: [15], total: 29 }
+  - step: damage
+    action: orc-2e:strike
+    kind: dice
+    faces: [6]
+    total: 9
+    items:
+      - {
+          kind: dice,
+          count: 1,
+          sides: 6,
+          steppedFrom: 4,
+          tags: [part.weapon-die, damage.bludgeoning],
+        }
+      - { kind: flat, value: 3 }

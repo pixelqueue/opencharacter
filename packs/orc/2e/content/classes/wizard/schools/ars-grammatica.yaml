@@ -1,0 +1,44 @@
+id: classes.wizard.schools.ars-grammatica
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: wizard.school, op: set, value: "'ars-grammatica'" }
+  - { target: spellcasting.extraSlots, op: add, value: 1 }
+  - { target: spellcasting.extraCantrips, op: add, value: 1 }
+  - { target: focus.points, op: add, value: 1 }
+  - target: spells.curriculum
+    op: grant
+    value:
+      query:
+        type: spell
+        where: >-
+          item.id in [
+            @spells.message,
+            @spells.sigil,
+            @spells.command,
+            @spells.disguise-magic,
+            @spells.runic-body,
+            @spells.runic-weapon,
+            @spells.dispel-magic,
+            @spells.translate,
+            @spells.enthrall,
+            @spells.veil-of-privacy,
+            @spells.dispelling-globe,
+            @spells.suggestion,
+            @spells.sending,
+            @spells.truespeech,
+            @spells.repulsion,
+            @spells.spellwrack,
+            @spells.contingency,
+            @spells.planar-seal,
+            @spells.quandary,
+            @spells.unrelenting-observation,
+            @spells.detonate-magic
+          ]
+  - { target: spells.access, op: grant, value: { formula: '@spells.veil-of-privacy' } }
+  - { target: spells.access, op: grant, value: { formula: '@spells.dispelling-globe' } }
+  - { target: spells.access, op: grant, value: { formula: '@spells.truespeech' } }
+  - { target: spells.access, op: grant, value: { formula: '@spells.planar-seal' } }
+  - { target: spells.access, op: grant, value: { formula: '@spells.detonate-magic' } }
+grants:
+  - item: spells.protective-wards

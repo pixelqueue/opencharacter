@@ -1,0 +1,41 @@
+description: "With `repeat`, each pick sets its option's flags in turn: the later pick replaces the earlier's, and the step's changes after each pick read that pick's"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          heat: { type: integer, input: true, default: 0 }
+        actions:
+          - id: infuse
+            steps:
+              - id: defaults
+                kind: branch
+                cases:
+                  - when: true
+                    flags: { element: "'none'", count: 0 }
+              - id: pick
+                kind: choice
+                repeat: { max: 2 }
+                options:
+                  - id: fire
+                    flags: { element: "'fire'", count: flags.count + 1 }
+                  - id: ice
+                    flags: { element: "'ice'", count: flags.count + 1 }
+                changes:
+                  - { type: adjust, field: heat, by: 1, when: "flags.element == 'fire'" }
+              - id: done
+                kind: outcome
+                data: { element: flags.element, count: flags.count }
+      content: []
+input:
+  action: { id: test-pack:infuse }
+answers:
+  - { option: fire }
+  - { option: ice }

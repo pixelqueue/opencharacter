@@ -1,0 +1,14 @@
+id: magic-items.talisman-of-ultimate-evil
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: legendary
+  requiresAttunement: true
+  maxCharges: 6
+  saveDc: 20
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - use: use-charges
+  - use: item-power
+    params: { charges: 1, save: "'dex'", dc: 20 }

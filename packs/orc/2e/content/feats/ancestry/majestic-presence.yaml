@@ -1,0 +1,41 @@
+id: feats.ancestry.majestic-presence
+type: feat
+tags: [trait.emotion, trait.fear, trait.mental, trait.visual]
+fields: { level: 13, category: ancestry, heritage: heritages.dragonblood }
+actions:
+  - id: majestic-presence
+    tags: [feat-action]
+    participants:
+      target: {}
+    results: [cowed]
+    steps:
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: check
+        params:
+          check: "'saves.will.mod'"
+          dc: ancestry.dc
+      - id: degree
+        kind: branch
+        each: target
+        cases:
+          - when: true
+            flags:
+              outcome: >-
+                max(0, indexOf(['critical-success', 'success', 'failure', 'critical-failure'],
+                  steps.save.result))
+      - id: cow
+        kind: changes
+        each: target
+        when: flags.outcome > 0
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.frightened'"
+            state: { value: '[0, 1, 2, 4][flags.outcome]' }
+      - id: result
+        kind: outcome
+        result: "'cowed'"
+        data: { dc: ancestry.dc }

@@ -1,0 +1,30 @@
+# Drinking it spends one and applies the potion to the drinker, whose speed it raises. While it
+# is applied, the drinker may surge (twice) and boast.
+id: potions.haste
+type: potion
+state:
+  surges: { type: integer, default: 2, min: 0 }
+effects:
+  - { target: speed, op: add, value: 10, scope: applied }
+actions:
+  - id: drink
+    available: self.quantity > 0
+    steps:
+      - id: drink
+        kind: changes
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1 }
+          - { type: applyEffect, source: item.id }
+  # An action of the applied entry: `self` is the entry, `entry: self` its ID.
+  - id: surge
+    scope: applied
+    available: self.surges > 0
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: surges, by: -1 }
+      - id: result
+        kind: outcome
+        data: { entry: self.id, item: item.id, left: self.surges - 1, speed: speed }
+  - { use: boast, scope: applied }

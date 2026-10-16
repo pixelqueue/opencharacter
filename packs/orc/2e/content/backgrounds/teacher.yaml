@@ -1,0 +1,29 @@
+id: backgrounds.teacher
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.academia },
+      when: "!('skill.lore.academia' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - item: feats.skill.experienced-professional
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['int', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }
+  - id: skill
+    from: { values: [skill.performance, skill.society] }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }

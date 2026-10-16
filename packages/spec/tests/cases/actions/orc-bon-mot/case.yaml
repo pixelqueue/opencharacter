@@ -1,0 +1,16 @@
+description: "orc-2e: Bon Mot, a Player Core 2 skill feat: 15 + Diplomacy 4 = 19 against
+  the target's Will DC 18 is a success, so the target takes a -2 status penalty to Perception and
+  Will saves (`effects.bon-mot`)"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:feats.skill.bon-mot#bon-mot
+    entry: class
+    source: orc-2e:feats.skill.bon-mot
+  participants:
+    target:
+      - id: duke
+        values: { orc-2e:saves.will.dc: 18 }

@@ -1,0 +1,43 @@
+# The fire damage passes its element; the plain damage's `null` leaves the parameter out.
+ok: true
+followUps:
+  - id: steady-1
+    kind: ephemeral
+    followUp: test-pack:steady
+    to: self
+    required: false
+    action:
+      id: test-pack:steady
+      followUp: steady-1
+    params:
+      damage: 4
+      element: fire
+    cause:
+      field: test-pack:hp
+      by: -4
+      requested: -4
+      taken: -4
+      reason: requested
+      clamped: false
+      tags:
+        - damage
+        - fire
+  - id: steady-2
+    kind: ephemeral
+    followUp: test-pack:steady
+    to: self
+    required: false
+    action:
+      id: test-pack:steady
+      followUp: steady-2
+    params:
+      damage: 2
+    cause:
+      field: test-pack:hp
+      by: -2
+      requested: -2
+      taken: -2
+      reason: requested
+      clamped: false
+      tags:
+        - damage

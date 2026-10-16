@@ -1,0 +1,43 @@
+# A desperate roll marks no xp, since the action it stands in for isn't known.
+id: special-abilities.rooks-gambit
+type: specialAbility
+actions:
+  - id: rooks-gambit
+    tags: [action-roll]
+    results: { bands: action }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [action-roll]
+        bands: action
+        parts:
+          - id: pool
+            dice: "(maxFields(f.value, 'rating' in f.tags))d6kh1"
+            ifEmpty: 2d6kl1
+      - id: cost
+        kind: changes
+        to: self
+        changes:
+          - { type: adjust, field: stress.current, by: 2 }
+      - id: pushCost
+        kind: choice
+        tags: [push-cost]
+        when: "situational.bonusDie == 'push' || situational.pushEffect || situational.pushAbility"
+        options:
+          - id: stress
+            changes:
+              - type: adjust
+                field: stress.current
+                by: >-
+                  2 * max((situational.bonusDie == 'push' ? 1 : 0) + (situational.pushEffect ? 1 : 0),
+                    situational.pushAbility ? 1 : 0)
+        recommend: "'stress'"
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          position: situational.position
+          effect: >-
+            ['zero', 'limited', 'standard', 'great'][max(0, min(3,
+            (situational.effect == 'limited' ? 1 : situational.effect == 'standard' ? 2 : 3)
+            + steps.roll.tallies.effect))]

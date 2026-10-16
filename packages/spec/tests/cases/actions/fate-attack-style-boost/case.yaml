@@ -1,0 +1,14 @@
+description: 'Fate Core: a Fight (+4) attack rolls +1 against an Average (+1) defense: 4 shifts, success with style; the player trades one shift for a boost, so the hit is 3 shifts and the attacker holds the boost'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:attack }
+  params: { skill: fate-core:skills.fight, opposition: 1 }
+  policy: { choices: pause }
+answers:
+  - option: keep
+  - option: none
+  - option: none
+  - option: boost

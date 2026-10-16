@@ -1,0 +1,282 @@
+display:
+  groups:
+    - id: summary
+      priority: 0
+    - id: attributes
+      priority: 0
+      members: { type: field, where: "'attribute' in item.tags" }
+    - id: defenses
+      priority: 0
+    - id: saves
+      priority: 0
+    - id: skills
+      priority: 1
+      members: { type: field, where: "'skill' in item.tags" }
+    - id: skill-ranks
+      priority: 2
+      members: { type: field, where: "'skill-rank' in item.tags" }
+    - id: skill-increases
+      priority: 3
+      visibility: background
+      members: { type: field, where: "'skill-increase' in item.tags" }
+    - id: proficiencies
+      priority: 2
+    - id: bulk
+      priority: 2
+    - id: turn
+      priority: 1
+    - id: strikes
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'strike' in item.tags" }
+    - id: checks
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'check' in item.tags || 'flat-check' in item.tags" }
+    - id: reactions
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'reaction' in item.tags || 'shield' in item.tags" }
+    - id: turn-actions
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'turn' in item.tags" }
+    - id: condition-actions
+      kind: actions
+      priority: 2
+      members:
+        type: action
+        where: "'condition' in item.tags || 'dying' in item.tags || 'affliction' in item.tags"
+    - id: advancement
+      kind: actions
+      priority: 3
+      visibility: background
+      members: { type: action, where: "'creation' in item.tags || 'level-up' in item.tags" }
+    - id: conditions
+      kind: content
+      priority: 0
+      members: { type: condition, from: applied }
+    - id: ancestry
+      kind: content
+      priority: 1
+      members: { type: ancestry }
+    - id: heritage
+      kind: content
+      priority: 1
+      members: { type: heritage }
+    - id: background
+      kind: content
+      priority: 1
+      members: { type: background }
+    - id: class
+      kind: content
+      priority: 1
+      members: { type: class }
+    - id: class-features
+      kind: content
+      priority: 1
+      members: { type: feature, where: "!('variant-rules' in item.tags)" }
+      sortBy: item.level
+    - id: feats
+      kind: content
+      priority: 1
+      members: { type: feat }
+      sectionBy: item.category
+      sortBy: item.level
+    - id: weapons
+      kind: content
+      priority: 1
+      members: { type: weapon }
+    - id: armor
+      kind: content
+      priority: 1
+      members: { type: armor }
+    - id: shields
+      kind: content
+      priority: 1
+      members: { type: shield }
+    - id: gear
+      kind: content
+      priority: 2
+      members: { type: gear }
+    - id: consumables
+      kind: content
+      priority: 2
+      members: { type: consumable }
+      sectionBy: item.category
+    - id: rituals
+      kind: content
+      priority: 2
+      members: { type: ritual }
+      sortBy: item.rank
+    - id: variant-features
+      kind: content
+      priority: 2
+      showWhen: variants.automaticBonus
+      members: { type: feature, where: "'variant-rules' in item.tags" }
+    # A template kept on every weapon (devastating attacks) is an activation no content group can
+    # hold (`template` isn't a content type).
+    - id: boost-picks
+      kind: content
+      priority: 3
+      visibility: background
+      members: { type: boost }
+    - id: language-picks
+      kind: content
+      priority: 3
+      visibility: background
+      members: { type: language }
+
+  fields:
+    level: { groups: [summary], priority: 0 }
+    xp.current: { groups: [summary], priority: 1 }
+    hp.max: { groups: [summary], priority: 0, visibility: primary }
+    hp.current:
+      { groups: [summary], priority: 0, visibility: primary, with: [{ field: hp.max, as: max }] }
+    hp.temp: { groups: [summary], priority: 1 }
+    speed.land: { groups: [summary], priority: 1, unit: ft }
+    creature.size: { groups: [summary], priority: 2 }
+    senses: { groups: [summary], priority: 2 }
+    traits: { groups: [summary], priority: 2 }
+    languages: { groups: [summary], priority: 2 }
+    perception.mod:
+      {
+        groups: [summary, saves],
+        priority: 0,
+        format: signed,
+        rolls: [{ action: check, params: { check: perception.mod } }],
+      }
+    perception.dc: { groups: [saves], priority: 2 }
+    classDc.value: { groups: [summary], priority: 1 }
+    defenses.ac: { groups: [summary, defenses], priority: 0, visibility: primary }
+    defenses.acPrey: { groups: [defenses], priority: 1, showWhen: "ranger.edge == 'outwit'" }
+    defenses.acBase: { hidden: true }
+    shield.raised: { groups: [defenses], priority: 1, input: { widget: checkbox } }
+    parry.active: { groups: [defenses], priority: 2, input: { widget: checkbox } }
+    saves.fortitude.mod:
+      {
+        groups: [saves],
+        priority: 0,
+        format: signed,
+        rolls: [{ action: check, params: { check: saves.fortitude.mod } }],
+      }
+    saves.reflex.mod:
+      {
+        groups: [saves],
+        priority: 0,
+        format: signed,
+        rolls: [{ action: check, params: { check: saves.reflex.mod } }],
+      }
+    saves.will.mod:
+      {
+        groups: [saves],
+        priority: 0,
+        format: signed,
+        rolls: [{ action: check, params: { check: saves.will.mod } }],
+      }
+    saves.fortitude.dc: { groups: [saves], priority: 2 }
+    saves.reflex.dc: { groups: [saves], priority: 2 }
+    saves.will.dc: { groups: [saves], priority: 2 }
+    'attributes.{attribute}.mod': { format: signed }
+    perception.rank: { groups: [proficiencies], priority: 0, format: { bands: rank } }
+    saves.fortitude.rank: { groups: [proficiencies], priority: 0, format: { bands: rank } }
+    saves.reflex.rank: { groups: [proficiencies], priority: 0, format: { bands: rank } }
+    saves.will.rank: { groups: [proficiencies], priority: 0, format: { bands: rank } }
+    classDc.rank: { groups: [proficiencies], priority: 0, format: { bands: rank } }
+    attacks.simple.rank: { groups: [proficiencies], priority: 1, format: { bands: rank } }
+    attacks.martial.rank: { groups: [proficiencies], priority: 1, format: { bands: rank } }
+    attacks.advanced.rank: { groups: [proficiencies], priority: 1, format: { bands: rank } }
+    attacks.unarmed.rank: { groups: [proficiencies], priority: 1, format: { bands: rank } }
+    defenses.unarmored.rank: { groups: [proficiencies], priority: 2, format: { bands: rank } }
+    defenses.light.rank: { groups: [proficiencies], priority: 2, format: { bands: rank } }
+    defenses.medium.rank: { groups: [proficiencies], priority: 2, format: { bands: rank } }
+    defenses.heavy.rank: { groups: [proficiencies], priority: 2, format: { bands: rank } }
+    attacks.masterGroups: { groups: [proficiencies], priority: 2 }
+    attacks.favoredWeapons: { groups: [proficiencies], priority: 2 }
+    attacks.favoredRank: { groups: [proficiencies], priority: 2, format: { bands: rank } }
+    attacks.legendGroups: { groups: [proficiencies], priority: 2 }
+    weapons.specialization: { groups: [proficiencies], priority: 2 }
+    bulk.carried: { groups: [bulk], priority: 0, with: [{ field: bulk.max, as: max }] }
+    bulk.encumbered: { groups: [bulk], priority: 1 }
+    bulk.max: { groups: [bulk], priority: 1 }
+    turn.attacks: { groups: [turn], priority: 0 }
+    turn.flourishes: { groups: [turn], priority: 1 }
+    turn.actionsPerTurn: { groups: [turn], priority: 0 }
+    'attributes.{attribute}.boosts': { hidden: true }
+    hp.ancestry: { hidden: true }
+    hp.class: { hidden: true }
+    languages.extra: { hidden: true }
+    ancestry.held: { hidden: true }
+    feats.held: { hidden: true }
+    heritages.held: { hidden: true }
+    class.keyAttribute: { hidden: true }
+    class.traits: { hidden: true }
+    skills.maxRank: { hidden: true }
+    skills.trained: { hidden: true }
+    skills.trainings: { hidden: true }
+    skills.chosen: { hidden: true }
+    assurance.skills: { hidden: true }
+    armor.category: { hidden: true }
+    armor.dexCap: { hidden: true }
+    armor.speedPenalty: { hidden: true }
+    armor.mightyBulwark: { hidden: true }
+    shield.hardness: { hidden: true }
+    classDc.proficiency: { hidden: true }
+    classes.max: { hidden: true }
+    creation.needsClass: { hidden: true }
+    attacks.str.mod: { hidden: true }
+    attacks.dex.mod: { hidden: true }
+    attacks.int.mod: { hidden: true }
+    damage.str.mod: { hidden: true }
+    damage.mod: { hidden: true }
+    senses.keenEyes: { hidden: true }
+    fear.reduction: { hidden: true }
+    dying.base: { hidden: true }
+    dying.max: { hidden: true }
+    dying.recoveryDc: { hidden: true }
+    conditions.offGuard: { hidden: true }
+    conditions.concealed: { hidden: true }
+    conditions.hidden: { hidden: true }
+    conditions.dazzled: { hidden: true }
+    conditions.quickened: { hidden: true }
+    conditions.encumbered: { hidden: true }
+    conditions.frightened: { hidden: true }
+    conditions.dying: { hidden: true }
+    conditions.wounded: { hidden: true }
+    conditions.doomed: { hidden: true }
+    conditions.slowed: { hidden: true }
+    conditions.stunned: { hidden: true }
+
+  types:
+    weapon:
+      fields:
+        damage: { format: dice }
+        deadly: { format: dice }
+        fatal: { format: dice }
+        twoHand: { format: dice }
+        range: { unit: ft }
+        thrown: { unit: ft }
+      state:
+        wielding: { priority: 0 }
+    shield:
+      state:
+        damage: { priority: 0 }
+    condition:
+      state:
+        value:
+          priority: 0
+          showWhen: >-
+            item.id in [@conditions.clumsy, @conditions.doomed,
+              @conditions.drained, @conditions.dying,
+              @conditions.enfeebled, @conditions.frightened,
+              @conditions.sickened, @conditions.slowed,
+              @conditions.stunned, @conditions.stupefied,
+              @conditions.wounded]
+        damage: { priority: 0, format: dice, showWhen: 'item.id == @conditions.persistent-damage' }
+        damageType: { priority: 0, showWhen: 'item.id == @conditions.persistent-damage' }
+      quantity: { hidden: true }
+    ancestry: { quantity: { hidden: true } }
+    background: { quantity: { hidden: true } }
+    class: { quantity: { hidden: true } }
+    feature: { quantity: { hidden: true } }
+    feat: { quantity: { hidden: true } }

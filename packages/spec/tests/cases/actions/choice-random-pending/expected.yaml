@@ -1,0 +1,20 @@
+status: finished
+log:
+  - { step: calling, kind: choice, by: engine, option: 'test-pack:callings.hunter' }
+  - step: picks
+    kind: dice
+    by: engine
+    faces: [3]
+    draw: { among: [antler, fang, hide] }
+  - step: picks
+    kind: choice
+    by: engine
+    option: hide
+    index: 0
+    choice: { choice: [calling, 'test-pack:callings.hunter', trophy] }
+  - step: picks
+    kind: choice
+    by: engine
+    option: shell
+    index: 1
+    choice: { choice: [calling, 'test-pack:callings.hunter', charm] }

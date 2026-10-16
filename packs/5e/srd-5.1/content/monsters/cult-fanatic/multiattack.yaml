@@ -1,0 +1,30 @@
+id: monsters.cult-fanatic.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: dagger1
+        kind: action
+        use: monster-attack
+        source: "'monsters.cult-fanatic.dagger'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: dagger2
+        kind: action
+        use: monster-attack
+        source: "'monsters.cult-fanatic.dagger'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.dagger1) && steps.dagger1.result == 'hit' ? 1 : 0)
+              + (has(steps.dagger2) && steps.dagger2.result == 'hit' ? 1 : 0)

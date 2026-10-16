@@ -1,0 +1,30 @@
+id: feats.ancestry.reckless-abandon
+type: feat
+fields: { level: 17, category: ancestry, ancestry: ancestries.goblin }
+state:
+  used: { type: boolean, default: false }
+  active: { type: boolean, default: false }
+effects:
+  - target: { rolls: [save], tally: degreeFloor }
+    op: add
+    value: 2
+    when: self.active
+  - target: { steps: [turn.end] }
+    op: changes
+    when: self.active
+    value:
+      changes:
+        - type: setState
+          picks: { where: 'item.id == @feats.ancestry.reckless-abandon && self.active' }
+          key: active
+          value: false
+actions:
+  - id: reckless-abandon
+    tags: [feat-action]
+    available: '!self.used'
+    steps:
+      - id: abandon
+        kind: changes
+        changes:
+          - { type: setState, pick: self, key: active, value: true }
+          - { type: setState, pick: self, key: used, value: true }

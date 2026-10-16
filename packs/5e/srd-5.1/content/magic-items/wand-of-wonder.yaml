@@ -1,0 +1,28 @@
+id: magic-items.wand-of-wonder
+type: magicItem
+tags: [attunement.spellcaster]
+fields:
+  category: wand
+  rarity: rare
+  requiresAttunement: true
+  maxCharges: 7
+  recharge: 1d6 + 1
+  spells:
+    [
+      spells.slow,
+      spells.faerie-fire,
+      spells.gust-of-wind,
+      spells.detect-thoughts,
+      spells.stinking-cloud,
+      spells.lightning-bolt,
+      spells.enlarge-reduce,
+      spells.darkness,
+      spells.fireball,
+      spells.invisibility,
+    ]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

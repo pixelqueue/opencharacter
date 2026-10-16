@@ -1,0 +1,39 @@
+id: classes.champion.causes.redemption
+type: feature
+fields: { level: 1 }
+prerequisites:
+  - { id: sanctification, when: "champion.sanctification == 'holy'" }
+effects:
+  - { target: champion.cause, op: set, value: "'redemption'", when: class.has.champion }
+actions:
+  - id: glimpse-of-redemption
+    tags: [reaction]
+    participants:
+      ally: { max: 1 }
+      target: { max: 1 }
+    results: [used]
+    steps:
+      - id: repent
+        kind: choice
+        options:
+          - id: repent
+          - id: refuse
+            to: ally
+            changes:
+              - type: applyEffect
+                source: "'classes.champion.resistance'"
+                state: { amount: champion.allyResistance }
+        recommend: "'refuse'"
+      - id: enfeeble
+        kind: changes
+        when: steps.repent.picked == 'refuse' && size(participants.target) > 0
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.enfeebled'", state: { value: 2 } }
+          - type: applyEffect
+            when: level >= 9 && attributes.cha.mod > 0
+            source: "'conditions.persistent-damage'"
+            state: { damage: attributes.cha.mod, damageType: "'spirit'" }
+      - id: result
+        kind: outcome
+        result: "'used'"

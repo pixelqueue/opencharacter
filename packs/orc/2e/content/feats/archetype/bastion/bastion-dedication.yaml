@@ -1,0 +1,27 @@
+id: feats.archetype.bastion.bastion-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.bastion }
+prerequisites:
+  - { id: shield-block, when: '@feats.general.shield-block in feats.held' }
+grants:
+  - { item: feats.fighter.reactive-shield, waivePrerequisites: true }
+effects:
+  - target: { fields: { where: "'archetype-extra.at6' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.shielded-stride }
+  - target: { fields: { where: "'archetype-extra.at8' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.reflexive-shield }
+  - target: { fields: { where: "'archetype-extra.at8' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.shield-warden }
+  - target: { fields: { where: "'archetype-extra.at10' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.quick-shield-block }
+  - target: { fields: { where: "'archetype-extra.at12' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.mirror-shield }
+  - target: { fields: { where: "'archetype-extra.at18' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.improved-reflexive-shield }

@@ -1,0 +1,49 @@
+id: heritages.elementheart-kobold
+type: heritage
+fields: { ancestry: ancestries.kobold }
+choices:
+  - id: element
+    from:
+      options:
+        - id: air
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.cold] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, max(1, floor(level / 2)))
+              when: incoming.amount < 0
+        - id: earth
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.electricity] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, max(1, floor(level / 2)))
+              when: incoming.amount < 0
+        - id: fire
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, max(1, floor(level / 2)))
+              when: incoming.amount < 0
+        - id: metal
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.sonic] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, max(1, floor(level / 2)))
+              when: incoming.amount < 0
+        - id: water
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.acid] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, max(1, floor(level / 2)))
+              when: incoming.amount < 0
+        - id: wood
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.poison] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, max(1, floor(level / 2)))
+              when: incoming.amount < 0

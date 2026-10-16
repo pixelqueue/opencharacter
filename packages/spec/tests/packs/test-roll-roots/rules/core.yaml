@@ -1,0 +1,11 @@
+contentTypes:
+  # A tool swings for 1d6; a charged tool's effects apply.
+  tool:
+    carried: true
+    state:
+      charged: { type: boolean, default: false }
+    actions:
+      - id: swing
+        steps:
+          - { id: roll, kind: roll, tags: [swing], parts: [{ dice: 1d6 }] }
+          - { id: result, kind: outcome, data: { total: steps.roll.total } }

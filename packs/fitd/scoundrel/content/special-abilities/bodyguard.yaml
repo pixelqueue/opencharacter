@@ -1,0 +1,11 @@
+id: special-abilities.bodyguard
+type: specialAbility
+effects:
+  - target: { rolls: [resistance-roll] }
+    op: rollModifier
+    value: { kind: poolDice, count: 1 }
+    when: situational.protectingTeammate
+  - target: { rolls: [action-roll], tally: effect }
+    op: add
+    value: 1
+    when: situational.threatInfo

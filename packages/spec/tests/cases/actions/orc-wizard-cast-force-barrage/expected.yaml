@@ -1,0 +1,30 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 1
+    mode: prepared
+    dc: 17
+    defense: ''
+    basic: false
+    damage: 7
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: setState
+      entry: force-barrage-1
+      key: expended
+      value: true
+  - to: target
+    character: goblin
+    step: burn[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -7
+      tags:
+        - damage
+        - spell
+        - damage.force

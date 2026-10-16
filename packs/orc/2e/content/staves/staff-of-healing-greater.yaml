@@ -1,0 +1,22 @@
+id: staves.staff-of-healing-greater
+type: staff
+tags: [trait.magical, trait.staff]
+fields:
+  level: 8
+  price: 470
+  bulk: 1
+  rank1: [spells.heal]
+  rank2: [spells.clear-mind, spells.heal, spells.sound-body]
+  rank3: [spells.cleanse-affliction, spells.heal]
+grants:
+  - { item: spells.stabilize, when: self.equipped }
+  - { item: spells.heal, when: self.equipped }
+  - { item: spells.clear-mind, when: self.equipped }
+  - { item: spells.sound-body, when: self.equipped }
+  - { item: spells.cleanse-affliction, when: self.equipped }
+effects:
+  - target: { rolls: [healing] }
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && has(action.item) && action.item.id == @spells.heal'

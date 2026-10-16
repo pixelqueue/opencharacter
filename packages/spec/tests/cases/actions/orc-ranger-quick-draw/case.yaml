@@ -1,0 +1,15 @@
+description: "orc-2e: Quick Draw draws the sheathed dagger (an equip change), then runs its Strike on the proposed sheet, where it is drawn: the Strike reads the copy's computed attack values there"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:feats.ranger.quick-draw#quick-draw'
+    entry: class
+    source: orc-2e:feats.ranger.quick-draw
+  participants:
+    target:
+      - id: wolf
+        values:
+          orc-2e:defenses.ac: 15

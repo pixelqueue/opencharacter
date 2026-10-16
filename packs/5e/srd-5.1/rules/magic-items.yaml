@@ -1,0 +1,447 @@
+# Magic weapons, armor, shields, ammunition and staffs are templates on the mundane item, so the
+# copy keeps its base item and its proficiencies.
+templateFields:
+  rarity: { type: enum, values: [common, uncommon, rare, very-rare, legendary, artifact] }
+  requiresAttunement: { type: boolean, default: false }
+  maxCharges: { type: integer, min: 1 }
+  recharge: { type: dice }
+  attackBonus: { type: integer, default: 0 }
+  damageBonus: { type: integer, default: 0 }
+  acBonus: { type: integer, default: 0 }
+
+contentTypes:
+  magicItem:
+    carried: true
+    equippable: true
+    fields:
+      category:
+        { type: enum, values: [potion, ring, rod, scroll, wand, wondrous-item], required: true }
+      rarity:
+        {
+          type: enum,
+          values: [common, uncommon, rare, very-rare, legendary, artifact],
+          required: true,
+        }
+      requiresAttunement: { type: boolean }
+      cost: { type: decimal } # gold pieces, where the SRD gives one
+      weight: { type: decimal } # pounds, where the SRD gives one
+      maxCharges: { type: integer, min: 1 }
+      recharge: { type: dice }
+      spells: { type: set, of: spell }
+      healing: { type: dice }
+      tempHp: { type: integer }
+      lasting: { type: boolean }
+      condition: { type: id, of: condition }
+      spellEffect: { type: id, of: spell }
+      spellLevel: { type: integer, min: 0, max: 9 }
+      saveDc: { type: integer }
+      spellAttackBonus: { type: integer }
+      attackBonus: { type: integer }
+    state:
+      attuned: { type: boolean, default: false }
+      stowed: { type: boolean, default: false } # in an extradimensional container (equipment.yaml)
+
+  storedSpell:
+    carried: false
+    state:
+      slot: { type: integer, min: 1, max: 9, default: 1 }
+      dc: { type: integer, default: 0 }
+      attack: { type: integer, default: 0 }
+      mod: { type: integer, default: 0 }
+      storedIn: { type: string, default: '' }
+
+fields:
+  combat.hitOptions: { type: integer, formula: 0, min: 0 }
+  items.spellSave: { type: integer, formula: 0, min: 0 }
+  items.bySight: { type: integer, formula: 0, min: 0 }
+  items.moveSilently: { type: integer, formula: 0, min: 0 }
+  items.poisonSave: { type: integer, formula: 0, min: 0 }
+  items.gasSave: { type: integer, formula: 0, min: 0 }
+  items.swornEnemy: { type: integer, formula: 0, min: 0 }
+  items.charmSave: { type: integer, formula: 0, min: 0 }
+  items.frightSave: { type: integer, formula: 0, min: 0 }
+  items.sphereControl: { type: integer, formula: 0, min: 0 }
+  combat.noCriticals: { type: boolean, formula: false }
+  combat.attackersDisadvantage: { type: boolean, formula: false }
+  combat.spellAttackersDisadvantage: { type: boolean, formula: false }
+
+display:
+  fields:
+    combat.hitOptions: { hidden: true }
+    items.spellSave: { hidden: true }
+    items.bySight: { hidden: true }
+    items.moveSilently: { hidden: true }
+    items.poisonSave: { hidden: true }
+    items.gasSave: { hidden: true }
+    items.swornEnemy: { hidden: true }
+    items.charmSave: { hidden: true }
+    items.frightSave: { hidden: true }
+    items.sphereControl: { hidden: true }
+    combat.noCriticals: { groups: [combat], priority: 3, showWhen: combat.noCriticals }
+    combat.attackersDisadvantage:
+      { groups: [combat], priority: 2, showWhen: combat.attackersDisadvantage }
+    combat.spellAttackersDisadvantage:
+      { groups: [combat], priority: 3, showWhen: combat.spellAttackersDisadvantage }
+
+situational:
+  - id: spellSave
+    type: enum
+    values: [none, spell, only-you]
+    default: none
+    available: items.spellSave > 0
+    rolls: [save]
+  - id: bySight
+    type: boolean
+    default: false
+    available: items.bySight > 0
+    rolls: [skill.perception, skill.investigation]
+  - id: moveSilently
+    type: boolean
+    default: false
+    available: items.moveSilently > 0
+    rolls: [skill.stealth]
+  - id: poisonSave
+    type: boolean
+    default: false
+    available: items.poisonSave > 0
+    rolls: [save]
+  - id: gasSave
+    type: boolean
+    default: false
+    available: items.gasSave > 0
+    rolls: [save]
+  - id: swornEnemy
+    type: boolean
+    default: false
+    available: items.swornEnemy > 0
+    rolls: [attack.ranged, damage.weapon]
+  - id: charmSave
+    type: boolean
+    default: false
+    available: items.charmSave > 0
+    rolls: [save]
+  - id: frightSave
+    type: boolean
+    default: false
+    available: items.frightSave > 0
+    rolls: [save]
+  - id: sphereControl
+    type: boolean
+    default: false
+    available: items.sphereControl > 0
+    rolls: [skill.arcana]
+
+effects:
+  - id: target-attackers-disadvantage
+    target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && has(participants.target[0].combat.attackersDisadvantage)
+        && participants.target[0].combat.attackersDisadvantage
+  - id: target-spell-attackers-disadvantage
+    target: { rolls: [attack.spell] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && has(participants.target[0].combat.spellAttackersDisadvantage)
+        && participants.target[0].combat.spellAttackersDisadvantage
+
+actions:
+  - id: use-charges
+    tags: [magic-item]
+    available: self.charges > 0
+    results: [used]
+    params:
+      charges: { type: integer, default: 1 }
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: charges, by: -params.charges }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          spent: params.charges
+          left: self.charges - params.charges
+
+  # Always available (a full item regains nothing), since `available` can't read fixed parameters.
+  - id: regain-charges
+    tags: [magic-item, rest]
+    results: [recharged]
+    params:
+      max: { type: integer }
+      dice: { type: dice }
+    steps:
+      - id: regain
+        kind: roll
+        tags: [recharge]
+        parts:
+          - dice: params.dice
+      - id: restore
+        kind: changes
+        changes:
+          - type: adjustState
+            entry: self
+            key: charges
+            by: max(0, min(steps.regain.total, params.max - self.charges))
+      - id: result
+        kind: outcome
+        result: "'recharged'"
+        data:
+          regained: max(0, min(steps.regain.total, params.max - self.charges))
+
+  - id: dawn
+    tags: [rest]
+    available: countCopies(has(copy.state.usedToday) && size(copy.state.usedToday) > 0) > 0
+    results: [dawn]
+    steps:
+      - id: reset
+        kind: changes
+        changes:
+          - type: setState
+            copies: { type: weapon, where: has(self.usedToday) && size(self.usedToday) > 0 }
+            key: usedToday
+            value: '[]'
+          - type: setState
+            copies: { type: armor, where: has(self.usedToday) && size(self.usedToday) > 0 }
+            key: usedToday
+            value: '[]'
+          - type: setState
+            copies: { type: magicItem, where: has(self.usedToday) && size(self.usedToday) > 0 }
+            key: usedToday
+            value: '[]'
+      - id: result
+        kind: outcome
+        result: "'dawn'"
+
+  - id: drink-potion
+    tags: [potion]
+    available: self.quantity > 0
+    results: [drunk]
+    steps:
+      - id: heal
+        kind: roll
+        when: has(item.healing)
+        tags: [healing]
+        parts:
+          - dice: item.healing
+      - id: drink
+        kind: changes
+        changes:
+          - type: adjust
+            field: hp.current
+            by: steps.heal.total
+            tags: [healing]
+            when: has(steps.heal)
+          - type: set
+            field: hp.temp
+            value: max(hp.temp, item.tempHp)
+            when: has(item.tempHp)
+          - { type: adjustQuantity, entry: self, by: -1 }
+          - { type: applyEffect, source: item.id, when: has(item.lasting) && item.lasting }
+          - type: applyEffect
+            when: has(item.condition)
+            source: item.condition
+            state: { magical: true }
+      - id: result
+        kind: outcome
+        result: "'drunk'"
+        data:
+          healed: 'has(steps.heal) ? steps.heal.total : 0'
+
+  - id: apply-item
+    tags: [magic-item]
+    available: self.quantity > 0 && (has(item.spellEffect) || has(item.condition))
+    results: [applied]
+    participants:
+      target: {}
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1 }
+      - id: apply
+        kind: changes
+        to: target
+        changes:
+          - { type: applyEffect, when: has(item.spellEffect), source: item.spellEffect }
+          - type: applyEffect
+            when: has(item.condition)
+            source: item.condition
+            state: { by: creature.type, magical: true }
+      - id: result
+        kind: outcome
+        result: "'applied'"
+
+  - id: wounds-bleed
+    tags: [damage]
+    available: >-
+      countList(character.applied,
+        x.source == @conditions.wound && x.state.bleeding) > 0
+    results: [bled, stanched]
+    steps:
+      - id: bleed
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: >-
+              (countList(character.applied,
+                x.source == @conditions.wound && x.state.bleeding))d4
+            tags: [damage.necrotic]
+      - id: take
+        kind: changes
+        changes:
+          - type: adjust
+            field: hp.current
+            by: -max(0, steps.bleed.total)
+            tags: [damage, damage.necrotic, magical]
+      - id: save
+        kind: action
+        use: saving-throw
+        params: { ability: "'con'", dc: 15 }
+      - id: stanch
+        kind: changes
+        when: steps.save.result == 'success'
+        changes:
+          - type: setState
+            applied: { where: 'item.id == @conditions.wound && self.bleeding' }
+            key: bleeding
+            value: 'false'
+      - id: result
+        kind: outcome
+        result: "steps.save.result == 'success' ? 'stanched' : 'bled'"
+        data:
+          damage: max(0, steps.bleed.total)
+
+  - id: study-book
+    tags: [magic-item]
+    available: '!self.read'
+    results: [studied]
+    steps:
+      - id: study
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: read, value: true }
+      - id: result
+        kind: outcome
+        result: "'studied'"
+
+  - id: item-power
+    tags: [magic-item]
+    available: self.quantity > 0
+    results: [used, no-charges, used-today]
+    params:
+      charges: { type: integer, default: 0 }
+      daily: { type: string, optional: true }
+      consume: { type: boolean, default: false }
+      dice: { type: dice, optional: true }
+      damageType:
+        type: enum
+        optional: true
+        values:
+          [
+            acid,
+            bludgeoning,
+            cold,
+            fire,
+            force,
+            lightning,
+            necrotic,
+            piercing,
+            poison,
+            psychic,
+            radiant,
+            slashing,
+            thunder,
+          ]
+      save: { type: enum, values: [str, dex, con, int, wis, cha], optional: true }
+      dc: { type: integer, optional: true }
+      half: { type: boolean, default: true }
+      condition: { type: id, of: condition, optional: true }
+    participants:
+      target: {}
+    steps:
+      - id: empty
+        kind: outcome
+        when: params.charges > 0 && (!has(self.charges) || self.charges < params.charges)
+        result: "'no-charges'"
+      - id: used
+        kind: outcome
+        when: has(params.daily) && has(self.usedToday) && params.daily in self.usedToday
+        result: "'used-today'"
+      - id: spend
+        kind: changes
+        changes:
+          - type: adjustState
+            when: params.charges > 0
+            entry: self
+            key: charges
+            by: -params.charges
+          - { type: adjustQuantity, when: params.consume, entry: self, by: -1 }
+          - type: setState
+            when: has(params.daily)
+            entry: self
+            key: usedToday
+            value: self.usedToday + [params.daily]
+      - id: damage
+        kind: roll
+        when: has(params.dice)
+        tags: [damage]
+        parts:
+          - dice: params.dice
+            tags: [{ formula: "'damage.' + params.damageType" }]
+      - id: saves
+        kind: action
+        each: target
+        when: has(params.save) && has(params.dc)
+        as: participant
+        use: saving-throw
+        params: { ability: params.save, dc: params.dc }
+      - id: burn
+        kind: changes
+        each: target
+        when: has(steps.damage) && has(steps.saves)
+        to: target
+        changes:
+          - type: adjust
+            when: steps.saves.result != 'success' || params.half
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: >-
+              steps.saves.result == 'success' ? -floor(max(0, part.total) / 2) : -max(0, part.total)
+            tags:
+              - damage
+              - { formula: "params.half ? 'save-half' : 'save-negates'" }
+              - { formula: "'save.' + params.save" }
+              - { formula: "steps.saves.result == 'success' ? 'save-success' : 'save-failure'" }
+      - id: deal
+        kind: changes
+        when: has(steps.damage) && !has(params.save)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage]
+      - id: condition
+        kind: changes
+        each: target
+        when: has(params.condition) && has(steps.saves) && steps.saves.result == 'failure'
+        to: target
+        changes:
+          - type: applyEffect
+            source: params.condition
+            state: { by: creature.type, magical: true }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          spent: params.charges
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+          dc: 'has(params.dc) ? params.dc : 0'
+          save: "has(params.save) ? params.save : ''"

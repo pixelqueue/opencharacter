@@ -1,0 +1,21 @@
+id: classes.barbarian.raging
+type: effect
+# `alternate`: the rage deals the instinct's damage type (dragon, spirit) instead of the weapon's.
+state:
+  alternate: { type: boolean, default: false }
+effects:
+  - { target: rage.active, op: set, value: true, scope: applied }
+  - id: damage
+    target: { rolls: [damage.strike] }
+    op: add
+    value: >-
+      floor((self.alternate && rage.altDamage > 0 ? rage.altDamage
+        : 'animal' in roll.item.tags ? rage.animalDamage : rage.damage)
+        / ('trait.agile' in roll.item.tags ? 2 : 1))
+    tags:
+      - formula: >-
+          self.alternate && rage.altDamage > 0 ? 'damage.' + rage.altType
+            : 'damage.' + roll.item.damageType
+    when: >-
+      roll.item.range == 0 && (!(has(flags.thrown) && flags.thrown) || rage.thrown)
+    scope: applied

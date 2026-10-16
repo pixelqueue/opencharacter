@@ -1,0 +1,36 @@
+description: "A written option's own `changes`: proposed when it is picked, with its `to`, before the step's `changes`; both see `picked`"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stress: { type: integer, input: true, default: 0 }
+          hp: { type: integer, input: true, default: 10 }
+          xp: { type: integer, input: true, default: 0 }
+        actions:
+          - id: gamble
+            steps:
+              - id: how
+                kind: choice
+                options:
+                  - id: safe
+                    changes:
+                      - { type: adjust, field: stress, by: 1 }
+                  - id: bold
+                    to: target
+                    changes:
+                      - { type: adjust, field: hp, by: -2, tags: [damage] }
+                      - { type: adjust, field: hp, by: -1, when: "picked.id == 'safe'" }
+                recommend: "'bold'"
+                changes:
+                  - { type: adjust, field: xp, by: "picked.id == 'bold' ? 1 : 0" }
+      content: []
+input:
+  action: { id: test-pack:gamble }

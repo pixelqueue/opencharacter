@@ -1,0 +1,31 @@
+description: "A split adjust's field is written out: a computed one is a formula error"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage, damage.fire]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+        actions:
+          - id: blast
+            steps:
+              - id: burn
+                kind: roll
+                parts:
+                  - { dice: 1d6, tags: [damage.fire] }
+              - id: deal
+                kind: changes
+                to: target
+                changes:
+                  - type: adjust
+                    field: { formula: "'hp'" }
+                    split: { roll: burn, by: damage }
+                    by: -part.total
+      content: []

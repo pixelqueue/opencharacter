@@ -1,0 +1,73 @@
+fields:
+  stance.current:
+    type: enum
+    values: [none, cobra, crane, dragon, mountain, tiger, wolf, clinging-shadows, wild-winds]
+    formula: "'none'"
+  monk.paths: { type: set, of: tag, members: { under: [save] } }
+
+situational:
+  - id: backswing
+    type: boolean
+    default: false
+    rolls: [strike]
+    effects:
+      - target: { rolls: [strike] }
+        op: add
+        value: 1
+        stackKey: circumstance-bonus
+        when: "situational.backswing && 'trait.backswing' in roll.item.tags"
+
+# Qi Spells may be taken again, so what's chosen or set once lives here: the qi spells' tradition
+# and attribute (the archetype's monk source without the class).
+effects:
+  - id: qi-attribute
+    target: spellcasting.attribute
+    op: set
+    value: "'wis'"
+    when: '@feats.monk.qi-spells in feats.held && countCopies(copy.item == @classes.monk) > 0'
+  - id: qi-archetype-attribute
+    target: spellcasting.archetype.monk.attribute
+    op: set
+    value: "'wis'"
+    when: '@feats.monk.qi-spells in feats.held && countCopies(copy.item == @classes.monk) == 0'
+
+choices:
+  - id: qi-tradition
+    pick: '@feats.monk.qi-spells in feats.held ? 1 : 0'
+    from:
+      options:
+        - id: divine
+          effects:
+            - target: spellcasting.tradition
+              op: set
+              value: "'divine'"
+              when: countCopies(copy.item == @classes.monk) > 0
+            - target: spellcasting.archetype.monk.tradition
+              op: set
+              value: "'divine'"
+              when: countCopies(copy.item == @classes.monk) == 0
+        - id: occult
+          effects:
+            - target: spellcasting.tradition
+              op: set
+              value: "'occult'"
+              when: countCopies(copy.item == @classes.monk) > 0
+            - target: spellcasting.archetype.monk.tradition
+              op: set
+              value: "'occult'"
+              when: countCopies(copy.item == @classes.monk) == 0
+
+tags:
+  - strike.flurry-of-blows
+  - strike.one-inch-punch.three
+  - strike.tiger-slash
+
+display:
+  fields:
+    stance.current:
+      {
+        groups: [turn],
+        priority: 1,
+        showWhen: "stance.current != 'none' || countCopies(copy.item == @classes.monk) > 0",
+      }
+    monk.paths: { hidden: true }

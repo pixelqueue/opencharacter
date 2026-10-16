@@ -1,0 +1,26 @@
+# Health 3 - 5 reaches -2: a wound, and health resets to 14 (+16); the 2 past 0 carries over
+# (-2, untagged: armor already counted), so health is 12. The wound lists the wound roll.
+ok: true
+adjustments:
+  - { field: mothership-1e:health.current, by: -5, requested: -5, taken: -5, reason: requested }
+  - { field: mothership-1e:wounds.current, by: 1, reason: overflow }
+  - { field: mothership-1e:health.current, by: 16, reason: reset }
+  - { field: mothership-1e:health.current, by: -2, reason: carry }
+followUps:
+  - id: wound-1
+    kind: ephemeral
+    followUp: mothership-1e:wound
+    to: self
+    required: true
+    action:
+      id: mothership-1e:wound-roll
+      followUp: wound-1
+    params: {}
+    cause:
+      field: mothership-1e:wounds.current
+      by: 1
+      requested: 0
+      taken: 0
+      reason: overflow
+      clamped: false
+      tags: []

@@ -1,0 +1,48 @@
+fields:
+  sorcerer.bloodline:
+    type: enum
+    values:
+      [none, aberrant, angelic, demonic, diabolic, draconic, elemental, fey, hag, imperial, undead]
+    formula: "'none'"
+  sorcerer.element:
+    type: enum
+    values: [none, air, earth, fire, metal, water, wood]
+    formula: "'none'"
+  sorcerer.gifts: { type: set, of: spell }
+  sorcerer.evolutionSignature: { type: string, input: true, default: '' }
+  sorcerer.evolutionSpell: { type: string, input: true, default: '' }
+  sorcerer.evolutionRank: { type: integer, input: true, default: 0, min: 0, max: 10 }
+  sorcerer.elementDamage:
+    type: enum
+    values: [none, bludgeoning, fire, piercing, slashing]
+    formula: >-
+      sorcerer.element == 'air' ? 'slashing' : sorcerer.element == 'fire' ? 'fire'
+        : sorcerer.element == 'metal' ? 'piercing' : sorcerer.element == 'none' ? 'none'
+        : 'bludgeoning'
+
+situational:
+  - id: edictTask
+    type: boolean
+    default: false
+    rolls: [attack, skill]
+    available: >-
+      countList(character.applied, x.active && x.source == @spells.diabolic-edict) > 0
+    effects:
+      - target: { rolls: [attack, skill] }
+        op: add
+        value: 1
+        stackKey: status-bonus
+        when: situational.edictTask
+
+tags:
+  - blood-magic
+
+display:
+  fields:
+    sorcerer.bloodline: { groups: [summary], priority: 2 }
+    sorcerer.element: { groups: [summary], priority: 2 }
+    sorcerer.elementDamage: { hidden: true }
+    sorcerer.gifts: { hidden: true }
+    sorcerer.evolutionSignature: { groups: [spellcasting], priority: 2 }
+    sorcerer.evolutionSpell: { groups: [spellcasting], priority: 2 }
+    sorcerer.evolutionRank: { hidden: true }

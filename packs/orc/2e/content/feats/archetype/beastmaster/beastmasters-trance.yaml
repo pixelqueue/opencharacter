@@ -1,0 +1,14 @@
+id: feats.archetype.beastmaster.beastmasters-trance
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.beastmaster }
+
+prerequisites:
+  - {
+      id: beastmaster-dedication,
+      when: '@feats.archetype.beastmaster.beastmaster-dedication in feats.held',
+    }
+effects:
+  - { target: focus.points, op: add, value: 1 }
+grants:
+  - item: spells.beastmaster-trance

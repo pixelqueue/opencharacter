@@ -1,0 +1,18 @@
+id: features.cleric.blessed-healer
+type: feature
+actions:
+  - id: blessed-healer
+    results: [healed]
+    tags: [healing]
+    params:
+      slot: { type: integer, min: 1, max: 9 }
+    steps:
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: 2 + params.slot, tags: [healing] }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: 2 + params.slot

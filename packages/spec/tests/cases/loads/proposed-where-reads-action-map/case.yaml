@@ -1,0 +1,33 @@
+description: 'A passed-on `where` that reads `action.item` (a map) is type-mismatch: read a member'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          gem:
+            carried: true
+            fields:
+              color: { type: enum, values: [red, blue] }
+            state:
+              charge: { type: integer, default: 3 }
+      content:
+        - id: gems.ruby
+          type: gem
+          fields: { color: red }
+          actions:
+            - id: drain
+              steps:
+                - id: spend
+                  kind: changes
+                  changes:
+                    - type: adjustState
+                      copies: { type: gem, where: action.item != null }
+                      key: charge
+                      by: -1

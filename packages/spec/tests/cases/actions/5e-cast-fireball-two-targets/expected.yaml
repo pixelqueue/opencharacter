@@ -1,0 +1,66 @@
+# 8d6 = 32 fire, DC 14. goblin-1 saves (16 damage), goblin-2 fails (32).
+status: finished
+outcome:
+  result: save
+  data:
+    slot: 3
+    spellcastingClass: wizard
+    metamagic: none
+    dc: 14
+    save: dex
+    halfOnSave: true
+    damage: 32
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change: { type: adjust, field: 5e-srd-5.1:spellSlots.level3.used, by: 1 }
+  - {
+      to: target,
+      character: goblin-1,
+      step: 'burn[0]',
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -16,
+          tags: [damage, spell, magical, save-half, save.dex, save-success, damage.fire],
+        },
+    }
+  - {
+      to: target,
+      character: goblin-2,
+      step: 'burn[1]',
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -32,
+          tags: [damage, spell, magical, save-half, save.dex, save-failure, damage.fire],
+        },
+    }
+log:
+  - step: damage
+    action: 5e-srd-5.1:cast-spell
+    kind: dice
+    by: engine
+    faces: [6, 5, 4, 3, 2, 1, 6, 5]
+    total: 32
+  # An evocation: whether it affects each target (Sculpt Spells could spare some), taking the
+  # recommendation.
+  - { step: 'sculpt[0]', kind: choice, by: engine, option: affect }
+  - { step: 'sculpt[1]', kind: choice, by: engine, option: affect }
+  - step: saves[0]
+    action: 5e-srd-5.1:cast-spell
+    kind: handoff
+    by: app
+    participant: { role: target, id: goblin-1 }
+    outcome: { result: success, data: { total: 16 } }
+  - step: saves[1]
+    action: 5e-srd-5.1:cast-spell
+    kind: handoff
+    by: app
+    participant: { role: target, id: goblin-2 }
+    outcome: { result: failure, data: { total: 9 } }

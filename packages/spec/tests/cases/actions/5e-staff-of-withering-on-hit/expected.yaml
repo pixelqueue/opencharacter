@@ -1,0 +1,71 @@
+# 15 + Str 2 = 17 hits AC 12. The staff has charges, so weapon-attack's onHit step runs (the
+# policy pauses it) and offers the staff's option, added by its template. Picking it spends a
+# charge, and the damage roll adds 2d10 necrotic: 4 + 2 bludgeoning, 6 + 7 necrotic.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 17 }
+proposedChanges:
+  - to: self
+    step: onHit
+    change: { type: adjustState, entry: staff, key: charges, by: -1 }
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -6,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              magical,
+              plain-material,
+              wielder.neutral,
+              damage.bludgeoning,
+            ],
+        },
+    }
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -13,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              magical,
+              plain-material,
+              wielder.neutral,
+              damage.necrotic,
+            ],
+        },
+    }
+log:
+  - step: attack
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [15]
+    total: 17
+  - step: onHit
+    action: 5e-srd-5.1:weapon-attack
+    kind: choice
+    by: app
+    option: '5e-srd-5.1:magic-items.staff-of-withering#wither'
+  - step: damage
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [4, 6, 7]
+    total: 19

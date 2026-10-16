@@ -1,0 +1,19 @@
+id: spells.nature-incarnate
+type: spell
+tags: [trait.concentrate, trait.manipulate, trait.polymorph, tradition.primal]
+fields:
+  rank: 10
+  cast: two
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+  tempHp: 30
+effects:
+  - { target: battleForm.active, op: set, value: true, scope: applied }
+  - { target: battleForm.acBase, op: set, value: '25', scope: applied }
+  - { target: battleForm.formAttacks, op: set, value: true, scope: applied }
+  - { target: battleForm.attack, op: set, value: '34', scope: applied }
+  - { target: skills.athletics.mod, op: atLeast, value: 36, scope: applied }
+grants:
+  - { item: forms.nature-incarnate.green-man, scope: applied, when: "self.form == 'green-man'" }
+  - { item: forms.nature-incarnate.kaiju, scope: applied, when: "self.form == 'kaiju'" }

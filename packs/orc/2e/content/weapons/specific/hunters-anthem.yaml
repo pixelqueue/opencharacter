@@ -1,0 +1,13 @@
+id: weapons.specific.hunters-anthem
+type: weapon
+extends: weapons.longbow
+tags: [trait.deadly, trait.magical, trait.volley]
+fields:
+  price: 1300
+  bulk: 2
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.weapon-potency-2
+    copies: { type: weapon, where: 'item.id == @weapons.specific.hunters-anthem' }
+  - template: runes.striking
+    copies: { type: weapon, where: 'item.id == @weapons.specific.hunters-anthem' }

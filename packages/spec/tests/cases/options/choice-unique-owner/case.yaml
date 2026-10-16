@@ -1,0 +1,28 @@
+description: "listOptions with an exclusivity group scoped to the owner: the second mastery's to-expert choice offers swim; climb, its own to-master pick, is already-picked, though the first mastery's two picks of it don't count"
+specVersion: 0.1.0
+call: listOptions
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          perk: {}
+      content:
+        - id: perks.mastery
+          type: perk
+          choices:
+            - id: to-master
+              unique: mastery
+              uniqueScope: owner
+              from: { values: [climb, sneak, swim] }
+            - id: to-expert
+              unique: mastery
+              uniqueScope: owner
+              from: { values: [climb, sneak, swim] }
+input:
+  choice: { entry: second, choice: [to-expert] }

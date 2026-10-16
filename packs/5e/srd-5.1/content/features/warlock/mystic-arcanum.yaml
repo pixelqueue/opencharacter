@@ -1,0 +1,55 @@
+id: features.warlock.mystic-arcanum
+type: feature
+choices:
+  - id: level-6
+    from: { type: spell, where: 'item.level == 6 && @classes.warlock in item.classes' }
+    when: self.level >= 11
+    effects:
+      - { target: spells.warlock, op: grant, value: { formula: pick.id } }
+      - { target: spells.free, op: grant, value: { formula: pick.id } }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: action.item.id == pick.id && flags.slot == 6 && !self.arcanum6Used
+        value:
+          id: arcanum
+          changes:
+            - { type: setState, entry: self, key: arcanum6Used, value: true }
+  - id: level-7
+    from: { type: spell, where: 'item.level == 7 && @classes.warlock in item.classes' }
+    when: self.level >= 13
+    effects:
+      - { target: spells.warlock, op: grant, value: { formula: pick.id } }
+      - { target: spells.free, op: grant, value: { formula: pick.id } }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: action.item.id == pick.id && flags.slot == 7 && !self.arcanum7Used
+        value:
+          id: arcanum
+          changes:
+            - { type: setState, entry: self, key: arcanum7Used, value: true }
+  - id: level-8
+    from: { type: spell, where: 'item.level == 8 && @classes.warlock in item.classes' }
+    when: self.level >= 15
+    effects:
+      - { target: spells.warlock, op: grant, value: { formula: pick.id } }
+      - { target: spells.free, op: grant, value: { formula: pick.id } }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: action.item.id == pick.id && flags.slot == 8 && !self.arcanum8Used
+        value:
+          id: arcanum
+          changes:
+            - { type: setState, entry: self, key: arcanum8Used, value: true }
+  - id: level-9
+    from: { type: spell, where: 'item.level == 9 && @classes.warlock in item.classes' }
+    when: self.level >= 17
+    effects:
+      - { target: spells.warlock, op: grant, value: { formula: pick.id } }
+      - { target: spells.free, op: grant, value: { formula: pick.id } }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: action.item.id == pick.id && flags.slot == 9 && !self.arcanum9Used
+        value:
+          id: arcanum
+          changes:
+            - { type: setState, entry: self, key: arcanum9Used, value: true }

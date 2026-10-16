@@ -1,0 +1,14 @@
+# Health becomes 0: rest isn't available (tired), so only the fall is listed, with no cause.
+ok: true
+followUps:
+  - id: fall-1
+    kind: ephemeral
+    followUp: test-follow-ups:fall
+    to: self
+    required: false
+    changes:
+      - type: adjust
+        field: test-follow-ups:falls
+        by: 1
+      - type: clearFollowUp
+        id: fall-1

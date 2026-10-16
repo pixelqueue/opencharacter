@@ -1,0 +1,20 @@
+status: finished
+outcome:
+  result: critical-success
+  data: { total: 21, dc: 11, map: 5, damage: 4 }
+proposedChanges:
+  - to: self
+    step: count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
+  - to: target
+    character: goblin
+    step: topple
+    change: { type: applyEffect, source: orc-2e:conditions.prone }
+  - to: target
+    character: goblin
+    step: deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -4
+      tags: [damage, damage.bludgeoning]

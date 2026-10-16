@@ -1,0 +1,35 @@
+# An unarmed strike is a melee weapon attack with Strength, so rage adds its +2:
+# 1 + Strength 3 + 2 = 6.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 20 }
+proposedChanges:
+  - to: target
+    step: deal
+    change:
+      {
+        type: adjust,
+        field: 5e-srd-5.1:hp.current,
+        by: -6,
+        tags: [damage, attack, melee, nonmagical, damage.bludgeoning],
+      }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces: [15]
+    total: 20
+  - step: damage
+    kind: dice
+    by: engine
+    items:
+      - { kind: flat, value: 1 }
+      - { kind: flat, value: 3 }
+      - {
+          kind: flat,
+          value: 2,
+          source: { type: item, id: 5e-srd-5.1:features.barbarian.rage, entry: barbarian },
+          tags: [damage.bludgeoning],
+        }
+    total: 6

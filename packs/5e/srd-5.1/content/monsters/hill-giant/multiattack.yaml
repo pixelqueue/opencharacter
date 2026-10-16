@@ -1,0 +1,30 @@
+id: monsters.hill-giant.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: greatclub1
+        kind: action
+        use: monster-attack
+        source: "'monsters.hill-giant.greatclub'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: greatclub2
+        kind: action
+        use: monster-attack
+        source: "'monsters.hill-giant.greatclub'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.greatclub1) && steps.greatclub1.result == 'hit' ? 1 : 0)
+              + (has(steps.greatclub2) && steps.greatclub2.result == 'hit' ? 1 : 0)

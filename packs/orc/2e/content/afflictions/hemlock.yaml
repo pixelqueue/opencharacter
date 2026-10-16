@@ -1,0 +1,16 @@
+id: afflictions.hemlock
+type: affliction
+fields:
+  {
+    kind: poison,
+    level: 17,
+    dc: 38,
+    stages: 3,
+    stage1Damage: 16d6,
+    stage2Damage: 17d6,
+    stage3Damage: 18d6,
+  }
+grants:
+  - { item: conditions.enfeebled, scope: applied, when: self.stage == 1, state: { value: 2 } }
+  - { item: conditions.enfeebled, scope: applied, when: self.stage == 2, state: { value: 3 } }
+  - { item: conditions.enfeebled, scope: applied, when: self.stage == 3, state: { value: 4 } }

@@ -1,0 +1,24 @@
+description: >-
+  orc-2e: a Spell Blending wizard's daily preparation of spells: yesterday's trade
+  is reset, she trades a 1st-rank slot for two cantrips, then prepares eight cantrips (5, 1 from
+  her curriculum, 2 traded) and two 1st-rank spells (3 less the one traded)
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:prepare-spells }
+  policy: { choices: pause }
+answers:
+  - option: rank1-cantrips
+  - option: '#done'
+  - option: orc-2e:spells.shield
+  - option: orc-2e:spells.electric-arc
+  - option: orc-2e:spells.frostbite
+  - option: orc-2e:spells.ignition
+  - option: orc-2e:spells.daze
+  - option: orc-2e:spells.detect-magic
+  - option: orc-2e:spells.light
+  - option: orc-2e:spells.read-aura
+  - option: orc-2e:spells.force-barrage
+  - option: orc-2e:spells.sleep

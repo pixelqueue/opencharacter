@@ -1,0 +1,21 @@
+id: feats.rogue.twist-the-knife
+type: feat
+fields: { level: 6, category: class, class: classes.rogue }
+
+actions:
+  - id: twist-the-knife
+    tags: [feat-action]
+    participants:
+      target: { max: 1 }
+    results: [bleeding]
+    steps:
+      - id: bleed
+        kind: changes
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.persistent-damage'"
+            state: { damage: sneakAttack.dice, damageType: "'bleed'" }
+      - id: result
+        kind: outcome
+        result: "'bleeding'"

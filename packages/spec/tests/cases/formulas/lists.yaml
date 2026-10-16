@@ -1,0 +1,184 @@
+description: 'Reducing lists: countList, sumList, maxList, minList, the x root and indexOf'
+specVersion: 0.1.0
+cases:
+  # Evaluation.
+  - name: countList counts the elements the condition holds for
+    evaluate: "countList(steps.rolls, x.result == 'failure')"
+    roots: &rolls
+      steps:
+        rolls:
+          - { result: partial }
+          - { result: failure }
+          - null
+          - { result: failure }
+          - { result: success }
+    value: 2
+    valueType: int
+  - name: null elements are skipped
+    evaluate: countList(steps.rolls, true)
+    roots: *rolls
+    value: 4
+    valueType: int
+  - name: maxList with indexOf finds the best result
+    evaluate: >-
+      ['failure', 'partial', 'success', 'critical'][maxList(steps.rolls,
+        indexOf(['failure', 'partial', 'success', 'critical'], x.result))]
+    roots: *rolls
+    value: success
+    valueType: string
+  - name: minList finds the worst
+    evaluate: "minList(steps.rolls, indexOf(['failure', 'partial', 'success'], x.result))"
+    roots: *rolls
+    value: 0
+    valueType: int
+  - name: sumList adds the values
+    evaluate: sumList([1, 2, 3], x * 2)
+    value: 12
+    valueType: int
+  - name: sumList with a condition
+    evaluate: sumList([1, 2, 3, 4], x, x % 2 == 0)
+    value: 6
+    valueType: int
+  - name: sumList of decimals is a decimal
+    evaluate: sumList([1, 2.5], x)
+    value: 3.5
+    valueType: decimal
+  - name: maxList of a list of numbers
+    evaluate: maxList([3, 9, 4], x)
+    value: 9
+    valueType: int
+  - name: maxList with nothing kept is 0
+    evaluate: maxList([3, 9, 4], x, x > 10)
+    value: 0
+    valueType: int
+  - name: minList of an empty list is 0
+    evaluate: minList([], x)
+    value: 0
+    valueType: int
+  - name: countList of an empty list is 0
+    evaluate: countList([], true)
+    value: 0
+    valueType: int
+  - name: sumList of an empty list is 0
+    evaluate: sumList([], x)
+    value: 0
+    valueType: int
+  - name: the condition may read other roots
+    evaluate: countList(participants.member, x.skill >= params.need)
+    roots:
+      participants:
+        member:
+          - { id: ana, skill: 1 }
+          - { id: bo, skill: 0 }
+          - { id: cy, skill: 3 }
+      params: { need: 1 }
+    value: 2
+    valueType: int
+  - name: the condition is evaluated before the value
+    evaluate: sumList(item.parts, x.n, has(x.n))
+    roots: &parts
+      item: { parts: [{ n: 1 }, {}, { n: 2 }] }
+    value: 3
+    valueType: int
+  - name: an error for one element is the call's error
+    evaluate: sumList(item.parts, x.n)
+    roots: *parts
+    error: no-such-key
+  - name: the list must be a list
+    evaluate: countList(3, true)
+    error: type-mismatch
+  - name: a condition that isn't a bool
+    evaluate: countList([1, 2], x)
+    error: type-mismatch
+  - name: a value that isn't a number
+    evaluate: sumList(['a'], x)
+    error: type-mismatch
+  - name: x outside the call
+    evaluate: x + 1
+    error: unknown-name
+  - name: x isn't bound in the list argument
+    evaluate: countList([x], true)
+    error: unknown-name
+  - name: a nested list function is not bound
+    evaluate: countList([[1], [2]], countList(x, true) > 0)
+    error: unknown-function
+  - name: a copy function inside is not bound
+    evaluate: countList([1], countCopies(true) > 0)
+    error: unknown-function
+  - name: a list function inside a copy function is not bound
+    evaluate: countCopies(countList([1], true) > 0)
+    character: { copies: [{ type: weapon }] }
+    error: unknown-function
+  - name: the list functions need no character
+    evaluate: countList([1, 2], x > 1)
+    character: false
+    value: 1
+    valueType: int
+  - name: countList with one argument
+    evaluate: countList([1])
+    error: wrong-arity
+  - name: sumList with four arguments
+    evaluate: sumList([1], x, true, true)
+    error: wrong-arity
+  - name: indexOf finds the first match
+    evaluate: indexOf(['a', 'b', 'a'], 'a')
+    value: 0
+    valueType: int
+  - name: indexOf compares numbers as equality does
+    evaluate: indexOf([1, 2], 2.0)
+    value: 1
+    valueType: int
+  - name: indexOf without a match is -1
+    evaluate: indexOf(['a'], 'b')
+    value: -1
+    valueType: int
+  - name: indexOf needs a list
+    evaluate: indexOf('ab', 'a')
+    error: type-mismatch
+  - name: indexOf with one argument
+    evaluate: indexOf([1])
+    error: wrong-arity
+
+  # Type checking.
+  - name: countList is an int
+    check: countList(steps.rolls, x.result == 'failure')
+    roots: [steps]
+    type: int
+  - name: x is typed as the list's element
+    check: countList([1, 2], x == 1)
+    type: int
+  - name: x of a list of ints is an int
+    check: sumList([1, 2], x)
+    type: int
+  - name: a decimal value is a decimal
+    check: maxList([1, 2], x * 1.5)
+    type: decimal
+  - name: x of a dyn list is dyn
+    check: sumList(steps.rolls, x.total)
+    roots: [steps]
+    type: dyn
+  - name: the element type is checked
+    check: countList(['a'], x > 1)
+    error: type-mismatch
+  - name: the list must be a list
+    check: countList('ab', true)
+    error: type-mismatch
+  - name: a value that isn't a number
+    check: sumList(['a'], x)
+    error: type-mismatch
+  - name: x outside the call
+    check: x == 1
+    error: unknown-name
+  - name: a nested call
+    check: countList([[1]], sumList(x, x) > 0)
+    error: unknown-function
+  - name: bound without a character
+    check: countList([1], true)
+    character: false
+    type: int
+  - name: indexOf is an int
+    check: indexOf(['a'], 'a')
+    type: int
+  - name: indexOf needs a list
+    check: indexOf(1, 1)
+    error: type-mismatch

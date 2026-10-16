@@ -1,0 +1,13 @@
+id: traits.savage-attacks
+type: trait
+# The critical hit doesn't double the extra die (`multiplied: false`).
+effects:
+  - id: damage
+    target: { rolls: [damage.weapon] }
+    op: add
+    value: >-
+      dieOf(roll.self.wielding == 'two-handed' && has(roll.item.versatileDamage)
+        ? roll.item.versatileDamage : roll.item.damage)
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    multiplied: false
+    when: has(flags.critical) && flags.critical && has(roll.item) && roll.item.range == 'melee'

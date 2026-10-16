@@ -1,0 +1,14 @@
+id: heritages.grave-orc
+type: heritage
+fields: { ancestry: ancestries.orc }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.void] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, max(1, floor(level / 2)))
+    when: incoming.amount < 0
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: situational.againstVoid

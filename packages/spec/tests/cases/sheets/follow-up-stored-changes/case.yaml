@@ -1,0 +1,23 @@
+description: 'A stored follow-up keeps its inputs and is resolved when listed, from the values the sheet has now, ending with its clear: a refund of what a reset jumped past the maximum'
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          health.max: { type: integer, input: true, default: 14, min: 1 }
+          health.current: { type: integer, input: true, default: 14, min: 0, max: health.max }
+        followUps:
+          - id: refund
+            on: { field: health.current }
+            required: true
+            when: "change.reason == 'reset' && change.by > health.max"
+            changes:
+              - { type: adjust, field: health.current, by: health.max - change.by }
+      content: []

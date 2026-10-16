@@ -1,0 +1,105 @@
+description: '`#done` ends a step over pending choices on any pick, leaving the rest pending; it proposes nothing'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          calling: {}
+          kit: {}
+          skill:
+            fields:
+              tier: { type: enum, values: [basic, advanced], required: true }
+            effects:
+              - target: skills.known
+                op: grant
+                value: { formula: item.id }
+        fields:
+          skills.known: { type: set, of: skill, input: true, default: [] }
+        choices:
+          - id: calling
+            from: { type: calling }
+        actions:
+          # Pick a calling, then ask what it brings: the basic skills (the last offered), the
+          # advanced skill once a basic one allows it, and the gift (rope), with its knot.
+          - id: create
+            steps:
+              - id: calling
+                kind: choice
+                options: { content: { type: calling } }
+                recommend: options[0]
+                changes:
+                  - { type: choose, path: { choice: [calling] }, option: picked.id }
+              - id: picks
+                kind: choice
+                options: { pending: {} }
+                recommend: >-
+                  choice.id == 'basic' ? options[size(options) - 1]
+                    : choice.id == 'gift' ? 'rope' : options[0]
+              - id: done
+                kind: outcome
+                data: { picked: steps.picks.picked, asked: size(steps.picks.paths) }
+          # Only the kit's own choices, not the rules-level calling.
+          - id: fill-kit
+            steps:
+              - id: picks
+                kind: choice
+                options: { pending: { entry: "'kit-1'" } }
+                changes:
+                  - { type: setState, entry: kit-1, key: filled, value: true }
+              - id: done
+                kind: outcome
+                data: { picked: steps.picks.picked }
+      content:
+        - id: callings.hunter
+          type: calling
+          choices:
+            # Asked only once tracking is known.
+            - id: advanced
+              from: { type: skill, where: "item.tier == 'advanced'" }
+            - id: basic
+              from: { type: skill, where: "item.tier == 'basic'" }
+              pick: 2
+            - id: gift
+              from:
+                options:
+                  - id: lantern
+                  - id: rope
+                    choices:
+                      - id: knot
+                        from: { options: [{ id: bowline }, { id: hitch }] }
+        - id: kits.basic
+          type: kit
+          state:
+            filled: { type: boolean, default: false }
+          choices:
+            - id: tool
+              from: { options: [{ id: hammer }, { id: saw }] }
+              recommend: "'saw'"
+        - id: skills.ambush
+          type: skill
+          fields: { tier: advanced }
+          prerequisites:
+            - id: tracking
+              when: "'test-pack:skills.tracking' in skills.known"
+        - id: skills.climbing
+          type: skill
+          fields: { tier: basic }
+        - id: skills.swimming
+          type: skill
+          fields: { tier: basic }
+        - id: skills.tracking
+          type: skill
+          fields: { tier: basic }
+input:
+  action: { id: test-pack:create }
+  policy: { rules: [{ step: picks, then: pause }] }
+answers:
+  - option: test-pack:skills.tracking
+  - option: '#done'

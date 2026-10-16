@@ -1,0 +1,26 @@
+id: gear.priests-pack
+type: gear
+tags: [equipment-pack]
+fields:
+  category: equipment-pack
+  cost: 19
+actions:
+  - id: unpack
+    tags: [item]
+    available: self.quantity > 0
+    steps:
+      - id: unpack
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'gear.backpack'" } }
+          - { type: addItem, entry: { item: "'gear.blanket'" } }
+          - { type: addItem, entry: { item: "'gear.candle'", quantity: 10 } }
+          - { type: addItem, entry: { item: "'gear.tinderbox'" } }
+          - { type: addItem, entry: { item: "'gear.alms-box'" } }
+          - { type: addItem, entry: { item: "'gear.incense'", quantity: 2 } }
+          - { type: addItem, entry: { item: "'gear.censer'" } }
+          - { type: addItem, entry: { item: "'gear.vestments'" } }
+          - { type: addItem, entry: { item: "'gear.rations'", quantity: 2 } }
+          - { type: addItem, entry: { item: "'gear.waterskin'" } }
+          - { type: adjustQuantity, entry: self, by: -1, when: self.quantity > 1 }
+          - { type: removeItem, entry: self, when: self.quantity <= 1 }

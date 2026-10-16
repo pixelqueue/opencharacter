@@ -1,0 +1,27 @@
+id: magic-items.robe-of-stars
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+  spells: [spells.magic-missile]
+state:
+  stars: { type: integer, min: 0, max: 6, default: 6 }
+grants:
+  - { item: spells.magic-missile, when: self.equipped && self.attuned }
+effects:
+  - { target: { rolls: [save] }, op: add, value: 1, when: self.equipped && self.attuned }
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 1
+    when: self.equipped && self.attuned
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.magic-missile
+        && self.stars >= 1
+    value:
+      id: star
+      flags: { slot: 5 }
+      changes:
+        - { type: adjustState, entry: self, key: stars, by: -1 }

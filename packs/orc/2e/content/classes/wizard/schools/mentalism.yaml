@@ -1,0 +1,39 @@
+id: classes.wizard.schools.mentalism
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: wizard.school, op: set, value: "'mentalism'" }
+  - { target: spellcasting.extraSlots, op: add, value: 1 }
+  - { target: spellcasting.extraCantrips, op: add, value: 1 }
+  - { target: focus.points, op: add, value: 1 }
+  - target: spells.curriculum
+    op: grant
+    value:
+      query:
+        type: spell
+        where: >-
+          item.id in [
+            @spells.daze,
+            @spells.figment,
+            @spells.dizzying-colors,
+            @spells.sleep,
+            @spells.sure-strike,
+            @spells.illusory-creature,
+            @spells.stupefy,
+            @spells.dream-message,
+            @spells.mind-reading,
+            @spells.nightmare,
+            @spells.vision-of-death,
+            @spells.hallucination,
+            @spells.illusory-scene,
+            @spells.never-mind,
+            @spells.phantasmal-calamity,
+            @spells.project-image,
+            @spells.warp-mind,
+            @spells.disappearance,
+            @spells.uncontrollable-dance,
+            @spells.phantasmagoria
+          ]
+  - { target: spells.access, op: grant, value: { formula: '@spells.mind-reading' } }
+grants:
+  - item: spells.charming-push

@@ -1,0 +1,32 @@
+description: 'An action whose results are a band set finishes with any band of that set'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        resultBands:
+          grade:
+            - { id: high, when: roll.total >= 4 }
+            - { id: low, when: true }
+        actions:
+          - id: check
+            results: { bands: grade }
+            steps:
+              - id: roll
+                kind: roll
+                bands: grade
+                parts:
+                  - dice: 1d6
+              - id: result
+                kind: outcome
+                result: steps.roll.band
+      content: []
+input:
+  action:
+    id: test-pack:check

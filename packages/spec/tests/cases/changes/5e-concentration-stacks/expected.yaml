@@ -1,0 +1,42 @@
+# Two hits, two checks: concentration-1 stays and concentration-2 is stored for the new hit.
+ok: true
+followUps:
+  - id: concentration-2
+    kind: ephemeral
+    followUp: 5e-srd-5.1:concentration
+    to: self
+    required: true
+    action: { id: 5e-srd-5.1:concentration-check, followUp: concentration-2 }
+    params: { damage: 4 }
+    cause:
+      field: 5e-srd-5.1:hp.current
+      by: -4
+      requested: -4
+      taken: -4
+      reason: requested
+      clamped: false
+      tags: [damage, damage.slashing]
+character:
+  followUps:
+    - id: concentration-1
+      followUp: 5e-srd-5.1:concentration
+      params: { damage: 12 }
+      cause:
+        field: 5e-srd-5.1:hp.current
+        by: -12
+        requested: -12
+        taken: -12
+        reason: requested
+        clamped: false
+        tags: [damage, damage.fire]
+    - id: concentration-2
+      followUp: 5e-srd-5.1:concentration
+      params: { damage: 4 }
+      cause:
+        field: 5e-srd-5.1:hp.current
+        by: -4
+        requested: -4
+        taken: -4
+        reason: requested
+        clamped: false
+        tags: [damage, damage.slashing]

@@ -1,0 +1,17 @@
+id: spells.competitive-edge
+type: spell
+tags: [trait.cleric, trait.concentrate, trait.emotion, trait.focus, trait.mental, trait.uncommon]
+fields:
+  rank: 4
+  cast: one
+  duration: minutes
+  durationAmount: 1
+  sustained: true
+  applyTo: self
+effects:
+  - target:
+      fields: { where: "'attack' in item.tags || 'skill' in item.tags" }
+    op: add
+    value: 'self.rank >= 7 ? 2 : 1'
+    stackKey: status-bonus
+    scope: applied

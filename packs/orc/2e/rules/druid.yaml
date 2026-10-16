@@ -1,0 +1,21 @@
+fields:
+  druid.order: { type: enum, values: [none, animal, leaf, storm, untamed], formula: "'none'" }
+  druid.orders: { type: set, of: tag }
+  druid.orderSpells: { type: set, of: spell }
+  # Granted, not picked, so the class feat choice leaves them out (grants aren't in the `feats`
+  # group).
+  druid.grantedFeats: { type: set, of: feat }
+
+tags:
+  - druid-order.animal
+  - druid-order.leaf
+  - druid-order.storm
+  - druid-order.untamed
+  - language.secret
+
+display:
+  fields:
+    druid.order: { groups: [summary], priority: 2 }
+    druid.orders: { hidden: true }
+    druid.orderSpells: { hidden: true }
+    druid.grantedFeats: { hidden: true }

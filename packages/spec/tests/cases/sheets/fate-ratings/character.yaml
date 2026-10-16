@@ -1,0 +1,16 @@
+# A superhero at a table that uses Weapon and Armor ratings: Super-Resilience at two ranks
+# (Armor:4) and a flak jacket (Armor:2, worn), and mental armor from a psychic damper (Armor:1).
+specVersion: 0.1.0
+id: example-fate-tank
+packs:
+  - { id: fate-core, version: 0.1.0 }
+values:
+  fate-core:aspects.highConcept: Unbreakable Bodyguard
+  fate-core:ratings.weaponArmor: true
+  fate-core:armor.physicalGear: 2
+  fate-core:armor.mentalGear: 1
+  fate-core:refresh.base: 5
+features:
+  - id: x-resilience
+    item: fate-core:extras.super-resilience
+    state: { ranks: 2 }

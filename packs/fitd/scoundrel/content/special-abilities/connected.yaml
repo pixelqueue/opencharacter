@@ -1,0 +1,11 @@
+# Heat is the crew's, so reducing it is an ordinary action roll with a situational choice.
+id: special-abilities.connected
+type: specialAbility
+effects:
+  - target: { rolls: [asset-roll], tally: resultLevel }
+    op: add
+    value: 1
+  - target: { rolls: [action-roll], tally: resultLevel }
+    op: add
+    value: 1
+    when: situational.reducingHeat

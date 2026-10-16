@@ -1,0 +1,12 @@
+situational:
+  - id: bloodlineResistance
+    type: boolean
+    default: false
+    rolls: [save]
+    available: '@feats.sorcerer.bloodline-resistance in feats.held'
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 1
+        stackKey: status-bonus
+        when: situational.bloodlineResistance

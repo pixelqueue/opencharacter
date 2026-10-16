@@ -1,0 +1,11 @@
+id: feats.druid.untamed-form
+type: feat
+fields: { level: 1, category: class, class: classes.druid }
+prerequisites:
+  - id: untamed-order
+    when: "'druid-order.untamed' in druid.orders"
+effects:
+  - { target: focus.points, op: add, value: 1 }
+  - { target: druid.orderSpells, op: grant, value: { item: spells.untamed-form } }
+grants:
+  - item: spells.untamed-form

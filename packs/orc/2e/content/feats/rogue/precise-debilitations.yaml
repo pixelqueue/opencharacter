@@ -1,0 +1,14 @@
+id: feats.rogue.precise-debilitations
+type: feat
+fields: { level: 10, category: class, class: classes.rogue }
+prerequisites:
+  - { id: racket, when: "rogue.racket == 'thief'" }
+  - { id: debilitating, when: 'classLevel.rogue >= 9' }
+effects:
+  - target: { choices: [debilitation] }
+    op: option
+    value:
+      id: off-guard
+      to: target
+      changes:
+        - { type: applyEffect, source: "'conditions.off-guard'" }

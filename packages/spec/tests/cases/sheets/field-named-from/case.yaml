@@ -1,0 +1,20 @@
+description: "A field the player names: `nameFrom` names a string field, and computeSheet gives its value as the field's `name` when it is a non-empty string; a blank or unset subject gives none"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          lore1.subject: { type: string, input: true, default: '' }
+          lore1.rank: { type: integer, input: true, default: 0, nameFrom: lore1.subject }
+          lore2.subject: { type: string, input: true, default: '' }
+          lore2.rank: { type: integer, input: true, default: 0, nameFrom: lore2.subject }
+          lore3.subject: { type: string, input: true, default: '' }
+          lore3.rank: { type: integer, input: true, default: 0, nameFrom: lore3.subject }
+      content: []

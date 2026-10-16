@@ -1,0 +1,18 @@
+description: "A value choice's `where` binds the candidate as `value`; another name is unknown-name"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          skills.proficient: { type: set, of: string, input: true, default: [] }
+        choices:
+          - id: expertise
+            from: { values: [athletics, stealth], where: candidate in skills.proficient }
+      content: []

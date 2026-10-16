@@ -1,0 +1,27 @@
+id: features.wizard.signature-spells
+type: feature
+choices:
+  - id: first
+    from: { type: spell, where: 'item.level == 3 && item.id in spells.wizardBook' }
+    effects:
+      - { target: spells.wizard, op: grant, value: { formula: pick.id } }
+      - { target: spells.free, op: grant, value: { formula: pick.id } }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: action.item.id == pick.id && flags.slot == 3 && !self.signatureSpell1Used
+        value:
+          id: signature
+          changes:
+            - { type: setState, entry: self, key: signatureSpell1Used, value: true }
+  - id: second
+    from: { type: spell, where: 'item.level == 3 && item.id in spells.wizardBook' }
+    effects:
+      - { target: spells.wizard, op: grant, value: { formula: pick.id } }
+      - { target: spells.free, op: grant, value: { formula: pick.id } }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: action.item.id == pick.id && flags.slot == 3 && !self.signatureSpell2Used
+        value:
+          id: signature
+          changes:
+            - { type: setState, entry: self, key: signatureSpell2Used, value: true }

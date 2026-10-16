@@ -1,0 +1,46 @@
+# A Forged in the Dark scoundrel: a Cutter with the Mule special ability.
+# Skirmish 3 = 1 dot here + 2 from the Cutter playbook; Command 1 comes from the playbook.
+# Vex holds every standard item and the Cutter's own gear as standard copies; the file saves
+# only the ones marked `equipped`, carried on this score.
+specVersion: 0.1.0
+id: example-fitd-vex
+packs:
+  - { id: fitd-scoundrel, version: 0.1.0 }
+homebrew:
+  content:
+    - {
+        id: gear.armor,
+        type: gear,
+        tags: [standard],
+        fields: { load: 2, kind: gear },
+        effects: [{ target: armor.hasArmor, op: set, value: true, when: self.equipped }],
+      }
+    - { id: gear.blade-or-two, type: gear, tags: [standard], fields: { load: 1, kind: weapons } }
+    - { id: gear.fine-heavy-weapon, type: gear, tags: [fine], fields: { load: 2, kind: weapons } }
+values:
+  fitd-scoundrel:ratings.command: 1
+  fitd-scoundrel:identity.alias: Vex
+  fitd-scoundrel:identity.heritage: Northern hill folk, driven out by the war
+  fitd-scoundrel:identity.background: 'Military: deserter'
+  fitd-scoundrel:vice.purveyor: Old Gussie at the Silver Stag
+  fitd-scoundrel:relationships.friend: Mara, a prizefighter
+  fitd-scoundrel:relationships.rival: Dunn, a debt collector
+  fitd-scoundrel:ratings.prowl: 1
+  fitd-scoundrel:ratings.survey: 1
+  fitd-scoundrel:ratings.skirmish: 3
+  fitd-scoundrel:ratings.wreck: 1
+  fitd-scoundrel:stress.current: 3
+  fitd-scoundrel:trauma.current: 0
+inventory:
+  - id: fitd-scoundrel-gear-blade-or-two
+    item: homebrew:gear.blade-or-two
+    equipped: true
+  - id: fitd-scoundrel-gear-fine-heavy-weapon
+    item: homebrew:gear.fine-heavy-weapon
+    equipped: true
+  - { id: fitd-scoundrel-gear-armor, item: homebrew:gear.armor, equipped: true }
+choices:
+  special-abilities:
+    - option: fitd-scoundrel:special-abilities.mule
+  vice:
+    - option: fitd-scoundrel:vices.gambling

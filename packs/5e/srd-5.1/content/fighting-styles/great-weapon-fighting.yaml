@@ -1,0 +1,9 @@
+id: fighting-styles.great-weapon-fighting
+type: fightingStyle
+effects:
+  - target: { rolls: [damage.weapon] }
+    op: rollModifier
+    value: { kind: reroll, below: 2, once: true }
+    when: >-
+      has(roll.item) && roll.item.range == 'melee'
+        && ('two-handed' in roll.item.tags || ('versatile' in roll.item.tags && roll.self.wielding == 'two-handed'))

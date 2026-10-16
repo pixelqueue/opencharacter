@@ -1,0 +1,12 @@
+# DC 10. 6 + con 2 = 8: failure, and concentration ends; then the clear, with no step.
+status: finished
+outcome:
+  result: failure
+  data: { dc: 10, total: 8 }
+proposedChanges:
+  - to: self
+    step: lose
+    change: { type: set, field: 5e-srd-5.1:concentration.active, value: false }
+  - to: self
+    step: ''
+    change: { type: clearFollowUp, id: concentration-1 }

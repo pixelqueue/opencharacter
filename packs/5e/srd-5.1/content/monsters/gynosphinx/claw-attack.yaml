@@ -1,0 +1,24 @@
+id: monsters.gynosphinx.claw-attack
+type: monsterAction
+fields:
+  kind: legendary
+  legendaryCost: 1
+actions:
+  - id: claw-attack
+    tags: [legendary]
+    participants:
+      target: { max: 1 }
+    results: [done]
+    steps:
+      - id: claw
+        kind: action
+        use: monster-attack
+        source: "'monsters.gynosphinx.claw'"
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.claw) && steps.claw.result == 'hit' ? 1 : 0)

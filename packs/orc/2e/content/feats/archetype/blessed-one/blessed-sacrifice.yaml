@@ -1,0 +1,18 @@
+id: feats.archetype.blessed-one.blessed-sacrifice
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.blessed-one }
+prerequisites:
+  - {
+      id: blessed-one-dedication,
+      when: '@feats.archetype.blessed-one.blessed-one-dedication in feats.held',
+    }
+effects:
+  - { target: focus.points, op: add, value: 1 }
+  - {
+      target: spells.archetype.blessedOne.spells,
+      op: grant,
+      value: { item: spells.protectors-sacrifice },
+    }
+grants:
+  - item: spells.protectors-sacrifice

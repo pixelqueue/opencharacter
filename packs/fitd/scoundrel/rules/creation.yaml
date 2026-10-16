@@ -1,0 +1,115 @@
+# The SRD creates scoundrels by choice, so the random start's odds are the pack's: every pick is
+# uniform among what the guided start offers, the dots placed one at a time to an action that can
+# still take one.
+creation:
+  - { id: scoundrel, action: create-scoundrel }
+  - { id: random, action: create-scoundrel, params: { random: true }, random: true }
+
+actions:
+  - id: create-scoundrel
+    tags: [creation]
+    available: character.creating
+    params:
+      random: { type: boolean, default: false }
+      heritage: { type: string, default: '' }
+      background: { type: string, default: '' }
+      alias: { type: string, default: '' }
+      look: { type: string, default: '' }
+      friend: { type: string, default: '' }
+      rival: { type: string, default: '' }
+      purveyor: { type: string, default: '' }
+    steps:
+      - id: playbook
+        kind: choice
+        options: { content: { type: playbook } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - { type: choose, path: { choice: [playbook] }, option: picked.id }
+      - id: poolAbility
+        kind: choice
+        when: '!has(steps.playbook)'
+        options: { content: { type: specialAbility } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - { type: choose, path: { choice: [special-abilities] }, option: picked.id }
+      - id: vice
+        kind: choice
+        options: { content: { type: vice } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - { type: choose, path: { choice: [vice] }, option: picked.id }
+      - id: startingDots
+        kind: allocate
+        when: '!has(steps.playbook)'
+        sheet: proposed
+        fields: { type: field, where: "'rating' in item.tags" }
+        budget: 3
+        limit: max(0, 2 - field.value)
+        random: params.random
+      - id: heritageDot
+        kind: allocate
+        sheet: proposed
+        fields: { type: field, where: "'rating' in item.tags" }
+        budget: 1
+        limit: max(0, 2 - field.value)
+        random: params.random
+      - id: backgroundDot
+        kind: allocate
+        sheet: proposed
+        fields: { type: field, where: "'rating' in item.tags" }
+        budget: 1
+        limit: max(0, 2 - field.value)
+        random: params.random
+      - id: dots
+        kind: allocate
+        sheet: proposed
+        fields: { type: field, where: "'rating' in item.tags" }
+        budget: 2
+        limit: max(0, 2 - field.value)
+        random: params.random
+      - id: picks
+        kind: choice
+        options: { pending: {} }
+        random: params.random
+      - id: heritage
+        kind: changes
+        when: params.heritage != ''
+        changes:
+          - { type: set, field: identity.heritage, value: params.heritage }
+      - id: background
+        kind: changes
+        when: params.background != ''
+        changes:
+          - { type: set, field: identity.background, value: params.background }
+      - id: alias
+        kind: changes
+        when: params.alias != ''
+        changes:
+          - { type: set, field: identity.alias, value: params.alias }
+      - id: look
+        kind: changes
+        when: params.look != ''
+        changes:
+          - { type: set, field: identity.look, value: params.look }
+      - id: friend
+        kind: changes
+        when: params.friend != ''
+        changes:
+          - { type: set, field: relationships.friend, value: params.friend }
+      - id: rival
+        kind: changes
+        when: params.rival != ''
+        changes:
+          - { type: set, field: relationships.rival, value: params.rival }
+      - id: purveyor
+        kind: changes
+        when: params.purveyor != ''
+        changes:
+          - { type: set, field: vice.purveyor, value: params.purveyor }
+      - id: finish
+        kind: changes
+        changes:
+          - { type: finishCreation }

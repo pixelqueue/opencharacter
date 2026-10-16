@@ -1,0 +1,65 @@
+# A fourth stunt lowers refresh to 2, so the character starts with 2 fate points. The words
+# given are set; the three phase aspects, left empty, are not.
+status: finished
+proposedChanges:
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.athletics, value: 3 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.empathy, value: 1 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.fight, value: 4 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.lore, value: 1 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.notice, value: 2 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.physique, value: 3 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.rapport, value: 1 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.shoot, value: 2 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.stealth, value: 1 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.will, value: 2 } }
+  - to: self
+    step: stunts
+    change: { type: addItem, entry: { id: stunts-grappler-1, item: fate-core:stunts.grappler } }
+  - to: self
+    step: stunts
+    change: { type: addItem, entry: { id: stunts-riposte-1, item: fate-core:stunts.riposte } }
+  - to: self
+    step: stunts
+    change:
+      { type: addItem, entry: { id: stunts-take-the-blow-1, item: fate-core:stunts.take-the-blow } }
+  - to: self
+    step: extra
+    change:
+      {
+        type: addItem,
+        entry: { id: stunts-tough-as-nails-1, item: fate-core:stunts.tough-as-nails },
+      }
+  - { to: self, step: words, change: { type: set, field: fate-core:identity.name, value: Cynere } }
+  - to: self
+    step: words
+    change: { type: set, field: fate-core:aspects.highConcept, value: Infamous Girl with Sword }
+  - to: self
+    step: words
+    change: { type: set, field: fate-core:aspects.trouble, value: Tempted by Shiny Things }
+  - { to: self, step: finish, change: { type: set, field: fate-core:fatePoints.current, value: 2 } }
+  - { to: self, step: finish, change: { type: finishCreation } }
+log:
+  - {
+      step: pyramid,
+      action: fate-core:create-character,
+      kind: allocate,
+      by: app,
+      amounts:
+        {
+          fate-core:skills.athletics: 3,
+          fate-core:skills.empathy: 1,
+          fate-core:skills.fight: 4,
+          fate-core:skills.lore: 1,
+          fate-core:skills.notice: 2,
+          fate-core:skills.physique: 3,
+          fate-core:skills.rapport: 1,
+          fate-core:skills.shoot: 2,
+          fate-core:skills.stealth: 1,
+          fate-core:skills.will: 2,
+        },
+    }
+  - { step: stunts, kind: choice, by: app, option: fate-core:stunts.grappler, index: 0 }
+  - { step: stunts, kind: choice, by: app, option: fate-core:stunts.riposte, index: 1 }
+  - { step: stunts, kind: choice, by: app, option: fate-core:stunts.take-the-blow, index: 2 }
+  - { step: more, kind: choice, by: app, option: one }
+  - { step: extra, kind: choice, by: app, option: fate-core:stunts.tough-as-nails, index: 0 }

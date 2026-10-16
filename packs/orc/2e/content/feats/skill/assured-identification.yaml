@@ -1,0 +1,19 @@
+id: feats.skill.assured-identification
+type: feat
+fields:
+  {
+    level: 2,
+    category: skill,
+    skills: [skill.arcana, skill.nature, skill.occultism, skill.religion],
+  }
+
+prerequisites:
+  - {
+      id: expert,
+      when: 'skills.arcana.rank >= 2 || skills.nature.rank >= 2 || skills.occultism.rank >= 2 || skills.religion.rank >= 2',
+    }
+effects:
+  - target: { rolls: [skill-action.identify-magic], tally: critFailToFail }
+    op: add
+    value: 1
+    when: "!('skill.crafting' in roll.tags)"

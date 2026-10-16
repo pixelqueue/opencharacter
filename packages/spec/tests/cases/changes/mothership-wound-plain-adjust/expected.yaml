@@ -1,0 +1,41 @@
+# No tags, so the vest does nothing: 3 - 9 = -6 is a wound, health resets to 14 (+20), and the
+# 6 past 0 carries over: health 8.
+ok: true
+adjustments:
+  - field: mothership-1e:health.current
+    by: -9
+    requested: -9
+    taken: -9
+    reason: requested
+  - field: mothership-1e:wounds.current
+    by: 1
+    reason: overflow
+  - field: mothership-1e:health.current
+    by: 20
+    reason: reset
+  - { field: mothership-1e:health.current, by: -6, reason: carry }
+followUps:
+  - id: wound-1
+    kind: ephemeral
+    followUp: mothership-1e:wound
+    to: self
+    required: true
+    action:
+      id: mothership-1e:wound-roll
+      followUp: wound-1
+    params: {}
+    cause:
+      field: mothership-1e:wounds.current
+      by: 1
+      requested: 0
+      taken: 0
+      reason: overflow
+      clamped: false
+      tags: []
+issues: []
+character:
+  values:
+    mothership-1e:health.max: 14
+    mothership-1e:health.current: 8
+    mothership-1e:wounds.max: 2
+    mothership-1e:wounds.current: 1

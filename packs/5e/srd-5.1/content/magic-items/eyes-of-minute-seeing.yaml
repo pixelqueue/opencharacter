@@ -1,0 +1,11 @@
+id: magic-items.eyes-of-minute-seeing
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+effects:
+  - { target: items.bySight, op: add, value: 1, when: self.equipped }
+  - target: { rolls: [skill.investigation] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.equipped && situational.bySight

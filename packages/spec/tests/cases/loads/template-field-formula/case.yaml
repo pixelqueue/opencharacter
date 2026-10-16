@@ -1,0 +1,24 @@
+description: "A template's field values are checked like an item's own: each must have its declaration's type, and `base` is typed as the base item"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        templateFields:
+          bonus: { type: integer, default: 0 }
+        contentTypes:
+          gear:
+            carried: true
+            fields:
+              weight: { type: integer }
+      content:
+        - id: heavy
+          type: template
+          appliesTo: { type: gear }
+          fields: { bonus: base.weight > 1, weight: base.wieght * 2 }

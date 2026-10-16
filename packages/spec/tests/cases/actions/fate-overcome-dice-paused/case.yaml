@@ -1,0 +1,11 @@
+description: 'Fate Core: an app that pauses on dice answers the 4dF once; the final total, a roll with no dice, is classified without a pause'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:overcome }
+  params: { skill: fate-core:skills.athletics, opposition: 2 }
+  policy: { dice: pause, choices: auto }
+answers:
+  - faces: [1, 1, 0, 0]

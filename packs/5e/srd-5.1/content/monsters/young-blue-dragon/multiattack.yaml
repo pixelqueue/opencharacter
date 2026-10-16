@@ -1,0 +1,39 @@
+id: monsters.young-blue-dragon.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3 }
+    results: [done]
+    steps:
+      - id: bite
+        kind: action
+        use: monster-attack
+        source: "'monsters.young-blue-dragon.bite'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: claw1
+        kind: action
+        use: monster-attack
+        source: "'monsters.young-blue-dragon.claw'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: claw2
+        kind: action
+        use: monster-attack
+        source: "'monsters.young-blue-dragon.claw'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(2, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.bite) && steps.bite.result == 'hit' ? 1 : 0)
+              + (has(steps.claw1) && steps.claw1.result == 'hit' ? 1 : 0)
+              + (has(steps.claw2) && steps.claw2.result == 'hit' ? 1 : 0)

@@ -1,0 +1,33 @@
+description: 'FitD: a homebrew rating tagged `rating.prowess`, rolled at desperate position, marks Prowess xp'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+  - inline:
+      manifest:
+        id: homebrew-ratings
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies:
+          fitd-scoundrel: ^0.1.0
+      rules:
+        fields:
+          ratings.brawl:
+            {
+              type: integer,
+              input: true,
+              default: 0,
+              min: 0,
+              max: 4,
+              tags: [rating, rating.prowess],
+            }
+      content: []
+input:
+  action:
+    id: fitd-scoundrel:action-roll
+  params:
+    rating: homebrew-ratings:ratings.brawl
+  situational:
+    fitd-scoundrel:position: desperate

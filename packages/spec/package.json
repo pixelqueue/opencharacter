@@ -1,0 +1,45 @@
+{
+  "name": "@opencharacter/spec",
+  "version": "0.1.0",
+  "description": "Open Character Format (OCF) specification: written spec, JSON Schemas, fixed sets and the shared test suite.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pixelqueue/opencharacter.git",
+    "directory": "packages/spec"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "data",
+    "docs",
+    "i18n",
+    "tests",
+    "src",
+    "LICENSE"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./node": "./src/node.ts",
+    "./schemas/*": "./schemas/*",
+    "./data/*": "./data/*",
+    "./i18n/*.yaml": "./i18n/*.yaml",
+    "./i18n/*": {
+      "types": "./dist/i18n/*.d.ts",
+      "import": "./dist/i18n/*.js",
+      "default": "./dist/i18n/*.json"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepack": "node -e \"require('node:fs').existsSync('dist')||(console.error('No dist/: run pnpm build:packs from the repo root first'),process.exit(1))\""
+  },
+  "devDependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "yaml": "2.9.1"
+  }
+}

@@ -1,0 +1,63 @@
+# hp.max = 10 + con 1 * level 1 = 11. No dice are rolled. Total level 1 regains max(1, 0) = 1
+# hit die: the fighter, the only class with one spent, so one pick.
+status: finished
+outcome:
+  result: rested
+proposedChanges:
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:hp.current, value: 11 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:hp.temp, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:deathSaves.successes, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:deathSaves.failures, value: 0 }
+  - to: self
+    step: rest
+    change: { type: adjust, field: 5e-srd-5.1:conditions.exhaustion, by: -1 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level1.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level2.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level3.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level4.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level5.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level6.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level7.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level8.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level9.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:pactSlots.used, value: 0 }
+  - to: self
+    step: hitDice
+    change: { type: adjustState, entry: fighter, key: hitDiceSpent, by: -1 }
+log:
+  - {
+      step: hitDice,
+      action: 5e-srd-5.1:long-rest,
+      kind: choice,
+      by: engine,
+      option: fighter,
+      index: 0,
+    }

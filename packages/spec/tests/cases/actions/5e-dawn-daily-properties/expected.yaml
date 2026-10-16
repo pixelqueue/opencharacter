@@ -1,0 +1,45 @@
+# One setState per content type that can carry usedToday; the character resolves each query when
+# it applies the change (the staff is a weapon copy). The empty list is passed on as a formula.
+status: finished
+outcome: { result: dawn }
+proposedChanges:
+  - {
+      to: self,
+      step: reset,
+      change:
+        {
+          type: setState,
+          key: usedToday,
+          copies:
+            { type: '5e-srd-5.1:weapon', where: 'has(self.usedToday) && size(self.usedToday) > 0' },
+          value: '[]',
+        },
+    }
+  - {
+      to: self,
+      step: reset,
+      change:
+        {
+          type: setState,
+          key: usedToday,
+          copies:
+            { type: '5e-srd-5.1:armor', where: 'has(self.usedToday) && size(self.usedToday) > 0' },
+          value: '[]',
+        },
+    }
+  - {
+      to: self,
+      step: reset,
+      change:
+        {
+          type: setState,
+          key: usedToday,
+          copies:
+            {
+              type: '5e-srd-5.1:magicItem',
+              where: 'has(self.usedToday) && size(self.usedToday) > 0',
+            },
+          value: '[]',
+        },
+    }
+log: []

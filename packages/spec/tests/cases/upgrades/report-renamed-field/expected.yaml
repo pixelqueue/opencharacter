@@ -1,0 +1,17 @@
+# stats.might (5) is compared with stats.power (5): no difference, and neither ID appears on one side only
+# stats.bonus: 5 * 2 = 10 before, 5 * 3 = 15 after
+ok: true
+character:
+  values:
+    test-pack:stats.power: 5
+pending: []
+report:
+  values:
+    - field: test-pack:stats.bonus
+      before: 10
+      after: 15
+  steps:
+    - pack: test-pack
+      from: 1.0.0
+      to: 2.0.0
+      op: renameField

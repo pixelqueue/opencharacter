@@ -1,0 +1,12 @@
+id: feats.archetype.scout.scout-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.scout }
+
+prerequisites:
+  - { id: stealth, when: 'skills.stealth.rank >= 1' }
+  - { id: survival, when: 'skills.survival.rank >= 1' }
+effects:
+  - target: { fields: { where: "'archetype-extra.at12' in item.tags" } }
+    op: grant
+    value: { item: feats.ranger.camouflage }

@@ -1,0 +1,17 @@
+id: spells.healers-blessing
+type: spell
+tags: [trait.cleric, trait.concentrate, trait.focus, trait.uncommon]
+fields:
+  rank: 1
+  cast: one
+  range: 30
+  targets: 1
+  duration: minutes
+  durationAmount: 1
+  applyTo: ally
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [healing] } }
+    op: add
+    value: 2 * self.rank
+    when: "incoming.amount > 0 && 'spell' in incoming.tags"
+    scope: applied

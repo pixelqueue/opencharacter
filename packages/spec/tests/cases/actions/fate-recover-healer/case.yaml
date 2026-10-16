@@ -1,0 +1,12 @@
+description: 'Fate Core: recovering from a mild consequence with a healer hands the healer an overcome against Fair (+2); their success starts the recovery and renames the consequence'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:consequences.consequence#recover, entry: c-ribs }
+  params: { renamed: Taped Ribs }
+  participants:
+    healer: [{ id: tobias, values: {} }]
+answers:
+  - outcome: { result: succeed, data: { total: 4, opposition: 2 } }

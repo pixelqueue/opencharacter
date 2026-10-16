@@ -1,0 +1,37 @@
+id: feats.ancestry.catfolk-dance
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.catfolk }
+actions:
+  - id: catfolk-dance
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.reflex.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.catfolk-dance]
+        params:
+          check: "'skills.acrobatics.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.reflex.dc)
+              ? participants.target[0].saves.reflex.dc : has(params.dc) ? params.dc : null
+      - id: hinder
+        kind: changes
+        when: "steps.check.result in ['success', 'critical-success']"
+        to: target
+        changes:
+          - { type: applyEffect, source: "'effects.catfolk-dance'" }
+          - type: applyEffect
+            when: steps.check.result == 'critical-success'
+            source: "'conditions.off-guard'"
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }

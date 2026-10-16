@@ -1,0 +1,57 @@
+status: finished
+outcome:
+  result: style
+  data:
+    total: 5
+    opposition: 2
+    shifts: 3
+    freeInvokes: 2
+    boost: false
+    opponentInvokes: false
+proposedChanges:
+  - to: self
+    step: gain
+    change:
+      type: addItem
+      entry:
+        id: advantages-advantage-1
+        item: fate-core:advantages.advantage
+        state:
+          label: Hidden Exit
+          invokes: 2
+          kind: situation
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 1
+      - 1
+      - 0
+    total: 5
+    band: superb
+    bandSet: fate-core:ladder
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: final
+    action: fate-core:create-advantage
+    kind: dice
+    by: engine
+    total: 5
+    band: style
+    bandSet: fate-core:outcome

@@ -1,0 +1,25 @@
+id: backgrounds.tinker
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.crafting },
+      when: "!('skill.crafting' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.engineering },
+      when: "!('skill.lore.engineering' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.specialty-crafting
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['dex', 'int']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

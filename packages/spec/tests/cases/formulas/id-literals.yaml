@@ -1,0 +1,35 @@
+description: "ID literals: `@` and an ID, a string resolved in the formula's pack; outside a pack, the ID as written"
+specVersion: 0.1.0
+cases:
+  - name: a local ID
+    parse: '@classes.fighter'
+    tree: { type: ref, id: classes.fighter }
+    print: '@classes.fighter'
+
+  - name: a qualified ID with hyphens
+    parse: '@5e-srd-5.1:feats.ancestry.orc-ferocity'
+    tree: { type: ref, id: '5e-srd-5.1:feats.ancestry.orc-ferocity' }
+
+  - name: an ID in a comparison and a membership test
+    parse: 'item.class == @classes.fighter || @feats.toughness in feats.held'
+    print: 'item.class == @classes.fighter || @feats.toughness in feats.held'
+
+  - name: a trailing dot ends the ID
+    parse: '[@a.b, @c-d]'
+    tree:
+      type: list
+      items: [{ type: ref, id: a.b }, { type: ref, id: c-d }]
+
+  - name: an ID literal is a string
+    check: '@classes.fighter'
+    roots: []
+    type: string
+
+  - name: outside a pack it is the ID as written
+    evaluate: '@classes.fighter'
+    value: classes.fighter
+    valueType: string
+
+  - name: '@ needs an ID'
+    parse: '@ + 1'
+    error: formula-syntax

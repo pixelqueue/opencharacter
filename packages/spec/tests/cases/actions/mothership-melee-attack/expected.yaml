@@ -1,0 +1,32 @@
+# No magazine, so no shot is spent. Nested Combat check 20 < 41 -> success; damage 1d5 = 4 for the target.
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 4
+proposedChanges:
+  - to: target
+    step: hit/wound
+    change:
+      type: adjust
+      field: mothership-1e:health.current
+      by: -4
+      tags:
+        - damage
+log:
+  - step: check/check
+    action: mothership-1e:stat-check
+    kind: dice
+    by: engine
+    faces:
+      - 20
+    total: 20
+    band: success
+    bandSet: mothership-1e:check
+  - step: hit/damage
+    action: mothership-1e:attack
+    kind: dice
+    by: engine
+    faces:
+      - 4
+    total: 4

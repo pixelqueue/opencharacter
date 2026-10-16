@@ -1,0 +1,56 @@
+description: 'An `action` step passes participants on as views: a whole role, or a list of some of its views, each passed by its `id`'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          # Counts its targets and reads each one's declared `guard`.
+          - id: tally
+            participants:
+              target:
+                max: 3
+                fields:
+                  guard: { type: integer, default: 10 }
+            steps:
+              - id: done
+                kind: outcome
+                data:
+                  count: size(participants.target)
+                  first: "size(participants.target) > 0 ? participants.target[0].id : ''"
+                  guard: 'size(participants.target) > 0 ? participants.target[0].guard : 0'
+          # Passes every target on, then the last and the first, as views.
+          - id: storm
+            participants:
+              target: { max: 3 }
+            steps:
+              - id: all
+                kind: action
+                use: tally
+                participants: { target: participants.target }
+              - id: some
+                kind: action
+                use: tally
+                participants:
+                  target: '[participants.target[size(participants.target) - 1], participants.target[0]]'
+              - id: done
+                kind: outcome
+                data:
+                  all: steps.all.data.count
+                  some: steps.some.data.count
+                  someFirst: steps.some.data.first
+                  someGuard: steps.some.data.guard
+      content: []
+input:
+  action: { id: 'test-pack:storm' }
+  participants:
+    target:
+      - { id: goblin-1, values: { 'test-pack:guard': 15 } }
+      - { id: goblin-2 }
+      - { id: goblin-3, values: { 'test-pack:guard': 12 } }

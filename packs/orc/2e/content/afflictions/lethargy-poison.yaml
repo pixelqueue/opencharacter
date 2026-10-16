@@ -1,0 +1,8 @@
+id: afflictions.lethargy-poison
+type: affliction
+fields: { kind: poison, level: 2, dc: 18, stages: 4 }
+grants:
+  - { item: conditions.slowed, scope: applied, when: self.stage == 1, state: { value: 1 } }
+  - { item: conditions.slowed, scope: applied, when: self.stage == 2, state: { value: 1 } }
+  - { item: conditions.unconscious, scope: applied, when: self.stage == 3 }
+  - { item: conditions.unconscious, scope: applied, when: self.stage == 4 }

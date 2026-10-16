@@ -1,0 +1,24 @@
+description: "A situational value an `action` step gives that doesn't fit the choice's type is `wrong-type`"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        situational:
+          - { id: exposed, type: boolean, default: false }
+        actions:
+          - id: inner
+            steps:
+              - { id: done, kind: outcome, data: { exposed: situational.exposed } }
+          - id: outer
+            steps:
+              - { id: run, kind: action, use: inner, situational: { exposed: '1' } }
+      content: []
+input:
+  action: { id: 'test-pack:outer' }

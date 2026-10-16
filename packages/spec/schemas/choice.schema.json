@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/choice.schema.json",
+  "title": "Choice",
+  "description": "A choice declared in content or rules: its options (a query, a list of content, a list of values, or inline options), how many to pick, and when it applies. Picked content becomes active on the character (its effects, grants and own choices apply), unless the choice says `activate: false`. Any option can contain its own choices, which become pending as soon as the option is picked. The character stores picks as a tree keyed by choice ID.",
+  "type": "object",
+  "required": ["id", "from"],
+  "properties": {
+    "id": {
+      "description": "Unique among the choices of the same owner (content item, inline option or rules).",
+      "$ref": "common.schema.json#/$defs/slug"
+    },
+    "slots": {
+      "description": "The choice is one choice per slot, in list order, each keyed `<id>-<slot>` (`class-feat-2`), with the slot's number bound as `slot` (an `int`) in every formula of the choice and of its inline options (`when`, `pick`, `recommend`, the query's `where`, a value choice's `values` and `where`, `effects`). Written out, not computed: slots are saved choice keys. A slot key equal to another choice of the same owner is `duplicate-id` at load. One prompt serves every slot, with the slot as the ICU argument `{slot}`.",
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "pick": {
+      "description": "How many to pick: an exact count, or a range. Counts may be formulas (`proficiency.bonus`). Default 1.",
+      "anyOf": [
+        {
+          "$ref": "formula.schema.json"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "min": {
+              "$ref": "formula.schema.json"
+            },
+            "max": {
+              "$ref": "formula.schema.json"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "from": {
+      "$ref": "#/$defs/options"
+    },
+    "eligible": {
+      "description": "A condition each option must meet, apart from the list `from` gives: `item` the content option's item, or `value` the value, with the character's fields, the owner's `item` and `self`, and `choice` (the choice itself, with its `picks`). A listed option that fails it is `option-not-eligible` in `listOptions`, and so is a saved pick. Not on a choice of inline options, which have prerequisites.",
+      "$ref": "formula.schema.json#/$defs/condition"
+    },
+    "when": {
+      "description": "When the choice applies, e.g. `self.level >= 3`. Until then it is neither pending nor active.",
+      "$ref": "formula.schema.json#/$defs/condition"
+    },
+    "required": {
+      "description": "A required choice with too few picks is reported as pending. Default true.",
+      "type": "boolean"
+    },
+    "recommend": {
+      "description": "Optional formula naming the option the rules recommend (an option ID or value).",
+      "$ref": "formula.schema.json"
+    },
+    "effects": {
+      "description": "Effects applied once per pick, with the picked option visible as `pick` (its `id` or `value`). Used when options are values or fields rather than content (choose two skills), or picks that aren't activated (`activate: false`).",
+      "type": "array",
+      "items": {
+        "$ref": "effect.schema.json"
+      }
+    },
+    "activate": {
+      "description": "Content choices (a query or `items`): `false` keeps the picks inactive, so a pick is a reference, such as a tool the character is proficient with. Its picks are saved and counted as usual and the choice's `effects` run per pick with `pick.id`, but the picked content's own effects, grants, choices, actions and follow-ups don't apply. Default true.",
+      "type": "boolean"
+    },
+    "requiresOption": {
+      "description": "The choice must have something to pick. While it is pending and none of its options is eligible, the content that brings it has the rules issue `no-eligible-option`, so listOptions marks that content ineligible as an option (5E's feat instead of an Ability Score Improvement, offered only while a feat is open). Default false.",
+      "type": "boolean"
+    },
+    "waivePrerequisites": {
+      "description": "The picked options' prerequisites don't apply (\"a feat you don't need to meet the prerequisites of\"): a pick's activation reports no `prerequisite-not-met`, and `listOptions` gives no prerequisite reasons. Default false.",
+      "type": "boolean"
+    },
+    "prompt": {
+      "description": "Translation key for the prompt. Default `<owner>.choices.<id>.prompt`. A slotted choice has one prompt for every slot, with `{slot}`.",
+      "$ref": "common.schema.json#/$defs/i18nKey"
+    },
+    "unique": {
+      "description": "Exclusivity group: an option picked in one choice of the group is ineligible in the others (rules issue `already-picked`). The key is pack-qualified like other IDs: a local key is the declaring pack's, and a qualified one (`orc-2e:feats`) joins the group of that pack, the declaring pack or one of its dependencies, so an extension's choices share a dependency's group. A choice never excludes its own picks. Content with `repeatable: true` is exempt: picking it in one choice of the group leaves it eligible in the others.",
+      "type": "string",
+      "pattern": "^([a-z0-9]+([-.][a-z0-9]+)*:)?[a-z0-9]+(-[a-z0-9]+)*$",
+      "maxLength": 129
+    },
+    "uniqueScope": {
+      "description": "Where the exclusivity group (`unique`) holds. `character` (the default): across the character's choices of the group. `owner`: only among the choices of the same owner activation (one copy, one pick or one grant of the content, one inline option, or the rules), so two choices of a feat can't take the same skill while the feat taken again, or another feat with the same key, takes it freely.",
+      "enum": ["character", "owner"]
+    }
+  },
+  "dependentRequired": {
+    "uniqueScope": ["unique"]
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "options": {
+      "anyOf": [
+        {
+          "$ref": "query.schema.json"
+        },
+        {
+          "type": "object",
+          "required": ["items"],
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "common.schema.json#/$defs/ref"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["values"],
+          "properties": {
+            "values": {
+              "description": "The values to pick from: a list written out, or a formula giving a list of strings or numbers, evaluated against the character (`links` included). A saved pick a formula no longer lists is `option-not-eligible`.",
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "minItems": 1,
+                  "uniqueItems": true
+                },
+                {
+                  "type": "object",
+                  "required": ["formula"],
+                  "properties": {
+                    "formula": {
+                      "$ref": "formula.schema.json"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "where": {
+              "description": "A condition over each candidate value, bound as `value`, with the character's fields, `character`, `links` and the owner's `item` and `self`. A candidate that fails it is `option-not-eligible` in `listOptions`, and so is a saved pick that fails it.",
+              "$ref": "formula.schema.json#/$defs/condition"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["options"],
+          "properties": {
+            "options": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/inlineOption"
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "inlineOption": {
+      "description": "An option defined inside the choice. Translation keys: `<owner>.choices.<choice>.options.<id>.name`.",
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "tags": {
+          "$ref": "common.schema.json#/$defs/tags"
+        },
+        "prerequisites": {
+          "type": "array",
+          "items": {
+            "$ref": "content-item.schema.json#/$defs/prerequisite"
+          }
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "$ref": "effect.schema.json"
+          }
+        },
+        "grants": {
+          "type": "array",
+          "items": {
+            "$ref": "content-item.schema.json#/$defs/grant"
+          }
+        },
+        "choices": {
+          "type": "array",
+          "items": {
+            "$ref": "#"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "from": {
+            "type": "object",
+            "required": ["options"]
+          }
+        },
+        "required": ["from"],
+        "type": "object"
+      },
+      "then": {
+        "not": {
+          "required": ["eligible"],
+          "type": "object"
+        },
+        "type": "object"
+      }
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+# The shortbow (+7) rolls 9: 16 against AC 15, a hit for 1d6 (5). The second Strike is the next
+# attack: 11 + 7 - 5 + 2 (flurry, against the prey) = 15, a hit for 1d6 (4). Both hit, so their
+# damage is released as one change, as are the counts. The flourish counts.
+status: finished
+outcome:
+  result: success
+  data:
+    first: success
+    damage: 9
+proposedChanges:
+  - to: self
+    step: strike1/count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 2
+      tags: [attack-count]
+  - to: target
+    character: wolf
+    step: strike1/deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -9
+      tags:
+        - damage
+        - damage.piercing
+  - to: self
+    step: flourish
+    change:
+      type: adjust
+      field: orc-2e:turn.flourishes
+      by: 1
+log:
+  - step: first
+    action: orc-2e:feats.ranger.hunted-shot#hunted-shot
+    kind: choice
+    by: engine
+    option: shortbow
+  - step: second
+    action: orc-2e:feats.ranger.hunted-shot#hunted-shot
+    kind: choice
+    by: engine
+    option: shortbow
+  - step: strike1/attack
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 9
+    total: 16
+    band: success
+    bandSet: orc-2e:degree
+  - step: strike1/damage
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 5
+    total: 5
+  - step: strike2/attack
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 11
+    total: 15
+    band: success
+    bandSet: orc-2e:degree
+    items:
+      - kind: dice
+        value: 11
+        tags: []
+        source:
+          id: orc-2e:weapons.shortbow
+      - kind: flat
+        value: 4
+        tags: [part.attribute]
+        source:
+          id: orc-2e:attacks.dex.mod
+      - kind: flat
+        value: 3
+        tags: []
+        source:
+          id: orc-2e:weapons.shortbow
+      # Flurry replaces the -5 with -3.
+      - kind: flat
+        value: -3
+        tags: [part.map]
+        source:
+          id: orc-2e:classes.ranger.edges.flurry
+        replaces:
+          - { kind: flat, value: -5, tags: [part.map], source: { id: 'orc-2e:weapons.shortbow' } }
+  - step: strike2/damage
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 4
+    total: 4

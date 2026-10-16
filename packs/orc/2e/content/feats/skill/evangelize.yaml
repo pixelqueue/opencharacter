@@ -1,0 +1,40 @@
+id: feats.skill.evangelize
+type: feat
+tags: [trait.auditory, trait.linguistic, trait.mental]
+fields: { level: 7, category: skill, skills: [skill.diplomacy] }
+
+prerequisites:
+  - { id: master, when: 'skills.diplomacy.rank >= 3' }
+actions:
+  - id: evangelize
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.will.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.evangelize]
+        params:
+          check: "'skills.diplomacy.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.will.dc)
+              ? participants.target[0].saves.will.dc : has(params.dc) ? params.dc : null
+      - id: whirl
+        kind: changes
+        when: "steps.check.result in ['success', 'critical-success']"
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.stupefied'"
+            state: { value: "steps.check.result == 'critical-success' ? 2 : 1" }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }

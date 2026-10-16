@@ -1,0 +1,10 @@
+description: 'orc-2e: a focus spell spends a Focus Point and is heightened to half the level rounded up (2nd at 3rd level: 3d6), a spell attack (+8) against AC 15: 9 + 8 = 17, a hit'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: homebrew:spells.searing-ray }
+  participants:
+    target:
+      - { id: goblin, values: { orc-2e:defenses.ac: 15 } }

@@ -1,0 +1,40 @@
+id: backgrounds.nomad
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.survival },
+      when: "!('skill.survival' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - { item: feats.skill.assurance, state: { skill: "'skill.survival'" } }
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['con', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }
+  - id: lore
+    from:
+      {
+        values:
+          [
+            skill.lore.cave,
+            skill.lore.desert,
+            skill.lore.forest,
+            skill.lore.mountain,
+            skill.lore.plains,
+            skill.lore.swamp,
+          ],
+      }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }

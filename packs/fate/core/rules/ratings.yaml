@@ -1,0 +1,37 @@
+# Ratings don't add up: the highest counts.
+fields:
+  ratings.weaponArmor: { type: boolean, input: true, default: false }
+  armor.physicalGear: { type: integer, input: true, default: 0, min: 0 }
+  armor.mentalGear: { type: integer, input: true, default: 0, min: 0 }
+  armor.physicalExtras:
+    type: integer
+    formula: >-
+      maxCopies(copy.fields.armor * (has(copy.state.ranks) ? copy.state.ranks : 1),
+        copy.type == 'extra' && copy.fields.armor > 0 && copy.fields.armorHarm == 'physical')
+  armor.mentalExtras:
+    type: integer
+    formula: >-
+      maxCopies(copy.fields.armor * (has(copy.state.ranks) ? copy.state.ranks : 1),
+        copy.type == 'extra' && copy.fields.armor > 0 && copy.fields.armorHarm == 'mental')
+  armor.physical:
+    type: integer
+    formula: 'ratings.weaponArmor ? max(armor.physicalGear, armor.physicalExtras) : 0'
+  armor.mental:
+    type: integer
+    formula: 'ratings.weaponArmor ? max(armor.mentalGear, armor.mentalExtras) : 0'
+
+display:
+  groups:
+    - id: ratings
+      priority: 2
+  fields:
+    ratings.weaponArmor: { groups: [ratings], priority: 2, input: { widget: checkbox } }
+    armor.physicalGear:
+      { groups: [ratings], priority: 1, input: { widget: number }, showWhen: ratings.weaponArmor }
+    armor.mentalGear:
+      { groups: [ratings], priority: 2, input: { widget: number }, showWhen: ratings.weaponArmor }
+    armor.physical: { groups: [ratings], priority: 0, showWhen: ratings.weaponArmor }
+    armor.mental:
+      { groups: [ratings], priority: 1, showWhen: ratings.weaponArmor && armor.mental > 0 }
+    armor.physicalExtras: { hidden: true }
+    armor.mentalExtras: { hidden: true }

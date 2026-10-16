@@ -1,0 +1,17 @@
+# The step's own offer (the rules' recover, `damage` 3), then the ember's (its kindle, named with
+# its copy), both to the actor.
+status: finished
+outcome: { result: swung }
+proposedChanges:
+  - to: self
+    step: hit
+    change:
+      type: offerFollowUp
+      followUp: test-follow-ups:recover
+      params: { damage: 3 }
+  - to: self
+    step: hit
+    change:
+      type: offerFollowUp
+      followUp: test-follow-ups:charms.ember#kindle
+      source: { type: item, id: test-follow-ups:charms.ember, entry: ember-1 }

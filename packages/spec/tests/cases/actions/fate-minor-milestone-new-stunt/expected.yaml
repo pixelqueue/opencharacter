@@ -1,0 +1,42 @@
+status: finished
+outcome:
+  result: advanced
+  data:
+    benefit: new-stunt
+proposedChanges:
+  - to: self
+    step: stunt
+    change:
+      type: addItem
+      entry:
+        id: stunts-lie-whisperer-1
+        item: fate-core:stunts.lie-whisperer
+  - to: self
+    step: moderate
+    change:
+      type: setState
+      key: label
+      copies:
+        type: fate-core:consequence
+        where: self.slot == 'moderate' && !self.recovering
+      value: "'Mending Arm'"
+  - to: self
+    step: moderate
+    change:
+      type: setState
+      key: recovering
+      copies:
+        type: fate-core:consequence
+        where: self.slot == 'moderate' && !self.recovering
+      value: true
+log:
+  - step: benefit
+    action: fate-core:minor-milestone
+    kind: choice
+    by: app
+    option: new-stunt
+  - step: stunt
+    action: fate-core:minor-milestone
+    kind: choice
+    by: app
+    option: fate-core:stunts.lie-whisperer

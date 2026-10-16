@@ -1,0 +1,19 @@
+description:
+  "orc-2e: a raging barbarian's Furious Finish with 4 rounds of rage left. The bonus is the
+  Strike's situational choice `damageCircumstanceBonus`, part of its damage and
+  doubled with it on a critical hit; then the rage ends and the barbarian is fatigued"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:feats.barbarian.furious-finish#furious-finish'
+    entry: class
+    source: orc-2e:feats.barbarian.furious-finish
+  params: { rounds: 4 }
+  participants:
+    target:
+      - id: goblin
+        values:
+          orc-2e:defenses.ac: 16

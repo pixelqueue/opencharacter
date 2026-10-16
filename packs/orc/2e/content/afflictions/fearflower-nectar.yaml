@@ -1,0 +1,16 @@
+id: afflictions.fearflower-nectar
+type: affliction
+fields:
+  {
+    kind: poison,
+    level: 4,
+    dc: 21,
+    stages: 3,
+    stage1Damage: 1d6,
+    stage2Damage: 1d6,
+    stage3Damage: 1d6,
+  }
+grants:
+  - { item: conditions.frightened, scope: applied, when: self.stage == 1, state: { value: 1 } }
+  - { item: conditions.frightened, scope: applied, when: self.stage == 2, state: { value: 2 } }
+  - { item: conditions.frightened, scope: applied, when: self.stage == 3, state: { value: 3 } }

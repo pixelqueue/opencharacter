@@ -1,0 +1,20 @@
+values:
+  # Six stunts, three free: refresh 3 - 3 = 0, below the minimum of 1.
+  fate-core:stunts.count: { value: 6 }
+  fate-core:stunts.extra: { value: 3 }
+  fate-core:refresh: { value: 0 }
+  # The custom stunt sets `bonus`, so it counts with Grappler and Indomitable.
+  fate-core:stunts.bonus: { value: 3 }
+  fate-core:pyramid.superb: { value: 1 }
+  fate-core:pyramid.great: { value: 2 }
+  fate-core:pyramid.highest: { value: 5 }
+  # Superb Physique: four physical boxes and the physical-only mild slot.
+  fate-core:stress.physical.boxes: { value: 4 }
+  fate-core:consequences.mildPhysicalFree: { value: true }
+  fate-core:consequences.mildMentalFree: { value: false }
+issues:
+  - { code: constraint-failed, id: fate-core:refresh-minimum }
+  - { code: constraint-failed, id: fate-core:skill-pyramid }
+  - { code: constraint-failed, id: fate-core:skill-columns }
+  - { code: constraint-failed, id: fate-core:skill-cap }
+errors: []

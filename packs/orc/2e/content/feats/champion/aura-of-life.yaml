@@ -1,0 +1,9 @@
+id: feats.champion.aura-of-life
+type: feat
+fields: { level: 14, category: class, class: classes.champion }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.void] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 5)
+    when: incoming.amount < 0

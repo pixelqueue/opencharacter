@@ -1,0 +1,27 @@
+description: "An item's computed value replacing the type's keeps its place: the values after it read the replacement, and the replacement reads only what comes before the name"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 2 }
+        contentTypes:
+          gear:
+            carried: true
+            computed:
+              base: { type: integer, formula: tier }
+              rank: { type: integer, formula: self.base }
+              bonus: { type: integer, formula: self.rank * 10 }
+      content:
+        - { id: gear.lamp, type: gear }
+        - id: gear.relic
+          type: gear
+          computed:
+            rank: { type: integer, formula: self.base + 3 }

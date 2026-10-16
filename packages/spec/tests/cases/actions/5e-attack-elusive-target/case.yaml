@@ -1,0 +1,12 @@
+description: "An attack with advantage against an elusive rogue: the target's view says no attack against it has advantage, so one d20 is rolled"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: sword }
+  situational: { 5e-srd-5.1:advantage: true }
+  participants:
+    target:
+      - id: rogue
+        values: { 5e-srd-5.1:combat.ac: 14, 5e-srd-5.1:combat.elusive: true }

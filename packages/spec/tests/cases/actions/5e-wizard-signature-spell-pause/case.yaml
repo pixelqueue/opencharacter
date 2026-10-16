@@ -1,0 +1,10 @@
+description: '5E wizard 20 casts a Signature Spell: the cost step (paused by its spell-cost tag) offers a 3rd-level slot, recommended, then the Signature Spells option'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:cast-spell, entry: wizard, source: 5e-srd-5.1:spells.fireball }
+  policy:
+    rules:
+      - { kind: choice, tags: [spell-cost], then: pause }

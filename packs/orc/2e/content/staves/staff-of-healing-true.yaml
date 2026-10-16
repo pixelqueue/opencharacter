@@ -1,0 +1,29 @@
+id: staves.staff-of-healing-true
+type: staff
+tags: [trait.magical, trait.staff]
+fields:
+  level: 16
+  price: 9200
+  bulk: 1
+  rank1: [spells.heal]
+  rank2: [spells.clear-mind, spells.heal, spells.sound-body]
+  rank3: [spells.cleanse-affliction, spells.heal]
+  rank4: [spells.cleanse-affliction, spells.clear-mind, spells.sound-body]
+  rank5: [spells.breath-of-life, spells.heal]
+  rank6: [spells.clear-mind, spells.field-of-life, spells.heal]
+  rank7: [spells.heal, spells.regenerate]
+grants:
+  - { item: spells.stabilize, when: self.equipped }
+  - { item: spells.heal, when: self.equipped }
+  - { item: spells.clear-mind, when: self.equipped }
+  - { item: spells.sound-body, when: self.equipped }
+  - { item: spells.cleanse-affliction, when: self.equipped }
+  - { item: spells.breath-of-life, when: self.equipped }
+  - { item: spells.field-of-life, when: self.equipped }
+  - { item: spells.regenerate, when: self.equipped }
+effects:
+  - target: { rolls: [healing] }
+    op: add
+    value: 4
+    stackKey: item-bonus
+    when: 'self.equipped && has(action.item) && action.item.id == @spells.heal'

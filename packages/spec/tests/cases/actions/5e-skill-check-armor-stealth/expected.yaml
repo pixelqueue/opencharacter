@@ -1,0 +1,22 @@
+# The roll is tagged skill.stealth, so chain mail's noisy effect gives disadvantage:
+# 2d20, keep the lower (6) + 3 + 2 + 2 = 13. No DC: rolled.
+status: finished
+outcome:
+  result: rolled
+  data: { total: 13 }
+log:
+  - step: check
+    action: 5e-srd-5.1:skill-check
+    kind: dice
+    by: engine
+    faces: [17, 6]
+    items:
+      - kind: dice
+        count: 2
+        modifiers: [{ type: keepLowest, count: 1 }]
+        faces: [{ value: 17, kept: false }, { value: 6, kept: true }]
+        value: 6
+      - { kind: flat, value: 3 }
+      - { kind: flat, value: 2 }
+      - { kind: flat, value: 2 }
+    total: 13

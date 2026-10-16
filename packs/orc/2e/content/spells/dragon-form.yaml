@@ -1,0 +1,37 @@
+id: spells.dragon-form
+type: spell
+tags:
+  [
+    trait.concentrate,
+    trait.manipulate,
+    trait.polymorph,
+    tradition.arcane,
+    tradition.divine,
+    tradition.occult,
+    tradition.primal,
+  ]
+fields:
+  rank: 6
+  cast: two
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+  tempHp: 10
+  heighten: 2
+  heightenTempHp: 5
+effects:
+  - { target: battleForm.active, op: set, value: true, scope: applied }
+  - { target: battleForm.acBase, op: set, value: 'self.rank >= 8 ? 21 : 18', scope: applied }
+  - { target: battleForm.formAttacks, op: set, value: true, scope: applied }
+  - { target: battleForm.attack, op: set, value: 'self.rank >= 8 ? 28 : 22', scope: applied }
+  - { target: battleForm.damage, op: set, value: 'self.rank >= 8 ? 12 : 6', scope: applied }
+  - target: speed.fly
+    op: add
+    value: 'self.rank >= 8 ? 20 : 0'
+    stackKey: status-bonus
+    when: self.rank >= 8
+    scope: applied
+  - { target: speed.fly, op: atLeast, value: 'self.rank >= 8 ? 120 : 100', scope: applied }
+  - { target: skills.athletics.mod, op: atLeast, value: 'self.rank >= 8 ? 28 : 23', scope: applied }
+grants:
+  - { item: forms.dragon-form.dragon, scope: applied }

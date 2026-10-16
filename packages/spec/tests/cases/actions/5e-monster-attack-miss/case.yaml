@@ -1,0 +1,12 @@
+description: "5E: the goblin's shortbow misses a prone target's AC (disadvantage at range: the lower die)"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action:
+    { id: 5e-srd-5.1:monster-attack, entry: monster, source: 5e-srd-5.1:monsters.goblin.shortbow }
+  participants:
+    target:
+      - id: tamsin
+        values: { 5e-srd-5.1:combat.ac: 18, 5e-srd-5.1:conditions.prone: true }

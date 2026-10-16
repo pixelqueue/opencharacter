@@ -1,0 +1,25 @@
+id: backgrounds.sailor
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.athletics },
+      when: "!('skill.athletics' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.sailing },
+      when: "!('skill.lore.sailing' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.underwater-marauder
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'dex']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

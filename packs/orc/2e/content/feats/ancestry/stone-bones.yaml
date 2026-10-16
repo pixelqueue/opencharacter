@@ -1,0 +1,16 @@
+id: feats.ancestry.stone-bones
+type: feat
+tags: [trait.reaction]
+fields: { level: 9, category: ancestry, ancestry: ancestries.dwarf }
+actions:
+  - id: stone-bones
+    tags: [reaction]
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: flat-check
+        params: { dc: 17 }
+      - id: result
+        kind: outcome
+        result: steps.check.result

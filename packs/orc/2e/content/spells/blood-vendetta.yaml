@@ -1,0 +1,28 @@
+id: spells.blood-vendetta
+type: spell
+tags: [trait.curse, tradition.arcane, tradition.divine, tradition.occult]
+fields:
+  rank: 2
+  cast: reaction
+  range: 30
+  duration: varies
+  defense: will
+  persistent: 2d6
+  heighten: 2
+  heightenPersistentDice: 2
+  persistentType: bleed
+  persistentScales: true
+  applyTo: target
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.piercing] } }
+    op: add
+    stackKey: weakness
+    value: -1
+    when: incoming.amount < 0
+    scope: applied
+  - target: { incoming: { fields: [hp.current], tags: [damage.slashing] } }
+    op: add
+    stackKey: weakness
+    value: -1
+    when: incoming.amount < 0
+    scope: applied

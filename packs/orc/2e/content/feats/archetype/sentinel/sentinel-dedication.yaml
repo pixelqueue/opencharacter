@@ -1,0 +1,18 @@
+id: feats.archetype.sentinel.sentinel-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.sentinel }
+
+# "Already trained" in light and medium armor means the class's training or Champion Dedication's,
+# since the sheet's ranks include this feat's own; Armor Proficiency taken twice is the player's to
+# count.
+effects:
+  - { target: defenses.light.rank, op: atLeast, value: 1 }
+  - { target: defenses.medium.rank, op: atLeast, value: 1 }
+  - target: defenses.heavy.rank
+    op: atLeast
+    value: 1
+    when: >-
+      class.has.alchemist || class.has.barbarian || class.has.champion || class.has.druid
+        || class.has.fighter || class.has.ranger || cleric.doctrine == 'warpriest'
+        || @feats.archetype.champion.champion-dedication in feats.held

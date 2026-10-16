@@ -1,0 +1,25 @@
+# Every input of the set's value is the roll, so it prints back as written (canonical text); the
+# bands compare `roll.value`. No target, no flags.
+status: paused
+needs:
+  step: roll
+  action: fitd-scoundrel:action-roll
+  kind: dice
+  summary:
+    bandSet: fitd-scoundrel:action
+    value: >-
+      !roll.empty && count(roll.faces, 6) >= 2 ? 3 : max(0, min(2, (roll.total == 6 ? 2 :
+      roll.total >= 4 ? 1 : 0) + roll.tallies.resultLevel))
+    bands:
+      - band: critical
+        when: 'roll.value == 3'
+        tests: [{ of: roll.value, compare: eq, value: 3 }]
+      - band: success
+        when: 'roll.value == 2'
+        tests: [{ of: roll.value, compare: eq, value: 2 }]
+      - band: partial
+        when: 'roll.value == 1'
+        tests: [{ of: roll.value, compare: eq, value: 1 }]
+      - { band: failure, when: 'true', tests: [] }
+    flags: {}
+log: []

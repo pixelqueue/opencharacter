@@ -1,0 +1,39 @@
+id: worn.necklace-of-allure
+type: worn
+tags: [trait.apex, trait.invested, trait.magical]
+fields:
+  level: 17
+  price: 15000
+  activation: two
+  frequency: once-per-hour
+grants:
+  - { item: spells.charm, when: 'self.equipped && self.invested' }
+effects:
+  - {
+      target: attributes.cha.mod,
+      op: add,
+      value: 1,
+      when: 'self.equipped && self.invested && self.apex',
+    }
+  - {
+      target: attributes.cha.mod,
+      op: atLeast,
+      value: 4,
+      when: 'self.equipped && self.invested && self.apex',
+    }
+  - target: skills.deception.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: skills.diplomacy.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.charm'
+    value:
+      id: charm
+      flags: { itemPaid: true, rank: 4, dc: 38 }

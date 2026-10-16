@@ -1,0 +1,23 @@
+# The fist has iron saved: the feature's kept iron isn't applied again (one template, kept.count 1),
+# and the template is listed without keptBy.
+values:
+  test-kept-templates:kept.count: { value: 1 }
+copies:
+  test-kept-templates-weapons-fist: { bonus: 2, heavy: true, light: false, templates: 1 }
+activations:
+  - { item: test-kept-templates:features.iron-fists, entry: iron, via: copy }
+  - { item: test-kept-templates:weapons.fist, entry: test-kept-templates-weapons-fist, via: copy }
+  - {
+      item: test-kept-templates:templates.iron,
+      entry: test-kept-templates-weapons-fist,
+      via: template,
+      parent: 1,
+    }
+  - item: test-kept-templates:features.training
+    entry: test-kept-templates-weapons-fist
+    via: grant
+    parent: 2
+standardCopies:
+  - { entry: test-kept-templates-weapons-fist, item: test-kept-templates:weapons.fist, saved: true }
+issues: []
+errors: []

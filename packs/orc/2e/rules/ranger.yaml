@@ -1,0 +1,72 @@
+fields:
+  # A Strike's roll effects compare it with the target's ID; checks, which have no target, use
+  # `huntedPrey`.
+  prey.target: { type: string, input: true, default: '' }
+  ranger.edge: { type: enum, values: [none, flurry, outwit, precision], formula: "'none'" }
+  twinParry.active: { type: boolean, input: true, default: false }
+  prey.hits: { type: integer, input: true, default: 0, min: 0 }
+
+effects:
+  - id: warden-tradition
+    target: spellcasting.tradition
+    op: set
+    value: "'primal'"
+    when: class.has.ranger && @feats.ranger.initiate-warden in feats.held
+  - id: warden-attribute
+    target: spellcasting.attribute
+    op: set
+    value: "'wis'"
+    when: class.has.ranger && @feats.ranger.initiate-warden in feats.held
+  - id: twin-parry
+    target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: twinParry.active
+
+situational:
+  - id: huntedPrey
+    type: boolean
+    default: false
+    rolls: [check, strike]
+    available: ranger.edge != 'none'
+    effects:
+      - target: { rolls: [perception] }
+        op: add
+        value: 'level >= 17 && perception.rank >= 3 ? 4 : 2'
+        stackKey: circumstance-bonus
+        when: situational.huntedPrey
+      - target: { rolls: [skill.survival] }
+        op: add
+        value: 'level >= 17 && skills.survival.rank >= 3 ? 4 : 2'
+        stackKey: circumstance-bonus
+        when: situational.huntedPrey
+      - target: { rolls: [skill] }
+        op: add
+        value: >-
+          level >= 17 && ('skill.deception' in roll.tags && skills.deception.rank >= 3
+            || 'skill.intimidation' in roll.tags && skills.intimidation.rank >= 3
+            || 'skill.stealth' in roll.tags && skills.stealth.rank >= 3) ? 4 : 2
+        stackKey: circumstance-bonus
+        when: >-
+          situational.huntedPrey && ranger.edge == 'outwit'
+            && !('skill.survival' in roll.tags)
+
+tags:
+  - hunt-prey
+  - strike.hunters-aim
+  - trait.concentrate
+
+display:
+  fields:
+    prey.target:
+      { groups: [turn], priority: 1, showWhen: 'countCopies(copy.item == @classes.ranger) > 0' }
+    twinParry.active:
+      {
+        groups: [defenses],
+        priority: 2,
+        input: { widget: checkbox },
+        showWhen: '@feats.ranger.twin-parry in feats.held',
+      }
+    prey.hits: { groups: [turn], priority: 2, showWhen: "ranger.edge == 'precision'" }
+    ranger.edge: { hidden: true }

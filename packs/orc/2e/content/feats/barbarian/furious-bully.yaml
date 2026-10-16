@@ -1,0 +1,13 @@
+id: feats.barbarian.furious-bully
+type: feat
+fields: { level: 8, category: class, class: classes.barbarian }
+prerequisites:
+  - { id: athletics, when: 'skills.athletics.rank >= 3' }
+effects:
+  - target: { rolls: [skill.athletics] }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: >-
+      rage.active && countList(['skill-action.trip', 'skill-action.shove', 'skill-action.grapple',
+        'skill-action.disarm', 'skill-action.reposition'], x in roll.tags) > 0

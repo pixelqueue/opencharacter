@@ -1,0 +1,10 @@
+id: feats.ancestry.ward-against-corruption
+type: feat
+fields: { level: 5, category: ancestry, heritage: heritages.duskwalker }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: >-
+      situational.againstUndead && (situational.againstVoid || situational.againstDisease) ? 2 : 1
+    stackKey: circumstance-bonus
+    when: situational.againstVoid || situational.againstDisease || situational.againstUndead

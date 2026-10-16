@@ -1,0 +1,14 @@
+id: magic-items.bag-of-tricks
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  weight: 0.5
+  maxCharges: 3
+  recharge: 3
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

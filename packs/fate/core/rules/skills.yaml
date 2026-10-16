@@ -1,0 +1,421 @@
+# The counts go over every field tagged `skill`, so a setting pack's skills count too.
+fields:
+  advancement.skillPoints: { type: integer, input: true, default: 0, min: 0 }
+  skills.cap: { type: integer, input: true, default: 4, min: 1, max: 8 }
+  skills.athletics:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage, skill.defend],
+    }
+  skills.burglary:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage],
+    }
+  skills.contacts:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage, skill.defend],
+    }
+  skills.crafts:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage],
+    }
+  skills.deceive:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage, skill.defend],
+    }
+  skills.drive:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage, skill.defend],
+    }
+  skills.empathy:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage, skill.defend],
+    }
+  skills.fight:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage, skill.attack, skill.defend],
+    }
+  skills.investigate:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage],
+    }
+  skills.lore:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage],
+    }
+  skills.notice:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage, skill.defend],
+    }
+  skills.physique:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage, skill.defend],
+    }
+  skills.provoke:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage, skill.attack],
+    }
+  skills.rapport:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage, skill.defend],
+    }
+  skills.resources:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage],
+    }
+  skills.shoot:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage, skill.attack],
+    }
+  skills.stealth:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage, skill.defend],
+    }
+  skills.will:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 8,
+      tags: [skill, skill.overcome, skill.advantage, skill.defend],
+    }
+
+  pyramid.average: { type: integer, formula: "sumFields(f.value == 1 ? 1 : 0, 'skill' in f.tags)" }
+  pyramid.fair: { type: integer, formula: "sumFields(f.value == 2 ? 1 : 0, 'skill' in f.tags)" }
+  pyramid.good: { type: integer, formula: "sumFields(f.value == 3 ? 1 : 0, 'skill' in f.tags)" }
+  pyramid.great: { type: integer, formula: "sumFields(f.value == 4 ? 1 : 0, 'skill' in f.tags)" }
+  pyramid.superb: { type: integer, formula: "sumFields(f.value == 5 ? 1 : 0, 'skill' in f.tags)" }
+  pyramid.fantastic:
+    { type: integer, formula: "sumFields(f.value == 6 ? 1 : 0, 'skill' in f.tags)" }
+  pyramid.epic: { type: integer, formula: "sumFields(f.value == 7 ? 1 : 0, 'skill' in f.tags)" }
+  pyramid.legendary:
+    { type: integer, formula: "sumFields(f.value == 8 ? 1 : 0, 'skill' in f.tags)" }
+  pyramid.total: { type: integer, formula: "sumFields(f.value, 'skill' in f.tags)" }
+  pyramid.highest: { type: integer, formula: "maxFields(f.value, 'skill' in f.tags)" }
+
+constraints:
+  - id: skill-pyramid
+    check: >-
+      !character.creating || (pyramid.great == 1 && pyramid.good == 2 && pyramid.fair == 3
+        && pyramid.average == 4)
+  - id: skill-columns
+    check: >-
+      npc.kind == 'supporting' || npc.kind == 'nameless' || pyramid.fair <= pyramid.average && pyramid.good <= pyramid.fair
+        && pyramid.great <= pyramid.good && pyramid.superb <= pyramid.great
+        && pyramid.fantastic <= pyramid.superb && pyramid.epic <= pyramid.fantastic
+        && pyramid.legendary <= pyramid.epic
+  - id: skill-points
+    check: "npc.kind != 'player' || pyramid.total <= 20 + advancement.skillPoints"
+    data: { limit: 20 + advancement.skillPoints, used: pyramid.total }
+  - id: skill-cap
+    check: "npc.kind != 'player' || pyramid.highest <= skills.cap"
+    data: { cap: skills.cap }
+
+display:
+  groups:
+    - id: skills
+      priority: 0
+      members: { type: field, where: "'skill' in item.tags" }
+    - id: pyramid
+      priority: 2
+  fields:
+    skills.cap:
+      {
+        groups: [pyramid],
+        priority: 1,
+        format: { bands: ladder },
+        input: { widget: number },
+        visibility: background,
+      }
+    advancement.skillPoints:
+      { groups: [pyramid], priority: 1, input: { widget: number }, visibility: background }
+    pyramid.legendary: { groups: [pyramid], priority: 0, showWhen: pyramid.legendary > 0 }
+    pyramid.epic: { groups: [pyramid], priority: 0, showWhen: pyramid.epic > 0 }
+    pyramid.fantastic: { groups: [pyramid], priority: 0, showWhen: pyramid.fantastic > 0 }
+    pyramid.superb: { groups: [pyramid], priority: 0, showWhen: pyramid.superb > 0 }
+    pyramid.great: { groups: [pyramid], priority: 0 }
+    pyramid.good: { groups: [pyramid], priority: 0 }
+    pyramid.fair: { groups: [pyramid], priority: 0 }
+    pyramid.average: { groups: [pyramid], priority: 0 }
+    pyramid.total: { groups: [pyramid], priority: 1, visibility: background }
+    pyramid.highest:
+      { groups: [pyramid], priority: 2, format: { bands: ladder }, visibility: background }
+    skills.athletics:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.athletics } },
+            { action: create-advantage, params: { skill: skills.athletics } },
+            { action: defend, params: { skill: skills.athletics } },
+          ],
+      }
+    skills.burglary:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.burglary } },
+            { action: create-advantage, params: { skill: skills.burglary } },
+          ],
+      }
+    skills.contacts:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.contacts } },
+            { action: create-advantage, params: { skill: skills.contacts } },
+            { action: defend, params: { skill: skills.contacts } },
+          ],
+      }
+    skills.crafts:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.crafts } },
+            { action: create-advantage, params: { skill: skills.crafts } },
+          ],
+      }
+    skills.deceive:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.deceive } },
+            { action: create-advantage, params: { skill: skills.deceive } },
+            { action: defend, params: { skill: skills.deceive } },
+          ],
+      }
+    skills.drive:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.drive } },
+            { action: create-advantage, params: { skill: skills.drive } },
+            { action: defend, params: { skill: skills.drive } },
+          ],
+      }
+    skills.empathy:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.empathy } },
+            { action: create-advantage, params: { skill: skills.empathy } },
+            { action: defend, params: { skill: skills.empathy } },
+          ],
+      }
+    skills.fight:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.fight } },
+            { action: create-advantage, params: { skill: skills.fight } },
+            { action: attack, params: { skill: skills.fight } },
+            { action: defend, params: { skill: skills.fight } },
+          ],
+      }
+    skills.investigate:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.investigate } },
+            { action: create-advantage, params: { skill: skills.investigate } },
+          ],
+      }
+    skills.lore:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.lore } },
+            { action: create-advantage, params: { skill: skills.lore } },
+          ],
+      }
+    skills.notice:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.notice } },
+            { action: create-advantage, params: { skill: skills.notice } },
+            { action: defend, params: { skill: skills.notice } },
+          ],
+      }
+    skills.physique:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.physique } },
+            { action: create-advantage, params: { skill: skills.physique } },
+            { action: defend, params: { skill: skills.physique } },
+          ],
+      }
+    skills.provoke:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.provoke } },
+            { action: create-advantage, params: { skill: skills.provoke } },
+            { action: attack, params: { skill: skills.provoke } },
+          ],
+      }
+    skills.rapport:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.rapport } },
+            { action: create-advantage, params: { skill: skills.rapport } },
+            { action: defend, params: { skill: skills.rapport } },
+          ],
+      }
+    skills.resources:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.resources } },
+            { action: create-advantage, params: { skill: skills.resources } },
+          ],
+      }
+    skills.shoot:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.shoot } },
+            { action: create-advantage, params: { skill: skills.shoot } },
+            { action: attack, params: { skill: skills.shoot } },
+          ],
+      }
+    skills.stealth:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.stealth } },
+            { action: create-advantage, params: { skill: skills.stealth } },
+            { action: defend, params: { skill: skills.stealth } },
+          ],
+      }
+    skills.will:
+      {
+        format: { bands: ladder },
+        input: { widget: number },
+        rolls:
+          [
+            { action: overcome, params: { skill: skills.will } },
+            { action: create-advantage, params: { skill: skills.will } },
+            { action: defend, params: { skill: skills.will } },
+          ],
+      }

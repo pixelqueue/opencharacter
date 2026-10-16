@@ -1,0 +1,14 @@
+id: feats.fighter.dueling-parry
+type: feat
+tags: [archetype-feat]
+fields: { level: 2, category: class, class: classes.fighter }
+
+actions:
+  - id: parry
+    tags: [feat-action]
+    available: '!parry.active'
+    steps:
+      - id: parry
+        kind: changes
+        changes:
+          - { type: set, field: parry.active, value: true }

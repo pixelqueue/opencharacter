@@ -1,0 +1,21 @@
+id: spells.faerie-dust
+type: spell
+tags:
+  [trait.concentrate, trait.focus, trait.manipulate, trait.mental, trait.sorcerer, trait.uncommon]
+fields:
+  rank: 1
+  cast: one-to-three
+  range: 30
+  area: burst
+  areaSize: 5
+  duration: rounds
+  durationAmount: 1
+  defense: will
+  applyTo: target
+  applyAt: 2
+effects:
+  - target: { fields: { where: "'perception' in item.tags || 'save.will' in item.tags" } }
+    op: add
+    value: -2
+    stackKey: status-penalty
+    scope: applied

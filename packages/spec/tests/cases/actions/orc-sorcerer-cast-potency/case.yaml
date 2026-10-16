@@ -1,0 +1,13 @@
+description: 'orc-2e: a sorcerer casts breathe fire, a signature spell, heightened to 2nd rank (4d6) from a 2nd-rank slot: Sorcerous Potency adds a status bonus equal to the rank (+2 fire) to the damage, and the goblin fails its save'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: orc-2e:spells.breathe-fire }
+  params: { rank: 2 }
+  participants:
+    target:
+      - { id: goblin }
+answers:
+  - { outcome: { result: failure } }

@@ -1,0 +1,33 @@
+id: feats.ancestry.nephilim-lore
+type: feat
+fields: { level: 1, category: ancestry, heritage: heritages.nephilim }
+choices:
+  - id: skill
+    from:
+      options:
+        - id: diplomacy
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.diplomacy },
+                when: "!('skill.diplomacy' in skills.chosen)",
+              }
+        - id: intimidation
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.intimidation },
+                when: "!('skill.intimidation' in skills.chosen)",
+              }
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.religion },
+      when: "!('skill.religion' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - { item: feats.skill.additional-lore, waivePrerequisites: true }

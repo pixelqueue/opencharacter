@@ -1,0 +1,114 @@
+# No class die: the class is the player's pick. Every die shows 2: the Deserter's Strength 3d6 + 2
+# = 8 (−1), the other abilities 3d6 = 6 (−2), HP max(1, −2 + 2) = 1. The feature is the player's
+# pick, the gore-hound, and creation finishes though the hound's sheet isn't linked yet.
+status: finished
+outcome:
+  result: rolled
+  data:
+    food: 2
+    equipment1: 2
+    equipment2: 2
+    equipment3: 2
+proposedChanges:
+  - to: self
+    step: class
+    change:
+      type: addItem
+      entry:
+        id: class
+        item: mork-borg-core:classes.fanged-deserter
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:abilities.strength
+      value: -1
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:abilities.agility
+      value: -2
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:abilities.presence
+      value: -2
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:abilities.toughness
+      value: -2
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:hp.max
+      value: 1
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:hp.current
+      value: 1
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:omens.max
+      value: 2
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:omens.current
+      value: 2
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:powers.max
+      value: 0
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:powers.current
+      value: 0
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:silver.current
+      value: 40
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry:
+        id: weapons-staff-1
+        item: mork-borg-core:weapons.staff
+        equipped: true
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry:
+        id: armor-light-1
+        item: mork-borg-core:armor.light
+        equipped: true
+  - to: self
+    step: features
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - feature
+      option: ancient-gore-hound
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

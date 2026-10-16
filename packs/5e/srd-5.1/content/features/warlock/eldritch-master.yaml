@@ -1,0 +1,16 @@
+id: features.warlock.eldritch-master
+type: feature
+actions:
+  - id: eldritch-master
+    tags: [feature]
+    results: [restored]
+    available: '!self.eldritchMasterUsed && pactSlots.used > 0'
+    steps:
+      - id: restore
+        kind: changes
+        changes:
+          - { type: set, field: pactSlots.used, value: 0 }
+          - { type: setState, entry: self, key: eldritchMasterUsed, value: true }
+      - id: result
+        kind: outcome
+        result: "'restored'"

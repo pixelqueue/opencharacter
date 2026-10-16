@@ -1,0 +1,25 @@
+description: "FitD crew creation: with no crew type, a special ability and the favored operation from the SRD's pools, two starting upgrades the crew marks itself, coin for the hunting grounds, two more upgrade boxes (a Rigging, whose two kinds of item are asked with the pending picks), and the players' words (reputation, lair, hunting grounds and a favorite contact), then finishCreation"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/crew
+input:
+  action: { id: fitd-crew:create-crew }
+  params:
+    reputation: Ruthless
+    lair: A gutted bathhouse on the canal
+    huntingGrounds: The docks by the old lighthouse
+    contact: Tess, a fence
+  policy: { dice: pause, choices: pause, allocations: pause }
+answers:
+  - option: fitd-crew:crew-abilities.fiends
+  - option: fitd-crew:operations.extortion
+  - amounts: { fitd-crew:upgrades.training.prowess: 1, fitd-crew:upgrades.lair.hidden: 1 }
+  - option: room
+  - option: upgrades
+  - amounts: { fitd-crew:upgrades.lair.vault: 1, fitd-crew:upgrades.rigging: 1 }
+  - option: none
+  - option: none
+  - option: none
+  - option: weapons
+  - option: gear

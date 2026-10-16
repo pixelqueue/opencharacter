@@ -1,0 +1,82 @@
+id: feats.archetype.wizard.arcane-school-spell
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.wizard }
+prerequisites:
+  - { id: wizard-dedication, when: '@feats.archetype.wizard.wizard-dedication in feats.held' }
+effects:
+  - { target: focus.points, op: add, value: 1 }
+choices:
+  - id: spell
+    from:
+      options:
+        - id: ars-grammatica
+          prerequisites: [{ id: school, when: "wizard.school == 'ars-grammatica'" }]
+          effects:
+            - {
+                target: spells.archetype.wizard.spells,
+                op: grant,
+                value: { item: spells.protective-wards },
+              }
+          grants:
+            - item: spells.protective-wards
+        - id: battle-magic
+          prerequisites: [{ id: school, when: "wizard.school == 'battle-magic'" }]
+          effects:
+            - {
+                target: spells.archetype.wizard.spells,
+                op: grant,
+                value: { item: spells.force-bolt },
+              }
+          grants:
+            - item: spells.force-bolt
+        - id: boundary
+          prerequisites: [{ id: school, when: "wizard.school == 'boundary'" }]
+          effects:
+            - {
+                target: spells.archetype.wizard.spells,
+                op: grant,
+                value: { item: spells.fortify-summoning },
+              }
+          grants:
+            - item: spells.fortify-summoning
+        - id: civic-wizardry
+          prerequisites: [{ id: school, when: "wizard.school == 'civic-wizardry'" }]
+          effects:
+            - {
+                target: spells.archetype.wizard.spells,
+                op: grant,
+                value: { item: spells.earthworks },
+              }
+          grants:
+            - item: spells.earthworks
+        - id: mentalism
+          prerequisites: [{ id: school, when: "wizard.school == 'mentalism'" }]
+          effects:
+            - {
+                target: spells.archetype.wizard.spells,
+                op: grant,
+                value: { item: spells.charming-push },
+              }
+          grants:
+            - item: spells.charming-push
+        - id: protean-form
+          prerequisites: [{ id: school, when: "wizard.school == 'protean-form'" }]
+          effects:
+            - {
+                target: spells.archetype.wizard.spells,
+                op: grant,
+                value: { item: spells.scramble-body },
+              }
+          grants:
+            - item: spells.scramble-body
+        - id: unified-magical-theory
+          prerequisites: [{ id: school, when: "wizard.school == 'unified-magical-theory'" }]
+          effects:
+            - {
+                target: spells.archetype.wizard.spells,
+                op: grant,
+                value: { item: spells.hand-of-the-apprentice },
+              }
+          grants:
+            - item: spells.hand-of-the-apprentice

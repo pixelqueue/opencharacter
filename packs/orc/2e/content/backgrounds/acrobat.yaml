@@ -1,0 +1,25 @@
+id: backgrounds.acrobat
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.acrobatics },
+      when: "!('skill.acrobatics' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.circus },
+      when: "!('skill.lore.circus' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.steady-balance
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'dex']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

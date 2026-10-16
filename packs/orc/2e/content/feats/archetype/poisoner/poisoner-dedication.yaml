@@ -1,0 +1,30 @@
+id: feats.archetype.poisoner.poisoner-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.poisoner }
+
+prerequisites:
+  - { id: crafting, when: 'skills.crafting.rank >= 1' }
+effects:
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.alchemist.blowgun-poisoner }
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.druid.poison-resistance }
+  - target: { fields: { where: "'archetype-extra.at6' in item.tags" } }
+    op: grant
+    value: { item: feats.rogue.poison-weapon }
+  - target: { fields: { where: "'archetype-extra.at6' in item.tags" } }
+    op: grant
+    value: { item: feats.alchemist.tenacious-toxins }
+  - target: { fields: { where: "'archetype-extra.at8' in item.tags" } }
+    op: grant
+    value: { item: feats.alchemist.sticky-poison }
+  - target: { fields: { where: "'archetype-extra.at10' in item.tags" } }
+    op: grant
+    value: { item: feats.rogue.improved-poison-weapon }
+  - target: { fields: { where: "'archetype-extra.at10' in item.tags" } }
+    op: grant
+    value: { item: feats.alchemist.pinpoint-poisoner }
+  - { target: alchemist.advancedItems, op: add, value: 4 }

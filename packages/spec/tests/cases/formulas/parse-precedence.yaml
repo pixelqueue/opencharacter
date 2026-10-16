@@ -1,0 +1,698 @@
+description: Operator precedence and associativity
+specVersion: 0.1.0
+cases:
+  - name: multiplication binds tighter than addition
+    parse: 1 + 2 * 3
+    tree:
+      type: binary
+      op: +
+      left:
+        type: int
+        value: 1
+      right:
+        type: binary
+        op: '*'
+        left:
+          type: int
+          value: 2
+        right:
+          type: int
+          value: 3
+    print: 1 + 2 * 3
+  - name: multiplication first on the left
+    parse: 1 * 2 + 3
+    tree:
+      type: binary
+      op: +
+      left:
+        type: binary
+        op: '*'
+        left:
+          type: int
+          value: 1
+        right:
+          type: int
+          value: 2
+      right:
+        type: int
+        value: 3
+    print: 1 * 2 + 3
+  - name: parentheses override precedence
+    parse: (1 + 2) * 3
+    tree:
+      type: binary
+      op: '*'
+      left:
+        type: binary
+        op: +
+        left:
+          type: int
+          value: 1
+        right:
+          type: int
+          value: 2
+      right:
+        type: int
+        value: 3
+    print: (1 + 2) * 3
+  - name: subtraction is left-associative
+    parse: 1 - 2 - 3
+    tree:
+      type: binary
+      op: '-'
+      left:
+        type: binary
+        op: '-'
+        left:
+          type: int
+          value: 1
+        right:
+          type: int
+          value: 2
+      right:
+        type: int
+        value: 3
+    print: 1 - 2 - 3
+  - name: a parenthesized right operand of - stays
+    parse: 1 - (2 - 3)
+    tree:
+      type: binary
+      op: '-'
+      left:
+        type: int
+        value: 1
+      right:
+        type: binary
+        op: '-'
+        left:
+          type: int
+          value: 2
+        right:
+          type: int
+          value: 3
+    print: 1 - (2 - 3)
+  - name: division then multiplication, left to right
+    parse: a / b * c
+    tree:
+      type: binary
+      op: '*'
+      left:
+        type: binary
+        op: /
+        left: &a1
+          type: name
+          path:
+            - a
+        right: &a2
+          type: name
+          path:
+            - b
+      right: &a3
+        type: name
+        path:
+          - c
+    print: a / b * c
+  - name: parenthesized right product stays
+    parse: a / (b * c)
+    tree:
+      type: binary
+      op: /
+      left: *a1
+      right:
+        type: binary
+        op: '*'
+        left: *a2
+        right: *a3
+    print: a / (b * c)
+  - name: '% shares the multiplication level'
+    parse: a % b * c
+    tree:
+      type: binary
+      op: '*'
+      left:
+        type: binary
+        op: '%'
+        left: *a1
+        right: *a2
+      right: *a3
+    print: a % b * c
+  - name: addition binds tighter than comparison
+    parse: 1 + 2 < 3 + 4
+    tree:
+      type: binary
+      op: <
+      left:
+        type: binary
+        op: +
+        left:
+          type: int
+          value: 1
+        right:
+          type: int
+          value: 2
+      right:
+        type: binary
+        op: +
+        left:
+          type: int
+          value: 3
+        right:
+          type: int
+          value: 4
+    print: 1 + 2 < 3 + 4
+  - name: relations chain left to right
+    parse: a < b == c
+    tree:
+      type: binary
+      op: ==
+      left:
+        type: binary
+        op: <
+        left: *a1
+        right: *a2
+      right: *a3
+    print: a < b == c
+  - name: parenthesized right relation stays
+    parse: a == (b < c)
+    tree:
+      type: binary
+      op: ==
+      left: *a1
+      right:
+        type: binary
+        op: <
+        left: *a2
+        right: *a3
+    print: a == (b < c)
+  - name: redundant parentheses on the left relation drop
+    parse: (a < b) < c
+    tree:
+      type: binary
+      op: <
+      left:
+        type: binary
+        op: <
+        left: *a1
+        right: *a2
+      right: *a3
+    print: a < b < c
+  - name: == then !=
+    parse: a == b != c
+    tree:
+      type: binary
+      op: '!='
+      left:
+        type: binary
+        op: ==
+        left: *a1
+        right: *a2
+      right: *a3
+    print: a == b != c
+  - name: in is a relation
+    parse: x in xs && y
+    tree:
+      type: binary
+      op: '&&'
+      left:
+        type: binary
+        op: in
+        left:
+          type: name
+          path:
+            - x
+        right:
+          type: name
+          path:
+            - xs
+      right:
+        type: name
+        path:
+          - y
+    print: x in xs && y
+  - name: addition inside in
+    parse: a + b in xs
+    tree:
+      type: binary
+      op: in
+      left:
+        type: binary
+        op: +
+        left: *a1
+        right: *a2
+      right:
+        type: name
+        path:
+          - xs
+    print: a + b in xs
+  - name: in with a list sum
+    parse: x in ys + zs
+    tree:
+      type: binary
+      op: in
+      left:
+        type: name
+        path:
+          - x
+      right:
+        type: binary
+        op: +
+        left:
+          type: name
+          path:
+            - ys
+        right:
+          type: name
+          path:
+            - zs
+    print: x in ys + zs
+  - name: all six comparison operators
+    parse: a < b || a <= b || a > b || a >= b || a == b || a != b
+    print: a < b || a <= b || a > b || a >= b || a == b || a != b
+  - name: '&& binds tighter than ||'
+    parse: a || b && c
+    tree:
+      type: binary
+      op: '||'
+      left: *a1
+      right:
+        type: binary
+        op: '&&'
+        left: *a2
+        right: *a3
+    print: a || b && c
+  - name: '&& on the left of ||'
+    parse: a && b || c
+    tree:
+      type: binary
+      op: '||'
+      left:
+        type: binary
+        op: '&&'
+        left: *a1
+        right: *a2
+      right: *a3
+    print: a && b || c
+  - name: parenthesized || under && stays
+    parse: (a || b) && c
+    tree:
+      type: binary
+      op: '&&'
+      left:
+        type: binary
+        op: '||'
+        left: *a1
+        right: *a2
+      right: *a3
+    print: (a || b) && c
+  - name: comparison binds tighter than &&
+    parse: a < 1 && b > 2
+    tree:
+      type: binary
+      op: '&&'
+      left:
+        type: binary
+        op: <
+        left: *a1
+        right:
+          type: int
+          value: 1
+      right:
+        type: binary
+        op: '>'
+        left: *a2
+        right:
+          type: int
+          value: 2
+    print: a < 1 && b > 2
+  - name: '&& is left-associative'
+    parse: a && b && c
+    tree:
+      type: binary
+      op: '&&'
+      left:
+        type: binary
+        op: '&&'
+        left: *a1
+        right: *a2
+      right: *a3
+    print: a && b && c
+  - name: right-nested && keeps its parentheses
+    parse: a && (b && c)
+    tree:
+      type: binary
+      op: '&&'
+      left: *a1
+      right:
+        type: binary
+        op: '&&'
+        left: *a2
+        right: *a3
+    print: a && (b && c)
+  - name: '! binds tighter than &&'
+    parse: '!a && b'
+    tree:
+      type: binary
+      op: '&&'
+      left:
+        type: unary
+        op: '!'
+        operand: *a1
+      right: *a2
+    print: '!a && b'
+  - name: '! of a parenthesized conjunction'
+    parse: '!(a && b)'
+    tree:
+      type: unary
+      op: '!'
+      operand:
+        type: binary
+        op: '&&'
+        left: *a1
+        right: *a2
+    print: '!(a && b)'
+  - name: '! binds tighter than =='
+    parse: '!a == b'
+    tree:
+      type: binary
+      op: ==
+      left:
+        type: unary
+        op: '!'
+        operand: *a1
+      right: *a2
+    print: '!a == b'
+  - name: unary minus binds tighter than *
+    parse: -a * b
+    tree:
+      type: binary
+      op: '*'
+      left:
+        type: unary
+        op: '-'
+        operand: *a1
+      right: *a2
+    print: -a * b
+  - name: unary minus of a product
+    parse: -(a * b)
+    tree:
+      type: unary
+      op: '-'
+      operand:
+        type: binary
+        op: '*'
+        left: *a1
+        right: *a2
+    print: -(a * b)
+  - name: double unary minus
+    parse: '- - a'
+    tree:
+      type: unary
+      op: '-'
+      operand:
+        type: unary
+        op: '-'
+        operand: *a1
+    print: --a
+  - name: double negation
+    parse: '! ! a'
+    tree:
+      type: unary
+      op: '!'
+      operand:
+        type: unary
+        op: '!'
+        operand: *a1
+    print: '!!a'
+  - name: unary minus applies to a whole dotted name
+    parse: -a.b
+    tree:
+      type: unary
+      op: '-'
+      operand:
+        type: name
+        path:
+          - a
+          - b
+    print: -a.b
+  - name: unary minus applies after indexing
+    parse: -x[0]
+    tree:
+      type: unary
+      op: '-'
+      operand:
+        type: index
+        object:
+          type: name
+          path:
+            - x
+        index:
+          type: int
+          value: 0
+    print: -x[0]
+  - name: negative literal is unary minus
+    parse: '-1'
+    tree:
+      type: unary
+      op: '-'
+      operand:
+        type: int
+        value: 1
+    print: '-1'
+  - name: unary minus on the right of *
+    parse: 2 * -3
+    tree:
+      type: binary
+      op: '*'
+      left:
+        type: int
+        value: 2
+      right:
+        type: unary
+        op: '-'
+        operand:
+          type: int
+          value: 3
+    print: 2 * -3
+  - name: subtracting a negative
+    parse: a - -1
+    tree:
+      type: binary
+      op: '-'
+      left: *a1
+      right:
+        type: unary
+        op: '-'
+        operand:
+          type: int
+          value: 1
+    print: a - -1
+  - name: conditional is right-associative
+    parse: 'a ? b : c ? d : e'
+    tree:
+      type: conditional
+      test: *a1
+      then: *a2
+      else:
+        type: conditional
+        test: *a3
+        then: &a4
+          type: name
+          path:
+            - d
+        else: &a5
+          type: name
+          path:
+            - e
+    print: 'a ? b : c ? d : e'
+  - name: parenthesized else branch drops its parentheses
+    parse: 'a ? b : (c ? d : e)'
+    tree:
+      type: conditional
+      test: *a1
+      then: *a2
+      else:
+        type: conditional
+        test: *a3
+        then: *a4
+        else: *a5
+    print: 'a ? b : c ? d : e'
+  - name: conditional as a test keeps parentheses
+    parse: '(a ? b : c) ? d : e'
+    tree:
+      type: conditional
+      test:
+        type: conditional
+        test: *a1
+        then: *a2
+        else: *a3
+      then: *a4
+      else: *a5
+    print: '(a ? b : c) ? d : e'
+  - name: conditional as a then-branch keeps parentheses
+    parse: 'a ? (b ? c : d) : e'
+    tree:
+      type: conditional
+      test: *a1
+      then:
+        type: conditional
+        test: *a2
+        then: *a3
+        else: *a4
+      else: *a5
+    print: 'a ? (b ? c : d) : e'
+  - name: an unparenthesized then-branch conditional is a syntax error
+    parse: 'a ? b ? c : d : e'
+    error: formula-syntax
+  - name: '|| binds tighter than ?:'
+    parse: 'a || b ? c : d'
+    tree:
+      type: conditional
+      test:
+        type: binary
+        op: '||'
+        left: *a1
+        right: *a2
+      then: *a3
+      else: *a4
+    print: 'a || b ? c : d'
+  - name: '|| in the then-branch'
+    parse: 'a ? b || c : d'
+    tree:
+      type: conditional
+      test: *a1
+      then:
+        type: binary
+        op: '||'
+        left: *a2
+        right: *a3
+      else: *a4
+    print: 'a ? b || c : d'
+  - name: conditional in an addition keeps parentheses
+    parse: '(a ? b : c) + 1'
+    tree:
+      type: binary
+      op: +
+      left:
+        type: conditional
+        test: *a1
+        then: *a2
+        else: *a3
+      right:
+        type: int
+        value: 1
+    print: '(a ? b : c) + 1'
+  - name: conditional as right operand keeps parentheses
+    parse: 'a + (b ? c : d)'
+    tree:
+      type: binary
+      op: +
+      left: *a1
+      right:
+        type: conditional
+        test: *a2
+        then: *a3
+        else: *a4
+    print: 'a + (b ? c : d)'
+  - name: missing else branch
+    parse: a ? b
+    error: formula-syntax
+  - name: missing then branch
+    parse: 'a ? : b'
+    error: formula-syntax
+  - name: the proficiency bonus formula
+    parse: 'level.total > 0 ? 2 + floor((level.total - 1) / 4) : 2'
+    tree:
+      type: conditional
+      test:
+        type: binary
+        op: '>'
+        left:
+          type: name
+          path:
+            - level
+            - total
+        right:
+          type: int
+          value: 0
+      then:
+        type: binary
+        op: +
+        left:
+          type: int
+          value: 2
+        right:
+          type: call
+          fn: floor
+          args:
+            - type: binary
+              op: /
+              left:
+                type: binary
+                op: '-'
+                left:
+                  type: name
+                  path:
+                    - level
+                    - total
+                right:
+                  type: int
+                  value: 1
+              right:
+                type: int
+                value: 4
+      else:
+        type: int
+        value: 2
+    print: 'level.total > 0 ? 2 + floor((level.total - 1) / 4) : 2'
+  - name: the ability modifier formula
+    parse: floor((abilities.str.score - 10) / 2)
+    tree:
+      type: call
+      fn: floor
+      args:
+        - type: binary
+          op: /
+          left:
+            type: binary
+            op: '-'
+            left:
+              type: name
+              path:
+                - abilities
+                - str
+                - score
+            right:
+              type: int
+              value: 10
+          right:
+            type: int
+            value: 2
+    print: floor((abilities.str.score - 10) / 2)
+  - name: a query condition with in and ||
+    parse: "'martial' in item.tags || 'simple' in item.tags"
+    tree:
+      type: binary
+      op: '||'
+      left:
+        type: binary
+        op: in
+        left:
+          type: string
+          value: martial
+        right:
+          type: name
+          path:
+            - item
+            - tags
+      right:
+        type: binary
+        op: in
+        left:
+          type: string
+          value: simple
+        right:
+          type: name
+          path:
+            - item
+            - tags
+    print: "'martial' in item.tags || 'simple' in item.tags"

@@ -1,0 +1,24 @@
+# DR 2; 1 + 2 (Presence) = 3 would pass, but a natural 1 is a fumble.
+status: finished
+outcome:
+  result: fumble
+  data:
+    total: 3
+    dr: 2
+    omensSpent: 0
+proposedChanges: []
+log:
+  - step: check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 1
+    total: 3
+    band: fumble
+    bandSet: mork-borg-core:test
+  - step: fate
+    action: mork-borg-core:test
+    kind: choice
+    by: engine
+    option: keep

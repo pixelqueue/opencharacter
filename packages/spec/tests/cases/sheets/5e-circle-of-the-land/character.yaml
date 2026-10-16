@@ -1,0 +1,29 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.wis.base: 16
+  5e-srd-5.1:hp.base: 30
+  5e-srd-5.1:hp.current: 30
+features:
+  - id: druid
+    item: 5e-srd-5.1:classes.druid
+    state: { level: 5, startingClass: true }
+    choices:
+      skills: [{ option: skill.nature }, { option: skill.survival }]
+      druid-circle:
+        - option: 5e-srd-5.1:subclasses.circle-of-the-land
+          choices:
+            5e-srd-5.1:features.druid.circle-spells/land: [{ option: coast }]
+            5e-srd-5.1:features.druid.bonus-cantrip/cantrip:
+              [{ option: 5e-srd-5.1:spells.guidance }]
+      5e-srd-5.1:features.druid.spellcasting/cantrips:
+        [
+          { option: 5e-srd-5.1:spells.druidcraft },
+          { option: 5e-srd-5.1:spells.produce-flame },
+          { option: 5e-srd-5.1:spells.shillelagh },
+        ]
+      5e-srd-5.1:features.druid.spellcasting/spells: [{ option: 5e-srd-5.1:spells.cure-wounds }]
+      5e-srd-5.1:features.ability-score-improvement/improvement-4:
+        [{ option: 5e-srd-5.1:improvements.plus-two, choices: { ability: [{ option: wis }] } }]

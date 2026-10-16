@@ -1,0 +1,47 @@
+description: '`has()` of a flag no case set becomes `false` in a passed-on `where`; the path it guards is skipped'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          gem:
+            carried: true
+            fields:
+              color: { type: enum, values: [red, blue] }
+            state:
+              charge: { type: integer, min: 0, default: 3 }
+        actions:
+          - id: drain
+            params:
+              color: { type: enum, values: [red, blue] }
+            steps:
+              - id: pick
+                kind: branch
+                cases:
+                  - when: params.color == 'blue'
+                    flags: { color: params.color }
+              - id: spend
+                kind: changes
+                changes:
+                  - type: adjustState
+                    copies: { type: gem, where: self.charge > 0 && !has(flags.color) }
+                    key: charge
+                    by: -1
+                  - type: adjustState
+                    copies:
+                      type: gem
+                      where: 'has(flags.color) ? item.color == flags.color : self.charge > 1'
+                    key: charge
+                    by: -1
+      content:
+        - { id: gems.ruby, type: gem, fields: { color: red } }
+input:
+  action: { id: test-pack:drain }
+  params: { color: red }

@@ -1,0 +1,20 @@
+id: backgrounds.blessed
+type: background
+# The Lore of the deity is the first custom Lore (`skills.lore.custom1`), its subject named by the
+# player.
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.custom1 }
+    when: "!('skill.lore.custom1' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.innate, op: grant, value: { item: spells.guidance } }
+grants:
+  - item: spells.guidance
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['wis', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

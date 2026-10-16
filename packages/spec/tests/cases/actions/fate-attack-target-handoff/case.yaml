@@ -1,0 +1,16 @@
+description: 'Fate Core: an attack hands the target its defense, reads its total as the opposition, then hands it the hit to absorb on its own sheet'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:attack }
+  params: { skill: fate-core:skills.fight }
+  participants:
+    target: [{ id: thug, values: {} }]
+  policy: { choices: auto }
+answers:
+  # The thug's app ran `defend` (opposition 5) and rolled a Fair (+2) defense.
+  - outcome: { result: fail, data: { total: 2 } }
+  # It then ran `take-hit` with 3 shifts and absorbed it.
+  - outcome: { result: absorbed, data: { shifts: 3, box: 3 } }

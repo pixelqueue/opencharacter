@@ -1,0 +1,7 @@
+id: afflictions.choking-death
+type: affliction
+tags: [trait.disease]
+fields: { kind: disease, level: 6, dc: 22, stages: 4 }
+grants:
+  - { item: conditions.drained, scope: applied, when: self.stage == 2, state: { value: 1 } }
+  - { item: conditions.drained, scope: applied, when: self.stage == 3, state: { value: 2 } }

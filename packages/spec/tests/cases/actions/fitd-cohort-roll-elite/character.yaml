@@ -1,0 +1,22 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: fitd-crew, version: 0.1.0 }
+values:
+  fitd-crew:tier: 2
+  fitd-crew:upgrades.training.prowess: 1
+  fitd-crew:upgrades.elite.thugs: 1
+choices:
+  crew-abilities:
+    - option: fitd-crew:crew-abilities.fiends
+  operation:
+    - option: fitd-crew:operations.extortion
+features:
+  - id: c-1
+    item: fitd-crew:cohorts.gang
+    state: { gangType: thugs, harm: 2 }
+    choices:
+      edges:
+        - option: fitd-crew:cohort-traits.loyal
+      flaws:
+        - option: fitd-crew:cohort-traits.wild

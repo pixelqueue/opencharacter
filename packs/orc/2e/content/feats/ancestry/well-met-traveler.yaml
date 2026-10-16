@@ -1,0 +1,11 @@
+id: feats.ancestry.well-met-traveler
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.catfolk }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.diplomacy }
+    when: "!('skill.diplomacy' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - { item: feats.skill.hobnobber, waivePrerequisites: true }

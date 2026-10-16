@@ -1,0 +1,9 @@
+id: features.fighter.remarkable-athlete
+type: feature
+effects:
+  - target: { rolls: [check.str, check.dex, check.con] }
+    op: add
+    value: ceil(proficiency.bonus / 2)
+    when: >-
+      has(flags.toolProficient) ? !flags.toolProficient
+        : !has(params.skill) || !(('skill.' + params.skill) in proficiencies.skills)

@@ -1,0 +1,69 @@
+id: feats.ancestry.draconic-resistance
+type: feat
+fields: { level: 1, category: ancestry, heritage: heritages.dragonblood }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.force] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, max(1, floor(level / 2)))
+    when: incoming.amount < 0 && dragonblood.damageType == 'force'
+  - target: { incoming: { fields: [hp.current], tags: [damage.mental] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, max(1, floor(level / 2)))
+    when: incoming.amount < 0 && dragonblood.damageType == 'mental'
+  - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, max(1, floor(level / 2)))
+    when: incoming.amount < 0 && dragonblood.damageType == 'fire'
+  - target: { incoming: { fields: [hp.current], tags: [damage.spirit] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, max(1, floor(level / 2)))
+    when: incoming.amount < 0 && dragonblood.damageType == 'spirit'
+  - target: { incoming: { fields: [hp.current], tags: [damage.poison] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, max(1, floor(level / 2)))
+    when: incoming.amount < 0 && dragonblood.damageType == 'poison'
+choices:
+  - id: type
+    required: false
+    from:
+      options:
+        - id: acid
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.acid] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, max(1, floor(level / 2)))
+              when: incoming.amount < 0 && dragonblood.damageType in ['bludgeoning', 'piercing', 'slashing']
+        - id: cold
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.cold] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, max(1, floor(level / 2)))
+              when: incoming.amount < 0 && dragonblood.damageType in ['bludgeoning', 'piercing', 'slashing']
+        - id: electricity
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.electricity] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, max(1, floor(level / 2)))
+              when: incoming.amount < 0 && dragonblood.damageType in ['bludgeoning', 'piercing', 'slashing']
+        - id: fire
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, max(1, floor(level / 2)))
+              when: incoming.amount < 0 && dragonblood.damageType in ['bludgeoning', 'piercing', 'slashing']
+        - id: sonic
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.sonic] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, max(1, floor(level / 2)))
+              when: incoming.amount < 0 && dragonblood.damageType in ['bludgeoning', 'piercing', 'slashing']

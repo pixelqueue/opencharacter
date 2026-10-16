@@ -1,0 +1,37 @@
+id: feats.ancestry.leech-clip
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.hobgoblin }
+actions:
+  - id: leech-clip
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    available: >-
+      countCopies(copy.type == 'weapon' && copy.equipped && has(copy.fields.group) && copy.fields.group == 'flail') > 0
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "item.group == 'flail' && item.range == 0 && (self.equipped || 'standard' in item.tags)"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+      - id: clip
+        kind: changes
+        when: "steps.strike.result in ['success', 'critical-success']"
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'effects.speed-status-penalty'"
+            state: { value: "steps.strike.result == 'critical-success' ? 15 : 10" }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage

@@ -1,0 +1,23 @@
+# 1d6 = 5 HP back (capped at maximum HP when applied).
+status: finished
+outcome:
+  result: long
+  data:
+    healed: 5
+proposedChanges:
+  - to: self
+    step: save
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: 5
+      tags:
+        - healing
+log:
+  - step: heal
+    action: mork-borg-core:rest
+    kind: dice
+    by: engine
+    faces:
+      - 5
+    total: 5

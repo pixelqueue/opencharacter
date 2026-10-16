@@ -1,0 +1,12 @@
+# Wits's input is 0 and the effect makes its value 2, so its cost adds one per point.
+# `costs[0]` is always 0.
+status: paused
+needs:
+  step: points
+  kind: allocate
+  allocate:
+    fields:
+      - { id: 'test-pack:stats.might', value: 1, input: 1, limit: 2, costs: [0, 1, 3] }
+      - { id: 'test-pack:stats.wits', value: 2, input: 0, limit: 2, costs: [0, 2, 5] }
+    budget: 5
+    spend: upTo

@@ -1,0 +1,42 @@
+id: backgrounds.martial-disciple
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.warfare },
+      when: "!('skill.lore.warfare' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'dex']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }
+  - id: discipline
+    from:
+      options:
+        - id: acrobatics
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.acrobatics },
+                when: "!('skill.acrobatics' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - item: feats.skill.cat-fall
+        - id: athletics
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.athletics },
+                when: "!('skill.athletics' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - item: feats.skill.quick-jump

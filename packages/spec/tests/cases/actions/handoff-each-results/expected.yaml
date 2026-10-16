@@ -1,0 +1,26 @@
+status: finished
+outcome:
+  result: done
+  data: { saved: 2 }
+proposedChanges:
+  - to: target
+    character: goblin-1
+    step: burn[0]
+    change: { type: adjust, field: test-pack:hp.current, by: -2 }
+  - to: target
+    character: goblin-2
+    step: burn[1]
+    change: { type: adjust, field: test-pack:hp.current, by: -4 }
+log:
+  - step: saves[0]
+    action: test-pack:blast
+    kind: handoff
+    by: app
+    participant: { role: target, id: goblin-1 }
+    outcome: { result: success }
+  - step: saves[1]
+    action: test-pack:blast
+    kind: handoff
+    by: app
+    participant: { role: target, id: goblin-2 }
+    outcome: { result: failure, data: { total: 9 } }

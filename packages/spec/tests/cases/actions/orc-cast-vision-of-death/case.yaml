@@ -1,0 +1,17 @@
+description: 'orc-2e: vision of death (4th rank) heightened to 5th (10d6 mental, a Will save worked out as a basic one) against three creatures, each frightened by its outcome: a success half damage and frightened 1, a failure full and frightened 2, a critical failure double, frightened 4 and fleeing'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: orc-2e:spells.vision-of-death }
+  params: { rank: 5 }
+  participants:
+    target:
+      - { id: a }
+      - { id: b }
+      - { id: c }
+answers:
+  - { outcome: { result: success } }
+  - { outcome: { result: failure } }
+  - { outcome: { result: critical-failure } }

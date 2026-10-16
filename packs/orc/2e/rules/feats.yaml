@@ -1,0 +1,28 @@
+fields:
+  parry.active: { type: boolean, input: true, default: false }
+  assurance.skills: { type: set, of: tag, members: { under: [skill], except: [skill.lore] } }
+  senses.keenEyes: { type: boolean, formula: false }
+
+effects:
+  - id: dueling-parry
+    target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: parry.active
+
+# A stance that changes every Strike while it lasts is a situational choice made when the Strike is
+# made, offered while the character has the feat.
+situational:
+  - id: pointBlank
+    type: boolean
+    default: false
+    rolls: [strike]
+    available: '@feats.fighter.point-blank-stance in feats.held'
+    effects:
+      - target: { rolls: [damage.strike] }
+        op: add
+        value: 2
+        stackKey: circumstance-bonus
+        tags: [{ formula: "'damage.' + roll.item.damageType" }]
+        when: situational.pointBlank && roll.item.range > 0

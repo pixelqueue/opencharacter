@@ -1,0 +1,12 @@
+description: 'FitD: acquiring an asset on a critical, then 4 coin for two more quality levels'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:acquire-asset }
+  params: { tier: 2, minQuality: 5 }
+  policy:
+    choices: pause
+answers:
+  - option: spend4

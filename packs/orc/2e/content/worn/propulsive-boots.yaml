@@ -1,0 +1,26 @@
+id: worn.propulsive-boots
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 13
+  price: 3000
+  bulk: 0.1
+  usage: shoes
+  activation: one
+  frequency: once-per-day
+effects:
+  - target: speed.land
+    op: add
+    value: 5
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: speed.climb
+    op: add
+    value: 5
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested && speed.climb.base > 0'
+  - target: speed.swim
+    op: add
+    value: 5
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested && speed.swim.base > 0'

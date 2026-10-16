@@ -1,0 +1,29 @@
+# Marine: Combat +10 (41 -> 51), Body +10 (27 -> 37), Fear +20 (31 -> 51), wounds +1 (2 -> 3).
+# Granted skills (Military Training, Athletics) and the Expert pick (Firearms, which Military
+# Training unlocks) are all known; nothing is pending and no prerequisite fails.
+values:
+  mothership-1e:stats.combat: { value: 51 }
+  mothership-1e:stats.intellect: { value: 29 }
+  mothership-1e:saves.body: { value: 37 }
+  mothership-1e:saves.fear: { value: 51 }
+  mothership-1e:saves.sanity: { value: 24 }
+  mothership-1e:wounds.max: { value: 3 }
+  mothership-1e:skills.known:
+    value:
+      - mothership-1e:skills.athletics
+      - mothership-1e:skills.firearms
+      - mothership-1e:skills.military-training
+pending: []
+issues: []
+errors: []
+# The activation list: the class, its two granted skills and the Expert pick,
+# made under the `bonus-skills` choice's inline option (not listed), so its parent is the class.
+activations:
+  - { item: mothership-1e:classes.marine, entry: class, via: copy }
+  - { item: mothership-1e:skills.military-training, entry: class, via: grant, parent: 0 }
+  - { item: mothership-1e:skills.athletics, entry: class, via: grant, parent: 0 }
+  - item: mothership-1e:skills.firearms
+    entry: class
+    via: pick
+    parent: 0
+    path: { entry: class, choice: [bonus-skills, expert, expert, mothership-1e:skills.firearms] }

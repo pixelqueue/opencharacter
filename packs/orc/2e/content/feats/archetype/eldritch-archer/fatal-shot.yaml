@@ -1,0 +1,42 @@
+id: feats.archetype.eldritch-archer.fatal-shot
+type: feat
+tags: [trait.archetype, trait.magical, archetype-feat]
+fields: { level: 18, category: class, archetype: archetypes.eldritch-archer }
+
+prerequisites:
+  - {
+      id: eldritch-archer-dedication,
+      when: '@feats.archetype.eldritch-archer.eldritch-archer-dedication in feats.held',
+    }
+actions:
+  - id: fatal-shot
+    tags: [strike]
+    available: "countCopies(copy.type == 'weapon' && copy.equipped && has(copy.fields.group) && copy.fields.group in ['bow', 'crossbow']) > 0"
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "self.equipped && item.group in ['bow', 'crossbow']"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [strike.fatal-shot]
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+effects:
+  - target: { rolls: [strike.fatal-shot] }
+    op: add
+    value: 10d10
+    tags: [precision, { formula: "'damage.' + roll.item.damageType" }]
+    when: "'damage' in roll.tags"

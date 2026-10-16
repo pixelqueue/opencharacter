@@ -1,0 +1,13 @@
+id: magic-items.luck-blade
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: "'sword' in item.tags" }
+fields: { rarity: legendary, requiresAttunement: true, attackBonus: 1, damageBonus: 1 }
+state:
+  wishes: { type: integer, min: 0, max: 3, default: 0 }
+effects:
+  - { target: { rolls: [save] }, op: add, value: 1, when: self.attuned }
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 1
+    when: self.attuned

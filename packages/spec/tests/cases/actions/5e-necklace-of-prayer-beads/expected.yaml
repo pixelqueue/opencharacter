@@ -1,0 +1,23 @@
+# One bead of curing is used; the second casts cure wounds at 2nd level (2d8 = 8, + Wisdom 3)
+# and is marked used. No spell slot is spent.
+status: finished
+outcome:
+  result: cast
+  data:
+    slot: 2
+    spellcastingClass: none
+    metamagic: none
+    dc: 14
+    save: ''
+    halfOnSave: false
+    damage: 0
+    healing: 11
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: cost
+    change: { type: setState, entry: beads, key: usedToday, value: [curing-1, curing-2] }
+  - to: target
+    step: restore
+    change: { type: adjust, field: 5e-srd-5.1:hp.current, by: 11, tags: [healing] }

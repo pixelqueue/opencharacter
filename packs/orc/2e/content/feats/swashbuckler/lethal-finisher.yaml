@@ -1,0 +1,38 @@
+id: feats.swashbuckler.lethal-finisher
+type: feat
+tags: [trait.death, trait.finisher]
+fields: { level: 18, category: class, class: classes.swashbuckler }
+prerequisites:
+  - { id: precise, when: 'swashbuckler.preciseStrike >= 6' }
+actions:
+  - id: lethal-finisher
+    tags: [strike]
+    available: panache.active
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [finisher]
+        participants: { target: participants.target }
+      - id: spend
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @effects.panache' }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+          dc: classDc.swashbuckler.value

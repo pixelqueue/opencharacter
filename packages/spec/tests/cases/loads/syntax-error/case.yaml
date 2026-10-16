@@ -1,0 +1,16 @@
+description: "A formula that doesn't parse is a formula error"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might: { type: integer, input: true, default: 1, min: 0, max: 10 }
+          stats.bonus: { type: integer, formula: 'stats.might *' }
+      content: []

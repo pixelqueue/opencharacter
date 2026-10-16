@@ -1,0 +1,16 @@
+ok: true
+adjustments: []
+followUps:
+  - id: dodging-death-1
+    kind: ephemeral
+    followUp: mork-borg-core:dodging-death
+    to: self
+    required: false
+    action:
+      id: mork-borg-core:dodge-death
+      followUp: dodging-death-1
+    params: {}
+changes:
+  - type: set
+    field: mork-borg-core:hp.current
+    value: -1

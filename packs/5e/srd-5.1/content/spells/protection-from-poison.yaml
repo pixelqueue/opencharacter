@@ -1,0 +1,22 @@
+id: spells.protection-from-poison
+type: spell
+fields:
+  level: 2
+  school: abjuration
+  classes: [classes.cleric, classes.druid, classes.paladin, classes.ranger]
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.poison] } }
+    op: multiply
+    value: 0.5
+    scope: applied
+    duration: { amount: 1, unit: hour }

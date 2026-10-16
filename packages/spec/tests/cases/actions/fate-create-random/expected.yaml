@@ -1,0 +1,67 @@
+# The engine draws each. The skills in field order are 1 Athletics to 18 Will.
+# The pyramid's values set them. The d18's 8 draws Fight (Great); the d17's
+# 1 the first not drawn, Athletics, and the d16's 12 the twelfth not drawn, Rapport (Good); then
+# Will, Crafts and Provoke (Fair), and Contacts, Notice, Shoot and Empathy (Average). The d17's 17
+# is the last example stunt, Trust Fund Baby; the d16's 1 the first left, Grappler; the d15's 5 the
+# fifth left, Lie Whisperer. The changes apply cleanly (fate-finish-random-creation).
+status: finished
+proposedChanges:
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.athletics, value: 3 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.contacts, value: 1 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.crafts, value: 2 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.empathy, value: 1 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.fight, value: 4 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.notice, value: 1 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.provoke, value: 2 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.rapport, value: 3 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.shoot, value: 1 } }
+  - { to: self, step: pyramid, change: { type: set, field: fate-core:skills.will, value: 2 } }
+  - to: self
+    step: stunts
+    change:
+      {
+        type: addItem,
+        entry: { id: stunts-trust-fund-baby-1, item: fate-core:stunts.trust-fund-baby },
+      }
+  - to: self
+    step: stunts
+    change: { type: addItem, entry: { id: stunts-grappler-1, item: fate-core:stunts.grappler } }
+  - to: self
+    step: stunts
+    change:
+      { type: addItem, entry: { id: stunts-lie-whisperer-1, item: fate-core:stunts.lie-whisperer } }
+  - { to: self, step: finish, change: { type: set, field: fate-core:fatePoints.current, value: 3 } }
+  - { to: self, step: finish, change: { type: finishCreation } }
+log:
+  - { step: pyramid, kind: dice, by: engine, faces: [8] }
+  - { step: pyramid, kind: dice, by: engine, faces: [1] }
+  - { step: pyramid, kind: dice, by: engine, faces: [12] }
+  - { step: pyramid, kind: dice, by: engine, faces: [15] }
+  - { step: pyramid, kind: dice, by: engine, faces: [3] }
+  - { step: pyramid, kind: dice, by: engine, faces: [10] }
+  - { step: pyramid, kind: dice, by: engine, faces: [2] }
+  - { step: pyramid, kind: dice, by: engine, faces: [7] }
+  - { step: pyramid, kind: dice, by: engine, faces: [9] }
+  - { step: pyramid, kind: dice, by: engine, faces: [4] }
+  - step: pyramid
+    kind: allocate
+    by: engine
+    amounts:
+      {
+        fate-core:skills.athletics: 3,
+        fate-core:skills.contacts: 1,
+        fate-core:skills.crafts: 2,
+        fate-core:skills.empathy: 1,
+        fate-core:skills.fight: 4,
+        fate-core:skills.notice: 1,
+        fate-core:skills.provoke: 2,
+        fate-core:skills.rapport: 3,
+        fate-core:skills.shoot: 1,
+        fate-core:skills.will: 2,
+      }
+  - { step: stunts, kind: dice, by: engine, faces: [17] }
+  - { step: stunts, kind: choice, by: engine, option: fate-core:stunts.trust-fund-baby, index: 0 }
+  - { step: stunts, kind: dice, by: engine, faces: [1] }
+  - { step: stunts, kind: choice, by: engine, option: fate-core:stunts.grappler, index: 1 }
+  - { step: stunts, kind: dice, by: engine, faces: [5] }
+  - { step: stunts, kind: choice, by: engine, option: fate-core:stunts.lie-whisperer, index: 2 }

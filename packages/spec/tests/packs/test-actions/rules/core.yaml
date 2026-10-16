@@ -1,0 +1,204 @@
+tags: [show, style.fire, style.ice, style.wind, bow, tip]
+
+fields:
+  # Styles a show is performed in: fields whose tags the show's roll and change
+  # carry, however many there are.
+  styles.blaze: { type: integer, input: true, default: 1, tags: [style, style.fire] }
+  styles.storm: { type: integer, input: true, default: 2, tags: [style, style.ice, style.wind] }
+  styles.plain: { type: integer, input: true, default: 0 }
+  applause: { type: integer, input: true, default: 0 }
+  # A bow's toll and the tips it earns.
+  fatigue: { type: integer, input: true, default: 0 }
+  tips: { type: integer, input: true, default: 10 }
+
+effects:
+  # An icy show dazzles: +10 to its roll.
+  - { target: { rolls: [style.ice] }, op: add, value: 10 }
+
+contentTypes:
+  # Props are carried and equipped; each copy lists `flourish` while equipped.
+  prop:
+    carried: true
+    equippable: true
+    fields:
+      flair: { type: integer, required: true }
+    actions:
+      - use: flourish
+  # A routine's own actions run a prop copy's `flourish` by its entry.
+  routine: {}
+  kit: {}
+  # Picked in the rules-level choice `knack`, so knacks have no entry. The type's
+  # own action is listed for each knack.
+  knack:
+    actions:
+      - use: boast
+  trick:
+    fields:
+      power: { type: integer, required: true }
+
+actions:
+  # Used by every trick: the outcome names the trick it ran for.
+  - id: perform
+    steps:
+      - id: result
+        kind: outcome
+        result: item.id
+        data:
+          power: item.power
+
+  # Used by every prop, while equipped: the outcome names the prop and its copy,
+  # and the target when there is one.
+  - id: flourish
+    available: self.equipped
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: result
+        kind: outcome
+        result: item.id
+        data:
+          copy: self.id
+          flair: item.flair
+          target: "size(participants.target) > 0 ? participants.target[0].id : ''"
+
+  # Used only by the knack type, so it is listed only through knacks.
+  - id: boast
+    steps:
+      - id: result
+        kind: outcome
+        result: item.id
+
+  # A show in a style: the roll and the applause carry the style field's tags
+  # and, with `extra`, one more tag.
+  - id: show
+    params:
+      style: { type: id, of: field }
+      extra: { type: string, optional: true }
+    steps:
+      - id: roll
+        kind: roll
+        tags:
+          - show
+          - { formula: params.style.tags }
+          - { formula: 'has(params.extra) ? [params.extra] : []' }
+        parts:
+          - dice: 1d6
+          - field: params.style.id
+      - id: applaud
+        kind: changes
+        changes:
+          - type: adjust
+            field: applause
+            by: steps.roll.total
+            tags:
+              - show
+              - { formula: params.style.tags }
+              - { formula: 'has(params.extra) ? [params.extra] : []' }
+
+  # A bow: it tires the performer (tagged `bow`), draws applause and takes tips
+  # from the target. Its outcome reads the fatigue with its own changes applied.
+  - id: bow
+    params:
+      tips: { type: integer, optional: true }
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: bow
+        kind: changes
+        changes:
+          - { type: adjust, field: fatigue, by: 1, tags: [bow] }
+          - { type: adjust, field: applause, by: 3 }
+      - id: tip
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: tips
+            by: 'has(params.tips) ? -params.tips : -2'
+            tags: [tip]
+      - id: result
+        kind: outcome
+        sheet: proposed
+        result: "'bowed'"
+        data: { fatigue: fatigue }
+
+  # Actions that hold a bow's changes. A held bow never released proposes nothing.
+  - id: bow-dropped
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: bow
+        kind: action
+        use: bow
+        hold: true
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.bow.result
+        data: { fatigue: steps.bow.data.fatigue }
+  # Released whole, before the step's own change; the parent's proposed sheet sees the bow's
+  # fatigue only once it is released.
+  - id: bow-released
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: bow
+        kind: action
+        use: bow
+        hold: true
+        participants: { target: participants.target }
+      - id: before
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags: { fatigue: fatigue }
+      - id: pass
+        kind: changes
+        release: { steps: [bow] }
+        changes:
+          - { type: adjust, field: applause, by: 1 }
+      - id: result
+        kind: outcome
+        sheet: proposed
+        data: { before: flags.fatigue, after: fatigue }
+  # The bow's own toll is left held by the first release and taken by the second.
+  - id: bow-filtered
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: bow
+        kind: action
+        use: bow
+        hold: true
+        participants: { target: participants.target }
+      - id: rest
+        kind: changes
+        release: { steps: [bow], where: "!('bow' in change.tags)" }
+      - id: toll
+        kind: changes
+        release: { steps: [bow] }
+  # Two bows, their changes combined: equal adjusts but for the amount become one.
+  - id: bows-combined
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: first
+        kind: action
+        use: bow
+        hold: true
+        participants: { target: participants.target }
+      - id: second
+        kind: action
+        use: bow
+        hold: true
+        params: { tips: 3 }
+        participants: { target: participants.target }
+      - id: pass
+        kind: changes
+        release: { steps: [first, second], combine: true }
+
+choices:
+  - id: knack
+    pick: 1
+    from: { type: knack }

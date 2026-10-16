@@ -1,0 +1,19 @@
+status: finished
+outcome:
+  result: rested
+proposedChanges:
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:pactSlots.used, value: 0 }
+  - to: self
+    step: rest
+    change:
+      type: setState
+      copies:
+        {
+          type: 5e-srd-5.1:class,
+          where: has(self.sorceryPointsSpent) && self.sorceryPointsSpent > 0,
+        }
+      key: sorceryPointsSpent
+      value: max(0, self.sorceryPointsSpent - sorcery.shortRestRegain)
+log: []

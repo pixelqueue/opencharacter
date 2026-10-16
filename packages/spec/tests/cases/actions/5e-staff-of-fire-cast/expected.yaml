@@ -1,0 +1,20 @@
+# Fireball costs the staff 3 charges. No class knows it, and the staff (a template) has no DC of
+# its own, so the caster's best DC applies: 8 + proficiency 2 + Int 3 = 13. 8d6 = 32.
+status: finished
+outcome:
+  result: save
+  data:
+    slot: 3
+    spellcastingClass: none
+    metamagic: none
+    dc: 13
+    save: dex
+    halfOnSave: true
+    damage: 32
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: cost
+    change: { type: adjustState, entry: staff, key: charges, by: -3 }

@@ -1,0 +1,27 @@
+id: classes.marine
+type: class
+fields:
+  trauma: panic-fear
+effects:
+  - { target: stats.combat, op: add, value: 10 }
+  - { target: saves.body, op: add, value: 10 }
+  - { target: saves.fear, op: add, value: 20 }
+  - { target: wounds.max, op: add, value: 1 }
+grants:
+  - item: skills.military-training
+  - item: skills.athletics
+choices:
+  - id: bonus-skills
+    from:
+      options:
+        - id: expert
+          choices:
+            - id: expert
+              from: { type: skill, where: "item.tier == 'expert'" }
+              eligible: '!(item.id in skills.known) || item.id in choice.picks'
+        - id: trained
+          choices:
+            - id: trained
+              from: { type: skill, where: "item.tier == 'trained'" }
+              eligible: '!(item.id in skills.known) || item.id in choice.picks'
+              pick: 2

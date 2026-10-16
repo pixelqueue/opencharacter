@@ -1,0 +1,187 @@
+id: classes.investigator
+type: class
+tags: [trait.investigator]
+fields: { hp: 8 }
+effects:
+  # The class's trait, for content that reads the class by it (such as Natural Ambition).
+  - { target: class.traits, op: grant, value: { tag: trait.investigator } }
+  - { target: attributes.int.boosts, op: add, value: 1 }
+  - { target: class.keyAttribute, op: set, value: "'int'" }
+  - { target: perception.rank, op: atLeast, value: 2 }
+  - { target: saves.fortitude.rank, op: atLeast, value: 1 }
+  - { target: saves.reflex.rank, op: atLeast, value: 2 }
+  - { target: saves.will.rank, op: atLeast, value: 2 }
+  - { target: attacks.simple.rank, op: atLeast, value: 1 }
+  - { target: attacks.martial.rank, op: atLeast, value: 1 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 1 }
+  - { target: defenses.unarmored.rank, op: atLeast, value: 1 }
+  - { target: defenses.light.rank, op: atLeast, value: 1 }
+  - { target: classDc.rank, op: atLeast, value: 1 }
+  # A training like a background's: a skill already trained frees a training for another.
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.society },
+      when: "!('skill.society' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: skills.increasesPerLevel, op: atLeast, value: 'level >= 2 ? 1 : 0' }
+grants:
+  - item: features.investigator.on-the-case
+  - item: features.investigator.devise-a-stratagem
+  - item: features.investigator.strategic-strike
+  - { item: features.investigator.keen-recollection, when: level >= 3 }
+  - { item: features.investigator.weapon-expertise, when: level >= 5 }
+  - { item: features.investigator.vigilant-senses, when: level >= 7 }
+  - { item: features.investigator.weapon-specialization, when: level >= 7 }
+  - { item: features.investigator.fortitude-expertise, when: level >= 9 }
+  - { item: features.investigator.investigator-expertise, when: level >= 9 }
+  - { item: features.investigator.deductive-improvisation, when: level >= 11 }
+  - { item: features.investigator.dogged-will, when: level >= 11 }
+  - { item: features.investigator.incredible-senses, when: level >= 13 }
+  - { item: features.investigator.light-armor-expertise, when: level >= 13 }
+  - { item: features.investigator.weapon-mastery, when: level >= 13 }
+  - { item: features.investigator.greater-weapon-specialization, when: level >= 15 }
+  - { item: features.investigator.savvy-reflexes, when: level >= 15 }
+  - { item: features.investigator.greater-dogged-will, when: level >= 17 }
+  - { item: features.investigator.light-armor-mastery, when: level >= 19 }
+  - { item: features.investigator.master-detective, when: level >= 19 }
+choices:
+  - id: methodology
+    from:
+      options:
+        - id: alchemical-sciences
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.crafting },
+                when: "!('skill.crafting' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: investigator.methodology, op: set, value: "'alchemical-sciences'" }
+        - id: empiricism
+          effects:
+            - { target: investigator.methodology, op: set, value: "'empiricism'" }
+          grants:
+            - item: feats.investigator.thats-odd
+          # Asked right after the methodology and before the free skills, which then leave it out.
+          choices:
+            - id: skill
+              from:
+                values:
+                  [
+                    skill.arcana,
+                    skill.crafting,
+                    skill.occultism,
+                    skill.society,
+                    skill.lore.academia,
+                    skill.lore.circus,
+                    skill.lore.farming,
+                    skill.lore.legal,
+                    skill.lore.scribing,
+                    skill.lore.underworld,
+                    skill.lore.warfare,
+                  ]
+              effects:
+                - {
+                    target: skills.trained,
+                    op: grant,
+                    value: { formula: pick.value },
+                    when: '!(pick.value in skills.chosen)',
+                  }
+                - { target: skills.trainings, op: add, value: 1 }
+        - id: forensic-medicine
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.medicine },
+                when: "!('skill.medicine' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: investigator.methodology, op: set, value: "'forensic-medicine'" }
+          grants:
+            - item: feats.skill.battle-medicine
+        - id: interrogation
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.diplomacy },
+                when: "!('skill.diplomacy' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: investigator.methodology, op: set, value: "'interrogation'" }
+  - id: skills
+    unique: skill-training
+    pick: 4 + max(0, attributes.int.mod)
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+          skill.lore.academia,
+          skill.lore.circus,
+          skill.lore.farming,
+          skill.lore.legal,
+          skill.lore.scribing,
+          skill.lore.underworld,
+          skill.lore.warfare,
+        ]
+      where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
+    effects:
+      - { target: skills.chosen, op: grant, value: { formula: pick.value } }
+  - id: class-feat
+    slots: [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    # The class's feats are worked out once (the query reads only the item); the slot's level is the
+    # choice's `eligible`, so a listing reads only them.
+    from:
+      type: feat
+      where: >-
+        item.category == 'class'
+          && (has(item.class) && item.class == @classes.investigator || 'trait.investigator' in item.tags)
+          || 'archetype-feat' in item.tags
+    eligible: >-
+      (item.category == 'class' && has(item.class) && item.class == @classes.investigator
+          || 'trait.investigator' in item.tags) && !('trait.archetype' in item.tags) && item.level <= slot
+        || 'trait.archetype' in item.tags && item.level <= slot
+          && (!('trait.dedication' in item.tags) || archetypes.open == 0 || item.id in choice.picks
+            || countList(choice.picks, x in archetypes.dedications) > 0)
+        || slot >= 2 && item.id in [archetypes.extra.level2, archetypes.extra.level4, archetypes.extra.level6,
+            archetypes.extra.level8, archetypes.extra.level10, archetypes.extra.level12,
+            archetypes.extra.level14, archetypes.extra.level16, archetypes.extra.level18,
+            archetypes.extra.level20][floor(slot / 2) - 1]
+  - id: skill-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= slot
+  - id: skillful-lessons
+    slots: [3, 5, 7, 9, 11, 13, 15, 17, 19]
+    unique: feats
+    when: level >= slot
+    from:
+      type: feat
+      where: >-
+        item.category == 'skill' && item.level <= slot && countList(item.skills, x in ['skill',
+          'skill.arcana', 'skill.crafting', 'skill.occultism', 'skill.society', 'skill.lore',
+          'skill.medicine', 'skill.nature', 'skill.religion', 'skill.survival', 'skill.deception',
+          'skill.diplomacy', 'skill.intimidation', 'skill.performance']) > 0

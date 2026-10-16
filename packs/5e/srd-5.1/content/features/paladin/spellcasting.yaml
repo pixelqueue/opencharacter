@@ -1,0 +1,20 @@
+id: features.paladin.spellcasting
+type: feature
+effects:
+  - { target: spellcasting.paladin.mod, op: set, value: abilities.cha.mod }
+  - { target: spellcasting.paladin.dc, op: set, value: 8 + proficiency.bonus + abilities.cha.mod }
+  - { target: spellcasting.paladin.attack, op: set, value: proficiency.bonus + abilities.cha.mod }
+  - { target: spellcasting.classes, op: add, value: 1 }
+  - target: spellcasting.casterLevel
+    op: add
+    value: 'spellcasting.classes == 1 ? ceil(self.level / 2) : floor(self.level / 2)'
+choices:
+  - id: spells
+    pick: 'max(1, abilities.cha.mod + floor(self.level / 2))'
+    from:
+      {
+        type: spell,
+        where: 'item.level >= 1 && item.level <= min(5, ceil(self.level / 4)) && @classes.paladin in item.classes',
+      }
+    effects:
+      - { target: spells.paladin, op: grant, value: { formula: pick.id } }

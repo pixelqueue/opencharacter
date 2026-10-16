@@ -1,0 +1,11 @@
+# 8 + 1 = 9: wanted 0 -> 1, heat resets to 0 (by -9, no excess, so no carry-over follow-up).
+ok: true
+adjustments:
+  - { field: fitd-crew:heat.current, by: 1, requested: 1, taken: 1, reason: requested }
+  - { field: fitd-crew:wanted.current, by: 1, reason: overflow }
+  - { field: fitd-crew:heat.current, by: -9, reason: reset }
+followUps: []
+character:
+  values:
+    fitd-crew:heat.current: 0
+    fitd-crew:wanted.current: 1

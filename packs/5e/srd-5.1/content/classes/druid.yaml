@@ -1,0 +1,115 @@
+id: classes.druid
+type: class
+fields:
+  hitDie: 1d8
+state:
+  wildShapeSpent: { type: integer, default: 0, min: 0 }
+  naturalRecoveryUsed: { type: boolean, default: false }
+prerequisites:
+  - id: multiclass
+    when: (self.startingClass && self.level == level.total) || item.id in multiclass.qualified
+effects:
+  - { target: proficiencies.armor, op: grant, value: { tag: light } }
+  - { target: proficiencies.armor, op: grant, value: { tag: medium } }
+  - { target: proficiencies.armor, op: grant, value: { tag: shield } }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.club },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.dagger },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.dart },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.javelin },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.mace },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.quarterstaff },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.scimitar },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.sickle },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.sling },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.spear },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.tools,
+      op: grant,
+      value: { item: tools.herbalism-kit },
+      when: self.startingClass,
+    }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.int }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.wis }, when: self.startingClass }
+grants:
+  - { item: features.druid.druidic, when: self.level >= 1 }
+  - { item: features.druid.spellcasting, when: self.level >= 1 }
+  - { item: features.druid.wild-shape, when: self.level >= 2 }
+  - { item: features.druid.timeless-body, when: self.level >= 18 }
+  - { item: features.druid.beast-spells, when: self.level >= 18 }
+  - { item: features.druid.archdruid, when: self.level >= 20 }
+  - { item: features.ability-score-improvement, when: self.level >= 4 }
+choices:
+  - id: skills
+    pick: 2
+    unique: skills
+    from:
+      {
+        values:
+          [
+            skill.arcana,
+            skill.animal-handling,
+            skill.insight,
+            skill.medicine,
+            skill.nature,
+            skill.perception,
+            skill.religion,
+            skill.survival,
+          ],
+        where: '!(value in proficiencies.skills) || value in choice.picks',
+      }
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: druid-circle
+    from: { type: subclass, where: 'item.class == @classes.druid' }
+    when: self.level >= 2

@@ -1,0 +1,40 @@
+# DR 12 + 2 (medium armor) = 14. 5 - 1 = 4 fails; the policy pauses on the omen choice and the
+# app picks reroll: one omen spent, 18 - 1 = 17 succeeds.
+status: finished
+outcome:
+  result: success
+  data:
+    total: 17
+    dr: 14
+    omensSpent: 1
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: mork-borg-core:omens.current
+      by: -1
+log:
+  - step: check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 5
+    total: 4
+    band: failure
+    bandSet: mork-borg-core:test
+  - step: fate
+    action: mork-borg-core:test
+    kind: choice
+    by: app
+    option: reroll
+  - step: reroll
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 18
+    total: 17
+    band: success
+    bandSet: mork-borg-core:test

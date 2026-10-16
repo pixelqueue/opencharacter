@@ -1,0 +1,8 @@
+id: runes.fortification
+type: template
+tags: [trait.magical, trait.invested, rune.property]
+appliesTo: { type: armor, where: "item.category == 'medium' || item.category == 'heavy'" }
+fields:
+  bulk: base.bulk + 1
+  strength: 'has(base.strength) ? base.strength + 1 : 1'
+  price: '(has(prior.price) ? prior.price : 0) + 2000'

@@ -1,0 +1,9 @@
+status: paused
+needs:
+  step: damage
+  action: test-pack:strike
+  kind: dice
+  dice: [{ count: 1, sides: 4 }]
+log:
+  - { step: stance, kind: choice, by: app, option: careful }
+  - { step: attack, kind: dice, by: app, faces: [3, 5], total: 8 }

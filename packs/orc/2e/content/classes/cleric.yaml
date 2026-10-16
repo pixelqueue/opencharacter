@@ -1,0 +1,186 @@
+id: classes.cleric
+type: class
+tags: [trait.cleric]
+fields: { hp: 8 }
+# The setting's deities are Reserved Material, so the pack lists none: the cleric's deity is the
+# player's own, built from the choices below (font, sanctification, divine skill, favored weapon,
+# and the domain Domain Initiate takes).
+effects:
+  # The class's trait, for content that reads the class by it (such as Natural Ambition).
+  - { target: class.traits, op: grant, value: { tag: trait.cleric } }
+  - { target: attributes.wis.boosts, op: add, value: 1 }
+  - { target: class.keyAttribute, op: set, value: "'wis'" }
+  - { target: perception.rank, op: atLeast, value: 1 }
+  - { target: saves.fortitude.rank, op: atLeast, value: 1 }
+  - { target: saves.reflex.rank, op: atLeast, value: 1 }
+  - { target: saves.will.rank, op: atLeast, value: 2 }
+  - { target: attacks.simple.rank, op: atLeast, value: 1 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 1 }
+  - { target: attacks.favoredRank, op: atLeast, value: 1 }
+  - { target: defenses.unarmored.rank, op: atLeast, value: 1 }
+  - { target: classDc.rank, op: atLeast, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.religion },
+      when: "!('skill.religion' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spellcasting.tradition, op: set, value: "'divine'" }
+  - { target: spellcasting.kind, op: set, value: "'prepared'" }
+  - { target: spellcasting.attribute, op: set, value: "'wis'" }
+  - { target: spellcasting.slotsPerRank, op: set, value: 2 }
+  - { target: spellcasting.cantrips, op: set, value: 5 }
+  - { target: spellcasting.rank, op: atLeast, value: 1 }
+  - { target: spellcasting.fontSlots, op: set, value: 'level >= 15 ? 6 : level >= 5 ? 5 : 4' }
+grants:
+  - item: features.cleric.deity
+  - item: features.cleric.cleric-spellcasting
+  - item: features.cleric.divine-font
+  - { item: features.cleric.perception-expertise, when: level >= 5 }
+  - { item: features.cleric.resolute-faith, when: level >= 9 }
+  - { item: features.cleric.reflex-expertise, when: level >= 11 }
+  - { item: features.cleric.divine-defense, when: level >= 13 }
+  - { item: features.cleric.weapon-specialization, when: level >= 13 }
+  - { item: features.cleric.miraculous-spell, when: level >= 19 }
+choices:
+  - id: divine-font
+    from:
+      options:
+        - id: heal
+          effects:
+            - { target: spellcasting.font, op: set, value: "'heal'" }
+        - id: harm
+          effects:
+            - { target: spellcasting.font, op: set, value: "'harm'" }
+  - id: sanctification
+    from:
+      options:
+        - id: none
+        - id: holy
+          effects:
+            - { target: cleric.sanctification, op: set, value: "'holy'" }
+            - { target: traits, op: grant, value: { tag: trait.holy } }
+        - id: unholy
+          effects:
+            - { target: cleric.sanctification, op: set, value: "'unholy'" }
+            - { target: traits, op: grant, value: { tag: trait.unholy } }
+  # A training like a background's: a skill already trained frees a training for another.
+  - id: divine-skill
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+        ]
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }
+  # The favored weapon is a reference, not a weapon the character holds; its proficiency is
+  # `attacks.favoredRank`.
+  - id: favored-weapon-category
+    from:
+      options:
+        - id: unarmed
+          effects:
+            - { target: cleric.favoredCategory, op: set, value: "'unarmed'" }
+        - id: simple
+          effects:
+            - { target: cleric.favoredCategory, op: set, value: "'simple'" }
+        - id: martial
+          effects:
+            - { target: cleric.favoredCategory, op: set, value: "'martial'" }
+        - id: advanced
+          effects:
+            - { target: cleric.favoredCategory, op: set, value: "'advanced'" }
+  - id: favored-weapon
+    activate: false
+    from:
+      type: weapon
+      where: >-
+        item.category == cleric.favoredCategory && item.group != 'bomb'
+          && (item.category != 'unarmed' || item.id == @weapons.fist)
+    effects:
+      - { target: attacks.favoredWeapons, op: grant, value: { formula: pick.id } }
+  - id: doctrine
+    from:
+      items: [classes.cleric.doctrines.cloistered-cleric, classes.cleric.doctrines.warpriest]
+  - id: skills
+    unique: skill-training
+    pick: 2 + max(0, attributes.int.mod)
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+          skill.lore.academia,
+          skill.lore.circus,
+          skill.lore.farming,
+          skill.lore.legal,
+          skill.lore.scribing,
+          skill.lore.underworld,
+          skill.lore.warfare,
+        ]
+      where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
+    effects:
+      - { target: skills.chosen, op: grant, value: { formula: pick.value } }
+  - id: class-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    # The class's feats are worked out once (the query reads only the item); the slot's level is the
+    # choice's `eligible`, so a listing reads only them.
+    from:
+      type: feat
+      where: >-
+        item.category == 'class'
+          && (has(item.class) && item.class == @classes.cleric || 'trait.cleric' in item.tags)
+          || 'archetype-feat' in item.tags
+    eligible: >-
+      (item.category == 'class' && has(item.class) && item.class == @classes.cleric
+          || 'trait.cleric' in item.tags) && !('trait.archetype' in item.tags) && item.level <= slot
+        || 'trait.archetype' in item.tags && item.level <= slot
+          && (!('trait.dedication' in item.tags) || archetypes.open == 0 || item.id in choice.picks
+            || countList(choice.picks, x in archetypes.dedications) > 0)
+        || slot >= 2 && item.id in [archetypes.extra.level2, archetypes.extra.level4, archetypes.extra.level6,
+            archetypes.extra.level8, archetypes.extra.level10, archetypes.extra.level12,
+            archetypes.extra.level14, archetypes.extra.level16, archetypes.extra.level18,
+            archetypes.extra.level20][floor(slot / 2) - 1]
+  - id: skill-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= slot

@@ -1,0 +1,19 @@
+description: 'A reapply key must be a declared state key of its content: unknown-state-key at load'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          condition:
+            state:
+              value: { type: integer, default: 1 }
+            reapply: { match: [kind], state: { value: highest } }
+      content:
+        - { id: conditions.sick, type: condition }

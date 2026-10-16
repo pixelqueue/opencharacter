@@ -1,0 +1,23 @@
+id: spells.veil-of-dreams
+type: spell
+tags: [trait.focus, trait.hex, trait.manipulate, trait.mental, trait.uncommon, trait.witch]
+fields:
+  rank: 1
+  cast: one
+  range: 30
+  targets: 1
+  duration: sustained
+  defense: will
+  applyTo: target
+  applyAt: 1
+effects:
+  - target: { fields: { where: 'item.id == @perception.mod || item.id == @saves.will.mod' } }
+    op: add
+    value: -1
+    stackKey: status-penalty
+    scope: applied
+  - target: { rolls: [attack] }
+    op: add
+    value: -1
+    stackKey: status-penalty
+    scope: applied

@@ -1,0 +1,28 @@
+id: spells.mystic-armor
+type: spell
+tags:
+  [
+    trait.concentrate,
+    trait.manipulate,
+    tradition.arcane,
+    tradition.divine,
+    tradition.occult,
+    tradition.primal,
+  ]
+fields:
+  rank: 1
+  cast: two
+  duration: until-daily-preparations
+  applyTo: self
+effects:
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 'self.rank >= 10 ? 3 : self.rank >= 6 ? 2 : 1'
+    stackKey: item-bonus
+    scope: applied
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 'self.rank >= 10 ? 3 : self.rank >= 8 ? 2 : 1'
+    stackKey: item-bonus
+    when: self.rank >= 4
+    scope: applied

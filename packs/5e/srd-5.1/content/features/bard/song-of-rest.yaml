@@ -1,0 +1,26 @@
+id: features.bard.song-of-rest
+type: feature
+effects:
+  - target: songOfRest.die
+    op: set
+    value: 'self.level >= 17 ? 1d12 : self.level >= 13 ? 1d10 : self.level >= 9 ? 1d8 : 1d6'
+actions:
+  - id: song-of-rest
+    results: [healed]
+    tags: [healing]
+    steps:
+      - id: heal
+        kind: roll
+        tags: [healing]
+        parts:
+          - dice: songOfRest.die
+      - id: regain
+        kind: changes
+        to: target
+        changes:
+          - { type: adjust, field: hp.current, by: steps.heal.total, tags: [healing] }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: steps.heal.total

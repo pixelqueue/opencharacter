@@ -1,0 +1,21 @@
+id: backgrounds.outrider
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.nature }
+    when: "!('skill.nature' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.plains }
+    when: "!('skill.lore.plains' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.express-rider
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['con', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

@@ -1,0 +1,112 @@
+# The classes in ID order: esoteric-hermit, fanged-deserter, gutterborn-scum, heretical-priest,
+# occult-herbmaster, wretched-royalty; the d6 rolls 6. The Royalty rolls 3d6 for each ability:
+# 12, 12, 17 (+3), 12. HP 1d6 = 5. Silver 4d6 = 6, x10. Weapon d8 7 is a bow: 3 + 10 = 13
+# arrows. Armor d3 3 is medium. The character already has a copy `weapons-bow-1`, so the bow is
+# `weapons-bow-2`. Features, asked over the class's pending choice: the d6 4 recommends Hamfund;
+# the d5 3 counts on from it to the 1st option, the blade, the 1st of the five left. Each
+# feature that is a weapon is added: Hamfund brings Eurekia, then the blade itself.
+status: finished
+outcome:
+  result: rolled
+  data: { food: 2, equipment1: 1, equipment2: 1, equipment3: 1 }
+proposedChanges:
+  - to: self
+    step: class
+    change: { type: addItem, entry: { id: class, item: mork-borg-core:classes.wretched-royalty } }
+  - {
+      to: self,
+      step: save,
+      change: { type: set, field: mork-borg-core:abilities.strength, value: 0 },
+    }
+  - {
+      to: self,
+      step: save,
+      change: { type: set, field: mork-borg-core:abilities.agility, value: 0 },
+    }
+  - {
+      to: self,
+      step: save,
+      change: { type: set, field: mork-borg-core:abilities.presence, value: 3 },
+    }
+  - {
+      to: self,
+      step: save,
+      change: { type: set, field: mork-borg-core:abilities.toughness, value: 0 },
+    }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:hp.max, value: 5 } }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:hp.current, value: 5 } }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:omens.max, value: 2 } }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:omens.current, value: 2 } }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:powers.max, value: 6 } }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:powers.current, value: 6 } }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:silver.current, value: 60 } }
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry: { id: weapons-bow-2, item: mork-borg-core:weapons.bow, equipped: true }
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry: { id: ammo-arrows-1, item: mork-borg-core:ammo.arrows, quantity: 13 }
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry: { id: armor-medium-1, item: mork-borg-core:armor.medium, equipped: true }
+  - to: self
+    step: features
+    change: { type: choose, path: { entry: class, choice: [feature] }, option: hamfund }
+  - to: self
+    step: features
+    change:
+      type: addItem
+      entry: { id: weapons-eurekia-1, item: mork-borg-core:weapons.eurekia }
+  - to: self
+    step: features
+    change:
+      type: choose
+      path: { entry: class, choice: [feature] }
+      option: blade-of-your-ancestors
+  - to: self
+    step: features
+    change:
+      type: addItem
+      entry:
+        {
+          id: weapons-blade-of-your-ancestors-1,
+          item: mork-borg-core:weapons.blade-of-your-ancestors,
+        }
+  - { to: self, step: finish, change: { type: finishCreation } }
+log:
+  - { step: classRoll, kind: dice, by: engine, faces: [6], total: 6 }
+  - { step: class, kind: choice, by: engine, option: mork-borg-core:classes.wretched-royalty }
+  - { step: strength, kind: dice, faces: [4, 4, 4], total: 12 }
+  - { step: agility, kind: dice, faces: [4, 4, 4], total: 12 }
+  - { step: presence, kind: dice, faces: [6, 5, 6], total: 17 }
+  - { step: toughness, kind: dice, faces: [4, 4, 4], total: 12 }
+  - { step: hp, kind: dice, faces: [5], total: 5 }
+  - { step: omens, kind: dice, faces: [2], total: 2 }
+  - { step: powers, kind: dice, faces: [3], total: 3 }
+  - { step: silver, kind: dice, faces: [1, 2, 2, 1], total: 6 }
+  - { step: food, kind: dice, faces: [2], total: 2 }
+  - { step: weapon, kind: dice, faces: [7], total: 7 }
+  - { step: armor, kind: dice, faces: [3], total: 3 }
+  - { step: equipment1, kind: dice, faces: [1], total: 1 }
+  - { step: equipment2, kind: dice, faces: [1], total: 1 }
+  - { step: equipment3, kind: dice, faces: [1], total: 1 }
+  - { step: feature, kind: dice, faces: [4], total: 4 }
+  - { step: feature2, kind: dice, faces: [3], total: 3 }
+  - step: features
+    kind: choice
+    by: engine
+    option: hamfund
+    index: 0
+    choice: { entry: class, choice: [feature] }
+  - step: features
+    kind: choice
+    by: engine
+    option: blade-of-your-ancestors
+    index: 1
+    choice: { entry: class, choice: [feature] }

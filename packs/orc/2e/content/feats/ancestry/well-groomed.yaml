@@ -1,0 +1,13 @@
+id: feats.ancestry.well-groomed
+type: feat
+fields: { level: 5, category: ancestry, ancestry: ancestries.catfolk }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: situational.againstDisease
+  - target: { rolls: [save], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.againstDisease

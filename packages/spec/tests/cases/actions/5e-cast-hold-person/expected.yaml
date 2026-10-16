@@ -1,0 +1,38 @@
+# DC 14 Wisdom: goblin-1 saves, goblin-2 fails and is paralyzed, magically, by the caster's creature
+# type.
+status: finished
+outcome:
+  result: save
+  data:
+    slot: 2
+    spellcastingClass: wizard
+    metamagic: none
+    dc: 14
+    save: wis
+    halfOnSave: false
+    damage: 0
+    healing: 0
+    concentration: true
+    critical: false
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change:
+      type: adjust
+      field: 5e-srd-5.1:spellSlots.level2.used
+      by: 1
+  - to: self
+    step: concentrate
+    change:
+      type: set
+      field: 5e-srd-5.1:concentration.active
+      value: true
+  - to: target
+    character: goblin-2
+    step: condition[1]
+    change:
+      type: applyEffect
+      source: 5e-srd-5.1:conditions.paralyzed
+      state:
+        by: humanoid
+        magical: true

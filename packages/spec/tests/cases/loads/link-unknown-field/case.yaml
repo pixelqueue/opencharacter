@@ -1,0 +1,19 @@
+description: 'Formulas read only declared link fields: an undeclared one is unknown-name'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        links:
+          crew:
+            fields:
+              tier: { type: integer, default: 0 }
+        fields:
+          quality: { type: integer, formula: 'has(links.crew) ? links.crew.teir : 0' }
+      content: []

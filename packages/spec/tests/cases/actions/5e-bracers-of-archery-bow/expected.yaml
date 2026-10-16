@@ -1,0 +1,32 @@
+# Attack: 10 + dex 3 + proficiency 2 (the bracers grant longbows) = 15 against AC 13: a hit.
+# Damage: 1d8 (5) + dex 3 + the bracers' 2 = 10 piercing. The bracers' effect reads its own copy
+# as `self` (worn and attuned), not the longbow's.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 15 }
+proposedChanges:
+  - to: self
+    step: ammo
+    change: { type: adjustQuantity, entry: arrows, by: -1 }
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -10,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              ranged,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.piercing,
+            ],
+        },
+    }

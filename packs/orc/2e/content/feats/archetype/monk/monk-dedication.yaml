@@ -1,0 +1,30 @@
+id: feats.archetype.monk.monk-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.monk }
+
+# Qi spells a monk feat gives cast with the monk archetype's spellcasting, which Qi Spells sets up.
+prerequisites:
+  - { id: dex, when: 'attributes.dex.mod >= 2' }
+  - { id: str, when: 'attributes.str.mod >= 2' }
+  - { id: not-monk, when: 'countCopies(copy.item == @classes.monk) == 0' }
+effects:
+  - { target: classDc.monk.rank, op: atLeast, value: 1 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 1 }
+  - target: spells.archetype.monk.spells
+    op: grant
+    value:
+      { query: { type: spell, where: "'trait.monk' in item.tags && 'trait.focus' in item.tags" } }
+grants:
+  - item: features.monk.powerful-fist
+choices:
+  - id: skill
+    from: { values: [skill.acrobatics, skill.athletics] }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }

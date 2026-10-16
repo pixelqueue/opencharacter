@@ -1,0 +1,14 @@
+id: features.paladin.purity-of-spirit
+type: feature
+# A charm or fright such a creature applied before is blocked too, where the SRD gives advantage on
+# new saves.
+effects:
+  - { target: protection.evilAndGood, op: set, value: true }
+immuneTo:
+  - id: charmed-and-frightened
+    query:
+      type: condition
+      where: >-
+        item.id in [@conditions.charmed, @conditions.frightened]
+          && has(entry.by)
+          && entry.by in ['aberration', 'celestial', 'elemental', 'fey', 'fiend', 'undead']

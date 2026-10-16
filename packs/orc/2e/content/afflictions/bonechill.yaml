@@ -1,0 +1,9 @@
+id: afflictions.bonechill
+type: affliction
+tags: [trait.disease, trait.primal]
+fields: { kind: disease, level: 5, dc: 20, stages: 4 }
+grants:
+  - { item: conditions.clumsy, scope: applied, when: self.stage == 1, state: { value: 1 } }
+  - { item: conditions.clumsy, scope: applied, when: self.stage == 2, state: { value: 2 } }
+  - { item: conditions.clumsy, scope: applied, when: self.stage == 3, state: { value: 3 } }
+  - { item: conditions.paralyzed, scope: applied, when: self.stage == 4 }

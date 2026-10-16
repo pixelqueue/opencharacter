@@ -1,0 +1,23 @@
+description: "Fate Core: Killing Stroke, once per scene for a fate point, makes the mild consequence the target just took moderate, as a change to the target's copy"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:attack }
+  params: { skill: fate-core:skills.fight }
+  participants:
+    target: [{ id: duelist, values: {} }]
+  policy:
+    choices: auto
+    rules:
+      - { step: stroke, then: pause }
+answers:
+  # The duelist's app ran `defend` (opposition 5) and rolled a Mediocre (+0) defense.
+  - outcome: { result: fail, data: { total: 0 } }
+  # It then ran `take-hit` with 5 shifts: a mild consequence and the 3-point box.
+  - outcome:
+      result: absorbed
+      data: { shifts: 5, box: 3, consequences: 1, slots: [mild], unabsorbed: 0 }
+  # The attacker spends the fate point.
+  - option: strike

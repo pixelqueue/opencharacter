@@ -1,0 +1,11 @@
+# hp.max = 29 + Con mod 2 * total level 4 = 37. The hit dice budget is max(1, floor(4 / 2)) = 2.
+# The rest changes come first; the first pick pauses. Without a min, #done is offered at once.
+# prefer (self.hitDiceSpent - picks) recommends the fighter: 3 spent, against 1.
+status: paused
+needs:
+  step: hitDice
+  action: 5e-srd-5.1:long-rest
+  kind: choice
+  options: [fighter, barbarian, '#done']
+  recommended: fighter
+log: []

@@ -1,0 +1,7 @@
+id: traits.extra-language
+type: trait
+choices:
+  - id: language
+    unique: languages
+    from: { type: language, where: "!('secret' in item.tags) && !('monster' in item.tags)" }
+    eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'

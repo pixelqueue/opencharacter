@@ -1,0 +1,16 @@
+id: magic-items.rod-of-rulership
+type: magicItem
+fields:
+  category: rod
+  rarity: rare
+  requiresAttunement: true
+  maxCharges: 1
+  recharge: 1
+  saveDc: 15
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - use: item-power
+    params: { charges: 1, save: "'wis'", dc: 15, condition: "'conditions.charmed'" }
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

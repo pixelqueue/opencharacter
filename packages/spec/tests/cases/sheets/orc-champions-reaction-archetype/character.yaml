@@ -1,0 +1,92 @@
+# The bard of orc-champion-dedication-armor (Champion Dedication, the justice cause) at 6th level,
+# with Champion's Reaction: the justice cause's reaction. The 6th level's other picks are left
+# open.
+specVersion: 0.1.0
+id: case-orc-champions-reaction-archetype
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 6
+  orc-2e:hp.current: 54
+  orc-2e:skills.performance.increases: 1
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.goblin
+    choices:
+      heritage:
+        - option: orc-2e:heritages.irongut-goblin
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-2e:boosts.con
+  - id: background
+    item: orc-2e:backgrounds.prisoner
+    choices:
+      boost:
+        - option: orc-2e:boosts.con
+      free-boost:
+        - option: orc-2e:boosts.str
+  - id: class
+    item: orc-2e:classes.bard
+    choices:
+      muse:
+        - option: orc-2e:classes.bard.muses.maestro
+      skills:
+        - option: skill.diplomacy
+        - option: skill.deception
+        - option: skill.nature
+        - option: skill.lore.legal
+      orc-2e:features.spellcasting.repertoire/cantrips:
+        - option: orc-2e:spells.daze
+        - option: orc-2e:spells.figment
+        - option: orc-2e:spells.summon-instrument
+        - option: orc-2e:spells.shield
+        - option: orc-2e:spells.guidance
+      orc-2e:features.spellcasting.repertoire/spells-1:
+        - option: orc-2e:spells.fear
+        - option: orc-2e:spells.sanctuary
+        - option: orc-2e:spells.illusory-disguise
+      orc-2e:features.spellcasting.repertoire/spells-2:
+        - option: orc-2e:spells.paranoia
+        - option: orc-2e:spells.noise-blast
+        - option: orc-2e:spells.laughing-fit
+      orc-2e:features.spellcasting.signature-spells/signature-1:
+        - option: orc-2e:spells.soothe
+      orc-2e:features.spellcasting.signature-spells/signature-2:
+        - option: orc-2e:spells.noise-blast
+      class-feat-2:
+        - option: orc-2e:feats.archetype.champion.champion-dedication
+          choices:
+            divine-skill:
+              - option: skill.athletics
+            sanctification:
+              - option: holy
+            cause:
+              - option: justice
+      skill-feat-2:
+        - option: orc-2e:feats.skill.impressive-performance
+      class-feat-4:
+        - option: orc-2e:feats.bard.melodious-spell
+      skill-feat-4:
+        - option: orc-2e:feats.skill.charming-liar
+      class-feat-6:
+        - option: orc-2e:feats.archetype.champion.champions-reaction
+          choices:
+            reaction:
+              - option: orc-2e:classes.champion.causes.justice
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.cha
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.dex
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.burn-it
+  general-feat-3:
+    - option: orc-2e:feats.general.toughness
+inventory:
+  - { id: rapier, item: orc-2e:weapons.rapier, equipped: true }
+  - { id: armor, item: orc-2e:armor.leather-armor, equipped: true }
+  - { id: lute, item: orc-2e:gear.musical-instrument-handheld }
+  - { id: backpack, item: orc-2e:gear.backpack }

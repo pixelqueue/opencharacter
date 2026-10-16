@@ -1,0 +1,94 @@
+id: features.alchemist.alchemy
+type: feature
+fields: { level: 1 }
+actions:
+  - id: versatile-vial
+    tags: [strike, bomb]
+    available: alchemist.vials.used < alchemist.vials.max
+    params:
+      quick: { type: boolean, default: false }
+      damageType: { type: enum, optional: true, values: [cold, electricity, fire] }
+      intSplash: { type: boolean, default: false }
+      ac: { type: integer, optional: true }
+      attack: { type: integer, optional: true, min: 1, max: 3 }
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: strike
+        kind: action
+        use: bomb-strike
+        params:
+          damage: dieOf(1d6, alchemist.vialDice)
+          damageType: >-
+            alchemist.field == 'toxicologist' ? 'poison'
+              : alchemist.field == 'bomber' && has(params.damageType) ? params.damageType : 'acid'
+          splash: >-
+            params.intSplash && alchemist.field == 'bomber' && level >= 5
+              ? max(1, attributes.int.mod) : alchemist.vialDice
+          ac: 'has(params.ac) ? params.ac : null'
+          attack: 'has(params.attack) ? params.attack : null'
+        participants: { target: participants.target }
+      - id: spend
+        kind: changes
+        when: '!params.quick'
+        changes:
+          - { type: adjust, field: alchemist.vials.used, by: 1 }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+          splash: steps.strike.data.splash
+  - id: healing-vial
+    tags: [class-action]
+    available: "alchemist.field == 'chirurgeon' && alchemist.vials.used < alchemist.vials.max"
+    params:
+      quick: { type: boolean, default: false }
+    participants:
+      ally: { max: 1 }
+    results: [healed]
+    steps:
+      - id: healing
+        kind: roll
+        tags: [healing]
+        parts: [{ dice: 'dieOf(1d6, alchemist.vialDice)' }]
+      - id: heal
+        kind: changes
+        to: ally
+        changes:
+          - { type: adjust, field: hp.current, by: steps.healing.total, tags: [healing] }
+      - id: spend
+        kind: changes
+        when: '!params.quick'
+        changes:
+          - { type: adjust, field: alchemist.vials.used, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data: { healing: steps.healing.total }
+  - id: quick-alchemy
+    tags: [class-action]
+    results: [made, quick-vial]
+    steps:
+      - id: what
+        kind: choice
+        options:
+          - id: consumable
+            when: alchemist.vials.used < alchemist.vials.max
+          - id: quick-vial
+        recommend: "'quick-vial'"
+      - id: item
+        kind: choice
+        when: steps.what.picked == 'consumable'
+        options:
+          content:
+            type: consumable
+            where: item.level <= level && has(item.family) && item.family in alchemist.formulas
+        repeat: { max: 'level >= 9 ? min(2, alchemist.vials.max - alchemist.vials.used) : 1' }
+        changes:
+          - { type: addItem, entry: { item: picked.id, state: { infused: true } } }
+          - { type: adjust, field: alchemist.vials.used, by: 1 }
+      - id: result
+        kind: outcome
+        result: "steps.what.picked == 'consumable' ? 'made' : 'quick-vial'"

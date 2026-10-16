@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/engine/ruleset.schema.json",
+  "title": "Ruleset",
+  "description": "PROVISIONAL: the output of loadRuleset, passed to every other call. Packs merged in load order, inheritance and overrides resolved, content-only queries resolved. Plain data so it can be cached or sent between machines. Its internal shape beyond these top-level properties is engine-defined: a ruleset is only portable between instances of the same engine.",
+  "type": "object",
+  "required": ["specVersion", "packs", "fields", "contentTypes", "content"],
+  "properties": {
+    "specVersion": {
+      "$ref": "../common.schema.json#/$defs/semver"
+    },
+    "packs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "version", "license"],
+        "properties": {
+          "id": {
+            "$ref": "../common.schema.json#/$defs/packId"
+          },
+          "version": {
+            "$ref": "../common.schema.json#/$defs/semver"
+          },
+          "license": {
+            "type": "string"
+          },
+          "credit": {
+            "type": "string"
+          },
+          "notices": {
+            "description": "The pack's other license notices, by name, in the order written.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "fields": {
+      "description": "The fields, by qualified ID. PROVISIONAL shape, except that a field with `members` carries `tagOptions`: every tag the ruleset declares (with the tags above each) that it takes, sorted, for an app's picker. Content types' item fields and actions' parameters with `members` carry it too.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "tagOptions": {
+            "type": "array",
+            "items": {
+              "$ref": "../common.schema.json#/$defs/tag"
+            }
+          }
+        }
+      }
+    },
+    "contentTypes": {
+      "description": "The content types, by qualified ID. PROVISIONAL shape, except that a type with a copy limit carries it as written (`copies`), so an app reads it here.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "copies": {
+            "$ref": "../content-type.schema.json#/$defs/copies"
+          }
+        }
+      }
+    },
+    "content": {
+      "type": "object"
+    },
+    "rules": {
+      "type": "object"
+    },
+    "creation": {
+      "description": "The creation starts: every pack's `creation` list in load order, a later start replacing an earlier one with the same `id` in its place. `action` is qualified; `pack` is the pack that declared the start, whose text names it (`creation.<id>.name`).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "action", "random", "pack"],
+        "properties": {
+          "id": {
+            "$ref": "../common.schema.json#/$defs/slug"
+          },
+          "action": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object"
+          },
+          "random": {
+            "type": "boolean"
+          },
+          "pack": {
+            "$ref": "../common.schema.json#/$defs/packId"
+          }
+        }
+      }
+    },
+    "conflicts": {
+      "description": "Overrides of the same property by two packs; the later pack won.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target", "packs"],
+        "properties": {
+          "target": {
+            "type": "string"
+          },
+          "property": {
+            "type": "string"
+          },
+          "packs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

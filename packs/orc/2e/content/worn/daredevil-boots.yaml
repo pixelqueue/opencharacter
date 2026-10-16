@@ -1,0 +1,19 @@
+id: worn.daredevil-boots
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 10
+  price: 900
+  bulk: 0.1
+  usage: shoes
+effects:
+  - target: skills.acrobatics.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { rolls: [skill-action.tumble-through] }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: 'self.equipped && self.invested'

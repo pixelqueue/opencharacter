@@ -1,0 +1,31 @@
+# Two different features picked, so nothing is pending. The Blade of Your Ancestors is
+# equipped: defense DR modifier -2. Poltroon is a companion with no linked sheet: an
+# offer to make its sheet, not an issue.
+values:
+  mork-borg-core:tests.defenseDr:
+    value: -2
+pending: []
+issues: []
+offers:
+  - id: mork-borg-core:poltroon-sheet
+    kind: derived
+    followUp: mork-borg-core:poltroon-sheet
+    to: self
+    required: false
+    create:
+      link: mork-borg-core:poltroon
+      start: mork-borg-core:companion
+      pack: mork-borg-core
+      params: { companion: mork-borg-core:companions.poltroon }
+actions:
+  - action: mork-borg-core:attack
+    entry: blade
+  - action: mork-borg-core:new-day
+  - action: mork-borg-core:rest
+  - action: mork-borg-core:take-damage
+  - action: mork-borg-core:heal
+  - action: mork-borg-core:get-better
+  - action: mork-borg-core:defend
+  - action: mork-borg-core:test
+  - action: mork-borg-core:initiative
+errors: []

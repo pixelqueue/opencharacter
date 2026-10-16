@@ -1,0 +1,19 @@
+# [+] on the panic d20 keeps the better (higher) of 3 and 15; 15 is over stress 6: pass. The
+# Teamster's [+] is spent for the session.
+status: finished
+outcome:
+  result: pass
+  data: { roll: 15 }
+proposedChanges:
+  - to: self
+    step: steady
+    change: { type: set, field: mothership-1e:trauma.used, value: true }
+log:
+  - step: panic
+    action: mothership-1e:panic-check
+    kind: dice
+    by: engine
+    faces: [3, 15]
+    total: 15
+    band: pass
+    bandSet: mothership-1e:panic

@@ -1,0 +1,15 @@
+status: finished
+proposedChanges:
+  - to: self
+    step: worsen
+    change:
+      type: adjustState
+      applied: { where: "item.id == 'test-applied:conditions.poisoned' && self.level < 5" }
+      key: level
+      by: 2
+  - to: self
+    step: worsen
+    change:
+      type: toggleEffect
+      applied: { where: "item.id == 'test-applied:conditions.charmed'" }
+      active: false

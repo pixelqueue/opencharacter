@@ -1,0 +1,13 @@
+description: "A hit with a staff of withering asks whether to spend a charge (weapon-attack's onHit step): the staff's option spends it and its damage effect adds 2d10 necrotic"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: staff }
+  params: { targetAc: 12 }
+  policy:
+    rules:
+      - { kind: choice, tags: [weapon-hit], then: pause }
+answers:
+  - { option: '5e-srd-5.1:magic-items.staff-of-withering#wither' }

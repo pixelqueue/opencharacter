@@ -1,0 +1,63 @@
+status: finished
+outcome:
+  result: critical-success
+  data:
+    attack: 31
+    dc: 15
+    map: 0
+    flatCheck: true
+    damage: 37
+proposedChanges:
+  - to: self
+    step: count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 1
+      tags:
+        - attack-count
+  - to: target
+    character: goblin
+    step: deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -37
+      tags:
+        - damage
+        - damage.piercing
+log:
+  - step: attack
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 20
+    total: 31
+    band: critical-success
+    bandSet: orc-2e:degree
+  - step: damage
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+    total: 37
+    items:
+      - kind: dice
+        value: 18
+        tags:
+          - part.weapon-die
+          - damage.piercing
+      - kind: flat
+        value: 8
+        tags:
+          - damage.piercing
+      - kind: dice
+        value: 11
+        tags:
+          - damage.piercing

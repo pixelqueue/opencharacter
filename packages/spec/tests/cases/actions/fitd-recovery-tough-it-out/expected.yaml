@@ -1,0 +1,10 @@
+# No healer: 0d, so 2d6 keep lowest [3, 5] = 3, a failure: 1 stress and 1 tick.
+status: finished
+outcome: { result: failure }
+proposedChanges:
+  - { to: self, step: cost, change: { type: adjust, field: fitd-scoundrel:stress.current, by: 1 } }
+  - {
+      to: self,
+      step: heal/clock,
+      change: { type: adjust, field: fitd-scoundrel:healing.current, by: 1 },
+    }

@@ -1,0 +1,19 @@
+id: worn.eyes-of-the-cat
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 9
+  price: 700
+  usage: eyepiece
+effects:
+  - {
+      target: senses,
+      op: grant,
+      value: { tag: sense.low-light-vision },
+      when: 'self.equipped && self.invested',
+    }
+  - target: { rolls: [perception] }
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested && situational.usingSight'

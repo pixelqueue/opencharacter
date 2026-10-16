@@ -1,0 +1,53 @@
+id: feats.ancestry.summon-nephilim-kin
+type: feat
+fields: { level: 13, category: ancestry, heritage: heritages.nephilim }
+# The summoning spell is a choice because a grant can't read the lineage.
+prerequisites:
+  - id: lineage
+    when: 'countList(feats.held, x in [@feats.ancestry.angelkin, @feats.ancestry.grimspawn, @feats.ancestry.hellspawn, @feats.ancestry.lawbringer, @feats.ancestry.musetouched, @feats.ancestry.pitborn]) > 0'
+choices:
+  - id: spell
+    from:
+      options:
+        - id: angelkin
+          prerequisites:
+            - { id: lineage, when: '@feats.ancestry.angelkin in feats.held' }
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.summon-celestial } }
+          grants:
+            - item: spells.summon-celestial
+        - id: grimspawn
+          prerequisites:
+            - { id: lineage, when: '@feats.ancestry.grimspawn in feats.held' }
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.summon-fiend } }
+          grants:
+            - item: spells.summon-fiend
+        - id: hellspawn
+          prerequisites:
+            - { id: lineage, when: '@feats.ancestry.hellspawn in feats.held' }
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.summon-fiend } }
+          grants:
+            - item: spells.summon-fiend
+        - id: lawbringer
+          prerequisites:
+            - { id: lineage, when: '@feats.ancestry.lawbringer in feats.held' }
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.summon-monitor } }
+          grants:
+            - item: spells.summon-monitor
+        - id: musetouched
+          prerequisites:
+            - { id: lineage, when: '@feats.ancestry.musetouched in feats.held' }
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.summon-fey } }
+          grants:
+            - item: spells.summon-fey
+        - id: pitborn
+          prerequisites:
+            - { id: lineage, when: '@feats.ancestry.pitborn in feats.held' }
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.summon-fiend } }
+          grants:
+            - item: spells.summon-fiend

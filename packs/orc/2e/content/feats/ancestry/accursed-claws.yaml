@@ -1,0 +1,15 @@
+id: feats.ancestry.accursed-claws
+type: feat
+fields: { level: 9, category: ancestry, heritage: heritages.changeling }
+prerequisites:
+  - id: claws
+    when: 'countCopies(copy.item in [@weapons.hag-claw, @weapons.slag-claw, @weapons.bestial-claw]) > 0'
+effects:
+  - target: { steps: [strike.hit.critical] }
+    op: changes
+    when: 'action.item.id in [@weapons.hag-claw, @weapons.slag-claw, @weapons.bestial-claw]'
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.persistent-damage'"
+          state: { damage: 1d4, damageType: "'mental'" }

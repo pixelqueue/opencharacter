@@ -1,0 +1,11 @@
+id: feats.ancestry.multitalented
+type: feat
+fields: { level: 9, category: ancestry, ancestry: ancestries.human }
+effects:
+  - { target: archetypes.openAllowance, op: add, value: 1 }
+choices:
+  - id: dedication
+    unique: feats
+    from:
+      type: feat
+      where: "'trait.multiclass' in item.tags && 'trait.dedication' in item.tags"

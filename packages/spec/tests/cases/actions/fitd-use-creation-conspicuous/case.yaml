@@ -1,0 +1,15 @@
+description: 'FitD: using a conspicuous creation proposes +1 heat to the linked crew (`to: { link: crew }`)'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:use-creation, entry: lamp }
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:tier: 1
+        fitd-crew:upgrades.mastery: false
+        fitd-crew:upgrades.workshop: false
+        fitd-crew:heat.current: 3

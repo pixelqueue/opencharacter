@@ -1,0 +1,32 @@
+description: "A change sent to a link names the linked character's field by qualified ID; a bare one is unknown-reference"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        links:
+          crew:
+            fields:
+              tier: { type: integer, default: 0 }
+        fields:
+          heat: { type: integer, input: true, default: 0 }
+        actions:
+          - id: score
+            steps:
+              - id: heat
+                kind: changes
+                to: { link: crew }
+                changes:
+                  - { type: adjust, field: heat, by: 2 }
+              - id: wrong
+                kind: changes
+                to: { link: ship }
+                changes:
+                  - { type: adjust, field: 'test-ship:hull', by: -1 }
+      content: []

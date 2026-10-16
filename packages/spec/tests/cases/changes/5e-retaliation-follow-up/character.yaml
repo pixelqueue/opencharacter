@@ -1,0 +1,18 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 18
+  5e-srd-5.1:hp.base: 120
+  5e-srd-5.1:hp.current: 50
+features:
+  - id: barbarian
+    item: 5e-srd-5.1:classes.barbarian
+    state: { level: 14, startingClass: true }
+    choices:
+      primal-path: [{ option: 5e-srd-5.1:subclasses.path-of-the-berserker }]
+inventory:
+  - { id: axe, item: 5e-srd-5.1:weapons.greataxe, equipped: true }
+  - { id: bow, item: 5e-srd-5.1:weapons.longbow, equipped: true }
+  - { id: spare, item: 5e-srd-5.1:weapons.handaxe }

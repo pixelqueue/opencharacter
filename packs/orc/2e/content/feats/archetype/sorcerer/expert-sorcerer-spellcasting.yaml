@@ -1,0 +1,13 @@
+id: feats.archetype.sorcerer.expert-sorcerer-spellcasting
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 12, category: class, archetype: archetypes.sorcerer }
+prerequisites:
+  - { id: basic, when: '@feats.archetype.sorcerer.basic-sorcerer-spellcasting in feats.held' }
+  - {
+      id: tradition-skill,
+      when: "[skills.arcana.rank, skills.religion.rank, skills.occultism.rank, skills.nature.rank][indexOf(['arcane', 'divine', 'occult', 'primal'], spellcasting.archetype.sorcerer.tradition)] >= 3",
+    }
+effects:
+  - { target: spellcasting.archetype.sorcerer.benefits, op: atLeast, value: 2 }
+  - { target: spellcasting.archetype.sorcerer.rank, op: atLeast, value: 2 }

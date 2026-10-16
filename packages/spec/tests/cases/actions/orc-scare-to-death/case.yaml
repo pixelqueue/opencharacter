@@ -1,0 +1,15 @@
+description: "orc-2e: Scare to Death, a 15th-level skill feat: 16 + Intimidation 23 = 39 against Will DC 25 is a critical success, so the target attempts a Fortitude save against the Intimidation DC 33 on its own sheet (a handoff); on its critical failure it dies (`killed`), and isn't frightened"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:feats.skill.scare-to-death#scare-to-death
+    source: orc-2e:feats.skill.scare-to-death
+  participants:
+    target:
+      - id: ogre
+        values: { orc-2e:saves.will.dc: 25 }
+answers:
+  - { outcome: { result: critical-failure } }

@@ -1,0 +1,13 @@
+id: feats.ancestry.ageless-patience
+type: feat
+fields: { level: 5, category: ancestry, ancestry: ancestries.elf }
+effects:
+  - target: { rolls: [skill, perception] }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: situational.twiceAsLong
+  - target: { rolls: [skill, perception], tally: naturalOneHolds }
+    op: add
+    value: 1
+    when: situational.twiceAsLong

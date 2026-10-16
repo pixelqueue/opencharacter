@@ -1,0 +1,14 @@
+id: spells.ancestral-memories
+type: spell
+tags: [trait.concentrate, trait.focus, trait.sorcerer, trait.uncommon]
+fields:
+  rank: 1
+  cast: one
+  duration: until-end-of-turn
+  applyTo: self
+effects:
+  - target: { fields: { where: "'spell-attack' in item.tags" } }
+    op: add
+    value: 'self.rank >= 8 ? 3 : self.rank >= 5 ? 2 : 1'
+    stackKey: status-bonus
+    scope: applied

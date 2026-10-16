@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/engine/continue-action.schema.json",
+  "title": "continueAction",
+  "$defs": {
+    "input": {
+      "type": "object",
+      "required": ["ruleset", "paused", "answer"],
+      "properties": {
+        "ruleset": {
+          "$ref": "ruleset.schema.json"
+        },
+        "paused": {
+          "description": "The paused result exactly as startAction or continueAction returned it.",
+          "type": "object",
+          "required": ["status", "state"],
+          "properties": {
+            "status": {
+              "const": "paused"
+            }
+          }
+        },
+        "answer": {
+          "$ref": "action-run.schema.json#/$defs/answer"
+        },
+        "policy": {
+          "$ref": "action-run.schema.json#/$defs/policy"
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "$ref": "action-run.schema.json#/$defs/result"
+    }
+  }
+}

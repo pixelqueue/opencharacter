@@ -1,0 +1,25 @@
+id: feats.swashbuckler.brandishing-draw
+type: feat
+fields: { level: 2, category: class, class: classes.swashbuckler }
+actions:
+  - id: brandishing-draw
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options: { copies: { type: weapon, where: "self.equipped || 'unarmed' in item.tags" } }
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage

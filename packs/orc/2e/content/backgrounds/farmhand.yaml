@@ -1,0 +1,25 @@
+id: backgrounds.farmhand
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.athletics },
+      when: "!('skill.athletics' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.farming },
+      when: "!('skill.lore.farming' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - { item: feats.skill.assurance, state: { skill: "'skill.athletics'" } }
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['con', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

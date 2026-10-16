@@ -1,0 +1,13 @@
+id: wands.wand-of-widening-9th-rank-spell
+type: wand
+tags: [trait.magical, trait.wand]
+fields:
+  level: 20
+  price: 70000
+  bulk: 0.1
+  spellRank: 9
+choices:
+  - id: spell
+    from:
+      type: spell
+      where: "item.rank <= 9 && !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags) && has(item.area) && item.area in ['burst', 'cone', 'line']"

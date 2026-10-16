@@ -1,0 +1,40 @@
+# Athletics +3 and 4dF of +2: Superb (+5) against Fair (+2), success with style. Only the 4dF
+# paused; the `final` step's entry is the engine's, with no faces.
+status: finished
+outcome:
+  result: style
+  data:
+    total: 5
+    opposition: 2
+    shifts: 3
+    boost: true
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: app
+    faces: [1, 1, 0, 0]
+    total: 5
+    band: superb
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: final
+    action: fate-core:overcome
+    kind: dice
+    by: engine
+    faces: null
+    total: 5
+    band: style

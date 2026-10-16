@@ -1,0 +1,40 @@
+id: backgrounds.animal-whisperer
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.nature },
+      when: "!('skill.nature' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - item: feats.skill.train-animal
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['wis', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }
+  - id: lore
+    from:
+      {
+        values:
+          [
+            skill.lore.cave,
+            skill.lore.desert,
+            skill.lore.forest,
+            skill.lore.mountain,
+            skill.lore.plains,
+            skill.lore.swamp,
+          ],
+      }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }

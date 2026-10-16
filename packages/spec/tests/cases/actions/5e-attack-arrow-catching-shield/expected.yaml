@@ -1,0 +1,10 @@
+# 16 + Dexterity 0 + proficiency 2 = 18: it would hit AC 18, but a ranged attack is against the
+# view's combat.rangedAc, 20, so it misses. The arrow is spent anyway.
+status: finished
+outcome:
+  result: miss
+  data: { critical: false, attack: 18 }
+proposedChanges:
+  - to: self
+    step: ammo
+    change: { type: adjustQuantity, entry: arrows, by: -1 }

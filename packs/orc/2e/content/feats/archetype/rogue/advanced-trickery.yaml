@@ -1,0 +1,20 @@
+id: feats.archetype.rogue.advanced-trickery
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.rogue }
+repeatable: true
+
+prerequisites:
+  - { id: basic-trickery, when: '@feats.archetype.rogue.basic-trickery in feats.held' }
+effects:
+  # Each time it is taken, it counts as another feat of the archetype.
+  - { target: archetypes.rogue.repeats, op: add, value: 1 }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && !('trait.archetype' in item.tags)
+          && (has(item.class) && item.class == @classes.rogue || 'trait.rogue' in item.tags)
+    eligible: item.level <= floor(level / 2)

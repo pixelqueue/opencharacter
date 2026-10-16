@@ -1,0 +1,15 @@
+# The 8-clock at 7 takes 1 of the 2 ticks and fills: the design is learned.
+status: finished
+outcome:
+  result: complete
+  data: { ticks: 1 }
+proposedChanges:
+  - { to: self, step: progress, change: { type: adjustState, entry: invent, key: progress, by: 1 } }
+  - to: self
+    step: learn
+    change:
+      type: addItem
+      entry:
+        id: designs-design-1
+        item: fitd-scoundrel:designs.design
+        state: { label: Silent spark-lamp }

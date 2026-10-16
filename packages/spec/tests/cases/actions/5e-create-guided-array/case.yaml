@@ -1,0 +1,13 @@
+description: "5E's guided start, run with every checkpoint automatic and its race, subrace, class and background answered: its method falls back to the standard array, but the array's allocation recommends nothing, so the run pauses there"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:create-character }
+  policy: { dice: auto, choices: auto, allocations: auto }
+answers:
+  - { option: '5e-srd-5.1:races.dwarf' }
+  - { option: '5e-srd-5.1:subraces.hill-dwarf' }
+  - { option: '5e-srd-5.1:classes.barbarian' }
+  - { option: '5e-srd-5.1:backgrounds.acolyte' }

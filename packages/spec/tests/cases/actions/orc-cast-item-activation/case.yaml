@@ -1,0 +1,16 @@
+description: "orc-2e an item that casts a spell: an invested demon mask's Leering
+  Mask casts fear through cast-spell at 1st rank with the mask's own DC 20, using its daily
+  activation"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:cast-spell
+    entry: mask
+    source: orc-2e:spells.fear
+  policy:
+    choices: pause
+answers:
+  - option: orc-2e:worn.demon-mask#fear

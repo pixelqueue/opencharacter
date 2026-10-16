@@ -1,0 +1,31 @@
+id: worn.pendant-of-the-occult-greater
+type: worn
+tags: [trait.invested, trait.occult]
+fields:
+  level: 9
+  price: 650
+  activation: cast
+  frequency: once-per-day
+grants:
+  - { item: spells.guidance, when: 'self.equipped && self.invested' }
+  - { item: spells.dream-message, when: 'self.equipped && self.invested' }
+effects:
+  - target: skills.occultism.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - {
+      target: spells.innate,
+      op: grant,
+      value: { item: spells.guidance },
+      when: 'self.equipped && self.invested',
+    }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.dream-message && self.used < 1'
+    value:
+      id: dream-message
+      flags: { itemPaid: true, rank: 4 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

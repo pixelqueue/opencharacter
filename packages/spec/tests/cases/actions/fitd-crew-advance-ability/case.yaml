@@ -1,0 +1,11 @@
+description: "FitD crew advance: a full xp track takes a special ability from the SRD's pool (no crew type), clears the xp and gives each member tier + 2 stash"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/crew
+input:
+  action: { id: fitd-crew:crew-advance }
+  policy: { dice: pause, choices: pause, allocations: pause }
+answers:
+  - option: ability
+  - option: fitd-crew:crew-abilities.patron

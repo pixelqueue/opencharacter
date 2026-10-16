@@ -1,0 +1,52 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 2
+    mode: spontaneous
+    dc: 19
+    defense: reflex
+    basic: true
+    damage: 12
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: orc-2e:spellSlots.rank2.used
+      by: 1
+  - to: target
+    character: goblin
+    step: burn[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -12
+      tags:
+        - damage
+        - spell
+        - damage.fire
+log:
+  # 4d6 (10) and Sorcerous Potency's +2 fire.
+  - step: damage
+    action: orc-2e:cast-spell
+    kind: dice
+    by: engine
+    faces: [1, 2, 3, 4]
+    items:
+      - { kind: dice, value: 10, tags: [damage.fire] }
+      - kind: flat
+        value: 2
+        source: { type: item, id: orc-2e:features.sorcerer.sorcerous-potency }
+        tags: [damage.fire]
+    total: 12
+  - step: save[0]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: goblin
+    outcome:
+      result: failure

@@ -1,0 +1,40 @@
+id: monsters.wraith
+type: monster
+fields:
+  size: medium
+  creatureType: undead
+  alignment: neutral-evil
+  ac: 13
+  hp: 67
+  hitDice: 9d8 + 27
+  speed: 0
+  flySpeed: 60
+  hover: true
+  str: 6
+  dex: 16
+  con: 16
+  int: 12
+  wis: 14
+  cha: 15
+  damageResistances:
+    [damage.acid, damage.cold, damage.fire, damage.lightning, damage.thunder, nonmagical-unsilvered]
+  damageImmunities: [damage.necrotic, damage.poison]
+  conditionImmunities:
+    [
+      conditions.charmed,
+      conditions.grappled,
+      conditions.paralyzed,
+      conditions.petrified,
+      conditions.poisoned,
+      conditions.prone,
+      conditions.restrained,
+    ]
+  exhaustionImmune: true
+  darkvision: 60
+  languagesNote: knew-in-life
+  cr: 5
+grants:
+  - item: monsters.wraith.incorporeal-movement
+  - item: monsters.wraith.sunlight-sensitivity
+  - item: monsters.wraith.life-drain
+  - item: monsters.wraith.create-specter

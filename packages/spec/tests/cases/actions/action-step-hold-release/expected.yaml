@@ -1,0 +1,14 @@
+status: finished
+outcome:
+  data: { before: 0, after: 1 }
+proposedChanges:
+  - to: self
+    step: bow/bow
+    change: { type: adjust, field: test-actions:fatigue, by: 1, tags: [bow] }
+  - { to: self, step: bow/bow, change: { type: adjust, field: test-actions:applause, by: 3 } }
+  - to: target
+    character: rival
+    step: bow/tip
+    change: { type: adjust, field: test-actions:tips, by: -2, tags: [tip] }
+  - { to: self, step: pass, change: { type: adjust, field: test-actions:applause, by: 1 } }
+log: []

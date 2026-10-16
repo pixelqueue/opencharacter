@@ -1,0 +1,9 @@
+id: feats.archetype.acrobat.acrobat-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.acrobat }
+
+prerequisites:
+  - { id: acrobatics, when: 'skills.acrobatics.rank >= 1' }
+effects:
+  - { target: skills.acrobatics.rank, op: atLeast, value: 'level >= 15 ? 4 : level >= 7 ? 3 : 2' }

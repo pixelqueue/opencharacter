@@ -1,0 +1,16 @@
+id: feats.barbarian.wounded-rage
+type: feat
+tags: [trait.reaction]
+fields: { level: 4, category: class, class: classes.barbarian }
+
+actions:
+  - id: wounded-rage
+    tags: [rage, reaction]
+    results: [raging]
+    steps:
+      - id: rage
+        kind: action
+        use: rage
+      - id: result
+        kind: outcome
+        result: "'raging'"

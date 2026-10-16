@@ -1,0 +1,32 @@
+status: finished
+outcome:
+  result: failure
+  data:
+    total: 14
+    dc: 15
+    natural: 10
+proposedChanges: []
+log:
+  - step: roll
+    action: orc-2e:check
+    kind: dice
+    by: engine
+    faces:
+      - 10
+    total: 14
+    band: failure
+    bandSet: orc-2e:degree
+    items:
+      - kind: dice
+        count: 1
+        sides: 20
+        value: 10
+        source: { type: rules, id: orc-2e:check }
+      - kind: flat
+        value: 7
+        source: { type: field, id: orc-2e:skills.athletics.mod }
+        dropped:
+          - { source: { type: item, id: orc-2e:conditions.frightened }, value: -2 }
+      - kind: flat
+        value: -3
+        source: { type: situational, id: orc-2e:statusPenalty }

@@ -1,0 +1,38 @@
+description: "Template fields: the rules declare them and templates set them; a copy's item, and copy.fields, has each one its content type doesn't declare: a template's value, else the declared default, else absent"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          gear.bonusTotal: { type: integer, formula: 'sumCopies(copy.fields.bonus)' }
+          gear.rareCount:
+            type: integer
+            formula: "countCopies(has(copy.fields.rarity) && copy.fields.rarity == 'rare')"
+        templateFields:
+          rarity: { type: enum, values: [common, rare] }
+          bonus: { type: integer, default: 0 }
+          maxCharges: { type: integer, min: 0 }
+          recharge: { type: dice }
+        contentTypes:
+          gear:
+            carried: true
+            fields:
+              weight: { type: decimal }
+            computed:
+              bonus: { type: integer, formula: item.bonus }
+              rarity: { type: string, formula: "has(item.rarity) ? item.rarity : 'none'" }
+              charges: { type: integer, formula: 'has(item.maxCharges) ? item.maxCharges : 0' }
+              recharge: { type: integer, formula: 'has(item.recharge) ? maxOf(item.recharge) : 0' }
+      content:
+        - { id: gear.rope, type: gear, fields: { weight: 10 } }
+        - id: charged
+          type: template
+          appliesTo: { type: gear }
+          fields: { rarity: rare, bonus: 2, maxCharges: 3, recharge: 1d3 }

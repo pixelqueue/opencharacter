@@ -1,0 +1,20 @@
+id: spells.angelic-halo
+type: spell
+tags: [trait.aura, trait.concentrate, trait.focus, trait.holy, trait.sorcerer, trait.uncommon]
+# A roll effect on the heal cast's healing roll while the halo is on you, so it competes with
+# Sorcerous Potency's status bonus: the higher counts, per the publisher's clarification.
+fields:
+  rank: 1
+  cast: one
+  area: emanation
+  areaSize: 15
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+effects:
+  - target: { rolls: [healing] }
+    op: add
+    value: 2 * flags.rank
+    stackKey: status-bonus
+    when: has(roll.item) && roll.item.id == @spells.heal && has(flags.rank)
+    scope: applied

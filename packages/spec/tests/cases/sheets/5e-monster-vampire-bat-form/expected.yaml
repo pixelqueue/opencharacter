@@ -1,0 +1,53 @@
+# Bat form: Tiny, walking 5, flying 30; AC and hit points unchanged. The bite and Charm stay;
+# the unarmed strike and Multiattack are its vampire form's. Each legendary option has its cost
+# (legendary-action) and, for the attacks, its own action running the attack.
+# The bite comes from the picked form's option, so it is listed after the item's own grants.
+values:
+  5e-srd-5.1:creature.size: { value: 'tiny' }
+  5e-srd-5.1:combat.speed: { value: 5 }
+  5e-srd-5.1:combat.flySpeed: { value: 30 }
+  5e-srd-5.1:combat.ac: { value: 16 }
+actions:
+  - { action: 5e-srd-5.1:change-form, entry: monster }
+  - { action: 5e-srd-5.1:monster-effect, entry: monster, source: 5e-srd-5.1:monsters.vampire.charm }
+  - {
+      action: 5e-srd-5.1:legendary-action,
+      entry: monster,
+      source: 5e-srd-5.1:monsters.vampire.move,
+    }
+  - {
+      action: 5e-srd-5.1:legendary-action,
+      entry: monster,
+      source: 5e-srd-5.1:monsters.vampire.legendary-unarmed-strike,
+    }
+  - {
+      action: 5e-srd-5.1:monsters.vampire.legendary-unarmed-strike#legendary-unarmed-strike,
+      entry: monster,
+      source: 5e-srd-5.1:monsters.vampire.legendary-unarmed-strike,
+    }
+  - {
+      action: 5e-srd-5.1:legendary-action,
+      entry: monster,
+      source: 5e-srd-5.1:monsters.vampire.legendary-bite,
+    }
+  - {
+      action: 5e-srd-5.1:monsters.vampire.legendary-bite#legendary-bite,
+      entry: monster,
+      source: 5e-srd-5.1:monsters.vampire.legendary-bite,
+    }
+  - { action: 5e-srd-5.1:monster-attack, entry: monster, source: 5e-srd-5.1:monsters.vampire.bite }
+  - { action: 5e-srd-5.1:use-monster-action, entry: legendary-resistance }
+  - { action: 5e-srd-5.1:use-monster-action, entry: children-of-the-night }
+  - { action: 5e-srd-5.1:saving-throw }
+  - { action: 5e-srd-5.1:ability-check }
+  - { action: 5e-srd-5.1:skill-check }
+  - { action: 5e-srd-5.1:initiative }
+  - { action: 5e-srd-5.1:unarmed-strike }
+  - { action: 5e-srd-5.1:fall }
+  - { action: 5e-srd-5.1:take-damage }
+  - { action: 5e-srd-5.1:heal }
+  - { action: 5e-srd-5.1:long-rest }
+  - { action: 5e-srd-5.1:concentration-check }
+  - { action: 5e-srd-5.1:short-rest }
+issues: []
+errors: []

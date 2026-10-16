@@ -1,0 +1,57 @@
+id: spells.jealous-hex
+type: spell
+tags: [trait.concentrate, trait.curse, trait.focus, trait.sorcerer, trait.uncommon]
+# The applied spell carries the condition's penalty itself, reading the target's attributes; on a
+# tie it takes the first in that order, where the book lets the target choose.
+fields:
+  rank: 1
+  cast: one
+  range: 30
+  targets: 1
+  duration: minutes
+  durationAmount: 1
+  defense: will
+  applyTo: target
+  applyAt: 2
+effects:
+  - target: { fields: { where: "'attr.str' in item.tags" } }
+    op: add
+    value: -(self.outcome - 1)
+    stackKey: status-penalty
+    when: >-
+      attributes.str.mod >= max(attributes.dex.mod, attributes.con.mod, attributes.int.mod,
+        attributes.wis.mod, attributes.cha.mod)
+    scope: applied
+  - target: { fields: { where: "'attr.dex' in item.tags" } }
+    op: add
+    value: -(self.outcome - 1)
+    stackKey: status-penalty
+    when: >-
+      attributes.dex.mod > attributes.str.mod && attributes.dex.mod >= max(attributes.con.mod,
+        attributes.int.mod, attributes.wis.mod, attributes.cha.mod)
+    scope: applied
+  - target: { fields: { where: "'attr.con' in item.tags" } }
+    op: add
+    value: -(self.outcome - 1)
+    stackKey: status-penalty
+    when: >-
+      attributes.con.mod > max(attributes.str.mod, attributes.dex.mod)
+        && attributes.con.mod >= max(attributes.int.mod, attributes.wis.mod, attributes.cha.mod)
+    scope: applied
+  - target: hp.max
+    op: add
+    value: -level * (self.outcome - 1)
+    when: >-
+      attributes.con.mod > max(attributes.str.mod, attributes.dex.mod)
+        && attributes.con.mod >= max(attributes.int.mod, attributes.wis.mod, attributes.cha.mod)
+    scope: applied
+  - target:
+      fields:
+        where: "'attr.int' in item.tags || 'attr.wis' in item.tags || 'attr.cha' in item.tags"
+    op: add
+    value: -(self.outcome - 1)
+    stackKey: status-penalty
+    when: >-
+      max(attributes.int.mod, attributes.wis.mod, attributes.cha.mod)
+        > max(attributes.str.mod, attributes.dex.mod, attributes.con.mod)
+    scope: applied

@@ -1,0 +1,24 @@
+description: "An applyEffect state value given as `{ formula }` is evaluated by applyChanges with the source's item, the character's fields and `batch`; the change as applied carries the value"
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          ward: { type: integer, input: true, default: 0, min: 0 }
+          hp: { type: integer, input: true, default: 10, min: 0, absorbedBy: [ward] }
+        contentTypes:
+          wound:
+            fields:
+              cap: { type: integer }
+            state:
+              amount: { type: integer, default: 0, min: 0 }
+      content:
+        - { id: wounds.bleeding, type: wound, fields: { cap: 3 } }

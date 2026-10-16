@@ -1,0 +1,34 @@
+# Natural 20: a crit. maxOf(1d6) = 6, doubled: 12. The omen is spent, and the target's worn
+# armor drops a tier.
+status: finished
+outcome:
+  result: crit
+  data:
+    damage: 12
+    sepsis: false
+    skullSmashed: false
+proposedChanges:
+  - to: self
+    step: spendOmen
+    change:
+      type: adjust
+      field: mork-borg-core:omens.current
+      by: -1
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -12
+      tags:
+        - damage
+  - to: target
+    step: sunder
+    change:
+      type: adjustState
+      copies:
+        type: mork-borg-core:armor
+        where: self.equipped && self.damage < item.tier
+      limit: 1
+      key: damage
+      by: 1

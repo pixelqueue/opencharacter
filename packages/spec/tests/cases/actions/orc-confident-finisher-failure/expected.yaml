@@ -1,0 +1,29 @@
+# 9 + 7 (Dexterity 4 + trained 3) = 16 against 18: a failure. Precise strike's finisher dice,
+# 2d6 (3 + 4), halved: 3 piercing damage. Panache is spent.
+status: finished
+outcome:
+  result: failure
+  data: { damage: 3 }
+proposedChanges:
+  - to: self
+    step: strike/count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
+  - to: target
+    character: bandit
+    step: graze
+    change: { type: adjust, field: orc-2e:hp.current, by: -3, tags: [damage, damage.piercing] }
+  - to: self
+    step: spend
+    change: { type: removeEffect, applied: { where: "item.id == 'orc-2e:effects.panache'" } }
+log:
+  - step: weapon
+    action: 'orc-2e:features.swashbuckler.confident-finisher#confident-finisher'
+    kind: choice
+    by: app
+    option: rapier
+  - { step: strike/attack, action: orc-2e:strike, kind: dice, faces: [9], total: 16 }
+  - step: precise
+    action: 'orc-2e:features.swashbuckler.confident-finisher#confident-finisher'
+    kind: dice
+    faces: [3, 4]
+    total: 7

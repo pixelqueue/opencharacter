@@ -1,0 +1,37 @@
+description: 'Inside an `each` step, `steps.<its id>` is the list of its earlier runs (null where `when` skipped one), absent in the first run; after the step it is the full list'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          # One target at most may be spared, counting the earlier targets' picks.
+          - id: blast
+            participants:
+              target: {}
+            steps:
+              - id: spare
+                kind: choice
+                each: target
+                when: "participant.id != 'b'"
+                options:
+                  - id: spare
+                    when: "!has(steps.spare) || countList(steps.spare, x.picked == 'spare') < 1"
+                  - id: hit
+                recommend: options[0]
+              - id: done
+                kind: outcome
+                data:
+                  spared: "countList(steps.spare, x.picked == 'spare')"
+                  runs: size(steps.spare)
+      content: []
+input:
+  action: { id: test-pack:blast }
+  participants:
+    target: [{ id: a }, { id: b }, { id: c }, { id: d }]

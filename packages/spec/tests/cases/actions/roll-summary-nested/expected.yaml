@@ -1,0 +1,38 @@
+# 77 is a critical failure on Combat 41, which runs the panic check. Its pause names the panic
+# check, whose summary has the panic bands (stress 4) and its own flags (none); the stat check's
+# flags aren't repeated. The stat check's entry carries its own summary.
+status: paused
+needs:
+  step: panic/panic
+  action: mothership-1e:panic-check
+  kind: dice
+  summary:
+    bandSet: mothership-1e:panic
+    bands:
+      - band: pass
+        when: 'roll.total > 4'
+        tests: [{ of: roll.total, compare: gt, value: 4 }]
+      - { band: panic, when: 'true', tests: [] }
+    flags: {}
+log:
+  - step: check
+    action: mothership-1e:stat-check
+    kind: dice
+    by: engine
+    faces: [77]
+    total: 77
+    band: critical-failure
+    bandSet: mothership-1e:check
+    summary:
+      bandSet: mothership-1e:check
+      bands:
+        - band: critical-success
+          when: 'roll.total < 41 && roll.total < 90 && roll.total % 11 == 0'
+        - band: success
+          when: 'roll.total < 41 && roll.total < 90'
+          tests:
+            - { of: roll.total, compare: lt, value: 41 }
+            - { of: roll.total, compare: lt, value: 90 }
+        - { band: critical-failure, when: 'roll.total % 11 == 0' }
+        - { band: failure, when: 'true', tests: [] }
+      flags: { target: 41 }

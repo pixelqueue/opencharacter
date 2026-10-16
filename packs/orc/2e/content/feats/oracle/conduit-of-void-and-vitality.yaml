@@ -1,0 +1,22 @@
+id: feats.oracle.conduit-of-void-and-vitality
+type: feat
+tags: [trait.cursebound]
+fields: { level: 16, category: class, class: classes.oracle }
+actions:
+  - id: conduit-of-void-and-vitality
+    tags: [class-action]
+    available: oracle.cursebound < oracle.curseMax
+    results: [used]
+    steps:
+      - id: extra
+        kind: roll
+        parts: [{ dice: 'dieOf(1d8, max(1, oracle.cursebound))' }]
+      - id: curse
+        kind: changes
+        changes:
+          - { type: adjust, field: oracle.cursebound, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          extra: steps.extra.total

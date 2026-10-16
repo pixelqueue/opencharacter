@@ -1,0 +1,13 @@
+description: "5E fiend warlock 6 fails a DC 16 Wisdom saving throw: Dark One's Own Luck's option on the save's luck step (tag `failed-save`) adds a d10, not enough this time"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:saving-throw }
+  params: { ability: wis, dc: 16 }
+  policy:
+    rules:
+      - { kind: choice, tags: [failed-save], then: pause }
+answers:
+  - { option: '5e-srd-5.1:features.warlock.dark-ones-own-luck#luck' }

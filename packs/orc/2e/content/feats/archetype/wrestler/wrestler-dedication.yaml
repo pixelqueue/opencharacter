@@ -1,0 +1,29 @@
+id: feats.archetype.wrestler.wrestler-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.wrestler }
+
+prerequisites:
+  - { id: athletics, when: 'skills.athletics.rank >= 1' }
+effects:
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.combat-grab }
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.monk.crushing-grab }
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.snagging-strike }
+  - target: { fields: { where: "'archetype-extra.at8' in item.tags" } }
+    op: grant
+    value: { item: feats.monk.whirling-throw }
+  - target: { fields: { where: "'archetype-extra.at14' in item.tags" } }
+    op: grant
+    value: { item: feats.monk.form-lock }
+  - target: { fields: { where: "'archetype-extra.at20' in item.tags" } }
+    op: grant
+    value: { item: feats.monk.godbreaker }
+  - { target: skills.athletics.rank, op: atLeast, value: 2 }
+grants:
+  - { item: feats.skill.titan-wrestler, waivePrerequisites: true }

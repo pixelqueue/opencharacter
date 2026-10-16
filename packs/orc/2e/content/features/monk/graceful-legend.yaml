@@ -1,0 +1,10 @@
+id: features.monk.graceful-legend
+type: feature
+fields: { level: 17 }
+effects:
+  - { target: defenses.unarmored.rank, op: atLeast, value: 4 }
+  - { target: classDc.rank, op: atLeast, value: 3 }
+  - target: spellcasting.rank
+    op: atLeast
+    value: 3
+    when: '@feats.monk.qi-spells in feats.held'

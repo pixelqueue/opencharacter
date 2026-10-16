@@ -1,0 +1,177 @@
+# An affliction is applied content whose `stage` state is 0 while exposed (before the first save)
+# and 1 and up while afflicted; each stage's conditions are grants read by `self.stage`. Exposed
+# again while afflicted, the entry keeps its stage and only a failure or critical failure moves it.
+tags:
+  - affliction
+  - trait.virulent
+  - item-curse
+
+contentTypes:
+  affliction:
+    fields:
+      kind: { type: enum, values: [poison, disease, curse], required: true }
+      level: { type: integer, min: 0, max: 30 }
+      save: { type: enum, values: [fortitude, reflex, will], default: fortitude }
+      dc: { type: integer, min: 0 }
+      stages: { type: integer, required: true, min: 1, max: 7 }
+      damageType:
+        type: enum
+        values:
+          [
+            acid,
+            bludgeoning,
+            cold,
+            electricity,
+            fire,
+            mental,
+            piercing,
+            poison,
+            slashing,
+            sonic,
+            spirit,
+            vitality,
+            void,
+          ]
+        default: poison
+      stage1Damage: { type: dice }
+      stage2Damage: { type: dice }
+      stage3Damage: { type: dice }
+      stage4Damage: { type: dice }
+      stage5Damage: { type: dice }
+      stage6Damage: { type: dice }
+      damage2Type:
+        type: enum
+        values: [acid, cold, electricity, fire, mental, poison, sonic, spirit, vitality, void]
+        default: poison
+      stage1Damage2: { type: dice }
+      stage2Damage2: { type: dice }
+      stage3Damage2: { type: dice }
+    state:
+      stage: { type: integer, default: 0, min: 0, max: 7 }
+      dc: { type: integer, default: 'has(item.dc) ? item.dc : 0', min: 0 }
+      reexposed: { type: boolean, default: false }
+    reapply: { state: { stage: highest, dc: highest, reexposed: replace } }
+    actions:
+      - { use: affliction-save, scope: applied }
+
+actions:
+  - id: affliction-save
+    tags: [affliction, save]
+    results: [cured, afflicted]
+    steps:
+      - id: save
+        kind: action
+        use: check
+        params:
+          check: "'saves.' + item.save + '.mod'"
+          dc: self.dc
+      - id: degree
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              degree: >-
+                indexOf(['critical-success', 'success', 'failure', 'critical-failure'],
+                  steps.save.result)
+      - id: stage
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              stage: >-
+                max(0, min(item.stages, self.stage
+                  + (self.reexposed ? [0, 0, 1, 2] : [-2, -1, 1, 2])[flags.degree]))
+      - id: cure
+        kind: changes
+        when: flags.stage == 0
+        changes:
+          - type: removeEffect
+            applied: { where: self.id == action.self.id }
+      - id: move
+        kind: changes
+        when: flags.stage > 0
+        changes:
+          - type: setState
+            applied: { where: self.id == action.self.id, limit: 1 }
+            key: stage
+            value: flags.stage
+          - type: setState
+            when: self.reexposed
+            applied: { where: self.id == action.self.id, limit: 1 }
+            key: reexposed
+            value: false
+      - id: damage
+        kind: roll
+        when: >-
+          flags.stage > 0 && [has(item.stage1Damage), has(item.stage2Damage),
+            has(item.stage3Damage), has(item.stage4Damage), has(item.stage5Damage),
+            has(item.stage6Damage)][flags.stage - 1]
+        tags: [damage, affliction]
+        parts:
+          - {
+              dice: item.stage1Damage,
+              when: flags.stage == 1,
+              tags: [{ formula: "'damage.' + item.damageType" }],
+            }
+          - {
+              dice: item.stage2Damage,
+              when: flags.stage == 2,
+              tags: [{ formula: "'damage.' + item.damageType" }],
+            }
+          - {
+              dice: item.stage3Damage,
+              when: flags.stage == 3,
+              tags: [{ formula: "'damage.' + item.damageType" }],
+            }
+          - {
+              dice: item.stage4Damage,
+              when: flags.stage == 4,
+              tags: [{ formula: "'damage.' + item.damageType" }],
+            }
+          - {
+              dice: item.stage5Damage,
+              when: flags.stage == 5,
+              tags: [{ formula: "'damage.' + item.damageType" }],
+            }
+          - {
+              dice: item.stage6Damage,
+              when: flags.stage == 6,
+              tags: [{ formula: "'damage.' + item.damageType" }],
+            }
+          - dice: item.stage1Damage2
+            when: flags.stage == 1 && has(item.stage1Damage2)
+            tags: [{ formula: "'damage.' + item.damage2Type" }]
+          - dice: item.stage2Damage2
+            when: flags.stage == 2 && has(item.stage2Damage2)
+            tags: [{ formula: "'damage.' + item.damage2Type" }]
+          - dice: item.stage3Damage2
+            when: flags.stage == 3 && has(item.stage3Damage2)
+            tags: [{ formula: "'damage.' + item.damage2Type" }]
+      - id: take
+        kind: changes
+        when: has(steps.damage)
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, affliction]
+      - id: result
+        kind: outcome
+        result: "flags.stage == 0 ? 'cured' : 'afflicted'"
+        data:
+          stage: flags.stage
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+
+display:
+  groups:
+    - id: afflictions
+      kind: content
+      priority: 1
+      members: { type: affliction, from: applied }
+  types:
+    affliction:
+      state:
+        stage: { priority: 0 }
+        dc: { priority: 1 }
+        reexposed: { hidden: true }

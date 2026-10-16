@@ -1,0 +1,92 @@
+id: feats.archetype.rogue.skill-mastery
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 8, category: class, archetype: archetypes.rogue }
+repeatable: true
+
+# The two picks differ within one taking; taking the feat again may raise the same skills.
+prerequisites:
+  - { id: rogue-dedication, when: '@feats.archetype.rogue.rogue-dedication in feats.held' }
+  - { id: skills, when: "sumFields(f.value >= 2 ? 1 : 0, 'skill-rank' in f.tags) >= 1" }
+effects:
+  # Each time it is taken, it counts as another feat of the archetype.
+  - { target: archetypes.rogue.repeats, op: add, value: 1 }
+choices:
+  - id: to-master
+    unique: mastery
+    uniqueScope: owner
+    from:
+      {
+        values:
+          [
+            skill.acrobatics,
+            skill.arcana,
+            skill.athletics,
+            skill.crafting,
+            skill.deception,
+            skill.diplomacy,
+            skill.intimidation,
+            skill.medicine,
+            skill.nature,
+            skill.occultism,
+            skill.performance,
+            skill.religion,
+            skill.society,
+            skill.stealth,
+            skill.survival,
+            skill.thievery,
+            skill.lore.academia,
+            skill.lore.circus,
+            skill.lore.farming,
+            skill.lore.legal,
+            skill.lore.scribing,
+            skill.lore.underworld,
+            skill.lore.warfare,
+          ],
+      }
+    eligible: "maxFields(value in f.tags ? f.value : 0, 'skill-rank' in f.tags) == 2 || value in choice.picks"
+    effects:
+      - target: { fields: { where: "'skill-granted' in item.tags && pick.value in item.tags" } }
+        op: add
+        value: 1
+  - id: to-expert
+    unique: mastery
+    uniqueScope: owner
+    from:
+      {
+        values:
+          [
+            skill.acrobatics,
+            skill.arcana,
+            skill.athletics,
+            skill.crafting,
+            skill.deception,
+            skill.diplomacy,
+            skill.intimidation,
+            skill.medicine,
+            skill.nature,
+            skill.occultism,
+            skill.performance,
+            skill.religion,
+            skill.society,
+            skill.stealth,
+            skill.survival,
+            skill.thievery,
+            skill.lore.academia,
+            skill.lore.circus,
+            skill.lore.farming,
+            skill.lore.legal,
+            skill.lore.scribing,
+            skill.lore.underworld,
+            skill.lore.warfare,
+          ],
+      }
+    eligible: "maxFields(value in f.tags ? f.value : 0, 'skill-rank' in f.tags) == 1 || value in choice.picks"
+    effects:
+      - target: { fields: { where: "'skill-granted' in item.tags && pick.value in item.tags" } }
+        op: add
+        value: 1
+  - id: skill-feat
+    unique: feats
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= level

@@ -1,0 +1,10 @@
+id: feats.archetype.medic.medic-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.medic }
+
+prerequisites:
+  - { id: battle-medicine, when: '@feats.skill.battle-medicine in feats.held' }
+  - { id: medicine, when: 'skills.medicine.rank >= 1' }
+effects:
+  - { target: skills.medicine.rank, op: atLeast, value: 2 }

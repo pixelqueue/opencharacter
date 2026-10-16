@@ -1,0 +1,49 @@
+id: features.wizard.arcane-bond
+type: feature
+fields: { level: 1 }
+# The ranks drained today are the class copy's `bondDrained` (bit `2^(rank - 1)` each). With
+# Improved Familiar Attunement this is Drain Familiar.
+actions:
+  - id: drain-bonded-item
+    tags: [class-action, spell]
+    available: >-
+      countCopies(copy.type == 'spell' && has(copy.state.expended) && copy.state.expended
+        && !('trait.cantrip' in copy.tags) && has(copy.state.rank) && copy.state.rank <= 9
+        && (wizard.school == 'unified-magical-theory'
+          ? floor(self.bondDrained / [1, 2, 4, 8, 16, 32, 64, 128, 256][copy.state.rank - 1]) % 2 == 0
+          : self.bondDrained == 0)) > 0
+    results: [drained]
+    steps:
+      - id: spell
+        kind: choice
+        options:
+          copies:
+            type: spell
+            where: >-
+              self.expended && !('trait.cantrip' in item.tags) && has(self.rank) && self.rank <= 9
+                && (wizard.school == 'unified-magical-theory'
+                  ? floor(action.self.bondDrained / [1, 2, 4, 8, 16, 32, 64, 128, 256][self.rank - 1]) % 2 == 0
+                  : action.self.bondDrained == 0)
+        changes:
+          - { type: setState, entry: picked, key: expended, value: false }
+      - id: drain
+        kind: changes
+        changes:
+          - type: adjustState
+            entry: self
+            key: bondDrained
+            by: '[1, 2, 4, 8, 16, 32, 64, 128, 256][steps.spell.self.rank - 1]'
+      - id: linked
+        kind: changes
+        when: >-
+          @feats.wizard.linked-focus in feats.held && !self.linkedFocusUsed
+            && steps.spell.item.id in spells.curriculum && focus.spent > 0
+        changes:
+          - { type: adjust, field: focus.spent, by: -1 }
+          - { type: setState, entry: self, key: linkedFocusUsed, value: true }
+      - id: result
+        kind: outcome
+        result: "'drained'"
+        data:
+          rank: steps.spell.self.rank
+          focus: has(steps.linked)

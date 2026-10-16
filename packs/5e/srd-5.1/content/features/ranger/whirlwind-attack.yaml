@@ -1,0 +1,31 @@
+id: features.ranger.whirlwind-attack
+type: feature
+actions:
+  - id: whirlwind-attack
+    tags: [attack]
+    participants:
+      target: {}
+    results: [hit, miss]
+    steps:
+      - id: weapon
+        kind: choice
+        # The first weapon that fits, in sheet order, is recommended, so an automatic run strikes.
+        recommend: options[0]
+        options: { copies: { type: weapon, where: "self.equipped && item.range == 'melee'" } }
+      - id: attacks
+        kind: action
+        each: target
+        use: weapon-attack
+        entry: steps.weapon.picked
+        participants: { target: '[participant.id]' }
+      - id: count
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              hits: "countList(steps.attacks, x != null && x.result == 'hit')"
+      - id: result
+        kind: outcome
+        result: "flags.hits > 0 ? 'hit' : 'miss'"
+        data:
+          hits: flags.hits

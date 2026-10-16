@@ -1,0 +1,15 @@
+id: worn.prognostic-veil
+type: worn
+tags: [trait.divine, trait.focused, trait.invested]
+fields:
+  level: 10
+  price: 1000
+  usage: mask
+  activation: free
+  frequency: once-per-day
+effects:
+  - target: skills.religion.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

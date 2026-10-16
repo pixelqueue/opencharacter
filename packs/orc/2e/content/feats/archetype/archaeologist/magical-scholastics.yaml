@@ -1,0 +1,18 @@
+id: feats.archetype.archaeologist.magical-scholastics
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.archaeologist }
+
+prerequisites:
+  - {
+      id: archaeologist-dedication,
+      when: '@feats.archetype.archaeologist.archaeologist-dedication in feats.held',
+    }
+effects:
+  - { target: spells.innate, op: grant, value: { item: spells.detect-magic } }
+  - { target: spells.innate, op: grant, value: { item: spells.guidance } }
+  - { target: spells.innate, op: grant, value: { item: spells.read-aura } }
+grants:
+  - item: spells.detect-magic
+  - item: spells.guidance
+  - item: spells.read-aura

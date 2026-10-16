@@ -1,0 +1,14 @@
+id: magic-items.potion-of-acid-resistance
+type: magicItem
+fields:
+  category: potion
+  rarity: uncommon
+  lasting: true
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.acid] } }
+    op: multiply
+    value: 0.5
+    scope: applied
+    duration: { amount: 1, unit: hour }
+actions:
+  - use: drink-potion

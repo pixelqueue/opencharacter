@@ -1,0 +1,12 @@
+# Red gems below 3 charges: gem-1 is full and gem-2 is blue, so only gem-3 (charge 1) is offered
+# and recommended (`options[0]`). `by: 3 - picked.self.charge` is evaluated by the action.
+# Without `repeat`, the log entry has no `index`.
+status: finished
+outcome:
+  data: { gem: gem-3, was: 1, color: red }
+proposedChanges:
+  - to: self
+    step: gem
+    change: { type: adjustState, entry: gem-3, key: charge, by: 2 }
+log:
+  - { step: gem, action: 'test-pack:wands.red#recharge', kind: choice, by: engine, option: gem-3 }

@@ -1,0 +1,8 @@
+id: feats.ancestry.athletic-might
+type: feat
+fields: { level: 5, category: ancestry, ancestry: ancestries.orc }
+effects:
+  - target: { rolls: [skill.athletics], tally: successToCrit }
+    op: add
+    value: 1
+    when: "'skill-action.climb' in roll.tags || 'skill-action.swim' in roll.tags"

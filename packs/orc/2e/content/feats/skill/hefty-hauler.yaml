@@ -1,0 +1,9 @@
+id: feats.skill.hefty-hauler
+type: feat
+fields: { level: 1, category: skill, skills: [skill.athletics] }
+prerequisites:
+  - id: trained
+    when: 'skills.athletics.rank >= 1'
+effects:
+  - { target: bulk.encumbered, op: add, value: 2 }
+  - { target: bulk.max, op: add, value: 2 }

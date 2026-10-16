@@ -1,0 +1,16 @@
+id: feats.archetype.viking.viking-weapon-familiarity
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.viking }
+
+prerequisites:
+  - { id: viking-dedication, when: '@feats.archetype.viking.viking-dedication in feats.held' }
+effects:
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.battle-axe' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.hatchet' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.longsword' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.shield-boss' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.shield-spikes' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.shortsword' } }
+grants:
+  - { item: feats.general.shield-block, waivePrerequisites: true }

@@ -1,0 +1,45 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 10
+  5e-srd-5.1:abilities.dex.base: 12
+  5e-srd-5.1:abilities.con.base: 12
+  5e-srd-5.1:abilities.int.base: 10
+  5e-srd-5.1:abilities.wis.base: 12
+  5e-srd-5.1:abilities.cha.base: 16
+  5e-srd-5.1:hp.base: 40
+  5e-srd-5.1:hp.current: 40
+  5e-srd-5.1:dragonWings.active: true
+features:
+  - id: sorcerer
+    item: 5e-srd-5.1:classes.sorcerer
+    state: { level: 14, startingClass: true, sorceryPointsSpent: 3 }
+    choices:
+      skills: [{ option: skill.arcana }, { option: skill.persuasion }]
+      sorcerous-origin:
+        - option: 5e-srd-5.1:subclasses.draconic-bloodline
+          choices:
+            5e-srd-5.1:features.sorcerer.dragon-ancestor/dragon: [{ option: red }]
+      5e-srd-5.1:features.ability-score-improvement/improvement-4:
+        [
+          {
+            option: 5e-srd-5.1:improvements.plus-one,
+            choices: { abilities: [{ option: con }, { option: dex }] },
+          },
+        ]
+      5e-srd-5.1:features.ability-score-improvement/improvement-8:
+        [
+          {
+            option: 5e-srd-5.1:improvements.plus-one,
+            choices: { abilities: [{ option: con }, { option: dex }] },
+          },
+        ]
+      5e-srd-5.1:features.ability-score-improvement/improvement-12:
+        [
+          {
+            option: 5e-srd-5.1:improvements.plus-one,
+            choices: { abilities: [{ option: con }, { option: dex }] },
+          },
+        ]

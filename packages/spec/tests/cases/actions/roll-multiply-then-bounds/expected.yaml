@@ -1,0 +1,14 @@
+# 8 + 6 = 14, then capped at 10; the items keep their multiplied values.
+status: finished
+outcome: { data: { total: 10, unbounded: 14 } }
+log:
+  - step: roll
+    action: test-roll-multiply:strike
+    kind: dice
+    by: engine
+    faces: [4]
+    total: 10
+    bounds: [{ source: { type: rules, id: 'test-roll-multiply:rules' }, op: atMost, value: 10 }]
+    items:
+      - { kind: dice, value: 8 }
+      - { kind: flat, value: 6 }

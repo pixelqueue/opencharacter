@@ -1,0 +1,45 @@
+# A 1st-level leshy druid of the untamed order (scout background): the order trains Intimidation
+# and gives untamed shift and the Untamed Form feat, whose untamed form spell is a second focus
+# spell, so the focus pool is 2. Wisdom +4: spell attack +7, spell DC 17.
+specVersion: 0.1.0
+id: test-orc-druid-untamed
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.leshy
+    choices:
+      heritage:
+        - option: orc-2e:heritages.leaf-leshy
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-2e:boosts.dex
+  - id: background
+    item: orc-2e:backgrounds.scout
+    choices:
+      boost:
+        - option: orc-2e:boosts.wis
+      free-boost:
+        - option: orc-2e:boosts.str
+      lore:
+        - option: skill.lore.forest
+  - id: class
+    item: orc-2e:classes.druid
+    choices:
+      order:
+        - option: orc-2e:classes.druid.orders.untamed
+      voice-of-nature:
+        - option: orc-2e:feats.druid.animal-empathy
+      skills:
+        - option: skill.medicine
+        - option: skill.stealth
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.seedpod

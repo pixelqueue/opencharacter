@@ -1,0 +1,14 @@
+id: worn.ring-of-maniacal-devices
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 11
+  price: 1175
+  activation: ten-minutes
+  frequency: once-per-day
+effects:
+  - target: { rolls: [skill-action.disable-a-device, skill-action.pick-a-lock] }
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

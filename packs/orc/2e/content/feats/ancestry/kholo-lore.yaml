@@ -1,0 +1,20 @@
+id: feats.ancestry.kholo-lore
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.kholo }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.stealth }
+    when: "!('skill.stealth' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.survival }
+    when: "!('skill.survival' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.kholo }
+    when: "!('skill.lore.kholo' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 3 }
+  - target: skills.lore.kholo.rank
+    op: atLeast
+    value: 'level >= 15 ? 4 : level >= 7 ? 3 : level >= 3 ? 2 : 1'

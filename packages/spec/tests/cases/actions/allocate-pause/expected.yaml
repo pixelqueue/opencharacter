@@ -1,0 +1,16 @@
+# Luck has no `stat` tag, so it isn't offered. `limit` is 2 - field.value, the value before the
+# step (wits is 1 from the rules effect).
+status: paused
+needs:
+  step: dots
+  action: test-pack:spend
+  kind: allocate
+  allocate:
+    fields:
+      - { id: 'test-pack:stats.might', value: 1, limit: 1 }
+      - { id: 'test-pack:stats.wits', value: 1, limit: 1 }
+      - { id: 'test-pack:stats.grace', value: 0, limit: 2 }
+    budget: 3
+    spend: all
+    recommended: { 'test-pack:stats.wits': 1, 'test-pack:stats.grace': 2 }
+log: []

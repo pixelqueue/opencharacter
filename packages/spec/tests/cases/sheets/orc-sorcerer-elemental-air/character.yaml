@@ -1,0 +1,61 @@
+# A 1st-level human sorcerer of the elemental bloodline (air influence) with the acolyte
+# background. Primal; trained in Intimidation and Nature (elemental), Religion and Scribing Lore
+# (acolyte), and two more. The air influence's cantrip (gale blast) is granted beside four picked
+# cantrips; tailwind is her 1st-rank gift, beside two picks.
+specVersion: 0.1.0
+id: test-sorcerer-elemental-air
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:hp.current: 16
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      heritage:
+        - option: orc-2e:heritages.versatile-human
+          choices:
+            feat:
+              - option: orc-2e:feats.general.toughness
+      boosts:
+        - option: orc-2e:boosts.cha
+        - option: orc-2e:boosts.con
+  - id: background
+    item: orc-2e:backgrounds.acolyte
+    choices:
+      boost:
+        - option: orc-2e:boosts.wis
+      free-boost:
+        - option: orc-2e:boosts.cha
+  - id: class
+    item: orc-2e:classes.sorcerer
+    choices:
+      bloodline:
+        - option: orc-2e:classes.sorcerer.bloodlines.elemental
+          choices:
+            influence:
+              - option: air
+      skills:
+        - option: skill.athletics
+        - option: skill.diplomacy
+      orc-2e:features.spellcasting.repertoire/cantrips:
+        - option: orc-2e:spells.electric-arc
+        - option: orc-2e:spells.frostbite
+        - option: orc-2e:spells.gouging-claw
+        - option: orc-2e:spells.ignition
+      orc-2e:features.spellcasting.repertoire/spells-1:
+        - option: orc-2e:spells.breathe-fire
+        - option: orc-2e:spells.thunderstrike
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.cha
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.natural-ambition
+      choices:
+        feat:
+          - option: orc-2e:feats.spellcasting.reach-spell
+  languages:
+    - option: orc-2e:languages.dwarven

@@ -1,0 +1,96 @@
+# The table's Tinkers: the action names no upgrade, one box on each of the type's starting
+# upgrades, in its order. Free hunting grounds (-1 status with Faction E), then an expert instead
+# of two upgrade boxes; no faction status from the upgrades or the contact. The type's own special
+# ability and operation are asked last, with the pending picks.
+status: finished
+outcome:
+  result: created
+  data:
+    groundsStatus: 0
+    helpedStatus: 0
+    harmedStatus: 0
+    friendStatus: 0
+    enemyStatus: 0
+proposedChanges:
+  - to: self
+    step: type
+    change:
+      type: choose
+      path:
+        choice:
+          - crew-type
+      option: homebrew-crews:crew-types.tinkers
+  - to: self
+    step: start
+    change:
+      type: adjust
+      field: fitd-crew:coin.current
+      by: 2
+  - to: self
+    step: start
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.lair.workshop
+      by: 1
+  - to: self
+    step: start
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.training.mastery
+      by: 1
+  - to: self
+    step: groundsFaction
+    change:
+      type: setState
+      entry: faction-e
+      key: status
+      value: -1
+  - to: self
+    step: cohort
+    change:
+      type: addItem
+      entry:
+        id: cohort-new
+        item: fitd-crew:cohorts.expert
+  - to: self
+    step: newEdge
+    change:
+      type: choose
+      path:
+        entry: cohort-new
+        choice:
+          - edges
+      option: fitd-crew:cohort-traits.tenacious
+  - to: self
+    step: newFlaw
+    change:
+      type: choose
+      path:
+        entry: cohort-new
+        choice:
+          - flaws
+      option: fitd-crew:cohort-traits.unreliable
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - crew-type
+          - homebrew-crews:crew-types.tinkers
+          - special-ability
+      option: fitd-crew:crew-abilities.pack-rats
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - crew-type
+          - homebrew-crews:crew-types.tinkers
+          - operation
+      option: fitd-crew:operations.burglary
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

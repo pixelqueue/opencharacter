@@ -1,0 +1,13 @@
+id: wands.magic-wand-2nd-rank-spell
+type: wand
+tags: [trait.magical, trait.wand]
+fields:
+  level: 5
+  price: 160
+  bulk: 0.1
+  spellRank: 2
+choices:
+  - id: spell
+    from:
+      type: spell
+      where: "item.rank <= 2 && !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags) && true"

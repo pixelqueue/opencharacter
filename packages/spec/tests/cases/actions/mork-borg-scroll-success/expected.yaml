@@ -1,0 +1,41 @@
+# One use spent. 12 + 2 (Presence) = 14 against DR 12: success. Palms Open the Southern Gate:
+# d2 = 2 targets, d8 = 7 damage (each target's damage is the app's to roll and apply).
+status: finished
+outcome:
+  result: success
+  data:
+    catastrophe: false
+    targets: 2
+    amount: 7
+    duration: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: mork-borg-core:powers.current
+      by: -1
+log:
+  - step: check/check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 12
+    total: 14
+    band: success
+    bandSet: mork-borg-core:test
+  - step: targets
+    action: mork-borg-core:use-power
+    kind: dice
+    by: engine
+    faces:
+      - 2
+    total: 2
+  - step: amount
+    action: mork-borg-core:use-power
+    kind: dice
+    by: engine
+    faces:
+      - 7
+    total: 7

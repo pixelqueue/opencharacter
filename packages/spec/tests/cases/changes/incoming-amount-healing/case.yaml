@@ -1,0 +1,23 @@
+description: "A positive incoming amount (healing) fails a threshold effect's `when` and is untouched"
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp.current: { type: integer, input: true, default: 20, min: 0, max: 20 }
+        # A damage threshold: damage under 5 is ignored, otherwise all of it gets through.
+        effects:
+          - id: threshold
+            target: { incoming: { fields: [hp.current] } }
+            op: multiply
+            value: 0
+            when: incoming.amount < 0 && -incoming.amount < 5
+      content: []

@@ -1,0 +1,12 @@
+description: 'Fate Core: failing to create an advantage on an existing aspect gives the `beneficiary` a free invocation on it, held on their sheet'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:create-advantage }
+  params:
+    { skill: fate-core:skills.deceive, opposition: 3, existing: true, aspect: Smoke-Filled Hall }
+  participants:
+    beneficiary: [{ id: rival, values: {} }]
+  policy: { choices: auto }

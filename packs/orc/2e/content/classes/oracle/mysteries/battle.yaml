@@ -1,0 +1,86 @@
+id: classes.oracle.mysteries.battle
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: oracle.mystery, op: set, value: "'battle'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.athletics },
+      when: "!('skill.athletics' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: oracle.grantedFeats, op: grant, value: { item: feats.oracle.oracular-warning } }
+  - { target: focus.points, op: add, value: 1 }
+  - { target: oracle.revelations, op: grant, value: { item: spells.weapon-trance } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.battlefield-persistence } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.revel-in-retribution } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.shield } }
+  - { target: oracle.granted, op: grant, value: { item: spells.shield } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.shield } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.sure-strike } }
+  - { target: oracle.granted, op: grant, value: { item: spells.sure-strike } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.sure-strike } }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.sure-strike }
+    when: '@feats.oracle.gifted-power in feats.held'
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.sure-strike } }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.telekinetic-maneuver },
+      when: level >= 3,
+    }
+  - {
+      target: oracle.granted,
+      op: grant,
+      value: { item: spells.telekinetic-maneuver },
+      when: level >= 3,
+    }
+  - {
+      target: spells.bonusKnown,
+      op: grant,
+      value: { item: spells.telekinetic-maneuver },
+      when: level >= 3,
+    }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.telekinetic-maneuver }
+    when: 'level >= 3 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank2,
+      op: grant,
+      value: { item: spells.telekinetic-maneuver },
+      when: level >= 3,
+    }
+  - target: { incoming: { fields: [hp.current], tags: [spell] } }
+    op: add
+    stackKey: weakness
+    value: '-(oracle.cursebound >= 3 ? level : 2)'
+    when: oracle.cursebound >= 1 && incoming.amount < 0 && 'damage' in incoming.tags
+  - target: { rolls: [save] }
+    op: add
+    value: '-(oracle.cursebound >= 4 ? 2 : 1)'
+    stackKey: status-penalty
+    when: oracle.cursebound >= 2 && situational.againstSpell
+  - { target: spells.repertoire, op: grant, value: { item: spells.weapon-storm }, when: level >= 7 }
+  - { target: oracle.granted, op: grant, value: { item: spells.weapon-storm }, when: level >= 7 }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.weapon-storm }, when: level >= 7 }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.weapon-storm }
+    when: 'level >= 7 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank4,
+      op: grant,
+      value: { item: spells.weapon-storm },
+      when: level >= 7,
+    }
+grants:
+  - item: feats.oracle.oracular-warning
+  - item: spells.weapon-trance
+  - { item: spells.shield }
+  - { item: spells.sure-strike }
+  - { item: spells.telekinetic-maneuver, when: level >= 3 }
+  - { item: spells.weapon-storm, when: level >= 7 }

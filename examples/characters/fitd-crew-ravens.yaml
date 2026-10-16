@@ -1,0 +1,57 @@
+# A Forged in the Dark crew: its own character file, with the crew pack. Vex
+# (fitd-vex.yaml) links to it through the scoundrel pack's `crew` slot.
+# A crew of thieves at tier I with one claim held as turf, so rep advances at 11. The SRD names
+# no crew types, so they took Second Story from the SRD's pool and favor burglary. They marked a
+# Hidden lair and Prowess training as their starting upgrades, then took the Vault and Quality
+# weapons. Two crew advances
+# went to a Workshop and a second Vault box (16 coin), and to their gang of Skulks, loyal but
+# wild and now weakened. The GM named two factions: the dockworkers like them, and the Canal
+# Rats, whose canal steps they took, are hostile.
+specVersion: 0.1.0
+id: example-fitd-crew-ravens
+packs:
+  - { id: fitd-crew, version: 0.1.0 }
+values:
+  fitd-crew:tier: 1
+  fitd-crew:hold: strong
+  fitd-crew:rep.current: 4
+  fitd-crew:heat.current: 3
+  fitd-crew:wanted.current: 1
+  fitd-crew:coin.current: 5
+  fitd-crew:xp.current: 3
+  fitd-crew:advances.upgrades: 2
+  fitd-crew:huntingGrounds: Six blocks along the canal front
+  fitd-crew:lair: The loft over a shuttered clockmaker's
+  fitd-crew:reputation: Daring
+  fitd-crew:upgrades.lair.hidden: 1
+  fitd-crew:upgrades.lair.vault: 2
+  fitd-crew:upgrades.lair.workshop: 1
+  fitd-crew:upgrades.training.prowess: 1
+  fitd-crew:upgrades.quality.weapons: 1
+choices:
+  crew-abilities:
+    - option: fitd-crew:crew-abilities.second-story
+  operation:
+    - option: fitd-crew:operations.burglary
+features:
+  - id: c-skulks
+    item: fitd-crew:cohorts.gang
+    state: { label: The Lamplighters, gangType: skulks, harm: 1 }
+    choices:
+      edges:
+        - option: fitd-crew:cohort-traits.loyal
+      flaws:
+        - option: fitd-crew:cohort-traits.wild
+  - id: k-fence
+    item: fitd-crew:contacts.contact
+    state: { label: 'Amarise, a fence on the canal', favorite: true }
+  - id: claim-turf
+    item: fitd-crew:claims.turf
+    state: { label: 'The canal steps by the old mill', faction: faction-canal-rats }
+  # The factions the GM named (`add-faction`): the pack names none.
+  - id: faction-canal-rats
+    item: fitd-crew:factions.faction
+    state: { label: The Canal Rats, tier: 2, weakHold: true, status: -2 }
+  - id: faction-dockworkers
+    item: fitd-crew:factions.faction
+    state: { label: "The dockworkers' guild", tier: 2, status: 1 }

@@ -1,0 +1,48 @@
+description: Removing a derived field, a content type, an item field, an enum item field's value, a tag or a rules action is an interface change
+specVersion: 0.1.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      tags: [energy, heavy]
+      fields:
+        stats.might: { type: integer, input: true, default: 1 }
+        stats.power: { type: integer, formula: stats.might * 2 }
+      contentTypes:
+        gadget: { carried: true }
+        weapon:
+          carried: true
+          fields:
+            damage: { type: integer, default: 1 }
+            reach: { type: enum, values: [close, near, far], default: close }
+            ammo: { type: id, of: gadget, optional: true }
+      actions:
+        - id: activate
+          steps:
+            - { id: result, kind: outcome, result: item.id }
+    content: []
+next:
+  inline:
+    manifest:
+      id: test-pack
+      version: 2.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      tags: [energy]
+      fields:
+        stats.might: { type: integer, input: true, default: 1 }
+      contentTypes:
+        weapon:
+          carried: true
+          fields:
+            damage: { type: decimal, default: 1 }
+            reach: { type: enum, values: [close, far], default: close }
+    content: []

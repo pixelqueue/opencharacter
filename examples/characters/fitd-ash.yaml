@@ -1,0 +1,60 @@
+# A Forged in the Dark scoundrel with the table's own playbook: the SRD names no playbooks, so the
+# homebrew `Bruiser` gives the starting dots (Skirmish 2, Wreck 1) and lists its special abilities,
+# the SRD's Battleborn and Mule and the table's own Thick Skinned (+1 stress box), tagged `bruiser`
+# so the playbook's choice offers them. The rest of the file names them `homebrew:…`; their text
+# travels with the character.
+specVersion: 0.1.0
+id: example-fitd-ash
+packs:
+  - { id: fitd-scoundrel, version: 0.1.0 }
+homebrew:
+  defaultLanguage: en
+  rules: { tags: [bruiser] }
+  content:
+    - id: playbooks.bruiser
+      type: playbook # resolves to fitd-scoundrel:playbook
+      tags: [bruiser]
+      fields:
+        twoDots: [fitd-scoundrel:ratings.skirmish]
+        oneDot: [fitd-scoundrel:ratings.wreck]
+      choices:
+        - id: special-ability
+          pick: 1 + advances.playbook
+          from:
+            type: specialAbility
+            where: >-
+              'bruiser' in item.tags || item.id in [@fitd-scoundrel:special-abilities.battleborn,
+                @fitd-scoundrel:special-abilities.mule]
+    - id: special-abilities.thick-skinned
+      type: specialAbility
+      tags: [bruiser]
+      effects:
+        - { target: stress.max, op: add, value: 1 }
+  i18n:
+    en:
+      playbooks.bruiser.name: Bruiser
+      playbooks.bruiser.choices.special-ability.prompt: Choose a special ability
+      special-abilities.thick-skinned.name: Thick Skinned
+      special-abilities.thick-skinned.description: You've taken worse. You have one more stress box.
+      tags.bruiser.name: Bruiser
+values:
+  fitd-scoundrel:identity.alias: Ash
+  fitd-scoundrel:identity.heritage: Born in the harbor slums
+  fitd-scoundrel:identity.background: 'Labor: dockworker'
+  fitd-scoundrel:vice.purveyor: The fighting pits under the old foundry
+  fitd-scoundrel:relationships.friend: Hutch, a ward boss
+  fitd-scoundrel:relationships.rival: Lenny, a foreman
+  fitd-scoundrel:ratings.hunt: 1
+  fitd-scoundrel:ratings.skirmish: 1
+  fitd-scoundrel:ratings.wreck: 1
+  fitd-scoundrel:ratings.sway: 1
+  fitd-scoundrel:stress.current: 5
+  fitd-scoundrel:trauma.current: 0
+choices:
+  playbook:
+    - option: homebrew:playbooks.bruiser
+      choices:
+        special-ability:
+          - option: homebrew:special-abilities.thick-skinned
+  vice:
+    - option: fitd-scoundrel:vices.stupor

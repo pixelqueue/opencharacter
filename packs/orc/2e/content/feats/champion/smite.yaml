@@ -1,0 +1,18 @@
+id: feats.champion.smite
+type: feat
+tags: [trait.concentrate]
+fields: { level: 6, category: class, class: classes.champion }
+actions:
+  - id: smite
+    tags: [class-action]
+    participants:
+      target: { min: 1, max: 1 }
+    results: [smiting]
+    steps:
+      - id: designate
+        kind: changes
+        changes:
+          - { type: set, field: champion.smiteTarget, value: 'participants.target[0].id' }
+      - id: result
+        kind: outcome
+        result: "'smiting'"

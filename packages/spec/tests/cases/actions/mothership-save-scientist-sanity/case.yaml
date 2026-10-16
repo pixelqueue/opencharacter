@@ -1,0 +1,10 @@
+description: "Mothership: a Scientist's failed Sanity save gives each close friendly player 1 stress (the Scientist's trauma response)"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/mothership/1e
+input:
+  action: { id: mothership-1e:save }
+  params: { save: mothership-1e:saves.sanity }
+  participants:
+    close: [{ id: ally, values: {} }, { id: pilot, values: {} }]

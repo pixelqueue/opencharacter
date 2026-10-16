@@ -1,0 +1,136 @@
+id: classes.alchemist
+type: class
+tags: [trait.alchemist]
+fields: { hp: 8 }
+effects:
+  # The class's trait, for content that reads the class by it (such as Natural Ambition).
+  - { target: class.traits, op: grant, value: { tag: trait.alchemist } }
+  - { target: attributes.int.boosts, op: add, value: 1 }
+  - { target: class.keyAttribute, op: set, value: "'int'" }
+  - { target: perception.rank, op: atLeast, value: 1 }
+  - { target: saves.fortitude.rank, op: atLeast, value: 2 }
+  - { target: saves.reflex.rank, op: atLeast, value: 2 }
+  - { target: saves.will.rank, op: atLeast, value: 1 }
+  - { target: attacks.simple.rank, op: atLeast, value: 1 }
+  - { target: attacks.bomb.rank, op: atLeast, value: 1 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 1 }
+  - { target: defenses.light.rank, op: atLeast, value: 1 }
+  - { target: defenses.medium.rank, op: atLeast, value: 1 }
+  - { target: defenses.unarmored.rank, op: atLeast, value: 1 }
+  - { target: classDc.rank, op: atLeast, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.crafting },
+      when: "!('skill.crafting' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: alchemist.advancedItems, op: add, value: 'max(0, 4 + attributes.int.mod)' }
+grants:
+  - item: feats.skill.alchemical-crafting
+  - item: features.alchemist.alchemy
+  - { item: features.alchemist.powerful-alchemy, when: level >= 5 }
+  - { item: features.alchemist.alchemical-weapon-expertise, when: level >= 7 }
+  - { item: features.alchemist.will-expertise, when: level >= 7 }
+  - { item: features.alchemist.alchemical-expertise, when: level >= 9 }
+  - { item: features.alchemist.double-brew, when: level >= 9 }
+  - { item: features.alchemist.perception-expertise, when: level >= 9 }
+  - { item: features.alchemist.chemical-hardiness, when: level >= 11 }
+  - { item: features.alchemist.medium-armor-expertise, when: level >= 13 }
+  - { item: features.alchemist.weapon-specialization, when: level >= 13 }
+  - { item: features.alchemist.alchemical-weapon-mastery, when: level >= 15 }
+  - { item: features.alchemist.explosion-dodger, when: level >= 15 }
+  - { item: features.alchemist.abundant-vials, when: level >= 17 }
+  - { item: features.alchemist.alchemical-mastery, when: level >= 17 }
+  - { item: features.alchemist.medium-armor-mastery, when: level >= 19 }
+choices:
+  - id: research-field
+    from:
+      items:
+        [
+          classes.alchemist.fields.bomber,
+          classes.alchemist.fields.chirurgeon,
+          classes.alchemist.fields.mutagenist,
+          classes.alchemist.fields.toxicologist,
+        ]
+  - id: skills
+    unique: skill-training
+    pick: 3 + max(0, attributes.int.mod)
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+          skill.lore.academia,
+          skill.lore.circus,
+          skill.lore.farming,
+          skill.lore.legal,
+          skill.lore.scribing,
+          skill.lore.underworld,
+          skill.lore.warfare,
+        ]
+      where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
+    effects:
+      - { target: skills.chosen, op: grant, value: { formula: pick.value } }
+  - id: formulas
+    unique: formulas
+    pick: 6
+    activate: false
+    from:
+      type: consumable
+      where: "'trait.alchemical' in item.tags && has(item.family) && item.family == item.id && !('trait.uncommon' in item.tags) && item.level <= 1"
+    effects:
+      - { target: alchemist.formulas, op: grant, value: { formula: pick.id } }
+  - id: new-formulas
+    slots: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    unique: formulas
+    when: level >= slot
+    pick: 2
+    activate: false
+    from:
+      type: consumable
+      where: "'trait.alchemical' in item.tags && has(item.family) && item.family == item.id && !('trait.uncommon' in item.tags) && item.level <= slot"
+    effects:
+      - { target: alchemist.formulas, op: grant, value: { formula: pick.id } }
+  - id: class-feat
+    slots: [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    # The class's feats are worked out once (the query reads only the item); the slot's level is the
+    # choice's `eligible`, so a listing reads only them.
+    from:
+      type: feat
+      where: >-
+        item.category == 'class'
+          && (has(item.class) && item.class == @classes.alchemist || 'trait.alchemist' in item.tags)
+          || 'archetype-feat' in item.tags
+    eligible: >-
+      (item.category == 'class' && has(item.class) && item.class == @classes.alchemist
+          || 'trait.alchemist' in item.tags) && !('trait.archetype' in item.tags) && item.level <= slot
+        || 'trait.archetype' in item.tags && item.level <= slot
+          && (!('trait.dedication' in item.tags) || archetypes.open == 0 || item.id in choice.picks
+            || countList(choice.picks, x in archetypes.dedications) > 0)
+        || slot >= 2 && item.id in [archetypes.extra.level2, archetypes.extra.level4, archetypes.extra.level6,
+            archetypes.extra.level8, archetypes.extra.level10, archetypes.extra.level12,
+            archetypes.extra.level14, archetypes.extra.level16, archetypes.extra.level18,
+            archetypes.extra.level20][floor(slot / 2) - 1]
+  - id: skill-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= slot

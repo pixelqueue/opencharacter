@@ -1,0 +1,11 @@
+# Might 2 costs 3 and wits 1 costs 1: 4 of up to 5.
+status: finished
+proposedChanges:
+  - { to: self, step: points, change: { type: adjust, field: 'test-pack:stats.might', by: 2 } }
+  - { to: self, step: points, change: { type: adjust, field: 'test-pack:stats.wits', by: 1 } }
+log:
+  - step: points
+    action: test-pack:buy
+    kind: allocate
+    by: app
+    amounts: { 'test-pack:stats.might': 2, 'test-pack:stats.wits': 1 }

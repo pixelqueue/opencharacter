@@ -1,0 +1,19 @@
+# -7 + 3 (the d4) = -4.
+ok: true
+changes:
+  - { type: adjust, field: mork-borg-core:hp.current, by: -7, tags: [damage], faces: [3] }
+adjustments:
+  - field: mork-borg-core:hp.current
+    by: -4
+    requested: -7
+    taken: -4
+    reason: requested
+    rolled:
+      - {
+          source: { type: item, id: mork-borg-core:armor.medium, entry: worn, effect: armor-die },
+          dice: 1d4,
+          faces: [3],
+          total: 3,
+        }
+character:
+  values: { mork-borg-core:hp.max: 10, mork-borg-core:hp.current: 4 }

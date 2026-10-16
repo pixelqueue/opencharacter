@@ -1,0 +1,16 @@
+id: afflictions.curse-of-death
+type: affliction
+fields:
+  {
+    kind: curse,
+    level: 5,
+    stages: 4,
+    stage1Damage: 4d6,
+    stage2Damage: 8d6,
+    stage3Damage: 12d6,
+    damageType: void,
+  }
+grants:
+  - { item: conditions.fatigued, scope: applied, when: self.stage == 1 }
+  - { item: conditions.fatigued, scope: applied, when: self.stage == 2 }
+  - { item: conditions.fatigued, scope: applied, when: self.stage == 3 }

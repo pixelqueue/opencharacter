@@ -1,0 +1,45 @@
+id: spells.magic-missile
+type: spell
+fields:
+  level: 1
+  school: evocation
+  classes: [classes.sorcerer, classes.wizard]
+  castingTime: action
+  rangeKind: ranged
+  range: 120
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: instantaneous
+# Casting it spends the slot and rolls nothing: each dart is `dart`, run once per dart. Rolling the
+# darts' damage once for all of them is the app's to choose.
+actions:
+  - use: cast-spell
+  - id: dart
+    tags: [spell]
+    participants:
+      target: { max: 1 }
+    results: [hit]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage.spell]
+        parts:
+          - dice: 1d4
+            tags: [damage.force]
+          - value: 1
+            tags: [damage.force]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, spell, magical]
+      - id: result
+        kind: outcome
+        result: "'hit'"
+        data:
+          damage: steps.damage.total

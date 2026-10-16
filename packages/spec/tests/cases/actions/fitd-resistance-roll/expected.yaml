@@ -1,0 +1,25 @@
+# Prowess = (finesse > 0) + (prowl > 0) + (skirmish > 0) + (wreck > 0) = 0 + 1 + 1 + 0 = 2 -> 2d6kh1
+# [4, 2] keeps 4: band partial; cost 6 - 4 = 2 -> adjust stress +2
+status: finished
+outcome:
+  result: partial
+  data:
+    stress: 2
+proposedChanges:
+  - to: self
+    step: cost
+    change:
+      type: adjust
+      field: fitd-scoundrel:stress.current
+      by: 2
+log:
+  - step: resist
+    action: fitd-scoundrel:resistance-roll
+    kind: dice
+    by: engine
+    faces:
+      - 4
+      - 2
+    total: 4
+    band: partial
+    bandSet: fitd-scoundrel:action

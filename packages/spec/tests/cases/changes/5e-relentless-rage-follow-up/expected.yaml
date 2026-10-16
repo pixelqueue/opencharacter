@@ -1,0 +1,20 @@
+# 10 fire damage (rage doesn't resist fire) drops 6 hit points to 0. The feature is granted by
+# the barbarian copy, so its follow-up and action name the copy and the feature as source. Not a
+# failed death save: the damage dropped the barbarian to 0 rather than reaching 0.
+ok: true
+followUps:
+  - id: relentless-rage-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:features.barbarian.relentless-rage#relentless-rage
+    source:
+      type: item
+      id: 5e-srd-5.1:features.barbarian.relentless-rage
+      entry: barbarian
+    to: self
+    required: false
+    action:
+      id: 5e-srd-5.1:features.barbarian.relentless-rage#relentless-rage
+      entry: barbarian
+      source: 5e-srd-5.1:features.barbarian.relentless-rage
+      followUp: relentless-rage-1
+    params: {}

@@ -1,0 +1,19 @@
+id: spells.heroism
+type: spell
+fields:
+  level: 1
+  school: enchantment
+  classes: [classes.bard, classes.paladin]
+  concentration: true
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+immuneTo:
+  - { id: frightened, items: [conditions.frightened], scope: applied }

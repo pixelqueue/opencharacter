@@ -1,0 +1,11 @@
+id: magic-items.hammer-of-thunderbolts
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: 'item.id == @weapons.maul' }
+fields: { rarity: legendary, maxCharges: 5, recharge: 1d4 + 1, attackBonus: 1, damageBonus: 1 }
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

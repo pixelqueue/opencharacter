@@ -1,0 +1,64 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 1
+    mode: prepared
+    dc: 18
+    defense: fortitude
+    basic: true
+    damage: 5
+    healing: 11
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: setState
+      entry: heal-1
+      key: expended
+      value: true
+  - to: target
+    character: zombie
+    step: burn[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -5
+      tags:
+        - damage
+        - spell
+        - damage.vitality
+  - to: ally
+    character: fighter
+    step: restore[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: 11
+      tags:
+        - healing
+        - spell
+log:
+  - step: damage
+    action: orc-2e:cast-spell
+    kind: dice
+    by: engine
+    faces:
+      - 5
+    total: 5
+  - step: save[0]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: zombie
+    outcome:
+      result: failure
+  - step: heal
+    action: orc-2e:cast-spell
+    kind: dice
+    by: engine
+    faces:
+      - 3
+    total: 11

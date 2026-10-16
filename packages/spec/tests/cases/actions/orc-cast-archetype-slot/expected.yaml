@@ -1,0 +1,29 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 3
+    mode: archetype
+    dc: 23
+    defense: reflex
+    basic: true
+    damage: 21
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: orc-2e:spellSlots.archetype.sorcerer.rank3.used
+      by: 1
+  - to: target
+    character: goblin
+    step: burn[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -21
+      tags:
+        - damage
+        - spell
+        - damage.fire

@@ -1,0 +1,57 @@
+id: feats.archetype.swashbuckler.swashbuckler-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.swashbuckler }
+
+prerequisites:
+  - { id: cha, when: 'attributes.cha.mod >= 2' }
+  - { id: dex, when: 'attributes.dex.mod >= 2' }
+  - { id: not-swashbuckler, when: 'countCopies(copy.item == @classes.swashbuckler) == 0' }
+effects:
+  - { target: classDc.swashbuckler.rank, op: atLeast, value: 1 }
+grants:
+  - item: features.swashbuckler.panache
+  - item: features.swashbuckler.stylish-combatant
+choices:
+  - id: style
+    from:
+      options:
+        - id: battledancer
+          effects:
+            - { target: swashbuckler.style, op: set, value: "'battledancer'" }
+        - id: braggart
+          effects:
+            - { target: swashbuckler.style, op: set, value: "'braggart'" }
+        - id: fencer
+          effects:
+            - { target: swashbuckler.style, op: set, value: "'fencer'" }
+        - id: gymnast
+          effects:
+            - { target: swashbuckler.style, op: set, value: "'gymnast'" }
+        - id: rascal
+          effects:
+            - { target: swashbuckler.style, op: set, value: "'rascal'" }
+        - id: wit
+          effects:
+            - { target: swashbuckler.style, op: set, value: "'wit'" }
+  - id: skill
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.athletics,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.performance,
+          skill.thievery,
+        ]
+      where: "value == 'skill.acrobatics' || value == ['skill.performance', 'skill.intimidation', 'skill.deception', 'skill.athletics', 'skill.thievery', 'skill.diplomacy'][indexOf(['battledancer', 'braggart', 'fencer', 'gymnast', 'rascal', 'wit'], swashbuckler.style)]"
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }

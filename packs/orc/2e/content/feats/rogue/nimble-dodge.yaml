@@ -1,0 +1,23 @@
+id: feats.rogue.nimble-dodge
+type: feat
+tags: [trait.reaction]
+fields: { level: 1, category: class, class: classes.rogue }
+
+# The attack is the attacker's, so the app clears the bonus once that attack is resolved; the start
+# of your next turn clears it in any case.
+actions:
+  - id: nimble-dodge
+    tags: [reaction]
+    available: '!nimbleDodge.active && !conditions.encumbered'
+    steps:
+      - id: dodge
+        kind: changes
+        changes:
+          - { type: set, field: nimbleDodge.active, value: true }
+effects:
+  - target: { steps: [turn.start] }
+    op: changes
+    when: nimbleDodge.active
+    value:
+      changes:
+        - { type: set, field: nimbleDodge.active, value: false }

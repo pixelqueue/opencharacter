@@ -1,0 +1,15 @@
+id: armor.specific.holy-chain
+type: armor
+extends: armor.chain-mail
+tags: [trait.divine, trait.holy, trait.invested]
+fields:
+  price: 2500
+  checkPenalty: 0
+  speedPenalty: 0
+  bulk: 1
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.armor-potency-2
+    copies: { type: armor, where: 'item.id == @armor.specific.holy-chain' }
+  - template: runes.resilient
+    copies: { type: armor, where: 'item.id == @armor.specific.holy-chain' }

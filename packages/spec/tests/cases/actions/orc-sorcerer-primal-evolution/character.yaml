@@ -1,0 +1,87 @@
+# Sela at 4th level with Primal Evolution (the rest of 4th level unpicked). A gutsy halfling sorcerer of the
+# draconic bloodline (a primal exemplar) with a criminal background, a staff and a sling.
+#
+# Boosts: the halfling's Dexterity and Wisdom (Strength flaw) and a free Charisma, the criminal's
+# Dexterity and a free Charisma, the sorcerer's Charisma, and four free (Constitution, Dexterity,
+# Wisdom, Charisma): Str -1, Dex +3, Con +1, Int +0, Wis +2, Cha +4. Trained skills: Stealth and
+# Underworld Lore (criminal), Intimidation (draconic), Nature (primal exemplar), and two more (2 +
+# Intelligence +0). The skill increase at 3rd level went to Intimidation (expert).
+#
+# Primal spells: spell attack +9, spell DC 19. The bloodline gives shield (cantrip), fear (1st)
+# and shatter (2nd); four cantrips, three more 1st-rank and two more 2nd-rank spells are hers,
+# with breathe fire and shatter as signature spells. Flurry of claws (one Focus Point), and
+# scaly hide as blood magic; Propelling Sorcery at 2nd level adds its own.
+specVersion: 0.1.0
+id: example-orc-sela
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 4
+  orc-2e:hp.current: 27
+  orc-2e:skills.intimidation.increases: 1
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.halfling
+    choices:
+      heritage:
+        - option: orc-2e:heritages.gutsy-halfling
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-2e:boosts.cha
+  - id: background
+    item: orc-2e:backgrounds.criminal
+    choices:
+      boost:
+        - option: orc-2e:boosts.dex
+      free-boost:
+        - option: orc-2e:boosts.cha
+  - id: class
+    item: orc-2e:classes.sorcerer
+    choices:
+      bloodline:
+        - option: orc-2e:classes.sorcerer.bloodlines.draconic
+          choices:
+            exemplar:
+              - option: primal
+      skills:
+        - option: skill.deception
+        - option: skill.diplomacy
+      orc-2e:features.spellcasting.repertoire/cantrips:
+        - option: orc-2e:spells.electric-arc
+        - option: orc-2e:spells.frostbite
+        - option: orc-2e:spells.ignition
+        - option: orc-2e:spells.tangle-vine
+      orc-2e:features.spellcasting.repertoire/spells-1:
+        - option: orc-2e:spells.breathe-fire
+        - option: orc-2e:spells.heal
+        - option: orc-2e:spells.thunderstrike
+      orc-2e:features.spellcasting.repertoire/spells-2:
+        - option: orc-2e:spells.entangling-flora
+        - option: orc-2e:spells.oaken-resilience
+      orc-2e:features.spellcasting.signature-spells/signature-1:
+        - option: orc-2e:spells.breathe-fire
+      orc-2e:features.spellcasting.signature-spells/signature-2:
+        - option: orc-2e:spells.shatter
+      class-feat-2:
+        - option: orc-2e:feats.sorcerer.propelling-sorcery
+      class-feat-4:
+        - option: orc-2e:feats.sorcerer.primal-evolution
+      skill-feat-2:
+        - option: orc-2e:feats.skill.intimidating-glare
+inventory:
+  - { id: staff, item: orc-2e:weapons.staff, equipped: true }
+  - { id: sling, item: orc-2e:weapons.sling, equipped: true }
+  - { id: backpack, item: orc-2e:gear.backpack }
+  - { id: bedroll, item: orc-2e:gear.bedroll }
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.wis
+    - option: orc-2e:boosts.cha
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.halfling-luck
+  general-feat-3:
+    - option: orc-2e:feats.general.fleet

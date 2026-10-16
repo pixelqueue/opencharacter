@@ -1,0 +1,342 @@
+{
+  "set": "error-codes",
+  "specVersion": "0.1.0",
+  "description": "Stable error codes. `kind`: shape (from the change's type, before running), runtime (against the current character and ruleset; the character is unchanged), load (loadRuleset), action (startAction/continueAction), build (checkRelease), formula (parsing, checking and evaluating formulas; see docs/formulas.md).",
+  "items": [
+    {
+      "id": "invalid-shape",
+      "kind": "shape",
+      "description": "The input does not match its JSON Schema."
+    },
+    {
+      "id": "unknown-change-type",
+      "kind": "shape",
+      "description": "The change type is not in the fixed set."
+    },
+    {
+      "id": "unknown-id",
+      "kind": "runtime",
+      "description": "An ID is not in this ruleset."
+    },
+    {
+      "id": "unknown-field",
+      "kind": "runtime",
+      "description": "A field ID is not in this ruleset."
+    },
+    {
+      "id": "not-input-field",
+      "kind": "runtime",
+      "description": "Only input fields can be set or adjusted."
+    },
+    {
+      "id": "wrong-type",
+      "kind": "runtime",
+      "description": "A value has the wrong type for its field, state key or parameter."
+    },
+    {
+      "id": "out-of-range",
+      "kind": "runtime",
+      "description": "A value is outside its field's min and max."
+    },
+    {
+      "id": "not-owned",
+      "kind": "runtime",
+      "description": "The entry is not in this character's inventory, features or applied entries."
+    },
+    {
+      "id": "duplicate-id",
+      "kind": "runtime",
+      "description": "An instance ID is already used in this character; or, in startAction, two participants share a view `id`; or an entry has a standard copy's ID but another item, and is skipped. loadRuleset reports it too when two standard items derive the same instance ID. Data: `id`."
+    },
+    {
+      "id": "standard-copy",
+      "kind": "runtime",
+      "description": "removeItem: the entry is a standard copy, which every character has. Data: `entry`."
+    },
+    {
+      "id": "not-equippable",
+      "kind": "runtime",
+      "description": "The item's content type is not equippable."
+    },
+    {
+      "id": "unknown-state-key",
+      "kind": "runtime",
+      "description": "The state key is not declared by the item's content type or templates (for an applied entry, by its source's). At load: a `reapply` key that isn't a state key of its content."
+    },
+    {
+      "id": "template-not-applicable",
+      "kind": "runtime",
+      "description": "The template's appliesTo query does not match the item."
+    },
+    {
+      "id": "unknown-choice",
+      "kind": "runtime",
+      "description": "The choice path does not lead to a choice."
+    },
+    {
+      "id": "invalid-option",
+      "kind": "runtime",
+      "description": "The option is not one of the choice's options, or a field parameter's field is outside its `where` set, or a tag set on a field or passed as a parameter is outside its `members` (data: `field` or `param`, `option`)."
+    },
+    {
+      "id": "not-picked",
+      "kind": "runtime",
+      "description": "unchoose: the option is not picked."
+    },
+    {
+      "id": "pack-version-mismatch",
+      "kind": "runtime",
+      "description": "The character pins pack versions that differ from the ruleset's."
+    },
+    {
+      "id": "unknown-link",
+      "kind": "runtime",
+      "description": "The character file links, or the app passes a view for, a slot no loaded pack declares. The rest computes. Data: `link`, the slot ID."
+    },
+    {
+      "id": "homebrew-error",
+      "kind": "runtime",
+      "description": "The character's homebrew doesn't load on top of the ruleset, so the call computes nothing. One error per load error. Data: `cause` (the load error code: `unknown-reference`, `formula-error`, `homebrew-not-allowed`, `missing-dependency`, `safety-limit-exceeded`, …) and `detail` (that error's data); `path` points into the character (`/homebrew/content/0`). upgrade reports it in `report.errors` for homebrew that doesn't load on the new ruleset."
+    },
+    {
+      "id": "invalid-link-value",
+      "kind": "runtime",
+      "description": "A linked character's value doesn't have its declared field's type, or two of its values share a field ID. The field's default is used. Data: `link`, `field`, `expected`. In startAction, a participant's value does: the action fails, data `role`, `id`, `field`, `expected`."
+    },
+    {
+      "id": "rules-issue",
+      "kind": "runtime",
+      "description": "Strict mode: a rules issue rejected the batch (issues are attached)."
+    },
+    {
+      "id": "creation-incomplete",
+      "kind": "runtime",
+      "description": "finishCreation: the character still has rules issues or pending choices. `data.issues` lists them, each pending choice as `too-few-picks`."
+    },
+    {
+      "id": "faces-required",
+      "kind": "runtime",
+      "description": "An adjust's incoming-change effects roll dice, and the change's `faces` run out with no dice function to roll the rest. Data: `dice`, every dice `add` the adjust rolls, in order, as `{ source, dice }` (the effect's source and the dice as text), and `supplied`, the number of faces the change gave. Roll them and resend the batch with `faces`."
+    },
+    {
+      "id": "faces-mismatch",
+      "kind": "runtime",
+      "description": "An adjust's `faces` has faces left over after its incoming-change effects rolled. Data: `supplied` and `used`, the number of faces given and used."
+    },
+    {
+      "id": "spec-version-unsupported",
+      "kind": "load",
+      "description": "A pack needs a newer spec than this engine implements."
+    },
+    {
+      "id": "missing-dependency",
+      "kind": "load",
+      "description": "A pack's dependency is missing or its version is out of range."
+    },
+    {
+      "id": "duplicate-pack",
+      "kind": "load",
+      "description": "The same pack was passed twice."
+    },
+    {
+      "id": "homebrew-not-allowed",
+      "kind": "load",
+      "description": "A character's homebrew overrides content (`override`) or changes settings, which homebrew may not do. Reported as the cause of `homebrew-error`. Data: `property`."
+    },
+    {
+      "id": "duplicate-content-id",
+      "kind": "load",
+      "description": "Two items in one pack share an ID."
+    },
+    {
+      "id": "unknown-reference",
+      "kind": "load",
+      "description": "Content refers to an ID that does not exist. Also raised when an action runs, for an addItem's item or an applyEffect's source that names no content or a template. A kept template (`keepsTemplates`) that names content other than a template is `unknown-reference` too, with kind `template`."
+    },
+    {
+      "id": "circular-formula",
+      "kind": "formula",
+      "description": "Formulas depend on each other in a loop. At computeSheet time the looping fields carry this error instead of a value."
+    },
+    {
+      "id": "formula-error",
+      "kind": "load",
+      "description": "A formula in a pack does not parse or type-check (load-time wrapper; the cause is one of the formula codes). computeSheet also reports a computed value on a copy whose formula fails (data: `entry`, `name`, `cause`)."
+    },
+    {
+      "id": "unknown-tally",
+      "kind": "load",
+      "description": "An effect targets a roll tally that no visible pack declares in `rollTallies`. Data: `tally`, `pack`."
+    },
+    {
+      "id": "then-without-copy",
+      "kind": "load",
+      "description": "An effect with `then` has no copy whose state it could change: it is in the rules' effects, a situational choice, a choice's effects, or has `scope: applied`. Data: `effect` (the effect's ID, if any), `pack`."
+    },
+    {
+      "id": "link-field-mismatch",
+      "kind": "load",
+      "description": "A link slot names a `pack` that is loaded too, and one of its declared fields isn't a field of that pack's ruleset (it and its dependencies) or has another type. Data: `link`, `field`, `pack`."
+    },
+    {
+      "id": "invalid-create-offer",
+      "kind": "load",
+      "description": "A follow-up with `create` isn't a derived offer: it has no `while`, or has `on` or `becomes`, `action` or `changes`, or `to`. Data: `followUp`, `pack`."
+    },
+    {
+      "id": "invalid-family",
+      "kind": "load",
+      "description": "A pack's field families or shared view fields don't expand: a placeholder names no family, a view-field set is unknown, an expanded key isn't a field ID or comes out twice, or a family or set is declared twice. Data: `pack`, `message`."
+    },
+    {
+      "id": "link-start-mismatch",
+      "kind": "load",
+      "description": "A follow-up's `create` names a creation start from a pack that a character using the slot's `pack` wouldn't load: neither that pack nor one of its dependencies. Checked when the slot's pack is loaded too; `pnpm validate` checks it always. Data: `link`, `start`, `pack`."
+    },
+    {
+      "id": "template-field-mismatch",
+      "kind": "load",
+      "description": "Two packs declare a template field (`templateFields`) with the same name and a different `type`, `of` or `values`. Data: `field`, `packs` (the earlier pack, then the later)."
+    },
+    {
+      "id": "unknown-role",
+      "kind": "load",
+      "description": "An action step names a role its action doesn't declare (`each: <role>`, or `to: <role>` other than `self` and `target`), hands off (`as: participant`) outside an `each` step, or has an `each` of its own inside an `each` branch step's cases. Data: `role` (when one is named), `step`, `pack`."
+    },
+    {
+      "id": "circular-extends",
+      "kind": "load",
+      "description": "`extends` chains loop."
+    },
+    {
+      "id": "safety-limit-exceeded",
+      "kind": "action",
+      "description": "A safety limit (exploding dice, nesting depth, checkpoint steps) was reached."
+    },
+    {
+      "id": "unknown-action",
+      "kind": "action",
+      "description": "The action does not exist or is not available."
+    },
+    {
+      "id": "situational-unavailable",
+      "kind": "action",
+      "description": "A situational choice is selected (true, or a non-default value) while its `available` condition is false. Data: `situational`, its qualified ID. Also a runtime error from applyChanges, for a choice an `adjust` carries in `situational` that isn't offered or whose `incoming` doesn't match the change; it rejects the batch."
+    },
+    {
+      "id": "missing-param",
+      "kind": "action",
+      "description": "A required action parameter is missing."
+    },
+    {
+      "id": "invalid-participants",
+      "kind": "action",
+      "description": "startAction: participants for a role the action doesn't declare, or a role's count outside its `min` and `max`. Data: `role`."
+    },
+    {
+      "id": "undeclared-result",
+      "kind": "action",
+      "description": "An outcome's `result` is not one of the action's declared `results`. Data: `result`. The formula type check also reports a literal `result` that isn't declared."
+    },
+    {
+      "id": "answer-mismatch",
+      "kind": "action",
+      "description": "continueAction, or one of startAction's `answers`: the answer does not fit what the paused action needs (the wrong kind of answer, wrong number of faces, a face out of range, an unknown option, amounts that don't fit, or a handoff outcome whose `result` the used action doesn't declare). For `answers`, data: `index` (the answer's, from 0) and `needs` (the pause); an answer left over once the action finishes has `index` only."
+    },
+    {
+      "id": "proposed-changes-failed",
+      "kind": "action",
+      "description": "A step that reads the proposed sheet can't build it: applying the changes the action has proposed `to: self` so far fails. Data: `step` (the step's path) and `error`, the batch's error with its `path`. A pack bug."
+    },
+    {
+      "id": "formula-syntax",
+      "kind": "formula",
+      "description": "The formula text does not parse (data: offset, expected)."
+    },
+    {
+      "id": "unknown-name",
+      "kind": "formula",
+      "description": "A name in a formula is neither a bound context root nor a visible field."
+    },
+    {
+      "id": "unknown-function",
+      "kind": "formula",
+      "description": "A formula calls a function that is not in the standard library or not bound here."
+    },
+    {
+      "id": "wrong-arity",
+      "kind": "formula",
+      "description": "A formula calls a function with the wrong number of arguments."
+    },
+    {
+      "id": "type-mismatch",
+      "kind": "formula",
+      "description": "An operator, function or place in a formula gets a type it doesn't accept."
+    },
+    {
+      "id": "division-by-zero",
+      "kind": "formula",
+      "description": "A formula divides (/ or %) by zero."
+    },
+    {
+      "id": "overflow",
+      "kind": "formula",
+      "description": "An int result is outside ±(2^53 − 1), or a decimal result is not finite."
+    },
+    {
+      "id": "no-such-key",
+      "kind": "formula",
+      "description": "A path under a context root names something absent (use has())."
+    },
+    {
+      "id": "index-out-of-range",
+      "kind": "formula",
+      "description": "A list index is outside the list."
+    },
+    {
+      "id": "invalid-face",
+      "kind": "formula",
+      "description": "A supplied die face is not on the die (or not enough faces were supplied). In applyChanges, a face from an adjust's `faces` or the dice function that is off the die rejects the batch with this code."
+    },
+    {
+      "id": "unknown-tag",
+      "kind": "load",
+      "description": "A tag is not declared by the pack or its dependencies. Also reported when an action runs, for a computed tag (one a formula gives, or one of the list it gives), and by computeSheet as the error of a field whose computed tag isn't declared (data: `field`, `tag`)."
+    },
+    {
+      "id": "conflicting-roll-modifiers",
+      "kind": "action",
+      "description": "A roll has both advantage and disadvantage under `settings.rollModifiers.advantage: stack`."
+    },
+    {
+      "id": "no-upgrade-path",
+      "kind": "runtime",
+      "description": "upgrade: the target version is below the character's pinned version."
+    },
+    {
+      "id": "version-not-increased",
+      "kind": "build",
+      "description": "checkRelease: the new release's version is not greater than the previous one."
+    },
+    {
+      "id": "version-bump-too-small",
+      "kind": "build",
+      "description": "checkRelease: the release changes the saved state's shape or the pack's interface without a breaking version bump (the minor version before 1.0.0, the major version from 1.0.0)."
+    },
+    {
+      "id": "missing-upgrade-script",
+      "kind": "build",
+      "description": "checkRelease: the release changes the saved state's shape without an upgrade script from the previous version."
+    },
+    {
+      "id": "upgrade-script-incomplete",
+      "kind": "build",
+      "description": "checkRelease: a shape change is not covered by any step of the upgrade script (data names it)."
+    },
+    {
+      "id": "unknown-follow-up",
+      "kind": "runtime",
+      "description": "The character has no follow-up with this ID: a dismissFollowUp change's (no stored entry), or startAction's `action.followUp` (no offer computeSheet lists)."
+    }
+  ]
+}

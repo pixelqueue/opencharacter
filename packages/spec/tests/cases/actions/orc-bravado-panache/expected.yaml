@@ -1,0 +1,20 @@
+# 10 + Deception 5 (Charisma 2 + trained 3) + Stylish Combatant's 1 = 16 against 15: a success,
+# so lasting panache (an earlier entry of it, if any, goes first).
+status: finished
+outcome:
+  result: success
+  data: { total: 16 }
+proposedChanges:
+  - to: self
+    step: gain
+    change: { type: removeEffect, applied: { where: "item.id == 'orc-2e:effects.panache'" } }
+  - to: self
+    step: gain
+    change: { type: applyEffect, source: orc-2e:effects.panache, state: { brief: false } }
+log:
+  - step: check/roll
+    action: orc-2e:check
+    kind: dice
+    faces: [10]
+    total: 16
+    band: success

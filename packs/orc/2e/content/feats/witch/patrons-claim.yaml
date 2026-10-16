@@ -1,0 +1,18 @@
+id: feats.witch.patrons-claim
+type: feat
+fields: { level: 18, category: class, class: classes.witch }
+actions:
+  - id: patrons-claim
+    tags: [class-action]
+    results: [claimed]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage, damage.spirit]
+        parts: [{ dice: 'dieOf(1d10, 10)' }]
+      - id: result
+        kind: outcome
+        result: "'claimed'"
+        data:
+          damage: steps.damage.total
+          dc: spellcasting.dc

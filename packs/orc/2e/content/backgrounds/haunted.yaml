@@ -1,0 +1,44 @@
+id: backgrounds.haunted
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.occultism }
+    when: "!('skill.occultism' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['wis', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }
+  - id: skill
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+        ]
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }

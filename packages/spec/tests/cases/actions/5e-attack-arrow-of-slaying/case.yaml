@@ -1,0 +1,13 @@
+description: "5E: an arrow of dragon slaying hits a dragon: 6d10 piercing more, and the dragon's DC 17 Constitution save on its own sheet; a failure takes it all"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: longbow }
+  participants:
+    target:
+      - id: wyrmling
+        values: { 5e-srd-5.1:combat.ac: 17, 5e-srd-5.1:creature.type: dragon }
+answers:
+  - { outcome: { result: failure, data: { total: 12 } } }

@@ -1,0 +1,10 @@
+description: "orc-2e: a primal sorcerer with Primal Evolution casts summon animal, not in her repertoire, with the extra slot: the cast asks how it is paid, the feat's option casts it at her highest rank (2nd) and spends the extra slot; not a gift spell, so no blood magic"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: orc-2e:spells.summon-animal }
+  policy: { choices: pause }
+answers:
+  - option: orc-2e:feats.sorcerer.primal-evolution#extra-slot

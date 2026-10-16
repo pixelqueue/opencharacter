@@ -1,0 +1,34 @@
+# A goblin stat block as a ready-made character (SRD 5.1). Monsters use the same format:
+# no class levels, so proficiency comes from the challenge rating.
+# Derived values the engine should compute: AC 15 (leather 13 + shield 2), HP max 7,
+# proficiency +2, scimitar attack 1d20 + 2 (Dexterity, finesse) + 2, damage 1d6 + 2.
+specVersion: 0.1.0
+id: goblin
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 8
+  5e-srd-5.1:abilities.dex.base: 14
+  5e-srd-5.1:abilities.con.base: 10
+  5e-srd-5.1:abilities.int.base: 10
+  5e-srd-5.1:abilities.wis.base: 8
+  5e-srd-5.1:abilities.cha.base: 8
+  5e-srd-5.1:challenge.rating: 0.25
+  5e-srd-5.1:hp.base: 7
+  5e-srd-5.1:hp.current: 7
+  5e-srd-5.1:combat.speed: 30
+  5e-srd-5.1:proficiencies.weapons: [5e-srd-5.1:weapons.scimitar]
+  5e-srd-5.1:proficiencies.armor: [light, shield]
+features:
+  - id: nimble-escape
+    item: 5e-srd-5.1:traits.nimble-escape
+inventory:
+  - id: scimitar
+    item: 5e-srd-5.1:weapons.scimitar
+    equipped: true
+  - id: leather
+    item: 5e-srd-5.1:armor.leather
+    equipped: true
+  - id: shield
+    item: 5e-srd-5.1:armor.shield
+    equipped: true

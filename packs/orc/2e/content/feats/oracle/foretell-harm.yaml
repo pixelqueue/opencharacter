@@ -1,0 +1,21 @@
+id: feats.oracle.foretell-harm
+type: feat
+tags: [trait.cursebound]
+fields: { level: 1, category: class, class: classes.oracle }
+actions:
+  - id: foretell-harm
+    tags: [class-action]
+    available: oracle.cursebound < oracle.curseMax
+    params:
+      rank: { type: integer, optional: true, min: 1, max: 10 }
+    results: [used]
+    steps:
+      - id: curse
+        kind: changes
+        changes:
+          - { type: adjust, field: oracle.cursebound, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          damage: '2 * (has(params.rank) ? params.rank : spells.autoRank)'

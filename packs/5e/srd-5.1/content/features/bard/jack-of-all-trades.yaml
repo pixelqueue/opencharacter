@@ -1,0 +1,9 @@
+id: features.bard.jack-of-all-trades
+type: feature
+effects:
+  - target: { rolls: [check] }
+    op: add
+    value: floor(proficiency.bonus / 2)
+    when: >-
+      has(flags.toolProficient) ? !flags.toolProficient
+        : !has(params.skill) || !(('skill.' + params.skill) in proficiencies.skills)

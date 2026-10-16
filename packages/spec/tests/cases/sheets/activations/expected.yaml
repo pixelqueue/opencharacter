@@ -1,0 +1,31 @@
+# The rules-level pick first (no entry, no parent); the class, its grants (mastery's `when`
+# doesn't hold) and its picks (the wrench is `activate: false`; piloting's parent is the class,
+# past the inline option); the knife and its template; dying and the unconscious it grants. The
+# panicked entry is blocked by the class's immunity, so it isn't listed.
+issues:
+  - { code: immune, id: test-pack:classes.teamster/steady }
+activations:
+  - item: test-pack:skills.hacking
+    via: pick
+    path: { choice: [bonus, test-pack:skills.hacking] }
+  - { item: test-pack:classes.teamster, entry: class, via: copy }
+  - { item: test-pack:skills.zero-g, entry: class, via: grant, parent: 1 }
+  - { item: test-pack:skills.athletics, entry: class, via: grant, parent: 2 }
+  - item: test-pack:skills.repair
+    entry: class
+    via: pick
+    parent: 1
+    path: { entry: class, choice: [trained, test-pack:skills.repair] }
+  - item: test-pack:skills.piloting
+    entry: class
+    via: pick
+    parent: 1
+    path: { entry: class, choice: [path, mechanic, specialty, test-pack:skills.piloting] }
+  - { item: test-pack:weapons.knife, entry: knife, via: copy }
+  - { item: test-pack:weapons.sharp, entry: knife, via: template, parent: 6 }
+  - { item: test-pack:conditions.dying, entry: dying, via: applied, scope: applied }
+  - item: test-pack:conditions.unconscious
+    entry: dying
+    via: applied
+    scope: applied
+    parent: 8

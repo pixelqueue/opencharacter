@@ -1,0 +1,30 @@
+status: finished
+outcome: { data: { total: 15 } }
+log:
+  - step: roll
+    action: 'test-roll-parts:attack'
+    kind: dice
+    by: engine
+    faces: []
+    total: 15
+    items:
+      - {
+          kind: dice,
+          count: 1,
+          sides: 20,
+          faces: [{ value: 17, kept: true, set: true }],
+          value: 17,
+          tags: [die],
+        }
+      - {
+          kind: flat,
+          value: 3,
+          source: { type: field, id: 'test-roll-parts:attack.str' },
+          tags: [attribute],
+        }
+      - {
+          kind: flat,
+          value: -5,
+          source: { type: rules, id: 'test-roll-parts:attack' },
+          tags: [map],
+        }

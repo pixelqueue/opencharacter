@@ -1,0 +1,10 @@
+id: conditions.off-guard
+type: condition
+# The flag is for attackers, who read it through a view.
+effects:
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: -2
+    stackKey: circumstance-penalty
+    scope: applied
+  - { target: conditions.offGuard, op: set, value: true, scope: applied }

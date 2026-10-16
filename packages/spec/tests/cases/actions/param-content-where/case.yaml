@@ -1,0 +1,43 @@
+description: "A content parameter's `where` limits the items the app may pass: it sees the candidate as `item`, the character's fields and the action's own item as `action.item`; formulas read the qualified ID"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          calm: { type: integer, input: true, default: 2 }
+        contentTypes:
+          condition:
+            fields:
+              grip: { type: integer }
+          discipline:
+            fields:
+              strength: { type: integer }
+      content:
+        - { id: conditions.charmed, type: condition, fields: { grip: 3 } }
+        - { id: conditions.stunned, type: condition, fields: { grip: 9 } }
+        - id: disciplines.stillness
+          type: discipline
+          fields: { strength: 1 }
+          actions:
+            # Ends a condition whose grip the character's calm and the discipline's own strength
+            # overcome.
+            - id: still
+              params:
+                condition:
+                  type: id
+                  of: condition
+                  where: item.grip <= calm + action.item.strength
+              steps:
+                - id: done
+                  kind: outcome
+                  data: { ended: params.condition }
+input:
+  action: { id: 'test-pack:disciplines.stillness#still', entry: stillness }
+  params: { condition: conditions.charmed }

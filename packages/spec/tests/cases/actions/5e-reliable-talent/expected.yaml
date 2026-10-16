@@ -1,0 +1,21 @@
+# Rogue 11: proficiency +4, Stealth with expertise. Reliable Talent raises the 3 to 10.
+# 10 + dex 3 + 4 + 4 = 21
+status: finished
+outcome:
+  result: rolled
+  data: { total: 21 }
+log:
+  - step: check
+    action: 5e-srd-5.1:skill-check
+    kind: dice
+    by: engine
+    faces: [3]
+    items:
+      - kind: dice
+        modifiers: [{ type: minimum, target: 10 }]
+        faces: [{ value: 10, kept: true }]
+        value: 10
+      - { kind: flat, value: 3 }
+      - { kind: flat, value: 4 }
+      - { kind: flat, value: 4 }
+    total: 21

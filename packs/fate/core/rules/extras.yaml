@@ -1,0 +1,56 @@
+contentTypes:
+  extra:
+    fields:
+      refresh: { type: integer, default: 0, min: 0 }
+      ranks: { type: integer, default: 1, min: 1 }
+      bonus: { type: integer, default: 0 }
+      skill: { type: id, of: field }
+      actions: { type: set, of: string }
+      aspect: { type: boolean, default: false }
+      weapon: { type: integer, default: 0, min: 0 }
+      weaponSkill: { type: id, of: field }
+      armor: { type: integer, default: 0, min: 0 }
+      armorHarm: { type: enum, values: [physical, mental], default: physical }
+      first: { type: boolean, default: false }
+    state:
+      label: { type: string, default: '' }
+      permission: { type: string, default: '' }
+      ranks: { type: integer, default: 1, min: 1, max: item.ranks }
+      refresh: { type: integer, default: item.refresh, min: 0 }
+    effects:
+      - id: bonus
+        target: { rolls: [skill-roll] }
+        op: add
+        value: 'item.bonus * (has(self.ranks) ? self.ranks : 1)'
+        when: >-
+          situational.extra && item.bonus > 0 && has(item.skill) && has(params.skill)
+            && item.skill == params.skill.id
+            && (!has(item.actions) || size(item.actions) == 0 || params.action in item.actions)
+
+fields:
+  extras.refresh:
+    type: integer
+    formula: >-
+      sumCopies((has(copy.state.refresh) ? copy.state.refresh : copy.fields.refresh)
+        * (has(copy.state.ranks) ? copy.state.ranks : 1), copy.type == 'extra')
+  extras.bonus:
+    type: integer
+    formula: "countCopies(copy.type == 'extra' && copy.fields.bonus > 0)"
+
+situational:
+  - id: extra
+    type: boolean
+    default: false
+    rolls: [skill-roll]
+    available: extras.bonus > 0
+
+constraints:
+  - id: extra-permission
+    check: >-
+      countCopies(copy.type == 'extra' && copy.fields.aspect
+        && (!has(copy.state.permission) || copy.state.permission == '')) == 0
+
+display:
+  fields:
+    extras.refresh: { groups: [fate], priority: 1, showWhen: extras.refresh > 0 }
+    extras.bonus: { hidden: true }

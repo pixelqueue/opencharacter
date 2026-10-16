@@ -1,0 +1,10 @@
+id: features.swashbuckler.vivacious-speed
+type: feature
+fields: { level: 3 }
+effects:
+  - target: speed.land
+    op: add
+    value: >-
+      panache.active ? 10 + 5 * floor((level - 3) / 4)
+        : 5 * floor((10 + 5 * floor((level - 3) / 4)) / 10)
+    stackKey: status-bonus

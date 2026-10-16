@@ -1,0 +1,7 @@
+id: feats.cleric.warpriests-armor
+type: feat
+fields: { level: 2, category: class, class: classes.cleric }
+prerequisites:
+  - { id: doctrine, when: "cleric.doctrine == 'warpriest'" }
+effects:
+  - { target: defenses.heavy.rank, op: atLeast, value: 'level >= 13 ? 2 : 1' }

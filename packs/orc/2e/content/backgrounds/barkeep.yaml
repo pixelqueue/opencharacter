@@ -1,0 +1,25 @@
+id: backgrounds.barkeep
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.diplomacy },
+      when: "!('skill.diplomacy' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.alcohol },
+      when: "!('skill.lore.alcohol' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.hobnobber
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['con', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

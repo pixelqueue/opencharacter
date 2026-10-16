@@ -1,0 +1,36 @@
+id: spells.elemental-motion
+type: spell
+tags: [trait.concentrate, trait.focus, trait.manipulate, trait.sorcerer, trait.uncommon]
+fields:
+  rank: 3
+  cast: two
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+effects:
+  - target: speed.land
+    op: add
+    value: 'self.rank >= 9 ? 20 : 10'
+    stackKey: status-bonus
+    when: self.rank >= 6
+    scope: applied
+  - target: speed.fly
+    op: atLeast
+    value: speed.land
+    when: sorcerer.element in ['air', 'fire']
+    scope: applied
+  - target: speed.burrow
+    op: atLeast
+    value: 10
+    when: sorcerer.element in ['earth', 'metal']
+    scope: applied
+  - target: speed.swim.base
+    op: atLeast
+    value: speed.land
+    when: sorcerer.element == 'water'
+    scope: applied
+  - target: speed.climb.base
+    op: atLeast
+    value: speed.land
+    when: sorcerer.element == 'wood'
+    scope: applied

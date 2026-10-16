@@ -1,0 +1,12 @@
+id: feats.ancestry.arcane-dragonblood
+type: feat
+tags: [trait.lineage]
+fields: { level: 1, category: ancestry, heritage: heritages.dragonblood }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.arcana }
+    when: "!('skill.arcana' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - { item: feats.skill.arcane-sense, waivePrerequisites: true }

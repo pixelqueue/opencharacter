@@ -1,0 +1,28 @@
+description: "A copy named by its state: the faction type names its copies by `label`, and the custom faction names its own by `alias` instead. computeSheet's `copyNames` holds each copy whose key is a non-empty string; an unset or blank label, and a type without `nameFrom`, give none"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          faction:
+            nameFrom: label
+            state:
+              label: { type: string, default: '' }
+          gear:
+            state:
+              label: { type: string, default: '' }
+      content:
+        - { id: factions.generic, type: faction }
+        - id: factions.custom
+          type: faction
+          nameFrom: alias
+          state:
+            alias: { type: string, default: '' }
+        - { id: gear.rope, type: gear }

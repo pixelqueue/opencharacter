@@ -1,0 +1,28 @@
+id: feats.archetype.blessed-one.blessed-one-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.blessed-one }
+
+effects:
+  - target: { fields: { where: "'archetype-extra.at6' in item.tags" } }
+    op: grant
+    value: { item: feats.champion.mercy }
+  - target: { fields: { where: "'archetype-extra.at10' in item.tags" } }
+    op: grant
+    value: { item: feats.champion.greater-mercy }
+  - target: { fields: { where: "'archetype-extra.at14' in item.tags" } }
+    op: grant
+    value: { item: feats.champion.affliction-mercy }
+  - target: { fields: { where: "'archetype-extra.at20' in item.tags" } }
+    op: grant
+    value: { item: feats.champion.rejuvenating-touch }
+  - target: { fields: { where: "'archetype-extra.at20' in item.tags" } }
+    op: grant
+    value: { item: feats.champion.ultimate-mercy }
+  - { target: focus.points, op: add, value: 1 }
+  - { target: spellcasting.archetype.blessedOne.tradition, op: set, value: "'divine'" }
+  - { target: spellcasting.archetype.blessedOne.attribute, op: set, value: "'cha'" }
+  - { target: spellcasting.archetype.blessedOne.rank, op: atLeast, value: 1 }
+  - { target: spells.archetype.blessedOne.spells, op: grant, value: { item: spells.lay-on-hands } }
+grants:
+  - item: spells.lay-on-hands

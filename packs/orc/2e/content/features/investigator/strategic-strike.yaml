@@ -1,0 +1,9 @@
+id: features.investigator.strategic-strike
+type: feature
+fields: { level: 1 }
+effects:
+  - target: { rolls: [stratagem] }
+    op: add
+    value: 'dieOf(1d6, 1 + floor((level - 1) / 4))'
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: "'damage' in roll.tags"

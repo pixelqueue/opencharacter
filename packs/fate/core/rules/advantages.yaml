@@ -1,0 +1,57 @@
+# Free invocations belong to whoever earned them, wherever the aspect lives (a scene, another
+# character), so each is a copy on the earner's sheet.
+contentTypes:
+  advantage:
+    nameFrom: label
+    state:
+      label: { type: string, default: '' }
+      invokes: { type: integer, default: 1, min: 0 }
+      kind: { type: enum, values: [situation, boost, consequence], default: situation }
+    actions:
+      - id: invoke
+        available: self.invokes > 0
+        results: [invoked]
+        steps:
+          - id: spend
+            kind: changes
+            changes:
+              - { type: adjustState, entry: self, key: invokes, by: -1, when: self.invokes > 1 }
+              - { type: removeItem, entry: self, when: self.invokes <= 1 }
+          - id: result
+            kind: outcome
+            result: "'invoked'"
+            data: { left: self.invokes - 1 }
+      - id: pass
+        available: self.invokes > 0
+        participants:
+          recipient: { min: 1, max: 1 }
+        results: [passed]
+        steps:
+          - id: spend
+            kind: changes
+            changes:
+              - { type: adjustState, entry: self, key: invokes, by: -1, when: self.invokes > 1 }
+              - { type: removeItem, entry: self, when: self.invokes <= 1 }
+          - id: give
+            kind: changes
+            to: recipient
+            changes:
+              - type: addItem
+                entry:
+                  item: "'advantages.advantage'"
+                  state: { label: self.label, invokes: 1, kind: self.kind }
+          - id: result
+            kind: outcome
+            result: "'passed'"
+
+fields:
+  advantages.free:
+    type: integer
+    formula: "sumCopies(copy.state.invokes, copy.type == 'advantage' && has(copy.state.invokes))"
+
+display:
+  groups:
+    - id: advantages
+      priority: 1
+  fields:
+    advantages.free: { groups: [advantages], priority: 0 }

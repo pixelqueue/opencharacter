@@ -1,0 +1,18 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: fear
+    change:
+      type: adjustState
+      key: value
+      applied:
+        where: item.id == 'orc-2e:conditions.frightened'
+      by: -1
+  - to: self
+    step: fear
+    change:
+      type: removeEffect
+      applied:
+        where: item.id == 'orc-2e:conditions.frightened' && self.value <= fear.reduction
+log: []

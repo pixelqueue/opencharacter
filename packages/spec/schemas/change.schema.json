@@ -1,0 +1,1406 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/change.schema.json",
+  "title": "Change",
+  "description": "One change to a character, from the fixed set of change types (kept in sync with `data/change-types.json`). applyChanges takes a batch and applies all of it or none of it. A change failing this schema is a shape error; one that fails against the character and ruleset is a runtime error.",
+  "type": "object",
+  "required": ["type"],
+  "properties": {
+    "type": {
+      "enum": [
+        "set",
+        "adjust",
+        "addItem",
+        "removeItem",
+        "equip",
+        "setState",
+        "adjustState",
+        "setQuantity",
+        "adjustQuantity",
+        "applyTemplate",
+        "removeTemplate",
+        "applyEffect",
+        "removeEffect",
+        "toggleEffect",
+        "choose",
+        "unchoose",
+        "setExtension",
+        "finishCreation",
+        "setHomebrew",
+        "dismissFollowUp",
+        "clearFollowUp",
+        "offerFollowUp"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "$ref": "#/$defs/is/set"
+      },
+      "then": {
+        "$ref": "#/$defs/set"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/adjust"
+      },
+      "then": {
+        "$ref": "#/$defs/adjust"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/addItem"
+      },
+      "then": {
+        "$ref": "#/$defs/addItem"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/removeItem"
+      },
+      "then": {
+        "$ref": "#/$defs/removeItem"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/equip"
+      },
+      "then": {
+        "$ref": "#/$defs/equip"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/setState"
+      },
+      "then": {
+        "$ref": "#/$defs/setState"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/adjustState"
+      },
+      "then": {
+        "$ref": "#/$defs/adjustState"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/setQuantity"
+      },
+      "then": {
+        "$ref": "#/$defs/setQuantity"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/adjustQuantity"
+      },
+      "then": {
+        "$ref": "#/$defs/adjustQuantity"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/applyTemplate"
+      },
+      "then": {
+        "$ref": "#/$defs/template"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/removeTemplate"
+      },
+      "then": {
+        "$ref": "#/$defs/template"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/applyEffect"
+      },
+      "then": {
+        "$ref": "#/$defs/applyEffect"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/removeEffect"
+      },
+      "then": {
+        "$ref": "#/$defs/removeEffect"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/toggleEffect"
+      },
+      "then": {
+        "$ref": "#/$defs/toggleEffect"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/choose"
+      },
+      "then": {
+        "$ref": "#/$defs/choose"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/unchoose"
+      },
+      "then": {
+        "$ref": "#/$defs/unchoose"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/setExtension"
+      },
+      "then": {
+        "$ref": "#/$defs/setExtension"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/finishCreation"
+      },
+      "then": {
+        "$ref": "#/$defs/finishCreation"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/setHomebrew"
+      },
+      "then": {
+        "$ref": "#/$defs/setHomebrew"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/dismissFollowUp"
+      },
+      "then": {
+        "$ref": "#/$defs/dismissFollowUp"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/clearFollowUp"
+      },
+      "then": {
+        "$ref": "#/$defs/clearFollowUp"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/offerFollowUp"
+      },
+      "then": {
+        "$ref": "#/$defs/offerFollowUp"
+      }
+    }
+  ],
+  "$defs": {
+    "is": {
+      "set": {
+        "properties": {
+          "type": {
+            "const": "set"
+          }
+        },
+        "type": "object"
+      },
+      "adjust": {
+        "properties": {
+          "type": {
+            "const": "adjust"
+          }
+        },
+        "type": "object"
+      },
+      "addItem": {
+        "properties": {
+          "type": {
+            "const": "addItem"
+          }
+        },
+        "type": "object"
+      },
+      "removeItem": {
+        "properties": {
+          "type": {
+            "const": "removeItem"
+          }
+        },
+        "type": "object"
+      },
+      "equip": {
+        "properties": {
+          "type": {
+            "const": "equip"
+          }
+        },
+        "type": "object"
+      },
+      "setState": {
+        "properties": {
+          "type": {
+            "const": "setState"
+          }
+        },
+        "type": "object"
+      },
+      "adjustState": {
+        "properties": {
+          "type": {
+            "const": "adjustState"
+          }
+        },
+        "type": "object"
+      },
+      "setQuantity": {
+        "properties": {
+          "type": {
+            "const": "setQuantity"
+          }
+        },
+        "type": "object"
+      },
+      "adjustQuantity": {
+        "properties": {
+          "type": {
+            "const": "adjustQuantity"
+          }
+        },
+        "type": "object"
+      },
+      "applyTemplate": {
+        "properties": {
+          "type": {
+            "const": "applyTemplate"
+          }
+        },
+        "type": "object"
+      },
+      "removeTemplate": {
+        "properties": {
+          "type": {
+            "const": "removeTemplate"
+          }
+        },
+        "type": "object"
+      },
+      "applyEffect": {
+        "properties": {
+          "type": {
+            "const": "applyEffect"
+          }
+        },
+        "type": "object"
+      },
+      "removeEffect": {
+        "properties": {
+          "type": {
+            "const": "removeEffect"
+          }
+        },
+        "type": "object"
+      },
+      "toggleEffect": {
+        "properties": {
+          "type": {
+            "const": "toggleEffect"
+          }
+        },
+        "type": "object"
+      },
+      "choose": {
+        "properties": {
+          "type": {
+            "const": "choose"
+          }
+        },
+        "type": "object"
+      },
+      "unchoose": {
+        "properties": {
+          "type": {
+            "const": "unchoose"
+          }
+        },
+        "type": "object"
+      },
+      "setExtension": {
+        "properties": {
+          "type": {
+            "const": "setExtension"
+          }
+        },
+        "type": "object"
+      },
+      "finishCreation": {
+        "properties": {
+          "type": {
+            "const": "finishCreation"
+          }
+        },
+        "type": "object"
+      },
+      "setHomebrew": {
+        "properties": {
+          "type": {
+            "const": "setHomebrew"
+          }
+        },
+        "type": "object"
+      },
+      "dismissFollowUp": {
+        "properties": {
+          "type": {
+            "const": "dismissFollowUp"
+          }
+        },
+        "type": "object"
+      },
+      "clearFollowUp": {
+        "properties": {
+          "type": {
+            "const": "clearFollowUp"
+          }
+        },
+        "type": "object"
+      },
+      "offerFollowUp": {
+        "properties": {
+          "type": {
+            "const": "offerFollowUp"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "set": {
+      "description": "Set an input field's value.",
+      "required": ["field", "value"],
+      "properties": {
+        "type": true,
+        "field": {
+          "$ref": "common.schema.json#/$defs/qualifiedFieldId"
+        },
+        "value": {
+          "$ref": "common.schema.json#/$defs/literal"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "adjust": {
+      "description": "Adjust a numeric input field (a counter) by an amount. Tags (`damage.fire`) let incoming-change effects such as resistance modify the amount first. `faces` are die faces for the dice its incoming-change effects roll; applyChanges writes them in when it rolls, so a logged adjust replays without rolling. `situational` holds the receiving player's situational choices for it.",
+      "required": ["field", "by"],
+      "properties": {
+        "type": true,
+        "field": {
+          "$ref": "common.schema.json#/$defs/qualifiedFieldId"
+        },
+        "by": {
+          "type": "number"
+        },
+        "tags": {
+          "$ref": "common.schema.json#/$defs/tags"
+        },
+        "faces": {
+          "description": "Die faces for the incoming-change effects' dice `add`s, consumed in order as they are rolled. Faces left over are `faces-mismatch`; too few, with no dice function, `faces-required`.",
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "situational": {
+          "description": "The receiving player's situational choices for this change, by qualified ID: a reaction such as Uncanny Dodge. Each selected choice (a boolean that's true, another value that isn't its default) must be offered (`available`) and its `incoming` must match the change (`situational-unavailable`); its incoming-change effects then apply while this change is routed, and not to its overflow or the rest of the batch. An action never sets it.",
+          "type": "object",
+          "propertyNames": {
+            "description": "A situational choice's qualified ID (`5e-srd-5.1:uncannyDodge`).",
+            "type": "string",
+            "pattern": "^[a-z0-9]+([-.][a-z0-9]+)*:[a-z][a-zA-Z0-9_]*$"
+          },
+          "additionalProperties": {
+            "$ref": "common.schema.json#/$defs/literal"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "addItem": {
+      "description": "Add a copy of a content item to the inventory (carried types) or features.",
+      "required": ["entry"],
+      "properties": {
+        "type": true,
+        "entry": {
+          "$ref": "character.schema.json#/$defs/entry"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "removeItem": {
+      "required": [],
+      "properties": {
+        "type": true,
+        "entry": {
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "copies": {
+          "$ref": "#/$defs/copies"
+        },
+        "limit": {
+          "$ref": "#/$defs/limit"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "oneOf": [
+        {
+          "required": ["entry"],
+          "type": "object"
+        },
+        {
+          "required": ["copies"],
+          "type": "object"
+        }
+      ]
+    },
+    "equip": {
+      "required": ["equipped"],
+      "properties": {
+        "type": true,
+        "entry": {
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "equipped": {
+          "type": "boolean"
+        },
+        "copies": {
+          "$ref": "#/$defs/copies"
+        },
+        "limit": {
+          "$ref": "#/$defs/limit"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "oneOf": [
+        {
+          "required": ["entry"],
+          "type": "object"
+        },
+        {
+          "required": ["copies"],
+          "type": "object"
+        }
+      ]
+    },
+    "setState": {
+      "required": ["key", "value"],
+      "properties": {
+        "type": true,
+        "entry": {
+          "description": "A copy's instance ID, or an applied entry's: its keys and bounds are those its source's content type and item declare.",
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "key": {
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "value": {
+          "description": "The new value; with `copies` or `applied`, a formula evaluated per copy or entry (an action has already replaced any `steps`, `flags` or `params` in it with literals).",
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/literal"
+            },
+            {
+              "$ref": "formula.schema.json"
+            }
+          ]
+        },
+        "copies": {
+          "$ref": "#/$defs/copies"
+        },
+        "limit": {
+          "$ref": "#/$defs/limit"
+        },
+        "applied": {
+          "$ref": "#/$defs/applied"
+        },
+        "path": {
+          "description": "A pick, with `option`: the choice it is in, as `choose` names it. Its keys and bounds are those the picked content declares (its content type's and its own).",
+          "$ref": "#/$defs/choicePath"
+        },
+        "option": {
+          "description": "With `path`: the picked option.",
+          "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "number" }]
+        },
+        "picks": {
+          "$ref": "#/$defs/picks"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "oneOf": [
+        {
+          "required": ["entry"],
+          "type": "object"
+        },
+        {
+          "required": ["copies"],
+          "type": "object"
+        },
+        {
+          "required": ["applied"],
+          "type": "object"
+        },
+        {
+          "required": ["path", "option"],
+          "type": "object"
+        },
+        {
+          "required": ["picks"],
+          "type": "object"
+        }
+      ]
+    },
+    "adjustState": {
+      "required": ["key", "by"],
+      "properties": {
+        "type": true,
+        "entry": {
+          "description": "A copy's instance ID, or an applied entry's: its keys and bounds are those its source's content type and item declare.",
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "key": {
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "by": {
+          "description": "The amount; with `copies` or `applied`, a formula evaluated per copy or entry (an action has already replaced any `steps`, `flags` or `params` in it with literals).",
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "formula.schema.json"
+            }
+          ]
+        },
+        "copies": {
+          "$ref": "#/$defs/copies"
+        },
+        "limit": {
+          "$ref": "#/$defs/limit"
+        },
+        "applied": {
+          "$ref": "#/$defs/applied"
+        },
+        "path": {
+          "description": "A pick, with `option`: the choice it is in, as `choose` names it. Its keys and bounds are those the picked content declares (its content type's and its own).",
+          "$ref": "#/$defs/choicePath"
+        },
+        "option": {
+          "description": "With `path`: the picked option.",
+          "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "number" }]
+        },
+        "picks": {
+          "$ref": "#/$defs/picks"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "oneOf": [
+        {
+          "required": ["entry"],
+          "type": "object"
+        },
+        {
+          "required": ["copies"],
+          "type": "object"
+        },
+        {
+          "required": ["applied"],
+          "type": "object"
+        },
+        {
+          "required": ["path", "option"],
+          "type": "object"
+        },
+        {
+          "required": ["picks"],
+          "type": "object"
+        }
+      ]
+    },
+    "setQuantity": {
+      "description": "Set a copy's `quantity`. It may not be below 0 (`out-of-range`); a copy at 0 stays.",
+      "required": ["value"],
+      "properties": {
+        "type": true,
+        "entry": {
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "value": {
+          "description": "The new quantity, an integer; with `copies`, a formula evaluated per copy (an action has already replaced any `steps`, `flags` or `params` in it with literals).",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "$ref": "formula.schema.json"
+            }
+          ]
+        },
+        "copies": {
+          "$ref": "#/$defs/copies"
+        },
+        "limit": {
+          "$ref": "#/$defs/limit"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "oneOf": [
+        {
+          "required": ["entry"],
+          "type": "object"
+        },
+        {
+          "required": ["copies"],
+          "type": "object"
+        }
+      ]
+    },
+    "adjustQuantity": {
+      "description": "Add `by` to a copy's `quantity`. The result may not be below 0 (`out-of-range`); a copy at 0 stays.",
+      "required": ["by"],
+      "properties": {
+        "type": true,
+        "entry": {
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "by": {
+          "description": "The amount, an integer; with `copies`, a formula evaluated per copy (an action has already replaced any `steps`, `flags` or `params` in it with literals).",
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "$ref": "formula.schema.json"
+            }
+          ]
+        },
+        "copies": {
+          "$ref": "#/$defs/copies"
+        },
+        "limit": {
+          "$ref": "#/$defs/limit"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "oneOf": [
+        {
+          "required": ["entry"],
+          "type": "object"
+        },
+        {
+          "required": ["copies"],
+          "type": "object"
+        }
+      ]
+    },
+    "template": {
+      "description": "Apply a template to, or remove it from, a copy of an item.",
+      "required": ["entry", "template"],
+      "properties": {
+        "type": true,
+        "entry": {
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "template": {
+          "$ref": "common.schema.json#/$defs/qualifiedId"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "applyEffect": {
+      "description": "Apply content to the character: an `applied` entry. Without `id`, applyChanges gives the entry `<source local id, dots as hyphens>-<n>`, the smallest n >= 1 that no copy, applied entry or earlier change in the batch uses.",
+      "required": ["source"],
+      "properties": {
+        "type": true,
+        "id": {
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "source": {
+          "$ref": "common.schema.json#/$defs/qualifiedId"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "state": {
+          "description": "The entry's state. A value may be `{ formula }`, a formula an action passed on because it reads `batch`: applyChanges evaluates it with `item` the source's item, this character's fields and `batch`, and the change as applied (`changes` in the result) carries the value.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/literal"
+              },
+              {
+                "type": "object",
+                "required": ["formula"],
+                "properties": {
+                  "formula": {
+                    "$ref": "formula.schema.json"
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "removeEffect": {
+      "description": "An applied entry by its instance ID, or applied entries by query (`applied`).",
+      "required": [],
+      "properties": {
+        "type": true,
+        "id": {
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "applied": {
+          "$ref": "#/$defs/applied"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "oneOf": [
+        {
+          "required": ["id"],
+          "type": "object"
+        },
+        {
+          "required": ["applied"],
+          "type": "object"
+        }
+      ]
+    },
+    "toggleEffect": {
+      "description": "Set `active` on an applied entry, by its instance ID, or on applied entries by query (`applied`).",
+      "required": ["active"],
+      "properties": {
+        "type": true,
+        "id": {
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "applied": {
+          "$ref": "#/$defs/applied"
+        },
+        "active": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "oneOf": [
+        {
+          "required": ["id"],
+          "type": "object"
+        },
+        {
+          "required": ["applied"],
+          "type": "object"
+        }
+      ]
+    },
+    "choose": {
+      "description": "Pick an option (choose). Un-picking (unchoose) is `#/$defs/unchoose`.",
+      "required": ["path", "option"],
+      "properties": {
+        "type": true,
+        "path": {
+          "$ref": "#/$defs/choicePath"
+        },
+        "option": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "unchoose": {
+      "description": "Un-pick an option (unchoose), removing its nested picks in the same all-or-nothing change. Without `option`, every pick of the choice is removed with its nested picks; a choice with none is left unchanged (not `not-picked`).",
+      "required": ["path"],
+      "properties": {
+        "type": true,
+        "path": {
+          "$ref": "#/$defs/choicePath"
+        },
+        "option": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "choicePath": {
+      "description": "Where a choice lives: on an entry (or the character's rules-level choices when `entry` is absent), then alternating choice IDs and picked options down to the choice. `[\"martial-archetype\", \"5e-srd-5.1:subclasses.champion\", \"additional-fighting-style\"]`.",
+      "type": "object",
+      "required": ["choice"],
+      "properties": {
+        "entry": {
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "choice": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "setExtension": {
+      "description": "Replace one app's extension data. `value: null` removes it.",
+      "required": ["namespace", "value"],
+      "properties": {
+        "type": true,
+        "namespace": {
+          "type": "string",
+          "pattern": "^(@?[a-z0-9-]+([./][a-z0-9-]+)+)$"
+        },
+        "value": true
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "finishCreation": {
+      "description": "Finish creating the character: clears `creating`. Rejected with `creation-incomplete` while the character, with the batch's earlier changes applied, has rules issues or pending choices; the error's `data.issues` lists them, pending choices as `too-few-picks`. On a character that isn't being created it does nothing. A creation action proposes it as its last change, so applying the action's changes is the player's confirmation; a character made by hand finishes the same way.",
+      "properties": {
+        "type": true
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "setHomebrew": {
+      "description": "Replace the character's own homebrew; `homebrew: null` removes it. Rejected with `homebrew-error` when the new homebrew doesn't load, and with `unknown-id` while the rest of the file still names homebrew content or fields it no longer has. Later changes in the batch see the new homebrew; a batch whose first change is setHomebrew doesn't load the old one. Actions can't propose it.",
+      "required": ["homebrew"],
+      "properties": {
+        "type": true,
+        "homebrew": {
+          "oneOf": [
+            {
+              "$ref": "homebrew.schema.json"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "dismissFollowUp": {
+      "description": "Dismiss an ephemeral follow-up: delete the character's stored follow-up with this `id` (as computeSheet's `offers` gives it) without acting on it. A required one too: `required` is advisory. A derived offer can't be dismissed: it lasts exactly as long as its condition holds. An ID with no stored entry is `unknown-follow-up`.",
+      "required": ["id"],
+      "properties": {
+        "type": true,
+        "id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "clearFollowUp": {
+      "description": "Clear an ephemeral follow-up that was acted on: delete the character's stored follow-up with this `id`. No entry with the ID is no change, so applying an action's changes after another app cleared it still works. startAction proposes it last when it runs a stored follow-up's action (`action.followUp`), and the `changes` computeSheet lists for a stored follow-up end with it.",
+      "required": ["id"],
+      "properties": {
+        "type": true,
+        "id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "offerFollowUp": {
+      "description": "Offer a follow-up: store the named follow-up of the character as an ephemeral offer, as if it had fired, once the batch is applied. Proposed by an action (a step's or option's changes, or changes content adds to a step) to name what may come after it: a sorcerer's blood magic after a cast. `followUp` and `source` name the declaration as a stored follow-up does; `params` are evaluated values that replace the declaration's own. The declaration's `when` and its action's availability are checked after the batch, as for a triggered follow-up; one the character doesn't have then, or a derived (`while`) one, isn't stored. A follow-up no loaded pack declares is `unknown-follow-up`.",
+      "required": ["followUp"],
+      "properties": {
+        "type": true,
+        "followUp": {
+          "description": "The follow-up's ID: `<pack>:<id>` for the rules', `<content or type qualified ID>#<id>` for content's.",
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "description": "For a follow-up on content: the content and copy declaring it, as computeSheet's sources name them.",
+          "$ref": "common.schema.json#/$defs/source"
+        },
+        "params": {
+          "description": "Parameter values for the follow-up's action, replacing the declaration's own of the same name.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "proposed": {
+      "description": "A change proposed by an action step. Same types as a change, but values may be formulas and `entry: self` means the copy making the action; the engine resolves them before returning. With `split`, one proposed adjust becomes one change per tag group (typed damage). An addItem's `entry` is an object whose values may be formulas. An applyEffect names its `source` with a formula and may leave out `id`; removeEffect, toggleEffect, setState and adjustState may name applied entries by query (`applied`). equip, applyTemplate and removeTemplate compute `equipped` and `template`; setExtension stays the app's. An offerFollowUp names a follow-up of the content or rules whose action, option or added changes propose it, with `params` as formulas.",
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "description": "Any change type but setHomebrew, dismissFollowUp and clearFollowUp.",
+          "allOf": [
+            {
+              "$ref": "#/properties/type"
+            },
+            {
+              "not": {
+                "enum": ["setHomebrew", "dismissFollowUp", "clearFollowUp"]
+              }
+            }
+          ]
+        },
+        "when": {
+          "description": "The change is proposed only when this holds.",
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "forEach": {
+          "description": "Propose the change once per element of this list, in list order, with `x` bound to the element. `when` and the change's other formulas are evaluated per element; an empty list proposes nothing. Each copy counts toward `maxActionSteps` (a follow-up's toward `maxFollowUps`). `x` is not bound in the formulas a change passes on.",
+          "$ref": "formula.schema.json"
+        },
+        "pick": {
+          "description": "setState and adjustState: `self`, the pick whose content defines the running action, resolved to `path` and `option` in the returned change. In an action that isn't a picked content's, `unknown-reference`.",
+          "const": "self"
+        },
+        "picks": {
+          "$ref": "#/$defs/picks"
+        },
+        "field": {
+          "description": "set and adjust may compute it: `{ formula }`, evaluated when the action runs to a field ID and qualified against the action's pack, as a literal one is. For `to: self` or a role it must name an input field (`unknown-field` or `not-input-field`, data: `field`); for a link it must be qualified and is passed on unchecked. A `split` adjust's field is written out.",
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/fieldRef"
+            },
+            {
+              "$ref": "#/$defs/computedField"
+            }
+          ]
+        },
+        "entry": {
+          "oneOf": [
+            {
+              "description": "An existing copy's instance ID, `self` (the copy making the action), or `picked` (in the `changes` of a choice step over copies: the picked copy).",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/proposedEntry"
+            },
+            {
+              "$ref": "#/$defs/computedEntry"
+            }
+          ]
+        },
+        "key": {
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "value": {
+          "description": "Evaluated by the action, unless the change has `copies` (or `applied`) and this reads `self`, `item` or `batch`: then it is passed on for applyChanges to evaluate per copy, with each path rooted at `steps`, `flags`, `params` or `action` replaced by its value as a literal.",
+          "$ref": "formula.schema.json"
+        },
+        "by": {
+          "description": "Evaluated by the action, unless the change has `copies` (or `applied`) and this reads `self`, `item` or `batch`: then it is passed on for applyChanges to evaluate per copy, with each path rooted at `steps`, `flags`, `params` or `action` replaced by its value as a literal.",
+          "$ref": "formula.schema.json"
+        },
+        "tags": {
+          "$ref": "common.schema.json#/$defs/tagList"
+        },
+        "split": {
+          "description": "adjust only: split this change by tag. The engine emits one adjust per distinct tag under `by` among the roll items of step `roll`, evaluating the change's `by` formula once per group with `part` bound (`part.total`, `part.tag`). Each emitted change carries the change's tags plus the group's tag; items with no tag under `by` form one more group carrying only the change's tags. Incoming-change effects (resistance) then apply to each change separately.",
+          "type": "object",
+          "required": ["roll", "by"],
+          "properties": {
+            "roll": {
+              "$ref": "common.schema.json#/$defs/name"
+            },
+            "by": {
+              "$ref": "common.schema.json#/$defs/tag"
+            }
+          },
+          "additionalProperties": false
+        },
+        "copies": {
+          "description": "setState, adjustState, setQuantity, adjustQuantity, equip and removeItem: the copies to change, by query, instead of `entry`. The type is qualified against the action's pack; `where` and per-copy formulas (those reading `self` or `item`) are passed on for applyChanges to evaluate per match, and other formulas are evaluated by the action. Formulas passed on may also read `steps`, `flags`, `params` and `action` (the action's own `item`, `self` and `step`), which the action replaces with their values as literals. They may read `batch`: the batch's earlier field adjustments on the receiving character.",
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "$ref": "common.schema.json#/$defs/typeRef"
+            },
+            "where": {
+              "description": "Evaluated per candidate copy by applyChanges, with `item` and `self` bound to it. May also read `steps`, `flags`, `params` and `action` (`action.item`, `action.self`, `action.step`): the action replaces each path rooted there with its value as a literal, and `has()` of one with `true` or `false`, before passing the change on. A path to a map is `type-mismatch`.",
+              "$ref": "formula.schema.json#/$defs/condition"
+            }
+          },
+          "additionalProperties": false
+        },
+        "limit": {
+          "$ref": "#/$defs/limit"
+        },
+        "applied": {
+          "description": "removeEffect, toggleEffect, setState and adjustState: the applied entries to change, by query, instead of `id` or `entry`. `where` and per-entry formulas (those reading `self` or `item`) are passed on for applyChanges to evaluate per entry, with `steps`, `flags`, `params` and `action` replaced by their values as literals, as for `copies`. `limit` is a literal integer >= 1.",
+          "type": "object",
+          "required": ["where"],
+          "properties": {
+            "where": {
+              "$ref": "formula.schema.json#/$defs/condition"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "path": {
+          "description": "choose and unchoose: the choice. `entry` is an instance ID, `self` or `picked` as for `entry`; without it the choice is a rules-level one. `choice` is the path as a list of literal segments, or a formula giving the list (`\"['playbook', steps.playbook.picked, 'special-ability']\"`).",
+          "type": "object",
+          "required": ["choice"],
+          "properties": {
+            "entry": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "$ref": "#/$defs/computedEntry"
+                }
+              ]
+            },
+            "choice": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                {
+                  "$ref": "formula.schema.json"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "option": {
+          "description": "choose and unchoose: a formula naming the option (`picked.id`). An unchoose may leave it out to remove every pick of the choice.",
+          "$ref": "formula.schema.json"
+        },
+        "id": {
+          "description": "applyEffect: the new entry's instance ID (without it, applyChanges picks one); removeEffect and toggleEffect: the applied entry's.",
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "source": {
+          "description": "applyEffect: a string formula naming the content to apply, qualified against the action's pack as a proposed addItem's `item` is. A source that names no content, or a template, is `unknown-reference` when the action runs; for a link, or a role or target when qualified with a pack the ruleset doesn't load, it is passed on as written.",
+          "$ref": "formula.schema.json"
+        },
+        "active": {
+          "description": "applyEffect and toggleEffect: a boolean formula.",
+          "$ref": "formula.schema.json"
+        },
+        "state": {
+          "description": "applyEffect: the entry's state, each value a formula of the key's type. A value that reads `batch` is passed on as `{ formula }`, with `steps`, `flags`, `params` and `action` replaced by their values, for applyChanges to evaluate with `item` the source's item, the receiving character's fields and `batch`.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "formula.schema.json"
+          }
+        },
+        "equipped": {
+          "description": "equip: a boolean formula, evaluated by the action, for the copy `entry` names or every copy `copies` matches.",
+          "$ref": "formula.schema.json"
+        },
+        "template": {
+          "description": "applyTemplate and removeTemplate: a string formula naming the template, qualified against the action's pack as `source` is. One that names no template is `unknown-reference` when the action runs; for a link, or a role or target when qualified with a pack the ruleset doesn't load, it is passed on as written.",
+          "$ref": "formula.schema.json"
+        },
+        "followUp": {
+          "description": "offerFollowUp: the follow-up to offer, by its own ID: one declared by the content (or its content type) whose action proposes the change, or whose `changes` effect adds it to a step; in a rules action, a rules follow-up (local or qualified). The action resolves it to the qualified ID and the content's `source`, and always proposes the change to the actor, whatever the step's `to`. One the owner doesn't declare is `unknown-reference` when the action runs.",
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "description": "offerFollowUp: formulas for the follow-up's action parameters, evaluated by the action; a formula giving `null` leaves its parameter out.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "formula.schema.json"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "description": "A computed field is for set and adjust, and not with split.",
+          "if": {
+            "required": ["field"],
+            "properties": {
+              "field": {
+                "type": "object"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "type": {
+                "enum": ["set", "adjust"]
+              }
+            },
+            "not": {
+              "required": ["split"]
+            }
+          }
+        },
+        {
+          "description": "offerFollowUp names its follow-up, and only it takes `followUp` and `params`.",
+          "if": {
+            "properties": {
+              "type": {
+                "const": "offerFollowUp"
+              }
+            }
+          },
+          "then": {
+            "required": ["followUp"]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["followUp"]
+                },
+                {
+                  "required": ["params"]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "computedEntry": {
+      "description": "An instance ID computed when the action runs: a string formula, such as `{ formula: params.weapon }`. It is passed on as evaluated, for a role, a target or a link as for the actor; the character receiving the change checks it as it would a written ID.",
+      "type": "object",
+      "required": ["formula"],
+      "properties": {
+        "formula": {
+          "$ref": "formula.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    "computedField": {
+      "description": "A field ID computed when the action runs: a string formula, such as `{ formula: x }` or `{ formula: params.skillA.id }`.",
+      "type": "object",
+      "required": ["formula"],
+      "properties": {
+        "formula": {
+          "$ref": "formula.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    "proposedEntry": {
+      "description": "addItem only: the copy to add. `item` is a string formula naming a content ID (a local ID is qualified against the action's pack); `quantity` is an integer formula, `equipped` a boolean formula, and each `state` value a formula of the key's type. Without `id`, the engine uses `<item local id, dots as hyphens>-<n>` with the smallest n >= 1 that the character and earlier changes of the same action don't use. In `choices`, a pick's `option` may be `{ formula }`, evaluated by the action (with `x` under `forEach`) to a string or number; the tree's keys stay literal. The picks are checked when applied, as a `choose` of each is.",
+      "type": "object",
+      "required": ["item"],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "item": {
+          "$ref": "formula.schema.json"
+        },
+        "quantity": {
+          "$ref": "formula.schema.json"
+        },
+        "equipped": {
+          "$ref": "formula.schema.json"
+        },
+        "state": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "formula.schema.json"
+          }
+        },
+        "templates": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/ref"
+          },
+          "uniqueItems": true
+        },
+        "choices": {
+          "$ref": "#/$defs/proposedChoiceTree"
+        }
+      },
+      "additionalProperties": false
+    },
+    "proposedChoiceTree": {
+      "description": "A proposed addItem's picks: a character file's choice tree, but a pick's `option` may be `{ formula }`.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "character.schema.json#/$defs/choiceTree/propertyNames"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/proposedPick"
+        }
+      }
+    },
+    "proposedPick": {
+      "type": "object",
+      "required": ["option"],
+      "properties": {
+        "option": {
+          "anyOf": [
+            {
+              "$ref": "character.schema.json#/$defs/pick/properties/option"
+            },
+            {
+              "type": "object",
+              "required": ["formula"],
+              "properties": {
+                "formula": {
+                  "$ref": "formula.schema.json"
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "choices": {
+          "$ref": "#/$defs/proposedChoiceTree"
+        }
+      },
+      "additionalProperties": false
+    },
+    "copies": {
+      "description": "Per-copy changes (setState, adjustState, setQuantity, adjustQuantity, equip, removeItem) may name their copies with a query instead of `entry`. applyChanges resolves it against the character it changes, at that point in the batch: the copies of `type` (inventory, then features, each in file order) whose `where` holds, with `item` and `self` bound (`steps`, `flags` and `params` are not names here: an action substitutes them before passing a change on). With `limit`, only the first that many match. In such a change, `by` and `value` are formulas evaluated per match with the same binding, and formulas resolve names in the content type's pack. No match is not an error.",
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "$ref": "common.schema.json#/$defs/qualifiedTypeRef"
+        },
+        "where": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        }
+      },
+      "additionalProperties": false
+    },
+    "limit": {
+      "description": "With `copies`: change at most this many matches.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "picks": {
+      "description": "setState and adjustState may name picks by query: applyChanges resolves it against the character it changes, at that point in the batch: every pick, in file order (each copy's choice tree, then the rules-level one, depth first), whose picked content declares the change's `key` and whose `where` holds with `item` the picked item and `self` its state (with declared defaults). With `limit`, only the first that many. `by` and `value` are formulas evaluated per pick with the same binding. No match is not an error.",
+      "type": "object",
+      "required": ["where"],
+      "properties": {
+        "where": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "applied": {
+      "description": "removeEffect, toggleEffect, setState and adjustState may name applied entries by query instead of `id` or `entry`. applyChanges resolves it against the character it changes, at that point in the batch: the `applied` entries, in file order, whose `where` holds with `item` the source's item and `self` the entry (`id` and its state, with declared defaults). With `limit`, only the first that many. In such a change, `by` and `value` are formulas evaluated per entry with the same binding, and formulas resolve names in the source's pack. No match is not an error: each such change adds `{ applied: [ids] }` to `adjustments`.",
+      "type": "object",
+      "required": ["where"],
+      "properties": {
+        "where": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

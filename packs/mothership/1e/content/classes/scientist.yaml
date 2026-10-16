@@ -1,0 +1,45 @@
+id: classes.scientist
+type: class
+fields:
+  trauma: sanity-stress
+effects:
+  - { target: stats.intellect, op: add, value: 10 }
+  - { target: saves.sanity, op: add, value: 30 }
+choices:
+  - id: stat-bonus
+    from:
+      options:
+        - id: strength
+          effects:
+            - { target: stats.strength, op: add, value: 5 }
+        - id: speed
+          effects:
+            - { target: stats.speed, op: add, value: 5 }
+        - id: intellect
+          effects:
+            - { target: stats.intellect, op: add, value: 5 }
+        - id: combat
+          effects:
+            - { target: stats.combat, op: add, value: 5 }
+  # The Expert and first Trained picks are limited to those on the way to some Master skill, so no
+  # pick is a dead end.
+  - id: master
+    from: { type: skill, where: "item.tier == 'master'" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+  - id: expert
+    from:
+      type: skill
+      where: >-
+        item.tier == 'expert' && item.id in [@skills.psychology, @skills.pathology,
+          @skills.field-medicine, @skills.ecology, @skills.asteroid-mining,
+          @skills.mechanical-repair, @skills.hacking, @skills.piloting, @skills.physics,
+          @skills.mysticism, @skills.firearms]
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+  - id: trained
+    from:
+      type: skill
+      where: "item.tier == 'trained' && !(item.id in [@skills.chemistry, @skills.athletics])"
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+  - id: bonus
+    from: { type: skill, where: "item.tier == 'trained'" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'

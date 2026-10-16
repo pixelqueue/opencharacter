@@ -1,0 +1,51 @@
+fields:
+  panache.active: { type: boolean, formula: false }
+  swashbuckler.style:
+    type: enum
+    values: [none, battledancer, braggart, fencer, gymnast, rascal, wit]
+    formula: "'none'"
+  swashbuckler.styleSkill:
+    type: string
+    formula: >-
+      swashbuckler.style == 'battledancer' ? 'performance'
+        : swashbuckler.style == 'braggart' ? 'intimidation'
+        : swashbuckler.style == 'fencer' ? 'deception'
+        : swashbuckler.style == 'gymnast' ? 'athletics'
+        : swashbuckler.style == 'rascal' ? 'thievery'
+        : swashbuckler.style == 'wit' ? 'diplomacy' : ''
+  swashbuckler.trickSkills:
+    type: set
+    of: tag
+    formula: >-
+      swashbuckler.styleSkill == '' ? ['skill.acrobatics']
+        : ['skill.acrobatics', 'skill.' + swashbuckler.styleSkill]
+  swashbuckler.trickIncreases: { type: integer, formula: 0, min: 0 }
+  swashbuckler.preciseStrike: { type: integer, formula: 0, min: 0 }
+
+tags:
+  - bravado
+  - finisher
+
+display:
+  fields:
+    swashbuckler.styleSkill: { hidden: true }
+    swashbuckler.trickSkills: { hidden: true }
+    swashbuckler.trickIncreases: { hidden: true }
+    panache.active:
+      {
+        groups: [turn],
+        priority: 0,
+        showWhen: 'countCopies(copy.item == @classes.swashbuckler) > 0',
+      }
+    swashbuckler.style:
+      {
+        groups: [summary],
+        priority: 2,
+        showWhen: 'countCopies(copy.item == @classes.swashbuckler) > 0',
+      }
+    swashbuckler.preciseStrike:
+      {
+        groups: [proficiencies],
+        priority: 2,
+        showWhen: 'countCopies(copy.item == @classes.swashbuckler) > 0',
+      }

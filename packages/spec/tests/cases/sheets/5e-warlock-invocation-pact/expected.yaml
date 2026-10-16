@@ -1,0 +1,14 @@
+values:
+  5e-srd-5.1:warlock.boons: { value: [5e-srd-5.1:pact-boons.tome] }
+  # Beguiling Influence: Deception (also a class pick) and Persuasion
+  5e-srd-5.1:proficiencies.skills: { value: [skill.arcana, skill.deception, skill.persuasion] }
+  5e-srd-5.1:senses.darkvision: { value: 120 } # Devil's Sight
+# Pact Magic's cantrips and spells known aren't picked, nor the Pact of the Tome's cantrips.
+pending:
+  - { entry: warlock, choice: ['5e-srd-5.1:features.warlock.pact-magic/cantrips'] }
+  - { entry: warlock, choice: ['5e-srd-5.1:features.warlock.pact-magic/spells'] }
+  - entry: warlock
+    choice: ['5e-srd-5.1:features.warlock.pact-boon/boon', '5e-srd-5.1:pact-boons.tome', cantrips]
+# Thirsting Blade's level prerequisite (5) holds; its pact prerequisite doesn't.
+issues:
+  - { code: prerequisite-not-met, id: 5e-srd-5.1:invocations.thirsting-blade/pact }

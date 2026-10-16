@@ -1,0 +1,33 @@
+# 9 + Strength 3 + proficiency 2 = 14 >= 12. Damage 1 + Strength 3 = 4 bludgeoning, no dice.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 14 }
+proposedChanges:
+  - to: target
+    step: deal
+    change:
+      {
+        type: adjust,
+        field: 5e-srd-5.1:hp.current,
+        by: -4,
+        tags: [damage, attack, melee, nonmagical, damage.bludgeoning],
+      }
+log:
+  - step: attack
+    action: 5e-srd-5.1:unarmed-strike
+    kind: dice
+    by: engine
+    faces: [9]
+    items:
+      - { kind: dice, sides: 20, value: 9 }
+      - { kind: flat, value: 3, source: { type: field, id: 5e-srd-5.1:abilities.str.mod } }
+      - { kind: flat, value: 2, source: { type: field, id: 5e-srd-5.1:proficiency.bonus } }
+    total: 14
+  - step: damage
+    kind: dice
+    by: engine
+    items:
+      - { kind: flat, value: 1, tags: [damage.bludgeoning] }
+      - { kind: flat, value: 3, source: { type: field, id: 5e-srd-5.1:abilities.str.mod } }
+    total: 4

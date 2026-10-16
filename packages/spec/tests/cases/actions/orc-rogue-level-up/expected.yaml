@@ -1,0 +1,54 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: gain
+    change:
+      type: adjust
+      field: orc-2e:level
+      by: 1
+  - to: self
+    step: gain
+    change:
+      type: adjust
+      field: orc-2e:xp.current
+      by: -1000
+  - to: self
+    step: increase
+    change:
+      type: adjust
+      field: orc-2e:skills.stealth.increases
+      by: 1
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - class-feat-2
+      option: orc-2e:feats.rogue.mobility
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skill-feat-2
+      option: orc-2e:feats.skill.battle-medicine
+log:
+  - step: increase
+    action: orc-2e:level-up
+    kind: allocate
+    by: app
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: app
+    option: orc-2e:feats.rogue.mobility
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: app
+    option: orc-2e:feats.skill.battle-medicine

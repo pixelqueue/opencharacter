@@ -1,0 +1,16 @@
+id: races.halfling
+type: race
+fields:
+  speed: 25
+  size: small
+effects:
+  - { target: abilities.dex.base, op: add, value: 2 }
+grants:
+  - item: traits.lucky
+  - item: traits.brave
+  - item: traits.halfling-nimbleness
+  - item: languages.common
+  - item: languages.halfling
+choices:
+  - id: subrace
+    from: { type: subrace, where: 'item.race == @races.halfling' }

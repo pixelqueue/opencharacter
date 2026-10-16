@@ -1,0 +1,23 @@
+id: features.sorcerer.spellcasting
+type: feature
+effects:
+  - { target: spellcasting.sorcerer.mod, op: set, value: abilities.cha.mod }
+  - { target: spellcasting.sorcerer.dc, op: set, value: 8 + proficiency.bonus + abilities.cha.mod }
+  - { target: spellcasting.sorcerer.attack, op: set, value: proficiency.bonus + abilities.cha.mod }
+  - { target: spellcasting.classes, op: add, value: 1 }
+  - { target: spellcasting.casterLevel, op: add, value: self.level }
+choices:
+  - id: cantrips
+    pick: 'self.level >= 10 ? 6 : self.level >= 4 ? 5 : 4'
+    from: { type: spell, where: 'item.level == 0 && @classes.sorcerer in item.classes' }
+    effects:
+      - { target: spells.sorcerer, op: grant, value: { formula: pick.id } }
+  - id: spells
+    pick: '[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 12, 13, 13, 14, 14, 15, 15, 15, 15][self.level - 1]'
+    from:
+      {
+        type: spell,
+        where: 'item.level >= 1 && item.level <= min(9, ceil(self.level / 2)) && @classes.sorcerer in item.classes',
+      }
+    effects:
+      - { target: spells.sorcerer, op: grant, value: { formula: pick.id } }

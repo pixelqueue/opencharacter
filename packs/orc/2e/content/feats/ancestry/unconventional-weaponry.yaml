@@ -1,0 +1,12 @@
+id: feats.ancestry.unconventional-weaponry
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.human }
+choices:
+  - id: weapon
+    activate: false
+    from:
+      type: weapon
+      where: >-
+        'trait.uncommon' in item.tags && (item.category != 'advanced' || attacks.martial.rank >= 1)
+    effects:
+      - { target: attacks.familiar, op: grant, value: { formula: pick.id } }

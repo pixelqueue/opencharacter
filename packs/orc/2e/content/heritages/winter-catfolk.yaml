@@ -1,0 +1,9 @@
+id: heritages.winter-catfolk
+type: heritage
+fields: { ancestry: ancestries.catfolk }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.cold] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, max(1, floor(level / 2)))
+    when: incoming.amount < 0

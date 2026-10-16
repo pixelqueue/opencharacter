@@ -1,0 +1,31 @@
+id: staves.staff-of-control-major
+type: staff
+tags: [trait.magical, trait.staff, trait.uncommon]
+fields:
+  level: 14
+  price: 4000
+  bulk: 1
+  rank1: [spells.charm, spells.command]
+  rank2: [spells.laughing-fit, spells.stupefy]
+  rank3: [spells.enthrall]
+  rank4: [spells.charm, spells.confusion, spells.suggestion]
+  rank5: [spells.command, spells.subconscious-suggestion]
+  rank6: [spells.dominate, spells.never-mind]
+grants:
+  - { item: spells.daze, when: self.equipped }
+  - { item: spells.charm, when: self.equipped }
+  - { item: spells.command, when: self.equipped }
+  - { item: spells.laughing-fit, when: self.equipped }
+  - { item: spells.stupefy, when: self.equipped }
+  - { item: spells.enthrall, when: self.equipped }
+  - { item: spells.confusion, when: self.equipped }
+  - { item: spells.suggestion, when: self.equipped }
+  - { item: spells.subconscious-suggestion, when: self.equipped }
+  - { item: spells.dominate, when: self.equipped }
+  - { item: spells.never-mind, when: self.equipped }
+effects:
+  - target: { rolls: [skill-action.request] }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    when: 'self.equipped'

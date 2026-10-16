@@ -1,0 +1,174 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: ancestry
+    change:
+      type: addItem
+      entry:
+        id: ancestry
+        item: orc-2e:ancestries.goblin
+  - to: self
+    step: heritage
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - heritage
+      option: orc-2e:heritages.razortooth-goblin
+  - to: self
+    step: background
+    change:
+      type: addItem
+      entry:
+        id: background
+        item: orc-2e:backgrounds.cultist
+  - to: self
+    step: class
+    change:
+      type: addItem
+      entry:
+        id: class
+        item: orc-2e:classes.druid
+  - to: self
+    step: ancestryPicks
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - boosts
+      option: standard
+  - to: self
+    step: ancestryPicks
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - boosts
+          - standard
+          - free
+      option: orc-2e:boosts.wis
+  - to: self
+    step: backgroundPicks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - boost
+      option: orc-2e:boosts.int
+  - to: self
+    step: backgroundPicks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - free-boost
+      option: orc-2e:boosts.wis
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - order
+      option: orc-2e:classes.druid.orders.animal
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - voice-of-nature
+      option: orc-2e:feats.druid.plant-empathy
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.society
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.intimidation
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.survival
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.wis
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.con
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.dex
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.str
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - ancestry-feat-1
+      option: orc-2e:feats.ancestry.burn-it
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - languages
+      option: orc-2e:languages.catfolk
+  - to: self
+    step: finish
+    change:
+      type: set
+      field: orc-2e:hp.current
+      value: 15
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

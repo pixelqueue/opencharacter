@@ -1,0 +1,27 @@
+id: held.crystal-ball-moonstone
+type: held
+tags: [trait.magical, trait.scrying, trait.uncommon]
+fields:
+  level: 16
+  price: 7500
+  bulk: 0.1
+  activation: one-minute
+  frequency: once-per-hour
+grants:
+  - { item: spells.clairvoyance, when: 'self.equipped' }
+  - { item: spells.scrying, when: 'self.equipped' }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.clairvoyance'
+    value:
+      id: clairvoyance
+      flags: { itemPaid: true, rank: 4 }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.scrying && self.used < 2'
+    value:
+      id: scrying
+      flags: { itemPaid: true, rank: 6, dc: 37 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

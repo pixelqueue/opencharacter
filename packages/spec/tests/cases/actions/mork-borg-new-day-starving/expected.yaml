@@ -1,0 +1,87 @@
+status: finished
+outcome:
+  result: rolled
+  data:
+    omens: 3
+    powers: 2
+    starvation: 3
+proposedChanges:
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:omens.max
+      value: 3
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:omens.current
+      value: 3
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:powers.max
+      value: 2
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:powers.current
+      value: 2
+  - to: self
+    step: food
+    change:
+      type: set
+      field: mork-borg-core:condition.hungryDays
+      value: 3
+  - to: self
+    step: food
+    change:
+      type: set
+      field: mork-borg-core:condition.starving
+      value: true
+  - to: self
+    step: starve
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -3
+      tags:
+        - damage.direct
+  - to: self
+    step: renew
+    change:
+      type: set
+      field: mork-borg-core:daily.college
+      value: false
+  - to: self
+    step: renew
+    change:
+      type: removeItem
+      copies:
+        type: mork-borg-core:scroll
+        where: self.summoned
+log:
+  - step: omens
+    action: mork-borg-core:new-day
+    kind: dice
+    by: engine
+    faces:
+      - 3
+    total: 3
+  - step: powers
+    action: mork-borg-core:new-day
+    kind: dice
+    by: engine
+    faces:
+      - 2
+    total: 2
+  - step: hunger
+    action: mork-borg-core:new-day
+    kind: dice
+    by: engine
+    faces:
+      - 3
+    total: 3

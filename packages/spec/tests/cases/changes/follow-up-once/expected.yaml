@@ -1,0 +1,69 @@
+# Two damage adjusts in one batch: the ally's help is listed per entry, the brace once, on the
+# sum (5), its cause the entries summed. Its tags are the union, so it sees the fire.
+ok: true
+adjustments:
+  - { field: test-follow-ups:hp.current, by: -3, requested: -3, taken: -3, reason: requested }
+  - { field: test-follow-ups:hp.current, by: -2, requested: -2, taken: -2, reason: requested }
+followUps:
+  - id: call-ally-1
+    kind: ephemeral
+    followUp: test-follow-ups:call-ally
+    to: &a1
+      link: test-follow-ups:ally
+    required: false
+    action:
+      id: test-ally:help
+    params:
+      lost: 3
+    cause:
+      field: test-follow-ups:hp.current
+      by: -3
+      requested: -3
+      taken: -3
+      reason: requested
+      clamped: false
+      tags:
+        - damage
+  - id: call-ally-2
+    kind: ephemeral
+    followUp: test-follow-ups:call-ally
+    to: *a1
+    required: false
+    action:
+      id: test-ally:help
+    params:
+      lost: 2
+    cause:
+      field: test-follow-ups:hp.current
+      by: -2
+      requested: -2
+      taken: -2
+      reason: requested
+      clamped: false
+      tags:
+        - damage
+        - damage.fire
+  - id: brace-1
+    kind: ephemeral
+    followUp: test-follow-ups:brace
+    to: self
+    required: false
+    action:
+      id: test-follow-ups:brace
+      followUp: brace-1
+    params:
+      taken: 5
+      requested: 5
+      by: 5
+      clamped: false
+      fire: true
+    cause:
+      field: test-follow-ups:hp.current
+      by: -5
+      requested: -5
+      taken: -5
+      reason: requested
+      clamped: false
+      tags:
+        - damage
+        - damage.fire

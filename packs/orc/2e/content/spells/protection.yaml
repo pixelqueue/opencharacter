@@ -1,0 +1,19 @@
+id: spells.protection
+type: spell
+tags: [trait.concentrate, trait.manipulate, tradition.divine, tradition.occult]
+fields:
+  rank: 1
+  cast: two
+  range: 0
+  targets: 1
+  duration: minutes
+  durationAmount: 1
+  applyTo: ally
+effects:
+  - target:
+      fields:
+        where: item.id == @defenses.ac || 'save' in item.tags
+    op: add
+    value: 1
+    stackKey: status-bonus
+    scope: applied

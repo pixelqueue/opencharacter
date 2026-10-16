@@ -1,0 +1,72 @@
+tags: [check, save, dc, attr.dex, attr.con, attr.str]
+
+settings:
+  stacking:
+    keys:
+      circumstance: highestOnly
+      status-penalty: lowestOnly
+
+fields:
+  reflex: { type: integer, formula: 2, tags: [check, save, attr.dex] }
+  fortitude: { type: integer, formula: 3, tags: [check, save, attr.con] }
+  acrobatics: { type: integer, formula: 4, tags: [check, attr.dex] }
+  ac: { type: integer, formula: 10, tags: [dc, attr.dex] }
+  speed: { type: integer, formula: 30 }
+  # Not a number: a set of fields never reaches it.
+  motto: { type: string, formula: "'onward'", tags: [check] }
+  luck: { type: integer, input: true, default: 0 }
+  # An aptitude based on the attribute the character names: its tag is computed,
+  # so a set of fields reaches it by the character's attribute.
+  aptitudeAttribute: { type: enum, values: [none, dex, con], input: true, default: none }
+  aptitude:
+    type: integer
+    formula: 5
+    tags:
+      - check
+      - { formula: "aptitudeAttribute == 'none' ? [] : ['attr.' + aptitudeAttribute]" }
+
+contentTypes:
+  condition:
+    state:
+      value: { type: integer, default: 1, min: 0 }
+  feature: {}
+
+situational:
+  # Help from an ally for one check: a circumstance bonus, which competes with the field's.
+  - id: aid
+    type: integer
+    default: 0
+    rolls: [check]
+    effects:
+      - { target: { rolls: [check] }, op: add, value: situational.aid, stackKey: circumstance }
+  # A plain bonus with no stack key.
+  - id: knack
+    type: integer
+    default: 0
+    rolls: [check]
+    effects:
+      - { target: { rolls: [check] }, op: add, value: situational.knack }
+
+actions:
+  # A check: a d20 plus the field.
+  - id: check
+    params:
+      check: { type: id, of: field, where: "'check' in item.tags" }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [check]
+        parts:
+          - dice: 1d20
+          - field: params.check.id
+      - id: result
+        kind: outcome
+        data: { total: steps.roll.total }
+  # A Dexterity-based field, and its tags.
+  - id: inspect
+    params:
+      check: { type: id, of: field, where: "'attr.dex' in item.tags" }
+    steps:
+      - id: result
+        kind: outcome
+        data: { tags: params.check.tags }

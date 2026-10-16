@@ -1,0 +1,17 @@
+id: ancestries.human
+type: ancestry
+tags: [trait.human, trait.humanoid]
+fields: { hp: 8, size: medium, speed: 25 }
+effects:
+  - { target: languages, op: grant, value: { item: languages.common } }
+  - { target: traits, op: grant, value: { tag: trait.human } }
+  - { target: traits, op: grant, value: { tag: trait.humanoid } }
+  - { target: languages.extra, op: add, value: 1 }
+choices:
+  - id: heritage
+    from:
+      type: heritage
+      where: 'item.versatile || item.ancestry == @ancestries.human'
+  - id: boosts
+    pick: 2
+    from: { type: boost }

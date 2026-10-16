@@ -1,0 +1,10 @@
+id: heritages.dragonscaled-kobold
+type: heritage
+fields: { ancestry: ancestries.kobold }
+effects:
+  - { target: hp.ancestry, op: add, value: 4 }
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: situational.againstSleep || situational.againstParalysis || situational.againstDragonBreath

@@ -1,0 +1,52 @@
+id: feats.archetype.druid.order-spell
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.druid }
+prerequisites:
+  - { id: druid-dedication, when: '@feats.archetype.druid.druid-dedication in feats.held' }
+effects:
+  - { target: focus.points, op: add, value: 1 }
+choices:
+  - id: spell
+    from:
+      options:
+        - id: animal
+          prerequisites: [{ id: order, when: "druid.order == 'animal'" }]
+          effects:
+            - {
+                target: spells.archetype.druid.spells,
+                op: grant,
+                value: { item: spells.heal-animal },
+              }
+          grants:
+            - item: spells.heal-animal
+        - id: leaf
+          prerequisites: [{ id: order, when: "druid.order == 'leaf'" }]
+          effects:
+            - {
+                target: spells.archetype.druid.spells,
+                op: grant,
+                value: { item: spells.cornucopia },
+              }
+          grants:
+            - item: spells.cornucopia
+        - id: storm
+          prerequisites: [{ id: order, when: "druid.order == 'storm'" }]
+          effects:
+            - {
+                target: spells.archetype.druid.spells,
+                op: grant,
+                value: { item: spells.tempest-surge },
+              }
+          grants:
+            - item: spells.tempest-surge
+        - id: untamed
+          prerequisites: [{ id: order, when: "druid.order == 'untamed'" }]
+          effects:
+            - {
+                target: spells.archetype.druid.spells,
+                op: grant,
+                value: { item: spells.untamed-shift },
+              }
+          grants:
+            - item: spells.untamed-shift

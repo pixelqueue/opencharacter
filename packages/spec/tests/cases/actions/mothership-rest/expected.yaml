@@ -1,0 +1,21 @@
+# The lowest save is Sanity 24. 13 < 24 -> success: stress drops by the ones digit (3).
+status: finished
+outcome:
+  result: success
+proposedChanges:
+  - to: self
+    step: relief
+    change:
+      type: adjust
+      field: mothership-1e:stress.current
+      by: -3
+log:
+  - step: check
+    action: mothership-1e:rest
+    kind: dice
+    by: engine
+    faces:
+      - 13
+    total: 13
+    band: success
+    bandSet: mothership-1e:check

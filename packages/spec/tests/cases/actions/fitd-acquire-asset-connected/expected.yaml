@@ -1,0 +1,21 @@
+# Tier 0: 2d6 [5, 3] keeps 3, a failure. Connected adds a result level: a partial, so the
+# quality is the tier, 0, short of the minimum 1. No coin, so no coin choice.
+status: finished
+outcome:
+  result: too-low
+  data: { quality: 0, roll: partial, heat: 0 }
+proposedChanges: []
+log:
+  - step: roll
+    kind: dice
+    by: engine
+    faces: [5, 3]
+    band: partial
+    bandSet: fitd-scoundrel:asset
+    tallies:
+      - name: resultLevel
+        value: 1
+        sources:
+          - source: { type: item, id: fitd-scoundrel:special-abilities.connected }
+            op: add
+            value: 1

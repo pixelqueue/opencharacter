@@ -1,0 +1,31 @@
+description: "Fate Core guided creation with the player's words: the name, high concept and trouble given as string parameters are written on the sheet before finishing; the aspects left empty are not"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:create-character }
+  params:
+    name: Cynere
+    highConcept: Infamous Girl with Sword
+    trouble: Tempted by Shiny Things
+  policy: { choices: pause, allocations: pause }
+answers:
+  - amounts:
+      {
+        fate-core:skills.fight: 4,
+        fate-core:skills.athletics: 3,
+        fate-core:skills.physique: 3,
+        fate-core:skills.notice: 2,
+        fate-core:skills.will: 2,
+        fate-core:skills.shoot: 2,
+        fate-core:skills.stealth: 1,
+        fate-core:skills.rapport: 1,
+        fate-core:skills.empathy: 1,
+        fate-core:skills.lore: 1,
+      }
+  - option: fate-core:stunts.grappler
+  - option: fate-core:stunts.riposte
+  - option: fate-core:stunts.take-the-blow
+  - option: one
+  - option: fate-core:stunts.tough-as-nails

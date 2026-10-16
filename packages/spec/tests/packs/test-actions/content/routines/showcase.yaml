@@ -1,0 +1,68 @@
+id: routines.showcase
+type: routine
+# Actions that run another copy's action by its entry.
+actions:
+  # Pick an equipped prop, then run that copy's flourish.
+  - id: showcase
+    steps:
+      - id: prop
+        kind: choice
+        options: { copies: { type: prop, where: self.equipped } }
+        prefer: item.flair
+      - id: run
+        kind: action
+        use: flourish
+        entry: steps.prop.picked
+      - id: result
+        kind: outcome
+        result: steps.run.result
+        data:
+          copy: steps.run.data.copy
+          flair: steps.run.data.flair
+  # Pick an equipped prop, then flourish it once at each target.
+  - id: encore
+    participants:
+      target: {}
+    steps:
+      - id: prop
+        kind: choice
+        options: { copies: { type: prop, where: self.equipped } }
+        prefer: item.flair
+      - id: runs
+        kind: action
+        each: target
+        use: flourish
+        entry: steps.prop.picked
+        participants: { target: '[participant.id]' }
+      - id: result
+        kind: outcome
+        data:
+          targets: size(steps.runs)
+          last: steps.runs[size(steps.runs) - 1].data.target
+  # Flourish the prop the app names, equipped or not.
+  - id: wield
+    params:
+      prop: { type: string }
+    steps:
+      - id: run
+        kind: action
+        use: flourish
+        entry: params.prop
+      - { id: result, kind: outcome, result: steps.run.result }
+  # Perform a trick picked on a kit: the kit's entry and the trick's ID both name the listing.
+  - id: trick
+    params:
+      kit: { type: string }
+      trick: { type: string }
+    steps:
+      - id: run
+        kind: action
+        use: perform
+        entry: params.kit
+        source: params.trick
+      - {
+          id: result,
+          kind: outcome,
+          result: steps.run.result,
+          data: { power: steps.run.data.power },
+        }

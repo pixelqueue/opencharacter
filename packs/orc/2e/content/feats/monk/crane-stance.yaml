@@ -1,0 +1,15 @@
+id: feats.monk.crane-stance
+type: feat
+tags: [trait.stance, archetype-feat]
+fields: { level: 1, category: class, class: classes.monk }
+actions:
+  - id: crane-stance
+    tags: [stance]
+    available: armor.category == 'unarmored'
+    steps:
+      - id: enter
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: "'trait.stance' in item.tags" }
+          - { type: applyEffect, source: "'effects.crane-stance'" }

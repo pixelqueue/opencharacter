@@ -1,0 +1,94 @@
+# A 5th-level spontaneous arcane caster (a homebrew class: the pack has no caster class yet),
+# casting with Charisma +4, trained: spell attack +11 (4 + 2 + 5), spell DC 21. Slots: four
+# 1st-rank, four 2nd-rank, three 3rd-rank; cantrips are heightened to 3rd rank. A repertoire of five
+# cantrips and spells of each rank, with signature spells; one Focus Point.
+specVersion: 0.1.0
+id: test-spontaneous-caster
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+homebrew:
+  content:
+    - id: classes.arcane-caster
+      type: class
+      fields: { hp: 6 }
+      effects:
+        - { target: attributes.cha.boosts, op: add, value: 1 }
+        - { target: class.keyAttribute, op: set, value: "'cha'" }
+        - { target: spellcasting.tradition, op: set, value: "'arcane'" }
+        - { target: spellcasting.kind, op: set, value: "'spontaneous'" }
+        - { target: spellcasting.attribute, op: set, value: "'cha'" }
+        - { target: spellcasting.slotsPerRank, op: set, value: 3 }
+        - { target: spellcasting.cantrips, op: set, value: 5 }
+        - { target: spellcasting.rank, op: atLeast, value: 1 }
+        - { target: focus.points, op: add, value: 1 }
+      grants:
+        - item: features.spellcasting.repertoire
+        - item: features.spellcasting.signature-spells
+        # Spells of 4th rank and up, as other content would grant them.
+        - item: orc-2e:spells.spirit-blast
+        - item: orc-2e:spells.vision-of-death
+  i18n:
+    en:
+      classes.arcane-caster.name: Arcane caster
+  defaultLanguage: en
+values:
+  orc-2e:level: 5
+  orc-2e:hp.current: 30
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      heritage:
+        - option: orc-2e:heritages.versatile-human
+          choices:
+            feat:
+              - option: orc-2e:feats.general.toughness
+      boosts:
+        - option: orc-2e:boosts.cha
+        - option: orc-2e:boosts.con
+  - id: class
+    item: homebrew:classes.arcane-caster
+    choices:
+      orc-2e:features.spellcasting.repertoire/cantrips:
+        - option: orc-2e:spells.caustic-blast
+        - option: orc-2e:spells.detect-magic
+        - option: orc-2e:spells.electric-arc
+        - option: orc-2e:spells.shield
+        - option: orc-2e:spells.telekinetic-projectile
+      orc-2e:features.spellcasting.repertoire/spells-1:
+        - option: orc-2e:spells.breathe-fire
+        - option: orc-2e:spells.fear
+        - option: orc-2e:spells.force-barrage
+        - option: orc-2e:spells.mystic-armor
+      orc-2e:features.spellcasting.repertoire/spells-2:
+        - option: orc-2e:spells.blazing-bolt
+        - option: orc-2e:spells.invisibility
+        - option: orc-2e:spells.resist-energy
+        - option: orc-2e:spells.stupefy
+      orc-2e:features.spellcasting.repertoire/spells-3:
+        - option: orc-2e:spells.fireball
+        - option: orc-2e:spells.haste
+        - option: orc-2e:spells.paralyze
+      orc-2e:features.spellcasting.signature-spells/signature-1:
+        - option: orc-2e:spells.breathe-fire
+      orc-2e:features.spellcasting.signature-spells/signature-2:
+        - option: orc-2e:spells.blazing-bolt
+      orc-2e:features.spellcasting.signature-spells/signature-3:
+        - option: orc-2e:spells.fireball
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.cha
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis
+  boosts-5:
+    - option: orc-2e:boosts.cha
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.natural-ambition
+  general-feat-3:
+    - option: orc-2e:feats.general.fleet
+  languages:
+    - option: orc-2e:languages.dwarven

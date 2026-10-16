@@ -1,0 +1,22 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 14
+  5e-srd-5.1:abilities.dex.base: 16
+  5e-srd-5.1:abilities.con.base: 14
+  5e-srd-5.1:abilities.int.base: 10
+  5e-srd-5.1:abilities.wis.base: 16
+  5e-srd-5.1:abilities.cha.base: 8
+  5e-srd-5.1:hp.base: 60
+  5e-srd-5.1:hp.current: 60
+features:
+  - id: monk
+    item: 5e-srd-5.1:classes.monk
+    state: { level: 10, startingClass: true }
+    choices:
+      skills: [{ option: skill.acrobatics }, { option: skill.stealth }]
+      monastic-tradition: [{ option: 5e-srd-5.1:subclasses.way-of-the-open-hand }]
+applied:
+  - { id: poison, source: 5e-srd-5.1:conditions.poisoned, active: false }

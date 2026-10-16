@@ -1,0 +1,46 @@
+# The d4 rolls 3, the Scientist; the stat d4 rolls 3: intellect. Its pending choices, in order,
+# are master, expert, trained and bonus. No Master or Expert skill is eligible at first, so trained
+# is asked (a Trained skill on the way to a Master one); Archaeology allows Mysticism (expert),
+# which allows Hyperspace (master); then the bonus Trained skill, Archaeology no longer eligible.
+# The first option is recommended each time.
+status: finished
+outcome: { result: rolled, data: { loadout: true } }
+log:
+  - { step: classRoll, kind: dice, faces: [3], total: 3 }
+  - { step: strength, kind: dice, faces: [3, 4], total: 32 }
+  - { step: speed, kind: dice, faces: [5, 6], total: 36 }
+  - { step: intellect, kind: dice, faces: [7, 8], total: 40 }
+  - { step: combat, kind: dice, faces: [9, 10], total: 44 }
+  - { step: sanity, kind: dice, faces: [1, 2], total: 13 }
+  - { step: fear, kind: dice, faces: [3, 4], total: 17 }
+  - { step: body, kind: dice, faces: [5, 6], total: 21 }
+  - { step: class, kind: choice, by: engine, option: mothership-1e:classes.scientist }
+  - { step: health, kind: dice, faces: [7], total: 17 }
+  - { step: statRoll, kind: dice, faces: [3], total: 3 }
+  - { step: stat, kind: choice, by: engine, option: intellect }
+  - step: skills
+    kind: choice
+    by: engine
+    option: mothership-1e:skills.archaeology
+    index: 0
+    choice: { entry: class, choice: [trained] }
+  - step: skills
+    kind: choice
+    by: engine
+    option: mothership-1e:skills.mysticism
+    index: 1
+    choice: { entry: class, choice: [expert] }
+  - step: skills
+    kind: choice
+    by: engine
+    option: mothership-1e:skills.hyperspace
+    index: 2
+    choice: { entry: class, choice: [master] }
+  - step: skills
+    kind: choice
+    by: engine
+    option: mothership-1e:skills.art
+    index: 3
+    choice: { entry: class, choice: [bonus] }
+  - { step: credits, kind: dice, faces: [8, 9], total: 17 }
+  - { step: kit, kind: choice, by: engine, option: loadout }

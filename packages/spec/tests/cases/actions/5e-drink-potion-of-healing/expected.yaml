@@ -1,0 +1,12 @@
+# 2d4 + 2 with 3 and 4 heals 9; one potion of the three is spent.
+status: finished
+outcome:
+  result: drunk
+  data: { healed: 9 }
+proposedChanges:
+  - to: self
+    step: drink
+    change: { type: adjust, field: 5e-srd-5.1:hp.current, by: 9, tags: [healing] }
+  - to: self
+    step: drink
+    change: { type: adjustQuantity, entry: potions, by: -1 }

@@ -1,0 +1,112 @@
+id: feats.archetype.sorcerer.basic-bloodline-spell
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.sorcerer }
+prerequisites:
+  - { id: sorcerer-dedication, when: '@feats.archetype.sorcerer.sorcerer-dedication in feats.held' }
+effects:
+  - { target: focus.points, op: add, value: 1 }
+choices:
+  - id: spell
+    from:
+      options:
+        - id: aberrant
+          prerequisites: [{ id: bloodline, when: "sorcerer.bloodline == 'aberrant'" }]
+          effects:
+            - {
+                target: spells.archetype.sorcerer.spells,
+                op: grant,
+                value: { item: spells.tentacular-limbs },
+              }
+          grants:
+            - item: spells.tentacular-limbs
+        - id: angelic
+          prerequisites: [{ id: bloodline, when: "sorcerer.bloodline == 'angelic'" }]
+          effects:
+            - {
+                target: spells.archetype.sorcerer.spells,
+                op: grant,
+                value: { item: spells.angelic-halo },
+              }
+          grants:
+            - item: spells.angelic-halo
+        - id: demonic
+          prerequisites: [{ id: bloodline, when: "sorcerer.bloodline == 'demonic'" }]
+          effects:
+            - {
+                target: spells.archetype.sorcerer.spells,
+                op: grant,
+                value: { item: spells.gluttons-jaws },
+              }
+          grants:
+            - item: spells.gluttons-jaws
+        - id: diabolic
+          prerequisites: [{ id: bloodline, when: "sorcerer.bloodline == 'diabolic'" }]
+          effects:
+            - {
+                target: spells.archetype.sorcerer.spells,
+                op: grant,
+                value: { item: spells.diabolic-edict },
+              }
+          grants:
+            - item: spells.diabolic-edict
+        - id: draconic
+          prerequisites: [{ id: bloodline, when: "sorcerer.bloodline == 'draconic'" }]
+          effects:
+            - {
+                target: spells.archetype.sorcerer.spells,
+                op: grant,
+                value: { item: spells.flurry-of-claws },
+              }
+          grants:
+            - item: spells.flurry-of-claws
+        - id: elemental
+          prerequisites: [{ id: bloodline, when: "sorcerer.bloodline == 'elemental'" }]
+          effects:
+            - {
+                target: spells.archetype.sorcerer.spells,
+                op: grant,
+                value: { item: spells.elemental-toss },
+              }
+          grants:
+            - item: spells.elemental-toss
+        - id: fey
+          prerequisites: [{ id: bloodline, when: "sorcerer.bloodline == 'fey'" }]
+          effects:
+            - {
+                target: spells.archetype.sorcerer.spells,
+                op: grant,
+                value: { item: spells.faerie-dust },
+              }
+          grants:
+            - item: spells.faerie-dust
+        - id: hag
+          prerequisites: [{ id: bloodline, when: "sorcerer.bloodline == 'hag'" }]
+          effects:
+            - {
+                target: spells.archetype.sorcerer.spells,
+                op: grant,
+                value: { item: spells.jealous-hex },
+              }
+          grants:
+            - item: spells.jealous-hex
+        - id: imperial
+          prerequisites: [{ id: bloodline, when: "sorcerer.bloodline == 'imperial'" }]
+          effects:
+            - {
+                target: spells.archetype.sorcerer.spells,
+                op: grant,
+                value: { item: spells.ancestral-memories },
+              }
+          grants:
+            - item: spells.ancestral-memories
+        - id: undead
+          prerequisites: [{ id: bloodline, when: "sorcerer.bloodline == 'undead'" }]
+          effects:
+            - {
+                target: spells.archetype.sorcerer.spells,
+                op: grant,
+                value: { item: spells.undeaths-blessing },
+              }
+          grants:
+            - item: spells.undeaths-blessing

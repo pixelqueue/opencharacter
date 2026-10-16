@@ -1,0 +1,50 @@
+values:
+  test-field-sets:reflex: { value: 0 }
+  test-field-sets:fortitude: { value: 1 }
+  test-field-sets:acrobatics: { value: 2 }
+  test-field-sets:ac: { value: 8 }
+effects:
+  - {
+      source: { type: item, id: test-field-sets:conditions.clumsy },
+      target: test-field-sets:reflex,
+      op: add,
+      suppressed: true,
+    }
+  - {
+      source: { type: item, id: test-field-sets:conditions.clumsy },
+      target: test-field-sets:acrobatics,
+      op: add,
+      suppressed: true,
+    }
+  - {
+      source: { type: item, id: test-field-sets:conditions.clumsy },
+      target: test-field-sets:ac,
+      op: add,
+      suppressed: true,
+    }
+  - {
+      source: { type: item, id: test-field-sets:conditions.frightened },
+      target: test-field-sets:reflex,
+      op: add,
+    }
+  - {
+      source: { type: item, id: test-field-sets:conditions.frightened },
+      target: test-field-sets:fortitude,
+      op: add,
+    }
+  - {
+      source: { type: item, id: test-field-sets:conditions.frightened },
+      target: test-field-sets:acrobatics,
+      op: add,
+    }
+  - {
+      source: { type: item, id: test-field-sets:conditions.frightened },
+      target: test-field-sets:ac,
+      op: add,
+    }
+  # The aptitude is a check whatever attribute it is based on.
+  - {
+      source: { type: item, id: test-field-sets:conditions.frightened },
+      target: test-field-sets:aptitude,
+      op: add,
+    }

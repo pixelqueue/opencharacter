@@ -1,0 +1,757 @@
+resultBands:
+  ladder:
+    - { id: legendary, when: roll.total >= 8 }
+    - { id: epic, when: roll.total == 7 }
+    - { id: fantastic, when: roll.total == 6 }
+    - { id: superb, when: roll.total == 5 }
+    - { id: great, when: roll.total == 4 }
+    - { id: good, when: roll.total == 3 }
+    - { id: fair, when: roll.total == 2 }
+    - { id: average, when: roll.total == 1 }
+    - { id: mediocre, when: roll.total == 0 }
+    - { id: poor, when: roll.total == -1 }
+    - { id: terrible, when: true }
+  outcome:
+    - { id: style, when: roll.total - flags.opposition >= 3 }
+    - { id: succeed, when: roll.total > flags.opposition }
+    - { id: tie, when: roll.total == flags.opposition }
+    - { id: fail, when: true }
+
+situational:
+  - id: stunt
+    type: boolean
+    default: false
+    rolls: [skill-roll]
+    available: stunts.bonus > 0
+  - id: fullDefense
+    type: boolean
+    default: false
+    rolls: [action.defend]
+    effects:
+      - { target: { rolls: [action.defend] }, op: add, value: 2 }
+  - id: teamwork
+    type: integer
+    default: 0
+    rolls: [skill-roll]
+    effects:
+      - { target: { rolls: [skill-roll] }, op: add, value: situational.teamwork }
+
+actions:
+  # Rerolls are capped at three. Keeping the roll and invoking nothing is recommended, so an
+  # automatic run spends nothing.
+  - id: skill-roll
+    tags: [skill-roll]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+      action: { type: enum, values: [overcome, advantage, attack, defend, oppose] }
+      helpers: { type: integer, default: 0, min: 0 }
+    results: [rolled]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [skill-roll, { formula: "'action.' + params.action" }]
+        bands: ladder
+        parts:
+          - { id: dice, dice: 4dF }
+          - { id: skill, field: params.skill.id, when: has(params.skill) }
+          - { id: helpers, value: params.helpers, when: params.helpers > 0 }
+      - id: reroll
+        kind: choice
+        options:
+          - { id: keep }
+          - id: invoke
+            when: fatePoints.current > 0
+            changes:
+              - { type: adjust, field: fatePoints.current, by: -1 }
+          - { id: free }
+        recommend: "'keep'"
+      - id: rerollFrom
+        kind: choice
+        when: "steps.reroll.picked == 'free'"
+        options: { copies: { type: advantage, where: self.invokes > 0 } }
+        repeat: { max: 1, min: 0 }
+        prefer: "self.kind == 'boost' ? 1 : 0"
+        changes:
+          - { type: adjustState, entry: picked, key: invokes, by: -1 }
+      - id: again
+        kind: roll
+        when: steps.reroll.picked != 'keep'
+        tags: [skill-roll, { formula: "'action.' + params.action" }]
+        bands: ladder
+        parts:
+          - { id: dice, dice: 4dF }
+          - { id: skill, field: params.skill.id, when: has(params.skill) }
+          - { id: helpers, value: params.helpers, when: params.helpers > 0 }
+      - id: reroll2
+        kind: choice
+        sheet: proposed
+        when: has(steps.again)
+        options:
+          - { id: keep }
+          - id: invoke
+            when: fatePoints.current > 0
+            changes:
+              - { type: adjust, field: fatePoints.current, by: -1 }
+          - { id: free }
+        recommend: "'keep'"
+      - id: rerollFrom2
+        kind: choice
+        sheet: proposed
+        when: "has(steps.reroll2) && steps.reroll2.picked == 'free'"
+        options: { copies: { type: advantage, where: self.invokes > 0 } }
+        repeat: { max: 1, min: 0 }
+        prefer: "self.kind == 'boost' ? 1 : 0"
+        changes:
+          - { type: adjustState, entry: picked, key: invokes, by: -1 }
+      - id: again2
+        kind: roll
+        when: "has(steps.reroll2) && steps.reroll2.picked != 'keep'"
+        tags: [skill-roll, { formula: "'action.' + params.action" }]
+        bands: ladder
+        parts:
+          - { id: dice, dice: 4dF }
+          - { id: skill, field: params.skill.id, when: has(params.skill) }
+          - { id: helpers, value: params.helpers, when: params.helpers > 0 }
+      - id: reroll3
+        kind: choice
+        sheet: proposed
+        when: has(steps.again2)
+        options:
+          - { id: keep }
+          - id: invoke
+            when: fatePoints.current > 0
+            changes:
+              - { type: adjust, field: fatePoints.current, by: -1 }
+          - { id: free }
+        recommend: "'keep'"
+      - id: rerollFrom3
+        kind: choice
+        sheet: proposed
+        when: "has(steps.reroll3) && steps.reroll3.picked == 'free'"
+        options: { copies: { type: advantage, where: self.invokes > 0 } }
+        repeat: { max: 1, min: 0 }
+        prefer: "self.kind == 'boost' ? 1 : 0"
+        changes:
+          - { type: adjustState, entry: picked, key: invokes, by: -1 }
+      - id: again3
+        kind: roll
+        when: "has(steps.reroll3) && steps.reroll3.picked != 'keep'"
+        tags: [skill-roll, { formula: "'action.' + params.action" }]
+        bands: ladder
+        parts:
+          - { id: dice, dice: 4dF }
+          - { id: skill, field: params.skill.id, when: has(params.skill) }
+          - { id: helpers, value: params.helpers, when: params.helpers > 0 }
+      - id: invokes
+        kind: choice
+        sheet: proposed
+        options:
+          - { id: none }
+          - id: one
+            when: fatePoints.current >= 1
+            changes: [{ type: adjust, field: fatePoints.current, by: -1 }]
+          - id: two
+            when: fatePoints.current >= 2
+            changes: [{ type: adjust, field: fatePoints.current, by: -2 }]
+          - id: three
+            when: fatePoints.current >= 3
+            changes: [{ type: adjust, field: fatePoints.current, by: -3 }]
+          - id: four
+            when: fatePoints.current >= 4
+            changes: [{ type: adjust, field: fatePoints.current, by: -4 }]
+        recommend: "'none'"
+      - id: freeInvokes
+        kind: choice
+        options: [{ id: none }, { id: one }, { id: two }, { id: three }, { id: four }]
+        recommend: "'none'"
+      - id: count
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              paid: >-
+                steps.invokes.picked == 'one' ? 1 : steps.invokes.picked == 'two' ? 2
+                  : steps.invokes.picked == 'three' ? 3 : steps.invokes.picked == 'four' ? 4 : 0
+              free: >-
+                steps.freeInvokes.picked == 'one' ? 1 : steps.freeInvokes.picked == 'two' ? 2
+                  : steps.freeInvokes.picked == 'three' ? 3
+                  : steps.freeInvokes.picked == 'four' ? 4 : 0
+      - id: freeFrom
+        kind: choice
+        sheet: proposed
+        when: flags.free > 0
+        options: { copies: { type: advantage, where: self.invokes > 0 } }
+        repeat: { max: flags.free, min: 0 }
+        prefer: "self.kind == 'boost' ? 1 : 0"
+        changes:
+          - { type: adjustState, entry: picked, key: invokes, by: -1 }
+      - id: spentOut
+        kind: changes
+        when: >-
+          (has(steps.rerollFrom) && size(steps.rerollFrom.picked) > 0)
+            || (has(steps.rerollFrom2) && size(steps.rerollFrom2.picked) > 0)
+            || (has(steps.rerollFrom3) && size(steps.rerollFrom3.picked) > 0)
+            || (has(steps.freeFrom) && size(steps.freeFrom.picked) > 0)
+        changes:
+          - type: removeItem
+            copies: { type: advantage, where: self.invokes == 0 }
+      - id: last
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              total: >-
+                has(steps.again3) ? steps.again3.total : has(steps.again2) ? steps.again2.total
+                  : has(steps.again) ? steps.again.total : steps.roll.total
+              rung: >-
+                has(steps.again3) ? steps.again3.band : has(steps.again2) ? steps.again2.band
+                  : has(steps.again) ? steps.again.band : steps.roll.band
+              rerolls: >-
+                (has(steps.again) ? 1 : 0) + (has(steps.again2) ? 1 : 0)
+                  + (has(steps.again3) ? 1 : 0)
+              paidRerolls: >-
+                (steps.reroll.picked == 'invoke' ? 1 : 0)
+                  + (has(steps.reroll2) && steps.reroll2.picked == 'invoke' ? 1 : 0)
+                  + (has(steps.reroll3) && steps.reroll3.picked == 'invoke' ? 1 : 0)
+              freeRerolls: >-
+                (steps.reroll.picked == 'free' ? 1 : 0)
+                  + (has(steps.reroll2) && steps.reroll2.picked == 'free' ? 1 : 0)
+                  + (has(steps.reroll3) && steps.reroll3.picked == 'free' ? 1 : 0)
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          total: flags.total + 2 * (flags.paid + flags.free)
+          rung: flags.rung
+          rerolled: flags.rerolls > 0
+          rerolls: flags.rerolls
+          fatePoints: flags.paid + flags.paidRerolls
+          freeInvokes: flags.free + flags.freeRerolls
+
+  - id: assist-check
+    tags: [teamwork]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags" }
+    results: [checked]
+    steps:
+      - id: result
+        kind: outcome
+        result: "'checked'"
+        data:
+          helps: params.skill.value >= 1
+          rating: params.skill.value
+
+  - id: overcome
+    tags: [overcome]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+      opposition: { type: integer, default: 0 }
+    participants:
+      helper: {}
+      opponent: { max: 1 }
+    results: { bands: outcome }
+    steps:
+      - id: assist
+        kind: action
+        when: has(params.skill)
+        each: helper
+        as: participant
+        use: assist-check
+        params: { skill: params.skill.id }
+      - id: roll
+        kind: action
+        when: has(params.skill)
+        use: skill-roll
+        params:
+          skill: params.skill.id
+          action: "'overcome'"
+          helpers: 'has(steps.assist) ? countList(steps.assist, x.data.helps) : 0'
+      - id: mediocre
+        kind: action
+        when: '!has(params.skill)'
+        use: skill-roll
+        params: { action: "'overcome'" }
+      - id: opposed
+        kind: action
+        each: opponent
+        as: participant
+        use: oppose
+        params:
+          { opposition: 'has(steps.roll) ? steps.roll.data.total : steps.mediocre.data.total' }
+      - id: against
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              total: 'has(steps.roll) ? steps.roll.data.total : steps.mediocre.data.total'
+              opposition: >-
+                has(steps.opposed) && size(steps.opposed) > 0 && has(steps.opposed[0].data.total)
+                  ? steps.opposed[0].data.total : params.opposition
+      - id: final
+        kind: roll
+        tags: [outcome]
+        bands: outcome
+        parts:
+          - { id: total, value: flags.total }
+      - id: boost
+        kind: changes
+        when: "steps.final.band == 'style'"
+        changes:
+          - type: addItem
+            entry: { item: "'advantages.advantage'", state: { kind: "'boost'" } }
+      - id: result
+        kind: outcome
+        result: steps.final.band
+        data:
+          total: flags.total
+          opposition: flags.opposition
+          shifts: flags.total - flags.opposition
+          boost: "steps.final.band == 'style'"
+
+  - id: create-advantage
+    tags: [create-advantage]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+      opposition: { type: integer, default: 0 }
+      existing: { type: boolean, default: false }
+      aspect: { type: string, default: '' }
+    participants:
+      helper: {}
+      target: { max: 1 }
+      beneficiary: { max: 1 }
+    results: { bands: outcome }
+    steps:
+      - id: assist
+        kind: action
+        when: has(params.skill)
+        each: helper
+        as: participant
+        use: assist-check
+        params: { skill: params.skill.id }
+      - id: roll
+        kind: action
+        when: has(params.skill)
+        use: skill-roll
+        params:
+          skill: params.skill.id
+          action: "'advantage'"
+          helpers: 'has(steps.assist) ? countList(steps.assist, x.data.helps) : 0'
+      - id: mediocre
+        kind: action
+        when: '!has(params.skill)'
+        use: skill-roll
+        params: { action: "'advantage'" }
+      - id: defense
+        kind: action
+        each: target
+        as: participant
+        use: defend
+        params:
+          opposition: 'has(steps.roll) ? steps.roll.data.total : steps.mediocre.data.total'
+          absorb: false
+      - id: against
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              total: 'has(steps.roll) ? steps.roll.data.total : steps.mediocre.data.total'
+              opposition: >-
+                has(steps.defense) && size(steps.defense) > 0 && has(steps.defense[0].data.total)
+                  ? steps.defense[0].data.total : params.opposition
+      - id: final
+        kind: roll
+        tags: [outcome]
+        bands: outcome
+        parts:
+          - { id: total, value: flags.total }
+      - id: gains
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              invokes: >-
+                steps.final.band == 'style' ? 2 : steps.final.band == 'succeed' ? 1
+                  : steps.final.band == 'tie' && params.existing ? 1 : 0
+              boost: "steps.final.band == 'tie' && !params.existing"
+      - id: gain
+        kind: changes
+        when: flags.invokes > 0 || flags.boost
+        changes:
+          - type: addItem
+            when: flags.invokes > 0
+            entry:
+              item: "'advantages.advantage'"
+              state: { label: params.aspect, invokes: flags.invokes, kind: "'situation'" }
+          - type: addItem
+            when: flags.boost
+            entry:
+              item: "'advantages.advantage'"
+              state: { label: params.aspect, kind: "'boost'" }
+      - id: concede
+        kind: choice
+        when: "steps.final.band == 'fail' && !params.existing"
+        options: [{ id: none }, { id: create }]
+        recommend: "'none'"
+      - id: other
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              theirs: >-
+                steps.final.band == 'fail'
+                  && (params.existing || (has(steps.concede) && steps.concede.picked == 'create'))
+      - id: give
+        kind: changes
+        when: flags.theirs
+        to: beneficiary
+        changes:
+          - type: addItem
+            entry:
+              item: "'advantages.advantage'"
+              state: { label: params.aspect, invokes: 1, kind: "'situation'" }
+      - id: result
+        kind: outcome
+        result: steps.final.band
+        data:
+          total: flags.total
+          opposition: flags.opposition
+          shifts: flags.total - flags.opposition
+          freeInvokes: flags.invokes
+          boost: flags.boost
+          opponentInvokes: flags.theirs
+
+  - id: attack
+    tags: [attack]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+      opposition: { type: integer, default: 0 }
+      harm: { type: enum, values: [physical, mental], default: physical }
+      weapon: { type: integer, default: 0, min: 0 }
+    participants:
+      helper: {}
+      target:
+        max: 1
+        fields:
+          consequences.moderateFree: { type: boolean, default: true }
+          consequences.severeFree: { type: boolean, default: true }
+    results: { bands: outcome }
+    steps:
+      - id: assist
+        kind: action
+        when: has(params.skill)
+        each: helper
+        as: participant
+        use: assist-check
+        params: { skill: params.skill.id }
+      - id: roll
+        kind: action
+        when: has(params.skill)
+        use: skill-roll
+        params:
+          skill: params.skill.id
+          action: "'attack'"
+          helpers: 'has(steps.assist) ? countList(steps.assist, x.data.helps) : 0'
+      - id: mediocre
+        kind: action
+        when: '!has(params.skill)'
+        use: skill-roll
+        params: { action: "'attack'" }
+      - id: weapon
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              weapon: >-
+                !ratings.weaponArmor ? 0
+                  : max(params.weapon, !has(params.skill) ? 0
+                    : maxCopies(copy.fields.weapon * (has(copy.state.ranks) ? copy.state.ranks : 1),
+                      copy.type == 'extra' && copy.fields.weapon > 0 && has(copy.fields.weaponSkill)
+                        && copy.fields.weaponSkill == params.skill.id))
+      - id: defense
+        kind: action
+        each: target
+        as: participant
+        use: defend
+        participants: { attacker: '[character.id]' }
+        params:
+          opposition: 'has(steps.roll) ? steps.roll.data.total : steps.mediocre.data.total'
+          harm: params.harm
+          absorb: false
+          weapon: flags.weapon
+      - id: against
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              total: 'has(steps.roll) ? steps.roll.data.total : steps.mediocre.data.total'
+              opposition: >-
+                has(steps.defense) && size(steps.defense) > 0 && has(steps.defense[0].data.total)
+                  ? steps.defense[0].data.total : params.opposition
+      - id: final
+        kind: roll
+        tags: [outcome]
+        bands: outcome
+        parts:
+          - { id: total, value: flags.total }
+      - id: boost
+        kind: choice
+        when: "steps.final.band == 'style'"
+        options: [{ id: full }, { id: boost }]
+        recommend: "'full'"
+      - id: shifts
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              hit: >-
+                steps.final.band == 'style' || steps.final.band == 'succeed'
+                  ? flags.total - flags.opposition - (has(steps.boost) && steps.boost.picked == 'boost' ? 1 : 0)
+                    + flags.weapon
+                  : steps.final.band == 'tie' ? flags.weapon : 0
+      - id: hit
+        kind: action
+        each: target
+        as: participant
+        when: flags.hit > 0
+        use: take-hit
+        params: { shifts: flags.hit, harm: params.harm }
+      - id: inflicted
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              consequences: >-
+                has(steps.hit) && size(steps.hit) > 0 && has(steps.hit[0].data)
+                  && has(steps.hit[0].data.consequences) ? steps.hit[0].data.consequences : 0
+              boost: >-
+                (steps.final.band == 'tie' && flags.weapon == 0)
+                  || (has(steps.boost) && steps.boost.picked == 'boost')
+                  || (has(steps.hit) && size(steps.hit) > 0 && has(steps.hit[0].data)
+                    && has(steps.hit[0].data.stopped) && steps.hit[0].data.stopped == true)
+      - id: gain
+        kind: changes
+        changes:
+          - type: addItem
+            when: flags.boost
+            entry: { item: "'advantages.advantage'", state: { kind: "'boost'" } }
+          - type: addItem
+            when: flags.consequences > 0
+            entry:
+              item: "'advantages.advantage'"
+              state: { invokes: flags.consequences, kind: "'consequence'" }
+      - id: escalation
+        kind: branch
+        cases:
+          - when: >-
+              has(steps.hit) && size(steps.hit) > 0 && has(steps.hit[0].data)
+                && has(steps.hit[0].data.slots) && size(steps.hit[0].data.slots) > 0
+            flags:
+              lowest: steps.hit[0].data.slots[0]
+              stroke: >-
+                steps.hit[0].data.slots[0] in ['mild', 'mild-physical', 'mild-mental']
+                  ? (participants.target[0].consequences.moderateFree
+                    && !('moderate' in steps.hit[0].data.slots) ? 'moderate' : 'none')
+                  : steps.hit[0].data.slots[0] == 'moderate'
+                    ? (participants.target[0].consequences.severeFree
+                      && !('severe' in steps.hit[0].data.slots) ? 'severe' : 'none')
+                    : 'second'
+          - when: true
+            flags: { lowest: "'none'", stroke: "'none'" }
+      - id: stroke
+        kind: choice
+        when: >-
+          flags.stroke != 'none' && @stunts.killing-stroke in stunts.held
+            && fatePoints.current > 0 && has(params.skill)
+            && params.skill.id == @skills.fight
+            && countCopies(copy.item == @stunts.killing-stroke && copy.state.used < 1) > 0
+        options: [{ id: keep }, { id: strike }]
+        recommend: "'keep'"
+      - id: strike
+        kind: changes
+        when: "has(steps.stroke) && steps.stroke.picked == 'strike'"
+        changes:
+          - { type: adjust, field: fatePoints.current, by: -1 }
+          - type: adjustState
+            copies: { type: stunt, where: 'item.id == @stunts.killing-stroke' }
+            limit: 1
+            key: used
+            by: 1
+      - id: worsen
+        kind: changes
+        when: "has(steps.stroke) && steps.stroke.picked == 'strike' && flags.stroke != 'second'"
+        to: target
+        changes:
+          - type: setState
+            copies: { type: consequence, where: self.slot == flags.lowest }
+            limit: 1
+            key: slot
+            value: flags.stroke
+      - id: result
+        kind: outcome
+        result: steps.final.band
+        data:
+          total: flags.total
+          opposition: flags.opposition
+          hit: flags.hit
+          harm: params.harm
+          boost: flags.boost
+          strokeSecond: "has(steps.stroke) && steps.stroke.picked == 'strike' && flags.stroke == 'second'"
+          takenOut: >-
+            has(steps.hit) && size(steps.hit) > 0 && has(steps.hit[0].result)
+              && steps.hit[0].result == 'taken-out'
+
+  - id: defend
+    tags: [defend]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+      opposition: { type: integer, default: 0 }
+      harm: { type: enum, values: [physical, mental], default: physical }
+      absorb: { type: boolean, default: true }
+      weapon: { type: integer, default: 0, min: 0 }
+    participants:
+      helper: {}
+      attacker: { max: 1 }
+    results: { bands: outcome }
+    steps:
+      - id: assist
+        kind: action
+        when: has(params.skill)
+        each: helper
+        as: participant
+        use: assist-check
+        params: { skill: params.skill.id }
+      - id: roll
+        kind: action
+        when: has(params.skill)
+        use: skill-roll
+        params:
+          skill: params.skill.id
+          action: "'defend'"
+          helpers: 'has(steps.assist) ? countList(steps.assist, x.data.helps) : 0'
+      - id: mediocre
+        kind: action
+        when: '!has(params.skill)'
+        use: skill-roll
+        params: { action: "'defend'" }
+      - id: against
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              total: 'has(steps.roll) ? steps.roll.data.total : steps.mediocre.data.total'
+              opposition: params.opposition
+      - id: final
+        kind: roll
+        tags: [outcome]
+        bands: outcome
+        parts:
+          - { id: total, value: flags.total }
+      - id: weapon
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              weapon: 'ratings.weaponArmor ? params.weapon : 0'
+      - id: shifts
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              hit: >-
+                steps.final.band == 'fail' ? flags.opposition - flags.total + flags.weapon
+                  : steps.final.band == 'tie' ? flags.weapon : 0
+      - id: hit
+        kind: action
+        when: params.absorb && flags.hit > 0
+        use: take-hit
+        params: { shifts: flags.hit, harm: params.harm }
+      - id: blow
+        kind: action
+        when: >-
+          steps.final.band == 'tie' && flags.hit == 0 && has(params.skill)
+            && params.skill.id == @skills.physique
+            && @stunts.take-the-blow in stunts.held
+        use: take-hit
+        params: { shifts: 1, harm: params.harm }
+      - id: riposte
+        kind: choice
+        when: >-
+          steps.final.band == 'style' && has(params.skill)
+            && params.skill.id == @skills.fight
+            && @stunts.riposte in stunts.held && size(participants.attacker) > 0
+        options: [{ id: boost }, { id: riposte }]
+        recommend: "'riposte'"
+      - id: counter
+        kind: action
+        when: "has(steps.riposte) && steps.riposte.picked == 'riposte'"
+        each: attacker
+        as: participant
+        use: take-hit
+        params: { shifts: 2, harm: "'physical'" }
+      - id: boost
+        kind: changes
+        when: >-
+          steps.final.band == 'style' && !(has(steps.riposte) && steps.riposte.picked == 'riposte')
+        changes:
+          - type: addItem
+            entry: { item: "'advantages.advantage'", state: { kind: "'boost'" } }
+      - id: result
+        kind: outcome
+        result: steps.final.band
+        data:
+          total: flags.total
+          opposition: flags.opposition
+          hit: flags.hit
+          boost: >-
+            steps.final.band == 'style' && !(has(steps.riposte) && steps.riposte.picked == 'riposte')
+          opponentBoost: >-
+            (steps.final.band == 'tie' && flags.weapon == 0)
+              || (has(steps.hit) && has(steps.hit.data.stopped) && steps.hit.data.stopped == true)
+          takenOut: "has(steps.hit) && steps.hit.result == 'taken-out'"
+
+  - id: oppose
+    tags: [oppose]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+      opposition: { type: integer, default: 0 }
+    participants:
+      helper: {}
+    results: { bands: outcome }
+    steps:
+      - id: assist
+        kind: action
+        when: has(params.skill)
+        each: helper
+        as: participant
+        use: assist-check
+        params: { skill: params.skill.id }
+      - id: roll
+        kind: action
+        when: has(params.skill)
+        use: skill-roll
+        params:
+          skill: params.skill.id
+          action: "'oppose'"
+          helpers: 'has(steps.assist) ? countList(steps.assist, x.data.helps) : 0'
+      - id: mediocre
+        kind: action
+        when: '!has(params.skill)'
+        use: skill-roll
+        params: { action: "'oppose'" }
+      - id: against
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              total: 'has(steps.roll) ? steps.roll.data.total : steps.mediocre.data.total'
+              opposition: params.opposition
+      - id: final
+        kind: roll
+        tags: [outcome]
+        bands: outcome
+        parts:
+          - { id: total, value: flags.total }
+      - id: result
+        kind: outcome
+        result: steps.final.band
+        data: { total: flags.total, opposition: flags.opposition }

@@ -1,0 +1,36 @@
+# 15 + 4 = 19 against the target's AC 18: a hit. 4 + 2 = 6 slashing, nonmagical, proposed to the
+# player character's sheet.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 19, damage: 6, riderDamage: 0, dc: 0, save: '', condition: '' }
+proposedChanges:
+  - {
+      to: target,
+      character: tamsin,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -6,
+          tags: [damage, attack, melee, weapon, nonmagical, wielder.neutral, damage.slashing],
+        },
+    }
+log:
+  - {
+      step: attack,
+      action: 5e-srd-5.1:monster-attack,
+      kind: dice,
+      by: engine,
+      faces: [15],
+      total: 19,
+    }
+  - {
+      step: damage,
+      action: 5e-srd-5.1:monster-attack,
+      kind: dice,
+      by: engine,
+      faces: [4],
+      total: 6,
+    }

@@ -1,0 +1,23 @@
+# No case set `flags.color`. In the first change `has(flags.color)` becomes `false`. In the
+# second the guard is `false`, so the branch that reads the missing flag is dropped, as
+# evaluation would skip it, instead of failing the action with `no-such-key`.
+status: finished
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjustState
+      copies:
+        type: test-pack:gem
+        where: self.charge > 0 && !false
+      key: charge
+      by: -1
+  - to: self
+    step: spend
+    change:
+      type: adjustState
+      copies:
+        type: test-pack:gem
+        where: self.charge > 1
+      key: charge
+      by: -1

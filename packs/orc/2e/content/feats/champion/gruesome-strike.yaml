@@ -1,0 +1,38 @@
+id: feats.champion.gruesome-strike
+type: feat
+fields: { level: 12, category: class, class: classes.champion }
+actions:
+  - id: gruesome-strike
+    tags: [strike]
+    available: champion.reactionDamage > 0
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "self.equipped || 'standard' in item.tags"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [strike.gruesome-strike]
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+          dc: classDc.champion.value
+effects:
+  - target: { rolls: [strike.gruesome-strike] }
+    op: add
+    value: champion.reactionDamage
+    tags: [damage.spirit]
+    when: >-
+      'damage' in roll.tags && has(participants.target) && size(participants.target) > 0
+        && participants.target[0].id == champion.reactionTarget

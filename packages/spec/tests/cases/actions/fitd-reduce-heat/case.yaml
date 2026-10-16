@@ -1,0 +1,14 @@
+description: 'FitD: reducing heat is a downtime action roll; a partial takes 2 heat off the linked crew'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:reduce-heat }
+  params: { rating: ratings.prowl }
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:tier: 1
+        fitd-crew:heat.current: 4

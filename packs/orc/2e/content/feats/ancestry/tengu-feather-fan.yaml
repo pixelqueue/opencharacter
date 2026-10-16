@@ -1,0 +1,37 @@
+id: feats.ancestry.tengu-feather-fan
+type: feat
+fields: { level: 5, category: ancestry, ancestry: ancestries.tengu }
+state:
+  fanUses: { type: integer, default: 0, min: 0 }
+grants:
+  - item: spells.gust-of-wind
+effects:
+  - { target: fan.activations, op: add, value: 1 }
+  - { target: spells.byOption, op: grant, value: { item: spells.gust-of-wind } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id == @spells.gust-of-wind && self.fanUses < fan.activations
+    value:
+      id: wave-fan-gust-of-wind
+      flags: { itemPaid: true, rank: 1, dc: ancestry.dc }
+      changes:
+        - { type: adjustState, picks: { where: has(self.fanUses) }, key: fanUses, by: 1 }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id == @spells.wall-of-wind && self.fanUses < fan.activations
+    value:
+      id: wave-fan-wall-of-wind
+      flags: { itemPaid: true, rank: 3, dc: ancestry.dc }
+      changes:
+        - { type: adjustState, picks: { where: has(self.fanUses) }, key: fanUses, by: 1 }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id == @spells.lightning-bolt && self.fanUses < fan.activations
+    value:
+      id: wave-fan-lightning-bolt
+      flags: { itemPaid: true, rank: 5, dc: ancestry.dc }
+      changes:
+        - { type: adjustState, picks: { where: has(self.fanUses) }, key: fanUses, by: 1 }

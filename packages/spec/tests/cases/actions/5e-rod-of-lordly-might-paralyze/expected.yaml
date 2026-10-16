@@ -1,0 +1,15 @@
+status: finished
+outcome:
+  result: used
+  data: { damage: 0 }
+proposedChanges:
+  - to: self
+    step: power/spend
+    change: { type: setState, entry: rod, key: usedToday, value: [terrify, paralyze] }
+  - to: target
+    character: troll
+    step: power/condition[0]
+    change:
+      type: applyEffect
+      source: 5e-srd-5.1:conditions.paralyzed
+      state: { by: humanoid, magical: true }

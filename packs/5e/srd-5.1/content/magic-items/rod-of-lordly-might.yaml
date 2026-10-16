@@ -1,0 +1,71 @@
+id: magic-items.rod-of-lordly-might
+type: magicItem
+fields:
+  category: rod
+  rarity: legendary
+  requiresAttunement: true
+state:
+  usedToday: { type: set, of: string, default: [] }
+actions:
+  - id: drain-life
+    tags: [magic-item]
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          daily: "'drain-life'"
+          dice: 4d6
+          damageType: "'necrotic'"
+          save: "'con'"
+          dc: 17
+          half: false
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+        data:
+          damage: 'has(steps.power.data.damage) ? steps.power.data.damage : 0'
+  - id: paralyze
+    tags: [magic-item]
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          daily: "'paralyze'"
+          save: "'str'"
+          dc: 17
+          condition: "'conditions.paralyzed'"
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+        data:
+          damage: 'has(steps.power.data.damage) ? steps.power.data.damage : 0'
+  - id: terrify
+    tags: [magic-item]
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          daily: "'terrify'"
+          save: "'wis'"
+          dc: 17
+          condition: "'conditions.frightened'"
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+        data:
+          damage: 'has(steps.power.data.damage) ? steps.power.data.damage : 0'

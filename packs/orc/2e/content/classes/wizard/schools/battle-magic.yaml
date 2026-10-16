@@ -1,0 +1,38 @@
+id: classes.wizard.schools.battle-magic
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: wizard.school, op: set, value: "'battle-magic'" }
+  - { target: spellcasting.extraSlots, op: add, value: 1 }
+  - { target: spellcasting.extraCantrips, op: add, value: 1 }
+  - { target: focus.points, op: add, value: 1 }
+  - target: spells.curriculum
+    op: grant
+    value:
+      query:
+        type: spell
+        where: >-
+          item.id in [
+            @spells.shield,
+            @spells.telekinetic-projectile,
+            @spells.breathe-fire,
+            @spells.force-barrage,
+            @spells.mystic-armor,
+            @spells.mist,
+            @spells.resist-energy,
+            @spells.earthbind,
+            @spells.fireball,
+            @spells.wall-of-fire,
+            @spells.weapon-storm,
+            @spells.howling-blizzard,
+            @spells.impaling-spike,
+            @spells.chain-lightning,
+            @spells.disintegrate,
+            @spells.energy-aegis,
+            @spells.true-target,
+            @spells.arctic-rift,
+            @spells.desiccate,
+            @spells.falling-stars
+          ]
+grants:
+  - item: spells.force-bolt

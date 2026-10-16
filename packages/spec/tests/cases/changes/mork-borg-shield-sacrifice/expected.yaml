@@ -1,0 +1,17 @@
+# The shield takes the whole hit: no damage (the armor die isn't rolled), and the shield breaks.
+ok: true
+adjustments:
+  - { field: mork-borg-core:hp.current, by: 0, requested: -7, taken: 0, reason: requested }
+  - entry: shield
+    key: broken
+    value: true
+    source:
+      { type: item, id: mork-borg-core:shields.shield, entry: shield, effect: shield-sacrifice }
+followUps: []
+character:
+  values:
+    mork-borg-core:hp.max: 10
+    mork-borg-core:hp.current: 8
+  inventory:
+    - { id: worn, item: mork-borg-core:armor.medium, equipped: true, state: { damage: 0 } }
+    - { id: shield, item: mork-borg-core:shields.shield, equipped: true, state: { broken: true } }

@@ -1,0 +1,19 @@
+id: features.paladin.cleansing-touch
+type: feature
+effects:
+  - { target: cleansingTouch.uses, op: set, value: 'max(1, abilities.cha.mod)' }
+actions:
+  - id: cleansing-touch
+    tags: [feature]
+    results: [cleansed]
+    available: self.cleansingTouchSpent < cleansingTouch.uses
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: cleansingTouchSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'cleansed'"
+        data:
+          left: cleansingTouch.uses - self.cleansingTouchSpent - 1

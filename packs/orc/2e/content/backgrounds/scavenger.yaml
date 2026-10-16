@@ -1,0 +1,23 @@
+id: backgrounds.scavenger
+type: background
+# The Lore of the settlement you scavenged in is the first custom Lore (`skills.lore.custom1`), its
+# subject named by the player.
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.survival }
+    when: "!('skill.survival' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.custom1 }
+    when: "!('skill.lore.custom1' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.forager
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['int', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

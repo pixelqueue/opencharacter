@@ -1,0 +1,36 @@
+description: "A literal outcome result that isn't among the action's declared results (or its band set's bands) is a formula-error with cause undeclared-result"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        resultBands:
+          grade:
+            - { id: high, when: roll.total >= 4 }
+            - { id: low, when: true }
+        actions:
+          - id: listed
+            results: [done]
+            steps:
+              - id: result
+                kind: outcome
+                result: "'finished'"
+          - id: banded
+            results: { bands: grade }
+            steps:
+              - id: result
+                kind: outcome
+                result: "'middle'"
+          - id: fine
+            results: { bands: grade }
+            steps:
+              - id: result
+                kind: outcome
+                result: "'high'"
+      content: []

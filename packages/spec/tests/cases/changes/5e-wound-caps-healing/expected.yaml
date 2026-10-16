@@ -1,0 +1,13 @@
+# 2 of 8 hit points, 5 of the 6 lost taken by wounds: healing 6 is capped at 1. Hit dice (spent
+# during a short rest) aren't capped: 4 more, to 7.
+ok: true
+character:
+  values:
+    5e-srd-5.1:abilities.str.base: 10
+    5e-srd-5.1:abilities.dex.base: 14
+    5e-srd-5.1:abilities.con.base: 12
+    5e-srd-5.1:hp.base: 8
+    5e-srd-5.1:hp.current: 7
+adjustments:
+  - { field: 5e-srd-5.1:hp.current, by: 1, requested: 6, taken: 1, reason: requested }
+  - { field: 5e-srd-5.1:hp.current, by: 4, requested: 4, taken: 4, reason: requested }

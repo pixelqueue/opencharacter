@@ -1,0 +1,56 @@
+# Attack: 15 + Dexterity 3 = 18 against the wyrmling's AC 17: a hit. Damage: 1d8 (5) + 3 = 8
+# piercing, magical. The arrow slays dragons and the target is one: 6d10 (21) piercing more, and
+# the wyrmling's DC 17 Constitution save fails (12), so it takes all 21.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 18 }
+proposedChanges:
+  - to: self
+    step: ammo
+    change: { type: adjustQuantity, entry: slaying, by: -1 }
+  - {
+      to: target,
+      character: wyrmling,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -8,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              ranged,
+              magical,
+              plain-material,
+              wielder.neutral,
+              damage.piercing,
+            ],
+        },
+    }
+  - {
+      to: target,
+      character: wyrmling,
+      step: 'slay[0]',
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -21,
+          tags:
+            [
+              damage,
+              damage.piercing,
+              weapon,
+              ranged,
+              magical,
+              wielder.neutral,
+              save-half,
+              save.con,
+              save-failure,
+            ],
+        },
+    }

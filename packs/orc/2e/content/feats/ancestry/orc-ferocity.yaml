@@ -1,0 +1,33 @@
+id: feats.ancestry.orc-ferocity
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.orc }
+
+state:
+  used: { type: boolean, default: false }
+actions:
+  - id: ferocity
+    tags: [reaction]
+    available: '!self.used && hp.current == 0'
+    steps:
+      - id: hold
+        kind: changes
+        changes:
+          - { type: set, field: hp.current, value: 1 }
+          - { type: setState, pick: self, key: used, value: true }
+          - type: set
+            when: '@feats.ancestry.undying-ferocity in feats.held'
+            field: hp.temp
+            value: max(hp.temp, level)
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.dying' }
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.unconscious' }
+          - type: adjustState
+            when: conditions.wounded > 0
+            applied: { where: 'item.id == @conditions.wounded', limit: 1 }
+            key: value
+            by: 1
+          - type: applyEffect
+            when: conditions.wounded == 0
+            source: "'conditions.wounded'"
+            state: { value: 1 }

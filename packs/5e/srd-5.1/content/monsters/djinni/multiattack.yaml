@@ -1,0 +1,39 @@
+id: monsters.djinni.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3 }
+    results: [done]
+    steps:
+      - id: scimitar1
+        kind: action
+        use: monster-attack
+        source: "'monsters.djinni.scimitar'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: scimitar2
+        kind: action
+        use: monster-attack
+        source: "'monsters.djinni.scimitar'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: scimitar3
+        kind: action
+        use: monster-attack
+        source: "'monsters.djinni.scimitar'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(2, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.scimitar1) && steps.scimitar1.result == 'hit' ? 1 : 0)
+              + (has(steps.scimitar2) && steps.scimitar2.result == 'hit' ? 1 : 0)
+              + (has(steps.scimitar3) && steps.scimitar3.result == 'hit' ? 1 : 0)

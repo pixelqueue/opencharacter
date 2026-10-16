@@ -1,0 +1,26 @@
+# Rules +1 (blessed), the charm +2, the situational choice +1: boost 4, a crit by the band,
+# though the total stays 2.
+status: finished
+outcome:
+  result: crit
+  data: { total: 2, boost: 4 }
+log:
+  - step: roll
+    action: test-tallies:try
+    kind: dice
+    by: engine
+    faces: [2]
+    total: 2
+    band: crit
+    bandSet: test-tallies:check
+    tallies:
+      - name: boost
+        value: 4
+        sources:
+          - { source: { type: rules, id: test-tallies:rules }, op: add, value: 1 }
+          - {
+              source: { type: item, id: test-tallies:charms.lucky, entry: lucky },
+              op: add,
+              value: 2,
+            }
+          - { source: { type: situational, id: test-tallies:push }, op: add, value: 1 }

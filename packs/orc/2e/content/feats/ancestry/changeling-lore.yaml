@@ -1,0 +1,19 @@
+id: feats.ancestry.changeling-lore
+type: feat
+fields: { level: 1, category: ancestry, heritage: heritages.changeling }
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.deception },
+      when: "!('skill.deception' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.occultism },
+      when: "!('skill.occultism' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - { item: feats.skill.additional-lore, waivePrerequisites: true }

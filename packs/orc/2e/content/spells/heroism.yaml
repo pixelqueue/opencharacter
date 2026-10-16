@@ -1,0 +1,21 @@
+id: spells.heroism
+type: spell
+tags: [trait.concentrate, trait.manipulate, trait.mental, tradition.divine, tradition.occult]
+fields:
+  rank: 3
+  cast: two
+  range: 0
+  targets: 1
+  duration: minutes
+  durationAmount: 10
+  applyTo: ally
+effects:
+  - target:
+      fields:
+        where:
+          "'attack' in item.tags || 'perception' in item.tags || 'save' in item.tags || 'skill' in
+          item.tags"
+    op: add
+    value: 'self.rank >= 9 ? 3 : self.rank >= 6 ? 2 : 1'
+    stackKey: status-bonus
+    scope: applied

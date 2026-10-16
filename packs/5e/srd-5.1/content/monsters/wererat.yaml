@@ -1,0 +1,52 @@
+id: monsters.wererat
+type: monster
+fields:
+  size: medium
+  creatureType: humanoid
+  subtype: human
+  shapechanger: true
+  alignment: lawful-evil
+  ac: 12
+  hp: 33
+  hitDice: 6d8 + 6
+  speed: 30
+  str: 10
+  dex: 15
+  con: 12
+  int: 11
+  wis: 10
+  cha: 8
+  skills: [skill.perception, skill.stealth]
+  damageImmunities: [nonmagical-unsilvered]
+  languages: [languages.common]
+  startingForm: humanoid
+  cr: 2
+grants:
+  - item: monsters.wererat.shapechanger
+  - item: monsters.wererat.keen-smell
+choices:
+  - id: form
+    from:
+      options:
+        - id: humanoid
+          effects:
+            - { target: creature.form, op: set, value: "'humanoid'" }
+          grants:
+            - item: monsters.wererat.multiattack
+            - item: monsters.wererat.shortsword
+            - item: monsters.wererat.hand-crossbow
+        - id: hybrid
+          effects:
+            - { target: creature.form, op: set, value: "'hybrid'" }
+          grants:
+            - item: monsters.wererat.multiattack
+            - item: monsters.wererat.bite
+            - item: monsters.wererat.shortsword
+            - item: monsters.wererat.hand-crossbow
+        - id: rat
+          effects:
+            - { target: creature.form, op: set, value: "'rat'" }
+            - { target: creature.size, op: set, value: "'small'" }
+            - { target: senses.darkvision, op: atLeast, value: 60 }
+          grants:
+            - item: monsters.wererat.bite

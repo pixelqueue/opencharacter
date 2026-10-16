@@ -1,0 +1,18 @@
+id: spells.stoke-the-heart
+type: spell
+tags: [trait.cantrip, trait.concentrate, trait.emotion, trait.hex, trait.uncommon, trait.witch]
+fields:
+  rank: 1
+  cast: one
+  range: 30
+  targets: 1
+  duration: minutes
+  durationAmount: 1
+  sustained: true
+  applyTo: ally
+effects:
+  - target: { fields: { where: "'damage' in item.tags" } }
+    op: add
+    value: 2 + floor((self.rank - 1) / 2)
+    stackKey: status-bonus
+    scope: applied

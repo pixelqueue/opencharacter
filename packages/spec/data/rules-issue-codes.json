@@ -1,0 +1,55 @@
+{
+  "set": "rules-issue-codes",
+  "specVersion": "0.1.0",
+  "description": "Spec-level rules issue codes. Pack-defined prerequisites and constraints are reported under these codes with the pack's qualified ID.",
+  "items": [
+    {
+      "id": "prerequisite-not-met",
+      "description": "A prerequisite of owned or picked content is false now (legality is checked against the current character, not history)."
+    },
+    {
+      "id": "constraint-failed",
+      "description": "A game constraint from the rules (too many attuned items) is false."
+    },
+    {
+      "id": "too-many-picks",
+      "description": "A choice has more picks than it allows."
+    },
+    {
+      "id": "too-few-picks",
+      "description": "A required choice that applies has fewer picks than it needs (also reported as pending)."
+    },
+    {
+      "id": "choice-not-applicable",
+      "description": "A choice has picks but its `when` is false."
+    },
+    {
+      "id": "no-eligible-option",
+      "description": "A pending choice that says `requiresOption` has no eligible option left to pick (5E's feat instead of an Ability Score Improvement, with no feat open to the character). `id` is the choice's owner and ID, data `{ path }`. listOptions gives it as the reason the content bringing the choice is ineligible."
+    },
+    {
+      "id": "option-not-eligible",
+      "description": "A picked option no longer matches the choice's query."
+    },
+    {
+      "id": "content-hidden",
+      "description": "The character owns or picked content that a loaded pack hides (`hides` in pack.yaml)."
+    },
+    {
+      "id": "immune",
+      "description": "An active `applied` entry is blocked by an immunity of active content or the rules: one issue per blocked entry and matching immunity. `id` is the immunity's qualified owner plus its ID, `source` the immunity's activation, and data `{ entry, item }` the applied entry's ID and source. Content an entry grants with `scope: applied` is reported the same way when an immunity blocks it: `entry` the granting entry, `item` the granted content."
+    },
+    {
+      "id": "already-picked",
+      "description": "The option is already picked in another choice of the same exclusivity group (`unique`); data names that choice's path."
+    },
+    {
+      "id": "out-of-limits",
+      "description": "A field's final value is outside its `limits` (data: field, limit, value, bound)."
+    },
+    {
+      "id": "too-many-copies",
+      "description": "The character holds more copies of a content type than its `copies.max`, or more copies of one item than its `copies.perItem`. `id` and data `type` are the qualified type; data `{ type, max, count, entries, limit }`, or `{ type, item, perItem, count, entries, limit }` for one item, `entries` the copies' instance IDs in instance order and `limit` the limit passed."
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/engine/load-ruleset.schema.json",
+  "title": "loadRuleset",
+  "$defs": {
+    "input": {
+      "type": "object",
+      "required": ["packs"],
+      "properties": {
+        "packs": {
+          "description": "Pack releases in load order; later packs win.",
+          "type": "array",
+          "items": {
+            "$ref": "../pack-release.schema.json"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["ok", "ruleset"],
+          "properties": {
+            "ok": {
+              "const": true
+            },
+            "ruleset": {
+              "$ref": "ruleset.schema.json"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "$ref": "#/$defs/failure"
+        }
+      ]
+    },
+    "failure": {
+      "type": "object",
+      "required": ["ok", "errors"],
+      "properties": {
+        "ok": {
+          "const": false
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "error.schema.json"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,29 @@
+id: backgrounds.guard
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.intimidation },
+      when: "!('skill.intimidation' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - item: feats.skill.quick-coercion
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }
+  - id: lore
+    from: { values: [skill.lore.legal, skill.lore.warfare] }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }

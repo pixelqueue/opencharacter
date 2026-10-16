@@ -1,0 +1,350 @@
+resultBands:
+  broken:
+    - id: unconscious
+      when: roll.total == 1
+    - id: maimed
+      when: roll.total == 2
+    - id: hemorrhage
+      when: roll.total == 3
+    - id: dead
+      when: true
+
+followUps:
+  - id: broken
+    becomes: hp.current == 0
+    required: true
+    action: broken
+
+actions:
+  - id: new-day
+    tags: [daily]
+    available: '!sheet.companion'
+    params:
+      fed: { type: boolean, optional: true }
+    results: [rolled]
+    steps:
+      - id: omens
+        kind: roll
+        tags: [daily]
+        parts:
+          - dice: omens.die
+      - id: powers
+        kind: roll
+        tags: [daily]
+        parts:
+          - dice: 1d4
+          - field: "'abilities.presence'"
+      - id: infection
+        kind: roll
+        when: condition.infected
+        tags: [damage]
+        parts:
+          - dice: 1d6
+      - id: save
+        kind: changes
+        to: self
+        changes:
+          - { type: set, field: omens.max, value: steps.omens.total }
+          - { type: set, field: omens.current, value: steps.omens.total }
+          - { type: set, field: powers.max, value: 'max(0, steps.powers.total)' }
+          - { type: set, field: powers.current, value: 'max(0, steps.powers.total)' }
+      - id: sicken
+        kind: changes
+        when: has(steps.infection)
+        to: self
+        changes:
+          - { type: adjust, field: hp.current, by: -steps.infection.total, tags: [damage.direct] }
+      - id: hunger
+        kind: roll
+        when: has(params.fed) && !params.fed && condition.hungryDays >= 2
+        tags: [damage]
+        parts:
+          - dice: 1d4
+      - id: food
+        kind: changes
+        when: has(params.fed)
+        to: self
+        changes:
+          - {
+              type: set,
+              field: condition.hungryDays,
+              value: 'params.fed ? 0 : condition.hungryDays + 1',
+            }
+          - { type: set, field: condition.starving, value: '!params.fed' }
+      - id: starve
+        kind: changes
+        when: has(steps.hunger)
+        to: self
+        changes:
+          - { type: adjust, field: hp.current, by: -steps.hunger.total, tags: [damage.direct] }
+      - id: renew
+        kind: changes
+        when: >-
+          daily.boilingBlood || daily.truths > 0 || daily.college || daily.bible || daily.horn
+            || daily.stones || countCopies(copy.type == 'scroll' && copy.state.summoned) > 0
+        to: self
+        changes:
+          - { type: set, field: daily.boilingBlood, value: false, when: daily.boilingBlood }
+          - { type: set, field: daily.truths, value: 0, when: daily.truths > 0 }
+          - { type: set, field: daily.college, value: false, when: daily.college }
+          - { type: set, field: daily.bible, value: false, when: daily.bible }
+          - { type: set, field: daily.horn, value: false, when: daily.horn }
+          - { type: set, field: daily.stones, value: false, when: daily.stones }
+          - type: removeItem
+            copies: { type: scroll, where: self.summoned }
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          omens: steps.omens.total
+          powers: max(0, steps.powers.total)
+          starvation: 'has(steps.hunger) ? steps.hunger.total : 0'
+
+  - id: rest
+    tags: [healing]
+    params:
+      length: { type: enum, values: [short, long], default: short }
+    results: [short, long]
+    steps:
+      - id: heal
+        kind: roll
+        when: '!condition.starving && !condition.infected'
+        tags: [healing]
+        parts:
+          - dice: "params.length == 'long' ? 1d6 : 1d4"
+      - id: save
+        kind: changes
+        when: has(steps.heal)
+        to: self
+        changes:
+          - { type: adjust, field: hp.current, by: steps.heal.total, tags: [healing] }
+      - id: result
+        kind: outcome
+        result: params.length
+        data:
+          healed: 'has(steps.heal) ? steps.heal.total : 0'
+
+  - id: take-damage
+    tags: [hit-points]
+    params:
+      amount: { type: integer, min: 0 }
+      direct: { type: boolean, default: false }
+    results: [taken]
+    steps:
+      - id: deal
+        kind: changes
+        to: self
+        changes:
+          - type: adjust
+            when: params.amount > 0
+            field: hp.current
+            by: -params.amount
+            tags: [{ formula: "params.direct ? 'damage.direct' : 'damage'" }]
+      - id: result
+        kind: outcome
+        result: "'taken'"
+        data:
+          amount: params.amount
+  - id: heal
+    tags: [hit-points]
+    params:
+      amount: { type: integer, min: 0 }
+    results: [healed]
+    steps:
+      - id: restore
+        kind: changes
+        to: self
+        changes:
+          - {
+              type: adjust,
+              when: params.amount > 0,
+              field: hp.current,
+              by: params.amount,
+              tags: [healing],
+            }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          amount: params.amount
+
+  - id: broken
+    tags: [broken]
+    available: hp.current == 0
+    results: { bands: broken }
+    steps:
+      - id: fate
+        kind: roll
+        tags: [broken]
+        bands: broken
+        parts:
+          - dice: 1d4
+      - id: injury
+        kind: roll
+        when: "steps.fate.band == 'maimed'"
+        tags: [broken]
+        parts:
+          - dice: 1d6
+      - id: rounds
+        kind: roll
+        when: "steps.fate.band == 'unconscious' || steps.fate.band == 'maimed'"
+        tags: [broken]
+        parts:
+          - dice: 1d4
+      - id: recover
+        kind: roll
+        when: has(steps.rounds)
+        tags: [healing]
+        parts:
+          - dice: 1d4
+      - id: hours
+        kind: roll
+        when: "steps.fate.band == 'hemorrhage'"
+        tags: [broken]
+        parts:
+          - dice: 1d2
+      - id: wake
+        kind: changes
+        when: has(steps.recover)
+        to: self
+        changes:
+          - { type: set, field: hp.current, value: 'min(hp.max, steps.recover.total)' }
+      - id: bleed
+        kind: changes
+        when: has(steps.hours)
+        to: self
+        changes:
+          - { type: set, field: condition.hemorrhage, value: steps.hours.total }
+      - id: die
+        kind: changes
+        when: "steps.fate.band == 'dead'"
+        to: self
+        changes:
+          - { type: set, field: hp.current, value: -1 }
+      - id: result
+        kind: outcome
+        result: steps.fate.band
+        data:
+          injury: "has(steps.injury) ? (steps.injury.total == 6 ? 'eye' : 'limb') : 'none'"
+          rounds: 'has(steps.rounds) ? steps.rounds.total : 0'
+          hours: 'has(steps.hours) ? steps.hours.total : 0'
+
+  - id: get-better
+    tags: [advancement]
+    available: '!sheet.companion'
+    results: [rolled]
+    steps:
+      - id: vitality
+        kind: roll
+        tags: [advancement]
+        parts:
+          - dice: 6d10
+      - id: growth
+        kind: roll
+        when: steps.vitality.total >= hp.max
+        tags: [advancement]
+        parts:
+          - dice: 1d6
+      - id: strength
+        kind: roll
+        tags: [advancement]
+        parts:
+          - dice: 1d6
+      - id: agility
+        kind: roll
+        tags: [advancement]
+        parts:
+          - dice: 1d6
+      - id: presence
+        kind: roll
+        tags: [advancement]
+        parts:
+          - dice: 1d6
+      - id: toughness
+        kind: roll
+        tags: [advancement]
+        parts:
+          - dice: 1d6
+      - id: abilities
+        kind: changes
+        to: self
+        changes:
+          - type: set
+            field: abilities.strength
+            value: >-
+              steps.strength.total > 1 && steps.strength.total >= abilities.strength
+                ? min(6, abilities.strength + 1) : max(-3, abilities.strength - 1)
+          - type: set
+            field: abilities.agility
+            value: >-
+              steps.agility.total > 1 && steps.agility.total >= abilities.agility
+                ? min(6, abilities.agility + 1) : max(-3, abilities.agility - 1)
+          - type: set
+            field: abilities.presence
+            value: >-
+              steps.presence.total > 1 && steps.presence.total >= abilities.presence
+                ? min(6, abilities.presence + 1) : max(-3, abilities.presence - 1)
+          - type: set
+            field: abilities.toughness
+            value: >-
+              steps.toughness.total > 1 && steps.toughness.total >= abilities.toughness
+                ? min(6, abilities.toughness + 1) : max(-3, abilities.toughness - 1)
+      - id: hp
+        kind: changes
+        when: has(steps.growth)
+        to: self
+        changes:
+          - { type: adjust, field: hp.max, by: steps.growth.total }
+      - id: debris
+        kind: roll
+        tags: [advancement]
+        parts:
+          - dice: 1d6
+      - id: coins
+        kind: roll
+        when: steps.debris.total == 4
+        tags: [advancement]
+        parts:
+          - dice: 3d10
+      - id: silver
+        kind: changes
+        when: has(steps.coins)
+        to: self
+        changes:
+          - { type: adjust, field: silver.current, by: steps.coins.total }
+      # The second specialty is a d5 counting on from the first in table order, as the Royalty's
+      # second item does at creation.
+      - id: specialty
+        kind: roll
+        tags: [advancement]
+        when: >-
+          countCopies(copy.item == @classes.gutterborn-scum) > 0
+            && (features.cowardsJab ? 1 : 0) + (features.filthyFingersmith ? 1 : 0)
+              + (features.gobLobber ? 1 : 0) + (features.escapingFate ? 1 : 0)
+              + (features.excretalStealth ? 1 : 0) + (features.dodgingDeath ? 1 : 0) == 1
+        parts: [{ dice: 1d5 }]
+      - id: second
+        kind: choice
+        when: has(steps.specialty)
+        options:
+          - { id: cowards-jab, when: '!features.cowardsJab' }
+          - { id: filthy-fingersmith, when: '!features.filthyFingersmith' }
+          - { id: abominable-gob-lobber, when: '!features.gobLobber' }
+          - { id: escaping-fate, when: '!features.escapingFate' }
+          - { id: excretal-stealth, when: '!features.excretalStealth' }
+          - { id: dodging-death, when: '!features.dodgingDeath' }
+        recommend: >-
+          options[((features.cowardsJab ? 0 : features.filthyFingersmith ? 1
+            : features.gobLobber ? 2 : features.escapingFate ? 3 : features.excretalStealth ? 4 : 5)
+            + steps.specialty.total - 1) % 5]
+        changes:
+          - type: choose
+            path: { entry: class, choice: [feature] }
+            option: picked.id
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          hp: 'has(steps.growth) ? steps.growth.total : 0'
+          silver: 'has(steps.coins) ? steps.coins.total : 0'
+          scroll: "steps.debris.total == 5 ? 'unclean' : steps.debris.total == 6 ? 'sacred' : 'none'"

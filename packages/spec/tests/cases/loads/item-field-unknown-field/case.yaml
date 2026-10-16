@@ -1,0 +1,20 @@
+description: 'An item field of `field` naming a field that does not exist is an unknown reference'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          trick:
+            fields:
+              stat: { type: id, of: field }
+        fields:
+          stats.might: { type: integer, input: true, default: 1 }
+      content:
+        - { id: tricks.lift, type: trick, fields: { stat: stats.mihgt } }

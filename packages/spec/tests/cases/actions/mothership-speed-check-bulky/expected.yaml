@@ -1,0 +1,18 @@
+# The suit is bulky and worn: [-] keeps the worse (higher) of 20 and 57. 57 isn't under Speed 38:
+# failure, +1 stress.
+status: finished
+outcome:
+  result: failure
+proposedChanges:
+  - to: self
+    step: stress
+    change: { type: adjust, field: mothership-1e:stress.current, by: 1 }
+log:
+  - step: check
+    action: mothership-1e:stat-check
+    kind: dice
+    by: engine
+    faces: [20, 57]
+    total: 57
+    band: failure
+    bandSet: mothership-1e:check

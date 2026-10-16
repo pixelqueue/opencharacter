@@ -1,0 +1,554 @@
+# Ten light items make 1 Bulk (decimals keep six places, so their sum is exact), and fractions are
+# dropped.
+fields:
+  bulk.carried:
+    type: integer
+    formula: >-
+      floor(sumCopies(copy.fields.bulk * copy.quantity, has(copy.fields.bulk)
+        && (!has(copy.state.container) || copy.state.container == ''))) + coins.bulk
+  bulk.encumbered: { type: integer, formula: 5 + attributes.str.mod }
+  bulk.max: { type: integer, formula: 10 + attributes.str.mod }
+  armor.speedPenalty: { type: integer, formula: 0, min: 0 }
+  armor.mightyBulwark: { type: boolean, formula: false }
+
+constraints:
+  - id: bulk-limit
+    check: bulk.carried <= bulk.max
+    data: { carried: bulk.carried, limit: bulk.max }
+
+effects:
+  - id: armor-speed
+    target: speed.land
+    op: add
+    value: -armor.speedPenalty
+    when: armor.speedPenalty > 0 && !battleForm.active
+  - id: mighty-bulwark
+    target: { rolls: [save.reflex] }
+    op: add
+    value: 4 - attributes.dex.mod
+    when: >-
+      armor.mightyBulwark && !battleForm.active && countCopies(copy.type == 'armor'
+        && copy.equipped && 'trait.bulwark' in copy.tags) > 0
+
+templateFields:
+  potency: { type: integer, default: 0, min: 0, max: 3 }
+  dice: { type: integer, default: 1, min: 1, max: 4 }
+  resilient: { type: integer, default: 0, min: 0, max: 3 }
+
+contentTypes:
+  armor:
+    carried: true
+    equippable: true
+    fields:
+      category: { type: enum, values: [unarmored, light, medium, heavy], required: true }
+      acBonus: { type: integer, required: true }
+      dexCap: { type: integer, required: true }
+      checkPenalty: { type: integer, default: 0, min: 0 }
+      speedPenalty: { type: integer, default: 0, min: 0 }
+      strength: { type: integer }
+      group: { type: enum, values: [cloth, leather, composite, chain, plate] }
+      bulk: { type: decimal, default: 0, min: 0 }
+      price: { type: decimal, min: 0 }
+    # The item bonus to AC works without investing; the resilient rune's bonus and property runes
+    # work only while invested.
+    state:
+      invested: { type: boolean, default: false }
+      used: { type: integer, default: 0, min: 0 }
+      container: { type: string, default: '' }
+    actions:
+      - use: invest
+      - use: divest
+      - use: sell
+      - use: store
+      - use: retrieve
+    effects:
+      - { id: category, target: armor.category, op: set, value: item.category, when: self.equipped }
+      - { id: dex-cap, target: armor.dexCap, op: atMost, value: item.dexCap, when: self.equipped }
+      - id: ac-bonus
+        target: { fields: { where: "'ac' in item.tags" } }
+        op: add
+        value: item.acBonus + item.potency
+        stackKey: item-bonus
+        when: self.equipped && item.acBonus + item.potency > 0 && !battleForm.active
+      - id: rune-count
+        target: runes.invalid
+        op: add
+        value: 1
+        when: >-
+          countList(self.templates, x in runes.potency) > 1
+            || countList(self.templates, x in runes.resilient) > 1
+            || countList(self.templates, x in runes.property) > item.potency
+      - id: resilient
+        target: { fields: { where: "'save' in item.tags" } }
+        op: add
+        value: item.resilient
+        stackKey: item-bonus
+        when: self.equipped && self.invested && item.resilient > 0
+      # Flexible armor spares Acrobatics and Athletics; noisy armor's penalty applies to Stealth
+      # even when the Strength is met.
+      - id: check-penalty
+        target:
+          fields:
+            where: >-
+              'skill' in item.tags && ('attr.str' in item.tags || 'attr.dex' in item.tags)
+                && !('skill.acrobatics' in item.tags || 'skill.athletics' in item.tags
+                  || 'skill.stealth' in item.tags)
+        op: add
+        value: -item.checkPenalty
+        when: >-
+          self.equipped && item.checkPenalty > 0 && !battleForm.active
+            && !(has(item.strength) && attributes.str.mod >= item.strength)
+      - id: check-penalty-flexible
+        target:
+          fields:
+            where: "'skill' in item.tags && ('skill.acrobatics' in item.tags || 'skill.athletics' in item.tags)"
+        op: add
+        value: -item.checkPenalty
+        when: >-
+          self.equipped && item.checkPenalty > 0 && !('trait.flexible' in item.tags)
+            && !(has(item.strength) && attributes.str.mod >= item.strength)
+      - id: check-penalty-noisy
+        target: { fields: { where: "'skill' in item.tags && 'skill.stealth' in item.tags" } }
+        op: add
+        value: -item.checkPenalty
+        when: >-
+          self.equipped && item.checkPenalty > 0 && ('trait.noisy' in item.tags
+            && !(@feats.skill.armored-stealth in feats.held)
+            || !(has(item.strength) && attributes.str.mod >= item.strength))
+      - id: armored-stealth
+        target: { fields: { where: "'skill' in item.tags && 'skill.stealth' in item.tags" } }
+        op: add
+        value: 'min(item.checkPenalty, skills.stealth.rank >= 4 ? 3 : skills.stealth.rank >= 3 ? 2 : 1)'
+        when: >-
+          self.equipped && item.checkPenalty > 0 && !('trait.noisy' in item.tags)
+            && @feats.skill.armored-stealth in feats.held
+            && !(has(item.strength) && attributes.str.mod >= item.strength)
+      - id: speed-penalty
+        target: armor.speedPenalty
+        op: add
+        value: 'max(0, item.speedPenalty - (has(item.strength) && attributes.str.mod >= item.strength ? 5 : 0))'
+        when: self.equipped && item.speedPenalty > 0
+
+  # Its `damage` state is the Hit Points it has lost: at or below the Broken Threshold it gives no
+  # bonus, at 0 it is destroyed.
+  shield:
+    carried: true
+    equippable: true
+    fields:
+      acBonus: { type: integer, required: true }
+      hardness: { type: integer, required: true }
+      hp: { type: integer, required: true }
+      bt: { type: integer, required: true }
+      speedPenalty: { type: integer, default: 0, min: 0 }
+      bulk: { type: decimal, default: 0, min: 0 }
+      price: { type: decimal, min: 0 }
+    state:
+      damage: { type: integer, min: 0, max: item.hp, default: 0 }
+      used: { type: integer, default: 0, min: 0 }
+      container: { type: string, default: '' }
+    actions:
+      - use: sell
+      - use: store
+      - use: retrieve
+    effects:
+      - id: raised
+        target: { fields: { where: "'ac' in item.tags" } }
+        op: add
+        value: item.acBonus
+        stackKey: circumstance-bonus
+        when: self.equipped && shield.raised && item.hp - self.damage > item.bt
+      - id: rune-count
+        target: runes.invalid
+        op: add
+        value: 1
+        when: countList(self.templates, x in runes.reinforcing) > 1
+      - id: speed-penalty
+        target: speed.land
+        op: add
+        value: -item.speedPenalty
+        when: self.equipped && item.speedPenalty > 0
+      - id: hardness
+        target: shield.hardness
+        op: atLeast
+        value: item.hardness
+        when: self.equipped && self.damage < item.hp
+      - id: block
+        target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: add
+        value: min(item.hardness, -incoming.amount)
+        when: >-
+          situational.shieldBlock && self.equipped && shield.raised && self.damage < item.hp
+            && incoming.amount < 0
+        then:
+          - type: adjustState
+            entry: self
+            key: damage
+            by: max(0, -incoming.amount - item.hardness)
+
+  # Ammunition comes in tens: one copy, its quantity the bundles.
+  gear:
+    carried: true
+    fields:
+      bulk: { type: decimal, default: 0, min: 0 }
+      price: { type: decimal, min: 0 }
+    state:
+      container: { type: string, default: '' }
+    actions:
+      - use: sell
+      - use: store
+      - use: retrieve
+
+  consumable:
+    carried: true
+    fields:
+      category:
+        type: enum
+        values:
+          [
+            potion,
+            elixir,
+            mutagen,
+            bomb,
+            poison,
+            tool,
+            scroll,
+            talisman,
+            oil,
+            ammunition,
+            snare,
+            other,
+          ]
+        required: true
+      level: { type: integer, required: true, min: 0, max: 30 }
+      bulk: { type: decimal, default: 0, min: 0 }
+      price: { type: decimal, min: 0 }
+      healing: { type: dice }
+      lasting: { type: boolean, default: false }
+      family: { type: id, of: consumable }
+      damage: { type: dice }
+      damageFlat: { type: integer, default: 0, min: 0 }
+      damageType:
+        type: enum
+        values:
+          [
+            none,
+            acid,
+            bludgeoning,
+            cold,
+            electricity,
+            fire,
+            mental,
+            piercing,
+            poison,
+            slashing,
+            sonic,
+            vitality,
+          ]
+        default: none
+      splash: { type: integer, default: 0, min: 0 }
+      persistent: { type: dice }
+      persistentFlat: { type: integer, default: 0, min: 0 }
+      persistentType:
+        type: enum
+        values: [none, acid, bleed, fire, poison]
+        default: none
+      itemBonus: { type: integer, default: 0, min: 0, max: 4 }
+      hitCondition:
+        type: enum
+        values: [none, off-guard, enfeebled, frightened, speed]
+        default: none
+      hitValue: { type: integer, default: 0, min: 0 }
+      critValue: { type: integer, default: 0, min: 0 }
+      dc: { type: integer, min: 0 }
+      affliction: { type: id, of: affliction }
+      spellRank: { type: integer, min: 1, max: 10 }
+      save: { type: enum, values: [reflex, fortitude, will], default: reflex }
+      affixTo:
+        type: enum
+        values: [none, armor, weapon, melee-weapon, ranged-weapon, shield, shield-or-weapon]
+        default: none
+      activation:
+        type: enum
+        values: [none, free, reaction, one, two, three, cast, one-minute, ten-minutes, one-hour]
+        default: none
+    texts: [trigger, requirements]
+    state:
+      infused: { type: boolean, default: false }
+      affixed: { type: string, default: '' }
+      container: { type: string, default: '' }
+      copy: { type: string, default: '' }
+    actions:
+      - use: drink
+      - use: throw
+      - use: activate
+      - use: expose
+      - use: affix
+      - use: spring-snare
+      - use: sell
+      - use: store
+      - use: retrieve
+    effects:
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          item.category == 'scroll' && action.self.id == self.id && self.quantity > 0
+            && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.casts.{tradition}', x)) > 0
+        value:
+          id: scroll
+          flags: { itemPaid: true, rank: item.spellRank }
+          changes:
+            - { type: adjustQuantity, entry: self, by: -1 }
+
+situational:
+  - { id: againstPoison, type: boolean, default: false, rolls: [save] }
+  - { id: againstDisease, type: boolean, default: false, rolls: [save] }
+  - id: damagingEffect
+    type: boolean
+    default: false
+    rolls: [save.reflex]
+    effects:
+      - target: { rolls: [save.reflex] }
+        op: add
+        value: 3 - attributes.dex.mod
+        when: >-
+          situational.damagingEffect && !armor.mightyBulwark && countCopies(copy.type == 'armor'
+            && copy.equipped && 'trait.bulwark' in copy.tags) > 0
+  - id: shieldBlock
+    type: boolean
+    default: false
+    incoming: { fields: [hp.current], tags: [damage] }
+    available: '@feats.general.shield-block in feats.held && shield.raised'
+
+actions:
+  - id: drink
+    tags: [consumable]
+    available: "self.quantity > 0 && item.category in ['potion', 'elixir', 'mutagen']"
+    results: [drunk]
+    steps:
+      - id: heal
+        kind: roll
+        when: has(item.healing)
+        tags: [healing]
+        parts:
+          - dice: item.healing
+      - id: drink
+        kind: changes
+        tags: [consumable.drink]
+        changes:
+          - type: adjust
+            field: hp.current
+            by: steps.heal.total
+            tags: [healing]
+            when: has(steps.heal)
+          - { type: adjustQuantity, entry: self, by: -1 }
+          - { type: applyEffect, source: item.id, when: item.lasting }
+      - id: result
+        kind: outcome
+        result: "'drunk'"
+        data:
+          healed: 'has(steps.heal) ? steps.heal.total : 0'
+
+  - id: expose
+    tags: [consumable]
+    available: "self.quantity > 0 && item.category == 'poison' && has(item.affliction)"
+    participants:
+      target: { min: 1, max: 1 }
+    results: [exposed]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1 }
+      - id: expose
+        kind: changes
+        to: target
+        changes:
+          - type: applyEffect
+            source: item.affliction
+            state: { stage: 0, dc: 'has(item.dc) ? item.dc : 0', reexposed: true }
+      - id: result
+        kind: outcome
+        result: "'exposed'"
+
+  - id: activate
+    tags: [consumable]
+    params:
+      copy: { type: string, optional: true }
+    available: >-
+      self.quantity > 0
+        && item.category in ['talisman', 'oil', 'ammunition', 'snare', 'other', 'tool']
+        && (item.category != 'talisman' || countCopies(copy.id == self.affixed && copy.equipped) > 0)
+    results: [activated]
+    steps:
+      - id: heal
+        kind: roll
+        when: has(item.healing)
+        tags: [healing]
+        parts:
+          - dice: item.healing
+      - id: activate
+        kind: changes
+        tags: [consumable.activate]
+        changes:
+          - type: adjust
+            field: hp.current
+            by: steps.heal.total
+            tags: [healing]
+            when: has(steps.heal)
+          - { type: adjustQuantity, entry: self, by: -1 }
+          - { type: setState, when: "self.affixed != ''", entry: self, key: affixed, value: "''" }
+          - type: applyEffect
+            source: item.id
+            when: item.lasting
+            state: { copy: 'has(params.copy) ? params.copy : self.affixed' }
+      - id: result
+        kind: outcome
+        result: "'activated'"
+        data:
+          healed: 'has(steps.heal) ? steps.heal.total : 0'
+
+  - id: spring-snare
+    tags: [consumable]
+    available: "self.quantity > 0 && item.category == 'snare' && has(item.damage) && has(item.dc)"
+    participants:
+      target: {}
+    results: [sprung]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: item.damage
+            tags: [{ formula: "'damage.' + item.damageType" }]
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: check
+        params:
+          check: "'saves.' + item.save + '.mod'"
+          dc: item.dc
+      - id: degree
+        kind: branch
+        each: target
+        cases:
+          - when: true
+            flags:
+              outcome: >-
+                max(0, indexOf(['critical-success', 'success', 'failure', 'critical-failure'],
+                  steps.save.result))
+      - id: deal
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            when: flags.outcome > 0
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: '-floor(max(0, part.total) * [0, 0.5, 1, 2][flags.outcome])'
+            tags: [damage]
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1 }
+      - id: result
+        kind: outcome
+        result: "'sprung'"
+        data: { damage: steps.damage.total, dc: item.dc }
+
+  - id: affix
+    tags: [consumable, inventory]
+    available: "item.category == 'talisman' && item.affixTo != 'none' && self.affixed == ''"
+    results: [affixed]
+    steps:
+      - id: kind
+        kind: choice
+        options:
+          - id: armor
+            when: "item.affixTo == 'armor' && countCopies(copy.type == 'armor') > 0"
+          - id: weapon
+            when: >-
+              item.affixTo in ['weapon', 'melee-weapon', 'ranged-weapon', 'shield-or-weapon']
+                && countCopies(copy.type == 'weapon') > 0
+          - id: shield
+            when: >-
+              item.affixTo in ['shield', 'shield-or-weapon']
+                && countCopies(copy.type == 'shield') > 0
+      - id: armor
+        kind: choice
+        when: "steps.kind.picked == 'armor'"
+        options:
+          copies:
+            type: armor
+            where: 'countCopies(has(copy.state.affixed) && copy.state.affixed == self.id) == 0'
+      - id: weapon
+        kind: choice
+        when: "steps.kind.picked == 'weapon'"
+        options:
+          copies:
+            type: weapon
+            where: >-
+              countCopies(has(copy.state.affixed) && copy.state.affixed == self.id) == 0
+                && (action.item.affixTo != 'melee-weapon' || item.range == 0)
+                && (action.item.affixTo != 'ranged-weapon' || item.range > 0)
+      - id: shield
+        kind: choice
+        when: "steps.kind.picked == 'shield'"
+        options:
+          copies:
+            type: shield
+            where: 'countCopies(has(copy.state.affixed) && copy.state.affixed == self.id) == 0'
+      - id: affix
+        kind: changes
+        changes:
+          - type: setState
+            entry: self
+            key: affixed
+            value: >-
+              has(steps.armor) ? steps.armor.picked
+                : has(steps.weapon) ? steps.weapon.picked : steps.shield.picked
+      - id: result
+        kind: outcome
+        result: "'affixed'"
+        data:
+          time: >-
+            @feats.skill.rapid-affixture in feats.held && (skills.crafting.rank >= 4
+              || (@feats.archetype.talisman-dabbler.quick-fix in feats.held && level >= 12))
+              ? 'three-actions'
+              : @feats.skill.rapid-affixture in feats.held ? 'one-minute' : 'ten-minutes'
+
+  - id: raise-shield
+    tags: [shield]
+    available: "!shield.raised && countCopies(copy.type == 'shield' && copy.equipped) > 0"
+    steps:
+      - id: raise
+        kind: changes
+        changes:
+          - { type: set, field: shield.raised, value: true }
+
+# `trait.versatile` alone; the other damage type is the weapon's `versatile` field.
+tags:
+  - trait.attached
+  - trait.concealable
+  - trait.free-hand
+  - trait.jousting
+  - trait.parry
+  - trait.propulsive
+  - trait.ranged-trip
+  - trait.reach
+  - trait.thrown
+  - trait.twin
+  - trait.versatile
+  - trait.bulwark
+  - trait.comfort
+  - trait.flexible
+  - trait.noisy
+  - trait.alchemical
+  - trait.elixir
+  - trait.potion
+  - trait.magical
+  - ammunition
+  - natural
+  - consumable
+  - consumable.activate

@@ -1,0 +1,42 @@
+# A melee Strike that deals no damage: the feat holds the Strike's changes and releases all but the
+# damage.
+id: feats.ancestry.kneecap
+type: feat
+fields: { level: 5, category: ancestry, ancestry: ancestries.goblin }
+actions:
+  - id: kneecap
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        hold: true
+        participants: { target: participants.target }
+      - id: pass
+        kind: changes
+        release:
+          steps: [strike]
+          where: "!('damage' in change.tags)"
+      - id: slow
+        kind: changes
+        when: "steps.strike.result in ['success', 'critical-success']"
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'effects.speed-status-penalty'"
+            state: { value: "steps.strike.result == 'critical-success' ? 15 : 10" }
+      - id: result
+        kind: outcome
+        result: steps.strike.result

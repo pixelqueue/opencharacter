@@ -1,0 +1,12 @@
+id: materials.orichalcum-armor-high
+type: template
+tags: [trait.precious, material.orichalcum, trait.rare]
+appliesTo: { type: armor }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + 55000 + 5500 * max(1, floor(base.bulk))'
+effects:
+  - target: { rolls: [perception] }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: self.equipped && situational.initiative

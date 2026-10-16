@@ -1,0 +1,35 @@
+description: "An action step passes a dice value to a dice parameter: the weapon's 1d8 scaled by 2, read back with countOf; the nested roll rolls 2d8"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: hurt
+            params:
+              damage: { type: dice }
+            steps:
+              - id: roll
+                kind: roll
+                parts: [{ dice: params.damage }]
+              - id: done
+                kind: outcome
+                data: { total: steps.roll.total, dice: countOf(params.damage) }
+          - id: smash
+            steps:
+              - id: hit
+                kind: action
+                use: hurt
+                params: { damage: 1d8 * 2 }
+              - id: done
+                kind: outcome
+                data: { total: steps.hit.data.total, dice: steps.hit.data.dice }
+      content: []
+input:
+  action: { id: test-pack:smash }

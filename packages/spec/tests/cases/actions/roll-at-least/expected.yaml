@@ -1,0 +1,21 @@
+# 2, raised to at least 5 by the anchor (the stone's 3 doesn't count beside it): a hit. The log
+# lists the bound that changed the total; the dice item keeps its 2.
+status: finished
+outcome:
+  result: hit
+  data: { total: 5, unbounded: 2, bounds: 1 }
+log:
+  - step: roll
+    action: test-roll-bounds:try
+    kind: dice
+    by: engine
+    faces: [2]
+    total: 5
+    band: hit
+    items: [{ kind: dice, value: 2 }]
+    bounds:
+      - {
+          source: { type: item, id: test-roll-bounds:charms.anchor, entry: anchor },
+          op: atLeast,
+          value: 5,
+        }

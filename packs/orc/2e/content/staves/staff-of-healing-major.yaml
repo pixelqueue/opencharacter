@@ -1,0 +1,25 @@
+id: staves.staff-of-healing-major
+type: staff
+tags: [trait.magical, trait.staff]
+fields:
+  level: 12
+  price: 1800
+  bulk: 1
+  rank1: [spells.heal]
+  rank2: [spells.clear-mind, spells.heal, spells.sound-body]
+  rank3: [spells.cleanse-affliction, spells.heal]
+  rank4: [spells.cleanse-affliction, spells.clear-mind, spells.sound-body]
+  rank5: [spells.breath-of-life, spells.heal]
+grants:
+  - { item: spells.stabilize, when: self.equipped }
+  - { item: spells.heal, when: self.equipped }
+  - { item: spells.clear-mind, when: self.equipped }
+  - { item: spells.sound-body, when: self.equipped }
+  - { item: spells.cleanse-affliction, when: self.equipped }
+  - { item: spells.breath-of-life, when: self.equipped }
+effects:
+  - target: { rolls: [healing] }
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped && has(action.item) && action.item.id == @spells.heal'

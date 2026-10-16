@@ -1,0 +1,23 @@
+id: staves.staff-of-providence
+type: staff
+tags: [trait.magical, trait.staff]
+fields:
+  level: 6
+  price: 230
+  bulk: 1
+  rank1: [spells.bless, spells.create-water]
+  rank2: [spells.augury, spells.create-food, spells.see-the-unseen, spells.status]
+grants:
+  - { item: spells.guidance, when: self.equipped }
+  - { item: spells.bless, when: self.equipped }
+  - { item: spells.create-water, when: self.equipped }
+  - { item: spells.augury, when: self.equipped }
+  - { item: spells.create-food, when: self.equipped }
+  - { item: spells.see-the-unseen, when: self.equipped }
+  - { item: spells.status, when: self.equipped }
+effects:
+  - target: { rolls: [skill-action.sense-direction, skill-action.subsist] }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped'

@@ -1,0 +1,17 @@
+description: 'MÖRK BORG: with two omens, one on the DR and one on a reroll, none is left for maximum damage, so the damage is rolled (the proposed sheet)'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/mork-borg/core
+  - path: ../../../packs/test-borg-gear
+input:
+  action:
+    id: mork-borg-core:attack
+    entry: blade
+  params: {}
+  situational:
+    mork-borg-core:omen: true
+    mork-borg-core:omenDamage: true
+  policy: { choices: pause }
+answers:
+  - option: reroll

@@ -1,0 +1,21 @@
+description: "orc-2e: Breath of the Dragon, a dragonblood feat (Player Core 2): 2d4 fire
+  (3 + 2 = 5) in the exemplar's cone; each creature's basic Reflex save against the higher of the
+  class and spell DCs (18), each run on the creature's own sheet (handoffs): a failure takes 5, a
+  success 2, a critical success nothing"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:feats.ancestry.breath-of-the-dragon#breath-of-the-dragon
+    source: orc-2e:feats.ancestry.breath-of-the-dragon
+  participants:
+    target:
+      - id: goblin
+      - id: wolf
+      - id: hawk
+answers:
+  - { outcome: { result: failure } }
+  - { outcome: { result: success } }
+  - { outcome: { result: critical-success } }

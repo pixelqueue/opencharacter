@@ -1,0 +1,8 @@
+status: paused
+needs:
+  step: saves[0]
+  action: test-pack:blast
+  kind: handoff
+  participant: { role: target, id: goblin-1 }
+  run: { action: test-pack:save, params: { dc: 12 } }
+log: []

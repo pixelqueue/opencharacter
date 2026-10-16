@@ -1,0 +1,102 @@
+id: features.sorcerer.font-of-magic
+type: feature
+effects:
+  - { target: sorcery.points, op: set, value: self.level }
+actions:
+  - id: spend-sorcery-points
+    tags: [feature]
+    results: [not-enough, spent]
+    available: self.sorceryPointsSpent < sorcery.points
+    params:
+      amount: { type: integer }
+    steps:
+      - id: tooMany
+        kind: outcome
+        when: params.amount <= 0 || params.amount > sorcery.points - self.sorceryPointsSpent
+        result: "'not-enough'"
+        data:
+          left: sorcery.points - self.sorceryPointsSpent
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: sorceryPointsSpent, by: params.amount }
+      - id: result
+        kind: outcome
+        result: "'spent'"
+        data:
+          left: sorcery.points - self.sorceryPointsSpent - params.amount
+  - id: convert-spell-slot
+    tags: [feature]
+    results: [no-slot, converted]
+    available: self.sorceryPointsSpent > 0
+    params:
+      slot: { type: integer }
+    steps:
+      - id: spend
+        kind: action
+        use: spend-spell-slot
+        params:
+          slot: params.slot
+      - id: noSlot
+        kind: outcome
+        when: steps.spend.result != 'spent'
+        result: "'no-slot'"
+        data:
+          slot: params.slot
+      - id: gain
+        kind: changes
+        changes:
+          - type: adjustState
+            entry: self
+            key: sorceryPointsSpent
+            by: -min(params.slot, self.sorceryPointsSpent)
+      - id: result
+        kind: outcome
+        result: "'converted'"
+        data:
+          gained: min(params.slot, self.sorceryPointsSpent)
+  # `spellSlots.levelN.used` can't go below 0, so a created slot only gives back a slot of that
+  # level already spent; it can't go past the slot maximum.
+  - id: create-spell-slot
+    tags: [feature]
+    results: [no-slot, not-enough, created]
+    params:
+      slot: { type: integer }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: params.slot >= 1 && params.slot <= 5
+            flags:
+              cost: '[2, 3, 5, 6, 7][params.slot - 1]'
+              spent: "fieldOf('spellSlots.level{slot}.used', params.slot)"
+        else:
+          flags: { cost: 0, spent: 0 }
+      - id: noSlot
+        kind: outcome
+        when: flags.cost == 0 || flags.spent == 0
+        result: "'no-slot'"
+        data:
+          slot: params.slot
+      - id: notEnough
+        kind: outcome
+        when: flags.cost > sorcery.points - self.sorceryPointsSpent
+        result: "'not-enough'"
+        data:
+          left: sorcery.points - self.sorceryPointsSpent
+      - id: create
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: sorceryPointsSpent, by: flags.cost }
+          - type: adjust
+            field:
+              {
+                formula: "'spellSlots.level' + ['1', '2', '3', '4', '5'][params.slot - 1] + '.used'",
+              }
+            by: -1
+      - id: result
+        kind: outcome
+        result: "'created'"
+        data:
+          slot: params.slot
+          cost: flags.cost

@@ -1,0 +1,27 @@
+id: worn.obsidian-goggles-major
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 18
+  price: 20000
+  usage: eyepiece
+  activation: one
+effects:
+  - target: { rolls: [perception] }
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested && situational.usingSight'
+  - target: senses
+    op: grant
+    value: { tag: sense.greater-darkvision }
+    scope: applied
+actions:
+  - id: darkvision
+    tags: [activation]
+    available: 'self.equipped && self.invested'
+    steps:
+      - id: activate
+        kind: changes
+        changes:
+          - { type: applyEffect, source: item.id }

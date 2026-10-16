@@ -1,0 +1,44 @@
+# The save bonus is the roll's `statusBonus`: a save doesn't say which tradition it's against.
+id: feats.ancestry.hold-mark
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.orc }
+choices:
+  - id: mark
+    from:
+      options:
+        - id: burning-sun
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.diplomacy },
+                when: "!('skill.diplomacy' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: deaths-head
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.survival },
+                when: "!('skill.survival' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: defiled-corpse
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.religion },
+                when: "!('skill.religion' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: empty-hand
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.intimidation },
+                when: "!('skill.intimidation' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }

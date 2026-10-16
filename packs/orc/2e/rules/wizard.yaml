@@ -1,0 +1,202 @@
+fields:
+  wizard.school:
+    type: enum
+    values:
+      [
+        none,
+        ars-grammatica,
+        battle-magic,
+        boundary,
+        civic-wizardry,
+        mentalism,
+        protean-form,
+        unified-magical-theory,
+      ]
+    formula: "'none'"
+  wizard.thesis:
+    type: enum
+    values:
+      [
+        none,
+        experimental-spellshaping,
+        improved-familiar-attunement,
+        spell-blending,
+        spell-substitution,
+        staff-nexus,
+      ]
+    formula: "'none'"
+  # The 10th-rank slot can't be drained. The ranks drained today are the wizard class copy's
+  # `bondDrained` state.
+  wizard.drainsPerDay:
+    type: integer
+    formula: "wizard.school == 'unified-magical-theory' ? min(9, spellcasting.maxRank) : 1"
+  spellBlending.rank1.up1: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank1.up2: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank1.cantrips: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank2.up1: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank2.up2: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank2.cantrips: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank3.up1: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank3.up2: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank3.cantrips: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank4.up1: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank4.up2: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank4.cantrips: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank5.up1: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank5.up2: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank5.cantrips: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank6.up1: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank6.up2: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank6.cantrips: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank7.up1: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank7.up2: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank7.cantrips: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank8.up1: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank8.cantrips: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank9.cantrips: { type: integer, input: true, default: 0, min: 0 }
+  spellBlending.rank1.net:
+    type: integer
+    formula: >-
+      -2 * (spellBlending.rank1.up1 + spellBlending.rank1.up2) - spellBlending.rank1.cantrips
+  spellBlending.rank2.net:
+    type: integer
+    formula: >-
+      -2 * (spellBlending.rank2.up1 + spellBlending.rank2.up2) - spellBlending.rank2.cantrips
+        + spellBlending.rank1.up1
+  spellBlending.rank3.net:
+    type: integer
+    formula: >-
+      -2 * (spellBlending.rank3.up1 + spellBlending.rank3.up2) - spellBlending.rank3.cantrips
+        + spellBlending.rank2.up1
+        + spellBlending.rank1.up2
+  spellBlending.rank4.net:
+    type: integer
+    formula: >-
+      -2 * (spellBlending.rank4.up1 + spellBlending.rank4.up2) - spellBlending.rank4.cantrips
+        + spellBlending.rank3.up1
+        + spellBlending.rank2.up2
+  spellBlending.rank5.net:
+    type: integer
+    formula: >-
+      -2 * (spellBlending.rank5.up1 + spellBlending.rank5.up2) - spellBlending.rank5.cantrips
+        + spellBlending.rank4.up1
+        + spellBlending.rank3.up2
+  spellBlending.rank6.net:
+    type: integer
+    formula: >-
+      -2 * (spellBlending.rank6.up1 + spellBlending.rank6.up2) - spellBlending.rank6.cantrips
+        + spellBlending.rank5.up1
+        + spellBlending.rank4.up2
+  spellBlending.rank7.net:
+    type: integer
+    formula: >-
+      -2 * (spellBlending.rank7.up1 + spellBlending.rank7.up2) - spellBlending.rank7.cantrips
+        + spellBlending.rank6.up1
+        + spellBlending.rank5.up2
+  spellBlending.rank8.net:
+    type: integer
+    formula: >-
+      -2 * (spellBlending.rank8.up1) - spellBlending.rank8.cantrips
+        + spellBlending.rank7.up1
+        + spellBlending.rank6.up2
+  spellBlending.rank9.net:
+    type: integer
+    formula: >-
+      -spellBlending.rank9.cantrips
+        + spellBlending.rank8.up1
+        + spellBlending.rank7.up2
+  spellBlending.cantrips:
+    type: integer
+    formula: >-
+      2 * (spellBlending.rank1.cantrips + spellBlending.rank2.cantrips + spellBlending.rank3.cantrips + spellBlending.rank4.cantrips + spellBlending.rank5.cantrips + spellBlending.rank6.cantrips + spellBlending.rank7.cantrips + spellBlending.rank8.cantrips + spellBlending.rank9.cantrips)
+
+effects:
+  - { target: spellSlots.rank1.max, op: add, value: spellBlending.rank1.net }
+  - { target: spellSlots.rank2.max, op: add, value: spellBlending.rank2.net }
+  - { target: spellSlots.rank3.max, op: add, value: spellBlending.rank3.net }
+  - { target: spellSlots.rank4.max, op: add, value: spellBlending.rank4.net }
+  - { target: spellSlots.rank5.max, op: add, value: spellBlending.rank5.net }
+  - { target: spellSlots.rank6.max, op: add, value: spellBlending.rank6.net }
+  - { target: spellSlots.rank7.max, op: add, value: spellBlending.rank7.net }
+  - { target: spellSlots.rank8.max, op: add, value: spellBlending.rank8.net }
+  - { target: spellSlots.rank9.max, op: add, value: spellBlending.rank9.net }
+  - { target: spellcasting.cantrips, op: add, value: spellBlending.cantrips }
+
+constraints:
+  # Each rank trades only its own slots (not the bonus slots it gains), and a bonus slot is of a
+  # rank the wizard casts.
+  - id: spell-blending
+    check: >-
+      (wizard.thesis == 'spell-blending' || (spellBlending.rank1.up1 + spellBlending.rank1.up2 + spellBlending.rank1.cantrips == 0
+          && spellBlending.rank2.up1 + spellBlending.rank2.up2 + spellBlending.rank2.cantrips == 0
+          && spellBlending.rank3.up1 + spellBlending.rank3.up2 + spellBlending.rank3.cantrips == 0
+          && spellBlending.rank4.up1 + spellBlending.rank4.up2 + spellBlending.rank4.cantrips == 0
+          && spellBlending.rank5.up1 + spellBlending.rank5.up2 + spellBlending.rank5.cantrips == 0
+          && spellBlending.rank6.up1 + spellBlending.rank6.up2 + spellBlending.rank6.cantrips == 0
+          && spellBlending.rank7.up1 + spellBlending.rank7.up2 + spellBlending.rank7.cantrips == 0
+          && spellBlending.rank8.up1 + spellBlending.rank8.cantrips == 0
+          && spellBlending.rank9.cantrips == 0))
+        && (2 * spellBlending.rank1.up1 + 2 * spellBlending.rank1.up2 + spellBlending.rank1.cantrips <= spellSlots.rank1.max - spellBlending.rank1.net
+        && (spellBlending.rank1.up1 == 0 || 2 <= spellcasting.maxRank)
+        && (spellBlending.rank1.up2 == 0 || 3 <= spellcasting.maxRank))
+        && (2 * spellBlending.rank2.up1 + 2 * spellBlending.rank2.up2 + spellBlending.rank2.cantrips <= spellSlots.rank2.max - spellBlending.rank2.net
+        && (spellBlending.rank2.up1 == 0 || 3 <= spellcasting.maxRank)
+        && (spellBlending.rank2.up2 == 0 || 4 <= spellcasting.maxRank))
+        && (2 * spellBlending.rank3.up1 + 2 * spellBlending.rank3.up2 + spellBlending.rank3.cantrips <= spellSlots.rank3.max - spellBlending.rank3.net
+        && (spellBlending.rank3.up1 == 0 || 4 <= spellcasting.maxRank)
+        && (spellBlending.rank3.up2 == 0 || 5 <= spellcasting.maxRank))
+        && (2 * spellBlending.rank4.up1 + 2 * spellBlending.rank4.up2 + spellBlending.rank4.cantrips <= spellSlots.rank4.max - spellBlending.rank4.net
+        && (spellBlending.rank4.up1 == 0 || 5 <= spellcasting.maxRank)
+        && (spellBlending.rank4.up2 == 0 || 6 <= spellcasting.maxRank))
+        && (2 * spellBlending.rank5.up1 + 2 * spellBlending.rank5.up2 + spellBlending.rank5.cantrips <= spellSlots.rank5.max - spellBlending.rank5.net
+        && (spellBlending.rank5.up1 == 0 || 6 <= spellcasting.maxRank)
+        && (spellBlending.rank5.up2 == 0 || 7 <= spellcasting.maxRank))
+        && (2 * spellBlending.rank6.up1 + 2 * spellBlending.rank6.up2 + spellBlending.rank6.cantrips <= spellSlots.rank6.max - spellBlending.rank6.net
+        && (spellBlending.rank6.up1 == 0 || 7 <= spellcasting.maxRank)
+        && (spellBlending.rank6.up2 == 0 || 8 <= spellcasting.maxRank))
+        && (2 * spellBlending.rank7.up1 + 2 * spellBlending.rank7.up2 + spellBlending.rank7.cantrips <= spellSlots.rank7.max - spellBlending.rank7.net
+        && (spellBlending.rank7.up1 == 0 || 8 <= spellcasting.maxRank)
+        && (spellBlending.rank7.up2 == 0 || 9 <= spellcasting.maxRank))
+        && (2 * spellBlending.rank8.up1 + spellBlending.rank8.cantrips <= spellSlots.rank8.max - spellBlending.rank8.net
+        && (spellBlending.rank8.up1 == 0 || 9 <= spellcasting.maxRank))
+        && (spellBlending.rank9.cantrips <= spellSlots.rank9.max - spellBlending.rank9.net)
+
+display:
+  fields:
+    wizard.school: { groups: [summary], priority: 2 }
+    wizard.thesis: { groups: [summary], priority: 2 }
+    wizard.drainsPerDay: { groups: [spellcasting], priority: 2 }
+    spellBlending.rank1.up1: { hidden: true }
+    spellBlending.rank1.up2: { hidden: true }
+    spellBlending.rank1.cantrips: { hidden: true }
+    spellBlending.rank1.net: { hidden: true }
+    spellBlending.rank2.up1: { hidden: true }
+    spellBlending.rank2.up2: { hidden: true }
+    spellBlending.rank2.cantrips: { hidden: true }
+    spellBlending.rank2.net: { hidden: true }
+    spellBlending.rank3.up1: { hidden: true }
+    spellBlending.rank3.up2: { hidden: true }
+    spellBlending.rank3.cantrips: { hidden: true }
+    spellBlending.rank3.net: { hidden: true }
+    spellBlending.rank4.up1: { hidden: true }
+    spellBlending.rank4.up2: { hidden: true }
+    spellBlending.rank4.cantrips: { hidden: true }
+    spellBlending.rank4.net: { hidden: true }
+    spellBlending.rank5.up1: { hidden: true }
+    spellBlending.rank5.up2: { hidden: true }
+    spellBlending.rank5.cantrips: { hidden: true }
+    spellBlending.rank5.net: { hidden: true }
+    spellBlending.rank6.up1: { hidden: true }
+    spellBlending.rank6.up2: { hidden: true }
+    spellBlending.rank6.cantrips: { hidden: true }
+    spellBlending.rank6.net: { hidden: true }
+    spellBlending.rank7.up1: { hidden: true }
+    spellBlending.rank7.up2: { hidden: true }
+    spellBlending.rank7.cantrips: { hidden: true }
+    spellBlending.rank7.net: { hidden: true }
+    spellBlending.rank8.up1: { hidden: true }
+    spellBlending.rank8.cantrips: { hidden: true }
+    spellBlending.rank8.net: { hidden: true }
+    spellBlending.rank9.cantrips: { hidden: true }
+    spellBlending.rank9.net: { hidden: true }
+    spellBlending.cantrips: { hidden: true }

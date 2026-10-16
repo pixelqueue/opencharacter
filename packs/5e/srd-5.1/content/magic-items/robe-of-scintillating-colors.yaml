@@ -1,0 +1,23 @@
+id: magic-items.robe-of-scintillating-colors
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+  maxCharges: 3
+  recharge: 1d3
+  saveDc: 15
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+  active: { type: boolean, default: false }
+effects:
+  - target: combat.attackersDisadvantage
+    op: set
+    value: true
+    when: self.equipped && self.attuned && self.active
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }
+  - use: item-power
+    params: { charges: 1, save: "'wis'", dc: 15, condition: "'conditions.stunned'" }

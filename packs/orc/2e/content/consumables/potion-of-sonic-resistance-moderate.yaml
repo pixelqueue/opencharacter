@@ -1,0 +1,17 @@
+id: consumables.potion-of-sonic-resistance-moderate
+type: consumable
+tags: [trait.magical, trait.potion]
+fields:
+  level: 10
+  price: 180
+  bulk: 0.1
+  category: potion
+  lasting: true
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, 10)'
+    scope: applied
+    duration: { amount: 1, unit: hour }
+    when: "incoming.amount < 0 && 'damage.sonic' in incoming.tags"

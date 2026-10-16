@@ -1,0 +1,10 @@
+description: 'FitD cohort roll: a broken cohort can act only when a member with Leader commands it, with +1 effect'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/crew
+input:
+  action: { id: fitd-crew:cohort-roll, entry: cohort-start }
+  participants:
+    commander:
+      - { id: ash, values: { abilities.special: ['fitd-scoundrel:special-abilities.leader'] } }

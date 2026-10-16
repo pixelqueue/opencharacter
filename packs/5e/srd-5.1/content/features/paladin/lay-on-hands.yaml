@@ -1,0 +1,49 @@
+id: features.paladin.lay-on-hands
+type: feature
+effects:
+  - { target: layOnHands.pool, op: set, value: 5 * self.level }
+actions:
+  - id: lay-on-hands
+    results: [not-enough, healed]
+    tags: [healing]
+    available: self.layOnHandsSpent < layOnHands.pool
+    params:
+      amount: { type: integer }
+      cures: { type: integer, optional: true }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              cures: 'has(params.cures) ? params.cures : 0'
+              left: layOnHands.pool - self.layOnHandsSpent
+      - id: total
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              cost: params.amount + 5 * flags.cures
+      - id: tooMuch
+        kind: outcome
+        when: params.amount < 0 || flags.cures < 0 || flags.cost == 0 || flags.cost > flags.left
+        result: "'not-enough'"
+        data:
+          left: flags.left
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: layOnHandsSpent, by: flags.cost }
+      - id: heal
+        kind: changes
+        when: params.amount > 0
+        to: target
+        changes:
+          - { type: adjust, field: hp.current, by: params.amount, tags: [healing] }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: params.amount
+          cured: flags.cures
+          left: flags.left - flags.cost

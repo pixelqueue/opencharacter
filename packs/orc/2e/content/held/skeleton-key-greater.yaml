@@ -1,0 +1,22 @@
+id: held.skeleton-key-greater
+type: held
+tags: [trait.magical]
+fields:
+  level: 11
+  price: 1250
+  activation: free
+  frequency: once-per-hour
+grants:
+  - { item: spells.knock, when: 'self.equipped' }
+effects:
+  - target: { rolls: [skill-action.pick-a-lock] }
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped'
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.knock'
+    value:
+      id: knock
+      flags: { itemPaid: true, rank: 2 }

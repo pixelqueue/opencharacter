@@ -1,0 +1,34 @@
+# Fireball 8d6, +1d6 for the slot above 3rd: 9d6 = 36. DC 8 + proficiency 3 + int 3 = 14.
+# A save spell: the app resolves each target's save (half on a success).
+status: finished
+outcome:
+  result: save
+  data:
+    slot: 4
+    spellcastingClass: wizard
+    metamagic: none
+    dc: 14
+    save: dex
+    halfOnSave: true
+    damage: 36
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change: { type: adjust, field: 5e-srd-5.1:spellSlots.level4.used, by: 1 }
+log:
+  - step: damage
+    action: 5e-srd-5.1:cast-spell
+    kind: dice
+    by: engine
+    faces: [6, 5, 4, 3, 2, 1, 6, 5, 4]
+    items:
+      - kind: dice
+        count: 9
+        sides: 6
+        value: 36
+        source: { type: item, id: 5e-srd-5.1:spells.fireball, entry: wizard }
+        tags: [damage.fire]
+    total: 36

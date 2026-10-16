@@ -1,0 +1,1001 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/action.schema.json",
+  "title": "Action",
+  "description": "Something a character can do that needs dice or decisions: a cascade of steps. Each roll or choice step is a checkpoint where, per the app's policy, the engine continues automatically or pauses. Later steps see earlier results as `steps.<id>.*` and branch flags as `flags.<name>`; the item making the action is `item` (base plus templates) and its copy is `self`; app-supplied parameters are `params.<name>`; situational choices are `situational.<id>`; other characters taking part are `participants.<role>` (and, in an `each` step, `participant`). Where `item` and `self` are rebound (a choice step's candidates, a formula a change passes on), the action's own are `action.item` and `action.self`, and the current step is `action.step`.",
+  "type": "object",
+  "required": ["id", "steps"],
+  "properties": {
+    "id": {
+      "$ref": "common.schema.json#/$defs/slug"
+    },
+    "tags": {
+      "$ref": "common.schema.json#/$defs/tags"
+    },
+    "available": {
+      "description": "When the action is offered, e.g. `self.equipped`.",
+      "$ref": "formula.schema.json#/$defs/condition"
+    },
+    "params": {
+      "description": "Values the app supplies when starting the action (a target's AC, which stat to test).",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "content-type.schema.json#/$defs/valueDecl"
+      }
+    },
+    "participants": {
+      "description": "Other characters the action involves, by role: a target, a helper. `startAction` takes each role's characters as views (`{ id, values }`) that the app takes from their own sheets; formulas read them as `participants.<role>`, a list in input order. A role the action doesn't declare, or a count outside `min`/`max`, is `invalid-participants`. Text: `<actionKey>.participants.<role>.name` (optional).",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name",
+        "not": {
+          "const": "self"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/role"
+      }
+    },
+    "steps": {
+      "$ref": "#/$defs/steps"
+    },
+    "results": {
+      "description": "The outcome results the action can finish with: a list of result IDs, named by `<actionKey>.results.<result>.name`, or `{ bands: <set> }` when its results are that band set's band IDs, named by `bands.<set>.<band>.name`. An outcome `result` that isn't declared is the action error `undeclared-result`. An action without `results` isn't checked.",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/slug"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        {
+          "type": "object",
+          "required": ["bands"],
+          "properties": {
+            "bands": {
+              "description": "A result-band set declared in the rules (`resultBands`).",
+              "$ref": "common.schema.json#/$defs/slug"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "label": {
+      "$ref": "common.schema.json#/$defs/i18nKey"
+    },
+    "scope": {
+      "$ref": "#/$defs/actionScope"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "actionScope": {
+      "description": "On content (a content type's or an item's actions): `holder` (default) lists the action for a character who has the content active, with its copy as `self`; `applied` lists it for each active entry of the character's `applied` list whose source is the content, with the entry's ID as `entry` and the entry (`id` and its state keys) as `self`. Not allowed on the rules' actions.",
+      "enum": ["holder", "applied"]
+    },
+    "actionOrUse": {
+      "anyOf": [
+        {
+          "$ref": "#"
+        },
+        {
+          "description": "Use an action defined in the rules, optionally fixing some of its parameters.",
+          "type": "object",
+          "required": ["use"],
+          "properties": {
+            "use": {
+              "$ref": "common.schema.json#/$defs/ref"
+            },
+            "params": {
+              "type": "object",
+              "propertyNames": {
+                "$ref": "common.schema.json#/$defs/name"
+              },
+              "additionalProperties": {
+                "$ref": "formula.schema.json"
+              }
+            },
+            "scope": {
+              "$ref": "#/$defs/actionScope"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/step"
+      },
+      "minItems": 1
+    },
+    "step": {
+      "type": "object",
+      "required": ["id", "kind"],
+      "properties": {
+        "kind": {
+          "enum": ["roll", "choice", "allocate", "branch", "changes", "action", "outcome"]
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/name"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "roll"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "$ref": "#/$defs/rollStep"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "choice"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "$ref": "#/$defs/choiceStep"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "allocate"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "$ref": "#/$defs/allocateStep"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "branch"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "$ref": "#/$defs/branchStep"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "changes"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "$ref": "#/$defs/changesStep"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "action"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "$ref": "#/$defs/actionStep"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "outcome"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "$ref": "#/$defs/outcomeStep"
+          }
+        }
+      ]
+    },
+    "stepSheet": {
+      "description": "Which character the step's formulas read. `given` (the default): the character as passed to the action. `proposed`: the character with every change the action has proposed so far `to: self` applied in order (from earlier steps, nested actions, a parent action and earlier picks of this step), computed afresh before the step, `when` included, and before each pick of a choice step. Fields, `character`, `self` and `item` (the action's own copy there, absent if a change removed it), a choice step's candidates, an allocate step's fields and a roll step's parts and roll effects all read it; `params`, `situational`, `participants`, `links`, `flags` and `steps` don't change. Changes for a role, a target or a link are never applied, nor are follow-ups. A batch that fails is the error `proposed-changes-failed`.",
+      "enum": ["given", "proposed"]
+    },
+    "rollStep": {
+      "description": "A dice checkpoint. Each part becomes one roll item (one source per item); roll effects matching the step's tags add more items or modify the dice. Results: `steps.<id>.total`, `.dice` (per dice item: `faces`, `kept`), `.band`. With `of` instead of `parts`, it rolls nothing and classifies an earlier roll again by its own `bands`.",
+      "type": "object",
+      "required": ["id", "kind"],
+      "oneOf": [
+        { "required": ["parts"], "type": "object" },
+        {
+          "required": ["of", "bands"],
+          "type": "object",
+          "not": { "anyOf": [{ "required": ["better"] }, { "required": ["tags"] }] }
+        }
+      ],
+      "properties": {
+        "id": {
+          "description": "Step ID, unique within the action. Identifier-safe because formulas read results as `steps.<id>`.",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "kind": {
+          "const": "roll"
+        },
+        "when": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "sheet": {
+          "$ref": "#/$defs/stepSheet"
+        },
+        "each": {
+          "description": "Run the step once per participant of this declared role, in input order, with `participant` bound and `when` evaluated per participant. With none, the step doesn't run. Its result is a list in participant order (null where `when` skipped one); inside a later `each` step over the same role, it is the current participant's. Log paths gain the index (`saves[1]`).",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "tags": {
+          "description": "Tags of the roll; entries may be formulas.",
+          "$ref": "common.schema.json#/$defs/tagList"
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rollPart"
+          },
+          "minItems": 1
+        },
+        "of": {
+          "description": "Classify an earlier roll again instead of rolling: the path of a roll step of this action as the log names it, relative to the action (`check/roll`, the roll of the nested action step `check`). The step's result is that roll's (total, faces, kept, items, tallies, bounds), with the band its own `bands` gives in its own context: its flags, and with `each` the current participant and that participant's flags. In an `each` step, a path whose first step is an `each` step over the same role names that step's run for the current participant. A roll that didn't run leaves the step without a result. Not a checkpoint: nothing is asked or recorded.",
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9_]*(\\[[0-9]+\\])?(/[a-z][a-zA-Z0-9_]*(\\[[0-9]+\\])?)*$"
+        },
+        "better": {
+          "description": "Which results are better, for advantage/disadvantage: `high` (default) or `low` (roll-under games).",
+          "enum": ["high", "low"]
+        },
+        "bands": {
+          "description": "A result-band set declared in the rules (`resultBands`); the first matching band becomes `steps.<id>.band`.",
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "label": {
+          "description": "The roll's name (\"Damage\"). Default key: `<actionKey>.steps.<id>.name`, optional in the default language; an explicit key is required.",
+          "$ref": "common.schema.json#/$defs/i18nKey"
+        }
+      },
+      "additionalProperties": false
+    },
+    "rollPart": {
+      "description": "One roll item: dice, a flat value, or the value of a field chosen by formula. Exactly one of `dice`, `value`, `field`.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "dice": {
+          "$ref": "formula.schema.json#/$defs/dice"
+        },
+        "value": {
+          "$ref": "formula.schema.json"
+        },
+        "field": {
+          "description": "A formula evaluating to a field ID; the item's value is that field's value and its source is that field (e.g. Strength or Dexterity modifier for a finesse weapon).",
+          "$ref": "formula.schema.json"
+        },
+        "source": {
+          "description": "Defaults: a `value` that is a single field reference gets that field as its source; otherwise the item or rules the action belongs to.",
+          "$ref": "common.schema.json#/$defs/source"
+        },
+        "tags": {
+          "description": "Tags of this part's roll item (`damage.slashing`); entries may be formulas.",
+          "$ref": "common.schema.json#/$defs/tagList"
+        },
+        "when": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "ifEmpty": {
+          "description": "dice parts only: what to roll instead when the part ends up with no dice after pool dice are added (FitD: zero dice rolls 2d6 and keeps the lowest).",
+          "$ref": "formula.schema.json#/$defs/dice"
+        },
+        "multiplied": {
+          "description": "`false`: neither `multiplyDice` nor `multiply` changes this part's items, which record `multiplied: false`. Default `true`.",
+          "const": false
+        }
+      },
+      "oneOf": [
+        {
+          "required": ["dice"],
+          "type": "object"
+        },
+        {
+          "required": ["value"],
+          "type": "object"
+        },
+        {
+          "required": ["field"],
+          "type": "object"
+        }
+      ],
+      "additionalProperties": false
+    },
+    "choiceStep": {
+      "description": "A choice checkpoint (hit or miss, use a reaction, push the roll, which class regains a hit die). Its options come from one source: a written list, the ruleset's content of a type (`{ content }`), the character's copies of a type (`{ copies }`), or the choices pending on the proposed sheet (`{ pending }`). Active content adds options to a step with `tags` through `option` effects; an added option's ID is `<content id>#<option id>`. Result: `steps.<id>.picked`, the option ID (with `repeat`, the list of picked IDs); for content and copies without `repeat`, also `steps.<id>.item` (and `.self` for copies).",
+      "type": "object",
+      "required": ["id", "kind", "options"],
+      "properties": {
+        "id": {
+          "description": "Step ID, unique within the action. Identifier-safe because formulas read results as `steps.<id>`.",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "kind": {
+          "const": "choice"
+        },
+        "when": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "sheet": {
+          "$ref": "#/$defs/stepSheet"
+        },
+        "each": {
+          "description": "Run the step once per participant of this declared role, in input order, with `participant` bound and `when` evaluated per participant. With none, the step doesn't run. Its result is a list in participant order (null where `when` skipped one); inside a later `each` step over the same role, it is the current participant's. Log paths gain the index (`saves[1]`).",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "tags": {
+          "description": "Tags of the step; entries may be formulas. `option` effects aimed at `{ choices: [<tag>] }` add options to a step carrying a matching tag, and policy rules match it by tag. The step's evaluated tags are `action.step.tags`.",
+          "$ref": "common.schema.json#/$defs/tagList"
+        },
+        "options": {
+          "description": "Where the options come from: exactly one source. A written list offers the options whose `when` holds (option ID: the written `id`; name: `<actionKey>.options.<id>.name`). `{ content }` offers the ruleset's content of a type, in content order (option ID: the qualified content ID; name: the item's name). `{ copies }` offers the character's copies of a type, inventory then features (option ID: the instance ID; name: the copy's item name). `{ pending }` asks the choices still pending on the proposed sheet, one pick at a time (option ID: the option as `listOptions` names it; name: the choice's own text). On a step with `tags`, matching `option` effects add options after these.",
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "$ref": "common.schema.json#/$defs/slug"
+                  },
+                  "when": {
+                    "description": "The option is offered only when this holds. `picks` is how many times this step has already picked it.",
+                    "$ref": "formula.schema.json#/$defs/condition"
+                  },
+                  "changes": {
+                    "description": "Changes proposed when this option is picked, resolved like a `changes` step's at this step's path and appended before the step's own `changes`. Their formulas see `picked` (`{ id }`).",
+                    "type": "array",
+                    "items": {
+                      "$ref": "change.schema.json#/$defs/proposed"
+                    },
+                    "minItems": 1
+                  },
+                  "to": {
+                    "description": "Who the option's `changes` are for, as a `changes` step's `to`. Default `self`.",
+                    "$ref": "#/$defs/destination"
+                  },
+                  "flags": {
+                    "description": "Flags set when this option is picked, as a branch case's: each formula is evaluated with `picked` bound and set as `flags.<name>`, in order, before the option's `changes`, so they and every later step read it. A flag already set is replaced; with `repeat`, each pick sets its flags in turn.",
+                    "$ref": "#/$defs/optionFlags"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "minItems": 1
+            },
+            {
+              "type": "object",
+              "required": ["content"],
+              "properties": {
+                "content": {
+                  "$ref": "#/$defs/choiceQuery"
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "required": ["copies"],
+              "properties": {
+                "copies": {
+                  "$ref": "#/$defs/choiceQuery"
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "required": ["pending"],
+              "properties": {
+                "pending": {
+                  "description": "The choices still pending on the proposed sheet, in `computeSheet`'s `pending` order. Each pick answers the first of them with an eligible option not picked yet, offering those options as `listOptions` gives them, then `#done`; it proposes the `choose` for it, then the step's `changes`. The step reads the proposed sheet before each pick and goes on until nothing more can be picked or `#done` is picked. Result: `steps.<id>.picked`, the picked option IDs in order, and `steps.<id>.paths`, their choice paths.",
+                  "type": "object",
+                  "properties": {
+                    "entry": {
+                      "description": "String formula giving an instance ID: only choices whose path starts at that copy are asked. Without it, every pending choice is, rules-level ones included.",
+                      "$ref": "formula.schema.json"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "repeat": {
+          "description": "Pick more than once: the step is asked again, each pick its own checkpoint, until it has `max` picks or nothing is offered. After `min` picks the reserved option `#done` is offered last, which ends the step. An option may be picked again unless its `when` or `where` rules it out (they read `picks`).",
+          "type": "object",
+          "required": ["max"],
+          "properties": {
+            "max": {
+              "description": "Integer formula: the most picks. Evaluated once, before the first pick.",
+              "$ref": "formula.schema.json"
+            },
+            "min": {
+              "description": "Integer formula: the picks needed before `#done` is offered (default 0). Evaluated once, before the first pick.",
+              "$ref": "formula.schema.json"
+            }
+          },
+          "additionalProperties": false
+        },
+        "recommend": {
+          "description": "Formula naming the recommended option ID; it may read `options`, the list of IDs the step's own source offers (`#done` and added options left out). Under an automatic policy the engine takes it. `#done` and added options are never recommended. Without it, a `content` or `copies` step recommends the candidate with the highest `prefer`; with neither, no option is recommended, so an automatic run pauses there. Over pending choices, it also sees `choice`, the choice being asked (`{ path, owner, id }`); without it, the option `listOptions` marks recommended is.",
+          "$ref": "formula.schema.json"
+        },
+        "random": {
+          "description": "Boolean formula, evaluated before each pick with `options` (and, over pending choices, `choice`) bound as for `recommend`: when it holds, the engine draws one die with as many sides as the source's offered options (added options and `#done` left out; over pending choices, the asked choice's eligible options) and recommends option face − 1 instead of `recommend` and `prefer`. With one option nothing is drawn. The draw is a dice checkpoint at the step's path, following the dice policy for the step's tags: a pause is `needs.kind: dice` with one die and `draw`. A creation action says `random: params.random`.",
+          "$ref": "formula.schema.json"
+        },
+        "prefer": {
+          "description": "`content` and `copies` only: a number formula per candidate, with `item` (and `self`) the candidate's and `picks` how many times this step has picked it. Without `recommend`, the candidate with the highest value is recommended, ties going to the earlier one.",
+          "$ref": "formula.schema.json"
+        },
+        "changes": {
+          "description": "Changes proposed after every pick, after the picked option's own `changes`, resolved like a `changes` step's at this step's path, always `to: self`. `entry: picked` names the picked copy (`copies` only). Their formulas see `picked`: `{ id }`, plus `item` for content and copies and `self` for copies; `item` and `self` stay the action's own. Over pending choices, `picked` is `{ id, path }`, the option and the choice path, and the `choose` comes first.",
+          "type": "array",
+          "items": {
+            "$ref": "change.schema.json#/$defs/proposed"
+          },
+          "minItems": 1
+        },
+        "prompt": {
+          "description": "The question (\"Did the attack hit?\"). Default key: `<actionKey>.steps.<id>.prompt`.",
+          "$ref": "common.schema.json#/$defs/i18nKey"
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "required": ["options"],
+            "properties": {
+              "options": {
+                "type": "array"
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "required": ["prefer"]
+            }
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "required": ["options"],
+            "properties": {
+              "options": {
+                "type": "object",
+                "required": ["pending"]
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["repeat"]
+                },
+                {
+                  "required": ["prefer"]
+                },
+                {
+                  "required": ["sheet"],
+                  "properties": {
+                    "sheet": {
+                      "const": "given"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "choiceQuery": {
+      "description": "A choice step's query source: a content type, qualified against the action's pack, and an optional condition per candidate. In `where`, `item` is the candidate's item (and `self` its copy, for `copies`), `picks` is how many times the step has picked it, and the action's own item, copy and step are `action.item`, `action.self` and `action.step`.",
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "$ref": "common.schema.json#/$defs/typeRef"
+        },
+        "where": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        }
+      },
+      "additionalProperties": false
+    },
+    "allocateStep": {
+      "description": "An allocation checkpoint: spend a budget across fields (FitD's four action dots, 5E point buy), or give each of a list of values to a different field (5E's standard array). Under an automatic policy the engine takes `recommend`; without a usable recommendation the step pauses (`needs.kind: allocate`) and the app answers with `amounts`, a map of field ID to amount. Result: `steps.<id>.amounts`. A budget step proposes one `adjust` per field with a non-zero amount, a values step one `set` per field given a value, in the fields' order.",
+      "type": "object",
+      "required": ["id", "kind", "fields"],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "kind": {
+          "const": "allocate"
+        },
+        "when": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "sheet": {
+          "$ref": "#/$defs/stepSheet"
+        },
+        "tags": {
+          "description": "Tags of the step; entries may be formulas. Policy rules match the step by them.",
+          "$ref": "common.schema.json#/$defs/tagList"
+        },
+        "fields": {
+          "description": "The fields to allocate to: a query over fields (`type: field`), whose `where` sees each field as `item` (`id`, `type`, `tags`) and the action's context (`steps`, `params`, `flags`, …), the action's own item and copy as `action.item` and `action.self`. Offered are the integer input fields that match, in the ruleset's field order.",
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "const": "field"
+            },
+            "where": {
+              "$ref": "formula.schema.json#/$defs/condition"
+            }
+          },
+          "additionalProperties": false
+        },
+        "budget": {
+          "description": "Integer formula: the total to spend. Exactly one of `budget` and `values`.",
+          "$ref": "formula.schema.json"
+        },
+        "spend": {
+          "description": "`all` (the default): the amounts' total cost must be exactly the budget. `upTo`: at most the budget.",
+          "enum": ["all", "upTo"]
+        },
+        "limit": {
+          "description": "Integer formula per field, with `field` bound to `{ id, value }` (the field's computed value before the step): the most that field can take. An amount may never take the field's input value past its `max`; `limit` only narrows that (the smaller applies). Default: no limit but the `max`.",
+          "$ref": "formula.schema.json"
+        },
+        "cost": {
+          "description": "Integer formula per field with a non-zero amount, with `field` and `amount` bound: the budget the amount costs (5E point buy: `[0, 1, 2, 3, 4, 5, 7, 9][amount]`). Default: `amount`.",
+          "$ref": "formula.schema.json"
+        },
+        "values": {
+          "description": "Instead of `budget`: integer formulas, the values to hand out (`[15, 14, 13, 12, 10, 8]`). Each value goes to a different field and every value is used exactly once; a field gets at most one. `spend`, `limit` and `cost` don't apply.",
+          "type": "array",
+          "items": {
+            "$ref": "formula.schema.json"
+          },
+          "minItems": 1
+        },
+        "random": {
+          "description": "Boolean formula: when it holds, the engine recommends a random answer instead of `recommend`. With `values`, each value in order goes to a field drawn uniformly among the offered fields not given one yet. With a budget, one unit at a time goes to a field drawn uniformly among those that can take one more (within its limit, the unit's added cost positive and within what is left), until the budget is spent or no field can take more; with `spend: all`, a draw that leaves some of the budget unspent gives no recommendation. Each draw is a dice checkpoint at the step's path, as on a choice step.",
+          "$ref": "formula.schema.json"
+        },
+        "recommend": {
+          "description": "The recommended amounts: by field ID (local or qualified), an integer formula. Fields left out get nothing. Used only when it is a valid answer.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/fieldRef"
+          },
+          "additionalProperties": {
+            "$ref": "formula.schema.json"
+          }
+        },
+        "prompt": {
+          "description": "The question. Default key: `<actionKey>.steps.<id>.prompt`.",
+          "$ref": "common.schema.json#/$defs/i18nKey"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": ["budget"]
+        },
+        {
+          "required": ["values"],
+          "not": {
+            "anyOf": [
+              {
+                "required": ["spend"]
+              },
+              {
+                "required": ["limit"]
+              },
+              {
+                "required": ["cost"]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "branchStep": {
+      "description": "Picks the first case whose `when` is true (else `else`), sets its flags and runs its steps.",
+      "type": "object",
+      "required": ["id", "kind", "cases"],
+      "properties": {
+        "id": {
+          "description": "Step ID, unique within the action. Identifier-safe because formulas read results as `steps.<id>`.",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "kind": {
+          "const": "branch"
+        },
+        "when": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "sheet": {
+          "$ref": "#/$defs/stepSheet"
+        },
+        "each": {
+          "description": "Run the step once per participant of this declared role, in input order, with `participant` bound and `when` and the cases evaluated per participant. Its flags are kept per participant: inside a later `each` step over the same role, and in its own case steps, `flags.<name>` is the current participant's value (absent when it has none); elsewhere it is the list in participant order (null where none was set). Its case steps run per participant too, their results lists as an `each` step's; they may not have an `each` of their own.",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/$defs/branchArm"
+              }
+            ],
+            "required": ["when"],
+            "properties": {
+              "when": {
+                "$ref": "formula.schema.json#/$defs/condition"
+              }
+            },
+            "unevaluatedProperties": false
+          },
+          "minItems": 1
+        },
+        "else": {
+          "type": "object",
+          "$ref": "#/$defs/branchArm",
+          "unevaluatedProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "optionFlags": {
+      "description": "Flags a choice option sets when picked: flag name to formula.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "formula.schema.json"
+      },
+      "minProperties": 1
+    },
+    "branchArm": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "flags": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "formula.schema.json"
+          }
+        },
+        "steps": {
+          "$ref": "#/$defs/steps"
+        }
+      }
+    },
+    "changesStep": {
+      "description": "Proposes changes for the app to apply with applyChanges (spend a shot, gain stress, deal damage). Changes `to` another character are for the app to route. With `release`, it proposes changes `hold` action steps held first. With `tags`, content's `changes` effects aimed at a matching tag add their changes after the step's own. It needs `changes`, `release` or `tags`: a step with only `tags` is a place content adds to.",
+      "type": "object",
+      "required": ["id", "kind"],
+      "properties": {
+        "id": {
+          "description": "Step ID, unique within the action. Identifier-safe because formulas read results as `steps.<id>`.",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "kind": {
+          "const": "changes"
+        },
+        "when": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "sheet": {
+          "$ref": "#/$defs/stepSheet"
+        },
+        "each": {
+          "description": "Run the step once per participant of this declared role, in input order, with `participant` bound and `when` evaluated per participant. With none, the step doesn't run. Its result is a list in participant order (null where `when` skipped one); inside a later `each` step over the same role, it is the current participant's. Log paths gain the index (`saves[1]`).",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "to": {
+          "$ref": "#/$defs/destination"
+        },
+        "tags": {
+          "description": "Tags of the step; entries may be formulas, evaluated when the step runs, and tags an `action` step running this action adds count too. Content's `changes` effects aimed at a matching tag (`target: { steps: [<tag>] }`) add their changes after the step's own. Static tags must be declared.",
+          "$ref": "common.schema.json#/$defs/tagList"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "change.schema.json#/$defs/proposed"
+          },
+          "minItems": 1
+        },
+        "release": {
+          "description": "Propose changes `hold` action steps of this action hold, before the step's own `changes`: each listed step's, in the listed order, each in the order held. A change is released when `where` holds, with `change` bound to it as the action would return it (`type`, `field`, `by`, `tags` (`[]` when it has none), …); one it leaves stays held, for a later release. With `combine`, released `adjust` changes equal in everything but `by`, recipient included, become one in the first one's place with `by` summed. Released changes keep the `step` path they were proposed at. A step that names no `hold` action step is `unknown-reference` (kind `step`) at load. Not with `each`.",
+          "type": "object",
+          "required": ["steps"],
+          "properties": {
+            "steps": {
+              "description": "IDs of `action` steps of this action with `hold: true`.",
+              "type": "array",
+              "items": {
+                "$ref": "common.schema.json#/$defs/name"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "where": {
+              "description": "Which held changes to release: a condition with `change` bound to each. Default: all.",
+              "$ref": "formula.schema.json#/$defs/condition"
+            },
+            "combine": {
+              "description": "Merge released `adjust` changes that differ only in `by` (amounts summed). Default false.",
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": ["changes"]
+        },
+        {
+          "required": ["release"]
+        },
+        {
+          "required": ["tags"]
+        }
+      ],
+      "dependentSchemas": {
+        "release": {
+          "not": {
+            "required": ["each"]
+          }
+        }
+      }
+    },
+    "actionStep": {
+      "description": "Runs another action as part of this one (a failed save triggering a panic check). With `as: participant`, the participant runs it instead (a handoff).",
+      "type": "object",
+      "required": ["id", "kind", "use"],
+      "properties": {
+        "id": {
+          "description": "Step ID, unique within the action. Identifier-safe because formulas read results as `steps.<id>`.",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "kind": {
+          "const": "action"
+        },
+        "when": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "sheet": {
+          "$ref": "#/$defs/stepSheet"
+        },
+        "each": {
+          "description": "Run the step once per participant of this declared role, in input order, with `participant` bound and `when` evaluated per participant. With none, the step doesn't run. Its result is a list in participant order (null where `when` skipped one); inside a later `each` step over the same role, it is the current participant's. Log paths gain the index (`saves[1]`).",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "use": {
+          "description": "The action to run: a rules action, or with `source` one the content's type or the content itself defines (its local action ID, when no rules action has that ID).",
+          "$ref": "common.schema.json#/$defs/ref"
+        },
+        "source": {
+          "description": "A formula giving a content ID, qualified against the action's pack. The step runs `use` as `computeSheet` lists it for this character with that `source`: with that content as `item` and the listing's `entry` as `self`. With no such listing (the action not available included) the action fails with `unknown-action` (data: `action`, `source`).",
+          "$ref": "formula.schema.json"
+        },
+        "entry": {
+          "description": "A formula giving an instance ID, such as a choice step's `steps.weapon.picked`. The step runs `use` as `computeSheet` lists it, on the step's sheet, with that `entry` (and that `source`, when given too): that copy is `self` and its item `item`. With no such listing (no such copy, the copy doesn't list the action, or its `available` is false) the action fails with `unknown-action` (data: `action`, `entry`, and `source` when given). Not with `as`.",
+          "$ref": "formula.schema.json"
+        },
+        "hold": {
+          "description": "Keep what the nested action proposes instead of proposing it: every change it and the actions it runs propose is resolved as usual and held under the step, in order (with `each`, every run's, in run order). The nested action's own steps see them; the parent's later steps don't until a changes step's `release` names the step. Held changes never released are dropped. Not with `as`.",
+          "type": "boolean"
+        },
+        "params": {
+          "description": "Formulas for the used action's parameters. One giving `null` leaves the parameter out: an optional one takes its default or stays absent, a required one is `missing-param`. A field parameter given a field parameter's view takes its `id`.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "formula.schema.json"
+          }
+        },
+        "participants": {
+          "description": "Participants passed on to the used action's roles: each a formula giving a list of participant IDs (`[participants.target[0].id]`) or of their views (`participants.target`), mixed or not, a view passed on by its `id`; each a participant of this action in any role (`invalid-participants` otherwise, data: `role`). The nested action reads the participant's view as the app passed it, with its own declared fields; its roles' `min` and `max` apply. Without it, the nested action has no participants. On a handoff (`as`) it may also name the running character by `character.id`; the IDs are listed in `needs.run.participants` and the app passes their views to the run.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "formula.schema.json"
+          }
+        },
+        "situational": {
+          "description": "Values for the used action's situational choices, by situational choice ID (local IDs resolve in the action's pack; an unknown one is `unknown-reference`, kind `situational`, at load): each a formula evaluated here. They replace the values the running action has (the app's, or a parent's) for the used action and the actions it runs in turn, as if the app had selected them; the choices' own effects apply as for any selected choice. Not with `as`: a participant's player answers their own.",
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^([a-z0-9]+([-.][a-z0-9]+)*:)?[a-z][a-zA-Z0-9_]*$"
+          },
+          "additionalProperties": {
+            "$ref": "formula.schema.json"
+          }
+        },
+        "tags": {
+          "description": "Tags added to the evaluated tags of every roll step and choice step of the used action, and of the actions it runs in turn; entries may be formulas, evaluated here. Roll effects, situational choices, added options and policy rules match them as the step's own. Not with `as`.",
+          "$ref": "common.schema.json#/$defs/tagList"
+        },
+        "as": {
+          "description": "`participant`: hand the step off. The action pauses (`needs.kind: handoff`), the app runs the used action on the current participant's own character and answers with its outcome, which the step's result holds. Only in an `each` step.",
+          "const": "participant"
+        }
+      },
+      "additionalProperties": false,
+      "dependentRequired": {
+        "as": ["each"]
+      },
+      "dependentSchemas": {
+        "as": {
+          "not": {
+            "anyOf": [
+              {
+                "required": ["tags"]
+              },
+              {
+                "required": ["source"]
+              },
+              {
+                "required": ["entry"]
+              },
+              {
+                "required": ["hold"]
+              },
+              {
+                "required": ["situational"]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "outcomeStep": {
+      "description": "Ends the action with an outcome ID and data for the app.",
+      "type": "object",
+      "required": ["id", "kind", "result"],
+      "properties": {
+        "id": {
+          "description": "Step ID, unique within the action. Identifier-safe because formulas read results as `steps.<id>`.",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "kind": {
+          "const": "outcome"
+        },
+        "when": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "sheet": {
+          "$ref": "#/$defs/stepSheet"
+        },
+        "result": {
+          "$ref": "formula.schema.json"
+        },
+        "data": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "formula.schema.json"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "destination": {
+      "description": "Who proposed changes are for: `self` (the actor), `target` (another character the app picks, or the action's `target` participants), a declared role, or `{ link: <slot> }`, the character filling one of the actor's link slots. The app applies each to that character. A change for a role names its participant in `character`: the current one in an `each` step over the role, else one copy per participant. A change sent to a link names fields and content by qualified ID, since they are the linked character's.",
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        {
+          "type": "object",
+          "required": ["link"],
+          "properties": {
+            "link": {
+              "$ref": "common.schema.json#/$defs/name"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "role": {
+      "description": "A role other characters fill in this action. Every role is optional unless `min` says otherwise.",
+      "type": "object",
+      "properties": {
+        "min": {
+          "description": "The fewest characters in the role (default 0).",
+          "type": "integer",
+          "minimum": 0
+        },
+        "max": {
+          "description": "The most characters in the role (default unbounded).",
+          "type": "integer",
+          "minimum": 1
+        },
+        "pack": {
+          "description": "The pack the participants are expected to use, as a link slot's `pack`: only the build checks the declared fields against it, or against the action's own pack without one. Any character whose view has the declared fields may fill the role.",
+          "$ref": "common.schema.json#/$defs/packId"
+        },
+        "fields": {
+          "description": "The fields read from each participant's view, declared as a link slot's are, or the name of a `viewFields` set. A role without fields gets views of only `id`.",
+          "anyOf": [
+            { "$ref": "common.schema.json#/$defs/declaredFields" },
+            { "$ref": "common.schema.json#/$defs/viewFieldsRef" }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

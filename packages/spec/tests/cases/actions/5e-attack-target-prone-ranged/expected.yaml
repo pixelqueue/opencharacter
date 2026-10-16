@@ -1,0 +1,22 @@
+# Disadvantage: 2d20 keep the lower (15, 9). 9 + dex 3 = 12 against AC 13: a miss. The arrow
+# is spent anyway.
+status: finished
+outcome:
+  result: miss
+  data: { critical: false, attack: 12 }
+proposedChanges:
+  - to: self
+    step: ammo
+    change: { type: adjustQuantity, entry: arrows-2, by: -1 }
+log:
+  - step: ammo
+    action: 5e-srd-5.1:weapon-attack
+    kind: choice
+    by: engine
+    option: arrows-2
+  - step: attack
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [15, 9]
+    total: 12

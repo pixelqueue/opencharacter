@@ -1,0 +1,23 @@
+description: "A state key's max is a formula with `item` bound: a typo under `item` is a formula error"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          weapon:
+            carried: true
+            fields:
+              magazine: { type: integer, min: 1 }
+            state:
+              shots: { type: integer, min: 0, max: item.magazin }
+      content:
+        - id: weapons.pistol
+          type: weapon
+          fields: { magazine: 6 }

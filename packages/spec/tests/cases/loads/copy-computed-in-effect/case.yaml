@@ -1,0 +1,29 @@
+description: "Effects can't read a copy's computed values, though self is open: the content type's own computed value and an item's are unknown-name in their effects"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 0 }
+          bonus: { type: integer, default: 0 }
+        contentTypes:
+          gear:
+            carried: true
+            computed:
+              quality: { type: integer, formula: tier }
+            effects:
+              - { target: bonus, op: add, value: self.quality }
+      content:
+        - id: gear.relic
+          type: gear
+          computed:
+            glow: { type: boolean, formula: tier > 2 }
+          effects:
+            - { target: bonus, op: add, value: 1, when: self.glow }

@@ -1,0 +1,18 @@
+description: "FitD: with Deadly and Dangerous, a member picks two dots from the crew's ratings together"
+specVersion: 0.1.0
+call: listOptions
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  choice: { choice: [crew-dots] }
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        # Deadly's and Dangerous's ratings, as the crew sheet computes them (each once).
+        fitd-crew:members.dotRatings:
+          - fitd-scoundrel:ratings.hunt
+          - fitd-scoundrel:ratings.prowl
+          - fitd-scoundrel:ratings.skirmish
+          - fitd-scoundrel:ratings.wreck
+        fitd-crew:members.dotCount: 2

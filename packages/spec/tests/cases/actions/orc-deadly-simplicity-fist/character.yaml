@@ -1,0 +1,57 @@
+# A 7th-level human warpriest whose deity is unholy, with a harmful font and the fist as
+# favored weapon (so the warpriest's first doctrine gives Deadly Simplicity). Wisdom +4 (the
+# later levels' picks are left open). Third doctrine at 7th: expert in the favored
+# weapon, simple and martial weapons and unarmed attacks; spellcasting still trained (expert at
+# 11th).
+specVersion: 0.1.0
+id: test-warpriest
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 7
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      heritage:
+        - option: orc-2e:heritages.versatile-human
+          choices:
+            feat:
+              - option: orc-2e:feats.general.toughness
+      boosts:
+        - option: orc-2e:boosts.wis
+        - option: orc-2e:boosts.str
+  - id: background
+    item: orc-2e:backgrounds.acolyte
+    choices:
+      boost:
+        - option: orc-2e:boosts.wis
+      free-boost:
+        - option: orc-2e:boosts.str
+  - id: class
+    item: orc-2e:classes.cleric
+    choices:
+      divine-font:
+        - option: harm
+      sanctification:
+        - option: unholy
+      divine-skill:
+        - option: skill.intimidation
+      favored-weapon-category:
+        - option: unarmed
+      favored-weapon:
+        - option: orc-2e:weapons.fist
+      doctrine:
+        - option: orc-2e:classes.cleric.doctrines.warpriest
+          choices:
+            deadly-simplicity:
+              - option: orc-2e:feats.cleric.deadly-simplicity
+      skills:
+        - option: skill.athletics
+        - option: skill.medicine
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis

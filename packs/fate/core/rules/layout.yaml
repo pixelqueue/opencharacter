@@ -1,0 +1,87 @@
+display:
+  groups:
+    - id: rolls
+      kind: actions
+      priority: 0
+      members:
+        type: action
+        where: >-
+          'skill-roll' in item.tags || 'overcome' in item.tags || 'create-advantage' in item.tags
+          || 'attack' in item.tags || 'defend' in item.tags || 'oppose' in item.tags
+          || 'teamwork' in item.tags
+    - id: fate-point-actions
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'fate-point' in item.tags" }
+    - id: copy-actions
+      kind: actions
+      priority: 1
+      members: { type: action, where: has(item.entry) }
+    - id: conflict-actions
+      kind: actions
+      priority: 1
+      members:
+        type: action
+        where: "'conflict' in item.tags || 'hit' in item.tags || 'contest' in item.tags"
+    - id: milestones
+      kind: actions
+      priority: 2
+      visibility: background
+      members: { type: action, where: "'milestone' in item.tags" }
+    - id: time
+      kind: actions
+      priority: 2
+      members: { type: action, where: "'time' in item.tags" }
+    - id: creation
+      kind: actions
+      priority: 3
+      visibility: background
+      members: { type: action, where: "'creation' in item.tags" }
+    - id: stunts
+      kind: content
+      priority: 0
+      members: { type: stunt }
+    - id: consequence-list
+      kind: content
+      priority: 0
+      members: { type: consequence }
+      sortBy: self.slot
+    - id: advantage-list
+      kind: content
+      priority: 1
+      members: { type: advantage }
+      sectionBy: self.kind
+    - id: extras
+      kind: content
+      priority: 1
+      members: { type: extra }
+  types:
+    stunt:
+      state:
+        label: { priority: 0, input: { widget: text } }
+        used: { priority: 1, input: { widget: track } }
+      fields:
+        shape: { hidden: true }
+        contestTie: { hidden: true }
+      quantity: { hidden: true }
+    consequence:
+      state:
+        label: { priority: 0, input: { widget: text } }
+        slot: { priority: 0 }
+        harm: { priority: 1 }
+        recovering: { priority: 1, input: { widget: checkbox } }
+        waited: { priority: 2, showWhen: self.recovering }
+      quantity: { hidden: true }
+    advantage:
+      state:
+        label: { priority: 0, input: { widget: text } }
+        invokes: { priority: 0, input: { widget: dots } }
+        kind: { priority: 1 }
+      quantity: { hidden: true }
+    extra:
+      state:
+        label: { priority: 0, input: { widget: text } }
+        permission: { priority: 1, input: { widget: text } }
+        ranks: { priority: 1 }
+        refresh: { priority: 2 }
+      quantity: { hidden: true }

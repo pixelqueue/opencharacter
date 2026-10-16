@@ -1,0 +1,32 @@
+id: ancestries.hobgoblin
+type: ancestry
+tags: [trait.hobgoblin, trait.humanoid, trait.uncommon]
+fields: { hp: 8, size: medium, speed: 25 }
+effects:
+  - { target: languages, op: grant, value: { item: languages.common } }
+  - { target: languages, op: grant, value: { item: languages.goblin } }
+  - { target: senses, op: grant, value: { tag: sense.darkvision } }
+  - { target: traits, op: grant, value: { tag: trait.hobgoblin } }
+  - { target: traits, op: grant, value: { tag: trait.humanoid } }
+choices:
+  - id: heritage
+    from:
+      type: heritage
+      where: 'item.versatile || item.ancestry == @ancestries.hobgoblin'
+  - id: boosts
+    recommend: "'standard'"
+    from:
+      options:
+        - id: standard
+          effects:
+            - { target: attributes.con.boosts, op: add, value: 1 }
+            - { target: attributes.int.boosts, op: add, value: 1 }
+            - { target: attributes.wis.boosts, op: add, value: -1 }
+          choices:
+            - id: free
+              from: { type: boost, where: "!(item.attribute in ['con', 'int'])" }
+        - id: alternate
+          choices:
+            - id: free
+              pick: 2
+              from: { type: boost }

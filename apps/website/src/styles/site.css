@@ -1,0 +1,373 @@
+/* JetBrains Mono (SIL Open Font License 1.1) for all text; Maragsâ Display for titles. */
+@font-face {
+  font-family: 'Maragsa Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/maragsa-display.woff2') format('woff2');
+}
+
+:root {
+  --sl-font: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --sl-font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --ocf-font-title: 'Maragsa Display', var(--sl-font);
+}
+
+/* Palette. Values marked "mix" are blends of two palette colors, for steps the palette doesn't
+   have. */
+:root {
+  --color-firebrick: #c4262f;
+  --color-firebrick-dark: #a71e27;
+  --color-neutral-blue: #a6a5b9;
+  --color-graphite: #74787d;
+  --color-frost: #c3d3e2;
+  --color-lightness: #f7f0e5;
+  --color-purp-100: #ebe7fd;
+  --color-purp-200: #ded7fd;
+  --color-purp-300: #c4baee;
+  --color-purp-400: #b5a9ea;
+  --color-purp-600: #61578c;
+  --color-lime: #96fb4a;
+  --color-lime-dark: #69ee05;
+  --color-deep-lime: #7cc843;
+  --color-super-lime: #3f6f1c;
+  --color-dusk-700: #0e2439;
+  --color-dusk-800: #071722;
+  --color-dusk-900: #040f19;
+  --color-dusk-950: #03090e;
+}
+
+/* Dark mode (Starlight's default): dusk backgrounds, frost and neutral-blue text, lime accent. */
+:root {
+  --sl-color-white: var(--color-lightness);
+  --sl-color-gray-1: var(--color-frost);
+  --sl-color-gray-2: var(--color-neutral-blue);
+  --sl-color-gray-3: color-mix(
+    in oklab,
+    var(--color-graphite),
+    var(--color-neutral-blue)
+  ); /* mix, for AA contrast */
+  --sl-color-gray-4: color-mix(in oklab, var(--color-graphite), var(--color-dusk-700)); /* mix */
+  --sl-color-gray-5: var(--color-dusk-700);
+  --sl-color-gray-6: var(--color-dusk-800);
+  --sl-color-black: var(--color-dusk-900);
+
+  --sl-color-accent-low: var(--color-super-lime);
+  --sl-color-accent: var(--color-deep-lime);
+  --sl-color-accent-high: var(--color-lime);
+  --sl-color-text-invert: var(--color-dusk-900);
+}
+
+/* Light mode: a purp-200 background, dusk text, purp-600 accent. */
+:root[data-theme='light'] {
+  --sl-color-white: var(--color-dusk-950);
+  --sl-color-gray-1: var(--color-dusk-800);
+  --sl-color-gray-2: var(--color-dusk-700);
+  --sl-color-gray-3: color-mix(
+    in oklab,
+    var(--color-graphite),
+    var(--color-dusk-700)
+  ); /* mix, for AA contrast */
+  --sl-color-gray-4: var(--color-graphite);
+  --sl-color-gray-5: var(--color-purp-400);
+  --sl-color-gray-6: var(--color-purp-300);
+  --sl-color-gray-7: var(--color-purp-200);
+  --sl-color-black: var(--color-purp-200);
+
+  --sl-color-accent-low: var(--color-purp-300);
+  --sl-color-accent: var(--color-purp-600);
+  --sl-color-accent-high: color-mix(
+    in oklab,
+    var(--color-purp-600),
+    var(--color-dusk-700)
+  ); /* mix */
+  --sl-color-text-accent: var(--sl-color-accent);
+  --sl-color-bg-accent: var(--sl-color-accent);
+  --sl-color-text-invert: var(--color-lightness);
+}
+
+/* The home page hero has no image, so it takes one column and the title stays on one line. */
+.hero {
+  grid-template-columns: 1fr;
+}
+
+/* Titles and headings: the site name, the home page title, each page's title and the section
+   headings in a page. Maragsâ has one weight. */
+.site-title,
+.hero h1,
+h1#_top,
+.sl-markdown-content :is(h2, h3) {
+  font-family: var(--ocf-font-title);
+  font-weight: 400;
+}
+
+/* The home page's apps built with OCF: the name and tags on one line, the description below. */
+.ocf-apps {
+  display: grid;
+  gap: 1rem;
+}
+.ocf-app {
+  padding: 1rem 1.25rem;
+  border: 2px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+}
+.ocf-app-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+.sl-markdown-content .ocf-app-name {
+  font-size: var(--sl-text-2xl);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--sl-color-white);
+  text-decoration: none;
+}
+/* A linked name: lime and underlined (on the light theme, the palette's darkest lime, since
+   lime is unreadable on its purple). */
+.sl-markdown-content a.ocf-app-name {
+  color: var(--color-lime);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.sl-markdown-content a.ocf-app-name:hover {
+  color: var(--color-lime-dark);
+}
+:root[data-theme='light'] .sl-markdown-content a.ocf-app-name {
+  color: var(--color-super-lime);
+}
+.ocf-app-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-inline-start: auto;
+}
+.sl-markdown-content .ocf-app-description {
+  margin-top: 0.5rem;
+  color: var(--sl-color-gray-2);
+}
+
+/* Buttons, from Realms of Shod's Button: primary is its lime, secondary its dusk. Square-ish,
+   bold, a 2px border, taller from 640px. */
+.sl-link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  height: 3rem;
+  padding: 0 0.5rem;
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  font-family: var(--sl-font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1rem;
+  gap: 0.5rem;
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    color 150ms;
+}
+.sl-link-button svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+@media (min-width: 40rem) {
+  .sl-link-button {
+    height: 3.5rem;
+    padding: 0 1rem;
+    border-radius: 1rem;
+    font-size: 1.25rem;
+    line-height: 1.25rem;
+    gap: 0.75rem;
+  }
+  .sl-link-button svg {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+.sl-link-button.primary {
+  background: var(--color-lime);
+  border-color: var(--color-lime);
+  color: var(--color-dusk-950);
+}
+.sl-link-button.primary:is(:hover, :focus-visible) {
+  background: var(--color-lime-dark);
+  border-color: var(--color-lime-dark);
+  color: var(--color-dusk-950);
+}
+.sl-link-button.secondary {
+  background: var(--color-dusk-800);
+  border-color: var(--color-dusk-800);
+  color: var(--color-lightness);
+}
+.sl-link-button.secondary:is(:hover, :focus-visible) {
+  background: var(--color-dusk-700);
+  color: var(--color-lightness);
+}
+
+/* The home page's major sections ("The engine knows the rules…", Why OCF, the packs, the apps,
+   What's here), set well apart from the hero and from each other. */
+.sl-markdown-content .ocf-section {
+  margin-block: 4rem 8rem;
+}
+.sl-markdown-content .ocf-section:last-child {
+  margin-bottom: 0;
+}
+/* A table inside a list item inherits Starlight's `overflow-wrap: anywhere` for list items,
+   which lets every column shrink to one letter and breaks words. Cells break only words too
+   long to fit; a wide table scrolls instead. */
+.sl-markdown-content :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+/* The home page's Why OCF lists: each point's bold lead in the theme's brightest text. */
+.sl-markdown-content .ocf-why strong {
+  color: var(--sl-color-white);
+}
+
+/* Every border is 2px, not Starlight's 1px: the same selectors as Starlight's components, widths
+   only (code blocks: expressiveCode's borderWidth in astro.config.mjs). */
+.page > .header,
+.sl-markdown-content :is(th, td),
+.sl-markdown-content hr {
+  border-bottom-width: 2px;
+}
+.sidebar-pane {
+  border-inline-end-width: 2px;
+}
+.right-sidebar,
+.sidebar-content ul ul li,
+.sl-markdown-content blockquote,
+starlight-file-tree ul {
+  border-inline-start-width: 2px;
+}
+.social-icons::after {
+  border-inline-end-width: 2px;
+}
+.content-panel + .content-panel,
+.mobile-preferences,
+mobile-starlight-toc nav,
+.isMobile a {
+  border-top-width: 2px;
+}
+mobile-starlight-toc summary {
+  border-bottom-width: 2px;
+}
+mobile-starlight-toc .dropdown {
+  --border-top: 2px;
+}
+.card,
+.card .icon,
+.sl-link-card,
+.sl-badge,
+starlight-file-tree,
+.sl-markdown-content pre,
+button[data-open-modal],
+dialog,
+mobile-starlight-toc .toggle,
+.pagination-links a {
+  border-width: 2px;
+}
+#starlight__search {
+  --pagefind-ui-border-width: 2px;
+}
+
+/* The Packages page: each package's name (a link, at body size) with its description below. */
+.sl-markdown-content .ocf-package {
+  margin-block: 1.5rem;
+}
+.sl-markdown-content .ocf-package > p:first-child {
+  font-weight: 700;
+}
+.sl-markdown-content .ocf-package > p + p {
+  margin-top: 0;
+}
+.sl-markdown-content .ocf-package :is(a, code) {
+  background: none;
+}
+
+/* The header's site title carries the format's short name, "(OCF)", as a small mono superscript
+   in a dimmer color. */
+.site-title > span::after,
+.hero h1::after {
+  content: '(OCF)';
+  margin-inline-start: 0.3em;
+  font-family: var(--sl-font-mono);
+  font-size: 0.4em;
+  font-weight: 400;
+  vertical-align: super;
+  color: var(--sl-color-gray-3);
+}
+
+/* Diagrams drawn as inline SVG in the docs: colors from the theme, so they follow light and dark.
+   Narrow screens scroll the diagram sideways rather than shrink its text. */
+.ocf-diagram {
+  overflow-x: auto;
+}
+.ocf-diagram svg {
+  display: block;
+  width: 100%;
+  min-width: 36rem;
+  height: auto;
+}
+.ocf-loop .box {
+  fill: var(--sl-color-gray-6);
+  stroke: var(--sl-color-gray-4);
+  stroke-width: 2;
+}
+.ocf-loop .box.key {
+  stroke: var(--sl-color-accent);
+}
+.ocf-loop .flow {
+  stroke: var(--sl-color-gray-3);
+  stroke-width: 2;
+}
+.ocf-loop .flow.dashed {
+  stroke-dasharray: 6 5;
+}
+.ocf-loop .head {
+  fill: var(--sl-color-gray-3);
+}
+.ocf-loop text {
+  font-family: var(--sl-font-mono);
+}
+.ocf-loop .name {
+  fill: var(--sl-color-white);
+  font-family: var(--ocf-font-title);
+  font-size: 19px;
+}
+.ocf-loop .note {
+  fill: var(--sl-color-gray-2);
+  font-size: 12px;
+}
+.ocf-loop .call {
+  fill: var(--sl-color-accent-high);
+  font-size: 13px;
+  font-weight: 700;
+}
+/* On the home page title the superscript is lime (the darkest lime on the light theme). */
+.hero h1::after {
+  font-size: 0.4em;
+  letter-spacing: 0;
+  color: var(--color-lime);
+}
+:root[data-theme='light'] .hero h1::after {
+  color: var(--color-super-lime);
+}
+
+/* A section heading with an action on the right of the same row ("Built with OCF" and its apply
+   button); the button drops below the heading when the row is too narrow. */
+.sl-markdown-content .ocf-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.sl-markdown-content .ocf-section-head > h2,
+.sl-markdown-content .ocf-section-head > .sl-link-button {
+  margin: 0;
+}

@@ -1,0 +1,15 @@
+id: feats.archetype.witch.basic-witchcraft
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.witch }
+prerequisites:
+  - { id: witch-dedication, when: '@feats.archetype.witch.witch-dedication in feats.held' }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && !('trait.archetype' in item.tags)
+          && (has(item.class) && item.class == @classes.witch || 'trait.witch' in item.tags)
+    eligible: item.level <= 2

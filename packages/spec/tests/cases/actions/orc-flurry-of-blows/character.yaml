@@ -1,0 +1,61 @@
+# The example monk at 2nd level with Stunning Blows, in Tiger Stance: Dexterity +4, Strength +2,
+# trained in unarmed attacks (+4 at 2nd level).
+specVersion: 0.1.0
+id: example-orc-ren
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 2
+  orc-2e:hp.current: 30
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      heritage:
+        - option: orc-2e:heritages.versatile-human
+          choices:
+            feat:
+              - option: orc-2e:feats.general.fleet
+      boosts:
+        - option: orc-2e:boosts.dex
+        - option: orc-2e:boosts.wis
+  - id: background
+    item: orc-2e:backgrounds.acrobat
+    choices:
+      boost:
+        - option: orc-2e:boosts.dex
+      free-boost:
+        - option: orc-2e:boosts.str
+  - id: class
+    item: orc-2e:classes.monk
+    choices:
+      key-attribute:
+        - option: dex
+      skills:
+        - option: skill.athletics
+        - option: skill.stealth
+        - option: skill.medicine
+        - option: skill.religion
+      class-feat-1:
+        - option: orc-2e:feats.monk.tiger-stance
+      class-feat-2:
+        - option: orc-2e:feats.monk.stunning-blows
+      skill-feat-2:
+        - option: orc-2e:feats.skill.intimidating-glare
+inventory:
+  - { id: backpack, item: orc-2e:gear.backpack }
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.natural-ambition
+      choices:
+        feat:
+          - option: orc-2e:feats.monk.crane-stance
+  languages:
+    - option: orc-2e:languages.elven
+applied:
+  - { id: stance, source: orc-2e:effects.tiger-stance }

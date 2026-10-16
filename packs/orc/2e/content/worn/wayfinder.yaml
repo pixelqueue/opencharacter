@@ -1,0 +1,16 @@
+id: worn.wayfinder
+type: worn
+tags: [trait.invested, trait.magical, trait.uncommon]
+fields:
+  level: 2
+  price: 28
+  activation: one
+grants:
+  - { item: spells.light, when: 'self.equipped && self.invested' }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.light'
+    value:
+      id: light
+      flags: { itemPaid: true, rank: 1 }

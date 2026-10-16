@@ -1,0 +1,52 @@
+# heal from a font slot (1st rank, the font copy `font-1`), 2 actions: 6 + 8 = 14 Hit Points
+# for the ally: Healing Hands makes heal's d8s d10s (a die step). With no target,
+# its damage is rolled for the app (3), a d10 too.
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 1
+    mode: prepared
+    dc: 17
+    defense: fortitude
+    basic: true
+    damage: 3
+    healing: 14
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: setState
+      entry: font-1
+      key: expended
+      value: true
+  - to: ally
+    character: fighter
+    step: restore[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: 14
+      tags:
+        - healing
+        - spell
+log:
+  - step: damage
+    action: orc-2e:cast-spell
+    kind: dice
+    by: engine
+    faces:
+      - 3
+    total: 3
+    items:
+      - { kind: dice, count: 1, sides: 10, steppedFrom: 8 }
+  - step: heal
+    action: orc-2e:cast-spell
+    kind: dice
+    by: engine
+    faces:
+      - 6
+    total: 14
+    items:
+      - { kind: dice, count: 1, sides: 10, steppedFrom: 8 }
+      - { kind: flat, value: 8 }

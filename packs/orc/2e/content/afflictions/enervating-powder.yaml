@@ -1,0 +1,8 @@
+id: afflictions.enervating-powder
+type: affliction
+fields: { kind: poison, level: 9, dc: 28, stages: 3, stage2Damage: 5d6, stage3Damage: 6d6 }
+grants:
+  - { item: conditions.fatigued, scope: applied, when: self.stage == 1 }
+  - { item: conditions.fatigued, scope: applied, when: self.stage == 2 }
+  - { item: conditions.fatigued, scope: applied, when: self.stage == 3 }
+  - { item: conditions.paralyzed, scope: applied, when: self.stage == 3 }

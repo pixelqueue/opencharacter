@@ -1,0 +1,29 @@
+# The temporary Hit Points come with every Invest an Item.
+id: worn.belt-of-long-life
+type: worn
+tags: [trait.apex, trait.invested, trait.magical]
+fields:
+  level: 17
+  price: 15000
+  usage: belt
+  activation: one
+  frequency: once-per-day
+effects:
+  - {
+      target: attributes.con.mod,
+      op: add,
+      value: 1,
+      when: 'self.equipped && self.invested && self.apex',
+    }
+  - {
+      target: attributes.con.mod,
+      op: atLeast,
+      value: 4,
+      when: 'self.equipped && self.invested && self.apex',
+    }
+  - target: { steps: [invest.item] }
+    op: changes
+    when: action.self.id == self.id
+    value:
+      changes:
+        - { type: set, field: hp.temp, value: 'max(hp.temp, 15)' }

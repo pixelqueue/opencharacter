@@ -1,0 +1,45 @@
+description: "5E's guided creation by point buy: every score is set to 8, then 27 points are spent with the SRD's costs, each score at most 15, then the fighter's starting equipment"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:create-character }
+  # The pending picks take their recommendations where they have one: `#done` isn't
+  # offered while the character is being created.
+  policy:
+    {
+      dice: pause,
+      choices: pause,
+      allocations: pause,
+      rules: [{ kind: choice, step: picks, then: auto }],
+    }
+answers:
+  - option: 5e-srd-5.1:races.dwarf
+  - option: 5e-srd-5.1:subraces.hill-dwarf
+  - option: 5e-srd-5.1:classes.fighter
+  - option: 5e-srd-5.1:backgrounds.acolyte
+  - option: point-buy
+  - amounts:
+      {
+        5e-srd-5.1:abilities.str.base: 7,
+        5e-srd-5.1:abilities.dex.base: 5,
+        5e-srd-5.1:abilities.con.base: 7,
+        5e-srd-5.1:abilities.wis.base: 3,
+        5e-srd-5.1:abilities.cha.base: 1,
+      }
+  # The pending picks the recommendations leave open, in the step's order.
+  - option: 5e-srd-5.1:tools.smiths-tools
+  - option: 5e-srd-5.1:fighting-styles.archery
+  - option: skill.acrobatics
+  - option: skill.animal-handling
+  - option: 5e-srd-5.1:languages.abyssal
+  - option: 5e-srd-5.1:languages.celestial
+
+  # The fighter's starting equipment, line by line, and the acolyte's holy symbol.
+  - option: chain-mail
+  - option: martial-and-shield
+  - option: 5e-srd-5.1:weapons.longsword
+  - option: light-crossbow
+  - option: dungeoneers-pack
+  - option: 5e-srd-5.1:gear.emblem

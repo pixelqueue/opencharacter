@@ -1,0 +1,44 @@
+# The familiar's spells are the spellbook (`spells.book`, `spellcasting.fromBook`): a witch prepares
+# from them as a wizard does.
+fields:
+  witch.patron:
+    type: enum
+    values:
+      [
+        none,
+        faiths-flamekeeper,
+        inscribed-one,
+        resentment,
+        silence-in-snow,
+        spinner-of-threads,
+        starless-shadow,
+        wilding-steward,
+      ]
+    formula: "'none'"
+  witch.majorLessons: { type: integer, formula: 0 }
+
+tags:
+  - lesson
+  - lesson.basic
+  - lesson.greater
+  - lesson.major
+  - witchs-armament
+
+situational:
+  - id: bloodWard
+    type: boolean
+    default: false
+    rolls: [save]
+    available: >-
+      countList(character.applied, x.active && x.source == @spells.blood-ward) > 0
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 1
+        stackKey: status-bonus
+        when: situational.bloodWard
+
+display:
+  fields:
+    witch.patron: { groups: [summary], priority: 2 }
+    witch.majorLessons: { hidden: true }

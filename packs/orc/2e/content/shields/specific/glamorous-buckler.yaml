@@ -1,0 +1,12 @@
+id: shields.specific.glamorous-buckler
+type: shield
+extends: shields.buckler
+tags: [trait.illusion, trait.magical]
+fields:
+  price: 35
+effects:
+  - target: { rolls: [skill-action.feint] }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped && shield.raised'

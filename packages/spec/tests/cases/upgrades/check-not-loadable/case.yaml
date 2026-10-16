@@ -1,0 +1,25 @@
+description: "A side that doesn't load (here, its dependency isn't given) fails checkRelease with the load's errors"
+specVersion: 0.1.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+      dependencies: { test-base: ^1.0.0 }
+    rules: {}
+    content: []
+next:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.1.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+      dependencies: { test-base: ^1.0.0 }
+    rules: {}
+    content: []

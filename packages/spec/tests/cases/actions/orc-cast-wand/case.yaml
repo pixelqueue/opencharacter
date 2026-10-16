@@ -1,0 +1,19 @@
+description: "orc-2e casting from a wand: a 1st-rank magic wand holding heal (the
+  copy's pick) is cast through cast-spell in item mode; the wand's option pays with its daily use,
+  and the ally is healed by the caster's heal"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:cast-spell
+    entry: wand
+    source: orc-2e:spells.heal
+  participants:
+    ally:
+      - id: fighter
+  policy:
+    choices: pause
+answers:
+  - option: orc-2e:wands.magic-wand-1st-rank-spell#cast

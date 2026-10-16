@@ -1,0 +1,29 @@
+id: runes.greater-vitalizing
+type: template
+tags: [trait.magical, rune.property]
+appliesTo: { type: weapon }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + 4300'
+effects:
+  - target: { steps: [strike.hit], from: self }
+    op: changes
+    when: situational.undeadTarget
+    value:
+      changes:
+        - {
+            type: applyEffect,
+            source: "'conditions.persistent-damage'",
+            state: { damage: 2d6, damageType: "'vitality'" },
+          }
+        - {
+            type: applyEffect,
+            when: "'strike.hit.critical' in action.step.tags",
+            source: "'conditions.enfeebled'",
+            state: { value: 1 },
+          }
+        - {
+            type: applyEffect,
+            when: "'strike.hit.critical' in action.step.tags",
+            source: "'conditions.stupefied'",
+            state: { value: 1 },
+          }

@@ -1,0 +1,11 @@
+description: "Fate Core: Psychologist, once per session, rolls Empathy against Good for a moderate consequence and, succeeding, makes the patient's moderate consequence mild"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:stunts.psychologist#treat, entry: s-psych }
+  params: { slot: moderate }
+  participants:
+    patient: [{ id: friend, values: {} }]
+  policy: { choices: auto }

@@ -1,0 +1,17 @@
+id: consumables.potion-of-cold-resistance-lesser
+type: consumable
+tags: [trait.magical, trait.potion]
+fields:
+  level: 6
+  price: 45
+  bulk: 0.1
+  category: potion
+  lasting: true
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, 5)'
+    scope: applied
+    duration: { amount: 1, unit: hour }
+    when: "incoming.amount < 0 && 'damage.cold' in incoming.tags"

@@ -1,0 +1,29 @@
+id: monsters.green-hag.innate-spellcasting
+type: monsterSpellcasting
+fields:
+  ability: cha
+  dc: 12
+  innate: true
+grants:
+  - item: spells.dancing-lights
+  - item: spells.minor-illusion
+  - item: spells.vicious-mockery
+effects:
+  - { target: spells.monster, op: grant, value: { item: spells.dancing-lights } }
+  - { target: spells.monster, op: grant, value: { item: spells.minor-illusion } }
+  - { target: spells.monster, op: grant, value: { item: spells.vicious-mockery } }
+  - { target: spells.monsterAtWill, op: grant, value: { item: spells.dancing-lights } }
+  - { target: spells.monsterAtWill, op: grant, value: { item: spells.minor-illusion } }
+  - { target: spells.monsterAtWill, op: grant, value: { item: spells.vicious-mockery } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      countCopies(copy.id == action.self.id && copy.type == 'monsterAction'
+        && has(copy.state.usesLeft) && copy.state.usesLeft > 0) > 0
+    value:
+      id: innate
+      changes:
+        - type: adjustState
+          copies: { type: monsterAction, where: self.id == action.self.id }
+          key: usesLeft
+          by: -1

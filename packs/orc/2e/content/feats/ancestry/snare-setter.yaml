@@ -1,0 +1,13 @@
+id: feats.ancestry.snare-setter
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.kobold }
+prerequisites:
+  - { id: trained, when: 'skills.crafting.rank >= 1' }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.crafting }
+    when: "!('skill.crafting' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - { item: feats.skill.snare-crafting, waivePrerequisites: true }

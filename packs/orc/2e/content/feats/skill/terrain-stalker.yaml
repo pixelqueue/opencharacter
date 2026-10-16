@@ -1,0 +1,11 @@
+id: feats.skill.terrain-stalker
+type: feat
+fields: { level: 1, category: skill, skills: [skill.stealth] }
+repeatable: true
+
+prerequisites:
+  - id: trained
+    when: 'skills.stealth.rank >= 1'
+choices:
+  - id: terrain
+    from: { values: [rubble, snow, underbrush] }

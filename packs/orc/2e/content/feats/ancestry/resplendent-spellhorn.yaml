@@ -1,0 +1,22 @@
+id: feats.ancestry.resplendent-spellhorn
+type: feat
+fields: { level: 13, category: ancestry, ancestry: ancestries.kobold }
+prerequisites:
+  - { id: evolved-spellhorn, when: '@feats.ancestry.evolved-spellhorn in feats.held' }
+choices:
+  - id: rank3
+    from:
+      type: spell
+      where: >-
+        !('trait.cantrip' in item.tags) && item.rank == 3 && 'tradition.arcane' in item.tags
+          && !('trait.uncommon' in item.tags) && !('trait.rare' in item.tags) && !('trait.unique' in item.tags) && !('trait.focus' in item.tags)
+    effects:
+      - { target: spells.innate, op: grant, value: { formula: pick.id } }
+  - id: rank4
+    from:
+      type: spell
+      where: >-
+        !('trait.cantrip' in item.tags) && item.rank == 4 && 'tradition.arcane' in item.tags
+          && !('trait.uncommon' in item.tags) && !('trait.rare' in item.tags) && !('trait.unique' in item.tags) && !('trait.focus' in item.tags)
+    effects:
+      - { target: spells.innate, op: grant, value: { formula: pick.id } }

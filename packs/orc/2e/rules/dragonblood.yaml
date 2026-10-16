@@ -1,0 +1,16 @@
+fields:
+  dragonblood.tradition: { type: string, formula: "''" }
+  dragonblood.damageType: { type: string, formula: "''" }
+  dragonblood.save: { type: string, formula: "'reflex'" }
+  ancestry.dc: { type: integer, formula: 'max(classDc.value, spellcasting.dc)' }
+
+situational:
+  - { id: againstPrimal, type: boolean, default: false, rolls: [save] }
+
+display:
+  fields:
+    dragonblood.tradition: { hidden: true }
+    dragonblood.damageType:
+      { groups: [defenses], priority: 3, showWhen: "dragonblood.damageType != ''" }
+    dragonblood.save: { hidden: true }
+    ancestry.dc: { hidden: true }

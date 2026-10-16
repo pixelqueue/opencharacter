@@ -1,0 +1,35 @@
+# Tail: 12 + 14 = 26 against AC 18, a hit for 6 + 6 + 8 = 20 bludgeoning.
+status: finished
+outcome:
+  result: done
+  data:
+    hits: 1
+proposedChanges:
+  - {
+      to: target,
+      character: tamsin,
+      step: tail/deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -20,
+          tags: [damage, attack, melee, weapon, nonmagical, wielder.neutral, damage.bludgeoning],
+        },
+    }
+log:
+  - step: tail/attack
+    action: 5e-srd-5.1:monster-attack
+    kind: dice
+    by: engine
+    faces:
+      - 12
+    total: 26
+  - step: tail/damage
+    action: 5e-srd-5.1:monster-attack
+    kind: dice
+    by: engine
+    faces:
+      - 6
+      - 6
+    total: 20

@@ -1,0 +1,13 @@
+id: materials.silver-shield-low
+type: template
+tags: [trait.precious, material.silver]
+appliesTo:
+  {
+    type: shield,
+    where: 'item.id in [@shields.buckler, @shields.steel-shield, @shields.wooden-shield]',
+  }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + (base.acBonus == 1 ? 30 : 34)'
+  hardness: 'base.acBonus == 1 ? 1 : 3'
+  hp: 'base.acBonus == 1 ? 4 : 12'
+  bt: 'base.acBonus == 1 ? 2 : 6'

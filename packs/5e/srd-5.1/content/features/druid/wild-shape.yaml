@@ -1,0 +1,45 @@
+id: features.druid.wild-shape
+type: feature
+effects:
+  - { target: wildShape.uses, op: set, value: 2 }
+  - target: wildShape.maxCr
+    op: set
+    value: 'self.level >= 8 ? 1 : self.level >= 4 ? 0.5 : 0.25'
+  - { target: wildShape.swimming, op: set, value: self.level >= 4 }
+  - { target: wildShape.flying, op: set, value: self.level >= 8 }
+  - { target: wildShape.hours, op: set, value: floor(self.level / 2) }
+actions:
+  - id: wild-shape
+    tags: [feature]
+    results: [transformed]
+    available: '!wildShape.active && (wildShape.unlimited || self.wildShapeSpent < wildShape.uses)'
+    steps:
+      - id: transform
+        kind: changes
+        changes:
+          - { type: set, field: wildShape.active, value: true }
+          - {
+              type: adjustState,
+              entry: self,
+              key: wildShapeSpent,
+              by: 1,
+              when: '!wildShape.unlimited',
+            }
+      - id: result
+        kind: outcome
+        result: "'transformed'"
+        data:
+          maxCr: wildShape.maxCr
+          hours: wildShape.hours
+  - id: revert
+    tags: [feature]
+    results: [reverted]
+    available: wildShape.active
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - { type: set, field: wildShape.active, value: false }
+      - id: result
+        kind: outcome
+        result: "'reverted'"

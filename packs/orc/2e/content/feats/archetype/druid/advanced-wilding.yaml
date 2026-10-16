@@ -1,0 +1,20 @@
+id: feats.archetype.druid.advanced-wilding
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.druid }
+repeatable: true
+
+prerequisites:
+  - { id: basic-wilding, when: '@feats.archetype.druid.basic-wilding in feats.held' }
+effects:
+  # Each time it is taken, it counts as another feat of the archetype.
+  - { target: archetypes.druid.repeats, op: add, value: 1 }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && !('trait.archetype' in item.tags)
+          && (has(item.class) && item.class == @classes.druid || 'trait.druid' in item.tags)
+    eligible: item.level <= floor(level / 2)

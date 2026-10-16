@@ -1,0 +1,19 @@
+status: finished
+outcome:
+  result: ended
+  data:
+    fatePoints: 2
+proposedChanges:
+  - to: self
+    step: reset
+    change:
+      type: set
+      field: fate-core:fatePoints.current
+      value: 2
+  - to: self
+    step: reset
+    change:
+      type: removeItem
+      copies:
+        type: fate-core:consequence
+        where: self.recovering && self.waited >= 1 && self.slot == 'severe'

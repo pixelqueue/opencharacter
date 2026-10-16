@@ -1,0 +1,359 @@
+description: Names, calls, indexing, members and lists
+specVersion: 0.1.0
+cases:
+  - name: a dotted name is one name node
+    parse: abilities.str.mod
+    tree:
+      type: name
+      path:
+        - abilities
+        - str
+        - mod
+    print: abilities.str.mod
+  - name: a long dotted path
+    parse: steps.attack.total
+    tree:
+      type: name
+      path:
+        - steps
+        - attack
+        - total
+    print: steps.attack.total
+  - name: whitespace around dots is ignored
+    parse: a . b
+    tree:
+      type: name
+      path:
+        - a
+        - b
+    print: a.b
+  - name: a function call
+    parse: max(a, b)
+    tree:
+      type: call
+      fn: max
+      args:
+        - &a1
+          type: name
+          path:
+            - a
+        - &a2
+          type: name
+          path:
+            - b
+    print: max(a, b)
+  - name: a call with no arguments
+    parse: f()
+    tree:
+      type: call
+      fn: f
+      args: []
+    print: f()
+  - name: a call with spaces inside
+    parse: f( )
+    tree:
+      type: call
+      fn: f
+      args: []
+    print: f()
+  - name: call arguments are expressions
+    parse: max(1 + 2, f(3))
+    tree:
+      type: call
+      fn: max
+      args:
+        - type: binary
+          op: +
+          left:
+            type: int
+            value: 1
+          right:
+            type: int
+            value: 2
+        - type: call
+          fn: f
+          args:
+            - type: int
+              value: 3
+    print: max(1 + 2, f(3))
+  - name: has takes a path
+    parse: has(params.targetAc)
+    tree:
+      type: call
+      fn: has
+      args:
+        - type: name
+          path:
+            - params
+            - targetAc
+    print: has(params.targetAc)
+  - name: trailing comma in a call
+    parse: f(1,)
+    error: formula-syntax
+  - name: leading comma in a call
+    parse: f(,1)
+    error: formula-syntax
+  - name: a method call is rejected
+    parse: a.b(1)
+    error: formula-syntax
+  - name: a method call on a long path is rejected
+    parse: item.tags.exists(t)
+    error: formula-syntax
+  - name: calling the result of a call is rejected
+    parse: f(a)(b)
+    error: formula-syntax
+  - name: calling a parenthesized expression is rejected
+    parse: (f)(a)
+    error: formula-syntax
+  - name: indexing a name
+    parse: xs[0]
+    tree:
+      type: index
+      object:
+        type: name
+        path:
+          - xs
+      index:
+        type: int
+        value: 0
+    print: xs[0]
+  - name: indexing a dotted name
+    parse: steps.attack.kept[0]
+    tree:
+      type: index
+      object:
+        type: name
+        path:
+          - steps
+          - attack
+          - kept
+      index:
+        type: int
+        value: 0
+    print: steps.attack.kept[0]
+  - name: indexing twice
+    parse: xs[0][1]
+    tree:
+      type: index
+      object:
+        type: index
+        object:
+          type: name
+          path:
+            - xs
+        index:
+          type: int
+          value: 0
+      index:
+        type: int
+        value: 1
+    print: xs[0][1]
+  - name: an expression as index
+    parse: xs[1 + 2]
+    tree:
+      type: index
+      object:
+        type: name
+        path:
+          - xs
+      index:
+        type: binary
+        op: +
+        left:
+          type: int
+          value: 1
+        right:
+          type: int
+          value: 2
+    print: xs[1 + 2]
+  - name: indexing a call result
+    parse: f(x)[0]
+    tree:
+      type: index
+      object:
+        type: call
+        fn: f
+        args:
+          - type: name
+            path:
+              - x
+      index:
+        type: int
+        value: 0
+    print: f(x)[0]
+  - name: indexing a list literal
+    parse: '[1, 2][0]'
+    tree:
+      type: index
+      object:
+        type: list
+        items:
+          - type: int
+            value: 1
+          - type: int
+            value: 2
+      index:
+        type: int
+        value: 0
+    print: '[1, 2][0]'
+  - name: member of a call result
+    parse: f(x).y
+    tree:
+      type: member
+      object:
+        type: call
+        fn: f
+        args:
+          - type: name
+            path:
+              - x
+      name: y
+    print: f(x).y
+  - name: members chain on a call result
+    parse: f(x).y.z
+    tree:
+      type: member
+      object:
+        type: member
+        object:
+          type: call
+          fn: f
+          args:
+            - type: name
+              path:
+                - x
+        name: y
+      name: z
+    print: f(x).y.z
+  - name: member after an index
+    parse: xs[0].name
+    tree:
+      type: member
+      object:
+        type: index
+        object:
+          type: name
+          path:
+            - xs
+        index:
+          type: int
+          value: 0
+      name: name
+    print: xs[0].name
+  - name: member of a parenthesized sum
+    parse: (a + b).c
+    tree:
+      type: member
+      object:
+        type: binary
+        op: +
+        left: *a1
+        right: *a2
+      name: c
+    print: (a + b).c
+  - name: a parenthesized name followed by a member is one dotted name
+    parse: (a).b
+    tree:
+      type: name
+      path:
+        - a
+        - b
+    print: a.b
+  - name: redundant parentheses before an index drop
+    parse: (x)[0]
+    tree:
+      type: index
+      object:
+        type: name
+        path:
+          - x
+      index:
+        type: int
+        value: 0
+    print: x[0]
+  - name: index of a negation keeps parentheses
+    parse: (-x)[0]
+    tree:
+      type: index
+      object:
+        type: unary
+        op: '-'
+        operand:
+          type: name
+          path:
+            - x
+      index:
+        type: int
+        value: 0
+    print: (-x)[0]
+  - name: trailing dot
+    parse: a.
+    error: formula-syntax
+  - name: leading dot
+    parse: .a
+    error: formula-syntax
+  - name: double dot
+    parse: a..b
+    error: formula-syntax
+  - name: a number is not a member name
+    parse: a.1
+    error: formula-syntax
+  - name: unclosed index
+    parse: xs[0
+    error: formula-syntax
+  - name: empty index
+    parse: xs[]
+    error: formula-syntax
+  - name: an empty list
+    parse: '[]'
+    tree:
+      type: list
+      items: []
+    print: '[]'
+  - name: an empty list with spaces
+    parse: '[ ]'
+    tree:
+      type: list
+      items: []
+    print: '[]'
+  - name: a list of mixed literals
+    parse: "[1, 'a', true, null]"
+    tree:
+      type: list
+      items:
+        - type: int
+          value: 1
+        - type: string
+          value: a
+        - type: bool
+          value: true
+        - type: 'null'
+    print: "[1, 'a', true, null]"
+  - name: a nested list
+    parse: '[1, [2]]'
+    tree:
+      type: list
+      items:
+        - type: int
+          value: 1
+        - type: list
+          items:
+            - type: int
+              value: 2
+    print: '[1, [2]]'
+  - name: list spacing is canonical
+    parse: '[ 1 ,2 ]'
+    tree:
+      type: list
+      items:
+        - type: int
+          value: 1
+        - type: int
+          value: 2
+    print: '[1, 2]'
+  - name: trailing comma in a list
+    parse: '[1, 2,]'
+    error: formula-syntax
+  - name: unclosed list
+    parse: '[1, 2'
+    error: formula-syntax

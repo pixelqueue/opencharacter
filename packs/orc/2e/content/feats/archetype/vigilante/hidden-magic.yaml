@@ -1,0 +1,14 @@
+id: feats.archetype.vigilante.hidden-magic
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: skill, archetype: archetypes.vigilante }
+
+prerequisites:
+  - {
+      id: vigilante-dedication,
+      when: '@feats.archetype.vigilante.vigilante-dedication in feats.held',
+    }
+  - {
+      id: magic-skill,
+      when: 'skills.arcana.rank >= 2 || skills.nature.rank >= 2 || skills.occultism.rank >= 2 || skills.religion.rank >= 2',
+    }

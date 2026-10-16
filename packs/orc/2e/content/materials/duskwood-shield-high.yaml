@@ -1,0 +1,14 @@
+id: materials.duskwood-shield-high
+type: template
+tags: [trait.precious, material.duskwood, trait.uncommon]
+appliesTo:
+  {
+    type: shield,
+    where: 'item.id in [@shields.buckler, @shields.steel-shield, @shields.wooden-shield]',
+  }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + (base.acBonus == 1 ? 8000 : 8800)'
+  hardness: 'base.acBonus == 1 ? 6 : 8'
+  hp: 'base.acBonus == 1 ? 24 : 32'
+  bt: 'base.acBonus == 1 ? 12 : 16'
+  bulk: 'base.bulk >= 2 ? base.bulk - 1 : base.bulk >= 1 ? 0.1 : base.bulk'

@@ -1,0 +1,14 @@
+id: worn.shining-symbol
+type: worn
+tags: [trait.divine, trait.invested, trait.light]
+fields:
+  level: 3
+  price: 55
+  activation: two
+  frequency: once-per-day
+effects:
+  - target: skills.religion.mod
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

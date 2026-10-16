@@ -1,0 +1,32 @@
+id: ancestries.dwarf
+type: ancestry
+tags: [trait.dwarf, trait.humanoid]
+fields: { hp: 10, size: medium, speed: 20 }
+effects:
+  - { target: languages, op: grant, value: { item: languages.common } }
+  - { target: languages, op: grant, value: { item: languages.dwarven } }
+  - { target: senses, op: grant, value: { tag: sense.darkvision } }
+  - { target: traits, op: grant, value: { tag: trait.dwarf } }
+  - { target: traits, op: grant, value: { tag: trait.humanoid } }
+choices:
+  - id: heritage
+    from:
+      type: heritage
+      where: 'item.versatile || item.ancestry == @ancestries.dwarf'
+  - id: boosts
+    recommend: "'standard'"
+    from:
+      options:
+        - id: standard
+          effects:
+            - { target: attributes.con.boosts, op: add, value: 1 }
+            - { target: attributes.wis.boosts, op: add, value: 1 }
+            - { target: attributes.cha.boosts, op: add, value: -1 }
+          choices:
+            - id: free
+              from: { type: boost, where: "!(item.attribute in ['con', 'wis'])" }
+        - id: alternate
+          choices:
+            - id: free
+              pick: 2
+              from: { type: boost }

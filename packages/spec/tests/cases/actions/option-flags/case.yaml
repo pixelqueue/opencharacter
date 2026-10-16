@@ -1,0 +1,37 @@
+description: "A written option's flags: set when it is picked, before its changes, replacing the branch's; its changes and later steps read them"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stress: { type: integer, input: true, default: 0 }
+        actions:
+          - id: swing
+            steps:
+              - id: defaults
+                kind: branch
+                cases:
+                  - when: true
+                    flags: { power: 1, style: "'plain'" }
+              - id: how
+                kind: choice
+                options:
+                  - id: careful
+                  - id: reckless
+                    flags: { power: flags.power + 2, style: "'wild'" }
+                    changes:
+                      - { type: adjust, field: stress, by: flags.power }
+                recommend: "'reckless'"
+              - id: done
+                kind: outcome
+                data: { power: flags.power, style: flags.style }
+      content: []
+input:
+  action: { id: test-pack:swing }

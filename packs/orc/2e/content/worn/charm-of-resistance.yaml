@@ -1,0 +1,15 @@
+id: worn.charm-of-resistance
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 6
+  price: 245
+choices:
+  - id: damage-type
+    from: { values: [acid, cold, electricity, fire, sonic] }
+    effects:
+      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: add
+        stackKey: resistance
+        value: 'min(-incoming.amount, 5)'
+        when: "self.equipped && self.invested && incoming.amount < 0 && ('damage.' + pick.value) in incoming.tags"

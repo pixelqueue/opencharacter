@@ -1,0 +1,26 @@
+id: features.fighter.indomitable
+type: feature
+effects:
+  - { target: indomitable.uses, op: set, value: 'self.level >= 17 ? 3 : self.level >= 13 ? 2 : 1' }
+actions:
+  - id: indomitable
+    tags: [save]
+    results: [success, failure]
+    available: self.indomitableSpent < indomitable.uses
+    params:
+      ability: { type: enum, values: [str, dex, con, int, wis, cha] }
+      dc: { type: integer }
+    steps:
+      - id: save
+        kind: action
+        use: saving-throw
+        params: { ability: params.ability, dc: params.dc }
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: indomitableSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: steps.save.result
+        data:
+          total: steps.save.data.total

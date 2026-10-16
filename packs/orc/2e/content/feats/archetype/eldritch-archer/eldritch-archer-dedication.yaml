@@ -1,0 +1,59 @@
+id: feats.archetype.eldritch-archer.eldritch-archer-dedication
+type: feat
+tags: [trait.archetype, trait.magical, trait.dedication, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.eldritch-archer }
+
+prerequisites:
+  - {
+      id: bow-expert,
+      when: 'attacks.martial.rank >= 2 || attacks.simple.rank >= 2 || attacks.advanced.rank >= 2',
+    }
+effects:
+  - target: { fields: { where: "'archetype-extra.at8' in item.tags" } }
+    op: grant
+    value: { item: feats.ranger.running-reload }
+  - target: { fields: { where: "'archetype-extra.at20' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.impossible-volley }
+  - { target: spellcasting.archetype.eldritchArcher.kind, op: set, value: "'spontaneous'" }
+  - { target: spellcasting.archetype.eldritchArcher.attribute, op: set, value: "'cha'" }
+  - { target: spellcasting.archetype.eldritchArcher.rank, op: atLeast, value: 1 }
+  - { target: spellcasting.archetype.eldritchArcher.cantrips, op: set, value: 1 }
+grants:
+  - { item: features.spellcasting.archetype-repertoire, state: { source: "'eldritchArcher'" } }
+  - {
+      item: features.spellcasting.archetype-signature-spells,
+      state: { source: "'eldritchArcher'" },
+    }
+choices:
+  - id: tradition
+    from:
+      options:
+        - id: arcane
+          effects:
+            - {
+                target: spellcasting.archetype.eldritchArcher.tradition,
+                op: set,
+                value: "'arcane'",
+              }
+        - id: divine
+          effects:
+            - {
+                target: spellcasting.archetype.eldritchArcher.tradition,
+                op: set,
+                value: "'divine'",
+              }
+        - id: occult
+          effects:
+            - {
+                target: spellcasting.archetype.eldritchArcher.tradition,
+                op: set,
+                value: "'occult'",
+              }
+        - id: primal
+          effects:
+            - {
+                target: spellcasting.archetype.eldritchArcher.tradition,
+                op: set,
+                value: "'primal'",
+              }

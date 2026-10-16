@@ -1,0 +1,23 @@
+id: features.cleric.spellcasting
+type: feature
+effects:
+  - { target: spellcasting.cleric.mod, op: set, value: abilities.wis.mod }
+  - { target: spellcasting.cleric.dc, op: set, value: 8 + proficiency.bonus + abilities.wis.mod }
+  - { target: spellcasting.cleric.attack, op: set, value: proficiency.bonus + abilities.wis.mod }
+  - { target: spellcasting.classes, op: add, value: 1 }
+  - { target: spellcasting.casterLevel, op: add, value: self.level }
+choices:
+  - id: cantrips
+    pick: 'self.level >= 10 ? 5 : self.level >= 4 ? 4 : 3'
+    from: { type: spell, where: 'item.level == 0 && @classes.cleric in item.classes' }
+    effects:
+      - { target: spells.cleric, op: grant, value: { formula: pick.id } }
+  - id: spells
+    pick: 'max(1, abilities.wis.mod + self.level)'
+    from:
+      {
+        type: spell,
+        where: 'item.level >= 1 && item.level <= min(9, ceil(self.level / 2)) && @classes.cleric in item.classes',
+      }
+    effects:
+      - { target: spells.cleric, op: grant, value: { formula: pick.id } }

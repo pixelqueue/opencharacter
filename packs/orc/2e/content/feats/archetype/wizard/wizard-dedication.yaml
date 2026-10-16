@@ -1,0 +1,50 @@
+id: feats.archetype.wizard.wizard-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.wizard }
+
+prerequisites:
+  - { id: int, when: 'attributes.int.mod >= 2' }
+  - { id: not-wizard, when: 'countCopies(copy.item == @classes.wizard) == 0' }
+effects:
+  - { target: spellcasting.archetype.wizard.tradition, op: set, value: "'arcane'" }
+  - { target: spellcasting.archetype.wizard.kind, op: set, value: "'prepared'" }
+  - { target: spellcasting.archetype.wizard.attribute, op: set, value: "'int'" }
+  - { target: spellcasting.archetype.wizard.rank, op: atLeast, value: 1 }
+  - { target: spellcasting.archetype.wizard.cantrips, op: set, value: 2 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.arcana },
+      when: "!('skill.arcana' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spellcasting.archetype.wizard.bookCantrips, op: set, value: 4 }
+  - { target: spellcasting.archetype.wizard.fromBook, op: set, value: true }
+grants:
+  - { item: features.spellcasting.archetype-book, state: { source: "'wizard'" } }
+choices:
+  - id: school
+    from:
+      options:
+        - id: ars-grammatica
+          effects:
+            - { target: wizard.school, op: set, value: "'ars-grammatica'" }
+        - id: battle-magic
+          effects:
+            - { target: wizard.school, op: set, value: "'battle-magic'" }
+        - id: boundary
+          effects:
+            - { target: wizard.school, op: set, value: "'boundary'" }
+        - id: civic-wizardry
+          effects:
+            - { target: wizard.school, op: set, value: "'civic-wizardry'" }
+        - id: mentalism
+          effects:
+            - { target: wizard.school, op: set, value: "'mentalism'" }
+        - id: protean-form
+          effects:
+            - { target: wizard.school, op: set, value: "'protean-form'" }
+        - id: unified-magical-theory
+          effects:
+            - { target: wizard.school, op: set, value: "'unified-magical-theory'" }

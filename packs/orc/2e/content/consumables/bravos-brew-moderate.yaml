@@ -1,0 +1,17 @@
+id: consumables.bravos-brew-moderate
+type: consumable
+tags: [trait.alchemical, trait.elixir, trait.mental]
+fields:
+  level: 10
+  price: 150
+  bulk: 0.1
+  category: elixir
+  family: consumables.bravos-brew-lesser
+  lasting: true
+effects:
+  - target: { rolls: [save.will] }
+    op: add
+    value: 'situational.againstFear ? 3 : 2'
+    stackKey: item-bonus
+    scope: applied
+    duration: { amount: 1, unit: hour }

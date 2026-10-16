@@ -1,0 +1,21 @@
+description: "A standard copy counts toward its type's `copies.max` like any other copy"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        # Every character has the standard trait; it may hold one trait.
+        standardCopies:
+          - { type: trait, where: "'standard' in item.tags" }
+        tags: [standard]
+        contentTypes:
+          trait: { copies: { max: 1 } }
+      content:
+        - { id: traits.basic, type: trait, tags: [standard] }
+        - { id: traits.bold, type: trait }

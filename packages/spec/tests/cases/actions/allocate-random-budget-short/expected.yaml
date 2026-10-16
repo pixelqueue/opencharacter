@@ -1,0 +1,17 @@
+# Three fields at most 1 each: 3 of 4 points. The draws are logged; the step pauses with no
+# recommendation.
+status: paused
+needs:
+  step: points
+  kind: allocate
+log:
+  - step: points
+    kind: dice
+    by: engine
+    faces: [1]
+    draw: { among: ['test-pack:stats.might', 'test-pack:stats.wits', 'test-pack:stats.grace'] }
+  - step: points
+    kind: dice
+    by: engine
+    faces: [1]
+    draw: { among: ['test-pack:stats.wits', 'test-pack:stats.grace'] }

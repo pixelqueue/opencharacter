@@ -1,0 +1,23 @@
+# Custom stunts with and without limits: one per session already used up, one per conflict with a
+# use left, one that only costs a fate point, and a plain one with neither.
+specVersion: 0.1.0
+id: example-fate-custom-stunts
+packs:
+  - { id: fate-core, version: 0.1.0 }
+values:
+  fate-core:aspects.highConcept: Smuggler Queen of the Outer Rim
+  fate-core:fatePoints.current: 1
+  fate-core:refresh.base: 4
+features:
+  - id: s-spent
+    item: fate-core:stunts.custom
+    state: { label: Lucky Break, limit: session, used: 1 }
+  - id: s-fresh
+    item: fate-core:stunts.custom
+    state: { label: Quick Exit, limit: conflict, uses: 2, used: 1 }
+  - id: s-paid
+    item: fate-core:stunts.custom
+    state: { label: Friends in Low Places, fatePoint: true }
+  - id: s-plain
+    item: fate-core:stunts.custom
+    state: { label: Fast Talker, bonus: true, skill: fate-core:skills.deceive }

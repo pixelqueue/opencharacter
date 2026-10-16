@@ -1,0 +1,28 @@
+id: classes.cleric.doctrines.warpriest
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: cleric.doctrine, op: set, value: "'warpriest'" }
+  - { target: defenses.light.rank, op: atLeast, value: 'level >= 13 ? 2 : 1' }
+  - { target: defenses.medium.rank, op: atLeast, value: 'level >= 13 ? 2 : 1' }
+  - { target: saves.fortitude.rank, op: atLeast, value: 'level >= 15 ? 3 : 2' }
+  - target: { rolls: [save.fortitude], tally: successToCrit }
+    op: add
+    value: 1
+    when: level >= 15
+  - { target: attacks.martial.rank, op: atLeast, value: 'level >= 7 ? 2 : 1', when: level >= 3 }
+  - { target: attacks.simple.rank, op: atLeast, value: 2, when: level >= 7 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 2, when: level >= 7 }
+  - { target: attacks.favoredRank, op: atLeast, value: 'level >= 19 ? 3 : 2', when: level >= 7 }
+  - target: spellcasting.rank
+    op: atLeast
+    value: 'level >= 19 ? 3 : level >= 11 ? 2 : 1'
+grants:
+  - item: feats.general.shield-block
+choices:
+  # Deadly Simplicity is a choice of that one feat rather than a conditional grant, since a grant's
+  # condition can't read the deity's choices (only input fields).
+  - id: deadly-simplicity
+    unique: feats
+    pick: "cleric.favoredCategory in ['simple', 'unarmed'] ? 1 : 0"
+    from: { items: [feats.cleric.deadly-simplicity] }

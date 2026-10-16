@@ -1,0 +1,442 @@
+pack.name: MÖRK BORG
+# The character's headline: a companion's kind, else the class ("Classless" without one).
+headline: '{has_type_companion, select, true {{type_companion}} other {{type_class_each}}}'
+classes.classless.headline: Classless
+
+fields.abilities.strength.name: Strength
+fields.abilities.strength.short: STR
+fields.abilities.agility.name: Agility
+fields.abilities.agility.short: AGI
+fields.abilities.presence.name: Presence
+fields.abilities.presence.short: PRE
+fields.abilities.toughness.name: Toughness
+fields.abilities.toughness.short: TOU
+fields.hp.max.name: Maximum HP
+fields.hp.current.name: HP
+fields.dead.name: Dead
+fields.dead.description: Below 0 HP.
+fields.omens.die.name: Omens die
+fields.omens.current.name: Omens
+fields.omens.max.name: Omens rolled today
+fields.powers.current.name: Powers
+fields.powers.max.name: Power uses today
+fields.silver.current.name: Silver
+fields.load.capacity.name: Carrying capacity
+fields.load.items.name: Items carried
+fields.load.extra.name: Other items carried
+fields.load.encumbered.name: Encumbered
+fields.armor.tier.name: Armor tier
+fields.armor.shield.name: Shield
+fields.condition.starving.name: Starving
+fields.condition.infected.name: Infected
+
+groups.abilities.label: Abilities
+groups.condition.label: Condition
+groups.resources.label: Resources
+groups.combat.label: Combat
+groups.hit-points.label: Hit points
+groups.broken.label: Broken
+groups.tests.label: Tests
+groups.powers.label: Powers and decoctions
+groups.days.label: Days and rest
+groups.advancement.label: Getting better
+groups.creation.label: Character creation
+groups.class.label: Class
+groups.weapons.label: Weapons
+groups.armor.label: Armor
+groups.shields.label: Shields
+groups.ammo.label: Ammunition
+groups.scrolls.label: Scrolls
+groups.scrolls.sections.unclean.name: Unclean scrolls
+groups.scrolls.sections.sacred.name: Sacred scrolls
+groups.decoctions.label: Decoctions
+groups.companions.label: Companions
+units.silver.name: silver
+units.silver.short: s
+
+types.weapon.name: Weapon
+types.weapon.state.broken.name: Broken
+types.armor.name: Armor
+types.armor.state.damage.name: Tiers lost
+types.shield.name: Shield
+types.shield.state.broken.name: Broken
+types.scroll.name: Scroll
+types.class.name: Class
+
+situational.omen.name: Spend an omen (DR −4)
+situational.omenDamage.name: Spend an omen for maximum damage
+situational.poltroon.name: "Poltroon's capering (DR −2)"
+situational.barbarister.name: "Barbarister's help (DR −2)"
+
+bands.test.crit.name: Crit
+bands.test.fumble.name: Fumble
+bands.test.success.name: Success
+bands.test.failure.name: Failure
+# How a band's tests read: `value` is the first test's number.
+bands.test.crit.condition: 'A natural 20'
+bands.test.fumble.condition: 'A natural 1'
+bands.test.success.condition: 'DR {value} or higher'
+bands.broken.unconscious.name: Unconscious
+bands.broken.maimed.name: Maimed
+bands.broken.hemorrhage.name: Hemorrhage
+bands.broken.dead.name: Dead
+
+actions.test.name: Test
+actions.test.options.keep.name: Keep the roll
+actions.test.options.reroll.name: Spend an omen to reroll
+actions.test.options.cancel.name: Spend an omen to cancel the fumble
+actions.defend.options.take.name: Take the damage
+actions.defend.options.reduce.name: Spend an omen for d6 less damage
+actions.initiative.name: Initiative
+actions.attack.name: Attack
+actions.defend.name: Defend
+actions.use-power.name: Use a power
+actions.new-day.name: New day
+actions.rest.name: Rest
+actions.broken.name: Broken
+followUps.broken.name: Broken
+followUps.broken.description: 'Reached 0 HP: roll to see how broken you are'
+actions.get-better.name: Get better
+actions.create-character.name: Create a character
+creation.guided.name: Pick a class
+creation.guided.description: "Pick a class (or none), then roll its abilities, HP, omens, powers, silver, starting gear and the class's feature."
+creation.classless.name: Without a class
+creation.classless.description: 'Roll abilities, HP, omens, powers, silver and starting gear, with no class.'
+constraints.creation-class: A new character needs a class (or no class)
+constraints.one-class: A character has only one class (or no class), or is one companion
+creation.class.name: With a random class
+creation.class.description: "Roll a class, then its abilities, HP, omens, powers, silver, starting gear and the class's feature."
+
+classes.classless.name: No class
+classes.fanged-deserter.name: Fanged Deserter
+classes.fanged-deserter.actions.bite.name: Bite
+classes.gutterborn-scum.name: Gutterborn Scum
+classes.esoteric-hermit.name: Esoteric Hermit
+classes.wretched-royalty.name: Wretched Royalty
+classes.heretical-priest.name: Heretical Priest
+classes.occult-herbmaster.name: Occult Herbmaster
+
+types.companion.name: Companion
+companions.ancient-gore-hound.name: Ancient Gore-Hound
+companions.hawk.name: Hawk
+companions.poltroon.name: Poltroon the Court Jester
+companions.barbarister.name: Barbarister the Incredible Horse
+companions.hamfund.name: Hamfund the Squire
+links.hound.name: Gore-hound
+links.hawk.name: Hawk
+links.poltroon.name: Poltroon
+links.barbarister.name: Barbarister
+links.hamfund.name: Hamfund
+followUps.hound-sheet.name: The gore-hound's sheet
+followUps.hound-sheet.description: Make the gore-hound its own sheet and link it
+followUps.hawk-sheet.name: The hawk's sheet
+followUps.hawk-sheet.description: Make the hawk its own sheet and link it
+followUps.poltroon-sheet.name: Poltroon's sheet
+followUps.poltroon-sheet.description: Make Poltroon its own sheet and link it
+followUps.barbarister-sheet.name: Barbarister's sheet
+followUps.barbarister-sheet.description: Make Barbarister its own sheet and link it
+followUps.hamfund-sheet.name: Hamfund's sheet
+followUps.hamfund-sheet.description: Make Hamfund its own sheet and link it
+creation.companion.name: A companion
+creation.companion.description: "A companion's own sheet, for the creature or follower a class feature brings."
+actions.create-companion.name: Create a companion
+actions.create-companion.params.companion.name: Companion
+actions.create-companion.steps.companion.prompt: Companion
+actions.create-companion.results.created.name: Created
+actions.companion-attack.name: Attack
+
+types.ammo.name: Ammunition
+
+weapons.femur.name: Femur
+weapons.staff.name: Staff
+weapons.shortsword.name: Shortsword
+weapons.knife.name: Knife
+weapons.warhammer.name: Warhammer
+weapons.sword.name: Sword
+weapons.bow.name: Bow
+weapons.flail.name: Flail
+weapons.crossbow.name: Crossbow
+weapons.zweihander.name: Zweihänder
+armor.light.name: Light armor
+armor.medium.name: Medium armor
+armor.heavy.name: Heavy armor
+shields.shield.name: Shield
+ammo.arrows.name: Arrows
+ammo.bolts.name: Bolts
+scrolls.unclean.palms-open-the-southern-gate.name: Palms Open the Southern Gate
+scrolls.unclean.tongue-of-eris.name: Tongue of Eris
+scrolls.unclean.te-le-kin-esis.name: Te-le-kin-esis
+scrolls.unclean.lucy-fires-levitation.name: Lucy-fires Levitation
+scrolls.unclean.daemon-of-capillaries.name: Daemon of Capillaries
+scrolls.unclean.nine-violet-signs-unknot-the-storm.name: Nine Violet Signs Unknot the Storm
+scrolls.unclean.metzhuotl-blind-your-eye.name: Metzhuotl Blind Your Eye
+scrolls.unclean.foul-psychopomp.name: Foul Psychopomp
+scrolls.unclean.eyelid-blinds-the-mind.name: Eyelid Blinds the Mind
+scrolls.unclean.death.name: Death
+scrolls.sacred.grace-of-a-dead-saint.name: Grace of a Dead Saint
+scrolls.sacred.grace-for-a-sinner.name: Grace for a Sinner
+scrolls.sacred.whispers-pass-the-gate.name: Whispers Pass the Gate
+scrolls.sacred.aegis-of-sorrow.name: Aegis of Sorrow
+scrolls.sacred.unmet-fate.name: Unmet Fate
+scrolls.sacred.bestial-speech.name: Bestial Speech
+scrolls.sacred.false-dawn-nights-chariot.name: "False Dawn/Night's Chariot"
+scrolls.sacred.hermetic-step.name: Hermetic Step
+scrolls.sacred.roskoes-consuming-glare.name: "Roskoe's Consuming Glare"
+scrolls.sacred.enochian-syntax.name: Enochian Syntax
+
+# Class items
+weapons.brown-scimitar.name: The Brown Scimitar of Galgenbeck
+weapons.old-sigurds-sling.name: "Old Sigûrd's Sling"
+weapons.shoe-of-deaths-horse.name: "The Shoe of Death's Horse"
+weapons.blade-of-your-ancestors.name: The Blade of Your Ancestors
+weapons.eurekia.name: Eurekia
+weapons.snake-skin-dagger.name: Snake-Skin Dagger
+weapons.shepherds-crook.name: "Sacred Shepherd's Crook"
+classes.fanged-deserter.choices.feature.prompt: Starting item
+classes.fanged-deserter.choices.feature.options.crumpled-monster-mask.name: Crumpled Monster Mask
+classes.fanged-deserter.choices.feature.options.brown-scimitar.name: The Brown Scimitar of Galgenbeck
+classes.fanged-deserter.choices.feature.options.wizard-teeth.name: Wizard Teeth
+classes.fanged-deserter.choices.feature.options.old-sigurds-sling.name: "Old Sigûrd's Sling"
+classes.fanged-deserter.choices.feature.options.ancient-gore-hound.name: Ancient Gore-Hound
+classes.fanged-deserter.choices.feature.options.shoe-of-deaths-horse.name: "The Shoe of Death's Horse"
+classes.gutterborn-scum.choices.feature.prompt: Specialty
+classes.gutterborn-scum.choices.feature.options.cowards-jab.name: "Coward's Jab"
+classes.gutterborn-scum.choices.feature.options.filthy-fingersmith.name: Filthy Fingersmith
+classes.gutterborn-scum.choices.feature.options.abominable-gob-lobber.name: Abominable Gob Lobber
+classes.gutterborn-scum.choices.feature.options.escaping-fate.name: Escaping Fate
+classes.gutterborn-scum.choices.feature.options.excretal-stealth.name: Excretal Stealth
+classes.gutterborn-scum.choices.feature.options.dodging-death.name: Dodging Death
+classes.esoteric-hermit.choices.feature.prompt: Feature
+classes.esoteric-hermit.choices.feature.options.master-of-fate.name: Master of Fate
+classes.esoteric-hermit.choices.feature.options.book-of-boiling-blood.name: A Book of Boiling Blood
+classes.esoteric-hermit.choices.feature.options.speaker-of-truths.name: Speaker of Truths
+classes.esoteric-hermit.choices.feature.options.initiate-of-the-invisible-college.name: Initiate of the Invisible College
+classes.esoteric-hermit.choices.feature.options.bard-of-the-undying.name: Bard of the Undying
+classes.esoteric-hermit.choices.feature.options.hawk-as-weapon.name: Hawk as Weapon
+classes.wretched-royalty.choices.feature.prompt: Starting item
+classes.wretched-royalty.choices.feature.options.blade-of-your-ancestors.name: The Blade of Your Ancestors
+classes.wretched-royalty.choices.feature.options.poltroon.name: Poltroon the Court Jester
+classes.wretched-royalty.choices.feature.options.barbarister.name: Barbarister the Incredible Horse
+classes.wretched-royalty.choices.feature.options.hamfund.name: Hamfund the Squire
+classes.wretched-royalty.choices.feature.options.snake-skin-gift.name: The Snake-Skin Gift
+classes.wretched-royalty.choices.feature.options.horn-of-the-schleswig-lords.name: Horn of the Schleswig Lords
+classes.heretical-priest.choices.feature.prompt: Starting item
+classes.heretical-priest.choices.feature.options.sacred-shepherds-crook.name: "Sacred Shepherd's Crook"
+classes.heretical-priest.choices.feature.options.stolen-mitre.name: Stolen Mitre
+classes.heretical-priest.choices.feature.options.list-of-sins.name: List of Sins
+classes.heretical-priest.choices.feature.options.blasphemous-nechrubel-bible.name: The Blasphemous Nechrubel Bible
+classes.heretical-priest.choices.feature.options.stones-of-thel-emas.name: "Stones from Thel-Emas' Lost Temple"
+classes.heretical-priest.choices.feature.options.crucifix.name: Crucifix
+
+types.decoction.name: Decoction
+actions.use-decoction.name: Use a decoction
+classes.occult-herbmaster.actions.brew.name: Brew decoctions
+decoctions.red-poison.name: Red Poison
+decoctions.ezumiels-vapor.name: Ezumiels Vapor
+decoctions.southern-frog-stew.name: Southern Frog Stew
+decoctions.elixir-vitalis.name: Elixir Vitalis
+decoctions.spider-owl-soup.name: Spider-Owl Soup
+decoctions.fernors-philtre.name: "Fernor's Philtre"
+decoctions.hyphos-enervating-snuff.name: "Hyphos' Enervating Snuff"
+decoctions.black-poison.name: Black Poison
+
+# Action text: parameters, choice prompts and results
+actions.test.params.ability.name: Ability
+actions.test.params.dr.name: Difficulty rating (DR)
+actions.test.params.dr.description: 'The target to beat. 12 for most rolls; the GM raises or lowers it.'
+actions.test.params.defense.name: Defense roll
+actions.test.params.defense.description: 'Agility with the defense penalties instead of the test ones.'
+actions.test.steps.fate.prompt: Spend an omen?
+actions.initiative.results.rolled.name: Rolled
+actions.attack.params.dr.name: Difficulty rating (DR)
+actions.attack.params.dr.description: 'The target to beat. 12 for most rolls; the GM raises or lowers it.'
+actions.defend.params.damage.name: Incoming damage
+actions.defend.params.dr.name: Difficulty rating (DR)
+actions.defend.params.dr.description: 'The target to beat. 12 for most rolls; the GM raises or lowers it.'
+actions.defend.steps.ward.prompt: Spend an omen to lower the damage?
+actions.new-day.results.rolled.name: Rolled
+actions.rest.params.length.name: Rest length
+actions.rest.results.short.name: Short rest
+actions.rest.results.long.name: Long rest
+actions.get-better.results.rolled.name: Rolled
+actions.get-better.steps.vitality.name: Roll 6d10 against maximum hit points
+actions.get-better.steps.growth.name: Roll added hit points
+actions.get-better.steps.strength.name: Roll to improve Strength
+actions.get-better.steps.agility.name: Roll to improve Agility
+actions.get-better.steps.presence.name: Roll to improve Presence
+actions.get-better.steps.toughness.name: Roll to improve Toughness
+actions.get-better.steps.debris.name: Roll for what you find
+actions.get-better.steps.coins.name: Roll silver found
+actions.get-better.steps.specialty.name: Roll a second specialty
+actions.get-better.steps.second.prompt: Second specialty
+actions.get-better.options.cowards-jab.name: "Coward's Jab"
+actions.get-better.options.filthy-fingersmith.name: Filthy Fingersmith
+actions.get-better.options.abominable-gob-lobber.name: Abominable Gob Lobber
+actions.get-better.options.escaping-fate.name: Escaping Fate
+actions.get-better.options.excretal-stealth.name: Excretal Stealth
+actions.get-better.options.dodging-death.name: Dodging Death
+actions.create-character.params.classless.name: Without a class
+actions.create-character.params.scroll.name: Starts with a scroll
+actions.create-character.params.choose.name: Pick the class
+actions.create-character.results.rolled.name: Rolled
+actions.create-character.steps.class.prompt: Class
+actions.create-character.steps.best.prompt: Roll which abilities on 4d6, dropping the lowest?
+actions.create-character.steps.classRoll.name: Roll for class
+actions.create-character.steps.strength.name: Roll Strength
+actions.create-character.steps.agility.name: Roll Agility
+actions.create-character.steps.presence.name: Roll Presence
+actions.create-character.steps.toughness.name: Roll Toughness
+actions.create-character.steps.hp.name: Roll hit points
+actions.create-character.steps.omens.name: Roll omens
+actions.create-character.steps.powers.name: Roll powers
+actions.create-character.steps.silver.name: Roll silver
+actions.create-character.steps.food.name: Roll food
+actions.create-character.steps.weapon.name: Roll a weapon
+actions.create-character.steps.armor.name: Roll armor
+actions.create-character.steps.equipment1.name: Roll equipment 1 of 3
+actions.create-character.steps.equipment2.name: Roll equipment 2 of 3
+actions.create-character.steps.equipment3.name: Roll equipment 3 of 3
+actions.create-character.steps.feature.name: Roll a class feature
+actions.create-character.steps.feature2.name: Roll a second class feature
+actions.create-character.steps.scrollKind.name: Roll the scroll's kind
+actions.create-character.steps.hermitScroll.name: Roll a scroll
+actions.create-character.options.strength.name: Strength
+actions.create-character.options.agility.name: Agility
+actions.create-character.options.presence.name: Presence
+actions.create-character.options.toughness.name: Toughness
+actions.use-decoction.results.used.name: Used
+classes.fanged-deserter.actions.bite.params.dr.name: Difficulty rating (DR)
+classes.fanged-deserter.actions.bite.params.dr.description: 'The target to beat. 10 for a bite; the GM raises or lowers it.'
+classes.occult-herbmaster.actions.brew.results.brewed.name: Brewed
+
+# Class features, conditions, decoctions and shields in numbers
+actions.test.params.combat.name: Combat roll
+actions.test.params.combat.description: 'An attack roll.'
+actions.new-day.params.fed.name: Ate yesterday
+actions.rattle-teeth.name: Rattle the wizard teeth
+actions.rattle-teeth.results.rolled.name: Rolled
+actions.escape-fate.name: Escape fate
+actions.escape-fate.params.spent.name: Omens spent
+actions.escape-fate.params.spent.description: 'Omens spent on the roll.'
+actions.escape-fate.results.rolled.name: Rolled
+actions.dodge-death.name: Dodge death
+actions.dodge-death.results.survived.name: Survived
+actions.dodge-death.results.dead.name: Dead
+actions.fingersmith.name: Pick a pocket or lock
+actions.gob-lob.name: Gob lob
+actions.find-the-way.name: Find the way
+actions.boiling-blood.name: Read the Book of Boiling Blood
+actions.boiling-blood.results.read.name: Read
+actions.speak-truth.name: Speak a truth
+actions.speak-truth.results.spoken.name: Spoken
+actions.invisible-college.name: Summon scrolls
+actions.invisible-college.results.summoned.name: Summoned
+actions.invisible-college.steps.scroll1.prompt: First scroll
+actions.invisible-college.steps.scroll2.prompt: Second scroll
+actions.blow-horn.name: Blow the horn
+actions.cast-stones.name: Cast the stones
+actions.read-sins.name: Read the list of sins
+actions.read-bible.name: Read the Nechrubel Bible
+actions.read-bible.results.blessed.name: Blessed
+actions.read-bible.results.haunted.name: Haunted
+actions.cowards-jab.name: "Coward's jab"
+classes.occult-herbmaster.actions.brew.steps.split.prompt: Doses for the first decoction
+classes.occult-herbmaster.actions.brew.options.first-0.name: None
+classes.occult-herbmaster.actions.brew.options.first-1.name: One
+classes.occult-herbmaster.actions.brew.options.first-2.name: Two
+classes.occult-herbmaster.actions.brew.options.first-3.name: Three
+classes.occult-herbmaster.actions.brew.options.first-4.name: Four
+fields.condition.hungryDays.name: Days without food
+fields.condition.hemorrhage.name: Hemorrhage (hours left)
+fields.condition.philtre.name: "Fernor's Philtre"
+fields.condition.berserk.name: Berserk
+fields.teeth.charges.name: Wizard teeth
+fields.daily.boilingBlood.name: Book read today
+fields.daily.truths.name: Truths spoken today
+fields.daily.college.name: Scrolls summoned today
+fields.daily.bible.name: Bible read today
+fields.daily.horn.name: Horn blown today
+fields.daily.stones.name: Stones silent until sunset
+fields.tests.truth.name: Next test 4 easier
+fields.tests.horn.name: Next non-combat test succeeds
+situational.teeth.name: Wizard tooth (maximum damage)
+situational.sinner.name: Against a revealed sinner (+2)
+situational.invisible.name: Invisible (DR6)
+situational.grace.name: Grace for a Sinner (+d6)
+situational.poltroonAlly.name: "Poltroon's capering (+2)"
+situational.shieldSacrifice.name: Break the shield to ignore this hit
+types.scroll.state.summoned.name: Summoned
+followUps.escaping-fate.name: Escaping fate
+followUps.escaping-fate.description: An omen spent may not be
+followUps.dodging-death.name: Dodging death
+followUps.dodging-death.description: A 50% chance the scum survived
+
+# Tag names: every declared tag, parents included
+tags.ability.name: 'Ability'
+tags.advancement.name: 'Advancement'
+tags.armor.name: 'Armor'
+tags.attack.name: 'Attack'
+tags.broken.name: 'Broken'
+tags.creation.name: 'Creation'
+tags.hit-points.name: 'Hit points'
+tags.daily.name: 'Daily'
+tags.damage.name: 'Damage'
+tags.damage.direct.name: 'Direct damage'
+tags.damage.taken.name: 'Damage taken'
+tags.damage.weapon.name: 'Weapon damage'
+tags.decoction.name: 'Decoction'
+tags.defense.name: 'Defense'
+tags.healing.name: 'Healing'
+tags.initiative.name: 'Initiative'
+tags.power.name: 'Power'
+tags.test.name: 'Test'
+
+# Content blocks: each type's stat line, from the item's own fields (no book text), and the names of
+# the enum values they show.
+types.weapon.block: >-
+  **{name}** — *{ranged, select, true {Ranged weapon} other {Melee weapon}}* · {damage}
+  {twoHanded, select, true {· Two-handed } other {}}{has_ammo, select, true {· Ammo: {ammo_name} } other {}}{has_attackDrModifier, select, true {· Attack DR {attackDrModifier, number, ::sign-always} } other {}}{has_defenseDrModifier, select, true {· Defense DR {defenseDrModifier, number, ::sign-always} } other {}}{has_price, select, true {· {price}s} other {}}
+types.weapon.fields.ammo.values.arrows.name: 'Arrows'
+types.weapon.fields.ammo.values.bolts.name: 'Bolts'
+types.armor.block: >-
+  **{name}** — *Armor* · Tier {tier}:
+  −{tier, select, 1 {d2} 2 {d4} other {d6}} damage{has_self_damage, select, true {{self_damage, plural, =0 {} other { (# lost)}}} other {}}
+  {has_price, select, true {· {price}s} other {}}
+types.shield.block: '**{name}** — *Shield* · −1 damage{has_price, select, true { · {price}s} other {}}'
+types.scroll.block: >-
+  **{name}** — *{kind_name} scroll*{has_amount, select, true { · {amount} {amountKind_name}} other {}}
+  {has_targets, select, true {· {targets} targets } other {}}{has_duration, select, true {· {duration}{durationAddsPresence, select, true { + Presence} other {}} {durationUnit_name} } other {}}{has_resistDr, select, true {· Resist DR {resistDr} } other {}}{has_price, select, true {· {price}s} other {}}
+types.scroll.fields.kind.values.unclean.name: 'Unclean'
+types.scroll.fields.kind.values.sacred.name: 'Sacred'
+types.scroll.fields.amountKind.values.damage.name: 'damage'
+types.scroll.fields.amountKind.values.healing.name: 'HP healed'
+types.scroll.fields.amountKind.values.temporary-hp.name: 'temporary HP'
+types.scroll.fields.amountKind.values.bonus.name: 'bonus'
+types.scroll.fields.amountKind.values.distance.name: '× 10 feet'
+types.scroll.fields.amountKind.values.creatures.name: 'creatures'
+types.scroll.fields.durationUnit.values.rounds.name: 'rounds'
+types.scroll.fields.durationUnit.values.minutes.name: 'minutes'
+types.decoction.block: >-
+  **{name}** — *Decoction*{has_amount, select, true { · {amount} {amountKind_name}} other {}}
+  {has_duration, select, true {· {duration} {durationUnit_name} } other {}}{has_resistDr, select, true {· Resist DR {resistDr} } other {}}{curesInfection, select, true {· Cures infection} other {}}
+types.decoction.fields.amountKind.values.damage.name: 'damage'
+types.decoction.fields.amountKind.values.healing.name: 'HP healed'
+types.decoction.fields.durationUnit.values.rounds.name: 'rounds'
+types.decoction.fields.durationUnit.values.minutes.name: 'minutes'
+types.decoction.fields.durationUnit.values.hours.name: 'hours'
+types.class.block: >-
+  **{name}** — *Class* · Strength {strength}, Agility {agility}, Presence {presence}, Toughness {toughness}
+  · HP {hitDie} · Omens {omensDie} · {silver} × 10s
+
+# Enum value names: action parameters' values.
+actions.rest.params.length.values.short.name: 'Short rest'
+actions.rest.params.length.values.long.name: "Night's rest"
+actions.take-damage.name: Take damage
+actions.take-damage.description: 'Lose HP from a hit, less the armor die and shield, or direct damage that ignores them.'
+actions.take-damage.params.amount.name: Damage
+actions.take-damage.params.direct.name: Direct damage (ignores armor and shield)
+actions.take-damage.results.taken.name: Damage taken
+actions.heal.name: Heal
+actions.heal.description: 'Regain HP, up to the maximum.'
+actions.heal.params.amount.name: HP regained
+actions.heal.results.healed.name: Healed

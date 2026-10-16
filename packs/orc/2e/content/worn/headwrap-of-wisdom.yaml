@@ -1,0 +1,32 @@
+id: worn.headwrap-of-wisdom
+type: worn
+tags: [trait.apex, trait.invested, trait.magical]
+fields:
+  level: 17
+  price: 15000
+  usage: circlet
+  activation: one
+  frequency: once-per-day
+grants:
+  - { item: spells.augury, when: 'self.equipped && self.invested' }
+effects:
+  - {
+      target: attributes.wis.mod,
+      op: add,
+      value: 1,
+      when: 'self.equipped && self.invested && self.apex',
+    }
+  - {
+      target: attributes.wis.mod,
+      op: atLeast,
+      value: 4,
+      when: 'self.equipped && self.invested && self.apex',
+    }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.augury && self.used < 1'
+    value:
+      id: augury
+      flags: { itemPaid: true, rank: 2 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

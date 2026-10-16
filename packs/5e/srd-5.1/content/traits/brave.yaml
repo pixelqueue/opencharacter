@@ -1,0 +1,8 @@
+id: traits.brave
+type: trait
+effects:
+  - { target: items.frightSave, op: add, value: 1 }
+  - target: { rolls: [save] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: situational.frightSave

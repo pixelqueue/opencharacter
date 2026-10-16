@@ -1,0 +1,25 @@
+# The goblin stat block with condition immunities (a goblin has none in the SRD; this is a test).
+specVersion: 0.1.0
+id: goblin
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 8
+  5e-srd-5.1:abilities.dex.base: 14
+  5e-srd-5.1:abilities.con.base: 10
+  5e-srd-5.1:abilities.int.base: 10
+  5e-srd-5.1:abilities.wis.base: 8
+  5e-srd-5.1:abilities.cha.base: 8
+  5e-srd-5.1:challenge.rating: 0.25
+  5e-srd-5.1:hp.base: 7
+  5e-srd-5.1:hp.current: 7
+  5e-srd-5.1:combat.speed: 30
+  5e-srd-5.1:conditions.immunities:
+    [5e-srd-5.1:conditions.charmed, 5e-srd-5.1:conditions.restrained]
+features:
+  - id: nimble-escape
+    item: 5e-srd-5.1:traits.nimble-escape
+applied:
+  - { id: charm, source: 5e-srd-5.1:conditions.charmed }
+  - { id: web, source: 5e-srd-5.1:conditions.restrained }
+  - { id: trip, source: 5e-srd-5.1:conditions.prone }

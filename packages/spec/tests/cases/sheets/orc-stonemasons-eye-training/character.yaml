@@ -1,0 +1,29 @@
+# A 1st-level dwarf laborer fighter: the laborer and the fighter both train Athletics, which frees
+# a training (Medicine, `extra-training`); Stonemason's Eye, picked after, trains Crafting and
+# counts it, so the freed training stays.
+specVersion: 0.1.0
+id: test-stonemasons-eye-training
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.dwarf
+  - id: background
+    item: orc-2e:backgrounds.laborer
+    choices:
+      boost:
+        - option: orc-2e:boosts.str
+      free-boost:
+        - option: orc-2e:boosts.con
+  - id: class
+    item: orc-2e:classes.fighter
+    choices:
+      key-attribute:
+        - option: str
+      class-skill:
+        - option: skill.athletics
+choices:
+  extra-training:
+    - option: skill.medicine
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.stonemasons-eye

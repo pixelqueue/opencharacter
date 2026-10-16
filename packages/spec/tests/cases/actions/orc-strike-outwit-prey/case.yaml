@@ -1,0 +1,20 @@
+description: "orc-2e: a Strike against an Outwit ranger whose hunted prey is the attacker reads
+  the ranger's AC against its prey: 11 + 9 - 5 = 15 misses AC 16, where it would hit the
+  ranger's AC 15"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:strike
+    entry: longsword
+  params:
+    attack: 2
+  participants:
+    target:
+      - id: wren
+        values:
+          orc-2e:defenses.ac: 15
+          orc-2e:defenses.acPrey: 16
+          orc-2e:prey.target: example-orc-valeria

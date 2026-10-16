@@ -1,0 +1,65 @@
+description: "An added option's flags: evaluated with the content's `item` and `self` and the action's as `action`, set before the option's changes, so they and later steps read them (a trait casting at a fixed level with its own ability)"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [cost]
+        fields:
+          slots: { type: integer, input: true, default: 2 }
+        contentTypes:
+          trait:
+            fields:
+              castLevel: { type: integer, default: 1 }
+            state:
+              used: { type: boolean, default: false }
+              lastLevel: { type: integer, default: 0 }
+        actions:
+          - id: cast
+            params:
+              slot: { type: integer, default: 1 }
+            steps:
+              - id: start
+                kind: branch
+                cases:
+                  - when: true
+                    flags: { slot: params.slot, ability: "'class'" }
+              - id: cost
+                kind: choice
+                tags: [cost]
+                options:
+                  - id: slot
+                    changes:
+                      - { type: adjust, field: slots, by: -1 }
+                recommend: "'slot'"
+              - id: done
+                kind: outcome
+                data: { slot: flags.slot, ability: flags.ability }
+      content:
+        - id: traits.legacy
+          type: trait
+          fields: { castLevel: 2 }
+          effects:
+            - target: { choices: [cost] }
+              op: option
+              when: '!self.used'
+              value:
+                id: legacy
+                flags: { slot: item.castLevel, ability: "'cha'" }
+                changes:
+                  - { type: setState, entry: self, key: used, value: true }
+                  - { type: setState, entry: self, key: lastLevel, value: flags.slot }
+input:
+  action: { id: test-pack:cast }
+  policy:
+    choices: auto
+    rules:
+      - { kind: choice, tags: [cost], then: pause }
+answers:
+  - { option: 'test-pack:traits.legacy#legacy' }

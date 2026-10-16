@@ -1,0 +1,10 @@
+id: afflictions.sewer-haze
+type: affliction
+tags: [trait.disease, trait.virulent]
+fields: { kind: disease, level: 7, dc: 23, stages: 3 }
+grants:
+  - { item: conditions.stupefied, scope: applied, when: self.stage == 1, state: { value: 2 } }
+  - { item: conditions.drained, scope: applied, when: self.stage == 2, state: { value: 2 } }
+  - { item: conditions.stupefied, scope: applied, when: self.stage == 2, state: { value: 2 } }
+  - { item: conditions.drained, scope: applied, when: self.stage == 3, state: { value: 3 } }
+  - { item: conditions.stupefied, scope: applied, when: self.stage == 3, state: { value: 3 } }

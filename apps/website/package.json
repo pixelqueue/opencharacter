@@ -1,0 +1,24 @@
+{
+  "name": "@opencharacter/website",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Open Character Format documentation website (Astro Starlight), deployed to GitHub Pages.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "sync": "tsx scripts/sync-docs.ts",
+    "dev": "pnpm sync && astro dev --force",
+    "build": "pnpm sync && astro build --force && tsx scripts/agent-files.ts && tsx scripts/check-links.ts",
+    "preview": "astro preview",
+    "og": "tsx scripts/og-image.ts"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "~3.7.4",
+    "@astrojs/starlight": "~0.42.6",
+    "@fontsource-variable/jetbrains-mono": "~5.3.0",
+    "astro": "~7.3.8"
+  },
+  "devDependencies": {
+    "tsx": "4.23.15"
+  }
+}

@@ -1,0 +1,9 @@
+id: feats.barbarian.supernatural-senses
+type: feat
+tags: [trait.rage]
+fields: { level: 4, category: class, class: classes.barbarian }
+prerequisites:
+  - { id: senses, when: "@feats.barbarian.acute-scent in feats.held || 'sense.scent' in senses" }
+
+effects:
+  - { target: senses.keenEyes, op: set, value: true, when: rage.active }

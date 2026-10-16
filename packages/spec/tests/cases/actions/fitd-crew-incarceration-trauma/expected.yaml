@@ -1,0 +1,29 @@
+# Tier I in prison, no prison claims: 1d6 [2] is a failure, and without Cell Block
+# Control the member passed as prisoner takes a trauma, in the scoundrel pack's field.
+status: finished
+outcome:
+  result: failure
+  data:
+    prisonClaim: false
+    trauma: true
+    sentence: 2
+proposedChanges:
+  - to: self
+    step: wanted
+    change:
+      type: set
+      field: fitd-crew:wanted.current
+      value: 1
+  - to: self
+    step: wanted
+    change:
+      type: set
+      field: fitd-crew:heat.current
+      value: 0
+  - to: prisoner
+    character: kit
+    step: trauma
+    change:
+      type: adjust
+      field: fitd-scoundrel:trauma.current
+      by: 1

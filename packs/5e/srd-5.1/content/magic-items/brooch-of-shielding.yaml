@@ -1,0 +1,13 @@
+id: magic-items.brooch-of-shielding
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  - {
+      target: { incoming: { fields: [hp.current], tags: [damage.force] } },
+      op: multiply,
+      value: 0.5,
+      when: self.equipped && self.attuned,
+    }

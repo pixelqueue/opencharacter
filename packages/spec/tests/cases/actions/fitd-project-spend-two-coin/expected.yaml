@@ -1,0 +1,24 @@
+# Study 1d6 [2]: a failure. 2 coin make it a success: 3 ticks. With 3 coin and a failure, the
+# choice offers keep and spending 1, 2 or 3.
+status: finished
+outcome:
+  result: progress
+  data: { ticks: 3, roll: failure }
+proposedChanges:
+  - { to: self, step: spend, change: { type: adjust, field: fitd-scoundrel:coin, by: -2 } }
+  - {
+      to: self,
+      step: progress,
+      change: { type: adjustState, entry: research, key: progress, by: 3 },
+    }
+log:
+  - {
+      step: roll/roll,
+      kind: dice,
+      by: engine,
+      faces: [2],
+      total: 2,
+      band: failure,
+      bandSet: fitd-scoundrel:action,
+    }
+  - { step: coin, kind: choice, by: app, option: spend2 }

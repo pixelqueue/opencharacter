@@ -1,0 +1,30 @@
+# Wounds 1 -> 2 of 2: the wound roll (on the overflow entry), then the death save, which has no
+# cause.
+ok: true
+followUps:
+  - id: wound-1
+    kind: ephemeral
+    followUp: mothership-1e:wound
+    to: self
+    required: true
+    action:
+      id: mothership-1e:wound-roll
+      followUp: wound-1
+    params: {}
+    cause:
+      field: mothership-1e:wounds.current
+      by: 1
+      requested: 0
+      taken: 0
+      reason: overflow
+      clamped: false
+      tags: []
+  - id: dying-1
+    kind: ephemeral
+    followUp: mothership-1e:dying
+    to: self
+    required: true
+    action:
+      id: mothership-1e:death-save
+      followUp: dying-1
+    params: {}

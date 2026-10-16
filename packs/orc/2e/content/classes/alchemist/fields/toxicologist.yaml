@@ -1,0 +1,20 @@
+id: classes.alchemist.fields.toxicologist
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: alchemist.field, op: set, value: "'toxicologist'" }
+  - target: { incoming: { fields: [hp.current], tags: [damage.poison] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, floor(level / 2))
+    when: level >= 5 && incoming.amount < 0
+choices:
+  - id: formulas
+    unique: formulas
+    pick: 2
+    activate: false
+    from:
+      type: consumable
+      where: "'trait.alchemical' in item.tags && has(item.family) && item.family == item.id && !('trait.uncommon' in item.tags) && item.level <= 1 && 'trait.poison' in item.tags && !('trait.bomb' in item.tags)"
+    effects:
+      - { target: alchemist.formulas, op: grant, value: { formula: pick.id } }

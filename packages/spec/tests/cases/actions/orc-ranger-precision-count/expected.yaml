@@ -1,0 +1,17 @@
+# The shortbow (+7) rolls 12: 19 against AC 15, a hit for 1d6 (4), no precision die (the second
+# hit at 1st level). The hit on the prey is counted.
+status: finished
+outcome:
+  result: success
+  data: { attack: 19, dc: 15, map: 0, flatCheck: true, damage: 4 }
+proposedChanges:
+  - to: self
+    step: count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
+  - to: target
+    character: wolf
+    step: deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -4, tags: [damage, damage.piercing] }
+  - to: self
+    step: onHit
+    change: { type: adjust, field: orc-2e:prey.hits, by: 1 }

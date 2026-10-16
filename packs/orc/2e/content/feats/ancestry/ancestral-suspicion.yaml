@@ -1,0 +1,18 @@
+id: feats.ancestry.ancestral-suspicion
+type: feat
+fields: { level: 5, category: ancestry, ancestry: ancestries.elf }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: 'situational.againstControl'
+  - target: { rolls: [save], tally: successToCrit }
+    op: add
+    value: 1
+    when: 'situational.againstControl'
+  - target: { rolls: [perception] }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: "situational.againstControl && 'skill-action.sense-motive' in roll.tags"

@@ -1,0 +1,17 @@
+id: feats.archetype.archaeologist.greater-magical-scholastics
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 10, category: class, archetype: archetypes.archaeologist }
+prerequisites:
+  - {
+      id: magical-scholastics,
+      when: '@feats.archetype.archaeologist.magical-scholastics in feats.held',
+    }
+effects:
+  - { target: spells.innate, op: grant, value: { item: spells.augury } }
+  - { target: spells.innate, op: grant, value: { item: spells.locate } }
+  - { target: spells.innate, op: grant, value: { item: spells.veil-of-privacy } }
+grants:
+  - item: spells.augury
+  - item: spells.locate
+  - item: spells.veil-of-privacy

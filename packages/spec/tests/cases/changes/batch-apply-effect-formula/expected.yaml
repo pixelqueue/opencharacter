@@ -1,0 +1,10 @@
+# The ward absorbs 2 of the 6, so the hit points lose 4, under the cap of 6: the wound holds 4,
+# written into the file and into the change as applied.
+ok: true
+changes:
+  - { type: adjust, field: test-pack:hp, by: -6, tags: [damage] }
+  - { type: applyEffect, source: test-pack:wounds.bleeding, state: { amount: 4 } }
+character:
+  values: { test-pack:ward: 0, test-pack:hp: 6 }
+  applied:
+    - { id: wounds-bleeding-1, source: test-pack:wounds.bleeding, state: { amount: 4 } }

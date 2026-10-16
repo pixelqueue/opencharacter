@@ -1,0 +1,29 @@
+id: monsters.grick.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 1 }
+    results: [done]
+    steps:
+      - id: tentacles
+        kind: action
+        use: monster-attack
+        source: "'monsters.grick.tentacles'"
+        participants:
+          target: participants.target
+      - id: beak
+        kind: action
+        when: "steps.tentacles.result == 'hit'"
+        use: monster-attack
+        source: "'monsters.grick.beak'"
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.tentacles) && steps.tentacles.result == 'hit' ? 1 : 0)
+              + (has(steps.beak) && steps.beak.result == 'hit' ? 1 : 0)

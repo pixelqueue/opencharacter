@@ -1,0 +1,18 @@
+id: magic-items.potion-of-heroism
+type: magicItem
+fields:
+  category: potion
+  rarity: rare
+  lasting: true
+  spells: [spells.bless]
+  tempHp: 10
+effects:
+  - {
+      target: { rolls: [attack, save] },
+      op: add,
+      value: 1d4,
+      scope: applied,
+      duration: { amount: 1, unit: hour },
+    }
+actions:
+  - use: drink-potion

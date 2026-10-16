@@ -1,0 +1,13 @@
+id: feats.ancestry.envenomed-edge
+type: feat
+fields: { level: 13, category: ancestry, ancestry: ancestries.tripkee }
+# A versatile weapon counts only its main damage type.
+effects:
+  - target: { steps: [strike.hit.critical] }
+    op: changes
+    when: "action.item.damageType in ['slashing', 'piercing']"
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.persistent-damage'"
+          state: { damage: 1d4, damageType: "'poison'" }

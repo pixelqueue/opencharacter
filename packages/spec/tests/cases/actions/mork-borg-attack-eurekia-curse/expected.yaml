@@ -1,0 +1,50 @@
+# 11 + 1 (Strength) = 12 against DR 12 hits. Eurekia's 2d6 = 3 + 4 = 7. The curse d6 is a 1: the
+# linked Hamfund is set below 0 HP (dead) and Eurekia is removed.
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 7
+    sepsis: false
+    skullSmashed: false
+proposedChanges:
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -7
+      tags:
+        - damage
+  - to: { link: mork-borg-core:hamfund }
+    character: example-hamfund
+    step: slay
+    change: { type: set, field: mork-borg-core:hp.current, value: -1 }
+  - to: self
+    step: vanish
+    change: { type: removeItem, entry: eurekia }
+log:
+  - step: check/check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 11
+    total: 12
+    band: success
+    bandSet: mork-borg-core:test
+  - step: damage
+    action: mork-borg-core:attack
+    kind: dice
+    by: engine
+    faces:
+      - 3
+      - 4
+    total: 7
+  - step: curse
+    action: mork-borg-core:attack
+    kind: dice
+    by: engine
+    faces:
+      - 1
+    total: 1

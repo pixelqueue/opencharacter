@@ -1,0 +1,25 @@
+id: classes.witch.patrons.wilding-steward
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: witch.patron, op: set, value: "'wilding-steward'" }
+  - { target: spellcasting.tradition, op: set, value: "'primal'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.nature },
+      when: "!('skill.nature' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - item: spells.wilding-word
+choices:
+  - id: lesson-spell
+    from:
+      options:
+        - id: summon-animal
+          effects:
+            - { target: spells.book, op: grant, value: { item: spells.summon-animal } }
+        - id: summon-plant-or-fungus
+          effects:
+            - { target: spells.book, op: grant, value: { item: spells.summon-plant-or-fungus } }

@@ -1,0 +1,14 @@
+description: "Fate Core: a three-way contest exchange; Mara's Good (+3) loses to one opponent's Fantastic (+6) and beats the other's Fair (+2); the winner beat the runner-up by 3, so it marks two victories on its own sheet"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:contest-exchange }
+  params: { skill: fate-core:skills.athletics }
+  participants:
+    opponent: [{ id: teran, values: {} }, { id: og, values: {} }]
+  policy: { choices: auto }
+answers:
+  - outcome: { result: style, data: { total: 6 } }
+  - outcome: { result: fail, data: { total: 2 } }

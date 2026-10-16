@@ -1,0 +1,13 @@
+id: special-abilities.a-little-something-on-the-side
+type: specialAbility
+actions:
+  - id: side-income
+    tags: [downtime]
+    results: [stashed]
+    steps:
+      - id: stash
+        kind: changes
+        to: self
+        changes:
+          - { type: adjust, field: stash, by: 2 }
+      - { id: result, kind: outcome, result: "'stashed'" }

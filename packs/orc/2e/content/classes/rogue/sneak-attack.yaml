@@ -1,0 +1,22 @@
+id: classes.rogue.sneak-attack
+type: feature
+fields: { level: 1 }
+# The die limit reads the weapon's own die, not one a trait changes.
+effects:
+  - id: dice
+    target: sneakAttack.dice
+    op: set
+    value: 'level >= 17 ? 4 : level >= 11 ? 3 : level >= 5 ? 2 : 1'
+  - id: sneak-attack
+    target: { rolls: [damage.strike] }
+    op: add
+    value: dieOf(1d6, sneakAttack.dice)
+    tags: [precision, { formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      (situational.offGuardTarget
+        || (has(participants.target) && size(participants.target) > 0
+          && participants.target[0].conditions.offGuard))
+        && (roll.item.range > 0 || 'trait.agile' in roll.item.tags
+          || 'trait.finesse' in roll.item.tags
+          || (rogue.racket == 'ruffian' && maxOf(dieOf(roll.item.damage))
+            <= (roll.item.category == 'simple' ? 8 : 6)))

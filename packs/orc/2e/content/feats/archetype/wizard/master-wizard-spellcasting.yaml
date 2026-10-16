@@ -1,0 +1,10 @@
+id: feats.archetype.wizard.master-wizard-spellcasting
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 18, category: class, archetype: archetypes.wizard }
+prerequisites:
+  - { id: expert, when: '@feats.archetype.wizard.expert-wizard-spellcasting in feats.held' }
+  - { id: arcana, when: 'skills.arcana.rank >= 4' }
+effects:
+  - { target: spellcasting.archetype.wizard.benefits, op: atLeast, value: 3 }
+  - { target: spellcasting.archetype.wizard.rank, op: atLeast, value: 3 }

@@ -1,0 +1,22 @@
+# 3. health takes -5 -> -2; 4. at min, inclusive: -2 <= 0 -> wounds.current + 1 (0 -> 1),
+# then health resets to health.max 14 (-2 -> 14 = +16), and the 2 past 0 carries over (-2)
+ok: true
+adjustments:
+  - { field: mothership-1e:health.current, by: -5, requested: -5, taken: -5, reason: requested }
+  - { field: mothership-1e:wounds.current, by: 1, reason: overflow }
+  - { field: mothership-1e:health.current, by: 16, reason: reset }
+  - { field: mothership-1e:health.current, by: -2, reason: carry }
+character:
+  values:
+    mothership-1e:stats.strength: 32
+    mothership-1e:stats.speed: 38
+    mothership-1e:stats.intellect: 29
+    mothership-1e:stats.combat: 41
+    mothership-1e:saves.sanity: 24
+    mothership-1e:saves.fear: 31
+    mothership-1e:saves.body: 27
+    mothership-1e:stress.current: 4
+    mothership-1e:health.max: 14
+    mothership-1e:health.current: 12
+    mothership-1e:wounds.max: 2
+    mothership-1e:wounds.current: 1

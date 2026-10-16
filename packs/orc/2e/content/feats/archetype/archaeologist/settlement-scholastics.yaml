@@ -1,0 +1,17 @@
+id: feats.archetype.archaeologist.settlement-scholastics
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: skill, archetype: archetypes.archaeologist }
+repeatable: true
+
+prerequisites:
+  - {
+      id: archaeologist-dedication,
+      when: '@feats.archetype.archaeologist.archaeologist-dedication in feats.held',
+    }
+grants:
+  - { item: feats.skill.additional-lore }
+effects:
+  # Each time it is taken, it counts as another feat of the archetype.
+  - { target: archetypes.archaeologist.repeats, op: add, value: 1 }
+  - { target: languages.extra, op: add, value: 1 }

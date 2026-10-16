@@ -1,0 +1,15 @@
+description: 'Fate Core: creating an advantage on an aspect already in play: a tie still places one free invocation on it (a new aspect would give only a boost)'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:create-advantage }
+  params:
+    {
+      skill: fate-core:skills.empathy,
+      opposition: 3,
+      existing: true,
+      aspect: Sucker for a Pretty Face,
+    }
+  policy: { choices: auto }

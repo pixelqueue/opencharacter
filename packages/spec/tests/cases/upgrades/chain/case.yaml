@@ -1,0 +1,62 @@
+description: Scripts chain one version at a time (1.0.0 -> 2.0.0 -> 3.0.0)
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might:
+            type: integer
+            input: true
+            default: 1
+            min: 0
+            max: 10
+        contentTypes:
+          gear:
+            carried: true
+      content:
+        - id: gear.rope
+          type: gear
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 3.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might:
+            type: integer
+            input: true
+            default: 1
+            min: 0
+            max: 10
+        contentTypes:
+          gear:
+            carried: true
+      content:
+        - id: gear.line
+          type: gear
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - op: renameContent
+              from: gear.rope
+              to: gear.cord
+        - pack: test-pack
+          from: 2.0.0
+          to: 3.0.0
+          steps:
+            - op: renameContent
+              from: gear.cord
+              to: gear.line

@@ -1,0 +1,36 @@
+# Skirmish 2 + the push die -> 3d6kh1 [2, 4, 6]: success; pushing for effect makes it great.
+# The player pays with Battleborn's special armor: it is marked, and since the armor pays for
+# one push only, the other costs 2 stress. The rules' 4 stress isn't proposed.
+status: finished
+outcome:
+  result: success
+  data:
+    position: risky
+    effect: great
+proposedChanges:
+  - to: self
+    step: pushCost
+    change:
+      type: set
+      field: fitd-scoundrel:armor.special
+      value: true
+  - to: self
+    step: pushCost
+    change:
+      type: adjust
+      field: fitd-scoundrel:stress.current
+      by: 2
+log:
+  - step: roll
+    action: fitd-scoundrel:action-roll
+    kind: dice
+    by: engine
+    faces: [2, 4, 6]
+    total: 6
+    band: success
+    bandSet: fitd-scoundrel:action
+  - step: pushCost
+    action: fitd-scoundrel:action-roll
+    kind: choice
+    by: app
+    option: 'fitd-scoundrel:special-abilities.battleborn#special-armor'

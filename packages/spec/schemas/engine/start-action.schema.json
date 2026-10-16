@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/engine/start-action.schema.json",
+  "title": "startAction",
+  "description": "The optional dice function is a language-level callback (count, sides → faces), not data, so it is not part of this schema.",
+  "$defs": {
+    "input": {
+      "type": "object",
+      "required": ["ruleset", "character", "action"],
+      "properties": {
+        "ruleset": {
+          "$ref": "ruleset.schema.json"
+        },
+        "character": {
+          "$ref": "../character.schema.json"
+        },
+        "action": {
+          "type": "object",
+          "required": ["id"],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "entry": {
+              "description": "The copy the action belongs to, or the applied entry whose source offers it (`scope: applied`), as computeSheet lists it.",
+              "$ref": "../common.schema.json#/$defs/instanceId"
+            },
+            "source": {
+              "description": "The content the action comes from, as computeSheet lists it: required for an action of picked or granted content, absent otherwise.",
+              "$ref": "../common.schema.json#/$defs/qualifiedId"
+            },
+            "followUp": {
+              "description": "The offer this run takes up: the ID of an entry of computeSheet's `offers` for the character, as its `action` gives it. For an ephemeral offer, the finished run's proposed changes end with `{ type: clearFollowUp, id }` for `self` (step `''`), so applying them deletes the stored entry in the same batch; a failed run, or changes never applied, clear nothing. A derived offer needs no clearing: the action's changes end the condition. An ID the character isn't offered is `unknown-follow-up`.",
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "params": {
+          "type": "object"
+        },
+        "situational": {
+          "description": "Selected situational choices by qualified ID.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "../common.schema.json#/$defs/literal"
+          }
+        },
+        "policy": {
+          "$ref": "action-run.schema.json#/$defs/policy"
+        },
+        "links": {
+          "$ref": "compute-sheet.schema.json#/$defs/links"
+        },
+        "participants": {
+          "description": "The other characters taking part, by role the action declares: per role, a list of views in order, each `{ id, values }` from that character's own computeSheet. IDs are unique across the call (`duplicate-id`). Values match the role's declared fields by field ID without the pack; a wrong type, or two values with one field ID, is `invalid-link-value`. An undeclared role, or a count outside the role's `min`/`max`, is `invalid-participants`.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "../common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "compute-sheet.schema.json#/$defs/view"
+            }
+          }
+        },
+        "answers": {
+          "description": "Answers to replay, one per pause in order, each exactly as continueAction takes it. The result is what startAction then continueAction with each answer in turn would return, with the same policy and dice function: finished, paused at the first pause left unanswered, or a failure. An answer that doesn't fit its pause, or one left over after the action finishes, is `answer-mismatch` with `data.index` (its index here) and, for a pause, `data.needs`. Omitted or empty, startAction runs as without it.",
+          "type": "array",
+          "items": {
+            "$ref": "action-run.schema.json#/$defs/answer"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "$ref": "action-run.schema.json#/$defs/result"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+description: "orc-2e: Spell Substitution empties a prepared slot not yet cast and prepares another spell from the spellbook at the slot's rank"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:classes.wizard.theses.spell-substitution#substitute-spell'
+    entry: class
+    source: orc-2e:classes.wizard.theses.spell-substitution
+  policy:
+    choices: pause
+answers:
+  - option: fear-1
+  - option: orc-2e:spells.grease

@@ -1,0 +1,35 @@
+# Carried: armor 2 + the rifle 2 + the spent vial 0 = 4, over the light load of 3. The spare
+# gadget isn't carried. Only the rifle can be used: the vial has no uses left, and the gadget
+# isn't carried on this score. Alchemist's starting formula (a standard copy)
+# offers craft-design first: features come before the inventory.
+values:
+  fitd-scoundrel:load.used:
+    value: 4
+  fitd-scoundrel:load.limit:
+    value: 3
+issues:
+  - code: constraint-failed
+    id: fitd-scoundrel:load-limit
+actions:
+  - action: fitd-scoundrel:craft-design
+    entry: fitd-scoundrel-designs-alchemical
+  - action: fitd-scoundrel:use-creation
+    entry: rifle
+  - action: fitd-scoundrel:take-harm
+  - action: fitd-scoundrel:heal
+  - action: fitd-scoundrel:craft
+  - action: fitd-scoundrel:flashback
+  - action: fitd-scoundrel:stash-coin
+  - action: fitd-scoundrel:withdraw-stash
+  - action: fitd-scoundrel:train
+  - action: fitd-scoundrel:start-project
+  - action: fitd-scoundrel:reduce-heat
+  - action: fitd-scoundrel:ability-stress
+  - action: fitd-scoundrel:acquire-asset
+  - action: fitd-scoundrel:ignore-vice
+  - action: fitd-scoundrel:action-roll
+  - action: fitd-scoundrel:group-action
+  - action: fitd-scoundrel:resistance-roll
+  - action: fitd-scoundrel:recovery-roll
+  - action: fitd-scoundrel:indulge-vice
+  - action: fitd-scoundrel:fortune-roll

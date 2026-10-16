@@ -1,0 +1,14 @@
+id: runes.energy-resistant
+type: template
+tags: [trait.magical, trait.invested, rune.property]
+appliesTo: { type: armor }
+fields: { price: '(has(prior.price) ? prior.price : 0) + 420' }
+choices:
+  - id: damage-type
+    from: { values: [acid, cold, electricity, fire] }
+    effects:
+      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: add
+        stackKey: resistance
+        value: 'min(-incoming.amount, 5)'
+        when: "self.equipped && self.invested && incoming.amount < 0 && ('damage.' + pick.value) in incoming.tags"

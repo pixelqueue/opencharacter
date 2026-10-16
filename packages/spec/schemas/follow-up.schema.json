@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/follow-up.schema.json",
+  "title": "Follow-up",
+  "description": "What the rules call for on a character: an action to run, changes to apply, or a linked character to make. Two kinds. A **derived** offer (`while`) is offered exactly as long as its condition holds; computeSheet derives it and nothing is stored. An **ephemeral** offer (`on`, an adjustment to a field; `becomes`, a condition false before a batch and true after it) is stored in the character file by the applyChanges that triggered it, until it is acted on or dismissed (a `becomes` one also until its condition is false). The engine never runs or applies either. Declared at the rules level, on a content type or on a content item; on content it applies while the character has the copy or pick, as effects do. A follow-up with no trigger (none of `on`, `becomes` and `while`) is offered only by an action proposing an `offerFollowUp` change that names it, and is then stored as an ephemeral one; an `on` or `becomes` one may be offered so too.",
+  "type": "object",
+  "required": ["id"],
+  "properties": {
+    "id": {
+      "description": "Unique among the rules' follow-ups, or within the content type or item. Text keys: `followUps.<id>.name` and `.description` (rules), `<contentId>.followUps.<id>.…` and `types.<type>.followUps.<id>.…` (both optional).",
+      "$ref": "common.schema.json#/$defs/slug"
+    },
+    "on": {
+      "description": "An ephemeral offer: fires once for each entry of the batch's `adjustments` on `field` whose tags include any of `tags` (a tag matches its subtags), or any entry on the field when `tags` is left out. Overflow entries count. In `when`, `params` and `changes`, `change` is that entry. With `once: true` it fires at most once per batch, when at least one entry matches, and `change` is the matching entries summed.",
+      "type": "object",
+      "required": ["field"],
+      "properties": {
+        "field": {
+          "$ref": "common.schema.json#/$defs/fieldRef"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/tag"
+          },
+          "minItems": 1
+        },
+        "once": {
+          "description": "Fire at most once per batch, on the matching entries summed: `by`, `requested` and `taken` the sums (an absent part counting 0), `tags` the union in entry order, `reason` the first entry's, `clamped` true if any entry's is. `when` is evaluated once, on the sum. A batch is one action's changes as the app applies them, so this is once per source when each attack is its own batch. Default false.",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "becomes": {
+      "description": "An ephemeral offer: fires once when this condition is false on the character before the batch and true after it, and is stored until acted on or dismissed, or until the condition is false after a batch; a copy still stored isn't stored again. For content the character didn't have before the batch, it counts as false before.",
+      "$ref": "formula.schema.json#/$defs/condition"
+    },
+    "while": {
+      "description": "A derived offer: offered whenever this condition holds on the character, derived by computeSheet and never stored, so a character set up by hand or imported sees it too. The condition must test the imbalance itself (experience earns more levels than the character has), not a proxy for it (experience changed since the last level-up), so taking the offer and editing the sheet by hand both end it. Re-evaluated after every change, so a level-up is offered one level at a time.",
+      "$ref": "formula.schema.json#/$defs/condition"
+    },
+    "when": {
+      "description": "Evaluated on the character after the whole batch (an ephemeral offer) or on the current character (a derived offer); the follow-up fires or is offered only when it holds.",
+      "$ref": "formula.schema.json#/$defs/condition"
+    },
+    "to": {
+      "description": "Whose follow-up it is: `self` (the default, the character the batch changed) or `{ link: <slot> }`, the character filling one of its link slots. A follow-up to a link names the linked character's action, fields and content by qualified ID.",
+      "anyOf": [
+        {
+          "const": "self"
+        },
+        {
+          "type": "object",
+          "required": ["link"],
+          "properties": {
+            "link": {
+              "$ref": "common.schema.json#/$defs/name"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "action": {
+      "description": "The action to run: a rules action (local or qualified ID) or, on content, also the content's own action.",
+      "type": "string"
+    },
+    "params": {
+      "description": "Formulas for the action's parameters. Parameters it doesn't fix are left for the app to supply.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "formula.schema.json"
+      }
+    },
+    "changes": {
+      "description": "Changes to apply, resolved like an action's `changes` step: formulas evaluated, fields qualified, `entry: self` the content's copy. No `split`.",
+      "type": "array",
+      "items": {
+        "$ref": "change.schema.json#/$defs/proposed"
+      },
+      "minItems": 1
+    },
+    "create": {
+      "description": "A derived offer to make a new character for one of the character's empty link slots: the app makes a character file with `creating: true`, runs the named creation start on it with `params`, and saves the new character's ID in this character's `links`, which ends the offer. Only with `while`, and instead of `action`, `changes` and `to`. Offered while `while` and `when` hold and the slot is empty (no saved link and no view).",
+      "type": "object",
+      "required": ["link", "start"],
+      "properties": {
+        "link": {
+          "description": "The empty link slot to fill: a slot the pack sees, by name (`hound`) or qualified ID.",
+          "type": "string",
+          "pattern": "^([a-z0-9]+([-.][a-z0-9]+)*:)?[a-z][a-zA-Z0-9_]*$",
+          "maxLength": 193
+        },
+        "start": {
+          "description": "The creation start to run on the new character: its `id` (`companion`), or `<pack>:<id>` with the pack that declares it. Its pack must be the slot's `pack` or one of that pack's dependencies, so a character using the slot's pack has it.",
+          "type": "string",
+          "pattern": "^([a-z0-9]+([-.][a-z0-9]+)*:)?[a-z0-9]+(-[a-z0-9]+)*$",
+          "maxLength": 193
+        },
+        "params": {
+          "description": "Formulas for the start's action's parameters, evaluated on this character; given over the start's own `params`. A formula that gives `null` leaves the parameter out.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "formula.schema.json"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "required": {
+      "description": "Whether the rules mandate it: an app shouldn't let the player skip it. Advisory only: the engine blocks nothing, it is not a rules issue, and an ephemeral one can still be dismissed. Default false.",
+      "type": "boolean"
+    }
+  },
+  "not": {
+    "description": "At most one trigger: `on`, `becomes` or `while`. With none, only an `offerFollowUp` change offers it.",
+    "anyOf": [
+      {
+        "required": ["on", "becomes"]
+      },
+      {
+        "required": ["on", "while"]
+      },
+      {
+        "required": ["becomes", "while"]
+      }
+    ]
+  },
+  "allOf": [
+    {
+      "description": "A consequence: `action`, `changes` or `create`.",
+      "if": {
+        "not": {
+          "anyOf": [
+            {
+              "required": ["action"]
+            },
+            {
+              "required": ["create"]
+            }
+          ]
+        }
+      },
+      "then": {
+        "required": ["changes"]
+      }
+    },
+    {
+      "description": "Not both, and `params` only with `action`.",
+      "if": {
+        "required": ["changes"]
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "required": ["action"]
+            },
+            {
+              "required": ["params"]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "`create`: only on a derived offer (`while`), instead of `action` and `changes`, and never to a link.",
+      "if": {
+        "required": ["create"]
+      },
+      "then": {
+        "required": ["while"],
+        "not": {
+          "anyOf": [
+            {
+              "required": ["action"]
+            },
+            {
+              "required": ["changes"]
+            },
+            {
+              "required": ["params"]
+            },
+            {
+              "required": ["to"]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

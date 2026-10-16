@@ -1,0 +1,14 @@
+id: magic-items.periapt-of-proof-against-poison
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+effects:
+  - {
+      target: { incoming: { fields: [hp.current], tags: [damage.poison] } },
+      op: multiply,
+      value: 0,
+      when: self.equipped,
+    }
+immuneTo:
+  - { id: poisoned, items: [conditions.poisoned], when: self.equipped }

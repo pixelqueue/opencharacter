@@ -1,0 +1,47 @@
+# Each rune is tagged with its kind, and the rules grant the set of each kind every rune with its
+# tag, so a copy counts its runes by kind in `self.templates`. Two runes of one fundamental kind, or
+# more property runes than the potency rune's value, add 1 to `runes.invalid`, which a constraint
+# reports.
+fields:
+  runes.potency: { type: set, of: string }
+  runes.striking: { type: set, of: string }
+  runes.resilient: { type: set, of: string }
+  runes.reinforcing: { type: set, of: string }
+  runes.property: { type: set, of: string }
+  runes.invalid: { type: integer, formula: 0 }
+
+effects:
+  - target: runes.potency
+    op: grant
+    value: { query: { type: template, where: "'rune.potency' in item.tags" } }
+  - target: runes.striking
+    op: grant
+    value: { query: { type: template, where: "'rune.striking' in item.tags" } }
+  - target: runes.resilient
+    op: grant
+    value: { query: { type: template, where: "'rune.resilient' in item.tags" } }
+  - target: runes.reinforcing
+    op: grant
+    value: { query: { type: template, where: "'rune.reinforcing' in item.tags" } }
+  - target: runes.property
+    op: grant
+    value: { query: { type: template, where: "'rune.property' in item.tags" } }
+
+constraints:
+  - id: rune-limits
+    check: runes.invalid == 0
+    data: { items: runes.invalid }
+
+situational:
+  - { id: holyTarget, type: boolean, default: false, rolls: [strike] }
+  - { id: unholyTarget, type: boolean, default: false, rolls: [strike] }
+  - { id: undeadTarget, type: boolean, default: false, rolls: [strike] }
+
+# The sets are lookups (every rune of the kind), not the character's own.
+display:
+  fields:
+    runes.potency: { hidden: true }
+    runes.striking: { hidden: true }
+    runes.resilient: { hidden: true }
+    runes.reinforcing: { hidden: true }
+    runes.property: { hidden: true }

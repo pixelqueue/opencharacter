@@ -1,0 +1,137 @@
+id: classes.sorcerer.bloodlines.hag
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: sorcerer.bloodline, op: set, value: "'hag'" }
+  - { target: spellcasting.tradition, op: set, value: "'occult'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.deception },
+      when: "!('skill.deception' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.occultism },
+      when: "!('skill.occultism' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.daze } }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.daze } }
+  - { target: spells.granted.cantrips, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.illusory-disguise } }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.illusory-disguise } }
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.illusory-disguise } }
+  - { target: spells.granted.rank1, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.stupefy }, when: level >= 3 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.stupefy }, when: level >= 3 }
+  - {
+      target: spells.repertoire.rank2,
+      op: grant,
+      value: { item: spells.stupefy },
+      when: level >= 3,
+    }
+  - { target: spells.granted.rank2, op: add, value: 1, when: level >= 3 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.blindness }, when: level >= 5 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.blindness }, when: level >= 5 }
+  - {
+      target: spells.repertoire.rank3,
+      op: grant,
+      value: { item: spells.blindness },
+      when: level >= 5,
+    }
+  - { target: spells.granted.rank3, op: add, value: 1, when: level >= 5 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.outcasts-curse },
+      when: level >= 7,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.outcasts-curse }, when: level >= 7 }
+  - target: spells.repertoire.rank4
+    op: grant
+    value: { item: spells.outcasts-curse }
+    when: level >= 7
+  - { target: spells.granted.rank4, op: add, value: 1, when: level >= 7 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.mariners-curse },
+      when: level >= 9,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.mariners-curse }, when: level >= 9 }
+  - target: spells.repertoire.rank5
+    op: grant
+    value: { item: spells.mariners-curse }
+    when: level >= 9
+  - { target: spells.granted.rank5, op: add, value: 1, when: level >= 9 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.cursed-metamorphosis },
+      when: level >= 11,
+    }
+  - {
+      target: sorcerer.gifts,
+      op: grant,
+      value: { item: spells.cursed-metamorphosis },
+      when: level >= 11,
+    }
+  - target: spells.repertoire.rank6
+    op: grant
+    value: { item: spells.cursed-metamorphosis }
+    when: level >= 11
+  - { target: spells.granted.rank6, op: add, value: 1, when: level >= 11 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.warp-mind }, when: level >= 13 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.warp-mind }, when: level >= 13 }
+  - target: spells.repertoire.rank7
+    op: grant
+    value: { item: spells.warp-mind }
+    when: level >= 13
+  - { target: spells.granted.rank7, op: add, value: 1, when: level >= 13 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.quandary }, when: level >= 15 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.quandary }, when: level >= 15 }
+  - target: spells.repertoire.rank8
+    op: grant
+    value: { item: spells.quandary }
+    when: level >= 15
+  - { target: spells.granted.rank8, op: add, value: 1, when: level >= 15 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.phantasmagoria },
+      when: level >= 17,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.phantasmagoria }, when: level >= 17 }
+  - target: spells.repertoire.rank9
+    op: grant
+    value: { item: spells.phantasmagoria }
+    when: level >= 17
+  - { target: spells.granted.rank9, op: add, value: 1, when: level >= 17 }
+  - { target: focus.points, op: add, value: 1 }
+  - target: { choices: [blood-magic] }
+    op: option
+    value:
+      id: spite
+      changes:
+        - type: removeEffect
+          applied: { where: "'blood-magic' in item.tags" }
+        - {
+            type: applyEffect,
+            source: "'classes.sorcerer.blood-magic.retributive-spite'",
+            state: { rank: flags.rank },
+          }
+grants:
+  - { item: spells.outcasts-curse, when: level >= 7 }
+  - { item: spells.mariners-curse, when: level >= 9 }
+  - { item: spells.cursed-metamorphosis, when: level >= 11 }
+  - { item: spells.warp-mind, when: level >= 13 }
+  - { item: spells.quandary, when: level >= 15 }
+  - { item: spells.phantasmagoria, when: level >= 17 }
+  - { item: spells.daze }
+  - { item: spells.illusory-disguise }
+  - { item: spells.stupefy, when: level >= 3 }
+  - { item: spells.blindness, when: level >= 5 }
+  - item: spells.jealous-hex

@@ -1,0 +1,13 @@
+description: "5E rogue 20 fails a DC 20 Athletics check: Stroke of Luck's option on the check's luck step counts the d20 as a 20 and spends the use"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:skill-check }
+  params: { skill: athletics, dc: 20 }
+  policy:
+    rules:
+      - { kind: choice, tags: [failed-check], then: pause }
+answers:
+  - { option: '5e-srd-5.1:features.rogue.stroke-of-luck#twenty' }

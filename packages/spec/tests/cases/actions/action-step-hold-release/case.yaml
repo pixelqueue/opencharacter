@@ -1,0 +1,9 @@
+description: "A changes step's `release` proposes a held step's changes in order, before its own; the parent's proposed sheet sees them only once released"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../packs/test-actions
+input:
+  action: { id: test-actions:bow-released }
+  participants:
+    target: [{ id: rival }]

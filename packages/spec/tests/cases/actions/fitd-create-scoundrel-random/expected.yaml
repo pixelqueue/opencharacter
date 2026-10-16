@@ -1,0 +1,325 @@
+# The engine draws each pick. No playbook (the pack has none): the d42
+# 14 picks the 14th special ability of the SRD's pool, Expertise; the d7 3 Luxury. The three
+# starting dots: the d12 9 puts one on Attune, the d12 9 a second there, then (Attune full) the
+# d11 1 one on Hunt. The heritage's d11 5 and the background's d11 5 go on Finesse; with Finesse
+# full, the last two d10 9s go on Consort. Expertise's action: the d12 4, Tinker.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: poolAbility
+    change:
+      type: choose
+      path:
+        choice:
+          - special-abilities
+      option: fitd-scoundrel:special-abilities.expertise
+  - to: self
+    step: vice
+    change:
+      type: choose
+      path:
+        choice:
+          - vice
+      option: fitd-scoundrel:vices.luxury
+  - to: self
+    step: startingDots
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.hunt
+      by: 1
+  - to: self
+    step: startingDots
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.attune
+      by: 2
+  - to: self
+    step: heritageDot
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.finesse
+      by: 1
+  - to: self
+    step: backgroundDot
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.finesse
+      by: 1
+  - to: self
+    step: dots
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.consort
+      by: 2
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { choice: [special-abilities, fitd-scoundrel:special-abilities.expertise, action] }
+      option: tinker
+  - to: self
+    step: finish
+    change:
+      type: finishCreation
+log:
+  - step: poolAbility
+    action: fitd-scoundrel:create-scoundrel
+    kind: dice
+    by: engine
+    faces:
+      - 14
+    draw:
+      among:
+        - fitd-scoundrel:special-abilities.a-little-something-on-the-side
+        - fitd-scoundrel:special-abilities.alchemist
+        - fitd-scoundrel:special-abilities.ambush
+        - fitd-scoundrel:special-abilities.analyst
+        - fitd-scoundrel:special-abilities.arcane-fighter
+        - fitd-scoundrel:special-abilities.arcane-mind
+        - fitd-scoundrel:special-abilities.artificer
+        - fitd-scoundrel:special-abilities.battleborn
+        - fitd-scoundrel:special-abilities.bodyguard
+        - fitd-scoundrel:special-abilities.calculating
+        - fitd-scoundrel:special-abilities.connected
+        - fitd-scoundrel:special-abilities.daredevil
+        - fitd-scoundrel:special-abilities.devils-footsteps
+        - fitd-scoundrel:special-abilities.expertise
+        - fitd-scoundrel:special-abilities.focused
+        - fitd-scoundrel:special-abilities.foresight
+        - fitd-scoundrel:special-abilities.fortitude
+        - fitd-scoundrel:special-abilities.infiltrator
+        - fitd-scoundrel:special-abilities.iron-will
+        - fitd-scoundrel:special-abilities.leader
+        - fitd-scoundrel:special-abilities.like-looking-into-a-mirror
+        - fitd-scoundrel:special-abilities.mastermind
+        - fitd-scoundrel:special-abilities.mesmerism
+        - fitd-scoundrel:special-abilities.mule
+        - fitd-scoundrel:special-abilities.not-to-be-trifled-with
+        - fitd-scoundrel:special-abilities.reflexes
+        - fitd-scoundrel:special-abilities.ritual
+        - fitd-scoundrel:special-abilities.rooks-gambit
+        - fitd-scoundrel:special-abilities.saboteur
+        - fitd-scoundrel:special-abilities.savage
+        - fitd-scoundrel:special-abilities.scout
+        - fitd-scoundrel:special-abilities.shadow
+        - fitd-scoundrel:special-abilities.sharpshooter
+        - fitd-scoundrel:special-abilities.strange-methods
+        - fitd-scoundrel:special-abilities.subterfuge
+        - fitd-scoundrel:special-abilities.supernatural-ward
+        - fitd-scoundrel:special-abilities.tough-as-nails
+        - fitd-scoundrel:special-abilities.trust-in-me
+        - fitd-scoundrel:special-abilities.vengeful
+        - fitd-scoundrel:special-abilities.vigorous
+        - fitd-scoundrel:special-abilities.warded
+        - fitd-scoundrel:special-abilities.weaving-the-web
+  - step: poolAbility
+    action: fitd-scoundrel:create-scoundrel
+    kind: choice
+    by: engine
+    option: fitd-scoundrel:special-abilities.expertise
+  - step: vice
+    action: fitd-scoundrel:create-scoundrel
+    kind: dice
+    by: engine
+    faces:
+      - 3
+    draw:
+      among:
+        - fitd-scoundrel:vices.faith
+        - fitd-scoundrel:vices.gambling
+        - fitd-scoundrel:vices.luxury
+        - fitd-scoundrel:vices.obligation
+        - fitd-scoundrel:vices.pleasure
+        - fitd-scoundrel:vices.stupor
+        - fitd-scoundrel:vices.weird
+  - step: vice
+    action: fitd-scoundrel:create-scoundrel
+    kind: choice
+    by: engine
+    option: fitd-scoundrel:vices.luxury
+  - step: startingDots
+    action: fitd-scoundrel:create-scoundrel
+    kind: dice
+    by: engine
+    faces:
+      - 9
+    draw:
+      among:
+        - fitd-scoundrel:ratings.hunt
+        - fitd-scoundrel:ratings.study
+        - fitd-scoundrel:ratings.survey
+        - fitd-scoundrel:ratings.tinker
+        - fitd-scoundrel:ratings.finesse
+        - fitd-scoundrel:ratings.prowl
+        - fitd-scoundrel:ratings.skirmish
+        - fitd-scoundrel:ratings.wreck
+        - fitd-scoundrel:ratings.attune
+        - fitd-scoundrel:ratings.command
+        - fitd-scoundrel:ratings.consort
+        - fitd-scoundrel:ratings.sway
+  - step: startingDots
+    action: fitd-scoundrel:create-scoundrel
+    kind: dice
+    by: engine
+    faces:
+      - 9
+    draw:
+      among:
+        - fitd-scoundrel:ratings.hunt
+        - fitd-scoundrel:ratings.study
+        - fitd-scoundrel:ratings.survey
+        - fitd-scoundrel:ratings.tinker
+        - fitd-scoundrel:ratings.finesse
+        - fitd-scoundrel:ratings.prowl
+        - fitd-scoundrel:ratings.skirmish
+        - fitd-scoundrel:ratings.wreck
+        - fitd-scoundrel:ratings.attune
+        - fitd-scoundrel:ratings.command
+        - fitd-scoundrel:ratings.consort
+        - fitd-scoundrel:ratings.sway
+  - step: startingDots
+    action: fitd-scoundrel:create-scoundrel
+    kind: dice
+    by: engine
+    faces:
+      - 1
+    draw:
+      among:
+        - fitd-scoundrel:ratings.hunt
+        - fitd-scoundrel:ratings.study
+        - fitd-scoundrel:ratings.survey
+        - fitd-scoundrel:ratings.tinker
+        - fitd-scoundrel:ratings.finesse
+        - fitd-scoundrel:ratings.prowl
+        - fitd-scoundrel:ratings.skirmish
+        - fitd-scoundrel:ratings.wreck
+        - fitd-scoundrel:ratings.command
+        - fitd-scoundrel:ratings.consort
+        - fitd-scoundrel:ratings.sway
+  - step: startingDots
+    action: fitd-scoundrel:create-scoundrel
+    kind: allocate
+    by: engine
+    amounts:
+      fitd-scoundrel:ratings.hunt: 1
+      fitd-scoundrel:ratings.attune: 2
+  - step: heritageDot
+    action: fitd-scoundrel:create-scoundrel
+    kind: dice
+    by: engine
+    faces:
+      - 5
+    draw:
+      among:
+        - fitd-scoundrel:ratings.hunt
+        - fitd-scoundrel:ratings.study
+        - fitd-scoundrel:ratings.survey
+        - fitd-scoundrel:ratings.tinker
+        - fitd-scoundrel:ratings.finesse
+        - fitd-scoundrel:ratings.prowl
+        - fitd-scoundrel:ratings.skirmish
+        - fitd-scoundrel:ratings.wreck
+        - fitd-scoundrel:ratings.command
+        - fitd-scoundrel:ratings.consort
+        - fitd-scoundrel:ratings.sway
+  - step: heritageDot
+    action: fitd-scoundrel:create-scoundrel
+    kind: allocate
+    by: engine
+    amounts:
+      fitd-scoundrel:ratings.finesse: 1
+  - step: backgroundDot
+    action: fitd-scoundrel:create-scoundrel
+    kind: dice
+    by: engine
+    faces:
+      - 5
+    draw:
+      among:
+        - fitd-scoundrel:ratings.hunt
+        - fitd-scoundrel:ratings.study
+        - fitd-scoundrel:ratings.survey
+        - fitd-scoundrel:ratings.tinker
+        - fitd-scoundrel:ratings.finesse
+        - fitd-scoundrel:ratings.prowl
+        - fitd-scoundrel:ratings.skirmish
+        - fitd-scoundrel:ratings.wreck
+        - fitd-scoundrel:ratings.command
+        - fitd-scoundrel:ratings.consort
+        - fitd-scoundrel:ratings.sway
+  - step: backgroundDot
+    action: fitd-scoundrel:create-scoundrel
+    kind: allocate
+    by: engine
+    amounts:
+      fitd-scoundrel:ratings.finesse: 1
+  - step: dots
+    action: fitd-scoundrel:create-scoundrel
+    kind: dice
+    by: engine
+    faces:
+      - 9
+    draw:
+      among:
+        - fitd-scoundrel:ratings.hunt
+        - fitd-scoundrel:ratings.study
+        - fitd-scoundrel:ratings.survey
+        - fitd-scoundrel:ratings.tinker
+        - fitd-scoundrel:ratings.prowl
+        - fitd-scoundrel:ratings.skirmish
+        - fitd-scoundrel:ratings.wreck
+        - fitd-scoundrel:ratings.command
+        - fitd-scoundrel:ratings.consort
+        - fitd-scoundrel:ratings.sway
+  - step: dots
+    action: fitd-scoundrel:create-scoundrel
+    kind: dice
+    by: engine
+    faces:
+      - 9
+    draw:
+      among:
+        - fitd-scoundrel:ratings.hunt
+        - fitd-scoundrel:ratings.study
+        - fitd-scoundrel:ratings.survey
+        - fitd-scoundrel:ratings.tinker
+        - fitd-scoundrel:ratings.prowl
+        - fitd-scoundrel:ratings.skirmish
+        - fitd-scoundrel:ratings.wreck
+        - fitd-scoundrel:ratings.command
+        - fitd-scoundrel:ratings.consort
+        - fitd-scoundrel:ratings.sway
+  - step: dots
+    action: fitd-scoundrel:create-scoundrel
+    kind: allocate
+    by: engine
+    amounts:
+      fitd-scoundrel:ratings.consort: 2
+  - step: picks
+    action: fitd-scoundrel:create-scoundrel
+    kind: dice
+    by: engine
+    faces:
+      - 4
+    draw:
+      among:
+        - hunt
+        - study
+        - survey
+        - tinker
+        - finesse
+        - prowl
+        - skirmish
+        - wreck
+        - attune
+        - command
+        - consort
+        - sway
+  - step: picks
+    action: fitd-scoundrel:create-scoundrel
+    kind: choice
+    by: engine
+    option: tinker
+    index: 0
+    choice: { choice: [special-abilities, fitd-scoundrel:special-abilities.expertise, action] }

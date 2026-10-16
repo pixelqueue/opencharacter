@@ -1,0 +1,13 @@
+id: heritages.sewer-rat
+type: heritage
+fields: { ancestry: ancestries.ratfolk }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: situational.againstDisease || situational.againstPoison
+  - target: { rolls: [save], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.againstDisease || situational.againstPoison

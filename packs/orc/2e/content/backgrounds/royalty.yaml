@@ -1,0 +1,17 @@
+id: backgrounds.royalty
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.society }
+    when: "!('skill.society' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - item: feats.skill.courtly-graces
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['int', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

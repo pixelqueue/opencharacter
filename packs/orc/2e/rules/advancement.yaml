@@ -1,0 +1,52 @@
+fields:
+  xp.current: { type: integer, input: true, default: 0, min: 0 }
+  # Stylish Tricks' increases go only to some skills, so they have their own step
+  # (`swashbuckler.trickIncreases`).
+  skills.increasesPerLevel: { type: integer, formula: 'level >= 3 && level % 2 == 1 ? 1 : 0' }
+
+followUps:
+  - id: level-up
+    while: xp.current >= 1000 && level < 20
+    action: level-up
+
+actions:
+  # Each skill increase raises a skill one rank, up to the level's highest rank (each skill's
+  # increases input has that `max`). An increase on an untrained skill trains it instead
+  # (`skills.<skill>.trainedByIncrease`) and leaves that skill's increases input out.
+  - id: level-up
+    tags: [level-up]
+    available: '!character.creating && level < 20'
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: level, by: 1 }
+          - { type: adjust, field: xp.current, by: -1000, when: xp.current >= 1000 }
+      - id: increase
+        kind: allocate
+        sheet: proposed
+        when: skills.increasesPerLevel > 0
+        fields:
+          type: field
+          where: >-
+            'skill-increase' in item.tags && !('untrained' in item.tags)
+              && (!('skill-training' in item.tags)
+                || countList(item.tags, x in skills.trained || x in skills.chosen) == 0)
+        budget: skills.increasesPerLevel
+      - id: stylishIncrease
+        kind: allocate
+        sheet: proposed
+        when: swashbuckler.trickIncreases > 0
+        fields:
+          type: field
+          where: >-
+            'skill-increase' in item.tags && (item.id == @skills.acrobatics.increases
+              || item.id == 'orc-2e:skills.' + swashbuckler.styleSkill + '.increases')
+        budget: swashbuckler.trickIncreases
+      - id: picks
+        kind: choice
+        options: { pending: {} }
+
+display:
+  fields:
+    skills.increasesPerLevel: { hidden: true }

@@ -1,0 +1,52 @@
+description: 'An action proposes `applyTemplate` and `removeTemplate` with a computed `template`, qualified against its pack; here on the picked copy of a choice step over copies'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        templateFields:
+          bonus: { type: integer, default: 0 }
+        contentTypes:
+          blade: { carried: true, equippable: true, fields: { edge: { type: string } } }
+          oil: { carried: true }
+      content:
+        - { id: blades.knife, type: blade, fields: { edge: sharp } }
+        - { id: blades.club, type: blade, fields: { edge: blunt } }
+        - id: dull
+          type: template
+          appliesTo: { type: blade }
+        - id: keen
+          type: template
+          appliesTo: { type: blade }
+          fields: { bonus: 3 }
+        - id: oils.whetting
+          type: oil
+          actions:
+            # Coat a sharp blade (taking off its dullness), then spend the oil.
+            - id: coat
+              steps:
+                - id: blade
+                  kind: choice
+                  options:
+                    copies: { type: blade, where: "item.edge == 'sharp'" }
+                  changes:
+                    - type: removeTemplate
+                      entry: picked
+                      template: "'dull'"
+                    - { type: applyTemplate, entry: picked, template: "'ke' + 'en'" }
+                - id: spend
+                  kind: changes
+                  changes:
+                    - { type: removeItem, entry: self }
+                - { id: done, kind: outcome }
+input:
+  action: { id: 'test-pack:oils.whetting#coat', entry: oil-1 }
+  policy: { rules: [{ kind: choice, then: pause }] }
+answers:
+  - { option: knife-1 }

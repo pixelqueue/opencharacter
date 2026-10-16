@@ -1,0 +1,228 @@
+resultBands:
+  fortune:
+    - id: critical
+      when: '!roll.empty && count(roll.faces, 6) >= 2'
+    - id: success
+      when: 'roll.total == 6'
+    - id: partial
+      when: 'roll.total >= 4'
+    - id: failure
+      when: true
+
+fields:
+  tier: { type: integer, input: true, default: 0, min: 0, max: 4 }
+  hold: { type: enum, values: [strong, weak], input: true, default: strong }
+  prison.tier: { type: integer, formula: 'tier + (upgrades.prisonContacts > 0 ? 1 : 0)' }
+
+  turf:
+    type: integer
+    formula: "lair.lost ? 0 : min(6, countCopies(copy.type == 'claim' && copy.fields.turf))"
+  rep.turf: { type: integer, formula: turf }
+  rep.max: { type: integer, formula: 'max(6, 12 - rep.turf)' }
+  # Turf gained can shorten the track below the rep already marked: the track is then full, and
+  # `develop` is offered.
+  rep.current: { type: integer, input: true, default: 0, min: 0, max: 12 }
+
+  # The excess rolls over: 7 heat and 4 more is a wanted level and 2 heat.
+  heat.max: { type: integer, formula: 9 }
+  heat.current:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: heat.max
+    overflow:
+      - { at: max, inclusive: true, into: wanted.current, by: 1, reset: 0, carry: true }
+  wanted.max: { type: integer, formula: 4 }
+  wanted.current: { type: integer, input: true, default: 0, min: 0, max: wanted.max }
+
+  coin.max:
+    { type: integer, formula: 'upgrades.lair.vault >= 2 ? 16 : upgrades.lair.vault == 1 ? 8 : 4' }
+  coin.current: { type: integer, input: true, default: 0, min: 0, max: coin.max }
+
+  xp.max: { type: integer, formula: 8 }
+  xp.current: { type: integer, input: true, default: 0, min: 0, max: xp.max }
+  advances.abilities: { type: integer, input: true, default: 0, min: 0 }
+  advances.upgrades: { type: integer, input: true, default: 0, min: 0 }
+
+  huntingGrounds: { type: string, input: true, default: '' }
+  lair: { type: string, input: true, default: '' }
+  reputation: { type: string, input: true, default: '' }
+
+followUps:
+  - id: advance
+    while: xp.current >= xp.max
+    action: crew-advance
+
+actions:
+  # The crew can't reach its members, so each scoundrel's stash is the outcome's `stash`, for their
+  # own sheets.
+  - id: crew-advance
+    available: xp.current >= xp.max
+    results: [ability, upgrades]
+    steps:
+      - id: advance
+        kind: choice
+        options:
+          - id: ability
+            changes:
+              - { type: adjust, field: advances.abilities, by: 1 }
+          - id: upgrades
+            changes:
+              - { type: adjust, field: advances.upgrades, by: 1 }
+        recommend: "'ability'"
+      - id: ability
+        kind: choice
+        when: "steps.advance.picked == 'ability' && crewType.id == ''"
+        options:
+          content: { type: crewAbility, where: '!(item.id in abilities.crew)' }
+        recommend: options[0]
+        changes:
+          - { type: choose, path: { choice: [crew-abilities] }, option: picked.id }
+      - id: typeAbility
+        kind: choice
+        when: "steps.advance.picked == 'ability' && crewType.id != ''"
+        options: { pending: {} }
+        recommend: options[0]
+      - id: upgrades
+        kind: allocate
+        when: "steps.advance.picked == 'upgrades'"
+        fields:
+          type: field
+          where: >-
+            'upgrade' in item.tags || (crewType.id == '' ? 'upgrade.special' in item.tags
+              : item.id in crewType.upgrades)
+        budget: 2
+      - id: clear
+        kind: changes
+        changes:
+          - { type: set, field: xp.current, value: 0 }
+      - id: result
+        kind: outcome
+        result: steps.advance.picked
+        data: { stash: tier + 2 }
+
+  - id: develop
+    available: rep.current >= rep.max
+    results: [strengthened, advanced, short]
+    steps:
+      - id: cost
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              cost: >-
+                max(0, (@crew-abilities.patron in abilities.crew
+                  ? (tier + 1) * 4 : (tier + 1) * 8) - develop.discount)
+      - id: strengthen
+        kind: changes
+        when: "hold == 'weak'"
+        changes:
+          - { type: set, field: hold, value: "'strong'" }
+          - { type: set, field: rep.current, value: 0 }
+      - id: strengthened
+        kind: outcome
+        when: "hold == 'weak'"
+        result: "'strengthened'"
+      - id: short
+        kind: outcome
+        when: coin.current < flags.cost || tier >= 4
+        result: "'short'"
+        data: { cost: flags.cost }
+      - id: advance
+        kind: changes
+        changes:
+          - { type: adjust, field: coin.current, by: -flags.cost }
+          - { type: adjust, field: tier, by: 1 }
+          - { type: set, field: hold, value: "'weak'" }
+          - { type: set, field: rep.current, value: 0 }
+      - id: advanced
+        kind: outcome
+        result: "'advanced'"
+        data: { cost: flags.cost }
+
+  - id: tier-roll
+    tags: [tier-roll]
+    params:
+      modifier: { type: integer, default: 0 }
+    results: { bands: fortune }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [tier-roll]
+        bands: fortune
+        parts:
+          - id: pool
+            dice: '(max(0, tier + params.modifier))d6kh1'
+            ifEmpty: 2d6kl1
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+
+display:
+  groups:
+    - id: crew
+      priority: 0
+    - id: heat
+      priority: 0
+    - id: coin
+      priority: 1
+    - id: advancement
+      priority: 1
+  fields:
+    tier:
+      {
+        groups: [crew],
+        priority: 0,
+        input: { widget: dots },
+        visibility: primary,
+        rolls: [{ action: tier-roll }],
+      }
+    hold: { groups: [crew], priority: 0, input: { widget: select } }
+    prison.tier: { groups: [crew], priority: 2, showWhen: upgrades.prisonContacts > 0 }
+    rep.current:
+      { groups: [crew], priority: 0, input: { widget: track }, with: [{ field: rep.max, as: max }] }
+    rep.max: { groups: [crew], priority: 2 }
+    rep.turf: { hidden: true }
+    turf: { groups: [crew], priority: 1 }
+    huntingGrounds: { groups: [crew], priority: 1, input: { widget: text } }
+    lair: { groups: [crew], priority: 1, input: { widget: text } }
+    reputation: { groups: [crew], priority: 1, input: { widget: text } }
+    heat.current:
+      {
+        groups: [heat],
+        priority: 0,
+        input: { widget: track },
+        visibility: primary,
+        with: [{ field: heat.max, as: max }],
+      }
+    heat.max: { groups: [heat], priority: 2 }
+    wanted.current:
+      {
+        groups: [heat],
+        priority: 0,
+        input: { widget: track },
+        rolls: [{ action: entanglement-roll }],
+        with: [{ field: wanted.max, as: max }],
+      }
+    wanted.max: { groups: [heat], priority: 2 }
+    coin.current:
+      {
+        groups: [coin],
+        priority: 0,
+        input: { widget: track },
+        with: [{ field: coin.max, as: max }],
+      }
+    coin.max: { groups: [coin], priority: 2 }
+    xp.current:
+      {
+        groups: [advancement],
+        priority: 0,
+        input: { widget: track },
+        with: [{ field: xp.max, as: max }],
+      }
+    xp.max: { groups: [advancement], priority: 2 }
+    advances.abilities:
+      { groups: [advancement], priority: 1, input: { widget: number }, visibility: background }
+    advances.upgrades:
+      { groups: [advancement], priority: 1, input: { widget: number }, visibility: background }

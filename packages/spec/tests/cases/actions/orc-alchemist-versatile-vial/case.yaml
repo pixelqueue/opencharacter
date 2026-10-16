@@ -1,0 +1,14 @@
+description: 'orc-2e: a bomber throws a versatile vial as fire: 2d6 fire damage at 5th level, doubled on this critical hit (14), 2 fire splash, and one vial spent'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:features.alchemist.alchemy#versatile-vial'
+    entry: class
+    source: orc-2e:features.alchemist.alchemy
+  params: { damageType: fire }
+  participants:
+    target:
+      - { id: goblin, values: { orc-2e:defenses.ac: 16 } }

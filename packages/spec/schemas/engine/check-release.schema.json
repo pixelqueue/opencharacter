@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/engine/check-release.schema.json",
+  "title": "checkRelease",
+  "description": "Build tooling: compares a pack's new release with its previous one (docs/upgrades.md, 'The build check').",
+  "$defs": {
+    "input": {
+      "type": "object",
+      "required": ["previous", "next"],
+      "properties": {
+        "previous": {
+          "$ref": "../pack-release.schema.json"
+        },
+        "next": {
+          "$ref": "../pack-release.schema.json"
+        },
+        "dependencies": {
+          "description": "The releases each side's packs depend on, transitively, in load order; `[]` when absent. checkRelease loads each side with them, as loadRuleset does, to find the items that became standard.",
+          "type": "object",
+          "properties": {
+            "previous": {
+              "type": "array",
+              "items": {
+                "$ref": "../pack-release.schema.json"
+              }
+            },
+            "next": {
+              "type": "array",
+              "items": {
+                "$ref": "../pack-release.schema.json"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "required": ["ok", "changes", "errors"],
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind", "id"],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "content-removed",
+                  "content-type-changed",
+                  "field-removed",
+                  "field-type-changed",
+                  "state-removed",
+                  "choice-removed",
+                  "option-removed",
+                  "choice-added",
+                  "standard-copy-added",
+                  "content-type-removed",
+                  "item-field-removed",
+                  "item-field-values-removed",
+                  "tag-removed",
+                  "action-removed"
+                ]
+              },
+              "id": {
+                "type": "string"
+              },
+              "data": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Shape changes (`standard-copy-added`), then interface changes: by kind in the order of upgrades.md's tables, then by ID."
+        },
+        "errors": {
+          "description": "The build check's errors, and the errors of a side that doesn't load, each with `data.release` (`previous` or `next`).",
+          "type": "array",
+          "items": {
+            "$ref": "error.schema.json"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

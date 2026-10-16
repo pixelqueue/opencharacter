@@ -1,0 +1,33 @@
+# Valeria (examples/characters/orc-valeria.yaml) after two attacks this turn.
+specVersion: 0.1.0
+id: example-orc-valeria
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:hp.current: 21
+  orc-2e:turn.attacks: 2
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      boosts:
+        - option: orc-2e:boosts.str
+        - option: orc-2e:boosts.con
+  - id: background
+    item: orc-2e:backgrounds.warrior
+    choices:
+      boost:
+        - option: orc-2e:boosts.str
+      free-boost:
+        - option: orc-2e:boosts.dex
+  - id: class
+    item: orc-2e:classes.fighter
+    choices:
+      key-attribute:
+        - option: str
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis

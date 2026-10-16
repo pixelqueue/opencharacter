@@ -1,0 +1,13 @@
+id: feats.cleric.sap-life
+type: feat
+tags: [trait.healing]
+fields: { level: 2, category: class, class: classes.cleric }
+effects:
+  - target: { steps: [spell.caster] }
+    op: changes
+    when: >-
+      action.item.id == @spells.harm && has(steps.damage) && has(flags.outcome)
+        && countList(flags.outcome, x >= 1) > 0
+    value:
+      changes:
+        - { type: adjust, field: hp.current, by: flags.rank, tags: [healing] }

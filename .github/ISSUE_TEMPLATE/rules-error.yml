@@ -1,0 +1,39 @@
+name: Rules error in a pack
+description: A pack gets a game's rules wrong.
+labels: ['rules error']
+body:
+  - type: dropdown
+    id: pack
+    attributes:
+      label: Pack
+      options:
+        - 5e-srd-5.1
+        - fate-core
+        - fitd-crew
+        - fitd-scoundrel
+        - mork-borg-core
+        - mothership-1e
+        - orc-2e
+    validations:
+      required: true
+  - type: input
+    id: rule
+    attributes:
+      label: Rule
+      description: The rule, feat, spell or item, and where it appears in the source (book and page, or SRD section).
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: What the rules say
+      description: Describe it in your own words. Don't paste rules text from the book.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What the pack does
+      description: A character file or the steps that show it helps most.
+    validations:
+      required: true

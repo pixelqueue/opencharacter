@@ -1,0 +1,47 @@
+# 3d6 = 11 fire, DC 13 Dexterity. kobold-1 fails (11), kobold-2 saves (half, 5).
+status: finished
+outcome:
+  result: breathed
+  data: { damage: 11, damageType: fire, dc: 13, save: dex, area: cone }
+proposedChanges:
+  - to: target
+    character: kobold-1
+    step: burn[0]
+    change:
+      {
+        type: adjust,
+        field: 5e-srd-5.1:hp.current,
+        by: -11,
+        tags: [damage, save-half, save.dex, save-failure, damage.fire],
+      }
+  - to: target
+    character: kobold-2
+    step: burn[1]
+    change:
+      {
+        type: adjust,
+        field: 5e-srd-5.1:hp.current,
+        by: -5,
+        tags: [damage, save-half, save.dex, save-success, damage.fire],
+      }
+log:
+  - {
+      step: damage,
+      action: 5e-srd-5.1:breath-weapon,
+      kind: dice,
+      by: engine,
+      faces: [4, 6, 1],
+      total: 11,
+    }
+  - step: saves[0]
+    action: 5e-srd-5.1:breath-weapon
+    kind: handoff
+    by: app
+    participant: { role: target, id: kobold-1 }
+    outcome: { result: failure }
+  - step: saves[1]
+    action: 5e-srd-5.1:breath-weapon
+    kind: handoff
+    by: app
+    participant: { role: target, id: kobold-2 }
+    outcome: { result: success }

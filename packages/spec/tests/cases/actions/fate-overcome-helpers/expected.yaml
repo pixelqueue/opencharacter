@@ -1,0 +1,67 @@
+# Athletics Good (+3), +1 on the dice and +1 for Tobias's help: Superb (+5) against Great (+4).
+status: finished
+outcome:
+  result: succeed
+  data:
+    total: 5
+    opposition: 4
+    shifts: 1
+    boost: false
+proposedChanges: []
+log:
+  - step: assist[0]
+    action: fate-core:overcome
+    kind: handoff
+    by: app
+    participant:
+      role: helper
+      id: tobias
+    outcome:
+      result: checked
+      data:
+        helps: true
+        rating: 2
+  - step: assist[1]
+    action: fate-core:overcome
+    kind: handoff
+    by: app
+    participant:
+      role: helper
+      id: ines
+    outcome:
+      result: checked
+      data:
+        helps: false
+        rating: 0
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 0
+      - 0
+      - 0
+      - 1
+    total: 5
+    band: superb
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: final
+    action: fate-core:overcome
+    kind: dice
+    by: engine
+    total: 5
+    band: succeed

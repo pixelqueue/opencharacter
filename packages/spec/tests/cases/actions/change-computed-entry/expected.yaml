@@ -1,0 +1,16 @@
+# The ally's copy is named as given, for the ally's applyChanges to check; the caster's own as
+# well.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: ally
+    character: friend
+    step: theirs
+    change: { type: setState, entry: axe-1, key: blessed, value: true }
+  - to: self
+    step: mine
+    change: { type: setState, entry: sword, key: blessed, value: true }
+  - to: self
+    step: mine
+    change: { type: choose, path: { entry: sword, choice: [edge] }, option: keen }
+log: []

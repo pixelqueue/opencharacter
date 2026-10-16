@@ -1,0 +1,26 @@
+# Brawl 2 -> 2d6kh1 [2, 4] keeps 4: partial. The rating comes from another pack; its
+# `rating.prowess` tag (params.rating.tags) marks Prowess xp at desperate position.
+status: finished
+outcome:
+  result: partial
+  data:
+    position: desperate
+    effect: standard
+proposedChanges:
+  - to: self
+    step: xp
+    change:
+      type: adjust
+      field: fitd-scoundrel:xp.prowess
+      by: 1
+log:
+  - step: roll
+    action: fitd-scoundrel:action-roll
+    kind: dice
+    by: engine
+    faces:
+      - 2
+      - 4
+    total: 4
+    band: partial
+    bandSet: fitd-scoundrel:action

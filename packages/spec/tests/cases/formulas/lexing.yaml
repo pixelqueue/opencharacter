@@ -1,0 +1,248 @@
+description: 'Lexical structure: identifiers, reserved words, numbers, strings, whitespace'
+specVersion: 0.1.0
+cases:
+  - name: a single identifier is a name
+    parse: foo
+    tree:
+      type: name
+      path:
+        - foo
+    print: foo
+  - name: identifiers may start with an underscore
+    parse: _x1
+    tree:
+      type: name
+      path:
+        - _x1
+    print: _x1
+  - name: identifiers are case-sensitive; True is not a keyword
+    parse: 'True'
+    tree:
+      type: name
+      path:
+        - 'True'
+    print: 'True'
+  - name: an identifier may start with a keyword
+    parse: inx
+    tree:
+      type: name
+      path:
+        - inx
+    print: inx
+  - name: d20 without a count is an identifier, not dice
+    parse: d20
+    tree:
+      type: name
+      path:
+        - d20
+    print: d20
+  - name: d6kh1 without a count is an identifier
+    parse: d6kh1
+    tree:
+      type: name
+      path:
+        - d6kh1
+    print: d6kh1
+  - name: d20 used as a name in arithmetic
+    parse: d20 + 1
+    tree:
+      type: binary
+      op: +
+      left:
+        type: name
+        path:
+          - d20
+      right:
+        type: int
+        value: 1
+    print: d20 + 1
+  - name: true is a keyword
+    parse: 'true'
+    tree:
+      type: bool
+      value: true
+    print: 'true'
+  - name: false is a keyword
+    parse: 'false'
+    tree:
+      type: bool
+      value: false
+    print: 'false'
+  - name: null is a keyword
+    parse: 'null'
+    tree:
+      type: 'null'
+    print: 'null'
+  - name: in alone is not an expression
+    parse: in
+    error: formula-syntax
+  - name: reserved word if
+    parse: if
+    error: formula-syntax
+  - name: reserved word while
+    parse: while
+    error: formula-syntax
+  - name: reserved word let
+    parse: let + 1
+    error: formula-syntax
+  - name: reserved word as a path segment
+    parse: a.return
+    error: formula-syntax
+  - name: zero
+    parse: '0'
+    tree:
+      type: int
+      value: 0
+    print: '0'
+  - name: an integer
+    parse: '42'
+    tree:
+      type: int
+      value: 42
+    print: '42'
+  - name: leading zeros are not allowed
+    parse: '007'
+    error: formula-syntax
+  - name: largest integer literal
+    parse: '9007199254740991'
+    tree:
+      type: int
+      value: 9007199254740991
+    print: '9007199254740991'
+  - name: integer literal above 2^53 - 1
+    parse: '9007199254740992'
+    error: formula-syntax
+  - name: a decimal
+    parse: '0.5'
+    tree:
+      type: decimal
+      value: 0.5
+    print: '0.5'
+  - name: decimal with trailing zero prints shortest
+    parse: '1.50'
+    tree:
+      type: decimal
+      value: 1.5
+    print: '1.5'
+  - name: decimal needs digits after the point
+    parse: '1.'
+    error: formula-syntax
+  - name: decimal needs digits before the point
+    parse: '.5'
+    error: formula-syntax
+  - name: no exponent notation
+    parse: '1e3'
+    error: formula-syntax
+  - name: single-quoted string
+    parse: "'fire'"
+    tree:
+      type: string
+      value: fire
+    print: "'fire'"
+  - name: double-quoted string prints single-quoted
+    parse: '"fire"'
+    tree:
+      type: string
+      value: fire
+    print: "'fire'"
+  - name: empty string
+    parse: "''"
+    tree:
+      type: string
+      value: ''
+    print: "''"
+  - name: escaped single quote
+    parse: "'it\\'s'"
+    tree:
+      type: string
+      value: it's
+    print: "'it\\'s'"
+  - name: escaped double quote
+    parse: '"say \"hi\""'
+    tree:
+      type: string
+      value: say "hi"
+    print: '''say "hi"'''
+  - name: escaped backslash
+    parse: "'a\\\\b'"
+    tree:
+      type: string
+      value: a\b
+    print: "'a\\\\b'"
+  - name: newline escape
+    parse: "'line\\nbreak'"
+    tree:
+      type: string
+      value: |-
+        line
+        break
+    print: "'line\\nbreak'"
+  - name: tab escape
+    parse: "'a\\tb'"
+    tree:
+      type: string
+      value: a	b
+    print: "'a\\tb'"
+  - name: carriage return escape
+    parse: "'a\\rb'"
+    tree:
+      type: string
+      value: "a\rb"
+    print: "'a\\rb'"
+  - name: unicode escape
+    parse: "'\\u00e9'"
+    tree:
+      type: string
+      value: é
+    print: "'é'"
+  - name: unknown escape
+    parse: "'\\x41'"
+    error: formula-syntax
+  - name: unterminated string
+    parse: "'abc"
+    error: formula-syntax
+  - name: unicode text in a string
+    parse: "'Langschwert ⚔'"
+    tree:
+      type: string
+      value: Langschwert ⚔
+    print: "'Langschwert ⚔'"
+  - name: whitespace of every kind is ignored
+    parse: "  1 \t+\r\n 2  "
+    tree:
+      type: binary
+      op: +
+      left:
+        type: int
+        value: 1
+      right:
+        type: int
+        value: 2
+    print: 1 + 2
+  - name: empty text
+    parse: ''
+    error: formula-syntax
+  - name: only whitespace
+    parse: '   '
+    error: formula-syntax
+  - name: unknown character
+    parse: 1 @ 2
+    error: formula-syntax
+  - name: two values without an operator
+    parse: 1 2
+    error: formula-syntax
+  - name: dangling operator
+    parse: 1 +
+    error: formula-syntax
+  - name: unclosed parenthesis
+    parse: (1 + 2
+    error: formula-syntax
+  - name: stray closing parenthesis
+    parse: 1 + 2)
+    error: formula-syntax
+  - name: single = is not an operator
+    parse: a = 1
+    error: formula-syntax
+  - name: single & is not an operator
+    parse: a & b
+    error: formula-syntax

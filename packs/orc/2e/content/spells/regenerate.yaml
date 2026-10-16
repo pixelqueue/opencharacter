@@ -1,0 +1,30 @@
+id: spells.regenerate
+type: spell
+tags:
+  [
+    trait.concentrate,
+    trait.healing,
+    trait.manipulate,
+    trait.vitality,
+    tradition.divine,
+    tradition.primal,
+  ]
+fields:
+  rank: 7
+  cast: two
+  range: 0
+  targets: 1
+  duration: minutes
+  durationAmount: 1
+  applyTo: ally
+effects:
+  - target:
+      steps: [turn.start]
+    op: changes
+    value:
+      changes:
+        - type: adjust
+          field: hp.current
+          by: 'self.rank >= 9 ? 20 : 15'
+          tags: [healing]
+    scope: applied

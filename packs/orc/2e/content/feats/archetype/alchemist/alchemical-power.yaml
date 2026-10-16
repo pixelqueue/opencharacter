@@ -1,0 +1,13 @@
+id: feats.archetype.alchemist.alchemical-power
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 12, category: class, archetype: archetypes.alchemist }
+
+prerequisites:
+  - {
+      id: alchemist-dedication,
+      when: '@feats.archetype.alchemist.alchemist-dedication in feats.held',
+    }
+  - { id: crafting, when: 'skills.crafting.rank >= 3' }
+effects:
+  - { target: classDc.alchemist.rank, op: atLeast, value: 2 }

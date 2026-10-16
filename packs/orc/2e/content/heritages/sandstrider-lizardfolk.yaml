@@ -1,0 +1,9 @@
+id: heritages.sandstrider-lizardfolk
+type: heritage
+fields: { ancestry: ancestries.lizardfolk }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, max(1, floor(level / 2)))
+    when: incoming.amount < 0

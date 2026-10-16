@@ -1,0 +1,19 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 15
+  5e-srd-5.1:abilities.cha.base: 14
+  5e-srd-5.1:hp.base: 30
+  5e-srd-5.1:hp.current: 30
+features:
+  - id: tiefling
+    item: 5e-srd-5.1:races.tiefling
+    state: { hellishRebukeUsed: true }
+  - id: fighter
+    item: 5e-srd-5.1:classes.fighter
+    state: { level: 3, startingClass: true }
+    choices:
+      fighting-style: [{ option: 5e-srd-5.1:fighting-styles.defense }]
+      skills: [{ option: skill.athletics }, { option: skill.perception }]

@@ -1,0 +1,207 @@
+# Each variant is an opt-in input a table turns on for every sheet; the creation starts honor it.
+# Automatic bonus progression leaves out potency, striking and resilient runes and items' item
+# bonuses; its potency bonuses are their own type (the highest only).
+fields:
+  variants.freeArchetype: { type: boolean, input: true, default: false }
+  variants.automaticBonus: { type: boolean, input: true, default: false }
+  variants.noLevel: { type: boolean, input: true, default: false }
+  proficiency.level: { type: integer, formula: 'variants.noLevel ? 0 : level' }
+  proficiency.untrained: { type: integer, formula: 'variants.noLevel ? -2 : 0' }
+  abp.attack:
+    type: integer
+    formula: '!variants.automaticBonus ? 0 : level >= 16 ? 3 : level >= 10 ? 2 : level >= 2 ? 1 : 0'
+  abp.defense:
+    type: integer
+    formula: '!variants.automaticBonus ? 0 : level >= 18 ? 3 : level >= 11 ? 2 : level >= 5 ? 1 : 0'
+  abp.perception:
+    type: integer
+    formula: '!variants.automaticBonus ? 0 : level >= 19 ? 3 : level >= 13 ? 2 : level >= 7 ? 1 : 0'
+  abp.saves:
+    type: integer
+    formula: '!variants.automaticBonus ? 0 : level >= 20 ? 3 : level >= 14 ? 2 : level >= 8 ? 1 : 0'
+  abp.skill.acrobatics: { type: integer, formula: 0, tags: [abp-skill, skill.acrobatics] }
+  abp.skill.arcana: { type: integer, formula: 0, tags: [abp-skill, skill.arcana] }
+  abp.skill.athletics: { type: integer, formula: 0, tags: [abp-skill, skill.athletics] }
+  abp.skill.crafting: { type: integer, formula: 0, tags: [abp-skill, skill.crafting] }
+  abp.skill.deception: { type: integer, formula: 0, tags: [abp-skill, skill.deception] }
+  abp.skill.diplomacy: { type: integer, formula: 0, tags: [abp-skill, skill.diplomacy] }
+  abp.skill.intimidation: { type: integer, formula: 0, tags: [abp-skill, skill.intimidation] }
+  abp.skill.medicine: { type: integer, formula: 0, tags: [abp-skill, skill.medicine] }
+  abp.skill.nature: { type: integer, formula: 0, tags: [abp-skill, skill.nature] }
+  abp.skill.occultism: { type: integer, formula: 0, tags: [abp-skill, skill.occultism] }
+  abp.skill.performance: { type: integer, formula: 0, tags: [abp-skill, skill.performance] }
+  abp.skill.religion: { type: integer, formula: 0, tags: [abp-skill, skill.religion] }
+  abp.skill.society: { type: integer, formula: 0, tags: [abp-skill, skill.society] }
+  abp.skill.stealth: { type: integer, formula: 0, tags: [abp-skill, skill.stealth] }
+  abp.skill.survival: { type: integer, formula: 0, tags: [abp-skill, skill.survival] }
+  abp.skill.thievery: { type: integer, formula: 0, tags: [abp-skill, skill.thievery] }
+
+tags:
+  - abp-skill
+  - potency
+  - variant-rules
+
+effects:
+  - target: { rolls: [strike] }
+    op: add
+    value: abp.attack
+    stackKey: potency-bonus
+    when: "abp.attack > 0 && 'attack' in roll.tags"
+  - target: defenses.ac
+    op: add
+    value: abp.defense
+    stackKey: potency-bonus
+    when: abp.defense > 0
+  - target: defenses.acPrey
+    op: add
+    value: abp.defense
+    stackKey: potency-bonus
+    when: abp.defense > 0
+  - target: perception.mod
+    op: add
+    value: abp.perception
+    stackKey: potency-bonus
+    when: abp.perception > 0
+  - target: { fields: { where: "'save' in item.tags && 'check' in item.tags" } }
+    op: add
+    value: abp.saves
+    stackKey: potency-bonus
+    when: abp.saves > 0
+  - target: skills.acrobatics.mod
+    op: add
+    value: abp.skill.acrobatics
+    stackKey: potency-bonus
+    when: abp.skill.acrobatics > 0
+  - target: skills.arcana.mod
+    op: add
+    value: abp.skill.arcana
+    stackKey: potency-bonus
+    when: abp.skill.arcana > 0
+  - target: skills.athletics.mod
+    op: add
+    value: abp.skill.athletics
+    stackKey: potency-bonus
+    when: abp.skill.athletics > 0
+  - target: skills.crafting.mod
+    op: add
+    value: abp.skill.crafting
+    stackKey: potency-bonus
+    when: abp.skill.crafting > 0
+  - target: skills.deception.mod
+    op: add
+    value: abp.skill.deception
+    stackKey: potency-bonus
+    when: abp.skill.deception > 0
+  - target: skills.diplomacy.mod
+    op: add
+    value: abp.skill.diplomacy
+    stackKey: potency-bonus
+    when: abp.skill.diplomacy > 0
+  - target: skills.intimidation.mod
+    op: add
+    value: abp.skill.intimidation
+    stackKey: potency-bonus
+    when: abp.skill.intimidation > 0
+  - target: skills.medicine.mod
+    op: add
+    value: abp.skill.medicine
+    stackKey: potency-bonus
+    when: abp.skill.medicine > 0
+  - target: skills.nature.mod
+    op: add
+    value: abp.skill.nature
+    stackKey: potency-bonus
+    when: abp.skill.nature > 0
+  - target: skills.occultism.mod
+    op: add
+    value: abp.skill.occultism
+    stackKey: potency-bonus
+    when: abp.skill.occultism > 0
+  - target: skills.performance.mod
+    op: add
+    value: abp.skill.performance
+    stackKey: potency-bonus
+    when: abp.skill.performance > 0
+  - target: skills.religion.mod
+    op: add
+    value: abp.skill.religion
+    stackKey: potency-bonus
+    when: abp.skill.religion > 0
+  - target: skills.society.mod
+    op: add
+    value: abp.skill.society
+    stackKey: potency-bonus
+    when: abp.skill.society > 0
+  - target: skills.stealth.mod
+    op: add
+    value: abp.skill.stealth
+    stackKey: potency-bonus
+    when: abp.skill.stealth > 0
+  - target: skills.survival.mod
+    op: add
+    value: abp.skill.survival
+    stackKey: potency-bonus
+    when: abp.skill.survival > 0
+  - target: skills.thievery.mod
+    op: add
+    value: abp.skill.thievery
+    stackKey: potency-bonus
+    when: abp.skill.thievery > 0
+
+constraints:
+  - id: skill-potency
+    check: >-
+      maxFields(f.value, 'abp-skill' in f.tags) <= (level >= 17 ? 3 : level >= 9 ? 2 : 1)
+
+# Every character holds the automatic bonus progression feature; it does something only while the
+# variant is on.
+standardCopies:
+  - { type: feature, where: "'variant-rules' in item.tags" }
+
+choices:
+  - id: archetype-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: variants.freeArchetype && level >= slot
+    from: { type: feat, where: "'archetype-feat' in item.tags" }
+    eligible: >-
+      'trait.archetype' in item.tags && item.level <= slot
+          && (!('trait.dedication' in item.tags) || archetypes.open == 0 || item.id in choice.picks
+            || countList(choice.picks, x in archetypes.dedications) > 0)
+        || item.id in [archetypes.extra.level2, archetypes.extra.level4, archetypes.extra.level6,
+          archetypes.extra.level8, archetypes.extra.level10, archetypes.extra.level12,
+          archetypes.extra.level14, archetypes.extra.level16, archetypes.extra.level18,
+          archetypes.extra.level20][floor(slot / 2) - 1]
+
+display:
+  groups:
+    - id: variants
+      priority: 3
+      showWhen: >-
+        variants.freeArchetype || variants.automaticBonus || variants.noLevel
+  fields:
+    variants.freeArchetype: { groups: [variants], priority: 1 }
+    variants.automaticBonus: { groups: [variants], priority: 1 }
+    variants.noLevel: { groups: [variants], priority: 1 }
+    abp.attack: { groups: [variants], priority: 2, showWhen: variants.automaticBonus }
+    abp.defense: { groups: [variants], priority: 2, showWhen: variants.automaticBonus }
+    abp.perception: { groups: [variants], priority: 2, showWhen: variants.automaticBonus }
+    abp.saves: { groups: [variants], priority: 2, showWhen: variants.automaticBonus }
+    proficiency.level: { hidden: true }
+    proficiency.untrained: { hidden: true }
+    abp.skill.acrobatics: { hidden: true }
+    abp.skill.arcana: { hidden: true }
+    abp.skill.athletics: { hidden: true }
+    abp.skill.crafting: { hidden: true }
+    abp.skill.deception: { hidden: true }
+    abp.skill.diplomacy: { hidden: true }
+    abp.skill.intimidation: { hidden: true }
+    abp.skill.medicine: { hidden: true }
+    abp.skill.nature: { hidden: true }
+    abp.skill.occultism: { hidden: true }
+    abp.skill.performance: { hidden: true }
+    abp.skill.religion: { hidden: true }
+    abp.skill.society: { hidden: true }
+    abp.skill.stealth: { hidden: true }
+    abp.skill.survival: { hidden: true }
+    abp.skill.thievery: { hidden: true }

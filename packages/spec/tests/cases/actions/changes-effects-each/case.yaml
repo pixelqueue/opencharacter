@@ -1,0 +1,101 @@
+description: "A `changes` effect on an `each` step adds its changes per participant, its `when` seeing `participant`; without an action step's tag, the ambush-only effect adds nothing"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [hit, hit.weapon, ambush]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+          hits: { type: integer, input: true, default: 0 }
+        contentTypes:
+          weapon:
+            fields:
+              damage: { type: integer }
+            state:
+              uses: { type: integer, default: 0 }
+            actions:
+              - use: strike
+          trinket: {}
+        actions:
+          # Hits every target for the weapon's damage; each hit is a place content adds to.
+          - id: strike
+            participants:
+              target:
+                fields:
+                  guarded: { type: boolean, default: false }
+            steps:
+              - id: setup
+                kind: branch
+                cases:
+                  - when: true
+                    flags: { strong: true }
+              - id: deal
+                kind: changes
+                each: target
+                to: target
+                changes:
+                  - { type: adjust, field: hp, by: -item.damage }
+              - id: onHit
+                kind: changes
+                each: target
+                to: target
+                tags: [hit.weapon]
+          # Runs the sword's strike from ambush.
+          - id: ambush
+            participants:
+              target: { max: 1 }
+            steps:
+              - id: strike
+                kind: action
+                use: strike
+                entry: "'sword'"
+                tags: [ambush]
+                participants: { target: participants.target }
+      content:
+        - id: weapons.sword
+          type: weapon
+          fields: { damage: 3 }
+          # On every hit with this sword: the target bleeds 1, unless guarded, and the sword
+          # counts a use.
+          effects:
+            - target: { steps: [hit], from: self }
+              op: changes
+              when: '!participant.guarded && flags.strong'
+              value:
+                changes:
+                  - { type: adjust, field: hp, by: -1, tags: [bleed] }
+            - target: { steps: [hit] }
+              op: changes
+              when: action.item.id == item.id
+              value:
+                to: self
+                changes:
+                  - { type: adjustState, entry: self, key: uses, by: 1 }
+        - id: weapons.club
+          type: weapon
+          fields: { damage: 2 }
+        # Counts every hit the character lands from ambush. The `ambush` tag reaches every changes
+        # step of the ambush's strike (`deal` too), so `when` picks the hit.
+        - id: trinkets.tally
+          type: trinket
+          effects:
+            - target: { steps: [ambush] }
+              op: changes
+              when: "'hit.weapon' in action.step.tags"
+              value:
+                to: self
+                changes:
+                  - { type: adjust, field: hits, by: 1 }
+input:
+  action: { id: 'test-pack:strike', entry: sword }
+  participants:
+    target:
+      - { id: orc, values: {} }
+      - { id: knight, values: { 'test-pack:guarded': true } }

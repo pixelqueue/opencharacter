@@ -1,0 +1,8 @@
+id: feats.fighter.savage-critical
+type: feat
+fields: { level: 18, category: class, class: classes.fighter }
+effects:
+  - target: { rolls: [strike], tally: successToCritOn19 }
+    op: add
+    value: 1
+    when: "has(roll.item) && has(roll.item.group) && ('group.' + roll.item.group) in attacks.legendGroups"

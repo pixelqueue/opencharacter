@@ -1,0 +1,25 @@
+# The creatures in the area are passed as targets.
+id: spells.downpour
+type: spell
+tags: [trait.cleric, trait.concentrate, trait.focus, trait.manipulate, trait.uncommon, trait.water]
+fields:
+  rank: 4
+  cast: two
+  range: 120
+  area: burst
+  areaSize: 30
+  duration: minutes
+  durationAmount: 1
+  applyTo: target
+grants:
+  - { item: conditions.concealed, scope: applied }
+effects:
+  - target:
+      incoming:
+        fields: [hp.current]
+        tags: [damage.fire]
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 10 + 2 * (self.rank - 4))
+    when: incoming.amount < 0
+    scope: applied

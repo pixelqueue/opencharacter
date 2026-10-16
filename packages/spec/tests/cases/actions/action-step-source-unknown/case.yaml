@@ -1,0 +1,153 @@
+description: 'An `action` step whose `source` names content without that action listed for the character is unknown-action'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack, frenzy, skill]
+        contentTypes:
+          beast: {}
+          attack:
+            fields:
+              bonus: { type: integer }
+            actions:
+              - use: strike
+        fields:
+          skills.climb: { type: integer, input: true, default: 1, tags: [skill] }
+          skills.swim: { type: integer, input: true, default: 3, tags: [skill] }
+        situational:
+          # Offered on frenzied rolls: +5.
+          - id: fury
+            type: boolean
+            default: false
+            rolls: [frenzy]
+            effects:
+              - { target: { rolls: [frenzy] }, op: add, value: 5 }
+        actions:
+          # One attack with the content's bonus against its target's guard (10 by default).
+          - id: strike
+            tags: [attack]
+            available: has(item.bonus)
+            participants:
+              target:
+                max: 1
+                fields:
+                  guard: { type: integer, default: 10 }
+            results: [hit, miss]
+            steps:
+              - id: roll
+                kind: roll
+                tags: [attack]
+                parts: [{ dice: 1d20 }, { value: item.bonus }]
+              - id: result
+                kind: outcome
+                result: >-
+                  steps.roll.total >= (size(participants.target) > 0
+                    ? participants.target[0].guard : 10) ? 'hit' : 'miss'
+                data:
+                  item: item.id
+                  target: "size(participants.target) > 0 ? participants.target[0].id : ''"
+                  total: steps.roll.total
+          # A skill check with an optional field parameter and an optional bonus.
+          - id: check
+            params:
+              skill: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+              bonus: { type: integer, default: 0 }
+            steps:
+              - id: done
+                kind: outcome
+                data:
+                  skill: "has(params.skill) ? params.skill.id : 'none'"
+                  value: '(has(params.skill) ? params.skill.value : 0) + params.bonus'
+          # Runs `check`, passing on what it was given; `null` leaves a parameter out.
+          - id: practise
+            params:
+              skill: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+              bonus: { type: integer, optional: true }
+            steps:
+              - id: inner
+                kind: action
+                use: check
+                params:
+                  skill: 'has(params.skill) ? params.skill : null'
+                  bonus: 'has(params.bonus) ? params.bonus : null'
+              - id: done
+                kind: outcome
+                data: { skill: steps.inner.data.skill, value: steps.inner.data.value }
+          # A frenzied strike: the nested roll is tagged `frenzy` too.
+          - id: frenzy
+            steps:
+              - id: hit
+                kind: action
+                use: strike
+                source: "'beasts.wolf.bite'"
+                tags: [frenzy]
+              - id: done
+                kind: outcome
+                data: { total: steps.hit.data.total }
+      content:
+        # A wolf: Rend bites the first target and claws the second (or the first again).
+        - id: beasts.wolf
+          type: beast
+          grants:
+            - item: beasts.wolf.bite
+            - item: beasts.wolf.claw
+          actions:
+            - id: rend
+              participants:
+                target: { max: 2 }
+              steps:
+                - id: bite
+                  kind: action
+                  use: strike
+                  source: "'beasts.wolf.bite'"
+                  participants:
+                    target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+                - id: claw
+                  kind: action
+                  use: strike
+                  source: "'beasts.wolf.claw'"
+                  participants:
+                    target: >-
+                      size(participants.target) > 0
+                        ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+                - id: done
+                  kind: outcome
+                  data:
+                    bite: steps.bite.result
+                    biteOn: steps.bite.data.target
+                    claw: steps.claw.result
+                    clawOn: steps.claw.data.target
+            # Names the howl, which the wolf doesn't have.
+            - id: howl
+              steps:
+                - id: howl
+                  kind: action
+                  use: strike
+                  source: "'beasts.wolf.howl'"
+            # Passes on an ID that isn't one of its participants.
+            - id: stray
+              participants:
+                target: { max: 1 }
+              steps:
+                - id: bite
+                  kind: action
+                  use: strike
+                  source: "'beasts.wolf.bite'"
+                  participants: { target: "['nobody']" }
+        - id: beasts.wolf.bite
+          type: attack
+          fields: { bonus: 4 }
+        - id: beasts.wolf.claw
+          type: attack
+          fields: { bonus: 2 }
+        - id: beasts.wolf.howl
+          type: attack
+input:
+  action: { id: 'test-pack:beasts.wolf#howl', entry: wolf }

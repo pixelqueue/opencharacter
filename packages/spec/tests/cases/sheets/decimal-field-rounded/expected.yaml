@@ -1,0 +1,17 @@
+# Ten coins of 0.1 and three charms of 0.1 weigh exactly 1.3, not 1.3000000000000003. The saved
+# purse reads as 0.3; charm is 0.1 + 0.2 = 0.3; share is 1 / 3 = 0.333333, times 3. Tithe is
+# 50 × 0.14 = 7 rounded up, not 8 (as doubles, 7.000000000000001).
+values:
+  test-pack:purse: { value: 0.3 }
+  test-pack:load: { value: 1.3 }
+  test-pack:load.whole: { value: 1 }
+  test-pack:load.exact: { value: true }
+  test-pack:charm: { value: 0.3 }
+  test-pack:share: { value: 0.999999 }
+  test-pack:tithe: { value: 7 }
+copies:
+  coins: { total: 1 }
+  charm-1: { total: 0.1 }
+  charm-2: { total: 0.1 }
+  charm-3: { total: 0.1 }
+errors: []

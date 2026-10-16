@@ -1,0 +1,31 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 16
+  5e-srd-5.1:abilities.dex.base: 10
+  5e-srd-5.1:abilities.con.base: 14
+  5e-srd-5.1:abilities.int.base: 8
+  5e-srd-5.1:abilities.wis.base: 12
+  5e-srd-5.1:abilities.cha.base: 16
+  5e-srd-5.1:hp.base: 100
+  5e-srd-5.1:hp.current: 100
+features:
+  - id: paladin
+    item: 5e-srd-5.1:classes.paladin
+    state: { level: 17, startingClass: true }
+    choices:
+      skills: [{ option: skill.athletics }, { option: skill.persuasion }]
+      fighting-style: [{ option: 5e-srd-5.1:fighting-styles.defense }]
+      sacred-oath: [{ option: 5e-srd-5.1:subclasses.oath-of-devotion }]
+      5e-srd-5.1:features.ability-score-improvement/improvement-4:
+        [{ option: 5e-srd-5.1:improvements.plus-two, choices: { ability: [{ option: cha }] } }]
+      5e-srd-5.1:features.ability-score-improvement/improvement-8:
+        [{ option: 5e-srd-5.1:improvements.plus-two, choices: { ability: [{ option: cha }] } }]
+      5e-srd-5.1:features.ability-score-improvement/improvement-12:
+        [{ option: 5e-srd-5.1:improvements.plus-two, choices: { ability: [{ option: str }] } }]
+      5e-srd-5.1:features.ability-score-improvement/improvement-16:
+        [{ option: 5e-srd-5.1:improvements.plus-two, choices: { ability: [{ option: str }] } }]
+      5e-srd-5.1:features.paladin.spellcasting/spells:
+        - option: 5e-srd-5.1:spells.bless

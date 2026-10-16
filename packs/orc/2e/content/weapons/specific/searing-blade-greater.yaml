@@ -1,0 +1,24 @@
+id: weapons.specific.searing-blade-greater
+type: weapon
+extends: weapons.longsword
+tags: [trait.fire, trait.magical, trait.versatile]
+fields:
+  price: 13800
+  bulk: 1
+grants:
+  - { item: spells.ignition, when: 'self.equipped' }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.ignition'
+    value:
+      id: ignition
+      flags: { itemPaid: true, rank: 9 }
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.weapon-potency-3
+    copies: { type: weapon, where: 'item.id == @weapons.specific.searing-blade-greater' }
+  - template: runes.greater-striking
+    copies: { type: weapon, where: 'item.id == @weapons.specific.searing-blade-greater' }
+  - template: runes.greater-flaming
+    copies: { type: weapon, where: 'item.id == @weapons.specific.searing-blade-greater' }

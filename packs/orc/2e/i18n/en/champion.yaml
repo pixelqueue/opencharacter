@@ -1,0 +1,336 @@
+# The champion (Player Core 2): the class, its causes and champion's reactions, features, feats and
+# devotion spells. Short rules text written for the pack.
+fields.champion.sanctification.name: 'Sanctification'
+fields.champion.cause.name: 'Cause'
+fields.champion.reactionDamage.name: "Champion's reaction: extra spirit damage to its enemy"
+tags.blessing.name: 'Blessing of the devoted'
+tags.strike.blessed-counterstrike.name: 'Blessed Counterstrike'
+tags.strike.gruesome-strike.name: 'Gruesome Strike'
+tags.blessing.armament.name: 'Blessed armament'
+tags.blessing.shield.name: 'Blessed shield'
+tags.blessing.swiftness.name: 'Blessed swiftness'
+situational.smiteOpposed.name: 'Smite: the target has the opposing sanctification'
+situational.divineGrace.name: 'Divine Grace (a save against a spell)'
+
+# The champion's reaction.
+classes.champion.resistance.name: "Champion's resistance"
+classes.champion.resistance.description: 'Resistance to all damage against the triggering damage.'
+classes.champion.resistance.state.amount.name: 'Resistance'
+
+# The class.
+classes.champion.name: 'Champion'
+classes.champion.description: "A divine warrior sworn to a deity and a cause. Key attribute: Strength or Dexterity. 10 Hit Points plus Constitution per level. Trained in Perception and Reflex, expert in Fortitude and Will; trained in simple and martial weapons and unarmed attacks; trained in all armor and unarmored defense; trained in the champion class DC, spell attack modifier and spell DC. Trained in Religion, your deity's skill and 2 more skills plus Intelligence. You gain your deity's favored weapon, a 15-foot champion's aura, a cause with its champion's reaction, a devotion spell (divine, Charisma) with 1 Focus Point, and Shield Block."
+classes.champion.choices.key-attribute.prompt: 'Key attribute'
+classes.champion.choices.divine-font.prompt: "Your deity's divine font"
+classes.champion.choices.sanctification.prompt: 'Sanctification'
+classes.champion.choices.divine-skill.prompt: "Your deity's divine skill"
+classes.champion.choices.favored-weapon-category.prompt: "Your deity's favored weapon: its kind"
+classes.champion.choices.favored-weapon.prompt: "Your deity's favored weapon"
+classes.champion.choices.cause.prompt: 'Cause'
+classes.champion.choices.devotion-spell.prompt: 'Devotion spell'
+classes.champion.choices.skills.prompt: 'Trained skills (2 plus Intelligence)'
+classes.champion.choices.class-feat.prompt: 'Champion feat (level {slot})'
+classes.champion.choices.skill-feat.prompt: 'Skill feat (level {slot})'
+classes.champion.choices.key-attribute.options.str.name: 'Strength'
+classes.champion.choices.key-attribute.options.dex.name: 'Dexterity'
+classes.champion.choices.divine-font.options.heal.name: 'Heal (lay on hands)'
+classes.champion.choices.divine-font.options.harm.name: 'Harm (touch of the void)'
+classes.champion.choices.sanctification.options.none.name: 'None'
+classes.champion.choices.sanctification.options.holy.name: 'Holy'
+classes.champion.choices.sanctification.options.unholy.name: 'Unholy'
+classes.champion.choices.favored-weapon-category.options.unarmed.name: 'An unarmed attack'
+classes.champion.choices.favored-weapon-category.options.simple.name: 'A simple weapon'
+classes.champion.choices.favored-weapon-category.options.martial.name: 'A martial weapon'
+classes.champion.choices.favored-weapon-category.options.advanced.name: 'An advanced weapon'
+classes.champion.choices.devotion-spell.options.shields-of-the-spirit.name: 'Shields of the spirit'
+classes.champion.choices.devotion-spell.options.lay-on-hands.name: 'Lay on hands (heal font)'
+classes.champion.choices.devotion-spell.options.touch-of-the-void.name: 'Touch of the void (harm font)'
+classes.champion.choices.devotion-spell.options.lay-on-hands.prerequisites.font: 'A deity of the heal font'
+classes.champion.choices.devotion-spell.options.touch-of-the-void.prerequisites.font: 'A deity of the harm font'
+
+# Causes.
+classes.champion.causes.desecration.name: 'Desecration'
+classes.champion.causes.desecration.description: "You take what pleases you and corrupt what is pure. Edicts: subvert or corrupt everything pure or holy in your path. Champion's reaction, Selfish Shield (trigger: an enemy in your aura damages you): resistance to that damage equal to 2 + half your level, and your Strikes against the enemy deal 1 extra spirit damage until the end of your next turn (2 at 9th level, 3 at 16th). Relentless (9th): with Charisma +3 or more, the resistance is Charisma + half your level. Exalted (11th): enemies in your aura take a -1 status penalty to attack rolls against you until the start of your next turn."
+classes.champion.causes.desecration.actions.selfish-shield.name: 'Selfish Shield'
+classes.champion.causes.desecration.actions.selfish-shield.results.used.name: 'Used'
+classes.champion.causes.desecration.prerequisites.sanctification: 'Unholy sanctification'
+classes.champion.causes.desecration.actions.selfish-shield.participants.target.name: 'The enemy'
+classes.champion.causes.grandeur.name: 'Grandeur'
+classes.champion.causes.grandeur.description: "You bring the splendor of the heavens to humble others. Edicts: be a shining example, enjoy and share beauty, keep yourself well groomed. Anathema: associate with fiends and unholy forces. Champion's reaction, Flash of Grandeur (trigger: an enemy damages an ally, both in your aura): the ally gains resistance 2 + your level against that damage, and the enemy is affected by revealing light until the end of your next turn. Relentless (9th): it also takes persistent spirit damage equal to your Charisma modifier, which it can't end while the light lasts. Exalted (11th): every other enemy in your aura is affected by revealing light for 1 round."
+classes.champion.causes.grandeur.actions.flash-of-grandeur.name: 'Flash of Grandeur'
+classes.champion.causes.grandeur.actions.flash-of-grandeur.results.used.name: 'Used'
+classes.champion.causes.grandeur.prerequisites.sanctification: 'Holy sanctification'
+classes.champion.causes.grandeur.actions.flash-of-grandeur.participants.ally.name: 'The ally'
+classes.champion.causes.grandeur.actions.flash-of-grandeur.participants.target.name: 'The enemy'
+classes.champion.causes.iniquity.name: 'Iniquity'
+classes.champion.causes.iniquity.description: "You are dishonest and break the false hopes of kindness. Edicts: destroy what offends you, take advantage of others, cheat, steal. Anathema: bind yourself with a law your deity doesn't require. Champion's reaction, Destructive Vengeance (trigger: an enemy in your aura damages you): you take 1d6 more damage and deal 1d6 spirit damage to the enemy (2d6 at 5th level, 3d6 at 9th, 4d6 at 12th, 5d6 at 16th, 6d6 at 19th), and your Strikes against it deal 2 extra spirit damage until the end of your next turn (4 at 9th, 6 at 16th). Relentless (9th): an enemy damaged by it also takes persistent spirit damage equal to your Charisma modifier. Exalted (11th): each other enemy in your aura takes half the damage you deal the enemy."
+classes.champion.causes.iniquity.actions.destructive-vengeance.name: 'Destructive Vengeance'
+classes.champion.causes.iniquity.actions.destructive-vengeance.results.used.name: 'Used'
+classes.champion.causes.iniquity.prerequisites.sanctification: 'Unholy sanctification'
+classes.champion.causes.iniquity.actions.destructive-vengeance.participants.target.name: 'The enemy'
+classes.champion.causes.justice.name: 'Justice'
+classes.champion.causes.justice.description: "You seek justice in your deity's name, upholding the law. Edicts: follow the law, respect legitimate authorities. Anathema: take advantage of another, cheat. Champion's reaction, Retributive Strike (trigger: an enemy damages an ally, both in your aura): the ally gains resistance 2 + your level against that damage, and if the enemy is in reach you make a melee Strike against it. Relentless (9th): if your Strike hits, the target takes persistent spirit damage equal to your Charisma modifier. Exalted (11th): each ally in your aura with the target in reach can spend a reaction to Strike it at a -5 penalty."
+classes.champion.causes.justice.actions.retributive-strike.name: 'Retributive Strike'
+classes.champion.causes.justice.actions.retributive-strike.results.used.name: 'Used'
+classes.champion.causes.justice.actions.retributive-strike.participants.ally.name: 'The ally'
+classes.champion.causes.justice.actions.retributive-strike.participants.target.name: 'The enemy'
+classes.champion.causes.justice.actions.retributive-strike.steps.weapon.prompt: 'Choose a melee weapon'
+classes.champion.causes.liberation.name: 'Liberation'
+classes.champion.causes.liberation.description: "You will see everyone free. Edicts: oppose slavery and tyranny, fight for others' freedom to choose, respect others' choices for their own lives. Anathema: force or threaten someone to act a certain way, engage in slavery or tyranny. Champion's reaction, Liberating Step (trigger: an enemy damages, grabs or restrains an ally, both in your aura): if it damaged the ally, the ally gains resistance 2 + your level against it; the ally can attempt a new save against, or Escape as a free action from, one effect grabbing, restraining, immobilizing or paralyzing it, and can then Step. Relentless (9th): an enemy holding the ally that way takes persistent spirit damage equal to your Charisma modifier. Exalted (11th): you and the other allies in your aura can Step as a free action."
+classes.champion.causes.liberation.actions.liberating-step.name: 'Liberating Step'
+classes.champion.causes.liberation.actions.liberating-step.results.used.name: 'Used'
+classes.champion.causes.liberation.actions.liberating-step.participants.ally.name: 'The ally'
+classes.champion.causes.obedience.name: 'Obedience'
+classes.champion.causes.obedience.description: "Society is ordered for good reason, and everyone should keep their place. Edicts: enforce proper hierarchies, topple illegitimate ones, lead when best suited. Anathema: let a lesser one wield power over you. Champion's reaction, Iron Command (trigger: an enemy in your aura damages you): the enemy chooses to kneel (drop prone) or refuse and take 1d6 mental damage (2d6 at 5th level, 3d6 at 9th, 4d6 at 12th, 5d6 at 16th, 6d6 at 19th); either way your Strikes against it deal 1 extra spirit damage until the end of your next turn (2 at 9th, 3 at 16th). Relentless (9th): if it refuses, it also takes persistent spirit damage equal to your Charisma modifier. Exalted (11th): every other enemy in your aura must also kneel or take minimum mental damage."
+classes.champion.causes.obedience.actions.iron-command.name: 'Iron Command'
+classes.champion.causes.obedience.actions.iron-command.results.used.name: 'Used'
+classes.champion.causes.obedience.actions.iron-command.participants.target.name: 'The enemy'
+classes.champion.causes.obedience.actions.iron-command.steps.command.prompt: 'Does the enemy kneel or refuse?'
+classes.champion.causes.obedience.actions.iron-command.options.kneel.name: 'Kneel (drops prone)'
+classes.champion.causes.obedience.actions.iron-command.options.refuse.name: 'Refuse (mental damage)'
+classes.champion.causes.redemption.name: 'Redemption'
+classes.champion.causes.redemption.description: "You try to redeem those who do wicked deeds. Edicts: try to redeem the wicked, show compassion regardless of station. Anathema: kill a sapient enemy without first offering a chance at redemption. Champion's reaction, Glimpse of Redemption (trigger: an enemy damages an ally, both in your aura): the enemy repents (the ally is unharmed by the damage) or refuses (the ally gains resistance 2 + your level against it, and the enemy is then enfeebled 2 until the end of its next turn); a mindless enemy refuses. Relentless (9th): if it refuses, it also takes persistent spirit damage equal to your Charisma modifier. Exalted (11th): if it refuses, you can give the resistance, reduced by 2, to yourself and every ally in your aura."
+classes.champion.causes.redemption.actions.glimpse-of-redemption.name: 'Glimpse of Redemption'
+classes.champion.causes.redemption.actions.glimpse-of-redemption.results.used.name: 'Used'
+classes.champion.causes.redemption.prerequisites.sanctification: 'Holy sanctification'
+classes.champion.causes.redemption.actions.glimpse-of-redemption.participants.ally.name: 'The ally'
+classes.champion.causes.redemption.actions.glimpse-of-redemption.participants.target.name: 'The enemy'
+classes.champion.causes.redemption.actions.glimpse-of-redemption.steps.repent.prompt: 'Does the enemy repent or refuse?'
+classes.champion.causes.redemption.actions.glimpse-of-redemption.options.repent.name: 'Repent (the ally is unharmed)'
+classes.champion.causes.redemption.actions.glimpse-of-redemption.options.refuse.name: 'Refuse'
+
+# Features.
+features.champion.deity.name: 'Deity'
+features.champion.deity.description: "You serve a deity: its divine font sets your font devotion spell, its sanctification can make you holy or unholy (adding the trait to your Strikes and its edicts and anathema), you're trained in its divine skill, and you wield its favored weapon (deific weapon: an advanced one counts as martial, and a simple weapon or d4 unarmed attack's die is one step larger). Acts against your deity or cause can cost you your divine abilities until you atone."
+features.champion.champions-aura.name: "Champion's Aura"
+features.champion.champions-aura.description: "A 15-foot emanation (aura, divine) surrounds you; followers of your deity in it know you as its champion. It's the range of your champion's reaction and other abilities. You can suppress or resume it as an action; it ends if you fall unconscious."
+features.champion.devotion-spells.name: 'Devotion Spells'
+features.champion.devotion-spells.description: "Your deity grants devotion spells, divine focus spells cast with Charisma: shields of the spirit, or your font's lay on hands (heal) or touch of the void (harm). Your focus pool starts at 1 Focus Point, regained by Refocusing in prayer or service."
+features.champion.blessing-of-the-devoted.name: 'Blessing of the Devoted'
+features.champion.blessing-of-the-devoted.description: "Your deity blesses you with a boon: blessed armament (a weapon or handwraps gains its critical specialization effect and one of the fearsome, ghost touch, returning, shifting or vitalizing runes, chosen daily), blessed shield (a reinforcing rune of your level on your shield: minor, lesser at 7th, moderate at 10th, greater at 13th, major at 16th, supreme at 19th) or blessed swiftness (+5-foot status bonus to Speed, your mount's if mounted, and allies in your aura get +2 status to defenses against reactions their movement triggers)."
+features.champion.blessing-of-the-devoted.choices.blessing.prompt: 'Blessing'
+features.champion.blessing-of-the-devoted.choices.blessing.options.armament.name: 'Blessed armament'
+features.champion.blessing-of-the-devoted.choices.blessing.options.shield.name: 'Blessed shield'
+features.champion.blessing-of-the-devoted.choices.blessing.options.swiftness.name: 'Blessed swiftness'
+features.champion.blessing-of-the-devoted.choices.blessing.options.armament.prerequisites.other: 'Not your second blessing'
+features.champion.blessing-of-the-devoted.choices.blessing.options.shield.prerequisites.other: 'Not your second blessing'
+features.champion.blessing-of-the-devoted.choices.blessing.options.swiftness.prerequisites.other: 'Not your second blessing'
+features.champion.weapon-expertise.name: 'Weapon Expertise'
+features.champion.weapon-expertise.description: 'Your proficiency ranks for simple and martial weapons and unarmed attacks increase to expert.'
+features.champion.armor-expertise.name: 'Armor Expertise'
+features.champion.armor-expertise.description: 'Your proficiency ranks for light, medium and heavy armor and unarmored defense increase to expert, and you gain the armor specialization effects of medium and heavy armor.'
+features.champion.weapon-specialization.name: 'Weapon Specialization'
+features.champion.weapon-specialization.description: 'You deal 2 more damage with weapons and unarmed attacks in which you are an expert, 3 if a master, 4 if legendary.'
+features.champion.champion-expertise.name: 'Champion Expertise'
+features.champion.champion-expertise.description: 'Your proficiency ranks for the champion class DC and spell attack modifier and spell DC increase to expert.'
+features.champion.reflex-expertise.name: 'Reflex Expertise'
+features.champion.reflex-expertise.description: 'Your proficiency rank for Reflex saves increases to expert.'
+features.champion.relentless-reaction.name: 'Relentless Reaction'
+features.champion.relentless-reaction.description: "Your champion's reaction gains your cause's relentless benefit."
+features.champion.sacred-body.name: 'Sacred Body'
+features.champion.sacred-body.description: 'Your proficiency rank for Fortitude saves increases to master, and a success on a Fortitude save is a critical success instead.'
+features.champion.divine-will.name: 'Divine Will'
+features.champion.divine-will.description: 'Your proficiency rank for Will saves increases to master, and a success on a Will save is a critical success instead.'
+features.champion.exalted-reaction.name: 'Exalted Reaction'
+features.champion.exalted-reaction.description: "Your champion's reaction also gains your cause's exalted benefit for nearby allies or enemies."
+features.champion.perception-expertise.name: 'Perception Expertise'
+features.champion.perception-expertise.description: 'Your proficiency rank for Perception increases to expert.'
+features.champion.armor-mastery.name: 'Armor Mastery'
+features.champion.armor-mastery.description: 'Your proficiency ranks for light, medium and heavy armor and unarmored defense increase to master.'
+features.champion.weapon-mastery.name: 'Weapon Mastery'
+features.champion.weapon-mastery.description: 'Your proficiency ranks for simple and martial weapons and unarmed attacks increase to master.'
+features.champion.greater-weapon-specialization.name: 'Greater Weapon Specialization'
+features.champion.greater-weapon-specialization.description: 'Your weapon specialization damage increases to 4, 6 or 8.'
+features.champion.champion-mastery.name: 'Champion Mastery'
+features.champion.champion-mastery.description: 'Your proficiency ranks for the champion class DC and spell attack modifier and spell DC increase to master.'
+features.champion.legendary-armor.name: 'Legendary Armor'
+features.champion.legendary-armor.description: 'Your proficiency ranks for light, medium and heavy armor and unarmored defense increase to legendary.'
+features.champion.heros-defiance.name: "Hero's Defiance"
+features.champion.heros-defiance.description: "You gain the hero's defiance devotion spell."
+
+# Devotion spells.
+spells.lay-on-hands.name: 'Lay on Hands'
+spells.lay-on-hands.description: "Your touch carries vitality. A willing living creature regains 6 Hit Points, and if it isn't you, it gains a +2 status bonus to AC for 1 round. An undead creature takes 1d6 vitality damage (basic Fortitude save), and on a failure a -2 status penalty to AC for 1 round.\n\n**Heightened (+1)** 6 more healing and 1d6 more damage."
+spells.touch-of-the-void.name: 'Touch of the Void'
+spells.touch-of-the-void.description: "Your touch carries the void. A willing undead creature regains 6 Hit Points (if it's you, you also gain a +2 status bonus to damage rolls for 1 round). A living creature takes 1d6 void damage (basic Fortitude save), and on a failure a -2 status penalty to AC for 1 round.\n\n**Heightened (+1)** 6 more healing and 1d6 more damage."
+spells.shields-of-the-spirit.name: 'Shields of the Spirit'
+spells.shields-of-the-spirit.description: "Requirement: you wield a shield. You Raise your Shield, and spirit shields float in your champion's aura until the start of your next turn or until you lower it. Each ally in the aura gains a +1 status bonus to AC, and each enemy attacking it takes 1d4 spirit damage, hit or miss. You don't benefit yourself.\n\n**Heightened (+2)** The damage increases by 1d4."
+spells.spectral-advance.name: 'Spectral Advance'
+spells.spectral-advance.description: 'One or two actions. As a spirit you Stride to a space adjacent to an enemy (twice with 2 actions; Fly if you can, or your mount moves). The movement triggers no reactions, ignores difficult terrain, and you have resistance equal to your level to all damage during it.'
+spells.champions-sacrifice.name: "Champion's Sacrifice"
+spells.champions-sacrifice.description: "Reaction. Trigger: an ally within 30 feet is hit by a Strike or fails a save against an effect that doesn't affect you. Every effect of the hit or failed save applies to you instead, ignoring your resistances, immunities and other defenses (the ally's apply first)."
+spells.heros-defiance.name: "Hero's Defiance"
+spells.heros-defiance.description: "Free action. Trigger: an attack would bring you to 0 Hit Points. Just before its damage, you regain 6d8 + 20 Hit Points; if that keeps you above 0, you don't fall unconscious or start dying. You can't cast it again until you Refocus or make daily preparations, nor against death effects or effects that leave no remains."
+
+# Feats.
+feats.champion.brilliant-flash.name: 'Brilliant Flash'
+feats.champion.brilliant-flash.description: 'When you use Flash of Grandeur, the attacker is also off-guard for 1 round.'
+feats.champion.brilliant-flash.prerequisites.cause: 'Grandeur cause'
+feats.champion.defensive-advance.name: 'Defensive Advance'
+feats.champion.defensive-advance.description: 'Two actions, flourish. You Raise your Shield and Stride (or Burrow, Climb, Fly or Swim); if you end within reach of an enemy, you can make a melee Strike against it.'
+feats.champion.defensive-advance.actions.defensive-advance.name: 'Defensive Advance'
+feats.champion.defensive-advance.actions.defensive-advance.steps.weapon.prompt: 'Choose a melee weapon'
+feats.champion.deitys-domain.name: "Deity's Domain"
+feats.champion.deitys-domain.description: "Choose one of your deity's domains: you gain its initial domain spell as a devotion spell."
+feats.champion.deitys-domain.choices.domain.prompt: "A domain's initial domain spell"
+feats.champion.desperate-prayer.name: 'Desperate Prayer'
+feats.champion.desperate-prayer.description: "Free action, once a day. Trigger: you begin your turn with no Focus Points. You gain 1 Focus Point for a devotion spell this turn; unspent, it's lost."
+feats.champion.desperate-prayer.actions.desperate-prayer.name: 'Desperate Prayer'
+feats.champion.desperate-prayer.actions.desperate-prayer.results.answered.name: 'A Focus Point'
+feats.champion.faithful-steed.name: 'Faithful Steed'
+feats.champion.faithful-steed.description: 'You gain a young animal companion as a mount (typically one with the mount ability); it and its Strikes share your holy or unholy trait.'
+feats.champion.iron-repercussions.name: 'Iron Repercussions'
+feats.champion.iron-repercussions.description: 'When an enemy refuses your Iron Command, you can make the mental damage persistent instead (decided before it chooses).'
+feats.champion.iron-repercussions.prerequisites.cause: 'Obedience cause'
+feats.champion.nimble-reprisal.name: 'Nimble Reprisal'
+feats.champion.nimble-reprisal.description: 'Your Retributive Strike can be a ranged Strike against an enemy in range and in your aura, and against an enemy just beyond reach (within 5 feet of it) you can Step first.'
+feats.champion.nimble-reprisal.prerequisites.cause: 'Justice cause'
+feats.champion.ongoing-selfishness.name: 'Ongoing Selfishness'
+feats.champion.ongoing-selfishness.description: 'After Selfish Shield, you have resistance to all further damage from that enemy until the end of the turn, equal to half your Selfish Shield resistance.'
+feats.champion.ongoing-selfishness.prerequisites.cause: 'Desecration cause'
+feats.champion.unimpeded-step.name: 'Unimpeded Step'
+feats.champion.unimpeded-step.description: "The ally's Step from Liberating Step ignores difficult terrain, greater difficult terrain, narrow surfaces and uneven ground (everyone's, with the exalted reaction)."
+feats.champion.unimpeded-step.prerequisites.cause: 'Liberation cause'
+feats.champion.vicious-vengeance.name: 'Vicious Vengeance'
+feats.champion.vicious-vengeance.description: "Destructive Vengeance's damage to the enemy gains a circumstance bonus equal to its number of dice."
+feats.champion.vicious-vengeance.prerequisites.cause: 'Iniquity cause'
+feats.champion.weight-of-guilt.name: 'Weight of Guilt'
+feats.champion.weight-of-guilt.description: 'An enemy refusing your Glimpse of Redemption can be stupefied 2 instead of enfeebled 2, for the same duration.'
+feats.champion.weight-of-guilt.prerequisites.cause: 'Redemption cause'
+feats.champion.divine-grace.name: 'Divine Grace'
+feats.champion.divine-grace.description: 'Reaction. Trigger: you attempt a save against a spell. You gain a +2 circumstance bonus to it.'
+feats.champion.divine-health.name: 'Divine Health'
+feats.champion.divine-health.description: 'You gain a +2 status bonus to saves against diseases and poisons and to flat checks against persistent poison damage (allies in your aura +1), and a success on such a save is a critical success. With sacred body, a critical failure on one is a failure.'
+feats.champion.aura-of-courage.name: 'Aura of Courage'
+feats.champion.aura-of-courage.description: 'Whenever you become frightened, the value is 1 lower. At the end of your turn, each ally in your aura lowers its frightened value by 1.'
+feats.champion.aura-of-courage.prerequisites.holy: 'Holy'
+feats.champion.aura-of-despair.name: 'Aura of Despair'
+feats.champion.aura-of-despair.description: "Enemies in your aura take a -1 circumstance penalty to saves against fear, and one ending its turn there can't lower frightened below 1."
+feats.champion.aura-of-despair.prerequisites.unholy: 'Unholy'
+feats.champion.cruelty.name: 'Cruelty'
+feats.champion.cruelty.description: "You can cast touch of the void on a living creature with 2 actions: on a failed save it's also enfeebled 1 for 1 minute (2 on a critical failure)."
+feats.champion.cruelty.prerequisites.void: 'Touch of the void'
+feats.champion.mercy.name: 'Mercy'
+feats.champion.mercy.description: 'You can cast lay on hands on a living creature with 2 actions to also counteract one condition. Choose a mercy: of the body (blinded, dazzled, deafened, enfeebled, sickened), of grace (clumsy, grabbed, paralyzed) or of the mind (fleeing, frightened, stupefied). You can take this feat up to three times, choosing a different mercy each time.'
+feats.champion.mercy.prerequisites.lay: 'Lay on hands'
+feats.champion.mercy.choices.mercy.prompt: 'Mercy'
+feats.champion.mercy.choices.mercy.options.body.name: 'Mercy of the body'
+feats.champion.mercy.choices.mercy.options.grace.name: 'Mercy of grace'
+feats.champion.mercy.choices.mercy.options.mind.name: 'Mercy of the mind'
+feats.champion.security.name: 'Security'
+feats.champion.security.description: 'You can cast shields of the spirit with 2 actions to give one ally in your aura a companion spirit shield for 1 minute, working even outside your aura and with your shield lowered; a new one ends the last.'
+feats.champion.security.prerequisites.shields: 'Shields of the spirit'
+feats.champion.expand-aura.name: 'Expand Aura'
+feats.champion.expand-aura.description: "One action. Your aura's radius becomes 30 feet until the start of your next turn (for 1 minute at 10th level, until you Dismiss it at 16th)."
+feats.champion.loyal-warhorse.name: 'Loyal Warhorse'
+feats.champion.loyal-warhorse.description: 'Your Faithful Steed becomes a mature animal companion and never attacks you, even when compelled.'
+feats.champion.loyal-warhorse.prerequisites.faithful-steed: 'Faithful Steed'
+feats.champion.smite.name: 'Smite'
+feats.champion.smite.description: 'One action. Designate an enemy you can see: until the start of your next turn your Strikes against it gain a +3 status bonus to damage (+4 with a master weapon); against the opposing sanctification +4 (+6). Each hostile action it takes against you or your allies extends it to the end of its next turn. A new Smite ends the last.'
+feats.champion.smite.actions.smite.name: 'Smite'
+feats.champion.smite.actions.smite.participants.target.name: 'The enemy'
+feats.champion.smite.actions.smite.results.smiting.name: 'Smiting'
+feats.champion.advanced-deitys-domain.name: "Advanced Deity's Domain"
+feats.champion.advanced-deitys-domain.description: "You gain the advanced domain spell of your Deity's Domain as a devotion spell."
+feats.champion.advanced-deitys-domain.prerequisites.deitys-domain: "Deity's Domain"
+feats.champion.greater-cruelty.name: 'Greater Cruelty'
+feats.champion.greater-cruelty.description: 'With Cruelty you can make the target clumsy or stupefied instead, chosen when you cast.'
+feats.champion.greater-cruelty.prerequisites.cruelty: 'Cruelty'
+feats.champion.greater-mercy.name: 'Greater Mercy'
+feats.champion.greater-mercy.description: 'Your mercies can counteract more: body adds drained and slowed (stunned at 16th); grace immobilized, restrained and slowed (petrified at 12th, stunned at 16th); mind confused, controlled and slowed (doomed and stunned at 16th).'
+feats.champion.greater-mercy.prerequisites.mercy: 'Mercy'
+feats.champion.greater-security.name: 'Greater Security'
+feats.champion.greater-security.description: "While your companion shield lasts and your shield is raised, its ally gets your shield's AC bonus, and you can Shield Block for it with your shield."
+feats.champion.greater-security.prerequisites.security: 'Security'
+feats.champion.heal-mount.name: 'Heal Mount'
+feats.champion.heal-mount.description: 'Your lay on hands restores 10 Hit Points to your mount, plus 10 per heightened rank.'
+feats.champion.heal-mount.prerequisites.faithful-steed: 'Faithful Steed'
+feats.champion.heal-mount.prerequisites.lay: 'Lay on hands'
+feats.champion.second-blessing.name: 'Second Blessing'
+feats.champion.second-blessing.description: 'You gain a second, different blessing of the devoted.'
+feats.champion.second-blessing.choices.blessing.prompt: 'Second blessing'
+feats.champion.second-blessing.choices.blessing.options.armament.name: 'Blessed armament'
+feats.champion.second-blessing.choices.blessing.options.shield.name: 'Blessed shield'
+feats.champion.second-blessing.choices.blessing.options.swiftness.name: 'Blessed swiftness'
+feats.champion.second-blessing.choices.blessing.options.armament.prerequisites.other: 'Not your first blessing'
+feats.champion.second-blessing.choices.blessing.options.shield.prerequisites.other: 'Not your first blessing'
+feats.champion.second-blessing.choices.blessing.options.swiftness.prerequisites.other: 'Not your first blessing'
+feats.champion.imposing-destrier.name: 'Imposing Destrier'
+feats.champion.imposing-destrier.description: 'Your steed becomes a nimble or savage animal companion and can Stride or Strike once a round on your turn without a command.'
+feats.champion.imposing-destrier.prerequisites.loyal-warhorse: 'Loyal Warhorse'
+feats.champion.radiant-armament.name: 'Radiant Armament'
+feats.champion.radiant-armament.description: 'Your blessed armament can also take the astral and brilliant runes (holy or unholy for a holy or unholy champion), and you can change its rune in a 10-minute activity.'
+feats.champion.radiant-armament.prerequisites.armament: 'Blessed armament'
+feats.champion.shield-of-reckoning.name: 'Shield of Reckoning'
+feats.champion.shield-of-reckoning.description: "Reaction, once per round. Trigger: an enemy's attack on an ally meets the triggers of both Shield Block and your champion's reaction. You use both: Shield Block for the ally and your champion's reaction against the enemy."
+feats.champion.shield-of-reckoning.prerequisites.shield-warden: 'Shield Warden'
+feats.champion.shield-of-reckoning.prerequisites.shield: 'Blessed shield'
+feats.champion.spectral-advance.name: 'Spectral Advance'
+feats.champion.spectral-advance.description: 'You gain the spectral advance devotion spell, which carries you to an enemy past every hindrance.'
+feats.champion.spectral-advance.prerequisites.swiftness: 'Blessed swiftness'
+feats.champion.affliction-mercy.name: 'Affliction Mercy'
+feats.champion.affliction-mercy.description: 'Your mercy can counteract an affliction (a curse, disease or poison) instead of a condition.'
+feats.champion.affliction-mercy.prerequisites.mercy: 'Mercy'
+feats.champion.aura-of-faith.name: 'Aura of Faith'
+feats.champion.aura-of-faith.description: 'Willing allies in your aura add your holy or unholy trait to their Strikes.'
+feats.champion.aura-of-faith.prerequisites.sanctified: 'Holy or unholy'
+feats.champion.blessed-counterstrike.name: 'Blessed Counterstrike'
+feats.champion.blessed-counterstrike.description: "One action, flourish. Requirement: an enemy triggered your champion's reaction since your last turn. Strike it with one more weapon damage die; on a hit, it gains weakness equal to half your level to Strikes by you and your allies until the start of your next turn."
+feats.champion.blessed-counterstrike.actions.blessed-counterstrike.name: 'Blessed Counterstrike'
+feats.champion.blessed-counterstrike.actions.blessed-counterstrike.steps.weapon.prompt: 'Choose a weapon'
+feats.champion.champions-sacrifice.name: "Champion's Sacrifice"
+feats.champion.champions-sacrifice.description: "You can cast the champion's sacrifice devotion spell, taking an ally's harm on yourself."
+feats.champion.champions-sacrifice.prerequisites.not-unholy: "You aren't unholy"
+feats.champion.devoted-focus.name: 'Devoted Focus'
+feats.champion.devoted-focus.description: 'When you Refocus, you refill your focus pool completely.'
+feats.champion.divine-wall.name: 'Divine Wall'
+feats.champion.divine-wall.description: 'While you wield a shield, every space adjacent to you is difficult terrain for your enemies.'
+feats.champion.gruesome-strike.name: 'Gruesome Strike'
+feats.champion.gruesome-strike.description: "One action. Requirement: your Strikes deal extra damage from your champion's reaction. Strike the enemy that triggered it; on a hit the reaction's extra damage is doubled, and it must succeed at a Fortitude save against your class DC or be drained 1. It's then immune for 24 hours."
+feats.champion.gruesome-strike.actions.gruesome-strike.name: 'Gruesome Strike'
+feats.champion.gruesome-strike.actions.gruesome-strike.steps.weapon.prompt: 'Choose a weapon'
+feats.champion.aura-of-determination.name: 'Aura of Determination'
+feats.champion.aura-of-determination.description: 'You and allies in your aura gain a +1 status bonus to saves against mental, morph and polymorph effects.'
+feats.champion.aura-of-life.name: 'Aura of Life'
+feats.champion.aura-of-life.description: 'You and allies in your aura gain resistance 5 to void damage and a +1 status bonus to saves against void effects.'
+feats.champion.aura-of-righteousness.name: 'Aura of Righteousness'
+feats.champion.aura-of-righteousness.description: 'You and allies in your aura gain resistance 5 to unholy spells, Strikes and effects, and your aura tries to counteract teleportation carrying an unholy creature out of it.'
+feats.champion.aura-of-righteousness.prerequisites.holy: 'Holy'
+feats.champion.divine-reflexes.name: 'Divine Reflexes'
+feats.champion.divine-reflexes.description: "At the start of each turn you gain an extra reaction usable only for your champion's reaction."
+feats.champion.auspicious-mount.name: 'Auspicious Mount'
+feats.champion.auspicious-mount.description: "Your steed becomes a specialized animal companion, possibly with the auspice specialization (your deity's servitor trait, more Intelligence and Wisdom, expert Religion, a servitor language, more Hit Points and wings)."
+feats.champion.auspicious-mount.prerequisites.imposing-destrier: 'Imposing Destrier'
+feats.champion.instrument-of-slaughter.name: 'Instrument of Slaughter'
+feats.champion.instrument-of-slaughter.description: "A critical hit with a Strike carrying your champion's reaction damage also deals persistent bleed damage equal to two of the weapon's damage dice."
+feats.champion.instrument-of-zeal.name: 'Instrument of Zeal'
+feats.champion.instrument-of-zeal.description: 'A critical hit with Blessed Counterstrike or Retributive Strike deals one more weapon damage die, and the target is slowed 1 on its next turn.'
+feats.champion.instrument-of-zeal.prerequisites.reaction: "A champion's reaction that protects an ally"
+feats.champion.shield-of-grace.name: 'Shield of Grace'
+feats.champion.shield-of-grace.description: 'When you Shield Block for an ally, you can split the remaining damage evenly between you.'
+feats.champion.shield-of-grace.prerequisites.shield-warden: 'Shield Warden'
+feats.champion.rejuvenating-touch.name: 'Rejuvenating Touch'
+feats.champion.rejuvenating-touch.description: "An ally your lay on hands heals gains 10 temporary Hit Points now and at the start of each of its turns for the next 10 rounds (each lasting to its next turn), until it's knocked out."
+feats.champion.rejuvenating-touch.prerequisites.lay: 'Lay on hands'
+feats.champion.swift-retribution.name: 'Swift Retribution'
+feats.champion.swift-retribution.description: "When an enemy triggers your champion's reaction, you're quickened on your next turn, to approach or Strike it."
+feats.champion.ultimate-mercy.name: 'Ultimate Mercy'
+feats.champion.ultimate-mercy.description: "With Mercy you can target a creature that died since your last turn: it returns with 1 Hit Point and wounded 1, then gains lay on hands' benefits (not after disintegrate or death effects)."
+feats.champion.ultimate-mercy.prerequisites.mercy: 'Mercy'
+feats.champion.armament-paragon.name: 'Armament Paragon'
+feats.champion.armament-paragon.description: "Your blessed armament's runes can also be animated, greater fearsome, grievous, keen and greater vitalizing (greater astral and brilliant with Radiant Armament), and you can change it as an action."
+feats.champion.armament-paragon.prerequisites.armament: 'Blessed armament'
+feats.champion.sacred-defender.name: 'Sacred Defender'
+feats.champion.sacred-defender.description: "You gain resistance 5 to bludgeoning, piercing and slashing damage (10 against creatures of the opposing sanctification), and a natural 20 doesn't improve an attack's result against you."
+feats.champion.shield-paragon.name: 'Shield Paragon'
+feats.champion.shield-paragon.description: 'Your chosen shield is always raised while you wield it. If destroyed, it returns repaired at your next daily preparations; meanwhile a minute can bless another shield.'
+feats.champion.shield-paragon.prerequisites.shield: 'Blessed shield'
+feats.champion.swift-paragon.name: 'Swift Paragon'
+feats.champion.swift-paragon.description: "Allies starting a move action in your aura don't trigger reactions with it, and you're permanently quickened (the extra action only to Step, Stride or Fly, or your mount's)."
+feats.champion.swift-paragon.prerequisites.swiftness: 'Blessed swiftness'
+feats.fighter.shield-warden.name: 'Shield Warden'
+feats.fighter.shield-warden.description: 'When your shield is raised, you can Shield Block for an adjacent ally an attack targets: the shield prevents its damage instead of yours.'
+feats.fighter.shield-warden.prerequisites.shield-block: 'Shield Block'
+feats.fighter.quick-shield-block.name: 'Quick Shield Block'
+feats.fighter.quick-shield-block.description: 'At the start of each of your turns you gain an extra reaction usable only to Shield Block.'
+feats.fighter.quick-shield-block.prerequisites.shield-block: 'Shield Block'

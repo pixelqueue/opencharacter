@@ -1,0 +1,15 @@
+# The knack has no copy. Its type's action `boast` comes first, then its own;
+# `boast` is used only by the knack type, so it isn't also listed as a rules action. `perform`
+# is used by tricks, and no trick is active. `show` is a rules action no content uses, listed
+# last.
+actions:
+  - { action: test-actions:boast, source: test-actions:knacks.juggle }
+  - { action: 'test-actions:knacks.juggle#juggle', source: test-actions:knacks.juggle }
+  - { action: test-actions:show }
+  # The bow and the actions that hold its changes, rules actions too.
+  - { action: test-actions:bow }
+  - { action: test-actions:bow-dropped }
+  - { action: test-actions:bow-released }
+  - { action: test-actions:bow-filtered }
+  - { action: test-actions:bows-combined }
+pending: []

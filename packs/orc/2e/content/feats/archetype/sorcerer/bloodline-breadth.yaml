@@ -1,0 +1,11 @@
+id: feats.archetype.sorcerer.bloodline-breadth
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 8, category: class, archetype: archetypes.sorcerer }
+prerequisites:
+  - {
+      id: basic-sorcerer-spellcasting,
+      when: '@feats.archetype.sorcerer.basic-sorcerer-spellcasting in feats.held',
+    }
+effects:
+  - { target: spellcasting.archetype.sorcerer.breadth, op: set, value: true }

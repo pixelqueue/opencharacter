@@ -1,0 +1,14 @@
+id: worn.diplomats-badge
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 5
+  price: 125
+  activation: one
+  frequency: once-per-day
+effects:
+  - target: skills.diplomacy.mod
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

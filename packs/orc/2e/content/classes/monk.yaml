@@ -1,0 +1,107 @@
+id: classes.monk
+type: class
+tags: [trait.monk]
+fields: { hp: 10 }
+effects:
+  # The class's trait, for content that reads the class by it (such as Natural Ambition).
+  - { target: class.traits, op: grant, value: { tag: trait.monk } }
+  - { target: perception.rank, op: atLeast, value: 1 }
+  - { target: saves.fortitude.rank, op: atLeast, value: 2 }
+  - { target: saves.reflex.rank, op: atLeast, value: 2 }
+  - { target: saves.will.rank, op: atLeast, value: 2 }
+  - { target: attacks.simple.rank, op: atLeast, value: 1 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 1 }
+  - { target: defenses.unarmored.rank, op: atLeast, value: 2 }
+  - { target: classDc.rank, op: atLeast, value: 1 }
+grants:
+  - item: features.monk.flurry-of-blows
+  - item: features.monk.powerful-fist
+  - { item: features.monk.incredible-movement, when: level >= 3 }
+  - { item: features.monk.mystic-strikes, when: level >= 3 }
+  - { item: features.monk.expert-strikes, when: level >= 5 }
+  - { item: features.monk.perception-expertise, when: level >= 5 }
+  - { item: features.monk.path-to-perfection, when: level >= 7 }
+  - { item: features.monk.weapon-specialization, when: level >= 7 }
+  - { item: features.monk.metal-strikes, when: level >= 9 }
+  - { item: features.monk.monk-expertise, when: level >= 9 }
+  - { item: features.monk.second-path-to-perfection, when: level >= 11 }
+  - { item: features.monk.graceful-mastery, when: level >= 13 }
+  - { item: features.monk.master-strikes, when: level >= 13 }
+  - { item: features.monk.greater-weapon-specialization, when: level >= 15 }
+  - { item: features.monk.third-path-to-perfection, when: level >= 15 }
+  - { item: features.monk.adamantine-strikes, when: level >= 17 }
+  - { item: features.monk.graceful-legend, when: level >= 17 }
+  - { item: features.monk.perfected-form, when: level >= 19 }
+choices:
+  - id: key-attribute
+    from:
+      options:
+        - id: str
+          effects:
+            - { target: attributes.str.boosts, op: add, value: 1 }
+            - { target: class.keyAttribute, op: set, value: "'str'" }
+        - id: dex
+          effects:
+            - { target: attributes.dex.boosts, op: add, value: 1 }
+            - { target: class.keyAttribute, op: set, value: "'dex'" }
+  - id: skills
+    unique: skill-training
+    pick: 4 + max(0, attributes.int.mod)
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+          skill.lore.academia,
+          skill.lore.circus,
+          skill.lore.farming,
+          skill.lore.legal,
+          skill.lore.scribing,
+          skill.lore.underworld,
+          skill.lore.warfare,
+        ]
+      where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
+    effects:
+      - { target: skills.chosen, op: grant, value: { formula: pick.value } }
+  - id: class-feat
+    slots: [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    # The class's feats are worked out once (the query reads only the item); the slot's level is the
+    # choice's `eligible`, so a listing reads only them.
+    from:
+      type: feat
+      where: >-
+        item.category == 'class'
+          && (has(item.class) && item.class == @classes.monk || 'trait.monk' in item.tags)
+          || 'archetype-feat' in item.tags
+    eligible: >-
+      (item.category == 'class' && has(item.class) && item.class == @classes.monk
+          || 'trait.monk' in item.tags) && !('trait.archetype' in item.tags) && item.level <= slot
+        || 'trait.archetype' in item.tags && item.level <= slot
+          && (!('trait.dedication' in item.tags) || archetypes.open == 0 || item.id in choice.picks
+            || countList(choice.picks, x in archetypes.dedications) > 0)
+        || slot >= 2 && item.id in [archetypes.extra.level2, archetypes.extra.level4, archetypes.extra.level6,
+            archetypes.extra.level8, archetypes.extra.level10, archetypes.extra.level12,
+            archetypes.extra.level14, archetypes.extra.level16, archetypes.extra.level18,
+            archetypes.extra.level20][floor(slot / 2) - 1]
+  - id: skill-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= slot

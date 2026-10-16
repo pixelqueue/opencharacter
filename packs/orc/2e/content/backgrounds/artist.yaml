@@ -1,0 +1,25 @@
+id: backgrounds.artist
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.crafting },
+      when: "!('skill.crafting' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.art },
+      when: "!('skill.lore.art' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.specialty-crafting
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['dex', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

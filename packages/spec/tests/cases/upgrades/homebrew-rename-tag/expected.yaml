@@ -1,0 +1,18 @@
+ok: true
+character:
+  values:
+    test-pack:gear.favored: [power]
+  homebrew:
+    content:
+      - id: gear.cell
+        type: gear
+        tags: [power]
+        prerequisites:
+          - { id: p, when: "'power' in gear.favored" }
+report:
+  steps:
+    - { pack: test-pack, from: 1.0.0, to: 2.0.0, op: renameTag }
+  homebrew:
+    - { path: /homebrew/content/0/tags/0, op: renameTag }
+    - { path: /homebrew/content/0/prerequisites/0/when, op: renameTag }
+  errors: []

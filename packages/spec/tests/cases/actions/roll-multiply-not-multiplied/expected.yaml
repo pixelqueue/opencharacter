@@ -1,0 +1,37 @@
+# 8 + 6 doubled; the blessed part 1, the ember 1d4 (3) and its 1 are not: 19.
+status: finished
+outcome: { data: { total: 19, unbounded: 19 } }
+proposedChanges:
+  - {
+      to: self,
+      step: deal,
+      change: { type: adjust, field: 'test-roll-multiply:hp', by: -14, tags: [damage.cold] },
+    }
+  - {
+      to: self,
+      step: deal,
+      change: { type: adjust, field: 'test-roll-multiply:hp', by: -5, tags: [damage.fire] },
+    }
+log:
+  - step: roll
+    action: test-roll-multiply:strike
+    kind: dice
+    by: engine
+    faces: [4, 3]
+    total: 19
+    items:
+      - { kind: dice, value: 8, factor: 2 }
+      - { kind: flat, value: 6, factor: 2 }
+      - { kind: flat, value: 1, multiplied: false }
+      - {
+          kind: dice,
+          value: 3,
+          multiplied: false,
+          source: { type: item, id: 'test-roll-multiply:charms.ember', entry: ember },
+        }
+      - {
+          kind: flat,
+          value: 1,
+          multiplied: false,
+          source: { type: item, id: 'test-roll-multiply:charms.ember', entry: ember },
+        }

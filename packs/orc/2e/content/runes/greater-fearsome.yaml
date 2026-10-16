@@ -1,0 +1,12 @@
+id: runes.greater-fearsome
+type: template
+tags: [trait.magical, rune.property]
+appliesTo: { type: weapon }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + 2000'
+effects:
+  - target: { steps: [strike.hit.critical], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: applyEffect, source: "'conditions.frightened'", state: { value: 2 } }

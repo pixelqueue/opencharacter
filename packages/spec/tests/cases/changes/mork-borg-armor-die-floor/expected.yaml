@@ -1,0 +1,17 @@
+# -1 + 2 = +1, held at 0 by armor-floor.
+ok: true
+adjustments:
+  - field: mork-borg-core:hp.current
+    by: 0
+    requested: -1
+    taken: 0
+    reason: requested
+    rolled:
+      - {
+          source: { type: item, id: mork-borg-core:armor.medium, entry: worn, effect: armor-die },
+          dice: 1d4,
+          faces: [2],
+          total: 2,
+        }
+character:
+  values: { mork-borg-core:hp.max: 10, mork-borg-core:hp.current: 8 }

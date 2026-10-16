@@ -1,0 +1,23 @@
+id: afflictions.nightmare-fever
+type: affliction
+tags: [trait.disease, trait.occult]
+fields:
+  {
+    kind: disease,
+    level: 8,
+    save: will,
+    dc: 25,
+    stages: 5,
+    damageType: slashing,
+    stage1Damage: 2d6,
+    stage2Damage: 4d6,
+    stage3Damage: 4d6,
+    stage4Damage: 6d6,
+    stage5Damage: 6d6,
+  }
+grants:
+  - { item: conditions.fatigued, scope: applied, when: self.stage == 1 }
+  - { item: conditions.fatigued, scope: applied, when: self.stage == 2 }
+  - { item: conditions.fatigued, scope: applied, when: self.stage == 3 }
+  - { item: conditions.fatigued, scope: applied, when: self.stage == 4 }
+  - { item: conditions.unconscious, scope: applied, when: self.stage == 5 }

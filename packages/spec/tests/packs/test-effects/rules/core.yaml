@@ -1,0 +1,28 @@
+settings:
+  rounding: floor
+  roundIncoming: value
+  stacking:
+    default: addAll
+    keys:
+      source: highestOnly
+      armor: highestOnly
+      penalty: lowestOnly
+      morale: playerChooses
+      circumstance: playerChooses
+      resistance: highestOnly
+  competing:
+    recommend: highest
+
+fields:
+  stats.might: { type: integer, input: true, default: 10, min: 0, max: 30 }
+  stats.guard: { type: integer, formula: '15' }
+  stats.guard-up: { type: integer, formula: '15', rounding: ceil }
+  stats.strike: { type: dice, formula: '1d6' }
+  hp.current: { type: integer, input: true, default: 20, min: 0, max: 20 }
+
+contentTypes:
+  boon: {}
+
+constraints:
+  - id: might-cap
+    check: 'stats.might <= 12'

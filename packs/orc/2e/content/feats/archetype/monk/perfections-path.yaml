@@ -1,0 +1,23 @@
+id: feats.archetype.monk.perfections-path
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 12, category: class, archetype: archetypes.monk }
+prerequisites:
+  - { id: monk-dedication, when: '@feats.archetype.monk.monk-dedication in feats.held' }
+  - {
+      id: save,
+      when: 'saves.fortitude.rank >= 2 || saves.reflex.rank >= 2 || saves.will.rank >= 2',
+    }
+choices:
+  - id: save
+    from:
+      options:
+        - id: fortitude
+          prerequisites: [{ id: expert, when: 'saves.fortitude.rank >= 2' }]
+          effects: [{ target: saves.fortitude.rank, op: atLeast, value: 3 }]
+        - id: reflex
+          prerequisites: [{ id: expert, when: 'saves.reflex.rank >= 2' }]
+          effects: [{ target: saves.reflex.rank, op: atLeast, value: 3 }]
+        - id: will
+          prerequisites: [{ id: expert, when: 'saves.will.rank >= 2' }]
+          effects: [{ target: saves.will.rank, op: atLeast, value: 3 }]

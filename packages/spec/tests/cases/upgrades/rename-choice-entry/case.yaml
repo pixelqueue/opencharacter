@@ -1,0 +1,68 @@
+description: renameChoice renames a choice key in an entry's tree
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might:
+            type: integer
+            input: true
+            default: 1
+            min: 0
+            max: 10
+        contentTypes:
+          path: {}
+          talent: {}
+      content:
+        - id: paths.warrior
+          type: path
+          choices:
+            - id: talent
+              from:
+                type: talent
+        - id: talents.cleave
+          type: talent
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might:
+            type: integer
+            input: true
+            default: 1
+            min: 0
+            max: 10
+        contentTypes:
+          path: {}
+          talent: {}
+      content:
+        - id: paths.warrior
+          type: path
+          choices:
+            - id: knack
+              from:
+                type: talent
+        - id: talents.cleave
+          type: talent
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - op: renameChoice
+              owner: paths.warrior
+              from: talent
+              to: knack

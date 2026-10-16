@@ -1,0 +1,43 @@
+description: adoptStandard renames the first entry of an item that became standard to its standard copy ID, keeping its state
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          gear:
+            carried: true
+            state:
+              marked: { type: boolean, default: false }
+      content:
+        - { id: gear.lantern, type: gear }
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          gear:
+            carried: true
+            state:
+              marked: { type: boolean, default: false }
+        standardCopies:
+          - { type: gear }
+      content:
+        - { id: gear.lantern, type: gear }
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - { op: adoptStandard, item: gear.lantern }

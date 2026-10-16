@@ -1,0 +1,19 @@
+description: "5E: a scout's Multiattack offers two melee or two ranged attacks; picking ranged runs `monster-attack` with its longbow twice against the one target"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action:
+    id: '5e-srd-5.1:monsters.scout.multiattack#multiattack'
+    entry: monster
+    source: 5e-srd-5.1:monsters.scout.multiattack
+  participants:
+    target:
+      - id: tamsin
+        values: { 5e-srd-5.1:combat.ac: 14 }
+  policy:
+    rules:
+      - { step: form, then: pause }
+answers:
+  - option: ranged

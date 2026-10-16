@@ -1,0 +1,36 @@
+# Agility tests: +2 (medium armor) +2 (class) = 4; defense +2 (medium armor only). Powers are
+# blocked twice (armor above light, and the class), so the scroll offers no action.
+values:
+  mork-borg-core:tests.agilityDr:
+    value: 4
+  mork-borg-core:tests.defenseDr:
+    value: 2
+  mork-borg-core:tests.strengthDr:
+    value: 0
+  mork-borg-core:armor.tier:
+    value: 2
+  mork-borg-core:armor.shield:
+    value: 1
+  mork-borg-core:powers.blocked:
+    value: 2
+  mork-borg-core:load.capacity:
+    value: 10
+  mork-borg-core:omens.die:
+    value: 1d2
+pending:
+  - entry: class
+    choice:
+      - feature
+issues: []
+actions:
+  - action: mork-borg-core:classes.fanged-deserter#bite
+    entry: class
+  - action: mork-borg-core:new-day
+  - action: mork-borg-core:rest
+  - action: mork-borg-core:take-damage
+  - action: mork-borg-core:heal
+  - action: mork-borg-core:get-better
+  - action: mork-borg-core:defend
+  - action: mork-borg-core:test
+  - action: mork-borg-core:initiative
+errors: []

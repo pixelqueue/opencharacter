@@ -1,0 +1,13 @@
+description: "FitD: a linked crew's Forged in the Fire adds a die to resistance rolls"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:resistance-roll }
+  params: { attribute: fitd-scoundrel:attributes.prowess }
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:members.resistance.dice: 1

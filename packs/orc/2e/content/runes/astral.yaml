@@ -1,0 +1,11 @@
+id: runes.astral
+type: template
+tags: [trait.magical, trait.spirit, rune.property]
+appliesTo: { type: weapon }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + 450'
+effects:
+  - target: { rolls: [damage.strike], from: self }
+    op: add
+    value: 1d6
+    tags: [damage.spirit]

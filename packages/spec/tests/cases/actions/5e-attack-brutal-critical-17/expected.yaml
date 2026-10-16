@@ -1,0 +1,66 @@
+# Barbarian 17 (Str 18, +4; proficiency +6), greatsword (2d6). Attack 20 + 4 + 6 = 30, natural
+# 20: critical. Damage: the part's 2d6 doubled to 4d6 [1, 2, 3, 4], Str +4, and Brutal
+# Critical's 3d6 [5, 6, 1] (brutalCritical.dice 3 at level 17), not doubled.
+# 10 + 4 + 12 = 26.
+status: finished
+outcome:
+  result: hit
+  data:
+    critical: true
+    attack: 30
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -26,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.slashing,
+            ],
+        },
+    }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces:
+      - 20
+    total: 30
+  - step: damage
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 1
+    total: 26
+    items:
+      - kind: dice
+        count: 4
+        sides: 6
+        value: 10
+      - kind: flat
+        value: 4
+      - kind: dice
+        count: 3
+        sides: 6
+        value: 12
+        multiplied: false
+        source:
+          type: item
+          id: 5e-srd-5.1:features.barbarian.brutal-critical

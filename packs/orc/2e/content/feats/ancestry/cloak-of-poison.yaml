@@ -1,0 +1,52 @@
+id: feats.ancestry.cloak-of-poison
+type: feat
+fields: { level: 13, category: ancestry, ancestry: ancestries.leshy }
+state:
+  used: { type: boolean, default: false }
+followUps:
+  - id: retort
+    on: { field: hp.current, tags: [damage] }
+    when: >-
+      change.taken < 0
+        && countList(character.applied, x.active && x.source == @effects.cloak-of-poison) > 0
+    action: retort
+actions:
+  - id: cloak
+    tags: [feat-action]
+    available: '!self.used'
+    results: [cloaked]
+    steps:
+      - id: apply
+        kind: changes
+        changes:
+          - { type: setState, pick: self, key: used, value: true }
+          - { type: applyEffect, source: "'effects.cloak-of-poison'" }
+      - id: result
+        kind: outcome
+        result: "'cloaked'"
+  - id: retort
+    tags: [feat-action]
+    participants:
+      attacker: { max: 1 }
+    results: [poisoned]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: 3d6
+            tags: [damage.poison]
+      - id: deal
+        kind: changes
+        each: attacker
+        to: attacker
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage]
+      - id: result
+        kind: outcome
+        result: "'poisoned'"
+        data: { damage: steps.damage.total }

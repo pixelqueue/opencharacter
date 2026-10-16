@@ -1,0 +1,50 @@
+id: feats.archetype.cleric.cleric-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.cleric }
+
+prerequisites:
+  - { id: wis, when: 'attributes.wis.mod >= 2' }
+  - { id: not-cleric, when: 'countCopies(copy.item == @classes.cleric) == 0' }
+effects:
+  - { target: spellcasting.archetype.cleric.tradition, op: set, value: "'divine'" }
+  - { target: spellcasting.archetype.cleric.kind, op: set, value: "'prepared'" }
+  - { target: spellcasting.archetype.cleric.attribute, op: set, value: "'wis'" }
+  - { target: spellcasting.archetype.cleric.rank, op: atLeast, value: 1 }
+  - { target: spellcasting.archetype.cleric.cantrips, op: set, value: 2 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.religion },
+      when: "!('skill.religion' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+choices:
+  - id: divine-skill
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+        ]
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }

@@ -1,0 +1,46 @@
+id: features.sorcerer.elemental-affinity
+type: feature
+effects:
+  - target: { rolls: [damage.spell] }
+    op: add
+    value: abilities.cha.mod
+    tags: [{ formula: "'damage.' + draconic.damageType" }]
+    when: has(roll.item.damageType) && roll.item.damageType == draconic.damageType
+  - target: { incoming: { fields: [hp.current], tags: [damage.acid] } }
+    op: multiply
+    value: 0.5
+    when: elementalAffinity.resistant && draconic.damageType == 'acid'
+  - target: { incoming: { fields: [hp.current], tags: [damage.cold] } }
+    op: multiply
+    value: 0.5
+    when: elementalAffinity.resistant && draconic.damageType == 'cold'
+  - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+    op: multiply
+    value: 0.5
+    when: elementalAffinity.resistant && draconic.damageType == 'fire'
+  - target: { incoming: { fields: [hp.current], tags: [damage.lightning] } }
+    op: multiply
+    value: 0.5
+    when: elementalAffinity.resistant && draconic.damageType == 'lightning'
+  - target: { incoming: { fields: [hp.current], tags: [damage.poison] } }
+    op: multiply
+    value: 0.5
+    when: elementalAffinity.resistant && draconic.damageType == 'poison'
+actions:
+  - id: elemental-resistance
+    tags: [feature]
+    results: [resistant]
+    available: >-
+      draconic.damageType != 'none' && !elementalAffinity.resistant
+        && self.sorceryPointsSpent < sorcery.points
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: sorceryPointsSpent, by: 1 }
+          - { type: set, field: elementalAffinity.resistant, value: true }
+      - id: result
+        kind: outcome
+        result: "'resistant'"
+        data:
+          hours: 1

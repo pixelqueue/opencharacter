@@ -1,0 +1,26 @@
+id: worn.demon-mask-greater
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 10
+  price: 900
+  bulk: 0.1
+  usage: mask
+  activation: two
+  frequency: once-per-day
+grants:
+  - { item: spells.fear, when: 'self.equipped && self.invested' }
+effects:
+  - target: skills.intimidation.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.fear && self.used < 1'
+    value:
+      id: fear
+      flags: { itemPaid: true, rank: 3, dc: 29 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

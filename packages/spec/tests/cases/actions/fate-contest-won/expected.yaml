@@ -1,0 +1,62 @@
+status: finished
+outcome:
+  result: won
+  data:
+    total: 5
+    opposition: 2
+    victories: 2
+    tally: 3
+    opponentVictories: 0
+proposedChanges:
+  - to: self
+    step: mark
+    change:
+      type: adjust
+      field: fate-core:contest.victories
+      by: 2
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 1
+      - 0
+      - 0
+    total: 5
+    band: superb
+    bandSet: fate-core:ladder
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: opposed[0]
+    action: fate-core:contest-exchange
+    kind: handoff
+    by: app
+    participant:
+      role: opponent
+      id: teran
+    outcome:
+      result: fail
+      data:
+        total: 2
+  - step: final
+    action: fate-core:contest-exchange
+    kind: dice
+    by: engine
+    total: 5
+    band: style
+    bandSet: fate-core:outcome

@@ -1,0 +1,23 @@
+# The save sets `flags.target` (Sanity 24 + the Scientist's 30 = 54) in a branch before the
+# roll; the `check` set's conditions read it. Each is printed with 54 in place of the flag. The
+# critical bands have text only (`%`); success is a conjunction of two plain comparisons, the
+# second the 90+ rule; failure always holds once reached.
+status: paused
+needs:
+  step: check
+  action: mothership-1e:save
+  kind: dice
+  summary:
+    bandSet: mothership-1e:check
+    bands:
+      - band: critical-success
+        when: 'roll.total < 54 && roll.total < 90 && roll.total % 11 == 0'
+      - band: success
+        when: 'roll.total < 54 && roll.total < 90'
+        tests:
+          - { of: roll.total, compare: lt, value: 54 }
+          - { of: roll.total, compare: lt, value: 90 }
+      - { band: critical-failure, when: 'roll.total % 11 == 0' }
+      - { band: failure, when: 'true', tests: [] }
+    flags: { target: 54 }
+log: []

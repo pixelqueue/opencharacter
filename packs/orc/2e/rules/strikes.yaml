@@ -1,0 +1,424 @@
+fields:
+  attacks.simple.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  attacks.martial.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  attacks.advanced.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  attacks.unarmed.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  attacks.masterGroups: { type: set, of: tag, members: { under: [group] } }
+  attacks.favoredWeapons: { type: set, of: weapon }
+  attacks.favoredRank: { type: integer, formula: 0, min: 0, max: 4 }
+  attacks.legendGroups: { type: set, of: tag, members: { under: [group] } }
+  weapons.specialization: { type: integer, formula: 0, min: 0, max: 2 }
+  attacks.str.mod: { type: integer, tags: [check, attack, attr.str], formula: attributes.str.mod }
+  attacks.dex.mod: { type: integer, tags: [check, attack, attr.dex], formula: attributes.dex.mod }
+  attacks.int.mod: { type: integer, tags: [check, attack, attr.int], formula: attributes.int.mod }
+  damage.str.mod: { type: integer, tags: [damage, attr.str], formula: attributes.str.mod }
+  damage.mod: { type: integer, tags: [damage], formula: 0 }
+
+  turn.attacks: { type: integer, input: true, default: 0, min: 0 }
+  turn.flourishes: { type: integer, input: true, default: 0, min: 0 }
+  parry.weapon: { type: boolean, input: true, default: false }
+
+constraints:
+  - id: one-flourish
+    check: turn.flourishes <= 1
+
+standardCopies:
+  - { type: weapon, where: "'standard' in item.tags && !('natural' in item.tags)" }
+
+contentTypes:
+  weapon:
+    carried: true
+    equippable: true
+    fields:
+      category: { type: enum, values: [unarmed, simple, martial, advanced], required: true }
+      group:
+        type: enum
+        values:
+          [
+            axe,
+            bomb,
+            bow,
+            brawling,
+            club,
+            crossbow,
+            dart,
+            flail,
+            hammer,
+            knife,
+            pick,
+            polearm,
+            shield,
+            sling,
+            spear,
+            sword,
+          ]
+        required: true
+      damage: { type: dice, required: true }
+      ownDice: { type: boolean, default: false }
+      formAttack: { type: boolean, default: false }
+      formDamage: { type: integer, default: 0 }
+      damageType: { type: enum, values: [bludgeoning, piercing, slashing, fire], required: true }
+      hands: { type: integer, default: 1, min: 1, max: 2 }
+      range: { type: integer, default: 0, min: 0 }
+      thrown: { type: integer, default: 0, min: 0 }
+      deadly: { type: dice }
+      fatal: { type: dice }
+      twoHand: { type: dice }
+      versatile: { type: enum, values: [bludgeoning, piercing, slashing] }
+      volley: { type: integer, min: 0 }
+      reload: { type: integer, min: 0 }
+      bulk: { type: decimal, default: 0, min: 0 }
+      price: { type: decimal, min: 0 }
+    state:
+      wielding: { type: enum, values: [one-hand, two-hands], default: one-hand }
+      used: { type: integer, default: 0, min: 0 }
+      container: { type: string, default: '' }
+      modular: { type: enum, values: [none, bludgeoning, piercing, slashing], default: none }
+    computed:
+      rank:
+        type: integer
+        formula: >-
+          max(item.category == 'simple' ? attacks.simple.rank : item.category == 'martial' ?
+          attacks.martial.rank : item.category == 'advanced' ? attacks.advanced.rank :
+          attacks.unarmed.rank, item.id in attacks.familiar || countList(item.tags, x in
+          attacks.familiar) > 0 ? (item.category == 'martial' ? attacks.simple.rank :
+          item.category == 'advanced' ? attacks.martial.rank : 0) : 0,
+          item.id in attacks.favoredWeapons ? attacks.favoredRank : 0,
+          ('group.' + item.group) in attacks.masterGroups ? (item.category
+          == 'advanced' ? 2 : 3) : 0, ('group.' + item.group) in attacks.legendGroups ?
+          (item.category == 'advanced' ? 3 : 4) : 0)
+      proficiency:
+        {
+          type: integer,
+          formula: 'self.rank > 0 ? 2 * self.rank + proficiency.level : proficiency.untrained',
+        }
+      specialization:
+        type: integer
+        formula: '[[0, 0, 0, 0, 0], [0, 0, 2, 3, 4], [0, 0, 4, 6, 8]][weapons.specialization][self.rank]'
+      attackStr: { type: integer, formula: attacks.str.mod + self.proficiency + item.potency }
+      attackDex: { type: integer, formula: attacks.dex.mod + self.proficiency + item.potency }
+      damageStr: { type: integer, formula: damage.str.mod + self.specialization }
+      damageOther: { type: integer, formula: damage.mod + self.specialization }
+      damagePropulsive:
+        type: integer
+        formula: >-
+          damage.mod + self.specialization + (damage.str.mod > 0 ? floor(damage.str.mod / 2)
+            : damage.str.mod)
+    actions:
+      - use: strike
+      - use: modular
+      - use: sell
+      - use: store
+      - use: retrieve
+      - id: parry
+        tags: [reaction, trait.parry]
+        available: "self.equipped && 'trait.parry' in item.tags && !parry.weapon"
+        steps:
+          - id: parry
+            kind: changes
+            changes:
+              - { type: set, field: parry.weapon, value: true }
+    effects:
+      # A keyed roll effect, so it competes with any item bonus the attack field has.
+      - id: potency
+        target: { rolls: [attack], from: self }
+        op: add
+        value: item.potency
+        stackKey: item-bonus
+        when: item.potency > 0
+      - id: rune-count
+        target: runes.invalid
+        op: add
+        value: 1
+        when: >-
+          countList(self.templates, x in runes.potency) > 1
+            || countList(self.templates, x in runes.striking) > 1
+            || countList(self.templates, x in runes.property) > item.potency
+      - id: deadly
+        target: { rolls: [damage.strike], from: self }
+        op: add
+        value: 'dieOf(item.deadly, item.dice >= 4 ? 3 : item.dice >= 3 ? 2 : 1)'
+        tags: [{ formula: "'damage.' + flags.damageType" }]
+        multiplied: false
+        when: has(flags.crit) && flags.crit && has(item.deadly)
+      - id: fatal
+        target: { rolls: [damage.strike], from: self }
+        op: add
+        value: dieOf(item.fatal)
+        tags: [{ formula: "'damage.' + flags.damageType" }]
+        multiplied: false
+        when: has(flags.crit) && flags.crit && has(item.fatal)
+
+effects:
+  # Every item of the roll is doubled, dice and flat, effects' bonuses included; deadly's and
+  # fatal's extra die are added after doubling.
+  - id: critical-double
+    target: { rolls: [damage.strike] }
+    op: rollModifier
+    value: { kind: multiply, factor: 2 }
+    when: has(flags.crit) && flags.crit
+  - id: parry-trait
+    target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: parry.weapon
+
+situational:
+  - { id: offGuardTarget, type: boolean, default: false, rolls: [strike] }
+  - id: sweep
+    type: boolean
+    default: false
+    rolls: [strike]
+    effects:
+      - target: { rolls: [strike] }
+        op: add
+        value: 1
+        stackKey: circumstance-bonus
+        when: "situational.sweep && 'trait.sweep' in roll.item.tags"
+  - id: withinVolley
+    type: boolean
+    default: false
+    rolls: [strike]
+    effects:
+      - target: { rolls: [strike] }
+        op: add
+        value: -2
+        when: situational.withinVolley && has(roll.item.volley)
+  - id: rangeIncrement
+    type: integer
+    default: 1
+    rolls: [strike]
+    effects:
+      - target: { rolls: [strike] }
+        op: add
+        value: -2 * (situational.rangeIncrement - 1)
+        when: situational.rangeIncrement > 1
+  - id: damageCircumstanceBonus
+    type: integer
+    default: 0
+    rolls: [strike]
+    effects:
+      - target: { rolls: [damage.strike] }
+        op: add
+        value: situational.damageCircumstanceBonus
+        stackKey: circumstance-bonus
+        tags: [{ formula: "'damage.' + roll.item.damageType" }]
+        when: situational.damageCircumstanceBonus > 0
+  - id: twin
+    type: boolean
+    default: false
+    rolls: [strike]
+    effects:
+      - target: { rolls: [damage.strike] }
+        op: add
+        value: roll.item.dice
+        stackKey: circumstance-bonus
+        tags: [{ formula: "'damage.' + roll.item.damageType" }]
+        when: "situational.twin && 'trait.twin' in roll.item.tags"
+
+actions:
+  # A reaction (Reactive Strike) neither counts toward the multiple attack penalty nor takes it.
+  # Feats that are Strikes are actions of their own that run the weapon's Strike and tag its rolls
+  # for their own roll effects.
+  - id: modular
+    tags: [inventory]
+    available: "'trait.modular' in item.tags"
+    results: [switched]
+    steps:
+      - id: type
+        kind: choice
+        options:
+          - id: bludgeoning
+          - id: piercing
+          - id: slashing
+        changes:
+          - { type: setState, entry: self, key: modular, value: picked.id }
+      - id: result
+        kind: outcome
+        result: "'switched'"
+  - id: strike
+    tags: [strike]
+    available: >-
+      (self.equipped || 'standard' in item.tags || 'unarmed' in item.tags)
+        && (!battleForm.formAttacks || item.formAttack)
+    params:
+      ac: { type: integer, optional: true }
+      attack: { type: integer, optional: true, min: 1, max: 3 }
+      reaction: { type: boolean, optional: true }
+      thrown: { type: boolean, optional: true }
+      versatile: { type: boolean, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          defenses.ac: { type: integer }
+          prey.target: { type: string, default: '' }
+          defenses.acPrey: { type: integer }
+          conditions.offGuard: { type: boolean, default: false }
+          conditions.concealed: { type: boolean, default: false }
+          conditions.hidden: { type: boolean, default: false }
+          conditions.mistChild: { type: boolean, default: false }
+          conditions.obfuscated: { type: boolean, default: false }
+    results: { bands: degree }
+    steps:
+      - id: feint
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              feinted: >-
+                feint.target != '' && size(participants.target) > 0
+                  && participants.target[0].id == feint.target && item.range == 0
+                  && !(has(params.thrown) && params.thrown)
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              reaction: has(params.reaction) && params.reaction
+              thrown: has(params.thrown) && params.thrown && item.thrown > 0
+              damageType: >-
+                has(params.versatile) && params.versatile && has(item.versatile) ? item.versatile
+                  : self.modular != 'none' ? self.modular : item.damageType
+              offGuard: >-
+                situational.offGuardTarget || flags.feinted || (size(participants.target) > 0
+                  && participants.target[0].conditions.offGuard)
+              prior: >-
+                has(params.reaction) && params.reaction ? 0
+                  : has(params.attack) ? params.attack - 1 : turn.attacks
+              dc: >-
+                size(participants.target) > 0
+                  ? (participants.target[0].prey.target != ''
+                    && participants.target[0].prey.target == character.id
+                    && has(participants.target[0].defenses.acPrey)
+                    ? participants.target[0].defenses.acPrey : participants.target[0].defenses.ac)
+                    - ((situational.offGuardTarget || flags.feinted)
+                    && !participants.target[0].conditions.offGuard ? 2 : 0)
+                  : has(params.ac) ? params.ac : -1
+              flat: >-
+                max(size(participants.target) > 0 && participants.target[0].conditions.hidden
+                  ? (senses.keenEyes ? 9 : 11) + (participants.target[0].conditions.mistChild ? 1 : 0) : 0,
+                  size(participants.target) > 0 && participants.target[0].conditions.concealed
+                    ? (senses.keenEyes ? 3 : 5) + (participants.target[0].conditions.mistChild ? 1 : 0) : 0,
+                  conditions.dazzled ? (senses.keenEyes ? 3 : 5) : 0,
+                  size(participants.target) > 0 && participants.target[0].conditions.obfuscated ? 10 : 0)
+              crit: false
+      - id: aim
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ranged: item.range > 0 || flags.thrown
+              map: "flags.reaction ? 0 : min(2, flags.prior) * ('trait.agile' in item.tags ? 4 : 5)"
+              useDex: >-
+                item.formAttack ? battleForm.dex
+                  : item.range > 0 || flags.thrown
+                  || ('trait.finesse' in item.tags && self.attackDex > self.attackStr)
+      - id: form
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              formUsed: >-
+                item.formAttack && battleForm.attack > (flags.useDex ? attributes.dex.mod
+                  : attributes.str.mod) + self.proficiency
+      - id: flat
+        kind: action
+        when: flags.flat > 0
+        use: flat-check
+        params: { dc: flags.flat }
+      - id: attack
+        kind: roll
+        when: "!has(steps.flat) || steps.flat.result in ['success', 'critical-success']"
+        tags:
+          - d20
+          - attack
+          - strike
+          - { formula: "flags.ranged ? 'attack.ranged' : 'attack.melee'" }
+          - { formula: "flags.useDex ? 'attr.dex' : 'attr.str'" }
+        bands: degree
+        parts:
+          - dice: 1d20
+          - field: "flags.useDex ? 'attacks.dex.mod' : 'attacks.str.mod'"
+            tags: [part.attribute]
+          - value: self.proficiency
+          - value: >-
+              battleForm.attack - (flags.useDex ? attributes.dex.mod : attributes.str.mod)
+                - self.proficiency
+            when: flags.formUsed
+            tags: [part.form]
+          - { value: -flags.map, when: flags.map > 0, tags: [part.map] }
+      - id: hit
+        kind: branch
+        when: has(steps.attack)
+        cases:
+          - when: steps.attack.band in ['critical-success', 'success']
+            flags:
+              crit: "steps.attack.band == 'critical-success'"
+              hit: true
+          - when: true
+            flags:
+              hit: false
+      - id: damage
+        kind: roll
+        when: has(flags.hit) && flags.hit
+        tags: [damage, damage.strike, { formula: "'damage.' + flags.damageType" }]
+        parts:
+          - dice: >-
+              item.formAttack ? dieOf(item.damage, countOf(item.damage) * battleForm.diceMultiplier
+                  + battleForm.extraDice)
+                : flags.crit && has(item.fatal) ? dieOf(item.fatal, item.dice)
+                : self.wielding == 'two-hands' && has(item.twoHand) ? dieOf(item.twoHand, item.dice)
+                : maxOf(item.damage) == minOf(item.damage) || item.ownDice ? item.damage
+                : dieOf(item.damage, item.dice)
+            tags: [part.weapon-die, { formula: "'damage.' + flags.damageType" }]
+          # Strength for melee and thrown weapons (a ranged weapon with the thrown trait too), half
+          # of it for a propulsive one, none for other ranged weapons.
+          - value: >-
+              flags.formUsed ? battleForm.damage + item.formDamage
+                : item.range > 0 && !('trait.thrown' in item.tags) ? ('trait.propulsive' in item.tags
+                ? self.damagePropulsive : self.damageOther) : self.damageStr
+            tags: [{ formula: "'damage.' + flags.damageType" }]
+          - value: 'min(2, flags.prior) * item.dice'
+            when: "'trait.forceful' in item.tags && flags.prior > 0"
+            tags: [{ formula: "'damage.' + flags.damageType" }]
+          - value: 'item.potency >= 3 ? 2 : 1'
+            when: "'trait.backstabber' in item.tags && flags.offGuard"
+            tags: [{ formula: "'damage.' + flags.damageType" }]
+      # Tagged `attack-count`, so a feat that holds the Strike's changes can drop it.
+      - id: count
+        kind: changes
+        when: '!flags.reaction'
+        changes:
+          - { type: adjust, field: turn.attacks, by: 1, tags: [attack-count] }
+      - id: feintSpent
+        kind: changes
+        when: flags.feinted && feint.next && has(steps.attack)
+        changes:
+          - { type: set, field: feint.target, value: "''" }
+          - { type: set, field: feint.next, value: false }
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage]
+      - id: onHit
+        kind: changes
+        when: has(flags.hit) && flags.hit
+        to: target
+        tags: [strike.hit, { formula: "flags.crit ? ['strike.hit.critical'] : []" }]
+      - id: result
+        kind: outcome
+        result: "has(steps.attack) ? steps.attack.band : 'failure'"
+        data:
+          attack: 'has(steps.attack) ? steps.attack.total : 0'
+          dc: flags.dc
+          map: flags.map
+          flatCheck: "!has(steps.flat) || steps.flat.result in ['success', 'critical-success']"
+          damage: 'has(steps.damage) ? steps.damage.total : 0'

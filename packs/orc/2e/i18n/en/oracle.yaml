@@ -1,0 +1,288 @@
+# The oracle (Player Core 2): the class, its mysteries and curses, features, feats and revelation
+# spells. Short rules text written for the pack.
+fields.oracle.mystery.name: 'Mystery'
+fields.oracle.cursebound.name: 'Cursebound'
+fields.oracle.curseMax.name: 'Maximum cursebound'
+tags.trait.cursebound.name: 'Cursebound'
+situational.againstSpell.name: 'Against a spell'
+situational.divineAegis.name: 'Divine Aegis'
+
+# The class.
+classes.oracle.name: 'Oracle'
+classes.oracle.description: "A divine spellcaster whose power comes from a mystery, at the price of a curse. Key attribute: Charisma. 8 Hit Points plus Constitution per level. Trained in Perception, Fortitude and Reflex, expert in Will; trained in simple weapons and unarmed attacks; trained in light armor and unarmored defense; trained in the oracle class DC, spell attack modifier and spell DC. Trained in Religion, your mystery's skill and 3 more skills plus Intelligence. You cast divine spells spontaneously with Charisma: three slots of each rank (four from the next level), a repertoire of as many spells and five cantrips, plus your mystery's granted spells. Cursebound abilities tighten your curse (cursebound 1 to 2, 3 from 11th level, 4 from 17th); Refocusing loosens it by 1."
+classes.oracle.choices.mystery.prompt: 'Mystery'
+classes.oracle.choices.skills.prompt: 'Trained skills (3 plus Intelligence)'
+classes.oracle.choices.class-feat.prompt: 'Oracle feat (level {slot})'
+classes.oracle.choices.skill-feat.prompt: 'Skill feat (level {slot})'
+
+# Mysteries.
+classes.oracle.mysteries.ancestors.name: 'Ancestors'
+classes.oracle.mysteries.ancestors.description: 'Granted spells: guidance, ill omen, ghostly carrier, dreaming potential. Initial revelation: ancestral touch. Cursebound feat: Whispers of Weakness. Curse of ancestral meddling: while cursebound you are clumsy with the cursebound value.'
+classes.oracle.mysteries.battle.name: 'Battle'
+classes.oracle.mysteries.battle.description: 'Granted spells: shield, sure strike, telekinetic maneuver, weapon storm. Initial revelation: weapon trance. Cursebound feat: Oracular Warning. Curse of the mortal warrior: cursebound 1, weakness 2 to damage from spells (resistances and immunities to spells suppressed); 2, a -1 status penalty to saves against spells; 3, the weakness equals your level; 4, the penalty is -2.'
+classes.oracle.mysteries.bones.name: 'Bones'
+classes.oracle.mysteries.bones.description: 'Granted spells: void warp, grim tendrils, false vitality, ghostly weapon. Initial revelation: soul siphon. Cursebound feat: Nudge the Scales. Curse of living death: cursebound 1, weakness 2 to vitality and void damage, and both harm you; 2, a -1 status penalty to Fortitude saves; 3, the weakness is 5 + your level; 4, the penalty is -2.'
+classes.oracle.mysteries.cosmos.name: 'Cosmos'
+classes.oracle.mysteries.cosmos.description: "Granted spells: light, dizzying colors, darkness, moon frenzy. Initial revelation: spray of stars. Cursebound feat: Oracular Warning. Curse of the sky's call: while cursebound you are enfeebled with the cursebound value, and take that status penalty to saves and DCs against forced movement."
+classes.oracle.mysteries.flames.name: 'Flames'
+classes.oracle.mysteries.flames.description: 'Granted spells: ignition, breathe fire, blazing bolt, fireball. Initial revelation: incendiary aura. Cursebound feat: Foretell Harm. Curse of engulfing flames: while cursebound you burn, taking persistent fire damage equal to the cursebound value, and resistance or immunity to fire is suppressed; the flames shed light like a torch.'
+classes.oracle.mysteries.life.name: 'Life'
+classes.oracle.mysteries.life.description: 'Granted spells: vitality lash, soothe, false vitality, grisly growths (5th). Initial revelation: life link. Cursebound feat: Nudge the Scales. Curse of outpouring life: magical healing you receive takes a status penalty equal to your level (at least 1) times the cursebound value.'
+classes.oracle.mysteries.lore.name: 'Lore'
+classes.oracle.mysteries.lore.description: "Granted spells: read aura, mindlink, hypercognition, never mind. Initial revelation: brain drain. Cursebound feat: Whispers of Weakness. Also trained in a Lore of your choice. Curse of torrential knowledge: a status penalty equal to the cursebound value to Perception checks and Will saves; at cursebound 4 you can't communicate and are stupefied 1."
+classes.oracle.mysteries.lore.choices.lore.prompt: 'A Lore'
+classes.oracle.mysteries.tempest.name: 'Tempest'
+classes.oracle.mysteries.tempest.description: 'Granted spells: electric arc, thunderstrike, hydraulic torrent, chain lightning. Initial revelation: tempest touch. Cursebound feat: Foretell Harm. Curse of inclement headwinds: cursebound 1, electricity weakness 2 (and you count as wearing metal); 2, a -2 circumstance penalty to ranged attack rolls; 3, the weakness is 5 + your level; 4, a -10-foot status penalty to your Speeds.'
+
+# Features.
+features.oracle.revelation-spells.name: 'Revelation Spells'
+features.oracle.revelation-spells.description: "Your mystery's powers are revelation spells, focus spells costing 1 Focus Point. You learn your mystery's initial revelation spell and start with a focus pool of 1 Focus Point, regained by Refocusing as you seek omens."
+features.oracle.oracular-curse.name: 'Oracular Curse'
+features.oracle.oracular-curse.description: "Cursebound abilities draw on raw divine power: each makes you cursebound 1, or raises your cursebound value by 1, after it resolves. You can't use one at your maximum (cursebound 2; 3 from 11th level, 4 from 17th). Your mystery's curse sets what cursebound does to you, and nothing but Refocusing lessens it; each Refocus lowers it by 1."
+features.oracle.expert-spellcaster.name: 'Expert Spellcaster'
+features.oracle.expert-spellcaster.description: 'Your proficiency ranks for spell attack modifier and spell DC increase to expert.'
+features.oracle.mysterious-resolve.name: 'Mysterious Resolve'
+features.oracle.mysterious-resolve.description: 'Your proficiency rank for Will saves increases to master, and a success on a Will save is a critical success instead.'
+features.oracle.magical-fortitude.name: 'Magical Fortitude'
+features.oracle.magical-fortitude.description: 'Your proficiency rank for Fortitude saves increases to expert.'
+features.oracle.major-curse.name: 'Major Curse'
+features.oracle.major-curse.description: 'Your maximum cursebound value increases to 3.'
+features.oracle.oracular-senses.name: 'Oracular Senses'
+features.oracle.oracular-senses.description: 'Your proficiency rank for Perception increases to expert.'
+features.oracle.weapon-expertise.name: 'Weapon Expertise'
+features.oracle.weapon-expertise.description: 'Your proficiency ranks for simple weapons and unarmed attacks increase to expert.'
+features.oracle.light-armor-expertise.name: 'Light Armor Expertise'
+features.oracle.light-armor-expertise.description: 'Your proficiency ranks for light armor and unarmored defense increase to expert.'
+features.oracle.premonitions-reflexes.name: "Premonition's Reflexes"
+features.oracle.premonitions-reflexes.description: 'Your proficiency rank for Reflex saves increases to expert.'
+features.oracle.weapon-specialization.name: 'Weapon Specialization'
+features.oracle.weapon-specialization.description: 'You deal 2 more damage with weapons and unarmed attacks in which you are an expert, 3 if a master, 4 if legendary.'
+features.oracle.master-spellcaster.name: 'Master Spellcaster'
+features.oracle.master-spellcaster.description: 'Your proficiency ranks for spell attack modifier and spell DC increase to master.'
+features.oracle.extreme-curse.name: 'Extreme Curse'
+features.oracle.extreme-curse.description: 'Your maximum cursebound value increases to 4.'
+features.oracle.greater-mysterious-resolve.name: 'Greater Mysterious Resolve'
+features.oracle.greater-mysterious-resolve.description: 'Your proficiency rank for Will saves increases to legendary. A critical failure on a Will save is a failure instead, and you take half damage when you fail a Will save against a damaging effect.'
+features.oracle.legendary-spellcaster.name: 'Legendary Spellcaster'
+features.oracle.legendary-spellcaster.description: 'Your proficiency ranks for spell attack modifier and spell DC increase to legendary.'
+features.oracle.divine-access.name: 'Divine Access'
+features.oracle.divine-access.description: "Choose a deity granting one of your mystery's domains; up to three of its cleric spells join your spell list, and your repertoire once you can cast them."
+features.oracle.oracular-clarity.name: 'Oracular Clarity'
+features.oracle.oracular-clarity.description: "Two common 10th-rank divine spells join your repertoire, and you gain a single 10th-rank slot to cast them; abilities that add slots or cast without spending one can't use it. Oracular Providence gives a second slot."
+features.oracle.oracular-clarity.choices.spell.prompt: 'A second 10th-rank divine spell'
+
+# Revelation spells.
+spells.ancestral-touch.name: 'Ancestral Touch'
+spells.ancestral-touch.description: "You touch a living creature and make it feel the ancestors around you: 2d4 mental damage, Will save. **Critical Success** Unaffected. **Success** Half damage. **Failure** Full damage and frightened 1. **Critical Failure** Double damage and frightened 2.\n\n**Heightened (+1)** The damage increases by 1d4."
+spells.brain-drain.name: 'Brain Drain'
+spells.brain-drain.description: "You rifle through a creature's mind within 30 feet: 1d8 mental damage, basic Will save. If it fails, you attempt one Recall Knowledge check with a skill of your choice, using the target's modifier for that skill.\n\n**Heightened (+1)** The damage increases by 1d8."
+spells.incendiary-aura.name: 'Incendiary Aura'
+spells.incendiary-aura.description: "For 1 minute a 10-foot emanation around you is combustible: each time a creature in it takes fire damage, it catches fire and takes 2d4 persistent fire damage.\n\n**Heightened (+2)** The persistent damage increases by 1d4 and the emanation by 5 feet."
+spells.life-link.name: 'Life Link'
+spells.life-link.description: "You link your life to another creature within 30 feet for 1 minute. It regains 1d4 Hit Points. The first time each round it takes damage, the damage drops by 3 (not below 0) and you lose that many Hit Points, which nothing can reduce. It ends if you fall unconscious; you can Dismiss it.\n\n**Heightened (3rd)** 2 targets, 3d4 healing, 5 shared. **Heightened (6th)** 3 targets, 6d4, 10. **Heightened (9th)** 4 targets, 9d4, 15."
+spells.soul-siphon.name: 'Soul Siphon'
+spells.soul-siphon.description: "You draw off part of a living creature's soul within 30 feet: 1d4 void damage, Fortitude save; you gain temporary Hit Points equal to the Hit Points it loses (drained included). **Critical Success** Unaffected. **Success** Half damage. **Failure** Full damage and drained 1. **Critical Failure** Double damage and drained 2.\n\n**Heightened (+1)** The damage increases by 1d4."
+spells.spray-of-stars.name: 'Spray of Stars'
+spells.spray-of-stars.description: "Tiny shooting stars fill a 15-foot cone: 2d4 fire damage, Reflex save. **Critical Success** Unaffected. **Success** Half damage and dazzled for 1 round. **Failure** Full damage and dazzled for 3 rounds. **Critical Failure** Double damage and dazzled for 1 minute.\n\n**Heightened (+1)** The damage increases by 1d4."
+spells.tempest-touch.name: 'Tempest Touch'
+spells.tempest-touch.description: "Icy churning water clings to a creature you touch: 1d4 bludgeoning and 1d4 cold damage, Fortitude save. **Critical Success** Unaffected. **Success** Half damage and a -5-foot circumstance penalty to its Speeds until the end of your next turn. **Failure** Full damage and a -10-foot penalty. **Critical Failure** As failure, with double damage.\n\n**Heightened (+1)** Each damage increases by 1d4."
+spells.weapon-trance.name: 'Weapon Trance'
+spells.weapon-trance.description: 'For 1 minute, your proficiency with martial weapons equals your proficiency with simple weapons.'
+spells.access-lore.name: 'Access Lore'
+spells.access-lore.description: 'For 1 minute, choose a Lore skill: your proficiency rank in it equals your rank for oracle spellcasting.'
+spells.ancestral-defense.name: 'Ancestral Defense'
+spells.ancestral-defense.description: 'Reaction. Trigger: you are about to attempt a Will save. You roll it twice and use the better result.'
+spells.armor-of-bones.name: 'Armor of Bones'
+spells.armor-of-bones.description: "For 1 minute, your body hardens like bone: resistance 3 to cold, electricity, fire, piercing and slashing damage.\n\n**Heightened (+1)** The resistance increases by 1."
+spells.battlefield-persistence.name: 'Battlefield Persistence'
+spells.battlefield-persistence.description: 'Reaction. Trigger: you are about to attempt a saving throw. You gain a +2 status bonus to it, and an incapacitation effect treats you as 2 levels higher for it.'
+spells.delay-affliction.name: 'Delay Affliction'
+spells.delay-affliction.description: "A creature within 30 feet regains 3d8 Hit Points, and you attempt to counteract one affliction you know it has, suspending it for 1 hour on a success. It's then immune for a day.\n\n**Heightened (+1)** 1d8 more healing, and one more affliction."
+spells.interstellar-void.name: 'Interstellar Void'
+spells.interstellar-void.description: "The freezing void cloaks a creature within 30 feet for as long as you Sustain it (up to 1 minute): 3d6 cold damage, basic Fortitude save, now and the first time each round you Sustain it. It is fatigued while the spell lasts.\n\n**Heightened (+1)** The damage increases by 1d6."
+spells.thunderburst.name: 'Thunderburst'
+spells.thunderburst.description: "Wind and thunder blast a 20-foot burst within 100 feet: 2d6 bludgeoning and 2d6 sonic damage, Fortitude save. **Critical Success** Unaffected. **Success** Half damage. **Failure** Full damage and deafened for 1 minute. **Critical Failure** Double damage and deafened for 1 hour.\n\n**Heightened (+2)** Each damage increases by 2d6 and the burst by 5 feet."
+spells.whirling-flames.name: 'Whirling Flames'
+spells.whirling-flames.description: "Flames whirl in up to two non-overlapping 5-foot bursts within 30 feet: 5d6 fire damage, basic Reflex save.\n\n**Heightened (+2)** The damage increases by 3d6, and one more burst."
+spells.ancestral-form.name: 'Ancestral Form'
+spells.ancestral-form.description: "While you Sustain it (up to 1 minute) you become an invisible, quasi-corporeal spirit: resistance 10 to all damage except force, spirit and ghost touch Strikes (doubled against non-magical damage and precision damage), and a fly Speed equal to your land Speed. You can't Cast Spells, activate items or use attack or manipulate actions.\n\n**Heightened (+2)** The resistance increases by 5."
+spells.claim-undead.name: 'Claim Undead'
+spells.claim-undead.description: 'You try to take control of an undead creature within 30 feet for 10 minutes (its controller saves instead, if it has one); Will save. **Critical Success** Unaffected. **Success** Stunned 1 and confused for 1 round. **Failure** It is controlled by you; it can save again at the end of each of its turns, ending the spell (stunned 1 and confused for a round) on a success. **Critical Failure** As failure, but it saves again only against an order against its nature.'
+spells.dread-secret.name: 'Dread Secret'
+spells.dread-secret.description: 'Up to 6 creatures within 60 feet, until the end of your next turn: name a resistance or weakness you believe they have; for each that has it, a Will save. **Critical Success** Unaffected. **Success** A named weakness takes 1 damage of its type (triggering it), or a named resistance is lost. **Failure** As success, and frightened 1. **Critical Failure** As failure, but frightened 3.'
+spells.flaming-fusillade.name: 'Flaming Fusillade'
+spells.flaming-fusillade.description: "For 1 minute flames burst around you: you cast ignition as part of this spell, and for the duration ignition takes 1 action instead of 2.\n\n**Heightened (9th)** Ignition also gains a status bonus to damage equal to this spell's rank."
+spells.life-giving-form.name: 'Life-Giving Form'
+spells.life-giving-form.description: "For 1 minute you become a beacon of healing, shedding light like a torch: resistance 5 to precision damage, weakness 5 to void damage, and 1d4 more vitality damage on your unarmed Strikes. An Interact touch restores 6d8 Hit Points to a living creature (not you), which is then immune for 1 minute; a creature hurt by vitality that touches or hits you takes 3d4 vitality damage.\n\n**Heightened (+1)** 1d8 more healing, and the vitality damage, resistance and weakness each increase by 1."
+spells.moonlight-bridge.name: 'Moonlight Bridge'
+spells.moonlight-bridge.description: "For 10 minutes a 10-foot-wide bridge of moonlight starts at a point within 30 feet and runs up to 120 feet, level or sloped up to 45 degrees. It has AC 10, Hardness 30 and 60 Hit Points and is immune to all damage but force, spirit and ghost touch. You and your allies cross it; others pass through. It blocks attacks through it. You can Dismiss it.\n\n**Heightened (+1)** 20 feet longer, 20 more Hit Points, and up to 5 feet wider."
+spells.revel-in-retribution.name: 'Revel in Retribution'
+spells.revel-in-retribution.description: "For 1 minute you have Reactive Strike and an extra reaction each turn usable only for it (one immediately). Each hit with Reactive Strike gives you 5 temporary Hit Points that last for the spell's duration.\n\n**Heightened (+1)** The temporary Hit Points increase by 1."
+spells.tempest-form.name: 'Tempest Form'
+spells.tempest-form.description: "While you Sustain it (up to 1 minute) you become air, water or mist: amorphous, using unarmored defense (no item bonus to AC), resistance 10 to physical damage, immune to precision damage, no need to breathe, and no spells, item activations, attack or manipulate actions but this spell's. Air: fly Speed 20 feet, invisible in the air, a gust of wind (2 actions). Mist: fly Speed 20 feet, and creatures targeting through you treat the target as concealed. Water: swim Speed 20 feet, invisible in water; one action charges you so melee attackers take 1d6 electricity damage.\n\n**Heightened (+2)** The resistance increases by 5 and the electricity damage by 1."
+
+# Feats.
+feats.oracle.foretell-harm.name: 'Foretell Harm'
+feats.oracle.foretell-harm.description: "Free action, once per round. Requirement: your last action cast a non-cantrip spell that dealt damage. At the start of the target's next turn, a minor misfortune of the spell's damage type deals it damage equal to twice the spell's rank; it's then immune for 24 hours."
+feats.oracle.foretell-harm.actions.foretell-harm.name: 'Foretell Harm'
+feats.oracle.foretell-harm.actions.foretell-harm.params.rank.name: "The spell's rank"
+feats.oracle.foretell-harm.actions.foretell-harm.results.used.name: 'Harm foretold'
+feats.oracle.glean-lore.name: 'Glean Lore'
+feats.oracle.glean-lore.description: "One action, secret. Attempt a Religion check against a DC the GM sets to draw on divine lore. **Critical Success** Accurate lore or a useful clue. **Success** Two pieces of information, one true and one false, and you don't know which. **Failure** False information. **Critical Failure** Two false pieces."
+feats.oracle.glean-lore.actions.glean-lore.name: 'Glean Lore'
+feats.oracle.glean-lore.actions.glean-lore.params.dc.name: 'DC'
+feats.oracle.nudge-the-scales.name: 'Nudge the Scales'
+feats.oracle.nudge-the-scales.description: 'One action. A creature within 30 feet, living or undead, regains 2 + twice your level Hit Points. During daily preparations you side with life (vitality heals you, as normal) or death (you gain void healing).'
+feats.oracle.nudge-the-scales.actions.nudge-the-scales.name: 'Nudge the Scales'
+feats.oracle.nudge-the-scales.actions.nudge-the-scales.participants.ally.name: 'The creature healed'
+feats.oracle.nudge-the-scales.actions.nudge-the-scales.results.used.name: 'Healed'
+feats.oracle.oracular-warning.name: 'Oracular Warning'
+feats.oracle.oracular-warning.description: "Free action. Trigger: you're about to roll initiative. Each ally within 20 feet gains a +2 status bonus to initiative (+3 if you're cursebound 2, +4 if cursebound 3) and temporary Hit Points equal to half your level for 1 minute."
+feats.oracle.oracular-warning.actions.oracular-warning.name: 'Oracular Warning'
+feats.oracle.oracular-warning.actions.oracular-warning.results.used.name: 'Allies warned'
+feats.oracle.whispers-of-weakness.name: 'Whispers of Weakness'
+feats.oracle.whispers-of-weakness.description: "One action. A creature within 60 feet: you learn its weaknesses and its lowest save, and gain a +2 status bonus to your next attack roll (or skill check in an attack action) against it this turn. It's then immune for a day."
+feats.oracle.whispers-of-weakness.actions.whispers-of-weakness.name: 'Whispers of Weakness'
+feats.oracle.whispers-of-weakness.actions.whispers-of-weakness.results.used.name: 'Whispers heard'
+feats.oracle.divine-aegis.name: 'Divine Aegis'
+feats.oracle.divine-aegis.description: "Reaction. Trigger: you're about to save against a magical effect. Until the start of your next turn, +1 circumstance bonus to saves against nondivine magic and -1 circumstance penalty against divine effects."
+feats.oracle.domain-acumen.name: 'Domain Acumen'
+feats.oracle.domain-acumen.description: 'Choose a domain associated with your mystery: you gain its initial domain spell as a revelation spell. You can take this feat again for another domain.'
+feats.oracle.domain-acumen.choices.domain.prompt: 'Domain'
+feats.oracle.domain-acumen.choices.domain.options.air.name: 'Air'
+feats.oracle.domain-acumen.choices.domain.options.darkness.name: 'Darkness'
+feats.oracle.domain-acumen.choices.domain.options.death.name: 'Death'
+feats.oracle.domain-acumen.choices.domain.options.destruction.name: 'Destruction'
+feats.oracle.domain-acumen.choices.domain.options.family.name: 'Family'
+feats.oracle.domain-acumen.choices.domain.options.fire.name: 'Fire'
+feats.oracle.domain-acumen.choices.domain.options.healing.name: 'Healing'
+feats.oracle.domain-acumen.choices.domain.options.knowledge.name: 'Knowledge'
+feats.oracle.domain-acumen.choices.domain.options.magic.name: 'Magic'
+feats.oracle.domain-acumen.choices.domain.options.might.name: 'Might'
+feats.oracle.domain-acumen.choices.domain.options.moon.name: 'Moon'
+feats.oracle.domain-acumen.choices.domain.options.pain.name: 'Pain'
+feats.oracle.domain-acumen.choices.domain.options.protection.name: 'Protection'
+feats.oracle.domain-acumen.choices.domain.options.secrecy.name: 'Secrecy'
+feats.oracle.domain-acumen.choices.domain.options.sun.name: 'Sun'
+feats.oracle.domain-acumen.choices.domain.options.truth.name: 'Truth'
+feats.oracle.domain-acumen.choices.domain.options.undeath.name: 'Undeath'
+feats.oracle.domain-acumen.choices.domain.options.water.name: 'Water'
+feats.oracle.domain-acumen.choices.domain.options.zeal.name: 'Zeal'
+feats.oracle.domain-acumen.choices.domain.options.air.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.darkness.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.death.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.destruction.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.family.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.fire.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.healing.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.knowledge.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.magic.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.might.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.moon.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.pain.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.protection.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.secrecy.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.sun.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.truth.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.undeath.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.water.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.domain-acumen.choices.domain.options.zeal.prerequisites.mystery: 'A domain of your mystery'
+feats.oracle.meddling-futures.name: 'Meddling Futures'
+feats.oracle.meddling-futures.description: 'Free action. Roll 1d4 for the spirit drawn to you; your next action must be its kind (or succeed at a DC 6 flat check or lose it), and it helps. **1 Warrior** Strike: +1 status to the attack and +2 to damage (+6 if cursebound 3). **2 Adept** Perception or a skill action: +1 status (+2 if cursebound 3). **3 Sage** Cast a Spell: a status bonus to its damage or healing equal to its rank (+3 more if cursebound 3). **4 Wanderer** Stride (or Fly, Climb, Burrow): +10-foot status bonus to Speed (+20 if cursebound 3).'
+feats.oracle.meddling-futures.actions.meddling-futures.name: 'Meddling Futures'
+feats.oracle.meddling-futures.actions.meddling-futures.results.used.name: 'A spirit answers'
+feats.oracle.knowledge-of-shapes.name: 'Knowledge of Shapes'
+feats.oracle.knowledge-of-shapes.description: 'Free action. You use Reach Spell or Widen Spell as a free action.'
+feats.oracle.knowledge-of-shapes.prerequisites.spellshape: 'Reach Spell or Widen Spell'
+feats.oracle.knowledge-of-shapes.actions.knowledge-of-shapes.name: 'Knowledge of Shapes'
+feats.oracle.knowledge-of-shapes.actions.knowledge-of-shapes.results.used.name: 'Shaped'
+feats.oracle.thousand-visions.name: 'Thousand Visions'
+feats.oracle.thousand-visions.description: "Free action. For 1 minute, within 30 feet you need no flat check against concealed creatures, aren't off-guard to hidden ones, and need only DC 5 against hidden ones; beyond 30 feet all your senses are imprecise."
+feats.oracle.thousand-visions.actions.thousand-visions.name: 'Thousand Visions'
+feats.oracle.thousand-visions.actions.thousand-visions.results.used.name: 'Visions open'
+feats.oracle.advanced-revelation.name: 'Advanced Revelation'
+feats.oracle.advanced-revelation.description: "You learn your mystery's advanced revelation spell."
+feats.oracle.advanced-revelation.prerequisites.mystery: 'An initial revelation spell'
+feats.oracle.advanced-revelation.choices.spell.prompt: 'Advanced revelation spell'
+feats.oracle.gifted-power.name: 'Gifted Power'
+feats.oracle.gifted-power.description: "You gain an extra spell slot of your highest rank that can cast only your mystery's granted spells, heightened to that rank (and spells from divine access or Mysterious Repertoire)."
+feats.oracle.gifted-power.options.gifted-power.name: 'Gifted Power slot (highest rank)'
+feats.oracle.spiritual-sense.name: 'Spiritual Sense'
+feats.oracle.spiritual-sense.description: 'While exploring (even when not Searching) the GM rolls secret checks for you to notice haunts, spirits, ethereal creatures and beings of spiritual essence, even inside solid objects within 30 feet; one you notice is hidden to you instead of undetected.'
+feats.oracle.debilitating-dichotomy.name: 'Debilitating Dichotomy'
+feats.oracle.debilitating-dichotomy.description: "Two actions. You and a creature within 30 feet each take 9d6 mental damage (basic Will save); it's stunned 1 on a critical failure, and your save is one degree better than you rolled. The damage increases by 3d6 at 10th level and every 2 levels after."
+feats.oracle.debilitating-dichotomy.actions.debilitating-dichotomy.name: 'Debilitating Dichotomy'
+feats.oracle.debilitating-dichotomy.actions.debilitating-dichotomy.participants.target.name: 'Target'
+feats.oracle.debilitating-dichotomy.actions.debilitating-dichotomy.results.used.name: 'Dichotomy revealed'
+feats.oracle.read-disaster.name: 'Read Disaster'
+feats.oracle.read-disaster.description: "Exploration. Over 10 minutes (1 minute if legendary in Religion) you gain an augury's effects about dangers only: good becomes nothing, mixed becomes bad."
+feats.oracle.surging-might.name: 'Surging Might'
+feats.oracle.surging-might.description: 'One action, spellshape. If your next action is to Cast a Spell, its damage ignores spirit, vitality and void resistance up to your level (all its damage, persistent too), but not immunity.'
+feats.oracle.water-walker.name: 'Water Walker'
+feats.oracle.water-walker.description: "While cursebound 1 you can Stride across liquids if you end on solid footing; at cursebound 2 or more you gain water walk's effects."
+feats.oracle.roll-the-bones-of-fate.name: 'Roll the Bones of Fate'
+feats.oracle.roll-the-bones-of-fate.description: "One action, once per 10 minutes. Roll 1d4; a new roll ends the last one's effects. **1 Good** You or an ally within 30 feet rolls the next attack roll or skill check twice, taking the higher. **2 Bad** A creature within 30 feet saves (Will against your spell DC) or rolls its next attack roll or skill check twice, taking the lower. **3 Mixed** Both. **4 Cursed** Everyone within 30 feet rolls its next attack roll or skill check twice: the lower if the highest die is odd, the higher if even."
+feats.oracle.roll-the-bones-of-fate.prerequisites.mystery: 'Bones or Lore mystery'
+feats.oracle.roll-the-bones-of-fate.actions.roll-the-bones-of-fate.name: 'Roll the Bones of Fate'
+feats.oracle.roll-the-bones-of-fate.actions.roll-the-bones-of-fate.results.used.name: 'Bones cast'
+feats.oracle.the-dead-walk.name: 'The Dead Walk'
+feats.oracle.the-dead-walk.description: 'Two actions. Two ghostly warriors appear within 30 feet (three if cursebound 2, four if cursebound 3) and each Strikes an adjacent enemy with your spell attack modifier for 4d6 spirit damage; they flank, and vanish at the start of your next turn.'
+feats.oracle.the-dead-walk.prerequisites.mystery: 'Ancestors or Battle mystery'
+feats.oracle.the-dead-walk.actions.the-dead-walk.name: 'The Dead Walk'
+feats.oracle.the-dead-walk.actions.the-dead-walk.results.used.name: 'Warriors summoned'
+feats.oracle.trial-by-skyfire.name: 'Trial by Skyfire'
+feats.oracle.trial-by-skyfire.description: 'One action. For 1 minute blazing bolts rain in a 10-foot emanation around you (you included), 2d6 fire damage to each creature at the end of your turns (basic Reflex save). Sustain to suppress it a round; unconsciousness suppresses it. At cursebound 3 or 4 it grows to 15 feet and 4d6.'
+feats.oracle.trial-by-skyfire.prerequisites.mystery: 'Cosmos or Flames mystery'
+feats.oracle.trial-by-skyfire.actions.trial-by-skyfire.name: 'Trial by Skyfire'
+feats.oracle.trial-by-skyfire.actions.trial-by-skyfire.results.used.name: 'Skyfire falls'
+feats.oracle.waters-of-creation.name: 'Waters of Creation'
+feats.oracle.waters-of-creation.description: "Two actions. Creatures in a 15-foot emanation regain 5d6 Hit Points (1d6 more at 12th level and every 2 levels after; d8s instead if you're cursebound 3)."
+feats.oracle.waters-of-creation.prerequisites.mystery: 'Life or Tempest mystery'
+feats.oracle.waters-of-creation.actions.waters-of-creation.name: 'Waters of Creation'
+feats.oracle.waters-of-creation.actions.waters-of-creation.participants.ally.name: 'Creatures in the area'
+feats.oracle.waters-of-creation.actions.waters-of-creation.results.used.name: 'Waters flow'
+feats.oracle.domain-fluency.name: 'Domain Fluency'
+feats.oracle.domain-fluency.description: 'Choose a domain of your mystery whose initial domain spell you have: you gain its advanced domain spell as a revelation spell.'
+feats.oracle.domain-fluency.prerequisites.domain-acumen: 'Domain Acumen'
+feats.oracle.epiphany-at-the-crossroads.name: 'Epiphany at the Crossroads'
+feats.oracle.epiphany-at-the-crossroads.description: "Free action, once a day. Trigger: your turn begins while you're unconscious and dying. You gain an augury's vision, lose the dying condition (wounded as normal), regain twice your level in Hit Points and can Stand."
+feats.oracle.epiphany-at-the-crossroads.actions.epiphany-at-the-crossroads.name: 'Epiphany at the Crossroads'
+feats.oracle.epiphany-at-the-crossroads.actions.epiphany-at-the-crossroads.results.risen.name: 'Risen'
+feats.oracle.greater-revelation.name: 'Greater Revelation'
+feats.oracle.greater-revelation.description: "You learn your mystery's greater revelation spell."
+feats.oracle.greater-revelation.prerequisites.mystery: 'An initial revelation spell'
+feats.oracle.greater-revelation.choices.spell.prompt: 'Greater revelation spell'
+feats.oracle.forestall-curse.name: 'Forestall Curse'
+feats.oracle.forestall-curse.description: "Free action, once a day. If your next action is a cursebound ability, your cursebound value doesn't rise."
+feats.oracle.lighter-than-air.name: 'Lighter than Air'
+feats.oracle.lighter-than-air.description: "While cursebound you gain fly's effects, with a +10-foot status bonus to your fly Speed at cursebound 3 or more."
+feats.oracle.lighter-than-air.prerequisites.water-walker: 'Water Walker'
+feats.oracle.mysterious-repertoire.name: 'Mysterious Repertoire'
+feats.oracle.mysterious-repertoire.description: 'You can have one spell from another tradition in your repertoire, cast as a divine spell (one at a time).'
+feats.oracle.revelations-focus.name: "Revelation's Focus"
+feats.oracle.revelations-focus.description: 'When you Refocus, you regain all your Focus Points.'
+feats.oracle.conduit-of-void-and-vitality.name: 'Conduit of Void and Vitality'
+feats.oracle.conduit-of-void-and-vitality.description: 'Two actions. Requirement: heal or harm is a signature spell and you have a slot for it. You cast a 3-action heal or harm, spending the slot; one creature it heals regains 1d8 more Hit Points per cursebound value, or one it harms takes that much more damage.'
+feats.oracle.conduit-of-void-and-vitality.actions.conduit-of-void-and-vitality.name: 'Conduit of Void and Vitality'
+feats.oracle.conduit-of-void-and-vitality.actions.conduit-of-void-and-vitality.results.used.name: 'Conduit opened'
+feats.oracle.diverse-mystery.name: 'Diverse Mystery'
+feats.oracle.diverse-mystery.description: "Choose an initial or advanced revelation spell of another mystery. It's cursebound for you, and casting it adds that mystery's cursebound 1 effects to your own curse; you can't cast it if the curses conflict or it would have no effect."
+feats.oracle.diverse-mystery.choices.spell.prompt: "Another mystery's revelation spell"
+feats.oracle.portentous-spell.name: 'Portentous Spell'
+feats.oracle.portentous-spell.description: 'One action, spellshape. If your next action is to Cast a Spell, reactions triggered by the casting take a -2 circumstance penalty to their attack rolls and skill checks, and creatures it hits or that fail its save are fascinated with you until the start of your next turn.'
+feats.oracle.blaze-of-revelation.name: 'Blaze of Revelation'
+feats.oracle.blaze-of-revelation.description: "Free action. Requirement: you're cursebound 4. For 1 minute you overflow with divine power and can cast one revelation spell each turn without spending Focus Points. Then those spells end and you attempt a DC 40 Fortitude save. **Critical Success** No effect. **Success** Drained 2 until your next preparations. **Failure** Drained 4 until then. **Critical Failure** You die."
+feats.oracle.blaze-of-revelation.actions.blaze-of-revelation.name: 'Blaze of Revelation'
+feats.oracle.blaze-of-revelation.actions.blaze-of-revelation.results.blazing.name: 'Blazing'
+feats.oracle.divine-effusion.name: 'Divine Effusion'
+feats.oracle.divine-effusion.description: 'Twice a day you can cast a spell after running out of slots of its rank; the two must be of different ranks.'
+feats.oracle.mystery-conduit.name: 'Mystery Conduit'
+feats.oracle.mystery-conduit.description: "Free action, spellshape. If your next action is to Cast a Spell of 5th rank or lower with no duration, you don't spend a slot."
+feats.oracle.mystery-conduit.actions.mystery-conduit.name: 'Mystery Conduit'
+feats.oracle.mystery-conduit.actions.mystery-conduit.results.used.name: 'Conduit opened'
+feats.oracle.oracular-providence.name: 'Oracular Providence'
+feats.oracle.oracular-providence.description: 'You gain one more 10th-rank spell slot.'
+feats.oracle.oracular-providence.prerequisites.clarity: 'Oracular clarity'
+feats.oracle.paradoxical-mystery.name: 'Paradoxical Mystery'
+feats.oracle.paradoxical-mystery.description: 'During daily preparations, choose a basic or advanced domain spell of a domain you have access to, or an initial or advanced revelation spell of another mystery: you have it as a revelation spell until your next preparations.'
+feats.oracle.paradoxical-mystery.prerequisites.greater-revelation: 'Greater Revelation'

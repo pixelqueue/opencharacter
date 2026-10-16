@@ -1,0 +1,21 @@
+id: conditions.unconscious
+type: condition
+grants:
+  - { item: conditions.blinded, scope: applied }
+  - { item: conditions.off-guard, scope: applied }
+effects:
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: -4
+    stackKey: status-penalty
+    scope: applied
+  - target: perception.mod
+    op: add
+    value: -4
+    stackKey: status-penalty
+    scope: applied
+  - target: saves.reflex.mod
+    op: add
+    value: -4
+    stackKey: status-penalty
+    scope: applied

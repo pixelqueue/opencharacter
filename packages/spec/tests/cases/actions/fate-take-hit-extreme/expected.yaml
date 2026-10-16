@@ -1,0 +1,68 @@
+status: finished
+outcome:
+  result: absorbed
+  data:
+    shifts: 15
+    box: 0
+    unabsorbed: 0
+    consequences: 3
+    slots: [moderate, severe, extreme]
+proposedChanges:
+  - to: self
+    step: moderate
+    change:
+      type: addItem
+      entry:
+        id: consequences-consequence-1
+        item: fate-core:consequences.consequence
+        state:
+          slot: moderate
+          label: Shattered Confidence
+          harm: mental
+          conflict: true
+  - to: self
+    step: severe
+    change:
+      type: addItem
+      entry:
+        id: consequences-consequence-2
+        item: fate-core:consequences.consequence
+        state:
+          slot: severe
+          label: Shattered Confidence
+          harm: mental
+          conflict: true
+  - to: self
+    step: extreme
+    change:
+      type: set
+      field: fate-core:aspects.trouble
+      value: Shattered Confidence
+  - to: self
+    step: extreme
+    change:
+      type: set
+      field: fate-core:consequences.extremeTaken
+      value: true
+  - to: self
+    step: extreme
+    change:
+      type: set
+      field: fate-core:consequences.extremeAspect
+      value: trouble
+log:
+  - step: moderate
+    action: fate-core:take-hit
+    kind: choice
+    by: app
+    option: take
+  - step: severe
+    action: fate-core:take-hit
+    kind: choice
+    by: app
+    option: take
+  - step: extreme
+    action: fate-core:take-hit
+    kind: choice
+    by: app
+    option: trouble

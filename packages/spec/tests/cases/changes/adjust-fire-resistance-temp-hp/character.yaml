@@ -1,0 +1,65 @@
+# Tamsin Vale: fighter 3 (Champion) / barbarian 1, under Bless and Mage Armor.
+# Derived values the engine should compute (not saved):
+#   Strength 19 (Gauntlets of Ogre Power), level 4, proficiency +2, HP max 37,
+#   AC 17: Mage Armor 15 (recommended over Unarmored Defense 14) + shield 2,
+#   critical hits on 19-20 (Improved Critical), longsword +1 attack 1d20 + 4 + 2 + 1 (+1d4 Bless).
+specVersion: 0.1.0
+id: 7d1c2f4e-5b0a-4c39-9a51-2f7e8a6b3c10
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 16
+  5e-srd-5.1:abilities.dex.base: 14
+  5e-srd-5.1:abilities.con.base: 14
+  5e-srd-5.1:abilities.int.base: 8
+  5e-srd-5.1:abilities.wis.base: 12
+  5e-srd-5.1:abilities.cha.base: 10
+  5e-srd-5.1:hp.base: 29
+  5e-srd-5.1:hp.current: 37
+  5e-srd-5.1:hp.temp: 3
+  5e-srd-5.1:combat.speed: 30
+features:
+  - id: fighter
+    item: 5e-srd-5.1:classes.fighter
+    state: { level: 3, startingClass: true }
+    choices:
+      fighting-style:
+        - option: 5e-srd-5.1:fighting-styles.dueling
+      martial-archetype:
+        # The Champion's own choice (additional-fighting-style) applies at fighter level 10,
+        # so it has no picks yet.
+        - option: 5e-srd-5.1:subclasses.champion
+          choices: {}
+  - id: barbarian
+    item: 5e-srd-5.1:classes.barbarian
+    state: { level: 1 }
+  - id: fire-resistance
+    item: 5e-srd-5.1:traits.fire-resistance
+inventory:
+  - id: inv-1
+    item: 5e-srd-5.1:weapons.longsword
+    templates: [5e-srd-5.1:magic-items.weapon-plus-one]
+    equipped: true
+    state: { wielding: one-handed }
+  - id: inv-2
+    item: 5e-srd-5.1:weapons.longsword
+    templates: [5e-srd-5.1:magic-items.flame-tongue]
+    equipped: false
+    state: { attuned: true, ignited: false }
+  - id: inv-3
+    item: 5e-srd-5.1:armor.shield
+    equipped: true
+  - id: inv-4
+    item: 5e-srd-5.1:armor.chain-mail
+    equipped: false
+  - id: inv-5
+    item: 5e-srd-5.1:magic-items.gauntlets-of-ogre-power
+    equipped: true
+    state: { attuned: true }
+applied:
+  - { id: bless-1, source: 5e-srd-5.1:spells.bless, active: true }
+  - { id: mage-armor-1, source: 5e-srd-5.1:spells.mage-armor, active: true }
+extensions:
+  com.example.vtt:
+    portrait: tamsin.png
+    notes: Carries her mother's sword.

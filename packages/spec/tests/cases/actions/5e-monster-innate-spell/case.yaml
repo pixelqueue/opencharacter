@@ -1,0 +1,9 @@
+description: "5E: the drow casts darkness (1/day) from its own copy of the generic innate spell, which picks it: the cost step offers the copy's use instead of a slot"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:cast-spell, entry: darkness, source: 5e-srd-5.1:spells.darkness }
+answers:
+  - { option: 5e-srd-5.1:monsters.drow.innate-spellcasting#innate }

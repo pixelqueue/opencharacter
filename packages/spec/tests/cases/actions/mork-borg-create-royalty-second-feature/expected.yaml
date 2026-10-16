@@ -1,0 +1,43 @@
+# The d6 6 recommended the horn, picked. The horn isn't offered again: the d5 1 counts on from
+# the 6th option, wrapping to the 1st, the blade.
+status: paused
+needs:
+  step: features
+  action: mork-borg-core:create-character
+  kind: choice
+  options:
+    - blade-of-your-ancestors
+    - poltroon
+    - barbarister
+    - hamfund
+    - snake-skin-gift
+  recommended: blade-of-your-ancestors
+  choice:
+    path: { entry: class, choice: [feature] }
+    owner: mork-borg-core:classes.wretched-royalty
+    id: feature
+log:
+  - { step: classRoll, kind: dice, by: engine, faces: [6], total: 6 }
+  - { step: class, kind: choice, by: app, option: mork-borg-core:classes.wretched-royalty }
+  - { step: strength, kind: dice, faces: [4, 4, 4], total: 12 }
+  - { step: agility, kind: dice, faces: [4, 4, 4], total: 12 }
+  - { step: presence, kind: dice, faces: [6, 5, 6], total: 17 }
+  - { step: toughness, kind: dice, faces: [4, 4, 4], total: 12 }
+  - { step: hp, kind: dice, faces: [5], total: 5 }
+  - { step: omens, kind: dice, faces: [2], total: 2 }
+  - { step: powers, kind: dice, faces: [3], total: 3 }
+  - { step: silver, kind: dice, faces: [1, 2, 2, 1], total: 6 }
+  - { step: food, kind: dice, faces: [2], total: 2 }
+  - { step: weapon, kind: dice, faces: [7], total: 7 }
+  - { step: armor, kind: dice, faces: [3], total: 3 }
+  - { step: equipment1, kind: dice, faces: [1], total: 1 }
+  - { step: equipment2, kind: dice, faces: [1], total: 1 }
+  - { step: equipment3, kind: dice, faces: [1], total: 1 }
+  - { step: feature, kind: dice, faces: [6], total: 6 }
+  - { step: feature2, kind: dice, faces: [1], total: 1 }
+  - step: features
+    kind: choice
+    by: app
+    option: horn-of-the-schleswig-lords
+    index: 0
+    choice: { entry: class, choice: [feature] }

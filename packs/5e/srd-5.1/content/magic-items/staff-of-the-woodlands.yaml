@@ -1,0 +1,61 @@
+id: magic-items.staff-of-the-woodlands
+type: template
+tags: [magic, staff, attunement.druid]
+appliesTo: { type: weapon, where: 'item.id == @weapons.quarterstaff' }
+fields:
+  {
+    rarity: rare,
+    requiresAttunement: true,
+    maxCharges: 10,
+    recharge: 1d6 + 4,
+    attackBonus: 2,
+    damageBonus: 2,
+  }
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.animal-friendship, when: self.equipped && self.attuned }
+  - { item: spells.awaken, when: self.equipped && self.attuned }
+  - { item: spells.barkskin, when: self.equipped && self.attuned }
+  - { item: spells.locate-animals-or-plants, when: self.equipped && self.attuned }
+  - { item: spells.speak-with-animals, when: self.equipped && self.attuned }
+  - { item: spells.speak-with-plants, when: self.equipped && self.attuned }
+  - { item: spells.wall-of-thorns, when: self.equipped && self.attuned }
+  - { item: spells.pass-without-trace, when: self.equipped && self.attuned }
+effects:
+  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped && self.attuned }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.pass-without-trace },
+      when: self.equipped && self.attuned,
+    }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && ((action.item.id == @spells.animal-friendship &&
+      flags.slot == 1 && self.charges >= 1) || (action.item.id == @spells.awaken &&
+      flags.slot == 5 && self.charges >= 5) || (action.item.id == @spells.barkskin &&
+      flags.slot == 2 && self.charges >= 2) || (action.item.id ==
+      @spells.locate-animals-or-plants && flags.slot == 2 && self.charges >= 2) ||
+      (action.item.id == @spells.speak-with-animals && flags.slot == 1 && self.charges
+      >= 1) || (action.item.id == @spells.speak-with-plants && flags.slot == 3 &&
+      self.charges >= 3) || (action.item.id == @spells.wall-of-thorns && flags.slot ==
+      6 && self.charges >= 6))
+    value:
+      id: charges
+      changes:
+        - {
+            type: adjustState,
+            entry: self,
+            key: charges,
+            by: '-(action.item.id == @spells.animal-friendship ? 1 : action.item.id ==
+              @spells.awaken ? 5 : action.item.id == @spells.barkskin ? 2
+              : action.item.id == @spells.locate-animals-or-plants ? 2 : action.item.id
+              == @spells.speak-with-animals ? 1 : action.item.id ==
+              @spells.speak-with-plants ? 3 : 6)',
+          }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

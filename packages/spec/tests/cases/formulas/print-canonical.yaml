@@ -1,0 +1,156 @@
+description: Canonical printing; re-parsing the printed text gives the same tree
+specVersion: 0.1.0
+cases:
+  - name: spaces around binary operators
+    parse: 1+2
+    print: 1 + 2
+  - name: spaces in a conditional
+    parse: a?b:c
+    print: 'a ? b : c'
+  - name: no space after !
+    parse: '! a'
+    print: '!a'
+  - name: no space after unary minus
+    parse: '- 3'
+    print: '-3'
+  - name: call spacing
+    parse: max( a ,b )
+    print: max(a, b)
+  - name: logical operators spaced
+    parse: true&&false||x
+    print: true && false || x
+  - name: in spaced, list canonical
+    parse: x in[1,2]
+    print: x in [1, 2]
+  - name: redundant parentheses drop
+    parse: (((1)))
+    print: '1'
+  - name: parentheses in call arguments drop
+    parse: f((a + b))
+    print: f(a + b)
+  - name: a parenthesized conditional alone drops parentheses
+    parse: '(a ? b : c)'
+    print: 'a ? b : c'
+  - name: parenthesized else branch value drops parentheses
+    parse: 'a ? b : (c)'
+    print: 'a ? b : c'
+  - name: left product needs no parentheses
+    parse: (a * b) + c
+    print: a * b + c
+  - name: right product needs no parentheses
+    parse: a + (b * c)
+    print: a + b * c
+  - name: right sum at the same level keeps parentheses
+    parse: 1 + (2 + 3)
+    print: 1 + (2 + 3)
+  - name: left sum at the same level drops parentheses
+    parse: (1 + 2) + 3
+    print: 1 + 2 + 3
+  - name: right difference keeps parentheses
+    parse: a + (b - c)
+    print: a + (b - c)
+  - name: right product at the same level keeps parentheses
+    parse: a * (b * c)
+    print: a * (b * c)
+  - name: subtracting a sum keeps parentheses
+    parse: a - (b + c)
+    print: a - (b + c)
+  - name: left-nested && drops parentheses
+    parse: (a && b) && c
+    print: a && b && c
+  - name: negation of a comparison keeps parentheses
+    parse: '!(a == b)'
+    print: '!(a == b)'
+  - name: minus of a minus
+    parse: -(-a)
+    print: --a
+  - name: minus of a negative literal
+    parse: '- -1'
+    print: --1
+  - name: unary minus of an index
+    parse: -(x[0])
+    print: -x[0]
+  - name: double quotes become single quotes
+    parse: '''a'' + "b"'
+    print: "'a' + 'b'"
+  - name: a single quote is escaped when re-quoted
+    parse: '"it''s"'
+    print: "'it\\'s'"
+  - name: unicode escapes print as the character
+    parse: "'\\u0041'"
+    print: "'A'"
+  - name: decimal with one zero after the point
+    parse: '2.0'
+    tree:
+      type: decimal
+      value: 2
+    print: '2.0'
+  - name: decimal trailing zeros trimmed to one
+    parse: '2.000'
+    tree:
+      type: decimal
+      value: 2
+    print: '2.0'
+  - name: decimal shortest form
+    parse: '0.10'
+    tree:
+      type: decimal
+      value: 0.1
+    print: '0.1'
+  - name: decimal hundred
+    parse: '100.0'
+    tree:
+      type: decimal
+      value: 100
+    print: '100.0'
+  - name: small decimal prints without exponent
+    parse: '0.000001'
+    tree:
+      type: decimal
+      value: 1e-6
+    print: '0.000001'
+  - name: large decimal prints without exponent, shortest digits
+    parse: '123456789012345678901234.0'
+    tree:
+      type: decimal
+      value: 1.2345678901234569e+23
+    print: '123456789012345690000000.0'
+  - name: decimal arithmetic prints its literals as written
+    parse: 0.1+0.2
+    print: 0.1 + 0.2
+  - name: a very large decimal literal
+    parse: '100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0'
+    tree:
+      type: decimal
+      value: 1e+308
+    print: '100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0'
+  - name: computed count spacing
+    parse: ( 3 )d6
+    print: 3d6
+  - name: computed count of a name keeps parentheses
+    parse: (a)d6
+    print: (a)d6
+  - name: reroll = printed bare
+    parse: 1d20r=1
+    print: 1d20r1
+  - name: whole canonical formula with line breaks in the source
+    parse: |-
+      item.range == 'ranged' ||
+        ('finesse' in item.tags && abilities.dex.mod > abilities.str.mod)
+        ? 'abilities.dex.mod' : 'abilities.str.mod'
+    print: "item.range == 'ranged' || 'finesse' in item.tags && abilities.dex.mod > abilities.str.mod ? 'abilities.dex.mod' : 'abilities.str.mod'"
+  - name: Mothership doubles check
+    parse: roll.total%100<flags.target&&roll.total%100%11==0
+    print: roll.total % 100 < flags.target && roll.total % 100 % 11 == 0
+  - name: FitD pool formula
+    parse: (flags.pool)d6kh1
+    print: (flags.pool)d6kh1
+  - name: the canonical text of a canonical formula is itself
+    parse: 'a ? b : c ? d : e'
+    print: 'a ? b : c ? d : e'
+  - name: string with every escape
+    parse: "'\\\\\\'\\n\\r\\t'"
+    tree:
+      type: string
+      value: "\\'\n\r\t"
+    print: "'\\\\\\'\\n\\r\\t'"

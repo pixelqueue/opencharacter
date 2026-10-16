@@ -1,0 +1,75 @@
+# The class's own choices first (skills answered, arcane tradition open at level 2), then the
+# granted Spellcasting's, keyed `<owner>/<choice>` in the path and named by `owner` and `id`:
+# cantrips (3 at level 2), the spellbook's slots 1 and 2 (slots 3 to 20 don't apply yet), the
+# optional copied spells (min 0, unbounded) and the prepared spells (0 to int 3 + level 2).
+choices:
+  - path: { entry: wizard, choice: [skills] }
+    owner: 5e-srd-5.1:classes.wizard
+    id: skills
+    min: 2
+    max: 2
+    picks: [skill.arcana, skill.history]
+    open: false
+  - path: { entry: wizard, choice: [arcane-tradition] }
+    owner: 5e-srd-5.1:classes.wizard
+    id: arcane-tradition
+    type: 5e-srd-5.1:subclass
+    min: 1
+    max: 1
+    picks: []
+    open: true
+  - path: { entry: wizard, choice: [5e-srd-5.1:features.wizard.spellcasting/cantrips] }
+    owner: 5e-srd-5.1:features.wizard.spellcasting
+    id: cantrips
+    type: 5e-srd-5.1:spell
+    min: 3
+    max: 3
+    picks: [5e-srd-5.1:spells.fire-bolt, 5e-srd-5.1:spells.light, 5e-srd-5.1:spells.mage-hand]
+    open: false
+  - path: { entry: wizard, choice: [5e-srd-5.1:features.wizard.spellcasting/spellbook-1] }
+    owner: 5e-srd-5.1:features.wizard.spellcasting
+    id: spellbook-1
+    slot: { choice: spellbook, number: 1 }
+    type: 5e-srd-5.1:spell
+    min: 6
+    max: 6
+    picks:
+      - 5e-srd-5.1:spells.burning-hands
+      - 5e-srd-5.1:spells.detect-magic
+      - 5e-srd-5.1:spells.mage-armor
+      - 5e-srd-5.1:spells.magic-missile
+      - 5e-srd-5.1:spells.shield
+      - 5e-srd-5.1:spells.sleep
+    open: false
+  - path: { entry: wizard, choice: [5e-srd-5.1:features.wizard.spellcasting/spellbook-2] }
+    owner: 5e-srd-5.1:features.wizard.spellcasting
+    id: spellbook-2
+    slot: { choice: spellbook, number: 2 }
+    type: 5e-srd-5.1:spell
+    min: 2
+    max: 2
+    picks: [5e-srd-5.1:spells.feather-fall]
+    open: true
+  - path: { entry: wizard, choice: [5e-srd-5.1:features.wizard.spellcasting/copied] }
+    owner: 5e-srd-5.1:features.wizard.spellcasting
+    id: copied
+    type: 5e-srd-5.1:spell
+    min: 0
+    picks: []
+    open: false
+  - path: { entry: wizard, choice: [5e-srd-5.1:features.wizard.spellcasting/spells] }
+    owner: 5e-srd-5.1:features.wizard.spellcasting
+    id: spells
+    type: 5e-srd-5.1:spell
+    min: 5
+    max: 5
+    picks: [5e-srd-5.1:spells.magic-missile, 5e-srd-5.1:spells.shield]
+    open: true
+pending:
+  - { entry: wizard, choice: [arcane-tradition] }
+  - { entry: wizard, choice: [5e-srd-5.1:features.wizard.spellcasting/spellbook-2] }
+  # Prepared spells are asked until the full number is picked.
+  - { entry: wizard, choice: [5e-srd-5.1:features.wizard.spellcasting/spells] }
+pendingSlots: [null, { choice: spellbook, number: 2 }, null]
+issues: []
+errors: []

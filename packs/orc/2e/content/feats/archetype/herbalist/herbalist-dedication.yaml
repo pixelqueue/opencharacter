@@ -1,0 +1,11 @@
+id: feats.archetype.herbalist.herbalist-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.herbalist }
+
+prerequisites:
+  - { id: natural-medicine, when: '@feats.skill.natural-medicine in feats.held' }
+  - { id: nature, when: 'skills.nature.rank >= 1' }
+effects:
+  - { target: skills.nature.rank, op: atLeast, value: 2 }
+  - { target: alchemist.advancedItems, op: add, value: 4 }

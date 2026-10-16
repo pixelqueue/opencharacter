@@ -1,0 +1,68 @@
+id: features.barbarian.rage
+type: feature
+effects:
+  - id: uses
+    target: rage.uses
+    op: set
+    value: 'self.level >= 17 ? 6 : self.level >= 12 ? 5 : self.level >= 6 ? 4 : self.level >= 3 ? 3 : 2'
+  - { id: unlimited, target: rage.unlimited, op: set, value: self.level >= 20 }
+  - id: damage-bonus
+    target: rage.damage
+    op: set
+    value: 'self.level >= 16 ? 4 : self.level >= 9 ? 3 : 2'
+  - id: strength
+    target: { rolls: [check.str, save.str] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: rage.active && !('heavy' in equipment.tags)
+  - id: damage
+    target: { rolls: [damage.weapon] }
+    op: add
+    value: rage.damage
+    tags:
+      [
+        {
+          formula: "'unarmed' in roll.tags ? 'damage.bludgeoning' : 'damage.' + roll.item.damageType",
+        },
+      ]
+    when: >-
+      rage.active && !('heavy' in equipment.tags) && ('unarmed' in roll.tags
+        || (roll.item.range == 'melee'
+          && !('finesse' in roll.item.tags && abilities.dex.mod > abilities.str.mod)))
+  - id: resistance
+    target:
+      {
+        incoming:
+          { fields: [hp.current], tags: [damage.bludgeoning, damage.piercing, damage.slashing] },
+      }
+    op: multiply
+    value: 0.5
+    when: rage.active && !('heavy' in equipment.tags)
+actions:
+  - id: rage
+    tags: [feature]
+    results: [raging]
+    available: '!rage.active && (rage.unlimited || self.rageSpent < rage.uses)'
+    steps:
+      - id: start
+        kind: changes
+        changes:
+          - { type: set, field: rage.active, value: true }
+          - { type: adjustState, entry: self, key: rageSpent, by: 1, when: '!rage.unlimited' }
+      - id: result
+        kind: outcome
+        result: "'raging'"
+  - id: end-rage
+    tags: [feature]
+    results: [ended]
+    available: rage.active
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - { type: set, field: rage.active, value: false }
+          - { type: set, field: rage.frenzied, value: false, when: rage.frenzied }
+          - { type: adjust, field: conditions.exhaustion, by: 1, when: rage.frenzied }
+      - id: result
+        kind: outcome
+        result: "'ended'"

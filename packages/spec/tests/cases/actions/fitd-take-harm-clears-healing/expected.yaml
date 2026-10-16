@@ -1,0 +1,18 @@
+# Level 1 has room: the harm is marked there, and the 3 healing ticks clear.
+status: finished
+outcome:
+  result: harmed
+  data: { level: 1 }
+proposedChanges:
+  - to: self
+    step: mark
+    change:
+      type: addItem
+      entry:
+        id: harm-harm-1
+        item: fitd-scoundrel:harm.harm
+        state: { level: 1, label: Bruised }
+  - to: self
+    step: mark
+    change: { type: set, field: fitd-scoundrel:healing.current, value: 0 }
+log: []

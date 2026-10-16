@@ -1,0 +1,33 @@
+# Success; Lucy-fires Levitation lasts d10 = 6 + 2 (Presence) = 8 rounds.
+status: finished
+outcome:
+  result: success
+  data:
+    catastrophe: false
+    targets: 0
+    amount: 0
+    duration: 8
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: mork-borg-core:powers.current
+      by: -1
+log:
+  - step: check/check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 12
+    total: 14
+    band: success
+    bandSet: mork-borg-core:test
+  - step: duration
+    action: mork-borg-core:use-power
+    kind: dice
+    by: engine
+    faces:
+      - 6
+    total: 8

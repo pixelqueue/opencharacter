@@ -1,0 +1,14 @@
+id: subclasses.champion
+type: subclass
+fields:
+  class: classes.fighter
+grants:
+  - { item: features.improved-critical, when: self.level >= 3 }
+  - { item: features.fighter.remarkable-athlete, when: self.level >= 7 }
+  - { item: features.fighter.superior-critical, when: self.level >= 15 }
+  - { item: features.fighter.survivor, when: self.level >= 18 }
+choices:
+  - id: additional-fighting-style
+    from: { type: fightingStyle }
+    when: self.level >= 10
+    unique: fighting-style # can't repeat the fighter's first style

@@ -1,0 +1,37 @@
+# Longsword first: 12 + 9 = 21, a hit for 1d8 (6) + 4. Then the mace, at the same penalty (none)
+# but -2, not being agile: 10 + 9 - 2 = 17, a hit for 1d6 (3) + 4. The feat holds both Strikes'
+# changes and releases them combined: the two counts are one adjust of 2; the
+# damage types differ, so the hits stay two changes.
+status: finished
+outcome:
+  result: success
+  data:
+    first: success
+    damage: 17
+proposedChanges:
+  - to: self
+    step: strike1/count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 2, tags: [attack-count] }
+  - to: target
+    character: goblin
+    step: strike1/deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -10, tags: [damage, damage.slashing] }
+  - to: target
+    character: goblin
+    step: strike2/deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -7, tags: [damage, damage.bludgeoning] }
+log:
+  - step: first
+    action: 'orc-2e:feats.fighter.double-slice#double-slice'
+    kind: choice
+    by: engine
+    option: longsword
+  - step: second
+    action: 'orc-2e:feats.fighter.double-slice#double-slice'
+    kind: choice
+    by: engine
+    option: mace
+  - { step: strike1/attack, action: orc-2e:strike, kind: dice, faces: [12], total: 21 }
+  - { step: strike1/damage, action: orc-2e:strike, kind: dice, faces: [6], total: 10 }
+  - { step: strike2/attack, action: orc-2e:strike, kind: dice, faces: [10], total: 17 }
+  - { step: strike2/damage, action: orc-2e:strike, kind: dice, faces: [3], total: 7 }

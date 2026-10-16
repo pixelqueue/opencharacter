@@ -1,0 +1,13 @@
+id: runes.wounding
+type: template
+tags: [trait.magical, rune.property]
+appliesTo: { type: weapon, where: "item.range == 0 && item.damageType != 'bludgeoning'" }
+fields: { price: '(has(prior.price) ? prior.price : 0) + 340' }
+effects:
+  - target: { steps: [strike.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.persistent-damage'"
+          state: { damage: 1d6, damageType: "'bleed'" }

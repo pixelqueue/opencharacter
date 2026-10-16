@@ -1,0 +1,80 @@
+# The first goblin is hit (12 + 9 = 21 against AC 16): 2d4 fire (7) and 2d8 slashing (8), each
+# dealt by type, with no Sorcerous Potency (a focus spell). The second is missed (2 + 9 = 11).
+status: finished
+outcome:
+  result: success
+  data:
+    rank: 2
+    mode: focus
+    dc: 19
+    defense: ac
+    basic: false
+    damage: 15
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: orc-2e:focus.spent
+      by: 1
+  # A bloodline spell paid with a Focus Point offers blood magic at its rank.
+  - to: self
+    step: paid
+    change:
+      type: offerFollowUp
+      followUp: orc-2e:features.sorcerer.blood-magic#blood-magic
+      source: { type: item, id: orc-2e:features.sorcerer.blood-magic, entry: class }
+      params: { rank: 2 }
+  - to: target
+    character: goblin-a
+    step: deal[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -7
+      tags:
+        - damage
+        - spell
+        - damage.fire
+  - to: target
+    character: goblin-a
+    step: deal[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -8
+      tags:
+        - damage
+        - spell
+        - damage.slashing
+  - to: self
+    step: count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 2
+log:
+  - step: attack[0]/roll
+    action: orc-2e:spell-attack
+    kind: dice
+    by: engine
+    faces: [12]
+    total: 21
+    band: success
+  - step: attack[1]/roll
+    action: orc-2e:spell-attack
+    kind: dice
+    by: engine
+    faces: [2]
+    total: 11
+    band: failure
+  - step: hit[0]
+    action: orc-2e:cast-spell
+    kind: dice
+    by: engine
+    faces: [3, 4, 5, 3]
+    items:
+      - { kind: dice, value: 7, tags: [damage.fire] }
+      - { kind: dice, value: 8, tags: [damage.slashing] }
+    total: 15

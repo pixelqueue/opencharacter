@@ -1,0 +1,25 @@
+id: backgrounds.entertainer
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.performance },
+      when: "!('skill.performance' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.theater },
+      when: "!('skill.lore.theater' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.fascinating-performance
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['dex', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

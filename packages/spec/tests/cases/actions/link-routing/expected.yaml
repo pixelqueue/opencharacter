@@ -1,0 +1,17 @@
+# The crew's tier 2 gives 3d6, keep the highest (5).
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: stress
+    change: { type: adjust, field: test-pack:stress, by: 1 }
+  - to: { link: test-pack:crew }
+    character: crew-ravens
+    step: heat
+    change: { type: adjust, field: test-crew:heat, by: 2 }
+  - to: { link: test-pack:crew }
+    character: crew-ravens
+    step: heat
+    change: { type: adjust, field: test-crew:rep, by: 5 }
+log:
+  - { step: roll, action: test-pack:score, kind: dice, by: engine, faces: [3, 5, 1], total: 5 }

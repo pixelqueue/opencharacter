@@ -1,0 +1,15 @@
+# The player pays with the charm: `entry: self` is the charm's copy (charm-1), and
+# `-min(1, self.charges)` reads its 1 charge. The written option's 2 stress isn't proposed.
+status: finished
+outcome:
+  data: { paid: 'test-pack:charms.luck#charge' }
+proposedChanges:
+  - to: self
+    step: pay
+    change: { type: adjustState, entry: charm-1, key: charges, by: -1 }
+log:
+  - step: pay
+    action: test-pack:strain
+    kind: choice
+    by: app
+    option: 'test-pack:charms.luck#charge'

@@ -1,0 +1,19 @@
+id: effects.mountain-stance
+type: effect
+tags: [trait.stance]
+standardCopies:
+  - { type: weapon, where: 'item.id == @weapons.unarmed.falling-stone' }
+effects:
+  - {
+      target: { fields: { where: "'ac' in item.tags" } },
+      op: add,
+      value: 4,
+      stackKey: item-bonus,
+      scope: applied,
+    }
+  - target: armor.dexCap
+    op: atMost
+    value: '@feats.monk.mountain-stronghold in feats.held ? 1 : 0'
+    scope: applied
+  - { target: speed.land, op: add, value: -5, scope: applied }
+  - { target: stance.current, op: set, value: "'mountain'", scope: applied }

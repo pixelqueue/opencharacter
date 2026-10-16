@@ -1,0 +1,32 @@
+# The coat (tier 2) has lost a tier: it reduces damage as tier 1, but the Agility penalty still
+# follows tier 2. The priest's armor limit is 2, so the scroll can be used. Omens die d4.
+values:
+  mork-borg-core:armor.tier:
+    value: 1
+  mork-borg-core:armor.baseTier:
+    value: 2
+  mork-borg-core:tests.agilityDr:
+    value: 2
+  mork-borg-core:powers.armorLimit:
+    value: 2
+  mork-borg-core:powers.blocked:
+    value: 0
+  mork-borg-core:omens.die:
+    value: 1d4
+pending:
+  - entry: class
+    choice:
+      - feature
+issues: []
+actions:
+  - action: mork-borg-core:use-power
+    entry: page
+  - action: mork-borg-core:new-day
+  - action: mork-borg-core:rest
+  - action: mork-borg-core:take-damage
+  - action: mork-borg-core:heal
+  - action: mork-borg-core:get-better
+  - action: mork-borg-core:defend
+  - action: mork-borg-core:test
+  - action: mork-borg-core:initiative
+errors: []

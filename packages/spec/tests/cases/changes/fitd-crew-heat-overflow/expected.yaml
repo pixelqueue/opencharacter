@@ -1,0 +1,18 @@
+# 7 + 4 = 11 passes 9: wanted 1 -> 2, heat resets to 0 (by -11), and the excess, 11 - 9 = 2,
+# carries over in the same change (`carry`): heat 2. No follow-up.
+ok: true
+adjustments:
+  - { field: fitd-crew:heat.current, by: 4, requested: 4, taken: 4, reason: requested }
+  - { field: fitd-crew:wanted.current, by: 1, reason: overflow }
+  - { field: fitd-crew:heat.current, by: -11, reason: reset }
+  - { field: fitd-crew:heat.current, by: 2, reason: carry }
+followUps: []
+character:
+  values:
+    fitd-crew:tier: 1
+    fitd-crew:rep.current: 4
+    fitd-crew:heat.current: 2
+    fitd-crew:wanted.current: 2
+    fitd-crew:coin.current: 5
+    fitd-crew:upgrades.lair.vault: 1
+    fitd-crew:upgrades.quality.weapons: 1

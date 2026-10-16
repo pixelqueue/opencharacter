@@ -1,0 +1,23 @@
+# The second attack this turn: 9 + Dexterity 4 + trained 3 - 4 (not -5) = 12 fails AC 18; half of
+# precise strike's 2d6 (7) is dealt.
+status: finished
+outcome:
+  result: failure
+  data: { damage: 3 }
+log:
+  - { step: weapon, kind: choice, option: rapier }
+  - step: strike/attack
+    action: orc-2e:strike
+    kind: dice
+    faces: [9]
+    total: 12
+    items:
+      - { kind: dice, sides: 20 }
+      - { kind: flat, value: 4, tags: [part.attribute] }
+      - { kind: flat, value: 3 }
+      - kind: flat
+        value: -4
+        source: { type: item, id: 'orc-2e:feats.swashbuckler.combination-finisher' }
+        tags: [part.map]
+        replaces: [{ kind: flat, value: -5, tags: [part.map] }]
+  - { step: precise, kind: dice, faces: [3, 4], total: 7 }

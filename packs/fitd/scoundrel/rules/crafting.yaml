@@ -1,0 +1,198 @@
+contentTypes:
+  design:
+    nameFrom: label
+    state:
+      label: { type: string, default: '' }
+      kind: { type: enum, values: [mundane, alchemical, arcane, spark-craft], default: mundane }
+      minQuality: { type: integer, default: 0, min: 0 }
+      load: { type: integer, default: 1, min: 0, max: 3 }
+      stages: { type: integer, default: 1, min: 1 }
+      consumable: { type: boolean, default: false }
+      uses: { type: integer, default: 1, min: 1 }
+      conspicuous: { type: boolean, default: false }
+      rare: { type: boolean, default: false }
+      unreliable: { type: boolean, default: false }
+      volatile: { type: boolean, default: false }
+    actions:
+      - use: craft-design
+
+  creation:
+    nameFrom: label
+    carried: true
+    equippable: true
+    state:
+      label: { type: string, default: '' }
+      quality: { type: integer, default: 0, min: 0 }
+      load: { type: integer, default: 1, min: 0, max: 3 }
+      consumable: { type: boolean, default: false }
+      uses: { type: integer, default: 1, min: 0 }
+      conspicuous: { type: boolean, default: false }
+      unreliable: { type: boolean, default: false }
+      volatile: { type: boolean, default: false }
+    actions:
+      - use: use-creation
+
+actions:
+  - id: craft
+    tags: [downtime, craft]
+    results: [crafted, stage-done, modified, too-low]
+    params:
+      tier: { type: integer, min: 0, default: 0 }
+      workshop: { type: boolean, default: false }
+      modification: { type: enum, values: [none, simple, significant, special], default: none }
+      minQuality: { type: integer, min: 0, default: 0 }
+      label: { type: string, default: '' }
+      load: { type: integer, min: 0, max: 3, default: 1 }
+      consumable: { type: boolean, default: false }
+      uses: { type: integer, min: 1, default: 1 }
+      conspicuous: { type: boolean, default: false }
+      unreliable: { type: boolean, default: false }
+      volatile: { type: boolean, default: false }
+      finalStage: { type: boolean, default: true }
+    steps:
+      - id: crew
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              tier: 'has(links.crew) ? links.crew.tier : params.tier'
+              workshop: 'has(links.crew) ? links.crew.upgrades.workshop : params.workshop'
+      - id: roll
+        kind: action
+        use: action-roll
+        params:
+          rating: "'ratings.tinker'"
+          downtime: true
+      - id: level
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              level: >-
+                steps.roll.result == 'critical' ? 3 : steps.roll.result == 'success' ? 2
+                : steps.roll.result == 'partial' ? 1 : 0
+              minimum: >-
+                params.modification == 'simple' ? flags.tier + 1
+                : params.modification == 'significant' ? flags.tier + 2
+                : params.modification == 'special' ? flags.tier + 3 : params.minQuality
+      - id: coin
+        kind: choice
+        when: coin > 0
+        options:
+          - { id: keep }
+          - { id: spend1 }
+          - { id: spend2, when: coin >= 2 }
+          - { id: spend3, when: coin >= 3 }
+          - { id: spend4, when: coin >= 4 }
+        recommend: "'keep'"
+      - id: spent
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              coin: >-
+                !has(steps.coin) ? 0 : steps.coin.picked == 'spend4' ? 4
+                : steps.coin.picked == 'spend3' ? 3 : steps.coin.picked == 'spend2' ? 2
+                : steps.coin.picked == 'spend1' ? 1 : 0
+      - id: quality
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              quality: >-
+                max(0, flags.tier + (flags.workshop ? 1 : 0) + flags.level - 1 + flags.coin)
+      - id: spend
+        kind: changes
+        when: flags.coin > 0
+        to: self
+        changes:
+          - { type: adjust, field: coin, by: -flags.coin }
+      - id: create
+        kind: changes
+        when: >-
+          params.modification == 'none' && params.finalStage && flags.quality >= flags.minimum
+        to: self
+        changes:
+          - type: addItem
+            entry:
+              item: "'creations.creation'"
+              state:
+                label: params.label
+                quality: flags.quality
+                load: params.load
+                consumable: params.consumable
+                uses: params.uses
+                conspicuous: params.conspicuous
+                unreliable: params.unreliable
+                volatile: params.volatile
+      - id: result
+        kind: outcome
+        result: >-
+          flags.quality < flags.minimum ? 'too-low' : params.modification != 'none' ? 'modified'
+          : params.finalStage ? 'crafted' : 'stage-done'
+        data:
+          quality: flags.quality
+          minimum: flags.minimum
+          roll: steps.roll.result
+
+  - id: craft-design
+    tags: [downtime, craft]
+    results: [crafted, stage-done, too-low]
+    params:
+      tier: { type: integer, min: 0, default: 0 }
+      workshop: { type: boolean, default: false }
+      finalStage: { type: boolean, default: true }
+    steps:
+      - id: craft
+        kind: action
+        use: craft
+        params:
+          tier: 'has(links.crew) ? links.crew.tier : params.tier'
+          workshop: params.workshop
+          finalStage: params.finalStage
+          label: self.label
+          minQuality: self.minQuality
+          load: self.load
+          consumable: self.consumable
+          uses: self.uses
+          conspicuous: self.conspicuous
+          unreliable: self.unreliable
+          volatile: self.volatile
+      - id: result
+        kind: outcome
+        result: steps.craft.result
+        data:
+          quality: steps.craft.data.quality
+          minimum: steps.craft.data.minimum
+          roll: steps.craft.data.roll
+
+  - id: use-creation
+    tags: [creation]
+    results: [used]
+    available: self.equipped && (!self.consumable || self.uses > 0)
+    steps:
+      - id: spend
+        kind: changes
+        when: self.consumable
+        to: self
+        changes:
+          - { type: adjustState, entry: self, key: uses, by: -1 }
+      - id: perform
+        kind: action
+        when: self.unreliable
+        use: fortune-roll
+        params:
+          dice: self.quality
+      - id: heat
+        kind: changes
+        when: self.conspicuous && has(links.crew)
+        to: { link: crew }
+        changes:
+          - { type: adjust, field: 'fitd-crew:heat.current', by: 1 }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          performance: "self.unreliable ? steps.perform.result : 'reliable'"
+          volatile: self.volatile
+          conspicuous: self.conspicuous

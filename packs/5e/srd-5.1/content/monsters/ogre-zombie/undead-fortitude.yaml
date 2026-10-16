@@ -1,0 +1,32 @@
+id: monsters.ogre-zombie.undead-fortitude
+type: trait
+# The save's DC uses the damage taken (after resistance) over all the hit's damage types, and
+# radiant damage among them skips it. A critical hit isn't on the change, so skipping it then is the
+# app's.
+followUps:
+  - id: undead-fortitude
+    on: { field: hp.current, tags: [damage], once: true }
+    when: hp.current == 0 && change.taken < 0 && !('damage.radiant' in change.tags)
+    action: undead-fortitude
+    params:
+      damage: -change.taken
+actions:
+  - id: undead-fortitude
+    tags: [save]
+    available: hp.current == 0
+    params:
+      damage: { type: integer }
+    results: [success, failure]
+    steps:
+      - id: save
+        kind: action
+        use: saving-throw
+        params: { ability: "'con'", dc: 5 + params.damage }
+      - id: survive
+        kind: changes
+        when: "steps.save.result == 'success'"
+        changes:
+          - { type: set, field: hp.current, value: 1 }
+      - id: result
+        kind: outcome
+        result: steps.save.result

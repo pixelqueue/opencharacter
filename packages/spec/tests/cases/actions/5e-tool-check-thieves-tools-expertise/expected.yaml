@@ -1,0 +1,23 @@
+# Proficient with thieves' tools (the rogue's) and expertise with them: 4 + Dexterity 3 +
+# proficiency 3 twice = 13, under DC 15.
+status: finished
+outcome:
+  result: failure
+  data: { total: 13 }
+proposedChanges: []
+log:
+  - step: check
+    action: 5e-srd-5.1:tool-check
+    kind: dice
+    by: engine
+    faces: [4]
+    items:
+      - {
+          kind: dice,
+          value: 4,
+          source: { type: item, id: 5e-srd-5.1:tools.thieves-tools, entry: tools },
+        }
+      - { kind: flat, value: 3, source: { type: field, id: 5e-srd-5.1:abilities.dex.mod } }
+      - { kind: flat, value: 3, source: { type: field, id: 5e-srd-5.1:proficiency.bonus } }
+      - { kind: flat, value: 3, source: { type: field, id: 5e-srd-5.1:proficiency.bonus } }
+    total: 13

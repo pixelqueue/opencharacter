@@ -1,0 +1,11 @@
+id: feats.archetype.oracle.mysterious-breadth
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 8, category: class, archetype: archetypes.oracle }
+prerequisites:
+  - {
+      id: basic-oracle-spellcasting,
+      when: '@feats.archetype.oracle.basic-oracle-spellcasting in feats.held',
+    }
+effects:
+  - { target: spellcasting.archetype.oracle.breadth, op: set, value: true }

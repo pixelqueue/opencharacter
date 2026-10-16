@@ -1,0 +1,28 @@
+description: "loadRuleset passes each pack's credit line and named license notices into the ruleset's pack list, the notices in the order written; a pack without them lists neither"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: plain-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules: {}
+      content: []
+  - inline:
+      manifest:
+        id: orc-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: ORC
+        credit: This product is based on the following Licensed Material.
+        notices:
+          orc: This product is licensed under the ORC License.
+          reserved-material: Reserved Material elements in this product include all elements designated as Reserved Material under the ORC License.
+          expressly-designated: This product contains no Expressly Designated Licensed Material.
+          not-affiliated: This product is not affiliated with the publisher.
+        defaultLanguage: en
+      rules: {}
+      content: []

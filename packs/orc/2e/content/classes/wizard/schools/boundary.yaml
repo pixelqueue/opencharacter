@@ -1,0 +1,40 @@
+id: classes.wizard.schools.boundary
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: wizard.school, op: set, value: "'boundary'" }
+  - { target: spellcasting.extraSlots, op: add, value: 1 }
+  - { target: spellcasting.extraCantrips, op: add, value: 1 }
+  - { target: focus.points, op: add, value: 1 }
+  - target: spells.curriculum
+    op: grant
+    value:
+      query:
+        type: spell
+        where: >-
+          item.id in [
+            @spells.telekinetic-hand,
+            @spells.void-warp,
+            @spells.grim-tendrils,
+            @spells.phantasmal-minion,
+            @spells.summon-undead,
+            @spells.darkness,
+            @spells.see-the-unseen,
+            @spells.bind-undead,
+            @spells.ghostly-weapon,
+            @spells.flicker,
+            @spells.translocate,
+            @spells.banishment,
+            @spells.invoke-spirits,
+            @spells.teleport,
+            @spells.vampiric-exsanguination,
+            @spells.eclipse-burst,
+            @spells.interplanar-teleport,
+            @spells.quandary,
+            @spells.unrelenting-observation,
+            @spells.massacre
+          ]
+  - { target: spells.access, op: grant, value: { formula: '@spells.teleport' } }
+  - { target: spells.access, op: grant, value: { formula: '@spells.interplanar-teleport' } }
+grants:
+  - item: spells.fortify-summoning

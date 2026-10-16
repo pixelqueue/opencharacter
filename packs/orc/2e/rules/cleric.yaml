@@ -1,0 +1,82 @@
+fields:
+  cleric.sanctification: { type: enum, values: [none, holy, unholy], formula: "'none'" }
+  # Asked before the weapon itself, whose choice reads it.
+  cleric.favoredCategory:
+    { type: enum, values: [none, unarmed, simple, martial, advanced], formula: "'none'" }
+  cleric.doctrine: { type: enum, values: [none, cloistered, warpriest], formula: "'none'" }
+  cleric.domainSpells: { type: set, of: spell }
+
+tags:
+  - trait.shadow
+  - trait.consecration
+
+situational:
+  - id: castDown
+    type: boolean
+    default: false
+    rolls: [damage.spell]
+    available: '@feats.cleric.cast-down in feats.held'
+  - id: premonitionOfAvoidance
+    type: boolean
+    default: false
+    rolls: [save]
+    available: '@feats.cleric.premonition-of-avoidance in feats.held'
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 2
+        stackKey: circumstance-bonus
+        when: situational.premonitionOfAvoidance
+  - id: symbolRaised
+    type: boolean
+    default: false
+    rolls: [save]
+    available: '@feats.cleric.raise-symbol in feats.held'
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 2
+        stackKey: circumstance-bonus
+        when: situational.symbolRaised
+  - id: emblazonedWeapon
+    type: boolean
+    default: false
+    rolls: [strike]
+    available: '@feats.cleric.emblazon-armament in feats.held'
+    effects:
+      - target: { rolls: [damage.strike] }
+        op: add
+        value: 1
+        stackKey: status-bonus
+        tags: [{ formula: "'damage.' + roll.item.damageType" }]
+        when: situational.emblazonedWeapon
+  - id: divineWeapon
+    type: boolean
+    default: false
+    rolls: [strike]
+    available: '@feats.cleric.divine-weapon in feats.held'
+    effects:
+      - target: { rolls: [damage.strike] }
+        op: add
+        value: dieOf(1d4, 1)
+        tags: [damage.spirit]
+        when: situational.divineWeapon && !situational.divineWeaponOpposed
+  - id: divineWeaponOpposed
+    type: boolean
+    default: false
+    rolls: [strike]
+    available: >-
+      @feats.cleric.divine-weapon in feats.held && cleric.sanctification != 'none'
+    effects:
+      - target: { rolls: [damage.strike] }
+        op: add
+        value: dieOf(1d4, 2)
+        tags: [damage.spirit]
+        when: situational.divineWeaponOpposed
+
+display:
+  fields:
+    cleric.sanctification: { groups: [summary], priority: 2 }
+    cleric.doctrine: { groups: [summary], priority: 2 }
+    cleric.favoredCategory: { hidden: true }
+    cleric.domainSpells: { hidden: true }

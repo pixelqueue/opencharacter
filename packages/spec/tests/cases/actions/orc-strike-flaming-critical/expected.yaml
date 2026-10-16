@@ -1,0 +1,25 @@
+# A natural 20: 30 against AC 15, a critical hit. 2d8 (3 + 5) + 4, doubled: 24 slashing; the
+# rune's 1d6 (4), doubled: 8 fire. Then the rune's 1d10 persistent fire damage.
+status: finished
+outcome:
+  result: critical-success
+  data: { attack: 30, dc: 15, map: 0, flatCheck: true, damage: 32 }
+proposedChanges:
+  - to: self
+    step: count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
+  - to: target
+    character: goblin
+    step: deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -24, tags: [damage, damage.slashing] }
+  - to: target
+    character: goblin
+    step: deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -8, tags: [damage, damage.fire] }
+  - to: target
+    character: goblin
+    step: onHit
+    change:
+      type: applyEffect
+      source: orc-2e:conditions.persistent-damage
+      state: { damage: 1d10, damageType: fire }

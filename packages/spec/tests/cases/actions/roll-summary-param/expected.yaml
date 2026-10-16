@@ -1,0 +1,21 @@
+# The AC comes from the `targetAc` param: hit on 18 or higher.
+status: paused
+needs:
+  step: attack
+  action: 5e-srd-5.1:weapon-attack
+  kind: dice
+  summary:
+    bandSet: 5e-srd-5.1:attack
+    bands:
+      - band: critical
+        when: 'roll.kept[0] >= 19'
+        tests: [{ of: 'roll.kept[0]', compare: ge, value: 19 }]
+      - band: natural-miss
+        when: 'roll.kept[0] == 1'
+        tests: [{ of: 'roll.kept[0]', compare: eq, value: 1 }]
+      - band: hit
+        when: 'roll.total >= 18'
+        tests: [{ of: roll.total, compare: ge, value: 18 }]
+      - { band: miss, when: 'true', tests: [] }
+    flags: { monk: false, dice: 1d8, crit: 19, ac: 18 }
+log: []

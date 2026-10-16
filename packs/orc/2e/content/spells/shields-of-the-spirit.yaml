@@ -1,0 +1,14 @@
+id: spells.shields-of-the-spirit
+type: spell
+tags:
+  [trait.champion, trait.concentrate, trait.focus, trait.sanctified, trait.spirit, trait.uncommon]
+fields:
+  rank: 1
+  cast: one
+  applyTo: ally
+effects:
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    scope: applied

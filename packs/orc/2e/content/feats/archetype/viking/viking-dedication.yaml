@@ -1,0 +1,29 @@
+id: feats.archetype.viking.viking-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.viking }
+
+prerequisites:
+  - { id: athletics, when: 'skills.athletics.rank >= 1' }
+effects:
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.reactive-shield }
+  - target: { fields: { where: "'archetype-extra.at6' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.shielded-stride }
+  - target: { fields: { where: "'archetype-extra.at10' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.quick-shield-block }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.warfare },
+      when: "!('skill.lore.warfare' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.lore.warfare.rank
+    op: add
+    value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+grants:
+  - item: feats.skill.additional-lore

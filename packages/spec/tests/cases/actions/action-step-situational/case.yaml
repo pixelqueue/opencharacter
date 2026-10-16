@@ -1,0 +1,72 @@
+description: "An `action` step's `situational` gives the used action, and the actions it runs, values for situational choices over the app's: the selected choices' roll effects apply and formulas read them"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack]
+        situational:
+          # The target is exposed: +2 to the attack.
+          - id: exposed
+            type: boolean
+            default: false
+            rolls: [attack]
+            effects:
+              - { target: { rolls: [attack] }, op: add, value: 2, when: situational.exposed }
+          # A bonus the GM rules.
+          - id: bonus
+            type: integer
+            default: 0
+            rolls: [attack]
+            effects:
+              - { target: { rolls: [attack] }, op: add, value: situational.bonus }
+        actions:
+          # One attack, reporting what it saw.
+          - id: strike
+            steps:
+              - id: roll
+                kind: roll
+                tags: [attack]
+                parts: [{ dice: 1d20 }]
+              - id: done
+                kind: outcome
+                data:
+                  total: steps.roll.total
+                  exposed: situational.exposed
+                  bonus: situational.bonus
+          # Runs `strike` through a helper, so the values reach an action two levels down.
+          - id: helper
+            steps:
+              - { id: inner, kind: action, use: strike }
+              - id: done
+                kind: outcome
+                data:
+                  total: steps.inner.data.total
+                  exposed: steps.inner.data.exposed
+                  bonus: steps.inner.data.bonus
+          # A plain strike, the target exposed and 3 more on the second.
+          - id: feint
+            params:
+              more: { type: integer, default: 3 }
+            steps:
+              - { id: first, kind: action, use: strike }
+              - id: second
+                kind: action
+                use: helper
+                situational: { exposed: true, 'test-pack:bonus': params.more }
+              - id: done
+                kind: outcome
+                data:
+                  first: steps.first.data
+                  second: steps.second.data
+      content: []
+input:
+  action: { id: 'test-pack:feint' }
+  # The app's own bonus: the second strike's value replaces it.
+  situational: { 'test-pack:bonus': 1 }

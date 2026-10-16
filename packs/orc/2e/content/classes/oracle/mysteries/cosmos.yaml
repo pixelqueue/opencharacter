@@ -1,0 +1,66 @@
+id: classes.oracle.mysteries.cosmos
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: oracle.mystery, op: set, value: "'cosmos'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.nature },
+      when: "!('skill.nature' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: oracle.grantedFeats, op: grant, value: { item: feats.oracle.oracular-warning } }
+  - { target: focus.points, op: add, value: 1 }
+  - { target: oracle.revelations, op: grant, value: { item: spells.spray-of-stars } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.interstellar-void } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.moonlight-bridge } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.light } }
+  - { target: oracle.granted, op: grant, value: { item: spells.light } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.light } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.dizzying-colors } }
+  - { target: oracle.granted, op: grant, value: { item: spells.dizzying-colors } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.dizzying-colors } }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.dizzying-colors }
+    when: '@feats.oracle.gifted-power in feats.held'
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.dizzying-colors } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.darkness }, when: level >= 3 }
+  - { target: oracle.granted, op: grant, value: { item: spells.darkness }, when: level >= 3 }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.darkness }, when: level >= 3 }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.darkness }
+    when: 'level >= 3 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank2,
+      op: grant,
+      value: { item: spells.darkness },
+      when: level >= 3,
+    }
+  - target: { fields: { where: "'attr.str' in item.tags" } }
+    op: add
+    value: -oracle.cursebound
+    stackKey: status-penalty
+    when: oracle.cursebound > 0
+  - { target: spells.repertoire, op: grant, value: { item: spells.moon-frenzy }, when: level >= 9 }
+  - { target: oracle.granted, op: grant, value: { item: spells.moon-frenzy }, when: level >= 9 }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.moon-frenzy }, when: level >= 9 }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.moon-frenzy }
+    when: 'level >= 9 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank5,
+      op: grant,
+      value: { item: spells.moon-frenzy },
+      when: level >= 9,
+    }
+grants:
+  - item: feats.oracle.oracular-warning
+  - item: spells.spray-of-stars
+  - { item: spells.light }
+  - { item: spells.dizzying-colors }
+  - { item: spells.darkness, when: level >= 3 }
+  - { item: spells.moon-frenzy, when: level >= 9 }

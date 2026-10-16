@@ -1,0 +1,16 @@
+id: features.druid.natures-ward
+type: feature
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.poison] } }
+    op: multiply
+    value: 0
+immuneTo:
+  - { id: poisoned, items: [conditions.poisoned] }
+  - id: disease
+    query: { type: condition, where: "'disease' in item.tags" }
+  - id: charmed-and-frightened
+    query:
+      type: condition
+      where: >-
+        item.id in [@conditions.charmed, @conditions.frightened]
+          && has(entry.by) && entry.by in ['elemental', 'fey']

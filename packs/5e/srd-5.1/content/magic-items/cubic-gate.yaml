@@ -1,0 +1,28 @@
+id: magic-items.cubic-gate
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: legendary
+  maxCharges: 3
+  recharge: 1d3
+  spells: [spells.gate, spells.plane-shift]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.gate, when: self.equipped }
+  - { item: spells.plane-shift, when: self.equipped }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && ((action.item.id == @spells.gate && flags.slot == 9
+      && self.charges >= 1) || (action.item.id == @spells.plane-shift && flags.slot ==
+      7 && self.charges >= 1))
+    value:
+      id: charges
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

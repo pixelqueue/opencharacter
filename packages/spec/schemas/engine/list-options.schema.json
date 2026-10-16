@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/engine/list-options.schema.json",
+  "title": "listOptions",
+  "$defs": {
+    "input": {
+      "type": "object",
+      "required": ["ruleset", "character", "choice"],
+      "properties": {
+        "ruleset": {
+          "$ref": "ruleset.schema.json"
+        },
+        "character": {
+          "$ref": "../character.schema.json"
+        },
+        "choice": {
+          "$ref": "../change.schema.json#/$defs/choicePath"
+        },
+        "links": {
+          "$ref": "compute-sheet.schema.json#/$defs/links"
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["options"],
+          "properties": {
+            "options": {
+              "description": "Every option, ineligible ones included with their reasons. The app decides whether to hide, grey out or allow them.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["option", "eligible"],
+                "properties": {
+                  "option": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "eligible": {
+                    "type": "boolean"
+                  },
+                  "picked": {
+                    "type": "boolean"
+                  },
+                  "recommended": {
+                    "type": "boolean"
+                  },
+                  "reasons": {
+                    "description": "Exactly the rules issues applyChanges would report if this option were picked anyway.",
+                    "type": "array",
+                    "items": {
+                      "$ref": "rules-issue.schema.json"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "min": {
+              "type": "integer"
+            },
+            "max": {
+              "type": "integer"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["errors"],
+          "properties": {
+            "errors": {
+              "type": "array",
+              "items": {
+                "$ref": "error.schema.json"
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

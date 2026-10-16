@@ -1,0 +1,31 @@
+# spend a shot; nested check 57 >= 41 -> failure (not doubles), which proposes +1 stress (appended after the shot)
+# no damage step; outcome failure, damage 0
+status: finished
+outcome:
+  result: failure
+  data:
+    damage: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjustState
+      entry: inv-1
+      key: shots
+      by: -1
+  - to: self
+    step: check/stress
+    change:
+      type: adjust
+      field: mothership-1e:stress.current
+      by: 1
+log:
+  - step: check/check
+    action: mothership-1e:stat-check
+    kind: dice
+    by: engine
+    faces:
+      - 57
+    total: 57
+    band: failure
+    bandSet: mothership-1e:check

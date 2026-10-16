@@ -1,0 +1,16 @@
+# Study 2d6 [5, 2] keeps 5: a partial, 2 ticks. The 8-clock at 6 fills, so the ritual is
+# learned: a new copy with the project's label.
+status: finished
+outcome:
+  result: complete
+  data: { ticks: 2, roll: partial }
+proposedChanges:
+  - { to: self, step: progress, change: { type: adjustState, entry: learn, key: progress, by: 2 } }
+  - to: self
+    step: learn
+    change:
+      type: addItem
+      entry:
+        id: rituals-ritual-1
+        item: fitd-scoundrel:rituals.ritual
+        state: { label: Ward of black tears }

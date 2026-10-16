@@ -1,0 +1,15 @@
+status: finished
+outcome:
+  result: success
+  data: { total: 18, dc: 15, healing: 11 }
+proposedChanges:
+  - to: patient
+    character: ally
+    step: mend[0]
+    change: { type: adjust, field: orc-2e:hp.current, by: 11, tags: [healing] }
+  - to: patient
+    character: ally
+    step: mend[0]
+    change:
+      type: removeEffect
+      applied: { where: "item.id == 'orc-2e:conditions.wounded'" }

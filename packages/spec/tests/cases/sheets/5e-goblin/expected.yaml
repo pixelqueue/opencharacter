@@ -1,0 +1,28 @@
+values:
+  5e-srd-5.1:level.total: { value: 0 } # no class copies
+  # level 0: 2 + floor((max(1, ceil(0.25)) - 1) / 4) = 2 + floor(0 / 4) = 2
+  5e-srd-5.1:proficiency.bonus: { value: 2 }
+  5e-srd-5.1:hp.max: { value: 7 } # max(1, 7 + 0 * 0)
+  5e-srd-5.1:abilities.dex.mod: { value: 2 }
+  # leather: set 11 + dex 2 = 13 (the only set, no competition); shield +2 -> 15
+  5e-srd-5.1:combat.ac: { value: 15 }
+  5e-srd-5.1:equipment.tags: { value: [armor, light, shield] } # leather is light
+  5e-srd-5.1:proficiencies.weapons: { value: [5e-srd-5.1:weapons.scimitar] }
+  5e-srd-5.1:proficiencies.armor: { value: [light, shield] }
+competing: []
+actions:
+  - { action: 5e-srd-5.1:weapon-attack, entry: scimitar }
+  - { action: 5e-srd-5.1:saving-throw }
+  - { action: 5e-srd-5.1:ability-check }
+  - { action: 5e-srd-5.1:skill-check }
+  - { action: 5e-srd-5.1:initiative }
+  - { action: 5e-srd-5.1:unarmed-strike }
+  - { action: 5e-srd-5.1:fall }
+  - { action: 5e-srd-5.1:take-damage }
+  - { action: 5e-srd-5.1:heal }
+  - { action: 5e-srd-5.1:long-rest }
+  - { action: 5e-srd-5.1:concentration-check }
+  - { action: 5e-srd-5.1:short-rest }
+pending: []
+issues: []
+errors: []

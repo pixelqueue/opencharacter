@@ -1,0 +1,24 @@
+id: spells.lay-on-hands
+type: spell
+tags: [trait.champion, trait.focus, trait.healing, trait.manipulate, trait.uncommon, trait.vitality]
+# Healing yourself: pass yourself as the ally (the AC bonus isn't yours then).
+fields:
+  rank: 1
+  cast: one
+  range: 0
+  targets: 1
+  defense: fortitude
+  basic: true
+  damage: 1d6
+  damageType: vitality
+  heighten: 1
+  heightenDice: 1
+  healingBonus: 6
+  heightenHealingBonus: 6
+  applyTo: ally
+effects:
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 2
+    stackKey: status-bonus
+    scope: applied

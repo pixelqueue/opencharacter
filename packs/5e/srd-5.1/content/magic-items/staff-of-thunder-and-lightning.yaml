@@ -1,0 +1,79 @@
+id: magic-items.staff-of-thunder-and-lightning
+type: template
+tags: [magic, staff]
+appliesTo: { type: weapon, where: 'item.id == @weapons.quarterstaff' }
+fields: { rarity: very-rare, requiresAttunement: true, attackBonus: 2, damageBonus: 2 }
+state:
+  usedToday: { type: set, of: string, default: [] }
+effects:
+  - target: combat.hitOptions
+    op: add
+    value: 1
+    when: >-
+      self.equipped && self.attuned
+        && (!('lightning' in self.usedToday) || !('thunder' in self.usedToday))
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: action.self.id == self.id && self.attuned && !('lightning' in self.usedToday)
+    value:
+      id: lightning
+      changes:
+        - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['lightning']" }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: action.self.id == self.id && self.attuned && !('thunder' in self.usedToday)
+    value:
+      id: thunder
+      changes:
+        - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['thunder']" }
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: 2d6
+    tags: [damage.lightning]
+    when: >-
+      has(steps.onHit)
+        && steps.onHit.picked == '5e-srd-5.1:magic-items.staff-of-thunder-and-lightning#lightning'
+actions:
+  - id: lightning-strike
+    tags: [magic-item]
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          daily: "'strike'"
+          dice: 9d6
+          damageType: "'lightning'"
+          save: "'dex'"
+          dc: 17
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+        data:
+          damage: 'has(steps.power.data.damage) ? steps.power.data.damage : 0'
+  - id: thunderclap
+    tags: [magic-item]
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          daily: "'thunderclap'"
+          dice: 2d6
+          damageType: "'thunder'"
+          save: "'con'"
+          dc: 17
+          condition: "'conditions.deafened'"
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+        data:
+          damage: 'has(steps.power.data.damage) ? steps.power.data.damage : 0'

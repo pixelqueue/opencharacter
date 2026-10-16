@@ -1,0 +1,12 @@
+description: 'Fate Core: after two rerolls paid with fate points, the third reroll reads the proposed sheet and no longer offers a fate point'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:overcome }
+  params: { skill: fate-core:skills.athletics, opposition: 4 }
+  policy: { choices: pause }
+answers:
+  - option: invoke
+  - option: invoke

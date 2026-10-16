@@ -1,0 +1,40 @@
+status: finished
+outcome:
+  result: critical-success
+  data:
+    damage: 14
+    splash: 2
+proposedChanges:
+  - to: target
+    character: goblin
+    step: strike/deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -14
+      tags:
+        - damage
+        - damage.fire
+  - to: target
+    character: goblin
+    step: strike/deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -2
+      tags:
+        - damage
+        - splash
+        - damage.fire
+  - to: self
+    step: strike/count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 1
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: orc-2e:alchemist.vials.used
+      by: 1

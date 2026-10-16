@@ -1,0 +1,33 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 10
+  5e-srd-5.1:abilities.dex.base: 16
+  5e-srd-5.1:abilities.con.base: 14
+  5e-srd-5.1:abilities.int.base: 12
+  5e-srd-5.1:abilities.wis.base: 12
+  5e-srd-5.1:abilities.cha.base: 10
+  5e-srd-5.1:hp.base: 39
+  5e-srd-5.1:hp.current: 39
+features:
+  - id: rogue
+    item: 5e-srd-5.1:classes.rogue
+    state: { level: 6, startingClass: true }
+    choices:
+      skills:
+        - { option: skill.acrobatics }
+        - { option: skill.deception }
+        - { option: skill.perception }
+        - { option: skill.stealth }
+      roguish-archetype: [{ option: 5e-srd-5.1:subclasses.thief }]
+      5e-srd-5.1:features.rogue.expertise/skills-1:
+        - { option: skill.stealth }
+        - { option: skill.perception }
+      5e-srd-5.1:features.rogue.expertise/skills-6:
+        - { option: skill.acrobatics }
+        - { option: tool.thieves-tools }
+      5e-srd-5.1:features.rogue.ability-score-improvement/improvement-4:
+        - option: 5e-srd-5.1:improvements.plus-two
+          choices: { ability: [{ option: dex }] }

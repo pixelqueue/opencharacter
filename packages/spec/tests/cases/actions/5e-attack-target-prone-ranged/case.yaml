@@ -1,0 +1,11 @@
+description: '5E ranged attack against a prone target has disadvantage'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: longbow }
+  participants:
+    target:
+      - id: goblin-2
+        values: { 5e-srd-5.1:combat.ac: 13, 5e-srd-5.1:conditions.prone: true }

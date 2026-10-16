@@ -1,0 +1,75 @@
+status: finished
+outcome:
+  result: style
+  data:
+    total: 5
+    opposition: 2
+    hit: 3
+    harm: physical
+    boost: false
+    takenOut: false
+    strokeSecond: false
+proposedChanges: []
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 0
+      - 0
+      - 0
+    total: 5
+    band: superb
+    bandSet: fate-core:ladder
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: defense[0]
+    action: fate-core:attack
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: thug
+    outcome:
+      result: fail
+      data:
+        total: 2
+  - step: final
+    action: fate-core:attack
+    kind: dice
+    by: engine
+    total: 5
+    band: style
+    bandSet: fate-core:outcome
+  - step: boost
+    action: fate-core:attack
+    kind: choice
+    by: engine
+    option: full
+  - step: hit[0]
+    action: fate-core:attack
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: thug
+    outcome:
+      result: absorbed
+      data:
+        shifts: 3
+        box: 3

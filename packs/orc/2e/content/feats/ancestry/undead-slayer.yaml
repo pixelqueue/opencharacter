@@ -1,0 +1,10 @@
+id: feats.ancestry.undead-slayer
+type: feat
+fields: { level: 5, category: ancestry, heritage: heritages.dhampir }
+effects:
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: 'roll.item.dice * (situational.vampireTarget ? 2 : 1)'
+    stackKey: circumstance-bonus
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: situational.undeadTarget

@@ -1,0 +1,22 @@
+# The hit offers the retort (an ephemeral follow-up); the app starts it with the attacker.
+ok: true
+followUps:
+  - id: retort-1
+    kind: ephemeral
+    followUp: orc-2e:feats.ancestry.cloak-of-poison#retort
+    source: { type: item, id: orc-2e:feats.ancestry.cloak-of-poison }
+    to: self
+    action:
+      id: orc-2e:feats.ancestry.cloak-of-poison#retort
+      source: orc-2e:feats.ancestry.cloak-of-poison
+      followUp: retort-1
+    params: {}
+    required: false
+    cause:
+      field: orc-2e:hp.current
+      by: 0
+      requested: -8
+      taken: -8
+      reason: requested
+      clamped: true
+      tags: [damage, damage.slashing]

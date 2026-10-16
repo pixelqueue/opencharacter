@@ -1,0 +1,24 @@
+id: spells.freedom-of-movement
+type: spell
+fields:
+  level: 4
+  school: abjuration
+  classes: [classes.bard, classes.cleric, classes.druid, classes.ranger]
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+immuneTo:
+  - id: magical-paralysis-and-restraint
+    scope: applied
+    query:
+      type: condition
+      where: >-
+        item.id in [@conditions.paralyzed, @conditions.restrained]
+          && entry.magical

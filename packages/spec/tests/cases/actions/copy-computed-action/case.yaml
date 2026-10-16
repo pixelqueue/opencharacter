@@ -1,0 +1,38 @@
+description: "A copy's action reads its computed values as self.<name> in its steps, here a rules action the content type uses"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 0 }
+        contentTypes:
+          gear:
+            carried: true
+            fields:
+              kind: { type: enum, values: [plain, fine], default: plain }
+            computed:
+              quality: { type: integer, formula: "tier + (item.kind == 'fine' ? 1 : 0)" }
+            actions:
+              - use: quality-roll
+        actions:
+          # A roll of the copy's quality in dice, keeping the highest.
+          - id: quality-roll
+            steps:
+              - id: roll
+                kind: roll
+                parts:
+                  - { id: pool, dice: (self.quality)d6kh1 }
+              - id: done
+                kind: outcome
+                data: { quality: self.quality, total: steps.roll.total }
+      content:
+        - { id: gear.blade, type: gear, fields: { kind: fine } }
+input:
+  action: { id: test-pack:quality-roll, entry: blade-1 }

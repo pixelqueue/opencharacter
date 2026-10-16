@@ -1,0 +1,15 @@
+id: feats.archetype.ritualist.ritualist-dedication
+type: feat
+tags: [trait.archetype, trait.uncommon, trait.dedication, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.ritualist }
+
+prerequisites:
+  - {
+      id: skill,
+      when: 'skills.occultism.rank >= 2 || skills.arcana.rank >= 2 || skills.nature.rank >= 2 || skills.religion.rank >= 2',
+    }
+effects:
+  - target: { rolls: [ritual] }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus

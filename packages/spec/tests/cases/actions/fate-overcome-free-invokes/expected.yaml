@@ -1,0 +1,107 @@
+status: finished
+outcome:
+  result: succeed
+  data:
+    total: 8
+    opposition: 6
+    shifts: 2
+    boost: false
+proposedChanges:
+  - to: self
+    step: roll/rerollFrom
+    change:
+      type: adjustState
+      entry: a-balance
+      key: invokes
+      by: -1
+  - to: self
+    step: roll/freeFrom
+    change:
+      type: adjustState
+      entry: a-ground
+      key: invokes
+      by: -1
+  - to: self
+    step: roll/freeFrom
+    change:
+      type: adjustState
+      entry: a-ground
+      key: invokes
+      by: -1
+  - to: self
+    step: roll/spentOut
+    change:
+      type: removeItem
+      copies:
+        type: fate-core:advantage
+        where: self.invokes == 0
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - -1
+      - -1
+      - -1
+      - 0
+    total: 0
+    band: mediocre
+    bandSet: fate-core:ladder
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: free
+  - step: roll/rerollFrom
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: a-balance
+    index: 0
+  - step: roll/again
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 0
+      - 0
+      - 0
+    total: 4
+    band: great
+    bandSet: fate-core:ladder
+  - step: roll/reroll2
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: two
+  - step: roll/freeFrom
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: a-ground
+    index: 0
+  - step: roll/freeFrom
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: a-ground
+    index: 1
+  - step: final
+    action: fate-core:overcome
+    kind: dice
+    by: engine
+    total: 8
+    band: succeed
+    bandSet: fate-core:outcome

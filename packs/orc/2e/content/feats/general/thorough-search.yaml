@@ -1,0 +1,16 @@
+id: feats.general.thorough-search
+type: feat
+fields: { level: 3, category: general }
+
+prerequisites:
+  - { id: expert, when: 'perception.rank >= 2' }
+effects:
+  - target: { rolls: [skill-action.seek] }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: situational.twiceAsLong
+  - target: { rolls: [skill-action.seek], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.twiceAsLong

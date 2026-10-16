@@ -1,0 +1,41 @@
+id: feats.ancestry.celestial-magic
+type: feat
+fields: { level: 9, category: ancestry, heritage: heritages.nephilim }
+prerequisites:
+  - id: lineage
+    when: '@feats.ancestry.angelkin in feats.held || @feats.ancestry.lawbringer in feats.held || @feats.ancestry.musetouched in feats.held'
+choices:
+  - id: spells
+    pick: 2
+    from:
+      options:
+        - id: clear-mind
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.clear-mind } }
+          grants:
+            - item: spells.clear-mind
+        - id: everlight
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.everlight } }
+          grants:
+            - item: spells.everlight
+        - id: humanoid-form
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.humanoid-form } }
+          grants:
+            - item: spells.humanoid-form
+        - id: revealing-light
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.revealing-light } }
+          grants:
+            - item: spells.revealing-light
+        - id: share-life
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.share-life } }
+          grants:
+            - item: spells.share-life
+        - id: sure-footing
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.sure-footing } }
+          grants:
+            - item: spells.sure-footing

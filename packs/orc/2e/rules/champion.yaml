@@ -1,0 +1,81 @@
+fields:
+  champion.sanctification: { type: enum, values: [none, holy, unholy], formula: "'none'" }
+  # How many times Mercy is taken.
+  champion.mercies: { type: integer, formula: 0 }
+  champion.font: { type: enum, values: [none, heal, harm], formula: "'none'" }
+  champion.favoredCategory:
+    { type: enum, values: [none, unarmed, simple, martial, advanced], formula: "'none'" }
+  champion.cause:
+    type: enum
+    values: [none, desecration, grandeur, iniquity, justice, liberation, obedience, redemption]
+    formula: "'none'"
+  # Both blessings, and each one's own field, so neither pick can take the other's: the feature's
+  # choice can come after the feat's in a creation above 8th level.
+  champion.blessing: { type: set, of: tag, members: { under: [blessing] } }
+  champion.firstBlessing: { type: set, of: tag, members: { under: [blessing] } }
+  champion.secondBlessing: { type: set, of: tag, members: { under: [blessing] } }
+  champion.reactionTarget: { type: string, input: true, default: '' }
+  champion.reactionDamage: { type: integer, input: true, default: 0, min: 0 }
+  champion.smiteTarget: { type: string, input: true, default: '' }
+  champion.allyResistance: { type: integer, formula: 2 + level }
+
+tags:
+  - strike.blessed-counterstrike
+  - strike.gruesome-strike
+  - blessing
+  - blessing.armament
+  - blessing.shield
+  - blessing.swiftness
+
+effects:
+  - id: reaction-damage
+    target: { rolls: [damage.strike] }
+    op: add
+    value: champion.reactionDamage
+    tags: [damage.spirit]
+    when: >-
+      champion.reactionDamage > 0 && champion.reactionTarget != '' && has(participants.target)
+        && size(participants.target) > 0 && participants.target[0].id == champion.reactionTarget
+  - id: smite
+    target: { rolls: [damage.strike] }
+    op: add
+    value: >-
+      situational.smiteOpposed ? (level >= 13 ? 6 : 4) : (level >= 13 ? 4 : 3)
+    stackKey: status-bonus
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      champion.smiteTarget != '' && has(participants.target) && size(participants.target) > 0
+        && participants.target[0].id == champion.smiteTarget
+
+situational:
+  - id: smiteOpposed
+    type: boolean
+    default: false
+    rolls: [strike]
+    available: champion.smiteTarget != '' && champion.sanctification != 'none'
+  - id: divineGrace
+    type: boolean
+    default: false
+    rolls: [save]
+    available: '@feats.champion.divine-grace in feats.held'
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 2
+        stackKey: circumstance-bonus
+        when: situational.divineGrace
+
+display:
+  fields:
+    champion.sanctification: { groups: [summary], priority: 2 }
+    champion.cause: { groups: [summary], priority: 2 }
+    champion.font: { hidden: true }
+    champion.mercies: { hidden: true }
+    champion.favoredCategory: { hidden: true }
+    champion.blessing: { hidden: true }
+    champion.firstBlessing: { hidden: true }
+    champion.secondBlessing: { hidden: true }
+    champion.reactionTarget: { hidden: true }
+    champion.reactionDamage: { groups: [turn], priority: 2, showWhen: champion.reactionDamage > 0 }
+    champion.smiteTarget: { hidden: true }
+    champion.allyResistance: { hidden: true }

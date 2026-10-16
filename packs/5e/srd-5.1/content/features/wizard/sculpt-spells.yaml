@@ -1,0 +1,9 @@
+id: features.wizard.sculpt-spells
+type: feature
+effects:
+  - target: { choices: [sculpt] }
+    op: option
+    when: >-
+      !has(steps.sculpt)
+        || countList(steps.sculpt, x.picked != 'affect') < 1 + action.item.level
+    value: { id: spare }

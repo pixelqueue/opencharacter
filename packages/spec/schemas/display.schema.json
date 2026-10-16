@@ -1,0 +1,448 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/display.schema.json",
+  "title": "Display hints",
+  "description": "Optional presentation data. Never affects calculations or saved state; apps may ignore it. Priority is a whole number where 0 is highest. Ties keep their written order, with pack load order as the final tiebreaker.",
+  "type": "object",
+  "properties": {
+    "groups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/group"
+      }
+    },
+    "fields": {
+      "description": "Hints per field ID.",
+      "type": "object",
+      "propertyNames": {
+        "anyOf": [
+          { "$ref": "common.schema.json#/$defs/fieldRef" },
+          { "$ref": "common.schema.json#/$defs/familyKey" }
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/fieldHints"
+      }
+    },
+    "types": {
+      "description": "Hints for a content type's copies, by content type name.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/typeHints"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "group": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "kind": {
+          "description": "What the group holds: `fields` (the default), the character's `actions` as `computeSheet` lists them, or its `content` (copies and picks).",
+          "enum": ["fields", "actions", "content"],
+          "default": "fields"
+        },
+        "label": {
+          "description": "Translation key. Default `groups.<id>.label`.",
+          "$ref": "common.schema.json#/$defs/i18nKey"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "visibility": {
+          "description": "Where the group shows: `primary`, `secondary` (the default) or `background`. A background group is kept out of play views with all its members; the group's value is also the default for members that don't set their own.",
+          "$ref": "#/$defs/visibility"
+        },
+        "members": {
+          "description": "A query whose matches join the group, so homebrew joins automatically: `type: field` for a fields group (fields can also join by listing the group in their own hints), `type: action` for an actions group, a content type for a content group. A content group's query may take `from`: `own` (the default: copies and content active through picks and grants) or `applied` (the character's applied entries whose source is of the type).",
+          "anyOf": [
+            {
+              "$ref": "query.schema.json"
+            },
+            {
+              "$ref": "#/$defs/contentQuery"
+            }
+          ]
+        },
+        "showWhen": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "sectionBy": {
+          "description": "Content groups: each member's section key (an integer or a string), over `item` and `self`. Sections are ordered by key, numbers ascending; a section's label key is `groups.<id>.sections.<key>.name` (optional).",
+          "$ref": "formula.schema.json"
+        },
+        "sortBy": {
+          "description": "Content groups: a number or string members are sorted by, then by instance order.",
+          "$ref": "formula.schema.json"
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "content"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "required": ["members"]
+          },
+          "else": {
+            "properties": {
+              "sectionBy": false,
+              "sortBy": false
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "actions"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "required": ["members"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "content"
+              }
+            },
+            "required": ["kind"]
+          },
+          "else": {
+            "properties": {
+              "members": {
+                "$ref": "query.schema.json"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": {
+      "description": "How prominently an app shows a group or value, a fixed meaning every app follows: `primary` is always on the sheet, compact views included; `secondary` is shown and may be collapsed; `background` is kept out of play views and shown when editing the sheet (base scores, maximums, per-level bookkeeping, overrides). `hidden` is separate: never shown.",
+      "enum": ["primary", "secondary", "background"]
+    },
+    "fieldHints": {
+      "type": "object",
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/slug"
+          },
+          "uniqueItems": true
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "visibility": {
+          "description": "Where the value shows: `primary`, `secondary` or `background`. Without it, a field takes its group's, else `secondary`. Not with `hidden`.",
+          "$ref": "#/$defs/visibility"
+        },
+        "label": {
+          "$ref": "common.schema.json#/$defs/i18nKey"
+        },
+        "shortLabel": {
+          "$ref": "common.schema.json#/$defs/i18nKey"
+        },
+        "format": {
+          "description": "A display format, kept in sync with `data/display-formats.json`, or `{ bands: <set> }`: the value named by the first band of a result band set the field's pack sees whose `when` holds with `roll.total` the value. The engine never evaluates it.",
+          "anyOf": [
+            {
+              "enum": ["plain", "signed", "percent", "dice", "fraction"]
+            },
+            {
+              "type": "object",
+              "required": ["bands"],
+              "properties": {
+                "bands": {
+                  "description": "A result band set (`resultBands`) the field's pack sees; `bands.<set>.<band>.name` names the value.",
+                  "$ref": "common.schema.json#/$defs/slug"
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "unit": {
+          "description": "A unit ID; its text is `units.<id>.name` and `units.<id>.short`. Display only: converting units is the app's call.",
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "input": {
+          "description": "Input hints for editors (a number from 1 to 30). Field min/max still apply.",
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "step": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "widget": {
+              "enum": ["number", "checkbox", "dots", "track", "text", "select"]
+            }
+          },
+          "additionalProperties": false
+        },
+        "hidden": {
+          "description": "An in-between helper value players should never see.",
+          "type": "boolean"
+        },
+        "showWhen": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "rolls": {
+          "description": "The rolls the field's tile starts: the first is the field's own (a tap), the others are offered beside it, in order. The app starts each with its `params`; parameters a roll doesn't give are asked or left out as when the player starts the action.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fieldRoll"
+          },
+          "minItems": 1
+        },
+        "with": {
+          "description": "Companion fields shown in this field's tile, each role at most once: `modifier` signed after the value (\"13 (+1)\"), `max` as \"x / y\", `detail` a small second line. In a group where the field has a tile, a companion has no tile of its own. Not with `hidden`.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["field", "as"],
+            "properties": {
+              "field": {
+                "$ref": "common.schema.json#/$defs/fieldRef"
+              },
+              "as": {
+                "$ref": "#/$defs/companionRole"
+              }
+            },
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "hidden": {
+            "const": true
+          }
+        },
+        "required": ["hidden"]
+      },
+      "then": {
+        "properties": {
+          "visibility": false,
+          "with": false
+        }
+      }
+    },
+    "companionRole": {
+      "description": "How a companion is shown in a field's tile: `modifier` signed after the value (\"13 (+1)\"), `max` after it as \"x / y\" (\"0 / 195\"), `detail` a small second line. `modifier` and `max` take numbers.",
+      "enum": ["modifier", "max", "detail"]
+    },
+    "fieldRoll": {
+      "description": "A roll a field starts: a rules action and literal values for some of its parameters. A field parameter's value is a field ID, a content parameter's an item ID.",
+      "type": "object",
+      "required": ["action"],
+      "properties": {
+        "action": {
+          "description": "A rules action: a local or qualified action ID.",
+          "$ref": "common.schema.json#/$defs/ref"
+        },
+        "params": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "common.schema.json#/$defs/literal"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "stateHints": {
+      "description": "Hints for a state key of a content type's copies: a field hint without `groups`. `showWhen` sees the copy as `self` and its item as `item`; the key's own `min` and `max` still apply.",
+      "type": "object",
+      "properties": {
+        "priority": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "visibility": {
+          "description": "Where the state key shows: `primary`, `secondary` (the default) or `background`. Not with `hidden`.",
+          "$ref": "#/$defs/visibility"
+        },
+        "label": {
+          "$ref": "common.schema.json#/$defs/i18nKey"
+        },
+        "shortLabel": {
+          "$ref": "common.schema.json#/$defs/i18nKey"
+        },
+        "format": {
+          "description": "Kept in sync with `data/display-formats.json`.",
+          "enum": ["plain", "signed", "percent", "dice", "fraction"]
+        },
+        "unit": {
+          "description": "A unit ID; its text is `units.<id>.name` and `units.<id>.short`. Display only: converting units is the app's call.",
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "input": {
+          "description": "Input hints for editors (a number from 1 to 30). Field min/max still apply.",
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "step": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "widget": {
+              "enum": ["number", "checkbox", "dots", "track", "text", "select"]
+            }
+          },
+          "additionalProperties": false
+        },
+        "hidden": {
+          "description": "An in-between helper value players should never see.",
+          "type": "boolean"
+        },
+        "showWhen": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "with": {
+          "description": "Companion state keys of the same copy shown in this key's tile, each role at most once. Not with `hidden`.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["key", "as"],
+            "properties": {
+              "key": {
+                "$ref": "common.schema.json#/$defs/name"
+              },
+              "as": {
+                "$ref": "#/$defs/companionRole"
+              }
+            },
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "hidden": {
+            "const": true
+          }
+        },
+        "required": ["hidden"]
+      },
+      "then": {
+        "properties": {
+          "visibility": false,
+          "with": false
+        }
+      }
+    },
+    "itemFieldHints": {
+      "description": "Hints for an item field.",
+      "type": "object",
+      "properties": {
+        "format": {
+          "description": "Kept in sync with `data/display-formats.json`.",
+          "enum": ["plain", "signed", "percent", "dice", "fraction"]
+        },
+        "unit": {
+          "description": "A unit ID; its text is `units.<id>.name` and `units.<id>.short`. Display only: converting units is the app's call.",
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "hidden": {
+          "description": "Kept off the item's card. A custom-item form still asks for it.",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "typeHints": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "description": "Hints by state key.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/stateHints"
+          }
+        },
+        "fields": {
+          "description": "Hints by item field.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/itemFieldHints"
+          }
+        },
+        "quantity": {
+          "description": "Hints for the copies' quantity.",
+          "type": "object",
+          "properties": {
+            "hidden": {
+              "description": "True when quantity never matters (class features).",
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "contentQuery": {
+      "description": "A content group's members: a query with `from`. With `applied`, the members are the character's applied entries whose source is of the type, in file order, inactive and blocked ones included; in `where`, `sectionBy` and `sortBy`, `item` is the source's item and `self` the entry (`id` and its state, with defaults).",
+      "type": "object",
+      "required": ["type", "from"],
+      "properties": {
+        "type": {
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "where": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "from": {
+          "enum": ["own", "applied"]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

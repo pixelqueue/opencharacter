@@ -1,0 +1,9 @@
+id: feats.investigator.underworld-investigator
+type: feat
+fields: { level: 1, category: class, class: classes.investigator }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.underworld }
+    when: "!('skill.lore.underworld' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }

@@ -1,0 +1,12 @@
+id: feats.archetype.blessed-one.blessed-spell
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 8, category: class, archetype: archetypes.blessed-one }
+
+prerequisites:
+  - {
+      id: blessed-one-dedication,
+      when: '@feats.archetype.blessed-one.blessed-one-dedication in feats.held',
+    }
+  - { id: mercy, when: '@feats.champion.mercy in feats.held' }
+  - { id: slots, when: 'spellcasting.maxRank > 0 || spellcasting.archetype.blessedOne.maxRank > 0' }

@@ -1,0 +1,23 @@
+id: feats.barbarian.shake-it-off
+type: feat
+tags: [trait.concentrate, trait.rage]
+fields: { level: 2, category: class, class: classes.barbarian }
+
+actions:
+  - id: shake-it-off
+    tags: [rage]
+    available: rage.active
+    results: [shaken]
+    steps:
+      - id: shake
+        kind: changes
+        changes:
+          - type: adjustState
+            applied: { where: 'item.id == @conditions.frightened' }
+            key: value
+            by: -1
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.frightened && self.value <= 1' }
+      - id: result
+        kind: outcome
+        result: "'shaken'"

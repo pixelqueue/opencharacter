@@ -1,0 +1,11 @@
+description: "5E Sword of Wounding hit: the wound's amount is passed on as a formula over `batch`, for the target's applyChanges to work out the hit points the hit took"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: sword }
+  participants:
+    target:
+      - id: ogre
+        values: { 5e-srd-5.1:combat.ac: 11, 5e-srd-5.1:creature.type: giant }

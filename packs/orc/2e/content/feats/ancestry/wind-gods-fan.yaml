@@ -1,0 +1,10 @@
+id: feats.ancestry.wind-gods-fan
+type: feat
+fields: { level: 9, category: ancestry, ancestry: ancestries.tengu }
+prerequisites:
+  - { id: tengu-feather-fan, when: '@feats.ancestry.tengu-feather-fan in feats.held' }
+grants:
+  - item: spells.wall-of-wind
+effects:
+  - { target: fan.activations, op: add, value: 1 }
+  - { target: spells.byOption, op: grant, value: { item: spells.wall-of-wind } }

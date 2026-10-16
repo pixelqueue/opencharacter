@@ -1,0 +1,12 @@
+id: feats.cleric.panic-the-dead
+type: feat
+tags: [trait.emotion, trait.fear, trait.mental]
+fields: { level: 2, category: class, class: classes.cleric }
+effects:
+  - target: { steps: [spell.target] }
+    op: changes
+    when: action.item.id == @spells.heal && flags.outcome >= 2
+    value:
+      changes:
+        - { type: applyEffect, source: "'conditions.frightened'", state: { value: 1 } }
+        - { type: applyEffect, when: flags.outcome == 3, source: "'conditions.fleeing'" }

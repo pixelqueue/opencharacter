@@ -1,0 +1,32 @@
+id: spells.protection-from-evil-and-good
+type: spell
+fields:
+  level: 1
+  school: abjuration
+  classes: [classes.cleric, classes.paladin, classes.warlock, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 10
+  applied: true
+effects:
+  - target: protection.evilAndGood
+    op: set
+    value: true
+    scope: applied
+    duration: { amount: 10, unit: minute, concentration: true }
+actions:
+  - use: cast-spell
+immuneTo:
+  - id: charmed-and-frightened
+    scope: applied
+    query:
+      type: condition
+      where: >-
+        item.id in [@conditions.charmed, @conditions.frightened]
+          && has(entry.by)
+          && entry.by in ['aberration', 'celestial', 'elemental', 'fey', 'fiend', 'undead']

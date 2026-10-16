@@ -1,0 +1,43 @@
+# Half-orc fighter 1, longsword two-handed. Attack 15 + 4 + 2 = 21 against AC 15: a hit, not
+# critical. Damage 1d10 [7] + 4 = 11; Savage Attacks adds nothing.
+status: finished
+outcome:
+  result: hit
+  data:
+    critical: false
+    attack: 21
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -11,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.slashing,
+            ],
+        },
+    }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces:
+      - 15
+    total: 21
+  - step: damage
+    kind: dice
+    by: engine
+    faces:
+      - 7
+    total: 11

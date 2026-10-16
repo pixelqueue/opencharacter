@@ -1,0 +1,69 @@
+# An orc-2e character: a 1st-level elf investigator (forensic
+# medicine) with a scholar background, a rapier, a shortbow and studded leather armor.
+#
+# Boosts: her ancestry's Dexterity and Intelligence, its flaw in Constitution and a free Wisdom,
+# the scholar's Intelligence and a free Dexterity, the investigator's Intelligence, and four free
+# (Constitution, Dexterity, Intelligence, Wisdom): Dex +3, Con +0, Int +4, Wis +2. Trained skills:
+# Arcana and Academia Lore (scholar), Society (investigator), Medicine (forensic medicine, with
+# Battle Medicine) and eight more (4 + Intelligence +4). She speaks Common, Elven and four more.
+specVersion: 0.1.0
+id: example-orc-edda
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:hp.current: 14
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.elf
+    choices:
+      heritage:
+        - option: orc-2e:heritages.cavern-elf
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-2e:boosts.wis
+  - id: background
+    item: orc-2e:backgrounds.scholar
+    choices:
+      boost:
+        - option: orc-2e:boosts.int
+      free-boost:
+        - option: orc-2e:boosts.dex
+      skill:
+        - option: arcana
+  - id: class
+    item: orc-2e:classes.investigator
+    choices:
+      methodology:
+        - option: forensic-medicine
+      skills:
+        - option: skill.acrobatics
+        - option: skill.athletics
+        - option: skill.deception
+        - option: skill.diplomacy
+        - option: skill.nature
+        - option: skill.occultism
+        - option: skill.stealth
+        - option: skill.thievery
+      class-feat-1:
+        - option: orc-2e:feats.investigator.takedown-expert
+inventory:
+  - { id: rapier, item: orc-2e:weapons.rapier, equipped: true }
+  - { id: shortbow, item: orc-2e:weapons.shortbow, equipped: true }
+  - { id: armor, item: orc-2e:armor.studded-leather-armor, equipped: true }
+  - { id: backpack, item: orc-2e:gear.backpack }
+  - { id: chalk, item: orc-2e:gear.chalk }
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.int
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.nimble-elf
+  languages:
+    - option: orc-2e:languages.draconic
+    - option: orc-2e:languages.dwarven
+    - option: orc-2e:languages.fey
+    - option: orc-2e:languages.gnomish

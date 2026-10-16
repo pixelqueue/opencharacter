@@ -1,0 +1,13 @@
+description: 'FitD: acquiring a restricted item (alchemical, poison, bomb or dangerous gadget) draws +2 heat to the linked crew'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:acquire-asset }
+  params: { restricted: true }
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:tier: 1

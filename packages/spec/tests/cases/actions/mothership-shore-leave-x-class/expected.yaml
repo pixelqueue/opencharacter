@@ -1,0 +1,41 @@
+# The Sanity save: 5 under 24, success. 2d10 rolls 1 + 2 = 3, then again 9 + 8 = 17: the
+# better is 17, held to the 16 stress above the minimum (18 - 2). The player splits the 16
+# (Sanity 6, Body 10), and stress is relieved to 2.
+status: finished
+outcome:
+  result: success
+  data: { converted: 16 }
+proposedChanges:
+  - { to: self, step: improve, change: { type: adjust, field: mothership-1e:saves.sanity, by: 6 } }
+  - { to: self, step: improve, change: { type: adjust, field: mothership-1e:saves.body, by: 10 } }
+  - {
+      to: self,
+      step: relieve,
+      change: { type: set, field: mothership-1e:stress.current, value: 2 },
+    }
+log:
+  - step: check/check
+    action: mothership-1e:save
+    kind: dice
+    by: engine
+    faces: [5]
+    total: 5
+    band: success
+    bandSet: mothership-1e:check
+  - step: conversion
+    action: mothership-1e:shore-leave
+    kind: dice
+    by: engine
+    faces: [1, 2]
+    total: 3
+  - step: conversionAgain
+    action: mothership-1e:shore-leave
+    kind: dice
+    by: engine
+    faces: [9, 8]
+    total: 17
+  - step: improve
+    action: mothership-1e:shore-leave
+    kind: allocate
+    by: app
+    amounts: { 'mothership-1e:saves.sanity': 6, 'mothership-1e:saves.body': 10 }

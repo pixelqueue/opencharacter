@@ -1,0 +1,14 @@
+id: feats.ancestry.quietus-strikes
+type: feat
+fields: { level: 9, category: ancestry, heritage: heritages.duskwalker }
+effects:
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: 'roll.item.potency >= 3 ? 2 : 1'
+    tags: [damage.void]
+    when: '!situational.undeadTarget'
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: 'roll.item.potency >= 3 ? 2 : 1'
+    tags: [damage.vitality]
+    when: situational.undeadTarget

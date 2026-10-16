@@ -1,0 +1,33 @@
+id: feats.ancestry.expert-longevity
+type: feat
+fields: { level: 9, category: ancestry, ancestry: ancestries.elf }
+prerequisites:
+  - id: ancestral-longevity
+    when: '@feats.ancestry.ancestral-longevity in feats.held'
+choices:
+  - id: skill
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+        ]
+      where: 'value in skills.trained || value in skills.chosen'
+    effects:
+      - target: { fields: { where: "'skill-rank' in item.tags && pick.value in item.tags" } }
+        op: atLeast
+        value: 2

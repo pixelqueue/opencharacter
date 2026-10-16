@@ -1,0 +1,25 @@
+id: feats.barbarian.inner-strength
+type: feat
+tags: [trait.concentrate, trait.rage]
+fields: { level: 6, category: class, class: classes.barbarian }
+
+prerequisites:
+  - { id: instinct, when: "barbarian.instinct == 'spirit'" }
+actions:
+  - id: inner-strength
+    tags: [rage]
+    available: rage.active
+    results: [steadied]
+    steps:
+      - id: steady
+        kind: changes
+        changes:
+          - type: adjustState
+            applied: { where: 'item.id == @conditions.enfeebled' }
+            key: value
+            by: -1
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.enfeebled && self.value <= 1' }
+      - id: result
+        kind: outcome
+        result: "'steadied'"

@@ -1,0 +1,49 @@
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 6
+    splash: 1
+proposedChanges:
+  - to: target
+    character: goblin
+    step: strike/deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -6
+      tags:
+        - damage
+        - damage.fire
+  - to: target
+    character: goblin
+    step: strike/deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -1
+      tags:
+        - damage
+        - splash
+        - damage.fire
+  - to: target
+    character: goblin
+    step: strike/deal
+    change:
+      type: applyEffect
+      source: orc-2e:conditions.persistent-damage
+      state:
+        damage: 1
+        damageType: fire
+  - to: self
+    step: strike/count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 1
+  - to: self
+    step: use
+    change:
+      type: adjustQuantity
+      entry: fire
+      by: -1

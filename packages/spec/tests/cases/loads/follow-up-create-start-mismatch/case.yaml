@@ -1,0 +1,35 @@
+description: "A follow-up's linked character uses the slot's pack, so its start must come from that pack or a dependency of it: a start of the owner's own pack is link-start-mismatch"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-crew
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 0 }
+      content: []
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        links:
+          crew: { pack: test-crew, fields: { tier: { type: integer, default: 0 } } }
+        actions:
+          - id: make-scoundrel
+            steps: [{ id: done, kind: outcome }]
+        creation:
+          - { id: scoundrel, action: make-scoundrel }
+        followUps:
+          - id: crew-sheet
+            while: true
+            create: { link: crew, start: scoundrel }
+      content: []

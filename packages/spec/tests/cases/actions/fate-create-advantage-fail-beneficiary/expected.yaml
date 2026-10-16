@@ -1,0 +1,58 @@
+status: finished
+outcome:
+  result: fail
+  data:
+    total: -1
+    opposition: 3
+    shifts: -4
+    freeInvokes: 0
+    boost: false
+    opponentInvokes: true
+proposedChanges:
+  - to: beneficiary
+    character: rival
+    step: give
+    change:
+      type: addItem
+      entry:
+        id: advantages-advantage-1
+        item: fate-core:advantages.advantage
+        state:
+          label: Smoke-Filled Hall
+          invokes: 1
+          kind: situation
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - -1
+      - -1
+      - 0
+      - 0
+    total: -1
+    band: poor
+    bandSet: fate-core:ladder
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: final
+    action: fate-core:create-advantage
+    kind: dice
+    by: engine
+    total: -1
+    band: fail
+    bandSet: fate-core:outcome

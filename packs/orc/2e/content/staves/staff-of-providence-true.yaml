@@ -1,0 +1,41 @@
+id: staves.staff-of-providence-true
+type: staff
+tags: [trait.magical, trait.staff]
+fields:
+  level: 20
+  price: 64000
+  bulk: 1
+  rank1: [spells.bless, spells.create-water]
+  rank2: [spells.augury, spells.create-food, spells.see-the-unseen, spells.status]
+  rank3: [spells.safe-passage, spells.wanderers-guide]
+  rank4: [spells.cleanse-affliction, spells.dispelling-globe, spells.status]
+  rank5: [spells.dispelling-globe, spells.scouting-eye, spells.see-the-unseen]
+  rank6: [spells.dispelling-globe, spells.scintillating-safeguard, spells.truesight]
+  rank7: [spells.dispelling-globe, spells.energy-aegis]
+  rank8: [spells.dispelling-globe, spells.divine-inspiration]
+  rank9: [spells.dispelling-globe, spells.foresight, spells.overwhelming-presence]
+grants:
+  - { item: spells.guidance, when: self.equipped }
+  - { item: spells.bless, when: self.equipped }
+  - { item: spells.create-water, when: self.equipped }
+  - { item: spells.augury, when: self.equipped }
+  - { item: spells.create-food, when: self.equipped }
+  - { item: spells.see-the-unseen, when: self.equipped }
+  - { item: spells.status, when: self.equipped }
+  - { item: spells.safe-passage, when: self.equipped }
+  - { item: spells.wanderers-guide, when: self.equipped }
+  - { item: spells.cleanse-affliction, when: self.equipped }
+  - { item: spells.dispelling-globe, when: self.equipped }
+  - { item: spells.scouting-eye, when: self.equipped }
+  - { item: spells.scintillating-safeguard, when: self.equipped }
+  - { item: spells.truesight, when: self.equipped }
+  - { item: spells.energy-aegis, when: self.equipped }
+  - { item: spells.divine-inspiration, when: self.equipped }
+  - { item: spells.foresight, when: self.equipped }
+  - { item: spells.overwhelming-presence, when: self.equipped }
+effects:
+  - target: { rolls: [skill-action.sense-direction, skill-action.subsist] }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped'

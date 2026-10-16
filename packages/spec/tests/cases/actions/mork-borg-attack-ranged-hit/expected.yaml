@@ -1,0 +1,34 @@
+# 10 + 2 (Presence) = 12 against DR 12: success. Damage 1d4 = 3.
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 3
+    sepsis: false
+    skullSmashed: false
+proposedChanges:
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -3
+      tags:
+        - damage
+log:
+  - step: check/check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 10
+    total: 12
+    band: success
+    bandSet: mork-borg-core:test
+  - step: damage
+    action: mork-borg-core:attack
+    kind: dice
+    by: engine
+    faces:
+      - 3
+    total: 3

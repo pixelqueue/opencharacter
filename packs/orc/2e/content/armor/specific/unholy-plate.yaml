@@ -1,0 +1,12 @@
+id: armor.specific.unholy-plate
+type: armor
+extends: armor.full-plate
+tags: [trait.divine, trait.invested, trait.unholy]
+fields:
+  price: 2500
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.armor-potency-2
+    copies: { type: armor, where: 'item.id == @armor.specific.unholy-plate' }
+  - template: runes.resilient
+    copies: { type: armor, where: 'item.id == @armor.specific.unholy-plate' }

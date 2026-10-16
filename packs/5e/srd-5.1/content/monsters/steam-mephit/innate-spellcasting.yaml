@@ -1,0 +1,18 @@
+id: monsters.steam-mephit.innate-spellcasting
+type: monsterSpellcasting
+fields:
+  ability: cha
+  innate: true
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      countCopies(copy.id == action.self.id && copy.type == 'monsterAction'
+        && has(copy.state.usesLeft) && copy.state.usesLeft > 0) > 0
+    value:
+      id: innate
+      changes:
+        - type: adjustState
+          copies: { type: monsterAction, where: self.id == action.self.id }
+          key: usesLeft
+          by: -1

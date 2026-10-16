@@ -1,0 +1,20 @@
+# 10 + 9 = 19 (no penalty for the two attacks already made): a hit for 1d8 (4) + 4. Nothing is
+# counted toward the multiple attack penalty.
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 8
+proposedChanges:
+  - to: target
+    character: goblin
+    step: strike/deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -8, tags: [damage, damage.slashing] }
+log:
+  - step: weapon
+    action: 'orc-2e:features.fighter.reactive-strike#reactive-strike'
+    kind: choice
+    by: engine
+    option: longsword
+  - { step: strike/attack, action: orc-2e:strike, kind: dice, faces: [10], total: 19 }
+  - { step: strike/damage, action: orc-2e:strike, kind: dice, faces: [4], total: 8 }

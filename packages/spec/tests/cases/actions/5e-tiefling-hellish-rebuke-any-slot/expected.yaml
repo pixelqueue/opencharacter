@@ -1,0 +1,34 @@
+# No slot is passed (the spell's level, 1, by default); the trait's option sets slot 2 and Charisma.
+# trait's option. Cast at 2nd level: 3d10 fire, Dexterity save against 8 + proficiency 2 +
+# Charisma 3 = 13, half on a success. No slot is spent; the use is marked on the race copy.
+status: finished
+outcome:
+  result: save
+  data:
+    slot: 2
+    spellcastingClass: racial
+    metamagic: none
+    dc: 13
+    save: dex
+    halfOnSave: true
+    damage: 20
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: cost
+    change: { type: setState, entry: tiefling, key: hellishRebukeUsed, value: true }
+log:
+  - step: cost
+    action: 5e-srd-5.1:cast-spell
+    kind: choice
+    by: app
+    option: '5e-srd-5.1:traits.infernal-legacy#hellish-rebuke'
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [4, 7, 9]
+    items:
+      - { kind: dice, count: 3, sides: 10, value: 20, tags: [damage.fire] }
+    total: 20

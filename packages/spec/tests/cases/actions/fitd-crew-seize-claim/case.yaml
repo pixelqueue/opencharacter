@@ -1,0 +1,15 @@
+description: 'FitD factions: seizing a claim adds it with its place and faction, -2 status with that faction and +1 with an enemy of it'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/crew
+input:
+  action: { id: fitd-crew:seize-claim }
+  params: { label: 'The old tannery' }
+  policy: { dice: auto, choices: pause, allocations: pause }
+answers:
+  - option: fitd-crew:claims.vice-den
+  - option: faction-e
+  - option: some
+  - option: faction-g
+  - option: '#done'

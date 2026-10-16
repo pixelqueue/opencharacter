@@ -1,0 +1,10 @@
+# Saved 19 plus the +2 increase is 21, past the maximum of 20: reported on the base, not
+# clamped, and the +2 option's prerequisite fails, so a picker doesn't offer it. The
+# score reads the base.
+values:
+  5e-srd-5.1:abilities.str.base: { value: 21 }
+  5e-srd-5.1:abilities.str.max: { value: 20 }
+  5e-srd-5.1:abilities.str.score: { value: 21 }
+issues:
+  - { code: prerequisite-not-met, id: 5e-srd-5.1:improvements.plus-two/ability/str/max }
+  - { code: out-of-limits, id: 5e-srd-5.1:abilities.str.base }

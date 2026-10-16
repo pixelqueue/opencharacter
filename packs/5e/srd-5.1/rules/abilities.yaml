@@ -1,0 +1,95 @@
+families:
+  ability: [str, dex, con, int, wis, cha]
+
+fields:
+  # Each ability has three fields. `base` is the saved score plus every increase; going past `max`
+  # is the rules issue `out-of-limits`, reported rather than clamped. `max` is 20, raised by Primal
+  # Champion. `score` is what everything reads; items that set the score (Gauntlets of Ogre Power)
+  # act here, past the maximum.
+  'abilities.{ability}.base':
+    type: integer
+    input: true
+    default: 10
+    min: 1
+    max: 30
+    limits: { max: 'abilities.{ability}.max' }
+    tags: [ability-base]
+  'abilities.{ability}.max': { type: integer, formula: 20 }
+  'abilities.{ability}.score':
+    { type: integer, formula: 'abilities.{ability}.base', min: 1, max: 30, tags: [ability] }
+  # `/` is decimal division here; floor() rounds toward negative infinity, so a score of 9 gives -1.
+  'abilities.{ability}.mod':
+    { type: integer, formula: 'floor((abilities.{ability}.score - 10) / 2)', tags: [ability-mod] }
+
+  proficiencies.saves:
+    {
+      type: set,
+      of: tag,
+      input: true,
+      default: [],
+      members: { under: [save], except: [save.death] },
+    }
+
+  'saves.{ability}':
+    type: integer
+    formula: "abilities.{ability}.mod + ('save.{ability}' in proficiencies.saves ? proficiency.bonus : 0)"
+    tags: [save]
+
+effects:
+  - id: save-disadvantage
+    target: { rolls: [save] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: has(params.disadvantage) && params.disadvantage
+
+actions:
+  - id: saving-throw
+    tags: [save]
+    params:
+      ability: { type: enum, values: [str, dex, con, int, wis, cha] }
+      dc: { type: integer, optional: true }
+      disadvantage: { type: boolean, optional: true }
+    results: [rolled, success, failure]
+    steps:
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags: { dc: 'has(params.dc) ? params.dc : -1' }
+      - id: save
+        kind: roll
+        tags: [d20-test, { formula: "'save.' + params.ability" }]
+        bands: dc
+        parts:
+          - dice: 1d20
+          - field: "'abilities.' + params.ability + '.mod'"
+          - value: proficiency.bonus
+            when: ('save.' + params.ability) in proficiencies.saves
+      - id: defaults
+        kind: branch
+        cases:
+          - when: true
+            flags: { total: steps.save.total, luckDie: 0d10 }
+      - id: luck
+        kind: choice
+        tags: [failed-save]
+        when: checks.addDie && has(params.dc) && flags.total < params.dc
+        options: [{ id: keep }]
+        recommend: "'keep'"
+      - id: added
+        kind: roll
+        when: maxOf(flags.luckDie) > 0
+        tags: [luck]
+        parts:
+          - dice: flags.luckDie
+      - id: lucky
+        kind: branch
+        when: has(steps.added)
+        cases:
+          - when: true
+            flags: { total: flags.total + steps.added.total }
+      - id: result
+        kind: outcome
+        result: "!has(params.dc) ? 'rolled' : flags.total >= params.dc ? 'success' : 'failure'"
+        data:
+          total: flags.total

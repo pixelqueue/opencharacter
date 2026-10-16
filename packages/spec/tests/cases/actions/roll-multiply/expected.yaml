@@ -1,0 +1,25 @@
+# 1d6 shows 4: doubled to 8; the part's 3 to 6; the whetstone's 2 to 4. The face stays 4.
+status: finished
+outcome: { data: { total: 18, unbounded: 18 } }
+proposedChanges:
+  - {
+      to: self,
+      step: deal,
+      change: { type: adjust, field: 'test-roll-multiply:hp', by: -18, tags: [damage.cold] },
+    }
+log:
+  - step: roll
+    action: test-roll-multiply:strike
+    kind: dice
+    by: engine
+    faces: [4]
+    total: 18
+    items:
+      - { kind: dice, count: 1, sides: 6, faces: [{ value: 4 }], value: 8, factor: 2 }
+      - { kind: flat, value: 6, factor: 2 }
+      - {
+          kind: flat,
+          value: 4,
+          factor: 2,
+          source: { type: item, id: 'test-roll-multiply:charms.whetstone', entry: whetstone },
+        }

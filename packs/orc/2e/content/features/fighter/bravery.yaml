@@ -1,0 +1,10 @@
+id: features.fighter.bravery
+type: feature
+fields: { level: 3 }
+effects:
+  - { target: saves.will.rank, op: atLeast, value: 2 }
+  - target: { rolls: [save.will], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.againstFear
+  - { target: fear.reduction, op: add, value: 1 }

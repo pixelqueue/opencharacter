@@ -1,0 +1,21 @@
+id: spells.weapon-surge
+type: spell
+tags: [trait.cleric, trait.focus, trait.manipulate, trait.sanctified, trait.uncommon]
+fields:
+  rank: 1
+  cast: one
+  range: 0
+  targets: 1
+  duration: until-next-turn
+  applyTo: self
+effects:
+  - target: { rolls: [strike] }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    scope: applied
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: 'dieOf(1d6, self.rank >= 9 ? 3 : self.rank >= 5 ? 2 : 1)'
+    tags: [damage.spirit]
+    scope: applied

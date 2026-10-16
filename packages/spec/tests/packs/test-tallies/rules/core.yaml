@@ -1,0 +1,62 @@
+settings:
+  stacking:
+    keys:
+      charm: highestOnly
+
+rollTallies: [boost]
+
+fields:
+  blessed: { type: boolean, input: true, default: false }
+
+contentTypes:
+  charm: {}
+
+effects:
+  - { target: { rolls: [try], tally: boost }, op: add, value: 1, when: blessed }
+
+situational:
+  - id: push
+    type: boolean
+    default: false
+    rolls: [try]
+    effects:
+      - { target: { rolls: [try], tally: boost }, op: add, value: 1 }
+
+# A boost of 4 or more makes any roll a crit; the tally doesn't change the total.
+resultBands:
+  check:
+    - { id: crit, when: roll.tallies.boost >= 4 }
+    - { id: hit, when: roll.total >= 4 }
+    - { id: miss, when: true }
+  # A rank worked out once: 0 miss, 1 hit, 2 crit by the total, moved up by the
+  # boost and by the action's `edge`, kept at most 2. The bands read it as `roll.value`.
+  rank:
+    value: >-
+      min(2, (roll.total >= 6 ? 2 : roll.total >= 4 ? 1 : 0) + roll.tallies.boost
+        + (has(params.edge) ? params.edge : 0))
+    bands:
+      - { id: crit, when: roll.value == 2 }
+      - { id: hit, when: roll.value == 1 }
+      - { id: miss, when: true }
+
+actions:
+  - id: try
+    steps:
+      - { id: roll, kind: roll, tags: [try], bands: check, parts: [{ dice: 1d6 }] }
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          total: steps.roll.total
+          boost: steps.roll.tallies.boost
+  # The rank of a d6; the outcome reads it as the step's `bandValue`.
+  - id: rank
+    params:
+      edge: { type: integer, optional: true }
+    steps:
+      - { id: roll, kind: roll, tags: [try], bands: rank, parts: [{ dice: 1d6 }] }
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          rank: steps.roll.bandValue

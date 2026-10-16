@@ -1,0 +1,11 @@
+# A knack with an inline action of its own. It has no copy, so its action has no `self`.
+id: knacks.juggle
+type: knack
+actions:
+  - id: juggle
+    steps:
+      - id: result
+        kind: outcome
+        result: item.id
+        data:
+          hasSelf: has(self.id)

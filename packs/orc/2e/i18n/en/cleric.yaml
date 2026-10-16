@@ -1,0 +1,491 @@
+# The cleric: the class, its doctrines, features, feats and initial domain spells. Short rules text
+# written for the pack, without the setting (the deity is the player's own).
+classes.cleric.name: 'Cleric'
+classes.cleric.description: "A servant of a deity who wields divine magic. Key attribute: Wisdom. 8 Hit Points plus Constitution per level. Trained in Perception, Fortitude and Reflex, expert in Will; trained in simple weapons, your deity's favored weapon and unarmed attacks; trained in unarmored defense; trained in the cleric class DC and in divine spell attacks and spell DC. Trained in Religion, your deity's skill, and 2 skills plus Intelligence. Divine prepared spells with Wisdom, and a divine font. Cleric feats from 2nd level."
+classes.cleric.choices.divine-font.prompt: "Your deity's divine font"
+classes.cleric.choices.divine-font.options.heal.name: 'Healing font (heal)'
+classes.cleric.choices.divine-font.options.harm.name: 'Harmful font (harm)'
+classes.cleric.choices.sanctification.prompt: "Your deity's sanctification"
+classes.cleric.choices.sanctification.options.none.name: 'None'
+classes.cleric.choices.sanctification.options.holy.name: 'Holy'
+classes.cleric.choices.sanctification.options.unholy.name: 'Unholy'
+classes.cleric.choices.divine-skill.prompt: "Your deity's divine skill"
+classes.cleric.choices.favored-weapon-category.prompt: "Your deity's favored weapon: its kind"
+classes.cleric.choices.favored-weapon-category.options.unarmed.name: 'An unarmed attack (fist)'
+classes.cleric.choices.favored-weapon-category.options.simple.name: 'A simple weapon'
+classes.cleric.choices.favored-weapon-category.options.martial.name: 'A martial weapon'
+classes.cleric.choices.favored-weapon-category.options.advanced.name: 'An advanced weapon'
+classes.cleric.choices.favored-weapon.prompt: "Your deity's favored weapon"
+classes.cleric.choices.doctrine.prompt: 'Doctrine'
+classes.cleric.choices.skills.prompt: 'Trained skills (2 plus Intelligence)'
+classes.cleric.choices.class-feat.prompt: 'Cleric feat (level {slot})'
+classes.cleric.choices.skill-feat.prompt: 'Skill feat (level {slot})'
+classes.cleric.doctrines.cloistered-cleric.name: 'Cloistered Cleric'
+classes.cleric.doctrines.cloistered-cleric.description: "A cleric of the cloth, devoted to divine magic and your deity's domains. 1st: Domain Initiate. 3rd: expert in Fortitude. 7th: expert in spell attack modifier and spell DC. 11th: expert in your deity's favored weapon, simple weapons and unarmed attacks, and critical hits with the favored weapon apply its critical specialization effect (using your spell DC). 15th: master in spell attack modifier and spell DC. 19th: legendary in them."
+classes.cleric.doctrines.warpriest.name: 'Warpriest'
+classes.cleric.doctrines.warpriest.choices.deadly-simplicity.prompt: "Deadly Simplicity (your deity's favored weapon is simple or unarmed)"
+classes.cleric.doctrines.warpriest.description: "A militant servant of your faith, balancing spells and battle. 1st: trained in light and medium armor (expert at 13th, with divine defense), expert in Fortitude, Shield Block, and Deadly Simplicity if your deity's favored weapon is simple or unarmed. 3rd: trained in martial weapons. 7th: expert in your deity's favored weapon, simple and martial weapons and unarmed attacks, and critical hits with the favored weapon apply its critical specialization effect (you can use your spell DC). 11th: expert in spell attack modifier and spell DC. 15th: master in Fortitude, and a success on a Fortitude save is a critical success. 19th: master in your deity's favored weapon, spell attack modifier and spell DC."
+features.cleric.deity.name: 'Deity'
+features.cleric.deity.description: "You serve a deity of your own making (the pack names none): you choose its divine font, its sanctification (holy, unholy or none, giving you that trait), its divine skill (you're trained in it) and its favored weapon (you're trained in it, and gain access if it is uncommon). Your deity adds spells to your list, which you prepare like divine spells once you can cast their rank, and has edicts and anathema; acts that are anathema can cost you your font and spellcasting until you atone. These are yours and your GM's to set."
+features.cleric.cleric-spellcasting.name: 'Cleric Spellcasting'
+features.cleric.cleric-spellcasting.description: 'You cast divine spells. Each day you prepare five cantrips and spells in your slots (two of each rank, three from the next level) from the common divine spells and others you have access to, using Wisdom for your spell attack modifier and spell DC. Higher slots can hold heightened lower-rank spells; cantrips are heightened to half your level rounded up.'
+features.cleric.divine-font.name: 'Divine Font'
+features.cleric.divine-font.description: "Each day you prepare extra heal or harm spells (by your deity's font) in 4 additional slots of your highest rank, 5 from 5th level, 6 from 15th. Once chosen, the font doesn't change."
+features.cleric.perception-expertise.name: 'Perception Expertise'
+features.cleric.perception-expertise.description: 'Your Perception proficiency becomes expert.'
+features.cleric.resolute-faith.name: 'Resolute Faith'
+features.cleric.resolute-faith.description: 'Your Will proficiency becomes master. A success on a Will save is a critical success.'
+features.cleric.reflex-expertise.name: 'Reflex Expertise'
+features.cleric.reflex-expertise.description: 'Your Reflex proficiency becomes expert.'
+features.cleric.divine-defense.name: 'Divine Defense'
+features.cleric.divine-defense.description: 'Your unarmored defense proficiency becomes expert.'
+features.cleric.weapon-specialization.name: 'Weapon Specialization'
+features.cleric.weapon-specialization.description: '+2 damage with weapons and unarmed attacks you are expert in, +3 if master, +4 if legendary.'
+features.cleric.miraculous-spell.name: 'Miraculous Spell'
+features.cleric.miraculous-spell.description: "You gain one 10th-rank spell slot. It can't be used with abilities that grant more slots or cast spells without expending slots."
+feats.cleric.deadly-simplicity.name: 'Deadly Simplicity'
+feats.cleric.deadly-simplicity.description: "Wielding your deity's favored weapon, its damage die is one step larger; an unarmed attack with a die smaller than d6 uses d6."
+feats.cleric.deadly-simplicity.prerequisites.simple: 'A deity whose favored weapon is simple or an unarmed attack'
+feats.cleric.divine-castigation.name: 'Divine Castigation'
+feats.cleric.divine-castigation.description: "When you cast heal or harm, you can give it your holy or unholy trait; it then deals spirit damage to creatures with the opposing trait, even ones it wouldn't normally damage."
+feats.cleric.divine-castigation.prerequisites.sanctified: 'Holy or unholy'
+feats.cleric.domain-initiate.name: 'Domain Initiate'
+feats.cleric.domain-initiate.description: 'Pick a domain of your deity: you gain its initial domain spell, a focus spell, and a Focus Point in your focus pool (up to 3). You refocus by praying or serving your deity. You can take this feat more than once, picking a different domain each time.'
+feats.cleric.harming-hands.name: 'Harming Hands'
+feats.cleric.harming-hands.description: 'When you cast harm, you roll d10s instead of d8s.'
+feats.cleric.harming-hands.prerequisites.font: 'Harmful font'
+feats.cleric.healing-hands.name: 'Healing Hands'
+feats.cleric.healing-hands.description: 'When you cast heal, you roll d10s instead of d8s.'
+feats.cleric.healing-hands.prerequisites.font: 'Healing font'
+feats.cleric.premonition-of-avoidance.name: 'Premonition of Avoidance'
+feats.cleric.premonition-of-avoidance.description: 'Reaction. **Trigger** You are about to roll a saving throw against a hazard. You gain a +2 circumstance bonus to that save.'
+feats.cleric.communal-healing.name: 'Communal Healing'
+feats.cleric.communal-healing.description: "When you cast heal to heal a single creature, another willing living creature in its range regains Hit Points equal to the spell's rank."
+feats.cleric.emblazon-armament.name: 'Emblazon Armament'
+feats.cleric.emblazon-armament.description: "Exploration, 10 minutes: you emblazon your deity's symbol on a weapon or shield (one at a time, for a year). It is a religious symbol of your deity. For your deity's followers, a shield gains a +1 status bonus to Hardness, and a weapon a +1 status bonus to damage rolls."
+feats.cleric.panic-the-dead.name: 'Panic the Dead'
+feats.cleric.panic-the-dead.description: 'When your heal damages undead, each that fails its save is also frightened 1, and fleeing until the start of your next turn on a critical failure. Mindless undead are affected too.'
+feats.cleric.rapid-response.name: 'Rapid Response'
+feats.cleric.rapid-response.description: 'Reaction. **Trigger** An ally drops to 0 Hit Points. You Stride toward it with a +10-foot circumstance bonus to Speed.'
+feats.cleric.sap-life.name: 'Sap Life'
+feats.cleric.sap-life.description: 'When your harm damages at least one living creature, you regain Hit Points equal to its rank (if you are living).'
+feats.cleric.versatile-font.name: 'Versatile Font'
+feats.cleric.versatile-font.description: "You can prepare either heal or harm in your divine font's slots."
+feats.cleric.versatile-font.prerequisites.font: 'Healing font or harmful font'
+feats.cleric.warpriests-armor.name: "Warpriest's Armor"
+feats.cleric.warpriests-armor.description: 'You are trained in heavy armor, and expert when your doctrine makes you expert in medium armor. Armor of 2 Bulk or more counts as 1 Bulk lighter (at least 1).'
+feats.cleric.warpriests-armor.prerequisites.doctrine: 'Warpriest doctrine'
+feats.cleric.channel-smite.name: 'Channel Smite'
+feats.cleric.channel-smite.description: "Two actions; cost: expend a heal or harm spell. Make a melee Strike; on a hit, the 1-action version of the spell also damages the target, which automatically fails its save (critically, on a critical hit). The spell is lost if the Strike misses or the target isn't harmed by its energy."
+feats.cleric.directed-channel.name: 'Directed Channel'
+feats.cleric.directed-channel.description: 'An area heal or harm can be a 60-foot cone instead of a 30-foot emanation.'
+feats.cleric.divine-infusion.name: 'Divine Infusion'
+feats.cleric.divine-infusion.description: 'One action, spellshape. If your next action is heal or harm restoring Hit Points to one creature, its melee weapons and unarmed attacks deal 1d6 more damage (vitality for heal, void for harm) until the end of its next turn; 2d6 at spell rank 5, 3d6 at rank 8.'
+feats.cleric.raise-symbol.name: 'Raise Symbol'
+feats.cleric.raise-symbol.description: "One action, wielding a religious symbol: +2 circumstance bonus to saves until the start of your next turn, and a success against a vitality or void effect is a critical success. An emblazoned shield also gets Raise a Shield's effects, and the other way round."
+feats.cleric.restorative-strike.name: 'Restorative Strike'
+feats.cleric.restorative-strike.description: "Two actions. Cast a 1-action heal or harm on yourself, then make a melee Strike (+1 status bonus with your deity's favored weapon); on a hit, another willing creature adjacent to the enemy heals the same amount."
+feats.cleric.sacred-ground.name: 'Sacred Ground'
+feats.cleric.sacred-ground.description: 'Once per 10 minutes, 1 minute of prayer: for 10 minutes a 30-foot burst around you heals each creature that stays in it the whole time by your level: living creatures with a healing font, undead with a harmful font (either or both with Versatile Font).'
+feats.cleric.sacred-ground.prerequisites.font: 'Healing font or harmful font'
+feats.cleric.cast-down.name: 'Cast Down'
+feats.cleric.cast-down.description: 'One action, spellshape. If your next action is heal or harm damaging one creature, it falls prone if damaged, and on a critical failure takes a –10-foot status penalty to Speed for 1 minute.'
+feats.cleric.divine-rebuttal.name: 'Divine Rebuttal'
+feats.cleric.divine-rebuttal.description: "Reaction, wielding your deity's favored weapon. **Trigger** An ally is about to save against a magical ability of a creature adjacent to you. Strike it (with your holy or unholy trait); on a hit your allies gain a +2 circumstance bonus to that save (+3 on a critical hit)."
+feats.cleric.divine-weapon.name: 'Divine Weapon'
+feats.cleric.divine-weapon.description: 'Free action, once per turn, after you Cast a Spell from a divine slot on your turn: a weapon you wield deals 1d4 more spirit damage until the end of your turn; if you are holy or unholy its Strikes gain that trait and deal 2d4 to creatures of the opposing trait.'
+feats.cleric.magic-hands.name: 'Magic Hands'
+feats.cleric.magic-hands.description: 'When you succeed at Treat Wounds, you can roll d10s instead of d8s and add your level as a status bonus to the healing.'
+feats.cleric.magic-hands.prerequisites.healing-hands: 'Healing Hands'
+feats.cleric.selective-energy.name: 'Selective Energy'
+feats.cleric.selective-energy.description: 'An area heal or harm can leave out up to 5 creatures in the area.'
+feats.cleric.domain-initiate.choices.domain.prompt: 'Domain'
+feats.cleric.domain-initiate.choices.domain.options.air.name: 'Air (Pushing Gust)'
+feats.cleric.domain-initiate.choices.domain.options.air.description: 'You command the winds and the weather.'
+feats.cleric.domain-initiate.choices.domain.options.ambition.name: 'Ambition (Ignite Ambition)'
+feats.cleric.domain-initiate.choices.domain.options.ambition.description: 'You strive to outpace every rival.'
+feats.cleric.domain-initiate.choices.domain.options.cities.name: 'Cities (Face in the Crowd)'
+feats.cleric.domain-initiate.choices.domain.options.cities.description: 'You hold sway over cities and their people.'
+feats.cleric.domain-initiate.choices.domain.options.confidence.name: 'Confidence (Veil of Confidence)'
+feats.cleric.domain-initiate.choices.domain.options.confidence.description: 'You master fear and carry yourself with pride.'
+feats.cleric.domain-initiate.choices.domain.options.creation.name: 'Creation (Creative Splash)'
+feats.cleric.domain-initiate.choices.domain.options.creation.description: 'You craft and create art with divine gifts.'
+feats.cleric.domain-initiate.choices.domain.options.darkness.name: 'Darkness (Cloak of Shadow)'
+feats.cleric.domain-initiate.choices.domain.options.darkness.description: 'You command shadow and darkness.'
+feats.cleric.domain-initiate.choices.domain.options.death.name: "Death (Death's Call)"
+feats.cleric.domain-initiate.choices.domain.options.death.description: 'You see death as a passage, not an end.'
+feats.cleric.domain-initiate.choices.domain.options.destruction.name: 'Destruction (Cry of Destruction)'
+feats.cleric.domain-initiate.choices.domain.options.destruction.description: 'You are a force of ruin.'
+feats.cleric.domain-initiate.choices.domain.options.dreams.name: 'Dreams (Sweet Dream)'
+feats.cleric.domain-initiate.choices.domain.options.dreams.description: 'You walk in dreams.'
+feats.cleric.domain-initiate.choices.domain.options.earth.name: 'Earth (Hurtling Stone)'
+feats.cleric.domain-initiate.choices.domain.options.earth.description: 'You command earth and stone.'
+feats.cleric.domain-initiate.choices.domain.options.family.name: 'Family (Soothing Words)'
+feats.cleric.domain-initiate.choices.domain.options.family.description: 'You protect your family and community.'
+feats.cleric.domain-initiate.choices.domain.options.fate.name: 'Fate (Read Fate)'
+feats.cleric.domain-initiate.choices.domain.options.fate.description: 'You glimpse what is to come.'
+feats.cleric.domain-initiate.choices.domain.options.fire.name: 'Fire (Fire Ray)'
+feats.cleric.domain-initiate.choices.domain.options.fire.description: 'You wield flame.'
+feats.cleric.domain-initiate.choices.domain.options.freedom.name: 'Freedom (Unimpeded Stride)'
+feats.cleric.domain-initiate.choices.domain.options.freedom.description: 'You break chains and slip every bond.'
+feats.cleric.domain-initiate.choices.domain.options.healing.name: "Healing (Healer's Blessing)"
+feats.cleric.domain-initiate.choices.domain.options.healing.description: 'Your healing magic flows strongly.'
+feats.cleric.domain-initiate.choices.domain.options.indulgence.name: 'Indulgence (Overstuff)'
+feats.cleric.domain-initiate.choices.domain.options.indulgence.description: 'You revel in pleasure.'
+feats.cleric.domain-initiate.choices.domain.options.knowledge.name: 'Knowledge (Scholarly Recollection)'
+feats.cleric.domain-initiate.choices.domain.options.knowledge.description: 'You are a fount of lore.'
+feats.cleric.domain-initiate.choices.domain.options.luck.name: 'Luck (Bit of Luck)'
+feats.cleric.domain-initiate.choices.domain.options.luck.description: 'Fortune smiles on you.'
+feats.cleric.domain-initiate.choices.domain.options.magic.name: "Magic (Magic's Vessel)"
+feats.cleric.domain-initiate.choices.domain.options.magic.description: 'You channel raw magic.'
+feats.cleric.domain-initiate.choices.domain.options.might.name: 'Might (Athletic Rush)'
+feats.cleric.domain-initiate.choices.domain.options.might.description: 'You are strong in body.'
+feats.cleric.domain-initiate.choices.domain.options.moon.name: 'Moon (Moonbeam)'
+feats.cleric.domain-initiate.choices.domain.options.moon.description: 'You draw power from the moon.'
+feats.cleric.domain-initiate.choices.domain.options.nature.name: 'Nature (Vibrant Thorns)'
+feats.cleric.domain-initiate.choices.domain.options.nature.description: 'You tend the wild.'
+feats.cleric.domain-initiate.choices.domain.options.nightmares.name: 'Nightmares (Waking Nightmare)'
+feats.cleric.domain-initiate.choices.domain.options.nightmares.description: 'You fill minds with dread.'
+feats.cleric.domain-initiate.choices.domain.options.pain.name: 'Pain (Savor the Sting)'
+feats.cleric.domain-initiate.choices.domain.options.pain.description: 'You find strength in suffering.'
+feats.cleric.domain-initiate.choices.domain.options.passion.name: 'Passion (Charming Touch)'
+feats.cleric.domain-initiate.choices.domain.options.passion.description: 'You inspire love and desire.'
+feats.cleric.domain-initiate.choices.domain.options.perfection.name: 'Perfection (Perfected Mind)'
+feats.cleric.domain-initiate.choices.domain.options.perfection.description: 'You strive for perfection of mind and body.'
+feats.cleric.domain-initiate.choices.domain.options.protection.name: "Protection (Protector's Sacrifice)"
+feats.cleric.domain-initiate.choices.domain.options.protection.description: 'You shield others.'
+feats.cleric.domain-initiate.choices.domain.options.secrecy.name: 'Secrecy (Whispering Quiet)'
+feats.cleric.domain-initiate.choices.domain.options.secrecy.description: 'You keep secrets.'
+feats.cleric.domain-initiate.choices.domain.options.sun.name: 'Sun (Dazzling Flash)'
+feats.cleric.domain-initiate.choices.domain.options.sun.description: "You wield the sun's light."
+feats.cleric.domain-initiate.choices.domain.options.travel.name: 'Travel (Agile Feet)'
+feats.cleric.domain-initiate.choices.domain.options.travel.description: 'You journey far and fast.'
+feats.cleric.domain-initiate.choices.domain.options.trickery.name: 'Trickery (Sudden Shift)'
+feats.cleric.domain-initiate.choices.domain.options.trickery.description: 'You deceive and mislead.'
+feats.cleric.domain-initiate.choices.domain.options.truth.name: 'Truth (Word of Truth)'
+feats.cleric.domain-initiate.choices.domain.options.truth.description: 'You reveal what is true.'
+feats.cleric.domain-initiate.choices.domain.options.tyranny.name: 'Tyranny (Touch of Obedience)'
+feats.cleric.domain-initiate.choices.domain.options.tyranny.description: 'You rule with an iron fist.'
+feats.cleric.domain-initiate.choices.domain.options.undeath.name: 'Undeath (Touch of Undeath)'
+feats.cleric.domain-initiate.choices.domain.options.undeath.description: 'You hold power over the undead.'
+feats.cleric.domain-initiate.choices.domain.options.water.name: 'Water (Tidal Surge)'
+feats.cleric.domain-initiate.choices.domain.options.water.description: 'You command water.'
+feats.cleric.domain-initiate.choices.domain.options.wealth.name: 'Wealth (Appearance of Wealth)'
+feats.cleric.domain-initiate.choices.domain.options.wealth.description: 'You hold power over riches.'
+feats.cleric.domain-initiate.choices.domain.options.zeal.name: 'Zeal (Weapon Surge)'
+feats.cleric.domain-initiate.choices.domain.options.zeal.description: 'You burn with zeal.'
+situational.castDown.name: 'Spellshaped by Cast Down'
+spells.pushing-gust.name: 'Pushing Gust'
+spells.pushing-gust.description: |-
+  A gust of wind shoves the target, which attempts a Fortitude save.
+
+  **Critical Success** Unaffected.
+
+  **Success** Pushed 5 feet away from you.
+
+  **Failure** Pushed 10 feet away from you.
+
+  **Critical Failure** Pushed 10 feet away from you and knocked prone.
+spells.ignite-ambition.name: 'Ignite Ambition'
+spells.ignite-ambition.description: |-
+  **Trigger** You or an ally in range tries to persuade a creature with a mental effect (Coerce, Request, a suggestion).
+
+  You stoke the creature's ambition against its allies; it attempts a Will save.
+
+  **Critical Success** Unaffected, and it knows you tried.
+
+  **Success** It takes a –1 status penalty to its defenses against the triggering effect (–2 if the effect furthers its own ambitions), unaware of your spell.
+
+  **Failure** As success, but –4 if it furthers its ambitions.
+
+  **Critical Failure** As success, and it follows a suggestion that furthers its ambitions.
+spells.face-in-the-crowd.name: 'Face in the Crowd'
+spells.face-in-the-crowd.description: |-
+  In a crowd of similar creatures, you look bland and forgettable: a +2 status bonus to Deception and Stealth checks to blend into it, you ignore the difficult terrain it causes, and this counts as a disguise to Impersonate, adding your level even if untrained.
+
+  **Heightened (3rd)** Range 10 feet, up to 10 creatures.
+spells.veil-of-confidence.name: 'Veil of Confidence'
+spells.veil-of-confidence.description: |-
+  Your frightened value drops by 1, and while the spell lasts any frightened value you would gain is 1 lower. If you critically fail a save against fear, the spell lowers that frightened value and ends.
+spells.creative-splash.name: 'Creative Splash'
+spells.creative-splash.description: |-
+  Paint or illusory colors pour down. Roll 1d4 for the color; each creature in the area attempts a Will save, and on a failure (critical failure) takes its effect: 1 white, dazzled 1 round (1 minute); 2 red, enfeebled 1 (2) for 1 round; 3 yellow, frightened 1 (2); 4 blue, clumsy 1 (2) for 1 round.
+spells.cloak-of-shadow.name: 'Cloak of Shadow'
+spells.cloak-of-shadow.description: |-
+  Shadows wrap a willing creature, dimming bright light within 20 feet to dim light (magical darkness). It can Hide using the concealment the shadows give, and it can leave the cloak behind as a decoy with an Interact action; the spell ends if anyone else picks it up.
+spells.deaths-call.name: "Death's Call"
+spells.deaths-call.description: |-
+  **Trigger** A living creature within 20 feet dies, or an undead creature within 20 feet is destroyed.
+
+  You gain temporary Hit Points equal to the creature's level plus your spellcasting attribute modifier, doubled if it was undead, for 1 minute.
+spells.cry-of-destruction.name: 'Cry of Destruction'
+spells.cry-of-destruction.description: |-
+  Your voice booms: 1d8 sonic damage to each creature and unattended object in the cone, with a basic Fortitude save. If you already damaged an enemy this turn with a Strike or spell, the dice are d12s.
+
+  **Heightened (+1)** The damage increases by 1d8.
+spells.sweet-dream.name: 'Sweet Dream'
+spells.sweet-dream.description: |-
+  A willing creature falls asleep into a lucid dream of your choice and can wake when it wants (waking within a minute ends the spell). Dream of insight: +1 status bonus to Intelligence-based skill checks; of glamor: +1 to Charisma-based skill checks; of voyaging: +5-foot status bonus to Speed. A new sweet dream ends the last.
+
+  **Heightened (4th)** Insight or glamor gives +2.
+
+  **Heightened (7th)** Insight or glamor gives +3.
+spells.hurtling-stone.name: 'Hurtling Stone'
+spells.hurtling-stone.description: |-
+  You hurl a magical stone with a spell attack: 2d6 bludgeoning damage on a hit, and you can push the target 5 feet (double damage and 10 feet on a critical hit).
+
+  **Heightened (+1)** The damage increases by 1d6.
+spells.soothing-words.name: 'Soothing Words'
+spells.soothing-words.description: |-
+  An ally gains a +1 status bonus to Will saves (+2 against emotion effects), and you can try to counteract one emotion effect on it.
+
+  **Heightened (5th)** +2, or +3 against emotion effects.
+spells.read-fate.name: 'Read Fate'
+spells.read-fate.description: |-
+  You learn one cryptic word about another creature's near future. The GM rolls a secret DC 6 flat check: on a failure, or if its fate is too uncertain, the word is "inconclusive". The creature is then immune for 24 hours.
+spells.fire-ray.name: 'Fire Ray'
+spells.fire-ray.description: |-
+  A band of fire deals 2d6 fire damage on a hit with a spell attack (double on a critical hit). Unless you critically miss, the target's space burns until the end of its next turn, dealing 1d6 fire damage to each creature that ends its turn there.
+
+  **Heightened (+1)** The ray deals 2d6 more, the burning ground 1d6 more.
+spells.unimpeded-stride.name: 'Unimpeded Stride'
+spells.unimpeded-stride.description: |-
+  You escape every magical effect immobilizing or grabbing you unless its rank is higher than this spell's, then Stride, ignoring difficult terrain and circumstance and status penalties to your Speed.
+spells.healers-blessing.name: "Healer's Blessing"
+spells.healers-blessing.description: |-
+  A willing living creature regains 2 more Hit Points the first time each healing vitality spell heals it while this lasts.
+
+  **Heightened (+1)** 2 more.
+spells.overstuff.name: 'Overstuff'
+spells.overstuff.description: |-
+  A living creature is stuffed with a full meal and attempts a Fortitude save. While sickened by this spell it takes a –10-foot status penalty to its Speed.
+
+  **Critical Success** Unaffected.
+
+  **Success** Sickened 1, but it ends it automatically with one action.
+
+  **Failure** Sickened 1.
+
+  **Critical Failure** Sickened 2.
+spells.scholarly-recollection.name: 'Scholarly Recollection'
+spells.scholarly-recollection.description: |-
+  **Trigger** You Seek, or Recall Knowledge with a skill you are trained in.
+
+  The GM rolls the check twice and you use the better result.
+spells.bit-of-luck.name: 'Bit of Luck'
+spells.bit-of-luck.description: |-
+  The next time the willing target attempts a saving throw, it rolls twice and takes the better result, and the spell ends. A new bit of luck ends the last; a target is then immune for 24 hours.
+spells.magics-vessel.name: "Magic's Vessel"
+spells.magics-vessel.description: |-
+  The target gains a +1 status bonus to saving throws. Whenever you cast a spell from a slot, you Sustain this spell for free and the target gains resistance to damage from spells equal to that spell's rank until the start of your next turn.
+spells.athletic-rush.name: 'Athletic Rush'
+spells.athletic-rush.description: |-
+  You gain a +10-foot status bonus to Speed and a +2 status bonus to Athletics checks, and you can Stride, Leap, Climb or Swim as part of casting it.
+spells.moonbeam.name: 'Moonbeam'
+spells.moonbeam.description: |-
+  A ray of moonlight deals 2d6 fire damage (silver for weaknesses and resistances) on a hit with a spell attack, and the target is dazzled for 1 round; on a critical hit, double damage and dazzled for 1 minute.
+
+  **Heightened (+1)** The damage increases by 1d6.
+spells.vibrant-thorns.name: 'Vibrant Thorns'
+spells.vibrant-thorns.description: |-
+  Thorns cover you: an adjacent creature that hits you with a melee attack, or any creature that hits you with an unarmed attack, takes 1 piercing damage, or 1d6 until the start of your next turn after you cast a vitality spell.
+
+  **Heightened (+1)** 1 more damage, or 1d6 more.
+spells.waking-nightmare.name: 'Waking Nightmare'
+spells.waking-nightmare.description: |-
+  A terrifying vision: the target attempts a Will save. While frightened by this spell, it takes 1 more mental damage from each Strike that hits it.
+
+  **Critical Success** Unaffected.
+
+  **Success** Frightened 1.
+
+  **Failure** Frightened 2; if asleep, it wakes and is paralyzed for 1 round.
+
+  **Critical Failure** As failure, but frightened 3.
+
+  **Heightened (+1)** The mental damage increases by 1.
+spells.savor-the-sting.name: 'Savor the Sting'
+spells.savor-the-sting.description: |-
+  You inflict pain: 1d4 mental damage and 1d4 persistent mental damage, by a Will save. While the persistent damage lasts, you gain a +1 status bonus to attack rolls and skill checks against the target.
+
+  **Critical Success** Unaffected.
+
+  **Success** Half damage, no persistent damage.
+
+  **Failure** Full damage and persistent damage.
+
+  **Critical Failure** Double damage and persistent damage.
+
+  **Heightened (+1)** Both increase by 1d4.
+spells.charming-touch.name: 'Charming Touch'
+spells.charming-touch.description: |-
+  A creature that could find you attractive attempts a Will save (+4 circumstance bonus if you or your allies threatened it recently).
+
+  **Critical Success** Unaffected, and it knows you tried.
+
+  **Success** Unaffected, and it thinks the spell was harmless.
+
+  **Failure** Its attitude toward you improves one step (friendly, or helpful if friendly), and it can't act with hostility against you; hostility from you ends the spell. You can Dismiss it.
+
+  **Critical Failure** As failure, but helpful.
+spells.perfected-mind.name: 'Perfected Mind'
+spells.perfected-mind.description: |-
+  You attempt a new Will save against one mental effect on you that called for a Will save, keeping the new result unless it is worse. Once per effect.
+spells.protectors-sacrifice.name: "Protector's Sacrifice"
+spells.protectors-sacrifice.description: |-
+  **Trigger** An ally within 30 feet takes damage.
+
+  You take 3 of the damage in its place, ignoring your immunities, weaknesses and resistances; the ally still suffers the effect's other consequences.
+
+  **Heightened (+1)** 3 more.
+spells.whispering-quiet.name: 'Whispering Quiet'
+spells.whispering-quiet.description: |-
+  Voices in the area can't be heard more than 5 feet away without a Perception check against your spell DC, which can hinder auditory and linguistic effects; other sounds there are muffled too, except sonic ones.
+spells.dazzling-flash.name: 'Dazzling Flash'
+spells.dazzling-flash.description: |-
+  A blinding flash from your religious symbol: each creature in the cone attempts a Fortitude save.
+
+  **Critical Success** Unaffected.
+
+  **Success** Dazzled for 1 round.
+
+  **Failure** Blinded for 1 round and dazzled for 1 minute; it can rub its eyes (Interact) to end the blindness.
+
+  **Critical Failure** Blinded for 1 round and dazzled for 1 hour.
+
+  **Heightened (3rd)** A 30-foot cone.
+spells.agile-feet.name: 'Agile Feet'
+spells.agile-feet.description: |-
+  You gain a +5-foot status bonus to Speed and ignore difficult terrain, and you can Step, Stride or Tumble Through as part of casting it (or Burrow, Climb, Fly or Swim with that Speed).
+spells.sudden-shift.name: 'Sudden Shift'
+spells.sudden-shift.description: |-
+  **Trigger** An enemy misses you with a melee attack.
+
+  You Step and become concealed until the end of your next turn.
+spells.word-of-truth.name: 'Word of Truth'
+spells.word-of-truth.description: |-
+  You state something you believe true, in 25 words or fewer; your deity's symbol shines above you and all who see and hear you know you believe it. You gain a +2 status bonus to Diplomacy checks while it lasts. You can Dismiss it, and it ends if you start to say something you don't believe.
+spells.touch-of-obedience.name: 'Touch of Obedience'
+spells.touch-of-obedience.description: |-
+  A living creature attempts a Will save, then is immune for 1 hour.
+
+  **Critical Success** Unaffected.
+
+  **Success** Stupefied 1 until the end of your next turn.
+
+  **Failure** Stupefied 2 until the end of your next turn.
+
+  **Critical Failure** Stupefied 2 for 1 minute, and it falls prone.
+spells.touch-of-undeath.name: 'Touch of Undeath'
+spells.touch-of-undeath.description: |-
+  1d6 void damage to a living creature, with a basic Fortitude save. On a failure, vitality effects heal it only half as much for 1 round (1 minute on a critical failure).
+
+  **Heightened (+1)** The damage increases by 1d6.
+spells.tidal-surge.name: 'Tidal Surge'
+spells.tidal-surge.description: |-
+  A wave moves the target up to 10 feet along the ground or 20 feet through water. An unwilling target can attempt a Fortitude save, and isn't moved on a success.
+spells.appearance-of-wealth.name: 'Appearance of Wealth'
+spells.appearance-of-wealth.description: |-
+  An illusion of treasure fills the area. Each creature within 20 feet of it that wealth could tempt attempts a Will save; entering the area disbelieves it and ends the fascination.
+
+  **Critical Success** Unaffected.
+
+  **Success** Fascinated until it completes its first action on its next turn.
+
+  **Failure** Fascinated.
+spells.weapon-surge.name: 'Weapon Surge'
+spells.weapon-surge.description: |-
+  Your next Strike with the weapon you wield before the start of your next turn gets a +1 status bonus to the attack roll and 1d6 more spirit damage, and gains the sanctified trait; the spell then ends.
+
+  **Heightened (5th)** 2d6 spirit damage.
+
+  **Heightened (9th)** 3d6 spirit damage.
+fields.cleric.sanctification.name: 'Sanctification'
+fields.cleric.doctrine.name: 'Doctrine'
+situational.premonitionOfAvoidance.name: 'Against a hazard (Premonition of Avoidance)'
+situational.symbolRaised.name: 'Religious symbol raised (Raise Symbol)'
+situational.emblazonedWeapon.name: 'With your emblazoned weapon (Emblazon Armament)'
+situational.divineWeapon.name: 'After casting a divine spell from a slot this turn (Divine Weapon)'
+situational.divineWeaponOpposed.name: 'Divine Weapon against a creature of the opposing sanctification'
+tags.trait.shadow.name: 'Shadow'
+tags.trait.consecration.name: 'Consecration'
+
+# Advanced Domain.
+feats.cleric.advanced-domain.name: 'Advanced Domain'
+feats.cleric.advanced-domain.description: 'You gain the advanced domain spell of one of your domains whose initial domain spell you have, and 1 Focus Point. You can take this feat more than once, choosing a different advanced domain spell each time.'
+feats.cleric.advanced-domain.prerequisites.domain-initiate: 'Domain Initiate'
+feats.cleric.advanced-domain.choices.domain.prompt: 'Domain'
+feats.cleric.advanced-domain.choices.domain.options.air.name: 'Air (Disperse into Air)'
+feats.cleric.advanced-domain.choices.domain.options.ambition.name: 'Ambition (Competitive Edge)'
+feats.cleric.advanced-domain.choices.domain.options.cities.name: 'Cities (Pulse of Civilization)'
+feats.cleric.advanced-domain.choices.domain.options.confidence.name: 'Confidence (Delusional Pride)'
+feats.cleric.advanced-domain.choices.domain.options.creation.name: 'Creation (Artistic Flourish)'
+feats.cleric.advanced-domain.choices.domain.options.darkness.name: 'Darkness (Darkened Sight)'
+feats.cleric.advanced-domain.choices.domain.options.death.name: 'Death (Eradicate Undeath)'
+feats.cleric.advanced-domain.choices.domain.options.destruction.name: 'Destruction (Destructive Aura)'
+feats.cleric.advanced-domain.choices.domain.options.dreams.name: "Dreams (Dreamer's Call)"
+feats.cleric.advanced-domain.choices.domain.options.earth.name: 'Earth (Localized Quake)'
+feats.cleric.advanced-domain.choices.domain.options.family.name: 'Family (Unity)'
+feats.cleric.advanced-domain.choices.domain.options.fate.name: 'Fate (Tempt Fate)'
+feats.cleric.advanced-domain.choices.domain.options.fire.name: 'Fire (Flame Barrier)'
+feats.cleric.advanced-domain.choices.domain.options.freedom.name: 'Freedom (Word of Freedom)'
+feats.cleric.advanced-domain.choices.domain.options.healing.name: 'Healing (Rebuke Death)'
+feats.cleric.advanced-domain.choices.domain.options.indulgence.name: 'Indulgence (Take its Course)'
+feats.cleric.advanced-domain.choices.domain.options.knowledge.name: 'Knowledge (Know the Enemy)'
+feats.cleric.advanced-domain.choices.domain.options.luck.name: 'Luck (Lucky Break)'
+feats.cleric.advanced-domain.choices.domain.options.magic.name: 'Magic (Mystic Beacon)'
+feats.cleric.advanced-domain.choices.domain.options.might.name: 'Might (Enduring Might)'
+feats.cleric.advanced-domain.choices.domain.options.moon.name: 'Moon (Touch of the Moon)'
+feats.cleric.advanced-domain.choices.domain.options.nature.name: "Nature (Nature's Bounty)"
+feats.cleric.advanced-domain.choices.domain.options.nightmares.name: 'Nightmares (Shared Nightmare)'
+feats.cleric.advanced-domain.choices.domain.options.pain.name: 'Pain (Retributive Pain)'
+feats.cleric.advanced-domain.choices.domain.options.passion.name: 'Passion (Captivating Adoration)'
+feats.cleric.advanced-domain.choices.domain.options.perfection.name: 'Perfection (Perfected Body)'
+feats.cleric.advanced-domain.choices.domain.options.protection.name: "Protection (Protector's Sphere)"
+feats.cleric.advanced-domain.choices.domain.options.secrecy.name: 'Secrecy (Safeguard Secret)'
+feats.cleric.advanced-domain.choices.domain.options.sun.name: 'Sun (Vital Luminance)'
+feats.cleric.advanced-domain.choices.domain.options.travel.name: "Travel (Traveler's Transit)"
+feats.cleric.advanced-domain.choices.domain.options.trickery.name: "Trickery (Trickster's Twin)"
+feats.cleric.advanced-domain.choices.domain.options.truth.name: 'Truth (Glimpse the Truth)'
+feats.cleric.advanced-domain.choices.domain.options.tyranny.name: 'Tyranny (Commanding Lash)'
+feats.cleric.advanced-domain.choices.domain.options.undeath.name: 'Undeath (Malignant Sustenance)'
+feats.cleric.advanced-domain.choices.domain.options.water.name: 'Water (Downpour)'
+feats.cleric.advanced-domain.choices.domain.options.wealth.name: 'Wealth (Precious Metals)'
+feats.cleric.advanced-domain.choices.domain.options.zeal.name: 'Zeal (Zeal for Battle)'
+feats.cleric.advanced-domain.choices.domain.options.air.prerequisites.initial: "The air domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.ambition.prerequisites.initial: "The ambition domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.cities.prerequisites.initial: "The cities domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.confidence.prerequisites.initial: "The confidence domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.creation.prerequisites.initial: "The creation domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.darkness.prerequisites.initial: "The darkness domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.death.prerequisites.initial: "The death domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.destruction.prerequisites.initial: "The destruction domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.dreams.prerequisites.initial: "The dreams domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.earth.prerequisites.initial: "The earth domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.family.prerequisites.initial: "The family domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.fate.prerequisites.initial: "The fate domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.fire.prerequisites.initial: "The fire domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.freedom.prerequisites.initial: "The freedom domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.healing.prerequisites.initial: "The healing domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.indulgence.prerequisites.initial: "The indulgence domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.knowledge.prerequisites.initial: "The knowledge domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.luck.prerequisites.initial: "The luck domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.magic.prerequisites.initial: "The magic domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.might.prerequisites.initial: "The might domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.moon.prerequisites.initial: "The moon domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.nature.prerequisites.initial: "The nature domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.nightmares.prerequisites.initial: "The nightmares domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.pain.prerequisites.initial: "The pain domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.passion.prerequisites.initial: "The passion domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.perfection.prerequisites.initial: "The perfection domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.protection.prerequisites.initial: "The protection domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.secrecy.prerequisites.initial: "The secrecy domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.sun.prerequisites.initial: "The sun domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.travel.prerequisites.initial: "The travel domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.trickery.prerequisites.initial: "The trickery domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.truth.prerequisites.initial: "The truth domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.tyranny.prerequisites.initial: "The tyranny domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.undeath.prerequisites.initial: "The undeath domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.water.prerequisites.initial: "The water domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.wealth.prerequisites.initial: "The wealth domain's initial domain spell"
+feats.cleric.advanced-domain.choices.domain.options.zeal.prerequisites.initial: "The zeal domain's initial domain spell"

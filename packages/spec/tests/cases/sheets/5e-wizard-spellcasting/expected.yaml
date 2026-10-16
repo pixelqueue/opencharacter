@@ -1,0 +1,41 @@
+values:
+  5e-srd-5.1:spellcasting.wizard.dc: { value: 14 } # 8 + proficiency 3 + int 3
+  5e-srd-5.1:spellcasting.wizard.attack: { value: 6 }
+  5e-srd-5.1:spellcasting.casterLevel: { value: 5 }
+  5e-srd-5.1:spellSlots.level1.max: { value: 4 }
+  5e-srd-5.1:spellSlots.level2.max: { value: 3 }
+  5e-srd-5.1:spellSlots.level3.max: { value: 2 }
+  5e-srd-5.1:spellSlots.level4.max: { value: 0 }
+  # Cantrips (4 at level 5) and prepared spells (up to int 3 + 5 = 8), from the spellbook
+  5e-srd-5.1:spells.wizard:
+    value:
+      - 5e-srd-5.1:spells.fire-bolt
+      - 5e-srd-5.1:spells.fireball
+      - 5e-srd-5.1:spells.light
+      - 5e-srd-5.1:spells.mage-hand
+      - 5e-srd-5.1:spells.magic-missile
+      - 5e-srd-5.1:spells.ray-of-frost
+      - 5e-srd-5.1:spells.shield
+  # The spellbook: six 1st-level spells, two per level after the first, and one copied
+  5e-srd-5.1:spells.wizardBook:
+    value:
+      - 5e-srd-5.1:spells.alarm
+      - 5e-srd-5.1:spells.burning-hands
+      - 5e-srd-5.1:spells.counterspell
+      - 5e-srd-5.1:spells.detect-magic
+      - 5e-srd-5.1:spells.feather-fall
+      - 5e-srd-5.1:spells.fireball
+      - 5e-srd-5.1:spells.identify
+      - 5e-srd-5.1:spells.invisibility
+      - 5e-srd-5.1:spells.mage-armor
+      - 5e-srd-5.1:spells.magic-missile
+      - 5e-srd-5.1:spells.misty-step
+      - 5e-srd-5.1:spells.scorching-ray
+      - 5e-srd-5.1:spells.shield
+      - 5e-srd-5.1:spells.sleep
+      - 5e-srd-5.1:spells.web
+# Prepared spells are a range (0 to 8), so fewer than the maximum isn't pending.
+pending:
+  # Prepared spells are asked until the full number is picked.
+  - { entry: wizard, choice: ['5e-srd-5.1:features.wizard.spellcasting/spells'] }
+issues: []

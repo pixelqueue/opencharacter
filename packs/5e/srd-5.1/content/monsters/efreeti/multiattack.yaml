@@ -1,0 +1,54 @@
+id: monsters.efreeti.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: scimitar }, { id: flame }]
+        recommend: "'scimitar'"
+      - id: scimitar1
+        kind: action
+        when: "steps.form.picked == 'scimitar'"
+        use: monster-attack
+        source: "'monsters.efreeti.scimitar'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: scimitar2
+        kind: action
+        when: "steps.form.picked == 'scimitar'"
+        use: monster-attack
+        source: "'monsters.efreeti.scimitar'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: hurlFlame1
+        kind: action
+        when: "steps.form.picked == 'flame'"
+        use: monster-attack
+        source: "'monsters.efreeti.hurl-flame'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: hurlFlame2
+        kind: action
+        when: "steps.form.picked == 'flame'"
+        use: monster-attack
+        source: "'monsters.efreeti.hurl-flame'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.scimitar1) && steps.scimitar1.result == 'hit' ? 1 : 0)
+              + (has(steps.scimitar2) && steps.scimitar2.result == 'hit' ? 1 : 0)
+              + (has(steps.hurlFlame1) && steps.hurlFlame1.result == 'hit' ? 1 : 0)
+              + (has(steps.hurlFlame2) && steps.hurlFlame2.result == 'hit' ? 1 : 0)

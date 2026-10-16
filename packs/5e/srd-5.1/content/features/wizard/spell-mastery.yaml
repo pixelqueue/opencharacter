@@ -1,0 +1,9 @@
+id: features.wizard.spell-mastery
+type: feature
+choices:
+  - id: level
+    slots: [1, 2]
+    pick: 1
+    from: { type: spell, where: 'item.level == slot && item.id in spells.wizardBook' }
+    effects:
+      - { target: spells.wizard, op: grant, value: { formula: pick.id } }

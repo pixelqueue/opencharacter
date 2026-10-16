@@ -1,0 +1,25 @@
+id: magic-items.potion-of-speed
+type: magicItem
+fields:
+  category: potion
+  rarity: very-rare
+  lasting: true
+  spells: [spells.haste]
+effects:
+  - { target: combat.ac, op: add, value: 2, scope: applied, duration: { amount: 1, unit: minute } }
+  - {
+      target: combat.speed,
+      op: multiply,
+      value: 2,
+      scope: applied,
+      duration: { amount: 1, unit: minute },
+    }
+  - {
+      target: { rolls: [save.dex] },
+      op: rollModifier,
+      value: { kind: advantage },
+      scope: applied,
+      duration: { amount: 1, unit: minute },
+    }
+actions:
+  - use: drink-potion

@@ -1,0 +1,40 @@
+description: '`participant` is bound only in an `each` step, and `participants.<role>` names only declared roles and fields'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          hp.current: { type: integer, input: true, default: 10 }
+        actions:
+          - id: strike
+            participants:
+              target:
+                fields:
+                  ac: { type: integer, default: 10 }
+            steps:
+              - id: roll
+                kind: roll
+                parts:
+                  - dice: 1d20
+                  - value: participant.ac
+              - id: hit
+                kind: changes
+                when: participants.target[0].armour > 0
+                to: target
+                changes:
+                  - { type: adjust, field: hp.current, by: -1 }
+              - id: ok
+                kind: changes
+                each: target
+                when: steps.roll.total >= participant.ac
+                to: target
+                changes:
+                  - { type: adjust, field: hp.current, by: -2 }
+      content: []

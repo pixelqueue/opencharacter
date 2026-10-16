@@ -1,0 +1,15 @@
+id: worn.genius-diadem
+type: worn
+tags: [trait.apex, trait.arcane, trait.intelligent, trait.rare]
+fields:
+  level: 18
+  bulk: 0.1
+  usage: circlet
+effects:
+  - { target: attributes.int.mod, op: add, value: 1, when: 'self.equipped && self.apex' }
+  - { target: attributes.int.mod, op: atLeast, value: 4, when: 'self.equipped && self.apex' }
+  - target: { rolls: [skill-action.recall-knowledge] }
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped'

@@ -1,0 +1,13 @@
+id: traits.fey-ancestry
+type: trait
+effects:
+  - { target: items.charmSave, op: add, value: 1 }
+  - target: { rolls: [save] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: situational.charmSave
+immuneTo:
+  - id: magical-sleep
+    query:
+      type: condition
+      where: 'item.id == @conditions.unconscious && entry.magical'

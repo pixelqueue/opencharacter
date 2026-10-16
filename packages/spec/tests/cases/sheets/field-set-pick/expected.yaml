@@ -1,0 +1,38 @@
+# Dexterity: reflex, acrobatics and the aptitude (its computed tag is attr.dex) get +1; ac isn't a
+# check. Slot 2 picks Constitution: fortitude, the Constitution save, gets +2.
+values:
+  test-field-sets:reflex: { value: 3 }
+  test-field-sets:acrobatics: { value: 5 }
+  test-field-sets:aptitude: { value: 6 }
+  test-field-sets:ac: { value: 10 }
+  test-field-sets:fortitude:
+    value: 5
+    breakdown:
+      - {
+          op: add,
+          value: 2,
+          source: { type: item, id: test-field-sets:features.knack, entry: knack },
+        }
+effects:
+  - {
+      source: { type: item, id: test-field-sets:features.knack, entry: knack },
+      target: test-field-sets:reflex,
+      op: add,
+    }
+  - {
+      source: { type: item, id: test-field-sets:features.knack, entry: knack },
+      target: test-field-sets:acrobatics,
+      op: add,
+    }
+  - {
+      source: { type: item, id: test-field-sets:features.knack, entry: knack },
+      target: test-field-sets:aptitude,
+      op: add,
+    }
+  - {
+      source: { type: item, id: test-field-sets:features.knack, entry: knack },
+      target: test-field-sets:fortitude,
+      op: add,
+    }
+issues: []
+errors: []

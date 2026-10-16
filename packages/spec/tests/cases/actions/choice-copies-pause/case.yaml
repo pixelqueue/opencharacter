@@ -1,0 +1,65 @@
+description: 'A choice over copies, paused: the offered copies are instance IDs; without `recommend` or `prefer` none is recommended; no #done without `repeat`'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          gem:
+            carried: true
+            fields:
+              color: { type: enum, values: [red, blue] }
+            state:
+              charge: { type: integer, min: 0, max: 3, default: 3 }
+          wand:
+            carried: true
+            fields:
+              color: { type: enum, values: [red, blue] }
+            state:
+              power: { type: integer, default: 2 }
+      content:
+        - { id: gems.ruby, type: gem, fields: { color: red } }
+        - { id: gems.sapphire, type: gem, fields: { color: blue } }
+        - id: wands.red
+          type: wand
+          fields: { color: red }
+          actions:
+            - id: recharge
+              steps:
+                - id: gem
+                  kind: choice
+                  options:
+                    copies: { type: gem, where: item.color == action.item.color && self.charge < 3 }
+                  changes:
+                    - { type: adjustState, entry: picked, key: charge, by: 3 - picked.self.charge }
+                - id: done
+                  kind: outcome
+                  data:
+                    gem: steps.gem.picked
+                    was: steps.gem.self.charge
+                    color: steps.gem.item.color
+            - id: drain
+              steps:
+                - id: drain
+                  kind: changes
+                  changes:
+                    - type: adjustState
+                      copies:
+                        type: gem
+                        where: item.color == action.item.color && self.charge > 0 && action.step.id == 'drain'
+                      limit: 1
+                      key: charge
+                      by: -1
+                    - type: adjustState
+                      copies: { type: gem, where: item.color == action.item.color }
+                      key: charge
+                      by: min(action.self.power, self.charge) * -1
+input:
+  action: { id: 'test-pack:wands.red#recharge', entry: wand-1 }
+  policy: { choices: pause }

@@ -1,0 +1,27 @@
+id: spells.zealous-conviction
+type: spell
+tags:
+  [
+    trait.concentrate,
+    trait.emotion,
+    trait.manipulate,
+    trait.mental,
+    tradition.divine,
+    tradition.occult,
+  ]
+fields:
+  rank: 6
+  cast: two
+  range: 30
+  targets: 10
+  duration: minutes
+  durationAmount: 10
+  applyTo: ally
+effects:
+  - target:
+      rolls: [save.will]
+    op: add
+    value: 'self.rank >= 9 ? 3 : 2'
+    stackKey: status-bonus
+    when: situational.againstMental
+    scope: applied

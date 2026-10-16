@@ -1,0 +1,15 @@
+# On the proposed sheet the fighter is 3rd level, so its martial archetype is pending; the SRD's
+# only one is the Champion. The step needs no text of its own: the choice names the question.
+status: paused
+needs:
+  step: picks
+  action: 5e-srd-5.1:level-up
+  kind: choice
+  options: [5e-srd-5.1:subclasses.champion, '#done']
+  choice:
+    path: { entry: fighter, choice: [martial-archetype] }
+    owner: 5e-srd-5.1:classes.fighter
+    id: martial-archetype
+log:
+  - { step: class, kind: choice, by: app, option: 5e-srd-5.1:classes.fighter }
+  - { step: hitPoints, kind: choice, by: app, option: fixed }

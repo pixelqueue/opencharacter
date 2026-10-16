@@ -1,0 +1,40 @@
+# The target is invisible, but Feral Senses removes the disadvantage: one d20 (9) + Dexterity 4 +
+# proficiency 6 = 19 hits AC 14. Longbow 1d8 (5) + 4 = 9 piercing; one arrow spent.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 19 }
+proposedChanges:
+  - to: self
+    step: ammo
+    change: { type: adjustQuantity, entry: arrows, by: -1 }
+  - {
+      to: target,
+      character: stalker,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -9,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              ranged,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.piercing,
+            ],
+        },
+    }
+log:
+  - step: ammo
+    action: 5e-srd-5.1:weapon-attack
+    kind: choice
+    by: engine
+    option: arrows
+  - { step: attack, kind: dice, by: engine, faces: [9], total: 19 }
+  - { step: damage, kind: dice, by: engine, faces: [5], total: 9 }

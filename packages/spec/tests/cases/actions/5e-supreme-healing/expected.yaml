@@ -1,0 +1,22 @@
+# No dice: 1d8 at its highest is 8, + wis 5, + Disciple of Life 2 + slot 1 = 16.
+status: finished
+outcome:
+  result: cast
+  data:
+    slot: 1
+    spellcastingClass: cleric
+    metamagic: none
+    dc: 19
+    save: ''
+    halfOnSave: false
+    damage: 0
+    healing: 16
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change: { type: adjust, field: 5e-srd-5.1:spellSlots.level1.used, by: 1 }
+  - to: target
+    step: restore
+    change: { type: adjust, field: 5e-srd-5.1:hp.current, by: 16, tags: [healing] }

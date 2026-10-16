@@ -1,0 +1,50 @@
+standardCopies:
+  - { type: gear, where: "'standard' in item.tags" }
+
+contentTypes:
+  gear:
+    carried: true
+    equippable: true
+    fields:
+      load: { type: integer, required: true }
+      kind:
+        {
+          type: enum,
+          values: [none, documents, gear, implements, supplies, tools, weapons],
+          default: none,
+        }
+    computed:
+      quality:
+        type: integer
+        formula: >-
+          ('fine' in item.tags ? 1 : 0) + (!has(links.crew) ? 0 : links.crew.tier
+            + (item.kind == 'documents' ? links.crew.upgrades.quality.documents
+              : item.kind == 'gear' ? links.crew.upgrades.quality.gear
+              : item.kind == 'implements' ? links.crew.upgrades.quality.implements
+              : item.kind == 'supplies' ? links.crew.upgrades.quality.supplies
+              : item.kind == 'tools' ? links.crew.upgrades.quality.tools
+              : item.kind == 'weapons' ? links.crew.upgrades.quality.weapons
+              : 0))
+
+fields:
+  load.selected:
+    { type: enum, values: [light, normal, heavy, encumbered], input: true, default: normal }
+  load.limit:
+    type: integer
+    formula: "load.selected == 'light' ? load.light : load.selected == 'normal' ? load.normal : load.selected == 'heavy' ? load.heavy : load.encumbered"
+  load.used:
+    type: integer
+    formula: >-
+      sumCopies(has(copy.fields.load) ? copy.fields.load : copy.state.load,
+      copy.equipped && (has(copy.fields.load) || has(copy.state.load))) - load.free
+
+constraints:
+  - id: load-limit
+    check: load.used <= load.limit
+    data: { used: load.used, limit: load.limit }
+
+display:
+  fields:
+    load.selected: { groups: [load], priority: 0, input: { widget: select } }
+    load.used: { groups: [load], priority: 0, with: [{ field: load.limit, as: max }] }
+    load.limit: { groups: [load], priority: 0 }

@@ -1,0 +1,13 @@
+# The input values are might 1, wits 0 and grace 0, each with max 5.
+status: paused
+needs:
+  step: points
+  action: test-pack:free
+  kind: allocate
+  allocate:
+    fields:
+      - { id: 'test-pack:stats.might', value: 1, limit: 4 }
+      - { id: 'test-pack:stats.wits', value: 1, limit: 5 }
+      - { id: 'test-pack:stats.grace', value: 0, limit: 5 }
+    budget: 3
+    spend: all

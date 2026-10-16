@@ -1,0 +1,11 @@
+# Healing from a hit die (tagged healing.hit-die) is halved, rounded down: 7 -> 3. Other healing is
+# whole. 10 + 3 + 4 = 17.
+ok: true
+issues: []
+adjustments:
+  - { field: 5e-srd-5.1:hp.current, by: 3, requested: 7, taken: 3, reason: requested }
+  - { field: 5e-srd-5.1:hp.current, by: 4, requested: 4, taken: 4, reason: requested }
+character:
+  values:
+    5e-srd-5.1:hp.base: 30
+    5e-srd-5.1:hp.current: 17

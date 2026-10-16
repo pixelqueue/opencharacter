@@ -1,0 +1,38 @@
+id: worn.messengers-ring-greater
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 17
+  price: 13500
+  activation: one-minute
+  frequency: once-per-day
+grants:
+  - { item: spells.message, when: 'self.equipped && self.invested' }
+  - { item: spells.animal-messenger, when: 'self.equipped && self.invested' }
+  - { item: spells.sending, when: 'self.equipped && self.invested' }
+effects:
+  - target: skills.diplomacy.mod
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - {
+      target: spells.innate,
+      op: grant,
+      value: { item: spells.message },
+      when: 'self.equipped && self.invested',
+    }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.animal-messenger && self.used < 1'
+    value:
+      id: animal-messenger
+      flags: { itemPaid: true, rank: 2 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.sending'
+    value:
+      id: sending
+      flags: { itemPaid: true, rank: 5 }

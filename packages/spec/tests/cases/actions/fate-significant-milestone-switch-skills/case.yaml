@@ -1,0 +1,12 @@
+description: 'Fate Core: a significant milestone passes the two skills to its minor milestone, which switches them, and banks the skill point'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:significant-milestone }
+  params: { skillA: skills.athletics, skillB: skills.will, recover: false }
+  policy: { choices: pause, allocations: pause }
+answers:
+  - option: skills
+  - amounts: {}

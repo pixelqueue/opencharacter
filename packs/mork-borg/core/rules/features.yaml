@@ -1,0 +1,453 @@
+fields:
+  features.wizardTeeth: { type: boolean, formula: false }
+  features.cowardsJab: { type: boolean, formula: false }
+  features.filthyFingersmith: { type: boolean, formula: false }
+  features.gobLobber: { type: boolean, formula: false }
+  features.escapingFate: { type: boolean, formula: false }
+  features.excretalStealth: { type: boolean, formula: false }
+  features.dodgingDeath: { type: boolean, formula: false }
+  features.masterOfFate: { type: boolean, formula: false }
+  features.bookOfBoilingBlood: { type: boolean, formula: false }
+  features.speakerOfTruths: { type: boolean, formula: false }
+  features.invisibleCollege: { type: boolean, formula: false }
+  features.listOfSins: { type: boolean, formula: false }
+  features.nechrubelBible: { type: boolean, formula: false }
+  features.stones: { type: boolean, formula: false }
+  features.horn: { type: boolean, formula: false }
+
+  teeth.charges: { type: integer, input: true, default: 0, min: 0, max: 4 }
+
+  daily.boilingBlood: { type: boolean, input: true, default: false }
+  daily.truths: { type: integer, input: true, default: 0, min: 0, max: 2 }
+  daily.college: { type: boolean, input: true, default: false }
+  daily.bible: { type: boolean, input: true, default: false }
+  daily.horn: { type: boolean, input: true, default: false }
+  daily.stones: { type: boolean, input: true, default: false }
+
+  tests.truth: { type: boolean, input: true, default: false }
+  tests.horn: { type: boolean, input: true, default: false }
+
+display:
+  fields:
+    features.wizardTeeth: { hidden: true }
+    features.cowardsJab: { hidden: true }
+    features.filthyFingersmith: { hidden: true }
+    features.gobLobber: { hidden: true }
+    features.escapingFate: { hidden: true }
+    features.excretalStealth: { hidden: true }
+    features.dodgingDeath: { hidden: true }
+    features.masterOfFate: { hidden: true }
+    features.bookOfBoilingBlood: { hidden: true }
+    features.speakerOfTruths: { hidden: true }
+    features.invisibleCollege: { hidden: true }
+    features.listOfSins: { hidden: true }
+    features.nechrubelBible: { hidden: true }
+    features.stones: { hidden: true }
+    features.horn: { hidden: true }
+    teeth.charges:
+      { groups: [resources], priority: 1, showWhen: features.wizardTeeth, input: { widget: track } }
+    daily.boilingBlood: { groups: [resources], priority: 1, showWhen: features.bookOfBoilingBlood }
+    daily.truths: { groups: [resources], priority: 1, showWhen: features.speakerOfTruths }
+    daily.college: { groups: [resources], priority: 1, showWhen: features.invisibleCollege }
+    daily.bible: { groups: [resources], priority: 1, showWhen: features.nechrubelBible }
+    daily.horn: { groups: [resources], priority: 1, showWhen: features.horn }
+    daily.stones: { groups: [resources], priority: 1, showWhen: features.stones }
+    tests.truth: { groups: [condition], priority: 1, showWhen: tests.truth }
+    tests.horn: { groups: [condition], priority: 1, showWhen: tests.horn }
+
+situational:
+  - id: teeth
+    type: boolean
+    default: false
+    rolls: [damage.weapon]
+    available: teeth.charges > 0
+  - id: sinner
+    type: boolean
+    default: false
+    rolls: [defense]
+    available: features.listOfSins
+    effects:
+      - { target: { rolls: [defense] }, op: add, value: 2 }
+
+followUps:
+  - id: escaping-fate
+    on: { field: omens.current }
+    when: features.escapingFate && change.by < 0
+    action: escape-fate
+    params:
+      spent: -change.by
+  - id: dodging-death
+    becomes: hp.current < 0
+    when: features.dodgingDeath
+    action: dodge-death
+
+actions:
+  - id: rattle-teeth
+    tags: [attack]
+    available: features.wizardTeeth
+    results: [rolled]
+    steps:
+      - { id: teeth, kind: roll, tags: [attack], parts: [{ dice: 4d6 }] }
+      - id: charge
+        kind: changes
+        to: self
+        changes:
+          - { type: set, field: teeth.charges, value: 'count(steps.teeth.faces, 6)' }
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          charges: count(steps.teeth.faces, 6)
+
+  - id: escape-fate
+    tags: [test]
+    available: features.escapingFate
+    params:
+      spent: { type: integer, default: 1, min: 1 }
+    results: [rolled]
+    steps:
+      - id: fate
+        kind: roll
+        tags: [daily]
+        parts:
+          - dice: dieOf(1d2, params.spent)
+      - id: keep
+        kind: changes
+        when: count(steps.fate.faces, 1) > 0
+        to: self
+        changes:
+          - { type: adjust, field: omens.current, by: 'count(steps.fate.faces, 1)' }
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          kept: count(steps.fate.faces, 1)
+
+  - id: dodge-death
+    tags: [broken]
+    available: features.dodgingDeath && hp.current < 0
+    results: [survived, dead]
+    steps:
+      - { id: fate, kind: roll, tags: [broken], parts: [{ dice: 1d2 }] }
+      - id: recover
+        kind: roll
+        when: steps.fate.total == 1
+        tags: [healing]
+        parts: [{ dice: 1d4 }]
+      - id: wake
+        kind: changes
+        when: has(steps.recover)
+        to: self
+        changes:
+          - { type: set, field: hp.current, value: 'min(hp.max, steps.recover.total)' }
+      - id: result
+        kind: outcome
+        result: "has(steps.recover) ? 'survived' : 'dead'"
+        data:
+          rounds: 'has(steps.recover) ? 10 : 0'
+
+  - id: fingersmith
+    tags: [test]
+    available: features.filthyFingersmith
+    results: { bands: test }
+    steps:
+      - id: check
+        kind: action
+        use: test
+        params: { ability: "'abilities.agility'", dr: 8 }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+
+  - id: gob-lob
+    tags: [attack]
+    available: features.gobLobber
+    participants:
+      ally: {}
+      enemy: {}
+    results: { bands: test }
+    steps:
+      - id: check
+        kind: action
+        use: test
+        tags: [attack]
+        params: { ability: "'abilities.presence'", dr: 8, combat: true }
+      - id: blind
+        kind: roll
+        when: "steps.check.result == 'success' || steps.check.result == 'crit'"
+        tags: [attack]
+        parts: [{ dice: 1d4 }]
+      - id: allies
+        kind: action
+        when: has(steps.blind)
+        each: ally
+        as: participant
+        use: test
+        params: { ability: '@abilities.toughness', dr: 10 }
+      - id: enemies
+        kind: action
+        when: has(steps.blind)
+        each: enemy
+        as: participant
+        use: test
+        params: { ability: '@abilities.toughness', dr: 12 }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          blindedRounds: 'has(steps.blind) ? steps.blind.total : 0'
+
+  - id: find-the-way
+    tags: [test]
+    available: features.masterOfFate
+    results: { bands: test }
+    steps:
+      - id: check
+        kind: action
+        use: test
+        params: { ability: "'abilities.presence'", dr: 8 }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+
+  - id: boiling-blood
+    tags: [power]
+    available: features.bookOfBoilingBlood && !daily.boilingBlood
+    results: [read]
+    steps:
+      - id: spend
+        kind: changes
+        to: self
+        changes:
+          - { type: set, field: daily.boilingBlood, value: true }
+      - { id: slayers, kind: roll, tags: [power], parts: [{ dice: 1d2 }] }
+      - { id: loyalty, kind: roll, tags: [power], parts: [{ dice: 1d6 }] }
+      - id: result
+        kind: outcome
+        result: "'read'"
+        data:
+          slayers: steps.slayers.total
+          turn: steps.loyalty.total >= 5
+          enemyDr: 12
+
+  - id: speak-truth
+    tags: [power]
+    available: features.speakerOfTruths && daily.truths < 2
+    participants:
+      recipient: { min: 1, max: 1 }
+    results: [spoken]
+    steps:
+      - id: spend
+        kind: changes
+        to: self
+        changes:
+          - { type: adjust, field: daily.truths, by: 1 }
+      - id: clarity
+        kind: changes
+        to: recipient
+        changes:
+          - { type: set, field: tests.truth, value: true }
+      - id: result
+        kind: outcome
+        result: "'spoken'"
+
+  # Sacred on a d4 of 1-2, unclean on 3-4, then a d10 on that kind's table in the book's order.
+  - id: invisible-college
+    tags: [power]
+    available: features.invisibleCollege && !daily.college
+    results: [summoned]
+    steps:
+      - id: spend
+        kind: changes
+        to: self
+        changes:
+          - { type: set, field: daily.college, value: true }
+      - { id: count, kind: roll, tags: [power], parts: [{ dice: 1d2 }] }
+      - { id: kind, kind: roll, tags: [power], parts: [{ dice: 1d4 }] }
+      - id: table
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              table: >-
+                steps.kind.total <= 2 ? [
+                  @scrolls.sacred.grace-of-a-dead-saint,
+                  @scrolls.sacred.grace-for-a-sinner,
+                  @scrolls.sacred.whispers-pass-the-gate,
+                  @scrolls.sacred.aegis-of-sorrow,
+                  @scrolls.sacred.unmet-fate,
+                  @scrolls.sacred.bestial-speech,
+                  @scrolls.sacred.false-dawn-nights-chariot,
+                  @scrolls.sacred.hermetic-step,
+                  @scrolls.sacred.roskoes-consuming-glare,
+                  @scrolls.sacred.enochian-syntax
+                ] : [
+                  @scrolls.unclean.palms-open-the-southern-gate,
+                  @scrolls.unclean.tongue-of-eris,
+                  @scrolls.unclean.te-le-kin-esis,
+                  @scrolls.unclean.lucy-fires-levitation,
+                  @scrolls.unclean.daemon-of-capillaries,
+                  @scrolls.unclean.nine-violet-signs-unknot-the-storm,
+                  @scrolls.unclean.metzhuotl-blind-your-eye,
+                  @scrolls.unclean.eyelid-blinds-the-mind,
+                  @scrolls.unclean.death,
+                  @scrolls.unclean.foul-psychopomp
+                ]
+      - { id: first, kind: roll, tags: [power], parts: [{ dice: 1d10 }] }
+      - id: scroll1
+        kind: choice
+        options:
+          content:
+            type: scroll
+            where: "item.kind == (steps.kind.total <= 2 ? 'sacred' : 'unclean')"
+        recommend: flags.table[steps.first.total - 1]
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { summoned: true } }
+      - id: second
+        kind: roll
+        when: steps.count.total == 2
+        tags: [power]
+        parts: [{ dice: 1d10 }]
+      - id: scroll2
+        kind: choice
+        when: has(steps.second)
+        options:
+          content:
+            type: scroll
+            where: "item.kind == (steps.kind.total <= 2 ? 'sacred' : 'unclean')"
+        recommend: flags.table[steps.second.total - 1]
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { summoned: true } }
+      - id: result
+        kind: outcome
+        result: "'summoned'"
+        data:
+          count: steps.count.total
+          kind: "steps.kind.total <= 2 ? 'sacred' : 'unclean'"
+
+  - id: blow-horn
+    tags: [test]
+    available: features.horn && !daily.horn
+    participants:
+      recipient: { max: 1 }
+    results: { bands: test }
+    steps:
+      - id: spend
+        kind: changes
+        to: self
+        changes:
+          - { type: set, field: daily.horn, value: true }
+      - id: check
+        kind: action
+        use: test
+        params: { ability: "'abilities.presence'", dr: 12 }
+      - id: inspire
+        kind: changes
+        when: "steps.check.result == 'success' || steps.check.result == 'crit'"
+        to: recipient
+        changes:
+          - { type: set, field: tests.horn, value: true }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+
+  - id: cast-stones
+    tags: [test]
+    available: features.stones && !daily.stones
+    results: { bands: test }
+    steps:
+      - id: check
+        kind: action
+        use: test
+        params: { ability: "'abilities.presence'", dr: 10 }
+      - id: blind
+        kind: changes
+        when: "steps.check.result == 'failure' || steps.check.result == 'fumble'"
+        to: self
+        changes:
+          - { type: set, field: daily.stones, value: true }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+
+  - id: read-sins
+    tags: [test]
+    available: features.listOfSins
+    results: { bands: test }
+    steps:
+      - id: check
+        kind: action
+        use: test
+        params: { ability: "'abilities.presence'", dr: 10 }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+
+  - id: read-bible
+    tags: [power]
+    available: features.nechrubelBible && !daily.bible
+    results: [blessed, haunted]
+    steps:
+      - id: spend
+        kind: changes
+        to: self
+        changes:
+          - { type: set, field: daily.bible, value: true }
+      - { id: omen, kind: roll, tags: [power], parts: [{ dice: 1d6 }] }
+      - id: visions
+        kind: roll
+        when: steps.omen.total % 2 == 1
+        tags: [power]
+        parts: [{ dice: 1d3 }]
+      - id: result
+        kind: outcome
+        result: "steps.omen.total % 2 == 0 ? 'blessed' : 'haunted'"
+        data:
+          hallucinations: 'has(steps.visions) ? steps.visions.total : 0'
+
+  - id: cowards-jab
+    tags: [attack]
+    available: >-
+      features.cowardsJab && self.equipped && !self.broken
+        && !(has(item.twoHanded) && item.twoHanded) && !(has(item.ranged) && item.ranged)
+    results: { bands: test }
+    steps:
+      - id: check
+        kind: action
+        use: test
+        tags: [attack]
+        params: { ability: "'abilities.agility'", dr: 10, combat: true }
+      # An omen spent on the hit only counts if one is left after any the test spent.
+      - id: maximum
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              omen: situational.omenDamage && omens.current > 0
+      - id: damage
+        kind: roll
+        when: "steps.check.result == 'success' || steps.check.result == 'crit'"
+        tags: [damage.weapon]
+        parts:
+          - dice: 'flags.omen ? maxOf(item.damage) : item.damage'
+          - value: 3
+      - id: spendOmen
+        kind: changes
+        when: has(steps.damage) && flags.omen
+        to: self
+        changes:
+          - { type: adjust, field: omens.current, by: -1 }
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - { type: adjust, field: hp.current, by: -steps.damage.total, tags: [damage] }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          damage: 'has(steps.damage) ? steps.damage.total : 0'

@@ -1,0 +1,22 @@
+id: armor.specific.warleaders-bulwark
+type: armor
+extends: armor.breastplate
+tags: [trait.invested, trait.magical]
+fields:
+  price: 1000
+effects:
+  - target: skills.diplomacy.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { rolls: [skill-action.hide, skill-action.sneak, skill-action.impersonate] }
+    op: add
+    value: -2
+    when: 'self.equipped && self.invested'
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.armor-potency-1
+    copies: { type: armor, where: 'item.id == @armor.specific.warleaders-bulwark' }
+  - template: runes.resilient
+    copies: { type: armor, where: 'item.id == @armor.specific.warleaders-bulwark' }

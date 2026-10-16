@@ -1,0 +1,26 @@
+fields:
+  trauma.response: { type: string, formula: "'none'" }
+  trauma.used: { type: boolean, input: true, default: false }
+
+display:
+  fields:
+    trauma.response: { hidden: true }
+    trauma.used:
+      groups: [condition]
+      priority: 1
+      showWhen: "trauma.response == 'panic-advantage'"
+      input: { widget: checkbox }
+
+contentTypes:
+  class:
+    carried: false
+    copies: { max: 1 }
+    fields:
+      trauma:
+        { type: enum, values: [panic-fear, fear-disadvantage, sanity-stress, panic-advantage] }
+    effects:
+      - id: trauma
+        target: trauma.response
+        op: set
+        value: item.trauma
+        when: has(item.trauma)

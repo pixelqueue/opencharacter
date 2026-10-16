@@ -1,0 +1,11 @@
+id: fighting-styles.dueling
+type: fightingStyle
+effects:
+  # +2 damage with a melee weapon held in one hand and no other weapons.
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 2
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      has(roll.item) && roll.item.range == 'melee' && roll.self.wielding == 'one-handed'
+        && countCopies(copy.type == 'weapon' && copy.equipped) == 1

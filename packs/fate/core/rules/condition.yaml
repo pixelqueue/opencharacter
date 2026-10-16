@@ -1,0 +1,497 @@
+contentTypes:
+  consequence:
+    nameFrom: label
+    state:
+      slot:
+        { type: enum, values: [mild, moderate, severe, mild-physical, mild-mental], default: mild }
+      label: { type: string, default: '' }
+      harm: { type: enum, values: [physical, mental], default: physical }
+      recovering: { type: boolean, default: false }
+      waited: { type: integer, default: 0, min: 0 }
+      conflict: { type: boolean, default: false }
+    actions:
+      - id: recover
+        available: '!self.recovering'
+        params:
+          skill: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+          renamed: { type: string, default: '' }
+        participants:
+          healer: { max: 1 }
+        results: [recovering, failed]
+        steps:
+          - id: difficulty
+            kind: branch
+            cases:
+              - when: true
+                flags:
+                  opposition: >-
+                    (self.slot == 'severe' ? 6 : self.slot == 'moderate' ? 4 : 2)
+                      + (has(participants.healer) && size(participants.healer) > 0 ? 0 : 2)
+          - id: treat
+            kind: action
+            each: healer
+            as: participant
+            use: overcome
+            params: { opposition: flags.opposition }
+          - id: yourself
+            kind: action
+            when: '!(has(participants.healer) && size(participants.healer) > 0) && has(params.skill)'
+            use: overcome
+            params: { skill: params.skill.id, opposition: flags.opposition }
+          - id: unskilled
+            kind: action
+            when: '!(has(participants.healer) && size(participants.healer) > 0) && !has(params.skill)'
+            use: overcome
+            params: { opposition: flags.opposition }
+          - id: treated
+            kind: branch
+            cases:
+              - when: true
+                flags:
+                  band: >-
+                    has(steps.treat) && size(steps.treat) > 0 && has(steps.treat[0].result)
+                      ? steps.treat[0].result
+                      : has(steps.yourself) ? steps.yourself.result
+                      : has(steps.unskilled) ? steps.unskilled.result : 'fail'
+          - id: begin
+            kind: changes
+            when: "flags.band != 'fail'"
+            changes:
+              - { type: setState, entry: self, key: recovering, value: true }
+              - {
+                  type: setState,
+                  entry: self,
+                  key: label,
+                  value: params.renamed,
+                  when: "params.renamed != ''",
+                }
+          - id: result
+            kind: outcome
+            result: "flags.band == 'fail' ? 'failed' : 'recovering'"
+            data: { difficulty: flags.opposition, roll: flags.band }
+
+fields:
+  stress.physical.boxes:
+    type: integer
+    formula: >-
+      npc.kind == 'nameless' ? npc.stressBoxes
+        : 2 + (skills.physique >= 1 ? 1 : 0) + (skills.physique >= 3 ? 1 : 0)
+  stress.physical.box1: { type: boolean, input: true, default: false }
+  stress.physical.box2: { type: boolean, input: true, default: false }
+  stress.physical.box3: { type: boolean, input: true, default: false }
+  stress.physical.box4: { type: boolean, input: true, default: false }
+  stress.mental.boxes:
+    type: integer
+    formula: >-
+      npc.kind == 'nameless' ? 0 : 2 + (skills.will >= 1 ? 1 : 0) + (skills.will >= 3 ? 1 : 0)
+  stress.mental.box1: { type: boolean, input: true, default: false }
+  stress.mental.box2: { type: boolean, input: true, default: false }
+  stress.mental.box3: { type: boolean, input: true, default: false }
+  stress.mental.box4: { type: boolean, input: true, default: false }
+
+  consequences.mildSlot: { type: boolean, formula: "npc.kind != 'nameless'" }
+  consequences.moderateSlot:
+    type: boolean
+    formula: "npc.kind == 'player' || npc.kind == 'main' || (npc.kind == 'supporting' && npc.moderate)"
+  consequences.severeSlot: { type: boolean, formula: "npc.kind == 'player' || npc.kind == 'main'" }
+  consequences.mildFree:
+    type: boolean
+    formula: >-
+      consequences.mildSlot
+        && countCopies(copy.type == 'consequence' && copy.state.slot == 'mild') == 0
+  consequences.moderateFree:
+    type: boolean
+    formula: >-
+      consequences.moderateSlot
+        && countCopies(copy.type == 'consequence' && copy.state.slot == 'moderate') == 0
+  consequences.severeFree:
+    type: boolean
+    formula: >-
+      consequences.severeSlot
+        && countCopies(copy.type == 'consequence' && copy.state.slot == 'severe') == 0
+  consequences.mildPhysicalSlot:
+    { type: boolean, formula: "npc.kind != 'nameless' && skills.physique >= 5" }
+  consequences.mildMentalSlot:
+    { type: boolean, formula: "npc.kind != 'nameless' && skills.will >= 5" }
+  consequences.mildPhysicalFree:
+    type: boolean
+    formula: >-
+      consequences.mildPhysicalSlot
+        && countCopies(copy.type == 'consequence' && copy.state.slot == 'mild-physical') == 0
+  consequences.mildMentalFree:
+    type: boolean
+    formula: >-
+      consequences.mildMentalSlot
+        && countCopies(copy.type == 'consequence' && copy.state.slot == 'mild-mental') == 0
+  consequences.extremeTaken: { type: boolean, input: true, default: false }
+  consequences.extremeAspect:
+    { type: enum, values: [none, trouble, phase1, phase2, phase3], input: true, default: none }
+
+constraints:
+  - id: consequence-slots
+    check: >-
+      countCopies(copy.type == 'consequence' && copy.state.slot == 'mild')
+          <= (consequences.mildSlot ? 1 : 0)
+        && countCopies(copy.type == 'consequence' && copy.state.slot == 'moderate')
+          <= (consequences.moderateSlot ? 1 : 0)
+        && countCopies(copy.type == 'consequence' && copy.state.slot == 'severe')
+          <= (consequences.severeSlot ? 1 : 0)
+        && countCopies(copy.type == 'consequence' && copy.state.slot == 'mild-physical')
+          <= (consequences.mildPhysicalSlot ? 1 : 0)
+        && countCopies(copy.type == 'consequence' && copy.state.slot == 'mild-mental')
+          <= (consequences.mildMentalSlot ? 1 : 0)
+  - id: stress-boxes
+    check: >-
+      (stress.physical.boxes >= 1 || !stress.physical.box1)
+        && (stress.physical.boxes >= 2 || !stress.physical.box2)
+        && (stress.physical.boxes >= 3 || !stress.physical.box3)
+        && (stress.physical.boxes >= 4 || !stress.physical.box4)
+        && (stress.mental.boxes >= 3 || !stress.mental.box3)
+        && (stress.mental.boxes >= 4 || !stress.mental.box4)
+
+actions:
+  # Recommendations: a consequence only while the hit is too big for the highest free box and the
+  # free slots can save the character at all, the restricted mild slot before the shared one, and
+  # the smallest box that holds the rest. The extreme consequence is never recommended.
+  - id: take-hit
+    tags: [hit]
+    params:
+      shifts: { type: integer, min: 1 }
+      harm: { type: enum, values: [physical, mental], default: physical }
+      label: { type: string, default: '' }
+    results: [absorbed, taken-out]
+    steps:
+      - id: armor
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              shifts: "params.shifts - (params.harm == 'physical' ? armor.physical : armor.mental)"
+      - id: stopped
+        kind: outcome
+        when: flags.shifts <= 0
+        result: "'absorbed'"
+        data: { shifts: params.shifts, box: 0, unabsorbed: 0, consequences: 0, stopped: true }
+      - id: track
+        kind: branch
+        cases:
+          - when: "params.harm == 'physical' || npc.kind == 'nameless'"
+            flags:
+              physical: true
+              free1: stress.physical.boxes >= 1 && !stress.physical.box1
+              free2: stress.physical.boxes >= 2 && !stress.physical.box2
+              free3: stress.physical.boxes >= 3 && !stress.physical.box3
+              free4: stress.physical.boxes >= 4 && !stress.physical.box4
+              extraMild: consequences.mildPhysicalFree
+          - when: true
+            flags:
+              physical: false
+              free1: '!stress.mental.box1'
+              free2: '!stress.mental.box2'
+              free3: stress.mental.boxes >= 3 && !stress.mental.box3
+              free4: stress.mental.boxes >= 4 && !stress.mental.box4
+              extraMild: consequences.mildMentalFree
+      - id: highest
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              box: 'flags.free4 ? 4 : flags.free3 ? 3 : flags.free2 ? 2 : flags.free1 ? 1 : 0'
+      - id: mob
+        kind: branch
+        cases:
+          - when: "npc.kind == 'nameless' && mob.size > 1 && flags.shifts > flags.box"
+            flags:
+              mobHit: true
+              excess: flags.shifts - flags.box - 1
+              fresh: npc.stressBoxes + 1
+          - when: true
+            flags: { mobHit: false, excess: 0, fresh: 1 }
+      - id: members
+        kind: branch
+        when: flags.mobHit
+        cases:
+          - when: true
+            flags:
+              out: 1 + floor(flags.excess / flags.fresh)
+              carried: flags.excess - floor(flags.excess / flags.fresh) * flags.fresh
+      - id: overflow
+        kind: changes
+        when: flags.mobHit && flags.out < mob.size
+        changes:
+          - { type: adjust, field: mob.size, by: -flags.out }
+          - { type: set, field: stress.physical.box1, value: false, when: stress.physical.box1 }
+          - { type: set, field: stress.physical.box2, value: false, when: stress.physical.box2 }
+          - { type: set, field: stress.physical.box1, value: true, when: flags.carried == 1 }
+          - { type: set, field: stress.physical.box2, value: true, when: flags.carried == 2 }
+      - id: mobResult
+        kind: outcome
+        when: flags.mobHit
+        result: "flags.out >= mob.size ? 'taken-out' : 'absorbed'"
+        data:
+          shifts: params.shifts
+          box: 'flags.out < mob.size ? flags.carried : 0'
+          unabsorbed: 0
+          consequences: 0
+          out: min(flags.out, mob.size)
+      - id: capacity
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              saves: >-
+                flags.shifts <= flags.box + (flags.extraMild ? 2 : 0)
+                  + (consequences.mildFree ? 2 : 0) + (consequences.moderateFree ? 4 : 0)
+                  + (consequences.severeFree ? 6 : 0)
+      - id: extraMild
+        kind: choice
+        when: flags.extraMild
+        options:
+          - id: take
+            changes:
+              - type: addItem
+                entry:
+                  item: "'consequences.consequence'"
+                  state:
+                    slot: "params.harm == 'physical' ? 'mild-physical' : 'mild-mental'"
+                    label: params.label
+                    harm: params.harm
+                    conflict: true
+          - { id: skip }
+        recommend: "flags.saves && flags.shifts > flags.box ? 'take' : 'skip'"
+      - id: afterExtra
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              left: "flags.shifts - (has(steps.extraMild) && steps.extraMild.picked == 'take' ? 2 : 0)"
+      - id: mild
+        kind: choice
+        when: flags.left > 0 && consequences.mildFree
+        options:
+          - id: take
+            changes:
+              - type: addItem
+                entry:
+                  item: "'consequences.consequence'"
+                  state: { slot: "'mild'", label: params.label, harm: params.harm, conflict: true }
+          - { id: skip }
+        recommend: "flags.saves && flags.left > flags.box ? 'take' : 'skip'"
+      - id: afterMild
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              left2: "flags.left - (has(steps.mild) && steps.mild.picked == 'take' ? 2 : 0)"
+      - id: moderate
+        kind: choice
+        when: flags.left2 > 0 && consequences.moderateFree
+        options:
+          - id: take
+            changes:
+              - type: addItem
+                entry:
+                  item: "'consequences.consequence'"
+                  state:
+                    { slot: "'moderate'", label: params.label, harm: params.harm, conflict: true }
+          - { id: skip }
+        recommend: "flags.saves && flags.left2 > flags.box ? 'take' : 'skip'"
+      - id: afterModerate
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              left3: "flags.left2 - (has(steps.moderate) && steps.moderate.picked == 'take' ? 4 : 0)"
+      - id: severe
+        kind: choice
+        when: flags.left3 > 0 && consequences.severeFree
+        options:
+          - id: take
+            changes:
+              - type: addItem
+                entry:
+                  item: "'consequences.consequence'"
+                  state:
+                    { slot: "'severe'", label: params.label, harm: params.harm, conflict: true }
+          - { id: skip }
+        recommend: "flags.saves && flags.left3 > flags.box ? 'take' : 'skip'"
+      - id: afterSevere
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              left4: "flags.left3 - (has(steps.severe) && steps.severe.picked == 'take' ? 6 : 0)"
+      - id: extreme
+        kind: choice
+        when: >-
+          flags.left4 > 0 && !consequences.extremeTaken
+            && (npc.kind == 'player' || npc.kind == 'main')
+        options: [{ id: skip }, { id: trouble }, { id: phase1 }, { id: phase2 }, { id: phase3 }]
+        recommend: "'skip'"
+        changes:
+          - type: set
+            when: "picked.id != 'skip'"
+            field: { formula: "'aspects.' + picked.id" }
+            value: params.label
+          - {
+              type: set,
+              when: "picked.id != 'skip'",
+              field: consequences.extremeTaken,
+              value: true,
+            }
+          - type: set
+            when: "picked.id != 'skip'"
+            field: consequences.extremeAspect
+            value: picked.id
+      - id: afterExtreme
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              rest: "flags.left4 - (has(steps.extreme) && steps.extreme.picked != 'skip' ? 8 : 0)"
+      - id: box
+        kind: choice
+        when: flags.rest > 0
+        options:
+          - id: box1
+            when: flags.rest <= 1 && flags.free1
+          - id: box2
+            when: flags.rest <= 2 && flags.free2
+          - id: box3
+            when: flags.rest <= 3 && flags.free3
+          - id: box4
+            when: flags.rest <= 4 && flags.free4
+        recommend: >-
+          flags.rest <= 1 && flags.free1 ? 'box1' : flags.rest <= 2 && flags.free2 ? 'box2'
+            : flags.rest <= 3 && flags.free3 ? 'box3' : 'box4'
+        changes:
+          - type: set
+            field:
+              { formula: "'stress.' + (flags.physical ? 'physical' : 'mental') + '.' + picked.id" }
+            value: true
+      - id: result
+        kind: outcome
+        result: "flags.rest > 0 && !has(steps.box) ? 'taken-out' : 'absorbed'"
+        data:
+          shifts: params.shifts
+          box: >-
+            !has(steps.box) ? 0 : steps.box.picked == 'box1' ? 1 : steps.box.picked == 'box2' ? 2
+              : steps.box.picked == 'box3' ? 3 : 4
+          unabsorbed: 'has(steps.box) ? 0 : max(0, flags.rest)'
+          consequences: >-
+            (has(steps.extraMild) && steps.extraMild.picked == 'take' ? 1 : 0)
+              + (has(steps.mild) && steps.mild.picked == 'take' ? 1 : 0)
+              + (has(steps.moderate) && steps.moderate.picked == 'take' ? 1 : 0)
+              + (has(steps.severe) && steps.severe.picked == 'take' ? 1 : 0)
+              + (has(steps.extreme) && steps.extreme.picked != 'skip' ? 1 : 0)
+          slots: >-
+            (has(steps.extraMild) && steps.extraMild.picked == 'take'
+                ? [params.harm == 'physical' ? 'mild-physical' : 'mild-mental'] : [])
+              + (has(steps.mild) && steps.mild.picked == 'take' ? ['mild'] : [])
+              + (has(steps.moderate) && steps.moderate.picked == 'take' ? ['moderate'] : [])
+              + (has(steps.severe) && steps.severe.picked == 'take' ? ['severe'] : [])
+              + (has(steps.extreme) && steps.extreme.picked != 'skip' ? ['extreme'] : [])
+
+  - id: concede
+    tags: [conflict]
+    params:
+      consequences: { type: integer, default: 0, min: 0 }
+    results: [conceded]
+    steps:
+      - id: count
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              points: >-
+                1 + params.consequences
+                  + countCopies(copy.type == 'consequence' && copy.state.conflict)
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: fatePoints.current, by: flags.points }
+      - id: result
+        kind: outcome
+        result: "'conceded'"
+        data: { fatePoints: flags.points }
+
+display:
+  groups:
+    - id: stress
+      priority: 0
+    - id: consequences
+      priority: 0
+  fields:
+    stress.physical.box1:
+      {
+        groups: [stress],
+        priority: 0,
+        input: { widget: checkbox },
+        showWhen: stress.physical.boxes >= 1,
+      }
+    stress.physical.box2:
+      {
+        groups: [stress],
+        priority: 0,
+        input: { widget: checkbox },
+        showWhen: stress.physical.boxes >= 2,
+      }
+    stress.physical.box3:
+      {
+        groups: [stress],
+        priority: 0,
+        input: { widget: checkbox },
+        showWhen: stress.physical.boxes >= 3,
+      }
+    stress.physical.box4:
+      {
+        groups: [stress],
+        priority: 0,
+        input: { widget: checkbox },
+        showWhen: stress.physical.boxes >= 4,
+      }
+    stress.mental.box1:
+      {
+        groups: [stress],
+        priority: 0,
+        input: { widget: checkbox },
+        showWhen: stress.mental.boxes >= 1,
+      }
+    stress.mental.box2:
+      {
+        groups: [stress],
+        priority: 0,
+        input: { widget: checkbox },
+        showWhen: stress.mental.boxes >= 2,
+      }
+    stress.mental.box3:
+      {
+        groups: [stress],
+        priority: 0,
+        input: { widget: checkbox },
+        showWhen: stress.mental.boxes >= 3,
+      }
+    stress.mental.box4:
+      {
+        groups: [stress],
+        priority: 0,
+        input: { widget: checkbox },
+        showWhen: stress.mental.boxes >= 4,
+      }
+    stress.physical.boxes: { groups: [stress], priority: 2 }
+    stress.mental.boxes: { groups: [stress], priority: 2 }
+    consequences.mildFree: { groups: [consequences], priority: 1 }
+    consequences.moderateFree: { groups: [consequences], priority: 1 }
+    consequences.severeFree: { groups: [consequences], priority: 1 }
+    consequences.mildPhysicalFree:
+      { groups: [consequences], priority: 1, showWhen: consequences.mildPhysicalSlot }
+    consequences.mildMentalFree:
+      { groups: [consequences], priority: 1, showWhen: consequences.mildMentalSlot }
+    consequences.mildSlot: { hidden: true }
+    consequences.moderateSlot: { hidden: true }
+    consequences.severeSlot: { hidden: true }
+    consequences.mildPhysicalSlot: { hidden: true }
+    consequences.mildMentalSlot: { hidden: true }
+    consequences.extremeTaken: { groups: [consequences], priority: 2, input: { widget: checkbox } }
+    consequences.extremeAspect:
+      { groups: [consequences], priority: 2, showWhen: consequences.extremeTaken }

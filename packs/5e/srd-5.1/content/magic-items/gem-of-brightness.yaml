@@ -1,0 +1,13 @@
+id: magic-items.gem-of-brightness
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  maxCharges: 50
+  saveDc: 15
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - use: use-charges
+  - use: item-power
+    params: { charges: 1, save: "'con'", dc: 15, condition: "'conditions.blinded'" }

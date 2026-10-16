@@ -1,0 +1,39 @@
+id: features.spellcasting.repertoire
+type: feature
+fields: { level: 1 }
+# A spell picked for a higher rank than its own is known heightened to that rank. Spells content
+# adds by itself (counted in `spells.granted.*`) take the place of picks; those it adds beside them
+# (`spells.bonusKnown`) aren't offered again.
+choices:
+  - id: cantrips
+    pick: max(0, spellcasting.cantrips - spells.granted.cantrips)
+    from:
+      type: spell
+      where: >-
+        'trait.cantrip' in item.tags && !('trait.focus' in item.tags)
+          && ('tradition.' + spellcasting.tradition) in item.tags
+          && (!('trait.uncommon' in item.tags) || item.id in spells.access)
+    effects:
+      - { target: spells.repertoire, op: grant, value: { formula: pick.id } }
+  - id: spells
+    slots: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    when: level >= 2 * slot - 1
+    pick: >-
+      max(0, [spellSlots.rank1.max - spells.granted.rank1, spellSlots.rank2.max - spells.granted.rank2,
+        spellSlots.rank3.max - spells.granted.rank3, spellSlots.rank4.max - spells.granted.rank4,
+        spellSlots.rank5.max - spells.granted.rank5, spellSlots.rank6.max - spells.granted.rank6,
+        spellSlots.rank7.max - spells.granted.rank7, spellSlots.rank8.max - spells.granted.rank8,
+        spellSlots.rank9.max - spells.granted.rank9, spellSlots.rank10.max - spells.granted.rank10][slot - 1])
+    from:
+      type: spell
+      where: >-
+        !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags) && item.rank <= slot
+          && ('tradition.' + spellcasting.tradition) in item.tags
+          && (!('trait.uncommon' in item.tags) || item.id in spells.access)
+          && !(item.id in spells.bonusKnown)
+    effects:
+      - { target: spells.repertoire, op: grant, value: { formula: pick.id } }
+      - target:
+          fields: { where: "item.id == 'orc-2e:spells.repertoire.rank' + string(slot)" }
+        op: grant
+        value: { formula: pick.id }

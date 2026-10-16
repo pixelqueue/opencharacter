@@ -1,0 +1,19 @@
+id: races.dwarf
+type: race
+fields:
+  speed: 25
+  size: medium
+effects:
+  - { target: abilities.con.base, op: add, value: 2 }
+grants:
+  - item: traits.darkvision
+  - item: traits.dwarven-speed
+  - item: traits.dwarven-resilience
+  - item: traits.dwarven-combat-training
+  - item: traits.tool-proficiency-dwarf
+  - item: traits.stonecunning
+  - item: languages.common
+  - item: languages.dwarvish
+choices:
+  - id: subrace
+    from: { type: subrace, where: 'item.race == @races.dwarf' }

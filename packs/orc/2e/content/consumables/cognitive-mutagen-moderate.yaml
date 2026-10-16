@@ -1,0 +1,39 @@
+id: consumables.cognitive-mutagen-moderate
+type: consumable
+tags: [trait.alchemical, trait.elixir, trait.mutagen, trait.polymorph]
+fields:
+  category: mutagen
+  level: 3
+  price: 12
+  bulk: 0.1
+  lasting: true
+  family: consumables.cognitive-mutagen-lesser
+effects:
+  - target:
+      {
+        fields:
+          {
+            where: "'skill' in item.tags && ('skill.arcana' in item.tags || 'skill.crafting' in item.tags || 'skill.occultism' in item.tags || 'skill.society' in item.tags || 'lore' in item.tags)",
+          },
+      }
+    op: add
+    value: 2
+    stackKey: item-bonus
+    scope: applied
+    duration: { amount: 10, unit: minute }
+  - target: { fields: { where: "'attack' in item.tags && !('spell-attack' in item.tags)" } }
+    op: add
+    value: -2
+    scope: applied
+    duration: { amount: 10, unit: minute }
+  - target:
+      {
+        fields:
+          {
+            where: "'skill' in item.tags && ('skill.athletics' in item.tags || 'skill.acrobatics' in item.tags)",
+          },
+      }
+    op: add
+    value: -2
+    scope: applied
+    duration: { amount: 10, unit: minute }

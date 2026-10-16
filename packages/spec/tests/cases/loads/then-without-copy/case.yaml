@@ -1,0 +1,23 @@
+description: '`then` on a rules effect, which has no copy to change, is then-without-copy'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp.current: { type: integer, input: true, default: 10, min: 0 }
+        effects:
+          - id: brittle
+            target: { incoming: { fields: [hp.current], tags: [damage] } }
+            op: add
+            value: 1
+            then:
+              - { type: setState, entry: self, key: broken, value: true }
+      content: []

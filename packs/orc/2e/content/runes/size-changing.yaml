@@ -1,0 +1,18 @@
+id: runes.size-changing
+type: template
+tags: [trait.magical, trait.invested, rune.property]
+appliesTo: { type: armor }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + 350'
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id in [@spells.enlarge, @spells.shrink] && self.used < 1'
+    value:
+      id: change-size
+      flags: { itemPaid: true, rank: 2 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }
+grants:
+  - { item: spells.enlarge, when: self.equipped && self.invested }
+  - { item: spells.shrink, when: self.equipped && self.invested }

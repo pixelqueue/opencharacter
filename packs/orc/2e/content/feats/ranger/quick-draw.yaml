@@ -1,0 +1,33 @@
+id: feats.ranger.quick-draw
+type: feat
+tags: [trait.ranger, trait.rogue, archetype-feat]
+fields: { level: 2, category: class, class: classes.ranger }
+
+# The Strike runs on the proposed sheet, where the weapon is already drawn.
+actions:
+  - id: quick-draw
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    available: >-
+      countCopies(copy.type == 'weapon' && !copy.equipped) > 0
+    steps:
+      - id: weapon
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options: { copies: { type: weapon, where: '!self.equipped' } }
+        changes:
+          - { type: equip, entry: picked, equipped: true }
+      - id: strike
+        kind: action
+        sheet: proposed
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage

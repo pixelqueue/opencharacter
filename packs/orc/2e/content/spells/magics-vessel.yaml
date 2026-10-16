@@ -1,0 +1,18 @@
+id: spells.magics-vessel
+type: spell
+tags: [trait.cleric, trait.focus, trait.manipulate, trait.uncommon]
+fields:
+  rank: 1
+  cast: one
+  range: 0
+  targets: 1
+  duration: minutes
+  durationAmount: 1
+  sustained: true
+  applyTo: ally
+effects:
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    scope: applied

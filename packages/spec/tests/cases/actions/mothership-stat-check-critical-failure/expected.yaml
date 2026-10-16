@@ -1,0 +1,33 @@
+# stat-check: field parameter stat (combat 41) -> flags.target 41; 1d100z (0-99) roll-under.
+# Bands: critical-success (under and doubles), success (under), critical-failure (doubles),
+# failure. Failures propose +1 stress to self.
+# face 77 -> critical-failure: +1 stress, then a nested panic check (d20 9 against stress 4: pass)
+status: finished
+outcome:
+  result: critical-failure
+proposedChanges:
+  - to: self
+    step: stress
+    change:
+      type: adjust
+      field: mothership-1e:stress.current
+      by: 1
+log:
+  - step: check
+    action: mothership-1e:stat-check
+    kind: dice
+    by: engine
+    faces:
+      - 77
+    total: 77
+    band: critical-failure
+    bandSet: mothership-1e:check
+  - step: panic/panic
+    action: mothership-1e:panic-check
+    kind: dice
+    by: engine
+    faces:
+      - 9
+    total: 9
+    band: pass
+    bandSet: mothership-1e:panic

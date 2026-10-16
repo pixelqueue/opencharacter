@@ -1,0 +1,7 @@
+# Burning and frozen are immune to each other: a mutual block, which the earlier entry wins.
+id: conditions.burning
+type: condition
+effects:
+  - { target: speed, op: add, value: -3, scope: applied }
+immuneTo:
+  - { id: frozen, items: [conditions.frozen], scope: applied }

@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/content-type.schema.json",
+  "title": "Content type",
+  "description": "A kind of content a game defines in data (weapon, spell, playbook). Its interface has four parts: fields (what is it?), effects (declared on each item), actions (what rolls can it make?), and state (what is tracked on your copy?).",
+  "type": "object",
+  "properties": {
+    "fields": {
+      "description": "Item fields every item of this type may or must set: what the item's author writes, never what changes in play (that is `state`). Each is named by `types.<type>.fields.<field>.name` (required) and `.description` (optional) in the pack's text, for a custom-item form.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/valueDecl"
+      }
+    },
+    "nameFrom": {
+      "description": "A string state key whose value names each copy of this type, for copies the player or GM names (a faction added in play, a harm's \"Broken leg\"). While the copy's value of the key is a non-empty string, it is the copy's name: computeSheet gives it in `copyNames`, and apps show it in place of the item's name. An item's own `nameFrom` replaces the type's.",
+      "$ref": "common.schema.json#/$defs/name"
+    },
+    "state": {
+      "description": "Per-copy state on the character's copy (charges, shots, level). Visible in formulas as `self.<key>`.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/valueDecl"
+      }
+    },
+    "computed": {
+      "description": "Computed values on each copy: per-copy values with a formula, worked out after every field and never saved. computeSheet returns them per copy (`copies`); the copy's own actions (and the actions it reaches through `use`) and its follow-ups read them as `self.<name>`, as do the copy's later computed values. Nothing else can read them. A name must not reuse a state key or a core property of the copy.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/computedDecl"
+      }
+    },
+    "carried": {
+      "description": "Copies live in the character's `inventory` (true) or `features` (false, default).",
+      "type": "boolean"
+    },
+    "equippable": {
+      "description": "Copies have the core `equipped` flag (`self.equipped`).",
+      "type": "boolean"
+    },
+    "copies": {
+      "$ref": "#/$defs/copies"
+    },
+    "actions": {
+      "description": "Actions every item of this type has, in addition to the item's own.",
+      "type": "array",
+      "items": {
+        "$ref": "action.schema.json#/$defs/actionOrUse"
+      }
+    },
+    "label": {
+      "$ref": "common.schema.json#/$defs/i18nKey"
+    },
+    "texts": {
+      "description": "Named texts: extra player-facing text each item of the type may have, looked up as `<contentId>.texts.<name>` (a spell's `material` and `trigger`). None is required; apps know from the type which to look up and where to show them.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "uniqueItems": true
+    },
+    "effects": {
+      "description": "Effects every item of this type has, before the item's own. `item` and `self` are bound as for item effects; the source is the item. An item can switch one off by ID (`suppress`).",
+      "type": "array",
+      "items": {
+        "$ref": "effect.schema.json"
+      }
+    },
+    "followUps": {
+      "description": "Follow-ups every item of this type has while the character has its copy or pick.",
+      "type": "array",
+      "items": {
+        "$ref": "follow-up.schema.json"
+      }
+    },
+    "grants": {
+      "description": "Grants every item of this type has, before the item's own. A grant with `scope: applied` follows an applied entry of the item instead of a held copy.",
+      "type": "array",
+      "items": {
+        "$ref": "content-item.schema.json#/$defs/grant"
+      }
+    },
+    "reapply": {
+      "$ref": "#/$defs/reapply"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "computedDecl": {
+      "description": "A computed value on a copy. Its formula sees `item`, `self` (the copy, with the computed values declared before this one), every field, `character`, `links` and the character functions.",
+      "type": "object",
+      "required": ["type", "formula"],
+      "properties": {
+        "type": {
+          "enum": ["integer", "decimal", "boolean", "string"]
+        },
+        "formula": {
+          "$ref": "formula.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    "valueDecl": {
+      "description": "Declares a typed value: an item field, a state key or an action parameter.",
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "$ref": "common.schema.json#/$defs/valueType"
+        },
+        "values": {
+          "description": "enum: allowed values.",
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/slug"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "of": {
+          "description": "id/set: the content type (or `field`, `tag`, `string`) of the members.",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "members": {
+          "description": "id/set of `tag`: which tags it takes. Without it, any declared tag.",
+          "$ref": "common.schema.json#/$defs/tagMembers"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "optional": {
+          "description": "Parameters: may be omitted.",
+          "type": "boolean"
+        },
+        "label": {
+          "description": "Parameters: the label key. Default: `<actionKey>.params.<name>.name`; an optional one-line hint is `<actionKey>.params.<name>.description`.",
+          "$ref": "common.schema.json#/$defs/i18nKey"
+        },
+        "default": {
+          "description": "The value when none is given. For integer, decimal, boolean and dice declarations a string is a formula: on a state key it is evaluated with `item` bound when the copy is added, and the result is written into the character file (`shots: item.magazine`); on an item field it is read as an item's own value is, over input fields. For string, enum and id declarations a string is a literal. An item field's default applies in `item` when the item doesn't set the field; an id or set default of content or `field` is qualified in the content type's pack.",
+          "$ref": "common.schema.json#/$defs/literal"
+        },
+        "min": {
+          "description": "The lowest allowed value. On a state key, a number formula with `item` bound (the copy's item with its templates) that reads input fields only, evaluated by `addItem` for a formula default and by `setState` and `adjustState` (`shots: { max: item.magazine }`).",
+          "$ref": "formula.schema.json"
+        },
+        "max": {
+          "description": "The highest allowed value. On a state key, read like `min`.",
+          "$ref": "formula.schema.json"
+        },
+        "where": {
+          "description": "Parameters of type `id` with `of: field`: which fields the app may pass (a condition over each field as `item`: `id`, `type`, `tags`). The action reads the field as `params.<name>.value`, its ID as `params.<name>.id`, its type as `params.<name>.type` and its declared tags as `params.<name>.tags`. Parameters of type `id` with `of` a content type: which items the app may pass, a condition with `item` the candidate item, the character's fields, and the action's own item and copy as `action.item` and `action.self`; the action reads the item's qualified ID. A value outside it is `invalid-option` when the action starts.",
+          "$ref": "formula.schema.json#/$defs/condition"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "enum"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["values"],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": ["id", "set"]
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["of"],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "required": ["members"],
+            "type": "object"
+          },
+          "then": {
+            "properties": {
+              "type": {
+                "enum": ["id", "set"]
+              },
+              "of": {
+                "const": "tag"
+              }
+            },
+            "type": "object"
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "reapply": {
+      "description": "What applying this content again does: an `applyEffect` of it, while the character has an `applied` entry of it that isn't inactive (`active` not `false`; a blocked entry counts) and whose `match` state keys are equal to the new entry's, adds no entry. Instead each key of `state` of the first such entry becomes the higher (`highest`; dice by average), the lower (`lowest`), the sum (`add`, numeric keys) or the new value (`replace`). An item's replaces its content type's.",
+      "type": "object",
+      "required": ["state"],
+      "properties": {
+        "match": {
+          "description": "State keys whose values must be equal as well (the new entry's with their defaults against the existing one's), e.g. a persistent damage's damage type.",
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "uniqueItems": true
+        },
+        "state": {
+          "description": "Per state key, how the existing entry's value and the new one merge. Keys not named keep the existing entry's values.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "enum": ["highest", "lowest", "add", "replace"]
+          },
+          "minProperties": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "copies": {
+      "description": "How many copies of the type a character may hold: `max` copies of the type in all, `perItem` copies of any one item. Each is an integer literal, which an app reads from the ruleset without evaluating anything, or an integer formula over the character's fields, worked out on the computed sheet: computeSheet's `copyLimits` gives every limit's value. A missing key is no limit. Copies in `features` and `inventory` count, standard copies included, whatever their `quantity`; picks, grants, templates and applied entries don't. Past a limit the sheet has the rules issue `too-many-copies`, and computeSheet lists the type in `copyLimits`. `max: 0` says the type is held by picks only.",
+      "type": "object",
+      "properties": {
+        "max": {
+          "description": "At most this many copies of the type: an integer, or an integer formula a pack's field may raise (a variant allowing a second class).",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "$ref": "formula.schema.json"
+            }
+          ]
+        },
+        "perItem": {
+          "description": "At most this many copies of any one item of the type: an integer, or an integer formula.",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "$ref": "formula.schema.json"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,11 @@
+id: worn.ring-of-swimming
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 12
+  price: 1750
+effects:
+  - target: speed.swim.base
+    op: atLeast
+    value: floor(speed.land / 2)
+    when: 'self.equipped && self.invested'

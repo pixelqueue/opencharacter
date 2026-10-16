@@ -1,0 +1,17 @@
+description: "An attack with advantage against an elusive, invisible rogue: advantage is removed, so the invisible target's disadvantage applies alone"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: sword }
+  situational: { 5e-srd-5.1:advantage: true }
+  participants:
+    target:
+      - id: rogue
+        values:
+          {
+            5e-srd-5.1:combat.ac: 14,
+            5e-srd-5.1:combat.elusive: true,
+            5e-srd-5.1:conditions.invisible: true,
+          }

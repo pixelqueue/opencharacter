@@ -1,0 +1,34 @@
+{
+  "name": "@opencharacter/fate-core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open Character Format pack: the Fate Core System SRD (the character sheet, skill rolls, stress and consequences, stunts, milestones, contests, extras, NPCs and mobs).",
+  "license": "CC-BY-3.0",
+  "files": [
+    "dist",
+    "pack.yaml",
+    "rules",
+    "content",
+    "i18n",
+    "upgrades",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/release.json"
+    },
+    "./release.json": "./dist/release.json",
+    "./i18n/*": {
+      "types": "./dist/i18n/*.d.ts",
+      "import": "./dist/i18n/*.js",
+      "default": "./dist/i18n/*.json"
+    }
+  },
+  "scripts": {
+    "prepack": "node -e \"require('node:fs').existsSync('dist')||(console.error('No dist/: run pnpm build:packs from the repo root first'),process.exit(1))\""
+  }
+}

@@ -1,0 +1,17 @@
+description: 'orc-2e: an investigator leveling to 2nd gets a skill increase (every level
+  from 2nd: the class raises `skills.increasesPerLevel`), then the feats the level brings'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:level-up
+  policy:
+    choices: pause
+    allocations: pause
+answers:
+  - amounts:
+      orc-2e:skills.society.increases: 1
+  - option: orc-2e:feats.investigator.certain-stratagem
+  - option: orc-2e:feats.skill.steady-balance

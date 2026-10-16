@@ -1,0 +1,17 @@
+# A short rest heals the Sword of Wounding's wounds: they are removed by query.
+status: finished
+outcome:
+  result: rested
+proposedChanges:
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:pactSlots.used
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: removeEffect
+      applied:
+        where: item.id == '5e-srd-5.1:conditions.wound'

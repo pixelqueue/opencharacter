@@ -1,0 +1,37 @@
+id: afflictions.leadenleg
+type: affliction
+fields:
+  {
+    kind: poison,
+    level: 4,
+    dc: 20,
+    stages: 3,
+    stage1Damage: 1d10,
+    stage2Damage: 2d6,
+    stage3Damage: 2d6,
+  }
+effects:
+  - {
+      target: speed.land,
+      op: add,
+      value: -5,
+      stackKey: status-penalty,
+      scope: applied,
+      when: self.stage == 1,
+    }
+  - {
+      target: speed.land,
+      op: add,
+      value: -10,
+      stackKey: status-penalty,
+      scope: applied,
+      when: self.stage == 2,
+    }
+  - {
+      target: speed.land,
+      op: add,
+      value: -20,
+      stackKey: status-penalty,
+      scope: applied,
+      when: self.stage == 3,
+    }

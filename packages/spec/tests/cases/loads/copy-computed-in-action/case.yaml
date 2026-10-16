@@ -1,0 +1,60 @@
+description: "A copy's computed values are readable in its own actions (an item's, the type's and a rules action it uses) and its follow-ups, the type's and the item's own"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 0 }
+          strain: { type: integer, input: true, default: 0 }
+        contentTypes:
+          gear:
+            carried: true
+            state:
+              wear: { type: integer, default: 0 }
+            computed:
+              quality: { type: integer, formula: tier }
+            actions:
+              - use: quality-roll
+              - id: inspect
+                available: self.quality > 0
+                steps:
+                  - { id: done, kind: outcome, data: { quality: self.quality } }
+            followUps:
+              - id: wear
+                on: { field: strain }
+                changes:
+                  - {
+                      type: adjustState,
+                      entry: self,
+                      key: wear,
+                      by: 'max(0, change.by - self.quality)',
+                    }
+        actions:
+          - id: quality-roll
+            steps:
+              - id: roll
+                kind: roll
+                parts:
+                  - { id: pool, dice: (self.quality)d6kh1 }
+      content:
+        - id: gear.relic
+          type: gear
+          computed:
+            glow: { type: boolean, formula: tier > 2 }
+          actions:
+            - id: shine
+              available: self.glow && self.quality > 1
+              steps:
+                - { id: done, kind: outcome }
+          followUps:
+            - id: dim
+              becomes: self.glow
+              changes:
+                - { type: setState, entry: self, key: wear, value: 0 }

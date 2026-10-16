@@ -1,0 +1,22 @@
+description: 'A proposed applyEffect whose literal source names no content is unknown-reference at load'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      content: []
+      rules:
+        contentTypes:
+          condition: { carried: false }
+        actions:
+          - id: curse
+            steps:
+              - id: curse
+                kind: changes
+                changes:
+                  - { type: applyEffect, source: "'conditions.cursed'" }

@@ -1,0 +1,21 @@
+id: feats.monk.grandmaster-qi-spells
+type: feat
+fields: { level: 18, category: class, class: classes.monk }
+repeatable: true
+prerequisites:
+  - id: qi-spells
+    when: '@feats.monk.qi-spells in feats.held'
+effects:
+  - { target: focus.points, op: add, value: 1 }
+choices:
+  - id: spell
+    unique: qi-spells
+    requiresOption: true
+    from:
+      options:
+        - id: embrace-nothingness
+          grants:
+            - item: spells.embrace-nothingness
+        - id: qi-form
+          grants:
+            - item: spells.qi-form

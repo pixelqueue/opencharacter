@@ -1,0 +1,23 @@
+# The d20 shows 17; the rules recommend the attack stratagem, which keeps the roll.
+status: finished
+outcome:
+  result: attack
+  data: { roll: 17 }
+proposedChanges:
+  - to: self
+    step: plan
+    change: { type: removeEffect, applied: { where: "'stratagem' in item.tags" } }
+  - to: self
+    step: plan
+    change: { type: applyEffect, source: orc-2e:effects.attack-stratagem, state: { roll: 17 } }
+log:
+  - step: roll
+    action: 'orc-2e:features.investigator.devise-a-stratagem#devise-a-stratagem'
+    kind: dice
+    faces: [17]
+    total: 17
+  - step: plan
+    action: 'orc-2e:features.investigator.devise-a-stratagem#devise-a-stratagem'
+    kind: choice
+    by: engine
+    option: attack

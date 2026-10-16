@@ -1,0 +1,39 @@
+# 5 + Dexterity 3 + proficiency 6 = 14 misses AC 25. Stroke of Luck is unused, so the luck step
+# runs (paused by its tag) and the player picks the feature's option: the use is spent and the
+# attack hits. Rapier 1d8 (6) + 3 = 9 piercing.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 14 }
+proposedChanges:
+  - to: self
+    step: luck
+    change: { type: setState, entry: rogue, key: strokeOfLuckUsed, value: true }
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -9,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.piercing,
+            ],
+        },
+    }
+log:
+  - { step: attack, kind: dice, by: engine, faces: [5], total: 14 }
+  - step: luck
+    kind: choice
+    by: app
+    option: '5e-srd-5.1:features.rogue.stroke-of-luck#hit'
+  - { step: damage, kind: dice, by: engine, faces: [6], total: 9 }

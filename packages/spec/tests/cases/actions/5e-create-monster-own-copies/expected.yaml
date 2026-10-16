@@ -1,0 +1,127 @@
+# Legendary Resistance and Fire Breath aren't granted: one copy each (forEach over ownCopies), so
+# each keeps its own uses or recharge; the engine picks the instance IDs.
+status: finished
+outcome: { result: created, data: { hp: 256 } }
+proposedChanges:
+  - {
+      to: self,
+      step: monster,
+      change: { type: addItem, entry: { id: monster, item: 5e-srd-5.1:monsters.adult-red-dragon } },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:abilities.str.base, value: 27 },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:abilities.dex.base, value: 10 },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:abilities.con.base, value: 25 },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:abilities.int.base, value: 16 },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:abilities.wis.base, value: 13 },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:abilities.cha.base, value: 21 },
+    }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:challenge.rating, value: 17 } }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:creature.size, value: huge } }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:creature.type, value: dragon } }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:creature.alignment, value: chaotic-evil },
+    }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:combat.speed, value: 40 } }
+  - {
+      to: self,
+      step: stats,
+      change:
+        {
+          type: set,
+          field: 5e-srd-5.1:proficiencies.saves,
+          value: [save.cha, save.con, save.dex, save.wis],
+        },
+    }
+  - {
+      to: self,
+      step: stats,
+      change:
+        {
+          type: set,
+          field: 5e-srd-5.1:proficiencies.skills,
+          value: [skill.perception, skill.stealth],
+        },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:proficiencies.expertise, value: [skill.perception] },
+    }
+  - {
+      to: self,
+      step: stats,
+      change:
+        {
+          type: set,
+          field: 5e-srd-5.1:proficiencies.languages,
+          value: [5e-srd-5.1:languages.common, 5e-srd-5.1:languages.draconic],
+        },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:damage.immunities, value: [damage.fire] },
+    }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:hp.base, value: 256 } }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:hp.current, value: 256 } }
+  - {
+      to: self,
+      step: ownCopies,
+      change:
+        {
+          type: addItem,
+          entry:
+            {
+              id: monsters-adult-red-dragon-fire-breath-1,
+              item: 5e-srd-5.1:monsters.adult-red-dragon.fire-breath,
+            },
+        },
+    }
+  - {
+      to: self,
+      step: ownCopies,
+      change:
+        {
+          type: addItem,
+          entry:
+            {
+              id: monsters-adult-red-dragon-legendary-resistance-1,
+              item: 5e-srd-5.1:monsters.adult-red-dragon.legendary-resistance,
+            },
+        },
+    }
+  - { to: self, step: finish, change: { type: finishCreation } }
+log:
+  - {
+      step: monster,
+      action: '5e-srd-5.1:create-monster',
+      kind: choice,
+      by: engine,
+      option: '5e-srd-5.1:monsters.adult-red-dragon',
+    }
+  - { step: hp, action: '5e-srd-5.1:create-monster', kind: choice, by: engine, option: average }

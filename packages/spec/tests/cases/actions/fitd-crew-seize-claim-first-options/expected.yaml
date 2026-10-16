@@ -1,0 +1,30 @@
+# With no crew type there is no claim map, so the first claim (Ancient Altar) is taken; the
+# faction is the app's; no enemies pleased is recommended, so the enemies aren't asked.
+status: finished
+outcome:
+  result: seized
+  data:
+    claim: fitd-crew:claims.ancient-altar
+    faction: faction-e
+proposedChanges:
+  - to: self
+    step: from
+    change:
+      type: setState
+      entry: faction-e
+      key: status
+      value: -3
+  - to: self
+    step: add
+    change:
+      type: addItem
+      entry:
+        id: claims-ancient-altar-1
+        item: fitd-crew:claims.ancient-altar
+        state:
+          label: ''
+          faction: faction-e
+log:
+  - { step: claim, kind: choice, by: engine, option: fitd-crew:claims.ancient-altar }
+  - { step: from, kind: choice, by: app, option: faction-e }
+  - { step: pleased, kind: choice, by: engine, option: none }

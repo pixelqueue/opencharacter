@@ -1,0 +1,15 @@
+status: paused
+needs:
+  step: class
+  action: mork-borg-core:create-character
+  kind: choice
+  options:
+    - mork-borg-core:classes.esoteric-hermit
+    - mork-borg-core:classes.fanged-deserter
+    - mork-borg-core:classes.gutterborn-scum
+    - mork-borg-core:classes.heretical-priest
+    - mork-borg-core:classes.occult-herbmaster
+    - mork-borg-core:classes.wretched-royalty
+  recommended: mork-borg-core:classes.gutterborn-scum
+log:
+  - { step: classRoll, kind: dice, by: app, faces: [3], total: 3 }

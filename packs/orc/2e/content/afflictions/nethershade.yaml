@@ -1,0 +1,19 @@
+id: afflictions.nethershade
+type: affliction
+fields:
+  {
+    kind: poison,
+    level: 10,
+    dc: 29,
+    stages: 3,
+    stage1Damage: 2d6,
+    stage1Damage2: 2d6,
+    stage2Damage: 3d6,
+    stage2Damage2: 2d6,
+    stage3Damage: 3d6,
+    stage3Damage2: 3d6,
+    damageType: void,
+  }
+grants:
+  - { item: conditions.enfeebled, scope: applied, when: self.stage == 2, state: { value: 1 } }
+  - { item: conditions.enfeebled, scope: applied, when: self.stage == 3, state: { value: 2 } }

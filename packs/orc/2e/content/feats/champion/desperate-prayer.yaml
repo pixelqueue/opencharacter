@@ -1,0 +1,16 @@
+id: feats.champion.desperate-prayer
+type: feat
+fields: { level: 1, category: class, class: classes.champion }
+actions:
+  - id: desperate-prayer
+    tags: [class-action]
+    available: focus.points > 0 && focus.spent >= focus.points
+    results: [answered]
+    steps:
+      - id: pray
+        kind: changes
+        changes:
+          - { type: adjust, field: focus.spent, by: -1 }
+      - id: result
+        kind: outcome
+        result: "'answered'"

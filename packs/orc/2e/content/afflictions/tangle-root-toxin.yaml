@@ -1,0 +1,33 @@
+id: afflictions.tangle-root-toxin
+type: affliction
+fields: { kind: poison, level: 7, dc: 26, stages: 3 }
+effects:
+  - {
+      target: speed.land,
+      op: add,
+      value: -10,
+      stackKey: status-penalty,
+      scope: applied,
+      when: self.stage == 1,
+    }
+  - {
+      target: speed.land,
+      op: add,
+      value: -20,
+      stackKey: status-penalty,
+      scope: applied,
+      when: self.stage == 2,
+    }
+  - {
+      target: speed.land,
+      op: add,
+      value: -30,
+      stackKey: status-penalty,
+      scope: applied,
+      when: self.stage == 3,
+    }
+grants:
+  - { item: conditions.clumsy, scope: applied, when: self.stage == 1, state: { value: 1 } }
+  - { item: conditions.clumsy, scope: applied, when: self.stage == 2, state: { value: 2 } }
+  - { item: conditions.clumsy, scope: applied, when: self.stage == 3, state: { value: 3 } }
+  - { item: conditions.off-guard, scope: applied, when: self.stage == 3 }

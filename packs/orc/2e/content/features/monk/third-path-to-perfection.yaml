@@ -1,0 +1,33 @@
+id: features.monk.third-path-to-perfection
+type: feature
+fields: { level: 15 }
+choices:
+  - id: save
+    from:
+      values: [save.fortitude, save.reflex, save.will]
+      where: value in monk.paths
+    effects:
+      - target: saves.fortitude.rank
+        op: atLeast
+        value: 4
+        when: "pick.value == 'save.fortitude'"
+      - target: saves.reflex.rank
+        op: atLeast
+        value: 4
+        when: "pick.value == 'save.reflex'"
+      - target: saves.will.rank
+        op: atLeast
+        value: 4
+        when: "pick.value == 'save.will'"
+      - target: { rolls: [save.fortitude], tally: critFailToFail }
+        op: add
+        value: 1
+        when: "pick.value == 'save.fortitude'"
+      - target: { rolls: [save.reflex], tally: critFailToFail }
+        op: add
+        value: 1
+        when: "pick.value == 'save.reflex'"
+      - target: { rolls: [save.will], tally: critFailToFail }
+        op: add
+        value: 1
+        when: "pick.value == 'save.will'"

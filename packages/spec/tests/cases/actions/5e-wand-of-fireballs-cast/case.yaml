@@ -1,0 +1,10 @@
+description: "A wand of fireballs casts fireball at 4th level for 2 charges with its own DC 15: cast from the item, cast-spell's cost step offers the wand's option and spends no slot"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:cast-spell, entry: wand, source: 5e-srd-5.1:spells.fireball }
+  params: { slot: 4 }
+answers:
+  - { option: '5e-srd-5.1:magic-items.wand-of-fireballs#charges' }

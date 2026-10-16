@@ -1,0 +1,70 @@
+id: feats.archetype.druid.druid-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.druid }
+
+prerequisites:
+  - { id: wis, when: 'attributes.wis.mod >= 2' }
+  - { id: not-druid, when: 'countCopies(copy.item == @classes.druid) == 0' }
+effects:
+  - { target: spellcasting.archetype.druid.tradition, op: set, value: "'primal'" }
+  - { target: spellcasting.archetype.druid.kind, op: set, value: "'prepared'" }
+  - { target: spellcasting.archetype.druid.attribute, op: set, value: "'wis'" }
+  - { target: spellcasting.archetype.druid.rank, op: atLeast, value: 1 }
+  - { target: spellcasting.archetype.druid.cantrips, op: set, value: 2 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.nature },
+      when: "!('skill.nature' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: languages, op: grant, value: { item: languages.druidic } }
+choices:
+  - id: order
+    from:
+      options:
+        - id: animal
+          effects:
+            - { target: druid.order, op: set, value: "'animal'" }
+            - { target: druid.orders, op: grant, value: { tag: druid-order.animal } }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.athletics },
+                when: "!('skill.athletics' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: leaf
+          effects:
+            - { target: druid.order, op: set, value: "'leaf'" }
+            - { target: druid.orders, op: grant, value: { tag: druid-order.leaf } }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.diplomacy },
+                when: "!('skill.diplomacy' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: storm
+          effects:
+            - { target: druid.order, op: set, value: "'storm'" }
+            - { target: druid.orders, op: grant, value: { tag: druid-order.storm } }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.acrobatics },
+                when: "!('skill.acrobatics' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: untamed
+          effects:
+            - { target: druid.order, op: set, value: "'untamed'" }
+            - { target: druid.orders, op: grant, value: { tag: druid-order.untamed } }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.intimidation },
+                when: "!('skill.intimidation' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }

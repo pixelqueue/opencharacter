@@ -1,0 +1,10 @@
+id: feats.monk.wind-jump
+type: feat
+fields: { level: 10, category: class, class: classes.monk }
+prerequisites:
+  - id: qi-spells
+    when: '@feats.monk.qi-spells in feats.held'
+effects:
+  - { target: focus.points, op: add, value: 1 }
+grants:
+  - item: spells.wind-jump

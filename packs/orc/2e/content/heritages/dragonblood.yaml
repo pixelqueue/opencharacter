@@ -1,0 +1,55 @@
+id: heritages.dragonblood
+type: heritage
+fields: { versatile: true }
+# The exemplar is optional until a feat needs it.
+effects:
+  - { target: traits, op: grant, value: { tag: trait.dragonblood } }
+  - target: { rolls: [save], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.againstFear
+choices:
+  - id: exemplar
+    required: false
+    from:
+      options:
+        - id: arcane-force
+          effects:
+            - { target: dragonblood.tradition, op: set, value: "'arcane'" }
+            - { target: dragonblood.damageType, op: set, value: "'force'" }
+            - { target: dragonblood.save, op: set, value: "'reflex'" }
+        - id: arcane-mental
+          effects:
+            - { target: dragonblood.tradition, op: set, value: "'arcane'" }
+            - { target: dragonblood.damageType, op: set, value: "'mental'" }
+            - { target: dragonblood.save, op: set, value: "'will'" }
+        - id: divine-fire
+          effects:
+            - { target: dragonblood.tradition, op: set, value: "'divine'" }
+            - { target: dragonblood.damageType, op: set, value: "'fire'" }
+            - { target: dragonblood.save, op: set, value: "'reflex'" }
+        - id: divine-spirit
+          effects:
+            - { target: dragonblood.tradition, op: set, value: "'divine'" }
+            - { target: dragonblood.damageType, op: set, value: "'spirit'" }
+            - { target: dragonblood.save, op: set, value: "'reflex'" }
+        - id: occult-poison
+          effects:
+            - { target: dragonblood.tradition, op: set, value: "'occult'" }
+            - { target: dragonblood.damageType, op: set, value: "'poison'" }
+            - { target: dragonblood.save, op: set, value: "'fortitude'" }
+        - id: occult-mental
+          effects:
+            - { target: dragonblood.tradition, op: set, value: "'occult'" }
+            - { target: dragonblood.damageType, op: set, value: "'mental'" }
+            - { target: dragonblood.save, op: set, value: "'will'" }
+        - id: primal-bludgeoning
+          effects:
+            - { target: dragonblood.tradition, op: set, value: "'primal'" }
+            - { target: dragonblood.damageType, op: set, value: "'bludgeoning'" }
+            - { target: dragonblood.save, op: set, value: "'reflex'" }
+        - id: primal-poison
+          effects:
+            - { target: dragonblood.tradition, op: set, value: "'primal'" }
+            - { target: dragonblood.damageType, op: set, value: "'poison'" }
+            - { target: dragonblood.save, op: set, value: "'fortitude'" }

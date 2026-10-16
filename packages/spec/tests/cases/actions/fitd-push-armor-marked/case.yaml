@@ -1,0 +1,15 @@
+description: "FitD: with Battleborn's special armor already marked, the push cost offers only stress"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action:
+    id: fitd-scoundrel:action-roll
+  params:
+    rating: fitd-scoundrel:ratings.skirmish
+  situational:
+    fitd-scoundrel:bonusDie: push
+  policy:
+    rules:
+      - { kind: choice, tags: [push-cost], then: pause }

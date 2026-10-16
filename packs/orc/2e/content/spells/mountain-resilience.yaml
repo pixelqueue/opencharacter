@@ -1,0 +1,23 @@
+id: spells.mountain-resilience
+type: spell
+tags: [trait.concentrate, trait.earth, trait.manipulate, tradition.arcane, tradition.primal]
+fields:
+  rank: 4
+  cast: two
+  range: 0
+  targets: 1
+  duration: minutes
+  durationAmount: 20
+  applyTo: ally
+effects:
+  - target:
+      incoming:
+        fields: [hp.current]
+        tags: [damage]
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, self.rank >= 10 ? 20 : self.rank >= 8 ? 15 : self.rank >= 6 ? 10 : 5)'
+    when: |-
+      incoming.amount < 0 && ('damage.bludgeoning' in incoming.tags
+        || 'damage.piercing' in incoming.tags || 'damage.slashing' in incoming.tags)
+    scope: applied

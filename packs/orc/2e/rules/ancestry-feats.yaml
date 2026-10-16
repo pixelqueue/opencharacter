@@ -1,0 +1,374 @@
+tags:
+  - skill.lore.dwarf
+  - skill.lore.elf
+  - skill.lore.goblin
+  - skill.lore.halfling
+  - skill.lore.leshy
+  - skill.lore.orc
+  - sense.greater-darkvision
+
+fields:
+  attacks.familiar: { type: set, of: string }
+  # Once-a-day feats keep their daily use in their pick's `used` state.
+  bounceBack.ready: { type: boolean, formula: false }
+  conditions.mistChild: { type: boolean, formula: false }
+  conditions.obfuscated: { type: boolean, formula: false }
+
+  skills.lore.dwarf.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.dwarf' in skills.trained || 'skill.lore.dwarf' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.dwarf' in skills.trained || 'skill.lore.dwarf' in skills.chosen ? [] : ['untrained']"
+  skills.lore.dwarf.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.dwarf, lore],
+    }
+  skills.lore.dwarf.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.dwarf]
+    formula: "('skill.lore.dwarf' in skills.trained || 'skill.lore.dwarf' in skills.chosen ? 1 : 0) + skills.lore.dwarf.increases"
+  skills.lore.dwarf.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.dwarf
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.dwarf.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.dwarf.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.dwarf.rank > 0 ? 2 * skills.lore.dwarf.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.elf.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.elf' in skills.trained || 'skill.lore.elf' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.elf' in skills.trained || 'skill.lore.elf' in skills.chosen ? [] : ['untrained']"
+  skills.lore.elf.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.elf, lore],
+    }
+  skills.lore.elf.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.elf]
+    formula: "('skill.lore.elf' in skills.trained || 'skill.lore.elf' in skills.chosen ? 1 : 0) + skills.lore.elf.increases"
+  skills.lore.elf.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.elf
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.elf.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.elf.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.elf.rank > 0 ? 2 * skills.lore.elf.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.goblin.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.goblin' in skills.trained || 'skill.lore.goblin' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.goblin' in skills.trained || 'skill.lore.goblin' in skills.chosen ? [] : ['untrained']"
+  skills.lore.goblin.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.goblin, lore],
+    }
+  skills.lore.goblin.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.goblin]
+    formula: "('skill.lore.goblin' in skills.trained || 'skill.lore.goblin' in skills.chosen ? 1 : 0) + skills.lore.goblin.increases"
+  skills.lore.goblin.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.goblin
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.goblin.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.goblin.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.goblin.rank > 0 ? 2 * skills.lore.goblin.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.halfling.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.halfling' in skills.trained || 'skill.lore.halfling' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.halfling' in skills.trained || 'skill.lore.halfling' in skills.chosen ? [] : ['untrained']"
+  skills.lore.halfling.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.halfling, lore],
+    }
+  skills.lore.halfling.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.halfling]
+    formula: "('skill.lore.halfling' in skills.trained || 'skill.lore.halfling' in skills.chosen ? 1 : 0) + skills.lore.halfling.increases"
+  skills.lore.halfling.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.halfling
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.halfling.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.halfling.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.halfling.rank > 0 ? 2 * skills.lore.halfling.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.leshy.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.leshy' in skills.trained || 'skill.lore.leshy' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.leshy' in skills.trained || 'skill.lore.leshy' in skills.chosen ? [] : ['untrained']"
+  skills.lore.leshy.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.leshy, lore],
+    }
+  skills.lore.leshy.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.leshy]
+    formula: "('skill.lore.leshy' in skills.trained || 'skill.lore.leshy' in skills.chosen ? 1 : 0) + skills.lore.leshy.increases"
+  skills.lore.leshy.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.leshy
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.leshy.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.leshy.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.leshy.rank > 0 ? 2 * skills.lore.leshy.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.orc.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.orc' in skills.trained || 'skill.lore.orc' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.orc' in skills.trained || 'skill.lore.orc' in skills.chosen ? [] : ['untrained']"
+  skills.lore.orc.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.orc, lore],
+    }
+  skills.lore.orc.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.orc]
+    formula: "('skill.lore.orc' in skills.trained || 'skill.lore.orc' in skills.chosen ? 1 : 0) + skills.lore.orc.increases"
+  skills.lore.orc.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.orc
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.orc.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.orc.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.orc.rank > 0 ? 2 * skills.lore.orc.rank + proficiency.level : proficiency.untrained)'
+
+situational:
+  - { id: againstOccult, type: boolean, default: false, rolls: [save] }
+  - { id: againstDivine, type: boolean, default: false, rolls: [save] }
+  - id: sameGround
+    type: boolean
+    default: false
+    rolls: [strike]
+    available: '@feats.ancestry.telluric-power in feats.held'
+    effects:
+      - target: { rolls: [damage.strike] }
+        op: add
+        value: roll.item.dice
+        stackKey: circumstance-bonus
+        tags: [{ formula: "'damage.' + roll.item.damageType" }]
+        when: situational.sameGround && roll.item.range == 0
+  - id: marginalized
+    type: boolean
+    default: false
+    rolls: [skill.diplomacy, perception]
+    available: '@feats.ancestry.monstrous-peacemaker in feats.held'
+    effects:
+      - target: { rolls: [skill.diplomacy, skill-action.sense-motive] }
+        op: add
+        value: 1
+        stackKey: circumstance-bonus
+        when: situational.marginalized
+  - id: incredibleImprovisation
+    type: boolean
+    default: false
+    rolls: [skill]
+    available: '@feats.ancestry.incredible-improvisation in feats.held'
+    effects:
+      - target: { rolls: [untrained] }
+        op: add
+        value: 4
+        stackKey: circumstance-bonus
+        when: situational.incredibleImprovisation
+  - { id: againstControl, type: boolean, default: false, rolls: [save, perception] }
+  - { id: againstSleep, type: boolean, default: false, rolls: [save] }
+  - { id: twiceAsLong, type: boolean, default: false, rolls: [skill, perception] }
+  - { id: againstVoid, type: boolean, default: false, rolls: [save] }
+  - { id: againstFey, type: boolean, default: false, rolls: [save, perception] }
+  - { id: againstIllusion, type: boolean, default: false, rolls: [save.will, perception] }
+  - id: againstRestraint
+    type: boolean
+    default: false
+    rolls: [save]
+  - id: ancestralFoe
+    type: boolean
+    default: false
+    rolls: [strike]
+    available: '@feats.ancestry.mountain-strategy in feats.held'
+    effects:
+      - target: { rolls: [damage.strike] }
+        op: add
+        value: roll.item.dice
+        stackKey: circumstance-bonus
+        tags: [{ formula: "'damage.' + roll.item.damageType" }]
+        when: situational.ancestralFoe
+  - id: superstition
+    type: boolean
+    default: false
+    rolls: [save]
+    available: >-
+      @feats.ancestry.leshy-superstition in feats.held
+        || @feats.ancestry.orc-superstition in feats.held
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 1
+        stackKey: circumstance-bonus
+        when: situational.superstition
+# A skill trained by a skill increase counts as a training the player chose.
+effects:
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.dwarf },
+      when: skills.lore.dwarf.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.elf },
+      when: skills.lore.elf.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.goblin },
+      when: skills.lore.goblin.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.halfling },
+      when: skills.lore.halfling.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.leshy },
+      when: skills.lore.leshy.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.orc },
+      when: skills.lore.orc.trainedByIncrease > 0,
+    }
+
+display:
+  fields:
+    attacks.familiar: { groups: [proficiencies], priority: 2 }
+    conditions.mistChild: { hidden: true }
+    conditions.obfuscated: { hidden: true }
+    bounceBack.ready: { hidden: true }
+    skills.lore.dwarf.rank: { format: { bands: rank } }
+    skills.lore.dwarf.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.dwarf.mod } }] }
+    skills.lore.elf.rank: { format: { bands: rank } }
+    skills.lore.elf.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.elf.mod } }] }
+    skills.lore.goblin.rank: { format: { bands: rank } }
+    skills.lore.goblin.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.goblin.mod } }] }
+    skills.lore.halfling.rank: { format: { bands: rank } }
+    skills.lore.halfling.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.halfling.mod } }] }
+    skills.lore.leshy.rank: { format: { bands: rank } }
+    skills.lore.leshy.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.leshy.mod } }] }
+    skills.lore.orc.rank: { format: { bands: rank } }
+    skills.lore.orc.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.orc.mod } }] }

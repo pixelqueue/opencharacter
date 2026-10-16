@@ -1,0 +1,13 @@
+# Charisma +4, trained at 5th level: spell attack +11 and spell DC 21, each less stupefied's
+# status penalty; the curse on Intelligence-based fields doesn't reach them.
+values:
+  orc-2e:spellcasting.attack:
+    value: 10
+    base: 11
+    breakdown:
+      - { op: add, value: -1, source: { type: item, id: orc-2e:conditions.stupefied } }
+  orc-2e:spellcasting.dc:
+    value: 20
+    base: 21
+    breakdown:
+      - { op: add, value: -1, source: { type: item, id: orc-2e:conditions.stupefied } }

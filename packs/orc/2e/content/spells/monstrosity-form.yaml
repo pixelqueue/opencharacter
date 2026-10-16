@@ -1,0 +1,23 @@
+id: spells.monstrosity-form
+type: spell
+tags: [trait.concentrate, trait.manipulate, trait.polymorph, tradition.arcane, tradition.primal]
+fields:
+  rank: 8
+  cast: two
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+  tempHp: 20
+  heighten: 1
+  heightenTempHp: 5
+effects:
+  - { target: battleForm.active, op: set, value: true, scope: applied }
+  - { target: battleForm.acBase, op: set, value: 'self.rank >= 9 ? 22 : 20', scope: applied }
+  - { target: battleForm.formAttacks, op: set, value: true, scope: applied }
+  - { target: battleForm.attack, op: set, value: 'self.rank >= 9 ? 31 : 28', scope: applied }
+  - { target: battleForm.extraDice, op: set, value: 'self.rank >= 9 ? 1 : 0', scope: applied }
+  - { target: skills.athletics.mod, op: atLeast, value: 'self.rank >= 9 ? 33 : 30', scope: applied }
+grants:
+  - { item: forms.monstrosity-form.phoenix, scope: applied, when: "self.form == 'phoenix'" }
+  - { item: forms.monstrosity-form.cave-worm, scope: applied, when: "self.form == 'cave-worm'" }
+  - { item: forms.monstrosity-form.sea-serpent, scope: applied, when: "self.form == 'sea-serpent'" }

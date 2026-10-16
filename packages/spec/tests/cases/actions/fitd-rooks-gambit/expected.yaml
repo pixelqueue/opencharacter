@@ -1,0 +1,40 @@
+# Best rating: Prowl 3 (Sway 2 from the Slide) -> 3d6kh1, + 1 die for the push -> 4d6kh1 [1, 2, 4,
+# 3] keeps 4: partial. Cost: 2 stress for the gambit, then the push cost (a choice): the recommended
+# 2 stress.
+status: finished
+outcome:
+  result: partial
+  data:
+    position: risky
+    effect: standard
+proposedChanges:
+  - to: self
+    step: cost
+    change:
+      type: adjust
+      field: fitd-scoundrel:stress.current
+      by: 2
+  - to: self
+    step: pushCost
+    change:
+      type: adjust
+      field: fitd-scoundrel:stress.current
+      by: 2
+log:
+  - step: roll
+    action: fitd-scoundrel:special-abilities.rooks-gambit#rooks-gambit
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 2
+      - 4
+      - 3
+    total: 4
+    band: partial
+    bandSet: fitd-scoundrel:action
+  - step: pushCost
+    action: fitd-scoundrel:special-abilities.rooks-gambit#rooks-gambit
+    kind: choice
+    by: engine
+    option: stress

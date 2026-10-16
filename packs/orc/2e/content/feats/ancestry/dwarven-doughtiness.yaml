@@ -1,0 +1,16 @@
+id: feats.ancestry.dwarven-doughtiness
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.dwarf }
+effects:
+  - target: { steps: [turn.end] }
+    op: changes
+    when: conditions.frightened > 0
+    value:
+      changes:
+        - type: adjustState
+          applied: { where: 'item.id == @conditions.frightened' }
+          key: value
+          by: -1
+        - type: removeEffect
+          applied:
+            where: 'item.id == @conditions.frightened && self.value <= fear.reduction'

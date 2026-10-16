@@ -1,0 +1,23 @@
+id: spells.pass-without-trace
+type: spell
+fields:
+  level: 2
+  school: abjuration
+  classes: [classes.druid, classes.ranger]
+  concentration: true
+  castingTime: action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: { rolls: [skill.stealth] }
+    op: add
+    value: 10
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }

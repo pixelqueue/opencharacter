@@ -1,0 +1,11 @@
+id: magic-items.boots-of-elvenkind
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+effects:
+  - { target: items.moveSilently, op: add, value: 1, when: self.equipped }
+  - target: { rolls: [skill.stealth] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.equipped && situational.moveSilently

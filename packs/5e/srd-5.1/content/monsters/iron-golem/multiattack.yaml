@@ -1,0 +1,72 @@
+id: monsters.iron-golem.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: slam }, { id: sword }, { id: both }]
+        recommend: "'slam'"
+      - id: slam1
+        kind: action
+        when: "steps.form.picked == 'slam'"
+        use: monster-attack
+        source: "'monsters.iron-golem.slam'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: slam2
+        kind: action
+        when: "steps.form.picked == 'slam'"
+        use: monster-attack
+        source: "'monsters.iron-golem.slam'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: sword1
+        kind: action
+        when: "steps.form.picked == 'sword'"
+        use: monster-attack
+        source: "'monsters.iron-golem.sword'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: sword2
+        kind: action
+        when: "steps.form.picked == 'sword'"
+        use: monster-attack
+        source: "'monsters.iron-golem.sword'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: slam3
+        kind: action
+        when: "steps.form.picked == 'both'"
+        use: monster-attack
+        source: "'monsters.iron-golem.slam'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: sword3
+        kind: action
+        when: "steps.form.picked == 'both'"
+        use: monster-attack
+        source: "'monsters.iron-golem.sword'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.slam1) && steps.slam1.result == 'hit' ? 1 : 0)
+              + (has(steps.slam2) && steps.slam2.result == 'hit' ? 1 : 0)
+              + (has(steps.sword1) && steps.sword1.result == 'hit' ? 1 : 0)
+              + (has(steps.sword2) && steps.sword2.result == 'hit' ? 1 : 0)
+              + (has(steps.slam3) && steps.slam3.result == 'hit' ? 1 : 0)
+              + (has(steps.sword3) && steps.sword3.result == 'hit' ? 1 : 0)

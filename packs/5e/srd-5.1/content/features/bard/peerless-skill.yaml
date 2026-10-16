@@ -1,0 +1,21 @@
+id: features.bard.peerless-skill
+type: feature
+actions:
+  - id: peerless-skill
+    tags: [feature]
+    results: [added]
+    available: self.bardicInspirationSpent < bardicInspiration.uses
+    steps:
+      - id: die
+        kind: roll
+        parts:
+          - dice: bardicInspiration.die
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: bardicInspirationSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'added'"
+        data:
+          bonus: steps.die.total

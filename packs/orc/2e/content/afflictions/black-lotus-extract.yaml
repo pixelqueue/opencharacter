@@ -1,0 +1,16 @@
+id: afflictions.black-lotus-extract
+type: affliction
+fields:
+  {
+    kind: poison,
+    level: 19,
+    dc: 42,
+    stages: 3,
+    stage1Damage: 13d6,
+    stage2Damage: 15d6,
+    stage3Damage: 17d6,
+  }
+grants:
+  - { item: conditions.drained, scope: applied, when: self.stage == 1, state: { value: 1 } }
+  - { item: conditions.drained, scope: applied, when: self.stage == 2, state: { value: 1 } }
+  - { item: conditions.drained, scope: applied, when: self.stage == 3, state: { value: 2 } }

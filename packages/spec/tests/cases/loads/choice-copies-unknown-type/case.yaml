@@ -1,0 +1,19 @@
+description: 'A choice over copies of a type that does not exist is unknown-reference'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: pick
+            steps:
+              - id: ask
+                kind: choice
+                options: { copies: { type: gem } }
+      content: []

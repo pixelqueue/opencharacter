@@ -1,0 +1,21 @@
+id: consumables.elixir-of-life-moderate
+type: consumable
+tags: [trait.alchemical, trait.elixir, healing]
+fields:
+  {
+    category: elixir,
+    level: 9,
+    price: 150,
+    bulk: 0.1,
+    healing: 5d6 + 12,
+    lasting: true,
+    family: consumables.elixir-of-life-minor,
+  }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: situational.againstDisease || situational.againstPoison
+    scope: applied
+    duration: { amount: 10, unit: minute }

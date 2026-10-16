@@ -1,0 +1,30 @@
+id: monsters.priest
+type: monster
+fields:
+  size: medium
+  creatureType: humanoid
+  subtype: any-race
+  alignment: any
+  ac: 13
+  armor: [armor.chain-shirt]
+  hp: 27
+  hitDice: 5d8 + 5
+  speed: 25
+  str: 10
+  dex: 10
+  con: 12
+  int: 13
+  wis: 16
+  cha: 13
+  skills: [skill.medicine, skill.persuasion, skill.religion]
+  expertise: [skill.medicine]
+  languagesNote: any-two
+  cr: 2
+# The stat block's bonus differs from proficiency: the difference is added.
+effects:
+  - { target: skills.religion, op: add, value: 1 }
+  - { target: { rolls: [skill.religion] }, op: add, value: 1 }
+grants:
+  - item: monsters.priest.divine-eminence
+  - item: monsters.priest.spellcasting
+  - item: monsters.priest.mace

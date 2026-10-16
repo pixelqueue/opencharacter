@@ -1,0 +1,43 @@
+# A natural 20 against DR 10, no ability: crit. Bite 1d6 = 4, doubled: 8 for the target, whose
+# worn armor drops a tier.
+status: finished
+outcome:
+  result: crit
+  data:
+    damage: 8
+proposedChanges:
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -8
+      tags:
+        - damage
+  - to: target
+    step: sunder
+    change:
+      type: adjustState
+      copies:
+        type: mork-borg-core:armor
+        where: self.equipped && self.damage < item.tier
+      limit: 1
+      key: damage
+      by: 1
+log:
+  - step: check/check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 20
+    total: 20
+    band: crit
+    bandSet: mork-borg-core:test
+  - step: damage
+    action: mork-borg-core:companion-attack
+    kind: dice
+    by: engine
+    faces:
+      - 4
+    total: 8

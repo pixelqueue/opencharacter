@@ -1,0 +1,31 @@
+id: worn.daredevil-boots-greater
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 17
+  price: 14000
+  bulk: 0.1
+  usage: shoes
+  activation: two
+  frequency: once-per-day
+grants:
+  - { item: spells.unfettered-movement, when: 'self.equipped && self.invested' }
+effects:
+  - target: skills.acrobatics.mod
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { rolls: [skill-action.tumble-through] }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: 'self.equipped && self.invested'
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.unfettered-movement && self.used < 1'
+    value:
+      id: unfettered-movement
+      flags: { itemPaid: true, rank: 4 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

@@ -1,0 +1,40 @@
+id: feats.champion.blessed-counterstrike
+type: feat
+tags: [trait.flourish]
+fields: { level: 12, category: class, class: classes.champion }
+actions:
+  - id: blessed-counterstrike
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "self.equipped || 'standard' in item.tags"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [strike.blessed-counterstrike]
+        participants: { target: participants.target }
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.flourishes, by: 1 }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+          weakness: floor(level / 2)
+effects:
+  - target: { rolls: [strike.blessed-counterstrike] }
+    op: add
+    value: dieOf(roll.item.damage, 1)
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: "'damage' in roll.tags"

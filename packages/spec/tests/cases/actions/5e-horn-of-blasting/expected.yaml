@@ -1,0 +1,35 @@
+# 5d6 = 20 thunder, DC 15 Constitution. goblin-1 saves (10), goblin-2 fails (20). The horn has
+# no charges, so nothing is spent. goblin-2, failing, is deafened, by the user's creature
+# type.
+status: finished
+outcome:
+  result: used
+  data: { spent: 0, damage: 20, dc: 15, save: con }
+proposedChanges:
+  - to: target
+    character: goblin-1
+    step: burn[0]
+    change:
+      {
+        type: adjust,
+        field: 5e-srd-5.1:hp.current,
+        by: -10,
+        tags: [damage, save-half, save.con, save-success, damage.thunder],
+      }
+  - to: target
+    character: goblin-2
+    step: burn[1]
+    change:
+      {
+        type: adjust,
+        field: 5e-srd-5.1:hp.current,
+        by: -20,
+        tags: [damage, save-half, save.con, save-failure, damage.thunder],
+      }
+  - to: target
+    character: goblin-2
+    step: condition[1]
+    change:
+      type: applyEffect
+      source: 5e-srd-5.1:conditions.deafened
+      state: { by: humanoid, magical: true }

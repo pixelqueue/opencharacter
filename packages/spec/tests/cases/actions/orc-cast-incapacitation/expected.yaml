@@ -1,0 +1,53 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 3
+    mode: spontaneous
+    dc: 21
+    defense: will
+    basic: false
+    damage: 0
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: orc-2e:spellSlots.rank3.used
+      by: 1
+  - to: target
+    character: ogre
+    step: afflict[0]
+    change:
+      type: applyEffect
+      source: orc-2e:conditions.stunned
+      state:
+        value: 1
+  - to: target
+    character: bandit
+    step: afflict[1]
+    change:
+      type: applyEffect
+      source: orc-2e:conditions.paralyzed
+      state:
+        value: 1
+log:
+  - step: save[0]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: ogre
+    outcome:
+      result: failure
+  - step: save[1]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: bandit
+    outcome:
+      result: failure

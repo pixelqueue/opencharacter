@@ -1,0 +1,13 @@
+id: magic-items.flame-tongue
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: "'sword' in item.tags" }
+fields: { rarity: rare, requiresAttunement: true }
+state:
+  ignited: { type: boolean, default: false }
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 2d6
+    tags: [damage.fire]
+    when: self.attuned && self.ignited

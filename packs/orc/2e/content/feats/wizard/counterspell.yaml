@@ -1,0 +1,26 @@
+id: feats.wizard.counterspell
+type: feat
+tags: [trait.reaction, trait.wizard, trait.witch]
+fields: { level: 1, category: class, class: classes.wizard }
+actions:
+  - id: counterspell
+    tags: [reaction, spell]
+    available: >-
+      countCopies(copy.type == 'spell' && !('trait.cantrip' in copy.tags)
+        && !(has(copy.state.expended) && copy.state.expended)) > 0
+    results: [countering]
+    steps:
+      - id: spell
+        kind: choice
+        options:
+          copies:
+            type: spell
+            where: "!self.expended && !('trait.cantrip' in item.tags)"
+        changes:
+          - { type: setState, entry: picked, key: expended, value: true }
+      - id: result
+        kind: outcome
+        result: "'countering'"
+        data:
+          rank: steps.spell.self.rank
+          dc: spellcasting.dc

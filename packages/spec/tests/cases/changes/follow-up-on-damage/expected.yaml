@@ -1,0 +1,26 @@
+# The fire damage (adjustment 0) calls for a check against 12 damage; the untagged 3 doesn't.
+ok: true
+adjustments:
+  - { field: 5e-srd-5.1:hp.current, by: -12, requested: -12, taken: -12, reason: requested }
+  - { field: 5e-srd-5.1:hp.current, by: -3, requested: -3, taken: -3, reason: requested }
+followUps:
+  - id: concentration-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:concentration
+    to: self
+    required: true
+    action:
+      id: 5e-srd-5.1:concentration-check
+      followUp: concentration-1
+    params:
+      damage: 12
+    cause:
+      field: 5e-srd-5.1:hp.current
+      by: -12
+      requested: -12
+      taken: -12
+      reason: requested
+      clamped: false
+      tags:
+        - damage
+        - damage.fire

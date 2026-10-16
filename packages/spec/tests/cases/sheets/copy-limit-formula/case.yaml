@@ -1,0 +1,25 @@
+description: "A copy limit that is a formula: the class type allows `classes.max` copies, 1 unless content raises it; a variant's feature raises it to 2, so two classes are within the limit, and `copyLimits` gives the value worked out"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          classes.max: { type: integer, formula: 1 }
+        contentTypes:
+          class:
+            copies: { max: classes.max }
+          feature: {}
+      content:
+        - { id: classes.fighter, type: class }
+        - { id: classes.wizard, type: class }
+        - id: features.dual-class
+          type: feature
+          effects:
+            - { target: classes.max, op: atLeast, value: 2 }

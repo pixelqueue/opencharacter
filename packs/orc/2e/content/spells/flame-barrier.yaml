@@ -1,0 +1,19 @@
+id: spells.flame-barrier
+type: spell
+tags: [trait.cleric, trait.concentrate, trait.focus, trait.uncommon]
+fields:
+  rank: 4
+  cast: reaction
+  range: 60
+  targets: 1
+  applyTo: ally
+effects:
+  - target:
+      incoming:
+        fields: [hp.current]
+        tags: [damage.fire]
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 15 + 5 * floor((self.rank - 4) / 2))
+    when: incoming.amount < 0
+    scope: applied

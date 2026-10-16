@@ -1,0 +1,62 @@
+fields:
+  # Read from the patient's view by Treat Wounds and Battle Medicine (the healer's own when treating
+  # themselves).
+  healing.treatBonus: { type: integer, formula: 0 }
+
+tags:
+  - sense.truesight
+
+situational:
+  - id: numerical
+    type: boolean
+    default: false
+    rolls: [skill-action.decipher-writing]
+    available: '@feats.skill.eye-for-numbers in feats.held'
+    effects:
+      - target: { rolls: [skill-action.decipher-writing] }
+        op: add
+        value: 2
+        stackKey: circumstance-bonus
+        when: situational.numerical
+  - id: glimpsed
+    type: boolean
+    default: false
+    rolls: [skill-action.decipher-writing]
+    available: '@feats.skill.glean-contents in feats.held'
+    effects:
+      - target: { rolls: [skill-action.decipher-writing] }
+        op: add
+        value: 1
+        stackKey: circumstance-bonus
+        when: "situational.glimpsed && 'skill.society' in roll.tags"
+  - id: sameFaith
+    type: boolean
+    default: false
+    rolls: [skill-action.request, skill-action.coerce]
+    available: '@feats.skill.exhort-the-faithful in feats.held'
+    effects:
+      - target: { rolls: [skill-action.request, skill-action.coerce] }
+        op: add
+        value: 2
+        stackKey: circumstance-bonus
+        when: "situational.sameFaith && 'skill.religion' in roll.tags"
+  - id: riskySurgery
+    type: boolean
+    default: false
+    rolls: [skill-action.treat-wounds]
+    available: '@feats.skill.risky-surgery in feats.held'
+    effects:
+      - target: { rolls: [skill-action.treat-wounds] }
+        op: add
+        value: 2
+        stackKey: circumstance-bonus
+        when: situational.riskySurgery
+      - target: { rolls: [skill-action.treat-wounds], tally: successToCrit }
+        op: add
+        value: 1
+        when: situational.riskySurgery
+  - { id: againstInhaled, type: boolean, default: false, rolls: [save] }
+
+display:
+  fields:
+    healing.treatBonus: { hidden: true }

@@ -1,0 +1,13 @@
+# `flags.color` is replaced by its value, quoted; `item` and `self` are left for applyChanges.
+status: finished
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjustState
+      copies:
+        type: test-pack:gem
+        where: item.color == 'red' && self.charge > 0
+      limit: 1
+      key: charge
+      by: -1

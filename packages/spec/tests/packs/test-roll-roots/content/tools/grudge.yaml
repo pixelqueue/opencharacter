@@ -1,0 +1,9 @@
+# Swings made with any other tool get 1 more: its own copy is `self`, the swinging tool's
+# `action.self`.
+id: tools.grudge
+type: tool
+effects:
+  - target: { rolls: [swing] }
+    op: add
+    value: 1
+    when: action.self.id != self.id && action.item.id != item.id

@@ -1,0 +1,241 @@
+creation:
+  - { id: guided, action: create-character, params: { choose: true } }
+  - { id: classless, action: create-character, params: { classless: true }, random: true }
+  - { id: class, action: create-character, random: true }
+
+constraints:
+  - id: creation-class
+    check: >-
+      !character.creating || countCopies(copy.type == 'class' || copy.type == 'companion') == 1
+  - id: one-class
+    check: "countCopies(copy.type == 'class' || copy.type == 'companion') <= 1"
+
+actions:
+  - id: create-character
+    tags: [creation]
+    available: "character.creating && countCopies(copy.type == 'class' || copy.type == 'companion') == 0"
+    params:
+      classless: { type: boolean, default: false }
+      choose: { type: boolean, default: false }
+      scroll: { type: boolean, default: false }
+    results: [rolled]
+    steps:
+      # The d6 picks one of the six classes in the ruleset's content order.
+      - id: classRoll
+        kind: roll
+        tags: [creation]
+        when: '!params.classless && !params.choose'
+        parts: [{ dice: 1d6 }]
+      - id: class
+        kind: choice
+        options:
+          content:
+            type: class
+            where: >-
+              params.choose || params.classless == (item.id == @classes.classless)
+        recommend: >-
+          !has(steps.classRoll) ? options[0] : options[(steps.classRoll.total - 1) % size(options)]
+        changes:
+          - type: addItem
+            entry: { id: class, item: picked.id }
+      - id: best
+        kind: choice
+        when: has(steps.class.item.bestOf)
+        options:
+          - { id: strength, when: picks == 0 }
+          - { id: agility, when: picks == 0 }
+          - { id: presence, when: picks == 0 }
+          - { id: toughness, when: picks == 0 }
+        repeat: { max: steps.class.item.bestOf, min: steps.class.item.bestOf }
+        recommend: options[0]
+      - id: strength
+        kind: roll
+        tags: [creation]
+        parts:
+          - dice: >-
+              has(steps.best) && 'strength' in steps.best.picked ? 4d6dl1
+                : steps.class.item.strength
+      - id: agility
+        kind: roll
+        tags: [creation]
+        parts:
+          - dice: >-
+              has(steps.best) && 'agility' in steps.best.picked ? 4d6dl1
+                : steps.class.item.agility
+      - id: presence
+        kind: roll
+        tags: [creation]
+        parts:
+          - dice: >-
+              has(steps.best) && 'presence' in steps.best.picked ? 4d6dl1
+                : steps.class.item.presence
+      - id: toughness
+        kind: roll
+        tags: [creation]
+        parts:
+          - dice: >-
+              has(steps.best) && 'toughness' in steps.best.picked ? 4d6dl1
+                : steps.class.item.toughness
+      - id: scores
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              strength: >-
+                steps.strength.total <= 4 ? -3 : steps.strength.total <= 6 ? -2
+                : steps.strength.total <= 8 ? -1 : steps.strength.total <= 12 ? 0
+                : steps.strength.total <= 14 ? 1 : steps.strength.total <= 16 ? 2 : 3
+              agility: >-
+                steps.agility.total <= 4 ? -3 : steps.agility.total <= 6 ? -2
+                : steps.agility.total <= 8 ? -1 : steps.agility.total <= 12 ? 0
+                : steps.agility.total <= 14 ? 1 : steps.agility.total <= 16 ? 2 : 3
+              presence: >-
+                steps.presence.total <= 4 ? -3 : steps.presence.total <= 6 ? -2
+                : steps.presence.total <= 8 ? -1 : steps.presence.total <= 12 ? 0
+                : steps.presence.total <= 14 ? 1 : steps.presence.total <= 16 ? 2 : 3
+              toughness: >-
+                steps.toughness.total <= 4 ? -3 : steps.toughness.total <= 6 ? -2
+                : steps.toughness.total <= 8 ? -1 : steps.toughness.total <= 12 ? 0
+                : steps.toughness.total <= 14 ? 1 : steps.toughness.total <= 16 ? 2 : 3
+      - { id: hp, kind: roll, tags: [creation], parts: [{ dice: steps.class.item.hitDie }] }
+      - { id: omens, kind: roll, tags: [creation], parts: [{ dice: steps.class.item.omensDie }] }
+      - { id: powers, kind: roll, tags: [creation], parts: [{ dice: 1d4 }] }
+      - { id: silver, kind: roll, tags: [creation], parts: [{ dice: steps.class.item.silver }] }
+      - { id: food, kind: roll, tags: [creation], parts: [{ dice: 1d4 }] }
+      - id: weapon
+        kind: roll
+        tags: [creation]
+        parts:
+          - dice: >-
+              params.scroll && has(steps.class.item.scrollWeaponDie)
+                ? steps.class.item.scrollWeaponDie : steps.class.item.weaponDie
+      - id: armor
+        kind: roll
+        tags: [creation]
+        parts:
+          - dice: >-
+              params.scroll && has(steps.class.item.scrollArmorDie)
+                ? steps.class.item.scrollArmorDie : steps.class.item.armorDie
+      - { id: equipment1, kind: roll, tags: [creation], parts: [{ dice: 1d6 }] }
+      - { id: equipment2, kind: roll, tags: [creation], parts: [{ dice: 1d12 }] }
+      - { id: equipment3, kind: roll, tags: [creation], parts: [{ dice: 1d12 }] }
+      # A d2 for the kind (1 unclean, 2 sacred), then a d10 on that kind's table in the book's
+      # order.
+      - id: scrollKind
+        kind: roll
+        tags: [creation]
+        when: 'steps.class.picked == @classes.esoteric-hermit'
+        parts: [{ dice: 1d2 }]
+      - id: hermitScroll
+        kind: roll
+        tags: [creation]
+        when: has(steps.scrollKind)
+        parts: [{ dice: 1d10 }]
+      - id: feature
+        kind: roll
+        tags: [creation]
+        when: 'steps.class.picked != @classes.classless && steps.class.picked != @classes.occult-herbmaster'
+        parts: [{ dice: 1d6 }]
+      - id: feature2
+        kind: roll
+        tags: [creation]
+        when: 'steps.class.picked == @classes.wretched-royalty'
+        parts: [{ dice: 1d5 }]
+      - id: save
+        kind: changes
+        changes:
+          - { type: set, field: abilities.strength, value: flags.strength }
+          - { type: set, field: abilities.agility, value: flags.agility }
+          - { type: set, field: abilities.presence, value: flags.presence }
+          - { type: set, field: abilities.toughness, value: flags.toughness }
+          - { type: set, field: hp.max, value: 'max(1, flags.toughness + steps.hp.total)' }
+          - { type: set, field: hp.current, value: 'max(1, flags.toughness + steps.hp.total)' }
+          - { type: set, field: omens.max, value: steps.omens.total }
+          - { type: set, field: omens.current, value: steps.omens.total }
+          - { type: set, field: powers.max, value: 'max(0, flags.presence + steps.powers.total)' }
+          - {
+              type: set,
+              field: powers.current,
+              value: 'max(0, flags.presence + steps.powers.total)',
+            }
+          - { type: set, field: silver.current, value: steps.silver.total * 10 }
+      - id: gear
+        kind: changes
+        changes:
+          - type: addItem
+            entry:
+              item: >-
+                'weapons.' + ['femur', 'staff', 'shortsword', 'knife', 'warhammer', 'sword', 'bow',
+                'flail', 'crossbow', 'zweihander'][steps.weapon.total - 1]
+              equipped: true
+          - type: addItem
+            when: steps.weapon.total == 7
+            entry: { item: "'ammo.arrows'", quantity: flags.presence + 10 }
+          - type: addItem
+            when: steps.weapon.total == 9
+            entry: { item: "'ammo.bolts'", quantity: flags.presence + 10 }
+          - type: addItem
+            when: steps.armor.total >= 2
+            entry:
+              item: "'armor.' + ['light', 'medium', 'heavy'][steps.armor.total - 2]"
+              equipped: true
+          - type: addItem
+            when: has(steps.hermitScroll)
+            entry:
+              item: >-
+                (steps.scrollKind.total == 1 ? [
+                'scrolls.unclean.palms-open-the-southern-gate',
+                'scrolls.unclean.tongue-of-eris',
+                'scrolls.unclean.te-le-kin-esis',
+                'scrolls.unclean.lucy-fires-levitation',
+                'scrolls.unclean.daemon-of-capillaries',
+                'scrolls.unclean.nine-violet-signs-unknot-the-storm',
+                'scrolls.unclean.metzhuotl-blind-your-eye',
+                'scrolls.unclean.eyelid-blinds-the-mind',
+                'scrolls.unclean.death',
+                'scrolls.unclean.foul-psychopomp'
+                ] : [
+                'scrolls.sacred.grace-of-a-dead-saint',
+                'scrolls.sacred.grace-for-a-sinner',
+                'scrolls.sacred.whispers-pass-the-gate',
+                'scrolls.sacred.aegis-of-sorrow',
+                'scrolls.sacred.unmet-fate',
+                'scrolls.sacred.bestial-speech',
+                'scrolls.sacred.false-dawn-nights-chariot',
+                'scrolls.sacred.hermetic-step',
+                'scrolls.sacred.roskoes-consuming-glare',
+                'scrolls.sacred.enochian-syntax'
+                ])[steps.hermitScroll.total - 1]
+      # A picked option isn't offered again, so the Royalty's second pick's five are the others: the
+      # d5 counts on from the first.
+      - id: features
+        kind: choice
+        options: { pending: { entry: "'class'" } }
+        recommend: >-
+          !has(steps.feature) ? '' : size(options) == 6 ? options[steps.feature.total - 1]
+            : has(steps.feature2) && size(options) == 5
+              ? options[(steps.feature.total + steps.feature2.total - 2) % 5] : ''
+        changes:
+          - type: addItem
+            when: >-
+              picked.id in ['brown-scimitar', 'old-sigurds-sling', 'shoe-of-deaths-horse',
+              'blade-of-your-ancestors', 'hamfund', 'snake-skin-gift', 'sacred-shepherds-crook']
+            entry:
+              item: >-
+                'weapons.' + ['brown-scimitar', 'old-sigurds-sling', 'shoe-of-deaths-horse',
+                'blade-of-your-ancestors', 'eurekia', 'snake-skin-dagger', 'shepherds-crook'][
+                indexOf(['brown-scimitar', 'old-sigurds-sling', 'shoe-of-deaths-horse',
+                'blade-of-your-ancestors', 'hamfund', 'snake-skin-gift', 'sacred-shepherds-crook'],
+                picked.id)]
+      - id: finish
+        kind: changes
+        changes:
+          - { type: finishCreation }
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          food: steps.food.total
+          equipment1: steps.equipment1.total
+          equipment2: steps.equipment2.total
+          equipment3: steps.equipment3.total

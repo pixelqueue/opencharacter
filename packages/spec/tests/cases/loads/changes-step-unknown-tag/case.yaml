@@ -1,0 +1,27 @@
+description: "A changes step's static tags, and a `changes` effect's target tags, must be declared"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [hit]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+        actions:
+          - id: strike
+            steps:
+              - { id: onHit, kind: changes, tags: [hit, crit] }
+      content:
+        - id: ring
+          effects:
+            - target: { steps: [miss] }
+              op: changes
+              value:
+                changes:
+                  - { type: adjust, field: hp, by: 1 }

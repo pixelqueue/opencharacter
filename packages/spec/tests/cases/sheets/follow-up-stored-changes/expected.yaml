@@ -1,0 +1,20 @@
+# The reset jumped 16 for a maximum of 14: 2 past it, taken off.
+offers:
+  - id: refund-1
+    kind: ephemeral
+    followUp: test-pack:refund
+    to: self
+    required: true
+    changes:
+      - { type: adjust, field: test-pack:health.current, by: -2 }
+      - { type: clearFollowUp, id: refund-1 }
+    cause:
+      {
+        field: test-pack:health.current,
+        by: 16,
+        requested: 0,
+        taken: 0,
+        reason: reset,
+        clamped: false,
+        tags: [],
+      }

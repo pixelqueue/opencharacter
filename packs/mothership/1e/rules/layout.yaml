@@ -1,0 +1,59 @@
+display:
+  groups:
+    - id: attacks
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'attack' in item.tags" }
+    - id: checks
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'check' in item.tags" }
+    - id: save-rolls
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'save' in item.tags && item.id != @rest" }
+    - id: stress-actions
+      kind: actions
+      priority: 1
+      members:
+        type: action
+        where: "'panic' in item.tags || 'stress' in item.tags || item.id == @rest"
+    - id: harm-actions
+      kind: actions
+      priority: 1
+      members:
+        type: action
+        where: "'health' in item.tags || 'wound' in item.tags || 'death' in item.tags"
+    - id: creation
+      kind: actions
+      priority: 3
+      visibility: background
+      members: { type: action, where: "'creation' in item.tags" }
+    - id: class
+      kind: content
+      priority: 0
+      members: { type: class }
+    - id: skills
+      kind: content
+      priority: 0
+      members: { type: skill }
+      sectionBy: "item.tier == 'trained' ? 0 : item.tier == 'expert' ? 1 : 2"
+    - id: weapons
+      kind: content
+      priority: 1
+      members: { type: weapon }
+    - id: armor
+      kind: content
+      priority: 1
+      members: { type: armor }
+  types:
+    class: { quantity: { hidden: true } }
+    skill: { quantity: { hidden: true } }
+    weapon:
+      state:
+        shots: { priority: 0, input: { widget: track }, showWhen: has(item.magazine) }
+      fields:
+        damage: { format: dice }
+    armor:
+      state:
+        destroyed: { priority: 0, showWhen: self.destroyed }

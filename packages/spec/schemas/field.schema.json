@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/field.schema.json",
+  "title": "Field",
+  "description": "A character field declared by the rules. Input fields are base state the player supplies and the character file saves; all other fields are derived (formula, effects, grants) and never saved. Text: `fields.<id>.name`, `fields.<id>.short`.",
+  "type": "object",
+  "required": ["type"],
+  "properties": {
+    "type": {
+      "$ref": "common.schema.json#/$defs/valueType"
+    },
+    "values": {
+      "description": "enum: the allowed values.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/slug"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "of": {
+      "description": "id/set: what the members are: a content type name, `field`, `tag` or `string`.",
+      "$ref": "common.schema.json#/$defs/name"
+    },
+    "members": {
+      "description": "id/set of `tag`: which tags it takes. Without it, any declared tag.",
+      "$ref": "common.schema.json#/$defs/tagMembers"
+    },
+    "input": {
+      "description": "True for base state saved in the character file (ability scores, current HP). Input fields have no formula; effects still apply on top.",
+      "type": "boolean"
+    },
+    "default": {
+      "description": "Input fields: the value when the character file has none.",
+      "$ref": "common.schema.json#/$defs/literal"
+    },
+    "formula": {
+      "description": "Derived fields: how the value is computed. A field with neither `input` nor `formula` starts empty (sets) or at its default and is filled by effects.",
+      "$ref": "formula.schema.json"
+    },
+    "min": {
+      "description": "Lowest valid value (a formula). Input values below it are runtime errors (`out-of-range`).",
+      "$ref": "formula.schema.json"
+    },
+    "max": {
+      "description": "Highest valid value (a formula).",
+      "$ref": "formula.schema.json"
+    },
+    "tags": {
+      "description": "Tags that let queries, display groups and effects on sets of fields find the field. An entry may be `{ formula }`: evaluated on the character's sheet like the field's own formula, it gives one declared tag or a list of them. Effects on a set of fields, field parameters and allocate steps see the computed tags; queries over fields, display groups and the field functions' static filter see the written ones only. A failing tag formula fails the field.",
+      "$ref": "common.schema.json#/$defs/tagList"
+    },
+    "rounding": {
+      "description": "Overrides the game's rounding for multiply effects on this field.",
+      "$ref": "common.schema.json#/$defs/rounding"
+    },
+    "recommend": {
+      "description": "When several `set` effects compete for this field, which one the rules recommend. Default: the game's `settings.competing.recommend`.",
+      "$ref": "#/$defs/recommendPolicy"
+    },
+    "deprecated": {
+      "$ref": "common.schema.json#/$defs/deprecation"
+    },
+    "nameFrom": {
+      "description": "A string field whose value names this field, for a field the player names (a Lore of a city). computeSheet gives the value as the field's `name` when it is a non-empty string, and the field's text (`fields.<id>.name`) formats it as `{name}`.",
+      "$ref": "common.schema.json#/$defs/fieldRef"
+    },
+    "absorbedBy": {
+      "description": "Incoming decreases drain these input fields first, in order, down to their minimum, before this field (temporary hit points). Only for numeric input fields.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/fieldRef"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "overflow": {
+      "description": "What happens when an adjust takes this input field past a bound, instead of clamping: adjust `into` by `by` (default 1), then set this field to `reset`. The adjust on `into` is routed like any other (it can overflow in turn, up to `maxOverflowChain`). Excess beyond the bound is carried over only with `carry`.",
+      "type": "array",
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["at", "into", "reset"],
+        "properties": {
+          "at": {
+            "description": "Which bound.",
+            "enum": ["max", "min"]
+          },
+          "inclusive": {
+            "description": "Trigger on reaching the bound, not only on passing it (Mothership: health reaching 0). Default false.",
+            "type": "boolean"
+          },
+          "into": {
+            "$ref": "common.schema.json#/$defs/fieldRef"
+          },
+          "by": {
+            "$ref": "formula.schema.json"
+          },
+          "reset": {
+            "$ref": "formula.schema.json"
+          },
+          "carry": {
+            "description": "After the reset, the excess past the bound (the result less the bound: positive past `max`, negative past `min`) is routed into this field again as an adjust with `reason: carry`, so it can overflow in turn (FitD heat: 7 and 4 more is a wanted level and 2 heat). Default false: the excess is dropped.",
+            "type": "boolean"
+          },
+          "tags": {
+            "$ref": "common.schema.json#/$defs/tags"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "limits": {
+      "description": "Bounds on the final value, after effects. A final value outside them is the rules issue `out-of-limits` (not clamped, not an error). Unlike `min`/`max`, which check an input's saved value.",
+      "type": "object",
+      "properties": {
+        "min": {
+          "$ref": "formula.schema.json"
+        },
+        "max": {
+          "$ref": "formula.schema.json"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "input": {
+            "const": true
+          }
+        },
+        "required": ["input"],
+        "type": "object"
+      },
+      "then": {
+        "not": {
+          "required": ["formula"],
+          "type": "object"
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "enum"
+          }
+        },
+        "type": "object"
+      },
+      "then": {
+        "required": ["values"],
+        "type": "object"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "enum": ["id", "set"]
+          }
+        },
+        "type": "object"
+      },
+      "then": {
+        "required": ["of"],
+        "type": "object"
+      }
+    },
+    {
+      "if": {
+        "required": ["members"],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "type": { "enum": ["id", "set"] },
+          "of": { "const": "tag" }
+        },
+        "type": "object"
+      }
+    }
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "recommendPolicy": {
+      "enum": ["highest", "lowest", "first", "last"]
+    }
+  }
+}

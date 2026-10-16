@@ -1,0 +1,11 @@
+id: feats.archetype.archaeologist.archaeologist-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.archaeologist }
+
+prerequisites:
+  - { id: society, when: 'skills.society.rank >= 1' }
+  - { id: thievery, when: 'skills.thievery.rank >= 1' }
+effects:
+  - { target: skills.society.rank, op: atLeast, value: 2 }
+  - { target: skills.thievery.rank, op: atLeast, value: 2 }

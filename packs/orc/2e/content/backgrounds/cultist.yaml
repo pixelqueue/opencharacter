@@ -1,0 +1,27 @@
+id: backgrounds.cultist
+type: background
+# The Lore of your deity or cult is the first custom Lore (`skills.lore.custom1`), its subject named
+# by the player.
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.occultism },
+      when: "!('skill.occultism' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.custom1 },
+      when: "!('skill.lore.custom1' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.schooled-in-secrets
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['int', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

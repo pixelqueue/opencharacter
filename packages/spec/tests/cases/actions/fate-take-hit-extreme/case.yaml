@@ -1,0 +1,13 @@
+description: 'Fate Core: the player takes the moderate, severe and extreme consequences against a 15-shift mental hit; the extreme one replaces her trouble and is marked as used'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:take-hit }
+  params: { shifts: 15, harm: mental, label: Shattered Confidence }
+  policy: { choices: pause }
+answers:
+  - option: take
+  - option: take
+  - option: trouble

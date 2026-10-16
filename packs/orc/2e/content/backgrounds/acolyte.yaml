@@ -1,0 +1,25 @@
+id: backgrounds.acolyte
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.religion },
+      when: "!('skill.religion' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.scribing },
+      when: "!('skill.lore.scribing' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.student-of-the-canon
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['int', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

@@ -1,0 +1,10 @@
+id: conditions.prone
+type: condition
+grants:
+  - { item: conditions.off-guard, scope: applied }
+effects:
+  - target: { fields: { where: "'attack' in item.tags" } }
+    op: add
+    value: -2
+    stackKey: circumstance-penalty
+    scope: applied

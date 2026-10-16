@@ -1,0 +1,27 @@
+id: features.ranger.favored-enemy
+type: feature
+# "Two races of humanoid" is one `humanoids` pick.
+choices:
+  - id: enemies
+    pick: 'self.level >= 14 ? 3 : self.level >= 6 ? 2 : 1'
+    from:
+      options:
+        - { id: aberrations }
+        - { id: beasts }
+        - { id: celestials }
+        - { id: constructs }
+        - { id: dragons }
+        - { id: elementals }
+        - { id: fey }
+        - { id: fiends }
+        - { id: giants }
+        - { id: monstrosities }
+        - { id: oozes }
+        - { id: plants }
+        - { id: undead }
+        - { id: humanoids }
+  - id: languages
+    pick: 'self.level >= 14 ? 3 : self.level >= 6 ? 2 : 1'
+    unique: languages
+    from: { type: language, where: "!('monster' in item.tags)" }
+    eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'

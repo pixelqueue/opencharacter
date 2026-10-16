@@ -1,0 +1,13 @@
+# No damage; the ogre fails its save and is restrained, magical, by the user's creature type.
+status: finished
+outcome:
+  result: used
+  data: { spent: 0, damage: 0, dc: 15, save: dex }
+proposedChanges:
+  - to: target
+    character: ogre
+    step: condition[0]
+    change:
+      type: applyEffect
+      source: 5e-srd-5.1:conditions.restrained
+      state: { by: humanoid, magical: true }

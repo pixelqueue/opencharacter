@@ -1,0 +1,43 @@
+description: "A content choice with `activate: false` keeps its picks as references: its effects run per pick, the picked content's own don't, and its actions aren't listed"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tools.proficient: { type: set, of: tool }
+          music: { type: integer, formula: 0 }
+        contentTypes:
+          feature: {}
+          tool:
+            actions:
+              - id: play
+                steps:
+                  - { id: done, kind: outcome }
+      content:
+        - id: tools.lute
+          type: tool
+          effects:
+            - { target: music, op: add, value: 1 }
+        - id: tools.drum
+          type: tool
+          effects:
+            - { target: music, op: add, value: 10 }
+        - id: features.minstrel
+          type: feature
+          choices:
+            # Proficiency with an instrument: a reference, not the instrument.
+            - id: proficiency
+              from: { type: tool }
+              activate: false
+              effects:
+                - { target: tools.proficient, op: grant, value: { formula: pick.id } }
+            # A picked instrument the character has (active, as picks are by default).
+            - id: instrument
+              from: { type: tool }

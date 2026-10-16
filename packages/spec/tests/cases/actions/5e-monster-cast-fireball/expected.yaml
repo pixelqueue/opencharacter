@@ -1,0 +1,35 @@
+# Without targets, the outcome gives the DC (14, as printed) for the app; one of its three
+# 3rd-level slots is spent.
+status: finished
+outcome:
+  {
+    result: save,
+    data:
+      {
+        slot: 3,
+        spellcastingClass: monster,
+        dc: 14,
+        save: dex,
+        halfOnSave: true,
+        damage: 24,
+        healing: 0,
+        concentration: false,
+        critical: false,
+        metamagic: none,
+      },
+  }
+proposedChanges:
+  - {
+      to: self,
+      step: spendSlot,
+      change: { type: adjust, field: '5e-srd-5.1:spellSlots.level3.used', by: 1 },
+    }
+log:
+  - {
+      step: damage,
+      action: '5e-srd-5.1:cast-spell',
+      kind: dice,
+      by: engine,
+      faces: [1, 2, 3, 4, 5, 6, 1, 2],
+      total: 24,
+    }

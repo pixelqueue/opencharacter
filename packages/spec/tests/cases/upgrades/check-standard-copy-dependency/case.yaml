@@ -1,0 +1,50 @@
+description: "checkRelease loads each side with its dependencies, so a dependency's standard copies query that the pack's item now matches makes it `standard-copy-added`"
+specVersion: 0.1.0
+call: checkRelease
+dependencies:
+  previous: &base
+    - inline:
+        manifest:
+          id: test-base
+          version: 1.0.0
+          specVersion: 0.1.0
+          license: CC0-1.0
+          defaultLanguage: en
+        rules:
+          tags: [kit]
+          contentTypes:
+            gear: { carried: true }
+          standardCopies:
+            - { type: gear, where: "'kit' in item.tags" }
+        content: []
+  next: *base
+previous:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+      dependencies: { test-base: ^1.0.0 }
+    rules: {}
+    content:
+      - { id: gear.lantern, type: test-base:gear }
+next:
+  inline:
+    manifest:
+      id: test-pack
+      version: 2.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+      dependencies: { test-base: ^1.0.0 }
+    rules: {}
+    content:
+      - { id: gear.lantern, type: test-base:gear, tags: [kit] }
+    upgrades:
+      - pack: test-pack
+        from: 1.0.0
+        to: 2.0.0
+        steps:
+          - { op: adoptStandard, item: gear.lantern }

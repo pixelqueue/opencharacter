@@ -1,0 +1,108 @@
+# Sight rot at 4 worsens to 5 by query, and the rest blinds the creature.
+status: finished
+outcome:
+  result: rested
+proposedChanges:
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:hp.current
+      value: 8
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:hp.temp
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:deathSaves.successes
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:deathSaves.failures
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: adjust
+      field: 5e-srd-5.1:conditions.exhaustion
+      by: -1
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:spellSlots.level1.used
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:spellSlots.level2.used
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:spellSlots.level3.used
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:spellSlots.level4.used
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:spellSlots.level5.used
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:spellSlots.level6.used
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:spellSlots.level7.used
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:spellSlots.level8.used
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:spellSlots.level9.used
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.1:pactSlots.used
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: adjustState
+      key: penalty
+      applied:
+        where: item.id == '5e-srd-5.1:conditions.sight-rot' && self.penalty < 5
+      by: 1
+  - to: self
+    step: rest
+    change:
+      type: applyEffect
+      source: 5e-srd-5.1:conditions.blinded

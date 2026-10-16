@@ -1,0 +1,23 @@
+id: features.sorcerer.sorcerous-potency
+type: feature
+fields: { level: 1 }
+# A roll per target (an attack spell's) adds it to each target once; a save spell rolls once for
+# all. Only the initial damage: persistent damage isn't rolled here.
+effects:
+  - id: damage
+    target: { rolls: [damage.spell] }
+    op: add
+    value: flags.rank
+    stackKey: status-bonus
+    tags: [{ formula: "'damage.' + flags.damageType" }]
+    when: >-
+      has(flags.mode) && flags.mode in ['prepared', 'spontaneous'] && has(flags.cantrip)
+        && !flags.cantrip
+  - id: healing
+    target: { rolls: [healing] }
+    op: add
+    value: flags.rank
+    stackKey: status-bonus
+    when: >-
+      has(flags.mode) && flags.mode in ['prepared', 'spontaneous'] && has(flags.cantrip)
+        && !flags.cantrip

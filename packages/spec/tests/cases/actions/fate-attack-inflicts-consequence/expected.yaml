@@ -1,0 +1,86 @@
+status: finished
+outcome:
+  result: style
+  data:
+    total: 5
+    opposition: 0
+    hit: 5
+    harm: physical
+    boost: false
+    takenOut: false
+    strokeSecond: false
+proposedChanges:
+  - to: self
+    step: gain
+    change:
+      type: addItem
+      entry:
+        id: advantages-advantage-1
+        item: fate-core:advantages.advantage
+        state:
+          invokes: 1
+          kind: consequence
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 0
+      - 0
+      - 0
+    total: 5
+    band: superb
+    bandSet: fate-core:ladder
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: defense[0]
+    action: fate-core:attack
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: duelist
+    outcome:
+      result: fail
+      data:
+        total: 0
+  - step: final
+    action: fate-core:attack
+    kind: dice
+    by: engine
+    total: 5
+    band: style
+    bandSet: fate-core:outcome
+  - step: boost
+    action: fate-core:attack
+    kind: choice
+    by: engine
+    option: full
+  - step: hit[0]
+    action: fate-core:attack
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: duelist
+    outcome:
+      result: absorbed
+      data:
+        shifts: 5
+        box: 1
+        consequences: 1

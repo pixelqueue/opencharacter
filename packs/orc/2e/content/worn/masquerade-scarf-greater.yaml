@@ -1,0 +1,16 @@
+id: worn.masquerade-scarf-greater
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 7
+  price: 340
+  activation: two
+grants:
+  - { item: spells.illusory-disguise, when: 'self.equipped && self.invested' }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.illusory-disguise'
+    value:
+      id: illusory-disguise
+      flags: { itemPaid: true, rank: 2 }

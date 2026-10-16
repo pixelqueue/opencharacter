@@ -1,0 +1,103 @@
+contentTypes:
+  ritual:
+    nameFrom: label
+    state:
+      label: { type: string, default: '' }
+      primed: { type: boolean, default: false }
+    actions:
+      - use: perform-ritual
+      - use: unleash-ritual
+
+actions:
+  - id: perform-ritual
+    tags: [downtime, ritual]
+    results: [performed, primed]
+    available: '@special-abilities.ritual in abilities.special && !self.primed'
+    params:
+      stress: { type: integer, min: 0 }
+      dangerous: { type: boolean, default: false }
+      rating: { type: id, of: field, where: "'rating' in item.tags", default: ratings.attune }
+      uncertain: { type: boolean, default: false }
+      dice: { type: integer, min: 0, default: 0 }
+      prime: { type: boolean, default: false }
+    steps:
+      - id: cost
+        kind: changes
+        when: params.stress > 0
+        to: self
+        changes:
+          - { type: adjust, field: stress.current, by: params.stress }
+      - id: danger
+        kind: action
+        when: params.dangerous
+        use: action-roll
+        params:
+          rating: params.rating.id
+          downtime: true
+      - id: manifest
+        kind: action
+        when: params.uncertain
+        use: fortune-roll
+        params:
+          dice: params.dice
+      - id: level
+        kind: branch
+        cases:
+          - when: params.uncertain
+            flags:
+              level: >-
+                steps.manifest.result == 'critical' ? 3 : steps.manifest.result == 'success' ? 2
+                : steps.manifest.result == 'partial' ? 1 : 0
+        else:
+          flags:
+            level: 0
+      - id: coin
+        kind: choice
+        when: params.uncertain && coin > 0 && flags.level < 3
+        options:
+          - { id: keep }
+          - { id: spend1 }
+          - { id: spend2, when: coin >= 2 && flags.level < 2 }
+          - { id: spend3, when: coin >= 3 && flags.level == 0 }
+        recommend: "'keep'"
+      - id: spent
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              coin: >-
+                !has(steps.coin) ? 0 : steps.coin.picked == 'spend3' ? 3
+                : steps.coin.picked == 'spend2' ? 2 : steps.coin.picked == 'spend1' ? 1 : 0
+      - id: spend
+        kind: changes
+        when: flags.coin > 0
+        to: self
+        changes:
+          - { type: adjust, field: coin, by: -flags.coin }
+      - id: primed
+        kind: changes
+        when: params.prime
+        to: self
+        changes:
+          - { type: setState, entry: self, key: primed, value: true }
+      - id: result
+        kind: outcome
+        result: "params.prime ? 'primed' : 'performed'"
+        data:
+          stress: params.stress
+          danger: "params.dangerous ? steps.danger.result : 'none'"
+          manifest: >-
+            params.uncertain ? ['failure', 'partial', 'success', 'critical'][min(3, flags.level +
+            flags.coin)] : 'none'
+
+  - id: unleash-ritual
+    tags: [ritual]
+    results: [unleashed]
+    available: self.primed
+    steps:
+      - id: unprime
+        kind: changes
+        to: self
+        changes:
+          - { type: setState, entry: self, key: primed, value: false }
+      - { id: result, kind: outcome, result: "'unleashed'" }

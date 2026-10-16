@@ -1,0 +1,19 @@
+description: "5E: the kraken's Lightning Storm legendary action passes its three targets on to `monster-effect` as views; each saves on its own sheet"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action:
+    id: '5e-srd-5.1:monsters.kraken.lightning-storm-legendary#lightning-storm-legendary'
+    entry: monster
+    source: 5e-srd-5.1:monsters.kraken.lightning-storm-legendary
+  participants:
+    target:
+      - { id: ship-1 }
+      - { id: ship-2 }
+      - { id: ship-3 }
+answers:
+  - { outcome: { result: failure } }
+  - { outcome: { result: success } }
+  - { outcome: { result: failure } }

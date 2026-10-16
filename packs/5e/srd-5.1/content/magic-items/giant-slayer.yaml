@@ -1,0 +1,12 @@
+id: magic-items.giant-slayer
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: "'axe' in item.tags || 'sword' in item.tags" }
+fields: { rarity: rare, attackBonus: 1, damageBonus: 1 }
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 2d6
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: "has(participants.target) && size(participants.target) > 0
+      && has(participants.target[0].creature.type) && participants.target[0].creature.type == 'giant'"

@@ -1,0 +1,12 @@
+id: feats.ancestry.bloody-blows
+type: feat
+fields: { level: 5, category: ancestry, ancestry: ancestries.orc }
+effects:
+  - target: { steps: [strike.hit.critical] }
+    op: changes
+    when: "'unarmed' in action.item.tags && !('trait.nonlethal' in action.item.tags)"
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.persistent-damage'"
+          state: { damage: 1d4, damageType: "'bleed'" }

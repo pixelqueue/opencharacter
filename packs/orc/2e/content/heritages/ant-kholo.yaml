@@ -1,0 +1,9 @@
+id: heritages.ant-kholo
+type: heritage
+fields: { ancestry: ancestries.kholo, size: small }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.deception }
+    when: "!('skill.deception' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }

@@ -1,0 +1,25 @@
+description: 'A change for a role naming an unknown field of a loaded pack is still unknown-reference'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      content: []
+      rules:
+        fields:
+          marks: { type: integer, input: true, default: 0 }
+        actions:
+          - id: mark
+            participants:
+              target: {}
+            steps:
+              - id: mark
+                kind: changes
+                to: target
+                changes:
+                  - { type: adjust, field: 'test-pack:scars', by: 1 }

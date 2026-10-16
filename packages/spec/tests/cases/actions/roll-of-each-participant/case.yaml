@@ -1,0 +1,82 @@
+description: "A roll step with `of` rolls nothing and classifies an earlier roll again: one d20 + 2 (a nested action's roll, `check/roll`) against each target's DC, set per target by an `each` branch. The roll's tally (a success counts as a critical success) applies to each; the total stays the nested roll's"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          bonus: { type: integer, input: true, default: 2 }
+          lucky: { type: boolean, input: true, default: false }
+        tags: [d20]
+        rollTallies: [successToCrit]
+        effects:
+          - target: { rolls: [d20], tally: successToCrit }
+            op: add
+            value: 1
+            when: lucky
+        resultBands:
+          degree:
+            - { id: rolled, when: flags.dc < 0 }
+            - { id: critical-success, when: roll.total >= flags.dc + 10 }
+            - id: critical-success
+              when: roll.total >= flags.dc && roll.tallies.successToCrit > 0
+            - { id: success, when: roll.total >= flags.dc }
+            - { id: failure, when: true }
+        actions:
+          - id: check
+            params:
+              dc: { type: integer, optional: true }
+            steps:
+              - id: setup
+                kind: branch
+                cases:
+                  - when: true
+                    flags: { dc: 'has(params.dc) ? params.dc : -1' }
+              - id: roll
+                kind: roll
+                tags: [d20]
+                bands: degree
+                parts:
+                  - dice: 1d20
+                  - value: bonus
+              - id: result
+                kind: outcome
+                result: steps.roll.band
+          - id: frighten
+            participants:
+              target:
+                fields:
+                  will: { type: integer }
+            steps:
+              - { id: check, kind: action, use: check }
+              - id: dcs
+                kind: branch
+                each: target
+                cases:
+                  - when: true
+                    flags: { dc: participant.will }
+              - id: against
+                kind: roll
+                each: target
+                of: check/roll
+                bands: degree
+              - id: done
+                kind: outcome
+                result: steps.check.result
+                data:
+                  bands: mapList(steps.against, x.band)
+                  totals: mapList(steps.against, x.total)
+      content: []
+input:
+  action: { id: test-pack:frighten }
+  participants:
+    target:
+      - { id: a, values: { test-pack:will: 7 } }
+      - { id: b, values: { test-pack:will: 16 } }
+      - { id: c, values: { test-pack:will: 18 } }

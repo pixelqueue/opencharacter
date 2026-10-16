@@ -1,0 +1,24 @@
+# 3. stress takes +3 -> 11; 4. 11 > max 9: overflow adjusts trauma.current by 1 (0 -> 1,
+# routed, within max 4), then stress resets to 0 (11 -> 0 = -11)
+ok: true
+adjustments:
+  - field: fitd-scoundrel:stress.current
+    by: 3
+    requested: 3
+    taken: 3
+    reason: requested
+  - field: fitd-scoundrel:trauma.current
+    by: 1
+    reason: overflow
+  - field: fitd-scoundrel:stress.current
+    by: -11
+    reason: reset
+character:
+  values:
+    fitd-scoundrel:ratings.command: 1
+    fitd-scoundrel:ratings.prowl: 1
+    fitd-scoundrel:ratings.survey: 1
+    fitd-scoundrel:ratings.skirmish: 3
+    fitd-scoundrel:ratings.wreck: 1
+    fitd-scoundrel:stress.current: 0
+    fitd-scoundrel:trauma.current: 1

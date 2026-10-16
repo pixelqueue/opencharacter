@@ -1,0 +1,28 @@
+# A goblin from the SRD 5.1 stat block, as the `monster` creation start makes it: the stat block's
+# item (content/monsters/goblin.yaml) and its numbers as input values. Monsters have no class
+# levels, so proficiency comes from the challenge rating. Derived values the engine should compute:
+# AC 15 (the stat block's), HP max 7, proficiency +2, Stealth +6; its scimitar and shortbow are
+# monster-attack actions (+4, 1d6 + 2).
+specVersion: 0.1.0
+id: goblin
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 8
+  5e-srd-5.1:abilities.dex.base: 14
+  5e-srd-5.1:abilities.con.base: 10
+  5e-srd-5.1:abilities.int.base: 10
+  5e-srd-5.1:abilities.wis.base: 8
+  5e-srd-5.1:abilities.cha.base: 8
+  5e-srd-5.1:challenge.rating: 0.25
+  5e-srd-5.1:creature.size: small
+  5e-srd-5.1:creature.type: humanoid
+  5e-srd-5.1:combat.speed: 30
+  5e-srd-5.1:proficiencies.skills: [skill.stealth]
+  5e-srd-5.1:proficiencies.expertise: [skill.stealth]
+  5e-srd-5.1:proficiencies.languages: [5e-srd-5.1:languages.common, 5e-srd-5.1:languages.goblin]
+  5e-srd-5.1:hp.base: 7
+  5e-srd-5.1:hp.current: 7
+features:
+  - id: monster
+    item: 5e-srd-5.1:monsters.goblin

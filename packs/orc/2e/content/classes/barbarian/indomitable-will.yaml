@@ -1,0 +1,8 @@
+id: classes.barbarian.indomitable-will
+type: feature
+fields: { level: 15 }
+effects:
+  - { target: saves.will.rank, op: atLeast, value: 3 }
+  - target: { rolls: [save.will], tally: successToCrit }
+    op: add
+    value: 1

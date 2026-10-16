@@ -1,0 +1,18 @@
+# DC 10 + 5 x 1 use = 15. Con save: 10 + con 2 + proficiency 4 = 16: success, back to 1 hit point.
+status: finished
+outcome:
+  result: success
+  data: { dc: 15 }
+proposedChanges:
+  - to: self
+    step: survive
+    change: { type: set, field: 5e-srd-5.1:hp.current, value: 1 }
+  - to: self
+    step: count
+    change: { type: adjustState, entry: barbarian, key: relentlessRageSpent, by: 1 }
+log:
+  - step: save/save
+    kind: dice
+    by: engine
+    faces: [10]
+    total: 16

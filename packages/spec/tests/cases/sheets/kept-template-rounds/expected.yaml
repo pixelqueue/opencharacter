@@ -1,0 +1,24 @@
+# Round one keeps iron on the fist; round two activates its grant, training, which keeps sharp
+# on the club (a heavy base item). The club isn't unarmed, so iron doesn't apply to it.
+values:
+  test-kept-templates:kept.count: { value: 1 }
+  test-kept-templates:heavy.count: { value: 2 }
+copies:
+  club: { bonus: 1, heavy: true, light: false, templates: 1 }
+  test-kept-templates-weapons-fist: { bonus: 2, heavy: true, light: false, templates: 1 }
+activations:
+  - { item: test-kept-templates:features.iron-fists, entry: iron, via: copy }
+  - { item: test-kept-templates:weapons.club, entry: club, via: copy }
+  - { item: test-kept-templates:templates.sharp, entry: club, via: template, parent: 1, keptBy: 5 }
+  - { item: test-kept-templates:weapons.fist, entry: test-kept-templates-weapons-fist, via: copy }
+  - item: test-kept-templates:templates.iron
+    entry: test-kept-templates-weapons-fist
+    via: template
+    parent: 3
+    keptBy: 0
+  - item: test-kept-templates:features.training
+    entry: test-kept-templates-weapons-fist
+    via: grant
+    parent: 4
+issues: []
+errors: []

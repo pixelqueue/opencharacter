@@ -1,0 +1,23 @@
+# The attack's setup sets `ac` from the target's view (15) and `crit` from combat.critRange (19:
+# the champion's Improved Critical) before the roll. Every band of the `attack` set is a plain
+# comparison; `rolled` (`flags.ac < 0`) can't hold, so it's left out.
+status: paused
+needs:
+  step: attack
+  action: 5e-srd-5.1:weapon-attack
+  kind: dice
+  summary:
+    bandSet: 5e-srd-5.1:attack
+    bands:
+      - band: critical
+        when: 'roll.kept[0] >= 19'
+        tests: [{ of: 'roll.kept[0]', compare: ge, value: 19 }]
+      - band: natural-miss
+        when: 'roll.kept[0] == 1'
+        tests: [{ of: 'roll.kept[0]', compare: eq, value: 1 }]
+      - band: hit
+        when: 'roll.total >= 15'
+        tests: [{ of: roll.total, compare: ge, value: 15 }]
+      - { band: miss, when: 'true', tests: [] }
+    flags: { monk: false, dice: 1d8, crit: 19, ac: 15 }
+log: []

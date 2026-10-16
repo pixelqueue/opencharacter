@@ -1,0 +1,11 @@
+id: classes.sorcerer.blood-magic.divine-aura
+type: effect
+tags: [blood-magic]
+state:
+  rank: { type: integer, default: 1, min: 1, max: 10 }
+effects:
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    scope: applied

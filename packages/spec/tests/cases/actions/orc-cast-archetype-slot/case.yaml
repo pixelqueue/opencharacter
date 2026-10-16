@@ -1,0 +1,14 @@
+description: 'orc-2e archetype spellcasting: a fighter with Sorcerer Dedication
+  casts fireball from her archetype repertoire: it spends a 3rd-rank archetype slot, and the
+  goblin saves against her archetype spell DC 23'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: orc-2e:spells.fireball }
+  participants:
+    target:
+      - { id: goblin }
+answers:
+  - { outcome: { result: failure } }

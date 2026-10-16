@@ -1,0 +1,16 @@
+status: finished
+outcome: { data: { picked: [test-pack:skills.tracking], asked: 1 } }
+proposedChanges:
+  - to: self
+    step: calling
+    change: { type: choose, path: { choice: [calling] }, option: 'test-pack:callings.hunter' }
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { choice: [calling, 'test-pack:callings.hunter', basic] }
+      option: test-pack:skills.tracking
+log:
+  - { step: calling, kind: choice, by: engine, option: 'test-pack:callings.hunter' }
+  - { step: picks, kind: choice, by: app, option: test-pack:skills.tracking, index: 0 }
+  - { step: picks, kind: choice, by: app, option: '#done', index: 1 }

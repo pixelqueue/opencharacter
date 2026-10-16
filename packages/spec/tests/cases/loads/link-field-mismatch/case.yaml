@@ -1,0 +1,32 @@
+description: "A link slot whose pack is loaded too must declare that pack's fields with their types (link-field-mismatch)"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-crew
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 0 }
+          upgrades.mastery: { type: boolean, input: true, default: false }
+      content: []
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        links:
+          crew:
+            pack: test-crew
+            fields:
+              tier: { type: boolean }
+              upgrades.mastery: { type: boolean }
+              heat: { type: integer, default: 0 }
+      content: []

@@ -1,0 +1,32 @@
+description: 'A passed-on `where` that reads a map (`steps.roll`) is `type-mismatch`: a map has no literal'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          gem:
+            carried: true
+            state:
+              charge: { type: integer, min: 0, default: 3 }
+        actions:
+          - id: drain
+            steps:
+              - id: roll
+                kind: roll
+                parts: [{ dice: 1d6 }]
+              - id: spend
+                kind: changes
+                changes:
+                  - type: adjustState
+                    copies: { type: gem, where: self.charge > 0 && steps.roll != null }
+                    key: charge
+                    by: -1
+      content:
+        - { id: gems.ruby, type: gem }

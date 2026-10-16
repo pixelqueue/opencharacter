@@ -1,0 +1,25 @@
+id: spells.dizzying-colors
+type: spell
+tags:
+  [
+    trait.concentrate,
+    trait.illusion,
+    trait.incapacitation,
+    trait.manipulate,
+    trait.visual,
+    tradition.arcane,
+    tradition.occult,
+  ]
+# "Stunned for 1 round" on a critical failure is stunned 3: a turn without actions.
+fields:
+  rank: 1
+  cast: two
+  area: cone
+  areaSize: 15
+  duration: varies
+  defense: will
+  success: [conditions.dazzled]
+  failure: [conditions.stunned, conditions.blinded, conditions.dazzled]
+  failureValue: 1
+  criticalFailure: [conditions.stunned, conditions.blinded]
+  criticalFailureValue: 3

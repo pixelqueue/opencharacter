@@ -1,0 +1,16 @@
+id: worn.hellfire-boots
+type: worn
+tags: [trait.fire, trait.invested, trait.occult]
+fields:
+  level: 13
+  price: 3000
+  bulk: 1
+  usage: shoes
+  activation: two
+  frequency: once-per-minute
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, 10)'
+    when: "self.equipped && self.invested && incoming.amount < 0 && 'damage.fire' in incoming.tags"

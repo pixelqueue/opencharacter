@@ -1,0 +1,15 @@
+# Heavy (tier 3) with 1 damage is tier 2: a d4. -5 + 4 = -1.
+ok: true
+adjustments:
+  - field: mork-borg-core:hp.current
+    by: -1
+    requested: -5
+    taken: -1
+    reason: requested
+    rolled:
+      - {
+          source: { type: item, id: mork-borg-core:armor.heavy, entry: worn, effect: armor-die },
+          dice: 1d4,
+          faces: [4],
+          total: 4,
+        }

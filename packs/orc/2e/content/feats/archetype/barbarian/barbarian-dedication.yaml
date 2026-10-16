@@ -1,0 +1,27 @@
+id: feats.archetype.barbarian.barbarian-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.barbarian }
+
+# Rage damage stays at the default 2: the dedication doesn't grant the instinct's abilities.
+prerequisites:
+  - { id: con, when: 'attributes.con.mod >= 2' }
+  - { id: str, when: 'attributes.str.mod >= 2' }
+  - { id: not-barbarian, when: 'countCopies(copy.item == @classes.barbarian) == 0' }
+effects:
+  - { target: classDc.barbarian.rank, op: atLeast, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.athletics },
+      when: "!('skill.athletics' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: defenses.ac, op: add, value: -1, when: rage.active }
+grants:
+  - item: classes.barbarian.rage
+choices:
+  - id: instinct
+    from: { values: [animal, dragon, fury, giant, spirit, superstition] }
+    effects:
+      - { target: barbarian.instinct, op: set, value: pick.value }

@@ -1,0 +1,387 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/common.schema.json",
+  "title": "Common definitions",
+  "description": "Identifier, version and reference shapes shared by every other OCF schema.",
+  "$defs": {
+    "packId": {
+      "description": "A pack ID: lowercase words joined by hyphens, with dots allowed between them, e.g. `5e-srd-5.1`. By convention `<game>-<pack folder>`.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+([-.][a-z0-9]+)*$",
+      "maxLength": 64
+    },
+    "localId": {
+      "description": "A content ID inside one pack: dot-separated segments of lowercase words joined by hyphens, e.g. `weapons.longsword`, `magic-items.weapon-plus-one`. Content IDs are permanent and never reused.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*(\\.[a-z0-9]+(-[a-z0-9]+)*)*$",
+      "maxLength": 128
+    },
+    "qualifiedId": {
+      "description": "A content ID with its pack, e.g. `5e-srd-5.1:weapons.longsword`.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+([-.][a-z0-9]+)*:[a-z0-9]+(-[a-z0-9]+)*(\\.[a-z0-9]+(-[a-z0-9]+)*)*$",
+      "maxLength": 193
+    },
+    "ref": {
+      "description": "A reference to content: a local ID (resolved in the referring pack, then its dependencies) or a qualified ID.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/localId"
+        },
+        {
+          "$ref": "#/$defs/qualifiedId"
+        }
+      ]
+    },
+    "typeRef": {
+      "description": "A content type name, local or with its pack (`class`, `specialAbility`, `5e-srd-5.1:class`).",
+      "type": "string",
+      "pattern": "^([a-z0-9]+([-.][a-z0-9]+)*:)?[a-z][a-zA-Z0-9_]*$",
+      "maxLength": 129
+    },
+    "qualifiedTypeRef": {
+      "description": "A content type name with its pack (`fitd-scoundrel:specialAbility`).",
+      "type": "string",
+      "pattern": "^[a-z0-9]+([-.][a-z0-9]+)*:[a-z][a-zA-Z0-9_]*$",
+      "maxLength": 129
+    },
+    "fieldId": {
+      "description": "A field ID: dot-separated identifier segments, e.g. `abilities.str.mod`. Segments must be valid formula identifiers (no hyphens), because formulas refer to fields by bare name.",
+      "type": "string",
+      "pattern": "^[a-z][a-zA-Z0-9_]*(\\.[a-z][a-zA-Z0-9_]*)*$",
+      "maxLength": 128
+    },
+    "familyKey": {
+      "description": "A key standing for a family of field IDs: a field ID with one or more placeholders, `{<family>}`, each a family the pack declares in `families` (`abilities.{ability}.mod`, `spellSlots.rank{rank}.max`). Expanded before the pack loads: one entry per value, the placeholder replaced in the key and in every string of the entry.",
+      "type": "string",
+      "pattern": "^[a-z{][a-zA-Z0-9_{}]*(\\.[a-z{][a-zA-Z0-9_{}]*)*$",
+      "allOf": [{ "pattern": "\\{[a-z][a-zA-Z0-9]*\\}" }],
+      "maxLength": 128
+    },
+    "viewFieldsRef": {
+      "description": "The name of a set of declared fields in the pack's `viewFields`, in place of declaring them again.",
+      "$ref": "#/$defs/name"
+    },
+    "qualifiedFieldId": {
+      "description": "A field ID with its pack, e.g. `5e-srd-5.1:abilities.str.score`.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+([-.][a-z0-9]+)*:[a-z][a-zA-Z0-9_]*(\\.[a-z][a-zA-Z0-9_]*)*$",
+      "maxLength": 193
+    },
+    "fieldRef": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/fieldId"
+        },
+        {
+          "$ref": "#/$defs/qualifiedFieldId"
+        }
+      ]
+    },
+    "name": {
+      "description": "A short identifier usable in formulas: item field names, state keys, parameter names, content type names.",
+      "type": "string",
+      "pattern": "^[a-z][a-zA-Z0-9_]*$",
+      "maxLength": 64
+    },
+    "slug": {
+      "description": "A local identifier for choices, actions, steps, bands and similar parts: lowercase words joined by hyphens.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "maxLength": 64
+    },
+    "tag": {
+      "description": "A tag on content, fields, rolls and changes: lowercase words joined by hyphens, optionally dotted into a hierarchy (`damage.fire`). A tag matches itself and every tag below it (`damage` matches `damage.fire`). Every tag a pack uses must be declared in its rules' `tags` (or a dependency's).",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*(\\.[a-z0-9]+(-[a-z0-9]+)*)*$",
+      "maxLength": 96
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/tag"
+      },
+      "uniqueItems": true
+    },
+    "instanceId": {
+      "description": "An ID unique within one character file, for inventory entries, features and applied effects. Up to 193 characters, so a standard copy's derived ID (its qualified content ID with the colon and dots as hyphens) always fits.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+      "maxLength": 193
+    },
+    "i18nKey": {
+      "description": "A translation key, e.g. `weapons.longsword.name`.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]+)*$",
+      "maxLength": 256
+    },
+    "languageTag": {
+      "description": "A BCP 47 language tag such as `en`, `de` or `pt-BR`.",
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-[0-9A-Za-z.-]+)?$"
+    },
+    "semverRange": {
+      "description": "An npm-style semver range, e.g. `^1.2.0`.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "literal": {
+      "description": "A plain data value: a string, number, boolean, or a list of them.",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "valueType": {
+      "description": "The value types a field, item field, state key or parameter can hold. Kept in sync with `data/value-types.json`.",
+      "enum": ["integer", "decimal", "boolean", "string", "enum", "dice", "id", "set"]
+    },
+    "rounding": {
+      "description": "How a decimal result becomes whole. Kept in sync with `data/rounding-modes.json`.",
+      "enum": ["floor", "ceil", "round", "truncate"]
+    },
+    "source": {
+      "description": "Where a value, roll item or rules issue came from.",
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "enum": [
+            "field",
+            "item",
+            "entry",
+            "template",
+            "effect",
+            "situational",
+            "rules",
+            "step",
+            "app"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "entry": {
+          "$ref": "#/$defs/instanceId"
+        },
+        "effect": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "deprecation": {
+      "description": "Marks something as deprecated. It keeps working; upgrade scripts move characters off it.",
+      "type": "object",
+      "required": ["since"],
+      "properties": {
+        "since": {
+          "$ref": "#/$defs/semver"
+        },
+        "replacedBy": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "tagOrFormula": {
+      "description": "A tag, or `{ formula }` computing tags when the action runs (`{ formula: \"'damage.' + item.damageType\" }`): one string, or a list of strings spread in the entry's place. Each must be a declared tag; a tag already in the list isn't added again.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/tag"
+        },
+        {
+          "type": "object",
+          "required": ["formula"],
+          "properties": {
+            "formula": {
+              "$ref": "formula.schema.json"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "tagMembers": {
+      "description": "Which tags an `id` or `set` of `tag` takes: a tag listed in `tags`, or a tag below one in `under` (`damage.fire` under `damage`; `damage` itself isn't), and not listed in `except` (`except: [skill.lore]` leaves the tags below it members). Every tag named must be declared by the pack or a dependency.",
+      "type": "object",
+      "properties": {
+        "under": {
+          "description": "Tags whose descendants are members; the tag itself isn't.",
+          "$ref": "#/$defs/memberTagList"
+        },
+        "tags": {
+          "description": "Tags that are members themselves (not the tags below them).",
+          "$ref": "#/$defs/memberTagList"
+        },
+        "except": {
+          "description": "Tags that aren't members themselves; the tags below them still can be.",
+          "$ref": "#/$defs/memberTagList"
+        }
+      },
+      "anyOf": [{ "required": ["under"] }, { "required": ["tags"] }],
+      "additionalProperties": false
+    },
+    "memberTagList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/tag"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "tagList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/tagOrFormula"
+      }
+    },
+    "declaredFields": {
+      "description": "Fields read from another character, by field ID as that character's packs name it, without the pack. Each has a value type and an optional `default`. Link slots declare them. A declared field the other character's view lacks reads its `default`; with none it is absent. `id` is reserved for the view's character ID.",
+      "type": "object",
+      "propertyNames": {
+        "anyOf": [{ "$ref": "#/$defs/fieldId" }, { "$ref": "#/$defs/familyKey" }],
+        "not": {
+          "pattern": "^id(\\.|$)"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/declaredField"
+      }
+    },
+    "declaredField": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/valueType"
+        },
+        "values": {
+          "description": "enum: allowed values.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/slug"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "of": {
+          "description": "set: what the members are; only `string`. The view's value is a list of strings, read as is (not qualified).",
+          "const": "string"
+        },
+        "default": {
+          "description": "The value when the view lacks the field: a literal, never a formula.",
+          "$ref": "#/$defs/literal"
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "enum"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["values"],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "set"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["of"],
+            "type": "object"
+          }
+        }
+      ]
+    },
+    "immunity": {
+      "description": "Applied content the character can't be affected by: the items listed, or the content a query matches. Decided during activation: an active `applied` entry whose source matches an active immunity is blocked (not activated) and reported as the rules issue `immune`.",
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "description": "Unique among the owner's immunities. The `immune` issue's ID is the qualified owner plus this ID (`5e-srd-5.1:features.monk.purity-of-body/poisoned`), or the pack plus this ID for the rules'.",
+          "$ref": "#/$defs/slug"
+        },
+        "items": {
+          "description": "The content the character is immune to, by ID; resolved at load like other references.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ref"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "query": {
+          "description": "The content the character is immune to, as a query; its `where` sees the candidate as `item` and is an activation condition.",
+          "$ref": "query.schema.json"
+        },
+        "when": {
+          "description": "An activation condition: the immunity counts only while it holds. It reads `self`, `item`, `character` and raw input values, never derived fields.",
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "scope": {
+          "description": "On content: which activations of the item have the immunity, as for effects. `holder` (default): while the character has the item. `applied`: while the item is the source of an active `applied` entry that isn't itself blocked (petrified's immunity to poison). The rules' immunities have no scope.",
+          "enum": ["holder", "applied"]
+        }
+      },
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["items"]
+        },
+        {
+          "type": "object",
+          "required": ["query"]
+        }
+      ],
+      "additionalProperties": false
+    },
+    "slotId": {
+      "description": "A link slot ID with its pack, e.g. `fitd-scoundrel:crew`.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+([-.][a-z0-9]+)*:[a-z][a-zA-Z0-9_]*$",
+      "maxLength": 193
+    }
+  }
+}

@@ -1,0 +1,14 @@
+# Initiative 11 + dex 5 = 16. All 20 ki spent, so 4 come back.
+status: finished
+outcome:
+  result: rolled
+  data: { total: 16 }
+proposedChanges:
+  - to: self
+    step: perfectSelf
+    change:
+      type: adjustState
+      copies: { type: 5e-srd-5.1:class, where: has(self.kiSpent) && self.kiSpent >= 4 }
+      limit: 1
+      key: kiSpent
+      by: -4

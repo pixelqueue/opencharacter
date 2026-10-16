@@ -1,0 +1,34 @@
+id: ancestries.ratfolk
+type: ancestry
+tags: [trait.ratfolk, trait.humanoid, trait.uncommon, sense.low-light-vision]
+fields: { hp: 6, size: small, speed: 25 }
+effects:
+  - { target: languages, op: grant, value: { item: languages.common } }
+  - { target: languages, op: grant, value: { item: languages.ratfolk } }
+  - { target: senses, op: grant, value: { tag: sense.low-light-vision } }
+  - { target: traits, op: grant, value: { tag: trait.ratfolk } }
+  - { target: traits, op: grant, value: { tag: trait.humanoid } }
+standardCopies:
+  - { type: weapon, where: 'item.id == @weapons.ratfolk-jaws' }
+choices:
+  - id: heritage
+    from:
+      type: heritage
+      where: 'item.versatile || item.ancestry == @ancestries.ratfolk'
+  - id: boosts
+    recommend: "'standard'"
+    from:
+      options:
+        - id: standard
+          effects:
+            - { target: attributes.dex.boosts, op: add, value: 1 }
+            - { target: attributes.int.boosts, op: add, value: 1 }
+            - { target: attributes.str.boosts, op: add, value: -1 }
+          choices:
+            - id: free
+              from: { type: boost, where: "!(item.attribute in ['dex', 'int'])" }
+        - id: alternate
+          choices:
+            - id: free
+              pick: 2
+              from: { type: boost }

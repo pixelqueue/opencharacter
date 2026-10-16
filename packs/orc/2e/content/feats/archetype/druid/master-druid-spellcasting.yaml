@@ -1,0 +1,10 @@
+id: feats.archetype.druid.master-druid-spellcasting
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 18, category: class, archetype: archetypes.druid }
+prerequisites:
+  - { id: expert, when: '@feats.archetype.druid.expert-druid-spellcasting in feats.held' }
+  - { id: nature, when: 'skills.nature.rank >= 4' }
+effects:
+  - { target: spellcasting.archetype.druid.benefits, op: atLeast, value: 3 }
+  - { target: spellcasting.archetype.druid.rank, op: atLeast, value: 3 }

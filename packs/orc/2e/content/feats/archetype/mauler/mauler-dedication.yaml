@@ -1,0 +1,42 @@
+id: feats.archetype.mauler.mauler-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.mauler }
+
+prerequisites:
+  - { id: str, when: 'attributes.str.mod >= 2' }
+effects:
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.slam-down }
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.vicious-swing }
+  - target: { fields: { where: "'archetype-extra.at12' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.crashing-slam }
+  - target: { fields: { where: "'archetype-extra.at14' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.brutal-finish }
+  - target: { fields: { where: "'archetype-extra.at14' in item.tags" } }
+    op: grant
+    value: { item: feats.barbarian.unbalancing-sweep }
+  - { target: attacks.familiar, op: grant, value: { formula: "'trait.two-hand'" } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.falchion' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.glaive' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.bo-staff' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.greataxe' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.greatpick' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.greatsword' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.guisarme' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.halberd' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.horsechopper' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.elven-curve-blade' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.longspear' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.lance' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.maul' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.greatclub' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.ranseur' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.spiked-chain' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.scythe' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.war-flail' } }

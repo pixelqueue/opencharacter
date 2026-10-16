@@ -1,0 +1,29 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 1
+    mode: focus
+    dc: 17
+    defense: ''
+    basic: false
+    damage: 5
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: orc-2e:focus.spent
+      by: 1
+  - to: target
+    character: goblin
+    step: burn[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -5
+      tags:
+        - damage
+        - spell
+        - damage.force

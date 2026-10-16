@@ -1,0 +1,34 @@
+id: consumables.silvertongue-mutagen-lesser
+type: consumable
+tags: [trait.alchemical, trait.elixir, trait.mutagen, trait.polymorph]
+fields:
+  category: mutagen
+  level: 1
+  price: 4
+  bulk: 0.1
+  lasting: true
+  family: consumables.silvertongue-mutagen-lesser
+effects:
+  - target:
+      {
+        fields:
+          {
+            where: "'skill' in item.tags && ('skill.deception' in item.tags || 'skill.diplomacy' in item.tags || 'skill.intimidation' in item.tags || 'skill.performance' in item.tags)",
+          },
+      }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    scope: applied
+    duration: { amount: 1, unit: minute }
+  - target:
+      {
+        fields:
+          {
+            where: "'skill' in item.tags && ('skill.arcana' in item.tags || 'skill.crafting' in item.tags || 'skill.occultism' in item.tags || 'skill.society' in item.tags || 'lore' in item.tags)",
+          },
+      }
+    op: add
+    value: -2
+    scope: applied
+    duration: { amount: 1, unit: minute }

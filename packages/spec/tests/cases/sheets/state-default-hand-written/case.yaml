@@ -1,0 +1,25 @@
+description: "A formula state default is evaluated for every copy with no saved value, a hand-written one too: the pistol's shots are its magazine, the drum template's own charges its doubled magazine; a saved value is read as saved"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        contentTypes:
+          weapon:
+            carried: true
+            fields:
+              magazine: { type: integer, default: 1 }
+            state:
+              shots: { type: integer, min: 0, default: item.magazine }
+            computed:
+              left: { type: integer, formula: self.shots }
+              drum: { type: integer, formula: 'has(self.charges) ? self.charges : -1' }
+      content:
+        - { id: weapons.pistol, type: weapon, fields: { magazine: 6 } }
+        - id: templates.drum
+          type: template
+          appliesTo: { type: weapon }
+          state:
+            charges: { type: integer, default: item.magazine * 2 }

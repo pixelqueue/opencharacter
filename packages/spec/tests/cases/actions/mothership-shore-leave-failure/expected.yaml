@@ -1,0 +1,12 @@
+# The Sanity save: 50, failure. The save's own 1 stress, then stress set to the minimum plus 1: 3.
+status: finished
+outcome:
+  result: failure
+  data: { converted: 0 }
+proposedChanges:
+  - {
+      to: self,
+      step: check/stress,
+      change: { type: adjust, field: mothership-1e:stress.current, by: 1 },
+    }
+  - { to: self, step: unwind, change: { type: set, field: mothership-1e:stress.current, value: 3 } }

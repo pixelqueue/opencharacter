@@ -1,0 +1,512 @@
+# An activation that casts a spell grants the spell while the item works and adds an option to
+# `cast-spell`'s `spell-cost` step that pays for it (a daily use, a staff's charges, a wand's daily
+# cast or overcharge), so item spells are cast through `cast-spell` like any other.
+contentTypes:
+  worn:
+    carried: true
+    equippable: true
+    texts: [activation]
+    fields:
+      level: { type: integer, required: true, min: 0, max: 30 }
+      price: { type: decimal, min: 0 }
+      bulk: { type: decimal, default: 0, min: 0 }
+      usage:
+        type: enum
+        values:
+          [
+            worn,
+            amulet,
+            anklets,
+            armbands,
+            backpack,
+            belt,
+            bracelet,
+            bracers,
+            circlet,
+            cloak,
+            collar,
+            eyepiece,
+            garment,
+            gloves,
+            headwear,
+            horseshoes,
+            barding,
+            mask,
+            necklace,
+            ring,
+            shoes,
+          ]
+        default: worn
+      activation:
+        type: enum
+        values: [none, free, reaction, one, two, three, cast, one-minute, ten-minutes, one-hour]
+        default: none
+      frequency:
+        type: enum
+        values:
+          [none, once-per-round, once-per-minute, once-per-ten-minutes, once-per-hour, once-per-day]
+        default: none
+      capacity: { type: decimal, min: 0 }
+      capacityItems: { type: integer, min: 1 }
+    state:
+      invested: { type: boolean, default: false }
+      # Only the first apex item invested raises its attribute.
+      apex: { type: boolean, default: false }
+      used: { type: integer, default: 0, min: 0 }
+      container: { type: string, default: '' }
+    actions:
+      - use: invest
+      - use: divest
+      - use: sell
+      - use: store
+      - use: retrieve
+
+  held:
+    carried: true
+    equippable: true
+    texts: [activation]
+    fields:
+      level: { type: integer, required: true, min: 0, max: 30 }
+      price: { type: decimal, min: 0 }
+      bulk: { type: decimal, default: 0, min: 0 }
+      hands: { type: integer, default: 1, min: 0, max: 2 }
+      activation:
+        type: enum
+        values: [none, free, reaction, one, two, three, cast, one-minute, ten-minutes, one-hour]
+        default: none
+      frequency:
+        type: enum
+        values:
+          [none, once-per-round, once-per-minute, once-per-ten-minutes, once-per-hour, once-per-day]
+        default: none
+      capacity: { type: decimal, min: 0 }
+      capacityItems: { type: integer, min: 1 }
+    state:
+      invested: { type: boolean, default: false }
+      used: { type: integer, default: 0, min: 0 }
+      container: { type: string, default: '' }
+    actions:
+      - use: invest
+      - use: divest
+      - use: sell
+      - use: store
+      - use: retrieve
+
+  staff:
+    carried: true
+    equippable: true
+    fields:
+      level: { type: integer, required: true, min: 0, max: 30 }
+      price: { type: decimal, min: 0 }
+      bulk: { type: decimal, default: 1, min: 0 }
+      tradition: { type: enum, values: [any, arcane, divine, occult, primal], default: any }
+      'rank{rank}': { type: set, of: spell, default: [] }
+    effects:
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank1 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 1) > 0 && self.charges >= 1
+        value:
+          id: rank1
+          flags: { itemPaid: true, rank: 1 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -1 }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank1 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 1) > 0 && self.charges >= 1 && ((spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank1.used < spellSlots.rank1.max) || size(filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 1) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 1))) > 0)
+        value:
+          id: rank1-slot
+          flags: { itemPaid: true, rank: 1 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -1 }
+            - type: adjust
+              field:
+                formula: >-
+                  spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank1.used < spellSlots.rank1.max ? 'spellSlots.rank1.used' : 'spellSlots.archetype.' + filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 1) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 1))[0] + '.rank1.used'
+              by: 1
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank2 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 2) > 0 && self.charges >= 2
+        value:
+          id: rank2
+          flags: { itemPaid: true, rank: 2 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -2 }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank2 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 2) > 0 && self.charges >= 1 && ((spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank2.used < spellSlots.rank2.max) || size(filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 2) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 2))) > 0)
+        value:
+          id: rank2-slot
+          flags: { itemPaid: true, rank: 2 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -1 }
+            - type: adjust
+              field:
+                formula: >-
+                  spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank2.used < spellSlots.rank2.max ? 'spellSlots.rank2.used' : 'spellSlots.archetype.' + filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 2) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 2))[0] + '.rank2.used'
+              by: 1
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank3 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 3) > 0 && self.charges >= 3
+        value:
+          id: rank3
+          flags: { itemPaid: true, rank: 3 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -3 }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank3 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 3) > 0 && self.charges >= 1 && ((spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank3.used < spellSlots.rank3.max) || size(filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 3) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 3))) > 0)
+        value:
+          id: rank3-slot
+          flags: { itemPaid: true, rank: 3 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -1 }
+            - type: adjust
+              field:
+                formula: >-
+                  spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank3.used < spellSlots.rank3.max ? 'spellSlots.rank3.used' : 'spellSlots.archetype.' + filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 3) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 3))[0] + '.rank3.used'
+              by: 1
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank4 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 4) > 0 && self.charges >= 4
+        value:
+          id: rank4
+          flags: { itemPaid: true, rank: 4 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -4 }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank4 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 4) > 0 && self.charges >= 1 && ((spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank4.used < spellSlots.rank4.max) || size(filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 4) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 4))) > 0)
+        value:
+          id: rank4-slot
+          flags: { itemPaid: true, rank: 4 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -1 }
+            - type: adjust
+              field:
+                formula: >-
+                  spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank4.used < spellSlots.rank4.max ? 'spellSlots.rank4.used' : 'spellSlots.archetype.' + filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 4) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 4))[0] + '.rank4.used'
+              by: 1
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank5 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 5) > 0 && self.charges >= 5
+        value:
+          id: rank5
+          flags: { itemPaid: true, rank: 5 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -5 }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank5 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 5) > 0 && self.charges >= 1 && ((spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank5.used < spellSlots.rank5.max) || size(filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 5) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 5))) > 0)
+        value:
+          id: rank5-slot
+          flags: { itemPaid: true, rank: 5 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -1 }
+            - type: adjust
+              field:
+                formula: >-
+                  spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank5.used < spellSlots.rank5.max ? 'spellSlots.rank5.used' : 'spellSlots.archetype.' + filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 5) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 5))[0] + '.rank5.used'
+              by: 1
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank6 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 6) > 0 && self.charges >= 6
+        value:
+          id: rank6
+          flags: { itemPaid: true, rank: 6 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -6 }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank6 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 6) > 0 && self.charges >= 1 && ((spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank6.used < spellSlots.rank6.max) || size(filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 6) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 6))) > 0)
+        value:
+          id: rank6-slot
+          flags: { itemPaid: true, rank: 6 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -1 }
+            - type: adjust
+              field:
+                formula: >-
+                  spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank6.used < spellSlots.rank6.max ? 'spellSlots.rank6.used' : 'spellSlots.archetype.' + filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 6) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 6))[0] + '.rank6.used'
+              by: 1
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank7 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 7) > 0 && self.charges >= 7
+        value:
+          id: rank7
+          flags: { itemPaid: true, rank: 7 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -7 }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank7 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 7) > 0 && self.charges >= 1 && ((spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank7.used < spellSlots.rank7.max) || size(filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 7) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 7))) > 0)
+        value:
+          id: rank7-slot
+          flags: { itemPaid: true, rank: 7 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -1 }
+            - type: adjust
+              field:
+                formula: >-
+                  spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank7.used < spellSlots.rank7.max ? 'spellSlots.rank7.used' : 'spellSlots.archetype.' + filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 7) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 7))[0] + '.rank7.used'
+              by: 1
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank8 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 8) > 0 && self.charges >= 8
+        value:
+          id: rank8
+          flags: { itemPaid: true, rank: 8 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -8 }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank8 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 8) > 0 && self.charges >= 1 && ((spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank8.used < spellSlots.rank8.max) || size(filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 8) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 8))) > 0)
+        value:
+          id: rank8-slot
+          flags: { itemPaid: true, rank: 8 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -1 }
+            - type: adjust
+              field:
+                formula: >-
+                  spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank8.used < spellSlots.rank8.max ? 'spellSlots.rank8.used' : 'spellSlots.archetype.' + filterList(keysOf('archetypeSource'), fieldOf('spellcasting.archetype.{archetypeSource}.kind', x) == 'spontaneous' && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in action.item.tags && fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 8) < fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', x, 8))[0] + '.rank8.used'
+              by: 1
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank9 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 9) > 0 && self.charges >= 9
+        value:
+          id: rank9
+          flags: { itemPaid: true, rank: 9 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -9 }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank9 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 9) > 0 && self.charges >= 1 && (spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank9.used < spellSlots.rank9.max)
+        value:
+          id: rank9-slot
+          flags: { itemPaid: true, rank: 9 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -1 }
+            - type: adjust
+              field:
+                formula: >-
+                  'spellSlots.rank9.used'
+              by: 1
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank10 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 10) > 0 && self.charges >= 10
+        value:
+          id: rank10
+          flags: { itemPaid: true, rank: 10 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -10 }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && self.prepared && action.item.id in item.rank10 && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.maxRankFor.{tradition}', x) >= 10) > 0 && self.charges >= 1 && (spellcasting.kind == 'spontaneous' && ('tradition.' + spellcasting.tradition) in action.item.tags && spellSlots.rank10.used < spellSlots.rank10.max)
+        value:
+          id: rank10-slot
+          flags: { itemPaid: true, rank: 10 }
+          changes:
+            - { type: adjustState, entry: self, key: charges, by: -1 }
+            - type: adjust
+              field:
+                formula: >-
+                  'spellSlots.rank10.used'
+              by: 1
+    state:
+      charges: { type: integer, default: 0, min: 0 }
+      prepared: { type: boolean, default: false }
+      container: { type: string, default: '' }
+    actions:
+      - use: prepare-staff
+      - use: sell
+      - use: store
+      - use: retrieve
+
+  wand:
+    carried: true
+    equippable: true
+    fields:
+      level: { type: integer, required: true, min: 0, max: 30 }
+      price: { type: decimal, min: 0 }
+      bulk: { type: decimal, default: 0.1, min: 0 }
+      spellRank: { type: integer, required: true, min: 1, max: 10 }
+    effects:
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && !self.broken && !self.castToday
+            && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.casts.{tradition}', x)) > 0
+        value:
+          id: cast
+          flags: { itemPaid: true, rank: item.spellRank }
+          changes:
+            - { type: setState, entry: self, key: castToday, value: true }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.self.id == self.id && self.equipped && !self.broken && self.castToday
+            && !self.overcharged && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.casts.{tradition}', x)) > 0
+        value:
+          id: overcharge
+          flags: { itemPaid: true, rank: item.spellRank, overcharge: true }
+          changes:
+            - { type: setState, entry: self, key: overcharged, value: true }
+    state:
+      castToday: { type: boolean, default: false }
+      overcharged: { type: boolean, default: false }
+      broken: { type: boolean, default: false }
+      container: { type: string, default: '' }
+    actions:
+      - use: sell
+      - use: store
+      - use: retrieve
+
+situational:
+  - { id: usingSight, type: boolean, default: false, rolls: [perception] }
+
+constraints:
+  - id: one-prepared-staff
+    check: "countCopies(copy.type == 'staff' && copy.state.prepared) <= 1"
+
+actions:
+  - id: prepare-staff
+    tags: [inventory, spell, rest]
+    available: '!self.prepared && spellcasting.maxRankAny > 0'
+    params:
+      expend: { type: string, optional: true }
+    results: [prepared]
+    steps:
+      - id: extra
+        kind: branch
+        cases:
+          - when: >-
+              has(params.expend)
+                && countCopies(copy.id == params.expend && copy.type == 'spell'
+                  && !copy.state.expended && !('trait.cantrip' in copy.tags)) > 0
+            flags:
+              extra: "sumCopies(copy.state.rank, copy.id == params.expend && copy.type == 'spell')"
+          - when: true
+            flags: { extra: 0 }
+      - id: prepare
+        kind: changes
+        changes:
+          - type: setState
+            when: "countCopies(copy.type == 'staff' && copy.state.prepared) > 0"
+            copies: { type: staff, where: self.prepared }
+            key: charges
+            value: 0
+          - type: setState
+            when: "countCopies(copy.type == 'staff' && copy.state.prepared) > 0"
+            copies: { type: staff, where: self.prepared }
+            key: prepared
+            value: false
+          - { type: setState, entry: self, key: prepared, value: true }
+          - type: setState
+            entry: self
+            key: charges
+            value: spellcasting.maxRankAny + flags.extra
+          - type: setState
+            when: flags.extra > 0
+            entry: { formula: params.expend }
+            key: expended
+            value: true
+      - id: result
+        kind: outcome
+        result: "'prepared'"
+        data: { charges: spellcasting.maxRankAny + flags.extra }
+
+display:
+  groups:
+    - id: worn-items
+      kind: content
+      priority: 1
+      members: { type: worn }
+      sortBy: item.level
+    - id: held-items
+      kind: content
+      priority: 1
+      members: { type: held }
+      sortBy: item.level
+    - id: staves
+      kind: content
+      priority: 1
+      members: { type: staff }
+    - id: wands
+      kind: content
+      priority: 1
+      members: { type: wand }
+  types:
+    worn:
+      state:
+        invested: { priority: 0 }
+        used: { priority: 1 }
+        apex: { hidden: true }
+        container: { hidden: true }
+      quantity: { hidden: true }
+    held:
+      state:
+        invested: { priority: 0, showWhen: "'trait.invested' in item.tags" }
+        used: { priority: 1 }
+        container: { hidden: true }
+    staff:
+      state:
+        charges: { priority: 0 }
+        prepared: { priority: 0 }
+        container: { hidden: true }
+      quantity: { hidden: true }
+    wand:
+      state:
+        castToday: { priority: 0 }
+        overcharged: { priority: 1 }
+        broken: { priority: 0 }
+        container: { hidden: true }
+
+tags:
+  - activation
+  - trait.arcane
+  - trait.unique
+  - trait.scroll
+  - trait.precious
+  - material
+  - material.adamantine
+  - material.cold-iron
+  - material.dawnsilver
+  - material.duskwood
+  - material.orichalcum
+  - material.silver
+  - material.dragonhide
+  - trait.expandable
+  - trait.kobold
+  - trait.mechanical
+  - trait.oil
+  - trait.snare
+  - trait.talisman
+  - trait.trap
+  - trait.staff
+  - trait.wand
+  - trait.focused
+  - trait.companion
+  - trait.cursed
+  - trait.intelligent
+  - trait.artifact
+  - trait.structure

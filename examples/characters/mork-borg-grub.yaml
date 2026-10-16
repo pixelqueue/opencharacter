@@ -1,0 +1,27 @@
+# A MÖRK BORG Fanged Deserter whose starting item is the Ancient Gore-Hound. The hound is its own
+# character file (mork-borg-grub-hound.yaml), linked through the `hound` slot.
+specVersion: 0.1.0
+id: example-mork-borg-grub
+packs:
+  - { id: mork-borg-core, version: 0.1.0 }
+values:
+  mork-borg-core:abilities.strength: 2
+  mork-borg-core:abilities.agility: -1
+  mork-borg-core:abilities.presence: -1
+  mork-borg-core:abilities.toughness: 1
+  mork-borg-core:hp.max: 9
+  mork-borg-core:hp.current: 9
+  mork-borg-core:omens.max: 1
+  mork-borg-core:omens.current: 1
+  mork-borg-core:silver.current: 70
+features:
+  - id: class
+    item: mork-borg-core:classes.fanged-deserter
+    choices:
+      feature:
+        - option: ancient-gore-hound
+inventory:
+  - { id: flail, item: mork-borg-core:weapons.flail, equipped: true, state: { broken: false } }
+  - { id: armor, item: mork-borg-core:armor.light, equipped: true, state: { damage: 0 } }
+links:
+  mork-borg-core:hound: example-mork-borg-grub-hound

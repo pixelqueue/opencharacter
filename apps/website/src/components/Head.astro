@@ -1,0 +1,11 @@
+---
+// Starlight's head, plus preloads for the title font and the Latin text font. Without them the browser
+// finds the fonts only after the CSS, draws the page in a fallback font, then redraws it.
+import Default from '@astrojs/starlight/components/Head.astro';
+import title from '../fonts/maragsa-display.woff2?url';
+import mono from '@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url';
+---
+
+<link rel="preload" href={title} as="font" type="font/woff2" crossorigin />
+<link rel="preload" href={mono} as="font" type="font/woff2" crossorigin />
+<Default />

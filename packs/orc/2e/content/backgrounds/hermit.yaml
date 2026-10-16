@@ -1,0 +1,42 @@
+id: backgrounds.hermit
+type: background
+grants:
+  - item: feats.skill.dubious-knowledge
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['con', 'int']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }
+  - id: skill
+    from: { values: [skill.nature, skill.occultism] }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }
+  - id: lore
+    from:
+      {
+        values:
+          [
+            skill.lore.cave,
+            skill.lore.desert,
+            skill.lore.forest,
+            skill.lore.mountain,
+            skill.lore.plains,
+            skill.lore.swamp,
+          ],
+      }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }

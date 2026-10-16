@@ -1,0 +1,17 @@
+id: worn.aeon-stone-sprouting
+type: worn
+tags: [trait.invested, trait.magical, trait.uncommon]
+fields:
+  level: 6
+  price: 220
+  activation: reaction
+  frequency: once-per-hour
+actions:
+  - id: flow-of-life
+    tags: [activation]
+    available: 'self.equipped && self.invested'
+    steps:
+      - id: activate
+        kind: changes
+        changes:
+          - { type: set, field: hp.temp, value: 'max(hp.temp, 8)' }

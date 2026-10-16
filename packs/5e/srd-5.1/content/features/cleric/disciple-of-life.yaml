@@ -1,0 +1,7 @@
+id: features.cleric.disciple-of-life
+type: feature
+effects:
+  - target: { rolls: [healing] }
+    op: add
+    value: 2 + flags.slot
+    when: "roll.item.type == 'spell' && roll.item.level >= 1"

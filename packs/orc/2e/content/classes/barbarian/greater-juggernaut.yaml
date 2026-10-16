@@ -1,0 +1,8 @@
+id: classes.barbarian.greater-juggernaut
+type: feature
+fields: { level: 13 }
+effects:
+  - { target: saves.fortitude.rank, op: atLeast, value: 4 }
+  - target: { rolls: [save.fortitude], tally: critFailToFail }
+    op: add
+    value: 1

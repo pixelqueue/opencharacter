@@ -1,0 +1,161 @@
+id: classes.sorcerer.bloodlines.undead
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: sorcerer.bloodline, op: set, value: "'undead'" }
+  - { target: spellcasting.tradition, op: set, value: "'divine'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.intimidation },
+      when: "!('skill.intimidation' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.religion },
+      when: "!('skill.religion' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.void-warp } }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.void-warp } }
+  - { target: spells.granted.cantrips, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.harm } }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.harm } }
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.harm } }
+  - { target: spells.granted.rank1, op: add, value: 1 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.see-the-unseen },
+      when: level >= 3,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.see-the-unseen }, when: level >= 3 }
+  - {
+      target: spells.repertoire.rank2,
+      op: grant,
+      value: { item: spells.see-the-unseen },
+      when: level >= 3,
+    }
+  - { target: spells.granted.rank2, op: add, value: 1, when: level >= 3 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.bind-undead }, when: level >= 5 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.bind-undead }, when: level >= 5 }
+  - {
+      target: spells.repertoire.rank3,
+      op: grant,
+      value: { item: spells.bind-undead },
+      when: level >= 5,
+    }
+  - { target: spells.granted.rank3, op: add, value: 1, when: level >= 5 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.talking-corpse },
+      when: level >= 7,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.talking-corpse }, when: level >= 7 }
+  - target: spells.repertoire.rank4
+    op: grant
+    value: { item: spells.talking-corpse }
+    when: level >= 7
+  - { target: spells.granted.rank4, op: add, value: 1, when: level >= 7 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.invoke-spirits },
+      when: level >= 9,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.invoke-spirits }, when: level >= 9 }
+  - target: spells.repertoire.rank5
+    op: grant
+    value: { item: spells.invoke-spirits }
+    when: level >= 9
+  - { target: spells.granted.rank5, op: add, value: 1, when: level >= 9 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.vampiric-exsanguination },
+      when: level >= 11,
+    }
+  - {
+      target: sorcerer.gifts,
+      op: grant,
+      value: { item: spells.vampiric-exsanguination },
+      when: level >= 11,
+    }
+  - target: spells.repertoire.rank6
+    op: grant
+    value: { item: spells.vampiric-exsanguination }
+    when: level >= 11
+  - { target: spells.granted.rank6, op: add, value: 1, when: level >= 11 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.execute }, when: level >= 13 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.execute }, when: level >= 13 }
+  - target: spells.repertoire.rank7
+    op: grant
+    value: { item: spells.execute }
+    when: level >= 13
+  - { target: spells.granted.rank7, op: add, value: 1, when: level >= 13 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.canticle-of-everlasting-grief },
+      when: level >= 15,
+    }
+  - {
+      target: sorcerer.gifts,
+      op: grant,
+      value: { item: spells.canticle-of-everlasting-grief },
+      when: level >= 15,
+    }
+  - target: spells.repertoire.rank8
+    op: grant
+    value: { item: spells.canticle-of-everlasting-grief }
+    when: level >= 15
+  - { target: spells.granted.rank8, op: add, value: 1, when: level >= 15 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.wails-of-the-damned },
+      when: level >= 17,
+    }
+  - {
+      target: sorcerer.gifts,
+      op: grant,
+      value: { item: spells.wails-of-the-damned },
+      when: level >= 17,
+    }
+  - target: spells.repertoire.rank9
+    op: grant
+    value: { item: spells.wails-of-the-damned }
+    when: level >= 17
+  - { target: spells.granted.rank9, op: add, value: 1, when: level >= 17 }
+  - { target: focus.points, op: add, value: 1 }
+  - target: { choices: [blood-magic] }
+    op: option
+    value:
+      id: life-self
+      changes:
+        - type: removeEffect
+          applied: { where: "'blood-magic' in item.tags" }
+        - { type: set, when: flags.rank > hp.temp, field: hp.temp, value: flags.rank }
+  - target: { choices: [blood-magic] }
+    op: option
+    when: flags.hasTarget
+    value:
+      id: life-target
+      to: target
+      changes:
+        - { type: adjust, field: hp.current, by: -flags.rank, tags: [damage, damage.void] }
+grants:
+  - { item: spells.talking-corpse, when: level >= 7 }
+  - { item: spells.invoke-spirits, when: level >= 9 }
+  - { item: spells.vampiric-exsanguination, when: level >= 11 }
+  - { item: spells.execute, when: level >= 13 }
+  - { item: spells.canticle-of-everlasting-grief, when: level >= 15 }
+  - { item: spells.wails-of-the-damned, when: level >= 17 }
+  - { item: spells.void-warp }
+  - { item: spells.harm }
+  - { item: spells.see-the-unseen, when: level >= 3 }
+  - { item: spells.bind-undead, when: level >= 5 }
+  - item: spells.undeaths-blessing

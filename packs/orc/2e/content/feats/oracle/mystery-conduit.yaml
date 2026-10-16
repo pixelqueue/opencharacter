@@ -1,0 +1,17 @@
+id: feats.oracle.mystery-conduit
+type: feat
+tags: [trait.cursebound, trait.spellshape]
+fields: { level: 20, category: class, class: classes.oracle }
+actions:
+  - id: mystery-conduit
+    tags: [class-action]
+    available: oracle.cursebound < oracle.curseMax
+    results: [used]
+    steps:
+      - id: curse
+        kind: changes
+        changes:
+          - { type: adjust, field: oracle.cursebound, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'used'"

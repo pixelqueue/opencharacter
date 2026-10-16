@@ -1,0 +1,10 @@
+status: paused
+needs:
+  step: assist[0]
+  action: fate-core:attack
+  kind: handoff
+  participant: { role: helper, id: tobias }
+  run:
+    action: fate-core:assist-check
+    params: { skill: fate-core:skills.fight }
+log: []

@@ -1,0 +1,25 @@
+id: magic-items.bracers-of-archery
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 2
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      self.equipped && self.attuned && has(roll.item) && 'bow' in roll.item.tags
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.longbow },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.shortbow },
+      when: self.equipped && self.attuned,
+    }

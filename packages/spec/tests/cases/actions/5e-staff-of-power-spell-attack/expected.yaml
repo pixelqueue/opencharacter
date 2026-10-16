@@ -1,0 +1,15 @@
+# 9 + the wizard's spell attack bonus 7 (proficiency 4, Intelligence 3) + the staff's +2 = 18,
+# a hit against AC 18. The staff's +2 adds to the wizard's +7; it doesn't replace it.
+status: finished
+log:
+  - step: cost
+    action: 5e-srd-5.1:cast-spell
+    kind: choice
+    by: app
+    option: '5e-srd-5.1:magic-items.staff-of-power#charges'
+  - step: attack
+    action: 5e-srd-5.1:cast-spell
+    kind: dice
+    by: engine
+    faces: [9]
+    total: 18

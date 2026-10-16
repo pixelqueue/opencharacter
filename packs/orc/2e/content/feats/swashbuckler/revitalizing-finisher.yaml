@@ -1,0 +1,41 @@
+id: feats.swashbuckler.revitalizing-finisher
+type: feat
+tags: [trait.finisher]
+fields: { level: 16, category: class, class: classes.swashbuckler }
+actions:
+  - id: revitalizing-finisher
+    tags: [strike]
+    available: panache.active
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [finisher]
+        participants: { target: participants.target }
+      - id: vigor
+        kind: changes
+        when: "steps.strike.result != 'critical-failure'"
+        changes:
+          - { type: set, field: hp.temp, value: 'max(hp.temp, floor(level / 2))' }
+      - id: spend
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @effects.panache' }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+          allyTempHp: "steps.strike.result in ['success', 'critical-success'] ? floor(level / 2) : 0"

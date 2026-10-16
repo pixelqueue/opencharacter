@@ -1,0 +1,20 @@
+# Relentless Rage's uses come back on a short rest; the rage spent waits for a long rest.
+status: finished
+outcome:
+  result: rested
+proposedChanges:
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:pactSlots.used, value: 0 }
+  - to: self
+    step: rest
+    change:
+      type: setState
+      copies:
+        {
+          type: 5e-srd-5.1:class,
+          where: has(self.relentlessRageSpent) && self.relentlessRageSpent > 0,
+        }
+      key: relentlessRageSpent
+      value: 0
+log: []

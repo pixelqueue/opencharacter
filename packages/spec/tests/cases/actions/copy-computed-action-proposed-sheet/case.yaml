@@ -1,0 +1,57 @@
+description: "An action step with `sheet: proposed` runs a copy's action that reads its computed values: its steps read `self` with the copy's computed values on whichever sheet they read"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 0 }
+        contentTypes:
+          gear:
+            carried: true
+            fields:
+              kind: { type: enum, values: [plain, fine], default: plain }
+            computed:
+              quality: { type: integer, formula: "tier + (item.kind == 'fine' ? 1 : 0)" }
+            actions:
+              - use: appraise
+        actions:
+          # Reads the copy's quality in a step on the given sheet and in one on the proposed sheet.
+          - id: appraise
+            steps:
+              - id: look
+                kind: branch
+                cases:
+                  - when: true
+                    flags: { given: self.quality }
+              - id: done
+                kind: outcome
+                sheet: proposed
+                data: { given: flags.given, proposed: self.quality }
+          # Raises the tier, then appraises the blade on the proposed sheet.
+          - id: hone
+            steps:
+              - id: raise
+                kind: changes
+                changes:
+                  - { type: adjust, field: tier, by: 1 }
+              - id: appraise
+                kind: action
+                sheet: proposed
+                use: appraise
+                entry: "'blade-1'"
+              - id: done
+                kind: outcome
+                data:
+                  given: steps.appraise.data.given
+                  proposed: steps.appraise.data.proposed
+      content:
+        - { id: gear.blade, type: gear, fields: { kind: fine } }
+input:
+  action: { id: test-pack:hone }

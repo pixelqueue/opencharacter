@@ -1,0 +1,20 @@
+id: feats.witch.stitched-familiar
+type: feat
+fields: { level: 8, category: class, class: classes.witch }
+prerequisites:
+  - { id: patron, when: "spellcasting.tradition == 'arcane' || spellcasting.tradition == 'primal'" }
+actions:
+  - id: stitching-strike
+    tags: [class-action]
+    results: [struck]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage, damage.slashing]
+        parts: [{ dice: 'dieOf(1d6, 6 + 2 * max(0, floor((level - 7) / 2)))' }]
+      - id: result
+        kind: outcome
+        result: "'struck'"
+        data:
+          damage: steps.damage.total
+          dc: spellcasting.dc

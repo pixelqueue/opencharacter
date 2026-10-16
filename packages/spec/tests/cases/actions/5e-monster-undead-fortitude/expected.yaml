@@ -1,0 +1,15 @@
+# DC 5 + 8 = 13; 11 + Con 3 = 14 succeeds, so the zombie drops to 1 hit point instead.
+status: finished
+outcome:
+  result: success
+proposedChanges:
+  - { to: self, step: survive, change: { type: set, field: 5e-srd-5.1:hp.current, value: 1 } }
+log:
+  - {
+      step: save/save,
+      action: 5e-srd-5.1:saving-throw,
+      kind: dice,
+      by: engine,
+      faces: [11],
+      total: 14,
+    }

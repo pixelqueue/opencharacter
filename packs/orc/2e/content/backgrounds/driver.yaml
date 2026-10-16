@@ -1,0 +1,41 @@
+id: backgrounds.driver
+type: background
+# Assurance gets the picked Lore through its `skill` state, so its own choice isn't asked.
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.acrobatics }
+    when: "!('skill.acrobatics' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'dex']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }
+  - id: lore
+    from:
+      options:
+        - id: driving
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.lore.driving },
+                when: "!('skill.lore.driving' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.lore.driving'" } }
+        - id: piloting
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.lore.piloting },
+                when: "!('skill.lore.piloting' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.lore.piloting'" } }

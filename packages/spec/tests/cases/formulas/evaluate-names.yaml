@@ -1,0 +1,415 @@
+description: Fields, context roots, has(), indexing and the standard library
+specVersion: 0.1.0
+cases:
+  - name: an integer field
+    evaluate: abilities.str.score
+    fields:
+      abilities.str.score:
+        type: integer
+        value: 16
+    value: 16
+    valueType: int
+  - name: a decimal field
+    evaluate: challenge.rating
+    fields:
+      challenge.rating:
+        type: decimal
+        value: 0.25
+    value: 0.25
+    valueType: decimal
+  - name: a decimal field holding a whole number is still decimal
+    evaluate: challenge.rating
+    fields:
+      challenge.rating:
+        type: decimal
+        value: 2
+    value: 2
+    valueType: decimal
+  - name: a boolean root value
+    evaluate: flags.ok
+    roots:
+      flags:
+        ok: true
+    value: true
+    valueType: bool
+  - name: a boolean field in a condition
+    evaluate: '!traits.raging'
+    fields:
+      traits.raging:
+        type: boolean
+        value: false
+    value: true
+    valueType: bool
+  - name: an enum field is a string
+    evaluate: stance.current == 'aggressive'
+    fields:
+      stance.current:
+        type: enum
+        value: aggressive
+    value: true
+    valueType: bool
+  - name: a set field is a list
+    evaluate: "'str' in proficiencies.saves"
+    fields:
+      proficiencies.saves:
+        type: set
+        value:
+          - str
+          - con
+    value: true
+    valueType: bool
+  - name: a set field indexed
+    evaluate: proficiencies.saves[1]
+    fields:
+      proficiencies.saves:
+        type: set
+        value:
+          - str
+          - con
+    value: con
+    valueType: string
+  - name: a field in arithmetic
+    evaluate: abilities.str.score + abilities.dex.score
+    fields:
+      abilities.str.score:
+        type: integer
+        value: 16
+      abilities.dex.score:
+        type: integer
+        value: 14
+    value: 30
+    valueType: int
+  - name: a prefix of a field is not a field
+    evaluate: abilities.str
+    fields:
+      abilities.str.score:
+        type: integer
+        value: 16
+    error: unknown-name
+  - name: an unknown field
+    evaluate: abilities.strength.score
+    fields:
+      abilities.str.score:
+        type: integer
+        value: 16
+    error: unknown-name
+  - name: a root path
+    evaluate: "'sword' in item.tags"
+    roots: &a1
+      item:
+        tags:
+          - martial
+          - sword
+        range: melee
+        weight: 2.5
+        versatileDamage: 1d10
+    value: true
+    valueType: bool
+  - name: root data integers are int
+    evaluate: roll.total
+    roots:
+      roll:
+        total: 17
+    value: 17
+    valueType: int
+  - name: root data fractions are decimal
+    evaluate: item.weight
+    roots: *a1
+    value: 2.5
+    valueType: decimal
+  - name: root strings
+    evaluate: item.range
+    roots: *a1
+    value: melee
+    valueType: string
+  - name: nested root data
+    evaluate: steps.attack.total
+    roots:
+      steps:
+        attack:
+          total: 21
+    value: 21
+    valueType: int
+  - name: a missing key under a root
+    evaluate: item.missing
+    roots: *a1
+    error: no-such-key
+  - name: a missing nested key
+    evaluate: steps.confirm.picked
+    roots:
+      steps:
+        attack:
+          total: 3
+    error: no-such-key
+  - name: a root that is not bound
+    evaluate: self.equipped
+    roots: *a1
+    error: unknown-name
+  - name: has on a present root path
+    evaluate: has(item.tags)
+    roots: *a1
+    value: true
+    valueType: bool
+  - name: has on a missing root path
+    evaluate: has(item.missing)
+    roots: *a1
+    value: false
+    valueType: bool
+  - name: has on an optional item field that is present
+    evaluate: has(item.versatileDamage)
+    roots: *a1
+    value: true
+    valueType: bool
+  - name: has on a step that did not run
+    evaluate: has(steps.confirm) && steps.confirm.picked == 'hit'
+    roots:
+      steps:
+        attack:
+          total: 3
+    value: false
+    valueType: bool
+  - name: has on a step that ran
+    evaluate: has(steps.confirm) && steps.confirm.picked == 'hit'
+    roots:
+      steps:
+        confirm:
+          picked: hit
+    value: true
+    valueType: bool
+  - name: has on a missing intermediate key
+    evaluate: has(steps.confirm.picked)
+    roots:
+      steps: {}
+    value: false
+    valueType: bool
+  - name: indexing a root list
+    evaluate: item.tags[0]
+    roots: *a1
+    value: martial
+    valueType: string
+  - name: index past the end
+    evaluate: item.tags[5]
+    roots: *a1
+    error: index-out-of-range
+  - name: negative index
+    evaluate: item.tags[-1]
+    roots: *a1
+    error: index-out-of-range
+  - name: decimal index
+    evaluate: item.tags[1.0]
+    roots: *a1
+    error: type-mismatch
+  - name: indexing a list literal
+    evaluate: '[10, 20, 30][2]'
+    value: 30
+    valueType: int
+  - name: indexing an int
+    evaluate: 5[0]
+    error: type-mismatch
+  - name: size of a list
+    evaluate: size([1, 2, 3])
+    value: 3
+    valueType: int
+  - name: size of an empty list
+    evaluate: size([])
+    value: 0
+    valueType: int
+  - name: size of a string counts code points
+    evaluate: size('héllo')
+    value: 5
+    valueType: int
+  - name: size of an astral character is 1
+    evaluate: size('😀')
+    value: 1
+    valueType: int
+  - name: size of an empty string
+    evaluate: size('')
+    value: 0
+    valueType: int
+  - name: size of a root list
+    evaluate: size(item.tags)
+    roots: *a1
+    value: 2
+    valueType: int
+  - name: size of an int
+    evaluate: size(1)
+    error: type-mismatch
+  - name: count sixes
+    evaluate: count([6, 2, 6, 6], 6)
+    value: 3
+    valueType: int
+  - name: count with no matches
+    evaluate: count([1, 2], 6)
+    value: 0
+    valueType: int
+  - name: 'FitD critical: two or more sixes'
+    evaluate: count(roll.faces, 6) >= 2
+    roots:
+      roll:
+        faces:
+          - 6
+          - 3
+          - 6
+    value: true
+    valueType: bool
+  - name: count strings
+    evaluate: count(['a', 'b', 'a'], 'a')
+    value: 2
+    valueType: int
+  - name: count of a non-list
+    evaluate: count(6, 6)
+    error: type-mismatch
+  - name: min of ints
+    evaluate: min(3, 1, 2)
+    value: 1
+    valueType: int
+  - name: max of ints
+    evaluate: max(3, 1, 2)
+    value: 3
+    valueType: int
+  - name: max with a decimal is decimal
+    evaluate: max(1, 2.5)
+    value: 2.5
+    valueType: decimal
+  - name: max with a decimal is decimal even when an int wins
+    evaluate: max(2, 1.5)
+    value: 2
+    valueType: decimal
+  - name: max of one argument
+    evaluate: max(4)
+    value: 4
+    valueType: int
+  - name: max of no arguments
+    evaluate: max()
+    error: wrong-arity
+  - name: min of a string
+    evaluate: min(1, 'a')
+    error: type-mismatch
+  - name: max of negatives
+    evaluate: max(-3, -1)
+    value: -1
+    valueType: int
+  - name: min caps a modifier (medium armor)
+    evaluate: min(abilities.dex.mod, 2)
+    fields:
+      abilities.dex.mod:
+        type: integer
+        value: 4
+    value: 2
+    valueType: int
+  - name: abs of an int
+    evaluate: abs(-3)
+    value: 3
+    valueType: int
+  - name: abs of a decimal
+    evaluate: abs(-2.5)
+    value: 2.5
+    valueType: decimal
+  - name: abs of a string
+    evaluate: abs('a')
+    error: type-mismatch
+  - name: floor with two arguments
+    evaluate: floor(1, 2)
+    error: wrong-arity
+  - name: an unknown function
+    evaluate: clamp(1, 2, 3)
+    error: unknown-function
+  - name: countEquipped counts equipped copies of a type
+    evaluate: countEquipped('weapon')
+    character: &a2
+      copies:
+        - type: weapon
+          equipped: true
+          state:
+            attuned: false
+        - type: weapon
+          equipped: false
+          state:
+            attuned: true
+        - type: armor
+          equipped: true
+          state: {}
+        - type: wondrousItem
+          equipped: true
+          state:
+            attuned: true
+        - type: class
+          state:
+            level: 3
+            startingClass: true
+        - type: class
+          state:
+            level: 1
+    value: 1
+    valueType: int
+  - name: countEquipped of a type with none
+    evaluate: countEquipped('spell')
+    character: *a2
+    value: 0
+    valueType: int
+  - name: countEquipped with no copies at all
+    evaluate: countEquipped('weapon')
+    character:
+      copies: []
+    value: 0
+    valueType: int
+  - name: countState counts copies whose state is true
+    evaluate: countState('attuned')
+    character: *a2
+    value: 2
+    valueType: int
+  - name: attunement limit constraint
+    evaluate: countState('attuned') <= 3
+    character: *a2
+    value: true
+    valueType: bool
+  - name: countState of a key nobody has
+    evaluate: countState('ignited')
+    character: *a2
+    value: 0
+    valueType: int
+  - name: sumState adds class levels
+    evaluate: sumState('class', 'level')
+    character: *a2
+    value: 4
+    valueType: int
+  - name: sumState with no copies of the type
+    evaluate: sumState('class', 'level')
+    character:
+      copies: []
+    value: 0
+    valueType: int
+  - name: countEquipped needs a string
+    evaluate: countEquipped(1)
+    character: *a2
+    error: type-mismatch
+  - name: countEquipped with no arguments
+    evaluate: countEquipped()
+    character: *a2
+    error: wrong-arity
+  - name: sumState with one argument
+    evaluate: sumState('class')
+    character: *a2
+    error: wrong-arity
+  - name: the proficiency bonus from level
+    evaluate: 'level.total > 0 ? 2 + floor((level.total - 1) / 4) : 2 + floor((max(1, ceil(challenge.rating)) - 1) / 4)'
+    fields:
+      level.total:
+        type: integer
+        value: 5
+      challenge.rating:
+        type: decimal
+        value: 0
+    value: 3
+    valueType: int
+  - name: the proficiency bonus from challenge rating
+    evaluate: 'level.total > 0 ? 2 + floor((level.total - 1) / 4) : 2 + floor((max(1, ceil(challenge.rating)) - 1) / 4)'
+    fields:
+      level.total:
+        type: integer
+        value: 0
+      challenge.rating:
+        type: decimal
+        value: 0.25
+    value: 2
+    valueType: int

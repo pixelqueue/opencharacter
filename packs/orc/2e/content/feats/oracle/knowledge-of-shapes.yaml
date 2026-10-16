@@ -1,0 +1,22 @@
+id: feats.oracle.knowledge-of-shapes
+type: feat
+tags: [trait.cursebound, trait.spellshape]
+fields: { level: 4, category: class, class: classes.oracle }
+prerequisites:
+  - {
+      id: spellshape,
+      when: '@feats.spellcasting.reach-spell in feats.held || @feats.spellcasting.widen-spell in feats.held',
+    }
+actions:
+  - id: knowledge-of-shapes
+    tags: [class-action]
+    available: oracle.cursebound < oracle.curseMax
+    results: [used]
+    steps:
+      - id: curse
+        kind: changes
+        changes:
+          - { type: adjust, field: oracle.cursebound, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'used'"

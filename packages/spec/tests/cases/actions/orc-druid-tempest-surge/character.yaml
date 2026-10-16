@@ -1,0 +1,83 @@
+# An orc-2e character: a 3rd-level leaf leshy druid of the storm order
+# with the scout background, a staff, a wooden shield and leather armor.
+#
+# Boosts: the leshy's Constitution and Wisdom (Intelligence flaw) and a free Dexterity, the
+# scout's Wisdom and a free Charisma, the druid's Wisdom, and four free (Strength, Dexterity,
+# Constitution, Wisdom): Str +1, Dex +2, Con +2, Int -1, Wis +4, Cha +1. Trained skills: Survival
+# and Forest Lore (scout), Nature (druid), Acrobatics (storm order), and two more (2 +
+# Intelligence, at least 0). The skill increase at 3rd level went to Nature (expert).
+#
+# The storm order gives Storm Born and tempest surge (one Focus Point); Order Explorer at 2nd level
+# joins the leaf order and gives Leshy Familiar. Spells prepared today: five cantrips, three 1st-rank
+# and two 2nd-rank (each a copy of the spell).
+specVersion: 0.1.0
+id: example-orc-bramble
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 3
+  orc-2e:hp.current: 38
+  orc-2e:skills.nature.increases: 1
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.leshy
+    choices:
+      heritage:
+        - option: orc-2e:heritages.leaf-leshy
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-2e:boosts.dex
+  - id: background
+    item: orc-2e:backgrounds.scout
+    choices:
+      boost:
+        - option: orc-2e:boosts.wis
+      free-boost:
+        - option: orc-2e:boosts.cha
+      lore:
+        - option: skill.lore.forest
+  - id: class
+    item: orc-2e:classes.druid
+    choices:
+      order:
+        - option: orc-2e:classes.druid.orders.storm
+      voice-of-nature:
+        - option: orc-2e:feats.druid.plant-empathy
+      skills:
+        - option: skill.medicine
+        - option: skill.athletics
+      class-feat-2:
+        - option: orc-2e:feats.druid.order-explorer
+          choices:
+            order:
+              - option: leaf
+      skill-feat-2:
+        - option: orc-2e:feats.skill.natural-medicine
+  - { id: electric-arc, item: orc-2e:spells.electric-arc }
+  - { id: tangle-vine, item: orc-2e:spells.tangle-vine }
+  - { id: frostbite, item: orc-2e:spells.frostbite }
+  - { id: guidance, item: orc-2e:spells.guidance }
+  - { id: stabilize, item: orc-2e:spells.stabilize }
+  - { id: heal-1, item: orc-2e:spells.heal, state: { rank: 1 } }
+  - { id: heal-2, item: orc-2e:spells.heal, state: { rank: 1 } }
+  - { id: thunderstrike-1, item: orc-2e:spells.thunderstrike, state: { rank: 1 } }
+  - { id: oaken-resilience-2, item: orc-2e:spells.oaken-resilience, state: { rank: 2 } }
+  - { id: entangling-flora-2, item: orc-2e:spells.entangling-flora, state: { rank: 2 } }
+inventory:
+  - { id: staff, item: orc-2e:weapons.staff, equipped: true }
+  - { id: shield, item: orc-2e:shields.wooden-shield, equipped: true }
+  - { id: armor, item: orc-2e:armor.leather-armor, equipped: true }
+  - { id: backpack, item: orc-2e:gear.backpack }
+  - { id: bedroll, item: orc-2e:gear.bedroll }
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.seedpod
+  general-feat-3:
+    - option: orc-2e:feats.general.fleet

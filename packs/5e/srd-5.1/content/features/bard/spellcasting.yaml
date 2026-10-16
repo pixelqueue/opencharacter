@@ -1,0 +1,23 @@
+id: features.bard.spellcasting
+type: feature
+effects:
+  - { target: spellcasting.bard.mod, op: set, value: abilities.cha.mod }
+  - { target: spellcasting.bard.dc, op: set, value: 8 + proficiency.bonus + abilities.cha.mod }
+  - { target: spellcasting.bard.attack, op: set, value: proficiency.bonus + abilities.cha.mod }
+  - { target: spellcasting.classes, op: add, value: 1 }
+  - { target: spellcasting.casterLevel, op: add, value: self.level }
+choices:
+  - id: cantrips
+    pick: 'self.level >= 10 ? 4 : self.level >= 4 ? 3 : 2'
+    from: { type: spell, where: 'item.level == 0 && @classes.bard in item.classes' }
+    effects:
+      - { target: spells.bard, op: grant, value: { formula: pick.id } }
+  - id: spells
+    pick: '[4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 15, 16, 18, 19, 19, 20, 22, 22, 22][self.level - 1]'
+    from:
+      {
+        type: spell,
+        where: 'item.level >= 1 && item.level <= min(9, ceil(self.level / 2)) && @classes.bard in item.classes',
+      }
+    effects:
+      - { target: spells.bard, op: grant, value: { formula: pick.id } }

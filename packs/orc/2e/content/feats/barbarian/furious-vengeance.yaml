@@ -1,0 +1,31 @@
+id: feats.barbarian.furious-vengeance
+type: feat
+tags: [trait.rage]
+fields: { level: 16, category: class, class: classes.barbarian }
+prerequisites:
+  - { id: instinct, when: "barbarian.instinct == 'fury'" }
+actions:
+  - id: furious-vengeance
+    tags: [reaction]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        params: { reaction: true }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage

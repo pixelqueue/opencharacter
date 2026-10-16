@@ -1,0 +1,19 @@
+# A 9th-level orc fighter at 0 Hit Points, with Orc Ferocity (1st level) and Undying Ferocity (9th
+# level). Only what Orc Ferocity reads is filled.
+specVersion: 0.1.0
+id: example-orc-undying-orc
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 9
+  orc-2e:hp.current: 0
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.orc
+  - id: class
+    item: orc-2e:classes.fighter
+choices:
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.orc-ferocity
+  ancestry-feat-9:
+    - option: orc-2e:feats.ancestry.undying-ferocity

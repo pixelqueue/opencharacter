@@ -1,0 +1,21 @@
+description: "An action step's `tags` reach the nested choice steps, so they must be declared, as a choice step's are"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack]
+        actions:
+          - id: test
+            steps:
+              - { id: done, kind: outcome }
+          - id: attack
+            steps:
+              - { id: check, kind: action, use: test, tags: [attack, ambush] }
+      content: []

@@ -1,0 +1,15 @@
+id: feats.ancestry.musetouched
+type: feat
+tags: [trait.lineage]
+fields: { level: 1, category: ancestry, heritage: heritages.nephilim }
+effects:
+  - target: { rolls: [skill-action.escape] }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+  - target: { rolls: [skill-action.escape], tally: successToCrit }
+    op: add
+    value: 1
+  - target: { rolls: [skill-action.escape], tally: critFailToFail }
+    op: add
+    value: 1

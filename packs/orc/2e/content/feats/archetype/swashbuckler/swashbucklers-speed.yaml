@@ -1,0 +1,11 @@
+id: feats.archetype.swashbuckler.swashbucklers-speed
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 8, category: class, archetype: archetypes.swashbuckler }
+prerequisites:
+  - {
+      id: swashbuckler-dedication,
+      when: '@feats.archetype.swashbuckler.swashbuckler-dedication in feats.held',
+    }
+effects:
+  - { target: speed.land, op: add, value: 'panache.active ? 10 : 5', stackKey: status-bonus }

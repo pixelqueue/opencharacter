@@ -1,0 +1,99 @@
+# Yesterday's trade is reset, today's adds to the same input, and the steps after it pick as many
+# cantrips and 1st-rank spells as the trade leaves.
+status: finished
+outcome:
+  result: prepared
+proposedChanges:
+  - to: self
+    step: clear
+    change:
+      type: removeItem
+      copies:
+        type: orc-2e:spell
+        where: "self.source == ''"
+  - to: self
+    step: clear
+    change:
+      type: set
+      field: orc-2e:spellBlending.rank1.cantrips
+      value: 0
+  - to: self
+    step: blend
+    change:
+      type: adjust
+      field: orc-2e:spellBlending.rank1.cantrips
+      by: 1
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-shield-1
+        item: orc-2e:spells.shield
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-electric-arc-1
+        item: orc-2e:spells.electric-arc
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-frostbite-1
+        item: orc-2e:spells.frostbite
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-ignition-1
+        item: orc-2e:spells.ignition
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-daze-1
+        item: orc-2e:spells.daze
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-detect-magic-1
+        item: orc-2e:spells.detect-magic
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-light-1
+        item: orc-2e:spells.light
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-read-aura-1
+        item: orc-2e:spells.read-aura
+  - to: self
+    step: rank1
+    change:
+      type: addItem
+      entry:
+        id: spells-force-barrage-1
+        item: orc-2e:spells.force-barrage
+        state:
+          rank: 1
+  - to: self
+    step: rank1
+    change:
+      type: addItem
+      entry:
+        id: spells-sleep-1
+        item: orc-2e:spells.sleep
+        state:
+          rank: 1

@@ -1,0 +1,18 @@
+# Fighter 1 / barbarian 1: total level 4, budget 2. After the fighter's one spent die is picked,
+# `self.hitDiceSpent > picks` (1 > 1) no longer holds for it.
+status: paused
+needs:
+  step: hitDice
+  action: 5e-srd-5.1:long-rest
+  kind: choice
+  options: [barbarian, '#done']
+  recommended: barbarian
+log:
+  - {
+      step: hitDice,
+      action: 5e-srd-5.1:long-rest,
+      kind: choice,
+      by: app,
+      option: fighter,
+      index: 0,
+    }

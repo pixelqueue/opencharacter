@@ -1,0 +1,16 @@
+# 8 + Dexterity 3 + proficiency 2 = 13 against AC 11: a hit. The bands are marked used.
+status: finished
+outcome:
+  result: hit
+  data: { attack: 13 }
+proposedChanges:
+  - to: self
+    step: use
+    change: { type: setState, entry: bands, key: usedToday, value: [bind] }
+  - to: target
+    character: ogre
+    step: bound
+    change:
+      type: applyEffect
+      source: 5e-srd-5.1:conditions.restrained
+      state: { by: humanoid, magical: true }

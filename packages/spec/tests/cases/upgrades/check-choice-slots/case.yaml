@@ -1,0 +1,39 @@
+description: 'Choices written out per level folded into one slotted choice keep their keys, so nothing is removed; a slot dropped is `choice-removed`'
+specVersion: 0.1.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      fields:
+        level: { type: integer, input: true, default: 1 }
+      contentTypes:
+        feat: {}
+      choices:
+        - { id: feat-1, when: level >= 1, from: { type: feat } }
+        - { id: feat-2, when: level >= 2, from: { type: feat } }
+        - { id: feat-4, when: level >= 4, from: { type: feat } }
+    content:
+      - { id: feats.alertness, type: feat }
+next:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.1.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      fields:
+        level: { type: integer, input: true, default: 1 }
+      contentTypes:
+        feat: {}
+      choices:
+        - { id: feat, slots: [1, 2], when: level >= slot, from: { type: feat } }
+    content:
+      - { id: feats.alertness, type: feat }

@@ -1,0 +1,26 @@
+id: magic-items.cape-of-the-mountebank
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  maxCharges: 1
+  recharge: 1
+  spells: [spells.dimension-door]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.dimension-door, when: self.equipped }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.dimension-door &&
+      flags.slot == 4 && self.charges >= 1
+    value:
+      id: charges
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

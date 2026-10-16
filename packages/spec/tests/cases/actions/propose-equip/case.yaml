@@ -1,0 +1,35 @@
+description: 'An action proposes `equip` with a computed `equipped`, for one copy by entry and for copies by query'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          blade: { carried: true, equippable: true }
+          drill: {}
+      content:
+        - { id: blades.knife, type: blade }
+        - id: drills.ready
+          type: drill
+          actions:
+            # Draw the first blade, then stow every other one.
+            - id: ready
+              params:
+                draw: { type: boolean, default: true }
+              steps:
+                - id: draw
+                  kind: changes
+                  changes:
+                    - { type: equip, entry: knife-1, equipped: params.draw }
+                    - type: equip
+                      copies: { type: blade, where: "self.id != 'knife-1'" }
+                      equipped: '!params.draw'
+                - { id: done, kind: outcome }
+input:
+  action: { id: 'test-pack:drills.ready#ready', entry: drill }

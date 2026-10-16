@@ -1,0 +1,17 @@
+# 8 + Wisdom 0 + proficiency 3 = 11 fails DC 16; the d10 adds 3, 14, still a failure. The use is
+# spent all the same.
+status: finished
+outcome:
+  result: failure
+  data: { total: 14 }
+proposedChanges:
+  - to: self
+    step: luck
+    change: { type: setState, entry: warlock, key: darkOnesOwnLuckUsed, value: true }
+log:
+  - { step: save, kind: dice, by: engine, faces: [8], total: 11 }
+  - step: luck
+    kind: choice
+    by: app
+    option: '5e-srd-5.1:features.warlock.dark-ones-own-luck#luck'
+  - { step: added, kind: dice, by: engine, faces: [3], total: 3 }

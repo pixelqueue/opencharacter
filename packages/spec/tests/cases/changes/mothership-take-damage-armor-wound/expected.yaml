@@ -1,0 +1,49 @@
+# The vest (AP 5, DR 2) breaks: -12 + 5 + 2 = -5. Health 3 - 5 = -2 is a wound, health resets to
+# 14 (+16), and the 2 past 0 carries over: health 12.
+ok: true
+adjustments:
+  - field: mothership-1e:health.current
+    by: -5
+    requested: -12
+    taken: -5
+    reason: requested
+  - field: mothership-1e:wounds.current
+    by: 1
+    reason: overflow
+  - field: mothership-1e:health.current
+    by: 16
+    reason: reset
+  - { field: mothership-1e:health.current, by: -2, reason: carry }
+  - entry: vest
+    key: destroyed
+    value: true
+    source:
+      type: item
+      id: test-gear:gear.vest
+      entry: vest
+      effect: armor-points-break
+followUps:
+  - id: wound-1
+    kind: ephemeral
+    followUp: mothership-1e:wound
+    to: self
+    required: true
+    action:
+      id: mothership-1e:wound-roll
+      followUp: wound-1
+    params: {}
+    cause:
+      field: mothership-1e:wounds.current
+      by: 1
+      requested: 0
+      taken: 0
+      reason: overflow
+      clamped: false
+      tags: []
+issues: []
+character:
+  values:
+    mothership-1e:health.max: 14
+    mothership-1e:health.current: 12
+    mothership-1e:wounds.max: 2
+    mothership-1e:wounds.current: 1

@@ -1,0 +1,37 @@
+id: feats.fighter.incredible-aim
+type: feat
+tags: [trait.concentrate]
+fields: { level: 8, category: class, class: classes.fighter }
+actions:
+  - id: incredible-aim
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    available: >-
+      countCopies(copy.type == 'weapon' && copy.equipped && copy.fields.range > 0) > 0
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: 'self.equipped && item.range > 0'
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [strike.incredible-aim]
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+effects:
+  - target: { rolls: [strike.incredible-aim] }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: "'attack' in roll.tags"

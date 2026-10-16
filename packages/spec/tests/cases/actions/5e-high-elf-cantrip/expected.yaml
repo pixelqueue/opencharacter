@@ -1,0 +1,42 @@
+# Fire bolt with the high elf's Intelligence: 8 + proficiency 2 + Intelligence 3 = 13 >= 12.
+# The DC is 8 + 2 + 3 = 13.
+status: finished
+outcome:
+  result: hit
+  data:
+    slot: 0
+    spellcastingClass: racial
+    metamagic: none
+    dc: 13
+    save: ''
+    halfOnSave: false
+    damage: 6
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -6,
+          tags: [damage, attack, spell, magical, ranged, damage.fire],
+        },
+    }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces: [8]
+    items:
+      - { kind: dice, sides: 20, value: 8 }
+      - { kind: flat, value: 5 }
+    total: 13
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [6]
+    total: 6

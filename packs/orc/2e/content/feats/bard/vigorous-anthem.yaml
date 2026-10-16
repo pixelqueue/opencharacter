@@ -1,0 +1,20 @@
+id: feats.bard.vigorous-anthem
+type: feat
+tags: [trait.auditory, trait.concentrate, trait.spellshape]
+fields: { level: 14, category: class, class: classes.bard }
+actions:
+  - id: vigorous-anthem
+    tags: [class-action]
+    results: [vigorous]
+    steps:
+      - id: vigor
+        kind: changes
+        changes:
+          - type: set
+            field: hp.temp
+            value: max(hp.temp, 3 + attributes.cha.mod)
+      - id: result
+        kind: outcome
+        result: "'vigorous'"
+        data:
+          tempHp: 3 + attributes.cha.mod

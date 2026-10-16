@@ -1,0 +1,20 @@
+id: features.paladin.holy-nimbus
+type: feature
+actions:
+  - id: holy-nimbus
+    tags: [feature]
+    results: [shining]
+    available: '!self.holyNimbusUsed'
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: holyNimbusUsed, value: true }
+      - id: result
+        kind: outcome
+        result: "'shining'"
+        data:
+          damage: 10
+          damageType: "'radiant'"
+          range: 30
+          minutes: 1

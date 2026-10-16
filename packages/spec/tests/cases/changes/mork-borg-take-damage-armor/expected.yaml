@@ -1,0 +1,33 @@
+# Medium armor's d4 rolls 2: 6 - 2 = 4 damage, HP 4 to 0, and the broken roll is listed.
+ok: true
+adjustments:
+  - field: mork-borg-core:hp.current
+    by: -4
+    requested: -6
+    taken: -4
+    reason: requested
+    rolled:
+      - source:
+          type: item
+          id: mork-borg-core:armor.medium
+          entry: armor
+          effect: armor-die
+        dice: 1d4
+        faces:
+          - 2
+        total: 2
+followUps:
+  - id: broken-1
+    kind: ephemeral
+    followUp: mork-borg-core:broken
+    to: self
+    required: true
+    action:
+      id: mork-borg-core:broken
+      followUp: broken-1
+    params: {}
+issues: []
+character:
+  values:
+    mork-borg-core:hp.max: 8
+    mork-borg-core:hp.current: 0

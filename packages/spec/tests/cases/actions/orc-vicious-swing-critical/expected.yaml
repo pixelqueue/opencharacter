@@ -1,0 +1,61 @@
+# The longsword is the first melee weapon offered. Its Strike: a natural 20 (+9) is a critical
+# hit; the damage roll is tagged `strike.vicious-swing`, so the feat adds a d8. The Strike counts
+# one attack; the feat counts the second and the flourish.
+status: finished
+outcome:
+  result: critical-success
+  data:
+    damage: 24
+proposedChanges:
+  - to: self
+    step: strike/count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 1
+      tags: [attack-count]
+  - to: target
+    character: goblin
+    step: strike/deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -24
+      tags:
+        - damage
+        - damage.slashing
+  - to: self
+    step: count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 1
+  - to: self
+    step: count
+    change:
+      type: adjust
+      field: orc-2e:turn.flourishes
+      by: 1
+log:
+  - step: weapon
+    action: 'orc-2e:feats.fighter.vicious-swing#vicious-swing'
+    kind: choice
+    by: engine
+    option: longsword
+  - step: strike/attack
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 20
+    total: 29
+    band: critical-success
+    bandSet: orc-2e:degree
+  - step: strike/damage
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 5
+      - 3
+    total: 24

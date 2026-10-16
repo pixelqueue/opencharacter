@@ -1,0 +1,42 @@
+id: feats.ancestry.nephilim-resistance
+type: feat
+fields: { level: 5, category: ancestry, heritage: heritages.nephilim }
+choices:
+  - id: type
+    from:
+      options:
+        - id: acid
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.acid] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, 5)
+              when: incoming.amount < 0
+        - id: cold
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.cold] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, 5)
+              when: incoming.amount < 0
+        - id: electricity
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.electricity] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, 5)
+              when: incoming.amount < 0
+        - id: fire
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, 5)
+              when: incoming.amount < 0
+        - id: sonic
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.sonic] } }
+              op: add
+              stackKey: resistance
+              value: min(-incoming.amount, 5)
+              when: incoming.amount < 0

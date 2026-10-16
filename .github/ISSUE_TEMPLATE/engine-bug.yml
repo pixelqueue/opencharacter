@@ -1,0 +1,42 @@
+name: Engine or tooling bug
+description: The engine, text helper, validator or editor misbehaves.
+labels: ['bug']
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - engine
+        - text
+        - spec (schemas, validator)
+        - editor
+        - website
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Package version or commit.
+  - type: textarea
+    id: input
+    attributes:
+      label: Input
+      description: The call and its input. A minimal character file is ideal.
+      render: yaml
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+      description: The output or error.
+    validations:
+      required: true

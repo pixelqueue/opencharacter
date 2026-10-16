@@ -1,0 +1,30 @@
+# The advance leaves the Wardens' own choice one pick short; the pending pick takes Pack Rats
+# there. xp clears; each member gains 1 + 2 stash.
+status: finished
+outcome:
+  result: ability
+  data:
+    stash: 3
+proposedChanges:
+  - to: self
+    step: advance
+    change:
+      type: adjust
+      field: fitd-crew:advances.abilities
+      by: 1
+  - to: self
+    step: typeAbility
+    change:
+      type: choose
+      path:
+        choice:
+          - crew-type
+          - homebrew:crew-types.wardens
+          - special-ability
+      option: fitd-crew:crew-abilities.pack-rats
+  - to: self
+    step: clear
+    change:
+      type: set
+      field: fitd-crew:xp.current
+      value: 0

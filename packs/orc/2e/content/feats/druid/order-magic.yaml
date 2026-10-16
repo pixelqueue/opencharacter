@@ -1,0 +1,54 @@
+id: feats.druid.order-magic
+type: feat
+fields: { level: 4, category: class, class: classes.druid }
+repeatable: true
+prerequisites:
+  - id: order-explorer
+    when: '@feats.druid.order-explorer in feats.held'
+choices:
+  - id: order
+    unique: order-magic
+    requiresOption: true
+    from:
+      options:
+        - id: animal
+          prerequisites:
+            - {
+                id: explored,
+                when: "druid.order != 'animal' && 'druid-order.animal' in druid.orders",
+              }
+          effects:
+            - { target: focus.points, op: add, value: 1 }
+            - { target: druid.orderSpells, op: grant, value: { item: spells.heal-animal } }
+          grants:
+            - item: spells.heal-animal
+        - id: leaf
+          prerequisites:
+            - { id: explored, when: "druid.order != 'leaf' && 'druid-order.leaf' in druid.orders" }
+          effects:
+            - { target: focus.points, op: add, value: 1 }
+            - { target: druid.orderSpells, op: grant, value: { item: spells.cornucopia } }
+          grants:
+            - item: spells.cornucopia
+        - id: storm
+          prerequisites:
+            - {
+                id: explored,
+                when: "druid.order != 'storm' && 'druid-order.storm' in druid.orders",
+              }
+          effects:
+            - { target: focus.points, op: add, value: 1 }
+            - { target: druid.orderSpells, op: grant, value: { item: spells.tempest-surge } }
+          grants:
+            - item: spells.tempest-surge
+        - id: untamed
+          prerequisites:
+            - {
+                id: explored,
+                when: "druid.order != 'untamed' && 'druid-order.untamed' in druid.orders",
+              }
+          effects:
+            - { target: focus.points, op: add, value: 1 }
+            - { target: druid.orderSpells, op: grant, value: { item: spells.untamed-shift } }
+          grants:
+            - item: spells.untamed-shift

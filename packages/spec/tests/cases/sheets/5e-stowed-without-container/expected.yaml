@@ -1,0 +1,9 @@
+# The chain mail is stowed but nothing holds it: both container constraints fail (55 lb stowed,
+# 0 lb of capacity). It still leaves carried weight: only the longsword's 3 lb counts.
+issues:
+  - { code: constraint-failed, id: 5e-srd-5.1:stowed-without-container }
+  - { code: constraint-failed, id: 5e-srd-5.1:stowed-over-capacity }
+values:
+  5e-srd-5.1:carrying.weight: { value: 3 }
+  5e-srd-5.1:carrying.stowed: { value: 55 }
+  5e-srd-5.1:carrying.stowCapacity: { value: 0 }

@@ -1,0 +1,771 @@
+description: Rolling dice values from supplied faces
+specVersion: 0.1.0
+cases:
+  - name: a single d20
+    roll: 1d20
+    faces:
+      - 14
+    total: 14
+    terms:
+      - faces:
+          - value: 14
+            kept: true
+  - name: a sum of dice
+    roll: 3d6
+    faces:
+      - 2
+      - 5
+      - 6
+    total: 13
+    terms:
+      - faces:
+          - value: 2
+            kept: true
+          - value: 5
+            kept: true
+          - value: 6
+            kept: true
+  - name: dice plus a flat bonus
+    roll: 1d8 + 3
+    faces:
+      - 5
+    total: 8
+  - name: negated dice subtract
+    roll: 10 - 1d4
+    faces:
+      - 3
+    total: 7
+  - name: several terms with signs and a flat part
+    roll: 2d6 - 1d4 + 3
+    faces:
+      - 3
+      - 4
+      - 2
+    total: 8
+    terms:
+      - faces:
+          - value: 3
+            kept: true
+          - value: 4
+            kept: true
+      - faces:
+          - value: 2
+            kept: true
+  - name: dice plus a field
+    roll: 1d8 + abilities.str.mod
+    fields:
+      abilities.str.mod:
+        type: integer
+        value: 4
+    faces:
+      - 7
+    total: 11
+  - name: zero dice roll nothing
+    roll: 0d6 + 2
+    faces: []
+    total: 2
+    terms:
+      - faces: []
+  - name: advantage keeps the higher die
+    roll: 2d20kh1 + 3
+    faces:
+      - 4
+      - 17
+    total: 20
+    terms:
+      - faces:
+          - value: 4
+            kept: false
+          - value: 17
+            kept: true
+  - name: disadvantage keeps the lower die
+    roll: 2d20kl1
+    faces:
+      - 4
+      - 17
+    total: 4
+    terms:
+      - faces:
+          - value: 4
+            kept: true
+          - value: 17
+            kept: false
+  - name: keep highest tie goes to the die rolled first
+    roll: 2d20kh1
+    faces:
+      - 12
+      - 12
+    total: 12
+    terms:
+      - faces:
+          - value: 12
+            kept: true
+          - value: 12
+            kept: false
+  - name: keep lowest tie goes to the die rolled first
+    roll: 2d20kl1
+    faces:
+      - 9
+      - 9
+    total: 9
+    terms:
+      - faces:
+          - value: 9
+            kept: true
+          - value: 9
+            kept: false
+  - name: drop lowest (4d6 drop lowest)
+    roll: 4d6dl1
+    faces:
+      - 3
+      - 5
+      - 1
+      - 6
+    total: 14
+    terms:
+      - faces:
+          - value: 3
+            kept: true
+          - value: 5
+            kept: true
+          - value: 1
+            kept: false
+          - value: 6
+            kept: true
+  - name: drop lowest tie drops the die rolled first
+    roll: 4d6dl1
+    faces:
+      - 2
+      - 5
+      - 2
+      - 6
+    total: 13
+    terms:
+      - faces:
+          - value: 2
+            kept: false
+          - value: 5
+            kept: true
+          - value: 2
+            kept: true
+          - value: 6
+            kept: true
+  - name: drop highest
+    roll: 3d6dh1
+    faces:
+      - 6
+      - 2
+      - 4
+    total: 6
+    terms:
+      - faces:
+          - value: 6
+            kept: false
+          - value: 2
+            kept: true
+          - value: 4
+            kept: true
+  - name: keep more dice than rolled keeps them all
+    roll: 2d6kh5
+    faces:
+      - 3
+      - 4
+    total: 7
+    terms:
+      - faces:
+          - value: 3
+            kept: true
+          - value: 4
+            kept: true
+  - name: drop more dice than rolled drops them all
+    roll: 2d6dl5
+    faces:
+      - 3
+      - 4
+    total: 0
+    terms:
+      - faces:
+          - value: 3
+            kept: false
+          - value: 4
+            kept: false
+  - name: keep three of four
+    roll: 4d6kh3
+    faces:
+      - 1
+      - 4
+      - 4
+      - 6
+    total: 14
+    terms:
+      - faces:
+          - value: 1
+            kept: false
+          - value: 4
+            kept: true
+          - value: 4
+            kept: true
+          - value: 6
+            kept: true
+  - name: reroll ones until they are not ones
+    roll: 1d20r1
+    faces:
+      - 1
+      - 1
+      - 15
+    total: 15
+    terms:
+      - faces:
+          - value: 1
+            kept: false
+            rerolled: true
+          - value: 1
+            kept: false
+            rerolled: true
+          - value: 15
+            kept: true
+  - name: reroll at or below 2
+    roll: 2d6r<=2
+    faces:
+      - 2
+      - 5
+      - 6
+    total: 11
+    terms:
+      - faces:
+          - value: 2
+            kept: false
+            rerolled: true
+          - value: 5
+            kept: true
+          - value: 6
+            kept: true
+  - name: reroll once keeps the second result even if it matches
+    roll: 2d6ro<=2
+    faces:
+      - 1
+      - 6
+      - 2
+    total: 8
+    terms:
+      - faces:
+          - value: 1
+            kept: false
+            rerolled: true
+          - value: 6
+            kept: true
+          - value: 2
+            kept: true
+  - name: reroll once with no match rolls nothing extra
+    roll: 2d6ro1
+    faces:
+      - 3
+      - 4
+    total: 7
+  - name: explode on the highest face
+    roll: 1d6!
+    faces:
+      - 6
+      - 3
+    total: 9
+    terms:
+      - faces:
+          - value: 6
+            kept: true
+          - value: 3
+            kept: true
+            exploded: true
+  - name: exploded dice can explode again
+    roll: 1d6!
+    faces:
+      - 6
+      - 6
+      - 2
+    total: 14
+    terms:
+      - faces:
+          - value: 6
+            kept: true
+          - value: 6
+            kept: true
+            exploded: true
+          - value: 2
+            kept: true
+            exploded: true
+  - name: exploded dice go to the end, after the initial dice
+    roll: 2d6!
+    faces:
+      - 6
+      - 3
+      - 2
+    total: 11
+    terms:
+      - faces:
+          - value: 6
+            kept: true
+          - value: 3
+            kept: true
+          - value: 2
+            kept: true
+            exploded: true
+  - name: explode with a comparison
+    roll: 2d10!>=9
+    faces:
+      - 9
+      - 4
+      - 10
+      - 1
+    total: 24
+  - name: no explosion without a match
+    roll: 3d6!
+    faces:
+      - 1
+      - 2
+      - 3
+    total: 6
+  - name: compound explode adds into the same die
+    roll: 1d6!!
+    faces:
+      - 6
+      - 4
+    total: 10
+  - name: compound explode twice
+    roll: 1d6!!
+    faces:
+      - 6
+      - 6
+      - 1
+    total: 13
+  - name: explode then keep highest
+    roll: 2d6!kh1
+    faces:
+      - 6
+      - 5
+      - 3
+    total: 6
+  - name: minimum clamps low faces
+    roll: 1d20min10
+    faces:
+      - 3
+    total: 10
+  - name: minimum leaves high faces
+    roll: 1d20min10
+    faces:
+      - 13
+    total: 13
+  - name: maximum clamps high faces
+    roll: 1d20max15
+    faces:
+      - 19
+    total: 15
+  - name: count successes
+    roll: 5d6cs>=5
+    faces:
+      - 5
+      - 2
+      - 6
+      - 1
+      - 4
+    total: 2
+    terms:
+      - faces:
+          - value: 5
+            kept: true
+            success: true
+          - value: 2
+            kept: true
+          - value: 6
+            kept: true
+            success: true
+          - value: 1
+            kept: true
+          - value: 4
+            kept: true
+  - name: count successes minus failures
+    roll: 5d10cs>=8cf1
+    faces:
+      - 8
+      - 1
+      - 10
+      - 3
+      - 1
+    total: 0
+    terms:
+      - faces:
+          - value: 8
+            kept: true
+            success: true
+          - value: 1
+            kept: true
+            failure: true
+          - value: 10
+            kept: true
+            success: true
+          - value: 3
+            kept: true
+          - value: 1
+            kept: true
+            failure: true
+  - name: successes can go negative with failures
+    roll: 3d10cs>=8cf1
+    faces:
+      - 1
+      - 1
+      - 5
+    total: -2
+  - name: count successes only among kept dice
+    roll: 3d6kh2cs6
+    faces:
+      - 6
+      - 6
+      - 6
+    total: 2
+  - name: Fate dice
+    roll: 4dF
+    faces:
+      - -1
+      - 0
+      - 1
+      - 1
+    total: 1
+    terms:
+      - faces:
+          - value: -1
+            kept: true
+          - value: 0
+            kept: true
+          - value: 1
+            kept: true
+          - value: 1
+            kept: true
+  - name: Fate dice with a skill
+    roll: 4dF + 3
+    faces:
+      - -1
+      - -1
+      - -1
+      - 0
+    total: 0
+  - name: Fate face out of range
+    roll: 4dF
+    faces:
+      - 2
+      - 0
+      - 0
+      - 0
+    error: invalid-face
+  - name: a d100
+    roll: 1d100
+    faces:
+      - 100
+    total: 100
+  - name: d% is a d100
+    roll: 1d%
+    faces:
+      - 37
+    total: 37
+  - name: a d100 can roll 100 (packs read it as 00 with % 100)
+    roll: 1d100
+    faces:
+      - 100
+    total: 100
+  - name: 'Mothership doubles: the reading and the critical'
+    evaluate: roll.total % 100 % 11 == 0 && roll.total % 100 < flags.target
+    roots:
+      roll:
+        total: 33
+      flags:
+        target: 40
+    value: true
+    valueType: bool
+  - name: FitD pool keeps the highest
+    roll: (ratings.skirmish)d6kh1
+    fields:
+      ratings.skirmish:
+        type: integer
+        value: 3
+    faces:
+      - 2
+      - 6
+      - 4
+    total: 6
+    terms:
+      - faces:
+          - value: 2
+            kept: false
+          - value: 6
+            kept: true
+          - value: 4
+            kept: false
+  - name: FitD zero dots keeps the lowest of two
+    roll: 'ratings.hunt > 0 ? (ratings.hunt)d6kh1 : 2d6kl1'
+    fields:
+      ratings.hunt:
+        type: integer
+        value: 0
+    faces:
+      - 5
+      - 2
+    total: 2
+    terms:
+      - faces:
+          - value: 5
+            kept: false
+          - value: 2
+            kept: true
+  - name: 5E advantage with a modifier
+    roll: 2d20kh1 + abilities.str.mod + 2
+    fields:
+      abilities.str.mod:
+        type: integer
+        value: 4
+    faces:
+      - 11
+      - 19
+    total: 25
+  - name: 5E damage with Great Weapon Fighting
+    roll: 2d6ro<=2 + 3
+    faces:
+      - 1
+      - 2
+      - 4
+      - 5
+    total: 12
+  - name: a face above the die
+    roll: 1d6
+    faces:
+      - 7
+    error: invalid-face
+  - name: a face of zero
+    roll: 1d6
+    faces:
+      - 0
+    error: invalid-face
+  - name: a negative face on a numeric die
+    roll: 1d6
+    faces:
+      - -1
+    error: invalid-face
+  - name: an invalid reroll face
+    roll: 1d20r1
+    faces:
+      - 1
+      - 21
+    error: invalid-face
+  - name: rerolls are limited by maxRerolls
+    roll: 1d1r1
+    faces:
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+    error: safety-limit-exceeded
+  - name: explosions are limited by maxExplosions
+    roll: 1d1!
+    faces:
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+    error: safety-limit-exceeded
+  - name: an int formula rolls to itself
+    roll: 2 + 3
+    faces: []
+    total: 5
+    terms: []

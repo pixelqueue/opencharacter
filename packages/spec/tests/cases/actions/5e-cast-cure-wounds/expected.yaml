@@ -1,0 +1,22 @@
+# 1d8 + 1d8 for the 2nd-level slot, + wis 3: 5 + 2 + 3 = 10, for the app to route to the target.
+status: finished
+outcome:
+  result: cast
+  data:
+    slot: 2
+    spellcastingClass: cleric
+    metamagic: none
+    dc: 13
+    save: ''
+    halfOnSave: false
+    damage: 0
+    healing: 10
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change: { type: adjust, field: 5e-srd-5.1:spellSlots.level2.used, by: 1 }
+  - to: target
+    step: restore
+    change: { type: adjust, field: 5e-srd-5.1:hp.current, by: 10, tags: [healing] }

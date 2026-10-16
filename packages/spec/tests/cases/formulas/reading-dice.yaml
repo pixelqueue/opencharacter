@@ -1,0 +1,227 @@
+description: 'Reading dice values: maxOf, minOf and dieOf'
+specVersion: 0.1.0
+cases:
+  # maxOf and minOf
+  - name: the highest total of dice plus a flat bonus
+    evaluate: maxOf(2d6 + 3)
+    value: 15
+    valueType: int
+  - name: the lowest total of dice plus a flat bonus
+    evaluate: minOf(2d6 + 3)
+    value: 5
+    valueType: int
+  - name: keep highest applies to the highest faces
+    evaluate: maxOf(4d6kh3)
+    value: 18
+    valueType: int
+  - name: keep highest applies to the lowest faces
+    evaluate: minOf(4d6kh3)
+    value: 3
+    valueType: int
+  - name: a negative term shows its lowest face in maxOf
+    evaluate: maxOf(1d6 - 1d4)
+    value: 5
+    valueType: int
+  - name: a negative term shows its highest face in minOf
+    evaluate: minOf(1d6 - 1d4)
+    value: -3
+    valueType: int
+  - name: a zero-based die's highest face is sides - 1
+    evaluate: maxOf(1d100z)
+    value: 99
+    valueType: int
+  - name: a zero-based die's lowest face is 0
+    evaluate: minOf(1d100z)
+    value: 0
+    valueType: int
+  - name: Fate dice at their highest
+    evaluate: maxOf(4dF)
+    value: 4
+    valueType: int
+  - name: Fate dice at their lowest
+    evaluate: minOf(1dF)
+    value: -1
+    valueType: int
+  - name: a minimum clamp raises the lowest face
+    evaluate: minOf(1d6min3)
+    value: 3
+    valueType: int
+  - name: a minimum clamp leaves the highest face
+    evaluate: maxOf(1d6min3)
+    value: 6
+    valueType: int
+  - name: counting successes counts the highest faces
+    evaluate: maxOf(1d20cs>=15)
+    value: 1
+    valueType: int
+  - name: an exploding die does not explode
+    evaluate: maxOf(1d6!)
+    value: 6
+    valueType: int
+  - name: a reroll does not happen
+    evaluate: minOf(1d6r1)
+    value: 1
+    valueType: int
+  - name: an int is its own highest total
+    evaluate: maxOf(7)
+    value: 7
+    valueType: int
+  - name: an int is its own lowest total
+    evaluate: minOf(-2)
+    value: -2
+    valueType: int
+  - name: the highest total of a dice field
+    evaluate: maxOf(weapon.damage)
+    fields:
+      weapon.damage: { type: dice, value: 1d10 }
+    value: 10
+    valueType: int
+  - name: maxOf of a string
+    evaluate: maxOf('1d6')
+    error: type-mismatch
+  - name: maxOf with two arguments
+    evaluate: maxOf(1d6, 1d8)
+    error: wrong-arity
+
+  # dieOf
+  - name: one die of the first term, without the flat part
+    evaluate: dieOf(2d6 + 1)
+    value: { terms: [{ sign: 1, count: 1, sides: 6, modifiers: [] }], flat: 0 }
+    valueType: dice
+  - name: the first term only
+    evaluate: dieOf(1d8 + 2d6)
+    value: { terms: [{ sign: 1, count: 1, sides: 8, modifiers: [] }], flat: 0 }
+    valueType: dice
+  - name: the die without its modifiers
+    evaluate: dieOf(4d6kh3)
+    value: { terms: [{ sign: 1, count: 1, sides: 6, modifiers: [] }], flat: 0 }
+    valueType: dice
+  - name: the die with a positive sign
+    evaluate: dieOf(-1d8)
+    value: { terms: [{ sign: 1, count: 1, sides: 8, modifiers: [] }], flat: 0 }
+    valueType: dice
+  - name: a zero-based die stays zero-based
+    evaluate: dieOf(1d100z)
+    value: { terms: [{ sign: 1, count: 1, sides: 100, zero: true, modifiers: [] }], flat: 0 }
+    valueType: dice
+  - name: a Fate die stays a Fate die
+    evaluate: dieOf(4dF)
+    value: { terms: [{ sign: 1, count: 1, sides: F, modifiers: [] }], flat: 0 }
+    valueType: dice
+  - name: three dice of the first term
+    evaluate: dieOf(2d6, 3)
+    value: { terms: [{ sign: 1, count: 3, sides: 6, modifiers: [] }], flat: 0 }
+    valueType: dice
+  - name: a count of 0
+    evaluate: dieOf(2d6, 0)
+    value: { terms: [{ sign: 1, count: 0, sides: 6, modifiers: [] }], flat: 0 }
+    valueType: dice
+  - name: a computed count
+    evaluate: 'dieOf(weapon.damage, self.level >= 17 ? 3 : self.level >= 13 ? 2 : 1)'
+    fields:
+      weapon.damage: { type: dice, value: 1d12 }
+    roots:
+      self: { level: 13 }
+    value: { terms: [{ sign: 1, count: 2, sides: 12, modifiers: [] }], flat: 0 }
+    valueType: dice
+  - name: a value with no terms gives no dice
+    evaluate: dieOf(1)
+    value: { terms: [], flat: 0 }
+    valueType: dice
+  - name: a negative count
+    evaluate: dieOf(2d6, -1)
+    error: type-mismatch
+  - name: a decimal count
+    evaluate: dieOf(2d6, 1.5)
+    error: type-mismatch
+  - name: a count over maxDicePerItem
+    evaluate: dieOf(2d6, 1001)
+    error: safety-limit-exceeded
+  - name: dieOf of a string
+    evaluate: dieOf('2d6')
+    error: type-mismatch
+  - name: dieOf with three arguments
+    evaluate: dieOf(2d6, 1, 2)
+    error: wrong-arity
+
+  # Type checking
+  - name: maxOf is an int
+    check: maxOf(1d6 + 2)
+    expect: int
+    type: int
+  - name: minOf of an int is an int
+    check: minOf(3)
+    type: int
+  - name: maxOf of a typed dice root
+    check: maxOf(item.damage)
+    roots: [item]
+    rootTypes:
+      item: { object: { damage: dice }, open: false }
+    type: int
+  - name: maxOf is not dice
+    check: maxOf(1d6)
+    expect: dice
+    type: int
+  - name: dieOf is dice
+    check: dieOf(1d6, 2)
+    expect: dice
+    type: dice
+  - name: dieOf is not an int
+    check: dieOf(1d6)
+    expect: int
+    error: type-mismatch
+  - name: dieOf with a string
+    check: dieOf('a')
+    error: type-mismatch
+  - name: maxOf with a decimal
+    check: maxOf(1.5)
+    error: type-mismatch
+  - name: dieOf with a decimal count
+    check: dieOf(1d6, 1.5)
+    error: type-mismatch
+  - name: maxOf with two arguments
+    check: maxOf(1d6, 1d8)
+    error: wrong-arity
+  - name: dieOf with no arguments
+    check: dieOf()
+    error: wrong-arity
+
+  # countOf and scaling
+  - name: countOf reads the first term's count
+    evaluate: countOf(8d6 + 2)
+    value: 8
+    valueType: int
+  - name: countOf of the first term only
+    evaluate: countOf(2d6 + 1d4)
+    value: 2
+    valueType: int
+  - name: countOf of an int is 0
+    evaluate: countOf(3)
+    value: 0
+    valueType: int
+  - name: countOf is an int
+    check: countOf(1d6)
+    type: int
+  - name: a die more per level, with dieOf
+    evaluate: countOf(8d6 + dieOf(8d6, 2))
+    value: 8
+    valueType: int
+  - name: dice times an int scales counts and the flat part
+    evaluate: 2 * (1d6 + 1)
+    value: { terms: [{ sign: 1, count: 2, sides: 6, modifiers: [] }], flat: 2 }
+    valueType: dice
+  - name: an int times dice keeps the modifiers
+    evaluate: 4d6kh3 * 3
+    value:
+      terms: [{ sign: 1, count: 12, sides: 6, modifiers: [{ type: keepHighest, count: 3 }] }]
+      flat: 0
+    valueType: dice
+  - name: dice times an int is dice
+    check: 2 * 1d6
+    type: dice
+  - name: dice times a decimal
+    check: 1d6 * 1.5
+    error: type-mismatch
+  - name: dice times a negative int
+    evaluate: 1d6 * -1
+    error: type-mismatch

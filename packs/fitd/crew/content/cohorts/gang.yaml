@@ -1,0 +1,14 @@
+id: cohorts.gang
+type: cohort
+fields:
+  kind: gang
+state:
+  gangType: { type: enum, values: [adepts, rooks, rovers, skulks, thugs], default: thugs }
+  extraGangType: { type: enum, values: [none, adepts, rooks, rovers, skulks, thugs], default: none }
+choices:
+  - id: edges
+    pick: self.traits
+    from: { type: cohortTrait, where: "'edge' in item.tags && 'cohort' in item.tags" }
+  - id: flaws
+    pick: self.traits
+    from: { type: cohortTrait, where: "'flaw' in item.tags && 'cohort' in item.tags" }

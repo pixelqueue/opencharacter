@@ -1,0 +1,70 @@
+# Strength 4d6 drop lowest = 18 (+3); Agility 3d6 = 5 (-2); Presence 17 (+3); Toughness 4d6
+# drop lowest = 15 (+2). HP 1d8 = 7 + 2 = 9. Omens 1d2 = 2. Powers 1d4 = 3 + 3 = 6. Silver
+# 2d6 = 8, x10. With a scroll the weapon die is d6 and the armor die d2: weapon 5 is a warhammer,
+# armor 1 is none. The classless class has no feature table.
+status: finished
+outcome:
+  result: rolled
+  data: { food: 2, equipment1: 3, equipment2: 9, equipment3: 11 }
+proposedChanges:
+  - to: self
+    step: class
+    change: { type: addItem, entry: { id: class, item: mork-borg-core:classes.classless } }
+  - {
+      to: self,
+      step: save,
+      change: { type: set, field: mork-borg-core:abilities.strength, value: 3 },
+    }
+  - {
+      to: self,
+      step: save,
+      change: { type: set, field: mork-borg-core:abilities.agility, value: -2 },
+    }
+  - {
+      to: self,
+      step: save,
+      change: { type: set, field: mork-borg-core:abilities.presence, value: 3 },
+    }
+  - {
+      to: self,
+      step: save,
+      change: { type: set, field: mork-borg-core:abilities.toughness, value: 2 },
+    }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:hp.max, value: 9 } }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:hp.current, value: 9 } }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:omens.max, value: 2 } }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:omens.current, value: 2 } }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:powers.max, value: 6 } }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:powers.current, value: 6 } }
+  - { to: self, step: save, change: { type: set, field: mork-borg-core:silver.current, value: 80 } }
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry: { id: weapons-warhammer-1, item: mork-borg-core:weapons.warhammer, equipped: true }
+  - { to: self, step: finish, change: { type: finishCreation } }
+log:
+  - { step: class, kind: choice, by: app, option: mork-borg-core:classes.classless }
+  - { step: best, kind: choice, by: app, option: strength, index: 0 }
+  - { step: best, kind: choice, by: app, option: toughness, index: 1 }
+  - {
+      step: strength,
+      action: mork-borg-core:create-character,
+      kind: dice,
+      by: engine,
+      faces: [6, 6, 6, 1],
+      total: 18,
+    }
+  - { step: agility, kind: dice, faces: [2, 2, 1], total: 5 }
+  - { step: presence, kind: dice, faces: [6, 5, 6], total: 17 }
+  - { step: toughness, kind: dice, faces: [5, 5, 5, 5], total: 15 }
+  - { step: hp, kind: dice, faces: [7], total: 7 }
+  - { step: omens, kind: dice, faces: [2], total: 2 }
+  - { step: powers, kind: dice, faces: [3], total: 3 }
+  - { step: silver, kind: dice, faces: [4, 4], total: 8 }
+  - { step: food, kind: dice, faces: [2], total: 2 }
+  - { step: weapon, kind: dice, faces: [5], total: 5 }
+  - { step: armor, kind: dice, faces: [1], total: 1 }
+  - { step: equipment1, kind: dice, faces: [3], total: 3 }
+  - { step: equipment2, kind: dice, faces: [9], total: 9 }
+  - { step: equipment3, kind: dice, faces: [11], total: 11 }

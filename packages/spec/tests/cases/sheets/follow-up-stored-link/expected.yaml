@@ -1,0 +1,36 @@
+offers:
+  - id: steady-1
+    kind: ephemeral
+    followUp: test-follow-ups:steady
+    to: self
+    required: false
+    action: { id: test-follow-ups:steady, followUp: steady-1 }
+    params: { damage: 4 }
+    cause:
+      {
+        field: test-follow-ups:hp.current,
+        by: -4,
+        requested: -4,
+        taken: -4,
+        reason: requested,
+        clamped: false,
+        tags: [damage],
+      }
+  - id: call-ally-1
+    kind: ephemeral
+    followUp: test-follow-ups:call-ally
+    to: { link: test-follow-ups:ally }
+    character: ally-1
+    required: false
+    action: { id: test-ally:help }
+    params: { lost: 4 }
+    cause:
+      {
+        field: test-follow-ups:hp.current,
+        by: -4,
+        requested: -4,
+        taken: -4,
+        reason: requested,
+        clamped: false,
+        tags: [damage],
+      }

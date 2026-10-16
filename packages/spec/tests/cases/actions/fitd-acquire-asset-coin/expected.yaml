@@ -1,0 +1,18 @@
+# Tier 2: 2d6 [6, 6], a critical: quality tier +2 = 4. Past a critical, 2 coin buy each +1, so
+# 4 coin make it 6, above the minimum of 5. (Past a critical, only 2 or 4 coin are offered.)
+status: finished
+outcome:
+  result: acquired
+  data: { quality: 6, roll: critical, heat: 0 }
+proposedChanges:
+  - { to: self, step: spend, change: { type: adjust, field: fitd-scoundrel:coin, by: -4 } }
+log:
+  - {
+      step: roll,
+      kind: dice,
+      by: engine,
+      faces: [6, 6],
+      band: critical,
+      bandSet: fitd-scoundrel:asset,
+    }
+  - { step: coin, kind: choice, by: app, option: spend4 }

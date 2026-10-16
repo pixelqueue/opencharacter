@@ -1,0 +1,325 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/engine/apply-changes.schema.json",
+  "title": "applyChanges",
+  "$defs": {
+    "followUp": {
+      "description": "An offer: a follow-up the character is offered, derived or ephemeral, with an action to start, changes to apply or a linked character to make.",
+      "type": "object",
+      "required": ["id", "kind", "followUp", "to", "required"],
+      "properties": {
+        "id": {
+          "description": "The offer's ID, which startAction's `action.followUp` takes: for an ephemeral offer its stored ID (which `dismissFollowUp` and `clearFollowUp` take too); for a derived one the follow-up's ID, with `@<instance ID>` when it is on a copy.",
+          "type": "string"
+        },
+        "kind": {
+          "description": "`derived` (a `while` follow-up, offered exactly while its condition holds; never stored or dismissed) or `ephemeral` (an `on` or `becomes` follow-up, stored until acted on or dismissed; a `becomes` one also until its condition is false).",
+          "enum": ["derived", "ephemeral"]
+        },
+        "followUp": {
+          "description": "The follow-up's ID: `<pack>:<id>` for the rules', `<content or type qualified ID>#<id>` for content's.",
+          "type": "string"
+        },
+        "source": {
+          "description": "For a follow-up declared on content: the content and copy it comes from, as computeSheet's sources name them.",
+          "$ref": "../common.schema.json#/$defs/source"
+        },
+        "to": {
+          "description": "`self`, or `{ link }` with the qualified slot ID.",
+          "anyOf": [
+            {
+              "const": "self"
+            },
+            {
+              "type": "object",
+              "required": ["link"],
+              "properties": {
+                "link": {
+                  "$ref": "../common.schema.json#/$defs/slotId"
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "character": {
+          "description": "For `to: { link }`: the ID of the character filling the slot, absent when it is empty.",
+          "type": "string"
+        },
+        "action": {
+          "description": "The action to start, in the shape of startAction's `action` input, with `followUp` set to this offer's ID for the character's own offer: for an ephemeral one, the run then proposes the clearing change.",
+          "$ref": "start-action.schema.json#/$defs/input/properties/action"
+        },
+        "params": {
+          "description": "With `action`: the parameters the follow-up fixes, evaluated (for an ephemeral offer, when it fired). Others are the app's to supply.",
+          "type": "object"
+        },
+        "changes": {
+          "description": "The changes to apply, resolved on the current character, for a new applyChanges batch. For the character's own ephemeral offer they end with `clearFollowUp`, so applying them clears it.",
+          "type": "array",
+          "items": {
+            "$ref": "../change.schema.json"
+          }
+        },
+        "create": {
+          "description": "A derived offer to make a linked character: make a character file with `creating: true` using `pack`, run the creation start `start` on it with `params` (guided, or automatic when the start is `random`), apply its changes, and save the new character's ID in this character's `links` under `link`, which ends the offer. Never with `action` or `changes`.",
+          "type": "object",
+          "required": ["link", "start", "pack", "params"],
+          "properties": {
+            "link": {
+              "description": "The empty slot, qualified.",
+              "$ref": "../common.schema.json#/$defs/slotId"
+            },
+            "start": {
+              "description": "The creation start, `<pack>:<id>`: the ruleset's `creation` entry with that `pack` and `id`.",
+              "type": "string"
+            },
+            "pack": {
+              "description": "The start's pack: the pack the new character uses.",
+              "$ref": "../common.schema.json#/$defs/packId"
+            },
+            "params": {
+              "description": "The start's action's parameters the offer fixes, evaluated on this character; pass them over the start's own `params`.",
+              "type": "object"
+            }
+          },
+          "additionalProperties": false
+        },
+        "required": {
+          "description": "Whether the rules mandate it. Advisory: the engine blocks nothing, and an ephemeral one can still be dismissed.",
+          "type": "boolean"
+        },
+        "cause": {
+          "description": "For an ephemeral offer from `on`: the adjustment entry that triggered it, as the follow-up's formulas saw it as `change` (with `once`, the matching entries summed), and its field. Absent for `becomes` and derived offers.",
+          "type": "object",
+          "required": ["field", "by", "requested", "taken", "reason", "clamped", "tags"],
+          "properties": {
+            "field": {
+              "$ref": "../common.schema.json#/$defs/qualifiedId"
+            },
+            "by": {
+              "type": "number"
+            },
+            "requested": {
+              "type": "number"
+            },
+            "taken": {
+              "type": "number"
+            },
+            "reason": {
+              "enum": ["requested", "absorbed", "overflow", "reset", "carry"]
+            },
+            "clamped": {
+              "type": "boolean"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "$ref": "../common.schema.json#/$defs/tag"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "input": {
+      "type": "object",
+      "required": ["ruleset", "character", "changes"],
+      "properties": {
+        "ruleset": {
+          "$ref": "ruleset.schema.json"
+        },
+        "character": {
+          "$ref": "../character.schema.json"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "../change.schema.json"
+          }
+        },
+        "strict": {
+          "description": "Strict mode: rules issues become errors and the batch is rejected.",
+          "type": "boolean"
+        },
+        "links": {
+          "$ref": "compute-sheet.schema.json#/$defs/links"
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["ok", "character", "changes", "issues"],
+          "properties": {
+            "ok": {
+              "const": true
+            },
+            "character": {
+              "$ref": "../character.schema.json"
+            },
+            "changes": {
+              "description": "The batch as applied: each `adjust` whose incoming-change effects rolled dice carries every face it used in `faces`, supplied and rolled. Apps log this, not their input, so a replay never rolls. A batch that rolled nothing comes back unchanged.",
+              "type": "array",
+              "items": {
+                "$ref": "../change.schema.json"
+              }
+            },
+            "issues": {
+              "type": "array",
+              "items": {
+                "$ref": "rules-issue.schema.json"
+              }
+            },
+            "adjustments": {
+              "description": "What adjust changes actually did after incoming-change effects, absorption, overflow and clamping: one entry per field touched, in order. A change aimed at copies by query adds `{ copies }`: the instance IDs it matched, in order (empty when none matched); one aimed at applied entries by query adds `{ applied }` the same way, and an `applyEffect` merged into an existing entry (`reapply`) adds `{ applied: [<that entry's ID>] }`. An incoming-change effect's `then` adds `{ entry, key, value, source }` per state change it made.",
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "required": ["field", "by"],
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "by": {
+                        "type": "number",
+                        "description": "The change actually applied to this field."
+                      },
+                      "requested": {
+                        "type": "number",
+                        "description": "The amount before effects, absorption and clamping, on the field the change named."
+                      },
+                      "taken": {
+                        "type": "number",
+                        "description": "On the `requested` entry: the amount after incoming-change effects and before absorbing, clamping and overflow. It differs from `requested` only when an incoming-change effect counted."
+                      },
+                      "reason": {
+                        "enum": ["requested", "absorbed", "overflow", "reset", "carry"]
+                      },
+                      "clamped": {
+                        "type": "boolean"
+                      },
+                      "tags": {
+                        "$ref": "../common.schema.json#/$defs/tags"
+                      },
+                      "rolled": {
+                        "description": "On the `requested` entry: each dice `add` an incoming-change effect rolled, in instance order, with the effect's source, the dice as text, every face it used and the total.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": ["source", "dice", "faces", "total"],
+                          "properties": {
+                            "source": {
+                              "$ref": "../common.schema.json#/$defs/source"
+                            },
+                            "dice": {
+                              "type": "string"
+                            },
+                            "faces": {
+                              "type": "array",
+                              "items": {
+                                "type": "integer"
+                              }
+                            },
+                            "total": {
+                              "type": "integer"
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "description": "A state change an incoming-change effect's `then` made to its own copy, after the adjust's own entries.",
+                    "type": "object",
+                    "required": ["entry", "key", "value", "source"],
+                    "properties": {
+                      "entry": {
+                        "$ref": "../common.schema.json#/$defs/instanceId"
+                      },
+                      "key": {
+                        "$ref": "../common.schema.json#/$defs/name"
+                      },
+                      "value": {
+                        "description": "The state key's new value."
+                      },
+                      "source": {
+                        "$ref": "../common.schema.json#/$defs/source"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": ["copies"],
+                    "properties": {
+                      "copies": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "../common.schema.json#/$defs/instanceId"
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": ["applied"],
+                    "properties": {
+                      "applied": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "../common.schema.json#/$defs/instanceId"
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "followUps": {
+              "description": "The ephemeral follow-ups this batch stored, as computeSheet's `offers` lists them, in the order they were stored: the rules' in declaration order, then content's in instance order, each `on` follow-up once per matching adjustment in order. They are in the returned character too. Nothing here has been run or applied.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/followUp"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["ok", "errors"],
+          "properties": {
+            "ok": {
+              "const": false
+            },
+            "errors": {
+              "type": "array",
+              "items": {
+                "$ref": "error.schema.json"
+              },
+              "minItems": 1
+            },
+            "issues": {
+              "type": "array",
+              "items": {
+                "$ref": "rules-issue.schema.json"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

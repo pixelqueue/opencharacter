@@ -1,0 +1,7 @@
+id: afflictions.reviling-earth
+type: affliction
+tags: [trait.curse, trait.death, trait.magical]
+fields: { kind: curse, level: 12, dc: 30, stages: 2 }
+grants:
+  - { item: conditions.doomed, scope: applied, when: self.stage == 1, state: { value: 1 } }
+  - { item: conditions.doomed, scope: applied, when: self.stage == 2, state: { value: 2 } }

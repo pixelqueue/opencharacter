@@ -1,0 +1,21 @@
+# burn: d6 5 (fire), d4 3 (cold). The split adjust gives one change per tag group, both from
+# step `deal`; the healing adjust comes from `mend` inside the branch `after`.
+status: finished
+outcome: { result: done }
+proposedChanges:
+  - to: target
+    step: deal
+    change: { type: adjust, field: test-pack:hp, by: -5, tags: [damage.fire] }
+  - to: target
+    step: deal
+    change: { type: adjust, field: test-pack:hp, by: -3, tags: [damage.cold] }
+  - to: self
+    step: after/mend
+    change: { type: adjust, field: test-pack:hp, by: 2 }
+log:
+  - step: burn
+    action: test-pack:blast
+    kind: dice
+    by: engine
+    faces: [5, 3]
+    total: 8

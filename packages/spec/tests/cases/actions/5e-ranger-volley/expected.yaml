@@ -1,0 +1,42 @@
+# The first goblin: 12 + 9 = 21 against AC 15, a hit for 1d8 (6) + 3. The second: 3 + 9 = 12, a
+# miss. Each attack spends an arrow.
+status: finished
+outcome:
+  result: hit
+  data: { hits: 1 }
+proposedChanges:
+  - to: self
+    step: 'attacks[0]/ammo'
+    change: { type: adjustQuantity, entry: arrows, by: -1 }
+  - to: target
+    character: goblin-1
+    step: 'attacks[0]/deal'
+    change:
+      type: adjust
+      field: 5e-srd-5.1:hp.current
+      by: -9
+      tags:
+        [
+          damage,
+          attack,
+          weapon,
+          ranged,
+          nonmagical,
+          plain-material,
+          wielder.neutral,
+          damage.piercing,
+        ]
+  - to: self
+    step: 'attacks[1]/ammo'
+    change: { type: adjustQuantity, entry: arrows, by: -1 }
+log:
+  - step: weapon
+    action: '5e-srd-5.1:features.ranger.volley#volley'
+    kind: choice
+    by: engine
+    option: longbow
+  - { step: 'attacks[0]/ammo', action: 5e-srd-5.1:weapon-attack, kind: choice, option: arrows }
+  - { step: 'attacks[0]/attack', kind: dice, faces: [12], total: 21 }
+  - { step: 'attacks[0]/damage', kind: dice, faces: [6], total: 9 }
+  - { step: 'attacks[1]/ammo', action: 5e-srd-5.1:weapon-attack, kind: choice, option: arrows }
+  - { step: 'attacks[1]/attack', kind: dice, faces: [3], total: 12 }

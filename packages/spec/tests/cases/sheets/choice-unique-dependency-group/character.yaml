@@ -1,0 +1,14 @@
+specVersion: 0.1.0
+id: tester
+packs:
+  - { id: test-pack, version: 1.0.0 }
+  - { id: extra-pack, version: 1.0.0 }
+choices:
+  feat: [{ option: test-pack:feats.alertness }]
+features:
+  - id: bonus
+    item: extra-pack:perks.bonus-feat
+    choices: { feat: [{ option: test-pack:feats.alertness }] }
+  - id: own
+    item: extra-pack:perks.own-group
+    choices: { feat: [{ option: test-pack:feats.alertness }] }

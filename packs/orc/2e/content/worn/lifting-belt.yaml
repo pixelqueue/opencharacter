@@ -1,0 +1,23 @@
+id: worn.lifting-belt
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 4
+  price: 80
+  bulk: 0.1
+  usage: belt
+  activation: two
+effects:
+  - target: skills.athletics.mod
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: bulk.encumbered
+    op: add
+    value: 1
+    when: 'self.equipped && self.invested'
+  - target: bulk.max
+    op: add
+    value: 1
+    when: 'self.equipped && self.invested'

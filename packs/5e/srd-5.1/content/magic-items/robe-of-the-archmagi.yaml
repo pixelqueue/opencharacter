@@ -1,0 +1,35 @@
+id: magic-items.robe-of-the-archmagi
+type: magicItem
+tags: [attunement.sorcerer, attunement.warlock, attunement.wizard]
+fields:
+  category: wondrous-item
+  rarity: legendary
+  requiresAttunement: true
+effects:
+  - {
+      target: combat.ac,
+      op: set,
+      value: '15 + abilities.dex.mod',
+      when: self.equipped && self.attuned && !('armor' in equipment.tags),
+    }
+  - { target: spellcasting.bard.dc, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.bard.attack, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.cleric.dc, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.cleric.attack, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.druid.dc, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.druid.attack, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.paladin.dc, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.paladin.attack, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.ranger.dc, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.ranger.attack, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.sorcerer.dc, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.sorcerer.attack, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.warlock.dc, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.warlock.attack, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.wizard.dc, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: spellcasting.wizard.attack, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: items.spellSave, op: add, value: 1, when: self.equipped && self.attuned }
+  - target: { rolls: [save] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.equipped && self.attuned && situational.spellSave != 'none'

@@ -1,0 +1,11 @@
+id: feats.druid.invoke-disaster
+type: feat
+fields: { level: 18, category: class, class: classes.druid }
+prerequisites:
+  - id: wind-caller
+    when: '@feats.druid.wind-caller in feats.held'
+effects:
+  - { target: focus.points, op: add, value: 1 }
+  - { target: druid.orderSpells, op: grant, value: { item: spells.storm-lord } }
+grants:
+  - item: spells.storm-lord

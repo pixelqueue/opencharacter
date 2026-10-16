@@ -1,0 +1,15 @@
+id: feats.archetype.bard.basic-muses-whispers
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.bard }
+prerequisites:
+  - { id: bard-dedication, when: '@feats.archetype.bard.bard-dedication in feats.held' }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && !('trait.archetype' in item.tags)
+          && (has(item.class) && item.class == @classes.bard || 'trait.bard' in item.tags)
+    eligible: item.level <= 2

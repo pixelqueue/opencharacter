@@ -1,0 +1,72 @@
+id: features.warlock.fiendish-resilience
+type: feature
+choices:
+  - id: damage-type
+    from:
+      options:
+        - id: acid
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.acid] } }
+              op: multiply
+              value: 0.5
+        - id: bludgeoning
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.bludgeoning] } }
+              op: multiply
+              value: 0.5
+        - id: cold
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.cold] } }
+              op: multiply
+              value: 0.5
+        - id: fire
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+              op: multiply
+              value: 0.5
+        - id: force
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.force] } }
+              op: multiply
+              value: 0.5
+        - id: lightning
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.lightning] } }
+              op: multiply
+              value: 0.5
+        - id: necrotic
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.necrotic] } }
+              op: multiply
+              value: 0.5
+        - id: piercing
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.piercing] } }
+              op: multiply
+              value: 0.5
+        - id: poison
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.poison] } }
+              op: multiply
+              value: 0.5
+        - id: psychic
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.psychic] } }
+              op: multiply
+              value: 0.5
+        - id: radiant
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.radiant] } }
+              op: multiply
+              value: 0.5
+        - id: slashing
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.slashing] } }
+              op: multiply
+              value: 0.5
+        - id: thunder
+          effects:
+            - target: { incoming: { fields: [hp.current], tags: [damage.thunder] } }
+              op: multiply
+              value: 0.5
+    when: self.level >= 10

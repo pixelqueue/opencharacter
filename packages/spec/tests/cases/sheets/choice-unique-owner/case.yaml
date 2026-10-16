@@ -1,0 +1,26 @@
+description: "An exclusivity group scoped to the owner: a mastery's two choices (`unique: mastery`, `uniqueScope: owner`) can't take the same skill, while a second mastery, its own owner, takes freely what the first took"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          perk: {}
+      content:
+        - id: perks.mastery
+          type: perk
+          choices:
+            - id: to-master
+              unique: mastery
+              uniqueScope: owner
+              from: { values: [climb, sneak, swim] }
+            - id: to-expert
+              unique: mastery
+              uniqueScope: owner
+              from: { values: [climb, sneak, swim] }

@@ -1,0 +1,35 @@
+id: ancestries.lizardfolk
+type: ancestry
+tags: [trait.lizardfolk, trait.humanoid, trait.uncommon]
+fields: { hp: 8, size: medium, speed: 25 }
+effects:
+  - { target: languages, op: grant, value: { item: languages.common } }
+  - { target: languages, op: grant, value: { item: languages.lizardfolk } }
+  - { target: traits, op: grant, value: { tag: trait.lizardfolk } }
+  - { target: traits, op: grant, value: { tag: trait.humanoid } }
+standardCopies:
+  - { type: weapon, where: 'item.id == @weapons.lizardfolk-claw' }
+grants:
+  - item: feats.general.breath-control
+choices:
+  - id: heritage
+    from:
+      type: heritage
+      where: 'item.versatile || item.ancestry == @ancestries.lizardfolk'
+  - id: boosts
+    recommend: "'standard'"
+    from:
+      options:
+        - id: standard
+          effects:
+            - { target: attributes.str.boosts, op: add, value: 1 }
+            - { target: attributes.wis.boosts, op: add, value: 1 }
+            - { target: attributes.int.boosts, op: add, value: -1 }
+          choices:
+            - id: free
+              from: { type: boost, where: "!(item.attribute in ['str', 'wis'])" }
+        - id: alternate
+          choices:
+            - id: free
+              pick: 2
+              from: { type: boost }

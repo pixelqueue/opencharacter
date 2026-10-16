@@ -1,0 +1,22 @@
+# 15 + 9 - 5 (the second attack) = 19 against AC 16: a hit for 1d8 (6) + 4.
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 10
+proposedChanges:
+  - to: self
+    step: strike/count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
+  - to: target
+    character: goblin
+    step: strike/deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -10, tags: [damage, damage.slashing] }
+log:
+  - step: weapon
+    action: 'orc-2e:feats.fighter.exacting-strike#exacting-strike'
+    kind: choice
+    by: engine
+    option: longsword
+  - { step: strike/attack, action: orc-2e:strike, kind: dice, faces: [15], total: 19 }
+  - { step: strike/damage, action: orc-2e:strike, kind: dice, faces: [6], total: 10 }

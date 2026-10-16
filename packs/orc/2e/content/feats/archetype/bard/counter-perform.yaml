@@ -1,0 +1,11 @@
+id: feats.archetype.bard.counter-perform
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.bard }
+prerequisites:
+  - { id: bard-dedication, when: '@feats.archetype.bard.bard-dedication in feats.held' }
+effects:
+  - { target: focus.points, op: add, value: 1 }
+  - { target: spells.archetype.bard.spells, op: grant, value: { item: spells.counter-performance } }
+grants:
+  - item: spells.counter-performance

@@ -1,0 +1,9 @@
+id: features.rogue.reliable-talent
+type: feature
+effects:
+  - target: { rolls: [check] }
+    op: rollModifier
+    value: { kind: minimumFace, value: 10 }
+    when: >-
+      (has(params.skill) && ('skill.' + params.skill) in proficiencies.skills)
+        || (has(flags.toolProficient) && flags.toolProficient)

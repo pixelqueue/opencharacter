@@ -1,0 +1,19 @@
+status: finished
+proposedChanges:
+  - { to: self, step: scores, change: { type: set, field: 'test-pack:stats.might', value: 2 } }
+  - { to: self, step: scores, change: { type: set, field: 'test-pack:stats.grace', value: 3 } }
+log:
+  - step: scores
+    kind: dice
+    by: engine
+    faces: [3]
+    draw: { among: ['test-pack:stats.might', 'test-pack:stats.wits', 'test-pack:stats.grace'] }
+  - step: scores
+    kind: dice
+    by: engine
+    faces: [1]
+    draw: { among: ['test-pack:stats.might', 'test-pack:stats.wits'] }
+  - step: scores
+    kind: allocate
+    by: engine
+    amounts: { 'test-pack:stats.might': 2, 'test-pack:stats.grace': 3 }

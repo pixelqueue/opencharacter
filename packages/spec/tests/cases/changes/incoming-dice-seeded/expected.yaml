@@ -1,0 +1,19 @@
+# Light armor's d2 rolls 2: -2 + 2 = 0. The second change rolls nothing and comes back as given.
+ok: true
+changes:
+  - { type: adjust, field: mork-borg-core:hp.current, by: -2, tags: [damage], faces: [2] }
+  - { type: adjust, field: mork-borg-core:hp.max, by: 1 }
+adjustments:
+  - field: mork-borg-core:hp.current
+    by: 0
+    requested: -2
+    taken: 0
+    reason: requested
+    rolled:
+      - {
+          source: { type: item, id: mork-borg-core:armor.light, entry: worn, effect: armor-die },
+          dice: 1d2,
+          faces: [2],
+          total: 2,
+        }
+  - { field: mork-borg-core:hp.max, by: 1, requested: 1, taken: 1, reason: requested }

@@ -1,0 +1,20 @@
+id: features.paladin.turn-the-unholy
+type: feature
+actions:
+  - id: turn-the-unholy
+    tags: [feature]
+    results: [save]
+    available: self.channelDivinitySpent < channelDivinity.uses
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: channelDivinitySpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'save'"
+        data:
+          dc: spellcasting.paladin.dc
+          save: "'wis'"
+          range: 30
+          minutes: 1

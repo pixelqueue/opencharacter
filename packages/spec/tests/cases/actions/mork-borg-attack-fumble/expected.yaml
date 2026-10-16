@@ -1,0 +1,31 @@
+# Natural 1: fumble. No damage, and the blade's copy is marked broken.
+status: finished
+outcome:
+  result: fumble
+  data:
+    damage: 0
+    sepsis: false
+    skullSmashed: false
+proposedChanges:
+  - to: self
+    step: break
+    change:
+      type: setState
+      entry: blade
+      key: broken
+      value: true
+log:
+  - step: check/check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 1
+    total: 2
+    band: fumble
+    bandSet: mork-borg-core:test
+  - step: check/fate
+    action: mork-borg-core:test
+    kind: choice
+    by: engine
+    option: keep

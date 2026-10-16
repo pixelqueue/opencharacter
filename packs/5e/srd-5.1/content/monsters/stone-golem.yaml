@@ -1,0 +1,38 @@
+id: monsters.stone-golem
+type: monster
+fields:
+  size: large
+  creatureType: construct
+  alignment: unaligned
+  ac: 17
+  naturalArmor: true
+  hp: 178
+  hitDice: 17d10 + 85
+  speed: 30
+  str: 22
+  dex: 9
+  con: 20
+  int: 3
+  wis: 11
+  cha: 1
+  damageImmunities: [damage.poison, damage.psychic, nonmagical-not-adamantine]
+  conditionImmunities:
+    [
+      conditions.charmed,
+      conditions.frightened,
+      conditions.paralyzed,
+      conditions.petrified,
+      conditions.poisoned,
+    ]
+  exhaustionImmune: true
+  darkvision: 120
+  languagesNote: understands-creator
+  cr: 10
+  ownCopies:
+    - monsters.stone-golem.slow
+grants:
+  - item: monsters.stone-golem.immutable-form
+  - item: monsters.stone-golem.magic-resistance
+  - item: monsters.stone-golem.magic-weapons
+  - item: monsters.stone-golem.multiattack
+  - item: monsters.stone-golem.slam

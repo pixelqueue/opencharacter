@@ -1,0 +1,40 @@
+id: features.spellcasting.archetype-signature-spells
+type: feature
+fields: { level: 2 }
+# The picks are references: the spell is already known.
+state:
+  source: { type: string, default: bard }
+choices:
+  - id: signature
+    pick: "fieldOf('spellcasting.archetype.{archetypeSource}.signatures', self.source)"
+    activate: false
+    from:
+      type: spell
+      where: >-
+        item.id in fieldOf('spells.archetype.{archetypeSource}.repertoire', self.source)
+          && !('trait.cantrip' in item.tags)
+    effects:
+      - {
+          target: spells.archetype.bard.signature,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'bard'",
+        }
+      - {
+          target: spells.archetype.oracle.signature,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'oracle'",
+        }
+      - {
+          target: spells.archetype.sorcerer.signature,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'sorcerer'",
+        }
+      - {
+          target: spells.archetype.eldritchArcher.signature,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'eldritchArcher'",
+        }

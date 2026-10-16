@@ -1,0 +1,31 @@
+id: worn.bracelet-of-dashing
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 3
+  price: 58
+  bulk: 0.1
+  activation: one
+  frequency: once-per-day
+effects:
+  - target: skills.acrobatics.mod
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: speed.land
+    op: add
+    value: 10
+    stackKey: status-bonus
+    scope: applied
+    duration: { amount: 1, unit: minute }
+actions:
+  - id: jangling-dash
+    tags: [activation]
+    available: 'self.equipped && self.invested && self.used < 1'
+    steps:
+      - id: activate
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: used, by: 1 }
+          - { type: applyEffect, source: item.id }

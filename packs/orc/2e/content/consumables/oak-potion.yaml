@@ -1,0 +1,15 @@
+id: consumables.oak-potion
+type: consumable
+tags: [trait.plant, trait.potion, trait.primal, trait.wood]
+fields:
+  level: 4
+  price: 15
+  bulk: 0.1
+  category: potion
+effects:
+  - target: { steps: [consumable.drink] }
+    op: changes
+    when: action.self.id == self.id
+    value:
+      changes:
+        - { type: applyEffect, source: "'spells.oaken-resilience'", state: { rank: 2 } }

@@ -1,0 +1,21 @@
+# Study 1 plus the friend's die: the project's action roll is a downtime roll
+# (action-roll.downtime), so 2d6kh1 [2, 5] = 5, a partial: 2 ticks.
+status: finished
+outcome:
+  result: progress
+  data: { ticks: 2, roll: partial }
+proposedChanges:
+  - {
+      to: self,
+      step: progress,
+      change: { type: adjustState, entry: research, key: progress, by: 2 },
+    }
+log:
+  - step: roll/roll
+    action: fitd-scoundrel:action-roll
+    kind: dice
+    by: engine
+    faces: [2, 5]
+    total: 5
+    band: partial
+    bandSet: fitd-scoundrel:action

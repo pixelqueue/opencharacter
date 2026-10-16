@@ -1,0 +1,21 @@
+id: backgrounds.insurgent
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.deception }
+    when: "!('skill.deception' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.warfare }
+    when: "!('skill.lore.warfare' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.lengthy-diversion
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

@@ -1,0 +1,20 @@
+description: "FitD: acquiring an asset rolls the linked crew's tier, kept through a pause"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:acquire-asset }
+  params: { tier: 0, minQuality: 2 }
+  policy:
+    dice: pause
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:tier: 2
+        fitd-crew:upgrades.mastery: false
+        fitd-crew:upgrades.workshop: false
+        fitd-crew:heat.current: 3
+answers:
+  - faces: [2, 5]

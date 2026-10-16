@@ -1,0 +1,140 @@
+id: classes.rogue
+type: class
+tags: [trait.rogue]
+fields: { hp: 8 }
+effects:
+  # The class's trait, for content that reads the class by it (such as Natural Ambition).
+  - { target: class.traits, op: grant, value: { tag: trait.rogue } }
+  - { target: perception.rank, op: atLeast, value: 2 }
+  - { target: saves.fortitude.rank, op: atLeast, value: 1 }
+  - { target: saves.reflex.rank, op: atLeast, value: 2 }
+  - { target: saves.will.rank, op: atLeast, value: 2 }
+  - { target: attacks.simple.rank, op: atLeast, value: 1 }
+  - { target: attacks.martial.rank, op: atLeast, value: 1 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 1 }
+  - { target: defenses.unarmored.rank, op: atLeast, value: 1 }
+  - { target: defenses.light.rank, op: atLeast, value: 1 }
+  - { target: classDc.rank, op: atLeast, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.stealth },
+      when: "!('skill.stealth' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: skills.increasesPerLevel, op: atLeast, value: 'level >= 2 ? 1 : 0' }
+grants:
+  - item: classes.rogue.sneak-attack
+  - item: classes.rogue.surprise-attack
+  - { item: classes.rogue.deny-advantage, when: level >= 3 }
+  - { item: classes.rogue.weapon-tricks, when: level >= 5 }
+  - { item: classes.rogue.evasive-reflexes, when: level >= 7 }
+  - { item: classes.rogue.perception-mastery, when: level >= 7 }
+  - { item: classes.rogue.weapon-specialization, when: level >= 7 }
+  - { item: classes.rogue.debilitating-strike, when: level >= 9 }
+  - { item: classes.rogue.rogue-resilience, when: level >= 9 }
+  - { item: classes.rogue.rogue-expertise, when: level >= 11 }
+  - { item: classes.rogue.greater-rogue-reflexes, when: level >= 13 }
+  - { item: classes.rogue.light-armor-expertise, when: level >= 13 }
+  - { item: classes.rogue.master-tricks, when: level >= 13 }
+  - { item: classes.rogue.perception-legend, when: level >= 13 }
+  - { item: classes.rogue.double-debilitation, when: level >= 15 }
+  - { item: classes.rogue.greater-weapon-specialization, when: level >= 15 }
+  - { item: classes.rogue.agile-mind, when: level >= 17 }
+  - { item: classes.rogue.light-armor-mastery, when: level >= 19 }
+  - { item: classes.rogue.master-strike, when: level >= 19 }
+choices:
+  # The racket first: it names the other key attributes the rogue may take, and its own choice (a
+  # mastermind's skill) is asked right after it, before the free skills.
+  - id: racket
+    from:
+      items:
+        [
+          classes.rogue.rackets.mastermind,
+          classes.rogue.rackets.ruffian,
+          classes.rogue.rackets.scoundrel,
+          classes.rogue.rackets.thief,
+        ]
+  - id: key-attribute
+    from:
+      options:
+        - id: dex
+          effects:
+            - { target: attributes.dex.boosts, op: add, value: 1 }
+            - { target: class.keyAttribute, op: set, value: "'dex'" }
+        - id: str
+          prerequisites: [{ id: racket, when: "rogue.racket == 'ruffian'" }]
+          effects:
+            - { target: attributes.str.boosts, op: add, value: 1 }
+            - { target: class.keyAttribute, op: set, value: "'str'" }
+        - id: cha
+          prerequisites: [{ id: racket, when: "rogue.racket == 'scoundrel'" }]
+          effects:
+            - { target: attributes.cha.boosts, op: add, value: 1 }
+            - { target: class.keyAttribute, op: set, value: "'cha'" }
+        - id: int
+          prerequisites: [{ id: racket, when: "rogue.racket == 'mastermind'" }]
+          effects:
+            - { target: attributes.int.boosts, op: add, value: 1 }
+            - { target: class.keyAttribute, op: set, value: "'int'" }
+  - id: skills
+    unique: skill-training
+    pick: 7 + max(0, attributes.int.mod)
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+          skill.lore.academia,
+          skill.lore.circus,
+          skill.lore.farming,
+          skill.lore.legal,
+          skill.lore.scribing,
+          skill.lore.underworld,
+          skill.lore.warfare,
+        ]
+      where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
+    effects:
+      - { target: skills.chosen, op: grant, value: { formula: pick.value } }
+  - id: class-feat
+    slots: [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    # The class's feats are worked out once (the query reads only the item); the slot's level is the
+    # choice's `eligible`, so a listing reads only them.
+    from:
+      type: feat
+      where: >-
+        item.category == 'class'
+          && (has(item.class) && item.class == @classes.rogue || 'trait.rogue' in item.tags)
+          || 'archetype-feat' in item.tags
+    eligible: >-
+      (item.category == 'class' && has(item.class) && item.class == @classes.rogue
+          || 'trait.rogue' in item.tags) && !('trait.archetype' in item.tags) && item.level <= slot
+        || 'trait.archetype' in item.tags && item.level <= slot
+          && (!('trait.dedication' in item.tags) || archetypes.open == 0 || item.id in choice.picks
+            || countList(choice.picks, x in archetypes.dedications) > 0)
+        || slot >= 2 && item.id in [archetypes.extra.level2, archetypes.extra.level4, archetypes.extra.level6,
+            archetypes.extra.level8, archetypes.extra.level10, archetypes.extra.level12,
+            archetypes.extra.level14, archetypes.extra.level16, archetypes.extra.level18,
+            archetypes.extra.level20][floor(slot / 2) - 1]
+  - id: skill-feat
+    slots: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    unique: feats
+    when: level >= slot
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= slot

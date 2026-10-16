@@ -1,0 +1,16 @@
+id: classes.witch.patrons.inscribed-one
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: witch.patron, op: set, value: "'inscribed-one'" }
+  - { target: spellcasting.tradition, op: set, value: "'arcane'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.arcana },
+      when: "!('skill.arcana' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.book, op: grant, value: { item: spells.runic-weapon } }
+grants:
+  - item: spells.discern-secrets

@@ -1,0 +1,50 @@
+description: Every pinned pack must be in the target ruleset
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might:
+            type: integer
+            input: true
+            default: 1
+            min: 0
+            max: 10
+      content: []
+  - inline:
+      manifest:
+        id: other-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          misc.flag:
+            type: boolean
+            input: true
+      content: []
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.1.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might:
+            type: integer
+            input: true
+            default: 1
+            min: 0
+            max: 10
+      content: []

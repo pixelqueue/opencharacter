@@ -1,0 +1,115 @@
+# IDs differ from the scoundrel pack's, so both can load together.
+display:
+  groups:
+    - id: crew-rolls
+      kind: actions
+      priority: 0
+      members:
+        type: action
+        where: >-
+          'engagement-roll' in item.tags || 'tier-roll' in item.tags || 'cohort-roll' in item.tags
+          || 'incarceration-roll' in item.tags || 'entanglement-roll' in item.tags
+    - id: after-the-score
+      kind: actions
+      priority: 1
+      members:
+        type: action
+        where: >-
+          item.id in [@payoff, @crew-advance,
+          @develop, @seize-claim,
+          @resolve-entanglement]
+    - id: crew-downtime
+      kind: actions
+      priority: 2
+      members: { type: action, where: "'downtime' in item.tags" }
+    - id: faction-actions
+      kind: actions
+      priority: 2
+      members: { type: action, where: 'item.id in [@add-faction, @faction-status]' }
+    - id: crew-creation
+      kind: actions
+      priority: 3
+      visibility: background
+      members: { type: action, where: "'creation' in item.tags" }
+    - id: crew-type-card
+      kind: content
+      priority: 0
+      members: { type: crewType }
+    - id: crew-abilities
+      kind: content
+      priority: 0
+      members: { type: crewAbility }
+    - id: held-claims
+      kind: content
+      priority: 1
+      members: { type: claim }
+      sectionBy: 'item.turf ? 0 : 1'
+    - id: cohort-list
+      kind: content
+      priority: 1
+      members: { type: cohort }
+      sectionBy: item.kind
+    - id: cohort-traits
+      kind: content
+      priority: 2
+      members: { type: cohortTrait }
+    - id: contacts
+      kind: content
+      priority: 1
+      members: { type: contact }
+      sortBy: 'self.favorite ? 0 : 1'
+    - id: operations
+      kind: content
+      priority: 2
+      members: { type: operation }
+    - id: faction-ladder
+      kind: content
+      priority: 2
+      members: { type: faction }
+  types:
+    crewType:
+      fields:
+        upgrades: { hidden: true }
+        startingUpgrades: { hidden: true }
+        startingCohort: { hidden: true }
+        claims: { hidden: true }
+      quantity: { hidden: true }
+    crewAbility: { quantity: { hidden: true } }
+    operation: { quantity: { hidden: true } }
+    cohortTrait: { quantity: { hidden: true } }
+    claim:
+      state:
+        label: { priority: 0, input: { widget: text } }
+        allied: { priority: 1, showWhen: self.allied }
+        faction: { priority: 1 }
+      fields:
+        payoffCoin: { hidden: true }
+        payoffTargets: { hidden: true }
+        payoffOperations: { hidden: true }
+        scaleGang: { hidden: true }
+        prison: { hidden: true }
+        income: { hidden: true }
+      quantity: { hidden: true }
+    cohort:
+      state:
+        label: { priority: 0, input: { widget: text } }
+        harm: { priority: 0, input: { widget: track } }
+        traits: { priority: 2 }
+      fields:
+        cost: { hidden: true }
+      quantity: { hidden: true }
+    faction:
+      state:
+        label: { priority: 0, input: { widget: text } }
+        status: { priority: 0, input: { widget: number } }
+        tier: { priority: 1, input: { widget: number } }
+        weakHold: { priority: 1, input: { widget: checkbox } }
+      fields:
+        tier: { hidden: true }
+        hold: { hidden: true }
+      quantity: { hidden: true }
+    contact:
+      state:
+        label: { priority: 0, input: { widget: text } }
+        favorite: { priority: 0, input: { widget: checkbox } }
+      quantity: { hidden: true }

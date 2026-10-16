@@ -1,0 +1,7 @@
+# Immune to dazed while not asleep: a `when` reading `character.applied`.
+id: features.alert
+type: feature
+immuneTo:
+  - id: dazed
+    items: [conditions.dazed]
+    when: "countList(character.applied, x.active && x.source == 'test-immunity:conditions.asleep') == 0"

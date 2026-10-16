@@ -1,0 +1,30 @@
+# The ring halves the fire to 5: one check, for the 13 the hit dealt after resistance (8 + 5).
+ok: true
+adjustments:
+  - { field: 5e-srd-5.1:hp.current, by: -8, requested: -8, taken: -8, reason: requested }
+  - { field: 5e-srd-5.1:hp.current, by: -5, requested: -10, taken: -5, reason: requested }
+followUps:
+  - id: concentration-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:concentration
+    to: self
+    required: true
+    action:
+      id: 5e-srd-5.1:concentration-check
+      followUp: concentration-1
+    params:
+      damage: 13
+    cause:
+      field: 5e-srd-5.1:hp.current
+      by: -13
+      requested: -18
+      taken: -13
+      reason: requested
+      clamped: false
+      tags:
+        - damage
+        - attack
+        - melee
+        - magical
+        - damage.slashing
+        - damage.fire

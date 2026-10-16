@@ -1,0 +1,13 @@
+description: "5E: a ghoul's claws hit, but the target saves: no condition"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:monster-attack, entry: monster, source: 5e-srd-5.1:monsters.ghoul.claws }
+  participants:
+    target:
+      - id: tamsin
+        values: { 5e-srd-5.1:combat.ac: 14 }
+answers:
+  - { outcome: { result: success, data: { total: 12 } } }

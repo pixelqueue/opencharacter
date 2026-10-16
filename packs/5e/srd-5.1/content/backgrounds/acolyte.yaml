@@ -1,0 +1,13 @@
+id: backgrounds.acolyte
+type: background
+effects:
+  - { target: proficiencies.skills, op: grant, value: { tag: skill.insight } }
+  - { target: proficiencies.skills, op: grant, value: { tag: skill.religion } }
+grants:
+  - item: background-features.shelter-of-the-faithful
+choices:
+  - id: languages
+    pick: 2
+    unique: languages
+    from: { type: language, where: "!('secret' in item.tags) && !('monster' in item.tags)" }
+    eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'

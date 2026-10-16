@@ -1,0 +1,15 @@
+# The save sets `dc` (15) before the roll; `rolled` (`flags.dc < 0`) can't hold and is left out.
+status: paused
+needs:
+  step: save
+  action: 5e-srd-5.1:saving-throw
+  kind: dice
+  summary:
+    bandSet: 5e-srd-5.1:dc
+    bands:
+      - band: success
+        when: 'roll.total >= 15'
+        tests: [{ of: roll.total, compare: ge, value: 15 }]
+      - { band: failure, when: 'true', tests: [] }
+    flags: { dc: 15 }
+log: []

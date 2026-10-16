@@ -1,0 +1,126 @@
+id: magic-items.necklace-of-prayer-beads
+type: magicItem
+tags: [attunement.cleric, attunement.druid, attunement.paladin]
+fields:
+  category: wondrous-item
+  rarity: rare
+  requiresAttunement: true
+  spells:
+    [
+      spells.bless,
+      spells.cure-wounds,
+      spells.lesser-restoration,
+      spells.greater-restoration,
+      spells.branding-smite,
+      spells.planar-ally,
+      spells.wind-walk,
+    ]
+state:
+  blessing: { type: integer, min: 0, max: 6, default: 0 }
+  curing: { type: integer, min: 0, max: 6, default: 0 }
+  favor: { type: integer, min: 0, max: 6, default: 0 }
+  smiting: { type: integer, min: 0, max: 6, default: 0 }
+  summons: { type: integer, min: 0, max: 6, default: 0 }
+  windWalking: { type: integer, min: 0, max: 6, default: 0 }
+  usedToday: { type: set, of: string, default: [] }
+grants:
+  - { item: spells.bless, when: self.equipped && self.attuned }
+  - { item: spells.cure-wounds, when: self.equipped && self.attuned }
+  - { item: spells.lesser-restoration, when: self.equipped && self.attuned }
+  - { item: spells.greater-restoration, when: self.equipped && self.attuned }
+  - { item: spells.branding-smite, when: self.equipped && self.attuned }
+  - { item: spells.planar-ally, when: self.equipped && self.attuned }
+  - { item: spells.wind-walk, when: self.equipped && self.attuned }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.bless
+        && countList(self.usedToday, x in ['blessing-1', 'blessing-2', 'blessing-3', 'blessing-4', 'blessing-5', 'blessing-6']) < self.blessing
+    value:
+      id: blessing
+      changes:
+        - type: setState
+          entry: self
+          key: usedToday
+          value: >-
+            self.usedToday + [['blessing-1', 'blessing-2', 'blessing-3', 'blessing-4', 'blessing-5', 'blessing-6'][countList(self.usedToday, x in ['blessing-1', 'blessing-2', 'blessing-3', 'blessing-4', 'blessing-5', 'blessing-6'])]]
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.cure-wounds
+        && countList(self.usedToday, x in ['curing-1', 'curing-2', 'curing-3', 'curing-4', 'curing-5', 'curing-6']) < self.curing
+    value:
+      id: curing
+      flags: { slot: 2 }
+      changes:
+        - type: setState
+          entry: self
+          key: usedToday
+          value: >-
+            self.usedToday + [['curing-1', 'curing-2', 'curing-3', 'curing-4', 'curing-5', 'curing-6'][countList(self.usedToday, x in ['curing-1', 'curing-2', 'curing-3', 'curing-4', 'curing-5', 'curing-6'])]]
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.lesser-restoration
+        && countList(self.usedToday, x in ['curing-1', 'curing-2', 'curing-3', 'curing-4', 'curing-5', 'curing-6']) < self.curing
+    value:
+      id: curing
+      changes:
+        - type: setState
+          entry: self
+          key: usedToday
+          value: >-
+            self.usedToday + [['curing-1', 'curing-2', 'curing-3', 'curing-4', 'curing-5', 'curing-6'][countList(self.usedToday, x in ['curing-1', 'curing-2', 'curing-3', 'curing-4', 'curing-5', 'curing-6'])]]
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.greater-restoration
+        && countList(self.usedToday, x in ['favor-1', 'favor-2', 'favor-3', 'favor-4', 'favor-5', 'favor-6']) < self.favor
+    value:
+      id: favor
+      changes:
+        - type: setState
+          entry: self
+          key: usedToday
+          value: >-
+            self.usedToday + [['favor-1', 'favor-2', 'favor-3', 'favor-4', 'favor-5', 'favor-6'][countList(self.usedToday, x in ['favor-1', 'favor-2', 'favor-3', 'favor-4', 'favor-5', 'favor-6'])]]
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.branding-smite
+        && countList(self.usedToday, x in ['smiting-1', 'smiting-2', 'smiting-3', 'smiting-4', 'smiting-5', 'smiting-6']) < self.smiting
+    value:
+      id: smiting
+      changes:
+        - type: setState
+          entry: self
+          key: usedToday
+          value: >-
+            self.usedToday + [['smiting-1', 'smiting-2', 'smiting-3', 'smiting-4', 'smiting-5', 'smiting-6'][countList(self.usedToday, x in ['smiting-1', 'smiting-2', 'smiting-3', 'smiting-4', 'smiting-5', 'smiting-6'])]]
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.planar-ally
+        && countList(self.usedToday, x in ['summons-1', 'summons-2', 'summons-3', 'summons-4', 'summons-5', 'summons-6']) < self.summons
+    value:
+      id: summons
+      changes:
+        - type: setState
+          entry: self
+          key: usedToday
+          value: >-
+            self.usedToday + [['summons-1', 'summons-2', 'summons-3', 'summons-4', 'summons-5', 'summons-6'][countList(self.usedToday, x in ['summons-1', 'summons-2', 'summons-3', 'summons-4', 'summons-5', 'summons-6'])]]
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.wind-walk
+        && countList(self.usedToday, x in ['windWalking-1', 'windWalking-2', 'windWalking-3', 'windWalking-4', 'windWalking-5', 'windWalking-6']) < self.windWalking
+    value:
+      id: wind-walking
+      changes:
+        - type: setState
+          entry: self
+          key: usedToday
+          value: >-
+            self.usedToday + [['windWalking-1', 'windWalking-2', 'windWalking-3', 'windWalking-4', 'windWalking-5', 'windWalking-6'][countList(self.usedToday, x in ['windWalking-1', 'windWalking-2', 'windWalking-3', 'windWalking-4', 'windWalking-5', 'windWalking-6'])]]

@@ -1,0 +1,10 @@
+description: 'Fate Core: Super-Strength at two ranks adds +4 to an overcome with Physique when its situation applies; the dueling pistol adds nothing to it (Shoot attacks only)'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:overcome }
+  params: { skill: fate-core:skills.physique, opposition: 6 }
+  situational: { fate-core:extra: true }
+  policy: { choices: auto }

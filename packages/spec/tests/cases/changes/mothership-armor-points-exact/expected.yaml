@@ -1,0 +1,11 @@
+# The shell has AP 5 and no DR: -5 + 5 = 0. Health stays 11, and the shell is destroyed.
+ok: true
+character:
+  inventory:
+    - { id: shell, item: test-gear:gear.shell, equipped: true, state: { destroyed: true } }
+adjustments:
+  - { field: mothership-1e:health.current, by: 0, requested: -5, taken: 0, reason: requested }
+  - entry: shell
+    key: destroyed
+    value: true
+    source: { type: item, id: 'test-gear:gear.shell', entry: shell, effect: armor-points-break }

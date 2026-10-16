@@ -1,0 +1,23 @@
+id: classes.barbarian.instincts.giant
+type: feature
+fields: { level: 1 }
+# The player sets `rage.largerWeapon` while wielding a larger weapon, since weapon size isn't
+# modeled.
+effects:
+  - { target: barbarian.instinct, op: set, value: "'giant'" }
+  - target: rage.damage
+    op: set
+    value: 'level >= 15 ? 18 : level >= 7 ? 10 : 6'
+    when: rage.largerWeapon
+  - target: { fields: { where: "'attr.dex' in item.tags" } }
+    op: add
+    value: -1
+    stackKey: status-penalty
+    when: rage.largerWeapon
+  - { target: rage.resists, op: grant, value: { tag: damage.bludgeoning }, when: level >= 9 }
+choices:
+  - id: resistance
+    when: level >= 9
+    from: { values: [cold, electricity, fire] }
+    effects:
+      - { target: rage.resists, op: grant, value: { formula: "'damage.' + pick.value" } }

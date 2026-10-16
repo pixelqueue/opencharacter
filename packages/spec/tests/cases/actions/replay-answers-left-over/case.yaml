@@ -1,0 +1,38 @@
+description: 'An answer left over after the action finishes is `answer-mismatch` with its index and no `needs`'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          # A choice with no recommendation (it always pauses), then two rolls.
+          - id: strike
+            steps:
+              - id: stance
+                kind: choice
+                options:
+                  - { id: bold }
+                  - { id: careful }
+              - { id: attack, kind: roll, parts: [{ dice: 2d6 }] }
+              - { id: damage, kind: roll, parts: [{ dice: 1d4 }] }
+              - id: done
+                kind: outcome
+                data:
+                  stance: steps.stance.picked
+                  attack: steps.attack.total
+                  damage: steps.damage.total
+      content: []
+input:
+  action: { id: test-pack:strike }
+  policy: { dice: pause }
+  answers:
+    - { option: careful }
+    - { faces: [3, 5] }
+    - { faces: [2] }
+    - { option: bold }

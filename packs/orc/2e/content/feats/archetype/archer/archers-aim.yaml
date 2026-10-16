@@ -1,0 +1,39 @@
+id: feats.archetype.archer.archers-aim
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 8, category: class, archetype: archetypes.archer }
+
+prerequisites:
+  - { id: archer-dedication, when: '@feats.archetype.archer.archer-dedication in feats.held' }
+actions:
+  - id: archers-aim
+    tags: [strike]
+    available: "countCopies(copy.type == 'weapon' && copy.equipped && has(copy.fields.group) && copy.fields.group in ['bow', 'crossbow']) > 0"
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "self.equipped && item.group in ['bow', 'crossbow']"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [strike.archers-aim]
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+effects:
+  - target: { rolls: [strike.archers-aim] }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: "'attack' in roll.tags"

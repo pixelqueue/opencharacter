@@ -1,0 +1,13 @@
+# 2 rep + 1 (Victim Trophies) = 3; 4 coin + 2 (Fixer; the Envoy is for high-class targets) = 6;
+# 4 heat - 2 (Cover Operation) = 2. Rep and heat go on the crew sheet, the coin is the outcome's.
+status: finished
+outcome:
+  result: paid
+  data: { rep: 3, coin: 6, heat: 2 }
+proposedChanges:
+  - to: self
+    step: rep
+    change: { type: set, field: fitd-crew:rep.current, value: 6 }
+  - to: self
+    step: heat
+    change: { type: adjust, field: fitd-crew:heat.current, by: 2 }

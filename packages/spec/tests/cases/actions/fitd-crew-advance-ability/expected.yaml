@@ -1,0 +1,28 @@
+# Without a crew type, the new ability is picked in the SRD's pool (`crew-abilities`); xp
+# clears; each member gains 1 + 2 stash.
+status: finished
+outcome:
+  result: ability
+  data:
+    stash: 3
+proposedChanges:
+  - to: self
+    step: advance
+    change:
+      type: adjust
+      field: fitd-crew:advances.abilities
+      by: 1
+  - to: self
+    step: ability
+    change:
+      type: choose
+      path:
+        choice:
+          - crew-abilities
+      option: fitd-crew:crew-abilities.patron
+  - to: self
+    step: clear
+    change:
+      type: set
+      field: fitd-crew:xp.current
+      value: 0

@@ -1,0 +1,320 @@
+# A claim map's paths are a suggested order, not a rule (the SRD lets a crew try for any claim), so
+# they aren't modeled. With the lair lost no lair claim gives its benefit; prison claims hang off
+# the prison, not the lair.
+contentTypes:
+  claim:
+    fields:
+      turf: { type: boolean, default: false }
+      prison: { type: boolean, default: false }
+      income: { type: boolean, default: false }
+      payoffCoin: { type: integer, default: 0 }
+      payoffTargets: { type: enum, values: [none, lower-class, high-class], default: none }
+      payoffOperations: { type: set, of: operation, default: [] }
+      scaleGang: { type: enum, values: [none, adepts, rooks, rovers, skulks, thugs], default: none }
+    state:
+      label: { type: string, default: '' }
+      faction: { type: string, default: '' }
+      allied: { type: boolean, default: false }
+    actions:
+      - use: claim-income
+
+fields:
+  lair.lost: { type: boolean, input: true, default: false }
+
+  payoff.heat: { type: integer, formula: 0 }
+  payoff.rep: { type: integer, formula: 0 }
+  rep.quiet: { type: boolean, formula: false }
+  heat.killing: { type: integer, formula: 2 }
+
+  engagement.assault: { type: integer, formula: 0 }
+  engagement.deception: { type: integer, formula: 0 }
+  engagement.occult: { type: integer, formula: 0 }
+  engagement.social: { type: integer, formula: 0 }
+  engagement.stealth: { type: integer, formula: 0 }
+  engagement.transport: { type: integer, formula: 0 }
+  engagement.murder: { type: integer, formula: 0 }
+
+  cohorts.trained:
+    type: set
+    of: string
+    formula: >-
+      lair.lost ? [] :
+        (countCopies(copy.type == 'claim' && (copy.fields.scaleGang == 'adepts'
+          || has(copy.state.trainedGang) && copy.state.trainedGang == 'adepts')) > 0 ? ['adepts'] : [])
+        + (countCopies(copy.type == 'claim' && (copy.fields.scaleGang == 'rooks'
+          || has(copy.state.trainedGang) && copy.state.trainedGang == 'rooks')) > 0 ? ['rooks'] : [])
+        + (countCopies(copy.type == 'claim' && (copy.fields.scaleGang == 'rovers'
+          || has(copy.state.trainedGang) && copy.state.trainedGang == 'rovers')) > 0 ? ['rovers'] : [])
+        + (countCopies(copy.type == 'claim' && (copy.fields.scaleGang == 'skulks'
+          || has(copy.state.trainedGang) && copy.state.trainedGang == 'skulks')) > 0 ? ['skulks'] : [])
+        + (countCopies(copy.type == 'claim' && (copy.fields.scaleGang == 'thugs'
+          || has(copy.state.trainedGang) && copy.state.trainedGang == 'thugs')) > 0 ? ['thugs'] : [])
+
+  prison.dice: { type: integer, formula: 0 }
+  prison.noTrauma: { type: boolean, formula: false }
+  prison.parole: { type: integer, formula: 0 }
+  develop.discount: { type: integer, formula: 0 }
+
+constraints:
+  - id: turf-limit
+    check: "countCopies(copy.type == 'claim' && copy.fields.turf) <= 6"
+  - id: allied-claims
+    check: >-
+      countCopies(copy.type == 'claim' && copy.state.allied
+        && (copy.fields.turf || copy.item in crewType.claims)) == 0
+
+actions:
+  - id: claim-income
+    tags: [downtime]
+    available: item.income && (item.prison || !lair.lost)
+    results: [earned]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [tier-roll]
+        parts:
+          - id: pool
+            dice: '(tier)d6kh1'
+            ifEmpty: 2d6kl1
+      - id: earn
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              coin: >-
+                war.active ? floor(max(0, steps.roll.total - heat.current) / 2)
+                  : max(0, steps.roll.total - heat.current)
+      - id: add
+        kind: changes
+        when: flags.coin > 0
+        changes:
+          - { type: set, field: coin.current, value: 'min(coin.max, coin.current + flags.coin)' }
+      - id: result
+        kind: outcome
+        result: "'earned'"
+        data: { coin: flags.coin }
+
+  - id: payoff
+    params:
+      rep: { type: integer, min: 0, default: 2 }
+      coin: { type: integer, min: 0, default: 0 }
+      heat: { type: integer, min: 0, default: 0 }
+      targets: { type: enum, values: [other, lower-class, high-class], default: other }
+      operation: { type: id, of: operation, optional: true }
+      targetTier: { type: integer, min: -1, max: 6, default: -1 }
+      quiet: { type: boolean, default: false }
+      highProfile: { type: boolean, default: false }
+      hostileTurf: { type: boolean, default: false }
+      killing: { type: boolean, default: false }
+      tithe: { type: boolean, default: false }
+    results: [paid]
+    steps:
+      - id: earned
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              base: >-
+                max(0, params.rep + (params.targetTier >= 0 ? params.targetTier - tier : 0))
+      - id: totals
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              earned: >-
+                (params.quiet ? (rep.quiet ? ceil(flags.base / 2) : 0) : flags.base) + payoff.rep
+              rep: max(0, flags.earned)
+              coin: >-
+                max(0, params.coin + (lair.lost ? 0 : sumCopies(copy.fields.payoffCoin,
+                  copy.type == 'claim' && (copy.fields.payoffTargets == params.targets
+                    || has(params.operation) && params.operation in copy.fields.payoffOperations)))
+                  - (params.tithe ? tier + 1 : 0))
+              heat: >-
+                max(0, params.heat + payoff.heat + (params.highProfile ? 1 : 0)
+                  + (params.hostileTurf ? 1 : 0) + (params.killing ? heat.killing : 0))
+      - id: rep
+        kind: changes
+        when: flags.rep > 0
+        changes:
+          - { type: set, field: rep.current, value: 'min(rep.max, rep.current + flags.rep)' }
+      - id: heat
+        kind: changes
+        when: flags.heat > 0
+        changes:
+          - { type: adjust, field: heat.current, by: flags.heat }
+      - id: result
+        kind: outcome
+        result: "'paid'"
+        data: { rep: flags.rep, coin: flags.coin, heat: flags.heat }
+
+  - id: engagement-roll
+    tags: [engagement-roll]
+    params:
+      plan: { type: enum, values: [assault, deception, occult, social, stealth, transport] }
+      modifier: { type: integer, default: 0 }
+      murder: { type: boolean, default: false }
+    results: { bands: fortune }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [engagement-roll]
+        bands: fortune
+        parts:
+          - id: pool
+            dice: >-
+              (max(0, 1 + params.modifier + [engagement.assault, engagement.deception,
+                engagement.occult, engagement.social, engagement.stealth,
+                engagement.transport][indexOf(['assault', 'deception', 'occult', 'social',
+                'stealth', 'transport'], params.plan)]
+                + (params.murder && (params.plan == 'stealth' || params.plan == 'deception')
+                  ? engagement.murder : 0)))d6kh1
+            ifEmpty: 2d6kl1
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+
+  - id: incarceration-roll
+    tags: [incarceration-roll]
+    params:
+      modifier: { type: integer, default: 0 }
+    # The change names the scoundrel pack's field, which this pack doesn't load: it applies on the
+    # member's own sheet.
+    participants:
+      prisoner:
+        max: 1
+        pack: fitd-scoundrel
+        fields:
+          abilities.special: { type: set, of: string, default: [] }
+    results: { bands: fortune }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [incarceration-roll]
+        bands: fortune
+        parts:
+          - id: pool
+            dice: >-
+              (max(0, prison.tier + prison.dice + params.modifier))d6kh1
+            ifEmpty: 2d6kl1
+      - id: wanted
+        kind: changes
+        changes:
+          - { type: set, field: wanted.current, value: 'max(0, wanted.current - 1)' }
+          - { type: set, field: heat.current, value: 0 }
+      - id: rep
+        kind: changes
+        when: "steps.roll.band == 'critical'"
+        changes:
+          - { type: set, field: rep.current, value: 'min(rep.max, rep.current + 3)' }
+      - id: trauma
+        kind: changes
+        when: "steps.roll.band == 'failure' && !prison.noTrauma"
+        to: prisoner
+        changes:
+          - { type: adjust, field: 'fitd-scoundrel:trauma.current', by: 1 }
+      - id: claim
+        kind: choice
+        when: "steps.roll.band == 'critical' || steps.roll.band == 'success'"
+        options:
+          content:
+            type: claim
+            where: item.prison || !item.turf && !(item.id in crewType.claims)
+        prefer: 'item.prison ? 1 : 0'
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { allied: '!picked.item.prison' } }
+      - id: assisted
+        kind: choice
+        when: >-
+          (steps.roll.band == 'critical' || steps.roll.band == 'success')
+            && countCopies(copy.type == 'faction') > 0
+        repeat: { max: 1 }
+        options: { copies: { type: faction } }
+        changes:
+          - type: setState
+            entry: picked
+            key: status
+            value: min(3, picked.self.status + 1)
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          prisonClaim: "steps.roll.band == 'critical' || steps.roll.band == 'success'"
+          trauma: "steps.roll.band == 'failure' && !prison.noTrauma"
+          sentence: 'max(0, wanted.current - prison.parole)'
+
+  - id: seize-claim
+    params:
+      label: { type: string, default: '' }
+      loss: { type: integer, min: 0, max: 6, default: 2 }
+    results: [seized]
+    steps:
+      - id: claim
+        kind: choice
+        options: { content: { type: claim, where: '!item.prison' } }
+        prefer: 'item.id in crewType.claims ? 1 : 0'
+      - id: from
+        kind: choice
+        when: countCopies(copy.type == 'faction') > 0
+        options: { copies: { type: faction } }
+        changes:
+          - type: setState
+            entry: picked
+            key: status
+            value: max(-3, picked.self.status - params.loss)
+      # None is recommended, so an automatic run, or an app taking the first option, finishes.
+      - id: pleased
+        kind: choice
+        when: has(steps.from) && countCopies(copy.type == 'faction') > 1
+        options:
+          - { id: none }
+          - { id: some }
+        recommend: "'none'"
+      - id: enemies
+        kind: choice
+        when: has(steps.pleased) && steps.pleased.picked == 'some'
+        sheet: proposed
+        repeat: { min: 1, max: "countCopies(copy.type == 'faction')" }
+        options:
+          copies: { type: faction, where: 'self.id != steps.from.picked && picks == 0' }
+        changes:
+          - type: setState
+            entry: picked
+            key: status
+            value: min(3, picked.self.status + 1)
+      - id: add
+        kind: changes
+        changes:
+          - type: addItem
+            entry:
+              item: steps.claim.picked
+              state: { label: params.label, faction: "has(steps.from) ? steps.from.picked : ''" }
+      - id: result
+        kind: outcome
+        result: "'seized'"
+        data:
+          claim: steps.claim.picked
+          faction: "has(steps.from) ? steps.from.picked : ''"
+
+display:
+  groups:
+    - id: claims
+      priority: 1
+  fields:
+    lair.lost: { groups: [claims], priority: 1, input: { widget: checkbox } }
+    payoff.heat: { groups: [claims], priority: 2 }
+    payoff.rep: { groups: [claims], priority: 2 }
+    rep.quiet: { hidden: true }
+    heat.killing: { groups: [heat], priority: 2 }
+    engagement.assault: { groups: [claims], priority: 2 }
+    engagement.deception: { groups: [claims], priority: 2 }
+    engagement.occult: { groups: [claims], priority: 2 }
+    engagement.social: { groups: [claims], priority: 2 }
+    engagement.stealth: { groups: [claims], priority: 2 }
+    engagement.transport: { groups: [claims], priority: 2 }
+    engagement.murder: { groups: [claims], priority: 2 }
+    cohorts.trained: { groups: [cohorts], priority: 2 }
+    prison.dice: { groups: [claims], priority: 2 }
+    prison.noTrauma: { groups: [claims], priority: 2 }
+    prison.parole: { groups: [claims], priority: 2 }
+    develop.discount: { groups: [claims], priority: 2 }

@@ -1,0 +1,33 @@
+description: "An action step's parameter may be `null` as a `?:` branch, where it leaves the parameter out; inside an operator `null` is still a type mismatch"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: check
+            params:
+              bonus: { type: integer, optional: true }
+            steps:
+              - { id: done, kind: outcome }
+          - id: practise
+            params:
+              bonus: { type: integer, optional: true }
+            steps:
+              # Fine: the branch that is null leaves the bonus out.
+              - id: passed
+                kind: action
+                use: check
+                params: { bonus: 'has(params.bonus) ? params.bonus : null' }
+              # A type mismatch: the sum can't be null.
+              - id: summed
+                kind: action
+                use: check
+                params: { bonus: '(has(params.bonus) ? params.bonus : null) + 1' }
+      content: []

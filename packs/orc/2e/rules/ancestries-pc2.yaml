@@ -1,0 +1,71 @@
+tags:
+  - trait.catfolk
+  - trait.hobgoblin
+  - trait.kholo
+  - trait.lizardfolk
+  - trait.ratfolk
+  - trait.tengu
+  - trait.tripkee
+  - trait.dhampir
+  - trait.dragonblood
+  - trait.duskwalker
+  - trait.hampering
+  - trait.razing
+  - trait.tethered
+  - trait.modular
+  - skill-action.catfolk-dance
+  - lizardfolk-armaments
+  - draconic-aspect
+  - sense.lifesense
+
+fields:
+  fan.activations: { type: integer, formula: 0, min: 0, max: 3 }
+  defenses.voidHealing: { type: boolean, formula: false }
+
+display:
+  fields:
+    heritage.size: { hidden: true }
+    defenses.voidHealing: { groups: [defenses], priority: 3, showWhen: defenses.voidHealing }
+
+situational:
+  - { id: againstArcane, type: boolean, default: false, rolls: [save] }
+  - id: resistElfMagic
+    type: boolean
+    default: false
+    rolls: [save]
+    available: '@heritages.elfbane-hobgoblin in heritages.held'
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 'situational.againstArcane ? 2 : 1'
+        stackKey: circumstance-bonus
+        when: situational.resistElfMagic
+  - id: goblinTarget
+    type: boolean
+    default: false
+    rolls: [skill-action.coerce]
+    available: '@heritages.runtboss-hobgoblin in heritages.held'
+    effects:
+      - target: { rolls: [skill-action.coerce], tally: successToCrit }
+        op: add
+        value: 1
+        when: situational.goblinTarget
+      - target: { rolls: [skill-action.coerce], tally: critFailToFail }
+        op: add
+        value: 1
+        when: situational.goblinTarget
+  - { id: againstParalysis, type: boolean, default: false, rolls: [save] }
+  - { id: againstDragonBreath, type: boolean, default: false, rolls: [save] }
+  - { id: againstMisfortune, type: boolean, default: false, rolls: [save] }
+  - id: squawk
+    type: boolean
+    default: false
+    rolls: [skill.deception, skill.diplomacy, skill.intimidation]
+    available: '@feats.ancestry.squawk in feats.held'
+    effects:
+      - target:
+          { rolls: [skill.deception, skill.diplomacy, skill.intimidation], tally: critFailToFail }
+        op: add
+        value: 1
+        when: situational.squawk
+  - { id: vampireTarget, type: boolean, default: false, rolls: [strike] }

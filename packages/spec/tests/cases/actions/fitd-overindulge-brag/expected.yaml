@@ -1,0 +1,14 @@
+# Lowest attribute 1: 1d6 [5] against 2 stress, overindulged. Bragging is +2 heat on the crew
+# sheet: the change carries the slot and the crew's ID.
+status: finished
+outcome:
+  result: overindulged
+  data: { cleared: 2, overindulgence: brag }
+proposedChanges:
+  - to: self
+    step: clear
+    change: { type: adjust, field: fitd-scoundrel:stress.current, by: -5 }
+  - to: { link: fitd-scoundrel:crew }
+    character: example-fitd-crew-ravens
+    step: brag
+    change: { type: adjust, field: fitd-crew:heat.current, by: 2 }

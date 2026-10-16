@@ -1,0 +1,11 @@
+id: runes.shadow
+type: template
+tags: [trait.magical, trait.invested, rune.property]
+appliesTo: { type: armor, where: "item.category == 'light' || item.category == 'medium'" }
+fields: { price: '(has(prior.price) ? prior.price : 0) + 55' }
+effects:
+  - target: skills.stealth.mod
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: self.equipped && self.invested

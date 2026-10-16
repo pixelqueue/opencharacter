@@ -1,0 +1,13 @@
+# The engine takes the recommended `bold`: its change goes to the target (the second is skipped:
+# `picked.id` is bold), then the step's own change (+1 xp, to self). `safe`'s isn't proposed.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: target
+    step: how
+    change: { type: adjust, field: test-pack:hp, by: -2, tags: [damage] }
+  - to: self
+    step: how
+    change: { type: adjust, field: test-pack:xp, by: 1 }
+log:
+  - { step: how, action: test-pack:gamble, kind: choice, by: engine, option: bold }

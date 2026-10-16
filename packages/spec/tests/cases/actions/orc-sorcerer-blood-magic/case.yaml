@@ -1,0 +1,18 @@
+description: "orc-2e: blood magic after a draconic sorcerer's bloodline spell: its choice step offers forgoing it, the bloodline's scaly hide on herself or on the target, and Propelling Sorcery's two; scaly hide on the target applies the effect to it"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:features.sorcerer.blood-magic#blood-magic'
+    entry: class
+    source: orc-2e:features.sorcerer.blood-magic
+  params: { rank: 2 }
+  participants:
+    target:
+      - { id: ally }
+  policy:
+    choices: pause
+answers:
+  - option: orc-2e:classes.sorcerer.bloodlines.draconic#scales-target

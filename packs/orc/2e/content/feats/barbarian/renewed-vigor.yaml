@@ -1,0 +1,19 @@
+id: feats.barbarian.renewed-vigor
+type: feat
+tags: [trait.concentrate, trait.rage]
+fields: { level: 8, category: class, class: classes.barbarian }
+actions:
+  - id: renewed-vigor
+    tags: [class-action]
+    available: rage.active
+    results: [renewed]
+    steps:
+      - id: vigor
+        kind: changes
+        changes:
+          - type: set
+            field: hp.temp
+            value: 'max(hp.temp, (turn.attacks > 0 ? level : floor(level / 2)) + attributes.con.mod)'
+      - id: result
+        kind: outcome
+        result: "'renewed'"

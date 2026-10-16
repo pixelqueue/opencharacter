@@ -1,0 +1,303 @@
+# The SRD creates crews by choice, so the random start's odds are the pack's: every pick is uniform
+# over what the guided start offers, the upgrade boxes go one at a time to an upgrade with a box
+# free (Mastery and the three-box upgrades left out, since two boxes can't finish them), and the
+# faction steps always record a faction.
+creation:
+  - { id: crew, action: create-crew }
+  - { id: random, action: create-crew, params: { random: true }, random: true }
+
+actions:
+  - id: create-crew
+    tags: [creation]
+    available: character.creating
+    params:
+      random: { type: boolean, default: false }
+      reputation: { type: string, default: '' }
+      lair: { type: string, default: '' }
+      huntingGrounds: { type: string, default: '' }
+      contact: { type: string, default: '' }
+    results: [created]
+    steps:
+      - id: type
+        kind: choice
+        options: { content: { type: crewType } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - { type: choose, path: { choice: [crew-type] }, option: picked.id }
+      - id: ability
+        kind: choice
+        when: '!has(steps.type)'
+        options: { content: { type: crewAbility } }
+        random: params.random
+        recommend: '@crew-abilities.deadly'
+        changes:
+          - { type: choose, path: { choice: [crew-abilities] }, option: picked.id }
+      - id: operation
+        kind: choice
+        when: '!has(steps.type)'
+        options: { content: { type: operation } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - { type: choose, path: { choice: [operation] }, option: picked.id }
+      - id: start
+        kind: changes
+        changes:
+          - { type: adjust, field: coin.current, by: 2 }
+          - type: adjust
+            forEach: 'has(steps.type) ? steps.type.item.startingUpgrades : []'
+            field: { formula: x }
+            by: 1
+          - type: addItem
+            when: "has(steps.type) && steps.type.item.startingCohort != ''"
+            entry:
+              id: cohort-start
+              item: "'cohorts.gang'"
+              state: { gangType: steps.type.item.startingCohort }
+      - id: startingUpgrades
+        kind: allocate
+        sheet: proposed
+        when: '!has(steps.type)'
+        fields: { type: field, where: "'upgrade' in item.tags || 'upgrade.special' in item.tags" }
+        budget: 2
+        limit: >-
+          params.random && field.id in [@upgrades.training.mastery, @upgrades.hardened,
+            @upgrades.composed] ? 0 : 4
+        random: params.random
+        recommend: { upgrades.training.prowess: 1, upgrades.lair.secure: 1 }
+      - id: startEdge
+        kind: choice
+        when: "has(steps.type) && steps.type.item.startingCohort != ''"
+        options:
+          content: { type: cohortTrait, where: "'edge' in item.tags && 'cohort' in item.tags" }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - { type: choose, path: { entry: cohort-start, choice: [edges] }, option: picked.id }
+      - id: startFlaw
+        kind: choice
+        when: "has(steps.type) && steps.type.item.startingCohort != ''"
+        options:
+          content: { type: cohortTrait, where: "'flaw' in item.tags && 'cohort' in item.tags" }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - { type: choose, path: { entry: cohort-start, choice: [flaws] }, option: picked.id }
+      - id: huntingGrounds
+        kind: choice
+        options:
+          - id: room
+            changes:
+              - { type: adjust, field: coin.current, by: -1 }
+          - id: favor
+            changes:
+              - { type: adjust, field: coin.current, by: -2 }
+          - id: free
+        random: params.random
+        recommend: "'room'"
+      - id: groundsFaction
+        kind: choice
+        when: "steps.huntingGrounds.picked != 'room' && countCopies(copy.type == 'faction') > 0"
+        options: { copies: { type: faction } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: setState
+            entry: picked
+            key: status
+            value: "max(-3, min(3, picked.self.status + (steps.huntingGrounds.picked == 'favor' ? 1 : -1)))"
+      - id: more
+        kind: choice
+        options:
+          - id: upgrades
+          - id: gang
+          - id: expert
+        random: params.random
+        recommend: "'upgrades'"
+      - id: upgrades
+        kind: allocate
+        sheet: proposed
+        when: "steps.more.picked == 'upgrades'"
+        fields:
+          type: field
+          where: >-
+            'upgrade' in item.tags || (has(steps.type) ? item.id in steps.type.item.upgrades
+              : 'upgrade.special' in item.tags)
+        budget: 2
+        limit: >-
+          params.random && field.id in [@upgrades.training.mastery, @upgrades.hardened,
+            @upgrades.composed] ? 0 : 4
+        random: params.random
+        # Not the starting upgrades' recommendation, so an automatic run can always take them.
+        recommend: { upgrades.lair.quarters: 1, upgrades.lair.vault: 1 }
+      - id: gangType
+        kind: choice
+        when: "steps.more.picked == 'gang'"
+        options: [{ id: adepts }, { id: rooks }, { id: rovers }, { id: skulks }, { id: thugs }]
+        random: params.random
+        recommend: "''"
+      - id: cohort
+        kind: changes
+        when: "steps.more.picked != 'upgrades'"
+        changes:
+          - type: addItem
+            when: "steps.more.picked == 'gang'"
+            entry:
+              id: cohort-new
+              item: "'cohorts.gang'"
+              state: { gangType: steps.gangType.picked }
+          - type: addItem
+            when: "steps.more.picked == 'expert'"
+            entry: { id: cohort-new, item: "'cohorts.expert'" }
+      - id: newEdge
+        kind: choice
+        when: "steps.more.picked != 'upgrades'"
+        options:
+          content: { type: cohortTrait, where: "'edge' in item.tags && 'cohort' in item.tags" }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - { type: choose, path: { entry: cohort-new, choice: [edges] }, option: picked.id }
+      - id: newFlaw
+        kind: choice
+        when: "steps.more.picked != 'upgrades'"
+        options:
+          content: { type: cohortTrait, where: "'flaw' in item.tags && 'cohort' in item.tags" }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - { type: choose, path: { entry: cohort-new, choice: [flaws] }, option: picked.id }
+      # Each faction step reads the proposed sheet, so a faction picked twice adds up, kept between
+      # -3 and +3.
+      - id: helped
+        kind: choice
+        sheet: proposed
+        options:
+          - id: plus1
+          - id: plus2
+            when: coin.current >= 1
+            changes:
+              - { type: adjust, field: coin.current, by: -1 }
+          - { id: none, when: '!params.random' }
+        random: params.random
+        recommend: "'none'"
+      - id: helpedBy
+        kind: choice
+        sheet: proposed
+        when: "steps.helped.picked != 'none' && countCopies(copy.type == 'faction') > 0"
+        options: { copies: { type: faction } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: setState
+            entry: picked
+            key: status
+            value: "min(3, picked.self.status + (steps.helped.picked == 'plus2' ? 2 : 1))"
+      - id: harmed
+        kind: choice
+        sheet: proposed
+        options:
+          - id: minus2
+          - id: minus1
+            when: coin.current >= 1
+            changes:
+              - { type: adjust, field: coin.current, by: -1 }
+          - { id: none, when: '!params.random' }
+        random: params.random
+        recommend: "'none'"
+      - id: harmedBy
+        kind: choice
+        sheet: proposed
+        when: "steps.harmed.picked != 'none' && countCopies(copy.type == 'faction') > 0"
+        options: { copies: { type: faction } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: setState
+            entry: picked
+            key: status
+            value: "max(-3, picked.self.status - (steps.harmed.picked == 'minus2' ? 2 : 1))"
+      - id: contact
+        kind: choice
+        options:
+          - id: close
+          - id: closer
+          - { id: none, when: '!params.random' }
+        random: params.random
+        recommend: "'none'"
+      - id: contactFriend
+        kind: choice
+        sheet: proposed
+        when: "steps.contact.picked != 'none' && countCopies(copy.type == 'faction') > 0"
+        options: { copies: { type: faction } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: setState
+            entry: picked
+            key: status
+            value: "min(3, picked.self.status + (steps.contact.picked == 'closer' ? 2 : 1))"
+      - id: contactEnemy
+        kind: choice
+        sheet: proposed
+        when: "steps.contact.picked != 'none' && countCopies(copy.type == 'faction') > 1"
+        options: { copies: { type: faction, where: 'self.id != steps.contactFriend.picked' } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: setState
+            entry: picked
+            key: status
+            value: "max(-3, picked.self.status - (steps.contact.picked == 'closer' ? 2 : 1))"
+      - id: picks
+        kind: choice
+        options: { pending: {} }
+        random: params.random
+        recommend: options[0]
+      - id: reputation
+        kind: changes
+        when: params.reputation != ''
+        changes:
+          - { type: set, field: reputation, value: params.reputation }
+      - id: lair
+        kind: changes
+        when: params.lair != ''
+        changes:
+          - { type: set, field: lair, value: params.lair }
+      - id: grounds
+        kind: changes
+        when: params.huntingGrounds != ''
+        changes:
+          - { type: set, field: huntingGrounds, value: params.huntingGrounds }
+      - id: favorite
+        kind: changes
+        when: params.contact != ''
+        changes:
+          - type: addItem
+            entry:
+              item: "'contacts.contact'"
+              state: { label: params.contact, favorite: true }
+      - id: finish
+        kind: changes
+        changes:
+          - { type: finishCreation }
+      - id: result
+        kind: outcome
+        result: "'created'"
+        data:
+          groundsStatus: >-
+            has(steps.groundsFaction) || steps.huntingGrounds.picked == 'room' ? 0
+              : steps.huntingGrounds.picked == 'favor' ? 1 : -1
+          helpedStatus: >-
+            has(steps.helpedBy) || steps.helped.picked == 'none' ? 0
+              : steps.helped.picked == 'plus2' ? 2 : 1
+          harmedStatus: >-
+            has(steps.harmedBy) || steps.harmed.picked == 'none' ? 0
+              : steps.harmed.picked == 'minus2' ? -2 : -1
+          friendStatus: >-
+            has(steps.contactFriend) || steps.contact.picked == 'none' ? 0
+              : steps.contact.picked == 'closer' ? 2 : 1
+          enemyStatus: >-
+            has(steps.contactEnemy) || steps.contact.picked == 'none' ? 0
+              : steps.contact.picked == 'closer' ? -2 : -1

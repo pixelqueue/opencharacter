@@ -1,0 +1,50 @@
+# The ammo step recommends the first copy of the longbow's kind with any left: the +2 arrows.
+# Attack: 10 + Dexterity 3 + 2 = 15 against AC 15: a hit (no class, so no proficiency). Damage:
+# 1d8 (5) + 3 + 2 = 10 piercing, magical because the arrow is. One +2 arrow is spent.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 15 }
+proposedChanges:
+  - to: self
+    step: ammo
+    change: { type: adjustQuantity, entry: arrows-2, by: -1 }
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -10,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              ranged,
+              magical,
+              plain-material,
+              wielder.neutral,
+              damage.piercing,
+            ],
+        },
+    }
+log:
+  - step: ammo
+    action: 5e-srd-5.1:weapon-attack
+    kind: choice
+    by: engine
+    option: arrows-2
+  - step: attack
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [10]
+    total: 15
+  - step: damage
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [5]
+    total: 10

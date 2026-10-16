@@ -1,0 +1,22 @@
+id: features.monk.stillness-of-mind
+type: feature
+actions:
+  - id: stillness-of-mind
+    tags: [feature]
+    results: [ended]
+    params:
+      condition:
+        type: id
+        of: condition
+        where: 'item.id in [@conditions.charmed, @conditions.frightened]'
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied:
+              where: item.id == params.condition
+              limit: 1
+      - id: result
+        kind: outcome
+        result: "'ended'"

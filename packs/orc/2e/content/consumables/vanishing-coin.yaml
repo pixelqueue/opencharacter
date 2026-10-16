@@ -1,0 +1,15 @@
+id: consumables.vanishing-coin
+type: consumable
+tags: [trait.illusion, trait.magical, trait.talisman]
+fields:
+  level: 10
+  price: 160
+  category: talisman
+  affixTo: armor
+effects:
+  - target: { steps: [consumable.activate] }
+    op: changes
+    when: action.self.id == self.id
+    value:
+      changes:
+        - { type: applyEffect, source: "'spells.invisibility'", state: { rank: 2 } }

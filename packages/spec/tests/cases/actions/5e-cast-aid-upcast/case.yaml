@@ -1,0 +1,10 @@
+description: '5E cleric 5 casts aid with a 3rd-level slot on two allies: each gets the spell applied with its slot, and current hit points 10 higher, 5 and 5 more for the slot above 2nd'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:cast-spell, entry: cleric, source: 5e-srd-5.1:spells.aid }
+  params: { slot: 3 }
+  participants:
+    target: [{ id: ally-1 }, { id: ally-2 }]

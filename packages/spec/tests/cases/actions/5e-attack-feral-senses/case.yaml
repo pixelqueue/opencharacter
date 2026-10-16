@@ -1,0 +1,11 @@
+description: '5E ranger 18 with Feral Senses attacks an invisible target: no disadvantage (the target view)'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: bow }
+  participants:
+    target:
+      - id: stalker
+        values: { 5e-srd-5.1:combat.ac: 14, 5e-srd-5.1:conditions.invisible: true }

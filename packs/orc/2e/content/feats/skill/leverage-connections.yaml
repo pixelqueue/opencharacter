@@ -1,0 +1,11 @@
+id: feats.skill.leverage-connections
+type: feat
+tags: [trait.uncommon]
+fields: { level: 2, category: skill, skills: [skill.society] }
+
+prerequisites:
+  - {
+      id: feat,
+      when: '@feats.skill.courtly-graces in feats.held || @feats.skill.streetwise in feats.held',
+    }
+  - { id: expert, when: 'skills.society.rank >= 2' }

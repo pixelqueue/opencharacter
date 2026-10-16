@@ -1,0 +1,9 @@
+description: 'An action step with `hold` keeps what its nested action proposes: held changes never released are dropped, and the nested action still saw its own (its outcome reads the fatigue with them)'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../packs/test-actions
+input:
+  action: { id: test-actions:bow-dropped }
+  participants:
+    target: [{ id: rival }]

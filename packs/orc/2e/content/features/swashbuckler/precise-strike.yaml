@@ -1,0 +1,25 @@
+id: features.swashbuckler.precise-strike
+type: feature
+fields: { level: 1 }
+effects:
+  - target: swashbuckler.preciseStrike
+    op: atLeast
+    value: 'level >= 17 ? 6 : level >= 13 ? 5 : level >= 9 ? 4 : level >= 5 ? 3 : 2'
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: swashbuckler.preciseStrike
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      !('finisher' in roll.tags)
+        && ('trait.agile' in roll.item.tags || 'trait.finesse' in roll.item.tags)
+        && (has(flags.thrown) && flags.thrown
+          ? @feats.swashbuckler.flying-blade in feats.held : roll.item.range == 0)
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: dieOf(1d6, swashbuckler.preciseStrike)
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      'finisher' in roll.tags
+        && ('trait.agile' in roll.item.tags || 'trait.finesse' in roll.item.tags)
+        && (has(flags.thrown) && flags.thrown
+          ? @feats.swashbuckler.flying-blade in feats.held : roll.item.range == 0)

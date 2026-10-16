@@ -1,0 +1,11 @@
+description: "Fate Core: an attack on a target pauses to hand the target `defend`, with the attack's total as the opposition the hit left for the attacker to hand off, and the attacker passed as `defend`'s `attacker` for a Riposte"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:attack }
+  params: { skill: fate-core:skills.fight, harm: mental }
+  participants:
+    target: [{ id: thug, values: {} }]
+  policy: { choices: auto }

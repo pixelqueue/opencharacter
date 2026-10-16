@@ -1,0 +1,24 @@
+description: 'A computed value whose formula fails gives no value and a formula-error; the copy keeps its other computed values and the rest of the sheet still calculates'
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 2 }
+        contentTypes:
+          gear:
+            carried: true
+            state:
+              charges: { type: integer, default: 1 }
+            computed:
+              ratio: { type: decimal, formula: tier / self.charges }
+              quality: { type: integer, formula: tier }
+      content:
+        - { id: gear.lamp, type: gear }

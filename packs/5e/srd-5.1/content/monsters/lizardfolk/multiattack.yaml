@@ -1,0 +1,134 @@
+id: monsters.lizardfolk.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options:
+          [
+            { id: bite-club },
+            { id: bite-javelin },
+            { id: bite-shield },
+            { id: club-javelin },
+            { id: club-shield },
+            { id: javelin-shield },
+          ]
+        recommend: "'bite-club'"
+      - id: bite1
+        kind: action
+        when: "steps.form.picked == 'bite-club'"
+        use: monster-attack
+        source: "'monsters.lizardfolk.bite'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: heavyClub1
+        kind: action
+        when: "steps.form.picked == 'bite-club'"
+        use: monster-attack
+        source: "'monsters.lizardfolk.heavy-club'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: bite2
+        kind: action
+        when: "steps.form.picked == 'bite-javelin'"
+        use: monster-attack
+        source: "'monsters.lizardfolk.bite'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: javelin1
+        kind: action
+        when: "steps.form.picked == 'bite-javelin'"
+        use: monster-attack
+        source: "'monsters.lizardfolk.javelin'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: bite3
+        kind: action
+        when: "steps.form.picked == 'bite-shield'"
+        use: monster-attack
+        source: "'monsters.lizardfolk.bite'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: spikedShield1
+        kind: action
+        when: "steps.form.picked == 'bite-shield'"
+        use: monster-attack
+        source: "'monsters.lizardfolk.spiked-shield'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: heavyClub2
+        kind: action
+        when: "steps.form.picked == 'club-javelin'"
+        use: monster-attack
+        source: "'monsters.lizardfolk.heavy-club'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: javelin2
+        kind: action
+        when: "steps.form.picked == 'club-javelin'"
+        use: monster-attack
+        source: "'monsters.lizardfolk.javelin'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: heavyClub3
+        kind: action
+        when: "steps.form.picked == 'club-shield'"
+        use: monster-attack
+        source: "'monsters.lizardfolk.heavy-club'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: spikedShield2
+        kind: action
+        when: "steps.form.picked == 'club-shield'"
+        use: monster-attack
+        source: "'monsters.lizardfolk.spiked-shield'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: javelin3
+        kind: action
+        when: "steps.form.picked == 'javelin-shield'"
+        use: monster-attack
+        source: "'monsters.lizardfolk.javelin'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: spikedShield3
+        kind: action
+        when: "steps.form.picked == 'javelin-shield'"
+        use: monster-attack
+        source: "'monsters.lizardfolk.spiked-shield'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.bite1) && steps.bite1.result == 'hit' ? 1 : 0)
+              + (has(steps.heavyClub1) && steps.heavyClub1.result == 'hit' ? 1 : 0)
+              + (has(steps.bite2) && steps.bite2.result == 'hit' ? 1 : 0)
+              + (has(steps.javelin1) && steps.javelin1.result == 'hit' ? 1 : 0)
+              + (has(steps.bite3) && steps.bite3.result == 'hit' ? 1 : 0)
+              + (has(steps.spikedShield1) && steps.spikedShield1.result == 'hit' ? 1 : 0)
+              + (has(steps.heavyClub2) && steps.heavyClub2.result == 'hit' ? 1 : 0)
+              + (has(steps.javelin2) && steps.javelin2.result == 'hit' ? 1 : 0)
+              + (has(steps.heavyClub3) && steps.heavyClub3.result == 'hit' ? 1 : 0)
+              + (has(steps.spikedShield2) && steps.spikedShield2.result == 'hit' ? 1 : 0)
+              + (has(steps.javelin3) && steps.javelin3.result == 'hit' ? 1 : 0)
+              + (has(steps.spikedShield3) && steps.spikedShield3.result == 'hit' ? 1 : 0)

@@ -1,0 +1,17 @@
+# Health was already 4, but the ember is new: its burst is listed.
+ok: true
+followUps:
+  - id: burst-1
+    kind: ephemeral
+    followUp: test-follow-ups:charms.ember#burst
+    source:
+      type: item
+      id: test-follow-ups:charms.ember
+      entry: ember-1
+    to: self
+    required: false
+    action:
+      id: test-follow-ups:charms.ember#flash
+      entry: ember-1
+      followUp: burst-1
+    params: {}

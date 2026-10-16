@@ -1,0 +1,10 @@
+# The form choice is cleared, whatever it held, and hybrid picked; the hybrid form's AC, claws and
+# bite follow from the pick.
+status: finished
+outcome: { result: changed, data: { form: hybrid } }
+proposedChanges:
+  - { to: self, step: change, change: { type: unchoose, path: { entry: monster, choice: [form] } } }
+  - to: self
+    step: change
+    change: { type: choose, path: { entry: monster, choice: [form] }, option: hybrid }
+log: []

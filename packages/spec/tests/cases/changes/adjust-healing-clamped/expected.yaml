@@ -1,0 +1,15 @@
+# hp.max = max(1, 8 + 0 * 0) = 8; 6 + 5 = 11 -> clamped to 8, so the field changes by 2
+ok: true
+adjustments:
+  - {
+      field: 5e-srd-5.1:hp.current,
+      by: 2,
+      requested: 5,
+      taken: 5,
+      reason: requested,
+      clamped: true,
+    }
+character:
+  values:
+    5e-srd-5.1:hp.base: 8
+    5e-srd-5.1:hp.current: 8

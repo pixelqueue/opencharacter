@@ -1,0 +1,37 @@
+description: 'A proposed set or adjust may compute its field: the string is qualified against the action pack and the change returned with the field ID; both values are read before either change applies'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          skills.fight: { type: integer, input: true, default: 0, tags: [skill] }
+          skills.shoot: { type: integer, input: true, default: 0, tags: [skill] }
+          skills.notice: { type: integer, input: true, default: 0, tags: [skill] }
+        actions:
+          - id: switch
+            params:
+              a: { type: id, of: field, where: "'skill' in item.tags" }
+              b: { type: id, of: field, where: "'skill' in item.tags" }
+              practice: { type: enum, values: [fight, shoot, notice] }
+            steps:
+              - id: swap
+                kind: changes
+                changes:
+                  - { type: set, field: { formula: params.a.id }, value: params.b.value }
+                  - { type: set, field: { formula: params.b.id }, value: params.a.value }
+                  - { type: adjust, field: { formula: "'skills.' + params.practice" }, by: 1 }
+      content: []
+input:
+  action:
+    id: test-pack:switch
+  params:
+    a: skills.fight
+    b: skills.shoot
+    practice: notice

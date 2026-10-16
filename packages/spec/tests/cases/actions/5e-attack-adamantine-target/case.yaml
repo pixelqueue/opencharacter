@@ -1,0 +1,11 @@
+description: "A natural 20 against a target in adamantine armor: the target's view says critical hits against it are normal hits, so the damage dice aren't doubled"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: sword }
+  participants:
+    target:
+      - id: knight
+        values: { 5e-srd-5.1:combat.ac: 18, 5e-srd-5.1:combat.noCriticals: true }

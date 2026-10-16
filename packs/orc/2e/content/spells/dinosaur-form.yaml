@@ -1,0 +1,53 @@
+id: spells.dinosaur-form
+type: spell
+tags: [trait.concentrate, trait.manipulate, trait.polymorph, tradition.primal]
+fields:
+  rank: 4
+  cast: two
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+effects:
+  - { target: battleForm.active, op: set, value: true, scope: applied }
+  - {
+      target: battleForm.acBase,
+      op: set,
+      value: 'self.rank >= 7 ? 21 : self.rank >= 5 ? 18 : 18',
+      scope: applied,
+    }
+  - { target: battleForm.formAttacks, op: set, value: true, scope: applied }
+  - {
+      target: battleForm.attack,
+      op: set,
+      value: 'self.rank >= 7 ? 25 : self.rank >= 5 ? 18 : 16',
+      scope: applied,
+    }
+  - {
+      target: battleForm.damage,
+      op: set,
+      value: 'self.rank >= 7 ? 15 : self.rank >= 5 ? 6 : 9',
+      scope: applied,
+    }
+  - {
+      target: battleForm.diceMultiplier,
+      op: set,
+      value: 'self.rank >= 7 ? 2 : self.rank >= 5 ? 2 : 1',
+      scope: applied,
+    }
+  - {
+      target: skills.athletics.mod,
+      op: atLeast,
+      value: 'self.rank >= 7 ? 25 : self.rank >= 5 ? 21 : 18',
+      scope: applied,
+    }
+grants:
+  - { item: forms.dinosaur-form.ankylosaurus, scope: applied, when: "self.form == 'ankylosaurus'" }
+  - { item: forms.dinosaur-form.brontosaurus, scope: applied, when: "self.form == 'brontosaurus'" }
+  - { item: forms.dinosaur-form.deinonychus, scope: applied, when: "self.form == 'deinonychus'" }
+  - { item: forms.dinosaur-form.stegosaurus, scope: applied, when: "self.form == 'stegosaurus'" }
+  - { item: forms.dinosaur-form.triceratops, scope: applied, when: "self.form == 'triceratops'" }
+  - {
+      item: forms.dinosaur-form.tyrannosaurus,
+      scope: applied,
+      when: "self.form == 'tyrannosaurus'",
+    }

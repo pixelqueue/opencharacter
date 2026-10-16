@@ -1,0 +1,16 @@
+id: consumables.mistform-elixir-greater
+type: consumable
+tags: [trait.alchemical, trait.elixir, trait.illusion, trait.visual]
+fields:
+  level: 10
+  price: 180
+  bulk: 0.1
+  category: elixir
+  family: consumables.mistform-elixir-lesser
+effects:
+  - target: { steps: [consumable.drink] }
+    op: changes
+    when: action.self.id == self.id
+    value:
+      changes:
+        - { type: applyEffect, source: "'conditions.concealed'" }

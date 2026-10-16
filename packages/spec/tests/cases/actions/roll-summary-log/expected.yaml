@@ -1,0 +1,26 @@
+# Answered with 58: a failure. The log entry's summary is the one the pause showed.
+status: finished
+outcome:
+  result: failure
+log:
+  - step: check
+    action: mothership-1e:save
+    kind: dice
+    by: app
+    faces: [58]
+    total: 58
+    band: failure
+    bandSet: mothership-1e:check
+    summary:
+      bandSet: mothership-1e:check
+      bands:
+        - band: critical-success
+          when: 'roll.total < 54 && roll.total < 90 && roll.total % 11 == 0'
+        - band: success
+          when: 'roll.total < 54 && roll.total < 90'
+          tests:
+            - { of: roll.total, compare: lt, value: 54 }
+            - { of: roll.total, compare: lt, value: 90 }
+        - { band: critical-failure, when: 'roll.total % 11 == 0' }
+        - { band: failure, when: 'true', tests: [] }
+      flags: { target: 54 }

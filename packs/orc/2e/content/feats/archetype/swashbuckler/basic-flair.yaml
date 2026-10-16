@@ -1,0 +1,18 @@
+id: feats.archetype.swashbuckler.basic-flair
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.swashbuckler }
+prerequisites:
+  - {
+      id: swashbuckler-dedication,
+      when: '@feats.archetype.swashbuckler.swashbuckler-dedication in feats.held',
+    }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && !('trait.archetype' in item.tags)
+          && (has(item.class) && item.class == @classes.swashbuckler || 'trait.swashbuckler' in item.tags)
+    eligible: item.level <= 2

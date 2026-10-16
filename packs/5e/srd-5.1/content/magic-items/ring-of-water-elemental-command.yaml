@@ -1,0 +1,58 @@
+id: magic-items.ring-of-water-elemental-command
+type: magicItem
+fields:
+  category: ring
+  rarity: legendary
+  requiresAttunement: true
+  maxCharges: 5
+  recharge: 1d4 + 1
+  saveDc: 17
+  spells:
+    [
+      spells.dominate-monster,
+      spells.create-or-destroy-water,
+      spells.control-water,
+      spells.ice-storm,
+      spells.wall-of-ice,
+    ]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+  elementalSlain: { type: boolean, default: false }
+grants:
+  - { item: spells.dominate-monster, when: self.equipped && self.attuned }
+  - { item: spells.create-or-destroy-water, when: self.equipped && self.attuned }
+  - { item: spells.control-water, when: self.equipped && self.attuned }
+  - { item: spells.ice-storm, when: self.equipped && self.attuned }
+  - { item: spells.wall-of-ice, when: self.equipped && self.attuned }
+effects:
+  - target: combat.swimSpeed
+    op: atLeast
+    value: combat.speed
+    when: self.equipped && self.attuned && self.elementalSlain
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && ((action.item.id == @spells.dominate-monster &&
+      flags.slot == 8 && self.charges >= 2) || (action.item.id ==
+      @spells.create-or-destroy-water && flags.slot == 1 && self.charges >= 1 &&
+      self.elementalSlain) || (action.item.id == @spells.control-water && flags.slot ==
+      4 && self.charges >= 3 && self.elementalSlain) || (action.item.id ==
+      @spells.ice-storm && flags.slot == 4 && self.charges >= 2 && self.elementalSlain)
+      || (action.item.id == @spells.wall-of-ice && flags.slot == 6 && self.charges >= 3
+      && self.elementalSlain))
+    value:
+      id: charges
+      changes:
+        - {
+            type: adjustState,
+            entry: self,
+            key: charges,
+            by: '-(action.item.id == @spells.dominate-monster ? 2 : action.item.id ==
+              @spells.create-or-destroy-water ? 1 : action.item.id ==
+              @spells.control-water ? 3 : action.item.id ==
+              @spells.ice-storm ? 2 : 3)',
+          }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

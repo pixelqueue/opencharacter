@@ -1,0 +1,13 @@
+id: feats.cleric.communal-healing
+type: feat
+tags: [trait.healing, trait.vitality]
+fields: { level: 2, category: class, class: classes.cleric }
+effects:
+  - target: { steps: [spell.caster] }
+    op: changes
+    when: >-
+      action.item.id == @spells.heal && has(steps.heal) && size(participants.ally) == 1
+        && participants.ally[0].id != character.id
+    value:
+      changes:
+        - { type: adjust, field: hp.current, by: flags.rank, tags: [healing] }

@@ -1,0 +1,27 @@
+# The Wardens start with 4 boxes (two upgrades and the gang's two), then 2 at creation and 2 for
+# each of 3 upgrade advances: 12 earned. Marked: Hidden 1, Vault 2, Workshop 1, Prowess 1,
+# Mastery 1, Composed 1, Elite Thugs 1 and the gang's 2 = 10. Elite Thugs isn't one of the
+# Wardens' own upgrades: special-upgrades. Tier I: the gang is quality 1 and scale 1 (computed on
+# its copy). The rules-level ability and operation choices aren't asked: the type's own are.
+values:
+  fitd-crew:crewType.tag: { value: wardens }
+  fitd-crew:crewType.upgrades:
+    value:
+      - fitd-crew:upgrades.composed
+      - fitd-crew:upgrades.elite.skulks
+      - fitd-crew:upgrades.undergroundMaps
+  fitd-crew:abilities.crew: { value: [fitd-crew:crew-abilities.second-story] }
+  fitd-crew:upgrades.starting: { value: 4 }
+  fitd-crew:upgrades.earned: { value: 12 }
+  fitd-crew:upgrades.marked: { value: 10 }
+  fitd-crew:cohorts.boxes: { value: 2 }
+  fitd-crew:coin.max: { value: 16 }
+  fitd-crew:upgrades.workshop: { value: true }
+  fitd-crew:upgrades.mastery: { value: false }
+  fitd-crew:members.stress.bonus: { value: 0 }
+pending: []
+issues:
+  - { code: constraint-failed, id: fitd-crew:special-upgrades }
+errors: []
+copies:
+  c-1: { quality: 1, scale: 1 }

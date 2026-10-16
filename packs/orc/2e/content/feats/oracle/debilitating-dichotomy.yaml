@@ -1,0 +1,26 @@
+id: feats.oracle.debilitating-dichotomy
+type: feat
+tags: [trait.concentrate, trait.cursebound, trait.mental]
+fields: { level: 8, category: class, class: classes.oracle }
+actions:
+  - id: debilitating-dichotomy
+    tags: [class-action]
+    available: oracle.cursebound < oracle.curseMax
+    participants:
+      target: { max: 1 }
+    results: [used]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage, damage.mental]
+        parts: [{ dice: 'dieOf(1d6, 9 + 3 * max(0, floor((level - 8) / 2)))' }]
+      - id: curse
+        kind: changes
+        changes:
+          - { type: adjust, field: oracle.cursebound, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          damage: steps.damage.total
+          dc: spellcasting.dc

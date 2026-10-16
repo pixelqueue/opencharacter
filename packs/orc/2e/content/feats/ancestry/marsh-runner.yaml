@@ -1,0 +1,10 @@
+id: feats.ancestry.marsh-runner
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.lizardfolk }
+prerequisites:
+  - { id: swim, when: 'speed.swim > 0' }
+effects:
+  - target: { rolls: [skill-action.balance], tally: successToCrit }
+    op: add
+    value: 1
+    when: 'true'

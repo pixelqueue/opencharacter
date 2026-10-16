@@ -1,0 +1,17 @@
+# First: 10 + 1 (the app's bonus). Second: 10 + 2 (exposed) + 3 (the step's bonus, not the
+# app's 1).
+status: finished
+outcome:
+  data:
+    first: { total: 11, exposed: false, bonus: 1 }
+    second: { total: 15, exposed: true, bonus: 3 }
+log:
+  - { step: first/roll, action: 'test-pack:strike', kind: dice, by: engine, faces: [10], total: 11 }
+  - {
+      step: second/inner/roll,
+      action: 'test-pack:strike',
+      kind: dice,
+      by: engine,
+      faces: [10],
+      total: 15,
+    }

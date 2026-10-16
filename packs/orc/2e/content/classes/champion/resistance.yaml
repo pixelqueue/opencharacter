@@ -1,0 +1,11 @@
+id: classes.champion.resistance
+type: effect
+state:
+  amount: { type: integer, default: 3, min: 0 }
+effects:
+  - target: { incoming: { fields: [hp.current] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, self.amount)
+    when: incoming.amount < 0 && 'damage' in incoming.tags
+    scope: applied

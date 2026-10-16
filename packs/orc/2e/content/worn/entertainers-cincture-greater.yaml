@@ -1,0 +1,33 @@
+id: worn.entertainers-cincture-greater
+type: worn
+tags: [trait.focused, trait.invested, trait.occult]
+fields:
+  level: 17
+  price: 13000
+  usage: belt
+  activation: free
+  frequency: once-per-day
+choices:
+  - id: skill
+    from: { values: [deception, diplomacy, intimidation, performance] }
+    effects:
+      - target: skills.deception.mod
+        op: add
+        value: 3
+        stackKey: item-bonus
+        when: "self.equipped && self.invested && pick.value == 'deception'"
+      - target: skills.diplomacy.mod
+        op: add
+        value: 3
+        stackKey: item-bonus
+        when: "self.equipped && self.invested && pick.value == 'diplomacy'"
+      - target: skills.intimidation.mod
+        op: add
+        value: 3
+        stackKey: item-bonus
+        when: "self.equipped && self.invested && pick.value == 'intimidation'"
+      - target: skills.performance.mod
+        op: add
+        value: 3
+        stackKey: item-bonus
+        when: "self.equipped && self.invested && pick.value == 'performance'"

@@ -1,0 +1,131 @@
+display:
+  groups:
+    - id: action-rolls
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'action-roll' in item.tags" }
+    - id: resistance-rolls
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'resistance-roll' in item.tags" }
+    - id: score-actions
+      kind: actions
+      priority: 1
+      members:
+        type: action
+        where: >-
+          'flashback' in item.tags || 'fortune-roll' in item.tags
+          || ('creation' in item.tags && item.id != @create-scoundrel)
+          || ('ritual' in item.tags && !('downtime' in item.tags))
+          || item.id == @ability-stress
+    - id: harm-actions
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'harm' in item.tags" }
+    - id: downtime
+      kind: actions
+      priority: 2
+      members:
+        type: action
+        where: "'downtime' in item.tags || 'vice-roll' in item.tags || 'recovery-roll' in item.tags"
+    - id: creation-actions
+      kind: actions
+      priority: 3
+      visibility: background
+      members: { type: action, where: 'item.id == @create-scoundrel' }
+    - id: playbook
+      kind: content
+      priority: 0
+      members: { type: playbook }
+    - id: special-abilities
+      kind: content
+      priority: 0
+      members: { type: specialAbility }
+    - id: harm-list
+      kind: content
+      priority: 0
+      members: { type: harm }
+      sortBy: -self.level
+    - id: trauma-conditions
+      kind: content
+      priority: 0
+      members: { type: traumaCondition }
+    - id: gear
+      kind: content
+      priority: 1
+      members: { type: gear }
+    - id: vice
+      kind: content
+      priority: 1
+      members: { type: vice }
+    - id: creations
+      kind: content
+      priority: 1
+      members: { type: creation }
+    - id: projects
+      kind: content
+      priority: 2
+      members: { type: project }
+    - id: rituals
+      kind: content
+      priority: 2
+      members: { type: ritual }
+    - id: designs
+      kind: content
+      priority: 2
+      members: { type: design }
+  types:
+    playbook:
+      fields:
+        twoDots: { hidden: true }
+        oneDot: { hidden: true }
+      quantity: { hidden: true }
+    specialAbility: { quantity: { hidden: true } }
+    vice: { quantity: { hidden: true } }
+    traumaCondition: { quantity: { hidden: true } }
+    harm:
+      state:
+        label: { priority: 0, input: { widget: text } }
+        level: { priority: 0, input: { widget: dots } }
+      quantity: { hidden: true }
+    gear:
+      fields:
+        kind: { hidden: true }
+      quantity: { hidden: true }
+    project:
+      fields:
+        learns: { hidden: true }
+      state:
+        label: { priority: 0, input: { widget: text } }
+        progress: { priority: 0, input: { widget: track } }
+      quantity: { hidden: true }
+    ritual:
+      state:
+        label: { priority: 0, input: { widget: text } }
+        primed: { priority: 1, input: { widget: checkbox } }
+      quantity: { hidden: true }
+    design:
+      state:
+        label: { priority: 0, input: { widget: text } }
+        kind: { priority: 1 }
+        minQuality: { priority: 1 }
+        load: { priority: 2 }
+        stages: { priority: 2 }
+        consumable: { priority: 2 }
+        uses: { priority: 2, showWhen: self.consumable }
+        conspicuous: { priority: 2 }
+        rare: { priority: 2 }
+        unreliable: { priority: 2 }
+        volatile: { priority: 2 }
+      quantity: { hidden: true }
+    creation:
+      state:
+        label: { priority: 0, input: { widget: text } }
+        quality: { priority: 0 }
+        uses: { priority: 1, showWhen: self.consumable, input: { widget: track } }
+        load: { priority: 2 }
+        consumable: { priority: 2 }
+        conspicuous: { priority: 2 }
+        unreliable: { priority: 2 }
+        volatile: { priority: 2 }
+      quantity: { hidden: true }

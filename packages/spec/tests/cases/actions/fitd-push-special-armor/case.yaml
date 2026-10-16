@@ -1,0 +1,18 @@
+description: 'FitD: a Cutter pushes for a die and for effect and pays with Battleborn: the armor is marked, and the second push still costs 2 stress'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action:
+    id: fitd-scoundrel:action-roll
+  params:
+    rating: fitd-scoundrel:ratings.skirmish
+  situational:
+    fitd-scoundrel:bonusDie: push
+    fitd-scoundrel:pushEffect: true
+  policy:
+    rules:
+      - { kind: choice, tags: [push-cost], then: pause }
+answers:
+  - { option: 'fitd-scoundrel:special-abilities.battleborn#special-armor' }

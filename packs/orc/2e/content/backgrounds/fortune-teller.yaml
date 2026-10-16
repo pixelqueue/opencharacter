@@ -1,0 +1,25 @@
+id: backgrounds.fortune-teller
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.occultism },
+      when: "!('skill.occultism' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.fortune-telling },
+      when: "!('skill.lore.fortune-telling' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.oddity-identification
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['int', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

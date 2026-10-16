@@ -1,0 +1,134 @@
+id: classes.bard
+type: class
+fields:
+  hitDie: 1d8
+state:
+  bardicInspirationSpent: { type: integer, default: 0, min: 0 }
+prerequisites:
+  - id: multiclass
+    when: (self.startingClass && self.level == level.total) || item.id in multiclass.qualified
+effects:
+  - { target: proficiencies.armor, op: grant, value: { tag: light } }
+  - target: proficiencies.weapons
+    op: grant
+    value: { query: { type: weapon, where: "item.category == 'simple'" } }
+    when: self.startingClass
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.hand-crossbow },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.longsword },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.rapier },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.shortsword },
+      when: self.startingClass,
+    }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.dex }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.cha }, when: self.startingClass }
+grants:
+  - { item: features.bard.spellcasting, when: self.level >= 1 }
+  - { item: features.bard.bardic-inspiration, when: self.level >= 1 }
+  - { item: features.bard.jack-of-all-trades, when: self.level >= 2 }
+  - { item: features.bard.song-of-rest, when: self.level >= 2 }
+  - { item: features.bard.expertise, when: self.level >= 3 }
+  - { item: features.bard.font-of-inspiration, when: self.level >= 5 }
+  - { item: features.bard.countercharm, when: self.level >= 6 }
+  - { item: features.bard.magical-secrets, when: self.level >= 10 }
+  - { item: features.bard.superior-inspiration, when: self.level >= 20 }
+  - { item: features.ability-score-improvement, when: self.level >= 4 }
+choices:
+  - id: skills
+    pick: 3
+    unique: skills
+    from:
+      {
+        values:
+          [
+            skill.acrobatics,
+            skill.animal-handling,
+            skill.arcana,
+            skill.athletics,
+            skill.deception,
+            skill.history,
+            skill.insight,
+            skill.intimidation,
+            skill.investigation,
+            skill.medicine,
+            skill.nature,
+            skill.perception,
+            skill.performance,
+            skill.persuasion,
+            skill.religion,
+            skill.sleight-of-hand,
+            skill.stealth,
+            skill.survival,
+          ],
+        where: '!(value in proficiencies.skills) || value in choice.picks',
+      }
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: multiclass-skill
+    pick: 1
+    unique: skills
+    from:
+      {
+        values:
+          [
+            skill.acrobatics,
+            skill.animal-handling,
+            skill.arcana,
+            skill.athletics,
+            skill.deception,
+            skill.history,
+            skill.insight,
+            skill.intimidation,
+            skill.investigation,
+            skill.medicine,
+            skill.nature,
+            skill.perception,
+            skill.performance,
+            skill.persuasion,
+            skill.religion,
+            skill.sleight-of-hand,
+            skill.stealth,
+            skill.survival,
+          ],
+        where: '!(value in proficiencies.skills) || value in choice.picks',
+      }
+    when: '!self.startingClass'
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: instruments
+    pick: 3
+    from: { type: tool, where: "item.category == 'musical-instrument'" }
+    activate: false
+    eligible: '!(item.id in proficiencies.tools) || item.id in choice.picks'
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.tools, op: grant, value: { formula: pick.id } }
+  - id: multiclass-instrument
+    pick: 1
+    from: { type: tool, where: "item.category == 'musical-instrument'" }
+    activate: false
+    eligible: '!(item.id in proficiencies.tools) || item.id in choice.picks'
+    when: '!self.startingClass'
+    effects:
+      - { target: proficiencies.tools, op: grant, value: { formula: pick.id } }
+  - id: bard-college
+    from: { type: subclass, where: 'item.class == @classes.bard' }
+    when: self.level >= 3

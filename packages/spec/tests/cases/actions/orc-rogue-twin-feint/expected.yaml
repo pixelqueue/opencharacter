@@ -1,0 +1,136 @@
+# Rapier (+7) rolls 12: a hit for 1d6 (4) - 1 Strength + 5 thief (Dexterity +4 in its place). The
+# dagger is the second attack (-4, agile) against the off-guard target's AC 16: 13 + 7 - 4 = 16,
+# a hit for 1d4 (3) - 1 + 1d6 sneak attack (5) + 5 thief.
+status: finished
+outcome:
+  result: success
+  data:
+    first: success
+    damage: 20
+proposedChanges:
+  - to: self
+    step: strike1/count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 1
+      tags: [attack-count]
+  - to: target
+    character: goblin
+    step: strike1/deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -8
+      tags:
+        - damage
+        - damage.piercing
+  - to: self
+    step: strike2/count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 1
+      tags: [attack-count]
+  - to: target
+    character: goblin
+    step: strike2/deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -12
+      tags:
+        - damage
+        - damage.piercing
+log:
+  - step: first
+    action: orc-2e:feats.rogue.twin-feint#twin-feint
+    kind: choice
+    by: engine
+    option: rapier
+  - step: second
+    action: orc-2e:feats.rogue.twin-feint#twin-feint
+    kind: choice
+    by: engine
+    option: dagger
+  - step: strike1/attack
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 12
+    total: 19
+    band: success
+    bandSet: orc-2e:degree
+  - step: strike1/damage
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 4
+    total: 8
+  - step: strike2/attack
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 13
+    total: 16
+    band: success
+    bandSet: orc-2e:degree
+    items:
+      - kind: dice
+        value: 13
+        tags: []
+        source:
+          id: orc-2e:weapons.dagger
+      - kind: flat
+        value: 4
+        tags: [part.attribute]
+        source:
+          id: orc-2e:attacks.dex.mod
+      - kind: flat
+        value: 3
+        tags: []
+        source:
+          id: orc-2e:weapons.dagger
+      - kind: flat
+        value: -4
+        tags: [part.map]
+        source:
+          id: orc-2e:weapons.dagger
+  - step: strike2/damage
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 3
+      - 5
+    total: 12
+    items:
+      - kind: dice
+        value: 3
+        tags:
+          - part.weapon-die
+          - damage.piercing
+        source:
+          id: orc-2e:weapons.dagger
+      - kind: flat
+        value: -1
+        tags:
+          - damage.piercing
+        source:
+          id: orc-2e:weapons.dagger
+      - kind: dice
+        value: 5
+        tags:
+          - precision
+          - damage.piercing
+        source:
+          id: orc-2e:classes.rogue.sneak-attack
+      - kind: flat
+        value: 5
+        tags:
+          - damage.piercing
+        source:
+          id: orc-2e:classes.rogue.rackets.thief

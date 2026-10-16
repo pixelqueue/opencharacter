@@ -1,0 +1,18 @@
+description: "orc-2e: a thief rogue's Twin Feint (rapier, then dagger) against one target. The first
+  Strike is a plain hit (Dexterity on damage instead of Strength, the thief racket); the target is
+  off-guard to the second (the Strike gets `offGuardTarget`: AC 2 lower), which is
+  the next attack (agile -4) and adds sneak attack's 1d6 precision damage"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:feats.rogue.twin-feint#twin-feint'
+    entry: class
+    source: orc-2e:feats.rogue.twin-feint
+  participants:
+    target:
+      - id: goblin
+        values:
+          orc-2e:defenses.ac: 18

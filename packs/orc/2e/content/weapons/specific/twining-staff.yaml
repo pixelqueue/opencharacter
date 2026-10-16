@@ -1,0 +1,12 @@
+id: weapons.specific.twining-staff
+type: weapon
+extends: weapons.staff
+tags: [trait.magical, trait.monk, trait.two-hand, trait.wood]
+fields:
+  price: 250
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.weapon-potency-1
+    copies: { type: weapon, where: 'item.id == @weapons.specific.twining-staff' }
+  - template: runes.striking
+    copies: { type: weapon, where: 'item.id == @weapons.specific.twining-staff' }

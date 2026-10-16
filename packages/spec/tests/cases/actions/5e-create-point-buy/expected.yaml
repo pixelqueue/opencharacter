@@ -1,0 +1,245 @@
+# Costs: 7 points cost 9 (twice), 5 cost 5, 3 cost 3 and 1 costs 1: 27 of 27. Intelligence stays at
+# 8. Every pending pick is made: `#done` is not offered while creating. Hit points start full: 10 +
+# 3 for Constitution 17 (with the dwarf's +2) + 1 for the hill dwarf.
+status: finished
+proposedChanges:
+  - {
+      to: self,
+      step: race,
+      change: { type: addItem, entry: { id: race, item: 5e-srd-5.1:races.dwarf } },
+    }
+  - {
+      to: self,
+      step: subrace,
+      change:
+        {
+          type: choose,
+          path: { entry: race, choice: [subrace] },
+          option: 5e-srd-5.1:subraces.hill-dwarf,
+        },
+    }
+  - {
+      to: self,
+      step: class,
+      change:
+        {
+          type: addItem,
+          entry:
+            {
+              id: class,
+              item: 5e-srd-5.1:classes.fighter,
+              state: { level: 1, startingClass: true },
+            },
+        },
+    }
+  - {
+      to: self,
+      step: background,
+      change: { type: addItem, entry: { id: background, item: 5e-srd-5.1:backgrounds.acolyte } },
+    }
+  - {
+      to: self,
+      step: scores/eights,
+      change: { type: set, field: 5e-srd-5.1:abilities.str.base, value: 8 },
+    }
+  - {
+      to: self,
+      step: scores/eights,
+      change: { type: set, field: 5e-srd-5.1:abilities.dex.base, value: 8 },
+    }
+  - {
+      to: self,
+      step: scores/eights,
+      change: { type: set, field: 5e-srd-5.1:abilities.con.base, value: 8 },
+    }
+  - {
+      to: self,
+      step: scores/eights,
+      change: { type: set, field: 5e-srd-5.1:abilities.int.base, value: 8 },
+    }
+  - {
+      to: self,
+      step: scores/eights,
+      change: { type: set, field: 5e-srd-5.1:abilities.wis.base, value: 8 },
+    }
+  - {
+      to: self,
+      step: scores/eights,
+      change: { type: set, field: 5e-srd-5.1:abilities.cha.base, value: 8 },
+    }
+  - {
+      to: self,
+      step: scores/points,
+      change: { type: adjust, field: 5e-srd-5.1:abilities.str.base, by: 7 },
+    }
+  - {
+      to: self,
+      step: scores/points,
+      change: { type: adjust, field: 5e-srd-5.1:abilities.dex.base, by: 5 },
+    }
+  - {
+      to: self,
+      step: scores/points,
+      change: { type: adjust, field: 5e-srd-5.1:abilities.con.base, by: 7 },
+    }
+  - {
+      to: self,
+      step: scores/points,
+      change: { type: adjust, field: 5e-srd-5.1:abilities.wis.base, by: 3 },
+    }
+  - {
+      to: self,
+      step: scores/points,
+      change: { type: adjust, field: 5e-srd-5.1:abilities.cha.base, by: 1 },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: race, choice: [5e-srd-5.1:traits.tool-proficiency-dwarf/tool] },
+          option: 5e-srd-5.1:tools.smiths-tools,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [fighting-style] },
+          option: 5e-srd-5.1:fighting-styles.archery,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change: { type: choose, path: { entry: class, choice: [skills] }, option: skill.acrobatics },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        { type: choose, path: { entry: class, choice: [skills] }, option: skill.animal-handling },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: background, choice: [languages] },
+          option: 5e-srd-5.1:languages.abyssal,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: background, choice: [languages] },
+          option: 5e-srd-5.1:languages.celestial,
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/fighterArmor,
+      change:
+        {
+          type: addItem,
+          entry: { id: armor-chain-mail-1, item: 5e-srd-5.1:armor.chain-mail, equipped: true },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/fighterWeapons,
+      change:
+        {
+          type: addItem,
+          entry: { id: armor-shield-1, item: 5e-srd-5.1:armor.shield, equipped: true },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/fighterMartial,
+      change:
+        {
+          type: addItem,
+          entry: { id: weapons-longsword-1, item: 5e-srd-5.1:weapons.longsword, equipped: true },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/fighterRanged,
+      change:
+        {
+          type: addItem,
+          entry:
+            {
+              id: weapons-light-crossbow-1,
+              item: 5e-srd-5.1:weapons.light-crossbow,
+              equipped: true,
+            },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/fighterRanged,
+      change:
+        {
+          type: addItem,
+          entry: { id: gear-crossbow-bolts-1, item: 5e-srd-5.1:gear.crossbow-bolts, quantity: 20 },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/fighterPack,
+      change:
+        {
+          type: addItem,
+          entry: { id: gear-dungeoneers-pack-1, item: 5e-srd-5.1:gear.dungeoneers-pack },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteSymbol,
+      change: { type: addItem, entry: { id: gear-emblem-1, item: 5e-srd-5.1:gear.emblem } },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change: { type: addItem, entry: { id: gear-book-1, item: 5e-srd-5.1:gear.book } },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change:
+        {
+          type: addItem,
+          entry: { id: gear-incense-1, item: 5e-srd-5.1:gear.incense, quantity: 5 },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change: { type: addItem, entry: { id: gear-vestments-1, item: 5e-srd-5.1:gear.vestments } },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change:
+        {
+          type: addItem,
+          entry: { id: gear-common-clothes-1, item: 5e-srd-5.1:gear.common-clothes },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change: { type: addItem, entry: { id: gear-pouch-1, item: 5e-srd-5.1:gear.pouch } },
+    }
+  - { to: self, step: hitDie, change: { type: set, field: 5e-srd-5.1:hp.base, value: 10 } }
+  - { to: self, step: finish, change: { type: set, field: 5e-srd-5.1:hp.current, value: 14 } }
+  - { to: self, step: finish, change: { type: finishCreation } }

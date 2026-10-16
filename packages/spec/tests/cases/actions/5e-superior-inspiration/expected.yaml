@@ -1,0 +1,25 @@
+# Charisma 20: 5 uses, all spent. Initiative 12 + dex 2 + Jack of All Trades 3 = 17; one use
+# comes back.
+status: finished
+outcome:
+  result: rolled
+  data: { total: 17 }
+proposedChanges:
+  - to: self
+    step: superiorInspiration
+    change:
+      type: adjustState
+      copies:
+        {
+          type: 5e-srd-5.1:class,
+          where: has(self.bardicInspirationSpent) && self.bardicInspirationSpent > 0,
+        }
+      limit: 1
+      key: bardicInspirationSpent
+      by: -1
+log:
+  - step: check
+    kind: dice
+    by: engine
+    faces: [12]
+    total: 17

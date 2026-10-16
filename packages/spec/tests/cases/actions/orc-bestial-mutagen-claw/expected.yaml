@@ -1,0 +1,14 @@
+# 12 + Strength 0 + proficiency 19 + the mutagen's +2 = 33, a critical hit on AC 20; the claw's own
+# 2d6 (3 + 5) and weapon specialization 3, doubled: 22.
+status: finished
+outcome:
+  result: critical-success
+  data: { attack: 33, dc: 20, map: 0, flatCheck: true, damage: 22 }
+proposedChanges:
+  - to: self
+    step: count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
+  - to: target
+    character: ogre
+    step: deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -22, tags: [damage, damage.slashing] }

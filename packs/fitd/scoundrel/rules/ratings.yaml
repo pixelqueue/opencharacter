@@ -1,0 +1,247 @@
+fields:
+  crew.mastery: { type: boolean, input: true, default: false }
+  ratings.max:
+    {
+      type: integer,
+      formula: '(has(links.crew) ? links.crew.upgrades.mastery : crew.mastery) ? 4 : 3',
+    }
+  ratings.cap.insight: { type: integer, formula: ratings.max }
+  ratings.cap.prowess: { type: integer, formula: ratings.max }
+  ratings.cap.resolve: { type: integer, formula: ratings.max }
+
+  ratings.hunt:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 5,
+      limits: { max: ratings.cap.insight },
+      tags: [rating, rating.insight, rating.insight.hunt],
+    }
+  ratings.study:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 5,
+      limits: { max: ratings.cap.insight },
+      tags: [rating, rating.insight, rating.insight.study],
+    }
+  ratings.survey:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 5,
+      limits: { max: ratings.cap.insight },
+      tags: [rating, rating.insight, rating.insight.survey],
+    }
+  ratings.tinker:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 5,
+      limits: { max: ratings.cap.insight },
+      tags: [rating, rating.insight, rating.insight.tinker],
+    }
+  ratings.finesse:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 5,
+      limits: { max: ratings.cap.prowess },
+      tags: [rating, rating.prowess, rating.prowess.finesse],
+    }
+  ratings.prowl:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 5,
+      limits: { max: ratings.cap.prowess },
+      tags: [rating, rating.prowess, rating.prowess.prowl],
+    }
+  ratings.skirmish:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 5,
+      limits: { max: ratings.cap.prowess },
+      tags: [rating, rating.prowess, rating.prowess.skirmish],
+    }
+  ratings.wreck:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 5,
+      limits: { max: ratings.cap.prowess },
+      tags: [rating, rating.prowess, rating.prowess.wreck],
+    }
+  ratings.attune:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 5,
+      limits: { max: ratings.cap.resolve },
+      tags: [rating, rating.resolve, rating.resolve.attune],
+    }
+  ratings.command:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 5,
+      limits: { max: ratings.cap.resolve },
+      tags: [rating, rating.resolve, rating.resolve.command],
+    }
+  ratings.consort:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 5,
+      limits: { max: ratings.cap.resolve },
+      tags: [rating, rating.resolve, rating.resolve.consort],
+    }
+  ratings.sway:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 5,
+      limits: { max: ratings.cap.resolve },
+      tags: [rating, rating.resolve, rating.resolve.sway],
+    }
+
+  ratings.total:
+    type: integer
+    formula: "sumFields(f.value, 'rating' in f.tags)"
+  ratings.highest:
+    type: integer
+    formula: "maxFields(f.value, 'rating' in f.tags)"
+
+  attributes.insight:
+    type: integer
+    tags: [attribute]
+    formula: "sumFields(f.value > 0 ? 1 : 0, 'rating.insight' in f.tags)"
+  attributes.prowess:
+    type: integer
+    tags: [attribute]
+    formula: "sumFields(f.value > 0 ? 1 : 0, 'rating.prowess' in f.tags)"
+  attributes.resolve:
+    type: integer
+    tags: [attribute]
+    formula: "sumFields(f.value > 0 ? 1 : 0, 'rating.resolve' in f.tags)"
+
+  stress.max: { type: integer, formula: 9 }
+  stress.current:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: stress.max
+    overflow:
+      - { at: max, inclusive: true, into: trauma.current, by: 1, reset: 0 }
+  trauma.max: { type: integer, formula: 4 }
+  trauma.current: { type: integer, input: true, default: 0, min: 0, max: trauma.max }
+
+  load.light: { type: integer, formula: 3 }
+  load.normal: { type: integer, formula: 5 }
+  load.heavy: { type: integer, formula: 6 }
+  load.encumbered: { type: integer, formula: 9 }
+
+constraints:
+  - id: creation-dots
+    check: '!character.creating || ratings.total - playbook.dots == 4'
+    data: { spent: ratings.total - playbook.dots, budget: 4 }
+  - id: creation-rating-limit
+    check: '!character.creating || ratings.highest <= 2'
+    data: { limit: 2 }
+
+display:
+  groups:
+    - id: insight
+      priority: 0
+      members: { type: field, where: "'rating.insight' in item.tags" }
+    - id: prowess
+      priority: 0
+      members: { type: field, where: "'rating.prowess' in item.tags" }
+    - id: resolve
+      priority: 0
+      members: { type: field, where: "'rating.resolve' in item.tags" }
+    - id: attributes
+      priority: 1
+      members: { type: field, where: "'attribute' in item.tags" }
+    - id: condition
+      priority: 0
+    - id: load
+      priority: 2
+  fields:
+    crew.mastery:
+      {
+        groups: [attributes],
+        priority: 2,
+        input: { widget: checkbox },
+        showWhen: '!has(links.crew)',
+        visibility: background,
+      }
+    ratings.max: { groups: [attributes], priority: 2, visibility: background }
+    ratings.total: { hidden: true }
+    ratings.highest: { hidden: true }
+    stress.current:
+      {
+        groups: [condition],
+        priority: 0,
+        input: { widget: track },
+        visibility: primary,
+        with: [{ field: stress.max, as: max }],
+      }
+    trauma.current:
+      {
+        groups: [condition],
+        priority: 0,
+        input: { widget: track },
+        visibility: primary,
+        with: [{ field: trauma.max, as: max }],
+      }
+    stress.max: { groups: [condition], priority: 2 }
+    trauma.max: { groups: [condition], priority: 2 }
+    load.light: { groups: [load] }
+    load.normal: { groups: [load] }
+    load.heavy: { groups: [load] }
+    load.encumbered: { groups: [load] }
+    ratings.hunt: { rolls: [{ action: action-roll, params: { rating: ratings.hunt } }] }
+    ratings.study: { rolls: [{ action: action-roll, params: { rating: ratings.study } }] }
+    ratings.survey: { rolls: [{ action: action-roll, params: { rating: ratings.survey } }] }
+    ratings.tinker: { rolls: [{ action: action-roll, params: { rating: ratings.tinker } }] }
+    ratings.finesse: { rolls: [{ action: action-roll, params: { rating: ratings.finesse } }] }
+    ratings.prowl: { rolls: [{ action: action-roll, params: { rating: ratings.prowl } }] }
+    ratings.skirmish: { rolls: [{ action: action-roll, params: { rating: ratings.skirmish } }] }
+    ratings.wreck: { rolls: [{ action: action-roll, params: { rating: ratings.wreck } }] }
+    ratings.attune: { rolls: [{ action: action-roll, params: { rating: ratings.attune } }] }
+    ratings.command: { rolls: [{ action: action-roll, params: { rating: ratings.command } }] }
+    ratings.consort: { rolls: [{ action: action-roll, params: { rating: ratings.consort } }] }
+    ratings.sway: { rolls: [{ action: action-roll, params: { rating: ratings.sway } }] }
+    attributes.insight:
+      { rolls: [{ action: resistance-roll, params: { attribute: attributes.insight } }] }
+    attributes.prowess:
+      { rolls: [{ action: resistance-roll, params: { attribute: attributes.prowess } }] }
+    attributes.resolve:
+      { rolls: [{ action: resistance-roll, params: { attribute: attributes.resolve } }] }

@@ -1,0 +1,31 @@
+# A natural 20 is a critical hit: the handaxe's 1d6 is doubled (4, 5), + Strength 3, + 7 slashing
+# from the Vicious Weapon (flat, so not doubled) = 19.
+status: finished
+outcome:
+  result: hit
+  data: { critical: true, attack: 25 }
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -19,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              magical,
+              plain-material,
+              wielder.neutral,
+              damage.slashing,
+            ],
+        },
+    }
+log:
+  - { step: attack, kind: dice, by: engine, faces: [20], total: 25 }
+  - { step: damage, kind: dice, by: engine, faces: [4, 5], total: 19 }

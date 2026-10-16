@@ -1,0 +1,9 @@
+id: features.monk.incredible-movement
+type: feature
+fields: { level: 3 }
+effects:
+  - target: speed.land
+    op: add
+    value: 10 + 5 * floor((level - 3) / 4)
+    stackKey: status-bonus
+    when: armor.category == 'unarmored'

@@ -1,0 +1,17 @@
+# the power field (6, plus the gauntlet's 4) is compared under its new ID
+ok: true
+character:
+  values:
+    test-pack:stats.strength: 3
+  homebrew:
+    content:
+      - id: gear.gauntlet
+        type: gear
+        effects:
+          - { target: test-pack:stats.force, op: add, value: stats.strength + 1 }
+report:
+  values: []
+  homebrew:
+    - { path: /homebrew/content/0/effects/0/value, op: renameField }
+    - { path: /homebrew/content/0/effects/0/target, op: renameField }
+  errors: []

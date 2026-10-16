@@ -1,0 +1,8 @@
+id: feats.archetype.druid.basic-druid-spellcasting
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.druid }
+prerequisites:
+  - { id: druid-dedication, when: '@feats.archetype.druid.druid-dedication in feats.held' }
+effects:
+  - { target: spellcasting.archetype.druid.benefits, op: atLeast, value: 1 }

@@ -1,0 +1,23 @@
+# The d20 rolls 4, not over stress 6: panic. The Marine's trauma response hands the close ally a
+# Fear save, run on the ally's own sheet.
+status: paused
+needs:
+  step: trauma[0]
+  action: mothership-1e:panic-check
+  kind: handoff
+  participant:
+    role: close
+    id: ally
+  run:
+    action: mothership-1e:save
+    params:
+      save: mothership-1e:saves.fear
+log:
+  - step: panic
+    action: mothership-1e:panic-check
+    kind: dice
+    by: engine
+    faces: [4]
+    total: 4
+    band: panic
+    bandSet: mothership-1e:panic

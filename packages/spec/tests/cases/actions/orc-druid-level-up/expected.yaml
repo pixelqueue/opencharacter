@@ -1,0 +1,52 @@
+# 4th level: the druid feat (Order Magic) and right after it its own choice: the
+# leaf order, explored at 2nd level (the storm order, the druid's own, isn't offered); then the
+# skill feat.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: gain
+    change: { type: adjust, field: orc-2e:level, by: 1 }
+  - to: self
+    step: gain
+    change: { type: adjust, field: orc-2e:xp.current, by: -1000 }
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { entry: class, choice: [class-feat-4] }
+      option: orc-2e:feats.druid.order-magic
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { entry: class, choice: [class-feat-4, orc-2e:feats.druid.order-magic, order] }
+      option: leaf
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { entry: class, choice: [skill-feat-4] }
+      option: orc-2e:feats.skill.experienced-tracker
+log:
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: app
+    option: orc-2e:feats.druid.order-magic
+    index: 0
+    choice: { entry: class, choice: [class-feat-4] }
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: app
+    option: leaf
+    index: 1
+    choice: { entry: class, choice: [class-feat-4, orc-2e:feats.druid.order-magic, order] }
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: app
+    option: orc-2e:feats.skill.experienced-tracker
+    index: 2
+    choice: { entry: class, choice: [skill-feat-4] }

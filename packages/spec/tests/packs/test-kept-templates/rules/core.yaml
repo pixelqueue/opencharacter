@@ -1,0 +1,30 @@
+# Every character has a fist (a standard copy). Iron fists keep the iron template on unarmed
+# weapons; the iron template grants training, which keeps the sharp template on heavy weapons
+# (by the base item's tags); focus keeps it while focused; an applied enchantment keeps it on
+# every weapon.
+standardCopies:
+  - { type: weapon, where: "'standard' in item.tags" }
+
+tags: [standard, unarmed, light, heavy]
+
+contentTypes:
+  weapon:
+    carried: true
+    equippable: true
+    fields:
+      damage: { type: dice, required: true }
+      bonus: { type: integer, default: 0 }
+    computed:
+      bonus: { type: integer, formula: item.bonus }
+      heavy: { type: boolean, formula: "'heavy' in item.tags" }
+      light: { type: boolean, formula: "'light' in item.tags" }
+      templates: { type: integer, formula: size(self.templates) }
+  feature:
+    state:
+      focused: { type: boolean, default: false }
+  spell: {}
+
+fields:
+  kept.count: { type: integer, formula: 0 }
+  heavy.count:
+    { type: integer, formula: "countCopies(copy.type == 'weapon' && 'heavy' in copy.tags)" }

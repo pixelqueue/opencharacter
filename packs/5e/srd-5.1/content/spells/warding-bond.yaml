@@ -1,0 +1,37 @@
+id: spells.warding-bond
+type: spell
+fields:
+  level: 2
+  school: abjuration
+  classes: [classes.cleric]
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: combat.ac
+    op: add
+    value: 1
+    scope: applied
+    duration: { amount: 1, unit: hour }
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    scope: applied
+    duration: { amount: 1, unit: hour }
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 1
+    scope: applied
+    duration: { amount: 1, unit: hour }
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: multiply
+    value: 0.5
+    scope: applied
+    duration: { amount: 1, unit: hour }

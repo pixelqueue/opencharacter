@@ -1,0 +1,65 @@
+# A 3rd-level prepared divine caster (a homebrew class: the pack has no caster class yet),
+# casting with Wisdom +3, trained: spell attack +8, spell DC 18. Slots: three 1st-rank, two
+# 2nd-rank. Each prepared spell is a copy of the spell (its slot's rank, and whether it has been
+# cast). One Focus Point, for a homebrew focus spell (the pack has no focus spells yet).
+specVersion: 0.1.0
+id: test-prepared-caster
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+homebrew:
+  content:
+    - id: classes.divine-caster
+      type: class
+      fields: { hp: 8 }
+      effects:
+        - { target: attributes.wis.boosts, op: add, value: 1 }
+        - { target: class.keyAttribute, op: set, value: "'wis'" }
+        - { target: spellcasting.tradition, op: set, value: "'divine'" }
+        - { target: spellcasting.kind, op: set, value: "'prepared'" }
+        - { target: spellcasting.attribute, op: set, value: "'wis'" }
+        - { target: spellcasting.slotsPerRank, op: set, value: 2 }
+        - { target: spellcasting.cantrips, op: set, value: 5 }
+        - { target: spellcasting.rank, op: atLeast, value: 1 }
+        - { target: focus.points, op: add, value: 1 }
+      grants:
+        - item: spells.searing-ray
+    - id: spells.searing-ray
+      type: spell
+      tags: [trait.focus, trait.attack, trait.concentrate, trait.fire, trait.manipulate]
+      fields:
+        {
+          rank: 1,
+          cast: two,
+          range: 60,
+          defense: ac,
+          damage: 2d6,
+          damageType: fire,
+          heighten: 1,
+          heightenDice: 1,
+        }
+  i18n:
+    en:
+      classes.divine-caster.name: Divine caster
+      spells.searing-ray.name: Searing ray
+  defaultLanguage: en
+values:
+  orc-2e:level: 3
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      boosts:
+        - option: orc-2e:boosts.wis
+        - option: orc-2e:boosts.con
+  - id: class
+    item: homebrew:classes.divine-caster
+  - { id: heal-1, item: orc-2e:spells.heal, state: { rank: 1 } }
+  - { id: bless-1, item: orc-2e:spells.bless, state: { rank: 1 } }
+  - { id: fear-2, item: orc-2e:spells.fear, state: { rank: 2 } }
+  - { id: divine-lance, item: orc-2e:spells.divine-lance }
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.wis
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.cha

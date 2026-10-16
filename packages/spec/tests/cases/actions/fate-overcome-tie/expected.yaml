@@ -1,0 +1,44 @@
+status: finished
+outcome:
+  result: tie
+  data:
+    total: 2
+    opposition: 2
+    shifts: 0
+    boost: false
+proposedChanges: []
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - -1
+      - 0
+      - 0
+      - 0
+    total: 2
+    band: fair
+    bandSet: fate-core:ladder
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: final
+    action: fate-core:overcome
+    kind: dice
+    by: engine
+    total: 2
+    band: tie
+    bandSet: fate-core:outcome

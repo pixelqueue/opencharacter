@@ -1,0 +1,11 @@
+id: feats.archetype.cavalier.specialized-mount
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 14, category: class, archetype: archetypes.cavalier }
+repeatable: true
+
+prerequisites:
+  - { id: incredible-mount, when: '@feats.archetype.cavalier.incredible-mount in feats.held' }
+effects:
+  # Each time it is taken, it counts as another feat of the archetype.
+  - { target: archetypes.cavalier.repeats, op: add, value: 1 }

@@ -1,0 +1,31 @@
+# Three off-guard activations, one -2 counts; the other two are suppressed.
+values:
+  test-includes:ac: { value: 8 }
+effects:
+  - {
+      source: { type: item, id: test-includes:conditions.unconscious },
+      target: test-includes:speed,
+      op: atMost,
+    }
+  - {
+      source: { type: item, id: test-includes:conditions.blinded },
+      target: test-includes:sees,
+      op: set,
+    }
+  - {
+      source: { type: item, id: test-includes:conditions.off-guard },
+      target: test-includes:ac,
+      op: add,
+    }
+  - {
+      source: { type: item, id: test-includes:conditions.off-guard },
+      target: test-includes:ac,
+      op: add,
+      suppressed: true,
+    }
+  - {
+      source: { type: item, id: test-includes:conditions.off-guard },
+      target: test-includes:ac,
+      op: add,
+      suppressed: true,
+    }

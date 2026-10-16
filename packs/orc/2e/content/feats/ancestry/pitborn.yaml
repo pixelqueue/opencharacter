@@ -1,0 +1,18 @@
+id: feats.ancestry.pitborn
+type: feat
+tags: [trait.lineage]
+fields: { level: 1, category: ancestry, heritage: heritages.nephilim }
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.athletics },
+      when: "!('skill.athletics' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: "item.category == 'skill' && item.level <= 1 && 'skill.athletics' in item.skills"

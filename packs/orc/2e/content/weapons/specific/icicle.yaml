@@ -1,0 +1,21 @@
+id: weapons.specific.icicle
+type: weapon
+extends: weapons.longspear
+tags: [trait.cold, trait.magical, trait.reach]
+fields:
+  price: 10000
+  bulk: 2
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, 5)'
+    when: "self.equipped && incoming.amount < 0 && 'damage.fire' in incoming.tags"
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.weapon-potency-2
+    copies: { type: weapon, where: 'item.id == @weapons.specific.icicle' }
+  - template: runes.greater-striking
+    copies: { type: weapon, where: 'item.id == @weapons.specific.icicle' }
+  - template: runes.greater-frost
+    copies: { type: weapon, where: 'item.id == @weapons.specific.icicle' }

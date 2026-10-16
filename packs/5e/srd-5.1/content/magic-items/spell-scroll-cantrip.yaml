@@ -1,0 +1,22 @@
+id: magic-items.spell-scroll-cantrip
+type: magicItem
+fields:
+  category: scroll
+  rarity: common
+  spellLevel: 0
+  saveDc: 13
+  spellAttackBonus: 5
+choices:
+  - id: spell
+    from: { type: spell, where: item.level == 0 }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && self.quantity > 0
+        && (countList(action.item.classes, x in classes.held) > 0
+          || magicItems.ignoreRequirements)
+    value:
+      id: read
+      changes:
+        - { type: adjustQuantity, entry: self, by: -1 }

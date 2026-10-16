@@ -1,0 +1,48 @@
+# Omens die 1d2 (no class) = 2. Powers 1d4 = 1, + 2 (Presence) = 3.
+status: finished
+outcome:
+  result: rolled
+  data:
+    omens: 2
+    powers: 3
+    starvation: 0
+proposedChanges:
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:omens.max
+      value: 2
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:omens.current
+      value: 2
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:powers.max
+      value: 3
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mork-borg-core:powers.current
+      value: 3
+log:
+  - step: omens
+    action: mork-borg-core:new-day
+    kind: dice
+    by: engine
+    faces:
+      - 2
+    total: 2
+  - step: powers
+    action: mork-borg-core:new-day
+    kind: dice
+    by: engine
+    faces:
+      - 1
+    total: 3

@@ -1,0 +1,31 @@
+status: finished
+outcome:
+  result: hemorrhage
+  data:
+    injury: none
+    rounds: 0
+    hours: 2
+proposedChanges:
+  - to: self
+    step: bleed
+    change:
+      type: set
+      field: mork-borg-core:condition.hemorrhage
+      value: 2
+log:
+  - step: fate
+    action: mork-borg-core:broken
+    kind: dice
+    by: engine
+    faces:
+      - 3
+    total: 3
+    band: hemorrhage
+    bandSet: mork-borg-core:broken
+  - step: hours
+    action: mork-borg-core:broken
+    kind: dice
+    by: engine
+    faces:
+      - 2
+    total: 2

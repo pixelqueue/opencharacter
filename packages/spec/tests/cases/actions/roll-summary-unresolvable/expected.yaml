@@ -1,0 +1,20 @@
+# 15 is `high`. The summary resolves `flags.high` to 12; `10 / flags.zero` fails, so it stays as
+# written (and the band has no tests).
+status: finished
+log:
+  - step: roll
+    action: test-pack:roll
+    kind: dice
+    faces: [15]
+    total: 15
+    band: high
+    bandSet: test-pack:odd
+    summary:
+      bandSet: test-pack:odd
+      bands:
+        - band: high
+          when: 'roll.total >= 12'
+          tests: [{ of: roll.total, compare: ge, value: 12 }]
+        - { band: broken, when: 'roll.total < 10 / flags.zero' }
+        - { band: low, when: 'true', tests: [] }
+      flags: { high: 12, zero: 0 }

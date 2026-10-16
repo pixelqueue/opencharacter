@@ -1,0 +1,51 @@
+id: feats.archetype.bard.bard-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.bard }
+
+prerequisites:
+  - { id: cha, when: 'attributes.cha.mod >= 2' }
+  - { id: not-bard, when: 'countCopies(copy.item == @classes.bard) == 0' }
+effects:
+  - { target: spellcasting.archetype.bard.tradition, op: set, value: "'occult'" }
+  - { target: spellcasting.archetype.bard.kind, op: set, value: "'spontaneous'" }
+  - { target: spellcasting.archetype.bard.attribute, op: set, value: "'cha'" }
+  - { target: spellcasting.archetype.bard.rank, op: atLeast, value: 1 }
+  - { target: spellcasting.archetype.bard.cantrips, op: set, value: 2 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.occultism },
+      when: "!('skill.occultism' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.performance },
+      when: "!('skill.performance' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - { item: features.spellcasting.archetype-repertoire, state: { source: "'bard'" } }
+  - { item: features.spellcasting.archetype-signature-spells, state: { source: "'bard'" } }
+choices:
+  - id: muse
+    from:
+      options:
+        - id: enigma
+          effects:
+            - { target: bard.muse, op: set, value: "'enigma'" }
+            - { target: bard.muses, op: grant, value: { tag: muse.enigma } }
+        - id: maestro
+          effects:
+            - { target: bard.muse, op: set, value: "'maestro'" }
+            - { target: bard.muses, op: grant, value: { tag: muse.maestro } }
+        - id: polymath
+          effects:
+            - { target: bard.muse, op: set, value: "'polymath'" }
+            - { target: bard.muses, op: grant, value: { tag: muse.polymath } }
+        - id: warrior
+          effects:
+            - { target: bard.muse, op: set, value: "'warrior'" }
+            - { target: bard.muses, op: grant, value: { tag: muse.warrior } }

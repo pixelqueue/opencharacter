@@ -1,0 +1,23 @@
+id: feats.archetype.beastmaster.beastmaster-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.beastmaster }
+
+prerequisites:
+  - { id: nature, when: 'skills.nature.rank >= 1' }
+effects:
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.ranger.animal-empathy-ranger }
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.ranger.initiate-warden }
+  - target: { fields: { where: "'archetype-extra.at6' in item.tags" } }
+    op: grant
+    value: { item: feats.ranger.advanced-warden }
+  - target: { fields: { where: "'archetype-extra.at6' in item.tags" } }
+    op: grant
+    value: { item: feats.ranger.companions-cry }
+  - target: { fields: { where: "'archetype-extra.at14' in item.tags" } }
+    op: grant
+    value: { item: feats.druid.side-by-side-druid }

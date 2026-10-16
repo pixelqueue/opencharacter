@@ -1,0 +1,47 @@
+# Ranged picked: longbow 1 hits AC 14 (15 + 4 = 19) for 4 + 2 = 6; longbow 2 misses (2 + 4 = 6),
+# against the same target, the only one given.
+status: finished
+outcome:
+  result: done
+  data:
+    hits: 1
+proposedChanges:
+  - {
+      to: target,
+      character: tamsin,
+      step: longbow1/deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -6,
+          tags: [damage, attack, ranged, weapon, nonmagical, wielder.neutral, damage.piercing],
+        },
+    }
+log:
+  - step: form
+    action: 5e-srd-5.1:monsters.scout.multiattack#multiattack
+    kind: choice
+    by: app
+    option: ranged
+  - step: longbow1/attack
+    action: 5e-srd-5.1:monster-attack
+    kind: dice
+    by: engine
+    faces:
+      - 15
+    total: 19
+  - step: longbow1/damage
+    action: 5e-srd-5.1:monster-attack
+    kind: dice
+    by: engine
+    faces:
+      - 4
+    total: 6
+  - step: longbow2/attack
+    action: 5e-srd-5.1:monster-attack
+    kind: dice
+    by: engine
+    faces:
+      - 2
+    total: 6

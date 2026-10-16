@@ -1,0 +1,26 @@
+id: spells.bless
+type: spell
+tags:
+  [
+    trait.aura,
+    trait.concentrate,
+    trait.manipulate,
+    trait.mental,
+    tradition.divine,
+    tradition.occult,
+  ]
+# Pass yourself as an ally too.
+fields:
+  rank: 1
+  cast: two
+  area: emanation
+  areaSize: 15
+  duration: minutes
+  durationAmount: 1
+  applyTo: ally
+effects:
+  - target: { fields: { where: "'attack' in item.tags" } }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    scope: applied

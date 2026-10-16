@@ -1,0 +1,11 @@
+# Persistent damage: one entry per damage type, keeping the higher damage.
+id: conditions.persistent
+type: condition
+state:
+  damageType: { type: enum, values: [fire, bleed], default: fire }
+  damage: { type: integer, default: 1, min: 0 }
+reapply:
+  match: [damageType]
+  state: { damage: highest }
+effects:
+  - { target: bleed, op: add, value: self.damage, scope: applied }

@@ -1,0 +1,31 @@
+id: traits.skill-versatility
+type: trait
+choices:
+  - id: skills
+    pick: 2
+    unique: skills
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.animal-handling,
+          skill.arcana,
+          skill.athletics,
+          skill.deception,
+          skill.history,
+          skill.insight,
+          skill.intimidation,
+          skill.investigation,
+          skill.medicine,
+          skill.nature,
+          skill.perception,
+          skill.performance,
+          skill.persuasion,
+          skill.religion,
+          skill.sleight-of-hand,
+          skill.stealth,
+          skill.survival,
+        ]
+      where: '!(value in proficiencies.skills) || value in choice.picks'
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }

@@ -1,0 +1,13 @@
+# 10 + Strength 0 + proficiency 7 + the form's adjustment 7 = 24 (the form's +14); 2d8 (4 + 6) + 5.
+status: finished
+outcome:
+  result: success
+  data: { attack: 24, dc: 20, map: 0, flatCheck: true, damage: 15 }
+proposedChanges:
+  - to: self
+    step: count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
+  - to: target
+    character: ogre
+    step: deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -15, tags: [damage, damage.piercing] }

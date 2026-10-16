@@ -1,0 +1,11 @@
+id: classes.rogue.debilitations.weakness
+type: effect
+state:
+  damageType: { type: enum, values: [bludgeoning, piercing, slashing], default: slashing }
+effects:
+  - target: { incoming: { fields: [hp.current] } }
+    op: add
+    stackKey: weakness
+    value: -5
+    when: incoming.amount < 0 && ('damage.' + self.damageType) in incoming.tags
+    scope: applied

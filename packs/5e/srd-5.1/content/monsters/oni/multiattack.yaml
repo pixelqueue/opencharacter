@@ -1,0 +1,54 @@
+id: monsters.oni.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: claws }, { id: glaive }]
+        recommend: "'claws'"
+      - id: claw1
+        kind: action
+        when: "steps.form.picked == 'claws'"
+        use: monster-attack
+        source: "'monsters.oni.claw'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: claw2
+        kind: action
+        when: "steps.form.picked == 'claws'"
+        use: monster-attack
+        source: "'monsters.oni.claw'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: glaive1
+        kind: action
+        when: "steps.form.picked == 'glaive'"
+        use: monster-attack
+        source: "'monsters.oni.glaive'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: glaive2
+        kind: action
+        when: "steps.form.picked == 'glaive'"
+        use: monster-attack
+        source: "'monsters.oni.glaive'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.claw1) && steps.claw1.result == 'hit' ? 1 : 0)
+              + (has(steps.claw2) && steps.claw2.result == 'hit' ? 1 : 0)
+              + (has(steps.glaive1) && steps.glaive1.result == 'hit' ? 1 : 0)
+              + (has(steps.glaive2) && steps.glaive2.result == 'hit' ? 1 : 0)

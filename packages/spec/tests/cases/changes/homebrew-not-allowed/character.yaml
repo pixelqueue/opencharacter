@@ -1,0 +1,22 @@
+specVersion: 0.1.0
+id: reyes
+packs:
+  - { id: mothership-1e, version: 0.1.0 }
+homebrew:
+  content:
+    - override: mothership-1e:skills.zero-g
+      fields: { tier: master }
+values:
+  mothership-1e:stats.combat: 39
+  mothership-1e:health.max: 15
+  mothership-1e:health.current: 15
+features:
+  - id: class
+    item: mothership-1e:classes.marine
+    choices:
+      bonus-skills:
+        - option: trained
+          choices:
+            trained:
+              - option: mothership-1e:skills.botany
+              - option: mothership-1e:skills.zero-g

@@ -1,0 +1,28 @@
+description: "An unsaved standard copy's formula state defaults are evaluated when the sheet is computed, as addItem would"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        standardCopies:
+          - { type: faction }
+        fields:
+          boost: { type: integer, input: true, default: 0 }
+        contentTypes:
+          faction:
+            fields:
+              tier: { type: integer }
+            state:
+              tier: { type: integer, default: item.tier + boost }
+              hold: { type: boolean, default: true }
+            computed:
+              tierNow: { type: integer, formula: self.tier }
+      content:
+        - { id: factions.watch, type: faction, fields: { tier: 2 } }
+        - { id: factions.gang, type: faction, fields: { tier: 1 } }

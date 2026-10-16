@@ -1,0 +1,122 @@
+# No class or stat die: the player picks both. The stats and saves come before the class.
+status: finished
+outcome:
+  result: rolled
+  data:
+    loadout: false
+proposedChanges:
+  - to: self
+    step: class
+    change:
+      type: addItem
+      entry:
+        id: class
+        item: mothership-1e:classes.android
+  - to: self
+    step: stat
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - stat-penalty
+      option: combat
+  - to: self
+    step: skills
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - bonus-skills
+      option: expert
+  - to: self
+    step: skills
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - bonus-skills
+          - expert
+          - expert
+      option: mothership-1e:skills.physics
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mothership-1e:stats.strength
+      value: 32
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mothership-1e:stats.speed
+      value: 36
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mothership-1e:stats.intellect
+      value: 40
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mothership-1e:stats.combat
+      value: 44
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mothership-1e:saves.sanity
+      value: 13
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mothership-1e:saves.fear
+      value: 17
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mothership-1e:saves.body
+      value: 21
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mothership-1e:health.max
+      value: 17
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mothership-1e:health.current
+      value: 17
+  - to: self
+    step: save
+    change:
+      type: set
+      field: mothership-1e:credits.current
+      value: 1700
+  - to: self
+    step: save
+    change:
+      type: finishCreation
+log:
+  - { step: strength, kind: dice, by: engine, faces: [3, 4] }
+  - { step: speed, kind: dice, by: engine, faces: [5, 6] }
+  - { step: intellect, kind: dice, by: engine, faces: [7, 8] }
+  - { step: combat, kind: dice, by: engine, faces: [9, 10] }
+  - { step: sanity, kind: dice, by: engine, faces: [1, 2] }
+  - { step: fear, kind: dice, by: engine, faces: [3, 4] }
+  - { step: body, kind: dice, by: engine, faces: [5, 6] }
+  - { step: class, kind: choice, by: app, option: mothership-1e:classes.android }
+  - { step: health, kind: dice, by: engine, faces: [7] }
+  - { step: stat, kind: choice, by: app, option: combat }
+  - { step: skills, kind: choice, by: app, option: expert }
+  - { step: skills, kind: choice, by: app, option: mothership-1e:skills.physics }
+  - { step: credits, kind: dice, by: engine, faces: [8, 9] }
+  - { step: kit, kind: choice, by: app, option: credits }

@@ -1,0 +1,18 @@
+id: spells.tempest-form
+type: spell
+tags:
+  [trait.concentrate, trait.focus, trait.manipulate, trait.oracle, trait.polymorph, trait.uncommon]
+fields:
+  rank: 6
+  cast: two
+  duration: sustained
+  applyTo: self
+effects:
+  - target: { incoming: { fields: [hp.current] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 10 + 5 * floor((self.rank - 6) / 2))
+    when: >-
+      incoming.amount < 0 && countList(['damage.bludgeoning', 'damage.piercing',
+        'damage.slashing'], x in incoming.tags) > 0
+    scope: applied

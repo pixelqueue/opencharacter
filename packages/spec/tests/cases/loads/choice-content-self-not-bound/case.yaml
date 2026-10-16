@@ -1,0 +1,27 @@
+description: 'A choice over content has no candidate copy: `self` in its `where` is unknown-name'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          gem:
+            carried: true
+            fields:
+              color: { type: enum, values: [red, blue] }
+            state:
+              charge: { type: integer, default: 3 }
+        actions:
+          - id: pick
+            steps:
+              - id: gem
+                kind: choice
+                options: { content: { type: gem, where: self.charge > 0 } }
+      content:
+        - { id: gems.ruby, type: gem, fields: { color: red } }

@@ -1,0 +1,181 @@
+# A significant milestone gives a minor one's benefit and a major one a significant one's, so each
+# runs the smaller one: first for a significant milestone, after its own growth for a major one,
+# whose raised refresh and skill cap the smaller steps read on the proposed sheet.
+fields:
+  advancement.unspent: { type: integer, formula: 20 + advancement.skillPoints - pyramid.total }
+
+actions:
+  - id: minor-milestone
+    tags: [milestone]
+    params:
+      aspect: { type: enum, values: [none, trouble, phase1, phase2, phase3], default: none }
+      text: { type: string, default: '' }
+      recover: { type: boolean, default: true }
+      renamed: { type: string, default: '' }
+      skillA: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+      skillB: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+    results: [advanced]
+    steps:
+      - id: benefit
+        kind: choice
+        sheet: proposed
+        options:
+          - { id: none }
+          - id: skills
+            when: >-
+              has(params.skillA) && has(params.skillB) && params.skillA.id != params.skillB.id
+                && (params.skillA.value > 0 && params.skillB.value > 0
+                  || params.skillA.value + params.skillB.value == 1)
+            changes:
+              - { type: set, field: { formula: params.skillA.id }, value: params.skillB.value }
+              - { type: set, field: { formula: params.skillB.id }, value: params.skillA.value }
+          - id: swap-stunt
+            when: stunts.count > 0
+          - id: new-stunt
+            when: refresh > 1 || stunts.count < stunts.free
+          - id: aspect
+            when: "params.aspect != 'none' && params.text != ''"
+            changes:
+              - { type: set, field: { formula: "'aspects.' + params.aspect" }, value: params.text }
+        recommend: "'none'"
+      - id: drop
+        kind: choice
+        when: "steps.benefit.picked == 'swap-stunt'"
+        options: { copies: { type: stunt } }
+        changes:
+          - { type: removeItem, entry: picked }
+      - id: stunt
+        kind: choice
+        when: "steps.benefit.picked == 'swap-stunt' || steps.benefit.picked == 'new-stunt'"
+        options:
+          content: { type: stunt, where: "item.shape == 'custom' || !(item.id in stunts.held)" }
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: moderate
+        kind: changes
+        when: >-
+          params.recover && countCopies(copy.type == 'consequence' && copy.state.slot == 'moderate'
+            && !copy.state.recovering) > 0
+        changes:
+          - type: setState
+            when: "params.renamed != ''"
+            copies: { type: consequence, where: "self.slot == 'moderate' && !self.recovering" }
+            key: label
+            value: params.renamed
+          - type: setState
+            copies: { type: consequence, where: "self.slot == 'moderate' && !self.recovering" }
+            key: recovering
+            value: true
+      - id: result
+        kind: outcome
+        result: "'advanced'"
+        data: { benefit: steps.benefit.picked }
+
+  - id: significant-milestone
+    tags: [milestone]
+    params:
+      aspect: { type: enum, values: [none, trouble, phase1, phase2, phase3], default: none }
+      text: { type: string, default: '' }
+      recover: { type: boolean, default: true }
+      renamed: { type: string, default: '' }
+      skillA: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+      skillB: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+    results: [advanced]
+    steps:
+      - id: minor
+        kind: action
+        use: minor-milestone
+        params:
+          aspect: params.aspect
+          text: params.text
+          recover: params.recover
+          renamed: params.renamed
+          skillA: 'has(params.skillA) ? params.skillA : null'
+          skillB: 'has(params.skillB) ? params.skillB : null'
+      - id: point
+        kind: changes
+        changes:
+          - { type: adjust, field: advancement.skillPoints, by: 1 }
+      - id: spend
+        kind: allocate
+        sheet: proposed
+        fields: { type: field, where: "'skill' in item.tags" }
+        budget: advancement.unspent
+        spend: upTo
+        limit: max(0, skills.cap - field.value)
+        recommend: {}
+      - id: severe
+        kind: changes
+        when: >-
+          params.recover && countCopies(copy.type == 'consequence' && copy.state.slot == 'severe'
+            && !copy.state.recovering) > 0
+        changes:
+          - type: setState
+            when: "params.renamed != ''"
+            copies: { type: consequence, where: "self.slot == 'severe' && !self.recovering" }
+            key: label
+            value: params.renamed
+          - type: setState
+            copies: { type: consequence, where: "self.slot == 'severe' && !self.recovering" }
+            key: recovering
+            value: true
+      - id: result
+        kind: outcome
+        result: "'advanced'"
+        data:
+          benefit: steps.minor.data.benefit
+
+  - id: major-milestone
+    tags: [milestone]
+    params:
+      aspect: { type: enum, values: [none, trouble, phase1, phase2, phase3], default: none }
+      text: { type: string, default: '' }
+      recover: { type: boolean, default: true }
+      renamed: { type: string, default: '' }
+      recovered: { type: string, default: '' }
+      highConcept: { type: string, default: '' }
+      skillA: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+      skillB: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+    results: [advanced]
+    steps:
+      - id: grow
+        kind: changes
+        changes:
+          - { type: adjust, field: refresh.base, by: 1 }
+          - { type: adjust, field: skills.cap, by: 1, when: skills.cap < 8 }
+          - type: set
+            when: consequences.extremeTaken
+            field: consequences.extremeTaken
+            value: false
+          - type: set
+            when: "consequences.extremeAspect != 'none' && params.recovered != ''"
+            field: { formula: "'aspects.' + consequences.extremeAspect" }
+            value: params.recovered
+          - type: set
+            when: "consequences.extremeAspect != 'none'"
+            field: consequences.extremeAspect
+            value: "'none'"
+          - type: set
+            when: "params.highConcept != ''"
+            field: aspects.highConcept
+            value: params.highConcept
+      - id: significant
+        kind: action
+        use: significant-milestone
+        params:
+          aspect: params.aspect
+          text: params.text
+          recover: params.recover
+          renamed: params.renamed
+          skillA: 'has(params.skillA) ? params.skillA : null'
+          skillB: 'has(params.skillB) ? params.skillB : null'
+      - id: result
+        kind: outcome
+        result: "'advanced'"
+        data:
+          benefit: steps.significant.data.benefit
+
+display:
+  fields:
+    advancement.unspent: { groups: [pyramid], priority: 1 }

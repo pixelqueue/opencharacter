@@ -1,0 +1,15 @@
+description: 'FitD crew creation: the two upgrade boxes pause as an allocation; with no crew type the general upgrades and every crew-specific one are offered (the query reads whether a type was picked), each up to its `max`, and a starting upgrade, already on the proposed sheet, takes no more'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/crew
+input:
+  action: { id: fitd-crew:create-crew }
+  policy: { dice: pause, choices: pause, allocations: pause }
+answers:
+  - option: fitd-crew:crew-abilities.pack-rats
+  - option: fitd-crew:operations.burglary
+  - amounts: { fitd-crew:upgrades.lair.hidden: 1, fitd-crew:upgrades.training.prowess: 1 }
+  - option: free
+  - option: faction-e
+  - option: upgrades

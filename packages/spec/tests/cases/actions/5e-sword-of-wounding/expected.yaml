@@ -1,0 +1,28 @@
+# Attack 15 + 3 + 2 = 20 hits AC 11; 6 + 3 = 9 slashing. The wound's amount reads `batch`, so it
+# is passed on as a formula: the ogre's applyChanges works out what the damage took.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 20 }
+proposedChanges:
+  - to: target
+    character: ogre
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.1:hp.current
+      by: -9
+      tags:
+        [damage, attack, weapon, melee, magical, plain-material, wielder.neutral, damage.slashing]
+  - to: target
+    character: ogre
+    step: wound
+    change:
+      type: applyEffect
+      source: 5e-srd-5.1:conditions.wound
+      state:
+        amount:
+          formula: "max(0, -sumList(batch.adjustments, x.by, x.field == '5e-srd-5.1:hp.current' && x.reason == 'requested' && 'damage' in x.tags))"
+        bleeding: false
+        by: humanoid
+        magical: true

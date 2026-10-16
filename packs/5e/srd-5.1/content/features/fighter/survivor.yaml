@@ -1,0 +1,17 @@
+id: features.fighter.survivor
+type: feature
+actions:
+  - id: survivor
+    tags: [healing]
+    results: [healed]
+    available: hp.current > 0 && hp.current <= hp.max / 2
+    steps:
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: 5 + abilities.con.mod, tags: [healing] }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: 5 + abilities.con.mod

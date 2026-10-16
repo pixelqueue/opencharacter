@@ -1,0 +1,18 @@
+id: classes.rogue.rackets.scoundrel
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: rogue.racket, op: set, value: "'scoundrel'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.deception },
+      when: "!('skill.deception' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.diplomacy },
+      when: "!('skill.diplomacy' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }

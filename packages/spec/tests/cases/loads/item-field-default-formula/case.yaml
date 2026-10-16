@@ -1,0 +1,21 @@
+description: "An item field's formula default is checked like an item's own value: it must have the field's type"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might: { type: integer, input: true, default: 1, min: 0, max: 10 }
+        contentTypes:
+          gear:
+            carried: true
+            fields:
+              weight: { type: integer, default: stats.might + 1 }
+              bulk: { type: integer, default: stats.might > 1 }
+      content: []

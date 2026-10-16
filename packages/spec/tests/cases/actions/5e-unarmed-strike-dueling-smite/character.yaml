@@ -1,0 +1,21 @@
+# An 11th-level paladin with Dueling, a longsword equipped in one hand: Dueling's +2 and Improved
+# Divine Smite's 1d8 are for melee weapons, and an unarmed strike has no weapon item.
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 16
+  5e-srd-5.1:hp.base: 70
+  5e-srd-5.1:hp.current: 70
+features:
+  - id: paladin
+    item: 5e-srd-5.1:classes.paladin
+    state: { level: 11, startingClass: true }
+    choices:
+      fighting-style: [{ option: 5e-srd-5.1:fighting-styles.dueling }]
+inventory:
+  - id: sword
+    item: 5e-srd-5.1:weapons.longsword
+    equipped: true
+    state: { wielding: one-handed }

@@ -1,0 +1,23 @@
+tags: [mind]
+fields:
+  speed: { type: integer, formula: 30 }
+  # Whether the character is on guard: the guarded feature's immunity holds only then.
+  guard: { type: boolean, input: true, default: false }
+  # A stat block's condition immunities, read by the rules' immunity.
+  immunities: { type: set, of: condition, input: true, default: [] }
+  # Active applied entries a magic applied, blocked or not: `character.applied`.
+  magic: { type: integer, formula: 'countList(character.applied, x.active && x.state.magical)' }
+
+contentTypes:
+  condition:
+    carried: false
+    # Who applied it and whether magic did, filled in by the app.
+    state:
+      by: { type: enum, values: [beast, fey, fiend] }
+      magical: { type: boolean, default: false }
+  feature:
+    carried: false
+
+immuneTo:
+  - id: listed
+    query: { type: condition, where: item.id in immunities }

@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/roll-item.schema.json",
+  "title": "Roll item",
+  "description": "One piece of an itemized roll, as structured data rather than a display string. Pieces that add together are separate items; each has exactly one source. Apps build their own labels. PROVISIONAL shape: the exact shape of roll items may still change.",
+  "type": "object",
+  "required": ["kind", "source"],
+  "properties": {
+    "kind": {
+      "enum": ["flat", "dice"]
+    },
+    "value": {
+      "description": "flat: the number. dice: the total after dice modifiers (present once rolled). Multiplied by `factor` when a `multiply` roll modifier applied.",
+      "type": "number"
+    },
+    "count": {
+      "description": "dice: how many dice are rolled (advantage on 1d20 gives count 2 with keepHighest 1).",
+      "type": "integer",
+      "minimum": 0
+    },
+    "sides": {
+      "description": "dice: faces per die, or `F` for Fate dice.",
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "const": "F"
+        }
+      ]
+    },
+    "modifiers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/diceModifier"
+      }
+    },
+    "faces": {
+      "description": "dice: every die rolled, in order, including dropped, rerolled and exploded dice.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/face"
+      }
+    },
+    "source": {
+      "$ref": "common.schema.json#/$defs/source"
+    },
+    "tags": {
+      "$ref": "common.schema.json#/$defs/tags"
+    },
+    "dropped": {
+      "description": "On the item of a part that reads a field: the field's keyed `add` effects that counted on the sheet but lose to a roll effect with the same stack key, each `{ source, value }`. The item's `value` is the field's less these. Absent when none.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "value"],
+        "properties": {
+          "source": {
+            "$ref": "common.schema.json#/$defs/source"
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "zero": {
+      "description": "dice: zero-based faces (0 to sides - 1), from `dNz`.",
+      "type": "boolean"
+    },
+    "multiplied": {
+      "description": "`false` when the item was added by an effect, or comes from a roll part, with `multiplied: false`, so `multiplyDice` and `multiply` left it alone. Absent otherwise.",
+      "const": false
+    },
+    "factor": {
+      "description": "The product of the `multiply` roll modifiers' factors applied to the item; `value` is the multiplied value. Absent when none applied.",
+      "type": "number"
+    },
+    "sign": {
+      "description": "dice: -1 when the dice are subtracted (`- 1d4`). Default 1; `value` is already signed.",
+      "enum": [1, -1]
+    },
+    "replaces": {
+      "description": "On the first item of a part a `set` roll effect replaced, whose `source` is the effect's (or the field its value names): the part's items as built before, unrolled. Absent otherwise.",
+      "type": "array",
+      "items": {
+        "$ref": "#"
+      },
+      "minItems": 1
+    },
+    "steppedFrom": {
+      "description": "dice: the die's sides before `stepDie` roll modifiers changed them; `sides` is the new size. Absent when unchanged.",
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "dice"
+          }
+        },
+        "type": "object"
+      },
+      "then": {
+        "required": ["count", "sides"],
+        "type": "object"
+      },
+      "else": {
+        "required": ["value"],
+        "type": "object"
+      }
+    }
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "diceModifier": {
+      "description": "A standard dice modifier. Types are kept in sync with `data/dice-modifiers.json`.",
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "enum": [
+            "keepHighest",
+            "keepLowest",
+            "dropHighest",
+            "dropLowest",
+            "explode",
+            "explodeCompound",
+            "reroll",
+            "rerollOnce",
+            "countSuccesses",
+            "countFailures",
+            "minimum",
+            "maximum"
+          ]
+        },
+        "count": {
+          "description": "keep/drop: how many dice. reroll, rerollOnce: at most this many of the initial dice matching the comparison are rerolled, lowest faces first (a `reroll` roll modifier's `count`; no dice notation).",
+          "type": "integer",
+          "minimum": 0
+        },
+        "compare": {
+          "enum": ["=", "<", "<=", ">", ">="]
+        },
+        "target": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    },
+    "face": {
+      "type": "object",
+      "required": ["value"],
+      "properties": {
+        "value": {
+          "type": "integer"
+        },
+        "kept": {
+          "type": "boolean"
+        },
+        "rerolled": {
+          "description": "This die was replaced by a reroll.",
+          "type": "boolean"
+        },
+        "exploded": {
+          "description": "This die was added by an explosion.",
+          "type": "boolean"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "failure": {
+          "type": "boolean"
+        },
+        "source": {
+          "description": "Where this die came from, when it differs from the item's own source (a pool die added by an effect).",
+          "$ref": "common.schema.json#/$defs/source"
+        },
+        "set": {
+          "description": "This face was given by a `setFaces` roll modifier, not rolled.",
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

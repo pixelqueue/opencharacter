@@ -1,0 +1,39 @@
+description: renameTag rewrites the homebrew's tag lists and the tag in a formula, and saved sets of tags
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [energy]
+        fields:
+          gear.favored: { type: set, of: tag, input: true, default: [] }
+        contentTypes:
+          gear: { carried: true }
+      content: []
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [power]
+        fields:
+          gear.favored: { type: set, of: tag, input: true, default: [] }
+        contentTypes:
+          gear: { carried: true }
+      content: []
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - { op: renameTag, from: energy, to: power }

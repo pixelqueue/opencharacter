@@ -1,0 +1,12 @@
+id: effects.extravagant-parry
+type: effect
+state:
+  value: { type: integer, default: 2, min: 1, max: 2 }
+effects:
+  - {
+      target: { fields: { where: "'ac' in item.tags" } },
+      op: add,
+      value: self.value,
+      stackKey: circumstance-bonus,
+      scope: applied,
+    }

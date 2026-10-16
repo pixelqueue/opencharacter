@@ -1,0 +1,27 @@
+id: staves.staff-of-the-unblinking-eye-greater
+type: staff
+tags: [trait.magical, trait.staff, trait.uncommon]
+fields:
+  level: 10
+  price: 900
+  bulk: 1
+  rank1: [spells.sure-strike]
+  rank2: [spells.darkvision, spells.see-the-unseen, spells.translate]
+  rank3: [spells.darkvision, spells.mind-reading]
+  rank4: [spells.clairvoyance, spells.detect-scrying, spells.telepathy]
+grants:
+  - { item: spells.detect-magic, when: self.equipped }
+  - { item: spells.sure-strike, when: self.equipped }
+  - { item: spells.darkvision, when: self.equipped }
+  - { item: spells.see-the-unseen, when: self.equipped }
+  - { item: spells.translate, when: self.equipped }
+  - { item: spells.mind-reading, when: self.equipped }
+  - { item: spells.clairvoyance, when: self.equipped }
+  - { item: spells.detect-scrying, when: self.equipped }
+  - { item: spells.telepathy, when: self.equipped }
+effects:
+  - target: { rolls: [perception] }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    when: 'self.equipped && situational.initiative'

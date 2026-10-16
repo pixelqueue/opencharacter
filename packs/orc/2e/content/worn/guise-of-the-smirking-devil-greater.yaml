@@ -1,0 +1,25 @@
+id: worn.guise-of-the-smirking-devil-greater
+type: worn
+tags: [trait.auditory, trait.invested, trait.magical, trait.void]
+fields:
+  level: 19
+  price: 35000
+  usage: mask
+  activation: two
+  frequency: once-per-day
+grants:
+  - { item: spells.wails-of-the-damned, when: 'self.equipped && self.invested' }
+effects:
+  - target: skills.intimidation.mod
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.wails-of-the-damned && self.used < 1'
+    value:
+      id: wails-of-the-damned
+      flags: { itemPaid: true, rank: 9, dc: 41 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

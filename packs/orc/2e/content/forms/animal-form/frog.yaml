@@ -1,0 +1,10 @@
+id: forms.animal-form.frog
+type: effect
+standardCopies:
+  - {
+      type: weapon,
+      where: 'item.id == @weapons.forms.animal-form.frog-jaws || item.id == @weapons.forms.animal-form.frog-tongue',
+    }
+effects:
+  - { target: battleForm.speed, op: set, value: 25, scope: applied }
+  - { target: speed.swim.base, op: atLeast, value: 25, scope: applied }

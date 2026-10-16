@@ -1,0 +1,33 @@
+# The wand grants fireball while held and attuned; cast from its copy, the cost step offers only
+# the wand's option (no slot from an item). A 4th-level fireball costs 2 charges: 9d6 = 36, the
+# wand's DC 15, no class knows the spell.
+status: finished
+outcome:
+  result: save
+  data:
+    slot: 4
+    spellcastingClass: none
+    metamagic: none
+    dc: 15
+    save: dex
+    halfOnSave: true
+    damage: 36
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: cost
+    change: { type: adjustState, entry: wand, key: charges, by: -2 }
+log:
+  - step: cost
+    action: 5e-srd-5.1:cast-spell
+    kind: choice
+    by: app
+    option: '5e-srd-5.1:magic-items.wand-of-fireballs#charges'
+  - step: damage
+    action: 5e-srd-5.1:cast-spell
+    kind: dice
+    by: engine
+    faces: [6, 5, 4, 3, 2, 1, 6, 5, 4]
+    total: 36

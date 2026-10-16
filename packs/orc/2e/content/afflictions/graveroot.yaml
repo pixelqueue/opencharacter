@@ -1,0 +1,15 @@
+id: afflictions.graveroot
+type: affliction
+fields:
+  {
+    kind: poison,
+    level: 3,
+    dc: 19,
+    stages: 3,
+    stage1Damage: 1d8,
+    stage2Damage: 1d10,
+    stage3Damage: 2d6,
+  }
+grants:
+  - { item: conditions.stupefied, scope: applied, when: self.stage == 2, state: { value: 1 } }
+  - { item: conditions.stupefied, scope: applied, when: self.stage == 3, state: { value: 2 } }

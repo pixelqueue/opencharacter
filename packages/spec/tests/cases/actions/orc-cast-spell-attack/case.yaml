@@ -1,0 +1,11 @@
+description: 'orc-2e: telekinetic projectile, a cantrip at 5th level (heightened to 3rd: 4d6), a spell attack (+11) against AC 17: 17 + 11 = 28 beats it by 10, a critical hit, so the damage roll is doubled; the attack counts toward the multiple attack penalty'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: orc-2e:spells.telekinetic-projectile }
+  params: { damageType: piercing }
+  participants:
+    target:
+      - { id: goblin, values: { orc-2e:defenses.ac: 17 } }

@@ -1,0 +1,16 @@
+# The dagger is drawn, then Strikes on the proposed sheet: 15 + 4 (Dexterity, finesse) + 3 = 22
+# against AC 15, a hit for 1d4 (4) + 1 (Strength).
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 5
+proposedChanges:
+  - { to: self, step: weapon, change: { type: equip, entry: dagger, equipped: true } }
+  - to: self
+    step: strike/count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
+  - to: target
+    character: wolf
+    step: strike/deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -5, tags: [damage, damage.piercing] }

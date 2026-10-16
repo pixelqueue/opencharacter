@@ -1,0 +1,22 @@
+description: "FitD: a group action takes the best of the leader's and the members' results, and the leader takes 1 stress per bad outcome"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action:
+    id: fitd-scoundrel:group-action
+  params:
+    rating: fitd-scoundrel:ratings.skirmish
+  participants:
+    member:
+      - { id: vex }
+      - { id: nyryx }
+      - { id: arcy }
+      - { id: emily }
+answers:
+  # Each member's app runs `action-roll` on their own sheet.
+  - outcome: { result: partial, data: { position: risky, effect: standard } }
+  - outcome: { result: failure, data: { position: risky, effect: standard } }
+  - outcome: { result: failure, data: { position: risky, effect: standard } }
+  - outcome: { result: success, data: { position: risky, effect: standard } }

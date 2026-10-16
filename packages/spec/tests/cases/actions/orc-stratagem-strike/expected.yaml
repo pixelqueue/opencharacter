@@ -1,0 +1,39 @@
+# The stored 15 (given, not rolled) + Intelligence 4 (instead of Dexterity 3) + trained 3 = 22
+# against 18: a hit for 1d6 (4) + strategic strike's 1d6 (6) = 10. The
+# stratagem ends.
+status: finished
+outcome:
+  result: success
+  data: { damage: 10 }
+proposedChanges:
+  - to: self
+    step: strike/count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
+  - to: target
+    character: suspect
+    step: strike/deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -10, tags: [damage, damage.piercing] }
+  - to: self
+    step: spend
+    change:
+      type: removeEffect
+      applied: { where: "item.id == 'orc-2e:effects.attack-stratagem'" }
+log:
+  - step: weapon
+    action: 'orc-2e:effects.attack-stratagem#strike'
+    kind: choice
+    by: app
+    option: rapier
+  - step: strike/attack
+    action: orc-2e:strike
+    kind: dice
+    faces: []
+    total: 22
+    items:
+      - { kind: dice, count: 1, sides: 20, faces: [{ value: 15, set: true }] }
+      - kind: flat
+        value: 4
+        source: { type: field, id: 'orc-2e:attacks.int.mod' }
+        replaces: [{ kind: flat, value: 3, source: { type: field, id: 'orc-2e:attacks.dex.mod' } }]
+      - { kind: flat, value: 3 }
+  - { step: strike/damage, action: orc-2e:strike, kind: dice, faces: [4, 6], total: 10 }

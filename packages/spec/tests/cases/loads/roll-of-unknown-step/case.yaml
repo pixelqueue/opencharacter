@@ -1,0 +1,25 @@
+description: "A roll step's `of` starts at a step of its own action: another ID is unknown-reference (kind step) at load"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        resultBands:
+          high:
+            - { id: high, when: roll.total >= 4 }
+            - { id: low, when: true }
+        actions:
+          - id: twice
+            steps:
+              - id: first
+                kind: roll
+                parts: [{ dice: 1d6 }]
+              - { id: again, kind: roll, of: first, bands: high }
+              - { id: lost, kind: roll, of: second/roll, bands: high }
+      content: []

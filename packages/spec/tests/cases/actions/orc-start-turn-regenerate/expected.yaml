@@ -1,0 +1,13 @@
+status: finished
+outcome:
+  result: started
+  data: { actions: 3 }
+proposedChanges:
+  - { to: self, step: reset, change: { type: set, field: orc-2e:turn.attacks, value: 0 } }
+  - { to: self, step: reset, change: { type: set, field: orc-2e:turn.flourishes, value: 0 } }
+  - { to: self, step: reset, change: { type: set, field: orc-2e:shield.raised, value: false } }
+  - { to: self, step: reset, change: { type: set, field: orc-2e:parry.active, value: false } }
+  - { to: self, step: reset, change: { type: set, field: orc-2e:parry.weapon, value: false } }
+  - to: self
+    step: content
+    change: { type: adjust, field: orc-2e:hp.current, by: 15, tags: [healing] }

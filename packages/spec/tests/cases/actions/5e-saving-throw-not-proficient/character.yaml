@@ -1,0 +1,58 @@
+specVersion: 0.1.0
+id: tamsin
+packs:
+  - id: 5e-srd-5.1
+    version: 0.1.0
+values:
+  5e-srd-5.1:abilities.str.base: 16
+  5e-srd-5.1:abilities.dex.base: 14
+  5e-srd-5.1:abilities.con.base: 14
+  5e-srd-5.1:abilities.int.base: 8
+  5e-srd-5.1:abilities.wis.base: 12
+  5e-srd-5.1:abilities.cha.base: 10
+  5e-srd-5.1:hp.base: 29
+  5e-srd-5.1:hp.current: 37
+  5e-srd-5.1:hp.temp: 0
+features:
+  - id: fighter
+    item: 5e-srd-5.1:classes.fighter
+    state:
+      level: 3
+      startingClass: true
+    choices:
+      fighting-style:
+        - option: 5e-srd-5.1:fighting-styles.dueling
+      martial-archetype:
+        - option: 5e-srd-5.1:subclasses.champion
+  - id: barbarian
+    item: 5e-srd-5.1:classes.barbarian
+    state:
+      level: 1
+inventory:
+  - id: inv-1
+    item: 5e-srd-5.1:weapons.longsword
+    templates:
+      - 5e-srd-5.1:magic-items.weapon-plus-one
+    equipped: true
+    state:
+      wielding: one-handed
+  - id: inv-2
+    item: 5e-srd-5.1:weapons.longsword
+    templates:
+      - 5e-srd-5.1:magic-items.flame-tongue
+    equipped: false
+    state:
+      attuned: true
+      ignited: false
+  - id: inv-3
+    item: 5e-srd-5.1:armor.shield
+    equipped: true
+  - id: inv-5
+    item: 5e-srd-5.1:magic-items.gauntlets-of-ogre-power
+    equipped: true
+    state:
+      attuned: true
+applied:
+  - id: bless-1
+    source: 5e-srd-5.1:spells.bless
+    active: true

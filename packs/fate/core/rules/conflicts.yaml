@@ -1,0 +1,61 @@
+fields:
+  turnOrder.first:
+    type: boolean
+    formula: "countCopies(copy.type == 'extra' && copy.fields.first) > 0"
+  turnOrder.physical:
+    type: integer
+    formula: >-
+      (turnOrder.first ? 1000 : 0) + skills.notice * 100 + skills.athletics * 10 + skills.physique
+  turnOrder.mental:
+    type: integer
+    formula: >-
+      (turnOrder.first ? 1000 : 0) + skills.empathy * 100 + skills.rapport * 10 + skills.will
+
+actions:
+  - id: move
+    tags: [conflict]
+    params:
+      zones: { type: integer, default: 1, min: 1 }
+      hindered: { type: boolean, default: false }
+      skill: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+      opposition: { type: integer, default: 0 }
+    results: [moved, blocked]
+    steps:
+      - id: free
+        kind: outcome
+        when: params.zones <= 1 && !params.hindered
+        result: "'moved'"
+        data: { zones: params.zones, free: true }
+      - id: skill
+        kind: action
+        when: has(params.skill)
+        use: overcome
+        params: { skill: params.skill.id, opposition: params.opposition }
+      - id: athletics
+        kind: action
+        when: '!has(params.skill)'
+        use: overcome
+        params: { skill: "'skills.athletics'", opposition: params.opposition }
+      - id: rolled
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              band: 'has(steps.skill) ? steps.skill.result : steps.athletics.result'
+      - id: result
+        kind: outcome
+        result: "flags.band == 'fail' ? 'blocked' : 'moved'"
+        data:
+          zones: "flags.band == 'fail' ? 0 : params.zones"
+          free: false
+          roll: flags.band
+          opponentAdvantage: "flags.band == 'tie'"
+
+display:
+  groups:
+    - id: conflict
+      priority: 2
+  fields:
+    turnOrder.physical: { groups: [conflict], priority: 1 }
+    turnOrder.mental: { groups: [conflict], priority: 2 }
+    turnOrder.first: { hidden: true }

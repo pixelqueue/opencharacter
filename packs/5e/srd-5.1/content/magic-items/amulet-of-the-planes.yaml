@@ -1,0 +1,16 @@
+id: magic-items.amulet-of-the-planes
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+  spells: [spells.plane-shift]
+grants:
+  - { item: spells.plane-shift, when: self.equipped && self.attuned }
+effects:
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.plane-shift },
+      when: self.equipped && self.attuned,
+    }

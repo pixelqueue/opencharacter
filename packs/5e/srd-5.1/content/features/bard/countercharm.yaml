@@ -1,0 +1,45 @@
+id: features.bard.countercharm
+type: feature
+effects:
+  - { target: items.charmSave, op: add, value: 1, scope: applied }
+  - { target: items.frightSave, op: add, value: 1, scope: applied }
+  - target: { rolls: [save] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: situational.charmSave || situational.frightSave
+    scope: applied
+actions:
+  - id: countercharm
+    tags: [feature]
+    results: [performing]
+    available: >-
+      countList(character.applied, x.source == @features.bard.countercharm) == 0
+    participants:
+      ally: {}
+    steps:
+      - id: perform
+        kind: changes
+        changes:
+          - { type: applyEffect, source: item.id }
+      - id: allies
+        kind: changes
+        to: ally
+        changes:
+          - { type: applyEffect, source: item.id }
+      - id: result
+        kind: outcome
+        result: "'performing'"
+  - id: end-countercharm
+    tags: [feature]
+    results: [ended]
+    available: >-
+      countList(character.applied, x.source == @features.bard.countercharm) > 0
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @features.bard.countercharm' }
+      - id: result
+        kind: outcome
+        result: "'ended'"

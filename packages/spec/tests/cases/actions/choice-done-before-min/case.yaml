@@ -1,0 +1,38 @@
+description: 'Answering #done before the step has `min` picks is answer-mismatch: #done is not offered yet'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          score: { type: integer, input: true, default: 0 }
+        actions:
+          - id: train
+            steps:
+              - id: drills
+                kind: choice
+                options:
+                  - { id: run, when: picks == 0 }
+                  - { id: lift, when: picks == 0 }
+                  - { id: swim, when: picks == 0 }
+                repeat: { max: 3, min: 1 }
+                changes:
+                  - { type: adjust, field: score, by: "picked.id == 'swim' ? 2 : 1" }
+              - id: done
+                kind: outcome
+                result: "'trained'"
+                data:
+                  drills: steps.drills.picked
+                  count: size(steps.drills.picked)
+      content: []
+input:
+  action: { id: test-pack:train }
+  policy: { choices: pause }
+answers:
+  - { option: '#done' }

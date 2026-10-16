@@ -1,0 +1,19 @@
+id: spells.fire-shield
+type: spell
+tags: [trait.concentrate, trait.fire, trait.manipulate, tradition.arcane, tradition.primal]
+fields:
+  rank: 4
+  cast: two
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+effects:
+  - target:
+      incoming:
+        fields: [hp.current]
+        tags: [damage.cold]
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 5 + 5 * floor((self.rank - 4) / 2))
+    when: incoming.amount < 0
+    scope: applied

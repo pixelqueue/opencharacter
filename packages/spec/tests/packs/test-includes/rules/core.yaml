@@ -1,0 +1,24 @@
+settings:
+  stacking:
+    keys:
+      # Of the circumstance penalties, only the worst counts.
+      circumstance: lowestOnly
+
+fields:
+  ac: { type: integer, formula: 10 }
+  speed: { type: integer, formula: 30 }
+  sees: { type: boolean, formula: true }
+  # A frightened penalty to checks (the higher value wins: `reapply`).
+  check: { type: integer, formula: 0 }
+  # Bleeding damage at the end of the turn, per type.
+  bleed: { type: integer, formula: 0 }
+
+contentTypes:
+  condition:
+    carried: false
+    state:
+      value: { type: integer, default: 1, min: 0, max: 4 }
+    # Applying a condition again keeps the higher value.
+    reapply: { state: { value: highest } }
+  feature:
+    carried: false

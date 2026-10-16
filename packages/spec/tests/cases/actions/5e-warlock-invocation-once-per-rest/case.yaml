@@ -1,0 +1,10 @@
+description: "5E warlock 5 casts bestow curse through Sign of Ill Omen: the cost step offers only the invocation's option (no plain slot for a limited spell), which spends the pact slot and marks the invocation used until a long rest"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:cast-spell, entry: warlock, source: 5e-srd-5.1:spells.bestow-curse }
+  params: { slotType: pact }
+answers:
+  - { option: '5e-srd-5.1:invocations.sign-of-ill-omen#invocation' }

@@ -1,0 +1,45 @@
+id: classes.wizard.theses.spell-substitution
+type: feature
+fields: { level: 1 }
+# A curriculum slot still takes only a curriculum spell (the `curriculum-slots` constraint checks
+# it).
+effects:
+  - { target: wizard.thesis, op: set, value: "'spell-substitution'" }
+actions:
+  - id: substitute-spell
+    tags: [class-action, spell]
+    available: "countCopies(copy.type == 'spell' && !(has(copy.state.expended) && copy.state.expended)) > 0"
+    results: [substituted]
+    steps:
+      - id: slot
+        kind: choice
+        options:
+          copies:
+            type: spell
+            where: '!self.expended && !self.font'
+        changes:
+          - { type: removeItem, entry: picked }
+      - id: spell
+        kind: choice
+        options:
+          content:
+            type: spell
+            where: >-
+              item.id in spells.book && !('trait.focus' in item.tags)
+                && ('trait.cantrip' in item.tags) == ('trait.cantrip' in steps.slot.item.tags)
+                && item.rank <= (has(steps.slot.self.rank) ? steps.slot.self.rank : steps.slot.item.rank) && item.id != steps.slot.item.id
+      - id: swap
+        kind: changes
+        changes:
+          - type: addItem
+            entry:
+              {
+                item: steps.spell.picked,
+                state:
+                  {
+                    rank: 'has(steps.slot.self.rank) ? steps.slot.self.rank : steps.slot.item.rank',
+                  },
+              }
+      - id: result
+        kind: outcome
+        result: "'substituted'"

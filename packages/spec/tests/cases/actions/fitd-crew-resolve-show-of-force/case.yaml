@@ -1,0 +1,12 @@
+description: 'FitD entanglements: a Show of Force from a faction with negative status; going to war drops the status to -3'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/crew
+input:
+  action: { id: fitd-crew:resolve-entanglement }
+  params: { entanglement: show-of-force }
+  policy: { dice: auto, choices: pause, allocations: pause }
+answers:
+  - option: faction-f
+  - option: war

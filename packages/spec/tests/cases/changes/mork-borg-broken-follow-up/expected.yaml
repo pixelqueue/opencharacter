@@ -1,0 +1,14 @@
+# HP 3 - 3 = 0: broken.
+ok: true
+adjustments:
+  - { field: mork-borg-core:hp.current, by: -3, requested: -3, taken: -3, reason: requested }
+followUps:
+  - id: broken-1
+    kind: ephemeral
+    followUp: mork-borg-core:broken
+    to: self
+    required: true
+    action:
+      id: mork-borg-core:broken
+      followUp: broken-1
+    params: {}

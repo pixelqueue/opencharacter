@@ -1,0 +1,28 @@
+status: finished
+outcome:
+  result: eased
+proposedChanges:
+  - to: self
+    step: consequence
+    change:
+      type: removeItem
+      entry: c-ribs
+  - to: self
+    step: consequence
+    change:
+      type: adjustState
+      entry: s-nails
+      key: used
+      by: 1
+  - to: self
+    step: consequence
+    change:
+      type: adjust
+      field: fate-core:fatePoints.current
+      by: -1
+log:
+  - step: consequence
+    action: fate-core:stunts.tough-as-nails#ease
+    kind: choice
+    by: engine
+    option: c-ribs

@@ -1,0 +1,50 @@
+id: classes.champion.causes.iniquity
+type: feature
+tags: [trait.uncommon]
+fields: { level: 1 }
+prerequisites:
+  - { id: sanctification, when: "champion.sanctification == 'unholy'" }
+effects:
+  - { target: champion.cause, op: set, value: "'iniquity'", when: class.has.champion }
+actions:
+  - id: destructive-vengeance
+    tags: [reaction]
+    participants:
+      target: { max: 1 }
+    results: [used]
+    steps:
+      - id: vengeance
+        kind: roll
+        tags: [damage, damage.spirit]
+        parts:
+          - dice: >-
+              dieOf(1d6, level >= 19 ? 6 : level >= 16 ? 5 : level >= 12 ? 4 : level >= 9 ? 3
+                : level >= 5 ? 2 : 1)
+      - id: deal
+        kind: changes
+        when: size(participants.target) > 0
+        to: target
+        changes:
+          - {
+              type: adjust,
+              field: hp.current,
+              by: -steps.vengeance.total,
+              tags: [damage, damage.spirit],
+            }
+          - type: applyEffect
+            when: level >= 9 && attributes.cha.mod > 0
+            source: "'conditions.persistent-damage'"
+            state: { damage: attributes.cha.mod, damageType: "'spirit'" }
+      - id: mark
+        kind: changes
+        when: size(participants.target) > 0
+        changes:
+          - { type: set, field: champion.reactionTarget, value: 'participants.target[0].id' }
+          - {
+              type: set,
+              field: champion.reactionDamage,
+              value: 'level >= 16 ? 6 : level >= 9 ? 4 : 2',
+            }
+      - id: result
+        kind: outcome
+        result: "'used'"

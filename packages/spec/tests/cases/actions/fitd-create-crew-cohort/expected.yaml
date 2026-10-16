@@ -1,0 +1,121 @@
+# No crew type: the crew marks a Boat and Prowess training as its starting upgrades; 2 coin for +1
+# status with Faction N, who claim the hunting grounds, then a gang of Rovers (cohort-new) instead
+# of two upgrade boxes. Faction N helped with an upgrade (+1 more, 2 in all), Faction D were harmed
+# (-2); the favorite contact's closer ties give Faction O +2 and Faction D -2 more, kept at -3:
+# war.
+status: finished
+outcome:
+  result: created
+  data:
+    groundsStatus: 0
+    helpedStatus: 0
+    harmedStatus: 0
+    friendStatus: 0
+    enemyStatus: 0
+proposedChanges:
+  - to: self
+    step: ability
+    change:
+      type: choose
+      path:
+        choice:
+          - crew-abilities
+      option: fitd-crew:crew-abilities.just-passing-through
+  - to: self
+    step: operation
+    change:
+      type: choose
+      path:
+        choice:
+          - operation
+      option: fitd-crew:operations.contraband
+  - to: self
+    step: start
+    change:
+      type: adjust
+      field: fitd-crew:coin.current
+      by: 2
+  - to: self
+    step: startingUpgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.lair.boat
+      by: 1
+  - to: self
+    step: startingUpgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.training.prowess
+      by: 1
+  - to: self
+    step: huntingGrounds
+    change:
+      type: adjust
+      field: fitd-crew:coin.current
+      by: -2
+  - to: self
+    step: groundsFaction
+    change:
+      type: setState
+      entry: faction-n
+      key: status
+      value: 1
+  - to: self
+    step: cohort
+    change:
+      type: addItem
+      entry:
+        id: cohort-new
+        item: fitd-crew:cohorts.gang
+        state:
+          gangType: rovers
+  - to: self
+    step: newEdge
+    change:
+      type: choose
+      path:
+        entry: cohort-new
+        choice:
+          - edges
+      option: fitd-crew:cohort-traits.tenacious
+  - to: self
+    step: newFlaw
+    change:
+      type: choose
+      path:
+        entry: cohort-new
+        choice:
+          - flaws
+      option: fitd-crew:cohort-traits.unreliable
+  - to: self
+    step: helpedBy
+    change:
+      type: setState
+      entry: faction-n
+      key: status
+      value: 2
+  - to: self
+    step: harmedBy
+    change:
+      type: setState
+      entry: faction-d
+      key: status
+      value: -2
+  - to: self
+    step: contactFriend
+    change:
+      type: setState
+      entry: faction-o
+      key: status
+      value: 2
+  - to: self
+    step: contactEnemy
+    change:
+      type: setState
+      entry: faction-d
+      key: status
+      value: -3
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

@@ -1,0 +1,23 @@
+id: monsters.deva.innate-spellcasting
+type: monsterSpellcasting
+fields:
+  ability: cha
+  dc: 17
+  innate: true
+grants:
+  - item: spells.detect-evil-and-good
+effects:
+  - { target: spells.monster, op: grant, value: { item: spells.detect-evil-and-good } }
+  - { target: spells.monsterAtWill, op: grant, value: { item: spells.detect-evil-and-good } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      countCopies(copy.id == action.self.id && copy.type == 'monsterAction'
+        && has(copy.state.usesLeft) && copy.state.usesLeft > 0) > 0
+    value:
+      id: innate
+      changes:
+        - type: adjustState
+          copies: { type: monsterAction, where: self.id == action.self.id }
+          key: usesLeft
+          by: -1

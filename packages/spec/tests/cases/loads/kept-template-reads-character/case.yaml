@@ -1,0 +1,20 @@
+description: "A kept template's copies query reads only the item, as a standard copies query does: reading a field is unknown-name"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        fields:
+          level: { type: integer, input: true, default: 1 }
+        contentTypes:
+          weapon: { carried: true }
+          feature: {}
+      content:
+        - { id: weapons.club, type: weapon }
+        - { id: templates.sharp, type: template, appliesTo: { type: weapon } }
+        - id: features.keeper
+          type: feature
+          keepsTemplates:
+            - { template: templates.sharp, copies: { type: weapon, where: 'level > 1' } }

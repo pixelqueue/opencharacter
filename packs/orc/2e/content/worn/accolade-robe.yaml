@@ -1,0 +1,17 @@
+id: worn.accolade-robe
+type: worn
+tags: [trait.arcane, trait.focused, trait.invested]
+fields:
+  level: 10
+  price: 1000
+  bulk: 0.1
+  usage: garment
+  activation: free
+  frequency: once-per-day
+  capacity: 1
+effects:
+  - target: skills.arcana.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

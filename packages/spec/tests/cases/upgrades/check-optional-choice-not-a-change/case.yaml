@@ -1,0 +1,75 @@
+description: Adding an optional choice, or a required choice on new content, is not a shape change
+specVersion: 0.1.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      fields:
+        stats.might:
+          type: integer
+          input: true
+          default: 1
+          min: 0
+          max: 10
+        stats.bonus:
+          type: integer
+          formula: stats.might * 2
+      contentTypes:
+        gear:
+          carried: true
+    content:
+      - id: gear.rope
+        type: gear
+next:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.1.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      fields:
+        stats.might:
+          type: integer
+          input: true
+          default: 1
+          min: 0
+          max: 10
+        stats.bonus:
+          type: integer
+          formula: stats.might * 2
+      contentTypes:
+        gear:
+          carried: true
+      choices:
+        - id: quirk
+          required: false
+          from:
+            values:
+              - tall
+              - loud
+    content:
+      - id: gear.rope
+        type: gear
+        choices:
+          - id: knot
+            required: false
+            from:
+              values:
+                - bowline
+                - hitch
+      - id: gear.net
+        type: gear
+        choices:
+          - id: mesh
+            from:
+              values:
+                - fine
+                - coarse

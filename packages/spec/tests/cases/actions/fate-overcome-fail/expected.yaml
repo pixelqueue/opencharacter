@@ -1,0 +1,44 @@
+status: finished
+outcome:
+  result: fail
+  data:
+    total: 0
+    opposition: 2
+    shifts: -2
+    boost: false
+proposedChanges: []
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - -1
+      - -1
+      - -1
+      - 0
+    total: 0
+    band: mediocre
+    bandSet: fate-core:ladder
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: final
+    action: fate-core:overcome
+    kind: dice
+    by: engine
+    total: 0
+    band: fail
+    bandSet: fate-core:outcome

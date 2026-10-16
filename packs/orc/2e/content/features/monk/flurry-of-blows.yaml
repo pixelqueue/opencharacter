@@ -1,0 +1,65 @@
+id: features.monk.flurry-of-blows
+type: feature
+fields: { level: 1 }
+# The second Strike takes the first's attack count, which the first only proposes. Each Strike sends
+# its own damage: two hits on one creature aren't combined for resistances and weaknesses.
+actions:
+  - id: flurry-of-blows
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: first
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options: { copies: { type: weapon, where: "'unarmed' in item.tags" } }
+      - id: second
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options: { copies: { type: weapon, where: "'unarmed' in item.tags" } }
+      - id: strike1
+        kind: action
+        use: strike
+        entry: steps.first.picked
+        tags: [strike.flurry-of-blows]
+        participants: { target: participants.target }
+      - id: strike2
+        kind: action
+        use: strike
+        entry: steps.second.picked
+        tags: [strike.flurry-of-blows]
+        params: { attack: 'min(3, turn.attacks + 2)' }
+        participants: { target: participants.target }
+      - id: flourish
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.flourishes, by: 1 }
+      - id: stunSave
+        kind: action
+        each: target
+        as: participant
+        when: >-
+          @feats.monk.stunning-blows in feats.held
+            && steps.strike1.data.damage + steps.strike2.data.damage > 0
+        use: check
+        params: { check: '@saves.fortitude.mod', dc: classDc.monk.value }
+      - id: stun
+        kind: changes
+        each: target
+        when: >-
+          has(steps.stunSave) && steps.stunSave != null
+            && steps.stunSave.result in ['failure', 'critical-failure']
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.stunned'"
+            state: { value: "steps.stunSave.result == 'critical-failure' ? 3 : 1" }
+      - id: result
+        kind: outcome
+        result: steps.strike2.result
+        data:
+          first: steps.strike1.result
+          damage: steps.strike1.data.damage + steps.strike2.data.damage

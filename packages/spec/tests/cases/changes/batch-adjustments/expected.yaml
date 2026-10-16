@@ -1,0 +1,10 @@
+# The batch so far: the ward's absorbed -2, then the hit points' requested entry (requested -7),
+# which took -4, clamped at 0; each carries the change's tags. So `lost` is 4. The setState adds
+# no field entry, so the second query sees the same two: one clamped -7 request (10) and one
+# absorbed ward entry (1).
+ok: true
+character:
+  inventory:
+    - id: tally
+      item: test-pack:tallies.wounds
+      state: { lost: 4, entries: 11 }

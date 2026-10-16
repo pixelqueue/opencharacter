@@ -1,0 +1,11 @@
+contentTypes:
+  skill:
+    carried: false
+    fields:
+      tier: { type: enum, values: [trained, expert, master], required: true }
+    effects:
+      - target: skills.known
+        op: grant
+        value: { formula: item.id }
+    actions:
+      - use: skill-check

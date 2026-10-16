@@ -1,0 +1,13 @@
+id: feats.fighter.reactive-shield
+type: feat
+tags: [trait.reaction, archetype-feat]
+fields: { level: 1, category: class, class: classes.fighter }
+
+actions:
+  - id: reactive-shield
+    tags: [reaction, shield]
+    available: "!shield.raised && countCopies(copy.type == 'shield' && copy.equipped) > 0"
+    steps:
+      - id: raise
+        kind: action
+        use: raise-shield

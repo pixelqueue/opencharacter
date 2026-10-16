@@ -1,0 +1,28 @@
+# 10 + Reflex 2 (4 less the dropped +2) + the aid's 3.
+status: finished
+outcome:
+  data: { total: 15 }
+log:
+  - step: roll
+    action: test-field-sets:check
+    kind: dice
+    by: engine
+    faces: [10]
+    total: 15
+    items:
+      - kind: dice
+        count: 1
+        sides: 20
+        value: 10
+        source: { type: rules, id: test-field-sets:check }
+      - kind: flat
+        value: 2
+        source: { type: field, id: test-field-sets:reflex }
+        dropped:
+          - {
+              source: { type: item, id: test-field-sets:features.guidance, entry: guide },
+              value: 2,
+            }
+      - kind: flat
+        value: 3
+        source: { type: situational, id: test-field-sets:aid }

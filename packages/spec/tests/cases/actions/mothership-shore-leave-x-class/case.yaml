@@ -1,0 +1,13 @@
+description: 'Mothership shore leave at an X-class port (situational `xClass`): the conversion die is rolled twice and the better total kept, up to the stress above the minimum'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/mothership/1e
+input:
+  action: { id: mothership-1e:shore-leave }
+  params: { convert: 2d10 }
+  situational:
+    mothership-1e:xClass: true
+  policy: { allocations: pause }
+answers:
+  - amounts: { 'mothership-1e:saves.sanity': 6, 'mothership-1e:saves.body': 10 }

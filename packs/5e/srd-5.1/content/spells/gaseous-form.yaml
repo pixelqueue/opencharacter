@@ -1,0 +1,63 @@
+id: spells.gaseous-form
+type: spell
+fields:
+  level: 3
+  school: transmutation
+  classes: [classes.sorcerer, classes.warlock, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+effects:
+  - {
+      target: combat.speed,
+      op: atMost,
+      value: 0,
+      scope: applied,
+      duration: { amount: 1, unit: hour, concentration: true },
+    }
+  - {
+      target: combat.climbSpeed,
+      op: atMost,
+      value: 0,
+      scope: applied,
+      duration: { amount: 1, unit: hour, concentration: true },
+    }
+  - {
+      target: combat.swimSpeed,
+      op: atMost,
+      value: 0,
+      scope: applied,
+      duration: { amount: 1, unit: hour, concentration: true },
+    }
+  - {
+      target: combat.flySpeed,
+      op: atLeast,
+      value: 10,
+      scope: applied,
+      duration: { amount: 1, unit: hour, concentration: true },
+    }
+  - {
+      target: combat.flySpeed,
+      op: atMost,
+      value: 10,
+      scope: applied,
+      duration: { amount: 1, unit: hour, concentration: true },
+    }
+  - target: { incoming: { fields: [hp.current], tags: [nonmagical] } }
+    op: multiply
+    value: 0.5
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [save.str, save.dex, save.con] }
+    op: rollModifier
+    value: { kind: advantage }
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+actions:
+  - use: cast-spell

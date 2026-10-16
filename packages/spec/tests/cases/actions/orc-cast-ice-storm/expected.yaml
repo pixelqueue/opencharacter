@@ -1,0 +1,63 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 4
+    mode: prepared
+    dc: 25
+    defense: reflex
+    basic: true
+    damage: 10
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: setState
+      entry: ice-storm
+      key: expended
+      value: true
+  - to: target
+    character: a
+    step: burn[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -1
+      tags:
+        - damage
+        - spell
+        - damage.bludgeoning
+  - to: target
+    character: a
+    step: burn[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -3
+      tags:
+        - damage
+        - spell
+        - damage.cold
+  - to: target
+    character: b
+    step: burn[1]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -6
+      tags:
+        - damage
+        - spell
+        - damage.bludgeoning
+  - to: target
+    character: b
+    step: burn[1]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -14
+      tags:
+        - damage
+        - spell
+        - damage.cold

@@ -1,0 +1,42 @@
+id: classes.cleric
+type: class
+fields:
+  hitDie: 1d8
+state:
+  channelDivinitySpent: { type: integer, default: 0, min: 0 }
+  divineIntervention: { type: enum, values: [ready, failed, answered], default: ready }
+prerequisites:
+  - id: multiclass
+    when: (self.startingClass && self.level == level.total) || item.id in multiclass.qualified
+effects:
+  - { target: proficiencies.armor, op: grant, value: { tag: light } }
+  - { target: proficiencies.armor, op: grant, value: { tag: medium } }
+  - { target: proficiencies.armor, op: grant, value: { tag: shield } }
+  - target: proficiencies.weapons
+    op: grant
+    value: { query: { type: weapon, where: "item.category == 'simple'" } }
+    when: self.startingClass
+  - { target: proficiencies.saves, op: grant, value: { tag: save.wis }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.cha }, when: self.startingClass }
+grants:
+  - { item: features.cleric.spellcasting, when: self.level >= 1 }
+  - { item: features.cleric.channel-divinity, when: self.level >= 2 }
+  - { item: features.cleric.turn-undead, when: self.level >= 2 }
+  - { item: features.cleric.destroy-undead, when: self.level >= 5 }
+  - { item: features.cleric.divine-intervention, when: self.level >= 10 }
+  - { item: features.ability-score-improvement, when: self.level >= 4 }
+choices:
+  - id: skills
+    pick: 2
+    unique: skills
+    from:
+      {
+        values: [skill.history, skill.insight, skill.medicine, skill.persuasion, skill.religion],
+        where: '!(value in proficiencies.skills) || value in choice.picks',
+      }
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: divine-domain
+    from: { type: subclass, where: 'item.class == @classes.cleric' }
+    when: self.level >= 1

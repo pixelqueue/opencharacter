@@ -1,0 +1,22 @@
+id: magic-items.ioun-stone-of-absorption
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+actions:
+  - id: absorb-spell
+    tags: [magic-item]
+    params:
+      level: { type: integer }
+    results: [absorbed]
+    steps:
+      - id: absorb
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: absorbedLevels, by: params.level }
+      - id: result
+        kind: outcome
+        result: "'absorbed'"
+state:
+  absorbedLevels: { type: integer, min: 0, max: 20, default: 0 }

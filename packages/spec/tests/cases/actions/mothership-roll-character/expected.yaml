@@ -1,0 +1,68 @@
+# The classes in ID order: android, marine, scientist, teamster; the d4 rolls 2, the Marine.
+# Stats 2d10+25, saves 2d10+10, health 1d10+10 (max and current), credits 2d10 x 10 = 170.
+# The class's skills: the first option each time, an Expert skill, then Explosives, which Military
+# Training (granted) allows.
+status: finished
+outcome:
+  result: rolled
+  data: { loadout: true }
+proposedChanges:
+  - to: self
+    step: class
+    change: { type: addItem, entry: { id: class, item: mothership-1e:classes.marine } }
+  - to: self
+    step: skills
+    change: { type: choose, path: { entry: class, choice: [bonus-skills] }, option: expert }
+  - to: self
+    step: skills
+    change:
+      type: choose
+      path: { entry: class, choice: [bonus-skills, expert, expert] }
+      option: mothership-1e:skills.explosives
+  - { to: self, step: save, change: { type: set, field: mothership-1e:stats.strength, value: 32 } }
+  - { to: self, step: save, change: { type: set, field: mothership-1e:stats.speed, value: 36 } }
+  - { to: self, step: save, change: { type: set, field: mothership-1e:stats.intellect, value: 40 } }
+  - { to: self, step: save, change: { type: set, field: mothership-1e:stats.combat, value: 44 } }
+  - { to: self, step: save, change: { type: set, field: mothership-1e:saves.sanity, value: 13 } }
+  - { to: self, step: save, change: { type: set, field: mothership-1e:saves.fear, value: 17 } }
+  - { to: self, step: save, change: { type: set, field: mothership-1e:saves.body, value: 21 } }
+  - { to: self, step: save, change: { type: set, field: mothership-1e:health.max, value: 17 } }
+  - { to: self, step: save, change: { type: set, field: mothership-1e:health.current, value: 17 } }
+  - {
+      to: self,
+      step: save,
+      change: { type: set, field: mothership-1e:credits.current, value: 170 },
+    }
+  - { to: self, step: save, change: { type: finishCreation } }
+log:
+  - {
+      step: classRoll,
+      action: mothership-1e:roll-character,
+      kind: dice,
+      by: engine,
+      faces: [2],
+      total: 2,
+    }
+  - { step: strength, kind: dice, by: engine, faces: [3, 4], total: 32 }
+  - { step: speed, kind: dice, faces: [5, 6], total: 36 }
+  - { step: intellect, kind: dice, faces: [7, 8], total: 40 }
+  - { step: combat, kind: dice, faces: [9, 10], total: 44 }
+  - { step: sanity, kind: dice, faces: [1, 2], total: 13 }
+  - { step: fear, kind: dice, faces: [3, 4], total: 17 }
+  - { step: body, kind: dice, faces: [5, 6], total: 21 }
+  - { step: class, kind: choice, by: engine, option: mothership-1e:classes.marine }
+  - { step: health, kind: dice, faces: [7], total: 17 }
+  - step: skills
+    kind: choice
+    by: engine
+    option: expert
+    index: 0
+    choice: { entry: class, choice: [bonus-skills] }
+  - step: skills
+    kind: choice
+    by: engine
+    option: mothership-1e:skills.explosives
+    index: 1
+    choice: { entry: class, choice: [bonus-skills, expert, expert] }
+  - { step: credits, kind: dice, faces: [8, 9], total: 17 }
+  - { step: kit, kind: choice, by: engine, option: loadout }

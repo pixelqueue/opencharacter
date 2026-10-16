@@ -1,0 +1,9 @@
+id: feats.swashbuckler.combination-finisher
+type: feat
+fields: { level: 6, category: class, class: classes.swashbuckler }
+# With a flurry ranger's penalty too, the smaller penalty applies.
+effects:
+  - target: { rolls: [finisher], parts: [part.map] }
+    op: set
+    value: -(flags.map - min(2, flags.prior))
+    when: "'attack' in roll.tags && has(flags.map) && has(flags.prior)"

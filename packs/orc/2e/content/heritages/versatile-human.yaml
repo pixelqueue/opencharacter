@@ -1,0 +1,11 @@
+id: heritages.versatile-human
+type: heritage
+fields: { ancestry: ancestries.human }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      {
+        type: feat,
+        where: "(item.category == 'general' || item.category == 'skill' && !has(item.archetype)) && item.level <= 1",
+      }

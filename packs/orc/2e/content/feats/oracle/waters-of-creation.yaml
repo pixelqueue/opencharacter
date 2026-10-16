@@ -1,0 +1,34 @@
+id: feats.oracle.waters-of-creation
+type: feat
+tags: [trait.cursebound, trait.healing, trait.vitality, trait.water]
+fields: { level: 10, category: class, class: classes.oracle }
+prerequisites:
+  - { id: mystery, when: "oracle.mystery == 'life' || oracle.mystery == 'tempest'" }
+actions:
+  - id: waters-of-creation
+    tags: [class-action]
+    available: oracle.cursebound < oracle.curseMax
+    participants:
+      ally: {}
+    results: [used]
+    steps:
+      - id: healing
+        kind: roll
+        tags: [healing]
+        parts:
+          - dice: >-
+              dieOf(oracle.cursebound >= 3 ? 1d8 : 1d6, 5 + max(0, floor((level - 10) / 2)))
+      - id: heal
+        kind: changes
+        to: ally
+        changes:
+          - { type: adjust, field: hp.current, by: steps.healing.total, tags: [healing] }
+      - id: curse
+        kind: changes
+        changes:
+          - { type: adjust, field: oracle.cursebound, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          healing: steps.healing.total

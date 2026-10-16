@@ -1,0 +1,10 @@
+id: traits.tool-proficiency-dwarf
+type: trait
+choices:
+  - id: tool
+    from:
+      items: [tools.smiths-tools, tools.brewers-supplies, tools.masons-tools]
+    activate: false
+    eligible: '!(item.id in proficiencies.tools) || item.id in choice.picks'
+    effects:
+      - { target: proficiencies.tools, op: grant, value: { formula: pick.id } }

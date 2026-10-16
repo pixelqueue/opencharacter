@@ -1,0 +1,30 @@
+id: monsters.chuul.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: pincer1
+        kind: action
+        use: monster-attack
+        source: "'monsters.chuul.pincer'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: pincer2
+        kind: action
+        use: monster-attack
+        source: "'monsters.chuul.pincer'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.pincer1) && steps.pincer1.result == 'hit' ? 1 : 0)
+              + (has(steps.pincer2) && steps.pincer2.result == 'hit' ? 1 : 0)

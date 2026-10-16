@@ -1,0 +1,21 @@
+contentTypes:
+  class:
+    carried: false
+    fields:
+      strength: { type: dice, required: true }
+      agility: { type: dice, required: true }
+      presence: { type: dice, required: true }
+      toughness: { type: dice, required: true }
+      bestOf: { type: integer, min: 0, max: 4 }
+      hitDie: { type: dice, required: true }
+      omensDie: { type: dice, required: true }
+      silver: { type: dice, required: true }
+      weaponDie: { type: dice, required: true }
+      armorDie: { type: dice, required: true }
+      scrollWeaponDie: { type: dice }
+      scrollArmorDie: { type: dice }
+    effects:
+      - id: omens-die
+        target: omens.die
+        op: set
+        value: item.omensDie

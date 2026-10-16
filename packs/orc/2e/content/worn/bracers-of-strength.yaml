@@ -1,0 +1,31 @@
+id: worn.bracers-of-strength
+type: worn
+tags: [trait.apex, trait.invested, trait.magical]
+fields:
+  level: 17
+  price: 15000
+  usage: bracers
+  activation: one
+effects:
+  - {
+      target: attributes.str.mod,
+      op: add,
+      value: 1,
+      when: 'self.equipped && self.invested && self.apex',
+    }
+  - {
+      target: attributes.str.mod,
+      op: atLeast,
+      value: 4,
+      when: 'self.equipped && self.invested && self.apex',
+    }
+  - target: skills.athletics.mod
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { rolls: [skill-action.escape, skill-action.force-open] }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: 'self.equipped && self.invested'

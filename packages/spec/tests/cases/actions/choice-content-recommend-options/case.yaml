@@ -1,0 +1,50 @@
+description: "A choice over the ruleset's content: options are qualified content IDs in ID order (the ruleset's content order); `recommend` reads `options` to pick by a roll; the step's changes add the picked item (`picked.id`); a later roll reads `steps.<id>.item`"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          calling:
+            fields:
+              die: { type: dice }
+        actions:
+          - id: create
+            steps:
+              - id: roll
+                kind: roll
+                parts: [{ dice: 1d6 }]
+              - id: calling
+                kind: choice
+                options: { content: { type: calling } }
+                recommend: options[(steps.roll.total - 1) % size(options)]
+                changes:
+                  - type: addItem
+                    entry: { item: picked.id }
+              - id: health
+                kind: roll
+                parts: [{ dice: steps.calling.item.die }]
+              - id: done
+                kind: outcome
+                result: "'created'"
+                data:
+                  calling: steps.calling.picked
+                  health: steps.health.total
+          - id: choose
+            steps:
+              - id: calling
+                kind: choice
+                options: { content: { type: calling, where: "'martial' in item.tags" } }
+                prefer: maxOf(item.die)
+      content:
+        - { id: callings.scholar, type: calling, fields: { die: 1d4 } }
+        - { id: callings.soldier, type: calling, tags: [martial], fields: { die: 1d10 } }
+        - { id: callings.hunter, type: calling, tags: [martial], fields: { die: 1d8 } }
+input:
+  action: { id: test-pack:create }

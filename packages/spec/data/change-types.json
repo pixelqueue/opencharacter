@@ -1,0 +1,95 @@
+{
+  "set": "change-types",
+  "specVersion": "0.1.0",
+  "description": "The fixed set of change types applyChanges accepts. Shapes are in `schemas/change.schema.json`.",
+  "items": [
+    {
+      "id": "set",
+      "description": "Set an input field's value."
+    },
+    {
+      "id": "adjust",
+      "description": "Adjust a numeric input field by an amount; tags let incoming-change effects (resistance) modify it first."
+    },
+    {
+      "id": "addItem",
+      "description": "Add a copy of a content item to the inventory or features."
+    },
+    {
+      "id": "removeItem",
+      "description": "Remove a copy, and its picks. May name its copies by query (`copies`) instead of `entry`."
+    },
+    {
+      "id": "equip",
+      "description": "Equip or unequip a copy. May name its copies by query (`copies`) instead of `entry`."
+    },
+    {
+      "id": "setState",
+      "description": "Set a per-copy state value. May name its copies by query (`copies`) instead of `entry`, or applied entries: one by its ID in `entry`, or several by query (`applied`)."
+    },
+    {
+      "id": "adjustState",
+      "description": "Adjust a numeric per-copy state value (charges, shots). May name its copies by query (`copies`) instead of `entry`, or applied entries: one by its ID in `entry`, or several by query (`applied`)."
+    },
+    {
+      "id": "setQuantity",
+      "description": "Set a copy's quantity, not below 0; a copy at 0 stays. May name its copies by query (`copies`) instead of `entry`."
+    },
+    {
+      "id": "adjustQuantity",
+      "description": "Add to a copy's quantity (spending an arrow); the result may not be below 0, and a copy at 0 stays. May name its copies by query (`copies`) instead of `entry`."
+    },
+    {
+      "id": "applyTemplate",
+      "description": "Apply a template to a copy."
+    },
+    {
+      "id": "removeTemplate",
+      "description": "Remove a template from a copy."
+    },
+    {
+      "id": "applyEffect",
+      "description": "Start a temporary effect from content the character does not own (Bless). Without `id`, applyChanges picks one from the source."
+    },
+    {
+      "id": "removeEffect",
+      "description": "Remove a temporary effect, by its ID or by query (`applied`)."
+    },
+    {
+      "id": "toggleEffect",
+      "description": "Turn a temporary effect on or off without removing it, by its ID or by query (`applied`)."
+    },
+    {
+      "id": "choose",
+      "description": "Pick an option for a choice."
+    },
+    {
+      "id": "unchoose",
+      "description": "Un-pick an option, removing its nested picks in the same change. Without `option`, every pick of the choice is removed; a choice with none is unchanged."
+    },
+    {
+      "id": "setExtension",
+      "description": "Replace an app's own extension data."
+    },
+    {
+      "id": "finishCreation",
+      "description": "Finish creating the character: clear `creating`. Rejected (`creation-incomplete`) while the character has rules issues or pending choices."
+    },
+    {
+      "id": "setHomebrew",
+      "description": "Replace the character's own homebrew, or remove it with `null`. Rejected while the file still uses homebrew it removes."
+    },
+    {
+      "id": "dismissFollowUp",
+      "description": "Dismiss an ephemeral follow-up: delete the stored entry with this ID, without acting on it. Required ones too: `required` is advisory."
+    },
+    {
+      "id": "clearFollowUp",
+      "description": "Clear an ephemeral follow-up acted on: delete the stored entry with this ID. startAction proposes it when it runs a stored follow-up's action, and a listed follow-up's `changes` end with it. No entry with the ID is no change."
+    },
+    {
+      "id": "offerFollowUp",
+      "description": "Offer a follow-up the character has: store it as an ephemeral offer once the batch is applied, with the given parameter values. Proposed by actions (a sorcerer's blood magic after a cast)."
+    }
+  ]
+}

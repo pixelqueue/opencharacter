@@ -1,0 +1,54 @@
+id: features.paladin.divine-smite
+type: feature
+actions:
+  - id: divine-smite
+    tags: [feature]
+    results: [no-slot, smite]
+    params:
+      slot: { type: integer, optional: true }
+      slotType: { type: enum, values: [slot, pact], optional: true }
+      undeadOrFiend: { type: boolean, optional: true }
+      critical: { type: boolean, optional: true }
+    steps:
+      - id: spend
+        kind: action
+        use: spend-spell-slot
+        params:
+          slot: 'has(params.slot) ? params.slot : 1'
+          slotType: "has(params.slotType) ? params.slotType : 'slot'"
+      - id: noSlot
+        kind: outcome
+        when: steps.spend.result != 'spent'
+        result: "'no-slot'"
+        data:
+          slot: steps.spend.data.slot
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              critical: has(params.critical) && params.critical
+              dice: >-
+                min(5, 1 + steps.spend.data.slot)
+                  + (has(params.undeadOrFiend) && params.undeadOrFiend ? 1 : 0)
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: (flags.dice)d8
+            tags: [damage.radiant]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, attack]
+      - id: result
+        kind: outcome
+        result: "'smite'"
+        data:
+          slot: steps.spend.data.slot
+          damage: steps.damage.total

@@ -1,0 +1,68 @@
+tags: [try, damage, damage.fire, attack]
+
+fields:
+  luck: { type: integer, input: true, default: 0, min: 0 }
+  # Incoming changes: health that overflows into wounds below 0, and what makes
+  # the reactions available.
+  hp:
+    type: integer
+    input: true
+    default: 10
+    min: 0
+    max: 10
+    overflow: [{ at: min, into: wounds, reset: 0, tags: [damage] }]
+  wounds: { type: integer, input: true, default: 0, min: 0 }
+  agile: { type: boolean, input: true, default: false }
+  shielded: { type: boolean, input: true, default: false }
+
+effects:
+  # Bracing behind a shield also stops 1 more: the character's own incoming-change effect reads
+  # the choice the change carries.
+  - target: { incoming: { fields: [hp], tags: [damage] } }
+    op: add
+    value: 1
+    when: situational.brace > 0
+
+situational:
+  # Offered only while the character has luck to spend.
+  - id: lucky
+    type: boolean
+    default: false
+    rolls: [try]
+    available: luck > 0
+    effects:
+      - { target: { rolls: [try] }, op: add, value: 2 }
+  # Always offered.
+  - id: steady
+    type: boolean
+    default: false
+    rolls: [try]
+  # A reaction to one attack: halves its damage.
+  - id: dodge
+    type: boolean
+    default: false
+    incoming: { fields: [hp], tags: [attack] }
+    available: agile
+    effects:
+      # Any damage: were it to reach the overflow into wounds, it would halve that too.
+      - { target: { incoming: { tags: [damage] } }, op: multiply, value: 0.5 }
+  # Bracing for any change to health: stops as much damage as the player braces for.
+  - id: brace
+    type: integer
+    default: 0
+    incoming: { fields: [hp] }
+    available: shielded
+    effects:
+      - target: { incoming: { fields: [hp], tags: [damage] } }
+        op: add
+        value: situational.brace
+
+actions:
+  - id: try
+    steps:
+      - { id: roll, kind: roll, tags: [try], parts: [{ dice: 1d6 }] }
+      - id: result
+        kind: outcome
+        result: "'done'"
+        data:
+          total: steps.roll.total

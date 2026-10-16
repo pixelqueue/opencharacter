@@ -1,0 +1,20 @@
+# Warlock 5: pact slots are 3rd level. Hellish Rebuke 2d10 + 2d10 for two levels above 1st:
+# 10 + 9 + 1 + 2 = 22. DC 8 + proficiency 3 + cha 3 = 14.
+status: finished
+outcome:
+  result: save
+  data:
+    slot: 3
+    spellcastingClass: warlock
+    metamagic: none
+    dc: 14
+    save: dex
+    halfOnSave: true
+    damage: 22
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: spendPact
+    change: { type: adjust, field: 5e-srd-5.1:pactSlots.used, by: 1 }

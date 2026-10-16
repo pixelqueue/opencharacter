@@ -1,0 +1,46 @@
+# Attack: 8 + Strength 2 + 2 (the Sun Blade's attackBonus, attuned) = 12 against AC 12: a hit
+# (no class, so no proficiency). Damage: 1d8 (6) + 2 + 2 = 10, radiant: the template's damageType
+# replaces the longsword's slashing.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 12 }
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -10,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              magical,
+              plain-material,
+              wielder.neutral,
+              damage.radiant,
+            ],
+        },
+    }
+log:
+  - step: attack
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [8]
+    total: 12
+  - step: damage
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [6]
+    total: 10
+    items:
+      - { kind: dice, value: 6, tags: [damage.radiant] }
+      - { kind: flat, value: 2, tags: [damage.radiant] }
+      - { kind: flat, value: 2, tags: [damage.radiant] }

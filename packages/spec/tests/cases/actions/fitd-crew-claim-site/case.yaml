@@ -1,0 +1,15 @@
+description: "FitD: at the crew's Tavern, +1d to Consort and Sway only"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:action-roll }
+  params: { rating: fitd-scoundrel:ratings.command }
+  situational:
+    fitd-scoundrel:atClaimSite: true
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:members.siteRatings: [fitd-scoundrel:ratings.consort, fitd-scoundrel:ratings.sway]

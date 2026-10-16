@@ -1,0 +1,28 @@
+id: traits.relentless-endurance
+type: trait
+followUps:
+  - id: relentless-endurance
+    becomes: hp.current == 0
+    when: >-
+      countCopies(has(copy.state.relentlessEnduranceUsed)
+        && !copy.state.relentlessEnduranceUsed) > 0
+    action: relentless-endurance
+actions:
+  - id: relentless-endurance
+    tags: [feature]
+    results: [endured]
+    available: >-
+      hp.current == 0 && countCopies(has(copy.state.relentlessEnduranceUsed)
+        && !copy.state.relentlessEnduranceUsed) > 0
+    steps:
+      - id: endure
+        kind: changes
+        changes:
+          - { type: set, field: hp.current, value: 1 }
+          - type: setState
+            copies: { type: race, where: has(self.relentlessEnduranceUsed) }
+            key: relentlessEnduranceUsed
+            value: true
+      - id: result
+        kind: outcome
+        result: "'endured'"

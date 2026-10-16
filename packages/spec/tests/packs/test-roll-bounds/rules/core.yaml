@@ -1,0 +1,79 @@
+fields:
+  # A cap on every try's total; 99 is none.
+  cap: { type: integer, input: true, default: 99 }
+  # Tries have no advantage while elusive, no disadvantage while steady, disadvantage while
+  # cursed.
+  elusive: { type: boolean, input: true, default: false }
+  steady: { type: boolean, input: true, default: false }
+  cursed: { type: boolean, input: true, default: false }
+  # A pool rerolls at most this many dice showing 3 or less, once; 0 is none.
+  rerolls: { type: integer, input: true, default: 0 }
+
+contentTypes:
+  charm: {}
+
+effects:
+  - { id: cap, target: { rolls: [try] }, op: atMost, value: cap }
+  - id: cursed
+    target: { rolls: [try] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: cursed
+  - id: elusive
+    target: { rolls: [try] }
+    op: rollModifier
+    value: { kind: noAdvantage }
+    when: elusive
+  - id: rerolls
+    target: { rolls: [pool] }
+    op: rollModifier
+    value: { kind: reroll, below: 3, once: true, count: rerolls }
+    when: rerolls > 0
+  - id: steady
+    target: { rolls: [try] }
+    op: rollModifier
+    value: { kind: noDisadvantage }
+    when: steady
+
+situational:
+  - id: advantage
+    type: boolean
+    default: false
+    rolls: [try]
+    effects:
+      - { target: { rolls: [try] }, op: rollModifier, value: { kind: advantage } }
+
+resultBands:
+  check:
+    - { id: hit, when: roll.total >= 4 }
+    - { id: miss, when: true }
+
+actions:
+  - id: try
+    results: { bands: check }
+    steps:
+      - { id: roll, kind: roll, tags: [try], bands: check, parts: [{ dice: 1d6 }] }
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          total: steps.roll.total
+          unbounded: steps.roll.unbounded
+          bounds: size(steps.roll.bounds)
+  # A roll with no dice: one flat part, classified by the band set.
+  - id: flat
+    results: { bands: check }
+    params:
+      value: { type: integer }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [flat]
+        bands: check
+        parts: [{ value: params.value }]
+      - { id: result, kind: outcome, result: steps.roll.band, data: { total: steps.roll.total } }
+  # Four dice, summed; `rerolls` limits the reroll.
+  - id: pool
+    steps:
+      - { id: roll, kind: roll, tags: [pool], parts: [{ dice: 4d6 }] }
+      - { id: result, kind: outcome, data: { total: steps.roll.total } }

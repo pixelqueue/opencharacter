@@ -1,0 +1,15 @@
+# Arcana and Common, and a language the character doesn't know yet: never a secret one (a
+# content-only filter), and a hard one only when wise.
+id: backgrounds.sage
+type: background
+effects:
+  - { target: skills, op: grant, value: { formula: "'arcana'" } }
+  - { target: known, op: grant, value: { item: languages.common } }
+choices:
+  - id: language
+    pick: { min: 1, max: 2 }
+    from: { type: language, where: "!('secret' in item.tags)" }
+    eligible: >-
+      (!(item.id in known) || item.id in choice.picks) && (!('hard' in item.tags) || wise)
+    effects:
+      - { target: known, op: grant, value: { formula: pick.id } }

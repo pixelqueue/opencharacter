@@ -1,0 +1,10 @@
+# 2d6 [4, 2] keeps 4: a partial. 1 coin makes it a success: 3 ticks.
+status: finished
+outcome: { result: success }
+proposedChanges:
+  - { to: self, step: spend, change: { type: adjust, field: fitd-scoundrel:coin, by: -1 } }
+  - {
+      to: self,
+      step: heal/clock,
+      change: { type: adjust, field: fitd-scoundrel:healing.current, by: 3 },
+    }

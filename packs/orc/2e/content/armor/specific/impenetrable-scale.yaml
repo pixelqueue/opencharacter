@@ -1,0 +1,16 @@
+id: armor.specific.impenetrable-scale
+type: armor
+extends: armor.scale-mail
+tags: [trait.invested, trait.magical, trait.uncommon]
+fields:
+  price: 12800
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.armor-potency-2
+    copies: { type: armor, where: 'item.id == @armor.specific.impenetrable-scale' }
+  - template: runes.greater-resilient
+    copies: { type: armor, where: 'item.id == @armor.specific.impenetrable-scale' }
+  - template: runes.fortification
+    copies: { type: armor, where: 'item.id == @armor.specific.impenetrable-scale' }
+  - template: materials.adamantine-armor-standard
+    copies: { type: armor, where: 'item.id == @armor.specific.impenetrable-scale' }

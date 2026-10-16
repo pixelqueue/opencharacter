@@ -1,0 +1,28 @@
+description: 'A choice step with nothing to offer is skipped: no pause, no log entry, and `has(steps.<id>)` is false'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: maybe
+            params:
+              allow: { type: boolean, default: false }
+            steps:
+              - id: ask
+                kind: choice
+                options: [{ id: yes, when: params.allow }]
+              - id: done
+                kind: outcome
+                data:
+                  asked: has(steps.ask)
+      content: []
+input:
+  action: { id: test-pack:maybe }
+  policy: { choices: pause }

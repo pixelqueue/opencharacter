@@ -1,0 +1,63 @@
+{
+  "set": "roll-modifiers",
+  "specVersion": "0.1.0",
+  "description": "Kinds of `rollModifier` effect values.",
+  "items": [
+    {
+      "id": "advantage",
+      "description": "Roll one extra die for the roll's main dice item and keep the better ones (higher, or lower when the roll step says `better: low`)."
+    },
+    {
+      "id": "disadvantage",
+      "description": "Roll one extra die for the main dice item and keep the worse ones."
+    },
+    {
+      "id": "noAdvantage",
+      "description": "Remove advantage: once the advantage and disadvantage sources are counted, the advantage count is 0, the player's situational advantage included. Disadvantage is left alone."
+    },
+    {
+      "id": "noDisadvantage",
+      "description": "Remove disadvantage: once the sources are counted, the disadvantage count is 0. Advantage is left alone."
+    },
+    {
+      "id": "reroll",
+      "params": ["below", "once", "count"],
+      "description": "Reroll dice showing `below` or less (once per die when `once` is true). With `count`, at most that many dice are rerolled, lowest faces first (earliest first among equal faces)."
+    },
+    {
+      "id": "multiplyDice",
+      "params": ["factor"],
+      "description": "Multiply the dice count of every dice item in the roll, including items added by other effects (5E's critical hits), except items marked `multiplied: false` (added by an effect, or from a roll part, with `multiplied: false`)."
+    },
+    {
+      "id": "multiply",
+      "params": ["factor"],
+      "description": "Multiply the value of every item of the roll once it is rolled, dice and flat alike: after rolling and before the roll's bounds, each item's value is multiplied by every counted factor in turn, an integer result rounded by the effect's `rounding`, else `settings.rounding`. Items marked `multiplied: false` are left alone. Faces are unchanged; the item records `factor`. Stacking applies by stack key (orc-2e's and MÖRK BORG's critical hits double the damage)."
+    },
+    {
+      "id": "minimumFace",
+      "params": ["value"],
+      "description": "Treat faces below `value` as `value`."
+    },
+    {
+      "id": "explode",
+      "params": ["at"],
+      "description": "Dice showing `at` or more (default: the highest face) roll again and add."
+    },
+    {
+      "id": "poolDice",
+      "params": ["count", "part"],
+      "description": "Add `count` dice of the pool's die type to a dice part (default: the step's first), before its keep/drop modifiers. Each added die records its source."
+    },
+    {
+      "id": "stepDie",
+      "params": ["steps"],
+      "description": "Change the size of the dice from the roll's own parts: each die moves `steps` along d4, d6, d8, d10, d12 (negative for smaller), stopping at either end; other sizes are left alone. With a `parts` target, only the matching parts' dice. The counted modifiers' steps add up; they stack by key, compared by `steps`. The item records `steppedFrom`."
+    },
+    {
+      "id": "setFaces",
+      "params": ["faces"],
+      "description": "Give a dice item its first faces instead of rolling them: the roll's main dice item, or with a `parts` target the first dice item of a matching part. Extra dice (advantage, rerolls, explosions) are still asked for. Each given face is marked `set: true`; of several counted modifiers on one item, the first in effect order applies."
+    }
+  ]
+}

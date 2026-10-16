@@ -1,0 +1,18 @@
+# 2 + Strength 5 = 7, below the Strength score 20, so the roll's total is 20 (an atLeast on the
+# roll): DC 18 succeeds. The log lists the bound; the items keep the 7.
+status: finished
+outcome:
+  result: success
+  data: { total: 20 }
+proposedChanges: []
+log:
+  - step: check
+    kind: dice
+    by: engine
+    faces: [2]
+    total: 20
+    bounds:
+      - source:
+          { type: item, id: 5e-srd-5.1:features.barbarian.indomitable-might, entry: barbarian }
+        op: atLeast
+        value: 20

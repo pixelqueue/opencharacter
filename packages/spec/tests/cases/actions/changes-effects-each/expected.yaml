@@ -1,0 +1,24 @@
+# Each target takes 3. On each hit, the sword's bleed reaches the orc only (the knight is
+# guarded), and the sword counts a use per hit. Not from ambush, so the tally adds nothing.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: target
+    character: orc
+    step: deal[0]
+    change: { type: adjust, field: test-pack:hp, by: -3 }
+  - to: target
+    character: knight
+    step: deal[1]
+    change: { type: adjust, field: test-pack:hp, by: -3 }
+  - to: target
+    character: orc
+    step: onHit[0]
+    change: { type: adjust, field: test-pack:hp, by: -1, tags: [bleed] }
+  - to: self
+    step: onHit[0]
+    change: { type: adjustState, entry: sword, key: uses, by: 1 }
+  - to: self
+    step: onHit[1]
+    change: { type: adjustState, entry: sword, key: uses, by: 1 }
+log: []

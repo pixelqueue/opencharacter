@@ -1,0 +1,24 @@
+id: feats.ancestry.cantorian-rejuvenation
+type: feat
+tags: [trait.healing, trait.vitality]
+fields: { level: 9, category: ancestry, ancestry: ancestries.hobgoblin }
+actions:
+  - id: cantorian-rejuvenation
+    tags: [feat-action]
+    results: [healed]
+    steps:
+      - id: heal
+        kind: roll
+        tags: [healing]
+        parts:
+          - dice: 'level >= 15 ? 6d6 : 4d6'
+      - id: mend
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: steps.heal.total, tags: [healing] }
+          - { type: set, field: hp.temp, value: 'max(hp.temp, level >= 15 ? 15 : 10)' }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healing: steps.heal.total

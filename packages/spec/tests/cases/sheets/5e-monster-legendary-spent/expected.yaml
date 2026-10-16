@@ -1,0 +1,63 @@
+# 2 of 3 legendary actions spent: Detect and Tail Attack (1 each) are offered, Wing Attack (2)
+# isn't; legendary-reset is offered while any are spent. Legendary Resistance (3/Day) and the
+# breath are copies of their own. Multiattack and Tail Attack run their attacks (0053).
+values:
+  5e-srd-5.1:legendary.actions: { value: 3 }
+  5e-srd-5.1:legendary.spent: { value: 2 }
+actions:
+  - {
+      action: 5e-srd-5.1:monsters.adult-red-dragon.multiattack#multiattack,
+      entry: monster,
+      source: 5e-srd-5.1:monsters.adult-red-dragon.multiattack,
+    }
+  - {
+      action: 5e-srd-5.1:monster-attack,
+      entry: monster,
+      source: 5e-srd-5.1:monsters.adult-red-dragon.bite,
+    }
+  - {
+      action: 5e-srd-5.1:monster-attack,
+      entry: monster,
+      source: 5e-srd-5.1:monsters.adult-red-dragon.claw,
+    }
+  - {
+      action: 5e-srd-5.1:monster-attack,
+      entry: monster,
+      source: 5e-srd-5.1:monsters.adult-red-dragon.tail,
+    }
+  - {
+      action: 5e-srd-5.1:monster-effect,
+      entry: monster,
+      source: 5e-srd-5.1:monsters.adult-red-dragon.frightful-presence,
+    }
+  - {
+      action: 5e-srd-5.1:legendary-action,
+      entry: monster,
+      source: 5e-srd-5.1:monsters.adult-red-dragon.detect,
+    }
+  - {
+      action: 5e-srd-5.1:legendary-action,
+      entry: monster,
+      source: 5e-srd-5.1:monsters.adult-red-dragon.tail-attack,
+    }
+  - {
+      action: 5e-srd-5.1:monsters.adult-red-dragon.tail-attack#tail-attack,
+      entry: monster,
+      source: 5e-srd-5.1:monsters.adult-red-dragon.tail-attack,
+    }
+  - { action: 5e-srd-5.1:use-monster-action, entry: legendary-resistance }
+  - { action: 5e-srd-5.1:monster-effect, entry: fire-breath }
+  - { action: 5e-srd-5.1:saving-throw }
+  - { action: 5e-srd-5.1:ability-check }
+  - { action: 5e-srd-5.1:skill-check }
+  - { action: 5e-srd-5.1:initiative }
+  - { action: 5e-srd-5.1:unarmed-strike }
+  - { action: 5e-srd-5.1:fall }
+  - { action: 5e-srd-5.1:take-damage }
+  - { action: 5e-srd-5.1:heal }
+  - { action: 5e-srd-5.1:legendary-reset }
+  - { action: 5e-srd-5.1:long-rest }
+  - { action: 5e-srd-5.1:concentration-check }
+  - { action: 5e-srd-5.1:short-rest }
+issues: []
+errors: []

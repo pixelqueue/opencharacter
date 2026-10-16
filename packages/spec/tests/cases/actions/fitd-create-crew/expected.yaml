@@ -1,0 +1,113 @@
+# No crew type (the SRD names none): Fiends and extortion from the pools; the crew marks Prowess
+# training and a Hidden lair as its starting upgrades; the crew's 2 coin, less 1 for room to work;
+# then a Vault box and the Rigging, whose two kinds (weapons, gear) are the pending picks.
+status: finished
+outcome:
+  result: created
+  data:
+    groundsStatus: 0
+    helpedStatus: 0
+    harmedStatus: 0
+    friendStatus: 0
+    enemyStatus: 0
+proposedChanges:
+  - to: self
+    step: ability
+    change:
+      type: choose
+      path:
+        choice:
+          - crew-abilities
+      option: fitd-crew:crew-abilities.fiends
+  - to: self
+    step: operation
+    change:
+      type: choose
+      path:
+        choice:
+          - operation
+      option: fitd-crew:operations.extortion
+  - to: self
+    step: start
+    change:
+      type: adjust
+      field: fitd-crew:coin.current
+      by: 2
+  - to: self
+    step: startingUpgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.lair.hidden
+      by: 1
+  - to: self
+    step: startingUpgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.training.prowess
+      by: 1
+  - to: self
+    step: huntingGrounds
+    change:
+      type: adjust
+      field: fitd-crew:coin.current
+      by: -1
+  - to: self
+    step: upgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.lair.vault
+      by: 1
+  - to: self
+    step: upgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.rigging
+      by: 1
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - rigging
+      option: weapons
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - rigging
+      option: gear
+  - to: self
+    step: reputation
+    change:
+      type: set
+      field: fitd-crew:reputation
+      value: Ruthless
+  - to: self
+    step: lair
+    change:
+      type: set
+      field: fitd-crew:lair
+      value: A gutted bathhouse on the canal
+  - to: self
+    step: grounds
+    change:
+      type: set
+      field: fitd-crew:huntingGrounds
+      value: The docks by the old lighthouse
+  - to: self
+    step: favorite
+    change:
+      type: addItem
+      entry:
+        id: contacts-contact-1
+        item: fitd-crew:contacts.contact
+        state:
+          label: Tess, a fence
+          favorite: true
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

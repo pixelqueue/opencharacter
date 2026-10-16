@@ -1,0 +1,32 @@
+id: features.monk.quivering-palm
+type: feature
+actions:
+  - id: quivering-palm
+    tags: [feature]
+    results: [set]
+    available: self.kiSpent + 3 <= ki.points
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: kiSpent, by: 3 }
+      - id: result
+        kind: outcome
+        result: "'set'"
+  - id: end-quivering-palm
+    tags: [feature]
+    results: [triggered]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: 10d10
+            tags: [damage.necrotic]
+      - id: result
+        kind: outcome
+        result: "'triggered'"
+        data:
+          dc: ki.saveDc
+          save: "'con'"
+          damageOnSuccess: steps.damage.total

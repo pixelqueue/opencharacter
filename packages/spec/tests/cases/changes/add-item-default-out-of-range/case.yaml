@@ -1,0 +1,23 @@
+description: "addItem checks a formula state default against the key's bounds: out-of-range"
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          weapon:
+            carried: true
+            fields:
+              magazine: { type: integer, min: 1 }
+            state:
+              shots: { type: integer, min: 0, max: 6, default: item.magazine }
+      content:
+        - id: weapons.drum-gun
+          type: weapon
+          fields: { magazine: 8 }

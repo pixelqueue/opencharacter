@@ -1,0 +1,11 @@
+# A skill the character doesn't have from elsewhere: its own pick is in `skills` too, so
+# `choice.picks` keeps it eligible.
+id: features.training
+type: feature
+choices:
+  - id: skill
+    from:
+      values: [arcana, history]
+      where: '!(value in skills) || value in choice.picks'
+    effects:
+      - { target: skills, op: grant, value: { formula: pick.value } }

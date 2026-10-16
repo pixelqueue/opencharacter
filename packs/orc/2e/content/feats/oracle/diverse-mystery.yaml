@@ -1,0 +1,10 @@
+id: feats.oracle.diverse-mystery
+type: feat
+fields: { level: 16, category: class, class: classes.oracle }
+choices:
+  - id: spell
+    from:
+      type: spell
+      where: >-
+        item.id in [@spells.ancestral-touch, @spells.ancestral-defense, @spells.weapon-trance, @spells.battlefield-persistence, @spells.soul-siphon, @spells.armor-of-bones, @spells.spray-of-stars, @spells.interstellar-void, @spells.incendiary-aura, @spells.whirling-flames, @spells.life-link, @spells.delay-affliction, @spells.brain-drain, @spells.access-lore, @spells.tempest-touch, @spells.thunderburst]
+          && !(item.id in oracle.revelations)

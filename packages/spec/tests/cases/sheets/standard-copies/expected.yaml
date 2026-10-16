@@ -1,0 +1,14 @@
+# The rules' queries in order: the standard gear (sorted), then the trait type's one item, in
+# features since traits aren't carried. Nothing is equipped, so the load is 0.
+values:
+  test-standard:load: { value: 0 }
+  test-standard:gear.count: { value: 2 }
+standardCopies:
+  - { entry: test-standard-gear-lantern, item: test-standard:gear.lantern, saved: false }
+  - { entry: test-standard-gear-rope, item: test-standard:gear.rope, saved: false }
+  - { entry: test-standard-traits-basic, item: test-standard:traits.basic, saved: false }
+actions:
+  - { action: test-standard:gear.lantern#light, entry: test-standard-gear-lantern }
+  - { action: test-standard:gear.rope#light, entry: test-standard-gear-rope }
+issues: []
+errors: []

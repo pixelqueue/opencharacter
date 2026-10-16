@@ -1,0 +1,43 @@
+description: renameContent rewrites the homebrew's references to the content, qualified, and the qualified string literal in a prerequisite
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          skills.known: { type: set, of: skill, formula: '[]' }
+        contentTypes:
+          skill: {}
+          talent: {}
+      content:
+        - id: skills.geology
+          type: skill
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          skills.known: { type: set, of: skill, formula: '[]' }
+        contentTypes:
+          skill: {}
+          talent: {}
+      content:
+        - id: skills.earth-science
+          type: skill
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - { op: renameContent, from: skills.geology, to: skills.earth-science }

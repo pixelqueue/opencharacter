@@ -1,0 +1,17 @@
+# Athletics (Good, 3) and Will (Fair, 2) trade ranks in the minor milestone, which is passed
+# both skills; the new skill point is banked.
+status: finished
+outcome:
+  result: advanced
+  data:
+    benefit: skills
+proposedChanges:
+  - to: self
+    step: minor/benefit
+    change: { type: set, field: fate-core:skills.athletics, value: 2 }
+  - to: self
+    step: minor/benefit
+    change: { type: set, field: fate-core:skills.will, value: 3 }
+  - to: self
+    step: point
+    change: { type: adjust, field: fate-core:advancement.skillPoints, by: 1 }

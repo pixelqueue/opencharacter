@@ -1,0 +1,10 @@
+id: feats.archetype.fighter.fighter-resiliency
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.fighter }
+
+prerequisites:
+  - { id: fighter-dedication, when: '@feats.archetype.fighter.fighter-dedication in feats.held' }
+  - { id: class-hp, when: 'hp.class <= 8' }
+effects:
+  - { target: hp.max, op: add, value: '3 * archetypes.fighter.feats' }

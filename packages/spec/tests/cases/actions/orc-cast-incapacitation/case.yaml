@@ -1,0 +1,14 @@
+description: 'orc-2e: paralyze (3rd rank, incapacitation) on a 7th-level creature, more than twice the rank: its failed save counts as a success, so it is stunned 1 instead of paralyzed; a 5th-level creature that fails is paralyzed'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: orc-2e:spells.paralyze }
+  participants:
+    target:
+      - { id: ogre, values: { orc-2e:level: 7 } }
+      - { id: bandit, values: { orc-2e:level: 5 } }
+answers:
+  - { outcome: { result: failure } }
+  - { outcome: { result: failure } }

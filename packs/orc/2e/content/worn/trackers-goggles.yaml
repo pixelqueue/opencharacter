@@ -1,0 +1,13 @@
+id: worn.trackers-goggles
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 3
+  price: 60
+  usage: eyepiece
+effects:
+  - target: { rolls: [skill-action.sense-direction, skill-action.track] }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

@@ -1,0 +1,28 @@
+description: 'A template whose appliesTo lists several queries applies to an item any of them matches: one curse on a ring and on a wand; its item field `cursed` is a field both types declare'
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          ring:
+            carried: true
+            fields: { cursed: { type: boolean, default: false } }
+          wand:
+            carried: true
+            fields: { cursed: { type: boolean, default: false }, charges: { type: integer } }
+          sword: { carried: true }
+      content:
+        - { id: rings.gold, type: ring }
+        - { id: wands.oak, type: wand, fields: { charges: 3 } }
+        - { id: swords.long, type: sword }
+        - id: curses.ravenous
+          type: template
+          appliesTo: [{ type: ring }, { type: wand }]
+          fields: { cursed: true }

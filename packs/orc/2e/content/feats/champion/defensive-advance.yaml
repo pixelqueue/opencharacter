@@ -1,0 +1,37 @@
+id: feats.champion.defensive-advance
+type: feat
+tags: [trait.flourish]
+fields: { level: 1, category: class, class: classes.champion }
+actions:
+  - id: defensive-advance
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: raise
+        kind: changes
+        when: "countCopies(copy.type == 'shield' && copy.equipped) > 0"
+        changes:
+          - { type: set, field: shield.raised, value: true }
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.flourishes, by: 1 }
+      - id: weapon
+        kind: choice
+        when: size(participants.target) > 0
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: strike
+        kind: action
+        when: has(steps.weapon)
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: "has(steps.strike) ? steps.strike.result : 'success'"

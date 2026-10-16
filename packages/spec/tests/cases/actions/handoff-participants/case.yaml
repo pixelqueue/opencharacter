@@ -1,0 +1,40 @@
+description: 'A handoff passes participants on, the running character included by `character.id`; `needs.run.participants` lists the IDs by role'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: defend
+            participants:
+              attacker: { max: 1 }
+              witness: {}
+            steps:
+              - id: result
+                kind: outcome
+                result: "'done'"
+          - id: strike
+            participants:
+              target: { max: 1 }
+              ally: {}
+            steps:
+              - id: defense
+                kind: action
+                each: target
+                as: participant
+                use: defend
+                participants:
+                  attacker: '[character.id]'
+                  witness: participants.ally
+      content: []
+input:
+  action: { id: test-pack:strike }
+  participants:
+    target: [{ id: thug }]
+    ally: [{ id: ally-1 }, { id: ally-2 }]

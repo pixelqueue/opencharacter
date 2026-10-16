@@ -1,0 +1,17 @@
+id: classes.ranger.edges.flurry
+type: feature
+fields: { level: 1 }
+# The edge replaces the Strike's penalty part: the Strike's own penalty (`flags.map`) less 2 per
+# step, 3 at 17th.
+effects:
+  - { target: ranger.edge, op: set, value: "'flurry'" }
+  - id: flurry
+    target: { rolls: [attack], parts: [part.map] }
+    op: set
+    value: >-
+      -(flags.map - min(2, flags.prior)
+        * (level >= 17 && roll.item.category != 'advanced' ? 3 : 2))
+    when: >-
+      has(flags.map) && has(flags.prior)
+        && (situational.huntedPrey || (prey.target != '' && has(participants.target)
+        && size(participants.target) > 0 && participants.target[0].id == prey.target))

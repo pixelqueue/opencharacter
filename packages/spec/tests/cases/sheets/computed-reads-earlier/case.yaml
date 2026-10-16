@@ -1,0 +1,31 @@
+description: "A computed value reads those declared before it as self.<name>: the type's, then the item's and a template's, in declaration order"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 2 }
+        contentTypes:
+          gear:
+            carried: true
+            computed:
+              rank: { type: integer, formula: tier + 1 }
+              bonus: { type: integer, formula: 'self.rank > 2 ? 2 * self.rank : 0' }
+              ratio: { type: decimal, formula: self.bonus / 4 }
+      content:
+        - id: gear.blade
+          type: gear
+          computed:
+            edge: { type: integer, formula: self.bonus + self.rank }
+        - id: keen
+          type: template
+          appliesTo: { type: gear }
+          computed:
+            shine: { type: boolean, formula: self.rank > 2 }

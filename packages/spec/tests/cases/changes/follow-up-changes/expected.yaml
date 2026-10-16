@@ -1,0 +1,37 @@
+# Temporary hit points absorb the first 3; of the next 5, 1 more is absorbed and 4 reach hit
+# points at 0 (clamped). One failure for the batch, its cause the entries on hit
+# points summed. The change is stored, not applied: failures stay 1.
+ok: true
+adjustments:
+  - { field: 5e-srd-5.1:hp.temp, by: -3, reason: absorbed }
+  - { field: 5e-srd-5.1:hp.current, by: 0, requested: -3, taken: -3, reason: requested }
+  - { field: 5e-srd-5.1:hp.temp, by: -1, reason: absorbed }
+  - {
+      field: 5e-srd-5.1:hp.current,
+      by: 0,
+      requested: -5,
+      taken: -5,
+      reason: requested,
+      clamped: true,
+    }
+followUps:
+  - id: damage-while-dying-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:damage-while-dying
+    to: self
+    required: true
+    changes:
+      - type: adjust
+        field: 5e-srd-5.1:deathSaves.failures
+        by: 1
+      - type: clearFollowUp
+        id: damage-while-dying-1
+    cause:
+      field: 5e-srd-5.1:hp.current
+      by: 0
+      requested: -8
+      taken: -8
+      reason: requested
+      clamped: true
+      tags:
+        - damage

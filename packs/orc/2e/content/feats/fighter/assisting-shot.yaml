@@ -1,0 +1,31 @@
+id: feats.fighter.assisting-shot
+type: feat
+tags: [trait.press, archetype-feat]
+fields: { level: 2, category: class, class: classes.fighter }
+actions:
+  - id: assisting-shot
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    available: >-
+      countCopies(copy.type == 'weapon' && copy.equipped && copy.fields.range > 0) > 0
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: 'self.equipped && item.range > 0'
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+          allyBonus: "steps.strike.result == 'critical-success' ? 2 : steps.strike.result == 'success' ? 1 : 0"

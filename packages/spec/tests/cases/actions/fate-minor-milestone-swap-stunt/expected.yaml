@@ -1,0 +1,43 @@
+status: finished
+outcome:
+  result: advanced
+  data:
+    benefit: swap-stunt
+proposedChanges:
+  - to: self
+    step: drop
+    change:
+      type: removeItem
+      entry: s-blow
+  - to: self
+    step: stunt
+    change:
+      type: addItem
+      entry:
+        id: stunts-grappler-1
+        item: fate-core:stunts.grappler
+  - to: self
+    step: moderate
+    change:
+      type: setState
+      key: recovering
+      copies:
+        type: fate-core:consequence
+        where: self.slot == 'moderate' && !self.recovering
+      value: true
+log:
+  - step: benefit
+    action: fate-core:minor-milestone
+    kind: choice
+    by: app
+    option: swap-stunt
+  - step: drop
+    action: fate-core:minor-milestone
+    kind: choice
+    by: app
+    option: s-blow
+  - step: stunt
+    action: fate-core:minor-milestone
+    kind: choice
+    by: app
+    option: fate-core:stunts.grappler

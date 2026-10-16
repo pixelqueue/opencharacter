@@ -1,0 +1,23 @@
+# The pocket is an extradimensional container (`store`), though the book doesn't say its contents
+# don't count.
+id: worn.humbug-pocket
+type: worn
+tags: [trait.invested, trait.occult]
+fields:
+  level: 9
+  price: 650
+  activation: one
+  frequency: once-per-hour
+  capacity: 0.1
+  capacityItems: 1
+effects:
+  - target: skills.society.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { rolls: [skill-action.conceal-an-object] }
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

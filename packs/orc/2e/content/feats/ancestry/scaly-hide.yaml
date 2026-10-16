@@ -1,0 +1,10 @@
+id: feats.ancestry.scaly-hide
+type: feat
+fields: { level: 1, category: ancestry, heritage: heritages.dragonblood }
+effects:
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 'level >= 5 ? 2 : 1'
+    stackKey: item-bonus
+    when: armor.category == 'unarmored'
+  - { target: armor.dexCap, op: atMost, value: 3, when: "armor.category == 'unarmored'" }

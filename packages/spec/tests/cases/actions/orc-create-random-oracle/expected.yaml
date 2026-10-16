@@ -1,0 +1,202 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: ancestry
+    change:
+      type: addItem
+      entry:
+        id: ancestry
+        item: orc-2e:ancestries.orc
+  - to: self
+    step: heritage
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - heritage
+      option: orc-2e:heritages.dromaar
+  - to: self
+    step: background
+    change:
+      type: addItem
+      entry:
+        id: background
+        item: orc-2e:backgrounds.prisoner
+  - to: self
+    step: class
+    change:
+      type: addItem
+      entry:
+        id: class
+        item: orc-2e:classes.cleric
+  - to: self
+    step: ancestryPicks
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - boosts
+      option: orc-2e:boosts.wis
+  - to: self
+    step: ancestryPicks
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - boosts
+      option: orc-2e:boosts.con
+  - to: self
+    step: backgroundPicks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - boost
+      option: orc-2e:boosts.con
+  - to: self
+    step: backgroundPicks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - free-boost
+      option: orc-2e:boosts.wis
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - divine-font
+      option: harm
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - sanctification
+      option: holy
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - divine-skill
+      option: skill.acrobatics
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - favored-weapon-category
+      option: unarmed
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - favored-weapon
+      option: orc-2e:weapons.fist
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - doctrine
+      option: orc-2e:classes.cleric.doctrines.cloistered-cleric
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - doctrine
+          - orc-2e:classes.cleric.doctrines.cloistered-cleric
+          - orc-2e:feats.cleric.domain-initiate/domain
+      option: darkness
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.lore.academia
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.arcana
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.wis
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.con
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.dex
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.str
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - ancestry-feat-1
+      option: orc-2e:feats.ancestry.orc-sight
+  - to: self
+    step: finish
+    change:
+      type: set
+      field: orc-2e:hp.current
+      value: 21
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

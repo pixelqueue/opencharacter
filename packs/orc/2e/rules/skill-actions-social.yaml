@@ -1,0 +1,472 @@
+actions:
+  - id: demoralize
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.will.dc: { type: integer }
+          level: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.demoralize]
+        params:
+          check: "'skills.intimidation.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.will.dc)
+              ? participants.target[0].saves.will.dc : has(params.dc) ? params.dc : null
+      - id: frighten
+        kind: changes
+        when: "steps.check.result in ['success', 'critical-success']"
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.frightened'"
+            state: { value: "steps.check.result == 'critical-success' ? 2 : 1" }
+          - type: applyEffect
+            when: >-
+              steps.check.result == 'critical-success'
+                && @feats.skill.terrified-retreat in feats.held
+                && size(participants.target) > 0 && has(participants.target[0].level)
+                && participants.target[0].level < level
+            source: "'conditions.fleeing'"
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: feint
+    tags: [skill-action]
+    available: skills.deception.rank >= 1
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          perception.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.feint]
+        params:
+          check: "'skills.deception.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].perception.dc)
+              ? participants.target[0].perception.dc : has(params.dc) ? params.dc : null
+      - id: mark
+        kind: changes
+        when: "size(participants.target) > 0 && steps.check.result in ['success', 'critical-success']"
+        changes:
+          - { type: set, field: feint.target, value: 'participants.target[0].id' }
+          - { type: set, field: feint.next, value: "steps.check.result == 'success'" }
+          - {
+              type: set,
+              field: feint.turns,
+              value: "steps.check.result == 'critical-success' ? 2 : 1",
+            }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: create-a-diversion
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      observer:
+        fields:
+          perception.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: using
+        kind: choice
+        recommend: "'deception'"
+        options:
+          - { id: deception }
+          - id: performance
+            when: '@feats.skill.distracting-performance in feats.held'
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.create-a-diversion]
+        params:
+          check: "'skills.' + steps.using.picked + '.mod'"
+          dc: >-
+            size(participants.observer) == 1 && has(participants.observer[0].perception.dc)
+              ? participants.observer[0].perception.dc : has(params.dc) ? params.dc : null
+      - id: dcs
+        kind: branch
+        each: observer
+        cases:
+          - when: true
+            flags:
+              dc: 'has(participant.perception.dc) ? participant.perception.dc : has(params.dc) ? params.dc : -1'
+      - id: against
+        kind: roll
+        each: observer
+        of: check/roll
+        bands: degree
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.observer) > 1
+            ? ['critical-failure', 'failure', 'success', 'critical-success'][minList(mapList(steps.against, indexOf(['critical-failure', 'failure', 'success', 'critical-success'], x.band)), x)]
+            : steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          degrees: >-
+            size(participants.observer) > 0
+              ? mapList(steps.against, x.band) : []
+
+  - id: lie
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      observer:
+        fields:
+          perception.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: using
+        kind: choice
+        recommend: "'deception'"
+        options:
+          - { id: deception }
+          - id: occultism
+            when: '@feats.skill.deceptive-worship in feats.held'
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.lie]
+        params:
+          check: "'skills.' + steps.using.picked + '.mod'"
+          dc: >-
+            size(participants.observer) == 1 && has(participants.observer[0].perception.dc)
+              ? participants.observer[0].perception.dc : has(params.dc) ? params.dc : null
+      - id: dcs
+        kind: branch
+        each: observer
+        cases:
+          - when: true
+            flags:
+              dc: 'has(participant.perception.dc) ? participant.perception.dc : has(params.dc) ? params.dc : -1'
+      - id: against
+        kind: roll
+        each: observer
+        of: check/roll
+        bands: degree
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.observer) > 1
+            ? ['critical-failure', 'failure', 'success', 'critical-success'][minList(mapList(steps.against, indexOf(['critical-failure', 'failure', 'success', 'critical-success'], x.band)), x)]
+            : steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          degrees: >-
+            size(participants.observer) > 0
+              ? mapList(steps.against, x.band) : []
+
+  - id: impersonate
+    tags: [exploration-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          perception.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: using
+        kind: choice
+        recommend: "'deception'"
+        options:
+          - { id: deception }
+          - { id: society, when: '@feats.skill.courtly-graces in feats.held' }
+          - id: occultism
+            when: >-
+              @feats.skill.schooled-in-secrets in feats.held
+                || @feats.skill.deceptive-worship in feats.held
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.impersonate]
+        params:
+          check: "'skills.' + steps.using.picked + '.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].perception.dc)
+              ? participants.target[0].perception.dc : has(params.dc) ? params.dc : null
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: request
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: using
+        kind: choice
+        recommend: "'diplomacy'"
+        options:
+          - { id: diplomacy }
+          - id: religion
+            when: '@feats.skill.exhort-the-faithful in feats.held'
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.request]
+        params:
+          check: "'skills.' + steps.using.picked + '.mod'"
+          dc: 'has(params.dc) ? params.dc : null'
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: coerce
+    tags: [exploration-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        fields:
+          saves.will.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: using
+        kind: choice
+        recommend: "'intimidation'"
+        options:
+          - { id: intimidation }
+          - id: religion
+            when: '@feats.skill.exhort-the-faithful in feats.held'
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.coerce]
+        params:
+          check: "'skills.' + steps.using.picked + '.mod'"
+          dc: >-
+            size(participants.target) == 1 && has(participants.target[0].saves.will.dc)
+              ? participants.target[0].saves.will.dc : has(params.dc) ? params.dc : null
+      - id: dcs
+        kind: branch
+        each: target
+        cases:
+          - when: true
+            flags:
+              dc: 'has(participant.saves.will.dc) ? participant.saves.will.dc : has(params.dc) ? params.dc : -1'
+      - id: against
+        kind: roll
+        each: target
+        of: check/roll
+        bands: degree
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.target) > 1
+            ? ['critical-failure', 'failure', 'success', 'critical-success'][minList(mapList(steps.against, indexOf(['critical-failure', 'failure', 'success', 'critical-success'], x.band)), x)]
+            : steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          degrees: >-
+            size(participants.target) > 0
+              ? mapList(steps.against, x.band) : []
+
+  - id: make-an-impression
+    tags: [exploration-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        fields:
+          saves.will.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: using
+        kind: choice
+        recommend: "'diplomacy'"
+        options:
+          - { id: diplomacy }
+          - id: performance
+            when: '@feats.skill.impressive-performance in feats.held'
+          - { id: society, when: '@feats.skill.courtly-graces in feats.held' }
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.make-an-impression]
+        situational:
+          penalty: >-
+            situational.penalty + (size(participants.target) > 1
+              && !(@feats.skill.group-impression in feats.held)
+              && !(steps.using.picked == 'performance') ? 2 : 0)
+        params:
+          check: "'skills.' + steps.using.picked + '.mod'"
+          dc: >-
+            size(participants.target) == 1 && has(participants.target[0].saves.will.dc)
+              ? participants.target[0].saves.will.dc : has(params.dc) ? params.dc : null
+      - id: dcs
+        kind: branch
+        each: target
+        cases:
+          - when: true
+            flags:
+              dc: 'has(participant.saves.will.dc) ? participant.saves.will.dc : has(params.dc) ? params.dc : -1'
+      - id: against
+        kind: roll
+        each: target
+        of: check/roll
+        bands: degree
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.target) > 1
+            ? ['critical-failure', 'failure', 'success', 'critical-success'][minList(mapList(steps.against, indexOf(['critical-failure', 'failure', 'success', 'critical-success'], x.band)), x)]
+            : steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          degrees: >-
+            size(participants.target) > 0
+              ? mapList(steps.against, x.band) : []
+
+  - id: gather-information
+    tags: [exploration-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: using
+        kind: choice
+        recommend: "'diplomacy'"
+        options:
+          - { id: diplomacy }
+          - { id: society, when: '@feats.skill.streetwise in feats.held' }
+          - id: occultism
+            when: '@feats.skill.schooled-in-secrets in feats.held'
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.gather-information]
+        params:
+          check: "'skills.' + steps.using.picked + '.mod'"
+          dc: 'has(params.dc) ? params.dc : null'
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: perform
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+      combat: { type: boolean, optional: true }
+    participants:
+      audience:
+        fields:
+          saves.will.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: using
+        kind: choice
+        recommend: >-
+          @feats.skill.acrobatic-performer in feats.held
+            && skills.acrobatics.mod > skills.performance.mod ? 'acrobatics' : 'performance'
+        options:
+          - { id: performance }
+          - id: acrobatics
+            when: '@feats.skill.acrobatic-performer in feats.held'
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.perform]
+        params:
+          check: "'skills.' + steps.using.picked + '.mod'"
+          dc: >-
+            size(participants.audience) == 1 && has(participants.audience[0].saves.will.dc)
+              ? participants.audience[0].saves.will.dc : has(params.dc) ? params.dc : null
+      - id: dcs
+        kind: branch
+        each: audience
+        cases:
+          - when: true
+            flags:
+              dc: 'has(participant.saves.will.dc) ? participant.saves.will.dc : has(params.dc) ? params.dc : -1'
+      - id: against
+        kind: roll
+        each: audience
+        of: check/roll
+        bands: degree
+      - id: fascinate
+        kind: changes
+        each: audience
+        when: >-
+          @feats.skill.fascinating-performance in feats.held
+            && indexOf(['critical-failure', 'failure', 'success', 'critical-success'], steps.against.band) >= (has(params.combat) && params.combat ? 3 : 2)
+        to: audience
+        changes:
+          - { type: applyEffect, source: "'conditions.fascinated'" }
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.audience) > 1
+            ? ['critical-failure', 'failure', 'success', 'critical-success'][minList(mapList(steps.against, indexOf(['critical-failure', 'failure', 'success', 'critical-success'], x.band)), x)]
+            : steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          degrees: >-
+            size(participants.audience) > 0
+              ? mapList(steps.against, x.band) : []
+
+  - id: command-an-animal
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+      attitude:
+        type: enum
+        values: [hostile, unfriendly, indifferent, friendly, helpful]
+        optional: true
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.will.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: refuse
+        kind: outcome
+        when: "has(params.attitude) && params.attitude in ['hostile', 'unfriendly']"
+        result: "'failure'"
+        data: { total: 0, dc: 0 }
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.command-an-animal]
+        situational: { helpfulAnimal: "has(params.attitude) && params.attitude == 'helpful'" }
+        params:
+          check: "'skills.nature.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.will.dc)
+              ? participants.target[0].saves.will.dc : has(params.dc) ? params.dc : null
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }

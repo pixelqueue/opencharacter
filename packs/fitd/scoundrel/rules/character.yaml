@@ -1,0 +1,148 @@
+contentTypes:
+  playbook:
+    copies: { max: 0 }
+    fields:
+      twoDots: { type: set, of: field, required: true }
+      oneDot: { type: set, of: field, required: true }
+    effects:
+      - { id: tag, target: playbook.tag, op: set, value: 'item.tags[0]' }
+      - id: dots
+        target: playbook.dots
+        op: set
+        value: 2 * size(item.twoDots) + size(item.oneDot)
+      - id: hunt-dots
+        target: ratings.hunt
+        op: add
+        when: '@ratings.hunt in item.twoDots + item.oneDot'
+        value: '@ratings.hunt in item.twoDots ? 2 : 1'
+      - id: study-dots
+        target: ratings.study
+        op: add
+        when: '@ratings.study in item.twoDots + item.oneDot'
+        value: '@ratings.study in item.twoDots ? 2 : 1'
+      - id: survey-dots
+        target: ratings.survey
+        op: add
+        when: '@ratings.survey in item.twoDots + item.oneDot'
+        value: '@ratings.survey in item.twoDots ? 2 : 1'
+      - id: tinker-dots
+        target: ratings.tinker
+        op: add
+        when: '@ratings.tinker in item.twoDots + item.oneDot'
+        value: '@ratings.tinker in item.twoDots ? 2 : 1'
+      - id: finesse-dots
+        target: ratings.finesse
+        op: add
+        when: '@ratings.finesse in item.twoDots + item.oneDot'
+        value: '@ratings.finesse in item.twoDots ? 2 : 1'
+      - id: prowl-dots
+        target: ratings.prowl
+        op: add
+        when: '@ratings.prowl in item.twoDots + item.oneDot'
+        value: '@ratings.prowl in item.twoDots ? 2 : 1'
+      - id: skirmish-dots
+        target: ratings.skirmish
+        op: add
+        when: '@ratings.skirmish in item.twoDots + item.oneDot'
+        value: '@ratings.skirmish in item.twoDots ? 2 : 1'
+      - id: wreck-dots
+        target: ratings.wreck
+        op: add
+        when: '@ratings.wreck in item.twoDots + item.oneDot'
+        value: '@ratings.wreck in item.twoDots ? 2 : 1'
+      - id: attune-dots
+        target: ratings.attune
+        op: add
+        when: '@ratings.attune in item.twoDots + item.oneDot'
+        value: '@ratings.attune in item.twoDots ? 2 : 1'
+      - id: command-dots
+        target: ratings.command
+        op: add
+        when: '@ratings.command in item.twoDots + item.oneDot'
+        value: '@ratings.command in item.twoDots ? 2 : 1'
+      - id: consort-dots
+        target: ratings.consort
+        op: add
+        when: '@ratings.consort in item.twoDots + item.oneDot'
+        value: '@ratings.consort in item.twoDots ? 2 : 1'
+      - id: sway-dots
+        target: ratings.sway
+        op: add
+        when: '@ratings.sway in item.twoDots + item.oneDot'
+        value: '@ratings.sway in item.twoDots ? 2 : 1'
+  specialAbility:
+    effects:
+      - target: abilities.special
+        op: grant
+        value: { formula: item.id }
+  vice: {}
+  traumaCondition: {}
+
+fields:
+  playbook.tag: { type: string, formula: "''" }
+  # Without a playbook the player places the template's three starting dots (the playbook's three,
+  # plus four), so a new scoundrel always has seven.
+  playbook.dots: { type: integer, formula: 3 }
+  expertise.action: { type: string, formula: "''" }
+  foresight.used:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: 2
+  advances.playbook: { type: integer, input: true, default: 0, min: 0 }
+  identity.alias: { type: string, input: true, default: '' }
+  identity.look: { type: string, input: true, default: '' }
+  identity.heritage: { type: string, input: true, default: '' }
+  identity.background: { type: string, input: true, default: '' }
+  relationships.friend: { type: string, input: true, default: '' }
+  relationships.rival: { type: string, input: true, default: '' }
+  vice.purveyor: { type: string, input: true, default: '' }
+  abilities.special: { type: set, of: specialAbility }
+
+choices:
+  - id: playbook
+    pick: { min: 0, max: 1 }
+    required: false
+    from: { type: playbook }
+  - id: special-abilities
+    pick: "playbook.tag == '' ? 1 + advances.playbook : 0"
+    from: { type: specialAbility }
+  - id: vice
+    pick: 1
+    from: { type: vice }
+  - id: trauma
+    pick: trauma.current
+    from: { type: traumaCondition }
+
+display:
+  groups:
+    - id: identity
+      priority: 0
+  fields:
+    identity.alias: { groups: [identity], priority: 0, input: { widget: text } }
+    identity.look: { groups: [identity], priority: 1, input: { widget: text } }
+    identity.heritage: { groups: [identity], priority: 0, input: { widget: text } }
+    identity.background: { groups: [identity], priority: 0, input: { widget: text } }
+    relationships.friend: { groups: [identity], priority: 1, input: { widget: text } }
+    relationships.rival: { groups: [identity], priority: 1, input: { widget: text } }
+    vice.purveyor: { groups: [identity], priority: 1, input: { widget: text } }
+    foresight.used:
+      {
+        groups: [identity],
+        priority: 2,
+        input: { widget: number },
+        showWhen: '@special-abilities.foresight in abilities.special',
+      }
+    advances.playbook:
+      { groups: [xp], priority: 1, input: { widget: number }, visibility: background }
+    playbook.tag: { hidden: true }
+    abilities.special: { hidden: true }
+    playbook.dots: { hidden: true }
+    expertise.action: { hidden: true }
+    trauma.retires: { hidden: true }
+    ratings.cap.insight: { hidden: true }
+    ratings.cap.prowess: { hidden: true }
+    ratings.cap.resolve: { hidden: true }
+    xp.max.playbook: { hidden: true }
+    xp.max.attribute: { hidden: true }

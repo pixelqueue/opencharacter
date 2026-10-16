@@ -1,0 +1,28 @@
+description: 'A formula reads a field of a pack it depends on'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: base-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might: { type: integer, input: true, default: 1, min: 0, max: 10 }
+      content: []
+  - inline:
+      manifest:
+        id: extra-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies:
+          base-pack: ^1.0.0
+      rules:
+        fields:
+          extra.power: { type: integer, formula: stats.might + 1 }
+      content: []

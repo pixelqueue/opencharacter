@@ -1,0 +1,38 @@
+id: classes.rogue.debilitating-strike
+type: feature
+fields: { level: 9 }
+actions:
+  - id: debilitate
+    tags: [class-action]
+    participants:
+      target: { max: 1 }
+    results: [debilitated]
+    steps:
+      - id: first
+        kind: choice
+        tags: [debilitation]
+        options: [{ id: speed }, { id: enfeebled }]
+      - id: second
+        kind: choice
+        tags: [debilitation]
+        when: level >= 15
+        options:
+          - { id: speed, when: "steps.first.picked != 'speed'" }
+          - { id: enfeebled, when: "steps.first.picked != 'enfeebled'" }
+      - id: apply
+        kind: changes
+        to: target
+        changes:
+          - type: applyEffect
+            when: >-
+              steps.first.picked == 'speed' || (has(steps.second) && steps.second.picked == 'speed')
+            source: "'classes.rogue.debilitations.speed'"
+          - type: applyEffect
+            when: >-
+              steps.first.picked == 'enfeebled'
+                || (has(steps.second) && steps.second.picked == 'enfeebled')
+            source: "'conditions.enfeebled'"
+            state: { value: 1 }
+      - id: result
+        kind: outcome
+        result: "'debilitated'"

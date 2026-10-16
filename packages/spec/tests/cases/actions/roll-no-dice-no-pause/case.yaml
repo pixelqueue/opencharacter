@@ -1,0 +1,9 @@
+description: 'A roll step with no dice is not a checkpoint: it never pauses, whatever the policy, and logs no faces'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../packs/test-roll-bounds
+input:
+  action: { id: test-roll-bounds:flat }
+  params: { value: 5 }
+  policy: { dice: pause, rules: [{ kind: roll, step: roll, then: pause }] }

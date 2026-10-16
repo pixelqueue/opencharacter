@@ -1,0 +1,44 @@
+id: feats.archetype.archer.archer-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.archer }
+
+effects:
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.assisting-shot }
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.ranger.crossbow-ace }
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.point-blank-stance }
+  - target: { fields: { where: "'archetype-extra.at6' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.double-shot }
+  - target: { fields: { where: "'archetype-extra.at6' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.parting-shot }
+  - target: { fields: { where: "'archetype-extra.at6' in item.tags" } }
+    op: grant
+    value: { item: feats.ranger.running-reload }
+  - target: { fields: { where: "'archetype-extra.at8' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.triple-shot }
+  - target: { fields: { where: "'archetype-extra.at10' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.mobile-shot-stance }
+  - target: { fields: { where: "'archetype-extra.at18' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.multishot-stance }
+  - target: { fields: { where: "'archetype-extra.at20' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.impossible-volley }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.arbalest' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.composite-longbow' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.composite-shortbow' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.crossbow' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.hand-crossbow' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.heavy-crossbow' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.longbow' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.shortbow' } }

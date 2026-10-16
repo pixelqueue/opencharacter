@@ -1,0 +1,30 @@
+ok: true
+adjustments:
+  - field: mork-borg-core:omens.current
+    by: -1
+    requested: -1
+    taken: -1
+    reason: requested
+followUps:
+  - id: escaping-fate-1
+    kind: ephemeral
+    followUp: mork-borg-core:escaping-fate
+    to: self
+    required: false
+    action:
+      id: mork-borg-core:escape-fate
+      followUp: escaping-fate-1
+    params:
+      spent: 1
+    cause:
+      field: mork-borg-core:omens.current
+      by: -1
+      requested: -1
+      taken: -1
+      reason: requested
+      clamped: false
+      tags: []
+changes:
+  - type: adjust
+    field: mork-borg-core:omens.current
+    by: -1

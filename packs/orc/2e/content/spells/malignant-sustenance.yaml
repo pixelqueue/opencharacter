@@ -1,0 +1,22 @@
+id: spells.malignant-sustenance
+type: spell
+tags: [trait.cleric, trait.concentrate, trait.focus, trait.manipulate, trait.uncommon, trait.void]
+fields:
+  rank: 4
+  cast: two
+  range: 0
+  targets: 1
+  duration: minutes
+  durationAmount: 1
+  applyTo: ally
+effects:
+  - target:
+      steps: [turn.start]
+    op: changes
+    value:
+      changes:
+        - type: adjust
+          field: hp.current
+          by: 7 + 2 * (self.rank - 4)
+          tags: [healing]
+    scope: applied

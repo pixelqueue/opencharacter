@@ -1,0 +1,44 @@
+id: feats.archetype.wrestler.aerial-piledriver
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 10, category: class, archetype: archetypes.wrestler }
+
+prerequisites:
+  - { id: wrestler-dedication, when: '@feats.archetype.wrestler.wrestler-dedication in feats.held' }
+actions:
+  - id: aerial-piledriver
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "'unarmed' in item.tags && item.range == 0"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [strike.aerial-piledriver]
+        participants: { target: participants.target }
+      - id: hit
+        kind: changes
+        when: "steps.strike.result in ['success', 'critical-success'] && size(participants.target) > 0"
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.prone'" }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+effects:
+  - target: { rolls: [strike.aerial-piledriver] }
+    op: add
+    value: 'dieOf(1d6, roll.item.dice)'
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: "'damage' in roll.tags"

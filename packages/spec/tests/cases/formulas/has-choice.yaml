@@ -1,0 +1,51 @@
+description: 'hasChoice: whether the character has a choice of a content type, in display hints'
+specVersion: 0.1.0
+cases:
+  # `character.choices` is the content types of computeSheet's `choices`; giving it binds
+  # `hasChoice`, as display hints' `showWhen` does.
+  - name: a choice of the type
+    evaluate: hasChoice('test:subrace')
+    character: { choices: ['test:subrace', 'test:skill'] }
+    value: true
+    valueType: bool
+  - name: no choice of the type
+    evaluate: hasChoice('test:fightingStyle')
+    character: { choices: ['test:subrace'] }
+    value: false
+    valueType: bool
+  - name: no choices at all
+    evaluate: hasChoice('test:subrace')
+    character: { choices: [] }
+    value: false
+    valueType: bool
+  - name: not bound outside display hints
+    evaluate: hasChoice('test:subrace')
+    character: { copies: [] }
+    error: unknown-function
+  - name: not bound without a character
+    evaluate: hasChoice('test:subrace')
+    character: false
+    error: unknown-function
+  - name: the argument is a string
+    evaluate: hasChoice(1)
+    character: { choices: [] }
+    error: type-mismatch
+  - name: one argument
+    evaluate: hasChoice('test:a', 'test:b')
+    character: { choices: [] }
+    error: wrong-arity
+  # Checking.
+  - name: a condition in display hints
+    check: hasChoice('subrace') && level > 0
+    fields: { level: { type: integer } }
+    character: { choices: [] }
+    expect: bool
+    type: bool
+  - name: not bound elsewhere
+    check: hasChoice('subrace')
+    error: unknown-function
+  - name: checking a non-string argument
+    check: hasChoice(level)
+    fields: { level: { type: integer } }
+    character: { choices: [] }
+    error: type-mismatch

@@ -1,0 +1,127 @@
+id: classes.bard
+type: class
+tags: [trait.bard]
+fields: { hp: 8 }
+effects:
+  # The class's trait, for content that reads the class by it (such as Natural Ambition).
+  - { target: class.traits, op: grant, value: { tag: trait.bard } }
+  - { target: attributes.cha.boosts, op: add, value: 1 }
+  - { target: class.keyAttribute, op: set, value: "'cha'" }
+  - { target: perception.rank, op: atLeast, value: 2 }
+  - { target: saves.fortitude.rank, op: atLeast, value: 1 }
+  - { target: saves.reflex.rank, op: atLeast, value: 1 }
+  - { target: saves.will.rank, op: atLeast, value: 2 }
+  - { target: attacks.simple.rank, op: atLeast, value: 1 }
+  - { target: attacks.martial.rank, op: atLeast, value: 1 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 1 }
+  - { target: defenses.light.rank, op: atLeast, value: 1 }
+  - { target: defenses.unarmored.rank, op: atLeast, value: 1 }
+  - { target: classDc.rank, op: atLeast, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.occultism },
+      when: "!('skill.occultism' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.performance },
+      when: "!('skill.performance' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spellcasting.tradition, op: set, value: "'occult'" }
+  - { target: spellcasting.kind, op: set, value: "'spontaneous'" }
+  - { target: spellcasting.attribute, op: set, value: "'cha'" }
+  - { target: spellcasting.slotsPerRank, op: set, value: 2 }
+  - { target: spellcasting.cantrips, op: add, value: 5 }
+  - { target: spellcasting.rank, op: atLeast, value: 1 }
+grants:
+  - item: features.spellcasting.repertoire
+  - item: features.bard.composition-spells
+  - { item: features.spellcasting.signature-spells, when: level >= 3 }
+  - { item: features.bard.reflex-expertise, when: level >= 3 }
+  - { item: features.bard.expert-spellcaster, when: level >= 7 }
+  - { item: features.bard.fortitude-expertise, when: level >= 9 }
+  - { item: features.bard.performers-heart, when: level >= 9 }
+  - { item: features.bard.bard-weapon-expertise, when: level >= 11 }
+  - { item: features.bard.perception-mastery, when: level >= 11 }
+  - { item: features.bard.light-armor-expertise, when: level >= 13 }
+  - { item: features.bard.weapon-specialization, when: level >= 13 }
+  - { item: features.bard.master-spellcaster, when: level >= 15 }
+  - { item: features.bard.greater-performers-heart, when: level >= 17 }
+  - { item: features.bard.legendary-spellcaster, when: level >= 19 }
+  - { item: features.bard.magnum-opus, when: level >= 19 }
+choices:
+  # The muse is asked first, so the repertoire's picks follow it.
+  - id: muse
+    from:
+      items:
+        [
+          classes.bard.muses.enigma,
+          classes.bard.muses.maestro,
+          classes.bard.muses.polymath,
+          classes.bard.muses.warrior,
+        ]
+  - id: skills
+    unique: skill-training
+    pick: 4 + max(0, attributes.int.mod)
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+          skill.lore.academia,
+          skill.lore.circus,
+          skill.lore.farming,
+          skill.lore.legal,
+          skill.lore.scribing,
+          skill.lore.underworld,
+          skill.lore.warfare,
+        ]
+      where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
+    effects:
+      - { target: skills.chosen, op: grant, value: { formula: pick.value } }
+  - id: class-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    # The class's feats are worked out once (the query reads only the item); the slot's level is the
+    # choice's `eligible`, so a listing reads only them.
+    from:
+      type: feat
+      where: >-
+        item.category == 'class'
+          && (has(item.class) && item.class == @classes.bard || 'trait.bard' in item.tags)
+          || 'archetype-feat' in item.tags
+    eligible: >-
+      (item.category == 'class' && has(item.class) && item.class == @classes.bard
+          || 'trait.bard' in item.tags) && !('trait.archetype' in item.tags) && item.level <= slot && !(item.id in bard.grantedFeats)
+        || 'trait.archetype' in item.tags && item.level <= slot
+          && (!('trait.dedication' in item.tags) || archetypes.open == 0 || item.id in choice.picks
+            || countList(choice.picks, x in archetypes.dedications) > 0)
+        || slot >= 2 && item.id in [archetypes.extra.level2, archetypes.extra.level4, archetypes.extra.level6,
+            archetypes.extra.level8, archetypes.extra.level10, archetypes.extra.level12,
+            archetypes.extra.level14, archetypes.extra.level16, archetypes.extra.level18,
+            archetypes.extra.level20][floor(slot / 2) - 1]
+  - id: skill-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= slot

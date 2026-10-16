@@ -1,0 +1,75 @@
+# The SRD doesn't say which attacks; the pack reads them as one weapon's.
+id: monsters.erinyes.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: longsword }, { id: longbow }]
+        recommend: "'longsword'"
+      - id: longsword1
+        kind: action
+        when: "steps.form.picked == 'longsword'"
+        use: monster-attack
+        source: "'monsters.erinyes.longsword'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: longsword2
+        kind: action
+        when: "steps.form.picked == 'longsword'"
+        use: monster-attack
+        source: "'monsters.erinyes.longsword'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: longsword3
+        kind: action
+        when: "steps.form.picked == 'longsword'"
+        use: monster-attack
+        source: "'monsters.erinyes.longsword'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(2, size(participants.target) - 1)].id] : []
+      - id: longbow1
+        kind: action
+        when: "steps.form.picked == 'longbow'"
+        use: monster-attack
+        source: "'monsters.erinyes.longbow'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: longbow2
+        kind: action
+        when: "steps.form.picked == 'longbow'"
+        use: monster-attack
+        source: "'monsters.erinyes.longbow'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: longbow3
+        kind: action
+        when: "steps.form.picked == 'longbow'"
+        use: monster-attack
+        source: "'monsters.erinyes.longbow'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(2, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.longsword1) && steps.longsword1.result == 'hit' ? 1 : 0)
+              + (has(steps.longsword2) && steps.longsword2.result == 'hit' ? 1 : 0)
+              + (has(steps.longsword3) && steps.longsword3.result == 'hit' ? 1 : 0)
+              + (has(steps.longbow1) && steps.longbow1.result == 'hit' ? 1 : 0)
+              + (has(steps.longbow2) && steps.longbow2.result == 'hit' ? 1 : 0)
+              + (has(steps.longbow3) && steps.longbow3.result == 'hit' ? 1 : 0)

@@ -1,0 +1,17 @@
+id: feats.oracle.epiphany-at-the-crossroads
+type: feat
+fields: { level: 12, category: class, class: classes.oracle }
+actions:
+  - id: epiphany-at-the-crossroads
+    tags: [class-action]
+    available: conditions.dying > 0
+    results: [risen]
+    steps:
+      - id: rise
+        kind: changes
+        changes:
+          - { type: removeEffect, applied: { where: 'item.id == @conditions.dying' } }
+          - { type: adjust, field: hp.current, by: 2 * level, tags: [healing] }
+      - id: result
+        kind: outcome
+        result: "'risen'"

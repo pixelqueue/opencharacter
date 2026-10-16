@@ -1,0 +1,38 @@
+status: finished
+outcome:
+  result: used
+  data:
+    resistDr: 0
+    amount: 4
+    duration: 0
+    curesInfection: true
+proposedChanges:
+  - to: self
+    step: dose
+    change:
+      type: removeItem
+      entry: elixir
+  - to: drinker
+    character: patient
+    step: heal
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: 4
+      tags:
+        - healing
+  - to: drinker
+    character: patient
+    step: cure
+    change:
+      type: set
+      field: mork-borg-core:condition.infected
+      value: false
+log:
+  - step: amount
+    action: mork-borg-core:use-decoction
+    kind: dice
+    by: engine
+    faces:
+      - 4
+    total: 4

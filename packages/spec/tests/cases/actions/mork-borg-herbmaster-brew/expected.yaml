@@ -1,0 +1,53 @@
+# Decoctions 4 (Elixir Vitalis) and 1 (Red Poison), 3 doses between them: half, rounded up, to
+# the first is recommended, so 2 doses of Elixir Vitalis and 1 of Red Poison are added.
+status: finished
+outcome:
+  result: brewed
+  data:
+    first: 4
+    second: 1
+    doses: 3
+proposedChanges:
+  - to: self
+    step: add
+    change:
+      type: addItem
+      entry:
+        {
+          id: decoctions-elixir-vitalis-1,
+          item: mork-borg-core:decoctions.elixir-vitalis,
+          quantity: 2,
+        }
+  - to: self
+    step: add
+    change:
+      type: addItem
+      entry:
+        { id: decoctions-red-poison-1, item: mork-borg-core:decoctions.red-poison, quantity: 1 }
+log:
+  - step: first
+    action: mork-borg-core:classes.occult-herbmaster#brew
+    kind: dice
+    by: engine
+    faces:
+      - 4
+    total: 4
+  - step: second
+    action: mork-borg-core:classes.occult-herbmaster#brew
+    kind: dice
+    by: engine
+    faces:
+      - 1
+    total: 1
+  - step: doses
+    action: mork-borg-core:classes.occult-herbmaster#brew
+    kind: dice
+    by: engine
+    faces:
+      - 3
+    total: 3
+  - step: split
+    action: mork-borg-core:classes.occult-herbmaster#brew
+    kind: choice
+    by: engine
+    option: first-2

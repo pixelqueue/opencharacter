@@ -1,0 +1,23 @@
+# Pass yourself as an ally too.
+id: spells.protectors-sphere
+type: spell
+tags: [trait.aura, trait.cleric, trait.concentrate, trait.focus, trait.manipulate, trait.uncommon]
+fields:
+  rank: 4
+  cast: two
+  area: emanation
+  areaSize: 15
+  duration: minutes
+  durationAmount: 1
+  sustained: true
+  applyTo: ally
+effects:
+  - target:
+      incoming:
+        fields: [hp.current]
+        tags: [damage]
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 3 + (self.rank - 4))
+    when: incoming.amount < 0
+    scope: applied

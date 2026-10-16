@@ -1,0 +1,12 @@
+id: feats.ancestry.deadly-aspect
+type: feat
+fields: { level: 5, category: ancestry, heritage: heritages.dragonblood }
+prerequisites:
+  - { id: draconic-aspect, when: '@feats.ancestry.draconic-aspect in feats.held' }
+keepsTemplates:
+  - template: templates.deadly-aspect
+    copies:
+      {
+        type: weapon,
+        where: 'item.id in [@weapons.draconic-claw, @weapons.draconic-jaws, @weapons.draconic-tail]',
+      }

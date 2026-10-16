@@ -1,0 +1,39 @@
+id: spells.fortissimo-composition
+type: spell
+tags: [trait.bard, trait.concentrate, trait.focus, trait.spellshape, trait.uncommon]
+# Cast on yourself; its `perform` action sets the next anthem's status bonus as the entry's `value`,
+# which cast-spell gives the allies' anthem.
+fields:
+  rank: 4
+  cast: free
+  applyTo: self
+actions:
+  - id: perform
+    tags: [spell]
+    scope: applied
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        params: { check: "'skills.performance.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: set
+        kind: changes
+        changes:
+          - type: setState
+            when: "steps.check.result in ['critical-success', 'success']"
+            applied: { where: 'item.id == @spells.fortissimo-composition' }
+            key: value
+            value: "steps.check.result == 'critical-success' ? 3 : 2"
+          - type: adjust
+            when: "steps.check.result in ['failure', 'critical-failure'] && focus.spent > 0"
+            field: focus.spent
+            by: -1
+          - type: removeEffect
+            when: "steps.check.result in ['failure', 'critical-failure']"
+            applied: { where: 'item.id == @spells.fortissimo-composition' }
+      - id: result
+        kind: outcome
+        result: steps.check.result

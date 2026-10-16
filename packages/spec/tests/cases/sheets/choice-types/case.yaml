@@ -1,0 +1,33 @@
+description: "A listed choice's `type`: a query's content type, or the one type every item of a written list shares; none for a list of items of two types, inline options or values"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          class: { carried: false }
+          style: { carried: false }
+          skill: { carried: false }
+      content:
+        - id: classes.knight
+          type: class
+          choices:
+            - id: style
+              from: { type: style }
+            - id: listed
+              from: { items: [styles.guard, styles.duel] }
+            - id: mixed
+              from: { items: [styles.guard, skills.ride] }
+            - id: path
+              from: { options: [{ id: lance }, { id: sword }] }
+            - id: oath
+              from: { values: [honor, glory] }
+        - { id: styles.guard, type: style }
+        - { id: styles.duel, type: style }
+        - { id: skills.ride, type: skill }

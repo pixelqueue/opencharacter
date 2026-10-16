@@ -1,0 +1,11 @@
+# The engine takes `reckless`: its flags read the branch's power (1) and set 3, before its change
+# reads it; the outcome reads both flags.
+status: finished
+outcome:
+  data: { power: 3, style: wild }
+proposedChanges:
+  - to: self
+    step: how
+    change: { type: adjust, field: test-pack:stress, by: 3 }
+log:
+  - { step: how, action: test-pack:swing, kind: choice, by: engine, option: reckless }

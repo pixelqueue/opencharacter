@@ -1,0 +1,16 @@
+# The applied enchantment (last in instance order) keeps sharp on both weapons.
+copies:
+  club: { bonus: 1, heavy: true, light: false, templates: 1 }
+  test-kept-templates-weapons-fist: { bonus: 1, heavy: false, light: true, templates: 1 }
+activations:
+  - { item: test-kept-templates:weapons.club, entry: club, via: copy }
+  - { item: test-kept-templates:templates.sharp, entry: club, via: template, parent: 0, keptBy: 4 }
+  - { item: test-kept-templates:weapons.fist, entry: test-kept-templates-weapons-fist, via: copy }
+  - item: test-kept-templates:templates.sharp
+    entry: test-kept-templates-weapons-fist
+    via: template
+    parent: 2
+    keptBy: 4
+  - { item: test-kept-templates:spells.enchant, entry: enchant-1, via: applied, scope: applied }
+issues: []
+errors: []

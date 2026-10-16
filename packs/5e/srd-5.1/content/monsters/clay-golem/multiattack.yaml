@@ -1,0 +1,30 @@
+id: monsters.clay-golem.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: slam1
+        kind: action
+        use: monster-attack
+        source: "'monsters.clay-golem.slam'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: slam2
+        kind: action
+        use: monster-attack
+        source: "'monsters.clay-golem.slam'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.slam1) && steps.slam1.result == 'hit' ? 1 : 0)
+              + (has(steps.slam2) && steps.slam2.result == 'hit' ? 1 : 0)

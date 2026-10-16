@@ -1,0 +1,18 @@
+# Skirmish 2 (the Cutter's dots) + the push die -> 3d6kh1 [2, 4, 6]: success. The policy
+# pauses at the push cost (tag push-cost); Bodyguard adds no option, so only `stress` is offered.
+status: paused
+needs:
+  step: pushCost
+  action: fitd-scoundrel:action-roll
+  kind: choice
+  options: [stress]
+  recommended: stress
+log:
+  - step: roll
+    action: fitd-scoundrel:action-roll
+    kind: dice
+    by: engine
+    faces: [2, 4, 6]
+    total: 6
+    band: success
+    bandSet: fitd-scoundrel:action

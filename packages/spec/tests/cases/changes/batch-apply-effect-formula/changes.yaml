@@ -1,0 +1,8 @@
+- { type: adjust, field: test-pack:hp, by: -6, tags: [damage] }
+- type: applyEffect
+  source: test-pack:wounds.bleeding
+  state:
+    amount:
+      formula: >-
+        min(item.cap * 2, -sumList(batch.adjustments, x.by,
+          x.field == 'test-pack:hp' && x.reason == 'requested' && 'damage' in x.tags))

@@ -1,0 +1,19 @@
+# 3rd-level spell, second use: 6d12 = 1 + 2 + 3 + 4 + 5 + 6 = 21, untyped so nothing resists it.
+status: finished
+outcome:
+  result: overchanneled
+  data: { damage: 21 }
+proposedChanges:
+  - to: self
+    step: count
+    change: { type: adjustState, entry: wizard, key: overchannelUses, by: 1 }
+  - to: self
+    step: hurt
+    change: { type: adjust, field: 5e-srd-5.1:hp.current, by: -21, tags: [damage] }
+log:
+  - step: damage
+    action: '5e-srd-5.1:features.wizard.overchannel#overchannel'
+    kind: dice
+    by: engine
+    faces: [1, 2, 3, 4, 5, 6]
+    total: 21

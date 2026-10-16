@@ -1,0 +1,26 @@
+status: finished
+proposedChanges:
+  - { to: self, step: hold, change: { type: set, field: orc-2e:hp.current, value: 1 } }
+  # The day's use is the feat's pick state.
+  - to: self
+    step: hold
+    change:
+      type: setState
+      path: { choice: [ancestry-feat-1] }
+      option: orc-2e:feats.ancestry.orc-ferocity
+      key: used
+      value: true
+  - { to: self, step: hold, change: { type: set, field: orc-2e:hp.temp, value: 9 } }
+  - to: self
+    step: hold
+    change:
+      type: removeEffect
+      applied: { where: "item.id == 'orc-2e:conditions.dying'" }
+  - to: self
+    step: hold
+    change:
+      type: removeEffect
+      applied: { where: "item.id == 'orc-2e:conditions.unconscious'" }
+  - to: self
+    step: hold
+    change: { type: applyEffect, source: orc-2e:conditions.wounded, state: { value: 1 } }

@@ -1,0 +1,44 @@
+description: "A grant on a set of fields reaches every `set` field its `where` matches, never a numeric one: a slotted choice's effect grants each pick into its slot's set (`'test-pack:known.rank' + string(slot)`), and a rules effect grants a tag into every set tagged `senses`, while an `add` on the same tag reaches only the integer field"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [senses, darkvision]
+        fields:
+          known.rank1: { type: set, of: spell }
+          known.rank2: { type: set, of: spell }
+          sight.kinds: { type: set, of: tag, tags: [senses] }
+          hearing.kinds: { type: set, of: tag, tags: [senses] }
+          sight.range: { type: integer, default: 30, tags: [senses] }
+        contentTypes:
+          spell: { carried: false }
+          feature: { carried: false }
+        effects:
+          - target: { fields: { where: "'senses' in item.tags" } }
+            op: grant
+            value: { tag: darkvision }
+          - target: { fields: { where: "'senses' in item.tags" } }
+            op: add
+            value: 30
+      content:
+        - id: features.repertoire
+          type: feature
+          choices:
+            - id: spells
+              slots: [1, 2]
+              from: { type: spell }
+              effects:
+                - target:
+                    fields: { where: "item.id == 'test-pack:known.rank' + string(slot)" }
+                  op: grant
+                  value: { formula: pick.id }
+        - { id: spells.spark, type: spell }
+        - { id: spells.mend, type: spell } # not picked
+        - { id: spells.blink, type: spell }

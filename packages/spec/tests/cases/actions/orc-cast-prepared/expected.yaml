@@ -1,0 +1,37 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 2
+    mode: prepared
+    dc: 18
+    defense: will
+    basic: false
+    damage: 0
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: setState
+      entry: fear-2
+      key: expended
+      value: true
+  - to: target
+    character: goblin
+    step: afflict[0]
+    change:
+      type: applyEffect
+      source: orc-2e:conditions.frightened
+      state:
+        value: 2
+log:
+  - step: save[0]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: goblin
+    outcome:
+      result: failure

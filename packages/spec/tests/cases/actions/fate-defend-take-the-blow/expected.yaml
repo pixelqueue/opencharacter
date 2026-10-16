@@ -1,0 +1,72 @@
+status: finished
+outcome:
+  result: tie
+  data:
+    total: 3
+    opposition: 3
+    hit: 0
+    boost: false
+    opponentBoost: true
+    takenOut: false
+proposedChanges:
+  - to: self
+    step: blow/box
+    change:
+      type: set
+      field: fate-core:stress.physical.box2
+      value: true
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 0
+      - 0
+      - 0
+      - 0
+    total: 3
+    band: good
+    bandSet: fate-core:ladder
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: final
+    action: fate-core:defend
+    kind: dice
+    by: engine
+    total: 3
+    band: tie
+    bandSet: fate-core:outcome
+  - step: blow/moderate
+    action: fate-core:take-hit
+    kind: choice
+    by: engine
+    option: skip
+  - step: blow/severe
+    action: fate-core:take-hit
+    kind: choice
+    by: engine
+    option: skip
+  - step: blow/extreme
+    action: fate-core:take-hit
+    kind: choice
+    by: engine
+    option: skip
+  - step: blow/box
+    action: fate-core:take-hit
+    kind: choice
+    by: engine
+    option: box2

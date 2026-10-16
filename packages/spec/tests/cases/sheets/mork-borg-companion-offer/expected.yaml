@@ -1,0 +1,20 @@
+values:
+  mork-borg-core:companions.hound: { value: true }
+  mork-borg-core:companions.hawk: { value: false }
+  mork-borg-core:sheet.companion: { value: false }
+pending: []
+# The empty hound slot is an offer, not an issue: make a character with this pack, run the
+# companion start with the gore-hound, and save the link.
+issues: []
+offers:
+  - id: mork-borg-core:hound-sheet
+    kind: derived
+    followUp: mork-borg-core:hound-sheet
+    to: self
+    required: false
+    create:
+      link: mork-borg-core:hound
+      start: mork-borg-core:companion
+      pack: mork-borg-core
+      params: { companion: mork-borg-core:companions.ancient-gore-hound }
+errors: []

@@ -1,0 +1,27 @@
+id: spells.tangle-vine
+type: spell
+tags:
+  [
+    trait.attack,
+    trait.cantrip,
+    trait.concentrate,
+    trait.manipulate,
+    trait.plant,
+    trait.wood,
+    tradition.arcane,
+    tradition.primal,
+  ]
+fields:
+  rank: 1
+  cast: two
+  range: 30
+  targets: 1
+  defense: ac
+  applyTo: target
+  criticalFailure: [conditions.immobilized]
+effects:
+  - target: speed.land
+    op: add
+    value: -10
+    stackKey: circumstance-penalty
+    scope: applied

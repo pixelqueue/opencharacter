@@ -1,0 +1,41 @@
+description: "A proposed addItem's pick may compute its option (`option: { formula }`): one copy per element of a list, each picking its element"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          spell: {}
+          charm: {}
+        actions:
+          # One charm per spell given, each picking its spell.
+          - id: enchant
+            params:
+              spells: { type: set, of: spell }
+            steps:
+              - id: add
+                kind: changes
+                changes:
+                  - type: addItem
+                    forEach: params.spells
+                    entry:
+                      item: "'charms.spellbound'"
+                      choices: { spell: [{ option: { formula: x } }] }
+              - { id: done, kind: outcome }
+      content:
+        - { id: spells.light, type: spell }
+        - { id: spells.sleep, type: spell }
+        - id: charms.spellbound
+          type: charm
+          choices:
+            - id: spell
+              from: { type: spell }
+input:
+  action: { id: test-pack:enchant }
+  params: { spells: ['test-pack:spells.light', 'test-pack:spells.sleep'] }

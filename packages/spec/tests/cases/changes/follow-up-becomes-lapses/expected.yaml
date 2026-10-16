@@ -1,0 +1,17 @@
+# Health 3: down and fall (becomes hp.current == 0) are no longer owed; the steadying roll for
+# the earlier hit is an event and stays.
+ok: true
+followUps: []
+character:
+  followUps:
+    - id: steady-1
+      followUp: test-follow-ups:steady
+      params: { damage: 4 }
+      cause:
+        field: test-follow-ups:hp.current
+        by: -4
+        requested: -4
+        taken: -4
+        reason: requested
+        clamped: false
+        tags: [damage]

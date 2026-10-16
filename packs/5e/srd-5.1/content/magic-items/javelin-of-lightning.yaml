@@ -1,0 +1,13 @@
+id: magic-items.javelin-of-lightning
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: 'item.id == @weapons.javelin' }
+fields: { rarity: uncommon, maxCharges: 1, recharge: 1 }
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }
+  - use: item-power
+    params: { charges: 1, dice: 4d6, damageType: "'lightning'", save: "'dex'", dc: 13 }

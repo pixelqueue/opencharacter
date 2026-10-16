@@ -1,0 +1,29 @@
+description: 'A computed field naming no field of the ruleset fails the action with unknown-field'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          skills.fight: { type: integer, input: true, default: 0 }
+        actions:
+          - id: practice
+            params:
+              skill: { type: string }
+            steps:
+              - id: train
+                kind: changes
+                changes:
+                  - { type: adjust, field: { formula: "'skills.' + params.skill" }, by: 1 }
+      content: []
+input:
+  action:
+    id: test-pack:practice
+  params:
+    skill: fihgt

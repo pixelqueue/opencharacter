@@ -1,0 +1,12 @@
+id: runes.antimagic
+type: template
+tags: [trait.magical, trait.uncommon, trait.invested, rune.property]
+appliesTo: { type: armor }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + 6500'
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    when: self.equipped && self.invested && situational.againstMagic

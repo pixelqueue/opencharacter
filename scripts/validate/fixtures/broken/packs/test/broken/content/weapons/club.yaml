@@ -1,0 +1,19 @@
+id: weapons.mace
+type: weapon
+fields:
+  weight: 2
+effects:
+  - { target: combat.armor, op: add, value: 1 }
+  - { target: { rolls: [attack] }, op: multiply, value: 2 }
+  - { target: combat.ac, op: add, value: 1, tags: [melee] }
+  # An added option without a name, changing an unknown field.
+  - target: { choices: [melee] }
+    op: option
+    value: { id: parry, changes: [{ type: adjust, field: hp.nope, by: 1 }] }
+grants:
+  - { item: weapons.club, when: 'combat.ac > 10' }
+choices:
+  - { id: pick-one, from: { type: weapon, where: "item.damge == '1d6'" } }
+suppress: [nope]
+immuneTo:
+  - { id: stun, items: [weapons.nothing] }

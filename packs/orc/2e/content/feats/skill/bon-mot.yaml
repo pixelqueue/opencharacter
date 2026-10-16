@@ -1,0 +1,47 @@
+id: feats.skill.bon-mot
+type: feat
+tags: [trait.auditory, trait.concentrate, trait.emotion, trait.linguistic, trait.mental]
+fields: { level: 1, category: skill, skills: [skill.diplomacy] }
+
+prerequisites:
+  - { id: trained, when: 'skills.diplomacy.rank >= 1' }
+actions:
+  - id: bon-mot
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.will.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.bon-mot]
+        params:
+          check: "'skills.diplomacy.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.will.dc)
+              ? participants.target[0].saves.will.dc : has(params.dc) ? params.dc : null
+      - id: distract
+        kind: changes
+        when: "steps.check.result in ['success', 'critical-success']"
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'effects.bon-mot'"
+            state: { value: "steps.check.result == 'critical-success' ? 3 : 2" }
+      - id: backfire
+        kind: changes
+        when: steps.check.result == 'critical-failure'
+        changes:
+          - type: applyEffect
+            source: "'effects.bon-mot'"
+            state: { value: 2 }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }

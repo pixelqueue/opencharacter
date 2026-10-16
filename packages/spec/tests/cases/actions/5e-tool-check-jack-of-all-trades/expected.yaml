@@ -1,0 +1,21 @@
+# The bard's instruments don't include smith's tools: 10 + Strength 2 + Jack of All Trades
+# floor(2 / 2) = 13.
+status: finished
+outcome:
+  result: rolled
+  data: { total: 13 }
+log:
+  - step: check
+    action: 5e-srd-5.1:tool-check
+    kind: dice
+    by: engine
+    faces: [10]
+    items:
+      - { kind: dice, value: 10 }
+      - { kind: flat, value: 2, source: { type: field, id: 5e-srd-5.1:abilities.str.mod } }
+      - {
+          kind: flat,
+          value: 1,
+          source: { type: item, id: 5e-srd-5.1:features.bard.jack-of-all-trades, entry: bard },
+        }
+    total: 13

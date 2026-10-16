@@ -1,0 +1,288 @@
+# Spellcasting (rules/spellcasting.yaml): fields, actions, groups and tags. Spell names and
+# descriptions are in spells.yaml.
+types.spell.name: Spell
+types.spell.state.rank.name: Rank
+types.spell.state.expended.name: Expended
+types.spell.state.font.name: Divine font
+types.spell.state.outcome.name: Outcome
+types.spell.state.value.name: Value
+types.spell.state.damageType.name: Damage type
+
+fields.spellcasting.tradition.name: Tradition
+fields.spellcasting.tradition.description: >-
+  The magical tradition the class casts from: arcane, divine, occult or primal.
+fields.spellcasting.kind.name: Spellcasting
+fields.spellcasting.kind.description: >-
+  A prepared caster readies specific spells in each slot every day; a spontaneous caster casts
+  any spell in its repertoire with an unspent slot.
+fields.spellcasting.rank.name: Spell proficiency
+fields.spellcasting.attack.name: Spell attack modifier
+fields.spellcasting.attack.description: >-
+  The spellcasting attribute modifier plus the proficiency bonus in spell attacks. A spell
+  attack roll has the attack trait and takes the multiple attack penalty.
+fields.spellcasting.dc.name: Spell DC
+fields.spellcasting.dc.description: >-
+  10 + the spellcasting attribute modifier + the proficiency bonus in spell DCs.
+fields.spellcasting.innate.attack.name: Innate spell attack modifier
+fields.spellcasting.innate.dc.name: Innate spell DC
+fields.spellcasting.innate.dc.description: >-
+  Innate spells use Charisma, and you're trained in them, or as proficient as in your class's
+  spellcasting when that is better.
+fields.spellcasting.maxRank.name: Highest spell rank
+fields.spellcasting.font.name: Divine font
+fields.spellcasting.font.description: >-
+  The spell a divine font prepares in its extra slots: heal or harm.
+fields.spellcasting.fontSlots.name: Divine font slots
+fields.spellcasting.fontRank.name: Divine font rank
+fields.spells.autoRank.name: Cantrip rank
+fields.spells.autoRank.description: >-
+  Cantrips and focus spells are heightened to half your level, rounded up.
+fields.focus.points.name: Focus Points
+fields.focus.points.description: >-
+  Your focus pool: 1 for each ability that grants one, up to 3. Casting a focus spell spends 1;
+  Refocus regains 1, and daily preparations refill the pool.
+fields.focus.spent.name: Focus Points spent
+fields.spellSlots.rank1.max.name: 1st-rank slots
+fields.spellSlots.rank1.used.name: 1st-rank slots spent
+fields.spellSlots.extra.max.name: Extra slots (highest rank)
+fields.spellSlots.extra.used.name: Extra slots spent
+fields.spells.extraSlot.name: Spells the extra slot casts
+fields.spellSlots.rank2.max.name: 2nd-rank slots
+fields.spellSlots.rank2.used.name: 2nd-rank slots spent
+fields.spellSlots.rank3.max.name: 3rd-rank slots
+fields.spellSlots.rank3.used.name: 3rd-rank slots spent
+fields.spellSlots.rank4.max.name: 4th-rank slots
+fields.spellSlots.rank4.used.name: 4th-rank slots spent
+fields.spellSlots.rank5.max.name: 5th-rank slots
+fields.spellSlots.rank5.used.name: 5th-rank slots spent
+fields.spellSlots.rank6.max.name: 6th-rank slots
+fields.spellSlots.rank6.used.name: 6th-rank slots spent
+fields.spellSlots.rank7.max.name: 7th-rank slots
+fields.spellSlots.rank7.used.name: 7th-rank slots spent
+fields.spellSlots.rank8.max.name: 8th-rank slots
+fields.spellSlots.rank8.used.name: 8th-rank slots spent
+fields.spellSlots.rank9.max.name: 9th-rank slots
+fields.spellSlots.rank9.used.name: 9th-rank slots spent
+fields.spellSlots.rank10.max.name: 10th-rank slots
+fields.spellSlots.rank10.used.name: 10th-rank slots spent
+
+situational.againstMental.name: Against a mental effect
+situational.shieldSpellBlock.name: Shield Block with the shield spell
+
+groups.spellcasting.label: Spellcasting
+groups.spell-slots.label: Spell slots
+groups.spell-actions.label: Spellcasting actions
+groups.spells.label: Spells
+groups.spell-effects.label: Spells in effect
+
+constraints.prepared-slots: More spells prepared at a rank than slots of that rank
+constraints.split-slot: 'Split Slot: at most one split slot, below your highest rank of slot, and only with the feat'
+constraints.prepared-cantrips: More cantrips prepared ({prepared}) than the {limit} you can prepare
+constraints.prepared-rank: A spell is prepared in a slot below its rank
+constraints.curriculum-slots: A curriculum slot or cantrip holds a spell from outside the curriculum
+constraints.font-slots: A divine font slot holds something other than the font's spell at its rank
+
+actions.cast-spell.name: Cast a Spell
+actions.cast-spell.description: >-
+  Cast a spell you have. A cantrip or focus spell is heightened to half your level rounded up; a
+  prepared spell is cast at its slot's rank and expended; a spontaneous spell at a rank it is
+  known at (any rank from its own for a signature spell), spending a slot; a focus spell spends
+  a Focus Point. Attack spells make a spell attack against each target; save spells have each
+  target save against your spell DC.
+actions.cast-spell.params.rank.name: Rank
+actions.cast-spell.params.rank.description: "The rank it is cast at; above the spell's own, it is heightened."
+actions.cast-spell.params.actions.name: Actions spent
+actions.cast-spell.params.actions.description: 'For a spell whose effect grows with the actions spent.'
+actions.cast-spell.params.ac.name: Target's AC
+actions.cast-spell.params.damageType.name: Damage type
+actions.cast-spell.params.copy.name: Item (the weapon the spell is cast on)
+actions.cast-spell.participants.target.name: Targets
+actions.cast-spell.participants.ally.name: Allies
+actions.cast-spell.steps.cost.prompt: How do you cast this innate spell?
+actions.cast-spell.options.innate.name: Innate spell
+actions.cast-spell.options.slot.name: A spell slot of its rank
+actions.cast-spell.steps.damage.name: Damage
+actions.cast-spell.steps.hit.name: Damage
+actions.cast-spell.steps.hitAlone.name: Damage
+actions.cast-spell.steps.heal.name: Healing
+actions.cast-spell.results.expended.name: Already cast
+actions.cast-spell.results.no-slot.name: No slot left
+actions.cast-spell.results.no-focus.name: No Focus Points
+actions.cast-spell.results.not-known.name: Not known at that rank
+actions.cast-spell.results.cast.name: Cast
+actions.cast-spell.results.rolled.name: Rolled
+actions.cast-spell.results.critical-success.name: Critical hit
+actions.cast-spell.results.success.name: Hit
+actions.cast-spell.results.failure.name: Miss
+actions.cast-spell.results.critical-failure.name: Critical miss
+
+actions.spell-attack.name: Spell attack roll
+actions.spell-attack.description: >-
+  A d20 plus your spell attack modifier against the target's AC. It takes the multiple attack
+  penalty and counts toward it.
+actions.spell-attack.params.field.name: Spell attack modifier
+actions.spell-attack.params.ac.name: Target's AC
+actions.spell-attack.params.attack.name: Attack this turn
+actions.spell-attack.params.attack.description: 'For the multiple attack penalty: 1 for the first attack this turn.'
+actions.spell-attack.params.count.name: Counts toward the multiple attack penalty
+actions.spell-attack.participants.target.name: Target
+actions.spell-attack.steps.roll.name: Spell attack
+
+actions.refocus.name: Refocus
+actions.refocus.description: >-
+  Spend 10 minutes performing deeds to restore your magical connection: regain 1 Focus Point.
+actions.refocus.results.refocused.name: Focus Point regained
+
+actions.daily-preparations.name: Daily preparations
+actions.daily-preparations.description: >-
+  Your spell slots and Focus Points come back, and your prepared spells are no longer expended.
+actions.daily-preparations.results.prepared.name: Prepared
+actions.daily-preparations.steps.arcaneEvolution.prompt: 'Arcane Evolution: a signature spell for today'
+
+actions.prepare-spells.name: Prepare spells
+actions.prepare-spells.description: >-
+  Choose the spells you prepare today: a spell for each slot, of the slot's rank or lower (cast
+  at the slot's rank), and your cantrips.
+actions.prepare-spells.results.prepared.name: Prepared
+actions.prepare-spells.steps.blend.prompt: 'Spell Blending: trade spell slots'
+actions.prepare-spells.steps.splitSlot.prompt: 'Split Slot: prepare two spells in one slot?'
+actions.prepare-spells.options.none.name: No
+actions.prepare-spells.options.split.name: Split a slot
+actions.prepare-spells.steps.splitWith.prompt: 'Split Slot: the slot to split (at least a rank below your highest)'
+actions.prepare-spells.steps.splitSpell.prompt: 'Split Slot: the second spell in that slot'
+actions.prepare-spells.options.rank1-up1.name: Two 1st-rank slots for a 2nd-rank slot
+actions.prepare-spells.options.rank1-up2.name: Two 1st-rank slots for a 3rd-rank slot
+actions.prepare-spells.options.rank1-cantrips.name: A 1st-rank slot for two cantrips
+actions.prepare-spells.options.rank2-up1.name: Two 2nd-rank slots for a 3rd-rank slot
+actions.prepare-spells.options.rank2-up2.name: Two 2nd-rank slots for a 4th-rank slot
+actions.prepare-spells.options.rank2-cantrips.name: A 2nd-rank slot for two cantrips
+actions.prepare-spells.options.rank3-up1.name: Two 3rd-rank slots for a 4th-rank slot
+actions.prepare-spells.options.rank3-up2.name: Two 3rd-rank slots for a 5th-rank slot
+actions.prepare-spells.options.rank3-cantrips.name: A 3rd-rank slot for two cantrips
+actions.prepare-spells.options.rank4-up1.name: Two 4th-rank slots for a 5th-rank slot
+actions.prepare-spells.options.rank4-up2.name: Two 4th-rank slots for a 6th-rank slot
+actions.prepare-spells.options.rank4-cantrips.name: A 4th-rank slot for two cantrips
+actions.prepare-spells.options.rank5-up1.name: Two 5th-rank slots for a 6th-rank slot
+actions.prepare-spells.options.rank5-up2.name: Two 5th-rank slots for a 7th-rank slot
+actions.prepare-spells.options.rank5-cantrips.name: A 5th-rank slot for two cantrips
+actions.prepare-spells.options.rank6-up1.name: Two 6th-rank slots for a 7th-rank slot
+actions.prepare-spells.options.rank6-up2.name: Two 6th-rank slots for a 8th-rank slot
+actions.prepare-spells.options.rank6-cantrips.name: A 6th-rank slot for two cantrips
+actions.prepare-spells.options.rank7-up1.name: Two 7th-rank slots for a 8th-rank slot
+actions.prepare-spells.options.rank7-up2.name: Two 7th-rank slots for a 9th-rank slot
+actions.prepare-spells.options.rank7-cantrips.name: A 7th-rank slot for two cantrips
+actions.prepare-spells.options.rank8-up1.name: Two 8th-rank slots for a 9th-rank slot
+actions.prepare-spells.options.rank8-cantrips.name: An 8th-rank slot for two cantrips
+actions.prepare-spells.options.rank9-cantrips.name: A 9th-rank slot for two cantrips
+actions.prepare-spells.steps.cantrips.prompt: Prepare a cantrip
+actions.prepare-spells.steps.rank1.prompt: Prepare a 1st-rank spell
+actions.prepare-spells.steps.rank2.prompt: Prepare a spell in a 2nd-rank slot
+actions.prepare-spells.steps.rank3.prompt: Prepare a spell in a 3rd-rank slot
+actions.prepare-spells.steps.rank4.prompt: Prepare a spell in a 4th-rank slot
+actions.prepare-spells.steps.rank5.prompt: Prepare a spell in a 5th-rank slot
+actions.prepare-spells.steps.rank6.prompt: Prepare a spell in a 6th-rank slot
+actions.prepare-spells.steps.rank7.prompt: Prepare a spell in a 7th-rank slot
+actions.prepare-spells.steps.rank8.prompt: Prepare a spell in an 8th-rank slot
+actions.prepare-spells.steps.rank9.prompt: Prepare a spell in a 9th-rank slot
+actions.prepare-spells.steps.rank10.prompt: Prepare a spell in a 10th-rank slot
+
+features.spellcasting.repertoire.name: Spell repertoire
+features.spellcasting.repertoire.description: >-
+  The spells you know and can cast spontaneously: your cantrips, and for each rank you have
+  slots of as many spells as you have slots of that rank. A spell added at a higher rank than
+  its own is known heightened to that rank.
+features.spellcasting.repertoire.choices.cantrips.prompt: Cantrips in your repertoire
+features.spellcasting.repertoire.choices.spells.prompt: >-
+  {slot, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}-rank spells in your repertoire
+features.spellcasting.signature-spells.name: Signature spells
+features.spellcasting.signature-spells.description: >-
+  For each spell rank you can cast, one spell in your repertoire is a signature spell: you can
+  cast it heightened to any rank you have slots for, from its own up, without learning it at
+  that rank.
+features.spellcasting.signature-spells.choices.signature.prompt: >-
+  {slot, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}-rank signature spell
+
+tags.tradition.arcane.name: Arcane
+tags.tradition.divine.name: Divine
+tags.tradition.occult.name: Occult
+tags.tradition.primal.name: Primal
+tags.trait.cantrip.name: Cantrip
+tags.trait.cantrip.description: >-
+  A spell you can cast at will, heightened to half your level rounded up.
+tags.trait.focus.name: Focus
+tags.trait.focus.description: A spell cast by spending a Focus Point.
+tags.trait.attack.name: Attack
+tags.trait.incapacitation.name: Incapacitation
+tags.trait.incapacitation.description: >-
+  A creature of more than twice the spell's rank treats its check against it as one degree of
+  success better, and the caster's check against it as one degree worse.
+tags.trait.uncommon.name: Uncommon
+tags.trait.concentrate.name: Concentrate
+tags.trait.mental.name: Mental
+tags.trait.emotion.name: Emotion
+tags.trait.fear.name: Fear
+tags.trait.auditory.name: Auditory
+tags.trait.visual.name: Visual
+tags.trait.linguistic.name: Linguistic
+tags.trait.olfactory.name: Olfactory
+tags.trait.illusion.name: Illusion
+tags.trait.detection.name: Detection
+tags.trait.prediction.name: Prediction
+tags.trait.revelation.name: Revelation
+tags.trait.scrying.name: Scrying
+tags.trait.summon.name: Summon
+tags.trait.polymorph.name: Polymorph
+tags.trait.morph.name: Morph
+tags.trait.curse.name: Curse
+tags.trait.disease.name: Disease
+tags.trait.poison.name: Poison
+tags.trait.healing.name: Healing
+tags.trait.death.name: Death
+tags.trait.sleep.name: Sleep
+tags.trait.light.name: Light
+tags.trait.darkness.name: Darkness
+tags.trait.subtle.name: Subtle
+tags.trait.aura.name: Aura
+tags.trait.move.name: Move
+tags.trait.extradimensional.name: Extradimensional
+tags.trait.misfortune.name: Misfortune
+tags.trait.sanctified.name: Sanctified
+tags.trait.holy.name: Holy
+tags.trait.unholy.name: Unholy
+tags.trait.acid.name: Acid
+tags.trait.cold.name: Cold
+tags.trait.electricity.name: Electricity
+tags.trait.fire.name: Fire
+tags.trait.force.name: Force
+tags.trait.sonic.name: Sonic
+tags.trait.spirit.name: Spirit
+tags.trait.vitality.name: Vitality
+tags.trait.void.name: Void
+tags.trait.air.name: Air
+tags.trait.earth.name: Earth
+tags.trait.water.name: Water
+tags.trait.wood.name: Wood
+tags.trait.metal.name: Metal
+tags.trait.composition.name: Composition
+tags.trait.hex.name: Hex
+tags.trait.bard.name: Bard
+tags.trait.witch.name: Witch
+tags.trait.oracle.name: Oracle
+tags.trait.champion.name: Champion
+
+# Class feats the caster classes share.
+feats.spellcasting.reach-spell.name: Reach Spell
+feats.spellcasting.reach-spell.description: 'One action, spellshape. If your next action is to Cast a Spell with a range, its range increases by 30 feet; a touch range becomes 30 feet.'
+feats.spellcasting.widen-spell.name: Widen Spell
+feats.spellcasting.widen-spell.description: 'One action, spellshape. If your next action is to Cast a Spell with a burst, cone or line area and no duration, the area grows: 5 feet more radius for a burst of at least 10 feet, 5 feet more length for a cone or line of 15 feet or less, 10 feet more for a longer one.'
+feats.spellcasting.familiar.name: Familiar
+feats.spellcasting.familiar.description: You bond with a familiar, a small creature that serves you and helps your spellcasting.
+feats.spellcasting.cantrip-expansion.name: Cantrip Expansion
+feats.spellcasting.cantrip-expansion.description: 'Two more cantrips: a prepared caster prepares two more each day; a spontaneous caster adds two cantrips from its list to its repertoire.'
+feats.spellcasting.enhanced-familiar.name: Enhanced Familiar
+feats.spellcasting.enhanced-familiar.description: 'Prerequisite: a familiar. You choose four familiar or master abilities each day instead of two.'
+feats.spellcasting.bespell-strikes.name: Bespell Strikes
+feats.spellcasting.bespell-strikes.description: "Free action, once per turn, when your last action was to cast a spell other than a cantrip. Until the end of your turn, one weapon or unarmed attack you wield deals 1d6 extra force damage (or the spell's damage type), and gains your tradition's trait."
+feats.spellcasting.steady-spellcasting.name: Steady Spellcasting
+feats.spellcasting.steady-spellcasting.description: 'When a reaction would disrupt your spellcasting, attempt a DC 15 flat check; on a success it is not disrupted.'
+situational.bespellStrikes.name: Bespell Strikes (1d6 force)

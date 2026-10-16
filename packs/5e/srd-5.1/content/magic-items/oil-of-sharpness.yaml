@@ -1,0 +1,27 @@
+id: magic-items.oil-of-sharpness
+type: magicItem
+fields:
+  category: potion
+  rarity: very-rare
+actions:
+  - id: coat
+    tags: [magic-item]
+    results: [coated]
+    steps:
+      - id: weapon
+        kind: choice
+        # The first weapon it fits, in sheet order, is recommended, so an automatic run coats one.
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "item.damageType in ['slashing', 'piercing'] && !(@magic-items.sharpness-coating in self.templates)"
+        changes:
+          - { type: applyTemplate, entry: picked, template: "'magic-items.sharpness-coating'" }
+      - id: spend
+        kind: changes
+        changes:
+          - { type: removeItem, entry: self }
+      - id: result
+        kind: outcome
+        result: "'coated'"

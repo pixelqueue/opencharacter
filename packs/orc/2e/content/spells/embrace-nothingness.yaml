@@ -1,0 +1,21 @@
+id: spells.embrace-nothingness
+type: spell
+tags: [trait.concentrate, trait.focus, trait.manipulate, trait.monk, trait.uncommon]
+fields:
+  rank: 9
+  cast: two
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+effects:
+  - target:
+      incoming:
+        fields: [hp.current]
+        tags: [damage]
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, level)
+    when: |-
+      incoming.amount < 0 && ('damage.bludgeoning' in incoming.tags
+        || 'damage.piercing' in incoming.tags || 'damage.slashing' in incoming.tags)
+    scope: applied

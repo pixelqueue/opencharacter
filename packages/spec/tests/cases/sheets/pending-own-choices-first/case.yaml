@@ -1,0 +1,35 @@
+description: "`pending` lists choices by a pre-order walk of the activations: an item's own choices, each followed by those of what it picked, before those of what it grants"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          kit: {}
+      content:
+        - id: kits.main
+          type: kit
+          grants:
+            - item: kits.part
+          choices:
+            - id: style
+              from:
+                options:
+                  - { id: plain }
+                  - id: fancy
+                    choices:
+                      - id: trim
+                        from: { options: [{ id: gold }, { id: silver }] }
+            - id: colour
+              from: { options: [{ id: red }, { id: blue }] }
+        - id: kits.part
+          type: kit
+          choices:
+            - id: size
+              from: { options: [{ id: small }, { id: large }] }

@@ -1,0 +1,26 @@
+# Two bleeding wounds: 2d4 (3, 2) = 5 necrotic. The Constitution save, 15 + 1 = 16, beats
+# DC 15, so the bleeding wounds stop bleeding; they stay until a rest.
+status: finished
+outcome:
+  result: stanched
+  data:
+    damage: 5
+proposedChanges:
+  - to: self
+    step: take
+    change:
+      type: adjust
+      field: 5e-srd-5.1:hp.current
+      by: -5
+      tags:
+        - damage
+        - damage.necrotic
+        - magical
+  - to: self
+    step: stanch
+    change:
+      type: setState
+      key: bleeding
+      applied:
+        where: item.id == '5e-srd-5.1:conditions.wound' && self.bleeding
+      value: false

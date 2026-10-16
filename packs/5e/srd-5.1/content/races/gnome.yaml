@@ -1,0 +1,15 @@
+id: races.gnome
+type: race
+fields:
+  speed: 25
+  size: small
+effects:
+  - { target: abilities.int.base, op: add, value: 2 }
+grants:
+  - item: traits.darkvision
+  - item: traits.gnome-cunning
+  - item: languages.common
+  - item: languages.gnomish
+choices:
+  - id: subrace
+    from: { type: subrace, where: 'item.race == @races.gnome' }

@@ -1,0 +1,334 @@
+{
+  "set": "formula-context",
+  "specVersion": "0.1.0",
+  "description": "The names a formula may use besides field IDs: context roots (bound by where the formula appears) and the standard library of functions. A fixed set versioned with the spec; see docs/formulas.md.",
+  "roots": [
+    {
+      "id": "item",
+      "description": "The candidate in a query `where` (and in a choice step's `where` and `prefer`); the item (base plus templates) in effects, actions, templates, item fields, and state defaults and bounds: `item.id`, `item.type`, `item.tags`, `item.<field>` (with the template fields its content type doesn't declare: the templates' values in order, replacing the base item's, else the declared default). In an actions display group's `where`, the listed action: `item.id` (its qualified ID as computeSheet lists it), `item.tags`, and `item.entry` and `item.source`, absent when the listing has none. In a content display group's `where`, `sectionBy` and `sortBy`, and a content-type state hint's `showWhen`, the member's item. In an effect's set-of-fields target (`target: { fields: { where } }`), each numeric field's view (each `set` field's, for a `grant`): `item.id` (qualified), `item.type` and `item.tags` (a field's tags on the sheet, computed ones included); the condition reads nothing else, except in a choice's effects, where it may read the pick (`pick`, and `slot` in a slotted choice), resolved for each pick."
+    },
+    {
+      "id": "base",
+      "description": "In a template: the item the template is applied to, alone (its own fields, without the copy's templates). Also bound in a template's item field values."
+    },
+    {
+      "id": "prior",
+      "description": "In a template's item field values: the copy's item as merged before this template, the base item and the copy's earlier templates (saved, then kept ones), in order; for the first template, the base item. Typed as `item`."
+    },
+    {
+      "id": "self",
+      "description": "The character's copy of the item carrying the formula: `self.equipped`, `self.<state key>`, `self.templates` (saved, then those content keeps on the copy). For content made active by a pick or a grant, the copy that owns the choice or grant (a subclass sees its class copy's `self.level`). Absent for content with no owning copy (picked in a rules-level choice). In a choice step over copies (`where`, `prefer`), the candidate copy; not bound in one over content. In an applied entry's effects and its actions (`scope: applied`), the entry: `id` and its state keys. In a change aimed at applied entries (`applied.where`, a per-entry `by` or `value`), the entry: `id` and its state keys with declared defaults. In the copy's own actions (and actions it reaches through `use`) and its follow-ups, `self` also has the copy's computed values, `self.<name>`; in a computed value, those declared before it; everywhere else a computed name is `unknown-name`. In a content display group's `where`, `sectionBy` and `sortBy` and a content-type state hint's `showWhen`, the member copy, absent for picked content with no owning copy."
+    },
+    {
+      "id": "pick",
+      "description": "In a choice's effects: the picked option (`pick.id` or `pick.value`), also in a set of fields' `where` there."
+    },
+    {
+      "id": "slot",
+      "description": "In every formula of a slotted choice and of its inline options (`when`, `pick`, `recommend`, the query's `where`, a value choice's `values` and `where`, `effects`): the slot's number, an `int`. Unbound in a choice without `slots`."
+    },
+    {
+      "id": "value",
+      "description": "In a value choice's `where and `eligible``: the candidate value, a string or number, typed by the choice's list."
+    },
+    {
+      "id": "steps",
+      "description": "In an action: results of earlier steps: roll steps `steps.<id>.total`, `.faces`, `.kept`, `.empty` (the part's `ifEmpty` dice were rolled), `.band` and `.bandSet` (the band set's qualified ID), `.bandValue` (the band set's `value`, when it has one), `.tallies.<name>` (each declared roll tally, 0 when nothing added to it), `.bounds` (each `atLeast` or `atMost` roll effect that changed the total, `{ source, op, value }`) and `.unbounded` (the total before them); choice steps `.picked` (the option ID, or with `repeat` the list of picked IDs; over pending choices the list of picked IDs, with `.paths` their choice paths), and over content or copies without `repeat` `.item` (the picked content's item view) and, over copies, `.self` (the picked copy); action steps `.result` (the nested action's outcome). Use `has(steps.<id>)` for a step that may not have run. An `each` step's result is the list of per-participant results in participant order (null where its `when` skipped one); inside a later `each` step over the same role it is the current participant's result, absent when skipped, and inside the step's own run for participant `i` the list of runs `0` to `i - 1` (absent in the first run). A handoff's result is `.result` and `.data` from the app's answer. In a formula a proposed change passes on (`copies.where`, `applied.where`, a per-copy or per-entry `by` or `value`), the action replaces each path with its value as a literal."
+    },
+    {
+      "id": "flags",
+      "description": "In an action, and in roll effects evaluated during one: flags set by branch steps (`flags.critical`) and by picked choice options. A flag an `each` branch step sets is per participant: the current participant's value inside an `each` step over its role, absent when it has none; the list in participant order elsewhere, null where none was set. Substituted as literals in a formula a proposed change passes on."
+    },
+    {
+      "id": "params",
+      "description": "In an action: parameters the app supplied. A field parameter (`type: id, of: field`) is `{ id, type, tags, value }`: the field's qualified ID, type, tags on the sheet (written and computed; `[]` if none) and computed value. Substituted as literals in a formula a proposed change passes on."
+    },
+    {
+      "id": "participants",
+      "description": "In an action: the other characters taking part, by role the action declares: `participants.<role>` is the list of the role's views in input order, `[]` when none were given. A view is `id` plus each declared field by field ID, nested at the dots (`participants.target[0].combat.ac`); a declared field the view lacks reads its `default`, else is absent (`has()`). In roll effects, situational choices' effects and result bands it is `dyn`: the running action's roles, empty when it declares none (`has(participants.target)`). Substituted as literals in a formula a proposed change passes on."
+    },
+    {
+      "id": "participant",
+      "description": "In an `each: <role>` step: the current participant's view, as in `participants.<role>`. In roll effects and result bands evaluated during such a step it is `dyn`; elsewhere it is absent (`has(participant)`). Substituted as literals in a formula a proposed change passes on."
+    },
+    {
+      "id": "action",
+      "description": "Where `item` and `self` are rebound to something else (a choice step's `where` and `prefer` over content or copies, an `option` effect's `when` and changes, a `changes` effect's `when` and changes, a roll effect's formulas, and the formulas a proposed change passes on): the action's own context. `action.item` and `action.self` are the action's item and copy (absent when the action has none), and `action.step` is the current step's `{ id, tags }`, its tags evaluated (`[]` for a step without). Substituted as literals in a formula a proposed change passes on."
+    },
+    {
+      "id": "picks",
+      "description": "In a choice step's candidate formulas (a written option's `when`; `where` and `prefer` over content or copies; an `option` effect's `when`): how many times this step has already picked the candidate, an int."
+    },
+    {
+      "id": "picked",
+      "description": "In a choice step's `changes` and its options' `changes` and `flags`: the pick they follow: `picked.id` (the option ID), plus `picked.item` (the item view) over content and copies, and `picked.self` (the copy) over copies. Over pending choices, `picked.id` and `picked.path`, the choice path."
+    },
+    {
+      "id": "options",
+      "description": "In a choice step's `recommend`: the list of option IDs its source offers, in order, without `#done` or options added by content, so a roll can pick one (`options[steps.roll.total - 1]`)."
+    },
+    {
+      "id": "choice",
+      "description": "In the `recommend` of a choice step over pending choices: the choice being asked, `choice.path` (its choice path), `choice.owner` (the qualified key root of its owner) and `choice.id`, so one step can recommend differently per choice. In a declared choice's own `where` (a query reading the character, or a value choice's), `eligible`, `recommend` and a value choice's `values` formula: the choice itself, the same keys plus `slot` for a slot and `picks`, its own picks (content IDs or values, in saved order), so a choice can leave out what the character has without ruling out its own picks."
+    },
+    {
+      "id": "field",
+      "description": "In an `allocate` step's `limit` and `cost`: the field being allocated to, `field.id` (the qualified field ID) and `field.value` (its computed value before the step)."
+    },
+    {
+      "id": "amount",
+      "description": "In an `allocate` step's `cost`: the amount allocated to the field (an int)."
+    },
+    {
+      "id": "situational",
+      "description": "Selected situational choices (`situational.<id>`): in actions and roll effects, the player's choices for the action; in incoming-change effects, the receiving player's choices on the change being routed. A choice not selected reads its default."
+    },
+    {
+      "id": "roll",
+      "description": "In a result band: the roll being classified: `roll.total` (bounded by `atLeast` and `atMost` roll effects), `roll.faces` (every face as an integer, dropped dice included), `roll.kept` (kept faces), `roll.empty` (the pool was empty and `ifEmpty` was rolled), `roll.tallies.<name>` (the roll's tallies), and in the bands of a set with a `value` `roll.value`, that value. Bands also see the running action's `flags`, `params` and `steps` (provisional). In a roll effect's `when` or `value`: the roll being made (`roll.item`, `roll.self` for the item and copy making it, `roll.tags`); the effect's own content is `item` and `self`."
+    },
+    {
+      "id": "character",
+      "description": "The character as a whole: `character.id` (the file's `id`: a handoff's `participants` name the running character by it), `character.inventory`, `character.features` (lists of copies), `character.creating` (whether it is being created; false unless the file says so) and `character.applied` (the file's applied entries in file order, raw: each `{ id, source, active, state }`, `source` the qualified content ID, `active` the saved flag (default true), `state` the saved values with the source's declared defaults (`dyn`). Blocking by immunities isn't reflected, so activation conditions may read it)."
+    },
+    {
+      "id": "links",
+      "description": "Everywhere `character` is bound: the characters filling the character's link slots, each a view. `links.<slot>` resolves the slot in the formula's pack, then its dependencies, and is a closed object: `id` (the linked character's ID) plus each declared field by field ID (`links.crew.upgrades.mastery`). It is present when the character file links the slot or the app passes a view for it (`has(links.crew)`). A declared field the view lacks reads its `default`; with none it is absent (`has(links.crew.tier)`). An undeclared slot or field is `unknown-name`. Link reads are inputs, not field references: they add no dependency edges."
+    },
+    {
+      "id": "copy",
+      "description": "Inside the arguments of `countCopies`, `sumCopies`, `maxCopies` and `minCopies`: the copy being evaluated: `copy.id`, `copy.item` (qualified item ID), `copy.type` (content type name), `copy.tags`, `copy.equipped`, `copy.quantity`, `copy.templates`, `copy.state.<key>` (declared state keys, saved value or default) and `copy.fields.<field>` (item fields as in `item`: the templates' values, else the item's, else the declared default). `state` and `fields` are `dyn`."
+    },
+    {
+      "id": "entry",
+      "description": "In an immunity query's `where`: the candidate applied entry, `entry.id` and its state keys (`entry.<key>`, the saved value or the declared default), as its `self`; `item` is its source's item. State keys the query's content type declares are typed; the view is open. Not bound elsewhere (`unknown-name`)."
+    },
+    {
+      "id": "f",
+      "description": "Inside the arguments of `countFields`, `sumFields`, `maxFields` and `minFields`: the field being evaluated, a closed object: `id` (the qualified field ID), `type` (its declared value type), `tags` (its declared tags, `[]` if none) and `value` (its computed value, `dyn`). The condition is a static filter: it may read only `f.id`, `f.type` and `f.tags` (`type-mismatch`)."
+    },
+    {
+      "id": "x",
+      "description": "Inside the arguments of the list functions (`countList`, `sumList`, `maxList`, `minList`, and `filterList`, `mapList`, `sortList`) after the list: the list element being evaluated, typed as the list's element type (`dyn` for a `dyn` list). Null elements are skipped. Also in a proposed change with `forEach`, in an action or a follow-up: the element the change is being proposed for, typed as the `forEach` list's element type, in every formula of the change except those it passes on to applyChanges."
+    },
+    {
+      "id": "part",
+      "description": "In a proposed adjust with `split`: the tag group being emitted (`part.total`, the sum of its roll items; `part.tag`, its tag, or null for the untagged group)."
+    },
+    {
+      "id": "incoming",
+      "description": "In an incoming-change effect's `when`, `value` and `then`: the adjust being routed. `incoming.amount` is the change's `by` as requested, before any incoming-change effect (negative for harm), so every effect sees the same number; `incoming.field` is the qualified ID of the field it is aimed at; `incoming.tags` is its tags, as written. Never bound for overflow adjusts, which skip incoming-change effects."
+    },
+    {
+      "id": "change",
+      "description": "In a follow-up triggered by `on`: the `adjustments` entry that triggered it. `change.by` (what the field took), `change.requested` (the change's original amount; 0 when the entry has none), `change.taken` (the amount after incoming-change effects, before absorbing; 0 when the entry has none), `change.reason` (`requested`, `absorbed`, `overflow`, `reset` or `carry`), `change.clamped` (false when absent) and `change.tags` (the change's tags for `requested` and `absorbed` entries, the overflow's for `overflow` entries, `[]` for `reset` and `carry`). With `on.once`, the matching entries summed: `by`, `requested` and `taken` the sums, `reason` the first entry's, `clamped` true if any entry's is, `tags` the union in entry order. In a changes step's `release.where`: a held change, as the action returns it (`type`, `field`, `by`, `entry`, …), its `tags` `[]` when it has none."
+    },
+    {
+      "id": "batch",
+      "description": "In the formulas applyChanges evaluates: a change aimed at copies or applied entries (`where`, `by`, `value`) and an applyEffect state value passed on as `{ formula }`. `batch.adjustments` lists the `adjustments` entries of the batch's earlier changes on this character that change a field, in order, each `{ field, by, requested, reason, clamped, tags }` as an `on` follow-up's `change` has them (`requested` 0 and `clamped` false when absent). A proposed change's formula that reads `batch` is passed on, as one reading `self` or `item` under `copies` is."
+    }
+  ],
+  "functions": [
+    {
+      "id": "min",
+      "signature": "min(number, ...) -> int | decimal",
+      "description": "One or more arguments; int only when all are int."
+    },
+    {
+      "id": "max",
+      "signature": "max(number, ...) -> int | decimal",
+      "description": "One or more arguments; int only when all are int."
+    },
+    {
+      "id": "floor",
+      "signature": "floor(number) -> int"
+    },
+    {
+      "id": "ceil",
+      "signature": "ceil(number) -> int"
+    },
+    {
+      "id": "round",
+      "signature": "round(number) -> int",
+      "description": "Half away from zero."
+    },
+    {
+      "id": "trunc",
+      "signature": "trunc(number) -> int",
+      "description": "Toward zero."
+    },
+    {
+      "id": "abs",
+      "signature": "abs(int) -> int; abs(decimal) -> decimal"
+    },
+    {
+      "id": "size",
+      "signature": "size(list | string) -> int"
+    },
+    {
+      "id": "count",
+      "signature": "count(list<T>, T) -> int",
+      "description": "How many members equal the value."
+    },
+    {
+      "id": "indexOf",
+      "signature": "indexOf(list<T>, T) -> int",
+      "description": "The first position of a member equal to the value (equality as `in`), -1 if none."
+    },
+    {
+      "id": "has",
+      "signature": "has(name | member) -> bool",
+      "description": "Macro: whether an optional value is present; the argument is not evaluated."
+    },
+    {
+      "id": "countCopies",
+      "signature": "countCopies(bool cond) -> int",
+      "character": true,
+      "description": "Macro: the character's copies (inventory, then features) for which `cond` holds, evaluated once per copy with `copy` bound. No aggregate is bound inside its arguments."
+    },
+    {
+      "id": "sumCopies",
+      "signature": "sumCopies(number value, bool cond?) -> int | decimal",
+      "character": true,
+      "description": "Macro: the sum of `value` over the character's copies for which `cond` holds (every copy, without it), evaluated once per copy with `copy` bound; `cond` first. Decimal when any summed value is decimal, else int. No aggregate is bound inside its arguments."
+    },
+    {
+      "id": "maxCopies",
+      "signature": "maxCopies(number value, bool cond?) -> int | decimal",
+      "character": true,
+      "description": "Macro: the highest `value` over the character's copies (inventory, then features) for which `cond` holds (every copy, without it), with `copy` bound as in `sumCopies`; `cond` first. Decimal when any value is decimal, else int. 0 when no copy is kept."
+    },
+    {
+      "id": "minCopies",
+      "signature": "minCopies(number value, bool cond?) -> int | decimal",
+      "character": true,
+      "description": "Macro: the lowest `value` over the character's copies for which `cond` holds, with `copy` bound as in `sumCopies`. 0 when no copy is kept."
+    },
+    {
+      "id": "countFields",
+      "signature": "countFields(bool cond) -> int",
+      "character": true,
+      "description": "Macro: how many fields in the ruleset `cond` holds for, evaluated once per field with `f` bound to its `id`, `type` and `tags` (a static filter). No aggregate is bound inside its arguments."
+    },
+    {
+      "id": "sumFields",
+      "signature": "sumFields(number value, bool cond?) -> int | decimal",
+      "character": true,
+      "description": "Macro: the sum of `value` over the fields `cond` keeps (every field, without it), in ruleset order, with `f` bound; `value` is evaluated only for kept fields. 0 when none is kept."
+    },
+    {
+      "id": "maxFields",
+      "signature": "maxFields(number value, bool cond?) -> int | decimal",
+      "character": true,
+      "description": "Macro: the highest `value` over the fields `cond` keeps, with `f` bound. 0 when none is kept."
+    },
+    {
+      "id": "minFields",
+      "signature": "minFields(number value, bool cond?) -> int | decimal",
+      "character": true,
+      "description": "Macro: the lowest `value` over the fields `cond` keeps, with `f` bound. 0 when none is kept."
+    },
+    {
+      "id": "countList",
+      "signature": "countList(list, bool cond) -> int",
+      "description": "Macro: how many elements of the list `cond` holds for, evaluated once per element in order with `x` bound. Null elements are skipped. No aggregate is bound inside its arguments after the list; the list itself may be one."
+    },
+    {
+      "id": "sumList",
+      "signature": "sumList(list, number value, bool cond?) -> int | decimal",
+      "description": "Macro: the sum of `value` over the elements `cond` holds for (every element, without it), with `x` bound; `cond` first. 0 for none."
+    },
+    {
+      "id": "maxList",
+      "signature": "maxList(list, number value, bool cond?) -> int | decimal",
+      "description": "Macro: the highest `value` over the elements `cond` holds for, with `x` bound. 0 for none."
+    },
+    {
+      "id": "minList",
+      "signature": "minList(list, number value, bool cond?) -> int | decimal",
+      "description": "Macro: the lowest `value` over the elements `cond` holds for, with `x` bound. 0 for none."
+    },
+    {
+      "id": "filterList",
+      "signature": "filterList(list, bool cond) -> list",
+      "description": "Macro: the elements `cond` holds for, in list order, with `x` bound. Null elements are skipped. The list argument may itself be an aggregate."
+    },
+    {
+      "id": "mapList",
+      "signature": "mapList(list, value) -> list",
+      "description": "Macro: `value` for each element, in order, with `x` bound. Null elements are skipped."
+    },
+    {
+      "id": "sortList",
+      "signature": "sortList(list, key?) -> list",
+      "description": "Macro: the elements in ascending order of `key` (numbers or strings, all of one kind; the element itself without a key), with `x` bound; equal keys keep their list order. Null elements are skipped."
+    },
+    {
+      "id": "countEquipped",
+      "signature": "countEquipped(string type) -> int",
+      "character": true,
+      "description": "The character's equipped copies of a content type.",
+      "deprecated": {
+        "replacedBy": "countCopies(copy.type == type && copy.equipped)"
+      }
+    },
+    {
+      "id": "countState",
+      "signature": "countState(string key) -> int",
+      "character": true,
+      "description": "The character's copies whose per-copy state `key` is true.",
+      "deprecated": {
+        "replacedBy": "countCopies(has(copy.state.<key>) && copy.state.<key>)"
+      }
+    },
+    {
+      "id": "sumState",
+      "signature": "sumState(string type, string key) -> int",
+      "character": true,
+      "description": "Sum of an integer per-copy state key over the character's copies of a content type.",
+      "deprecated": {
+        "replacedBy": "sumCopies(copy.state.<key>, copy.type == type && has(copy.state.<key>))"
+      }
+    },
+    {
+      "id": "maxOf",
+      "signature": "maxOf(dice) -> int",
+      "description": "The highest total of a dice value: every die of a positive term shows its highest face and every die of a negative term its lowest, with no rerolls or explosions; the term's other modifiers then apply. An int is its own value."
+    },
+    {
+      "id": "minOf",
+      "signature": "minOf(dice) -> int",
+      "description": "The lowest total of a dice value: the reverse of `maxOf`."
+    },
+    {
+      "id": "dieOf",
+      "signature": "dieOf(dice, int count?) -> dice",
+      "description": "`count` dice (default 1) of the value's first term: its sides, zero-based flag and Fate-ness, with no modifiers and a positive sign; the flat part is dropped. A value with no terms gives no dice. A negative count is `type-mismatch`; one over `maxDicePerItem` is `safety-limit-exceeded`."
+    },
+    {
+      "id": "fieldOf",
+      "signature": "fieldOf(string pattern, string | int key, ...) -> T",
+      "description": "The field a family pattern names for its keys: the pattern, a string literal with one or more `{family}` placeholders (each family once), takes one key per placeholder, in order, each put in its placeholder's place. Every field of the pattern must exist for the families' declared values and share a type, the result's; the formula reads all of them. A value another pack added is read from that pack's own field (the first added key's pack). A key that isn't a value of its family is `no-such-key`; a wrong number of keys `wrong-arity`. Bound where the formula belongs to a pack."
+    },
+    {
+      "id": "keysOf",
+      "signature": "keysOf(string family) -> list<string> | list<int>",
+      "description": "A family's values, in order, with every loaded pack's additions: ints when each is a whole number, else strings. The name is a string literal; an unknown family is `unknown-name`."
+    },
+    {
+      "id": "countOf",
+      "signature": "countOf(dice) -> int",
+      "description": "The count of the value's first term; 0 for a value with no terms. An int argument is a dice value with no terms."
+    },
+    {
+      "id": "string",
+      "signature": "string(int | string | bool) -> string",
+      "description": "The value as text: an int in decimal digits with a leading `-` when negative, `true` or `false`, a string itself. A decimal is `type-mismatch`. Bound everywhere: `'spells.repertoire.rank' + string(slot)`."
+    },
+    {
+      "id": "hasChoice",
+      "signature": "hasChoice(string type) -> bool",
+      "description": "Whether the character has a choice drawing from the content type, made or pending: an entry of computeSheet's `choices` whose `type` is it. A local type ID resolves in the formula's pack as a field ID does. Bound only in display hints' `showWhen` (groups, field hints, state hints); elsewhere `unknown-function`."
+    }
+  ]
+}

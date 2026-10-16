@@ -1,0 +1,49 @@
+id: feats.rogue.twin-feint
+type: feat
+fields: { level: 1, category: class, class: classes.rogue }
+
+# The first Strike's count is only proposed, so the second says it is the next attack. The target is
+# off-guard to the second through its `offGuardTarget` choice.
+actions:
+  - id: twin-feint
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    available: >-
+      countCopies(copy.type == 'weapon' && copy.equipped && copy.fields.range == 0) > 0
+    steps:
+      - id: first
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: second
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0 && self.id != steps.first.picked"
+      - id: strike1
+        kind: action
+        use: strike
+        entry: steps.first.picked
+        participants: { target: participants.target }
+      - id: strike2
+        kind: action
+        use: strike
+        entry: steps.second.picked
+        situational: { offGuardTarget: true }
+        params: { attack: 'min(3, turn.attacks + 2)' }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike2.result
+        data:
+          first: steps.strike1.result
+          damage: steps.strike1.data.damage + steps.strike2.data.damage

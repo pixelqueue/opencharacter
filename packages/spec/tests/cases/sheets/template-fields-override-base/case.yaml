@@ -1,0 +1,29 @@
+description: "A template may set a field of the content type its appliesTo names: its value replaces the base item's in the copy's item, and its formulas read the base item as `base`"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          gear.weight: { type: decimal, formula: 'sumCopies(copy.fields.weight)' }
+        contentTypes:
+          weapon:
+            carried: true
+            fields:
+              damageType: { type: enum, values: [slashing, radiant], required: true }
+              weight: { type: decimal }
+            computed:
+              damageType: { type: string, formula: item.damageType }
+              weight: { type: decimal, formula: item.weight }
+      content:
+        - { id: weapons.longsword, type: weapon, fields: { damageType: slashing, weight: 3 } }
+        - id: sunlit
+          type: template
+          appliesTo: { type: weapon }
+          fields: { damageType: radiant, weight: base.weight + 1 }

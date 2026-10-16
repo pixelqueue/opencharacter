@@ -1,0 +1,24 @@
+status: finished
+outcome:
+  result: success
+  data:
+    total: 3
+    dr: 12
+    omensSpent: 0
+proposedChanges:
+  - to: self
+    step: clarity
+    change:
+      type: set
+      field: mork-borg-core:tests.horn
+      value: false
+log:
+  - step: check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 3
+    total: 3
+    band: failure
+    bandSet: mork-borg-core:test

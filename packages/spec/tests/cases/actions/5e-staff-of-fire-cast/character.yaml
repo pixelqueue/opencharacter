@@ -1,0 +1,22 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 14
+  5e-srd-5.1:abilities.dex.base: 14
+  5e-srd-5.1:abilities.int.base: 16
+  5e-srd-5.1:hp.base: 20
+  5e-srd-5.1:hp.current: 20
+features:
+  - id: wizard
+    item: 5e-srd-5.1:classes.wizard
+    state: { level: 1, startingClass: true }
+    choices:
+      skills: [{ option: skill.arcana }, { option: skill.history }]
+inventory:
+  - id: staff
+    item: 5e-srd-5.1:weapons.quarterstaff
+    templates: [5e-srd-5.1:magic-items.staff-of-fire]
+    equipped: true
+    state: { attuned: true, charges: 10, wielding: one-handed }

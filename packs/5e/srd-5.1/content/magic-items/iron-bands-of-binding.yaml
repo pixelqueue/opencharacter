@@ -1,0 +1,70 @@
+id: magic-items.iron-bands-of-binding
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  weight: 1
+state:
+  usedToday: { type: set, of: string, default: [] }
+actions:
+  - id: bind
+    tags: [attack]
+    available: "self.quantity > 0 && !('bind' in self.usedToday)"
+    results: [hit, miss]
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          combat.ac: { type: integer }
+          conditions.prone: { type: boolean, default: false }
+          conditions.restrained: { type: boolean, default: false }
+          conditions.blinded: { type: boolean, default: false }
+          conditions.invisible: { type: boolean, default: false }
+          protection.evilAndGood: { type: boolean, default: false }
+          combat.elusive: { type: boolean, default: false }
+          combat.attackersDisadvantage: { type: boolean, default: false }
+    steps:
+      - id: use
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['bind']" }
+      - id: attack
+        kind: roll
+        tags: [d20-test, attack.item]
+        parts:
+          - dice: 1d20
+          - field: "'abilities.dex.mod'"
+          - value: proficiency.bonus
+      - id: hit
+        kind: branch
+        cases:
+          - when: steps.attack.kept[0] == 20
+            flags: { hit: true }
+          - when: steps.attack.kept[0] == 1
+            flags: { hit: false }
+          - when: size(participants.target) > 0 && has(participants.target[0].combat.ac)
+            flags:
+              hit: steps.attack.total >= participants.target[0].combat.ac
+          - when: has(params.targetAc)
+            flags: { hit: steps.attack.total >= params.targetAc }
+        else:
+          flags: { hit: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options: [{ id: hit }, { id: miss }]
+      - id: bound
+        kind: changes
+        when: flags.hit || (has(steps.confirm) && steps.confirm.picked == 'hit')
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.restrained'"
+            state: { by: creature.type, magical: true }
+      - id: result
+        kind: outcome
+        result: "flags.hit || (has(steps.confirm) && steps.confirm.picked == 'hit') ? 'hit' : 'miss'"
+        data:
+          attack: steps.attack.total

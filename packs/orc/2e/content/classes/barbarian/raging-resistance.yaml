@@ -1,0 +1,11 @@
+id: classes.barbarian.raging-resistance
+type: feature
+fields: { level: 9 }
+effects:
+  - id: resistance
+    target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    stackKey: resistance
+    value: min(3 + attributes.con.mod, -incoming.amount)
+    when: >-
+      rage.active && incoming.amount < 0 && countList(incoming.tags, x in rage.resists) > 0

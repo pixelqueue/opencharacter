@@ -1,0 +1,28 @@
+id: spells.song-of-strength
+type: spell
+tags:
+  [
+    trait.bard,
+    trait.cantrip,
+    trait.composition,
+    trait.concentrate,
+    trait.emotion,
+    trait.mental,
+    trait.uncommon,
+  ]
+# Pass yourself as an ally too. Its status bonus is the entry's `value` when Fortissimo Composition
+# raised it.
+fields:
+  rank: 1
+  cast: one
+  area: emanation
+  areaSize: 60
+  duration: rounds
+  durationAmount: 1
+  applyTo: ally
+effects:
+  - target: { fields: { where: "'skill.athletics' in item.tags" } }
+    op: add
+    value: max(1, self.value)
+    stackKey: status-bonus
+    scope: applied

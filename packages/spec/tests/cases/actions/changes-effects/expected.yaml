@@ -1,0 +1,21 @@
+# The sword deals 3. On the hit (a step with only tags), in instance order: the tally counts it
+# (the hit is from ambush, a tag the action step adds), the sword's bleed reaches the target (the
+# step's `to`), and the sword counts a use (its own `to: self`, `entry: self` its copy).
+status: finished
+outcome: {}
+proposedChanges:
+  - to: target
+    character: orc
+    step: strike/deal[0]
+    change: { type: adjust, field: test-pack:hp, by: -3 }
+  - to: self
+    step: strike/onHit[0]
+    change: { type: adjust, field: test-pack:hits, by: 1 }
+  - to: target
+    character: orc
+    step: strike/onHit[0]
+    change: { type: adjust, field: test-pack:hp, by: -1, tags: [bleed] }
+  - to: self
+    step: strike/onHit[0]
+    change: { type: adjustState, entry: sword, key: uses, by: 1 }
+log: []

@@ -1,0 +1,11 @@
+id: feats.druid.impaling-briars
+type: feat
+fields: { level: 16, category: class, class: classes.druid }
+prerequisites:
+  - id: leaf-order
+    when: "'druid-order.leaf' in druid.orders"
+effects:
+  - { target: focus.points, op: add, value: 1 }
+  - { target: druid.orderSpells, op: grant, value: { item: spells.impaling-briars } }
+grants:
+  - item: spells.impaling-briars

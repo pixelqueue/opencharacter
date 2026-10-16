@@ -1,0 +1,18 @@
+id: spells.energy-absorption
+type: spell
+tags: [trait.focus, trait.uncommon, trait.wizard]
+fields:
+  rank: 4
+  cast: reaction
+  applyTo: self
+  damageTypeChoice: true
+  damageType: fire
+effects:
+  - target:
+      incoming:
+        fields: [hp.current]
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 15 + 5 * (self.rank - 4))
+    when: incoming.amount < 0 && ('damage.' + self.damageType) in incoming.tags
+    scope: applied

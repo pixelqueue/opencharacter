@@ -1,0 +1,26 @@
+description: "Paused, a budget step's field with no limit gives costs from 0 to the budget"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [stat]
+        fields:
+          stats.luck: { type: integer, input: true, default: 2, min: 0, tags: [stat] }
+        actions:
+          - id: spend
+            steps:
+              - id: points
+                kind: allocate
+                fields: { type: field, where: "'stat' in item.tags" }
+                budget: 3
+      content: []
+input:
+  action: { id: test-pack:spend }
+  policy: { allocations: pause }

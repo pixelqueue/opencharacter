@@ -1,0 +1,53 @@
+fields:
+  oracle.mystery:
+    type: enum
+    values: [none, ancestors, battle, bones, cosmos, flames, life, lore, tempest]
+    formula: "'none'"
+  oracle.cursebound: { type: integer, input: true, default: 0, min: 0, max: oracle.curseMax }
+  oracle.curseMax: { type: integer, formula: 'level >= 17 ? 4 : level >= 11 ? 3 : 2' }
+  oracle.granted: { type: set, of: spell }
+  oracle.revelations: { type: set, of: spell }
+  oracle.grantedFeats: { type: set, of: feat }
+
+tags:
+  - trait.cursebound
+
+situational:
+  - id: againstSpell
+    type: boolean
+    default: false
+    rolls: [save]
+    available: >-
+      oracle.mystery == 'battle' || countCopies(copy.type == 'shield' && copy.equipped
+        && copy.item in [@shields.specific.spellguard-shield,
+          @shields.specific.reflecting-shield]) > 0
+  - id: divineAegis
+    type: enum
+    values: [none, nondivine, divine]
+    default: none
+    rolls: [save]
+    available: '@feats.oracle.divine-aegis in feats.held'
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 1
+        stackKey: circumstance-bonus
+        when: situational.divineAegis == 'nondivine'
+      - target: { rolls: [save] }
+        op: add
+        value: -1
+        stackKey: circumstance-penalty
+        when: situational.divineAegis == 'divine'
+
+display:
+  fields:
+    oracle.mystery: { groups: [summary], priority: 2 }
+    oracle.cursebound:
+      groups: [spellcasting]
+      priority: 0
+      showWhen: "oracle.mystery != 'none'"
+      with: [{ field: oracle.curseMax, as: max }]
+    oracle.curseMax: { groups: [spellcasting], priority: 2, showWhen: "oracle.mystery != 'none'" }
+    oracle.granted: { hidden: true }
+    oracle.revelations: { hidden: true }
+    oracle.grantedFeats: { hidden: true }

@@ -1,0 +1,21 @@
+description: 'A computed value reads only the computed values declared before it: reading a later one is unknown-name'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 0 }
+        contentTypes:
+          gear:
+            carried: true
+            computed:
+              quality: { type: integer, formula: self.scale + 1 }
+              scale: { type: integer, formula: tier }
+      content: []

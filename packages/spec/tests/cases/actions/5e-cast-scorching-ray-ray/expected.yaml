@@ -1,0 +1,15 @@
+# The wizard knows the spell: +6 (Intelligence +3, proficiency +3). 10 + 6 = 16 against AC 13
+# hits; 2d6 (4, 5) = 9 fire to the target.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 16, spellcastingClass: wizard }
+proposedChanges:
+  - to: target
+    character: goblin
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.1:hp.current
+      by: -9
+      tags: [damage, attack, spell, magical, ranged, damage.fire]

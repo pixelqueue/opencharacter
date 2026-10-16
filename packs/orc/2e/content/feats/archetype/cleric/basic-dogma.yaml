@@ -1,0 +1,15 @@
+id: feats.archetype.cleric.basic-dogma
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.cleric }
+prerequisites:
+  - { id: cleric-dedication, when: '@feats.archetype.cleric.cleric-dedication in feats.held' }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && !('trait.archetype' in item.tags)
+          && (has(item.class) && item.class == @classes.cleric || 'trait.cleric' in item.tags)
+    eligible: item.level <= 2

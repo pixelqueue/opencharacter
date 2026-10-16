@@ -1,0 +1,22 @@
+# No ember: only the rules' follow-up.
+ok: true
+followUps:
+  - id: call-ally-1
+    kind: ephemeral
+    followUp: test-follow-ups:call-ally
+    to:
+      link: test-follow-ups:ally
+    required: false
+    action:
+      id: test-ally:help
+    params:
+      lost: 6
+    cause:
+      field: test-follow-ups:hp.current
+      by: -6
+      requested: -6
+      taken: -6
+      reason: requested
+      clamped: false
+      tags:
+        - damage.fire

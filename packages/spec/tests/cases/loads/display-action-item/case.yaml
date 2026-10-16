@@ -1,0 +1,30 @@
+description: "An actions group's where sees each listed action as item: id, tags, entry and source, nothing else"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack, rest]
+        actions:
+          - id: swing
+            tags: [attack]
+            steps:
+              - { id: done, kind: outcome }
+        display:
+          groups:
+            - id: attacks
+              kind: actions
+              members: { type: action, where: "'attack' in item.tags && has(item.entry)" }
+            - id: rests
+              kind: actions
+              members: { type: action, where: "item.id == 'test-pack:rest' || has(item.source)" }
+            - id: deep
+              kind: actions
+              members: { type: action, where: item.params.target }
+      content: []

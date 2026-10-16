@@ -1,0 +1,64 @@
+id: features.monk.empty-body
+type: feature
+effects:
+  - target:
+      incoming:
+        fields: [hp.current]
+        tags:
+          [
+            damage.acid,
+            damage.bludgeoning,
+            damage.cold,
+            damage.fire,
+            damage.lightning,
+            damage.necrotic,
+            damage.piercing,
+            damage.poison,
+            damage.psychic,
+            damage.radiant,
+            damage.slashing,
+            damage.thunder,
+          ]
+    op: multiply
+    value: 0.5
+    when: emptyBody.active
+actions:
+  - id: empty-body
+    tags: [feature]
+    results: [vanished]
+    available: '!emptyBody.active && self.kiSpent + 4 <= ki.points'
+    steps:
+      - id: vanish
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: kiSpent, by: 4 }
+          - { type: set, field: emptyBody.active, value: true }
+          - { type: applyEffect, id: empty-body, source: "'conditions.invisible'" }
+      - id: result
+        kind: outcome
+        result: "'vanished'"
+  - id: end-empty-body
+    tags: [feature]
+    results: [ended]
+    available: emptyBody.active
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - { type: set, field: emptyBody.active, value: false }
+          - { type: removeEffect, applied: { where: "self.id == 'empty-body'" } }
+      - id: result
+        kind: outcome
+        result: "'ended'"
+  - id: astral-projection
+    tags: [feature]
+    results: [projected]
+    available: self.kiSpent + 8 <= ki.points
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: kiSpent, by: 8 }
+      - id: result
+        kind: outcome
+        result: "'projected'"

@@ -1,0 +1,15 @@
+status: finished
+outcome:
+  result: cast
+  data: { rank: 1, mode: prepared, dc: 25, defense: will, basic: false, damage: 0, healing: 0 }
+proposedChanges:
+  - to: self
+    step: spend
+    change: { type: setState, entry: fear-1, key: expended, value: true }
+  - to: target
+    character: goblin
+    step: afflict[0]
+    change:
+      type: applyEffect
+      source: orc-2e:conditions.frightened
+      state: { value: 2 }

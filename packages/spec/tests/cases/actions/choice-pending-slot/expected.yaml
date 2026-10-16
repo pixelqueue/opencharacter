@@ -1,0 +1,13 @@
+# The app finds the prompt by the declared ID (`test-pack:rules.choices.boost.prompt`) and fills
+# `{slot}` with 1.
+status: paused
+needs:
+  step: picks
+  kind: choice
+  options: [str, dex, '#done']
+  recommended: dex
+  choice:
+    path: { choice: [boost-1] }
+    owner: test-pack:rules
+    id: boost-1
+    slot: { choice: boost, number: 1 }

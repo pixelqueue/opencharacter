@@ -1,0 +1,109 @@
+id: classes.oracle.mysteries.lore
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: oracle.mystery, op: set, value: "'lore'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.occultism },
+      when: "!('skill.occultism' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: oracle.grantedFeats, op: grant, value: { item: feats.oracle.whispers-of-weakness } }
+  - { target: focus.points, op: add, value: 1 }
+  - { target: oracle.revelations, op: grant, value: { item: spells.brain-drain } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.access-lore } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.dread-secret } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.read-aura } }
+  - { target: oracle.granted, op: grant, value: { item: spells.read-aura } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.read-aura } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.mindlink } }
+  - { target: oracle.granted, op: grant, value: { item: spells.mindlink } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.mindlink } }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.mindlink }
+    when: '@feats.oracle.gifted-power in feats.held'
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.mindlink } }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.hypercognition },
+      when: level >= 5,
+    }
+  - { target: oracle.granted, op: grant, value: { item: spells.hypercognition }, when: level >= 5 }
+  - {
+      target: spells.bonusKnown,
+      op: grant,
+      value: { item: spells.hypercognition },
+      when: level >= 5,
+    }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.hypercognition }
+    when: 'level >= 5 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank3,
+      op: grant,
+      value: { item: spells.hypercognition },
+      when: level >= 5,
+    }
+  - target: perception.mod
+    op: add
+    value: -oracle.cursebound
+    stackKey: status-penalty
+    when: oracle.cursebound > 0
+  - target: saves.will.mod
+    op: add
+    value: -oracle.cursebound
+    stackKey: status-penalty
+    when: oracle.cursebound > 0
+  - target:
+      fields:
+        where: "'attr.int' in item.tags || 'attr.wis' in item.tags || 'attr.cha' in item.tags"
+    op: add
+    value: -1
+    stackKey: status-penalty
+    when: oracle.cursebound >= 4
+  - { target: spells.repertoire, op: grant, value: { item: spells.never-mind }, when: level >= 11 }
+  - { target: oracle.granted, op: grant, value: { item: spells.never-mind }, when: level >= 11 }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.never-mind }, when: level >= 11 }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.never-mind }
+    when: 'level >= 11 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank6,
+      op: grant,
+      value: { item: spells.never-mind },
+      when: level >= 11,
+    }
+grants:
+  - item: feats.oracle.whispers-of-weakness
+  - item: spells.brain-drain
+  - { item: spells.read-aura }
+  - { item: spells.mindlink }
+  - { item: spells.hypercognition, when: level >= 5 }
+  - { item: spells.never-mind, when: level >= 11 }
+choices:
+  - id: lore
+    from:
+      values:
+        [
+          skill.lore.academia,
+          skill.lore.circus,
+          skill.lore.farming,
+          skill.lore.legal,
+          skill.lore.scribing,
+          skill.lore.underworld,
+          skill.lore.warfare,
+        ]
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }

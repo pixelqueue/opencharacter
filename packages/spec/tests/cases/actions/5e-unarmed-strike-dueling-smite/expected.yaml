@@ -1,0 +1,16 @@
+# 9 + Strength 3 + proficiency 4 = 16 >= 12. Damage 1 + Strength 3 = 4 bludgeoning: no Dueling
+# +2, no Improved Divine Smite 1d8 (both need a melee weapon).
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 16 }
+proposedChanges:
+  - to: target
+    step: deal
+    change:
+      {
+        type: adjust,
+        field: 5e-srd-5.1:hp.current,
+        by: -4,
+        tags: [damage, attack, melee, nonmagical, damage.bludgeoning],
+      }

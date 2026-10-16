@@ -1,0 +1,13 @@
+id: weapons.specific.chaplains-cudgel
+type: weapon
+extends: weapons.mace
+tags: [trait.magical, trait.shove]
+fields:
+  price: 650
+  bulk: 1
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.weapon-potency-1
+    copies: { type: weapon, where: 'item.id == @weapons.specific.chaplains-cudgel' }
+  - template: runes.striking
+    copies: { type: weapon, where: 'item.id == @weapons.specific.chaplains-cudgel' }

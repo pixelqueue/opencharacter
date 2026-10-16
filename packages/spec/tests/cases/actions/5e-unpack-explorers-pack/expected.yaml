@@ -1,0 +1,38 @@
+# Each content becomes its own copy (addItem never merges into a copy already held), so
+# the torches skip the ID the character already uses. The pack's quantity is 1, so it is removed
+# rather than lowered.
+status: finished
+proposedChanges:
+  - to: self
+    step: unpack
+    change: { type: addItem, entry: { id: gear-backpack-1, item: 5e-srd-5.1:gear.backpack } }
+  - to: self
+    step: unpack
+    change: { type: addItem, entry: { id: gear-bedroll-1, item: 5e-srd-5.1:gear.bedroll } }
+  - to: self
+    step: unpack
+    change: { type: addItem, entry: { id: gear-mess-kit-1, item: 5e-srd-5.1:gear.mess-kit } }
+  - to: self
+    step: unpack
+    change: { type: addItem, entry: { id: gear-tinderbox-1, item: 5e-srd-5.1:gear.tinderbox } }
+  - to: self
+    step: unpack
+    change:
+      type: addItem
+      entry: { id: gear-torch-2, item: 5e-srd-5.1:gear.torch, quantity: 10 }
+  - to: self
+    step: unpack
+    change:
+      type: addItem
+      entry: { id: gear-rations-1, item: 5e-srd-5.1:gear.rations, quantity: 10 }
+  - to: self
+    step: unpack
+    change: { type: addItem, entry: { id: gear-waterskin-1, item: 5e-srd-5.1:gear.waterskin } }
+  - to: self
+    step: unpack
+    change:
+      type: addItem
+      entry: { id: gear-hempen-rope-1, item: 5e-srd-5.1:gear.hempen-rope }
+  - to: self
+    step: unpack
+    change: { type: removeItem, entry: pack }

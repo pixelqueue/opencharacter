@@ -1,0 +1,46 @@
+id: features.sorcerer.blood-magic
+type: feature
+fields: { level: 1 }
+# An effect on you replaces the one before (it removes every applied `blood-magic` effect). Casting
+# a bloodline spell with a Focus Point, or a gift spell from a slot, proposes `blood-magic` at the
+# spell's rank at the cast's `spell.paid` step.
+followUps:
+  - id: blood-magic
+    action: blood-magic
+effects:
+  - target: { steps: [spell.paid] }
+    op: changes
+    when: >-
+      (flags.mode == 'focus' && 'trait.sorcerer' in action.item.tags)
+        || (action.item.id in sorcerer.gifts && (flags.mode == 'spontaneous' || flags.pooled))
+    value:
+      changes:
+        - { type: offerFollowUp, followUp: blood-magic, params: { rank: flags.rank } }
+actions:
+  - id: blood-magic
+    tags: [class-action]
+    params:
+      rank: { type: integer, optional: true, min: 1, max: 10 }
+    participants:
+      target: { max: 1 }
+    results: [applied]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              rank: 'has(params.rank) ? params.rank : spells.autoRank'
+              hasTarget: size(participants.target) > 0
+      - id: effect
+        kind: choice
+        tags: [blood-magic]
+        recommend: "'none'"
+        options:
+          - id: none
+      - id: result
+        kind: outcome
+        result: "'applied'"
+        data:
+          rank: flags.rank
+          effect: steps.effect.picked

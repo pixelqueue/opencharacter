@@ -1,0 +1,256 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/upgrade.schema.json",
+  "title": "Upgrade script",
+  "description": "Data, not code: moves saved characters from one pack version to the next when the saved state's shape changes. Scripts chain one version at a time. Steps are a fixed set kept in sync with `data/upgrade-steps.json`; computed defaults are formulas.",
+  "type": "object",
+  "required": ["pack", "from", "to", "steps"],
+  "properties": {
+    "pack": {
+      "$ref": "common.schema.json#/$defs/packId"
+    },
+    "from": {
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "to": {
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/step"
+      },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "step": {
+      "type": "object",
+      "required": ["op"],
+      "properties": {
+        "op": {
+          "enum": [
+            "renameContent",
+            "removeContent",
+            "renameField",
+            "removeField",
+            "setDefault",
+            "mapValues",
+            "renameState",
+            "renameChoice",
+            "renameOption",
+            "requireChoice",
+            "renameContentType",
+            "renameItemField",
+            "removeItemField",
+            "mapItemValues",
+            "renameTag",
+            "renameAction",
+            "adoptStandard"
+          ]
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "field": {
+          "$ref": "common.schema.json#/$defs/fieldRef"
+        },
+        "type": {
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "value": {
+          "$ref": "formula.schema.json"
+        },
+        "map": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "common.schema.json#/$defs/literal"
+          }
+        },
+        "owner": {
+          "$ref": "common.schema.json#/$defs/ref"
+        },
+        "choice": {
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "item": {
+          "description": "adoptStandard: the item whose standard copy an entry becomes.",
+          "$ref": "common.schema.json#/$defs/ref"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "enum": [
+                  "renameContent",
+                  "renameField",
+                  "renameState",
+                  "renameChoice",
+                  "renameContentType",
+                  "renameItemField",
+                  "renameTag",
+                  "renameAction"
+                ]
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["from", "to"],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "removeContent"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["id"],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "removeField"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["field"],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "setDefault"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["field", "value"],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "mapValues"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["field", "map"],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "requireChoice"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["choice"],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "renameOption"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["choice", "from"]
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "op": {
+                "enum": ["renameItemField", "removeItemField", "mapItemValues"]
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["type"]
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "removeItemField"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["field"]
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "mapItemValues"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["field", "map"]
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "adoptStandard"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["item"]
+          }
+        }
+      ],
+      "additionalProperties": false
+    }
+  }
+}

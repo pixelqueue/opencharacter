@@ -1,0 +1,14 @@
+description: '5E Fireball at two targets: one damage roll, each target saves on its own sheet (a handoff), half damage on a success'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:cast-spell, entry: wizard, source: 5e-srd-5.1:spells.fireball }
+  participants:
+    target:
+      - { id: goblin-1 }
+      - { id: goblin-2 }
+answers:
+  - { outcome: { result: success, data: { total: 16 } } }
+  - { outcome: { result: failure, data: { total: 9 } } }

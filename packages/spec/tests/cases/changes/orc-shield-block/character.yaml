@@ -1,0 +1,75 @@
+# Valeria (examples/characters/orc-valeria.yaml) mid-fight: shield raised and Dueling
+# Parry on (two circumstance bonuses to AC), frightened 2, sickened 1 and clumsy 1 (three status
+# penalties), and prone (off-guard, and a circumstance penalty to attacks).
+# An orc-2e character: a 1st-level human fighter with a warrior
+# background, a longsword and a wooden shield, in chain mail.
+#
+# Boosts: two free from her ancestry (Strength, Constitution), the warrior's Strength and a free
+# Dexterity, the fighter's Strength, and four free (Strength, Dexterity, Constitution, Wisdom):
+# Str +4, Dex +2, Con +2, Wis +1. A versatile human takes a general feat (Toughness); Natural
+# Ambition gives a second fighter feat (Sudden Charge). She speaks Common and one more language.
+specVersion: 0.1.0
+id: example-orc-valeria
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:hp.current: 21
+  orc-2e:shield.raised: true
+  orc-2e:parry.active: true
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      heritage:
+        - option: orc-2e:heritages.versatile-human
+          choices:
+            feat:
+              - option: orc-2e:feats.general.toughness
+      boosts:
+        - option: orc-2e:boosts.str
+        - option: orc-2e:boosts.con
+  - id: background
+    item: orc-2e:backgrounds.warrior
+    choices:
+      boost:
+        - option: orc-2e:boosts.str
+      free-boost:
+        - option: orc-2e:boosts.dex
+  - id: class
+    item: orc-2e:classes.fighter
+    choices:
+      key-attribute:
+        - option: str
+      class-skill:
+        - option: skill.athletics
+      skills:
+        - option: skill.acrobatics
+        - option: skill.diplomacy
+        - option: skill.survival
+      class-feat-1:
+        - option: orc-2e:feats.fighter.vicious-swing
+inventory:
+  - { id: longsword, item: orc-2e:weapons.longsword, equipped: true }
+  - { id: shield, item: orc-2e:shields.wooden-shield, equipped: true }
+  - { id: armor, item: orc-2e:armor.chain-mail, equipped: true }
+  - { id: backpack, item: orc-2e:gear.backpack }
+  - { id: rope, item: orc-2e:gear.rope }
+  - { id: rations, item: orc-2e:gear.rations, quantity: 2 }
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.natural-ambition
+      choices:
+        feat:
+          - option: orc-2e:feats.fighter.sudden-charge
+  languages:
+    - option: orc-2e:languages.dwarven
+applied:
+  - { id: frightened, source: orc-2e:conditions.frightened, state: { value: 2 } }
+  - { id: sickened, source: orc-2e:conditions.sickened, state: { value: 1 } }
+  - { id: clumsy, source: orc-2e:conditions.clumsy, state: { value: 1 } }
+  - { id: prone, source: orc-2e:conditions.prone }

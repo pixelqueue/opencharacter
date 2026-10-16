@@ -1,0 +1,20 @@
+id: feats.oracle.oracular-warning
+type: feat
+tags: [trait.auditory, trait.cursebound, trait.emotion, trait.mental]
+fields: { level: 1, category: class, class: classes.oracle }
+actions:
+  - id: oracular-warning
+    tags: [class-action]
+    available: oracle.cursebound < oracle.curseMax
+    results: [used]
+    steps:
+      - id: curse
+        kind: changes
+        changes:
+          - { type: adjust, field: oracle.cursebound, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          initiative: 'oracle.cursebound >= 3 ? 4 : oracle.cursebound >= 2 ? 3 : 2'
+          tempHp: floor(level / 2)

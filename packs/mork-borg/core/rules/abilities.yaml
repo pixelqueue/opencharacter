@@ -1,0 +1,105 @@
+fields:
+  abilities.strength: { type: integer, input: true, default: 0, min: -3, max: 6, tags: [ability] }
+  abilities.agility: { type: integer, input: true, default: 0, min: -3, max: 6, tags: [ability] }
+  abilities.presence: { type: integer, input: true, default: 0, min: -3, max: 6, tags: [ability] }
+  abilities.toughness: { type: integer, input: true, default: 0, min: -3, max: 6, tags: [ability] }
+
+  hp.max: { type: integer, input: true, default: 1, min: 1 }
+  hp.current: { type: integer, input: true, default: 1, max: hp.max }
+  # Exactly 0 is broken; damage that skips past 0 kills outright.
+  dead: { type: boolean, formula: hp.current < 0 }
+
+  omens.die: { type: dice, formula: 1d2 }
+  omens.max: { type: integer, input: true, default: 0, min: 0 }
+  omens.current: { type: integer, input: true, default: 0, min: 0, max: omens.max }
+
+  powers.max: { type: integer, input: true, default: 0, min: 0 }
+  powers.current: { type: integer, input: true, default: 0, min: 0, max: powers.max }
+
+  silver.current: { type: integer, input: true, default: 0, min: 0 }
+
+  load.capacity: { type: integer, formula: abilities.strength + 8, min: 0 }
+  load.items:
+    type: integer
+    formula: "countCopies(copy.type in ['weapon', 'armor', 'shield', 'ammo', 'scroll', 'decoction']) + load.extra"
+  load.extra: { type: integer, input: true, default: 0, min: 0 }
+  load.encumbered: { type: boolean, formula: load.items > load.capacity }
+
+  condition.starving: { type: boolean, input: true, default: false }
+  condition.infected: { type: boolean, input: true, default: false }
+  condition.hungryDays: { type: integer, input: true, default: 0, min: 0 }
+  condition.hemorrhage: { type: integer, input: true, default: 0, min: 0, max: 2 }
+  condition.philtre: { type: boolean, input: true, default: false }
+  condition.berserk: { type: boolean, input: true, default: false }
+
+  tests.strengthDr: { type: integer, formula: 'load.encumbered ? 2 : 0' }
+  tests.agilityDr:
+    {
+      type: integer,
+      formula: '(load.encumbered ? 2 : 0) + (armor.baseTier >= 2 ? (armor.baseTier - 1) * 2 : 0)',
+    }
+  tests.presenceDr: { type: integer, formula: 'condition.philtre ? -2 : 0' }
+  tests.toughnessDr: { type: integer, formula: 0 }
+  tests.defenseDr:
+    {
+      type: integer,
+      formula: '(load.encumbered ? 2 : 0) + (armor.baseTier >= 2 ? 2 : 0) + (condition.berserk ? 2 : 0)',
+    }
+
+settings:
+  rounding: floor
+
+display:
+  groups:
+    - id: abilities
+      priority: 0
+      members: { type: field, where: "'ability' in item.tags" }
+      showWhen: '!sheet.companion'
+    - id: condition
+      priority: 0
+    - id: resources
+      priority: 1
+      showWhen: '!sheet.companion'
+  fields:
+    abilities.strength:
+      { format: signed, rolls: [{ action: test, params: { ability: abilities.strength } }] }
+    abilities.agility:
+      { format: signed, rolls: [{ action: test, params: { ability: abilities.agility } }] }
+    abilities.presence:
+      { format: signed, rolls: [{ action: test, params: { ability: abilities.presence } }] }
+    abilities.toughness:
+      { format: signed, rolls: [{ action: test, params: { ability: abilities.toughness } }] }
+    hp.current:
+      groups: [condition]
+      priority: 0
+      visibility: primary
+      with: [{ field: hp.max, as: max }]
+      rolls: [{ action: take-damage }, { action: heal }]
+    hp.max: { groups: [condition], priority: 0, visibility: primary }
+    dead: { groups: [condition], priority: 0, visibility: primary, showWhen: dead }
+    armor.tier: { groups: [condition], priority: 1 }
+    armor.baseTier: { hidden: true }
+    armor.shield: { groups: [condition], priority: 1, showWhen: armor.shield > 0 }
+    omens.current: { groups: [resources], priority: 0, with: [{ field: omens.max, as: max }] }
+    omens.die: { groups: [resources], priority: 1, format: dice }
+    powers.current: { groups: [resources], priority: 0, with: [{ field: powers.max, as: max }] }
+    silver.current: { groups: [resources], priority: 0 }
+    load.capacity: { groups: [resources], priority: 1 }
+    load.items: { groups: [resources], priority: 1, with: [{ field: load.capacity, as: max }] }
+    load.extra: { groups: [resources], priority: 1 }
+    load.encumbered: { groups: [resources], priority: 1 }
+    omens.max: { groups: [resources], priority: 0 }
+    powers.max: { groups: [resources], priority: 0 }
+    condition.starving: { groups: [condition], priority: 1, input: { widget: checkbox } }
+    condition.infected: { groups: [condition], priority: 1, input: { widget: checkbox } }
+    condition.hungryDays: { groups: [condition], priority: 1 }
+    condition.hemorrhage: { groups: [condition], priority: 1, showWhen: condition.hemorrhage > 0 }
+    condition.philtre:
+      { groups: [condition], priority: 1, showWhen: condition.philtre, input: { widget: checkbox } }
+    condition.berserk:
+      { groups: [condition], priority: 1, showWhen: condition.berserk, input: { widget: checkbox } }
+    tests.strengthDr: { hidden: true }
+    tests.agilityDr: { hidden: true }
+    tests.presenceDr: { hidden: true }
+    tests.toughnessDr: { hidden: true }
+    tests.defenseDr: { hidden: true }

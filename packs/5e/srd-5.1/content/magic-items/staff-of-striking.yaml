@@ -1,0 +1,58 @@
+id: magic-items.staff-of-striking
+type: template
+tags: [magic, staff]
+appliesTo: { type: weapon, where: 'item.id == @weapons.quarterstaff' }
+fields:
+  {
+    rarity: very-rare,
+    requiresAttunement: true,
+    maxCharges: 10,
+    recharge: 1d6 + 4,
+    attackBonus: 3,
+    damageBonus: 3,
+  }
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+effects:
+  - {
+      target: combat.hitOptions,
+      op: add,
+      value: 1,
+      when: self.equipped && self.attuned && self.charges > 0,
+    }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: action.self.id == self.id && self.attuned && self.charges >= 1
+    value:
+      id: strike-1
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: action.self.id == self.id && self.attuned && self.charges >= 2
+    value:
+      id: strike-2
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -2 }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: action.self.id == self.id && self.attuned && self.charges >= 3
+    value:
+      id: strike-3
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -3 }
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: >-
+      steps.onHit.picked == '5e-srd-5.1:magic-items.staff-of-striking#strike-3' ? 3d6
+        : steps.onHit.picked == '5e-srd-5.1:magic-items.staff-of-striking#strike-2' ? 2d6 : 1d6
+    tags: [damage.force]
+    when: >-
+      has(steps.onHit)
+        && steps.onHit.picked in ['5e-srd-5.1:magic-items.staff-of-striking#strike-1',
+          '5e-srd-5.1:magic-items.staff-of-striking#strike-2',
+          '5e-srd-5.1:magic-items.staff-of-striking#strike-3']
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

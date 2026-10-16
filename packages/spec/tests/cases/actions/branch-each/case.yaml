@@ -1,0 +1,64 @@
+description: "A `branch` step with `each` sets its flags per participant: a later `each` step over the role, and the branch's own case steps (run per participant, results as lists), read the current participant's; elsewhere a flag is the list, null where the branch's `when` skipped one"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+        actions:
+          # Damage rolled once; each target takes it by its own multiplier.
+          - id: blast
+            participants:
+              target:
+                fields:
+                  weak: { type: boolean, default: false }
+                  immune: { type: boolean, default: false }
+            steps:
+              - id: damage
+                kind: roll
+                parts: [{ dice: 1d6 }]
+              - id: outcome
+                kind: branch
+                each: target
+                when: '!participant.immune'
+                cases:
+                  - when: participant.weak
+                    flags: { mult: 2 }
+                    steps:
+                      - id: mark
+                        kind: roll
+                        parts: [{ value: flags.mult }]
+                      - id: sting
+                        kind: changes
+                        to: target
+                        changes:
+                          - { type: adjust, field: hp, by: -steps.mark.total, tags: [weakness] }
+                  - when: true
+                    flags: { mult: 1 }
+              - id: burn
+                kind: changes
+                each: target
+                when: has(flags.mult)
+                to: target
+                changes:
+                  - { type: adjust, field: hp, by: -steps.damage.total * flags.mult }
+              - id: done
+                kind: outcome
+                data:
+                  mult: flags.mult
+                  marked: sumList(steps.mark, x.total)
+      content: []
+input:
+  action: { id: 'test-pack:blast' }
+  participants:
+    target:
+      - { id: orc, values: {} }
+      - { id: troll, values: { 'test-pack:weak': true } }
+      - { id: golem, values: { 'test-pack:immune': true } }

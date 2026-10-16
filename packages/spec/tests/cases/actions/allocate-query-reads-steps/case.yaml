@@ -1,0 +1,50 @@
+description: "An allocate step's field query sees the action's context: here the school an earlier choice step picked, from the picked item's fields, and the action's own params"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [lore, lore.special]
+        contentTypes:
+          school:
+            fields:
+              own: { type: set, of: field }
+        fields:
+          lore.common: { type: integer, input: true, default: 0, min: 0, max: 2, tags: [lore] }
+          lore.fire:
+            { type: integer, input: true, default: 0, min: 0, max: 2, tags: [lore.special] }
+          lore.frost:
+            { type: integer, input: true, default: 0, min: 0, max: 2, tags: [lore.special] }
+        actions:
+          - id: study
+            params:
+              common: { type: boolean, default: true }
+            steps:
+              - id: school
+                kind: choice
+                options: { content: { type: school } }
+                recommend: options[0]
+              # Common lore when the params allow it, and the picked school's own.
+              - id: points
+                kind: allocate
+                fields:
+                  type: field
+                  where: >-
+                    ('lore' in item.tags && params.common) || item.id in steps.school.item.own
+                budget: 2
+      content:
+        - id: schools.fire
+          type: school
+          fields: { own: [lore.fire] }
+        - id: schools.frost
+          type: school
+          fields: { own: [lore.frost] }
+input:
+  action: { id: test-pack:study }
+  policy: { allocations: pause }

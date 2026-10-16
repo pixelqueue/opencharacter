@@ -1,0 +1,11 @@
+id: feats.archetype.eldritch-archer.basic-eldritch-archer-spellcasting
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 8, category: class, archetype: archetypes.eldritch-archer }
+prerequisites:
+  - {
+      id: eldritch-archer-dedication,
+      when: '@feats.archetype.eldritch-archer.eldritch-archer-dedication in feats.held',
+    }
+effects:
+  - { target: spellcasting.archetype.eldritchArcher.benefits, op: atLeast, value: 1 }

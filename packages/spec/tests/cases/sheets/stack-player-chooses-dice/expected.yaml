@@ -1,0 +1,11 @@
+# strike 1d6; morale group (playerChooses): edge +1d4 (average 2.5), spark +2.
+# The options report the effects' values; edge is recommended (2.5 > 2) and applied -> 1d6 + 1d4
+values:
+  test-effects:stats.strike: { value: 1d6 + 1d4 }
+competing:
+  - field: test-effects:stats.strike
+    options:
+      - { id: 'test-effects:boons.edge#0', value: 1d4 }
+      - { id: 'test-effects:boons.spark#0', value: 2 }
+    recommended: 'test-effects:boons.edge#0'
+    applied: 'test-effects:boons.edge#0'

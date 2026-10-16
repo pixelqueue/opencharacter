@@ -1,0 +1,9 @@
+id: conditions.blinded
+type: condition
+effects:
+  - { target: conditions.blinded, op: set, value: true, scope: applied }
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: '!ranger.feralSenses'
+    scope: applied

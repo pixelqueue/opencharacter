@@ -1,0 +1,24 @@
+id: magic-items.necklace-of-fireballs
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  maxCharges: 9
+  spells: [spells.fireball]
+  saveDc: 15
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.fireball, when: self.equipped }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.fireball && flags.slot >=
+      3 && self.charges >= (flags.slot - 2)
+    value:
+      id: charges
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -(flags.slot - 2) }
+actions:
+  - use: use-charges

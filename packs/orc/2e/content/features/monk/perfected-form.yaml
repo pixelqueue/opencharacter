@@ -1,0 +1,8 @@
+id: features.monk.perfected-form
+type: feature
+fields: { level: 19 }
+effects:
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: minimumFace, value: 10 }
+    when: "'strike' in roll.tags && has(flags.prior) && flags.prior == 0 && !(has(flags.reaction) && flags.reaction)"

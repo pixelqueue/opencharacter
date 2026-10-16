@@ -1,0 +1,61 @@
+id: subclasses.oath-of-devotion
+type: subclass
+fields:
+  class: classes.paladin
+grants:
+  - { item: features.paladin.sacred-weapon, when: self.level >= 3 }
+  - { item: features.paladin.turn-the-unholy, when: self.level >= 3 }
+  - { item: features.paladin.aura-of-devotion, when: self.level >= 7 }
+  - { item: features.paladin.purity-of-spirit, when: self.level >= 15 }
+  - { item: features.paladin.holy-nimbus, when: self.level >= 20 }
+  - { item: spells.protection-from-evil-and-good, when: self.level >= 3 }
+  - { item: spells.sanctuary, when: self.level >= 3 }
+  - { item: spells.lesser-restoration, when: self.level >= 5 }
+  - { item: spells.zone-of-truth, when: self.level >= 5 }
+  - { item: spells.beacon-of-hope, when: self.level >= 9 }
+  - { item: spells.dispel-magic, when: self.level >= 9 }
+  - { item: spells.freedom-of-movement, when: self.level >= 13 }
+  - { item: spells.guardian-of-faith, when: self.level >= 13 }
+  - { item: spells.commune, when: self.level >= 17 }
+  - { item: spells.flame-strike, when: self.level >= 17 }
+effects:
+  - target: spells.paladin
+    op: grant
+    value: { item: spells.protection-from-evil-and-good }
+    when: self.level >= 3
+  - target: spells.paladin
+    op: grant
+    value: { item: spells.sanctuary }
+    when: self.level >= 3
+  - target: spells.paladin
+    op: grant
+    value: { item: spells.lesser-restoration }
+    when: self.level >= 5
+  - target: spells.paladin
+    op: grant
+    value: { item: spells.zone-of-truth }
+    when: self.level >= 5
+  - target: spells.paladin
+    op: grant
+    value: { item: spells.beacon-of-hope }
+    when: self.level >= 9
+  - target: spells.paladin
+    op: grant
+    value: { item: spells.dispel-magic }
+    when: self.level >= 9
+  - target: spells.paladin
+    op: grant
+    value: { item: spells.freedom-of-movement }
+    when: self.level >= 13
+  - target: spells.paladin
+    op: grant
+    value: { item: spells.guardian-of-faith }
+    when: self.level >= 13
+  - target: spells.paladin
+    op: grant
+    value: { item: spells.commune }
+    when: self.level >= 17
+  - target: spells.paladin
+    op: grant
+    value: { item: spells.flame-strike }
+    when: self.level >= 17

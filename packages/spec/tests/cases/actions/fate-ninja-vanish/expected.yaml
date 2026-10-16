@@ -1,0 +1,29 @@
+status: finished
+outcome:
+  result: used
+  data:
+    left: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjustState
+      entry: s-vanish
+      key: used
+      by: 1
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: fate-core:fatePoints.current
+      by: -1
+  - to: self
+    step: spend
+    change:
+      type: addItem
+      entry:
+        id: advantages-advantage-1
+        item: fate-core:advantages.advantage
+        state:
+          kind: boost
+log: []

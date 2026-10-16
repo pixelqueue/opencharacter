@@ -1,0 +1,309 @@
+fields:
+  armor.tier: { type: integer, formula: 0, min: 0, max: 3 }
+  armor.baseTier: { type: integer, formula: 0, min: 0, max: 3 }
+  armor.shield: { type: integer, formula: 0, min: 0 }
+
+situational:
+  - id: shieldSacrifice
+    type: boolean
+    default: false
+    available: "countCopies(copy.type == 'shield' && copy.equipped && !copy.state.broken) > 0"
+    incoming: { fields: [hp.current], tags: [damage] }
+
+contentTypes:
+  weapon:
+    carried: true
+    equippable: true
+    fields:
+      damage: { type: dice, required: true }
+      ranged: { type: boolean }
+      twoHanded: { type: boolean }
+      ammo: { type: enum, values: [arrows, bolts] }
+      blocksPowers: { type: boolean }
+      price: { type: integer, min: 0 }
+      attackDrModifier: { type: integer }
+      defenseDrModifier: { type: integer }
+      cursed: { type: boolean }
+      poison: { type: boolean }
+      sepsis: { type: boolean }
+      skullSmash: { type: boolean }
+    state:
+      broken: { type: boolean, default: false }
+    effects:
+      - id: blocks-powers
+        target: powers.blocked
+        op: add
+        value: 1
+        when: self.equipped && has(item.blocksPowers) && item.blocksPowers
+      - id: defense-dr
+        target: tests.defenseDr
+        op: add
+        value: item.defenseDrModifier
+        when: self.equipped && has(item.defenseDrModifier)
+    actions:
+      - use: attack
+      - use: cowards-jab
+
+  armor:
+    carried: true
+    equippable: true
+    fields:
+      tier: { type: integer, required: true, min: 1, max: 3 }
+      price: { type: integer, min: 0 }
+    state:
+      damage: { type: integer, default: 0, min: 0, max: 3 }
+    effects:
+      - id: armor-tier
+        target: armor.tier
+        op: atLeast
+        value: item.tier - self.damage
+        when: self.equipped
+      - id: armor-base-tier
+        target: armor.baseTier
+        op: atLeast
+        value: item.tier
+        when: self.equipped
+      - id: armor-die
+        target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: add
+        value: 'item.tier - self.damage >= 3 ? 1d6 : item.tier - self.damage == 2 ? 1d4 : 1d2'
+        when: >-
+          self.equipped && item.tier - self.damage > 0 && !('damage.direct' in incoming.tags)
+            && !situational.shieldSacrifice
+      - id: armor-floor
+        target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: atMost
+        value: 0
+        when: >-
+          self.equipped && item.tier - self.damage > 0 && !('damage.direct' in incoming.tags)
+
+  shield:
+    carried: true
+    equippable: true
+    fields:
+      price: { type: integer, min: 0 }
+    state:
+      broken: { type: boolean, default: false }
+    effects:
+      - id: shield
+        target: armor.shield
+        op: atLeast
+        value: 1
+        when: self.equipped && !self.broken
+      - id: shield-block
+        target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: add
+        value: 1
+        when: self.equipped && !self.broken && !('damage.direct' in incoming.tags)
+      - id: shield-floor
+        target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: atMost
+        value: 0
+        when: self.equipped && !self.broken && !('damage.direct' in incoming.tags)
+      - id: shield-sacrifice
+        target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: multiply
+        value: 0
+        when: >-
+          situational.shieldSacrifice && self.equipped && !self.broken
+            && !('damage.direct' in incoming.tags)
+        then:
+          - { type: setState, entry: self, key: broken, value: true }
+
+  ammo:
+    carried: true
+    fields:
+      kind: { type: enum, values: [arrows, bolts], required: true }
+
+actions:
+  - id: attack
+    tags: [attack]
+    available: >-
+      self.equipped && !self.broken && (!has(item.ammo) ||
+      countCopies(copy.type == 'ammo' && copy.fields.kind == item.ammo && copy.quantity > 0) > 0)
+    params:
+      dr: { type: integer, default: 12, min: 1 }
+    results: { bands: test }
+    steps:
+      - id: check
+        kind: action
+        use: test
+        tags: [attack]
+        params:
+          ability: "has(item.ranged) && item.ranged ? 'abilities.presence' : 'abilities.strength'"
+          dr: 'params.dr + (has(item.attackDrModifier) ? item.attackDrModifier : 0)'
+          combat: true
+      # With none left nothing is spent: stopping the shot is left to the app.
+      - id: shoot
+        kind: changes
+        when: has(item.ammo)
+        to: self
+        changes:
+          - type: adjustQuantity
+            copies: { type: ammo, where: 'item.kind == action.item.ammo && self.quantity > 0' }
+            limit: 1
+            by: -1
+      - id: maximum
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              omen: situational.omenDamage && omens.current > 0
+              tooth: >-
+                !(situational.omenDamage && omens.current > 0)
+                  && situational.teeth && teeth.charges > 0
+      - id: damage
+        kind: roll
+        when: "steps.check.result == 'success' || steps.check.result == 'crit'"
+        tags: [damage.weapon]
+        parts:
+          - dice: 'flags.omen || flags.tooth ? maxOf(item.damage) : item.damage'
+      - id: spendOmen
+        kind: changes
+        when: has(steps.damage) && flags.omen
+        to: self
+        changes:
+          - { type: adjust, field: omens.current, by: -1 }
+      - id: spendTooth
+        kind: changes
+        when: has(steps.damage) && flags.tooth
+        to: self
+        changes:
+          - { type: adjust, field: teeth.charges, by: -1 }
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - { type: adjust, field: hp.current, by: -steps.damage.total, tags: [damage] }
+      - id: sunder
+        kind: changes
+        when: "steps.check.result == 'crit'"
+        to: target
+        changes:
+          - type: adjustState
+            copies: { type: armor, where: self.equipped && self.damage < item.tier }
+            limit: 1
+            key: damage
+            by: 1
+      - id: break
+        kind: changes
+        when: "steps.check.result == 'fumble'"
+        to: self
+        changes:
+          - { type: setState, entry: self, key: broken, value: true }
+      # A poisoned blade kills on a damage roll of 1, read before a crit doubles it.
+      - id: poison
+        kind: changes
+        when: >-
+          has(steps.damage) && has(item.poison) && item.poison && size(steps.damage.kept) > 0
+            && steps.damage.kept[0] == 1
+        to: target
+        changes:
+          - { type: set, field: hp.current, value: -1 }
+      - id: doom
+        kind: roll
+        when: >-
+          has(steps.damage)
+            && ((has(item.sepsis) && item.sepsis) || (has(item.skullSmash) && item.skullSmash))
+        tags: [attack]
+        parts:
+          - dice: 1d6
+      - id: curse
+        kind: roll
+        when: has(item.cursed) && item.cursed
+        tags: [attack]
+        parts:
+          - dice: 1d6
+      - id: slay
+        kind: changes
+        when: has(steps.curse) && steps.curse.total == 1
+        to: { link: hamfund }
+        changes:
+          - { type: set, field: mork-borg-core:hp.current, value: -1 }
+      - id: vanish
+        kind: changes
+        when: has(steps.curse) && steps.curse.total == 1
+        to: self
+        changes:
+          - { type: removeItem, entry: self }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+          sepsis: has(steps.doom) && has(item.sepsis) && item.sepsis && steps.doom.total == 1
+          skullSmashed: >-
+            has(steps.doom) && has(item.skullSmash) && item.skullSmash && steps.doom.total == 1
+
+  - id: defend
+    tags: [defense]
+    params:
+      damage: { type: dice, required: true }
+      dr: { type: integer, default: 12, min: 1 }
+    results: { bands: test }
+    steps:
+      - id: check
+        kind: action
+        use: test
+        tags: [defense]
+        params:
+          ability: "'abilities.agility'"
+          dr: params.dr
+          defense: true
+      - id: hit
+        kind: roll
+        when: "steps.check.result == 'failure' || steps.check.result == 'fumble'"
+        tags: [damage.taken]
+        parts:
+          - dice: params.damage
+      - id: ward
+        kind: choice
+        sheet: proposed
+        when: has(steps.hit) && omens.current > 0
+        options: [{ id: take }, { id: reduce }]
+        recommend: "'take'"
+      - id: warding
+        kind: roll
+        when: has(steps.ward) && steps.ward.picked == 'reduce'
+        tags: [defense]
+        parts:
+          - dice: 1d6
+      - id: spend
+        kind: changes
+        when: has(steps.warding)
+        to: self
+        changes:
+          - { type: adjust, field: omens.current, by: -1 }
+      - id: total
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              taken: >-
+                has(steps.hit)
+                  ? max(0, steps.hit.total - (has(steps.warding) ? steps.warding.total : 0))
+                  : 0
+      - id: take
+        kind: changes
+        when: flags.taken > 0
+        to: self
+        changes:
+          - { type: adjust, field: hp.current, by: -flags.taken, tags: [damage] }
+      - id: wear
+        kind: changes
+        when: "steps.check.result == 'fumble'"
+        to: self
+        changes:
+          - type: adjustState
+            copies: { type: armor, where: self.equipped && self.damage < item.tier }
+            limit: 1
+            key: damage
+            by: 1
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          damage: flags.taken
+          counterAttack: "steps.check.result == 'crit'"

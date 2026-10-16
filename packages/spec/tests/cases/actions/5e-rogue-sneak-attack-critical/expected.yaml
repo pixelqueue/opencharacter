@@ -1,0 +1,38 @@
+# Natural 20. Damage: rapier 2d8 (1 + 2) + dex 3 + Sneak Attack 6d6 (1 each) = 12 piercing.
+status: finished
+outcome:
+  result: hit
+  data: { critical: true, attack: 26 }
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -12,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.piercing,
+            ],
+        },
+    }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces: [20]
+    total: 26
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [1, 2, 1, 1, 1, 1, 1, 1]
+    total: 12

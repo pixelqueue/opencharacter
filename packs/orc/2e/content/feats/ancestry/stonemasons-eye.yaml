@@ -1,0 +1,13 @@
+# Where Crafting is already trained, the training is freed for another skill instead of the book's
+# Specialty Crafting.
+id: feats.ancestry.stonemasons-eye
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.dwarf }
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.crafting },
+      when: "!('skill.crafting' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }

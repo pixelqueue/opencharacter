@@ -1,0 +1,30 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: fitd-crew, version: 0.1.0 }
+values:
+  fitd-crew:tier: 2
+  fitd-crew:upgrades.training.prowess: 1
+  fitd-crew:lair.lost: true
+choices:
+  crew-abilities:
+    - option: fitd-crew:crew-abilities.second-story
+  operation:
+    - option: fitd-crew:operations.battle
+features:
+  - { id: claim-1, item: fitd-crew:claims.turf }
+  - { id: claim-2, item: fitd-crew:claims.turf }
+  - id: claim-3
+    item: fitd-crew:claims.training-rooms
+    state: { trainedGang: thugs }
+  - { id: claim-4, item: fitd-crew:claims.cover-operation }
+  - { id: claim-5, item: fitd-crew:claims.informants }
+  - { id: claim-6, item: fitd-crew:claims.city-records }
+  - id: c-thugs
+    item: fitd-crew:cohorts.gang
+    state: { gangType: thugs }
+    choices:
+      edges:
+        - option: fitd-crew:cohort-traits.loyal
+      flaws:
+        - option: fitd-crew:cohort-traits.wild

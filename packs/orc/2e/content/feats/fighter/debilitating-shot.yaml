@@ -1,0 +1,40 @@
+id: feats.fighter.debilitating-shot
+type: feat
+tags: [trait.flourish]
+fields: { level: 10, category: class, class: classes.fighter }
+actions:
+  - id: debilitating-shot
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    available: >-
+      countCopies(copy.type == 'weapon' && copy.equipped && copy.fields.range > 0) > 0
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: 'self.equipped && item.range > 0'
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+      - id: slow
+        kind: changes
+        when: "steps.strike.result in ['success', 'critical-success'] && size(participants.target) > 0"
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.slowed'", state: { value: 1 } }
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.flourishes, by: 1 }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage

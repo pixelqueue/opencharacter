@@ -1,0 +1,23 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: test-follow-ups, version: 0.1.0 }
+values:
+  test-follow-ups:hp.current: 4
+inventory:
+  - { id: ember-1, item: test-follow-ups:charms.ember }
+followUps:
+  - id: warm-1
+    followUp: test-follow-ups:charms.ember#warm
+    source: { type: item, id: test-follow-ups:charms.ember, entry: ember-1 }
+    cause:
+      field: test-follow-ups:hp.current
+      by: -6
+      requested: -6
+      taken: -6
+      reason: requested
+      clamped: false
+      tags: [damage.fire]
+  - id: burst-1
+    followUp: test-follow-ups:charms.ember#burst
+    source: { type: item, id: test-follow-ups:charms.ember, entry: ember-1 }

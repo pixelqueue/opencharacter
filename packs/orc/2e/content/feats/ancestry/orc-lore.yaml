@@ -1,0 +1,26 @@
+id: feats.ancestry.orc-lore
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.orc }
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.athletics },
+      when: "!('skill.athletics' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.survival },
+      when: "!('skill.survival' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.orc },
+      when: "!('skill.lore.orc' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 3 }
+  - target: skills.lore.orc.rank
+    op: atLeast
+    value: 'level >= 15 ? 4 : level >= 7 ? 3 : level >= 3 ? 2 : 1'

@@ -1,0 +1,34 @@
+id: features.rogue.expertise
+type: feature
+choices:
+  - id: skills
+    slots: [1, 6]
+    pick: 2
+    from:
+      values:
+        - skill.acrobatics
+        - skill.animal-handling
+        - skill.arcana
+        - skill.athletics
+        - skill.deception
+        - skill.history
+        - skill.insight
+        - skill.intimidation
+        - skill.investigation
+        - skill.medicine
+        - skill.nature
+        - skill.perception
+        - skill.performance
+        - skill.persuasion
+        - skill.religion
+        - skill.sleight-of-hand
+        - skill.stealth
+        - skill.survival
+        - tool.thieves-tools
+      where: >-
+        value in proficiencies.skills
+          || (value == 'tool.thieves-tools' && @tools.thieves-tools in proficiencies.tools)
+    when: self.level >= slot
+    eligible: '!(value in proficiencies.expertise) || value in choice.picks'
+    effects:
+      - { target: proficiencies.expertise, op: grant, value: { formula: pick.value } }

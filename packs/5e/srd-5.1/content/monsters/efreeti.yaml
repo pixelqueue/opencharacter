@@ -1,0 +1,39 @@
+id: monsters.efreeti
+type: monster
+fields:
+  size: large
+  creatureType: elemental
+  alignment: lawful-evil
+  ac: 17
+  naturalArmor: true
+  hp: 200
+  hitDice: 16d10 + 112
+  speed: 40
+  flySpeed: 60
+  str: 22
+  dex: 12
+  con: 24
+  int: 16
+  wis: 15
+  cha: 16
+  saves: [save.int, save.wis, save.cha]
+  damageImmunities: [damage.fire]
+  darkvision: 120
+  languages: [languages.primordial]
+  cr: 11
+  innateOncePerDay:
+    [
+      spells.conjure-elemental,
+      spells.gaseous-form,
+      spells.invisibility,
+      spells.major-image,
+      spells.plane-shift,
+      spells.wall-of-fire,
+    ]
+  innateThricePerDay: [spells.enlarge-reduce, spells.tongues]
+grants:
+  - item: monsters.efreeti.elemental-demise
+  - item: monsters.efreeti.innate-spellcasting
+  - item: monsters.efreeti.multiattack
+  - item: monsters.efreeti.scimitar
+  - item: monsters.efreeti.hurl-flame

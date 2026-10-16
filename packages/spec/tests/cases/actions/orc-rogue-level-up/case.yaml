@@ -1,0 +1,18 @@
+description: 'orc-2e: a rogue leveling from 1st to 2nd: the level rises, 1,000 experience is
+  spent, a skill increase at 2nd level (rogues gain one every level from 2nd; Stealth to expert),
+  then the rogue feat and the skill feat 2nd level brings'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:level-up
+  policy:
+    choices: pause
+    allocations: pause
+answers:
+  - amounts:
+      orc-2e:skills.stealth.increases: 1
+  - option: orc-2e:feats.rogue.mobility
+  - option: orc-2e:feats.skill.battle-medicine

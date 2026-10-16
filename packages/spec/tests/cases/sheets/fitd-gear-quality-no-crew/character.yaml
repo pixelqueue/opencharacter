@@ -1,0 +1,23 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: fitd-scoundrel, version: 0.1.0 }
+homebrew:
+  content:
+    # A table's own standard items (the SRD lists none): every scoundrel holds them.
+    - { id: gear.lantern, type: gear, tags: [standard], fields: { load: 1, kind: gear } }
+    - { id: gear.pistol, type: gear, tags: [standard], fields: { load: 1, kind: weapons } }
+    - {
+        id: gear.fine-pistols,
+        type: gear,
+        tags: [standard, fine],
+        fields: { load: 1, kind: weapons },
+      }
+    - { id: gear.tinkering-tools, type: gear, tags: [standard], fields: { load: 1, kind: tools } }
+    - { id: gear.hunting-pet, type: gear, tags: [standard], fields: { load: 0 } }
+values:
+  fitd-scoundrel:ratings.hunt: 2
+  fitd-scoundrel:ratings.survey: 1
+choices:
+  special-abilities:
+    - option: fitd-scoundrel:special-abilities.sharpshooter

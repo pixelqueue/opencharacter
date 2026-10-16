@@ -1,0 +1,21 @@
+id: backgrounds.saboteur
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.thievery }
+    when: "!('skill.thievery' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.engineering }
+    when: "!('skill.lore.engineering' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.concealing-legerdemain
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'dex']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

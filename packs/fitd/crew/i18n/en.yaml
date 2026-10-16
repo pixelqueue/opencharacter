@@ -1,0 +1,625 @@
+pack.name: Forged in the Dark crew
+# The crew's headline: its tier, and a homebrew crew type's name when it has one ("Tier 2", "Tier 2
+# Wardens").
+headline: '{has_type_crewType, select, true {Tier {field_tier} {type_crewType}} other {Tier {field_tier}}}'
+
+# The crew.
+fields.tier.name: Tier
+fields.hold.name: Hold
+fields.prison.tier.name: Tier in prison
+fields.turf.name: Turf held
+fields.rep.max.name: Rep to advance
+fields.rep.current.name: Rep
+fields.heat.max.name: Maximum heat
+fields.heat.current.name: Heat
+fields.wanted.max.name: Maximum wanted level
+fields.wanted.current.name: Wanted level
+fields.coin.max.name: Crew coin capacity
+fields.coin.current.name: Crew coin
+fields.xp.max.name: Crew xp to advance
+fields.xp.current.name: Crew xp
+fields.advances.abilities.name: Advances taken as special abilities
+fields.advances.upgrades.name: Advances taken as upgrades
+fields.huntingGrounds.name: Hunting grounds
+fields.lair.name: Lair
+fields.reputation.name: Reputation
+
+fields.rep.current.description: 'Fills a track of 12, one shorter for each claim held as turf, never shorter than 6.'
+fields.heat.current.description: 'At 9, the wanted level rises by 1 and heat clears; heat past 9 carries over.'
+fields.xp.current.description: 'A full track is an advance: a special ability or two upgrade boxes.'
+fields.huntingGrounds.description: 'A few blocks of one district, in your words.'
+
+# Upgrades.
+fields.upgrades.lair.carriage.name: Carriage
+fields.upgrades.lair.boat.name: Boat
+fields.upgrades.lair.hidden.name: Hidden lair
+fields.upgrades.lair.quarters.name: Quarters
+fields.upgrades.lair.secure.name: Secure lair
+fields.upgrades.lair.vault.name: Vault
+fields.upgrades.lair.workshop.name: Workshop
+fields.upgrades.training.insight.name: Insight training
+fields.upgrades.training.prowess.name: Prowess training
+fields.upgrades.training.resolve.name: Resolve training
+fields.upgrades.training.personal.name: Personal training
+fields.upgrades.training.mastery.name: Mastery
+fields.upgrades.quality.documents.name: Quality documents
+fields.upgrades.quality.gear.name: Quality gear
+fields.upgrades.quality.implements.name: Quality implements
+fields.upgrades.quality.supplies.name: Quality supplies
+fields.upgrades.quality.tools.name: Quality tools
+fields.upgrades.quality.weapons.name: Quality weapons
+fields.upgrades.hardened.name: Hardened
+fields.upgrades.composed.name: Composed
+fields.upgrades.rigging.name: Rigging
+fields.upgrades.prisonContacts.name: Prison contacts
+fields.upgrades.undergroundMaps.name: Underground maps and passkeys
+fields.upgrades.camouflage.name: Camouflage
+fields.upgrades.elite.adepts.name: Elite Adepts
+fields.upgrades.elite.rooks.name: Elite Rooks
+fields.upgrades.elite.rovers.name: Elite Rovers
+fields.upgrades.elite.skulks.name: Elite Skulks
+fields.upgrades.elite.thugs.name: Elite Thugs
+fields.upgrades.marked.name: Upgrade boxes marked
+fields.upgrades.earned.name: Upgrade boxes earned
+
+fields.upgrades.lair.vault.description: 'Crew coin holds 8 with one box, 16 with both.'
+fields.upgrades.lair.secure.description: 'Locks and traps, then wards against spirits; roll the tier to test them.'
+fields.upgrades.lair.hidden.description: 'Moving a found lair takes two downtime activities and coin equal to the tier.'
+fields.upgrades.lair.workshop.description: 'Long-term projects without leaving the lair; +1 quality when crafting.'
+fields.upgrades.training.mastery.description: 'With all four boxes, members may raise action ratings to 4.'
+fields.upgrades.training.personal.description: 'Members mark 2 playbook xp when they train it.'
+fields.upgrades.hardened.description: 'With all three boxes, each member has one more trauma box.'
+fields.upgrades.composed.description: 'With all three boxes, each member has one more stress box.'
+fields.upgrades.rigging.description: 'Two load of two kinds of item carried free.'
+fields.rigging.kinds.name: Kinds of item the Rigging carries free
+fields.upgrades.prisonContacts.description: 'The tier counts one higher in prison.'
+fields.upgrades.undergroundMaps.description: 'Easy passage through the canals, tunnels and cellars.'
+fields.upgrades.camouflage.description: 'Vehicles at rest go unnoticed.'
+fields.upgrades.elite.adepts.description: 'Adepts cohorts roll +1d for their type.'
+fields.upgrades.elite.rooks.description: 'Rooks cohorts roll +1d for their type.'
+fields.upgrades.elite.rovers.description: 'Rovers cohorts roll +1d for their type.'
+fields.upgrades.elite.skulks.description: 'Skulks cohorts roll +1d for their type.'
+fields.upgrades.elite.thugs.description: 'Thugs cohorts roll +1d for their type.'
+fields.upgrades.earned.description: "Two starting upgrades (or a crew type's own), two more at creation, and two per upgrade advance."
+
+fields.quality.documents.name: Documents quality
+fields.quality.gear.name: Gear quality
+fields.quality.implements.name: Implements quality
+fields.quality.supplies.name: Supplies quality
+fields.quality.tools.name: Tools quality
+fields.quality.weapons.name: Weapons quality
+fields.members.trauma.bonus.name: Extra trauma boxes for members
+fields.members.stress.bonus.name: Extra stress boxes for members
+
+# Cohorts.
+fields.cohorts.boxes.name: Upgrade boxes spent on cohorts
+
+groups.crew.label: Crew
+groups.crew-type.label: Crew type
+groups.heat.label: Heat and wanted level
+groups.coin.label: Crew coin
+groups.advancement.label: Advancement
+groups.lair.label: Lair
+groups.training.label: Training
+groups.quality.label: Quality
+groups.special-upgrades.label: Crew upgrades
+groups.cohorts.label: Cohorts
+
+constraints.upgrade-boxes: '{marked} upgrade boxes marked, more than the {earned} earned'
+constraints.special-upgrades: "An upgrade your crew type doesn't offer"
+constraints.favorite-contact: 'Only one contact can be the favorite'
+
+bands.fortune.critical.name: Critical
+bands.fortune.success.name: Success
+bands.fortune.partial.name: Partial success
+bands.fortune.failure.name: Failure
+# How a band reads.
+bands.fortune.critical.condition: 'Two or more 6s'
+bands.fortune.success.condition: 'A 6'
+bands.fortune.partial.condition: 'A 4 or 5'
+bands.fortune.failure.condition: 'A 1 to 3'
+
+followUps.advance.name: Crew advance
+
+# Tags shown to players
+tags.edge.name: Edge
+tags.flaw.name: Flaw
+
+types.crewType.name: Crew type
+types.crewType.copies: A crew type is chosen, not added
+types.crewAbility.name: Crew special ability
+types.operation.name: Operation
+types.contact.name: Contact
+types.contact.state.label.name: Name
+types.contact.state.favorite.name: Favorite
+types.cohort.name: Cohort
+types.cohort.state.label.name: Name
+types.cohort.state.traits.name: Edges and flaws
+types.cohort.state.harm.name: Harm
+types.cohort.computed.quality.name: Quality
+types.cohort.computed.scale.name: Scale
+types.cohortTrait.name: Edge or flaw
+
+rules.choices.crew-type.prompt: Choose a crew type
+rules.choices.crew-abilities.prompt: Choose a special ability
+rules.choices.operation.prompt: Choose the operation your hunting grounds favor
+rules.choices.rigging.prompt: Choose two kinds of item for the Rigging
+
+# Actions.
+creation.crew.name: Create a crew
+creation.crew.description: 'Write the reputation, lair, hunting grounds and favorite contact; choose a special ability, the favored operation, and upgrades or a cohort, then record the faction status they bring.'
+creation.random.name: Create a random crew
+creation.random.description: 'A random special ability, favored operation, upgrades and faction status; you write the reputation, lair, hunting grounds and favorite contact.'
+actions.create-crew.params.random.name: Roll every pick
+actions.create-crew.params.reputation.name: Reputation
+actions.create-crew.params.lair.name: Lair
+actions.create-crew.params.huntingGrounds.name: Hunting grounds
+actions.create-crew.params.contact.name: Favorite contact
+actions.create-crew.name: Create a crew
+actions.create-crew.results.created.name: Created
+actions.create-crew.steps.type.prompt: Choose a crew type
+actions.create-crew.steps.ability.prompt: Choose a special ability
+actions.create-crew.steps.operation.prompt: Choose the operation your hunting grounds favor
+actions.create-crew.steps.startingUpgrades.prompt: Mark your two starting upgrades
+actions.create-crew.steps.startEdge.prompt: Choose your gang's edge
+actions.create-crew.steps.startFlaw.prompt: Choose your gang's flaw
+actions.create-crew.steps.huntingGrounds.prompt: Settle your hunting grounds with the faction that claims them
+actions.create-crew.options.room.name: 'Pay 1 coin for room to work'
+actions.create-crew.options.favor.name: 'Pay 2 coin for +1 status with the faction'
+actions.create-crew.options.free.name: 'Pay nothing and take -1 status with the faction'
+actions.create-crew.steps.more.prompt: Choose two more upgrades
+actions.create-crew.options.upgrades.name: Two upgrade boxes
+actions.create-crew.options.gang.name: A gang cohort
+actions.create-crew.options.expert.name: An expert cohort
+actions.create-crew.steps.upgrades.prompt: Mark two upgrade boxes
+actions.create-crew.steps.gangType.prompt: Choose the gang's type
+actions.create-crew.options.adepts.name: Adepts
+actions.create-crew.options.rooks.name: Rooks
+actions.create-crew.options.rovers.name: Rovers
+actions.create-crew.options.skulks.name: Skulks
+actions.create-crew.options.thugs.name: Thugs
+actions.create-crew.steps.newEdge.prompt: Choose the cohort's edge
+actions.create-crew.steps.newFlaw.prompt: Choose the cohort's flaw
+
+actions.crew-advance.name: Crew advance
+actions.crew-advance.results.ability.name: New special ability
+actions.crew-advance.results.upgrades.name: Two upgrade boxes
+actions.crew-advance.steps.advance.prompt: Take a special ability or two upgrade boxes
+actions.crew-advance.options.ability.name: A special ability
+actions.crew-advance.options.upgrades.name: Two upgrade boxes
+actions.crew-advance.steps.ability.prompt: Choose a special ability
+actions.crew-advance.steps.upgrades.prompt: Mark two upgrade boxes
+
+actions.develop.name: Develop the crew
+actions.develop.results.strengthened.name: Hold strengthened
+actions.develop.results.advanced.name: Tier raised
+actions.develop.results.short.name: Not enough coin
+
+actions.tier-roll.name: Tier roll
+actions.tier-roll.params.modifier.name: Extra dice
+actions.tier-roll.params.modifier.description: 'Dice added or taken away by the situation.'
+
+actions.cohort-roll.name: Cohort quality roll
+actions.cohort-roll.params.type.name: The cohort's type the task calls for
+actions.cohort-recover.name: Cohort recovery
+actions.cohort-recover.params.help.name: A scoundrel helps
+actions.cohort-recover.results.recovered.name: Recovered
+actions.replace-cohort.name: Replace the cohort
+actions.replace-cohort.results.replaced.name: Replaced
+
+# Crew special abilities.
+crew-abilities.deadly.name: Deadly
+crew-abilities.deadly.description: 'Each member may add a dot to Hunt, Prowl or Skirmish (up to 3).'
+crew-abilities.death-veil.name: Death Veil
+crew-abilities.death-veil.description: 'No extra heat for killing on a score.'
+crew-abilities.no-traces.name: No Traces
+crew-abilities.no-traces.description: 'A quiet job still earns half the rep; ending downtime with no heat earns 1 rep.'
+crew-abilities.patron.name: Patron
+crew-abilities.patron.description: 'Raising the tier costs half the coin.'
+crew-abilities.predators.name: Predators
+crew-abilities.predators.description: '+1d to the engagement roll for a stealthy or deceptive killing.'
+crew-abilities.fiends.name: Fiends
+crew-abilities.fiends.description: 'Each wanted level counts as turf.'
+crew-abilities.forged-in-the-fire.name: Forged in the Fire
+crew-abilities.forged-in-the-fire.description: 'Members get +1d to resistance rolls.'
+crew-abilities.war-dogs.name: War Dogs
+crew-abilities.war-dogs.description: 'At war, no lost hold, and members keep two downtime activities.'
+crew-abilities.anointed.name: Anointed
+crew-abilities.anointed.description: '+1d to resist the supernatural, and to recover from supernatural harm.'
+crew-abilities.accord.name: Accord
+crew-abilities.accord.description: 'Up to three factions at +3 status count as turf.'
+crew-abilities.high-society.name: High Society
+crew-abilities.high-society.description: '-1 heat in downtime, and +1d to gather information about the elite.'
+crew-abilities.pack-rats.name: Pack Rats
+crew-abilities.pack-rats.description: '+1d to acquire an asset.'
+crew-abilities.second-story.name: Second Story
+crew-abilities.second-story.description: '+1d to the engagement roll for a stealthy infiltration.'
+crew-abilities.synchronized.name: Synchronized
+crew-abilities.synchronized.description: "In a group action, 6s on different members' rolls make a critical."
+crew-abilities.all-hands.name: All Hands
+crew-abilities.all-hands.description: 'In downtime, a cohort may acquire an asset, reduce heat or work on a project for the crew.'
+crew-abilities.just-passing-through.name: Just Passing Through
+crew-abilities.just-passing-through.description: '-1 heat in downtime; at 4 heat or less, +1d to pass as ordinary folk.'
+
+# Operations: what the crew's hunting grounds favor (+1d to gather information for that
+# kind of operation there, and a free downtime activity toward it).
+operations.accident.name: Accident
+operations.disappearance.name: Disappearance
+operations.murder.name: Murder
+operations.ransom.name: Ransom
+operations.battle.name: Battle
+operations.extortion.name: Extortion
+operations.sabotage.name: Sabotage
+operations.acquisition.name: Acquisition
+operations.consecration.name: Consecration
+operations.sacrifice.name: Sacrifice
+operations.sale.name: Sale
+operations.supply.name: Supply
+operations.show-of-force.name: Show of force
+operations.socialize.name: Socialize
+operations.burglary.name: Burglary
+operations.espionage.name: Espionage
+operations.robbery.name: Robbery
+operations.arms.name: Arms
+operations.contraband.name: Contraband
+operations.passengers.name: Passengers
+
+contacts.contact.name: Contact
+
+# Cohorts.
+cohorts.gang.name: Gang
+cohorts.gang.description: 'A group of a few to dozens: quality and scale equal the tier.'
+cohorts.gang.choices.edges.prompt: Choose edges
+cohorts.gang.choices.flaws.prompt: Choose as many flaws
+cohorts.gang.state.gangType.name: Type
+cohorts.gang.state.extraGangType.name: Second type
+cohorts.gang.state.gangType.values.adepts.name: 'Adepts'
+cohorts.gang.state.gangType.values.rooks.name: 'Rooks'
+cohorts.gang.state.gangType.values.rovers.name: 'Rovers'
+cohorts.gang.state.gangType.values.skulks.name: 'Skulks'
+cohorts.gang.state.gangType.values.thugs.name: 'Thugs'
+cohorts.gang.state.extraGangType.values.none.name: 'None'
+cohorts.gang.state.extraGangType.values.adepts.name: 'Adepts'
+cohorts.gang.state.extraGangType.values.rooks.name: 'Rooks'
+cohorts.gang.state.extraGangType.values.rovers.name: 'Rovers'
+cohorts.gang.state.extraGangType.values.skulks.name: 'Skulks'
+cohorts.gang.state.extraGangType.values.thugs.name: 'Thugs'
+cohorts.expert.name: Expert
+cohorts.expert.description: 'One skilled specialist: quality is the tier + 1.'
+cohorts.expert.choices.edges.prompt: Choose edges
+cohorts.expert.choices.flaws.prompt: Choose as many flaws
+cohorts.expert.state.expertType.name: Type
+cohorts.expert.state.extraType.name: Second type
+
+cohort-traits.fearsome.name: Fearsome
+cohort-traits.independent.name: Independent
+cohort-traits.loyal.name: Loyal
+cohort-traits.tenacious.name: Tenacious
+cohort-traits.principled.name: Principled
+cohort-traits.savage.name: Savage
+cohort-traits.unreliable.name: Unreliable
+cohort-traits.wild.name: Wild
+
+# Claims.
+types.claim.name: Claim
+types.claim.state.label.name: Place
+types.claim.state.allied.name: Allied claim
+groups.claims.label: Claims
+groups.members.label: For members
+groups.crew-rolls.label: Crew rolls
+groups.after-the-score.label: After the score
+groups.crew-downtime.label: Crew downtime
+groups.crew-creation.label: Crew creation
+groups.faction-actions.label: Factions
+groups.crew-type-card.label: Crew
+groups.crew-abilities.label: Crew abilities
+groups.held-claims.label: Claims held
+groups.held-claims.sections.0.name: Turf
+groups.held-claims.sections.1.name: Claims
+groups.cohort-list.label: Gangs and experts
+groups.cohort-list.sections.gang.name: Gangs
+groups.cohort-list.sections.expert.name: Experts
+groups.cohort-traits.label: Cohort traits
+groups.contacts.label: Contacts
+groups.operations.label: Operations
+constraints.turf-limit: 'At most 6 turf'
+fields.lair.lost.name: Lair lost
+fields.lair.lost.description: 'No claim on the lair map gives its benefit until the lair is restored.'
+fields.payoff.heat.name: Heat per score from claims
+fields.payoff.rep.name: Rep per score from claims
+fields.engagement.assault.name: Engagement dice for assault plans
+fields.engagement.deception.name: Engagement dice for deception plans
+fields.engagement.occult.name: Engagement dice for occult plans
+fields.engagement.social.name: Engagement dice for social plans
+fields.engagement.stealth.name: Engagement dice for stealth plans
+fields.engagement.transport.name: Engagement dice for transport plans
+fields.engagement.murder.name: Engagement dice for a stealthy or deceptive murder
+fields.cohorts.trained.name: Gang types with +1 scale
+fields.prison.dice.name: Extra dice for incarceration rolls
+fields.prison.noTrauma.name: No trauma from incarceration
+fields.prison.parole.name: Sentences shortened by
+fields.develop.discount.name: Coin off a new tier
+
+# What members get from the crew.
+fields.members.dotCount.name: Extra dots for members
+fields.members.dotRatings.name: Actions members may add a dot to
+fields.members.siteRatings.name: Actions members get +1d for at the crew's claims
+fields.members.resistance.dice.name: Extra dice for resistance rolls
+fields.members.supernatural.dice.name: Extra dice against the supernatural
+fields.members.asset.dice.name: Extra dice for asset rolls
+fields.members.recovery.dice.name: Extra dice for recovery rolls
+fields.members.gatherInfo.dice.name: Extra dice to gather information for a score
+fields.members.prison.load.name: Load while serving time
+
+actions.claim-income.name: Claim income
+actions.claim-income.results.earned.name: Coin earned
+actions.payoff.name: Payoff
+actions.payoff.params.rep.name: Rep the score earned
+actions.payoff.params.coin.name: Coin the score earned
+actions.payoff.params.heat.name: Heat the score drew
+actions.payoff.params.targets.name: The targets were
+actions.payoff.params.operation.name: The kind of operation
+actions.payoff.results.paid.name: Paid
+actions.engagement-roll.name: Engagement roll
+actions.engagement-roll.params.plan.name: Plan
+actions.engagement-roll.params.modifier.name: Major advantages less disadvantages
+actions.engagement-roll.params.modifier.description: 'One die per major advantage, one less per major disadvantage.'
+actions.engagement-roll.params.murder.name: The plan is to commit murder
+actions.incarceration-roll.name: Incarceration roll
+actions.incarceration-roll.params.modifier.name: Extra dice
+actions.incarceration-roll.params.modifier.description: 'Dice added or taken away by the situation.'
+
+claims.turf.name: Turf
+claims.turf.description: 'Counts as turf: one less rep to develop.'
+claims.training-rooms.name: Training rooms
+claims.training-rooms.description: '+1 scale for your cohorts of one gang type, picked on the claim.'
+claims.training-rooms.state.trainedGang.name: Gang type trained
+claims.training-rooms.state.trainedGang.values.none.name: None yet
+claims.training-rooms.state.trainedGang.values.adepts.name: Adepts
+claims.training-rooms.state.trainedGang.values.rooks.name: Rooks
+claims.training-rooms.state.trainedGang.values.rovers.name: Rovers
+claims.training-rooms.state.trainedGang.values.skulks.name: Skulks
+claims.training-rooms.state.trainedGang.values.thugs.name: Thugs
+claims.vice-den.name: Vice den
+claims.vice-den.description: 'In downtime, coin equal to a tier roll less heat.'
+claims.protection-racket.name: Protection racket
+claims.protection-racket.description: 'In downtime, coin equal to a tier roll less heat.'
+claims.fighting-pits.name: Fighting pits
+claims.fighting-pits.description: 'In downtime, coin equal to a tier roll less heat.'
+claims.side-business.name: Side business
+claims.side-business.description: 'In downtime, coin equal to a tier roll less heat.'
+claims.fixer.name: Fixer
+claims.fixer.description: '+2 coin in payoff for lower-class targets.'
+claims.street-fence.name: Street fence
+claims.street-fence.description: '+2 coin in payoff for lower-class targets.'
+claims.envoy.name: Envoy
+claims.envoy.description: '+2 coin in payoff for high-class targets.'
+claims.terrorized-citizens.name: Terrorized citizens
+claims.terrorized-citizens.description: '+2 coin in payoff for battle or extortion.'
+claims.offertory.name: Offertory
+claims.offertory.description: '+2 coin in payoff for occult operations.'
+claims.local-graft.name: Local graft
+claims.local-graft.description: '+2 coin in payoff for a show of force or socializing.'
+claims.surplus-caches.name: Surplus cache
+claims.surplus-caches.description: '+2 coin in payoff for a sale or supply.'
+claims.loyal-fence.name: Loyal fence
+claims.loyal-fence.description: '+2 coin in payoff for burglary or robbery.'
+claims.covert-drops.name: Covert drop
+claims.covert-drops.description: '+2 coin in payoff for espionage or sabotage.'
+claims.informants.name: Informants
+claims.informants.description: '+1d to gather information for a score.'
+claims.infirmary.name: Infirmary
+claims.infirmary.description: '+1d to recovery rolls.'
+claims.warehouses.name: Warehouses
+claims.warehouses.description: '+1d to acquire an asset.'
+claims.cover-operation.name: Cover operation
+claims.cover-operation.description: '-2 heat per score.'
+claims.victim-trophies.name: Victim trophies
+claims.victim-trophies.description: '+1 rep per score.'
+claims.city-records.name: City records
+claims.city-records.description: '+1d to the engagement roll for stealth plans.'
+claims.secret-pathways.name: Secret pathways
+claims.secret-pathways.description: '+1d to the engagement roll for stealth plans.'
+claims.cover-identities.name: Cover identities
+claims.cover-identities.description: '+1d to the engagement roll for deception and social plans.'
+claims.ancient-altar.name: Ancient altar
+claims.ancient-altar.description: '+1d to the engagement roll for occult plans.'
+claims.lookouts.name: Lookouts
+claims.lookouts.description: '+1d to Hunt or Survey on your turf.'
+claims.tavern.name: Tavern
+claims.tavern.description: '+1d to Consort and Sway there.'
+claims.luxury-venue.name: Luxury venue
+claims.luxury-venue.description: '+1d to Consort and Sway there.'
+claims.interrogation-chamber.name: Interrogation chamber
+claims.interrogation-chamber.description: '+1d to Command and Sway there.'
+claims.ancient-tower.name: Ancient tower
+claims.ancient-tower.description: '+1d to Consort with arcane entities there.'
+claims.parole-influence.name: Parole influence
+claims.parole-influence.description: 'Prison terms as if the wanted level were 1 lower.'
+claims.smuggling.name: Smuggling
+claims.smuggling.description: '+2 load for a member serving time.'
+claims.cell-block-control.name: Cell block control
+claims.cell-block-control.description: 'No trauma from incarceration.'
+claims.guard-payoff.name: Guard payoff
+claims.guard-payoff.description: '+1d to incarceration rolls.'
+claims.hardcase.name: Hardcase
+claims.hardcase.description: 'Raising the tier costs 2 coin less.'
+constraints.allied-claims: "An allied claim isn't turf, nor on your crew type's own map"
+
+# Factions the GM defines and the crew's status with each.
+types.faction.name: Faction
+types.faction.state.label.name: Name
+types.faction.state.status.name: Status
+types.faction.state.tier.name: Tier
+types.faction.state.weakHold.name: Weak hold
+types.claim.state.faction.name: Taken from
+groups.factions.label: Factions
+groups.faction-ladder.label: Factions
+fields.war.factions.name: Factions at war with the crew
+fields.war.factions.description: 'At war (status -3): +1 heat per score, a hold lost, one downtime activity each, half income from claims.'
+fields.war.holdLost.name: Hold lost to war
+fields.allies.name: Allied factions (+3)
+fields.members.downtime.name: Downtime activities per member
+fields.heat.killing.name: Heat when killing is involved
+fields.downtime.heat.name: Heat lost each downtime
+fields.downtime.rep.name: Rep for ending downtime without heat
+fields.members.eliteInfo.dice.name: Dice to gather information about the elite
+fields.members.passing.dice.name: Dice to pass as ordinary citizens
+fields.members.synchronized.name: Synchronized group actions
+factions.faction.name: Faction
+actions.add-faction.name: Add a faction
+actions.add-faction.params.label.name: Name
+actions.add-faction.params.tier.name: Tier
+actions.add-faction.params.weakHold.name: Weak hold
+actions.add-faction.params.status.name: Your status with it
+actions.add-faction.results.added.name: Faction added
+actions.faction-status.name: Change status
+actions.faction-status.params.by.name: Status gained or lost
+actions.faction-status.results.changed.name: Status changed
+actions.seize-claim.name: Seize a claim
+actions.seize-claim.params.label.name: The claim's place
+actions.seize-claim.params.loss.name: Status lost with the faction it was taken from
+actions.seize-claim.results.seized.name: Seized
+actions.seize-claim.steps.claim.prompt: Choose the claim seized
+actions.seize-claim.steps.from.prompt: Choose the faction it was taken from
+actions.seize-claim.steps.pleased.prompt: Were any of that faction's enemies pleased?
+actions.seize-claim.options.none.name: No
+actions.seize-claim.options.some.name: Yes, choose them
+actions.seize-claim.steps.enemies.prompt: Choose that faction's enemies who were pleased (+1 status)
+actions.payoff.params.targetTier.name: Tier of the faction targeted (-1 for none)
+actions.payoff.params.quiet.name: Kept completely quiet
+actions.payoff.params.highProfile.name: A high-profile or well-connected target
+actions.payoff.params.hostileTurf.name: On hostile turf
+actions.payoff.params.killing.name: Killing was involved
+actions.payoff.params.tithe.name: Paid a tithe to a boss (the tier + 1 in coin)
+actions.incarceration-roll.steps.claim.prompt: Choose the prison claim won
+actions.incarceration-roll.steps.assisted.prompt: Choose the faction helped inside (+1 status)
+actions.create-crew.steps.groundsFaction.prompt: Choose the faction that claims your hunting grounds
+actions.create-crew.steps.helped.prompt: A faction helped you get an upgrade
+actions.create-crew.options.plus1.name: '+1 status with them'
+actions.create-crew.options.plus2.name: '+2 status with them for 1 coin'
+actions.create-crew.options.none.name: Not now
+actions.create-crew.steps.helpedBy.prompt: Choose the faction that helped
+actions.create-crew.steps.harmed.prompt: A faction was harmed when you got an upgrade
+actions.create-crew.options.minus2.name: '-2 status with them'
+actions.create-crew.options.minus1.name: '-1 status with them for 1 coin'
+actions.create-crew.steps.harmedBy.prompt: Choose the faction that was harmed
+actions.create-crew.steps.contact.prompt: How strongly do factions feel about your favorite contact?
+actions.create-crew.options.close.name: '+1 and -1 status'
+actions.create-crew.options.closer.name: '+2 and -2 status'
+actions.create-crew.steps.contactFriend.prompt: Choose the faction friendly with your contact
+actions.create-crew.steps.contactEnemy.prompt: Choose the faction unfriendly with your contact
+
+# Entanglements and the crew's downtime.
+actions.entanglement-roll.name: Entanglement roll
+actions.entanglement-roll.steps.entanglement.prompt: Choose the entanglement
+actions.entanglement-roll.options.gang-trouble.name: Gang trouble
+actions.entanglement-roll.options.the-usual-suspects.name: The usual suspects
+actions.entanglement-roll.options.questioning.name: Questioning
+actions.entanglement-roll.options.flipped.name: Flipped
+actions.entanglement-roll.options.interrogation.name: Interrogation
+actions.entanglement-roll.options.rivals.name: Rivals
+actions.entanglement-roll.options.reprisals.name: Reprisals
+actions.entanglement-roll.options.unquiet-dead.name: Unquiet dead
+actions.entanglement-roll.options.demonic-notice.name: Demonic notice
+actions.entanglement-roll.options.show-of-force.name: Show of force
+actions.entanglement-roll.options.cooperation.name: Cooperation
+actions.entanglement-roll.options.arrest.name: Arrest
+actions.entanglement-roll.results.gang-trouble.name: Gang trouble
+actions.entanglement-roll.results.the-usual-suspects.name: The usual suspects
+actions.entanglement-roll.results.questioning.name: Questioning
+actions.entanglement-roll.results.flipped.name: Flipped
+actions.entanglement-roll.results.interrogation.name: Interrogation
+actions.entanglement-roll.results.rivals.name: Rivals
+actions.entanglement-roll.results.reprisals.name: Reprisals
+actions.entanglement-roll.results.unquiet-dead.name: Unquiet dead
+actions.entanglement-roll.results.demonic-notice.name: Demonic notice
+actions.entanglement-roll.results.show-of-force.name: Show of force
+actions.entanglement-roll.results.cooperation.name: Cooperation
+actions.entanglement-roll.results.arrest.name: Arrest
+actions.resolve-entanglement.name: Answer an entanglement
+actions.resolve-entanglement.params.entanglement.name: The entanglement
+actions.resolve-entanglement.params.dice.name: Dice for the one questioned
+actions.resolve-entanglement.steps.faction.prompt: Choose the faction
+actions.resolve-entanglement.params.tier.name: The faction's tier, when it isn't on the sheet
+actions.resolve-entanglement.steps.answer.prompt: How do you answer it?
+actions.resolve-entanglement.steps.claim.prompt: Choose the claim you give up
+actions.resolve-entanglement.options.pay.name: Pay them off
+actions.resolve-entanglement.options.forfeit-rep.name: Forfeit rep
+actions.resolve-entanglement.options.forfeit-coin.name: Forfeit coin
+actions.resolve-entanglement.options.lose-status.name: Lose 1 status with them
+actions.resolve-entanglement.options.war.name: Go to war
+actions.resolve-entanglement.options.give-claim.name: Give them a claim
+actions.resolve-entanglement.options.lose-hold.name: Lose 1 hold
+actions.resolve-entanglement.options.hand-over.name: Hand someone over
+actions.resolve-entanglement.options.talk.name: Take your chances
+actions.resolve-entanglement.options.other.name: Deal with it another way
+actions.resolve-entanglement.results.pay.name: Paid off
+actions.resolve-entanglement.results.forfeit-rep.name: Rep forfeited
+actions.resolve-entanglement.results.forfeit-coin.name: Coin forfeited
+actions.resolve-entanglement.results.lose-status.name: Status lost
+actions.resolve-entanglement.results.war.name: At war
+actions.resolve-entanglement.results.give-claim.name: Claim given up
+actions.resolve-entanglement.results.lose-hold.name: Hold lost
+actions.resolve-entanglement.results.hand-over.name: Someone handed over
+actions.resolve-entanglement.results.talk.name: Chances taken
+actions.resolve-entanglement.results.other.name: Dealt with
+actions.crew-downtime.name: The crew's downtime
+actions.crew-downtime.results.done.name: Done
+actions.relocate-lair.name: Relocate the hidden lair
+actions.relocate-lair.results.relocated.name: Relocated
+
+# Cohort rolls: the fortune bands, or broken.
+actions.cohort-roll.results.critical.name: Critical
+actions.cohort-roll.results.success.name: Success
+actions.cohort-roll.results.partial.name: Partial success
+actions.cohort-roll.results.failure.name: Failure
+actions.cohort-roll.results.broken.name: Broken, can't act
+
+# Tag names: every declared tag, parents included
+tags.cohort.name: 'Cohort'
+tags.cohort-roll.name: 'Cohort roll'
+tags.creation.name: 'Creation'
+tags.downtime.name: 'Downtime'
+tags.engagement-roll.name: 'Engagement roll'
+tags.entanglement-roll.name: 'Entanglement roll'
+tags.incarceration-roll.name: 'Incarceration roll'
+tags.quality.name: 'Quality'
+tags.tier-roll.name: 'Tier roll'
+tags.upgrade.name: 'Upgrade'
+tags.upgrade.special.name: 'Special upgrade'
+
+# Content blocks: each type's header line, filled from the item's fields (and a copy's state and
+# computed values when the app gives one), and the names of the enum values they show. Apps show the
+# block, then the description.
+types.faction.block: >-
+  **{name}** — *Tier {has_self_tier, select, true {{self_tier}} other {{tier}}}* · {self_weakHold, select, true {Weak hold} false {Strong hold} other {{hold_name} hold}}
+  {has_self_status, select, true {· Status {self_status, number, ::sign-always}} other {}}
+types.faction.fields.hold.values.strong.name: 'Strong'
+types.faction.fields.hold.values.weak.name: 'Weak'
+
+# Enum value names: rule-level fields' and action parameters' values.
+fields.hold.values.strong.name: 'Strong'
+fields.hold.values.weak.name: 'Weak'
+actions.cohort-roll.params.type.values.main.name: 'Its main type'
+actions.cohort-roll.params.type.values.extra.name: 'Its extra type'
+actions.cohort-roll.params.type.values.none.name: 'None of its types'
+actions.engagement-roll.params.plan.values.assault.name: 'Assault'
+actions.engagement-roll.params.plan.values.deception.name: 'Deception'
+actions.engagement-roll.params.plan.values.occult.name: 'Occult'
+actions.engagement-roll.params.plan.values.social.name: 'Social'
+actions.engagement-roll.params.plan.values.stealth.name: 'Stealth'
+actions.engagement-roll.params.plan.values.transport.name: 'Transport'
+actions.payoff.params.targets.values.other.name: 'Other targets'
+actions.payoff.params.targets.values.lower-class.name: 'Lower-class targets'
+actions.payoff.params.targets.values.high-class.name: 'High-class targets'
+actions.resolve-entanglement.params.entanglement.values.arrest.name: 'Arrest'
+actions.resolve-entanglement.params.entanglement.values.cooperation.name: 'Cooperation'
+actions.resolve-entanglement.params.entanglement.values.demonic-notice.name: 'Demonic notice'
+actions.resolve-entanglement.params.entanglement.values.gang-trouble.name: 'Gang trouble'
+actions.resolve-entanglement.params.entanglement.values.interrogation.name: 'Interrogation'
+actions.resolve-entanglement.params.entanglement.values.questioning.name: 'Questioning'
+actions.resolve-entanglement.params.entanglement.values.reprisals.name: 'Reprisals'
+actions.resolve-entanglement.params.entanglement.values.rivals.name: 'Rivals'
+actions.resolve-entanglement.params.entanglement.values.show-of-force.name: 'Show of force'
+actions.resolve-entanglement.params.entanglement.values.the-usual-suspects.name: 'The usual suspects'

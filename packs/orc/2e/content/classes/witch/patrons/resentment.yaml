@@ -1,0 +1,16 @@
+id: classes.witch.patrons.resentment
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: witch.patron, op: set, value: "'resentment'" }
+  - { target: spellcasting.tradition, op: set, value: "'occult'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.occultism },
+      when: "!('skill.occultism' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.book, op: grant, value: { item: spells.enfeeble } }
+grants:
+  - item: spells.evil-eye

@@ -1,0 +1,308 @@
+status: finished
+proposedChanges:
+  - {
+      to: self,
+      step: race,
+      change: { type: addItem, entry: { id: race, item: 5e-srd-5.1:races.dwarf } },
+    }
+  - {
+      to: self,
+      step: subrace,
+      change:
+        {
+          type: choose,
+          path: { entry: race, choice: [subrace] },
+          option: 5e-srd-5.1:subraces.hill-dwarf,
+        },
+    }
+  - {
+      to: self,
+      step: class,
+      change:
+        {
+          type: addItem,
+          entry:
+            {
+              id: class,
+              item: 5e-srd-5.1:classes.wizard,
+              state: { level: 1, startingClass: true },
+            },
+        },
+    }
+  - {
+      to: self,
+      step: background,
+      change: { type: addItem, entry: { id: background, item: 5e-srd-5.1:backgrounds.acolyte } },
+    }
+  - {
+      to: self,
+      step: scores,
+      change: { type: set, field: 5e-srd-5.1:abilities.str.base, value: 8 },
+    }
+  - {
+      to: self,
+      step: scores,
+      change: { type: set, field: 5e-srd-5.1:abilities.dex.base, value: 14 },
+    }
+  - {
+      to: self,
+      step: scores,
+      change: { type: set, field: 5e-srd-5.1:abilities.con.base, value: 14 },
+    }
+  - {
+      to: self,
+      step: scores,
+      change: { type: set, field: 5e-srd-5.1:abilities.int.base, value: 17 },
+    }
+  - {
+      to: self,
+      step: scores,
+      change: { type: set, field: 5e-srd-5.1:abilities.wis.base, value: 12 },
+    }
+  - {
+      to: self,
+      step: scores,
+      change: { type: set, field: 5e-srd-5.1:abilities.cha.base, value: 12 },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: race, choice: [5e-srd-5.1:traits.tool-proficiency-dwarf/tool] },
+          option: 5e-srd-5.1:tools.brewers-supplies,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        { type: choose, path: { entry: class, choice: [skills] }, option: skill.investigation },
+    }
+  - {
+      to: self,
+      step: picks,
+      change: { type: choose, path: { entry: class, choice: [skills] }, option: skill.history },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.wizard.spellcasting/cantrips] },
+          option: 5e-srd-5.1:spells.mending,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.wizard.spellcasting/cantrips] },
+          option: 5e-srd-5.1:spells.chill-touch,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.wizard.spellcasting/cantrips] },
+          option: 5e-srd-5.1:spells.acid-splash,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.wizard.spellcasting/spellbook-1] },
+          option: 5e-srd-5.1:spells.alarm,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.wizard.spellcasting/spellbook-1] },
+          option: 5e-srd-5.1:spells.burning-hands,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.wizard.spellcasting/spellbook-1] },
+          option: 5e-srd-5.1:spells.charm-person,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.wizard.spellcasting/spellbook-1] },
+          option: 5e-srd-5.1:spells.color-spray,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.wizard.spellcasting/spellbook-1] },
+          option: 5e-srd-5.1:spells.comprehend-languages,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.wizard.spellcasting/spellbook-1] },
+          option: 5e-srd-5.1:spells.detect-magic,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.wizard.spellcasting/spells] },
+          option: 5e-srd-5.1:spells.alarm,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.wizard.spellcasting/spells] },
+          option: 5e-srd-5.1:spells.burning-hands,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.wizard.spellcasting/spells] },
+          option: 5e-srd-5.1:spells.charm-person,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.wizard.spellcasting/spells] },
+          option: 5e-srd-5.1:spells.color-spray,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: background, choice: [languages] },
+          option: 5e-srd-5.1:languages.abyssal,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: background, choice: [languages] },
+          option: 5e-srd-5.1:languages.celestial,
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/wizardWeapon,
+      change:
+        {
+          type: addItem,
+          entry:
+            { id: weapons-quarterstaff-1, item: 5e-srd-5.1:weapons.quarterstaff, equipped: true },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/wizardFocus,
+      change:
+        {
+          type: addItem,
+          entry: { id: gear-component-pouch-1, item: 5e-srd-5.1:gear.component-pouch },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/wizardPack,
+      change:
+        { type: addItem, entry: { id: gear-scholars-pack-1, item: 5e-srd-5.1:gear.scholars-pack } },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/wizardKit,
+      change: { type: addItem, entry: { id: gear-spellbook-1, item: 5e-srd-5.1:gear.spellbook } },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteSymbol,
+      change: { type: addItem, entry: { id: gear-amulet-1, item: 5e-srd-5.1:gear.amulet } },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change: { type: addItem, entry: { id: gear-book-1, item: 5e-srd-5.1:gear.book } },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change:
+        {
+          type: addItem,
+          entry: { id: gear-incense-1, item: 5e-srd-5.1:gear.incense, quantity: 5 },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change: { type: addItem, entry: { id: gear-vestments-1, item: 5e-srd-5.1:gear.vestments } },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change:
+        {
+          type: addItem,
+          entry: { id: gear-common-clothes-1, item: 5e-srd-5.1:gear.common-clothes },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change: { type: addItem, entry: { id: gear-pouch-1, item: 5e-srd-5.1:gear.pouch } },
+    }
+  - { to: self, step: hitDie, change: { type: set, field: 5e-srd-5.1:hp.base, value: 6 } }
+  - { to: self, step: finish, change: { type: set, field: 5e-srd-5.1:hp.current, value: 10 } }
+  - { to: self, step: finish, change: { type: finishCreation } }

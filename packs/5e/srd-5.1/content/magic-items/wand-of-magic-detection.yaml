@@ -1,0 +1,26 @@
+id: magic-items.wand-of-magic-detection
+type: magicItem
+fields:
+  category: wand
+  rarity: uncommon
+  maxCharges: 3
+  recharge: 1d3
+  spells: [spells.detect-magic]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.detect-magic, when: self.equipped }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.detect-magic && flags.slot
+      == 1 && self.charges >= 1
+    value:
+      id: charges
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

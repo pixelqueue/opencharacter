@@ -1,0 +1,12 @@
+id: magic-items.necklace-of-adaptation
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  - { target: items.gasSave, op: add, value: 1, when: self.equipped && self.attuned }
+  - target: { rolls: [save] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.equipped && self.attuned && situational.gasSave

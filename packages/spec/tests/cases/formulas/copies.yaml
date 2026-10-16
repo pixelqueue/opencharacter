@@ -1,0 +1,255 @@
+description: 'Aggregates over copies: countCopies, sumCopies, maxCopies, minCopies and the copy root'
+specVersion: 0.1.0
+cases:
+  # Evaluation. Each case copy is the `copy` root; missing keys take their defaults.
+  - name: countCopies counts the copies whose condition holds
+    evaluate: countCopies(copy.type == 'ammo')
+    character: &gear
+      copies:
+        - { type: weapon, equipped: true, fields: { ammo: arrows, weight: 2 } }
+        - { type: ammo, quantity: 20, fields: { kind: arrows, weight: 0.25 } }
+        - { type: ammo, quantity: 0, fields: { kind: bolts, weight: 0.5 } }
+        - { type: harm, state: { level: 2 } }
+        - { type: harm, state: { level: 1 } }
+        - { type: class, state: { level: 3 } }
+    value: 2
+    valueType: int
+  - name: countCopies with no matches
+    evaluate: countCopies(copy.type == 'spell')
+    character: *gear
+    value: 0
+    valueType: int
+  - name: countCopies with no copies at all
+    evaluate: countCopies(true)
+    character: { copies: [] }
+    value: 0
+    valueType: int
+  - name: countCopies of every copy
+    evaluate: countCopies(true)
+    character: *gear
+    value: 6
+    valueType: int
+  - name: countCopies reads equipped
+    evaluate: countCopies(copy.type == 'weapon' && copy.equipped)
+    character: *gear
+    value: 1
+    valueType: int
+  - name: countCopies compares a state value
+    evaluate: countCopies(copy.type == 'harm' && copy.state.level == 2)
+    character: *gear
+    value: 1
+    valueType: int
+  - name: the outer item stays bound inside the condition
+    evaluate: countCopies(copy.type == 'ammo' && copy.fields.kind == item.ammo && copy.quantity > 0) > 0
+    roots: { item: { ammo: arrows } }
+    character: *gear
+    value: true
+    valueType: bool
+  - name: no copy of the kind with a quantity above 0
+    evaluate: countCopies(copy.type == 'ammo' && copy.fields.kind == item.ammo && copy.quantity > 0) > 0
+    roots: { item: { ammo: bolts } }
+    character: *gear
+    value: false
+    valueType: bool
+  - name: sumCopies of fields times quantity, guarded by has
+    evaluate: sumCopies(copy.fields.weight * copy.quantity, has(copy.fields.weight))
+    character: *gear
+    value: 7
+    valueType: decimal
+  - name: sumCopies of int values is an int
+    evaluate: sumCopies(copy.state.level, copy.type == 'harm')
+    character: *gear
+    value: 3
+    valueType: int
+  - name: sumCopies without a condition sums every copy
+    evaluate: sumCopies(copy.quantity)
+    character: *gear
+    value: 24
+    valueType: int
+  - name: an empty sum is 0
+    evaluate: sumCopies(copy.quantity, false)
+    character: *gear
+    value: 0
+    valueType: int
+  - name: sumCopies with no copies at all
+    evaluate: sumCopies(copy.quantity)
+    character: { copies: [] }
+    value: 0
+    valueType: int
+  - name: a missing field without a guard fails the call
+    evaluate: sumCopies(copy.fields.weight * copy.quantity)
+    character: *gear
+    error: no-such-key
+  - name: an error for one copy is the call's error
+    evaluate: countCopies(copy.state.level > 1)
+    character: *gear
+    error: no-such-key
+  - name: the condition is evaluated before the value
+    evaluate: sumCopies(copy.state.level, has(copy.state.level) && copy.state.level > 1)
+    character: *gear
+    value: 5
+    valueType: int
+  - name: a condition that isn't a bool
+    evaluate: countCopies(copy.quantity)
+    character: *gear
+    error: type-mismatch
+  - name: a value that isn't a number
+    evaluate: sumCopies(copy.type)
+    character: *gear
+    error: type-mismatch
+  - name: copy outside the call
+    evaluate: copy.type
+    character: *gear
+    error: unknown-name
+  - name: a nested countCopies is not bound
+    evaluate: countCopies(countCopies(true) > 0)
+    character: *gear
+    error: unknown-function
+  - name: a nested sumCopies is not bound
+    evaluate: sumCopies(sumCopies(copy.quantity))
+    character: *gear
+    error: unknown-function
+  - name: countCopies without a character
+    evaluate: countCopies(true)
+    character: false
+    error: unknown-function
+  - name: countCopies with no arguments
+    evaluate: countCopies()
+    character: *gear
+    error: wrong-arity
+  - name: sumCopies with three arguments
+    evaluate: sumCopies(1, true, true)
+    character: *gear
+    error: wrong-arity
+
+  - name: maxCopies takes the highest value the condition keeps
+    evaluate: maxCopies(copy.state.level, has(copy.state.level))
+    character: *gear
+    value: 3
+    valueType: int
+  - name: minCopies takes the lowest value the condition keeps
+    evaluate: minCopies(copy.state.level, has(copy.state.level))
+    character: *gear
+    value: 1
+    valueType: int
+  - name: maxCopies without a condition goes over every copy
+    evaluate: maxCopies(copy.quantity)
+    character: *gear
+    value: 20
+    valueType: int
+  - name: maxCopies is a decimal when any value is
+    evaluate: maxCopies(copy.fields.weight, has(copy.fields.weight))
+    character: *gear
+    value: 2
+    valueType: decimal
+  - name: minCopies of a decimal value
+    evaluate: minCopies(copy.fields.weight, has(copy.fields.weight))
+    character: *gear
+    value: 0.25
+    valueType: decimal
+  - name: maxCopies of negative values
+    evaluate: maxCopies(0 - copy.state.level, copy.type == 'harm')
+    character: *gear
+    value: -1
+    valueType: int
+  - name: maxCopies with nothing kept is 0
+    evaluate: maxCopies(copy.quantity, copy.type == 'spell')
+    character: *gear
+    value: 0
+    valueType: int
+  - name: minCopies with no copies at all is 0
+    evaluate: minCopies(copy.quantity)
+    character: { copies: [] }
+    value: 0
+    valueType: int
+  - name: maxCopies evaluates the condition before the value
+    evaluate: maxCopies(copy.state.level, copy.type == 'harm')
+    character: *gear
+    value: 2
+    valueType: int
+  - name: a missing key in maxCopies' value fails the call
+    evaluate: maxCopies(copy.state.level)
+    character: *gear
+    error: no-such-key
+  - name: a maxCopies value that isn't a number
+    evaluate: maxCopies(copy.type)
+    character: *gear
+    error: type-mismatch
+  - name: a nested maxCopies is not bound
+    evaluate: maxCopies(maxCopies(copy.quantity))
+    character: *gear
+    error: unknown-function
+  - name: minCopies without a character
+    evaluate: minCopies(copy.quantity)
+    character: false
+    error: unknown-function
+  - name: maxCopies with no arguments
+    evaluate: maxCopies()
+    character: *gear
+    error: wrong-arity
+  - name: minCopies with three arguments
+    evaluate: minCopies(1, true, true)
+    character: *gear
+    error: wrong-arity
+
+  # Type checking.
+  - name: countCopies is an int
+    check: countCopies(copy.type == 'harm' && copy.state.level == 2)
+    type: int
+  - name: sumCopies of an int value is an int
+    check: sumCopies(copy.quantity)
+    type: int
+  - name: sumCopies of a decimal value is a decimal
+    check: sumCopies(1.5, copy.equipped)
+    type: decimal
+  - name: sumCopies of an item field is dyn
+    check: sumCopies(copy.fields.weight * copy.quantity, has(copy.fields.weight))
+    type: dyn
+  - name: the copy root is typed
+    check: countCopies(copy.equipped + 1 > 0)
+    error: type-mismatch
+  - name: the outer roots stay bound
+    check: countCopies(copy.fields.kind == item.ammo)
+    roots: [item]
+    type: int
+  - name: copy outside the call
+    check: copy.type == 'harm'
+    error: unknown-name
+  - name: has(copy) outside the call
+    check: has(copy.state)
+    error: unknown-name
+  - name: a nested call
+    check: countCopies(countCopies(true) > 0)
+    error: unknown-function
+  - name: a condition that isn't a bool
+    check: countCopies(copy.quantity)
+    error: type-mismatch
+  - name: a string value
+    check: sumCopies(copy.type)
+    error: type-mismatch
+  - name: a sumCopies condition that isn't a bool
+    check: sumCopies(1, copy.id)
+    error: type-mismatch
+  - name: not bound in item fields
+    check: countCopies(true)
+    character: false
+    error: unknown-function
+  - name: maxCopies of an int value is an int
+    check: maxCopies(copy.quantity, copy.equipped)
+    type: int
+  - name: minCopies of a decimal value is a decimal
+    check: minCopies(1.5)
+    type: decimal
+  - name: maxCopies of an item field is dyn
+    check: maxCopies(copy.fields.armor, copy.type == 'extra')
+    type: dyn
+  - name: a maxCopies condition that isn't a bool
+    check: maxCopies(1, copy.quantity)
+    error: type-mismatch
+  - name: a minCopies string value
+    check: minCopies(copy.id)
+    error: type-mismatch
+  - name: maxCopies is not bound in item fields
+    check: maxCopies(copy.quantity)
+    character: false
+    error: unknown-function

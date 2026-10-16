@@ -1,0 +1,28 @@
+description: "An action step's `source` is a string and each of its `participants` a list of IDs"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: strike
+            participants:
+              target: { max: 1 }
+            steps:
+              - { id: done, kind: outcome }
+          - id: flurry
+            participants:
+              target: {}
+            steps:
+              - id: first
+                kind: action
+                use: strike
+                source: 3
+                participants: { target: 'participants.target[0].id' }
+      content: []

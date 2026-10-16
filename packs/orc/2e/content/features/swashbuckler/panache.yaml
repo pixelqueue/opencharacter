@@ -1,0 +1,46 @@
+id: features.swashbuckler.panache
+type: feature
+fields: { level: 1 }
+# Which actions are bravado (Tumble Through, the style's) is the player's call: the skill actions
+# don't mark it.
+actions:
+  - id: bravado
+    tags: [class-action]
+    params:
+      check: { type: id, of: field, where: "'skill' in item.tags" }
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [bravado]
+        params: { check: params.check, dc: 'has(params.dc) ? params.dc : null' }
+      - id: gain
+        kind: changes
+        when: >-
+          steps.check.result in ['success', 'critical-success']
+            || (steps.check.result == 'failure' && !panache.active)
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @effects.panache' }
+          - type: applyEffect
+            source: "'effects.panache'"
+            state: { brief: "steps.check.result == 'failure'" }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+  - id: gain-panache
+    tags: [class-action]
+    available: '!panache.active'
+    params:
+      brief: { type: boolean, optional: true }
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - type: applyEffect
+            source: "'effects.panache'"
+            state: { brief: has(params.brief) && params.brief }

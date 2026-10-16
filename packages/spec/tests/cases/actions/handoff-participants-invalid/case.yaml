@@ -1,0 +1,36 @@
+description: "A handoff passes only the running action's participants and the running character: another ID is `invalid-participants`"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: defend
+            participants:
+              attacker: { max: 1 }
+            steps:
+              - id: result
+                kind: outcome
+                result: "'done'"
+          - id: strike
+            participants:
+              target: { max: 1 }
+            steps:
+              - id: defense
+                kind: action
+                each: target
+                as: participant
+                use: defend
+                participants:
+                  attacker: "['nobody']"
+      content: []
+input:
+  action: { id: test-pack:strike }
+  participants:
+    target: [{ id: thug }]

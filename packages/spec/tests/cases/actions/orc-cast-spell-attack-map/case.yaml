@@ -1,0 +1,10 @@
+description: 'orc-2e: a spell attack after an attack this turn takes the multiple attack penalty (-5): 12 + 11 - 5 = 18 misses AC 19, so no damage is rolled, and the attack still counts'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: orc-2e:spells.telekinetic-projectile }
+  participants:
+    target:
+      - { id: goblin, values: { orc-2e:defenses.ac: 19 } }

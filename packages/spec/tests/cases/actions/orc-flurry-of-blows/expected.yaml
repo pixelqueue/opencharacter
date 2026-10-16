@@ -1,0 +1,52 @@
+# The fist first, kept at 1d6 by Powerful Fist: 12 + Dexterity 4 + trained 4 = 20, a hit for 1d6 (4) + Strength 2. The
+# tiger claw second, at the agile penalty: 13 + 8 - 4 = 17, a hit for 1d8 (5) + 2. Both count as
+# attacks, the flurry counts a flourish, and the goblin fails its Fortitude save: stunned 1.
+status: finished
+outcome:
+  result: success
+  data:
+    first: success
+    damage: 13
+proposedChanges:
+  - to: self
+    step: strike1/count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
+  - to: target
+    character: goblin
+    step: strike1/deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -6, tags: [damage, damage.bludgeoning] }
+  - to: self
+    step: strike2/count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
+  - to: target
+    character: goblin
+    step: strike2/deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -7, tags: [damage, damage.slashing] }
+  - to: self
+    step: flourish
+    change: { type: adjust, field: orc-2e:turn.flourishes, by: 1 }
+  - to: target
+    character: goblin
+    step: stun[0]
+    change: { type: applyEffect, source: orc-2e:conditions.stunned, state: { value: 1 } }
+log:
+  - step: first
+    action: 'orc-2e:features.monk.flurry-of-blows#flurry-of-blows'
+    kind: choice
+    by: app
+    option: orc-2e-weapons-fist
+  - step: second
+    action: 'orc-2e:features.monk.flurry-of-blows#flurry-of-blows'
+    kind: choice
+    by: app
+    option: orc-2e-weapons-unarmed-tiger-claw
+  - { step: strike1/attack, action: orc-2e:strike, kind: dice, faces: [12], total: 20 }
+  - { step: strike1/damage, action: orc-2e:strike, kind: dice, faces: [4], total: 6 }
+  - { step: strike2/attack, action: orc-2e:strike, kind: dice, faces: [13], total: 17 }
+  - { step: strike2/damage, action: orc-2e:strike, kind: dice, faces: [5], total: 7 }
+  - step: 'stunSave[0]'
+    action: 'orc-2e:features.monk.flurry-of-blows#flurry-of-blows'
+    kind: handoff
+    by: app
+    participant: { role: target, id: goblin }
+    outcome: { result: failure, data: { total: 12 } }

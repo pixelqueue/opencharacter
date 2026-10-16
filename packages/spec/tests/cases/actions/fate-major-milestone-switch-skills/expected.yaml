@@ -1,0 +1,34 @@
+# The skills pass through the significant milestone to the minor one, where Athletics (Good, 3)
+# and Will (Fair, 2) trade ranks; the new skill point is banked.
+status: finished
+outcome:
+  result: advanced
+  data:
+    benefit: skills
+proposedChanges:
+  - to: self
+    step: grow
+    change: { type: adjust, field: fate-core:refresh.base, by: 1 }
+  - to: self
+    step: grow
+    change: { type: adjust, field: fate-core:skills.cap, by: 1 }
+  - to: self
+    step: significant/minor/benefit
+    change: { type: set, field: fate-core:skills.athletics, value: 2 }
+  - to: self
+    step: significant/minor/benefit
+    change: { type: set, field: fate-core:skills.will, value: 3 }
+  - to: self
+    step: significant/point
+    change: { type: adjust, field: fate-core:advancement.skillPoints, by: 1 }
+log:
+  - step: significant/minor/benefit
+    action: fate-core:minor-milestone
+    kind: choice
+    by: app
+    option: skills
+  - step: significant/spend
+    action: fate-core:significant-milestone
+    kind: allocate
+    by: app
+    amounts: {}

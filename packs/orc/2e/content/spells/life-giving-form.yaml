@@ -1,0 +1,26 @@
+id: spells.life-giving-form
+type: spell
+tags:
+  [
+    trait.concentrate,
+    trait.focus,
+    trait.healing,
+    trait.light,
+    trait.manipulate,
+    trait.oracle,
+    trait.uncommon,
+    trait.vitality,
+  ]
+fields:
+  rank: 6
+  cast: two
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.void] } }
+    op: add
+    stackKey: weakness
+    value: -(5 + self.rank - 6)
+    when: incoming.amount < 0
+    scope: applied

@@ -1,0 +1,58 @@
+id: features.druid.natural-recovery
+type: feature
+actions:
+  - id: natural-recovery
+    tags: [feature]
+    results: [recovered, too-many]
+    available: '!self.naturalRecoveryUsed'
+    params:
+      level1: { type: integer, optional: true, min: 0 }
+      level2: { type: integer, optional: true, min: 0 }
+      level3: { type: integer, optional: true, min: 0 }
+      level4: { type: integer, optional: true, min: 0 }
+      level5: { type: integer, optional: true, min: 0 }
+    steps:
+      - id: count
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              l1: 'has(params.level1) ? params.level1 : 0'
+              l2: 'has(params.level2) ? params.level2 : 0'
+              l3: 'has(params.level3) ? params.level3 : 0'
+              l4: 'has(params.level4) ? params.level4 : 0'
+              l5: 'has(params.level5) ? params.level5 : 0'
+      - id: tooMany
+        kind: outcome
+        when: >-
+          flags.l1 + 2 * flags.l2 + 3 * flags.l3 + 4 * flags.l4 + 5 * flags.l5 > ceil(self.level / 2)
+        result: "'too-many'"
+        data:
+          limit: ceil(self.level / 2)
+      - id: recover
+        kind: changes
+        changes:
+          - type: set
+            field: spellSlots.level1.used
+            value: max(0, spellSlots.level1.used - flags.l1)
+            when: flags.l1 > 0
+          - type: set
+            field: spellSlots.level2.used
+            value: max(0, spellSlots.level2.used - flags.l2)
+            when: flags.l2 > 0
+          - type: set
+            field: spellSlots.level3.used
+            value: max(0, spellSlots.level3.used - flags.l3)
+            when: flags.l3 > 0
+          - type: set
+            field: spellSlots.level4.used
+            value: max(0, spellSlots.level4.used - flags.l4)
+            when: flags.l4 > 0
+          - type: set
+            field: spellSlots.level5.used
+            value: max(0, spellSlots.level5.used - flags.l5)
+            when: flags.l5 > 0
+          - { type: setState, entry: self, key: naturalRecoveryUsed, value: true }
+      - id: result
+        kind: outcome
+        result: "'recovered'"

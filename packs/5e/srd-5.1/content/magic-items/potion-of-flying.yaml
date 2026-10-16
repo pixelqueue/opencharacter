@@ -1,0 +1,16 @@
+id: magic-items.potion-of-flying
+type: magicItem
+fields:
+  category: potion
+  rarity: very-rare
+  lasting: true
+effects:
+  - {
+      target: combat.flySpeed,
+      op: atLeast,
+      value: combat.speed,
+      scope: applied,
+      duration: { amount: 1, unit: hour },
+    }
+actions:
+  - use: drink-potion

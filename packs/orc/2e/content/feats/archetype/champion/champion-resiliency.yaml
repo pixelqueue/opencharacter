@@ -1,0 +1,10 @@
+id: feats.archetype.champion.champion-resiliency
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.champion }
+
+prerequisites:
+  - { id: champion-dedication, when: '@feats.archetype.champion.champion-dedication in feats.held' }
+  - { id: class-hp, when: 'hp.class <= 8' }
+effects:
+  - { target: hp.max, op: add, value: '3 * archetypes.champion.feats' }

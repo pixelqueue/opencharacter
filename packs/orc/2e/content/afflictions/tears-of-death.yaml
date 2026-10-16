@@ -1,0 +1,16 @@
+id: afflictions.tears-of-death
+type: affliction
+fields:
+  {
+    kind: poison,
+    level: 20,
+    dc: 44,
+    stages: 3,
+    stage1Damage: 20d6,
+    stage2Damage: 22d6,
+    stage3Damage: 24d6,
+  }
+grants:
+  - { item: conditions.paralyzed, scope: applied, when: self.stage == 1 }
+  - { item: conditions.paralyzed, scope: applied, when: self.stage == 2 }
+  - { item: conditions.paralyzed, scope: applied, when: self.stage == 3 }

@@ -1,0 +1,30 @@
+# A natural 1 is a fumble; the app picks cancel: one omen spent, and the result is a failure.
+status: finished
+outcome:
+  result: failure
+  data:
+    total: 0
+    dr: 14
+    omensSpent: 1
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: mork-borg-core:omens.current
+      by: -1
+log:
+  - step: check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 1
+    total: 0
+    band: fumble
+    bandSet: mork-borg-core:test
+  - step: fate
+    action: mork-borg-core:test
+    kind: choice
+    by: app
+    option: cancel

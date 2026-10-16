@@ -1,0 +1,52 @@
+description: "A proposed change's `entry`, and a choose's `path.entry`, may be `{ formula }` giving an instance ID: evaluated by the action and passed on as the ID, to the actor or to a participant, whose own applyChanges checks it"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          weapon:
+            state:
+              blessed: { type: boolean, default: false }
+            choices:
+              - id: edge
+                from: { options: [{ id: keen }, { id: heavy }] }
+        actions:
+          # Blesses a weapon the app names: an ally's, by its instance ID on the ally's sheet,
+          # and one of the caster's own, whose edge it picks too.
+          - id: bless-weapon
+            params:
+              theirs: { type: string }
+              mine: { type: string }
+            participants:
+              ally: { max: 1 }
+            steps:
+              - id: theirs
+                kind: changes
+                to: ally
+                changes:
+                  - type: setState
+                    entry: { formula: params.theirs }
+                    key: blessed
+                    value: true
+              - id: mine
+                kind: changes
+                changes:
+                  - { type: setState, entry: { formula: params.mine }, key: blessed, value: true }
+                  - type: choose
+                    path: { entry: { formula: params.mine }, choice: [edge] }
+                    option: "'keen'"
+      content:
+        - { id: weapons.sword, type: weapon }
+input:
+  action: { id: 'test-pack:bless-weapon' }
+  params: { theirs: axe-1, mine: sword }
+  participants:
+    ally:
+      - { id: friend, values: {} }

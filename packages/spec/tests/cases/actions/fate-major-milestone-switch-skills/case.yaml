@@ -1,0 +1,12 @@
+description: 'Fate Core: a major milestone passes the two skills to its significant milestone, which passes them on to its minor one, which switches them; one step each, with the skills passed as given'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:major-milestone }
+  params: { skillA: skills.athletics, skillB: skills.will, recover: false }
+  policy: { choices: pause, allocations: pause }
+answers:
+  - option: skills
+  - amounts: {}

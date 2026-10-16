@@ -1,0 +1,98 @@
+id: feats.archetype.witch.witch-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.witch }
+
+prerequisites:
+  - { id: int, when: 'attributes.int.mod >= 2' }
+  - { id: not-witch, when: 'countCopies(copy.item == @classes.witch) == 0' }
+effects:
+  - { target: spellcasting.archetype.witch.kind, op: set, value: "'prepared'" }
+  - { target: spellcasting.archetype.witch.attribute, op: set, value: "'int'" }
+  - { target: spellcasting.archetype.witch.rank, op: atLeast, value: 1 }
+  - { target: spellcasting.archetype.witch.cantrips, op: set, value: 1 }
+  - { target: spellcasting.archetype.witch.bookCantrips, op: set, value: 2 }
+  - { target: spellcasting.archetype.witch.fromBook, op: set, value: true }
+grants:
+  - { item: features.spellcasting.archetype-book, state: { source: "'witch'" } }
+choices:
+  - id: patron
+    from:
+      options:
+        - id: faiths-flamekeeper
+          effects:
+            - { target: witch.patron, op: set, value: "'faiths-flamekeeper'" }
+            - { target: spellcasting.archetype.witch.tradition, op: set, value: "'divine'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.religion },
+                when: "!('skill.religion' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: inscribed-one
+          effects:
+            - { target: witch.patron, op: set, value: "'inscribed-one'" }
+            - { target: spellcasting.archetype.witch.tradition, op: set, value: "'arcane'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.arcana },
+                when: "!('skill.arcana' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: resentment
+          effects:
+            - { target: witch.patron, op: set, value: "'resentment'" }
+            - { target: spellcasting.archetype.witch.tradition, op: set, value: "'occult'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.occultism },
+                when: "!('skill.occultism' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: silence-in-snow
+          effects:
+            - { target: witch.patron, op: set, value: "'silence-in-snow'" }
+            - { target: spellcasting.archetype.witch.tradition, op: set, value: "'primal'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.nature },
+                when: "!('skill.nature' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: spinner-of-threads
+          effects:
+            - { target: witch.patron, op: set, value: "'spinner-of-threads'" }
+            - { target: spellcasting.archetype.witch.tradition, op: set, value: "'occult'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.occultism },
+                when: "!('skill.occultism' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: starless-shadow
+          effects:
+            - { target: witch.patron, op: set, value: "'starless-shadow'" }
+            - { target: spellcasting.archetype.witch.tradition, op: set, value: "'occult'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.occultism },
+                when: "!('skill.occultism' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: wilding-steward
+          effects:
+            - { target: witch.patron, op: set, value: "'wilding-steward'" }
+            - { target: spellcasting.archetype.witch.tradition, op: set, value: "'primal'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.nature },
+                when: "!('skill.nature' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }

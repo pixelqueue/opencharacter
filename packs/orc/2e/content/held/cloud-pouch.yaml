@@ -1,0 +1,18 @@
+id: held.cloud-pouch
+type: held
+tags: [trait.magical, trait.water]
+fields:
+  level: 6
+  price: 225
+  bulk: 1
+  activation: two
+  frequency: once-per-hour
+grants:
+  - { item: spells.mist, when: 'self.equipped' }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.mist'
+    value:
+      id: mist
+      flags: { itemPaid: true, rank: 2 }

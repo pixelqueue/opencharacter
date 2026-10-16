@@ -1,0 +1,89 @@
+id: effects.attack-stratagem
+type: effect
+tags: [stratagem]
+# The stored d20 is the Strike's roll (`setFaces`, fortune; no other fortune applies). A misfortune
+# keeps the lower of the stored d20 and another, where the book cancels both.
+state:
+  roll: { type: integer, default: 10, min: 1, max: 20 }
+effects:
+  - target: { rolls: [stratagem] }
+    op: rollModifier
+    value: { kind: setFaces, faces: [self.roll] }
+    when: "'attack' in roll.tags"
+    scope: applied
+  - target: { rolls: [stratagem] }
+    op: rollModifier
+    value: { kind: noAdvantage }
+    when: "'attack' in roll.tags"
+    scope: applied
+  - target: { rolls: [stratagem], parts: [part.attribute] }
+    op: set
+    value: attacks.int.mod
+    when: "'attack' in roll.tags"
+    scope: applied
+actions:
+  - id: strike
+    scope: applied
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: >-
+              (self.equipped || 'standard' in item.tags || 'unarmed' in item.tags)
+                && (item.range > 0 || 'trait.agile' in item.tags || 'trait.finesse' in item.tags
+                  || (@feats.investigator.takedown-expert in feats.held
+                    && item.group == 'club'))
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [stratagem]
+        participants: { target: participants.target }
+      - id: certain
+        kind: roll
+        when: >-
+          @feats.investigator.certain-stratagem in feats.held
+            && steps.strike.result in ['failure', 'critical-failure']
+        tags: [damage]
+        parts:
+          - dice: 'dieOf(1d6, 1 + floor((level - 1) / 4))'
+            tags: [{ formula: "'damage.' + steps.weapon.item.damageType" }]
+      - id: graze
+        kind: changes
+        when: has(steps.certain)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            by: -floor(steps.certain.total / 2)
+            tags: [damage, { formula: "'damage.' + steps.weapon.item.damageType" }]
+      - id: bleed
+        kind: changes
+        when: >-
+          @feats.investigator.scalpels-point in feats.held
+            && steps.strike.result == 'critical-success'
+            && steps.weapon.item.damageType in ['piercing', 'slashing']
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.persistent-damage'"
+            state: { damage: 1d6, damageType: "'bleed'" }
+      - id: spend
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @effects.attack-stratagem' }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: >-
+            steps.strike.data.damage + (has(steps.certain) ? floor(steps.certain.total / 2) : 0)

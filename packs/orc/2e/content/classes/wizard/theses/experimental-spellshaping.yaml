@@ -1,0 +1,22 @@
+id: classes.wizard.theses.experimental-spellshaping
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: wizard.thesis, op: set, value: "'experimental-spellshaping'" }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && item.level <= 1 && 'trait.spellshape' in item.tags
+          && (item.class == @classes.wizard || 'trait.wizard' in item.tags)
+  - id: daily-feat
+    unique: feats
+    pick: 'level >= 4 ? 1 : 0'
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && item.level <= floor(level / 2)
+          && 'trait.spellshape' in item.tags
+          && (item.class == @classes.wizard || 'trait.wizard' in item.tags)

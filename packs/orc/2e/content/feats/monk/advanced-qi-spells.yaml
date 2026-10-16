@@ -1,0 +1,21 @@
+id: feats.monk.advanced-qi-spells
+type: feat
+fields: { level: 6, category: class, class: classes.monk }
+repeatable: true
+prerequisites:
+  - id: qi-spells
+    when: '@feats.monk.qi-spells in feats.held'
+effects:
+  - { target: focus.points, op: add, value: 1 }
+choices:
+  - id: spell
+    unique: qi-spells
+    requiresOption: true
+    from:
+      options:
+        - id: qi-blast
+          grants:
+            - item: spells.qi-blast
+        - id: shrink-the-span
+          grants:
+            - item: spells.shrink-the-span

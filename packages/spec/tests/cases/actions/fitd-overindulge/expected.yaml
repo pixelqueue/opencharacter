@@ -1,0 +1,30 @@
+# lowest attribute 1 -> 1d6kh1 [5] against 2 stress: overindulged; 2 cleared (the adjust of -5
+# clamps at 0 when applied). Tapped: the purveyor is cleared for a new one.
+status: finished
+outcome:
+  result: overindulged
+  data:
+    cleared: 2
+    overindulgence: tapped
+proposedChanges:
+  - to: self
+    step: clear
+    change:
+      type: adjust
+      field: fitd-scoundrel:stress.current
+      by: -5
+  - to: self
+    step: tapped
+    change:
+      type: set
+      field: fitd-scoundrel:vice.purveyor
+      value: ''
+log:
+  - step: roll
+    action: fitd-scoundrel:indulge-vice
+    kind: dice
+    by: engine
+    faces:
+      - 5
+    total: 5
+  - { step: overindulgence, kind: choice, by: app, option: tapped }

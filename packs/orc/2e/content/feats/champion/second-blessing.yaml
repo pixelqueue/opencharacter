@@ -1,0 +1,26 @@
+id: feats.champion.second-blessing
+type: feat
+fields: { level: 8, category: class, class: classes.champion }
+choices:
+  - id: blessing
+    from:
+      options:
+        - id: armament
+          prerequisites:
+            - { id: other, when: "!('blessing.armament' in champion.firstBlessing)" }
+          effects:
+            - { target: champion.blessing, op: grant, value: { tag: blessing.armament } }
+            - { target: champion.secondBlessing, op: grant, value: { tag: blessing.armament } }
+        - id: shield
+          prerequisites:
+            - { id: other, when: "!('blessing.shield' in champion.firstBlessing)" }
+          effects:
+            - { target: champion.blessing, op: grant, value: { tag: blessing.shield } }
+            - { target: champion.secondBlessing, op: grant, value: { tag: blessing.shield } }
+        - id: swiftness
+          prerequisites:
+            - { id: other, when: "!('blessing.swiftness' in champion.firstBlessing)" }
+          effects:
+            - { target: champion.blessing, op: grant, value: { tag: blessing.swiftness } }
+            - { target: champion.secondBlessing, op: grant, value: { tag: blessing.swiftness } }
+            - { target: speed.land, op: add, value: 5, stackKey: status-bonus }

@@ -1,0 +1,15 @@
+description: "FitD: a linked crew's Informants add a die to gather information for a score"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:action-roll }
+  params: { rating: fitd-scoundrel:ratings.skirmish }
+  situational:
+    fitd-scoundrel:gatheringInfo: true
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:members.gatherInfo.dice: 1

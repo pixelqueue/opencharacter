@@ -1,0 +1,9 @@
+# input 3 is within the field's 0..4 (min/max check the saved value); the Cutter's add 2 makes
+# the final value 5, past `limits: { max: ratings.max }` (3 without Mastery) -> out-of-limits
+# (reported, not clamped). Battleborn gives the special armor box.
+values:
+  fitd-scoundrel:ratings.skirmish: { value: 5 }
+  fitd-scoundrel:ratings.max: { value: 3 }
+  fitd-scoundrel:armor.hasSpecial: { value: true }
+issues:
+  - { code: out-of-limits, id: fitd-scoundrel:ratings.skirmish }

@@ -1,0 +1,128 @@
+# An orc-2e character: a 5th-level arctic elf alchemist, a bomber,
+# with a charlatan background.
+#
+# Boosts: his ancestry's Dexterity and Intelligence (Constitution flaw) and a free Constitution,
+# the charlatan's Intelligence and a free Constitution, the alchemist's Intelligence, four free
+# (Intelligence, Constitution, Dexterity, Wisdom) and four more at 5th level (Dexterity,
+# Strength, Intelligence, Wisdom): Str +1, Dex +3, Con +2, Int +4, Wis +2, Cha +0. Class DC 21,
+# 56 Hit Points, AC 22. Trained skills: Deception and Underworld Lore (charlatan), Crafting
+# (alchemist) and seven more.
+#
+# His formula book: the bomber's dread ampoule and bottled lightning, six from his book and
+# Alchemical Crafting, and two more a level. Six versatile vials (2 + Intelligence), advanced alchemy
+# (10 items a day: 4 + Intelligence, and 2 from Efficient Alchemy), and his bombs: infused lesser alchemist's fire and bottled
+# lightning from this morning's advanced alchemy.
+specVersion: 0.1.0
+id: example-orc-fenn
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 5
+  orc-2e:hp.current: 56
+  orc-2e:skills.crafting.increases: 1
+  orc-2e:skills.athletics.increases: 1
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.elf
+    choices:
+      heritage:
+        - option: orc-2e:heritages.arctic-elf
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-2e:boosts.con
+  - id: background
+    item: orc-2e:backgrounds.charlatan
+    choices:
+      boost:
+        - option: orc-2e:boosts.int
+      free-boost:
+        - option: orc-2e:boosts.con
+  - id: class
+    item: orc-2e:classes.alchemist
+    choices:
+      research-field:
+        - option: orc-2e:classes.alchemist.fields.bomber
+          choices:
+            formulas:
+              - option: orc-2e:consumables.dread-ampoule-lesser
+              - option: orc-2e:consumables.bottled-lightning-lesser
+      skills:
+        - option: skill.lore.academia
+        - option: skill.athletics
+        - option: skill.arcana
+        - option: skill.medicine
+        - option: skill.acrobatics
+        - option: skill.nature
+        - option: skill.stealth
+      formulas:
+        - option: orc-2e:consumables.elixir-of-life-minor
+        - option: orc-2e:consumables.alchemists-fire-lesser
+        - option: orc-2e:consumables.cheetahs-elixir-lesser
+        - option: orc-2e:consumables.frost-vial-lesser
+        - option: orc-2e:consumables.acid-flask-lesser
+        - option: orc-2e:consumables.blasting-stone-lesser
+      class-feat-1:
+        - option: orc-2e:feats.alchemist.quick-bomber
+      new-formulas-2:
+        - option: orc-2e:consumables.ghost-charge-lesser
+        - option: orc-2e:consumables.antidote-lesser
+      class-feat-2:
+        - option: orc-2e:feats.alchemist.improvise-admixture
+      skill-feat-2:
+        - option: orc-2e:feats.skill.quick-repair
+      new-formulas-3:
+        - option: orc-2e:consumables.blight-bomb-lesser
+        - option: orc-2e:consumables.juggernaut-mutagen-lesser
+      new-formulas-4:
+        - option: orc-2e:consumables.antiplague-lesser
+        - option: orc-2e:consumables.glue-bomb-lesser
+      class-feat-4:
+        - option: orc-2e:feats.alchemist.efficient-alchemy
+      skill-feat-4:
+        - option: orc-2e:feats.skill.titan-wrestler
+      new-formulas-5:
+        - option: orc-2e:consumables.crystal-shards-moderate
+        - option: orc-2e:consumables.eagle-eye-elixir-lesser
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.int
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.ancestral-longevity
+      choices:
+        skill:
+          - option: skill.society
+  languages:
+    - option: orc-2e:languages.draconic
+    - option: orc-2e:languages.halfling
+    - option: orc-2e:languages.dwarven
+    - option: orc-2e:languages.gnomish
+  general-feat-3:
+    - option: orc-2e:feats.general.fast-recovery
+  boosts-5:
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.int
+    - option: orc-2e:boosts.wis
+  ancestry-feat-5:
+    - option: orc-2e:feats.ancestry.unwavering-mien
+inventory:
+  - { id: crossbow, item: orc-2e:weapons.crossbow, equipped: true }
+  - { id: armor, item: orc-2e:armor.studded-leather-armor, equipped: true }
+  - { id: toolkit, item: orc-2e:gear.alchemists-toolkit }
+  - id: fire
+    item: orc-2e:consumables.alchemists-fire-lesser
+    quantity: 3
+    state: { infused: true }
+  - id: lightning
+    item: orc-2e:consumables.bottled-lightning-lesser
+    quantity: 3
+    state: { infused: true }
+  - id: elixir
+    item: orc-2e:consumables.elixir-of-life-minor
+    quantity: 2
+    state: { infused: true }

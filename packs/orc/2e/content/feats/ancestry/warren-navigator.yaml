@@ -1,0 +1,13 @@
+id: feats.ancestry.warren-navigator
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.ratfolk }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.survival }
+    when: "!('skill.survival' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: { rolls: [skill-action.sense-direction], tally: degreeShift }
+    op: add
+    value: 1
+    when: 'true'

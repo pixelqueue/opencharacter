@@ -1,0 +1,16 @@
+description: "Fate Core: teamwork from the helpers' own sheets: each helper's app runs `assist-check` with the skill; one is at least Average and adds +1, the other is not and adds nothing"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:overcome }
+  params: { skill: fate-core:skills.athletics, opposition: 4 }
+  participants:
+    helper: [{ id: tobias, values: {} }, { id: ines, values: {} }]
+  policy: { choices: auto }
+answers:
+  # Tobias's app ran `assist-check`: Athletics Fair (+2).
+  - outcome: { result: checked, data: { helps: true, rating: 2 } }
+  # Ines's: Athletics Mediocre (+0).
+  - outcome: { result: checked, data: { helps: false, rating: 0 } }

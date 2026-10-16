@@ -1,0 +1,12 @@
+status: paused
+needs:
+  step: defense[0]
+  action: test-pack:strike
+  kind: handoff
+  participant: { role: target, id: thug }
+  run:
+    action: test-pack:defend
+    params: {}
+    participants:
+      attacker: [duelist]
+      witness: [ally-1, ally-2]

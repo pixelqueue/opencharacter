@@ -1,0 +1,40 @@
+id: magic-items.staff-of-swarming-insects
+type: template
+tags:
+  [
+    magic,
+    staff,
+    attunement.bard,
+    attunement.cleric,
+    attunement.druid,
+    attunement.sorcerer,
+    attunement.warlock,
+    attunement.wizard,
+  ]
+appliesTo: { type: weapon, where: 'item.id == @weapons.quarterstaff' }
+fields: { rarity: rare, requiresAttunement: true, maxCharges: 10, recharge: 1d6 + 4 }
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.giant-insect, when: self.equipped && self.attuned }
+  - { item: spells.insect-plague, when: self.equipped && self.attuned }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && ((action.item.id == @spells.giant-insect &&
+      flags.slot == 4 && self.charges >= 4) || (action.item.id == @spells.insect-plague
+      && flags.slot == 5 && self.charges >= 5))
+    value:
+      id: charges
+      changes:
+        - {
+            type: adjustState,
+            entry: self,
+            key: charges,
+            by: '-(action.item.id == @spells.giant-insect ? 4 : 5)',
+          }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

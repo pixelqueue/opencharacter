@@ -1,0 +1,33 @@
+values:
+  test-field-sets:reflex:
+    value: 2
+    base: 2
+    breakdown:
+      - {
+          op: add,
+          value: 1,
+          source: { type: item, id: test-field-sets:features.lucky, entry: lucky },
+        }
+      - { op: add, value: -1, source: { type: item, id: test-field-sets:conditions.clumsy } }
+  test-field-sets:fortitude: { value: 4 }
+  test-field-sets:acrobatics: { value: 3 }
+  test-field-sets:ac: { value: 9 }
+  test-field-sets:speed: { value: 30 }
+  test-field-sets:motto: { value: onward }
+effects:
+  - source: { type: item, id: test-field-sets:features.lucky, entry: lucky }
+    target: test-field-sets:reflex
+    op: add
+  - source: { type: item, id: test-field-sets:features.lucky, entry: lucky }
+    target: test-field-sets:fortitude
+    op: add
+  - source: { type: item, id: test-field-sets:conditions.clumsy }
+    target: test-field-sets:reflex
+    op: add
+  - source: { type: item, id: test-field-sets:conditions.clumsy }
+    target: test-field-sets:acrobatics
+    op: add
+  - source: { type: item, id: test-field-sets:conditions.clumsy }
+    target: test-field-sets:ac
+    op: add
+errors: []

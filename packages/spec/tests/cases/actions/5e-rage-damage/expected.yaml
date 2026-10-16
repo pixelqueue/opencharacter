@@ -1,0 +1,45 @@
+# Barbarian 9: proficiency +4, rage damage +3. Attack 11 + str 3 + 4 = 18 >= 12: hit.
+# Greataxe 1d12 (8) + str 3 + rage 3 = 14 slashing.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 18 }
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -14,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.slashing,
+            ],
+        },
+    }
+log:
+  - step: attack
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [11]
+    total: 18
+  - step: damage
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [8]
+    items:
+      - { kind: dice, sides: 12, value: 8, tags: [damage.slashing] }
+      - { kind: flat, value: 3, source: { type: field, id: 5e-srd-5.1:abilities.str.mod } }
+      - { kind: flat, value: 3, source: { type: item, entry: barbarian }, tags: [damage.slashing] }
+    total: 14

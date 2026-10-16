@@ -1,0 +1,13 @@
+id: feats.archetype.barbarian.barbarian-resiliency
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.barbarian }
+
+prerequisites:
+  - {
+      id: barbarian-dedication,
+      when: '@feats.archetype.barbarian.barbarian-dedication in feats.held',
+    }
+  - { id: class-hp, when: 'hp.class <= 10' }
+effects:
+  - { target: hp.max, op: add, value: '3 * archetypes.barbarian.feats' }

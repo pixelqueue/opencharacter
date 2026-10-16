@@ -1,0 +1,18 @@
+id: feats.archetype.barbarian.basic-fury
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.barbarian }
+prerequisites:
+  - {
+      id: barbarian-dedication,
+      when: '@feats.archetype.barbarian.barbarian-dedication in feats.held',
+    }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && !('trait.archetype' in item.tags)
+          && (has(item.class) && item.class == @classes.barbarian || 'trait.barbarian' in item.tags)
+    eligible: item.level <= 2

@@ -1,0 +1,13 @@
+description: "5E level-up in a class the character has, with the fixed hit points: the class copy's level rises by one and hp.base by half the hit die plus 1, and current hit points by what the maximum gains; then the 4th level's Ability Score Improvement is asked, and its nested ability pick"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:level-up }
+  policy: { dice: pause, choices: pause }
+answers:
+  - option: 5e-srd-5.1:classes.fighter
+  - option: fixed
+  - option: 5e-srd-5.1:improvements.plus-two
+  - option: str

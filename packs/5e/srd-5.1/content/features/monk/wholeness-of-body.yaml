@@ -1,0 +1,18 @@
+id: features.monk.wholeness-of-body
+type: feature
+actions:
+  - id: wholeness-of-body
+    tags: [healing]
+    results: [healed]
+    available: '!self.wholenessUsed'
+    steps:
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: 3 * self.level, tags: [healing] }
+          - { type: setState, entry: self, key: wholenessUsed, value: true }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: 3 * self.level

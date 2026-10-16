@@ -1,0 +1,55 @@
+id: monsters.violet-fungus.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 4 }
+    results: [done]
+    steps:
+      - id: count
+        kind: roll
+        parts: [{ dice: 1d4 }]
+      - id: touch1
+        kind: action
+        when: 'steps.count.total >= 1'
+        use: monster-attack
+        source: "'monsters.violet-fungus.rotting-touch'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: touch2
+        kind: action
+        when: 'steps.count.total >= 2'
+        use: monster-attack
+        source: "'monsters.violet-fungus.rotting-touch'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: touch3
+        kind: action
+        when: 'steps.count.total >= 3'
+        use: monster-attack
+        source: "'monsters.violet-fungus.rotting-touch'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(2, size(participants.target) - 1)].id] : []
+      - id: touch4
+        kind: action
+        when: 'steps.count.total >= 4'
+        use: monster-attack
+        source: "'monsters.violet-fungus.rotting-touch'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(3, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.touch1) && steps.touch1.result == 'hit' ? 1 : 0)
+              + (has(steps.touch2) && steps.touch2.result == 'hit' ? 1 : 0)
+              + (has(steps.touch3) && steps.touch3.result == 'hit' ? 1 : 0)
+              + (has(steps.touch4) && steps.touch4.result == 'hit' ? 1 : 0)

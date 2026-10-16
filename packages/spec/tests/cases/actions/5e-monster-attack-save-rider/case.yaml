@@ -1,0 +1,14 @@
+description: "5E: a giant spider's bite hits, the target saves on its own sheet (succeeding), and takes the piercing damage and half the poison"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action:
+    { id: 5e-srd-5.1:monster-attack, entry: monster, source: 5e-srd-5.1:monsters.giant-spider.bite }
+  participants:
+    target:
+      - id: tamsin
+        values: { 5e-srd-5.1:combat.ac: 14 }
+answers:
+  - { outcome: { result: success, data: { total: 13 } } }

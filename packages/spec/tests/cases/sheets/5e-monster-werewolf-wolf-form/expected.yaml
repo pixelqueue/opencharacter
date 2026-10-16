@@ -1,0 +1,22 @@
+# Wolf form: natural armor 12 over the humanoid's 11, speed 40; the bite is its only attack
+# (no spear, claws or Multiattack). Hit points stay.
+values:
+  5e-srd-5.1:combat.ac: { value: 12 }
+  5e-srd-5.1:combat.speed: { value: 40 }
+  5e-srd-5.1:hp.current: { value: 40 }
+actions:
+  - { action: 5e-srd-5.1:change-form, entry: monster }
+  - { action: 5e-srd-5.1:monster-attack, entry: monster, source: 5e-srd-5.1:monsters.werewolf.bite }
+  - { action: 5e-srd-5.1:saving-throw }
+  - { action: 5e-srd-5.1:ability-check }
+  - { action: 5e-srd-5.1:skill-check }
+  - { action: 5e-srd-5.1:initiative }
+  - { action: 5e-srd-5.1:unarmed-strike }
+  - { action: 5e-srd-5.1:fall }
+  - { action: 5e-srd-5.1:take-damage }
+  - { action: 5e-srd-5.1:heal }
+  - { action: 5e-srd-5.1:long-rest }
+  - { action: 5e-srd-5.1:concentration-check }
+  - { action: 5e-srd-5.1:short-rest }
+issues: []
+errors: []

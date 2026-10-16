@@ -1,0 +1,27 @@
+description: 'A computed outcome result the action does not declare in `results` is undeclared-result'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: pick
+            params:
+              way: { type: enum, values: [left, right] }
+            results: [left]
+            steps:
+              - id: result
+                kind: outcome
+                result: params.way
+      content: []
+input:
+  action:
+    id: test-pack:pick
+  params:
+    way: right

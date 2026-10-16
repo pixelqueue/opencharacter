@@ -1,0 +1,10 @@
+status: finished
+proposedChanges:
+  - { to: self, step: dots, change: { type: adjust, field: 'test-pack:stats.might', by: 1 } }
+  - { to: self, step: dots, change: { type: adjust, field: 'test-pack:stats.grace', by: 2 } }
+log:
+  - step: dots
+    action: test-pack:spend
+    kind: allocate
+    by: app
+    amounts: { 'test-pack:stats.might': 1, 'test-pack:stats.grace': 2 }

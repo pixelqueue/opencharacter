@@ -1,0 +1,26 @@
+id: worn.choker-of-elocution
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 6
+  price: 200
+  bulk: 0.1
+  usage: collar
+effects:
+  - target: skills.society.mod
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+choices:
+  - id: languages
+    pick: 1
+    from: { type: language }
+    activate: false
+    effects:
+      - {
+          target: languages,
+          op: grant,
+          value: { formula: pick.id },
+          when: 'self.equipped && self.invested',
+        }

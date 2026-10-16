@@ -1,0 +1,19 @@
+id: worn.boots-of-bounding-greater
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 14
+  price: 4250
+  bulk: 0.1
+  usage: shoes
+effects:
+  - target: speed.land
+    op: add
+    value: 10
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { rolls: [skill-action.high-jump, skill-action.long-jump] }
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

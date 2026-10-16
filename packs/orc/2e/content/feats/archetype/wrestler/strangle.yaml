@@ -1,0 +1,39 @@
+id: feats.archetype.wrestler.strangle
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 8, category: class, archetype: archetypes.wrestler }
+
+prerequisites:
+  - { id: wrestler-dedication, when: '@feats.archetype.wrestler.wrestler-dedication in feats.held' }
+actions:
+  - id: strangle
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "'unarmed' in item.tags && item.range == 0"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [strike.strangle]
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+effects:
+  - target: { rolls: [strike.strangle] }
+    op: add
+    value: roll.item.dice
+    stackKey: circumstance-bonus
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: "'damage' in roll.tags"

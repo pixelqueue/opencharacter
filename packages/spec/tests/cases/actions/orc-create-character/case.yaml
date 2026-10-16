@@ -1,0 +1,38 @@
+description: "orc-2e: guided creation of a human fighter with the warrior background:
+  ancestry and heritage, background and class, then what each brings in the book's order:
+  the heritage's feat (right after the heritage) and the ancestry's boosts, the background's boosts, the class's key
+  attribute, its skill (Athletics), three trained skills and its feat, then the four free boosts,
+  the ancestry feat and the class feat its Natural Ambition picks, then a language; and full Hit Points"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:create-character
+  policy:
+    choices: pause
+    allocations: pause
+answers:
+  - option: orc-2e:ancestries.human
+  - option: orc-2e:heritages.versatile-human
+  - option: orc-2e:backgrounds.warrior
+  - option: orc-2e:classes.fighter
+  - option: orc-2e:feats.general.toughness
+  - option: orc-2e:boosts.str
+  - option: orc-2e:boosts.con
+  - option: orc-2e:boosts.str
+  - option: orc-2e:boosts.dex
+  - option: str
+  - option: skill.athletics
+  - option: skill.acrobatics
+  - option: skill.diplomacy
+  - option: skill.survival
+  - option: orc-2e:feats.fighter.vicious-swing
+  - option: orc-2e:boosts.str
+  - option: orc-2e:boosts.dex
+  - option: orc-2e:boosts.con
+  - option: orc-2e:boosts.wis
+  - option: orc-2e:feats.ancestry.natural-ambition
+  - option: orc-2e:feats.fighter.sudden-charge
+  - option: orc-2e:languages.dwarven

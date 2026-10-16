@@ -1,0 +1,11 @@
+# might 10; both copies share the source key (highestOnly), so +1 counts once -> 11.
+# Ties go to the earlier instance.
+values:
+  test-effects:stats.might:
+    value: 11
+    breakdown:
+      - {
+          op: add,
+          value: 1,
+          source: { type: item, id: test-effects:boons.blessing, entry: blessing-1 },
+        }

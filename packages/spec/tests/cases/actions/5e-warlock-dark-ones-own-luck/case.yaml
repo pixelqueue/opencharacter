@@ -1,0 +1,13 @@
+description: "5E fiend warlock 6 fails a DC 15 Strength check: Dark One's Own Luck's option on the check's luck step sets a d10 the check rolls and adds, and spends the use"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:ability-check }
+  params: { ability: str, dc: 15 }
+  policy:
+    rules:
+      - { kind: choice, tags: [failed-check], then: pause }
+answers:
+  - { option: '5e-srd-5.1:features.warlock.dark-ones-own-luck#luck' }

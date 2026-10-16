@@ -1,0 +1,13 @@
+id: feats.ancestry.called
+type: feat
+fields: { level: 5, category: ancestry, heritage: heritages.changeling }
+effects:
+  - target: { rolls: [save.will] }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: situational.againstMental
+  - target: { rolls: [save.will], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.againstMental && situational.againstControl

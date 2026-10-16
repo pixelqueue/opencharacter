@@ -1,0 +1,13 @@
+description: "FitD: a linked crew's Infirmary adds a die to recovery rolls"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:recovery-roll }
+  params: { dots: 1 }
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:members.recovery.dice: 1

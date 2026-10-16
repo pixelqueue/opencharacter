@@ -1,0 +1,21 @@
+# Cast as 4th-rank lightning bolt with DC 25; the book's 5d12 is the spell's own damage.
+id: consumables.trident-of-lightning
+type: consumable
+tags: [trait.electricity, trait.magical]
+fields:
+  level: 9
+  price: 110
+  bulk: 0.1
+  activation: two
+  category: other
+grants:
+  - { item: spells.lightning-bolt }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.lightning-bolt && self.quantity > 0'
+    value:
+      id: use
+      flags: { itemPaid: true, rank: 4, dc: 25 }
+      changes:
+        - { type: adjustQuantity, entry: self, by: -1 }

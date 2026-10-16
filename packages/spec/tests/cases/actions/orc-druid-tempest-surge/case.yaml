@@ -1,0 +1,12 @@
+description: 'orc-2e: a 3rd-level storm druid casts its order spell tempest surge (a focus spell heightened to 2nd: 2d12 electricity, a basic Reflex save against spell DC 19): a Focus Point is spent, and a target that critically fails takes double damage and is clumsy 2'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: orc-2e:spells.tempest-surge }
+  participants:
+    target:
+      - { id: goblin }
+answers:
+  - { outcome: { result: critical-failure } }

@@ -1,0 +1,18 @@
+# Fighter 4 regains 2 of 3 spent (1 left); barbarian 1 regains its 1 (0 left).
+ok: true
+character:
+  features:
+    - id: fighter
+      item: 5e-srd-5.1:classes.fighter
+      state: { level: 4, startingClass: true, hitDiceSpent: 1 }
+      choices:
+        skills: [{ option: skill.athletics }, { option: skill.perception }]
+        fighting-style:
+          - option: 5e-srd-5.1:fighting-styles.dueling
+        martial-archetype:
+          - option: 5e-srd-5.1:subclasses.champion
+    - id: barbarian
+      item: 5e-srd-5.1:classes.barbarian
+      state: { level: 1, hitDiceSpent: 0 }
+adjustments:
+  - { copies: [fighter, barbarian] }

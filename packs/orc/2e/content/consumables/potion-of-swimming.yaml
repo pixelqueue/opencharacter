@@ -1,0 +1,15 @@
+id: consumables.potion-of-swimming
+type: consumable
+tags: [trait.magical, trait.potion]
+fields:
+  level: 6
+  price: 50
+  bulk: 0.1
+  category: potion
+  lasting: true
+effects:
+  - target: speed.swim.base
+    op: atLeast
+    value: speed.land
+    scope: applied
+    duration: { amount: 10, unit: minute }

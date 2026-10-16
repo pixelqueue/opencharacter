@@ -1,0 +1,43 @@
+id: feats.barbarian.furious-finish
+type: feat
+tags: [trait.rage]
+fields: { level: 2, category: class, class: classes.barbarian }
+
+# The bonus is the Strike's own `damageCircumstanceBonus`, so a critical hit doubles it.
+actions:
+  - id: furious-finish
+    tags: [strike]
+    available: rage.active
+    participants:
+      target: { max: 1 }
+    params:
+      rounds: { type: integer, min: 1, max: 10 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        situational: { damageCircumstanceBonus: params.rounds }
+        participants: { target: participants.target }
+      - id: end
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @classes.barbarian.raging' }
+          - { type: set, field: hp.temp, value: 0 }
+          - { type: set, field: rage.tempHpBlocked, value: true }
+          - { type: applyEffect, source: "'conditions.fatigued'" }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage

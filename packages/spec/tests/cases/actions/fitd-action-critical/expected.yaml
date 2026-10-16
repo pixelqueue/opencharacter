@@ -1,0 +1,22 @@
+# Action roll: (params.rating.value)d6kh1; ifEmpty 2d6kl1. Bands: critical (not empty and two or
+# more 6s among all faces), success (total 6), partial (4-5), failure.
+# Position and effect take their defaults (risky, standard) and pass through to the outcome.
+# 2d6kh1 [6, 6]: two sixes, not empty: critical
+status: finished
+outcome:
+  result: critical
+  data:
+    position: risky
+    effect: standard
+proposedChanges: []
+log:
+  - step: roll
+    action: fitd-scoundrel:action-roll
+    kind: dice
+    by: engine
+    faces:
+      - 6
+      - 6
+    total: 6
+    band: critical
+    bandSet: fitd-scoundrel:action

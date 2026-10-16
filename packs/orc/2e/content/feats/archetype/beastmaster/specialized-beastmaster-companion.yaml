@@ -1,0 +1,14 @@
+id: feats.archetype.beastmaster.specialized-beastmaster-companion
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 14, category: class, archetype: archetypes.beastmaster }
+repeatable: true
+
+prerequisites:
+  - {
+      id: incredible-beastmaster-companion,
+      when: '@feats.archetype.beastmaster.incredible-beastmaster-companion in feats.held',
+    }
+effects:
+  # Each time it is taken, it counts as another feat of the archetype.
+  - { target: archetypes.beastmaster.repeats, op: add, value: 1 }

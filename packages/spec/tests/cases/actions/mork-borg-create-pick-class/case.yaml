@@ -1,0 +1,12 @@
+description: "MÖRK BORG guided start: the player picks the class (any of the seven, the classless one included) instead of the d6, then the rest is rolled as in the random starts; the class's d6 feature still recommends the rolled option, which the player may change: here the gore-hound, whose missing sheet doesn't stop creation finishing"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/mork-borg/core
+input:
+  action: { id: mork-borg-core:create-character }
+  params: { choose: true }
+  policy: { dice: auto, choices: pause }
+answers:
+  - option: mork-borg-core:classes.fanged-deserter
+  - option: ancient-gore-hound

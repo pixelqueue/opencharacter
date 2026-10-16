@@ -1,0 +1,27 @@
+id: backgrounds.squire
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.athletics }
+    when: "!('skill.athletics' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - item: feats.skill.armor-assist
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'con']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }
+  - id: lore
+    from: { values: [skill.lore.heraldry, skill.lore.warfare] }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }

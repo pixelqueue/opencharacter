@@ -1,0 +1,32 @@
+id: spells.plant-form
+type: spell
+tags:
+  [trait.concentrate, trait.manipulate, trait.plant, trait.polymorph, trait.wood, tradition.primal]
+fields:
+  rank: 5
+  cast: two
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+  tempHp: 12
+  heighten: 1
+  heightenTempHp: 12
+effects:
+  - { target: battleForm.active, op: set, value: true, scope: applied }
+  - { target: battleForm.acBase, op: set, value: 'self.rank >= 6 ? 22 : 19', scope: applied }
+  - { target: battleForm.formAttacks, op: set, value: true, scope: applied }
+  - { target: battleForm.attack, op: set, value: 'self.rank >= 6 ? 21 : 17', scope: applied }
+  - { target: battleForm.damage, op: set, value: 'self.rank >= 6 ? 16 : 11', scope: applied }
+  - target:
+      incoming:
+        fields: [hp.current]
+        tags: [damage.poison]
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 10)
+    when: incoming.amount < 0
+    scope: applied
+  - { target: skills.athletics.mod, op: atLeast, value: 'self.rank >= 6 ? 22 : 19', scope: applied }
+grants:
+  - { item: forms.plant-form.arboreal, scope: applied, when: "self.form == 'arboreal'" }
+  - { item: forms.plant-form.flytrap, scope: applied, when: "self.form == 'flytrap'" }

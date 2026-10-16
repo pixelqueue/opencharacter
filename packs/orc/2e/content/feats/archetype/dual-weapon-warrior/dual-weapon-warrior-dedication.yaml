@@ -1,0 +1,25 @@
+id: feats.archetype.dual-weapon-warrior.dual-weapon-warrior-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.dual-weapon-warrior }
+grants:
+  - { item: feats.fighter.double-slice, waivePrerequisites: true }
+effects:
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.ranger.quick-draw }
+  - target: { fields: { where: "'archetype-extra.at6' in item.tags" } }
+    op: grant
+    value: { item: feats.ranger.twin-parry }
+  - target: { fields: { where: "'archetype-extra.at12' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.twin-riposte }
+  - target: { fields: { where: "'archetype-extra.at16' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.improved-twin-riposte-fighter }
+  - target: { fields: { where: "'archetype-extra.at16' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.two-weapon-flurry }
+  - target: { fields: { where: "'archetype-extra.at18' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.twinned-defense-fighter }

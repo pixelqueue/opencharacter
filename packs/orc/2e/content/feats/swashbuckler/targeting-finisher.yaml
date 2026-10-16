@@ -1,0 +1,56 @@
+id: feats.swashbuckler.targeting-finisher
+type: feat
+tags: [trait.finisher]
+fields: { level: 10, category: class, class: classes.swashbuckler }
+actions:
+  - id: targeting-finisher
+    tags: [strike]
+    available: panache.active
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [finisher]
+        participants: { target: participants.target }
+      - id: part
+        kind: choice
+        when: "steps.strike.result in ['success', 'critical-success'] && size(participants.target) > 0"
+        options:
+          - id: arm
+            to: target
+            changes:
+              - { type: applyEffect, source: "'conditions.enfeebled'", state: { value: 2 } }
+          - id: head
+            to: target
+            changes:
+              - { type: applyEffect, source: "'conditions.stupefied'", state: { value: 2 } }
+          - id: legs
+            to: target
+            changes:
+              - {
+                  type: applyEffect,
+                  source: "'effects.speed-status-penalty'",
+                  state: { value: 10 },
+                }
+        recommend: "'arm'"
+      - id: spend
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @effects.panache' }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage

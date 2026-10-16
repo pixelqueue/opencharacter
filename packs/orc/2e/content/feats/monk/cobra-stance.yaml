@@ -1,0 +1,14 @@
+id: feats.monk.cobra-stance
+type: feat
+tags: [trait.stance]
+fields: { level: 4, category: class, class: classes.monk }
+actions:
+  - id: cobra-stance
+    tags: [stance]
+    steps:
+      - id: enter
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: "'trait.stance' in item.tags" }
+          - { type: applyEffect, source: "'effects.cobra-stance'" }

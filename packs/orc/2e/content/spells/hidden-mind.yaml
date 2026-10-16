@@ -1,0 +1,18 @@
+id: spells.hidden-mind
+type: spell
+tags: [trait.concentrate, trait.manipulate, trait.uncommon, tradition.arcane, tradition.occult]
+fields:
+  rank: 8
+  cast: two
+  range: 30
+  targets: 1
+  duration: until-daily-preparations
+  applyTo: ally
+effects:
+  - target:
+      rolls: [save]
+    op: add
+    value: 4
+    stackKey: status-bonus
+    when: situational.againstMental
+    scope: applied

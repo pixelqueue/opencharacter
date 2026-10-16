@@ -1,0 +1,16 @@
+# Brute is first by ID. On the proposed sheet might is 1 (the calling's point), so it takes 1
+# more at most; the recommendation fits. The outcome reads might 2 and wits 1.
+status: finished
+outcome: { data: { might: 2, wits: 1 } }
+proposedChanges:
+  - to: self
+    step: calling
+    change: { type: choose, path: { choice: [calling] }, option: test-pack:callings.brute }
+  - { to: self, step: dots, change: { type: adjust, field: 'test-pack:stats.might', by: 1 } }
+  - { to: self, step: dots, change: { type: adjust, field: 'test-pack:stats.wits', by: 1 } }
+log:
+  - { step: calling, kind: choice, by: engine, option: test-pack:callings.brute }
+  - step: dots
+    kind: allocate
+    by: engine
+    amounts: { 'test-pack:stats.might': 1, 'test-pack:stats.wits': 1 }

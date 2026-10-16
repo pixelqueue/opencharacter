@@ -1,0 +1,33 @@
+id: feats.barbarian.resounding-blow
+type: feat
+fields: { level: 10, category: class, class: classes.barbarian }
+actions:
+  - id: resounding-blow
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+      - id: deafen
+        kind: changes
+        when: "steps.strike.result in ['success', 'critical-success'] && size(participants.target) > 0"
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.deafened'" }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage

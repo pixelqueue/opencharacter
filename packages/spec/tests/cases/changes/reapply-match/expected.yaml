@@ -1,0 +1,13 @@
+# The first entry's damage type is fire by default, so fire 5 merges into it.
+ok: true
+adjustments:
+  - { applied: [burn] }
+  - { applied: [cut] }
+character:
+  applied:
+    - { id: burn, source: test-includes:conditions.persistent, state: { damage: 5 } }
+    - {
+        id: cut,
+        source: test-includes:conditions.persistent,
+        state: { damageType: bleed, damage: 3 },
+      }

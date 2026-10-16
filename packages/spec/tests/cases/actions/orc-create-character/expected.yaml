@@ -1,0 +1,349 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: ancestry
+    change:
+      type: addItem
+      entry:
+        id: ancestry
+        item: orc-2e:ancestries.human
+  - to: self
+    step: heritage
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - heritage
+      option: orc-2e:heritages.versatile-human
+  - to: self
+    step: background
+    change:
+      type: addItem
+      entry:
+        id: background
+        item: orc-2e:backgrounds.warrior
+  - to: self
+    step: class
+    change:
+      type: addItem
+      entry:
+        id: class
+        item: orc-2e:classes.fighter
+  - to: self
+    step: ancestryPicks
+    change:
+      type: choose
+      path: &a1
+        entry: ancestry
+        choice:
+          - heritage
+          - orc-2e:heritages.versatile-human
+          - feat
+      option: orc-2e:feats.general.toughness
+  - to: self
+    step: ancestryPicks
+    change:
+      type: choose
+      path: &a2
+        entry: ancestry
+        choice:
+          - boosts
+      option: orc-2e:boosts.str
+  - to: self
+    step: ancestryPicks
+    change:
+      type: choose
+      path: &a3
+        entry: ancestry
+        choice:
+          - boosts
+      option: orc-2e:boosts.con
+  - to: self
+    step: backgroundPicks
+    change:
+      type: choose
+      path: &a4
+        entry: background
+        choice:
+          - boost
+      option: orc-2e:boosts.str
+  - to: self
+    step: backgroundPicks
+    change:
+      type: choose
+      path: &a5
+        entry: background
+        choice:
+          - free-boost
+      option: orc-2e:boosts.dex
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path: &a6
+        entry: class
+        choice:
+          - key-attribute
+      option: str
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path: &a7
+        entry: class
+        choice:
+          - class-skill
+      option: skill.athletics
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path: &a8
+        entry: class
+        choice:
+          - skills
+      option: skill.acrobatics
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path: &a9
+        entry: class
+        choice:
+          - skills
+      option: skill.diplomacy
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path: &a10
+        entry: class
+        choice:
+          - skills
+      option: skill.survival
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path: &a11
+        entry: class
+        choice:
+          - class-feat-1
+      option: orc-2e:feats.fighter.vicious-swing
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: &a12
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.str
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: &a13
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.dex
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: &a14
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.con
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: &a15
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.wis
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: &a16
+        choice:
+          - ancestry-feat-1
+      option: orc-2e:feats.ancestry.natural-ambition
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: &a17
+        choice:
+          - ancestry-feat-1
+          - orc-2e:feats.ancestry.natural-ambition
+          - feat
+      option: orc-2e:feats.fighter.sudden-charge
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: &a18
+        choice:
+          - languages
+      option: orc-2e:languages.dwarven
+  - to: self
+    step: finish
+    change:
+      type: set
+      field: orc-2e:hp.current
+      value: 21
+  - to: self
+    step: finish
+    change:
+      type: finishCreation
+log:
+  - step: ancestry
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:ancestries.human
+  - step: heritage
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:heritages.versatile-human
+  - step: background
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:backgrounds.warrior
+  - step: class
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:classes.fighter
+  - step: ancestryPicks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:feats.general.toughness
+    index: 0
+    choice: *a1
+  - step: ancestryPicks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:boosts.str
+    index: 1
+    choice: *a2
+  - step: ancestryPicks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:boosts.con
+    index: 2
+    choice: *a3
+  - step: backgroundPicks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:boosts.str
+    index: 0
+    choice: *a4
+  - step: backgroundPicks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:boosts.dex
+    index: 1
+    choice: *a5
+  - step: classPicks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: str
+    index: 0
+    choice: *a6
+  - step: classPicks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: skill.athletics
+    index: 1
+    choice: *a7
+  - step: classPicks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: skill.acrobatics
+    index: 2
+    choice: *a8
+  - step: classPicks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: skill.diplomacy
+    index: 3
+    choice: *a9
+  - step: classPicks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: skill.survival
+    index: 4
+    choice: *a10
+  - step: classPicks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:feats.fighter.vicious-swing
+    index: 5
+    choice: *a11
+  - step: picks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:boosts.str
+    index: 0
+    choice: *a12
+  - step: picks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:boosts.dex
+    index: 1
+    choice: *a13
+  - step: picks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:boosts.con
+    index: 2
+    choice: *a14
+  - step: picks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:boosts.wis
+    index: 3
+    choice: *a15
+  - step: picks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:feats.ancestry.natural-ambition
+    index: 4
+    choice: *a16
+  - step: picks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:feats.fighter.sudden-charge
+    index: 5
+    choice: *a17
+  - step: picks
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:languages.dwarven
+    index: 6
+    choice: *a18

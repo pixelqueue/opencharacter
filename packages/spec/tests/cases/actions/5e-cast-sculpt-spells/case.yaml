@@ -1,0 +1,18 @@
+description: "5E Sculpt Spells: an evocation wizard casting burning hands at three creatures spares two of them (1 + the spell's level); a spared creature makes no save and takes no damage, the third saves and burns"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:cast-spell, entry: wizard, source: 5e-srd-5.1:spells.burning-hands }
+  participants:
+    target:
+      - { id: goblin-1 }
+      - { id: goblin-2 }
+      - { id: goblin-3 }
+  policy: { rules: [{ kind: choice, tags: [sculpt], then: pause }] }
+answers:
+  - option: '5e-srd-5.1:features.wizard.sculpt-spells#spare'
+  - option: '5e-srd-5.1:features.wizard.sculpt-spells#spare'
+  - option: affect
+  - { outcome: { result: failure, data: { total: 9 } } }

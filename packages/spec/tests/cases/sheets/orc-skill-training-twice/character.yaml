@@ -1,0 +1,69 @@
+# A 4th-level human fighter (the skill-training case's, with Intelligence) who took Skill
+# Training in both skill feat slots: Medicine, then Nature.
+specVersion: 0.1.0
+id: test-orc-skill-training-twice
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 4
+  orc-2e:hp.current: 30
+  orc-2e:skills.athletics.increases: 1
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      heritage:
+        - option: orc-2e:heritages.versatile-human
+          choices:
+            feat:
+              - option: orc-2e:feats.general.toughness
+      boosts:
+        - option: orc-2e:boosts.str
+        - option: orc-2e:boosts.con
+  - id: background
+    item: orc-2e:backgrounds.farmhand
+    choices:
+      boost:
+        - option: orc-2e:boosts.con
+      free-boost:
+        - option: orc-2e:boosts.str
+  - id: class
+    item: orc-2e:classes.fighter
+    choices:
+      key-attribute:
+        - option: str
+      class-skill:
+        - option: skill.athletics
+      skills:
+        - option: skill.acrobatics
+        - option: skill.diplomacy
+        - option: skill.survival
+      class-feat-1:
+        - option: orc-2e:feats.fighter.vicious-swing
+      class-feat-2:
+        - option: orc-2e:feats.fighter.dueling-parry
+      skill-feat-2:
+        - option: orc-2e:feats.skill.skill-training
+          choices:
+            skill: [{ option: skill.medicine }]
+      skill-feat-4:
+        - option: orc-2e:feats.skill.skill-training
+          choices:
+            skill: [{ option: skill.nature }]
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.int
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.natural-ambition
+      choices:
+        feat:
+          - option: orc-2e:feats.fighter.sudden-charge
+  languages:
+    - option: orc-2e:languages.dwarven
+  general-feat-3:
+    - option: orc-2e:feats.general.fleet
+  extra-training:
+    - option: skill.arcana

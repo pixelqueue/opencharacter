@@ -1,0 +1,10 @@
+# Halves incoming damage to hp.current; resistances don't stack (highestOnly).
+id: boons.ward-a
+type: boon
+effects:
+  - {
+      target: { incoming: { fields: [hp.current] } },
+      op: multiply,
+      value: 0.5,
+      stackKey: resistance,
+    }

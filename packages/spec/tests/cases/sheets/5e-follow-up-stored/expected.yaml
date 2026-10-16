@@ -1,0 +1,18 @@
+# The stored entry, listed as an offer with its action and evaluated params; required, since
+# the rules call for the save.
+offers:
+  - id: concentration-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:concentration
+    to: self
+    required: true
+    action: { id: 5e-srd-5.1:concentration-check, followUp: concentration-1 }
+    params: { damage: 12 }
+    cause:
+      field: 5e-srd-5.1:hp.current
+      by: -12
+      requested: -12
+      taken: -12
+      reason: requested
+      clamped: false
+      tags: [damage, damage.fire]

@@ -1,0 +1,47 @@
+id: feats.rogue.underhanded-assault
+type: feat
+fields: { level: 2, category: class, class: classes.rogue }
+prerequisites:
+  - { id: stealth, when: 'skills.stealth.rank >= 1' }
+
+actions:
+  - id: underhanded-assault
+    tags: [strike]
+    participants:
+      target:
+        max: 1
+        fields:
+          perception.dc: { type: integer, default: 10 }
+    results: { bands: degree }
+    steps:
+      - id: sneak
+        kind: action
+        use: check
+        tags: [sneak.underhanded-assault]
+        params:
+          check: "'skills.stealth.mod'"
+          dc: 'size(participants.target) > 0 ? participants.target[0].perception.dc : null'
+      - id: weapon
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        when: "steps.sneak.result in ['success', 'critical-success']"
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: strike
+        kind: action
+        when: has(steps.weapon)
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: "has(steps.strike) ? steps.strike.result : 'failure'"
+        data:
+          damage: 'has(steps.strike) ? steps.strike.data.damage : 0'
+effects:
+  - target: { rolls: [sneak.underhanded-assault] }
+    op: add
+    value: -2

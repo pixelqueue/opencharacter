@@ -1,0 +1,49 @@
+description: Zero-based dice (dNz)
+specVersion: 0.1.0
+cases:
+  - name: a zero-based percentile die
+    parse: 1d100z
+    tree: { type: dice, count: 1, sides: 100, zero: true, modifiers: [] }
+    print: 1d100z
+  - name: modifiers follow the z
+    parse: 2d100zkl1
+    tree:
+      { type: dice, count: 2, sides: 100, zero: true, modifiers: [{ type: keepLowest, count: 1 }] }
+    print: 2d100zkl1
+  - name: a computed count with a zero-based die
+    parse: (n)d10z
+    print: (n)d10z
+  - name: z is not allowed on Fate dice
+    parse: 4dFz
+    error: formula-syntax
+  - name: z is not allowed on d%
+    parse: 1d%z
+    error: formula-syntax
+  - name: a zero-based die is a dice value
+    evaluate: 1d100z + 5
+    valueType: dice
+    value: { terms: [{ sign: 1, count: 1, sides: 100, zero: true, modifiers: [] }], flat: 5 }
+  - name: a face of 0 is on a d100z
+    roll: 1d100z
+    faces: [0]
+    total: 0
+  - name: 99 is the highest face of a d100z
+    roll: 1d100z
+    faces: [99]
+    total: 99
+  - name: 100 is not on a d100z
+    roll: 1d100z
+    faces: [100]
+    error: invalid-face
+  - name: keep lowest compares face values, so 00 is the lowest reading
+    roll: 2d100zkl1
+    faces: [42, 0]
+    total: 0
+    terms:
+      - faces:
+          - { value: 42, kept: false }
+          - { value: 0, kept: true }
+  - name: a zero-based die explodes on its highest face
+    roll: 1d10z!
+    faces: [9, 3]
+    total: 12

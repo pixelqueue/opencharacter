@@ -1,0 +1,28 @@
+# The three instruments picked are tool proficiencies (`activate: false`), so they add no actions;
+# the carried lute offers its tool check. The spells are still to pick.
+values:
+  5e-srd-5.1:proficiencies.tools:
+    { value: [5e-srd-5.1:tools.lute, 5e-srd-5.1:tools.pan-flute, 5e-srd-5.1:tools.shawm] }
+actions:
+  - { action: 5e-srd-5.1:spend-hit-die, entry: bard }
+  - action: '5e-srd-5.1:features.bard.bardic-inspiration#bardic-inspiration'
+    entry: bard
+    source: 5e-srd-5.1:features.bard.bardic-inspiration
+  - { action: 5e-srd-5.1:tool-check, entry: lute }
+  - { action: 5e-srd-5.1:saving-throw }
+  - { action: 5e-srd-5.1:level-up }
+  - { action: 5e-srd-5.1:ability-check }
+  - { action: 5e-srd-5.1:skill-check }
+  - { action: 5e-srd-5.1:initiative }
+  - { action: 5e-srd-5.1:unarmed-strike }
+  - { action: 5e-srd-5.1:fall }
+  - { action: 5e-srd-5.1:take-damage }
+  - { action: 5e-srd-5.1:heal }
+  - { action: 5e-srd-5.1:long-rest }
+  - { action: 5e-srd-5.1:concentration-check }
+  - { action: 5e-srd-5.1:short-rest }
+pending:
+  - { entry: bard, choice: ['5e-srd-5.1:features.bard.spellcasting/cantrips'] }
+  - { entry: bard, choice: ['5e-srd-5.1:features.bard.spellcasting/spells'] }
+issues: []
+errors: []

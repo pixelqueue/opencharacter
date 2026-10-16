@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/engine/upgrade.schema.json",
+  "title": "upgrade",
+  "$defs": {
+    "input": {
+      "type": "object",
+      "required": ["from", "to", "character"],
+      "properties": {
+        "from": {
+          "$ref": "ruleset.schema.json"
+        },
+        "to": {
+          "$ref": "ruleset.schema.json"
+        },
+        "character": {
+          "$ref": "../character.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["ok", "character", "pending", "report"],
+          "properties": {
+            "ok": {
+              "const": true
+            },
+            "character": {
+              "$ref": "../character.schema.json"
+            },
+            "pending": {
+              "type": "array",
+              "items": {
+                "$ref": "compute-sheet.schema.json#/$defs/pendingChoice"
+              }
+            },
+            "report": {
+              "description": "What changed: the character computed under both versions.",
+              "type": "object",
+              "properties": {
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["field"],
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "before": {
+                        "$ref": "../common.schema.json#/$defs/literal"
+                      },
+                      "after": {
+                        "$ref": "../common.schema.json#/$defs/literal"
+                      }
+                    }
+                  }
+                },
+                "steps": {
+                  "description": "Upgrade steps that changed this character, with the script each came from.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["pack", "from", "to", "step"],
+                    "properties": {
+                      "pack": {
+                        "type": "string"
+                      },
+                      "from": {
+                        "type": "string"
+                      },
+                      "to": {
+                        "type": "string"
+                      },
+                      "step": {
+                        "$ref": "../upgrade.schema.json#/$defs/step"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "errors": {
+                  "description": "The upgraded character's computeSheet errors (references no script handled).",
+                  "type": "array",
+                  "items": {
+                    "$ref": "error.schema.json"
+                  }
+                },
+                "homebrew": {
+                  "description": "Each place in the character's homebrew a step rewrote, in order.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["path", "step"],
+                    "properties": {
+                      "path": {
+                        "description": "A JSON Pointer into the upgraded character.",
+                        "type": "string"
+                      },
+                      "step": {
+                        "$ref": "../upgrade.schema.json#/$defs/step"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "$ref": "load-ruleset.schema.json#/$defs/failure"
+        }
+      ]
+    }
+  }
+}

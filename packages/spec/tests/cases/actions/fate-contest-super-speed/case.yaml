@@ -1,0 +1,10 @@
+description: "Fate Core: Super-Speed's +2 applies to an Athletics roll in a contest of pure speed when its situation applies: Athletics (+3), +2, and 0 on the dice beat a Good (+3) runner by 2 for a victory"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:contest-exchange }
+  params: { skill: fate-core:skills.athletics, opposition: 3, speed: true }
+  situational: { fate-core:extra: true }
+  policy: { choices: auto }

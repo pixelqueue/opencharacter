@@ -1,0 +1,42 @@
+id: worn.cloak-of-swiftness
+type: worn
+tags: [trait.apex, trait.invested, trait.magical]
+fields:
+  level: 17
+  price: 15000
+  usage: cloak
+  activation: one
+  frequency: once-per-day
+effects:
+  - {
+      target: attributes.dex.mod,
+      op: add,
+      value: 1,
+      when: 'self.equipped && self.invested && self.apex',
+    }
+  - {
+      target: attributes.dex.mod,
+      op: atLeast,
+      value: 4,
+      when: 'self.equipped && self.invested && self.apex',
+    }
+  - target: skills.acrobatics.mod
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: speed.fly
+    op: atLeast
+    value: 30
+    scope: applied
+    duration: { amount: 1, unit: hour }
+actions:
+  - id: ride-the-wind
+    tags: [activation]
+    available: 'self.equipped && self.invested && self.used < 1'
+    steps:
+      - id: activate
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: used, by: 1 }
+          - { type: applyEffect, source: item.id }

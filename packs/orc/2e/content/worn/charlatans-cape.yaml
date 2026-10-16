@@ -1,0 +1,26 @@
+id: worn.charlatans-cape
+type: worn
+tags: [trait.invested, trait.magical, trait.uncommon]
+fields:
+  level: 10
+  price: 980
+  bulk: 0.1
+  usage: cloak
+  activation: two
+  frequency: once-per-day
+grants:
+  - { item: spells.translocate, when: 'self.equipped && self.invested' }
+effects:
+  - target: skills.deception.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.translocate && self.used < 1'
+    value:
+      id: translocate
+      flags: { itemPaid: true, rank: 4 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

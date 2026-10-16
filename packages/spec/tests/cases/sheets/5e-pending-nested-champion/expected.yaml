@@ -1,0 +1,23 @@
+# Champion is picked; its choice additional-fighting-style has when self.level >= 10,
+# where self is the owning fighter copy (level 10) -> applies, no picks -> pending
+# The Champion's choice comes right after the fighter's martial-archetype choice that picked it,
+# before the Ability Score Improvements (levels 4, 6 and 8) the fighter grants.
+pending:
+  - {
+      entry: fighter,
+      choice: [martial-archetype, 5e-srd-5.1:subclasses.champion, additional-fighting-style],
+    }
+  - {
+      entry: fighter,
+      choice: ['5e-srd-5.1:features.fighter.ability-score-improvement/improvement-4'],
+    }
+  - {
+      entry: fighter,
+      choice: ['5e-srd-5.1:features.fighter.ability-score-improvement/improvement-6'],
+    }
+  - {
+      entry: fighter,
+      choice: ['5e-srd-5.1:features.fighter.ability-score-improvement/improvement-8'],
+    }
+values:
+  5e-srd-5.1:combat.critRange: { value: 19 } # Improved Critical granted at level >= 3

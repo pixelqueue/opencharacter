@@ -1,0 +1,17 @@
+id: feats.archetype.pirate.pirate-combat-training
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.pirate }
+
+prerequisites:
+  - { id: pirate-dedication, when: '@feats.archetype.pirate.pirate-dedication in feats.held' }
+effects:
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.hatchet' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.rapier' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.scimitar' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.whip' } }
+choices:
+  - id: feat
+    unique: feats
+    waivePrerequisites: true
+    from: { items: [feats.skill.combat-climber, feats.skill.underwater-marauder] }

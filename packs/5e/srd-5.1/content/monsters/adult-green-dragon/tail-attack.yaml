@@ -1,0 +1,24 @@
+id: monsters.adult-green-dragon.tail-attack
+type: monsterAction
+fields:
+  kind: legendary
+  legendaryCost: 1
+actions:
+  - id: tail-attack
+    tags: [legendary]
+    participants:
+      target: { max: 1 }
+    results: [done]
+    steps:
+      - id: tail
+        kind: action
+        use: monster-attack
+        source: "'monsters.adult-green-dragon.tail'"
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.tail) && steps.tail.result == 'hit' ? 1 : 0)

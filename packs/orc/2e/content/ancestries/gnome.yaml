@@ -1,0 +1,33 @@
+id: ancestries.gnome
+type: ancestry
+tags: [trait.gnome, trait.humanoid, sense.low-light-vision]
+fields: { hp: 8, size: small, speed: 25 }
+effects:
+  - { target: languages, op: grant, value: { item: languages.common } }
+  - { target: languages, op: grant, value: { item: languages.fey } }
+  - { target: languages, op: grant, value: { item: languages.gnomish } }
+  - { target: senses, op: grant, value: { tag: sense.low-light-vision } }
+  - { target: traits, op: grant, value: { tag: trait.gnome } }
+  - { target: traits, op: grant, value: { tag: trait.humanoid } }
+choices:
+  - id: heritage
+    from:
+      type: heritage
+      where: 'item.versatile || item.ancestry == @ancestries.gnome'
+  - id: boosts
+    recommend: "'standard'"
+    from:
+      options:
+        - id: standard
+          effects:
+            - { target: attributes.con.boosts, op: add, value: 1 }
+            - { target: attributes.cha.boosts, op: add, value: 1 }
+            - { target: attributes.str.boosts, op: add, value: -1 }
+          choices:
+            - id: free
+              from: { type: boost, where: "!(item.attribute in ['con', 'cha'])" }
+        - id: alternate
+          choices:
+            - id: free
+              pick: 2
+              from: { type: boost }

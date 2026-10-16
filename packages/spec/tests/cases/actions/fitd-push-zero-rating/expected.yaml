@@ -1,0 +1,33 @@
+# Action roll: (params.rating.value)d6kh1; ifEmpty 2d6kl1. Bands: critical (not empty and two or
+# more 6s among all faces), success (total 6), partial (4-5), failure.
+# Position and effect take their defaults (risky, standard) and pass through to the outcome.
+# Hunt 0 + bonusDie push: poolDice 1 -> 1d6kh1 (pool dice are counted before ifEmpty), empty false. [6]: success. +2 stress
+status: finished
+outcome:
+  result: success
+  data:
+    position: risky
+    effect: standard
+proposedChanges:
+  - to: self
+    step: pushCost
+    change:
+      type: adjust
+      field: fitd-scoundrel:stress.current
+      by: 2
+log:
+  - step: roll
+    action: fitd-scoundrel:action-roll
+    kind: dice
+    by: engine
+    faces:
+      - 6
+    total: 6
+    band: success
+    bandSet: fitd-scoundrel:action
+  # The push cost is a choice; the engine takes the recommended stress.
+  - step: pushCost
+    action: fitd-scoundrel:action-roll
+    kind: choice
+    by: engine
+    option: stress

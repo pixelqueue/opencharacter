@@ -1,0 +1,25 @@
+id: gear.dungeoneers-pack
+type: gear
+tags: [equipment-pack]
+fields:
+  category: equipment-pack
+  cost: 12
+actions:
+  - id: unpack
+    tags: [item]
+    available: self.quantity > 0
+    steps:
+      - id: unpack
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'gear.backpack'" } }
+          - { type: addItem, entry: { item: "'gear.crowbar'" } }
+          - { type: addItem, entry: { item: "'gear.hammer'" } }
+          - { type: addItem, entry: { item: "'gear.piton'", quantity: 10 } }
+          - { type: addItem, entry: { item: "'gear.torch'", quantity: 10 } }
+          - { type: addItem, entry: { item: "'gear.tinderbox'" } }
+          - { type: addItem, entry: { item: "'gear.rations'", quantity: 10 } }
+          - { type: addItem, entry: { item: "'gear.waterskin'" } }
+          - { type: addItem, entry: { item: "'gear.hempen-rope'" } }
+          - { type: adjustQuantity, entry: self, by: -1, when: self.quantity > 1 }
+          - { type: removeItem, entry: self, when: self.quantity <= 1 }

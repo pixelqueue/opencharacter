@@ -1,0 +1,82 @@
+{
+  "set": "dice-modifiers",
+  "specVersion": "0.1.0",
+  "description": "The fixed set of dice modifiers in dice notation, shared by Roll20, Foundry and others. `limit` refers to `safety-limits.json`.",
+  "items": [
+    {
+      "id": "keepHighest",
+      "notation": "khN",
+      "example": "2d20kh1",
+      "description": "Keep the N highest dice."
+    },
+    {
+      "id": "keepLowest",
+      "notation": "klN",
+      "example": "2d20kl1",
+      "description": "Keep the N lowest dice."
+    },
+    {
+      "id": "dropHighest",
+      "notation": "dhN",
+      "example": "4d6dh1",
+      "description": "Drop the N highest dice."
+    },
+    {
+      "id": "dropLowest",
+      "notation": "dlN",
+      "example": "4d6dl1",
+      "description": "Drop the N lowest dice."
+    },
+    {
+      "id": "explode",
+      "notation": "! or !>=N",
+      "example": "1d6!",
+      "description": "Each die at the highest face (or matching the comparison) rolls one more die, which can explode again.",
+      "limit": "maxExplosions"
+    },
+    {
+      "id": "explodeCompound",
+      "notation": "!! or !!>=N",
+      "example": "1d6!!",
+      "description": "Like explode, but extra rolls add into the die that exploded.",
+      "limit": "maxExplosions"
+    },
+    {
+      "id": "reroll",
+      "notation": "rN or r<=N",
+      "example": "1d20r1",
+      "description": "Reroll dice matching the comparison until they do not.",
+      "limit": "maxRerolls"
+    },
+    {
+      "id": "rerollOnce",
+      "notation": "roN or ro<=N",
+      "example": "2d6ro<=2",
+      "description": "Reroll dice matching the comparison once."
+    },
+    {
+      "id": "countSuccesses",
+      "notation": "csN, >=N",
+      "example": "5d6cs>=5",
+      "description": "The result is the number of dice matching the comparison instead of their sum."
+    },
+    {
+      "id": "countFailures",
+      "notation": "cfN",
+      "example": "5d10cs>=8cf1",
+      "description": "Subtract one for each die matching the comparison (used with countSuccesses)."
+    },
+    {
+      "id": "minimum",
+      "notation": "minN",
+      "example": "1d20min10",
+      "description": "Treat faces below N as N."
+    },
+    {
+      "id": "maximum",
+      "notation": "maxN",
+      "example": "1d20max15",
+      "description": "Treat faces above N as N."
+    }
+  ]
+}

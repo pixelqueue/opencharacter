@@ -1,0 +1,21 @@
+# 7 + 12 = 19: wanted 1 -> 2, heat resets to 0 (by -19), 10 carries; 10 reaches 9: wanted 2 -> 3,
+# heat resets to 0 (by -10), 1 carries. Heat 1, wanted 3.
+ok: true
+adjustments:
+  - { field: fitd-crew:heat.current, by: 12, requested: 12, taken: 12, reason: requested }
+  - { field: fitd-crew:wanted.current, by: 1, reason: overflow }
+  - { field: fitd-crew:heat.current, by: -19, reason: reset }
+  - { field: fitd-crew:heat.current, by: 10, reason: carry }
+  - { field: fitd-crew:wanted.current, by: 1, reason: overflow }
+  - { field: fitd-crew:heat.current, by: -10, reason: reset }
+  - { field: fitd-crew:heat.current, by: 1, reason: carry }
+followUps: []
+character:
+  values:
+    fitd-crew:tier: 1
+    fitd-crew:rep.current: 4
+    fitd-crew:heat.current: 1
+    fitd-crew:wanted.current: 3
+    fitd-crew:coin.current: 5
+    fitd-crew:upgrades.lair.vault: 1
+    fitd-crew:upgrades.quality.weapons: 1

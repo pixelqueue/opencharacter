@@ -1,0 +1,18 @@
+status: paused
+needs:
+  step: picks
+  kind: choice
+  options: [test-pack:skills.ambush, '#done']
+  recommended: test-pack:skills.ambush
+  choice:
+    path: { choice: [calling, 'test-pack:callings.hunter', advanced] }
+    owner: 'test-pack:callings.hunter'
+    id: advanced
+log:
+  - { step: calling, kind: choice, by: engine, option: 'test-pack:callings.hunter' }
+  - step: picks
+    kind: choice
+    by: app
+    option: test-pack:skills.tracking
+    index: 0
+    choice: { choice: [calling, 'test-pack:callings.hunter', basic] }

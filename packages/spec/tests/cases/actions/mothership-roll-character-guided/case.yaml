@@ -1,0 +1,15 @@
+description: "Mothership guided creation: stats and saves are rolled first, then the player chooses the class (no class die), the Android's -10 stat (no stat die), its skills and the loadout or credits, in the Player's Survival Guide's order"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/mothership/1e
+input:
+  action: { id: mothership-1e:roll-character }
+  params: { choose: true }
+  policy: { choices: pause }
+answers:
+  - option: mothership-1e:classes.android
+  - option: combat
+  - option: expert
+  - option: mothership-1e:skills.physics
+  - option: credits

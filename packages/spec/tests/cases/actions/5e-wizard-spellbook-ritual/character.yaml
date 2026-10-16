@@ -1,0 +1,36 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 10
+  5e-srd-5.1:abilities.dex.base: 14
+  5e-srd-5.1:abilities.con.base: 14
+  5e-srd-5.1:abilities.int.base: 16
+  5e-srd-5.1:abilities.wis.base: 12
+  5e-srd-5.1:abilities.cha.base: 10
+  5e-srd-5.1:hp.base: 14
+  5e-srd-5.1:hp.current: 14
+features:
+  - id: wizard
+    item: 5e-srd-5.1:classes.wizard
+    state: { level: 2, startingClass: true }
+    choices:
+      skills: [{ option: skill.arcana }, { option: skill.history }]
+      arcane-tradition: [{ option: 5e-srd-5.1:subclasses.school-of-evocation }]
+      5e-srd-5.1:features.wizard.spellcasting/cantrips:
+        - option: 5e-srd-5.1:spells.fire-bolt
+        - option: 5e-srd-5.1:spells.light
+        - option: 5e-srd-5.1:spells.mage-hand
+      5e-srd-5.1:features.wizard.spellcasting/spellbook-1:
+        - option: 5e-srd-5.1:spells.burning-hands
+        - option: 5e-srd-5.1:spells.detect-magic
+        - option: 5e-srd-5.1:spells.mage-armor
+        - option: 5e-srd-5.1:spells.magic-missile
+        - option: 5e-srd-5.1:spells.shield
+        - option: 5e-srd-5.1:spells.sleep
+      5e-srd-5.1:features.wizard.spellcasting/spellbook-2:
+        [{ option: 5e-srd-5.1:spells.feather-fall }, { option: 5e-srd-5.1:spells.identify }]
+      5e-srd-5.1:features.wizard.spellcasting/spells:
+        - option: 5e-srd-5.1:spells.magic-missile
+        - option: 5e-srd-5.1:spells.shield

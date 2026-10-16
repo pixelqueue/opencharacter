@@ -1,0 +1,14 @@
+id: feats.archetype.bounty-hunter.tools-of-the-trade
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.bounty-hunter }
+
+prerequisites:
+  - {
+      id: bounty-hunter-dedication,
+      when: '@feats.archetype.bounty-hunter.bounty-hunter-dedication in feats.held',
+    }
+effects:
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.bola' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.sap' } }
+  - { target: attacks.familiar, op: grant, value: { formula: '@weapons.whip' } }

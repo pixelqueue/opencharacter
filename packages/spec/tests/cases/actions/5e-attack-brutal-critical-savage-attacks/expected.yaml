@@ -1,0 +1,48 @@
+# Half-orc barbarian 9 (Str 16 + 2 = 18, +4; proficiency +4), greataxe (1d12). Attack
+# 20 + 4 + 4 = 28, natural 20: critical. Damage: the part's 1d12 doubled to 2d12 [12, 5], Str +4,
+# then one 1d12 each from Savage Attacks [7] and Brutal Critical [9], neither doubled.
+# 17 + 4 + 7 + 9 = 37.
+status: finished
+outcome:
+  result: hit
+  data:
+    critical: true
+    attack: 28
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -37,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.slashing,
+            ],
+        },
+    }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces:
+      - 20
+    total: 28
+  - step: damage
+    kind: dice
+    by: engine
+    faces:
+      - 12
+      - 5
+      - 7
+      - 9
+    total: 37

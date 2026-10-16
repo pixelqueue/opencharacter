@@ -1,0 +1,46 @@
+# d4 = 2: maimed. d6 = 6: a lost eye. Out for d4 = 3 rounds, then back with d4 = 2 HP.
+status: finished
+outcome:
+  result: maimed
+  data:
+    injury: eye
+    rounds: 3
+    hours: 0
+proposedChanges:
+  - to: self
+    step: wake
+    change:
+      type: set
+      field: mork-borg-core:hp.current
+      value: 2
+log:
+  - step: fate
+    action: mork-borg-core:broken
+    kind: dice
+    by: engine
+    faces:
+      - 2
+    total: 2
+    band: maimed
+    bandSet: mork-borg-core:broken
+  - step: injury
+    action: mork-borg-core:broken
+    kind: dice
+    by: engine
+    faces:
+      - 6
+    total: 6
+  - step: rounds
+    action: mork-borg-core:broken
+    kind: dice
+    by: engine
+    faces:
+      - 3
+    total: 3
+  - step: recover
+    action: mork-borg-core:broken
+    kind: dice
+    by: engine
+    faces:
+      - 2
+    total: 2

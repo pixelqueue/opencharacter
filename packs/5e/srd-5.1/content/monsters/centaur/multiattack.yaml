@@ -1,0 +1,54 @@
+id: monsters.centaur.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: melee }, { id: ranged }]
+        recommend: "'melee'"
+      - id: pike
+        kind: action
+        when: "steps.form.picked == 'melee'"
+        use: monster-attack
+        source: "'monsters.centaur.pike'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: hooves
+        kind: action
+        when: "steps.form.picked == 'melee'"
+        use: monster-attack
+        source: "'monsters.centaur.hooves'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: longbow1
+        kind: action
+        when: "steps.form.picked == 'ranged'"
+        use: monster-attack
+        source: "'monsters.centaur.longbow'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: longbow2
+        kind: action
+        when: "steps.form.picked == 'ranged'"
+        use: monster-attack
+        source: "'monsters.centaur.longbow'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.pike) && steps.pike.result == 'hit' ? 1 : 0)
+              + (has(steps.hooves) && steps.hooves.result == 'hit' ? 1 : 0)
+              + (has(steps.longbow1) && steps.longbow1.result == 'hit' ? 1 : 0)
+              + (has(steps.longbow2) && steps.longbow2.result == 'hit' ? 1 : 0)

@@ -1,0 +1,27 @@
+ok: true
+followUps:
+  - id: berserk-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:magic-items.berserker-axe#berserk
+    source:
+      type: template
+      id: 5e-srd-5.1:magic-items.berserker-axe
+      entry: axe
+    to: self
+    required: true
+    action:
+      id: 5e-srd-5.1:saving-throw
+      followUp: berserk-1
+    params:
+      ability: wis
+      dc: 15
+    cause:
+      field: 5e-srd-5.1:hp.current
+      by: -5
+      requested: -5
+      taken: -5
+      reason: requested
+      clamped: false
+      tags:
+        - damage
+        - damage.piercing

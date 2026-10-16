@@ -1,0 +1,22 @@
+# A starting character that breaks the creation rules: no high concept, two Great skills and a
+# Superb one, and six stunts (refresh 3 - 3 = 0). Superb Physique adds the physical-only mild slot.
+specVersion: 0.1.0
+id: test-fate-creation
+packs:
+  - { id: fate-core, version: 0.1.0 }
+values:
+  fate-core:skills.physique: 5
+  fate-core:skills.fight: 4
+  fate-core:skills.shoot: 4
+  fate-core:skills.athletics: 3
+  fate-core:skills.will: 2
+  fate-core:skills.notice: 1
+features:
+  - { id: s1, item: fate-core:stunts.grappler }
+  - { id: s2, item: fate-core:stunts.take-the-blow }
+  - { id: s3, item: fate-core:stunts.riposte }
+  - { id: s4, item: fate-core:stunts.killing-stroke }
+  - { id: s5, item: fate-core:stunts.indomitable }
+  - id: s6
+    item: fate-core:stunts.custom
+    state: { label: Two-Gun Mojo, bonus: true, skill: 'fate-core:skills.shoot', action: attack }

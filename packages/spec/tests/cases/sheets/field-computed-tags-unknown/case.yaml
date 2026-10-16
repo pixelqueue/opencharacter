@@ -1,0 +1,20 @@
+description: "A field's computed tag must be declared: one that isn't fails the field with unknown-tag, and a field reading it fails too; a field with a declared computed tag is fine"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attr.str, attr.dex]
+        fields:
+          attribute: { type: string, input: true, default: wis }
+          # `attr.wis` isn't declared.
+          stat: { type: integer, formula: 3, tags: [{ formula: "'attr.' + attribute" }] }
+          double: { type: integer, formula: stat * 2 }
+          other: { type: integer, formula: 1, tags: [{ formula: "'attr.dex'" }] }
+      content: []

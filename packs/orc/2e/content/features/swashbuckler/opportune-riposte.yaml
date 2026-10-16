@@ -1,0 +1,51 @@
+id: features.swashbuckler.opportune-riposte
+type: feature
+fields: { level: 3 }
+actions:
+  - id: opportune-riposte
+    tags: [reaction]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: >-
+              (self.equipped || 'standard' in item.tags || 'unarmed' in item.tags)
+                && item.range == 0
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        params: { reaction: true }
+        participants: { target: participants.target }
+      - id: precise
+        kind: roll
+        when: >-
+          level >= 19 && steps.strike.result == 'failure'
+            && ('trait.agile' in steps.weapon.item.tags || 'trait.finesse' in steps.weapon.item.tags)
+        tags: [damage]
+        parts:
+          - dice: dieOf(1d6, swashbuckler.preciseStrike)
+            tags: [{ formula: "'damage.' + steps.weapon.item.damageType" }]
+      - id: graze
+        kind: changes
+        when: has(steps.precise)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            by: >-
+              @feats.swashbuckler.precise-finisher in feats.held
+                ? -steps.precise.total : -floor(steps.precise.total / 2)
+            tags: [damage, { formula: "'damage.' + steps.weapon.item.damageType" }]
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage

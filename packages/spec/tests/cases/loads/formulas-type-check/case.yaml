@@ -1,0 +1,26 @@
+description: 'Every formula parses and type-checks: the pack loads'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might: { type: integer, input: true, default: 1, min: 0, max: 10 }
+          stats.bonus: { type: integer, formula: stats.might * 2 }
+        contentTypes:
+          weapon:
+            carried: true
+            fields:
+              damage: { type: dice, required: true }
+      content:
+        - id: weapons.club
+          type: weapon
+          fields: { damage: 1d4 }
+          effects:
+            - { target: stats.bonus, op: add, value: 1, when: self.equipped }

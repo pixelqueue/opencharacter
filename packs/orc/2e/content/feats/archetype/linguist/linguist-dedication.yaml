@@ -1,0 +1,20 @@
+id: feats.archetype.linguist.linguist-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.linguist }
+
+prerequisites:
+  - { id: languages, when: 'size(languages) >= 3' }
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.society },
+      when: "!('skill.society' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - {
+      target: languages.extra,
+      op: add,
+      value: '2 * (2 + (skills.society.rank >= 3 ? 1 : 0) + (skills.society.rank >= 4 ? 1 : 0))',
+    }

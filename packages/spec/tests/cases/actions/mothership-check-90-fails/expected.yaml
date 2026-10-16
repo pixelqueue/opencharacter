@@ -1,0 +1,21 @@
+# Combat 96: 92 is under the target, but 90-99 always fails (not doubles, so not critical): +1 stress.
+status: finished
+outcome:
+  result: failure
+proposedChanges:
+  - to: self
+    step: stress
+    change:
+      type: adjust
+      field: mothership-1e:stress.current
+      by: 1
+log:
+  - step: check
+    action: mothership-1e:stat-check
+    kind: dice
+    by: engine
+    faces:
+      - 92
+    total: 92
+    band: failure
+    bandSet: mothership-1e:check

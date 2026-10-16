@@ -1,0 +1,27 @@
+id: magic-items.bowl-of-commanding-water-elementals
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  weight: 3
+  spells: [spells.conjure-elemental]
+  maxCharges: 1
+  recharge: 1
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.conjure-elemental, when: self.equipped }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.conjure-elemental &&
+      flags.slot == 5 && self.charges >= 1
+    value:
+      id: charges
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+actions:
+  - { use: use-charges }
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

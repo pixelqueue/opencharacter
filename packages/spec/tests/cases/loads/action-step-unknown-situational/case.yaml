@@ -1,0 +1,25 @@
+description: "An `action` step's `situational` names situational choices the action's pack sees: an unknown one is `unknown-reference`"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        situational:
+          - { id: exposed, type: boolean, default: false }
+        actions:
+          - id: inner
+            steps:
+              - { id: done, kind: outcome }
+          - id: outer
+            steps:
+              - id: run
+                kind: action
+                use: inner
+                situational: { exposed: true, hidden: true }
+      content: []

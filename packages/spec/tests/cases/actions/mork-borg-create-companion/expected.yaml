@@ -1,0 +1,13 @@
+# The parameter leaves one companion to pick; the automatic run takes it. The hawk's HP is 8.
+status: finished
+outcome:
+  result: created
+proposedChanges:
+  - to: self
+    step: companion
+    change: { type: addItem, entry: { id: companion, item: mork-borg-core:companions.hawk } }
+  - { to: self, step: hp, change: { type: set, field: mork-borg-core:hp.max, value: 8 } }
+  - { to: self, step: hp, change: { type: set, field: mork-borg-core:hp.current, value: 8 } }
+  - { to: self, step: finish, change: { type: finishCreation } }
+log:
+  - { step: companion, kind: choice, by: engine, option: mork-borg-core:companions.hawk }

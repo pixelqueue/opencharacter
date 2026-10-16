@@ -1,0 +1,37 @@
+description: "A choice joins a dependency's exclusivity group with a qualified key: the extension's perk feat choice says `unique: test-pack:feats`, so a feat its dependency's rules-level slot took is `already-picked` there; the extension's own local group (`extra-pack:feats`) is another group"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          feat: {}
+          perk: {}
+        choices:
+          - { id: feat, unique: feats, from: { type: feat } }
+      content:
+        - { id: feats.alertness, type: feat }
+        - { id: feats.toughness, type: feat }
+  - inline:
+      manifest:
+        id: extra-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies:
+          test-pack: ^1.0.0
+      rules: {}
+      content:
+        - id: perks.bonus-feat
+          type: test-pack:perk
+          choices: [{ id: feat, unique: test-pack:feats, from: { type: test-pack:feat } }]
+        - id: perks.own-group
+          type: test-pack:perk
+          choices: [{ id: feat, unique: feats, from: { type: test-pack:feat } }]

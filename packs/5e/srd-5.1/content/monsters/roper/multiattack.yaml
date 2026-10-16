@@ -1,0 +1,57 @@
+id: monsters.roper.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 5 }
+    results: [done]
+    steps:
+      - id: tendril1
+        kind: action
+        use: monster-attack
+        source: "'monsters.roper.tendril'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: tendril2
+        kind: action
+        use: monster-attack
+        source: "'monsters.roper.tendril'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: tendril3
+        kind: action
+        use: monster-attack
+        source: "'monsters.roper.tendril'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(2, size(participants.target) - 1)].id] : []
+      - id: tendril4
+        kind: action
+        use: monster-attack
+        source: "'monsters.roper.tendril'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(3, size(participants.target) - 1)].id] : []
+      - id: bite
+        kind: action
+        use: monster-attack
+        source: "'monsters.roper.bite'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(4, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.tendril1) && steps.tendril1.result == 'hit' ? 1 : 0)
+              + (has(steps.tendril2) && steps.tendril2.result == 'hit' ? 1 : 0)
+              + (has(steps.tendril3) && steps.tendril3.result == 'hit' ? 1 : 0)
+              + (has(steps.tendril4) && steps.tendril4.result == 'hit' ? 1 : 0)
+              + (has(steps.bite) && steps.bite.result == 'hit' ? 1 : 0)

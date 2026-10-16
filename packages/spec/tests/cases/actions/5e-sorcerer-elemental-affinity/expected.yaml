@@ -1,0 +1,39 @@
+# Attack 12 + prof 3 + cha 3 = 18 against AC 13: a hit. 2d10 at character level 6 (7 + 3) +
+# Elemental Affinity cha 3 = 13 fire.
+status: finished
+outcome:
+  result: hit
+  data:
+    slot: 0
+    spellcastingClass: sorcerer
+    metamagic: none
+    dc: 14
+    save: ''
+    halfOnSave: false
+    damage: 13
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -13,
+          tags: [damage, attack, spell, magical, ranged, damage.fire],
+        },
+    }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces: [12]
+    total: 18
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [7, 3]
+    total: 13

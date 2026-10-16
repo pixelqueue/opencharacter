@@ -1,0 +1,77 @@
+# The milestone grows first; the significant milestone then reads the raised cap on the
+# proposed sheet, so fight may go one rank above the old cap.
+status: finished
+outcome:
+  result: advanced
+  data:
+    benefit: none
+proposedChanges:
+  - to: self
+    step: grow
+    change:
+      type: adjust
+      field: fate-core:refresh.base
+      by: 1
+  - to: self
+    step: grow
+    change:
+      type: adjust
+      field: fate-core:skills.cap
+      by: 1
+  - to: self
+    step: grow
+    change:
+      type: set
+      field: fate-core:consequences.extremeTaken
+      value: false
+  - to: self
+    step: grow
+    change:
+      type: set
+      field: fate-core:aspects.trouble
+      value: Scarred, but My Pride Is Earned
+  - to: self
+    step: grow
+    change:
+      type: set
+      field: fate-core:consequences.extremeAspect
+      value: none
+  - to: self
+    step: grow
+    change:
+      type: set
+      field: fate-core:aspects.highConcept
+      value: Champion of the Seven Courts
+  - to: self
+    step: significant/point
+    change:
+      type: adjust
+      field: fate-core:advancement.skillPoints
+      by: 1
+  - to: self
+    step: significant/spend
+    change:
+      type: adjust
+      field: fate-core:skills.fight
+      by: 1
+  - to: self
+    step: significant/severe
+    change:
+      type: setState
+      key: recovering
+      copies:
+        type: fate-core:consequence
+        where: self.slot == 'severe' && !self.recovering
+      value: true
+log:
+  - step: significant/minor/benefit
+    action: fate-core:minor-milestone
+    kind: choice
+    by: engine
+    option: none
+  - step: significant/spend
+    action: fate-core:significant-milestone
+    kind: allocate
+    by: app
+    amounts:
+      fate-core:skills.fight: 1

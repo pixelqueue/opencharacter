@@ -1,0 +1,26 @@
+status: finished
+outcome:
+  result: afflicted
+  data:
+    stage: 3
+    damage: 7
+proposedChanges:
+  - to: self
+    step: move
+    change:
+      type: setState
+      key: stage
+      applied:
+        where: self.id == 'venom'
+        limit: 1
+      value: 3
+  - to: self
+    step: take
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -7
+      tags:
+        - damage
+        - affliction
+        - damage.poison

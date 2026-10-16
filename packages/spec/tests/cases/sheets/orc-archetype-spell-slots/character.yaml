@@ -1,0 +1,55 @@
+# An 8th-level human fighter (Charisma +3) with Sorcerer Dedication (the imperial bloodline:
+# arcane), Basic Sorcerer Spellcasting and Basic Blood Potency: an archetype repertoire
+# with two cantrips and a spell of each of ranks 1 to 3, force barrage her signature spell.
+specVersion: 0.1.0
+id: test-archetype-spell-slots
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 8
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      boosts:
+        - option: orc-2e:boosts.cha
+        - option: orc-2e:boosts.str
+  - id: class
+    item: orc-2e:classes.fighter
+    choices:
+      key-attribute:
+        - option: str
+      class-feat-2:
+        - option: orc-2e:feats.archetype.sorcerer.sorcerer-dedication
+          choices:
+            bloodline:
+              - option: imperial
+            orc-2e:features.spellcasting.archetype-repertoire/cantrips:
+              - option: orc-2e:spells.electric-arc
+              - option: orc-2e:spells.daze
+            orc-2e:features.spellcasting.archetype-repertoire/spells-1:
+              - option: orc-2e:spells.force-barrage
+            orc-2e:features.spellcasting.archetype-repertoire/spells-2:
+              - option: orc-2e:spells.blur
+            orc-2e:features.spellcasting.archetype-repertoire/spells-3:
+              - option: orc-2e:spells.fireball
+            orc-2e:features.spellcasting.archetype-signature-spells/signature:
+              - option: orc-2e:spells.force-barrage
+      class-feat-4:
+        - option: orc-2e:feats.archetype.sorcerer.basic-sorcerer-spellcasting
+      class-feat-6:
+        - option: orc-2e:feats.archetype.sorcerer.basic-blood-potency
+          choices:
+            feat:
+              - option: orc-2e:feats.sorcerer.tap-into-blood
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.cha
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+  boosts-5:
+    - option: orc-2e:boosts.cha
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con

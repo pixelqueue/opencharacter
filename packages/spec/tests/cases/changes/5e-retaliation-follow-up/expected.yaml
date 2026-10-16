@@ -1,0 +1,32 @@
+# Only the equipped melee weapon lists the attack: not the longbow (ranged) or the unequipped
+# handaxe. The weapon type's follow-up names the copy, and weapon-attack runs with it.
+ok: true
+issues: []
+adjustments:
+  - { field: 5e-srd-5.1:hp.current, by: -7, requested: -7, taken: -7, reason: requested }
+followUps:
+  - id: retaliation-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:weapon#retaliation
+    source:
+      type: item
+      id: 5e-srd-5.1:weapons.greataxe
+      entry: axe
+    to: self
+    required: false
+    action:
+      id: 5e-srd-5.1:weapon-attack
+      entry: axe
+      followUp: retaliation-1
+    params: {}
+    cause:
+      field: 5e-srd-5.1:hp.current
+      by: -7
+      requested: -7
+      taken: -7
+      reason: requested
+      clamped: false
+      tags:
+        - damage
+        - melee
+        - damage.slashing

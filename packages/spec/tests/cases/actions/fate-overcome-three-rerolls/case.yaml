@@ -1,0 +1,16 @@
+description: 'Fate Core: three rerolls, each after seeing the last: two paid with fate points, then, with none left to offer, a third with a free invocation held on the sheet'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:overcome }
+  params: { skill: fate-core:skills.athletics, opposition: 4 }
+  policy: { choices: pause }
+answers:
+  - option: invoke
+  - option: invoke
+  - option: free
+  - option: a-balance
+  - option: none
+  - option: none

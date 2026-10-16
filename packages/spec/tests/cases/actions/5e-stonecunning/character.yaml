@@ -1,0 +1,17 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.int.base: 12
+  5e-srd-5.1:hp.base: 10
+  5e-srd-5.1:hp.current: 10
+features:
+  - id: dwarf
+    item: 5e-srd-5.1:races.dwarf
+    choices:
+      subrace: [{ option: 5e-srd-5.1:subraces.hill-dwarf }]
+      5e-srd-5.1:traits.tool-proficiency-dwarf/tool: [{ option: 5e-srd-5.1:tools.masons-tools }]
+  - id: fighter
+    item: 5e-srd-5.1:classes.fighter
+    state: { level: 1, startingClass: true }

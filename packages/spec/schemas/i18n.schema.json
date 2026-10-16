@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/i18n.schema.json",
+  "title": "Translation file",
+  "description": "All player-facing text for one pack in one language: a flat map from translation key to an ICU MessageFormat string. The language comes from the file name (`i18n/de.yaml`). A language may be split over several files (`i18n/de/*.yaml`); the build merges them.",
+  "type": "object",
+  "propertyNames": {
+    "$ref": "common.schema.json#/$defs/i18nKey"
+  },
+  "additionalProperties": {
+    "type": "string"
+  }
+}

@@ -1,0 +1,15 @@
+ok: true
+adjustments:
+  - { applied: [scared] }
+  - { applied: [flanked] }
+  - { applied: [burn] }
+character:
+  applied:
+    - { id: scared, source: orc-2e:conditions.frightened, state: { value: 2 } }
+    - { id: flanked, source: orc-2e:conditions.off-guard, state: { value: 1 } }
+    - id: burn
+      source: orc-2e:conditions.persistent-damage
+      state: { damage: 2d6, damageType: fire }
+    - id: bleeding
+      source: orc-2e:conditions.persistent-damage
+      state: { damage: 1d4, damageType: bleed }

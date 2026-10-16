@@ -1,0 +1,50 @@
+id: spells.insect-form
+type: spell
+tags: [trait.concentrate, trait.manipulate, trait.polymorph, tradition.arcane, tradition.primal]
+fields:
+  rank: 3
+  cast: two
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+  tempHp: 10
+  heighten: 1
+  heightenTempHp: 5
+effects:
+  - { target: battleForm.active, op: set, value: true, scope: applied }
+  - {
+      target: battleForm.acBase,
+      op: set,
+      value: 'self.rank >= 5 ? 18 : self.rank >= 4 ? 18 : 18',
+      scope: applied,
+    }
+  - { target: battleForm.formAttacks, op: set, value: true, scope: applied }
+  - {
+      target: battleForm.attack,
+      op: set,
+      value: 'self.rank >= 5 ? 18 : self.rank >= 4 ? 16 : 13',
+      scope: applied,
+    }
+  - {
+      target: battleForm.damage,
+      op: set,
+      value: 'self.rank >= 5 ? 2 : self.rank >= 4 ? 6 : 2',
+      scope: applied,
+    }
+  - {
+      target: battleForm.diceMultiplier,
+      op: set,
+      value: 'self.rank >= 5 ? 2 : self.rank >= 4 ? 1 : 1',
+      scope: applied,
+    }
+  - target: skills.athletics.mod
+    op: atLeast
+    value: 'self.rank >= 5 ? 20 : self.rank >= 4 ? 16 : 13'
+    scope: applied
+grants:
+  - { item: forms.insect-form.ant, scope: applied, when: "self.form == 'ant'" }
+  - { item: forms.insect-form.beetle, scope: applied, when: "self.form == 'beetle'" }
+  - { item: forms.insect-form.centipede, scope: applied, when: "self.form == 'centipede'" }
+  - { item: forms.insect-form.mantis, scope: applied, when: "self.form == 'mantis'" }
+  - { item: forms.insect-form.scorpion, scope: applied, when: "self.form == 'scorpion'" }
+  - { item: forms.insect-form.spider, scope: applied, when: "self.form == 'spider'" }

@@ -1,0 +1,13 @@
+description: '5E level-up into a new class (multiclassing), rolling the hit die: the class is added at level 1, not as the starting class, and hp.base rises by the roll, current hit points by what the maximum gains'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:level-up }
+  policy: { dice: pause, choices: pause }
+answers:
+  - option: 5e-srd-5.1:classes.rogue
+  - option: roll
+  - faces: [5]
+  - option: '#done'

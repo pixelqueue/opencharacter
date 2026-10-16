@@ -1,0 +1,45 @@
+id: feats.wizard.advanced-school-spell
+type: feat
+fields: { level: 8, category: class, class: classes.wizard }
+effects:
+  - { target: focus.points, op: add, value: 1 }
+choices:
+  # A choice by the school, since a grant can't read it.
+  - id: spell
+    from:
+      options:
+        - id: ars-grammatica
+          prerequisites:
+            - { id: school, when: "wizard.school == 'ars-grammatica'" }
+          grants:
+            - item: spells.rune-of-observation
+        - id: battle-magic
+          prerequisites:
+            - { id: school, when: "wizard.school == 'battle-magic'" }
+          grants:
+            - item: spells.energy-absorption
+        - id: boundary
+          prerequisites:
+            - { id: school, when: "wizard.school == 'boundary'" }
+          grants:
+            - item: spells.spiral-of-horrors
+        - id: civic-wizardry
+          prerequisites:
+            - { id: school, when: "wizard.school == 'civic-wizardry'" }
+          grants:
+            - item: spells.community-restoration
+        - id: mentalism
+          prerequisites:
+            - { id: school, when: "wizard.school == 'mentalism'" }
+          grants:
+            - item: spells.invisibility-cloak
+        - id: protean-form
+          prerequisites:
+            - { id: school, when: "wizard.school == 'protean-form'" }
+          grants:
+            - item: spells.shifting-form
+        - id: unified-magical-theory
+          prerequisites:
+            - { id: school, when: "wizard.school == 'unified-magical-theory'" }
+          grants:
+            - item: spells.interdisciplinary-incantation

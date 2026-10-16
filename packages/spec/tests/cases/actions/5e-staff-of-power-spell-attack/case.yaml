@@ -1,0 +1,10 @@
+description: "5E wizard casts Ray of Enfeeblement from a Staff of Power: the spell attack uses the wizard's bonus plus the staff's +2, not the staff's weapon attack bonus (the `spellAttackBonus` fix)"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:cast-spell, entry: staff, source: 5e-srd-5.1:spells.ray-of-enfeeblement }
+  params: { slot: 2, targetAc: 18 }
+answers:
+  - { option: '5e-srd-5.1:magic-items.staff-of-power#charges' }

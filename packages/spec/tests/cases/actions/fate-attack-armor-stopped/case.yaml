@@ -1,0 +1,16 @@
+description: "Fate Core with Weapon and Armor ratings: a Fight attack succeeds by 1 and adds its Weapon rating (Super-Strength at two ranks, 4) for a 5-shift hit; the target's armor stops it all, so the attacker takes a boost"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:attack }
+  params: { skill: fate-core:skills.fight }
+  participants:
+    target: [{ id: robot, values: {} }]
+  policy: { choices: auto }
+answers:
+  # The robot's app ran `defend` (opposition 4, weapon 4) and rolled a Good (+3) defense.
+  - outcome: { result: fail, data: { total: 3 } }
+  # It then ran `take-hit` with 5 shifts, and its armor took them all.
+  - outcome: { result: absorbed, data: { shifts: 5, box: 0, consequences: 0, stopped: true } }

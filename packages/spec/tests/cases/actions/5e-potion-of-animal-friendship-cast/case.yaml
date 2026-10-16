@@ -1,0 +1,14 @@
+description: '5E: after drinking a Potion of Animal Friendship, its applied entry casts animal friendship: a DC 13 Wisdom save, charmed on a failure'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action:
+    id: '5e-srd-5.1:magic-items.potion-of-animal-friendship#animal-friendship'
+    entry: magic-items-potion-of-animal-friendship-1
+  participants:
+    target:
+      - { id: wolf }
+answers:
+  - { outcome: { result: failure, data: { total: 9 } } }

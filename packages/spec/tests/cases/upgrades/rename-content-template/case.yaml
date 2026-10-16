@@ -1,0 +1,63 @@
+description: renameContent replaces a template applied to a copy
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might:
+            type: integer
+            input: true
+            default: 1
+            min: 0
+            max: 10
+        contentTypes:
+          gear:
+            carried: true
+      content:
+        - id: gear.rope
+          type: gear
+        - id: mods.shiny
+          type: template
+          appliesTo:
+            type: gear
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might:
+            type: integer
+            input: true
+            default: 1
+            min: 0
+            max: 10
+        contentTypes:
+          gear:
+            carried: true
+      content:
+        - id: gear.rope
+          type: gear
+        - id: mods.gleaming
+          type: template
+          appliesTo:
+            type: gear
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - op: renameContent
+              from: mods.shiny
+              to: mods.gleaming

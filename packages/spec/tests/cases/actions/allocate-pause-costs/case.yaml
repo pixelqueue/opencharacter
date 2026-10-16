@@ -1,0 +1,34 @@
+description: "Paused, a budget step gives each field's input value beside its computed value, and the cost of each amount from 0 to its limit"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [stat]
+        fields:
+          stats.might: { type: integer, input: true, default: 1, min: 0, max: 5, tags: [stat] }
+          stats.wits: { type: integer, input: true, default: 0, min: 0, max: 5, tags: [stat] }
+        effects:
+          - { target: stats.wits, op: add, value: 2 }
+        actions:
+          # Up to five points, two at most per stat, the second point costing 2 more; the cost
+          # reads the field: one more per point on a field already over 1.
+          - id: buy
+            steps:
+              - id: points
+                kind: allocate
+                fields: { type: field, where: "'stat' in item.tags" }
+                budget: 5
+                spend: upTo
+                limit: 2
+                cost: '[0, 1, 3][amount] + (field.value > 1 ? amount : 0)'
+      content: []
+input:
+  action: { id: test-pack:buy }
+  policy: { allocations: pause }

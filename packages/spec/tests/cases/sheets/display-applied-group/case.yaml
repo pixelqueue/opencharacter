@@ -1,0 +1,35 @@
+description: "A content display group may list applied entries (`from: applied`): its `where`, `sectionBy` and `sortBy` see the source's item and the entry as `self`. Groups are evaluated by apps; the pack loads and the sheet computes"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [curse]
+        contentTypes:
+          condition:
+            fields:
+              severity: { type: integer, default: 1 }
+            state:
+              by: { type: string, default: '' }
+        display:
+          groups:
+            - id: conditions
+              kind: content
+              members: { type: condition, from: applied, where: "!('curse' in item.tags)" }
+              sectionBy: item.severity
+              sortBy: self.by
+            - id: curses
+              kind: content
+              members: { type: condition, from: applied, where: "'curse' in item.tags" }
+            - id: own
+              kind: content
+              members: { type: condition, from: own }
+      content:
+        - { id: conditions.dazed, type: condition }
+        - { id: conditions.hexed, type: condition, tags: [curse], fields: { severity: 2 } }

@@ -1,0 +1,89 @@
+fields:
+  powers.armorLimit: { type: integer, formula: 1, min: 0, max: 3 }
+  powers.blocked: { type: integer, formula: 'armor.baseTier > powers.armorLimit ? 1 : 0', min: 0 }
+
+display:
+  fields:
+    powers.armorLimit: { hidden: true }
+    powers.blocked: { hidden: true }
+
+contentTypes:
+  scroll:
+    carried: true
+    fields:
+      kind: { type: enum, values: [unclean, sacred], required: true }
+      price: { type: integer, min: 0 }
+      targets: { type: dice }
+      amount: { type: dice }
+      amountKind:
+        { type: enum, values: [damage, healing, temporary-hp, bonus, distance, creatures] }
+      duration: { type: dice }
+      durationUnit: { type: enum, values: [rounds, minutes] }
+      durationAddsPresence: { type: boolean }
+      resistDr: { type: integer, min: 1 }
+    state:
+      summoned: { type: boolean, default: false }
+    actions:
+      - use: use-power
+
+actions:
+  - id: use-power
+    tags: [power]
+    available: powers.current > 0 && powers.blocked == 0
+    results: { bands: test }
+    steps:
+      - id: spend
+        kind: changes
+        to: self
+        changes:
+          - { type: adjust, field: powers.current, by: -1 }
+      - id: check
+        kind: action
+        use: test
+        params:
+          ability: "'abilities.presence'"
+      - id: ash
+        kind: changes
+        when: self.summoned
+        to: self
+        changes:
+          - { type: removeItem, entry: self }
+      - id: backlash
+        kind: roll
+        when: "steps.check.result == 'failure' || steps.check.result == 'fumble'"
+        tags: [damage]
+        parts:
+          - dice: 1d2
+      - id: hurt
+        kind: changes
+        when: has(steps.backlash)
+        to: self
+        changes:
+          - { type: adjust, field: hp.current, by: -steps.backlash.total, tags: [damage.direct] }
+      - id: targets
+        kind: roll
+        when: "has(item.targets) && (steps.check.result == 'success' || steps.check.result == 'crit')"
+        tags: [power]
+        parts:
+          - dice: item.targets
+      - id: amount
+        kind: roll
+        when: "has(item.amount) && (steps.check.result == 'success' || steps.check.result == 'crit')"
+        tags: [power]
+        parts:
+          - dice: item.amount
+      - id: duration
+        kind: roll
+        when: "has(item.duration) && (steps.check.result == 'success' || steps.check.result == 'crit')"
+        tags: [power]
+        parts:
+          - dice: item.duration
+          - value: 'has(item.durationAddsPresence) && item.durationAddsPresence ? abilities.presence : 0'
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          catastrophe: "steps.check.result == 'fumble'"
+          targets: 'has(steps.targets) ? steps.targets.total : 0'
+          amount: 'has(steps.amount) ? steps.amount.total : 0'
+          duration: 'has(steps.duration) ? steps.duration.total : 0'

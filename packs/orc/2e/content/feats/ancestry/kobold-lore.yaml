@@ -1,0 +1,20 @@
+id: feats.ancestry.kobold-lore
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.kobold }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.stealth }
+    when: "!('skill.stealth' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.thievery }
+    when: "!('skill.thievery' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.kobold }
+    when: "!('skill.lore.kobold' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 3 }
+  - target: skills.lore.kobold.rank
+    op: atLeast
+    value: 'level >= 15 ? 4 : level >= 7 ? 3 : level >= 3 ? 2 : 1'

@@ -1,0 +1,39 @@
+id: monsters.shadow
+type: monster
+fields:
+  size: medium
+  creatureType: undead
+  alignment: chaotic-evil
+  ac: 12
+  hp: 16
+  hitDice: 3d8 + 3
+  speed: 40
+  str: 6
+  dex: 14
+  con: 13
+  int: 6
+  wis: 10
+  cha: 8
+  skills: [skill.stealth]
+  damageResistances:
+    [damage.acid, damage.cold, damage.fire, damage.lightning, damage.thunder, nonmagical]
+  damageImmunities: [damage.necrotic, damage.poison]
+  damageVulnerabilities: [damage.radiant]
+  conditionImmunities:
+    [
+      conditions.frightened,
+      conditions.grappled,
+      conditions.paralyzed,
+      conditions.petrified,
+      conditions.poisoned,
+      conditions.prone,
+      conditions.restrained,
+    ]
+  exhaustionImmune: true
+  darkvision: 60
+  cr: 0.5
+grants:
+  - item: monsters.shadow.amorphous
+  - item: monsters.shadow.shadow-stealth
+  - item: monsters.shadow.sunlight-weakness
+  - item: monsters.shadow.strength-drain

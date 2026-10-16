@@ -1,0 +1,17 @@
+description: 'A field whose computed tag reads the field itself is a loop: circular-formula, as is a field reading it'
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [high]
+        fields:
+          stat: { type: integer, formula: 3, tags: [{ formula: "stat > 2 ? ['high'] : []" }] }
+          double: { type: integer, formula: stat * 2 }
+      content: []

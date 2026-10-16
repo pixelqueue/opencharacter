@@ -1,0 +1,32 @@
+id: classes.gutterborn-scum
+type: class
+fields:
+  strength: 3d6-2
+  agility: 3d6
+  presence: 3d6
+  toughness: 3d6
+  hitDie: 1d6
+  omensDie: 1d2
+  silver: 1d6
+  weaponDie: 1d6
+  armorDie: 1d2
+effects:
+  - { target: tests.presenceDr, op: add, value: -2 }
+  - { target: tests.agilityDr, op: add, value: -2 }
+choices:
+  - id: feature
+    pick: { min: 1, max: 2 }
+    from:
+      options:
+        - id: cowards-jab
+          effects: [{ target: features.cowardsJab, op: set, value: true }]
+        - id: filthy-fingersmith
+          effects: [{ target: features.filthyFingersmith, op: set, value: true }]
+        - id: abominable-gob-lobber
+          effects: [{ target: features.gobLobber, op: set, value: true }]
+        - id: escaping-fate
+          effects: [{ target: features.escapingFate, op: set, value: true }]
+        - id: excretal-stealth
+          effects: [{ target: features.excretalStealth, op: set, value: true }]
+        - id: dodging-death
+          effects: [{ target: features.dodgingDeath, op: set, value: true }]

@@ -1,0 +1,16 @@
+# 18 + Athletics against the ogre's Athletics DC (15): a critical success. Only the ogre's grabs
+# end (and any whose imposer is unknown).
+status: finished
+outcome:
+  result: critical-success
+  data: { total: 27, dc: 15, map: 0 }
+proposedChanges:
+  - to: self
+    step: count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
+  - to: self
+    step: free
+    change:
+      type: removeEffect
+      applied:
+        where: "item.id in ['orc-2e:conditions.grabbed', 'orc-2e:conditions.immobilized', 'orc-2e:conditions.restrained'] && ('ogre' == '' || self.by == '' || self.by == 'ogre')"

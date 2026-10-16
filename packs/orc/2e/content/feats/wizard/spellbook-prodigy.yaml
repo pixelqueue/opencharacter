@@ -1,0 +1,14 @@
+id: feats.wizard.spellbook-prodigy
+type: feat
+tags: [trait.wizard]
+fields: { level: 1, category: class, class: classes.wizard }
+
+prerequisites:
+  - { id: arcana, when: 'skills.arcana.rank >= 1' }
+grants:
+  - { item: feats.skill.magical-shorthand, waivePrerequisites: true }
+effects:
+  - target: { rolls: [skill-action.learn-a-spell], tally: critFailToFail }
+    op: add
+    value: 1
+    when: 'true'

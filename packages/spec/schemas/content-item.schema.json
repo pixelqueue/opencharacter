@@ -1,0 +1,338 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/content-item.schema.json",
+  "title": "Content item",
+  "description": "One piece of content (a weapon, spell, class, playbook, template, …): mechanics only, one file per item. Player-facing text lives in the pack's i18n files under keys derived from the item ID (`<id>.name`, `<id>.description`). An item either defines new content (`id` + `type`) or overrides another pack's item (`override`), changing only the properties it mentions.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "Local content ID, permanent and never reused. Must match the file path: `content/weapons/longsword.yaml` holds `weapons.longsword`.",
+      "$ref": "common.schema.json#/$defs/localId"
+    },
+    "type": {
+      "description": "A content type declared by this pack or a dependency, or the built-in `template`.",
+      "$ref": "common.schema.json#/$defs/name"
+    },
+    "override": {
+      "description": "Homebrew: the ID of another pack's item to override. Only the properties given here change.",
+      "$ref": "common.schema.json#/$defs/qualifiedId"
+    },
+    "extends": {
+      "description": "A permanent variant: inherit everything from this item, then apply the properties given here.",
+      "$ref": "common.schema.json#/$defs/ref"
+    },
+    "tags": {
+      "$ref": "common.schema.json#/$defs/tags"
+    },
+    "removeTags": {
+      "description": "Templates only: tags the copy's item doesn't have. A copy's `item.tags` are the base item's, then for each template in order its `removeTags` taken away and its `tags` added; a later template may add a removed tag again.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/tag"
+      },
+      "uniqueItems": true
+    },
+    "fields": {
+      "description": "Values for the item fields declared by the content type. How a value is read depends on the declared type: `integer`, `decimal`, `boolean` and `dice` values are formulas (a plain literal is a formula with no inputs); `string`, `enum` and `id` values are literal strings; `set` values are lists of literals. A template may set the rules' `templateFields` and the fields of the content type its `appliesTo` names; its values are merged into the copy's `item` in template order, replacing the base item's, and its formulas see the base item as `base`. A template may give `null` for a field: the field is absent from the copy's `item` (no declared default applies), unless a later template sets it again. Only templates may give `null`.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "common.schema.json#/$defs/literal"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "state": {
+      "description": "Extra per-copy state keys this item (or template) adds to the character's copy, beyond those its content type declares.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "content-type.schema.json#/$defs/valueDecl"
+      }
+    },
+    "computed": {
+      "description": "Computed values on this item's copies, added to the content type's or replacing one of them by name. A template's are added to the copies it is applied to.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "content-type.schema.json#/$defs/computedDecl"
+      }
+    },
+    "effects": {
+      "type": "array",
+      "items": {
+        "$ref": "effect.schema.json"
+      }
+    },
+    "followUps": {
+      "description": "Follow-ups that apply while the character has this item's copy or pick, as effects do. Their formulas see `item` and `self`.",
+      "type": "array",
+      "items": {
+        "$ref": "follow-up.schema.json"
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "$ref": "action.schema.json#/$defs/actionOrUse"
+      }
+    },
+    "choices": {
+      "type": "array",
+      "items": {
+        "$ref": "choice.schema.json"
+      }
+    },
+    "grants": {
+      "description": "Other content this item makes active on the character while it is active itself, e.g. class features at level N. A grant with `scope: applied` applies while the item is the source of an active applied entry: the granted content is applied content too, with the entry as `self`.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/grant"
+      }
+    },
+    "immuneTo": {
+      "description": "Applied content the character can't be affected by while this item is active: an `applied` entry whose source matches is blocked and reported as the rules issue `immune`.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/immunity"
+      }
+    },
+    "reapply": {
+      "description": "What applying this item again does, replacing its content type's `reapply`.",
+      "$ref": "content-type.schema.json#/$defs/reapply"
+    },
+    "nameFrom": {
+      "description": "A string state key whose value names each copy of this item (a custom stunt the player names), replacing its content type's `nameFrom`. While the copy's value of the key is a non-empty string, it is the copy's name (computeSheet's `copyNames`).",
+      "$ref": "common.schema.json#/$defs/name"
+    },
+    "standardCopies": {
+      "description": "Content every character holds a copy of while this item is active, e.g. a playbook's own gear: queries that read only `item`, resolved by loadRuleset. Each match is a standard copy with the instance ID `<pack>-<local ID>`, the colon and dots as hyphens; the character file saves it only once it differs from its defaults.",
+      "type": "array",
+      "items": {
+        "$ref": "query.schema.json"
+      }
+    },
+    "keepsFields": {
+      "description": "Item fields the templates this item keeps (`keepsTemplates`) leave as they are, on the copies it keeps them on: a specific magic weapon's Price, which already counts the runes it comes with. A template the player applies later changes them as usual.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "keepsTemplates": {
+      "description": "Templates this item keeps on the character's copies while it is active: each copy of `copies.type` whose base item matches `copies.where` (which reads only `item`, resolved by loadRuleset) has the template applied after its saved ones, unless the template's `appliesTo` doesn't match. Nothing is saved.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/keptTemplate"
+      }
+    },
+    "prerequisites": {
+      "description": "Conditions for having this item. Failing ones are rules issues (`prerequisite-not-met`), never blocking unless strict mode is on.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/prerequisite"
+      }
+    },
+    "repeatable": {
+      "description": "The item may be picked more than once (a feat taken again): exclusivity groups (a choice's `unique`) don't apply to it, so a pick of it in one choice of a group leaves it eligible in the others, and isn't `already-picked`. Default false.",
+      "type": "boolean"
+    },
+    "appliesTo": {
+      "description": "Templates only: the items this template may be applied to: one query, or several, any of which may match. With several, the template's item fields are the template fields and those every listed type declares; its formulas see `item` as the first type's.",
+      "anyOf": [
+        {
+          "$ref": "query.schema.json"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "query.schema.json"
+          },
+          "minItems": 1
+        }
+      ]
+    },
+    "deprecated": {
+      "$ref": "common.schema.json#/$defs/deprecation"
+    },
+    "suppress": {
+      "description": "IDs of the content type's effects this item switches off.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/slug"
+      },
+      "uniqueItems": true
+    }
+  },
+  "oneOf": [
+    {
+      "required": ["id", "type"],
+      "not": {
+        "required": ["override"],
+        "type": "object"
+      },
+      "type": "object"
+    },
+    {
+      "required": ["override"],
+      "not": {
+        "anyOf": [
+          {
+            "required": ["id"],
+            "type": "object"
+          },
+          {
+            "required": ["extends"],
+            "type": "object"
+          }
+        ]
+      },
+      "type": "object"
+    }
+  ],
+  "allOf": [
+    {
+      "if": {
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "const": "template"
+          }
+        },
+        "type": "object"
+      },
+      "then": {
+        "required": ["appliesTo"],
+        "type": "object"
+      },
+      "else": {
+        "allOf": [
+          {
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["appliesTo"],
+                  "type": "object"
+                },
+                {
+                  "required": ["removeTags"],
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          {
+            "properties": {
+              "fields": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "common.schema.json#/$defs/literal"
+                }
+              }
+            },
+            "type": "object"
+          }
+        ]
+      }
+    }
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "grant": {
+      "type": "object",
+      "required": ["item"],
+      "properties": {
+        "item": {
+          "description": "The content granted: an ID, or `{ formula }`, a string formula evaluated as an activation condition is (it reads `self`, `item` and input fields) to a content ID, qualified in the grant's pack as a literal one is; an empty string grants nothing, and an ID that names no content grants nothing with the sheet error `unknown-id`. So content grants what the player named in its state (a spell picked for the day).",
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/ref"
+            },
+            {
+              "type": "object",
+              "required": ["formula"],
+              "properties": {
+                "formula": {
+                  "$ref": "formula.schema.json"
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "when": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "scope": {
+          "description": "`holder` (default): the grant applies while the content is held, and the granted content is activated as held content. `applied`: while the content is the source of an active, unblocked `applied` entry, the granted content is activated as applied content (its `scope: applied` effects, immunities, grants and actions) with the granting entry as `self`, and immunities block it as they would an entry of it.",
+          "enum": ["holder", "applied"]
+        },
+        "waivePrerequisites": {
+          "description": "The granted item's prerequisites don't apply to this activation of it (content that gives a feat outright, whether or not the character meets its prerequisites). Its own grants and picks are checked as usual. Default false.",
+          "type": "boolean"
+        },
+        "state": {
+          "description": "State values the granted content sees as `self.<key>`, in place of the owner copy's (a holder grant) or the granting entry's (a grant with `scope: applied`). Each key is a state key the granted content declares (`unknown-state-key` at load); each value is a formula of the key's type evaluated as an activation condition is (it reads `self`, `item` and input fields). A condition that includes a valued condition gives its value: `{ item: conditions.enfeebled, scope: applied, state: { value: 2 } }`.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "formula.schema.json"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "prerequisite": {
+      "type": "object",
+      "required": ["id", "when"],
+      "properties": {
+        "id": {
+          "description": "Stable ID; rules issues carry it, and its text is `<owner>.prerequisites.<id>`.",
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "when": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        }
+      },
+      "additionalProperties": false
+    },
+    "keptTemplate": {
+      "type": "object",
+      "required": ["template", "copies"],
+      "properties": {
+        "template": {
+          "description": "The template kept on the copies.",
+          "$ref": "common.schema.json#/$defs/ref"
+        },
+        "copies": {
+          "description": "The copies it is kept on: a content type and a condition over the copy's base item (`item` only).",
+          "$ref": "query.schema.json"
+        },
+        "when": {
+          "description": "An activation condition: while it holds, the template is kept.",
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "scope": {
+          "description": "`holder` (default): while the item is held. `applied`: while it is the source of an active, unblocked `applied` entry, on that character's copies.",
+          "enum": ["holder", "applied"]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

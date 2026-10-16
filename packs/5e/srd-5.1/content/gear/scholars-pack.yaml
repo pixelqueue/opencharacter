@@ -1,0 +1,23 @@
+id: gear.scholars-pack
+type: gear
+tags: [equipment-pack]
+fields:
+  category: equipment-pack
+  cost: 40
+actions:
+  - id: unpack
+    tags: [item]
+    available: self.quantity > 0
+    steps:
+      - id: unpack
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'gear.backpack'" } }
+          - { type: addItem, entry: { item: "'gear.book'" } }
+          - { type: addItem, entry: { item: "'gear.ink'" } }
+          - { type: addItem, entry: { item: "'gear.ink-pen'" } }
+          - { type: addItem, entry: { item: "'gear.parchment'", quantity: 10 } }
+          - { type: addItem, entry: { item: "'gear.bag-of-sand'" } }
+          - { type: addItem, entry: { item: "'gear.small-knife'" } }
+          - { type: adjustQuantity, entry: self, by: -1, when: self.quantity > 1 }
+          - { type: removeItem, entry: self, when: self.quantity <= 1 }

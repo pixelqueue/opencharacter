@@ -1,0 +1,22 @@
+id: feats.sorcerer.primal-evolution
+type: feat
+fields: { level: 4, category: class, class: classes.sorcerer }
+prerequisites:
+  - { id: tradition, when: "spellcasting.tradition == 'primal'" }
+effects:
+  - { target: spellSlots.extra.max, op: add, value: 1 }
+  - { target: spells.extraSlot, op: grant, value: { item: spells.summon-animal } }
+  - { target: spells.extraSlot, op: grant, value: { item: spells.summon-plant-or-fungus } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id in [@spells.summon-animal, @spells.summon-plant-or-fungus]
+        && spellSlots.extra.used < spellSlots.extra.max
+    value:
+      id: extra-slot
+      flags: { rank: spellcasting.maxRank, pooled: true, free: true }
+      changes:
+        - { type: adjust, field: spellSlots.extra.used, by: 1 }
+grants:
+  - item: spells.summon-animal
+  - item: spells.summon-plant-or-fungus

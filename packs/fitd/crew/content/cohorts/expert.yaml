@@ -1,0 +1,14 @@
+id: cohorts.expert
+type: cohort
+fields:
+  kind: expert
+state:
+  expertType: { type: string, default: '' }
+  extraType: { type: string, default: '' }
+choices:
+  - id: edges
+    pick: self.traits
+    from: { type: cohortTrait, where: "'edge' in item.tags && 'cohort' in item.tags" }
+  - id: flaws
+    pick: self.traits
+    from: { type: cohortTrait, where: "'flaw' in item.tags && 'cohort' in item.tags" }

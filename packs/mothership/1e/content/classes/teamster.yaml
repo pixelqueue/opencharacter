@@ -1,0 +1,22 @@
+id: classes.teamster
+type: class
+fields:
+  trauma: panic-advantage
+effects:
+  - { target: stats.strength, op: add, value: 5 }
+  - { target: stats.speed, op: add, value: 5 }
+  - { target: stats.intellect, op: add, value: 5 }
+  - { target: stats.combat, op: add, value: 5 }
+  - { target: saves.sanity, op: add, value: 10 }
+  - { target: saves.fear, op: add, value: 10 }
+  - { target: saves.body, op: add, value: 10 }
+grants:
+  - item: skills.industrial-equipment
+  - item: skills.zero-g
+choices:
+  - id: trained
+    from: { type: skill, where: "item.tier == 'trained'" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+  - id: expert
+    from: { type: skill, where: "item.tier == 'expert'" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'

@@ -1,0 +1,36 @@
+id: features.paladin.aura-of-protection
+type: feature
+state:
+  bonus: { type: integer, default: 1, min: 1 }
+# The saving-throw action itemizes the roll, so the bonus is a roll effect there and an effect on
+# every save field for the sheet.
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: max(1, abilities.cha.mod)
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: max(1, abilities.cha.mod)
+  - { target: aura.range, op: atLeast, value: 10 }
+  - { target: { rolls: [save] }, op: add, value: self.bonus, scope: applied }
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: self.bonus
+    scope: applied
+actions:
+  - id: aura-of-protection
+    tags: [feature]
+    results: [extended]
+    participants:
+      ally: {}
+    steps:
+      - id: extend
+        kind: changes
+        to: ally
+        changes:
+          - type: applyEffect
+            source: item.id
+            state: { bonus: 'max(1, abilities.cha.mod)' }
+      - id: result
+        kind: outcome
+        result: "'extended'"

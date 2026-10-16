@@ -1,0 +1,35 @@
+id: feats.archetype.poisoner.poisoners-twist
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.poisoner }
+
+# The action doesn't know the last Strike, so its damage type is taken as slashing.
+prerequisites:
+  - { id: poisoner-dedication, when: '@feats.archetype.poisoner.poisoner-dedication in feats.held' }
+  - { id: medicine, when: 'skills.medicine.rank >= 1' }
+actions:
+  - id: poisoners-twist
+    tags: [class-action]
+    participants:
+      target: { min: 1, max: 1 }
+    results: [dealt]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - { dice: 'dieOf(1d6, level >= 18 ? 2 : 1)', tags: [damage.poison] }
+          - { dice: 'dieOf(1d6, level >= 18 ? 2 : 1)', tags: [damage.slashing] }
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage]
+      - id: result
+        kind: outcome
+        result: "'dealt'"
+        data: { damage: steps.damage.total }

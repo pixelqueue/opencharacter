@@ -1,0 +1,71 @@
+# Only the uses this paladin has spent are reset; Divine Sense, Cleansing Touch and Holy Nimbus
+# have nothing to reset.
+status: finished
+outcome:
+  result: rested
+proposedChanges:
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:hp.current, value: 50 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:hp.temp, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:deathSaves.successes, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:deathSaves.failures, value: 0 }
+  - to: self
+    step: rest
+    change: { type: adjust, field: 5e-srd-5.1:conditions.exhaustion, by: -1 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level1.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level2.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level3.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level4.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level5.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level6.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level7.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level8.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level9.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:pactSlots.used, value: 0 }
+  - to: self
+    step: rest
+    change:
+      type: setState
+      copies:
+        { type: 5e-srd-5.1:class, where: has(self.layOnHandsSpent) && self.layOnHandsSpent > 0 }
+      key: layOnHandsSpent
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: setState
+      copies:
+        {
+          type: 5e-srd-5.1:class,
+          where: has(self.channelDivinitySpent) && self.channelDivinitySpent > 0,
+        }
+      key: channelDivinitySpent
+      value: 0
+log: []

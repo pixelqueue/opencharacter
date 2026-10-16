@@ -1,0 +1,24 @@
+description: "orc-2e: a monk's Flurry of Blows runs two unarmed Strikes, a
+  fist (1d6 by the template Powerful Fist keeps on it) and Tiger Stance's tiger claw (a standard copy of the applied stance), each at
+  the multiple attack penalty; Stunning Blows hands the target a Fortitude save against the class
+  DC, and a failure stuns it"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:features.monk.flurry-of-blows#flurry-of-blows'
+    entry: class
+    source: orc-2e:features.monk.flurry-of-blows
+  participants:
+    target:
+      - id: goblin
+        values:
+          orc-2e:defenses.ac: 16
+  policy:
+    choices: pause
+answers:
+  - option: orc-2e-weapons-fist
+  - option: orc-2e-weapons-unarmed-tiger-claw
+  - { outcome: { result: failure, data: { total: 12 } } }

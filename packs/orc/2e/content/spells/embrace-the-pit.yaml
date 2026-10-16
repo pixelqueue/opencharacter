@@ -1,0 +1,30 @@
+id: spells.embrace-the-pit
+type: spell
+tags: [trait.concentrate, trait.focus, trait.morph, trait.sorcerer, trait.uncommon]
+fields:
+  rank: 3
+  cast: one
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+effects:
+  - target:
+      incoming:
+        fields: [hp.current]
+        tags: [damage]
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 5 + 5 * floor((self.rank - 3) / 2))
+    when: incoming.amount < 0 && ('damage.fire' in incoming.tags || 'damage.poison' in incoming.tags)
+    scope: applied
+  - target:
+      incoming:
+        fields: [hp.current]
+        tags: [damage]
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 1 + 2 * floor((self.rank - 3) / 2))
+    when: |-
+      incoming.amount < 0 && ('damage.bludgeoning' in incoming.tags
+        || 'damage.piercing' in incoming.tags || 'damage.slashing' in incoming.tags)
+    scope: applied

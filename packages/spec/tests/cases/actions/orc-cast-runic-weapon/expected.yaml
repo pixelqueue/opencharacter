@@ -1,0 +1,22 @@
+# The prepared slot is spent; the fighter gets the spell for its duration and its longsword the
+# runic template.
+status: finished
+outcome:
+  result: cast
+  data: { rank: 1, mode: prepared, dc: 18, defense: '', basic: false, damage: 0, healing: 0 }
+proposedChanges:
+  - to: self
+    step: spend
+    change: { type: setState, entry: runic-1, key: expended, value: true }
+  - to: ally
+    character: fighter
+    step: bless[0]
+    change:
+      type: applyEffect
+      source: orc-2e:spells.runic-weapon
+      state: { rank: 1, damageType: force, copy: longsword }
+  - to: ally
+    character: fighter
+    step: enchant[0]
+    change: { type: applyTemplate, entry: longsword, template: orc-2e:templates.runic }
+log: []

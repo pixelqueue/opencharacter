@@ -1,0 +1,19 @@
+# Offered: gem-1, then the ability's option. `options` is [gem-1], so the recommendation is gem-1.
+# The player picks the ability's option: its 3 stress, then the step's own change (0 stress).
+# No copy was picked, so `steps.source.item` is absent.
+status: finished
+outcome:
+  data: { picked: 'test-pack:abilities.blood-channel#blood', fromGem: false }
+proposedChanges:
+  - to: self
+    step: source
+    change: { type: adjust, field: test-pack:stress, by: 3 }
+  - to: self
+    step: source
+    change: { type: adjust, field: test-pack:stress, by: 0 }
+log:
+  - step: source
+    action: 'test-pack:wands.red#recharge'
+    kind: choice
+    by: app
+    option: 'test-pack:abilities.blood-channel#blood'

@@ -1,0 +1,31 @@
+id: features.barbarian.relentless-rage
+type: feature
+followUps:
+  - id: relentless-rage
+    becomes: hp.current == 0
+    when: rage.active
+    action: relentless-rage
+actions:
+  - id: relentless-rage
+    results: [success, failure]
+    tags: [save]
+    available: rage.active && hp.current == 0
+    steps:
+      - id: save
+        kind: action
+        use: saving-throw
+        params: { ability: "'con'", dc: 10 + 5 * self.relentlessRageSpent }
+      - id: survive
+        kind: changes
+        when: "steps.save.result == 'success'"
+        changes:
+          - { type: set, field: hp.current, value: 1 }
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: relentlessRageSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: steps.save.result
+        data:
+          dc: 10 + 5 * self.relentlessRageSpent

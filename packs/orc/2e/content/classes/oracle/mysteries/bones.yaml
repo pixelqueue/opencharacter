@@ -1,0 +1,93 @@
+id: classes.oracle.mysteries.bones
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: oracle.mystery, op: set, value: "'bones'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.medicine },
+      when: "!('skill.medicine' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: oracle.grantedFeats, op: grant, value: { item: feats.oracle.nudge-the-scales } }
+  - { target: focus.points, op: add, value: 1 }
+  - { target: oracle.revelations, op: grant, value: { item: spells.soul-siphon } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.armor-of-bones } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.claim-undead } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.void-warp } }
+  - { target: oracle.granted, op: grant, value: { item: spells.void-warp } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.void-warp } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.grim-tendrils } }
+  - { target: oracle.granted, op: grant, value: { item: spells.grim-tendrils } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.grim-tendrils } }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.grim-tendrils }
+    when: '@feats.oracle.gifted-power in feats.held'
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.grim-tendrils } }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.false-vitality },
+      when: level >= 3,
+    }
+  - { target: oracle.granted, op: grant, value: { item: spells.false-vitality }, when: level >= 3 }
+  - {
+      target: spells.bonusKnown,
+      op: grant,
+      value: { item: spells.false-vitality },
+      when: level >= 3,
+    }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.false-vitality }
+    when: 'level >= 3 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank2,
+      op: grant,
+      value: { item: spells.false-vitality },
+      when: level >= 3,
+    }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.ghostly-weapon },
+      when: level >= 5,
+    }
+  - { target: oracle.granted, op: grant, value: { item: spells.ghostly-weapon }, when: level >= 5 }
+  - {
+      target: spells.bonusKnown,
+      op: grant,
+      value: { item: spells.ghostly-weapon },
+      when: level >= 5,
+    }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.ghostly-weapon }
+    when: 'level >= 5 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank3,
+      op: grant,
+      value: { item: spells.ghostly-weapon },
+      when: level >= 5,
+    }
+  - target: { incoming: { fields: [hp.current] } }
+    op: add
+    stackKey: weakness
+    value: '-(oracle.cursebound >= 3 ? 5 + level : 2)'
+    when: >-
+      oracle.cursebound >= 1 && incoming.amount < 0
+        && ('damage.vitality' in incoming.tags || 'damage.void' in incoming.tags)
+  - target: saves.fortitude.mod
+    op: add
+    value: '-(oracle.cursebound >= 4 ? 2 : 1)'
+    stackKey: status-penalty
+    when: oracle.cursebound >= 2
+grants:
+  - item: feats.oracle.nudge-the-scales
+  - item: spells.soul-siphon
+  - { item: spells.void-warp }
+  - { item: spells.grim-tendrils }
+  - { item: spells.false-vitality, when: level >= 3 }
+  - { item: spells.ghostly-weapon, when: level >= 5 }

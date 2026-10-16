@@ -1,0 +1,29 @@
+# Stress 19 + 3: clamped at 20 (+1), so 2 is past the cap. The follow-up passes the amount; the
+# stat or save is the player's or Warden's (a ruling), so the app asks for `field`.
+ok: true
+adjustments:
+  - field: mothership-1e:stress.current
+    by: 1
+    requested: 3
+    taken: 3
+    reason: requested
+    clamped: true
+followUps:
+  - id: excess-stress-1
+    kind: ephemeral
+    followUp: mothership-1e:excess-stress
+    to: self
+    required: true
+    action:
+      id: mothership-1e:excess-stress
+      followUp: excess-stress-1
+    params:
+      amount: 2
+    cause:
+      field: mothership-1e:stress.current
+      by: 1
+      requested: 3
+      taken: 3
+      reason: requested
+      clamped: true
+      tags: []

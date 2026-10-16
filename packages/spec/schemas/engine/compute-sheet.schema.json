@@ -1,0 +1,487 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/engine/compute-sheet.schema.json",
+  "title": "computeSheet",
+  "$defs": {
+    "input": {
+      "type": "object",
+      "required": ["ruleset", "character"],
+      "properties": {
+        "ruleset": {
+          "$ref": "ruleset.schema.json"
+        },
+        "character": {
+          "$ref": "../character.schema.json"
+        },
+        "competing": {
+          "description": "The app's picks for competing options, as option IDs. Each competing group (the `set` effects on a field, or a `playerChooses` stacking group) applies the first of its options, in instance order, that is listed, else its recommended option. IDs that name no option are ignored.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "links": {
+          "$ref": "#/$defs/links"
+        }
+      },
+      "additionalProperties": false
+    },
+    "links": {
+      "description": "Views of the characters filling the character's link slots, by qualified slot ID. The app takes each from that character's own computeSheet. The engine reads only the declared fields.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "../common.schema.json#/$defs/slotId"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/view"
+      }
+    },
+    "view": {
+      "description": "Another character as values: its `id` and its computed values by field ID. A value is matched to a declared field by its field ID without the pack, so `values` may be computeSheet's (`fitd-crew:tier: 2`) or bare (`tier: 2`).",
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "values": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "../common.schema.json#/$defs/fieldRef"
+          },
+          "additionalProperties": {
+            "$ref": "../common.schema.json#/$defs/literal"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "required": ["values", "effects", "actions", "situational", "pending", "competing", "issues"],
+      "properties": {
+        "values": {
+          "description": "Every field's value with its breakdown, by qualified field ID.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/fieldValue"
+          }
+        },
+        "effects": {
+          "description": "Active effects.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/activeEffect"
+          }
+        },
+        "actions": {
+          "description": "Actions available now.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["action"],
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "entry": {
+                "description": "The copy that owns the action's content, or the applied entry whose source offers it (`scope: applied`).",
+                "$ref": "../common.schema.json#/$defs/instanceId"
+              },
+              "source": {
+                "description": "For an action of content picked in a choice or granted to the entry (not the entry's own item), or of content with no entry at all (picked in a rules-level choice): the qualified ID of that content. Several picked items can then use the same shared action.",
+                "$ref": "../common.schema.json#/$defs/qualifiedId"
+              }
+            }
+          }
+        },
+        "copies": {
+          "description": "Computed values on copies, by instance ID: for each copy that has any, `{ <name>: value }`. A value whose formula fails is left out, with a `formula-error` in `errors`.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "../common.schema.json#/$defs/instanceId"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "propertyNames": {
+              "$ref": "../common.schema.json#/$defs/name"
+            },
+            "additionalProperties": {
+              "$ref": "../common.schema.json#/$defs/literal"
+            }
+          }
+        },
+        "copyNames": {
+          "description": "Copies named by their state, by instance ID: for each copy whose item or content type has `nameFrom`, the value of that state key when it is a non-empty string. Apps show it as the copy's name in place of the item's (a choice's copy options included).",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "../common.schema.json#/$defs/instanceId"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "standardCopies": {
+          "description": "The character's standard copies, in instance order: each copy the rules or an active item give every character, by its instance ID (`entry`) and item, and whether the file saves it (`saved`). Unsaved copies are at their defaults and appear in `inventory` or `features` like any other.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["entry", "item", "saved"],
+            "properties": {
+              "entry": {
+                "$ref": "../common.schema.json#/$defs/instanceId"
+              },
+              "item": {
+                "$ref": "../common.schema.json#/$defs/qualifiedId"
+              },
+              "saved": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "activations": {
+          "description": "Every content activation (engine-core.md, \"Activation\"), in instance order: each copy, template, granted, picked and applied piece of content the character has, once per activation. Inline options, the rules and applied content an immunity blocks are left out. A content group's `from: own` members are the holder activations whose item is of the group's type.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["item", "via"],
+            "properties": {
+              "item": {
+                "description": "The content's qualified ID (the base item; a template is its own activation).",
+                "$ref": "../common.schema.json#/$defs/qualifiedId"
+              },
+              "entry": {
+                "description": "The owner copy's instance ID, or for applied content the applied entry's ID; absent for content picked or granted at the rules level.",
+                "$ref": "../common.schema.json#/$defs/instanceId"
+              },
+              "via": {
+                "description": "How it was reached: `copy` (a `features` or `inventory` entry), `template` (applied to a copy), `grant` (granted by active content, its `when` holding), `pick` (picked in an applicable choice that activates its content) or `applied` (an `applied` entry, or a `scope: applied` grant of one).",
+                "enum": ["copy", "template", "grant", "pick", "applied"]
+              },
+              "scope": {
+                "description": "`applied` for applied activations; absent for holder ones.",
+                "const": "applied"
+              },
+              "parent": {
+                "description": "The index in this list of the activation that granted it, owns the choice it was picked in, or owns the template (the nearest listed one, past an inline option); absent for copies, applied entries and content picked or granted at the rules level.",
+                "type": "integer",
+                "minimum": 0
+              },
+              "keptBy": {
+                "description": "A template content keeps on the copy: the index in this list of the activation that keeps it. Absent for a saved template.",
+                "type": "integer",
+                "minimum": 0
+              },
+              "path": {
+                "description": "Picks: the choice path of the pick, the picked option last.",
+                "$ref": "../change.schema.json#/$defs/choicePath"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "choices": {
+          "description": "Every applicable choice, answered or not, in pending order: the rules-level choices first, then each activation's own choices, each followed by those of what it picked, before those of the activations it grants. Inline options' choices and `activate: false` choices are included; a slotted choice is one entry per slot. `pending` is the open ones, in the same order.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/listedChoice"
+          }
+        },
+        "copyLimits": {
+          "description": "Copy limits: for each content type with `copies`, in ruleset order, its limits and the character's copies of it (standard copies included), so an app shows Replace instead of Add once `count` reaches `max`, and an item with `perItem` copies already as held.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type", "count", "entries"],
+            "properties": {
+              "type": {
+                "description": "The content type, qualified.",
+                "type": "string"
+              },
+              "max": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "perItem": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "count": {
+                "description": "How many copies of the type the character holds.",
+                "type": "integer",
+                "minimum": 0
+              },
+              "entries": {
+                "description": "The copies, in instance order: `features`, then `inventory`.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["entry", "item"],
+                  "properties": {
+                    "entry": {
+                      "$ref": "../common.schema.json#/$defs/instanceId"
+                    },
+                    "item": {
+                      "$ref": "../common.schema.json#/$defs/qualifiedId"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "situational": {
+          "description": "Qualified IDs of the situational choices offered now (their `available` holds, or they have none), in rules order.",
+          "type": "array",
+          "items": {
+            "$ref": "../common.schema.json#/$defs/qualifiedId"
+          }
+        },
+        "pending": {
+          "description": "Choices that apply and need picks, in a pre-order walk of the activations: the rules-level choices first, then each activation's own choices, each followed by those of what it picked, before those of the activations it grants. They are the `choices` entries with `open` true, with `picked` their number of picks.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pendingChoice"
+          }
+        },
+        "offers": {
+          "description": "What the rules offer the character now: its stored ephemeral follow-ups in file order, then its derived offers whose condition holds, the rules' in declaration order and then content's in instance order. Derived from the character file alone, so every app, a reload and an import see the same list. An app runs any entry with startAction and its ID, and dismisses only ephemeral ones.",
+          "type": "array",
+          "items": {
+            "$ref": "apply-changes.schema.json#/$defs/followUp"
+          }
+        },
+        "competing": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/competingOptions"
+          }
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "rules-issue.schema.json"
+          }
+        },
+        "errors": {
+          "description": "Problems with the character file (runtime error codes). computeSheet never fails; it computes the sheet without the offending part.",
+          "type": "array",
+          "items": {
+            "$ref": "error.schema.json"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "fieldValue": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "$ref": "../common.schema.json#/$defs/literal"
+        },
+        "base": {
+          "description": "The value from the field's own formula or input, before effects.",
+          "$ref": "../common.schema.json#/$defs/literal"
+        },
+        "breakdown": {
+          "description": "Each effect that changed the value, in application order (\"AC 17 = 15 Mage Armor + 2 shield\").",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["op", "source"],
+            "properties": {
+              "op": {
+                "type": "string"
+              },
+              "value": {
+                "$ref": "../common.schema.json#/$defs/literal"
+              },
+              "source": {
+                "$ref": "../common.schema.json#/$defs/source"
+              }
+            }
+          }
+        },
+        "tags": {
+          "description": "The field's tags on this sheet, in order: its written tags, then those its `{ formula }` entries give, each once. When its computed tags fail, the written ones. Absent when the field has none.",
+          "type": "array",
+          "items": {
+            "$ref": "../common.schema.json#/$defs/tag"
+          }
+        },
+        "name": {
+          "description": "The field's name from its `nameFrom` string field, when that field's value is a non-empty string (a Lore's subject, \"Absalom\"). The field's text formats it as `{name}`.",
+          "type": "string"
+        },
+        "error": {
+          "description": "Set instead of `value` when this field could not be computed (a loop). Everything else still calculates.",
+          "$ref": "error.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    "activeEffect": {
+      "type": "object",
+      "required": ["source"],
+      "properties": {
+        "source": {
+          "$ref": "../common.schema.json#/$defs/source"
+        },
+        "target": true,
+        "op": {
+          "type": "string"
+        },
+        "value": true,
+        "suppressed": {
+          "description": "Active but not counted, because of stacking.",
+          "type": "boolean"
+        }
+      }
+    },
+    "pendingChoice": {
+      "type": "object",
+      "required": ["path"],
+      "properties": {
+        "path": {
+          "$ref": "../change.schema.json#/$defs/choicePath"
+        },
+        "min": {
+          "type": "integer"
+        },
+        "max": {
+          "type": "integer"
+        },
+        "picked": {
+          "type": "integer"
+        },
+        "slot": {
+          "description": "A slot of a slotted choice: the declared choice ID, whose prompt names it, and the slot's number, the prompt's `{slot}`.",
+          "type": "object",
+          "required": ["choice", "number"],
+          "properties": {
+            "choice": {
+              "type": "string"
+            },
+            "number": {
+              "type": "integer"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "listedChoice": {
+      "description": "One choice of the choice list.",
+      "type": "object",
+      "required": ["path", "owner", "id", "min", "picks", "open"],
+      "properties": {
+        "path": {
+          "$ref": "../change.schema.json#/$defs/choicePath"
+        },
+        "owner": {
+          "description": "The key root of the choice's owner, qualified, as a choice step's `needs.choice.owner`: the content ID, `<pack>:rules` for a rules-level choice, and for a choice nested in an inline option the owner's root plus `.choices.<choice>.options.<option>`. The prompt is `<owner>.choices.<id>.prompt` (for a slot, under `slot.choice`).",
+          "type": "string"
+        },
+        "id": {
+          "description": "The choice's ID: for a slot of a slotted choice, the slot's own (`class-feat-2`).",
+          "type": "string"
+        },
+        "slot": {
+          "description": "A slot of a slotted choice: the declared choice ID, whose prompt names it, and the slot's number, the prompt's `{slot}`.",
+          "type": "object",
+          "required": ["choice", "number"],
+          "properties": {
+            "choice": {
+              "type": "string"
+            },
+            "number": {
+              "type": "integer"
+            }
+          },
+          "additionalProperties": false
+        },
+        "type": {
+          "description": "The content type the choice draws from, qualified: a query's type, or the one type every item of a written list shares. Absent for inline options, value lists and a list of items of several types. What `hasChoice` in display hints reads.",
+          "type": "string"
+        },
+        "min": {
+          "description": "The evaluated minimum number of picks.",
+          "type": "integer"
+        },
+        "max": {
+          "description": "The evaluated maximum number of picks; absent when unbounded.",
+          "type": "integer"
+        },
+        "picks": {
+          "description": "The picked options, in the order saved: content IDs, inline option IDs or values, as `choose` names them.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "open": {
+          "description": "Whether the choice is pending: required (`required` not false) with fewer picks than `min`.",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "competingOptions": {
+      "type": "object",
+      "required": ["field", "op", "options", "recommended"],
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "op": {
+          "description": "The group's op: `set` for competing `set` effects, or the op of a `playerChooses` stacking group.",
+          "enum": ["set", "add", "multiply", "atLeast", "atMost"]
+        },
+        "stackKey": {
+          "description": "For a `playerChooses` stacking group, its stack key as written (`source` for the reserved key). Absent for competing `set` effects.",
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "value", "source"],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "value": {
+                "$ref": "../common.schema.json#/$defs/literal"
+              },
+              "source": {
+                "$ref": "../common.schema.json#/$defs/source"
+              }
+            }
+          }
+        },
+        "recommended": {
+          "type": "string"
+        },
+        "applied": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

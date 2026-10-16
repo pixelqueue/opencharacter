@@ -1,0 +1,38 @@
+description: 'An item field the item does not set takes its declared default in `item` and in `copy.fields`'
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          gear:
+            carried: true
+            fields:
+              weight: { type: integer, default: 2 }
+              heavy: { type: boolean, default: false }
+              grade: { type: enum, values: [plain, fine], default: plain }
+              note: { type: string }
+            effects:
+              - target: gear.plain
+                op: add
+                value: 1
+                when: item.grade == 'plain' && !item.heavy
+              - target: gear.noted
+                op: add
+                value: 1
+                when: has(item.note)
+        fields:
+          gear.weight: { type: integer, formula: sumCopies(copy.fields.weight) }
+          gear.heavy: { type: integer, formula: countCopies(copy.fields.heavy) }
+          gear.plain: { type: integer, formula: 0 }
+          gear.noted: { type: integer, formula: 0 }
+      content:
+        - { id: gear.rope, type: gear }
+        - { id: gear.anvil, type: gear, fields: { weight: 10, heavy: true, grade: fine } }
+        - { id: gear.lamp, type: gear, fields: { weight: 1, note: lit } }

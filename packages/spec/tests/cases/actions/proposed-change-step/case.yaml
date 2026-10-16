@@ -1,0 +1,46 @@
+description: "Each proposed change names the changes step that proposed it: a split adjust's changes share their step, and a step in a branch gives its path"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage, damage.fire, damage.cold]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+        actions:
+          - id: blast
+            results: [done]
+            steps:
+              - id: burn
+                kind: roll
+                parts:
+                  - { dice: 1d6, tags: [damage.fire] }
+                  - { dice: 1d4, tags: [damage.cold] }
+              - id: deal
+                kind: changes
+                to: target
+                changes:
+                  - { type: adjust, field: hp, split: { roll: burn, by: damage }, by: -part.total }
+              - id: after
+                kind: branch
+                cases:
+                  - when: true
+                    steps:
+                      - id: mend
+                        kind: changes
+                        to: self
+                        changes:
+                          - { type: adjust, field: hp, by: 2 }
+              - id: result
+                kind: outcome
+                result: "'done'"
+      content: []
+input:
+  action:
+    id: test-pack:blast

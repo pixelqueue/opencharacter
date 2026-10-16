@@ -1,0 +1,19 @@
+# face 77 -> critical-failure, which runs the panic check through the `panic` action step. The
+# policy pauses on its d20: the step path is `panic/panic`, and `action` is the panic check, so
+# the app builds the roll's text keys under `actions.panic-check`.
+status: paused
+needs:
+  step: panic/panic
+  action: mothership-1e:panic-check
+  kind: dice
+  dice:
+    - { count: 1, sides: 20 }
+log:
+  - step: check
+    action: mothership-1e:stat-check
+    kind: dice
+    by: engine
+    faces: [77]
+    total: 77
+    band: critical-failure
+    bandSet: mothership-1e:check

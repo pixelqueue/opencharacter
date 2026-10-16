@@ -1,0 +1,11 @@
+id: traits.dwarven-resilience
+type: trait
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.poison] } }
+    op: multiply
+    value: 0.5
+  - { target: items.poisonSave, op: add, value: 1 }
+  - target: { rolls: [save] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: situational.poisonSave

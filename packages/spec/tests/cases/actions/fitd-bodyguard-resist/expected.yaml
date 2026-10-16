@@ -1,0 +1,26 @@
+# Resolve 2 (Command from the Cutter, Sway) + Bodyguard's die -> 3d6kh1 [3, 4, 5]: highest 5,
+# costing 6 - 5 = 1 stress
+status: finished
+outcome:
+  result: partial
+  data:
+    stress: 1
+proposedChanges:
+  - to: self
+    step: cost
+    change:
+      type: adjust
+      field: fitd-scoundrel:stress.current
+      by: 1
+log:
+  - step: resist
+    action: fitd-scoundrel:resistance-roll
+    kind: dice
+    by: engine
+    faces:
+      - 3
+      - 4
+      - 5
+    total: 5
+    band: partial
+    bandSet: fitd-scoundrel:action

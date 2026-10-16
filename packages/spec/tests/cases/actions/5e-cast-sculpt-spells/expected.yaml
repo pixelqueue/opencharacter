@@ -1,0 +1,51 @@
+# Goblins 1 and 2 are spared: no handoff, no damage. Goblin 3 fails its save and takes all 12.
+status: finished
+outcome:
+  result: save
+  data:
+    slot: 1
+    spellcastingClass: wizard
+    metamagic: none
+    dc: 14
+    save: dex
+    halfOnSave: true
+    damage: 12
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change: { type: adjust, field: 5e-srd-5.1:spellSlots.level1.used, by: 1 }
+  - {
+      to: target,
+      character: goblin-3,
+      step: 'burn[2]',
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -12,
+          tags: [damage, spell, magical, save-half, save.dex, save-failure, damage.fire],
+        },
+    }
+log:
+  - { step: damage, kind: dice, by: engine, faces: [3, 4, 5], total: 12 }
+  - {
+      step: 'sculpt[0]',
+      kind: choice,
+      by: app,
+      option: '5e-srd-5.1:features.wizard.sculpt-spells#spare',
+    }
+  - {
+      step: 'sculpt[1]',
+      kind: choice,
+      by: app,
+      option: '5e-srd-5.1:features.wizard.sculpt-spells#spare',
+    }
+  - { step: 'sculpt[2]', kind: choice, by: app, option: affect }
+  - step: saves[2]
+    kind: handoff
+    by: app
+    participant: { role: target, id: goblin-3 }
+    outcome: { result: failure, data: { total: 9 } }

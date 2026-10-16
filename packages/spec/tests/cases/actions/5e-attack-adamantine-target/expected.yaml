@@ -1,0 +1,41 @@
+# A natural 20 hits, but the target's combat.noCriticals makes it a normal hit: one d8, 6 + 2.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 22 }
+proposedChanges:
+  - {
+      to: target,
+      character: knight,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -8,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.slashing,
+            ],
+        },
+    }
+log:
+  - step: attack
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [20]
+    total: 22
+  - step: damage
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [6]
+    total: 8

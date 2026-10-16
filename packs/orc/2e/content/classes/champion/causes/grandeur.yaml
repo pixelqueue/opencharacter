@@ -1,0 +1,35 @@
+id: classes.champion.causes.grandeur
+type: feature
+fields: { level: 1 }
+prerequisites:
+  - { id: sanctification, when: "champion.sanctification == 'holy'" }
+effects:
+  - { target: champion.cause, op: set, value: "'grandeur'", when: class.has.champion }
+actions:
+  - id: flash-of-grandeur
+    tags: [reaction]
+    participants:
+      ally: { max: 1 }
+      target: { max: 1 }
+    results: [used]
+    steps:
+      - id: resist
+        kind: changes
+        to: ally
+        changes:
+          - type: applyEffect
+            source: "'classes.champion.resistance'"
+            state: { amount: champion.allyResistance }
+      - id: light
+        kind: changes
+        when: size(participants.target) > 0
+        to: target
+        changes:
+          - { type: applyEffect, source: "'spells.revealing-light'" }
+          - type: applyEffect
+            when: level >= 9 && attributes.cha.mod > 0
+            source: "'conditions.persistent-damage'"
+            state: { damage: attributes.cha.mod, damageType: "'spirit'" }
+      - id: result
+        kind: outcome
+        result: "'used'"

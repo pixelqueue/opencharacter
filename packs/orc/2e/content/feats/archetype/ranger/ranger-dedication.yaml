@@ -1,0 +1,19 @@
+id: feats.archetype.ranger.ranger-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.ranger }
+
+prerequisites:
+  - { id: dex, when: 'attributes.dex.mod >= 2' }
+  - { id: not-ranger, when: 'countCopies(copy.item == @classes.ranger) == 0' }
+effects:
+  - { target: classDc.ranger.rank, op: atLeast, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.survival },
+      when: "!('skill.survival' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - item: classes.ranger.hunt-prey

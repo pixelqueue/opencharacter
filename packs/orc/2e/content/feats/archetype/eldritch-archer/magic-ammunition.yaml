@@ -1,0 +1,14 @@
+id: feats.archetype.eldritch-archer.magic-ammunition
+type: feat
+tags: [trait.archetype, trait.magical, archetype-feat]
+fields: { level: 8, category: class, archetype: archetypes.eldritch-archer }
+repeatable: true
+
+prerequisites:
+  - {
+      id: eldritch-archer-dedication,
+      when: '@feats.archetype.eldritch-archer.eldritch-archer-dedication in feats.held',
+    }
+effects:
+  # Each time it is taken, it counts as another feat of the archetype.
+  - { target: archetypes.eldritchArcher.repeats, op: add, value: 1 }

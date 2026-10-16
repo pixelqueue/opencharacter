@@ -1,0 +1,162 @@
+fields:
+  barbarian.instinct:
+    type: enum
+    values: [none, animal, dragon, fury, giant, spirit, superstition]
+    formula: "'none'"
+  rage.active: { type: boolean, formula: false }
+  rage.damage: { type: integer, formula: 2 }
+  rage.altDamage: { type: integer, formula: 0 }
+  rage.altType:
+    {
+      type: enum,
+      values: [none, bludgeoning, fire, force, mental, poison, spirit],
+      formula: "'none'",
+    }
+  rage.animalDamage: { type: integer, formula: 2 }
+  rage.resists:
+    {
+      type: set,
+      of: tag,
+      members: { under: [damage], except: [damage.spell, damage.critical, damage.strike] },
+    }
+  rage.thrown: { type: boolean, formula: false }
+  rage.secondWind: { type: boolean, formula: false }
+  rage.tempHpBlocked: { type: boolean, input: true, default: false }
+  rage.largerWeapon: { type: boolean, input: true, default: false }
+
+actions:
+  - id: rage
+    tags: [rage]
+    available: >-
+      !rage.active && countList(character.applied,
+        x.active && x.source == @conditions.fatigued) == 0
+    results: [raging]
+    steps:
+      - id: damage
+        kind: choice
+        when: rage.altDamage > 0
+        options: [{ id: instinct }, { id: weapon }]
+      - id: start
+        kind: changes
+        changes:
+          - type: applyEffect
+            source: "'classes.barbarian.raging'"
+            state: { alternate: "has(steps.damage) && steps.damage.picked == 'instinct'" }
+          - type: set
+            field: hp.temp
+            value: max(hp.temp, level + attributes.con.mod)
+            when: '!rage.tempHpBlocked || rage.secondWind'
+          - type: adjust
+            field: hp.current
+            by: max(0, level + attributes.con.mod)
+            when: barbarian.instinct == 'superstition' && (!rage.tempHpBlocked || rage.secondWind)
+          - type: equip
+            copies: { type: weapon, where: "'animal' in item.tags" }
+            equipped: true
+            when: barbarian.instinct == 'animal'
+      - id: result
+        kind: outcome
+        result: "'raging'"
+  - id: end-rage
+    tags: [rage]
+    available: rage.active
+    results: [ended]
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @classes.barbarian.raging' }
+          - { type: set, field: hp.temp, value: 0 }
+          - { type: set, field: rage.tempHpBlocked, value: true }
+          - type: equip
+            copies: { type: weapon, where: "'animal' in item.tags" }
+            equipped: false
+            when: barbarian.instinct == 'animal'
+      - id: result
+        kind: outcome
+        result: "'ended'"
+
+situational:
+  - id: witnessedCaster
+    type: boolean
+    default: false
+    rolls: [strike]
+    available: barbarian.instinct == 'superstition' && rage.active
+    effects:
+      - target: { rolls: [damage.strike] }
+        op: add
+        value: 1
+        tags: [{ formula: "'damage.' + roll.item.damageType" }]
+        when: situational.witnessedCaster && roll.item.range == 0
+  - id: againstMagic
+    type: boolean
+    default: false
+    rolls: [save]
+    available: >-
+      (barbarian.instinct == 'superstition' && rage.active)
+        || countCopies(copy.type == 'armor' && copy.equipped && copy.state.invested
+          && @runes.antimagic in copy.templates) > 0
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 2
+        stackKey: status-bonus
+        when: situational.againstMagic && barbarian.instinct == 'superstition' && rage.active
+
+tags:
+  - rage
+  - trait.rage
+  - trait.divine
+  - trait.morph
+  - trait.polymorph
+  - trait.primal
+  - trait.grapple
+  - trait.trip
+  - damage.force
+  - animal.ape
+  - animal.bear
+  - animal.bull
+  - animal.cat
+  - animal.deer
+  - animal.frog
+  - animal.shark
+  - animal.snake
+  - animal.wolf
+
+display:
+  groups:
+    - id: rage
+      kind: actions
+      priority: 0
+      showWhen: 'countCopies(copy.item == @classes.barbarian) > 0'
+      members: { type: action, where: "'rage' in item.tags" }
+  fields:
+    rage.active:
+      {
+        groups: [summary],
+        priority: 1,
+        showWhen: 'countCopies(copy.item == @classes.barbarian) > 0',
+      }
+    rage.tempHpBlocked:
+      {
+        groups: [turn],
+        priority: 2,
+        input: { widget: checkbox },
+        showWhen: 'countCopies(copy.item == @classes.barbarian) > 0',
+      }
+    rage.largerWeapon:
+      {
+        groups: [turn],
+        priority: 2,
+        input: { widget: checkbox },
+        showWhen: "barbarian.instinct == 'giant'",
+      }
+    rage.damage: { hidden: true }
+    rage.altDamage: { hidden: true }
+    rage.altType: { hidden: true }
+    rage.animalDamage: { hidden: true }
+    rage.resists: { groups: [defenses], priority: 2, showWhen: size(rage.resists) > 0 }
+    rage.thrown: { hidden: true }
+    rage.secondWind: { hidden: true }
+    barbarian.instinct: { hidden: true }

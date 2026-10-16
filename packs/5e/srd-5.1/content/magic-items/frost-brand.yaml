@@ -1,0 +1,17 @@
+id: magic-items.frost-brand
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: "'sword' in item.tags" }
+fields: { rarity: very-rare, requiresAttunement: true }
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 1d6
+    tags: [damage.cold]
+    when: self.attuned
+  - {
+      target: { incoming: { fields: [hp.current], tags: [damage.fire] } },
+      op: multiply,
+      value: 0.5,
+      when: self.equipped && self.attuned,
+    }

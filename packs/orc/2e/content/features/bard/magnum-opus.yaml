@@ -1,0 +1,15 @@
+id: features.bard.magnum-opus
+type: feature
+fields: { level: 19 }
+# The repertoire's 10th-rank choice picks one spell (as many as the slots); this feature picks the
+# second.
+choices:
+  - id: spell
+    from:
+      type: spell
+      where: >-
+        !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)
+          && !('trait.uncommon' in item.tags) && 'tradition.occult' in item.tags
+    effects:
+      - { target: spells.repertoire, op: grant, value: { formula: pick.id } }
+      - { target: spells.repertoire.rank10, op: grant, value: { formula: pick.id } }

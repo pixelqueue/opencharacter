@@ -1,0 +1,25 @@
+id: backgrounds.miner
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.survival },
+      when: "!('skill.survival' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.mining },
+      when: "!('skill.lore.mining' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.terrain-expertise
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

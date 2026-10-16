@@ -1,0 +1,92 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 3
+    mode: spontaneous
+    dc: 21
+    defense: reflex
+    basic: true
+    damage: 10
+    healing: 0
+proposedChanges:
+  - to: target
+    character: b
+    step: burn[1]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -5
+      tags:
+        - damage
+        - spell
+        - damage.electricity
+  - to: target
+    character: c
+    step: burn[2]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -10
+      tags:
+        - damage
+        - spell
+        - damage.electricity
+  - to: target
+    character: d
+    step: burn[3]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -20
+      tags:
+        - damage
+        - spell
+        - damage.electricity
+log:
+  - step: damage
+    action: orc-2e:cast-spell
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 2
+      - 3
+      - 4
+    total: 10
+  - step: save[0]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: a
+    outcome:
+      result: critical-success
+  - step: save[1]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: b
+    outcome:
+      result: success
+  - step: save[2]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: c
+    outcome:
+      result: failure
+  - step: save[3]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: d
+    outcome:
+      result: critical-failure

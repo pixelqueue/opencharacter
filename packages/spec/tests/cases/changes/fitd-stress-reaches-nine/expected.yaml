@@ -1,0 +1,10 @@
+# 8 + 1 = 9 reaches the last box (the overflow is inclusive): trauma 0 -> 1, stress resets to 0.
+ok: true
+adjustments:
+  - { field: fitd-scoundrel:stress.current, by: 1, requested: 1, taken: 1, reason: requested }
+  - { field: fitd-scoundrel:trauma.current, by: 1, reason: overflow }
+  - { field: fitd-scoundrel:stress.current, by: -9, reason: reset }
+character:
+  values:
+    fitd-scoundrel:stress.current: 0
+    fitd-scoundrel:trauma.current: 1

@@ -1,0 +1,10 @@
+id: forms.dragon-form.dragon
+type: effect
+standardCopies:
+  - {
+      type: weapon,
+      where: 'item.id == @weapons.forms.dragon-form.dragon-jaws || item.id == @weapons.forms.dragon-form.dragon-claw || item.id == @weapons.forms.dragon-form.dragon-tail',
+    }
+effects:
+  - { target: battleForm.speed, op: set, value: 40, scope: applied }
+  - { target: speed.fly, op: atLeast, value: 100, scope: applied }

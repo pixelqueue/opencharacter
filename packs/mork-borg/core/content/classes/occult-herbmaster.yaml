@@ -1,0 +1,56 @@
+id: classes.occult-herbmaster
+type: class
+fields:
+  strength: 3d6-2
+  agility: 3d6
+  presence: 3d6
+  toughness: 3d6+2
+  hitDie: 1d6
+  omensDie: 1d2
+  silver: 2d6
+  weaponDie: 1d6
+  armorDie: 1d2
+actions:
+  # Whether the two may be the same isn't settled; two copies of one decoction are fine.
+  - id: brew
+    tags: [decoction]
+    results: [brewed]
+    steps:
+      - { id: first, kind: roll, tags: [decoction], parts: [{ dice: 1d8 }] }
+      - { id: second, kind: roll, tags: [decoction], parts: [{ dice: 1d8 }] }
+      - { id: doses, kind: roll, tags: [decoction], parts: [{ dice: 1d4 }] }
+      - id: split
+        kind: choice
+        options:
+          - { id: first-0, flags: { toFirst: 0 } }
+          - { id: first-1, flags: { toFirst: 1 } }
+          - { id: first-2, when: steps.doses.total >= 2, flags: { toFirst: 2 } }
+          - { id: first-3, when: steps.doses.total >= 3, flags: { toFirst: 3 } }
+          - { id: first-4, when: steps.doses.total >= 4, flags: { toFirst: 4 } }
+        recommend: "['first-0', 'first-1', 'first-1', 'first-2', 'first-2'][steps.doses.total]"
+      - id: add
+        kind: changes
+        changes:
+          - type: addItem
+            when: flags.toFirst > 0
+            entry:
+              item: >-
+                'decoctions.' + ['red-poison', 'ezumiels-vapor', 'southern-frog-stew',
+                'elixir-vitalis', 'spider-owl-soup', 'fernors-philtre', 'hyphos-enervating-snuff',
+                'black-poison'][steps.first.total - 1]
+              quantity: flags.toFirst
+          - type: addItem
+            when: steps.doses.total - flags.toFirst > 0
+            entry:
+              item: >-
+                'decoctions.' + ['red-poison', 'ezumiels-vapor', 'southern-frog-stew',
+                'elixir-vitalis', 'spider-owl-soup', 'fernors-philtre', 'hyphos-enervating-snuff',
+                'black-poison'][steps.second.total - 1]
+              quantity: steps.doses.total - flags.toFirst
+      - id: result
+        kind: outcome
+        result: "'brewed'"
+        data:
+          first: steps.first.total
+          second: steps.second.total
+          doses: steps.doses.total

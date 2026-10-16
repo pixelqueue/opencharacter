@@ -1,0 +1,17 @@
+id: runes.greater-invisibility
+type: template
+tags: [trait.magical, trait.illusion, trait.invested, rune.property]
+appliesTo: { type: armor, where: "item.category == 'light'" }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + 1000'
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.invisibility && self.used < 3'
+    value:
+      id: go-invisible
+      flags: { itemPaid: true, rank: 2 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }
+grants:
+  - { item: spells.invisibility, when: self.equipped && self.invested }

@@ -1,0 +1,9 @@
+# A status penalty to every check and DC.
+id: conditions.frightened
+type: condition
+effects:
+  - target: { fields: { where: "'check' in item.tags || 'dc' in item.tags" } }
+    op: add
+    value: -self.value
+    stackKey: status-penalty
+    scope: applied

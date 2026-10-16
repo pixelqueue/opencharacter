@@ -1,0 +1,17 @@
+id: worn.ring-of-sigils-greater
+type: worn
+tags: [trait.arcane, trait.invested]
+fields:
+  level: 6
+  price: 225
+  activation: one
+  frequency: once-per-ten-minutes
+grants:
+  - { item: spells.sigil, when: 'self.equipped && self.invested' }
+effects:
+  - {
+      target: spells.innate,
+      op: grant,
+      value: { item: spells.sigil },
+      when: 'self.equipped && self.invested',
+    }

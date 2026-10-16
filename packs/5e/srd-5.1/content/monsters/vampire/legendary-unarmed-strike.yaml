@@ -1,0 +1,24 @@
+id: monsters.vampire.legendary-unarmed-strike
+type: monsterAction
+fields:
+  kind: legendary
+  legendaryCost: 1
+actions:
+  - id: legendary-unarmed-strike
+    tags: [legendary]
+    participants:
+      target: { max: 1 }
+    results: [done]
+    steps:
+      - id: unarmedStrike
+        kind: action
+        use: monster-attack
+        source: "'monsters.vampire.unarmed-strike'"
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.unarmedStrike) && steps.unarmedStrike.result == 'hit' ? 1 : 0)

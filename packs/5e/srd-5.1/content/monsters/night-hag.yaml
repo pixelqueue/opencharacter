@@ -1,0 +1,42 @@
+id: monsters.night-hag
+type: monster
+fields:
+  size: medium
+  creatureType: fiend
+  alignment: neutral-evil
+  ac: 17
+  naturalArmor: true
+  hp: 112
+  hitDice: 15d8 + 45
+  speed: 30
+  str: 18
+  dex: 15
+  con: 16
+  int: 16
+  wis: 14
+  cha: 16
+  skills: [skill.deception, skill.insight, skill.perception, skill.stealth]
+  damageResistances: [damage.cold, damage.fire, nonmagical-unsilvered]
+  conditionImmunities: [conditions.charmed]
+  darkvision: 120
+  languages: [languages.abyssal, languages.common, languages.infernal, languages.primordial]
+  cr: 5
+  ownCopies:
+    - monsters.night-hag.nightmare-haunting
+  innateTwicePerDay: [spells.plane-shift, spells.ray-of-enfeeblement, spells.sleep]
+# The stat block's bonus differs from proficiency: the difference is added.
+effects:
+  - { target: skills.deception, op: add, value: 1 }
+  - { target: { rolls: [skill.deception] }, op: add, value: 1 }
+  - { target: skills.insight, op: add, value: 1 }
+  - { target: { rolls: [skill.insight] }, op: add, value: 1 }
+  - { target: skills.perception, op: add, value: 1 }
+  - { target: { rolls: [skill.perception] }, op: add, value: 1 }
+  - { target: skills.stealth, op: add, value: 1 }
+  - { target: { rolls: [skill.stealth] }, op: add, value: 1 }
+grants:
+  - item: monsters.night-hag.innate-spellcasting
+  - item: monsters.night-hag.magic-resistance
+  - item: monsters.night-hag.claws
+  - item: monsters.night-hag.change-shape
+  - item: monsters.night-hag.etherealness

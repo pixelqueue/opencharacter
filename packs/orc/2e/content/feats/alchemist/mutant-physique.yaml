@@ -1,0 +1,14 @@
+id: feats.alchemist.mutant-physique
+type: feat
+fields: { level: 8, category: class, class: classes.alchemist }
+effects:
+  - target: { incoming: { fields: [hp.current] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, floor(level / 2))
+    when: >-
+      incoming.amount < 0 && countList(['damage.bludgeoning', 'damage.piercing', 'damage.slashing'],
+        x in incoming.tags) > 0
+        && countList(character.applied, x.active && x.source in [@consumables.juggernaut-mutagen-lesser,
+          @consumables.juggernaut-mutagen-moderate, @consumables.juggernaut-mutagen-greater,
+          @consumables.juggernaut-mutagen-major]) > 0

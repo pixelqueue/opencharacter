@@ -1,0 +1,20 @@
+id: feats.ancestry.hellspawn
+type: feat
+tags: [trait.lineage]
+fields: { level: 1, category: ancestry, heritage: heritages.nephilim }
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.deception },
+      when: "!('skill.deception' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.legal },
+      when: "!('skill.lore.legal' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - { item: feats.skill.lie-to-me, waivePrerequisites: true }

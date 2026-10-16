@@ -1,0 +1,10 @@
+# Dexterity +3 (the fighter's boost went to it): 10 + 3 (trained at 1st level) + 3 = 16, less
+# clumsy's status penalty. Enfeebled reaches the Strength-based fields (Athletics) only.
+values:
+  orc-2e:class.keyAttribute: { value: dex }
+  orc-2e:classDc.value:
+    value: 15
+    base: 16
+    breakdown:
+      - { op: add, value: -1, source: { type: item, id: orc-2e:conditions.clumsy } }
+  orc-2e:skills.athletics.mod: { value: 4 }

@@ -1,0 +1,11 @@
+id: magic-items.sword-of-wounding
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: "'sword' in item.tags" }
+fields: { rarity: rare, requiresAttunement: true }
+effects:
+  - { target: combat.hitOptions, op: add, value: 1, when: self.equipped && self.attuned }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: action.self.id == self.id && self.attuned
+    value: { id: wound }

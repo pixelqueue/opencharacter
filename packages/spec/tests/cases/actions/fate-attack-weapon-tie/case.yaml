@@ -1,0 +1,9 @@
+description: 'Fate Core with Weapon and Armor ratings: a Fight attack that ties a Good defense hits for its Weapon rating (Super-Strength at two ranks, 4) instead of taking a boost; the gun in hand (Weapon:2) is lower, so the extra counts'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:attack }
+  params: { skill: fate-core:skills.fight, opposition: 3, weapon: 2 }
+  policy: { choices: auto }

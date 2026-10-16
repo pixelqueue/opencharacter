@@ -1,0 +1,14 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - id: test-pack
+    version: 1.0.0
+values:
+  test-pack:gear.favored: [energy]
+homebrew:
+  content:
+    - id: gear.cell
+      type: gear
+      tags: [energy]
+      prerequisites:
+        - { id: p, when: "'energy' in gear.favored" }

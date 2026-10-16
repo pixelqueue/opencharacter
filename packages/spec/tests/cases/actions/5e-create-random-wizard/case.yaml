@@ -1,0 +1,8 @@
+description: "5E's random start, run automatically: the fighter's dice with the class die naming the wizard. The rolls go to the wizard's priority (Intelligence, Constitution, Dexterity, Wisdom, Charisma, Strength), and the engine draws its skills, languages, three cantrips and six spellbook spells, each among the options it offers then (the 1s take the first, so the spellbook is the first six 1st-level spells by ID), and its prepared spells from the book; then its starting equipment and the acolyte's, each line drawn among its options"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:create-random-character }
+  policy: { dice: auto, choices: auto, allocations: auto }

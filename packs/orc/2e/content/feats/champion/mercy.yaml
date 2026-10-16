@@ -1,0 +1,19 @@
+id: feats.champion.mercy
+type: feat
+tags: [archetype-feat]
+fields: { level: 4, category: class, class: classes.champion }
+repeatable: true
+prerequisites:
+  - { id: lay, when: 'countCopies(copy.item == @spells.lay-on-hands) > 0' }
+effects:
+  # Each time it is taken, it counts as another Blessed One feat.
+  - { target: champion.mercies, op: add, value: 1 }
+choices:
+  - id: mercy
+    unique: mercies
+    requiresOption: true
+    from:
+      options:
+        - id: body
+        - id: grace
+        - id: mind

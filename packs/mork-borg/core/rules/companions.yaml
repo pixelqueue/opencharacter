@@ -1,0 +1,190 @@
+fields:
+  companions.hound: { type: boolean, formula: false }
+  companions.hawk: { type: boolean, formula: false }
+  companions.poltroon: { type: boolean, formula: false }
+  companions.barbarister: { type: boolean, formula: false }
+  companions.hamfund: { type: boolean, formula: false }
+  sheet.companion: { type: boolean, formula: "countCopies(copy.type == 'companion') > 0" }
+
+contentTypes:
+  companion:
+    carried: false
+    fields:
+      hp: { type: integer, min: 1 }
+      attackDr: { type: integer, min: 1 }
+      damage: { type: dice }
+      defenseDr: { type: integer, min: 1 }
+    effects:
+      - id: defense-dr
+        target: tests.defenseDr
+        op: add
+        value: item.defenseDr - 12
+        when: has(item.defenseDr)
+      - id: no-powers
+        target: powers.blocked
+        op: add
+        value: 1
+    actions:
+      - use: companion-attack
+
+links:
+  hound:
+    pack: mork-borg-core
+    fields:
+      hp.current: { type: integer, default: 1 }
+  hawk:
+    pack: mork-borg-core
+    fields:
+      hp.current: { type: integer, default: 1 }
+  poltroon:
+    pack: mork-borg-core
+    fields:
+      hp.current: { type: integer, default: 1 }
+  barbarister:
+    pack: mork-borg-core
+    fields:
+      hp.current: { type: integer, default: 1 }
+  hamfund:
+    pack: mork-borg-core
+    fields:
+      hp.current: { type: integer, default: 1 }
+
+followUps:
+  - id: hound-sheet
+    while: '!character.creating && companions.hound'
+    create:
+      link: hound
+      start: companion
+      params: { companion: '@companions.ancient-gore-hound' }
+  - id: hawk-sheet
+    while: '!character.creating && companions.hawk'
+    create:
+      link: hawk
+      start: companion
+      params: { companion: '@companions.hawk' }
+  - id: poltroon-sheet
+    while: '!character.creating && companions.poltroon'
+    create:
+      link: poltroon
+      start: companion
+      params: { companion: '@companions.poltroon' }
+  - id: barbarister-sheet
+    while: '!character.creating && companions.barbarister'
+    create:
+      link: barbarister
+      start: companion
+      params: { companion: '@companions.barbarister' }
+  - id: hamfund-sheet
+    while: '!character.creating && companions.hamfund'
+    create:
+      link: hamfund
+      start: companion
+      params: { companion: '@companions.hamfund' }
+
+situational:
+  - id: poltroon
+    type: boolean
+    default: false
+    rolls: [attack, defense]
+    available: 'companions.poltroon && (!has(links.poltroon) || links.poltroon.hp.current > 0)'
+    effects:
+      - { target: { rolls: [attack, defense] }, op: add, value: 2 }
+  # Offered to every character but the owner, since the jester is someone else's; whether one fights
+  # beside it is the app's.
+  - id: poltroonAlly
+    type: boolean
+    default: false
+    rolls: [attack, defense]
+    available: '!companions.poltroon'
+    effects:
+      - { target: { rolls: [attack, defense] }, op: add, value: 2 }
+  - id: barbarister
+    type: boolean
+    default: false
+    rolls: [test]
+    available: >-
+      companions.barbarister && (!has(links.barbarister) || links.barbarister.hp.current > 0)
+
+creation:
+  - { id: companion, action: create-companion }
+
+actions:
+  - id: create-companion
+    tags: [creation]
+    available: "character.creating && countCopies(copy.type == 'class' || copy.type == 'companion') == 0"
+    params:
+      companion: { type: id, of: companion, optional: true }
+    results: [created]
+    steps:
+      - id: companion
+        kind: choice
+        options:
+          content:
+            type: companion
+            where: '!has(params.companion) || item.id == params.companion'
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { id: companion, item: picked.id }
+      - id: hp
+        kind: changes
+        when: has(steps.companion.item.hp)
+        changes:
+          - { type: set, field: hp.max, value: steps.companion.item.hp }
+          - { type: set, field: hp.current, value: steps.companion.item.hp }
+      - id: finish
+        kind: changes
+        changes:
+          - { type: finishCreation }
+      - id: result
+        kind: outcome
+        result: "'created'"
+
+  - id: companion-attack
+    tags: [attack]
+    available: has(item.attackDr) && has(item.damage)
+    results: { bands: test }
+    steps:
+      - id: check
+        kind: action
+        use: test
+        params:
+          ability: "'abilities.strength'"
+          dr: item.attackDr
+          combat: true
+      - id: damage
+        kind: roll
+        when: "steps.check.result == 'success' || steps.check.result == 'crit'"
+        tags: [damage]
+        parts:
+          - dice: item.damage
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - { type: adjust, field: hp.current, by: -steps.damage.total, tags: [damage] }
+      - id: sunder
+        kind: changes
+        when: "steps.check.result == 'crit'"
+        to: target
+        changes:
+          - type: adjustState
+            copies: { type: armor, where: self.equipped && self.damage < item.tier }
+            limit: 1
+            key: damage
+            by: 1
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+
+display:
+  fields:
+    companions.hound: { hidden: true }
+    companions.hawk: { hidden: true }
+    companions.poltroon: { hidden: true }
+    companions.barbarister: { hidden: true }
+    companions.hamfund: { hidden: true }
+    sheet.companion: { hidden: true }

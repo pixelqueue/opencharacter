@@ -1,0 +1,23 @@
+id: classes.alchemist.fields.mutagenist
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: alchemist.field, op: set, value: "'mutagenist'" }
+  - target: { steps: [consumable.drink] }
+    op: changes
+    when: "action.item.category == 'mutagen'"
+    value:
+      changes:
+        - type: set
+          field: hp.temp
+          value: max(hp.temp, max(0, attributes.int.mod) + floor(level / 2))
+choices:
+  - id: formulas
+    unique: formulas
+    pick: 2
+    activate: false
+    from:
+      type: consumable
+      where: "'trait.alchemical' in item.tags && has(item.family) && item.family == item.id && !('trait.uncommon' in item.tags) && item.level <= 1 && 'trait.mutagen' in item.tags"
+    effects:
+      - { target: alchemist.formulas, op: grant, value: { formula: pick.id } }

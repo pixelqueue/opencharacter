@@ -1,0 +1,449 @@
+# The result level stays within failure and success: a critical stays a critical, and a 6 doesn't
+# become one.
+resultBands:
+  action:
+    value: >-
+      !roll.empty && count(roll.faces, 6) >= 2 ? 3
+        : max(0, min(2, (roll.total == 6 ? 2 : roll.total >= 4 ? 1 : 0)
+          + roll.tallies.resultLevel))
+    bands:
+      - { id: critical, when: roll.value == 3 }
+      - { id: success, when: roll.value == 2 }
+      - { id: partial, when: roll.value == 1 }
+      - { id: failure, when: true }
+
+rollTallies: [effect, resultLevel]
+
+effects:
+  - id: assist-helper
+    target: { rolls: [action-roll] }
+    op: rollModifier
+    value: { kind: poolDice, count: 1 }
+    when: has(participants.helper) && size(participants.helper) > 0
+
+situational:
+  - id: bonusDie
+    type: enum
+    values: [none, push, devils-bargain]
+    default: none
+    rolls: [action-roll]
+    effects:
+      - target: { rolls: [action-roll] }
+        op: rollModifier
+        value: { kind: poolDice, count: 1 }
+  - id: assist
+    type: boolean
+    default: false
+    rolls: [action-roll]
+    effects:
+      - target: { rolls: [action-roll] }
+        op: rollModifier
+        value: { kind: poolDice, count: 1 }
+        when: situational.assist && !(has(participants.helper) && size(participants.helper) > 0)
+  - id: pushEffect
+    type: boolean
+    default: false
+    rolls: [action-roll]
+    effects:
+      - { target: { rolls: [action-roll], tally: effect }, op: add, value: 1 }
+  - id: protectingTeammate
+    type: boolean
+    default: false
+    available: '@special-abilities.bodyguard in abilities.special'
+    rolls: [resistance-roll]
+  - id: frightenedTarget
+    type: boolean
+    default: false
+    available: '@special-abilities.savage in abilities.special'
+    rolls: [action-roll]
+  - id: supernaturalInfo
+    type: boolean
+    default: false
+    available: '@special-abilities.arcane-mind in abilities.special'
+    rolls: [action-roll]
+  - id: avoidingDetection
+    type: boolean
+    default: false
+    available: '@special-abilities.scout in abilities.special'
+    rolls: [action-roll]
+  - id: ambushing
+    type: boolean
+    default: false
+    available: '@special-abilities.ambush in abilities.special'
+    rolls: [action-roll]
+  - id: daredevilTrade
+    type: boolean
+    default: false
+    available: '@special-abilities.daredevil in abilities.special'
+    rolls: [action-roll]
+  - id: intimateTarget
+    type: boolean
+    default: false
+    available: '@special-abilities.trust-in-me in abilities.special'
+    rolls: [action-roll]
+  - id: scoreTarget
+    type: boolean
+    default: false
+    available: '@special-abilities.weaving-the-web in abilities.special'
+    rolls: [action-roll]
+  - id: engagementRoll
+    type: boolean
+    default: false
+    available: '@special-abilities.weaving-the-web in abilities.special'
+    rolls: [fortune-roll]
+  - id: threatInfo
+    type: boolean
+    default: false
+    rolls: [action-roll]
+    available: '@special-abilities.bodyguard in abilities.special'
+  - id: locatingTarget
+    type: boolean
+    default: false
+    rolls: [action-roll]
+    available: '@special-abilities.scout in abilities.special'
+  - id: craftingArcane
+    type: boolean
+    default: false
+    rolls: [action-roll]
+    available: '@special-abilities.strange-methods in abilities.special'
+  - id: craftingAlchemical
+    type: boolean
+    default: false
+    rolls: [action-roll]
+    available: '@special-abilities.alchemist in abilities.special'
+  - id: craftingSparkCraft
+    type: boolean
+    default: false
+    rolls: [action-roll]
+    available: '@special-abilities.artificer in abilities.special'
+  - id: reducingHeat
+    type: boolean
+    default: false
+    rolls: [action-roll]
+    available: '@special-abilities.connected in abilities.special'
+  # That push still brings a die or effect, so it costs stress only when no die or effect is pushed
+  # for.
+  - id: pushAbility
+    type: boolean
+    default: false
+    rolls: [action-roll]
+    available: >-
+      @special-abilities.devils-footsteps in abilities.special
+      || @special-abilities.not-to-be-trifled-with in abilities.special
+      || @special-abilities.sharpshooter in abilities.special
+  - id: friendHelps
+    type: boolean
+    default: false
+    rolls: [action-roll.downtime, recovery-roll, asset-roll, vice-roll]
+    effects:
+      - target: { rolls: [action-roll.downtime, recovery-roll, asset-roll, vice-roll] }
+        op: rollModifier
+        value: { kind: poolDice, count: 1 }
+  - id: position
+    type: enum
+    values: [controlled, risky, desperate]
+    default: risky
+    rolls: [action-roll]
+  - id: effect
+    type: enum
+    values: [limited, standard, great]
+    default: standard
+    rolls: [action-roll]
+
+actions:
+  - id: action-roll
+    tags: [action-roll]
+    params:
+      rating: { type: id, of: field, where: "'rating' in item.tags" }
+      downtime: { type: boolean, default: false }
+    participants:
+      helper:
+        max: 1
+        fields:
+          abilities.special: { type: set, of: string, default: [] }
+          foresight.used: { type: integer, default: 0 }
+    results: { bands: action }
+    steps:
+      - id: roll
+        kind: roll
+        tags:
+          - { formula: "params.downtime ? 'action-roll.downtime' : 'action-roll'" }
+          - { formula: params.rating.tags }
+        bands: action
+        parts:
+          - id: pool
+            dice: '(params.rating.value)d6kh1'
+            ifEmpty: 2d6kl1
+      - id: assistCost
+        kind: changes
+        each: helper
+        when: >-
+          !(@special-abilities.foresight in participant.abilities.special
+          && participant.foresight.used < 2)
+        to: helper
+        changes:
+          - { type: adjust, field: stress.current, by: 1 }
+      - id: foresight
+        kind: choice
+        each: helper
+        when: >-
+          @special-abilities.foresight in participant.abilities.special
+          && participant.foresight.used < 2
+        options:
+          - id: foresight
+            to: helper
+            changes:
+              - { type: adjust, field: foresight.used, by: 1 }
+          - id: assist-stress
+            to: helper
+            changes:
+              - { type: adjust, field: stress.current, by: 1 }
+        recommend: "'foresight'"
+      # Stress stays the recommendation, so an automatic run takes it.
+      - id: pushCost
+        kind: choice
+        tags: [push-cost]
+        when: "situational.bonusDie == 'push' || situational.pushEffect || situational.pushAbility"
+        options:
+          - id: stress
+            changes:
+              - type: adjust
+                field: stress.current
+                by: >-
+                  2 * max((situational.bonusDie == 'push' ? 1 : 0) + (situational.pushEffect ? 1 : 0),
+                    situational.pushAbility ? 1 : 0)
+        recommend: "'stress'"
+      - id: daredevilPenalty
+        kind: changes
+        when: "situational.daredevilTrade && situational.position == 'desperate'"
+        to: self
+        changes:
+          - { type: set, field: daredevil.penalty, value: true }
+      - id: xp
+        kind: changes
+        when: "situational.position == 'desperate'"
+        to: self
+        changes:
+          - type: adjust
+            forEach: "['insight', 'prowess', 'resolve']"
+            when: "'rating.' + x in params.rating.tags"
+            field: { formula: "'xp.' + x" }
+            by: 1
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          position: situational.position
+          effect: >-
+            ['zero', 'limited', 'standard', 'great'][max(0, min(3,
+            (situational.effect == 'limited' ? 1 : situational.effect == 'standard' ? 2 : 3)
+            + steps.roll.tallies.effect))]
+
+  - id: group-action
+    tags: [action-roll, group-action]
+    params:
+      rating: { type: id, of: field, where: "'rating' in item.tags" }
+    participants:
+      member: { min: 1 }
+    results: { bands: action }
+    steps:
+      - { id: lead, kind: action, use: action-roll, params: { rating: params.rating.id } }
+      - id: rolls
+        kind: action
+        each: member
+        as: participant
+        use: action-roll
+        params: { rating: params.rating.id }
+      # A roll's 6 is read from its result (a success or a critical), since an action roll's outcome
+      # carries no faces.
+      - id: failed
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              count: "(steps.lead.result == 'failure' ? 1 : 0) + countList(steps.rolls, x.result == 'failure')"
+              sixes: >-
+                (steps.lead.result in ['success', 'critical'] ? 1 : 0)
+                  + countList(steps.rolls, x.result in ['success', 'critical'])
+              synchronized: has(links.crew) && links.crew.members.synchronized
+      - id: stress
+        kind: changes
+        when: flags.count > 0
+        to: self
+        changes:
+          - type: adjust
+            field: stress.current
+            by: 'expertise.action == params.rating.id ? 1 : flags.count'
+      - id: result
+        kind: outcome
+        result: >-
+          flags.synchronized && flags.sixes >= 2 ? 'critical'
+            : ['failure', 'partial', 'success', 'critical'][max(
+              indexOf(['failure', 'partial', 'success', 'critical'], steps.lead.result),
+              maxList(steps.rolls, indexOf(['failure', 'partial', 'success', 'critical'], x.result)))]
+        data:
+          failures: flags.count
+          position: situational.position
+          effect: steps.lead.data.effect
+
+  - id: resistance-roll
+    tags: [resistance-roll]
+    params:
+      attribute: { type: id, of: field, where: "'attribute' in item.tags" }
+    results: { bands: action }
+    steps:
+      - id: resist
+        kind: roll
+        tags: [resistance-roll]
+        bands: action
+        parts:
+          - id: pool
+            dice: '(params.attribute.value)d6kh1'
+            ifEmpty: 2d6kl1
+      - id: clearDaredevil
+        kind: changes
+        when: daredevil.penalty
+        to: self
+        changes:
+          - { type: set, field: daredevil.penalty, value: false }
+      - id: cost
+        kind: changes
+        to: self
+        changes:
+          - type: adjust
+            field: stress.current
+            by: "steps.resist.band == 'critical' ? -1 : 6 - steps.resist.total"
+      - id: result
+        kind: outcome
+        result: steps.resist.band
+        data:
+          stress: "steps.resist.band == 'critical' ? -1 : 6 - steps.resist.total"
+
+  - id: recovery-roll
+    tags: [recovery-roll]
+    params:
+      dots: { type: integer, min: 0, max: 4 }
+      treatment: { type: enum, values: [healer, self, none], default: healer }
+    results: { bands: action }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [recovery-roll]
+        bands: action
+        parts:
+          - id: pool
+            dice: "(params.treatment == 'none' ? 0 : params.dots)d6kh1"
+            ifEmpty: 2d6kl1
+      - id: cost
+        kind: changes
+        when: "params.treatment != 'healer'"
+        to: self
+        changes:
+          - { type: adjust, field: stress.current, by: "params.treatment == 'self' ? 2 : 1" }
+      - id: coin
+        kind: choice
+        when: "coin > 0 && steps.roll.band != 'critical'"
+        options:
+          - { id: keep }
+          - { id: spend1 }
+          - { id: spend2, when: "coin >= 2 && steps.roll.band != 'success'" }
+          - { id: spend3, when: "coin >= 3 && steps.roll.band == 'failure'" }
+        recommend: "'keep'"
+      - id: spent
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              coin: >-
+                !has(steps.coin) ? 0 : steps.coin.picked == 'spend3' ? 3
+                : steps.coin.picked == 'spend2' ? 2 : steps.coin.picked == 'spend1' ? 1 : 0
+      - id: level
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              result: >-
+                ['failure', 'partial', 'success', 'critical'][min(3,
+                (steps.roll.band == 'critical' ? 3 : steps.roll.band == 'success' ? 2
+                : steps.roll.band == 'partial' ? 1 : 0) + flags.coin)]
+      - id: spend
+        kind: changes
+        when: flags.coin > 0
+        to: self
+        changes:
+          - { type: adjust, field: coin, by: -flags.coin }
+      - id: heal
+        kind: action
+        use: heal
+        params:
+          ticks: "flags.result == 'critical' ? 5 : flags.result == 'success' ? 3 : flags.result == 'partial' ? 2 : 1"
+      - id: result
+        kind: outcome
+        result: flags.result
+
+  - id: indulge-vice
+    tags: [vice-roll]
+    results: [indulged, overindulged]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [vice-roll]
+        parts:
+          - id: pool
+            dice: '(min(attributes.insight, attributes.prowess, attributes.resolve))d6kh1'
+            ifEmpty: 2d6kl1
+      - id: clear
+        kind: changes
+        to: self
+        changes:
+          - { type: adjust, field: stress.current, by: '-max(0, steps.roll.total)' }
+      - id: over
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              over: max(0, steps.roll.total) > stress.current
+      - id: overindulgence
+        kind: choice
+        when: flags.over
+        options:
+          - { id: trouble }
+          - { id: brag }
+          - { id: lost }
+          - { id: tapped }
+      - id: brag
+        kind: changes
+        when: "flags.over && steps.overindulgence.picked == 'brag' && has(links.crew)"
+        to: { link: crew }
+        changes:
+          - { type: adjust, field: 'fitd-crew:heat.current', by: 2 }
+      - id: tapped
+        kind: changes
+        when: "flags.over && steps.overindulgence.picked == 'tapped'"
+        to: self
+        changes:
+          - { type: set, field: vice.purveyor, value: "''" }
+      - id: result
+        kind: outcome
+        result: "flags.over ? 'overindulged' : 'indulged'"
+        data:
+          cleared: min(max(0, steps.roll.total), stress.current)
+          overindulgence: "flags.over ? steps.overindulgence.picked : 'none'"
+
+  - id: fortune-roll
+    tags: [fortune-roll]
+    params:
+      dice: { type: integer, min: 0 }
+    results: { bands: action }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [fortune-roll]
+        bands: action
+        parts:
+          - id: pool
+            dice: '(params.dice)d6kh1'
+            ifEmpty: 2d6kl1
+      - id: result
+        kind: outcome
+        result: steps.roll.band

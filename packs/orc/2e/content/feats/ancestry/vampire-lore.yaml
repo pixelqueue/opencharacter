@@ -1,0 +1,20 @@
+id: feats.ancestry.vampire-lore
+type: feat
+fields: { level: 1, category: ancestry, heritage: heritages.dhampir }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.religion }
+    when: "!('skill.religion' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.society }
+    when: "!('skill.society' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.vampire }
+    when: "!('skill.lore.vampire' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 3 }
+  - target: skills.lore.vampire.rank
+    op: atLeast
+    value: 'level >= 15 ? 4 : level >= 7 ? 3 : level >= 3 ? 2 : 1'

@@ -1,0 +1,397 @@
+situational:
+  - id: advantage
+    type: boolean
+    default: false
+    rolls: [check, save, panic, wound]
+    effects:
+      - target: { rolls: [check, save, panic, wound] }
+        op: rollModifier
+        value: { kind: advantage }
+  - id: disadvantage
+    type: boolean
+    default: false
+    rolls: [check, save, panic, wound]
+    effects:
+      - target: { rolls: [check, save, panic, wound] }
+        op: rollModifier
+        value: { kind: disadvantage }
+  - id: android
+    type: boolean
+    default: false
+    rolls: [save.fear]
+    effects:
+      - target: { rolls: [save.fear] }
+        op: rollModifier
+        value: { kind: disadvantage }
+  - id: teamster
+    type: boolean
+    default: false
+    rolls: [panic]
+    available: "trauma.response == 'panic-advantage' && !trauma.used"
+    effects:
+      - target: { rolls: [panic] }
+        op: rollModifier
+        value: { kind: advantage }
+
+  - id: xClass
+    type: boolean
+    default: false
+    rolls: [conversion]
+
+# At least 1: 00 always succeeds, even against 0.
+resultBands:
+  check:
+    - id: critical-success
+      when: 'roll.total < flags.target && roll.total < 90 && roll.total % 11 == 0'
+    - id: success
+      when: 'roll.total < flags.target && roll.total < 90'
+    - id: critical-failure
+      when: 'roll.total % 11 == 0'
+    - id: failure
+      when: true
+  panic:
+    - id: pass
+      when: 'roll.total > stress.current'
+    - id: panic
+      when: true
+
+followUps:
+  # Stress is capped at 20, so the excess is what the cap clamped away.
+  - id: excess-stress
+    on: { field: stress.current }
+    required: true
+    when: "change.reason == 'requested' && change.taken > change.by"
+    action: excess-stress
+    params:
+      amount: change.taken - change.by
+
+actions:
+  - id: stat-check
+    tags: [check]
+    params:
+      stat: { type: id, of: field, where: "'stat' in item.tags" }
+    participants:
+      close: {}
+    results: { bands: check }
+    steps:
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              target: max(1, params.stat.value)
+      - id: check
+        kind: roll
+        tags:
+          - formula: "params.stat.id == @stats.speed ? 'check.speed' : 'check'"
+        better: low
+        bands: check
+        parts:
+          - dice: 1d100z
+      - id: stress
+        kind: changes
+        when: "steps.check.band == 'failure' || steps.check.band == 'critical-failure'"
+        to: self
+        changes:
+          - { type: adjust, field: stress.current, by: 1 }
+      - id: panic
+        kind: action
+        when: "steps.check.band == 'critical-failure'"
+        use: panic-check
+        participants: { close: participants.close }
+      - id: result
+        kind: outcome
+        result: steps.check.band
+
+  - id: save
+    tags: [save]
+    params:
+      save: { type: id, of: field, where: "'save' in item.tags" }
+    participants:
+      close: {}
+    results: { bands: check }
+    steps:
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              target: max(1, params.save.value)
+      - id: check
+        kind: roll
+        tags:
+          - formula: "params.save.id == @saves.fear ? 'save.fear' : 'save'"
+        better: low
+        bands: check
+        parts:
+          - dice: 1d100z
+      - id: stress
+        kind: changes
+        when: "steps.check.band == 'failure' || steps.check.band == 'critical-failure'"
+        to: self
+        changes:
+          - { type: adjust, field: stress.current, by: 1 }
+      - id: contagion
+        kind: changes
+        when: >-
+          (steps.check.band == 'failure' || steps.check.band == 'critical-failure')
+            && params.save.id == @saves.sanity && trauma.response == 'sanity-stress'
+        to: close
+        changes:
+          - { type: adjust, field: stress.current, by: 1 }
+      - id: panic
+        kind: action
+        when: "steps.check.band == 'critical-failure'"
+        use: panic-check
+        participants: { close: participants.close }
+      - id: result
+        kind: outcome
+        result: steps.check.band
+
+  - id: skill-check
+    tags: [check]
+    params:
+      target: { type: id, of: field, where: "'stat' in item.tags || 'save' in item.tags" }
+    participants:
+      close: {}
+    results: { bands: check }
+    steps:
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              target: >-
+                params.target.value
+                + (item.tier == 'master' ? 20 : item.tier == 'expert' ? 15 : 10)
+      - id: check
+        kind: roll
+        tags:
+          - formula: >-
+              params.target.id == @stats.speed ? 'check.speed'
+                : params.target.id == @saves.fear ? 'save.fear' : 'check'
+        better: low
+        bands: check
+        parts:
+          - dice: 1d100z
+      - id: stress
+        kind: changes
+        when: "steps.check.band == 'failure' || steps.check.band == 'critical-failure'"
+        to: self
+        changes:
+          - { type: adjust, field: stress.current, by: 1 }
+      - id: contagion
+        kind: changes
+        when: >-
+          (steps.check.band == 'failure' || steps.check.band == 'critical-failure')
+            && params.target.id == @saves.sanity
+            && trauma.response == 'sanity-stress'
+        to: close
+        changes:
+          - { type: adjust, field: stress.current, by: 1 }
+      - id: panic
+        kind: action
+        when: "steps.check.band == 'critical-failure'"
+        use: panic-check
+        participants: { close: participants.close }
+      - id: result
+        kind: outcome
+        result: steps.check.band
+
+  - id: panic-check
+    tags: [panic]
+    participants:
+      close: {}
+    results: { bands: panic }
+    steps:
+      - id: panic
+        kind: roll
+        tags: [panic]
+        bands: panic
+        parts:
+          - dice: 1d20
+      - id: steady
+        kind: changes
+        when: situational.teamster
+        to: self
+        changes:
+          - { type: set, field: trauma.used, value: true }
+      - id: trauma
+        kind: action
+        when: "steps.panic.band == 'panic' && trauma.response == 'panic-fear'"
+        each: close
+        as: participant
+        use: save
+        params: { save: '@saves.fear' }
+      - id: result
+        kind: outcome
+        result: steps.panic.band
+        data:
+          roll: steps.panic.total
+
+  - id: rest
+    tags: [save]
+    participants:
+      close: {}
+    results: { bands: check }
+    steps:
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              target: max(1, minFields(f.value, 'save' in f.tags))
+      - id: check
+        kind: roll
+        tags: [save]
+        better: low
+        bands: check
+        parts:
+          - dice: 1d100z
+      - id: relief
+        kind: changes
+        when: "steps.check.band == 'success' || steps.check.band == 'critical-success'"
+        to: self
+        changes:
+          - { type: adjust, field: stress.current, by: '-(steps.check.total % 10)' }
+      - id: stress
+        kind: changes
+        when: "steps.check.band == 'failure' || steps.check.band == 'critical-failure'"
+        to: self
+        changes:
+          - { type: adjust, field: stress.current, by: 1 }
+      - id: panic
+        kind: action
+        when: "steps.check.band == 'critical-failure'"
+        use: panic-check
+        participants: { close: participants.close }
+      - id: result
+        kind: outcome
+        result: steps.check.band
+
+  - id: excess-stress
+    tags: [stress]
+    available: stress.current >= 20
+    params:
+      amount: { type: integer, min: 1 }
+      field: { type: id, of: field, where: "'stat' in item.tags || 'save' in item.tags" }
+    results: [lowered]
+    steps:
+      - id: lower
+        kind: changes
+        to: self
+        changes:
+          - { type: adjust, field: { formula: params.field.id }, by: -params.amount }
+      - id: result
+        kind: outcome
+        result: "'lowered'"
+
+  # Converting stops at the minimum (the source leaves it open).
+  - id: shore-leave
+    tags: [stress]
+    params:
+      convert: { type: dice, optional: true }
+      all: { type: boolean, default: false }
+    results: { bands: check }
+    steps:
+      - id: check
+        kind: action
+        use: save
+        params: { save: '@saves.sanity' }
+      - id: conversion
+        kind: roll
+        when: "steps.check.result == 'success' && !params.all && has(params.convert)"
+        tags: [conversion]
+        parts:
+          - dice: params.convert
+      # The whole roll again, keeping the better total; a roll modifier would add one die instead.
+      - id: conversionAgain
+        kind: roll
+        when: has(steps.conversion) && situational.xClass
+        tags: [conversion]
+        parts:
+          - dice: params.convert
+      - id: amount
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              convert: >-
+                steps.check.result != 'success' && steps.check.result != 'critical-success' ? 0
+                  : min(max(0, stress.current - stress.minimum),
+                    params.all ? stress.current
+                    : steps.check.result == 'critical-success'
+                      ? (has(params.convert) ? maxOf(params.convert) : 0)
+                    : has(steps.conversionAgain)
+                      ? max(steps.conversion.total, steps.conversionAgain.total)
+                    : has(steps.conversion) ? steps.conversion.total : 0)
+      - id: improve
+        kind: allocate
+        when: flags.convert > 0
+        fields: { type: field, where: "'save' in item.tags" }
+        budget: flags.convert
+      - id: relieve
+        kind: changes
+        when: "steps.check.result == 'success' || steps.check.result == 'critical-success'"
+        to: self
+        changes:
+          - { type: set, field: stress.current, value: stress.minimum }
+      - id: unwind
+        kind: changes
+        when: "steps.check.result == 'failure'"
+        to: self
+        changes:
+          - { type: set, field: stress.current, value: stress.minimum + 1 }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          converted: flags.convert
+
+  - id: end-session
+    tags: [stress]
+    available: trauma.used
+    results: [ended]
+    steps:
+      - id: reset
+        kind: changes
+        to: self
+        changes:
+          - { type: set, field: trauma.used, value: false }
+      - id: result
+        kind: outcome
+        result: "'ended'"
+
+  - id: death-save
+    tags: [death]
+    results: [rolled]
+    steps:
+      - id: death
+        kind: roll
+        tags: [death]
+        parts:
+          - dice: 1d10z
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          roll: steps.death.total
+
+  # Higher is worse, so [+] keeps the lower die.
+  - id: wound-roll
+    tags: [wound]
+    params:
+      woundType: { type: enum, values: [blunt, bleeding, gunshot, fire, gore], required: true }
+    results: [blunt, bleeding, gunshot, fire, gore]
+    steps:
+      - id: wound
+        kind: roll
+        tags: [wound]
+        better: low
+        parts:
+          - dice: 1d10z
+      - id: result
+        kind: outcome
+        result: params.woundType
+        data:
+          roll: steps.wound.total

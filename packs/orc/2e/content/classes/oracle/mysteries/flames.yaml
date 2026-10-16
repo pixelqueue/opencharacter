@@ -1,0 +1,61 @@
+id: classes.oracle.mysteries.flames
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: oracle.mystery, op: set, value: "'flames'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.acrobatics },
+      when: "!('skill.acrobatics' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: oracle.grantedFeats, op: grant, value: { item: feats.oracle.foretell-harm } }
+  - { target: focus.points, op: add, value: 1 }
+  - { target: oracle.revelations, op: grant, value: { item: spells.incendiary-aura } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.whirling-flames } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.flaming-fusillade } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.ignition } }
+  - { target: oracle.granted, op: grant, value: { item: spells.ignition } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.ignition } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.breathe-fire } }
+  - { target: oracle.granted, op: grant, value: { item: spells.breathe-fire } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.breathe-fire } }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.breathe-fire }
+    when: '@feats.oracle.gifted-power in feats.held'
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.breathe-fire } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.blazing-bolt }, when: level >= 3 }
+  - { target: oracle.granted, op: grant, value: { item: spells.blazing-bolt }, when: level >= 3 }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.blazing-bolt }, when: level >= 3 }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.blazing-bolt }
+    when: 'level >= 3 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank2,
+      op: grant,
+      value: { item: spells.blazing-bolt },
+      when: level >= 3,
+    }
+  - { target: spells.repertoire, op: grant, value: { item: spells.fireball }, when: level >= 5 }
+  - { target: oracle.granted, op: grant, value: { item: spells.fireball }, when: level >= 5 }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.fireball }, when: level >= 5 }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.fireball }
+    when: 'level >= 5 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank3,
+      op: grant,
+      value: { item: spells.fireball },
+      when: level >= 5,
+    }
+grants:
+  - item: feats.oracle.foretell-harm
+  - item: spells.incendiary-aura
+  - { item: spells.ignition }
+  - { item: spells.breathe-fire }
+  - { item: spells.blazing-bolt, when: level >= 3 }
+  - { item: spells.fireball, when: level >= 5 }

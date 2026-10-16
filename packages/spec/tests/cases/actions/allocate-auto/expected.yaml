@@ -1,0 +1,13 @@
+# Might is 1 and wits 1 (0 plus the rules effect), so each can take 1 more; grace 2. The
+# recommendation (wits 1, grace 2) spends exactly 3.
+status: finished
+outcome: {}
+proposedChanges:
+  - { to: self, step: dots, change: { type: adjust, field: 'test-pack:stats.wits', by: 1 } }
+  - { to: self, step: dots, change: { type: adjust, field: 'test-pack:stats.grace', by: 2 } }
+log:
+  - step: dots
+    action: test-pack:spend
+    kind: allocate
+    by: engine
+    amounts: { 'test-pack:stats.wits': 1, 'test-pack:stats.grace': 2 }

@@ -1,0 +1,13 @@
+id: heritages.duskwalker
+type: heritage
+fields: { versatile: true }
+effects:
+  - { target: traits, op: grant, value: { tag: trait.duskwalker } }
+  - target: senses
+    op: grant
+    value: { tag: sense.low-light-vision }
+    when: countCopies(copy.type == 'ancestry' && 'sense.low-light-vision' in copy.tags) == 0
+  - target: senses
+    op: grant
+    value: { tag: sense.darkvision }
+    when: countCopies(copy.type == 'ancestry' && 'sense.low-light-vision' in copy.tags) > 0

@@ -1,0 +1,19 @@
+# d20 9 + wis 1 (not proficient) + inspiration d8 5 = 15 >= 15: success.
+status: finished
+outcome:
+  result: success
+  data: { total: 15 }
+proposedChanges: []
+log:
+  - step: save
+    kind: dice
+    by: engine
+    faces: [9, 5]
+    items:
+      - { kind: dice, sides: 20, value: 9 }
+      - { kind: flat, value: 1, source: { type: field, id: 5e-srd-5.1:abilities.wis.mod } }
+      - kind: dice
+        sides: 8
+        value: 5
+        source: { type: situational, id: 5e-srd-5.1:bardicInspiration }
+    total: 15

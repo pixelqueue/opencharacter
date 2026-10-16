@@ -1,0 +1,30 @@
+id: spells.sleep
+type: spell
+tags:
+  [
+    trait.concentrate,
+    trait.incapacitation,
+    trait.manipulate,
+    trait.mental,
+    trait.sleep,
+    tradition.arcane,
+    tradition.occult,
+  ]
+fields:
+  rank: 1
+  cast: two
+  range: 30
+  area: burst
+  areaSize: 5
+  defense: will
+  applyTo: target
+  applyAt: 1
+  failure: [conditions.unconscious]
+  criticalFailure: [conditions.unconscious]
+effects:
+  - target: perception.mod
+    op: add
+    value: -1
+    stackKey: status-penalty
+    when: self.outcome == 1
+    scope: applied

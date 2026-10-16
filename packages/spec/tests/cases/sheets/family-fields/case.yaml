@@ -1,0 +1,45 @@
+description: 'Families: each `{stat}` field stands for one field per value, with the value in its strings; a second pack adds a value (`test-pack:stat: [luck]`) with fields of its own; `fieldOf` reads one by key (two placeholders take two keys) and `keysOf` lists the values'
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        families:
+          stat: [might, wits]
+          rank: [1, 2]
+        fields:
+          'stats.{stat}.base': { type: integer, input: true, default: 1 }
+          'stats.{stat}.score': { type: integer, formula: 'stats.{stat}.base * 2', tags: [stat] }
+          'slots.rank{rank}': { type: integer, formula: '{rank} * 10' }
+          best: { type: string, input: true, default: wits }
+          bestScore: { type: integer, formula: "fieldOf('stats.{stat}.score', best)" }
+          stats.all: { type: integer, formula: size(keysOf('stat')) }
+          slotTotal:
+            { type: integer, formula: "sumList(keysOf('rank'), fieldOf('slots.rank{rank}', x))" }
+          # Two placeholders: a field per stat and rank, read with a key each.
+          'slots.{stat}.rank{rank}': { type: integer, formula: 'stats.{stat}.base * {rank}' }
+          wits2: { type: integer, formula: "fieldOf('slots.{stat}.rank{rank}', 'wits', 2)" }
+      content: []
+  - inline:
+      manifest:
+        id: extra-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { test-pack: ^1.0.0 }
+      rules:
+        # Adds luck to the stat family; the fields a family pattern names for luck are this
+        # pack's own, which test-pack's formulas read by key.
+        families:
+          'test-pack:stat': [luck]
+        fields:
+          stats.luck.base: { type: integer, input: true, default: 1 }
+          stats.luck.score: { type: integer, formula: stats.luck.base * 2 }
+      content: []

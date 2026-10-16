@@ -1,0 +1,13 @@
+id: conditions.wound
+type: condition
+state:
+  amount: { type: integer, default: 0, min: 0 }
+  bleeding: { type: boolean, default: false }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [healing] } }
+    op: atMost
+    value: >-
+      max(0, hp.max - hp.current
+        - sumList(character.applied, x.state.amount, x.source == @conditions.wound))
+    when: "!('healing.hit-die' in incoming.tags)"
+    scope: applied

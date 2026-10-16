@@ -1,0 +1,8 @@
+id: feats.ancestry.eternal-wings
+type: feat
+fields: { level: 17, category: ancestry, heritage: heritages.nephilim }
+prerequisites:
+  - id: divine-wings
+    when: '@feats.ancestry.divine-wings in feats.held'
+effects:
+  - { target: speed.fly, op: atLeast, value: speed.land }

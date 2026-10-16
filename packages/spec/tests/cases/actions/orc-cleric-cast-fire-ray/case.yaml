@@ -1,0 +1,10 @@
+description: 'orc-2e: a cleric with Domain Initiate (fire) casts fire ray, its initial domain spell: a Focus Point spent, a spell attack (+7) against AC 15: 10 + 7 = 17, a hit for 2d6 fire damage'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: orc-2e:spells.fire-ray }
+  participants:
+    target:
+      - { id: goblin, values: { orc-2e:defenses.ac: 15 } }

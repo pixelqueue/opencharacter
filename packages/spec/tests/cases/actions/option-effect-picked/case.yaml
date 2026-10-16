@@ -1,0 +1,55 @@
+description: "An added option picked: its changes are proposed at the step's path, with `self` and `entry: self` the charm's copy; `steps.<id>.picked` is the qualified ID"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [cost.push]
+        fields:
+          stress: { type: integer, input: true, default: 0 }
+        contentTypes:
+          charm:
+            carried: true
+            state:
+              charges: { type: integer, min: 0, default: 2 }
+        actions:
+          - id: strain
+            steps:
+              - id: pay
+                kind: choice
+                tags: [cost.push]
+                options:
+                  - id: stress
+                    changes:
+                      - { type: adjust, field: stress, by: 2 }
+                recommend: "'stress'"
+              - id: done
+                kind: outcome
+                data:
+                  paid: steps.pay.picked
+      content:
+        # `cost` matches the step's `cost.push`; `when` reads the charm's copy and the step.
+        - id: charms.luck
+          type: charm
+          effects:
+            - target: { choices: [cost] }
+              op: option
+              when: "self.charges > 0 && action.step.id == 'pay' && 'cost.push' in action.step.tags"
+              value:
+                id: charge
+                changes:
+                  - { type: adjustState, entry: self, key: charges, by: '-min(1, self.charges)' }
+input:
+  action: { id: test-pack:strain }
+  policy:
+    choices: auto
+    rules:
+      - { kind: choice, tags: [cost], then: pause }
+answers:
+  - { option: 'test-pack:charms.luck#charge' }

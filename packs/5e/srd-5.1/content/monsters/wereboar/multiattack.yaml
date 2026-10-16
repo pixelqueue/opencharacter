@@ -1,0 +1,54 @@
+id: monsters.wereboar.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: mauls }, { id: maul-and-tusks }]
+        recommend: "'mauls'"
+      - id: maul1
+        kind: action
+        when: "steps.form.picked == 'mauls'"
+        use: monster-attack
+        source: "'monsters.wereboar.maul'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: maul2
+        kind: action
+        when: "steps.form.picked == 'mauls'"
+        use: monster-attack
+        source: "'monsters.wereboar.maul'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: maul3
+        kind: action
+        when: "steps.form.picked == 'maul-and-tusks'"
+        use: monster-attack
+        source: "'monsters.wereboar.maul'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: tusks1
+        kind: action
+        when: "steps.form.picked == 'maul-and-tusks'"
+        use: monster-attack
+        source: "'monsters.wereboar.tusks'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.maul1) && steps.maul1.result == 'hit' ? 1 : 0)
+              + (has(steps.maul2) && steps.maul2.result == 'hit' ? 1 : 0)
+              + (has(steps.maul3) && steps.maul3.result == 'hit' ? 1 : 0)
+              + (has(steps.tusks1) && steps.tusks1.result == 'hit' ? 1 : 0)

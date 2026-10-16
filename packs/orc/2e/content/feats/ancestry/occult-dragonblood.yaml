@@ -1,0 +1,12 @@
+id: feats.ancestry.occult-dragonblood
+type: feat
+tags: [trait.lineage]
+fields: { level: 1, category: ancestry, heritage: heritages.dragonblood }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.occultism }
+    when: "!('skill.occultism' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - { item: feats.skill.oddity-identification, waivePrerequisites: true }

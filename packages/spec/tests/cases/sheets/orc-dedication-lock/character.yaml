@@ -1,0 +1,42 @@
+# A 4th-level human fighter who took Barbarian Dedication at 2nd level and Rogue Dedication at
+# 4th, before two more barbarian feats.
+specVersion: 0.1.0
+id: test-dedication-lock
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 4
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      boosts:
+        - option: orc-2e:boosts.con
+        - option: orc-2e:boosts.dex
+  - id: class
+    item: orc-2e:classes.fighter
+    choices:
+      key-attribute:
+        - option: str
+      class-skill:
+        - option: skill.acrobatics
+      class-feat-1:
+        - option: orc-2e:feats.fighter.sudden-charge
+      class-feat-2:
+        - option: orc-2e:feats.archetype.barbarian.barbarian-dedication
+          choices:
+            instinct:
+              - option: giant
+      class-feat-4:
+        - option: orc-2e:feats.archetype.rogue.rogue-dedication
+          choices:
+            skill:
+              - option: skill.stealth
+            free-skill:
+              - option: skill.thievery
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.wis

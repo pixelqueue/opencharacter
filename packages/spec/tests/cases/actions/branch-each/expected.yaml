@@ -1,0 +1,25 @@
+# The blast rolls 4. The orc's multiplier is 1, the troll's 2 (its case also stings it for its
+# own multiplier, at `outcome[1]/sting`); the golem is immune, so the branch skips it and its
+# flag is null. Outside `each` steps, `flags.mult` is the list and `steps.mark` the case step's
+# list of results.
+status: finished
+outcome:
+  data:
+    mult: [1, 2, null]
+    marked: 2
+proposedChanges:
+  - to: target
+    character: troll
+    step: outcome[1]/sting
+    change: { type: adjust, field: test-pack:hp, by: -2, tags: [weakness] }
+  - to: target
+    character: orc
+    step: burn[0]
+    change: { type: adjust, field: test-pack:hp, by: -4 }
+  - to: target
+    character: troll
+    step: burn[1]
+    change: { type: adjust, field: test-pack:hp, by: -8 }
+log:
+  - { step: damage, action: 'test-pack:blast', kind: dice, by: engine, faces: [4], total: 4 }
+  - { step: 'outcome[1]/mark', action: 'test-pack:blast', kind: dice, by: engine, total: 2 }

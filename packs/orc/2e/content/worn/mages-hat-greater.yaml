@@ -1,0 +1,21 @@
+id: worn.mages-hat-greater
+type: worn
+tags: [trait.arcane, trait.invested]
+fields:
+  level: 9
+  price: 650
+  usage: headwear
+grants:
+  - { item: spells.prestidigitation, when: 'self.equipped && self.invested' }
+effects:
+  - target: skills.arcana.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - {
+      target: spells.innate,
+      op: grant,
+      value: { item: spells.prestidigitation },
+      when: 'self.equipped && self.invested',
+    }

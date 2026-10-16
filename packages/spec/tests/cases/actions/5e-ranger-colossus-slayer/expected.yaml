@@ -1,0 +1,48 @@
+# Attack: 12 + dex 3 (14 + 2) + prof 3 + Archery 2 = 20 against AC 15: a hit.
+# Damage: longbow 1d8 (6) + dex 3 + Colossus Slayer 1d8 (4) = 13 piercing. The shot spends an
+# arrow.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 20 }
+proposedChanges:
+  - to: self
+    step: ammo
+    change: { type: adjustQuantity, entry: arrows, by: -1 }
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -13,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              ranged,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.piercing,
+            ],
+        },
+    }
+log:
+  - step: ammo
+    action: 5e-srd-5.1:weapon-attack
+    kind: choice
+    by: engine
+    option: arrows
+  - step: attack
+    kind: dice
+    by: engine
+    faces: [12]
+    total: 20
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [6, 4]
+    total: 13

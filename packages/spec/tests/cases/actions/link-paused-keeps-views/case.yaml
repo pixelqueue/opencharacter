@@ -1,0 +1,48 @@
+description: 'A paused action keeps the link views it started with; continueAction takes none'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        links:
+          crew:
+            fields:
+              tier: { type: integer, default: 0 }
+        fields:
+          stress: { type: integer, input: true, default: 0 }
+        actions:
+          - id: score
+            params:
+              heat: { type: integer, default: 2 }
+            steps:
+              - id: roll
+                kind: roll
+                parts:
+                  - { dice: '(links.crew.tier + 1)d6kh1' }
+              - id: stress
+                kind: changes
+                changes:
+                  - { type: adjust, field: stress, by: 1 }
+              - id: heat
+                kind: changes
+                to: { link: crew }
+                changes:
+                  - { type: adjust, field: 'test-crew:heat', by: params.heat }
+                  - { type: adjust, field: 'test-crew:rep', by: steps.roll.total }
+      content: []
+input:
+  action: { id: test-pack:score }
+  params: { heat: 1 }
+  policy: { dice: pause }
+  links:
+    test-pack:crew:
+      id: crew-ravens
+      values: { test-crew:tier: 3 }
+answers:
+  - { faces: [2, 6, 1, 1] }

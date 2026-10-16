@@ -1,0 +1,33 @@
+# As 5e-attack-hit, with the silvered template and a lawful good wielder: the damage carries
+# both, for the target's resistances (a wight's, a rakshasa's).
+status: finished
+outcome: { result: hit, data: { critical: false, attack: 22 } }
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: '5e-srd-5.1:hp.current',
+          by: -13,
+          tags: [damage, attack, weapon, melee, magical, silvered, wielder.good, damage.slashing],
+        },
+    }
+log:
+  - {
+      step: attack,
+      action: '5e-srd-5.1:weapon-attack',
+      kind: dice,
+      by: engine,
+      faces: [12, 3],
+      total: 22,
+    }
+  - {
+      step: damage,
+      action: '5e-srd-5.1:weapon-attack',
+      kind: dice,
+      by: engine,
+      faces: [6],
+      total: 13,
+    }

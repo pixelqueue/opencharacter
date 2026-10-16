@@ -1,0 +1,38 @@
+# The only payment is the stored copy, which goes; the fireball is cast at the storer's 4th level
+# (9d6 = 27) with its DC 15, and no slot of the wearer's is spent.
+status: finished
+outcome:
+  {
+    result: save,
+    data:
+      {
+        slot: 4,
+        spellcastingClass: none,
+        dc: 15,
+        save: dex,
+        halfOnSave: true,
+        damage: 27,
+        healing: 0,
+        concentration: false,
+        critical: false,
+        metamagic: none,
+      },
+  }
+proposedChanges:
+  - { to: self, step: cost, change: { type: removeItem, entry: stored-1 } }
+log:
+  - {
+      step: cost,
+      action: '5e-srd-5.1:cast-spell',
+      kind: choice,
+      by: app,
+      option: '5e-srd-5.1:magic-items.stored-spell#release',
+    }
+  - {
+      step: damage,
+      action: '5e-srd-5.1:cast-spell',
+      kind: dice,
+      by: engine,
+      faces: [1, 2, 3, 4, 5, 6, 1, 2, 3],
+      total: 27,
+    }

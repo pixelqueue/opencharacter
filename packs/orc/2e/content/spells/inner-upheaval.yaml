@@ -1,0 +1,26 @@
+id: spells.inner-upheaval
+type: spell
+tags: [trait.concentrate, trait.focus, trait.monk, trait.uncommon]
+fields:
+  rank: 1
+  cast: one
+  duration: until-end-of-turn
+  applyTo: self
+  damageTypeChoice: true
+  damageType: force
+effects:
+  - target:
+      rolls: [attack]
+    op: add
+    value: 1
+    stackKey: status-bonus
+    when: has(roll.item) && has(roll.item.category) && roll.item.category == 'unarmed'
+    scope: applied
+  - target:
+      rolls: [damage.strike]
+    op: add
+    value: dieOf(1d6, 1 + floor((self.rank - 1) / 4))
+    tags:
+      - { formula: "'damage.' + self.damageType" }
+    when: has(roll.item) && has(roll.item.category) && roll.item.category == 'unarmed'
+    scope: applied

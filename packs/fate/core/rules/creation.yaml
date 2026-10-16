@@ -1,0 +1,124 @@
+creation:
+  - { id: standard, action: create-character }
+  - { id: random, action: random-character, random: true }
+
+actions:
+  - id: create-character
+    tags: [creation]
+    available: character.creating
+    params:
+      name: { type: string, default: '' }
+      highConcept: { type: string, default: '' }
+      trouble: { type: string, default: '' }
+      phase1: { type: string, default: '' }
+      phase2: { type: string, default: '' }
+      phase3: { type: string, default: '' }
+    steps:
+      - id: pyramid
+        kind: allocate
+        fields: { type: field, where: "'skill' in item.tags" }
+        values: [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
+      - id: stunts
+        kind: choice
+        options: { content: { type: stunt, where: picks == 0 } }
+        repeat: { max: 3 }
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: more
+        kind: choice
+        when: size(steps.stunts.picked) == 3
+        options: [{ id: none }, { id: one }, { id: two }]
+        recommend: "'none'"
+      - id: extra
+        kind: choice
+        when: "has(steps.more) && steps.more.picked != 'none'"
+        options:
+          content: { type: stunt, where: '!(item.id in steps.stunts.picked) && picks == 0' }
+        repeat: { max: "steps.more.picked == 'one' ? 1 : 2" }
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: words
+        kind: changes
+        changes:
+          - { type: set, when: "params.name != ''", field: identity.name, value: params.name }
+          - type: set
+            when: "params.highConcept != ''"
+            field: aspects.highConcept
+            value: params.highConcept
+          - type: set
+            when: "params.trouble != ''"
+            field: aspects.trouble
+            value: params.trouble
+          - { type: set, when: "params.phase1 != ''", field: aspects.phase1, value: params.phase1 }
+          - { type: set, when: "params.phase2 != ''", field: aspects.phase2, value: params.phase2 }
+          - { type: set, when: "params.phase3 != ''", field: aspects.phase3, value: params.phase3 }
+      - id: finish
+        kind: changes
+        changes:
+          - type: set
+            field: fatePoints.current
+            value: 'refresh.base - (has(steps.extra) ? size(steps.extra.picked) : 0)'
+          - { type: finishCreation }
+
+  # The SRD has players choose, so the random start's odds are the pack's: the ten ratings go to ten
+  # skills drawn without replacement (homebrew skills included), the three free stunts from the 17
+  # example stunts, and no stunt past the free three, so refresh and fate points stay 3.
+  - id: random-character
+    tags: [creation]
+    available: character.creating
+    params:
+      name: { type: string, default: '' }
+      highConcept: { type: string, default: '' }
+      trouble: { type: string, default: '' }
+      phase1: { type: string, default: '' }
+      phase2: { type: string, default: '' }
+      phase3: { type: string, default: '' }
+    steps:
+      - id: pyramid
+        kind: allocate
+        fields: { type: field, where: "'skill' in item.tags" }
+        values: [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
+        random: true
+      - id: stunts
+        kind: choice
+        options:
+          content:
+            type: stunt
+            where: >-
+              picks == 0 && item.id in [
+                @stunts.grappler, @stunts.hardcore-parkour,
+                @stunts.i-ve-read-about-that, @stunts.indomitable,
+                @stunts.killing-stroke, @stunts.lie-whisperer,
+                @stunts.mind-games, @stunts.ninja-vanish,
+                @stunts.pedal-to-the-metal, @stunts.psychologist,
+                @stunts.riposte, @stunts.rumormonger,
+                @stunts.specialist, @stunts.strength-from-determination,
+                @stunts.take-the-blow, @stunts.tough-as-nails,
+                @stunts.trust-fund-baby]
+        repeat: { max: stunts.free, min: stunts.free }
+        random: true
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: words
+        kind: changes
+        changes:
+          - { type: set, when: "params.name != ''", field: identity.name, value: params.name }
+          - type: set
+            when: "params.highConcept != ''"
+            field: aspects.highConcept
+            value: params.highConcept
+          - type: set
+            when: "params.trouble != ''"
+            field: aspects.trouble
+            value: params.trouble
+          - { type: set, when: "params.phase1 != ''", field: aspects.phase1, value: params.phase1 }
+          - { type: set, when: "params.phase2 != ''", field: aspects.phase2, value: params.phase2 }
+          - { type: set, when: "params.phase3 != ''", field: aspects.phase3, value: params.phase3 }
+      - id: finish
+        kind: changes
+        changes:
+          - { type: set, field: fatePoints.current, value: refresh.base }
+          - { type: finishCreation }

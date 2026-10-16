@@ -1,0 +1,24 @@
+id: feats.sorcerer.greater-mental-evolution
+type: feat
+fields: { level: 16, category: class, class: classes.sorcerer }
+prerequisites:
+  - {
+      id: arcane-evolution-or,
+      when: '@feats.sorcerer.arcane-evolution in feats.held || @feats.sorcerer.occult-evolution in feats.held',
+    }
+choices:
+  - id: spell
+    slots: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    when: level >= 2 * slot - 1
+    from:
+      type: spell
+      where: >-
+        !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags) && item.rank <= slot
+          && ('tradition.' + spellcasting.tradition) in item.tags
+          && (!('trait.uncommon' in item.tags) || item.id in spells.access)
+    effects:
+      - { target: spells.repertoire, op: grant, value: { formula: pick.id } }
+      - target:
+          fields: { where: "item.id == 'orc-2e:spells.repertoire.rank' + string(slot)" }
+        op: grant
+        value: { formula: pick.id }

@@ -1,0 +1,14 @@
+# Rope (2) and torch (1) are carried. The unsaved lantern follows the file's entries; the second
+# lantern is an extra copy. The lit rope offers no light.
+values:
+  test-standard:load: { value: 3 }
+  test-standard:gear.count: { value: 4 }
+standardCopies:
+  - { entry: test-standard-gear-lantern, item: test-standard:gear.lantern, saved: false }
+  - { entry: test-standard-gear-rope, item: test-standard:gear.rope, saved: true }
+  - { entry: test-standard-traits-basic, item: test-standard:traits.basic, saved: false }
+actions:
+  - { action: test-standard:gear.torch#light, entry: torch }
+  - { action: test-standard:gear.lantern#light, entry: lantern-2 }
+  - { action: test-standard:gear.lantern#light, entry: test-standard-gear-lantern }
+errors: []

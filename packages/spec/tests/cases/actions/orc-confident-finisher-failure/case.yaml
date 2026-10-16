@@ -1,0 +1,20 @@
+description: "orc-2e: Confident Finisher with panache: a rapier Strike tagged as a finisher
+  fails, so half of precise strike's 2d6 (finesse) is dealt, and panache is spent"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:features.swashbuckler.confident-finisher#confident-finisher'
+    entry: class
+    source: orc-2e:features.swashbuckler.confident-finisher
+  participants:
+    target:
+      - id: bandit
+        values:
+          orc-2e:defenses.ac: 18
+  policy:
+    choices: pause
+answers:
+  - option: rapier

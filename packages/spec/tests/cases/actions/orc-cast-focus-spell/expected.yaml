@@ -1,0 +1,54 @@
+status: finished
+outcome:
+  result: success
+  data:
+    rank: 2
+    mode: focus
+    dc: 18
+    defense: ac
+    basic: false
+    damage: 9
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: orc-2e:focus.spent
+      by: 1
+  - to: target
+    character: goblin
+    step: deal[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -9
+      tags:
+        - damage
+        - spell
+        - damage.fire
+  - to: self
+    step: count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 1
+log:
+  - step: attack[0]/roll
+    action: orc-2e:spell-attack
+    kind: dice
+    by: engine
+    faces:
+      - 9
+    total: 17
+    band: success
+    bandSet: orc-2e:degree
+  - step: hit[0]
+    action: orc-2e:cast-spell
+    kind: dice
+    by: engine
+    faces:
+      - 2
+      - 3
+      - 4
+    total: 9

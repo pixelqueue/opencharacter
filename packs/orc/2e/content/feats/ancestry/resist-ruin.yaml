@@ -1,0 +1,12 @@
+id: feats.ancestry.resist-ruin
+type: feat
+fields: { level: 13, category: ancestry, heritage: heritages.duskwalker }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.void] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 5)
+    when: incoming.amount < 0
+  - { target: spells.innate, op: grant, value: { item: spells.false-vitality } }
+grants:
+  - item: spells.false-vitality

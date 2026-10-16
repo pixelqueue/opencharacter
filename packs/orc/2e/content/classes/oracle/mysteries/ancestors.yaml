@@ -1,0 +1,91 @@
+id: classes.oracle.mysteries.ancestors
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: oracle.mystery, op: set, value: "'ancestors'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.society },
+      when: "!('skill.society' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: oracle.grantedFeats, op: grant, value: { item: feats.oracle.whispers-of-weakness } }
+  - { target: focus.points, op: add, value: 1 }
+  - { target: oracle.revelations, op: grant, value: { item: spells.ancestral-touch } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.ancestral-defense } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.ancestral-form } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.guidance } }
+  - { target: oracle.granted, op: grant, value: { item: spells.guidance } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.guidance } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.ill-omen } }
+  - { target: oracle.granted, op: grant, value: { item: spells.ill-omen } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.ill-omen } }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.ill-omen }
+    when: '@feats.oracle.gifted-power in feats.held'
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.ill-omen } }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.ghostly-carrier },
+      when: level >= 3,
+    }
+  - { target: oracle.granted, op: grant, value: { item: spells.ghostly-carrier }, when: level >= 3 }
+  - {
+      target: spells.bonusKnown,
+      op: grant,
+      value: { item: spells.ghostly-carrier },
+      when: level >= 3,
+    }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.ghostly-carrier }
+    when: 'level >= 3 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank2,
+      op: grant,
+      value: { item: spells.ghostly-carrier },
+      when: level >= 3,
+    }
+  - target: { fields: { where: "'attr.dex' in item.tags" } }
+    op: add
+    value: -oracle.cursebound
+    stackKey: status-penalty
+    when: oracle.cursebound > 0
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.dreaming-potential },
+      when: level >= 9,
+    }
+  - {
+      target: oracle.granted,
+      op: grant,
+      value: { item: spells.dreaming-potential },
+      when: level >= 9,
+    }
+  - {
+      target: spells.bonusKnown,
+      op: grant,
+      value: { item: spells.dreaming-potential },
+      when: level >= 9,
+    }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.dreaming-potential }
+    when: 'level >= 9 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank5,
+      op: grant,
+      value: { item: spells.dreaming-potential },
+      when: level >= 9,
+    }
+grants:
+  - item: feats.oracle.whispers-of-weakness
+  - item: spells.ancestral-touch
+  - { item: spells.guidance }
+  - { item: spells.ill-omen }
+  - { item: spells.ghostly-carrier, when: level >= 3 }
+  - { item: spells.dreaming-potential, when: level >= 9 }

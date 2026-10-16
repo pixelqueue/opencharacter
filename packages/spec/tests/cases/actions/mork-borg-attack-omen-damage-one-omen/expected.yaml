@@ -1,0 +1,39 @@
+# One omen, spent on the DR (12 - 4 = 8): 9 + 1 = 10, a success. No omen is left for the
+# damage, so it is rolled (1d6 = 4) and only one omen is spent.
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 4
+    sepsis: false
+    skullSmashed: false
+proposedChanges:
+  - to: self
+    step: check/omen
+    change:
+      type: adjust
+      field: mork-borg-core:omens.current
+      by: -1
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -4
+      tags:
+        - damage
+log:
+  - step: check/check
+    kind: dice
+    by: engine
+    faces:
+      - 9
+    total: 14
+    band: success
+    bandSet: mork-borg-core:test
+  - step: damage
+    kind: dice
+    by: engine
+    faces:
+      - 4
+    total: 4

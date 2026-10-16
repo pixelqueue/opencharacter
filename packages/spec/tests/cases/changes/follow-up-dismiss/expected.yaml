@@ -1,0 +1,38 @@
+# steady-1 is dismissed, so the new hit's steady roll takes the number again; the ally's help
+# from the earlier hit stays, and a new one is stored after it.
+ok: true
+followUps:
+  - id: steady-1
+    kind: ephemeral
+    followUp: test-follow-ups:steady
+    to: self
+    required: false
+    action: { id: test-follow-ups:steady, followUp: steady-1 }
+    params: { damage: 1 }
+    cause:
+      {
+        field: test-follow-ups:hp.current,
+        by: -1,
+        requested: -1,
+        taken: -1,
+        reason: requested,
+        clamped: false,
+        tags: [damage],
+      }
+  - id: call-ally-2
+    kind: ephemeral
+    followUp: test-follow-ups:call-ally
+    to: { link: test-follow-ups:ally }
+    required: false
+    action: { id: test-ally:help }
+    params: { lost: 1 }
+    cause:
+      {
+        field: test-follow-ups:hp.current,
+        by: -1,
+        requested: -1,
+        taken: -1,
+        reason: requested,
+        clamped: false,
+        tags: [damage],
+      }

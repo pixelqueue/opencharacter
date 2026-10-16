@@ -1,0 +1,138 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: poolAbility
+    change:
+      type: choose
+      path:
+        choice:
+          - special-abilities
+      option: fitd-scoundrel:special-abilities.mule
+  - to: self
+    step: vice
+    change:
+      type: choose
+      path:
+        choice:
+          - vice
+      option: fitd-scoundrel:vices.gambling
+  - to: self
+    step: startingDots
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.skirmish
+      by: 2
+  - to: self
+    step: startingDots
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.command
+      by: 1
+  - to: self
+    step: heritageDot
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.survey
+      by: 1
+  - to: self
+    step: backgroundDot
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.prowl
+      by: 1
+  - to: self
+    step: dots
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.prowl
+      by: 1
+  - to: self
+    step: dots
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.command
+      by: 1
+  - to: self
+    step: heritage
+    change:
+      type: set
+      field: fitd-scoundrel:identity.heritage
+      value: Northern refugees
+  - to: self
+    step: background
+    change:
+      type: set
+      field: fitd-scoundrel:identity.background
+      value: Military, a deserter
+  - to: self
+    step: alias
+    change:
+      type: set
+      field: fitd-scoundrel:identity.alias
+      value: Slate
+  - to: self
+    step: look
+    change:
+      type: set
+      field: fitd-scoundrel:identity.look
+      value: Long coat, scarred knuckles
+  - to: self
+    step: friend
+    change:
+      type: set
+      field: fitd-scoundrel:relationships.friend
+      value: Ivo, a boxer
+  - to: self
+    step: rival
+    change:
+      type: set
+      field: fitd-scoundrel:relationships.rival
+      value: Dren, a debt collector
+  - to: self
+    step: purveyor
+    change:
+      type: set
+      field: fitd-scoundrel:vice.purveyor
+      value: Old Mott, at the dice den
+  - to: self
+    step: finish
+    change:
+      type: finishCreation
+log:
+  - step: poolAbility
+    action: fitd-scoundrel:create-scoundrel
+    kind: choice
+    by: app
+    option: fitd-scoundrel:special-abilities.mule
+  - step: vice
+    action: fitd-scoundrel:create-scoundrel
+    kind: choice
+    by: app
+    option: fitd-scoundrel:vices.gambling
+  - step: startingDots
+    action: fitd-scoundrel:create-scoundrel
+    kind: allocate
+    by: app
+    amounts:
+      fitd-scoundrel:ratings.skirmish: 2
+      fitd-scoundrel:ratings.command: 1
+  - step: heritageDot
+    action: fitd-scoundrel:create-scoundrel
+    kind: allocate
+    by: app
+    amounts:
+      fitd-scoundrel:ratings.survey: 1
+  - step: backgroundDot
+    action: fitd-scoundrel:create-scoundrel
+    kind: allocate
+    by: app
+    amounts:
+      fitd-scoundrel:ratings.prowl: 1
+  - step: dots
+    action: fitd-scoundrel:create-scoundrel
+    kind: allocate
+    by: app
+    amounts:
+      fitd-scoundrel:ratings.prowl: 1
+      fitd-scoundrel:ratings.command: 1

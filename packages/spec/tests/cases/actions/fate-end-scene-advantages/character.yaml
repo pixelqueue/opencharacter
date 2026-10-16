@@ -1,0 +1,29 @@
+# Mara after a fight: free invocations on a situation aspect, a boost, and a consequence she
+# inflicted.
+specVersion: 0.1.0
+id: example-fate-mara
+packs:
+  - { id: fate-core, version: 0.1.0 }
+values:
+  fate-core:identity.name: Mara Vell
+  fate-core:aspects.highConcept: Disgraced Duelist of the Seven Courts
+  fate-core:skills.fight: 4
+  fate-core:skills.athletics: 3
+  fate-core:skills.physique: 3
+  fate-core:skills.notice: 2
+  fate-core:skills.will: 2
+  fate-core:skills.rapport: 2
+  fate-core:skills.deceive: 1
+  fate-core:skills.stealth: 1
+  fate-core:skills.empathy: 1
+  fate-core:skills.lore: 1
+features:
+  - id: a-ground
+    item: fate-core:advantages.advantage
+    state: { label: High Ground, invokes: 1, kind: situation }
+  - id: a-balance
+    item: fate-core:advantages.advantage
+    state: { label: Off Balance, invokes: 1, kind: boost }
+  - id: a-wrist
+    item: fate-core:advantages.advantage
+    state: { label: Sprained Wrist, invokes: 1, kind: consequence }

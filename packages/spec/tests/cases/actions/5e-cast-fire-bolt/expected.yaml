@@ -1,0 +1,42 @@
+# A cantrip: no slot. Attack 12 + 6 = 18 >= 13: hit. 2d10 at character level 5 (7 + 3 = 10).
+status: finished
+outcome:
+  result: hit
+  data:
+    slot: 0
+    spellcastingClass: wizard
+    metamagic: none
+    dc: 14
+    save: ''
+    halfOnSave: false
+    damage: 10
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -10,
+          tags: [damage, attack, spell, magical, ranged, damage.fire],
+        },
+    }
+log:
+  - step: attack
+    action: 5e-srd-5.1:cast-spell
+    kind: dice
+    by: engine
+    faces: [12]
+    total: 18
+  - step: damage
+    action: 5e-srd-5.1:cast-spell
+    kind: dice
+    by: engine
+    faces: [7, 3]
+    items:
+      - { kind: dice, count: 2, sides: 10, value: 10, tags: [damage.fire] }
+    total: 10

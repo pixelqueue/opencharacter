@@ -1,0 +1,65 @@
+id: classes.fanged-deserter
+type: class
+fields:
+  strength: 3d6+2
+  agility: 3d6-1
+  presence: 3d6-1
+  toughness: 3d6
+  hitDie: 1d10
+  omensDie: 1d2
+  silver: 2d6
+  weaponDie: 1d10
+  armorDie: 1d4
+effects:
+  - { target: tests.agilityDr, op: add, value: 2 }
+  - { target: powers.blocked, op: add, value: 1 }
+actions:
+  - id: bite
+    tags: [attack]
+    params:
+      dr: { type: integer, default: 10, min: 1 }
+    results: { bands: test }
+    steps:
+      - id: check
+        kind: action
+        use: test
+        tags: [attack]
+        params:
+          ability: "'abilities.strength'"
+          dr: params.dr
+          combat: true
+      - id: damage
+        kind: roll
+        when: "steps.check.result == 'success' || steps.check.result == 'crit'"
+        tags: [damage]
+        parts:
+          - dice: 1d6
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - { type: adjust, field: hp.current, by: -steps.damage.total, tags: [damage] }
+      - id: exposed
+        kind: roll
+        tags: [attack]
+        parts:
+          - dice: 1d6
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+          exposed: steps.exposed.total <= 2
+choices:
+  - id: feature
+    from:
+      options:
+        - id: crumpled-monster-mask
+        - id: brown-scimitar
+        - id: wizard-teeth
+          effects: [{ target: features.wizardTeeth, op: set, value: true }]
+        - id: old-sigurds-sling
+        - id: ancient-gore-hound
+          effects: [{ target: companions.hound, op: set, value: true }]
+        - id: shoe-of-deaths-horse

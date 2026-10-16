@@ -1,0 +1,34 @@
+id: feats.archetype.alchemist.alchemist-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.alchemist }
+
+prerequisites:
+  - { id: int, when: 'attributes.int.mod >= 2' }
+  - { id: not-alchemist, when: 'countCopies(copy.item == @classes.alchemist) == 0' }
+effects:
+  - { target: classDc.alchemist.rank, op: atLeast, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.crafting },
+      when: "!('skill.crafting' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: attacks.bomb.rank, op: atLeast, value: 1 }
+  - target: alchemist.vials.max
+    op: set
+    value: '@feats.archetype.alchemist.voluminous-vials in feats.held ? 5 : 4'
+grants:
+  - item: features.alchemist.alchemy
+choices:
+  - id: formulas
+    unique: formulas
+    pick: 4
+    activate: false
+    from:
+      type: consumable
+      where: "'trait.alchemical' in item.tags && has(item.family) && item.family == item.id && !('trait.uncommon' in item.tags)"
+    eligible: item.level <= level
+    effects:
+      - { target: alchemist.formulas, op: grant, value: { formula: pick.id } }

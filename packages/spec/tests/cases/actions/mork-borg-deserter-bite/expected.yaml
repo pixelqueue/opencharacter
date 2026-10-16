@@ -1,0 +1,41 @@
+# 10 + 1 (Strength) = 11 against DR 10: success. Damage 1d6 = 4. The follow-up d6 = 2 leaves the
+# deserter open to a free attack.
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 4
+    exposed: true
+proposedChanges:
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -4
+      tags:
+        - damage
+log:
+  - step: check/check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 10
+    total: 11
+    band: success
+    bandSet: mork-borg-core:test
+  - step: damage
+    action: mork-borg-core:classes.fanged-deserter#bite
+    kind: dice
+    by: engine
+    faces:
+      - 4
+    total: 4
+  - step: exposed
+    action: mork-borg-core:classes.fanged-deserter#bite
+    kind: dice
+    by: engine
+    faces:
+      - 2
+    total: 2

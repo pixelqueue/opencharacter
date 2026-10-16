@@ -1,0 +1,37 @@
+# Strength test 15 + 1 = 16 against DR 12: a success. With `omenDamage`, the damage is
+# maxOf(1d6) = 6, a flat item, so the damage roll asks for no faces. The omen is spent.
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 6
+    sepsis: false
+    skullSmashed: false
+proposedChanges:
+  - to: self
+    step: spendOmen
+    change:
+      type: adjust
+      field: mork-borg-core:omens.current
+      by: -1
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -6
+      tags:
+        - damage
+log:
+  - step: check/check
+    kind: dice
+    by: engine
+    faces:
+      - 15
+    total: 16
+    band: success
+    bandSet: mork-borg-core:test
+  - step: damage
+    kind: dice
+    by: engine
+    total: 6

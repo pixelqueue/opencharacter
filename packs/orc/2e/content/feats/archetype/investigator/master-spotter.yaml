@@ -1,0 +1,12 @@
+id: feats.archetype.investigator.master-spotter
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 12, category: class, archetype: archetypes.investigator }
+prerequisites:
+  - {
+      id: investigator-dedication,
+      when: '@feats.archetype.investigator.investigator-dedication in feats.held',
+    }
+  - { id: perception, when: 'perception.rank >= 2' }
+effects:
+  - { target: perception.rank, op: atLeast, value: 3 }

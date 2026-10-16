@@ -1,0 +1,15 @@
+id: consumables.invisibility-potion
+type: consumable
+tags: [trait.illusion, trait.magical, trait.potion, trait.uncommon]
+fields:
+  level: 4
+  price: 20
+  bulk: 0.1
+  category: potion
+effects:
+  - target: { steps: [consumable.drink] }
+    op: changes
+    when: action.self.id == self.id
+    value:
+      changes:
+        - { type: applyEffect, source: "'spells.invisibility'", state: { rank: 2 } }

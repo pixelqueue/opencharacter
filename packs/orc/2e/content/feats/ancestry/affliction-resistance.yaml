@@ -1,0 +1,13 @@
+id: feats.ancestry.affliction-resistance
+type: feat
+fields: { level: 5, category: ancestry, ancestry: ancestries.kholo }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: situational.againstDisease || situational.againstPoison
+  - target: { rolls: [save], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.againstDisease || situational.againstPoison

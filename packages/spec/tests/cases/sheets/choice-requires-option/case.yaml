@@ -1,0 +1,30 @@
+description: "A choice that requires an option: the boon's feat choice is pending with no eligible feat (each needs might 13), so the boon has `no-eligible-option`; the gift's choice, without `requiresOption`, is pending with no issue"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          might: { type: integer, input: true, default: 10 }
+        contentTypes:
+          perk: {}
+          feat: {}
+      content:
+        - id: feats.grapple
+          type: feat
+          prerequisites: [{ id: might, when: might >= 13 }]
+        - id: feats.shove
+          type: feat
+          prerequisites: [{ id: might, when: might >= 13 }]
+        - id: perks.boon
+          type: perk
+          choices: [{ id: feat, from: { type: feat }, requiresOption: true }]
+        - id: perks.gift
+          type: perk
+          choices: [{ id: feat, from: { type: feat } }]

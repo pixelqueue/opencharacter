@@ -1,0 +1,24 @@
+id: features.fighter.second-wind
+type: feature
+actions:
+  - id: second-wind
+    tags: [healing]
+    results: [healed]
+    available: '!self.secondWindUsed'
+    steps:
+      - id: heal
+        kind: roll
+        tags: [healing]
+        parts:
+          - dice: 1d10
+          - value: self.level
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: steps.heal.total, tags: [healing] }
+          - { type: setState, entry: self, key: secondWindUsed, value: true }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: steps.heal.total

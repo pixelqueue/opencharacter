@@ -1,0 +1,30 @@
+status: paused
+needs:
+  step: allies[0]
+  action: mork-borg-core:gob-lob
+  kind: handoff
+  participant:
+    role: ally
+    id: friend
+  run:
+    action: mork-borg-core:test
+    params:
+      ability: mork-borg-core:abilities.toughness
+      dr: 10
+log:
+  - step: check/check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 10
+    total: 10
+    band: success
+    bandSet: mork-borg-core:test
+  - step: blind
+    action: mork-borg-core:gob-lob
+    kind: dice
+    by: engine
+    faces:
+      - 3
+    total: 3

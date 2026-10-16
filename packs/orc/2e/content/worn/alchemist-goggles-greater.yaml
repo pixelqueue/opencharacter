@@ -1,0 +1,14 @@
+# The bonus is on every Craft check: the item crafted isn't known to the roll.
+id: worn.alchemist-goggles-greater
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 11
+  price: 1400
+  usage: eyepiece
+effects:
+  - target: { rolls: [skill-action.craft] }
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

@@ -1,0 +1,39 @@
+description: "A step over pending choices asks a slot by its own ID; `needs.choice` and `recommend`'s `choice` carry `slot: { choice, number }`"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          level: { type: integer, input: true, default: 1 }
+        choices:
+          # A boost at 1st and 5th level; at 1st only the first applies.
+          - id: boost
+            slots: [1, 5]
+            when: level >= slot
+            from:
+              options:
+                - id: str
+                  choices:
+                    - id: why
+                      from: { options: [{ id: duty }, { id: glory }] }
+                - id: dex
+        actions:
+          - id: create
+            steps:
+              - id: picks
+                kind: choice
+                options: { pending: {} }
+                recommend: "has(choice.slot) && choice.slot.number == 1 ? 'dex' : options[0]"
+              - id: done
+                kind: outcome
+      content: []
+input:
+  action: { id: test-pack:create }
+  policy: { rules: [{ step: picks, then: pause }] }

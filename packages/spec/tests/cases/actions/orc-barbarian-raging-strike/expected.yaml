@@ -1,0 +1,66 @@
+# The greataxe (+7) rolls 11: 18 against AC 16, a hit. Damage, two-handed: 1d12 (8) + Strength 4
+# + Rage 3 (fury) = 15.
+status: finished
+outcome:
+  result: success
+  data:
+    attack: 18
+    dc: 16
+    map: 0
+    flatCheck: true
+    damage: 15
+proposedChanges:
+  - to: self
+    step: count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 1
+      tags: [attack-count]
+  - to: target
+    character: goblin
+    step: deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -15
+      tags:
+        - damage
+        - damage.slashing
+log:
+  - step: attack
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 11
+    total: 18
+    band: success
+    bandSet: orc-2e:degree
+  - step: damage
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 8
+    total: 15
+    items:
+      - kind: dice
+        value: 8
+        tags:
+          - part.weapon-die
+          - damage.slashing
+        source:
+          id: orc-2e:weapons.greataxe
+      - kind: flat
+        value: 4
+        tags:
+          - damage.slashing
+        source:
+          id: orc-2e:weapons.greataxe
+      - kind: flat
+        value: 3
+        tags:
+          - damage.slashing
+        source:
+          id: orc-2e:classes.barbarian.raging

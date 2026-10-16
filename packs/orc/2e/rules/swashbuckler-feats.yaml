@@ -1,0 +1,12 @@
+situational:
+  - id: charmedLife
+    type: boolean
+    default: false
+    rolls: [save]
+    available: '@feats.swashbuckler.charmed-life in feats.held'
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 2
+        stackKey: circumstance-bonus
+        when: situational.charmedLife

@@ -1,0 +1,14 @@
+# 7 damage: the ward absorbs 2, the hit points take 5 and stop at 0 (clamped).
+- { type: adjust, field: test-pack:hp, by: -7, tags: [damage, fire] }
+- type: setState
+  copies: { type: test-pack:tally }
+  key: lost
+  value: >-
+    -sumList(batch.adjustments, x.by, x.field == 'test-pack:hp' && x.reason == 'requested'
+      && 'damage' in x.tags)
+- type: setState
+  copies: { type: test-pack:tally, where: size(batch.adjustments) == 2 }
+  key: entries
+  value: >-
+    countList(batch.adjustments, x.requested == -7 && x.clamped) * 10
+      + countList(batch.adjustments, x.field == 'test-pack:ward' && x.reason == 'absorbed')

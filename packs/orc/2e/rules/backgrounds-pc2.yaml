@@ -1,0 +1,13 @@
+situational:
+  - { id: againstCurse, type: boolean, default: false, rolls: [save] }
+  - id: wardingSign
+    type: boolean
+    default: false
+    rolls: [save]
+    available: 'countCopies(copy.item == @backgrounds.cursed) > 0'
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 'situational.againstCurse ? 3 : 2'
+        stackKey: circumstance-bonus
+        when: situational.wardingSign

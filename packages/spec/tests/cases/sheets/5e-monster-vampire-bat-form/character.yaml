@@ -1,0 +1,30 @@
+specVersion: 0.1.0
+id: vampire
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 18
+  5e-srd-5.1:abilities.dex.base: 18
+  5e-srd-5.1:abilities.con.base: 18
+  5e-srd-5.1:abilities.int.base: 17
+  5e-srd-5.1:abilities.wis.base: 15
+  5e-srd-5.1:abilities.cha.base: 18
+  5e-srd-5.1:challenge.rating: 13
+  5e-srd-5.1:creature.type: undead
+  5e-srd-5.1:creature.alignment: lawful-evil
+  5e-srd-5.1:combat.speed: 30
+  5e-srd-5.1:proficiencies.saves: [save.dex, save.wis, save.cha]
+  5e-srd-5.1:proficiencies.skills: [skill.perception, skill.stealth]
+  5e-srd-5.1:damage.resistances: [damage.necrotic, nonmagical]
+  5e-srd-5.1:hp.base: 144
+  5e-srd-5.1:hp.current: 144
+features:
+  - id: monster
+    item: 5e-srd-5.1:monsters.vampire
+    choices: { form: [{ option: bat }] }
+  - id: legendary-resistance
+    item: 5e-srd-5.1:monsters.vampire.legendary-resistance
+    state: { usesLeft: 3 }
+  - id: children-of-the-night
+    item: 5e-srd-5.1:monsters.vampire.children-of-the-night
+    state: { usesLeft: 1 }

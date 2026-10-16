@@ -1,0 +1,14 @@
+id: feats.ancestry.geckos-grip
+type: feat
+fields: { level: 5, category: ancestry, ancestry: ancestries.lizardfolk }
+grants:
+  - { item: feats.skill.combat-climber, waivePrerequisites: true }
+effects:
+  - target: { rolls: [skill-action.climb], tally: successToCrit }
+    op: add
+    value: 1
+    when: '!(@heritages.cliffscale-lizardfolk in heritages.held)'
+  - target: speed.climb.base
+    op: atLeast
+    value: 15
+    when: '@heritages.cliffscale-lizardfolk in heritages.held'

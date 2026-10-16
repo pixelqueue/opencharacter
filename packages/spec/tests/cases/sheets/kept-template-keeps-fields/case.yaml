@@ -1,0 +1,39 @@
+description: "An item's `keepsFields`: the templates it keeps leave its Price alone (a +1 trident costs its own 50), while a template the player applies still adds its Price (a rune etched later, +65)"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          weapon:
+            carried: true
+            fields:
+              price: { type: integer, default: 0 }
+              potency: { type: integer, default: 0 }
+        fields:
+          prices: { type: integer, formula: 'sumCopies(copy.fields.price, true)' }
+          potencies: { type: integer, formula: 'sumCopies(copy.fields.potency, true)' }
+      content:
+        - { id: weapons.trident, type: weapon, fields: { price: 1 } }
+        - id: weapons.fork
+          type: weapon
+          extends: weapons.trident
+          fields: { price: 50 }
+          keepsFields: [price]
+          keepsTemplates:
+            - template: runes.potency
+              copies: { type: weapon, where: 'item.id == @weapons.fork' }
+        - id: runes.potency
+          type: template
+          appliesTo: { type: weapon }
+          fields: { potency: 1, price: 'prior.price + 35' }
+        - id: runes.flaming
+          type: template
+          appliesTo: { type: weapon }
+          fields: { price: 'prior.price + 65' }

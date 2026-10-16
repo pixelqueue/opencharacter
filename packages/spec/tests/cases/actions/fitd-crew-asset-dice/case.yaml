@@ -1,0 +1,13 @@
+description: "FitD: a linked crew's Pack Rats and Warehouses add dice to asset rolls"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:acquire-asset }
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:tier: 1
+        fitd-crew:members.asset.dice: 2

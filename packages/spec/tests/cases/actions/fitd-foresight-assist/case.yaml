@@ -1,0 +1,14 @@
+description: 'FitD Foresight: a helper with it assists without stress, marking a use'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:action-roll }
+  params: { rating: fitd-scoundrel:ratings.skirmish }
+  participants:
+    helper:
+      - id: vex
+        values:
+          abilities.special: ['fitd-scoundrel:special-abilities.foresight']
+          foresight.used: 1

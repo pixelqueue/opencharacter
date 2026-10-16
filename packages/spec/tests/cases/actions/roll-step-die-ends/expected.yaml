@@ -1,0 +1,36 @@
+status: finished
+outcome: { data: { total: 10 } }
+log:
+  - step: roll
+    action: 'test-roll-parts:damage'
+    kind: dice
+    by: engine
+    faces: [1, 2, 3, 4]
+    total: 10
+    items:
+      - {
+          kind: dice,
+          count: 1,
+          sides: 12,
+          steppedFrom: 8,
+          faces: [{ value: 1 }],
+          source: { type: rules, id: 'test-roll-parts:damage' },
+          tags: [weapon-die],
+        }
+      - {
+          kind: dice,
+          count: 1,
+          sides: 12,
+          steppedFrom: 6,
+          faces: [{ value: 2 }],
+          source: { type: rules, id: 'test-roll-parts:damage' },
+          tags: [extra],
+        }
+      - { kind: dice, count: 1, sides: 20, faces: [{ value: 3 }], tags: [die] }
+      - {
+          kind: dice,
+          count: 1,
+          sides: 4,
+          faces: [{ value: 4 }],
+          source: { type: rules, id: 'test-roll-parts:rules' },
+        }

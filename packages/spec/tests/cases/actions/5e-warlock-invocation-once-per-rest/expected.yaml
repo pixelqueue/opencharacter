@@ -1,0 +1,35 @@
+# Bestow curse is in spells.limited, so `slot` isn't offered; the only option is the invocation's,
+# never recommended, so the step pauses and the app answers it. Its changes spend the pact slot
+# and mark Sign of Ill Omen used; cast-spell's own spendPact step doesn't run. Cast at the pact
+# slot level (3rd); DC 8 + proficiency 3 + Charisma 3 = 14.
+status: finished
+outcome:
+  result: save
+  data:
+    slot: 3
+    spellcastingClass: warlock
+    metamagic: none
+    dc: 14
+    save: wis
+    halfOnSave: false
+    damage: 0
+    healing: 0
+    concentration: true
+    critical: false
+proposedChanges:
+  - to: self
+    step: cost
+    change: { type: adjust, field: 5e-srd-5.1:pactSlots.used, by: 1 }
+  - to: self
+    step: cost
+    change: { type: setState, entry: warlock, key: signOfIllOmenUsed, value: true }
+  # Bestow curse needs concentration.
+  - to: self
+    step: concentrate
+    change: { type: set, field: 5e-srd-5.1:concentration.active, value: true }
+log:
+  - step: cost
+    action: 5e-srd-5.1:cast-spell
+    kind: choice
+    by: app
+    option: '5e-srd-5.1:invocations.sign-of-ill-omen#invocation'

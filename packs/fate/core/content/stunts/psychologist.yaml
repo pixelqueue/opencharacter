@@ -1,0 +1,44 @@
+# A tie succeeds at a minor cost, as for recovery.
+id: stunts.psychologist
+type: stunt
+fields: { shape: exception, skill: skills.empathy, limit: session }
+actions:
+  - id: treat
+    available: self.used < 1
+    params:
+      slot:
+        type: enum
+        values: [mild, mild-physical, mild-mental, moderate, severe]
+        default: mild
+    participants:
+      patient: { min: 1, max: 1 }
+    results: { bands: outcome }
+    steps:
+      - id: roll
+        kind: action
+        use: overcome
+        params:
+          skill: "'skills.empathy'"
+          opposition: "params.slot == 'severe' ? 4 : params.slot == 'moderate' ? 3 : 2"
+      - id: mark
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: used, by: 1 }
+      - id: ease
+        kind: changes
+        when: steps.roll.result != 'fail'
+        to: patient
+        changes:
+          - type: setState
+            when: "params.slot == 'moderate' || params.slot == 'severe'"
+            copies: { type: consequence, where: self.slot == params.slot }
+            limit: 1
+            key: slot
+            value: "params.slot == 'severe' ? 'moderate' : 'mild'"
+          - type: removeItem
+            when: "params.slot != 'moderate' && params.slot != 'severe'"
+            copies: { type: consequence, where: self.slot == params.slot }
+            limit: 1
+      - id: result
+        kind: outcome
+        result: steps.roll.result

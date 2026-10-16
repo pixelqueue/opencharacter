@@ -1,0 +1,14 @@
+id: consumables.scroll-8th-rank
+type: consumable
+tags: [trait.magical, trait.scroll]
+fields:
+  level: 15
+  price: 1300
+  bulk: 0.1
+  category: scroll
+  spellRank: 8
+choices:
+  - id: spell
+    from:
+      type: spell
+      where: "item.rank <= 8 && !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)"

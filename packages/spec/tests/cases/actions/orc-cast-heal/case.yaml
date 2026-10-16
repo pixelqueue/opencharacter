@@ -1,0 +1,15 @@
+description: 'orc-2e: heal with 2 actions from a 1st-rank slot: 1d8 + 8 Hit Points for the ally, and 1d8 vitality damage to an undead target that fails its basic Fortitude save'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: heal-1 }
+  params: { actions: 2 }
+  participants:
+    ally:
+      - { id: fighter }
+    target:
+      - { id: zombie }
+answers:
+  - { outcome: { result: failure } }

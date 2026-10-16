@@ -1,0 +1,15 @@
+id: consumables.dragon-turtle-scale
+type: consumable
+tags: [trait.magical, trait.talisman]
+fields:
+  level: 4
+  price: 13
+  category: talisman
+  affixTo: armor
+  lasting: true
+effects:
+  - target: speed.swim.base
+    op: atLeast
+    value: floor(speed.land / 2)
+    scope: applied
+    duration: { amount: 1, unit: minute }

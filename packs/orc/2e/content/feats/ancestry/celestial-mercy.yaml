@@ -1,0 +1,10 @@
+id: feats.ancestry.celestial-mercy
+type: feat
+fields: { level: 13, category: ancestry, heritage: heritages.nephilim }
+prerequisites:
+  - id: lineage
+    when: '@feats.ancestry.angelkin in feats.held || @feats.ancestry.lawbringer in feats.held || @feats.ancestry.musetouched in feats.held'
+effects:
+  - { target: spells.innate, op: grant, value: { item: spells.cleanse-affliction } }
+grants:
+  - item: spells.cleanse-affliction

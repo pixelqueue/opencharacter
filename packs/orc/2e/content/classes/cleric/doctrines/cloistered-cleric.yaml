@@ -1,0 +1,14 @@
+id: classes.cleric.doctrines.cloistered-cleric
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: cleric.doctrine, op: set, value: "'cloistered'" }
+  - { target: saves.fortitude.rank, op: atLeast, value: 2, when: level >= 3 }
+  - target: spellcasting.rank
+    op: atLeast
+    value: 'level >= 19 ? 4 : level >= 15 ? 3 : level >= 7 ? 2 : 1'
+  - { target: attacks.favoredRank, op: atLeast, value: 2, when: level >= 11 }
+  - { target: attacks.simple.rank, op: atLeast, value: 2, when: level >= 11 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 2, when: level >= 11 }
+grants:
+  - item: feats.cleric.domain-initiate

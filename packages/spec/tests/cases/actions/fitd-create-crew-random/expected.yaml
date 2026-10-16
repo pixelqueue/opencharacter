@@ -1,0 +1,97 @@
+# The engine draws each pick. No crew type (the pack has none): the d16 4 picks the
+# 4th ability, Deadly; the d20 14 the 14th operation, Robbery. The two starting upgrades: 26
+# upgrades can take a box (every general and crew-specific one, less Mastery, Hardened and
+# Composed): the d26 18 marks the 18th, the Rigging; 25 are left, the d25 1 marks the Carriage. The
+# d3 1 room to work (no faction), the d3 1 two upgrade boxes: the d25 7 the Workshop, then of 24
+# the d24 18 Underground Maps. With 1 coin left, the d2 2 picks +2 status for 1 coin; with no coin
+# left, -2 status is the only harm (no draw); the d2 1 a close contact. The crew has no factions,
+# so the outcome gives the statuses for the GM to record. The Rigging's two kinds are the
+# pending picks: the d6 6 weapons, then the d5 1 documents.
+status: finished
+outcome:
+  result: created
+  data:
+    groundsStatus: 0
+    helpedStatus: 2
+    harmedStatus: -2
+    friendStatus: 1
+    enemyStatus: -1
+proposedChanges:
+  - to: self
+    step: ability
+    change:
+      type: choose
+      path:
+        choice:
+          - crew-abilities
+      option: fitd-crew:crew-abilities.deadly
+  - to: self
+    step: operation
+    change:
+      type: choose
+      path:
+        choice:
+          - operation
+      option: fitd-crew:operations.robbery
+  - to: self
+    step: start
+    change:
+      type: adjust
+      field: fitd-crew:coin.current
+      by: 2
+  - to: self
+    step: startingUpgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.lair.carriage
+      by: 1
+  - to: self
+    step: startingUpgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.rigging
+      by: 1
+  - to: self
+    step: huntingGrounds
+    change:
+      type: adjust
+      field: fitd-crew:coin.current
+      by: -1
+  - to: self
+    step: upgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.lair.workshop
+      by: 1
+  - to: self
+    step: upgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.undergroundMaps
+      by: 1
+  - to: self
+    step: helped
+    change:
+      type: adjust
+      field: fitd-crew:coin.current
+      by: -1
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - rigging
+      option: weapons
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - rigging
+      option: documents
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

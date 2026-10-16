@@ -1,0 +1,19 @@
+# The same pause as choice-pending-pause, without `#done`: skipping would leave the basic skills
+# pending, which finishCreation refuses.
+status: paused
+needs:
+  step: picks
+  action: test-pack:create
+  kind: choice
+  options:
+    - test-pack:skills.climbing
+    - test-pack:skills.swimming
+    - test-pack:skills.tracking
+  recommended: test-pack:skills.tracking
+  choice:
+    path: { choice: [calling, 'test-pack:callings.hunter', basic] }
+    owner: 'test-pack:callings.hunter'
+    id: basic
+    min: 2
+    max: 2
+    picked: 0

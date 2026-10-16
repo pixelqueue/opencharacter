@@ -1,0 +1,35 @@
+# 12 + 4 = 16 hits AC 14: 2d4 + 2 (3, 2) = 7 slashing. The target fails its DC 10
+# Constitution save on its own sheet, so it is paralyzed, by an undead, not magically.
+status: finished
+outcome:
+  result: hit
+  data:
+    critical: false
+    attack: 16
+    damage: 7
+    riderDamage: 0
+    dc: 10
+    save: con
+    condition: 5e-srd-5.1:conditions.paralyzed
+proposedChanges:
+  - {
+      to: target,
+      character: tamsin,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -7,
+          tags: [damage, attack, melee, weapon, nonmagical, wielder.neutral, damage.slashing],
+        },
+    }
+  - to: target
+    character: tamsin
+    step: condition[0]
+    change:
+      type: applyEffect
+      source: 5e-srd-5.1:conditions.paralyzed
+      state:
+        by: undead
+        magical: false

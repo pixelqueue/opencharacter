@@ -1,0 +1,15 @@
+id: consumables.fade-band
+type: consumable
+tags: [trait.illusion, trait.magical, trait.talisman]
+fields:
+  level: 12
+  price: 320
+  category: talisman
+  affixTo: armor
+effects:
+  - target: { steps: [consumable.activate] }
+    op: changes
+    when: action.self.id == self.id
+    value:
+      changes:
+        - { type: applyEffect, source: "'spells.invisibility'", state: { rank: 2 } }

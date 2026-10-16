@@ -1,0 +1,21 @@
+ok: true
+issues: []
+followUps:
+  - id: welcome-1
+    kind: ephemeral
+    followUp: test-pack:welcome
+    to: self
+    required: false
+    changes:
+      - type: set
+        field: test-pack:health
+        value: 7
+      - type: clearFollowUp
+        id: welcome-1
+character:
+  values: { test-pack:health: 6 }
+  choices:
+    calling:
+      - option: test-pack:callings.hunter
+        choices:
+          gift: [{ option: rope }]

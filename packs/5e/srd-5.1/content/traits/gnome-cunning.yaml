@@ -1,0 +1,9 @@
+id: traits.gnome-cunning
+type: trait
+# A save marked against any magic answers the `spellSave` choice too.
+effects:
+  - { target: items.spellSave, op: add, value: 1 }
+  - target: { rolls: [save.int, save.wis, save.cha] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: situational.spellSave != 'none'

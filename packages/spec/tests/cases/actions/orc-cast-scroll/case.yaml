@@ -1,0 +1,18 @@
+description: "orc-2e casting from a scroll: a 2nd-rank scroll of bless, a divine
+  spell on the caster's list, casts bless at 2nd rank and is used up (one of two)"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:cast-spell
+    entry: scroll
+    source: orc-2e:spells.bless
+  participants:
+    ally:
+      - id: fighter
+  policy:
+    choices: pause
+answers:
+  - option: orc-2e:consumables.scroll-2nd-rank#scroll

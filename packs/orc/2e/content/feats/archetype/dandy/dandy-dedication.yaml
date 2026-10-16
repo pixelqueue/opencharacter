@@ -1,0 +1,24 @@
+id: feats.archetype.dandy.dandy-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.dandy }
+
+# A skill already trained frees a training (the book makes it expert instead; the player can spend a
+# skill increase).
+prerequisites:
+  - { id: diplomacy, when: 'skills.diplomacy.rank >= 1' }
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.deception },
+      when: "!('skill.deception' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.society },
+      when: "!('skill.society' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }

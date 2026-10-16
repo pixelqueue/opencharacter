@@ -1,0 +1,11 @@
+# The policy's rule matches the step's `cost.push` tag by its parent `cost`, so the step pauses
+# although choices default to auto. The charm's option comes after `stress`, qualified by the
+# charm's content ID; the recommendation stays the step's own.
+status: paused
+needs:
+  step: pay
+  action: test-pack:strain
+  kind: choice
+  options: [stress, 'test-pack:charms.luck#charge']
+  recommended: stress
+log: []

@@ -1,0 +1,85 @@
+# The rest's usual changes, then one setState over monsterAction copies with uses to regain:
+# Legendary Resistance back to 3. The breath (no uses) doesn't match; an innate spell's copy
+# would, by its `perDay` state.
+status: finished
+outcome: { result: rested }
+proposedChanges:
+  - { to: self, step: rest, change: { type: set, field: '5e-srd-5.1:hp.current', value: 256 } }
+  - { to: self, step: rest, change: { type: set, field: '5e-srd-5.1:hp.temp', value: 0 } }
+  - {
+      to: self,
+      step: rest,
+      change: { type: set, field: '5e-srd-5.1:deathSaves.successes', value: 0 },
+    }
+  - {
+      to: self,
+      step: rest,
+      change: { type: set, field: '5e-srd-5.1:deathSaves.failures', value: 0 },
+    }
+  - {
+      to: self,
+      step: rest,
+      change: { type: adjust, field: '5e-srd-5.1:conditions.exhaustion', by: -1 },
+    }
+  - {
+      to: self,
+      step: rest,
+      change: { type: set, field: '5e-srd-5.1:spellSlots.level1.used', value: 0 },
+    }
+  - {
+      to: self,
+      step: rest,
+      change: { type: set, field: '5e-srd-5.1:spellSlots.level2.used', value: 0 },
+    }
+  - {
+      to: self,
+      step: rest,
+      change: { type: set, field: '5e-srd-5.1:spellSlots.level3.used', value: 0 },
+    }
+  - {
+      to: self,
+      step: rest,
+      change: { type: set, field: '5e-srd-5.1:spellSlots.level4.used', value: 0 },
+    }
+  - {
+      to: self,
+      step: rest,
+      change: { type: set, field: '5e-srd-5.1:spellSlots.level5.used', value: 0 },
+    }
+  - {
+      to: self,
+      step: rest,
+      change: { type: set, field: '5e-srd-5.1:spellSlots.level6.used', value: 0 },
+    }
+  - {
+      to: self,
+      step: rest,
+      change: { type: set, field: '5e-srd-5.1:spellSlots.level7.used', value: 0 },
+    }
+  - {
+      to: self,
+      step: rest,
+      change: { type: set, field: '5e-srd-5.1:spellSlots.level8.used', value: 0 },
+    }
+  - {
+      to: self,
+      step: rest,
+      change: { type: set, field: '5e-srd-5.1:spellSlots.level9.used', value: 0 },
+    }
+  - { to: self, step: rest, change: { type: set, field: '5e-srd-5.1:pactSlots.used', value: 0 } }
+  - {
+      to: self,
+      step: rest,
+      change:
+        {
+          type: setState,
+          key: usesLeft,
+          copies:
+            {
+              type: '5e-srd-5.1:monsterAction',
+              where: '(has(item.perDay) || (has(item.perRest) && item.perRest) || has(self.perDay)) && self.usesLeft < (has(item.perDay) ? item.perDay : has(self.perDay) ? self.perDay : 1)',
+            },
+          value: 'has(item.perDay) ? item.perDay : has(self.perDay) ? self.perDay : 1',
+        },
+    }
+log: []

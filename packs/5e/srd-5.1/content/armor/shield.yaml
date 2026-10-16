@@ -1,0 +1,13 @@
+id: armor.shield
+type: armor
+tags: [shield]
+fields:
+  category: shield
+  baseAc: 2
+  weight: 6
+  cost: 10
+# A shield adds to AC instead of setting it, and isn't armor for "while wearing armor".
+suppress: [base-ac, wearing-armor, armor-category]
+effects:
+  - { target: combat.ac, op: add, value: item.baseAc, when: self.equipped }
+  - { target: equipment.tags, op: grant, value: { tag: shield }, when: self.equipped }

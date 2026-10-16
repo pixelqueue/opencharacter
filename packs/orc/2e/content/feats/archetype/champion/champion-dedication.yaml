@@ -1,0 +1,104 @@
+id: feats.archetype.champion.champion-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.champion }
+
+# "Already trained" in light and medium armor means the class's training or Sentinel Dedication's,
+# since the sheet's ranks include this feat's own.
+prerequisites:
+  - { id: cha, when: 'attributes.cha.mod >= 2' }
+  - { id: str, when: 'attributes.str.mod >= 2' }
+  - { id: not-champion, when: 'countCopies(copy.item == @classes.champion) == 0' }
+effects:
+  - { target: classDc.champion.rank, op: atLeast, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.religion },
+      when: "!('skill.religion' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: defenses.light.rank, op: atLeast, value: 1 }
+  - { target: defenses.medium.rank, op: atLeast, value: 1 }
+  - target: defenses.heavy.rank
+    op: atLeast
+    value: 1
+    when: >-
+      class.has.alchemist || class.has.barbarian || class.has.druid || class.has.fighter
+        || class.has.ranger || cleric.doctrine == 'warpriest'
+        || @feats.archetype.sentinel.sentinel-dedication in feats.held
+grants:
+  - item: features.champion.champions-aura
+choices:
+  - id: divine-skill
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+        ]
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }
+  - id: sanctification
+    from:
+      options:
+        - id: none
+        - id: holy
+          effects:
+            - { target: champion.sanctification, op: set, value: "'holy'" }
+            - { target: traits, op: grant, value: { tag: trait.holy } }
+        - id: unholy
+          effects:
+            - { target: champion.sanctification, op: set, value: "'unholy'" }
+            - { target: traits, op: grant, value: { tag: trait.unholy } }
+  - id: cause
+    from:
+      options:
+        - id: desecration
+          prerequisites:
+            - { id: sanctification, when: "champion.sanctification == 'unholy'" }
+          effects:
+            - { target: champion.cause, op: set, value: "'desecration'" }
+        - id: grandeur
+          prerequisites:
+            - { id: sanctification, when: "champion.sanctification == 'holy'" }
+          effects:
+            - { target: champion.cause, op: set, value: "'grandeur'" }
+        - id: iniquity
+          prerequisites:
+            - { id: sanctification, when: "champion.sanctification == 'unholy'" }
+          effects:
+            - { target: champion.cause, op: set, value: "'iniquity'" }
+        - id: justice
+          effects:
+            - { target: champion.cause, op: set, value: "'justice'" }
+        - id: liberation
+          effects:
+            - { target: champion.cause, op: set, value: "'liberation'" }
+        - id: obedience
+          effects:
+            - { target: champion.cause, op: set, value: "'obedience'" }
+        - id: redemption
+          prerequisites:
+            - { id: sanctification, when: "champion.sanctification == 'holy'" }
+          effects:
+            - { target: champion.cause, op: set, value: "'redemption'" }

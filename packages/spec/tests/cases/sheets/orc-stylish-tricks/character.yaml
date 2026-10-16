@@ -1,0 +1,66 @@
+# Ines (examples/characters/orc-ines.yaml) at 3rd level: her Stylish Tricks feat is Bargain
+# Hunter, a skill feat for Diplomacy, neither Acrobatics nor Deception (her fencer style's).
+#
+# Boosts: her ancestry's Dexterity and Wisdom, its flaw in Strength and a free Charisma, the
+# criminal's Dexterity and a free Constitution, the swashbuckler's Dexterity, and four free
+# (Dexterity, Constitution, Intelligence, Charisma): Str -1, Dex +4, Con +2, Int +1, Wis +1,
+# Cha +2. Trained skills: Stealth and Underworld Lore (criminal), Acrobatics (swashbuckler),
+# Deception (fencer) and five more (4 + Intelligence +1).
+specVersion: 0.1.0
+id: example-orc-ines
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 3
+  orc-2e:hp.current: 18
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.halfling
+    choices:
+      heritage:
+        - option: orc-2e:heritages.gutsy-halfling
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-2e:boosts.cha
+  - id: background
+    item: orc-2e:backgrounds.criminal
+    choices:
+      boost:
+        - option: orc-2e:boosts.dex
+      free-boost:
+        - option: orc-2e:boosts.con
+  - id: class
+    item: orc-2e:classes.swashbuckler
+    choices:
+      style:
+        - option: fencer
+      skills:
+        - option: skill.athletics
+        - option: skill.diplomacy
+        - option: skill.intimidation
+        - option: skill.performance
+        - option: skill.thievery
+      class-feat-1:
+        - option: orc-2e:feats.swashbuckler.extravagant-parry
+      skill-feat-2:
+        - option: orc-2e:feats.skill.cat-fall
+      stylish-trick-feat-3:
+        - option: orc-2e:feats.skill.bargain-hunter
+inventory:
+  - { id: rapier, item: orc-2e:weapons.rapier, equipped: true }
+  - { id: dagger, item: orc-2e:weapons.dagger, equipped: true }
+  - { id: armor, item: orc-2e:armor.leather-armor, equipped: true }
+  - { id: backpack, item: orc-2e:gear.backpack }
+  - { id: rope, item: orc-2e:gear.rope }
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.int
+    - option: orc-2e:boosts.cha
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.halfling-luck
+  languages:
+    - option: orc-2e:languages.elven

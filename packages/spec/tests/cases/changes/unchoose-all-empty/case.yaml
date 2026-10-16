@@ -1,0 +1,22 @@
+description: '`unchoose` without `option` on a choice with no picks leaves it unchanged; it is not `not-picked`'
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          kit:
+            carried: true
+      content:
+        - id: kits.paint
+          type: kit
+          choices:
+            - id: marks
+              pick: 2
+              from: { options: [{ id: stripe }, { id: dot }, { id: ring }] }

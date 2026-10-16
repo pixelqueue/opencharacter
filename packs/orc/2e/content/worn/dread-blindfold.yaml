@@ -1,0 +1,29 @@
+id: worn.dread-blindfold
+type: worn
+tags: [trait.emotion, trait.fear, trait.invested, trait.magical, trait.mental]
+fields:
+  level: 17
+  price: 15000
+  usage: eyepiece
+  activation: free
+  frequency: once-per-minute
+grants:
+  - { item: spells.vision-of-death, when: 'self.equipped && self.invested' }
+effects:
+  - {
+      target: senses,
+      op: grant,
+      value: { tag: sense.darkvision },
+      when: 'self.equipped && self.invested',
+    }
+  - target: skills.intimidation.mod
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.vision-of-death'
+    value:
+      id: vision-of-death
+      flags: { itemPaid: true, rank: 4, dc: 37 }

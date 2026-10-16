@@ -1,0 +1,32 @@
+description: "A field's `max` always bounds its amount and `limit` only narrows it: the smaller of the two applies, and a full field is still offered, with `limit: 0`"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [stat]
+        fields:
+          stats.might: { type: integer, input: true, default: 1, min: 0, max: 2, tags: [stat] }
+          stats.wits: { type: integer, input: true, default: 0, min: 0, max: 5, tags: [stat] }
+          stats.grace: { type: integer, input: true, default: 3, min: 0, max: 3, tags: [stat] }
+          stats.luck: { type: integer, input: true, default: 0, min: 0, tags: [stat] }
+        actions:
+          # A limit of 3 everywhere: might stops at its max (1 more), wits at 3, grace is full,
+          # luck has no max.
+          - id: spend
+            steps:
+              - id: dots
+                kind: allocate
+                fields: { type: field, where: "'stat' in item.tags" }
+                budget: 4
+                limit: 3
+      content: []
+input:
+  action: { id: test-pack:spend }
+  policy: { allocations: pause }

@@ -1,0 +1,21 @@
+id: staves.staff-of-the-unblinking-eye
+type: staff
+tags: [trait.magical, trait.staff, trait.uncommon]
+fields:
+  level: 6
+  price: 230
+  bulk: 1
+  rank1: [spells.sure-strike]
+  rank2: [spells.darkvision, spells.see-the-unseen, spells.translate]
+grants:
+  - { item: spells.detect-magic, when: self.equipped }
+  - { item: spells.sure-strike, when: self.equipped }
+  - { item: spells.darkvision, when: self.equipped }
+  - { item: spells.see-the-unseen, when: self.equipped }
+  - { item: spells.translate, when: self.equipped }
+effects:
+  - target: { rolls: [perception] }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    when: 'self.equipped && situational.initiative'

@@ -1,0 +1,30 @@
+id: worn.obsidian-goggles
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 5
+  price: 150
+  usage: eyepiece
+  activation: one
+  frequency: once-per-day
+effects:
+  - target: { rolls: [perception] }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested && situational.usingSight'
+  - target: senses
+    op: grant
+    value: { tag: sense.darkvision }
+    scope: applied
+    duration: { amount: 1, unit: hour }
+actions:
+  - id: darkvision
+    tags: [activation]
+    available: 'self.equipped && self.invested && self.used < 1'
+    steps:
+      - id: activate
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: used, by: 1 }
+          - { type: applyEffect, source: item.id }

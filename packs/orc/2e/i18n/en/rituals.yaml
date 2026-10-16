@@ -1,0 +1,300 @@
+# Rituals (Player Core): short rules text written for the pack (ORC), without its setting.
+types.ritual.name: Ritual
+types.ritual.fields.cast.values.one-hour.name: '1 hour'
+types.ritual.fields.cast.values.one-day.name: '1 day'
+types.ritual.fields.cast.values.four-hours.name: '4 hours'
+types.ritual.fields.cast.values.three-days.name: '3 days'
+types.ritual.fields.cast.values.seven-days.name: '7 days'
+types.ritual.fields.duration.values.rounds.name: 'Rounds'
+types.ritual.fields.duration.values.minutes.name: 'Minutes'
+types.ritual.fields.duration.values.hours.name: 'Hours'
+types.ritual.fields.duration.values.days.name: 'Days'
+types.ritual.fields.duration.values.until-daily-preparations.name: 'Until your next daily preparations'
+types.ritual.fields.duration.values.unlimited.name: 'Unlimited'
+types.ritual.fields.duration.values.varies.name: 'Varies'
+# The ritual's header: rank, traits, casting time, cost, the primary check's skills and rank, the
+# secondary casters and checks, range, area, targets and duration.
+types.ritual.block: >-
+  **{name}** — *Ritual {rank}*{has_tags, select, true { · {tags_name}} other {}}
+  · {cast_name}{has_texts_cost, select, true { · Cost {texts_cost}} other {}}{has_primaryChecks, select, true { · Primary check {primaryChecks_name} ({primaryRank, select, 1 {trained} 2 {expert} 3 {master} other {legendary}})} other {}}{has_secondaryCasters, select, true { · Secondary casters {secondaryCasters}} other {}}{has_texts_secondaryChecks, select, true { · Secondary checks {texts_secondaryChecks}} other {}}{has_texts_requirements, select, true { · Requirements {texts_requirements}} other {}}{has_range, select, true { · Range {range, select, 0 {touch} other {{range} feet}}} other {}}{has_areaSize, select, true { · Area {areaSize}-foot {area, select, burst {burst} cone {cone} emanation {emanation} line {line} square {square} cube {cube} wall {wall} other {area}}} other {}}{has_targets, select, true { · {targets, plural, one {1 target} other {# targets}}} other {}}{has_duration, select, true { · {duration, select, rounds {{durationAmount, plural, one {# round} other {# rounds}}} minutes {{durationAmount, plural, one {# minute} other {# minutes}}} hours {{durationAmount, plural, one {# hour} other {# hours}}} days {{durationAmount, plural, one {# day} other {# days}}} other {{duration_name}}}} other {}}
+tags.ritual.name: Ritual
+actions.perform-ritual.name: Perform a Ritual
+actions.perform-ritual.description: >-
+  The ritual's primary check: your skill against the GM's DC (by default the very hard DC for a
+  level of twice its rank), after the secondary casters' checks: +2 if any critically succeeded,
+  –4 if any failed, and one step worse if any critically failed.
+actions.perform-ritual.params.skill.name: Primary check skill
+actions.perform-ritual.params.rank.name: Rank
+actions.perform-ritual.params.dc.name: DC
+actions.perform-ritual.params.secondaryCriticalSuccesses.name: Secondary checks critically succeeded
+actions.perform-ritual.params.secondaryFailures.name: Secondary checks failed
+actions.perform-ritual.params.secondaryCriticalFailures.name: Secondary checks critically failed
+actions.perform-ritual.steps.check.name: Primary check
+actions.perform-ritual.results.rank-too-high.name: Rank too high
+actions.perform-ritual.results.wrong-skill.name: Not a skill this ritual uses
+actions.perform-ritual.results.untrained.name: Proficiency too low
+actions.perform-ritual.results.critical-success.name: Critical success
+actions.perform-ritual.results.success.name: Success
+actions.perform-ritual.results.failure.name: Failure
+actions.perform-ritual.results.critical-failure.name: Critical failure
+
+rituals.animate-object.name: 'Animate Object'
+rituals.animate-object.texts.cost: 'rare oils (see the creature creation table)'
+rituals.animate-object.texts.secondaryChecks: 'Crafting'
+rituals.animate-object.description: |-
+  You turn the target into an animated object of a matching kind (a broom becomes an animated broom), of a level the creature creation table allows.
+
+  **Creature creation** The highest creature level by ritual rank, with the cost: 2nd rank, level 1 (60 gp; level –1 or 0, 15 gp); 3rd, level 2 (105 gp) or 3 (180 gp); 4th, level 4 (300 gp) or 5 (480 gp); 5th, level 6 (750 gp) or 7 (1,080 gp); 6th, level 8 (1,500 gp) or 9 (2,100 gp); 7th, level 10 (3,000 gp) or 11 (4,200 gp); 8th, level 12 (6,000 gp) or 13 (9,000 gp); 9th, level 14 (13,500 gp) or 15 (19,500 gp); 10th, level 16 (30,000 gp) or 17 (45,000 gp).
+
+  **Critical Success** It becomes the animated object. If it is at least 4 levels lower than you, you can make it a minion (2 actions when you command it with a single auditory, concentrate action; at most four minions). Otherwise you can give it one simple command, which it pursues single-mindedly, ignoring later commands.
+
+  **Success** As critical success, but one that isn't your minion stays put and attacks anyone who attacks it or tries to move or take it.
+
+  **Failure** You fail to create it.
+
+  **Critical Failure** You create it, but it goes berserk and tries to destroy you.
+rituals.atone.name: 'Atone'
+rituals.atone.texts.cost: "rare incense and offerings worth 20 gp × the target's level"
+rituals.atone.texts.secondaryChecks: 'Nature or Religion, whichever the primary check uses (by the target, the secondary caster)'
+rituals.atone.description: |-
+  You help a truly penitent creature of up to 8th level, a worshipper of your deity or philosophy, atone for its misdeeds, typically acts anathema to your deity. If it isn't truly penitent, the result is a critical failure. Use Nature for a druid, Religion otherwise.
+
+  **Critical Success** It is absolved and regains its standing and any lost abilities, after completing a quest or task your deity sets (at least a month in downtime). For 1 month, it gets divine insight just before an act anathema to your deity.
+
+  **Success** As critical success, without the insight.
+
+  **Failure** It isn't absolved and must keep making amends; later atone rituals for the same misdeeds cost half as much and gain a +4 circumstance bonus to their checks.
+
+  **Critical Failure** It offends your deity and is cast out of the faith for good, unless a deity intervenes more directly.
+
+  **Heightened (+1)** The maximum target level increases by 2 and the base cost by 20 gp.
+rituals.awaken-animal.name: 'Awaken Animal'
+rituals.awaken-animal.texts.cost: "herbs worth 1/5 of the creature creation table's cost"
+rituals.awaken-animal.texts.secondaryChecks: 'Lore (any), Society, Survival'
+rituals.awaken-animal.description: |-
+  You give an animal of a level the creature creation table allows a mind, making it a beast. An animal companion or minion can't serve as one any longer.
+
+  **Critical Success** Its Intelligence, Wisdom and Charisma modifiers rise to +2 if lower, and it is helpful to you for waking it.
+
+  **Success** They rise to +0 if lower, and it is friendly to you.
+
+  **Failure** You fail.
+
+  **Critical Failure** You wake it with a bestial hatred of you: its modifiers rise to –2 if lower, and it is hostile and tries to destroy you.
+rituals.binding-circle.name: 'Binding Circle'
+rituals.binding-circle.texts.cost: "warding circle ingredients worth 2 gp × the rank × the creature's level"
+rituals.binding-circle.texts.secondaryChecks: "Diplomacy or Intimidation; Arcana or Occultism, whichever the primary check doesn't use"
+rituals.binding-circle.description: |-
+  You call an extraplanar creature of a level no greater than twice the ritual's rank into your circle to bargain, usually a task for payment. One that won't negotiate can stay home with a Will save. Most want a real gift, especially for risky tasks, from a consumable of their level for a short, simple job to a permanent item of their level or more to fight beside you; wicked ones settle for less if they can work harm, and some want other prices, such as a geas for a later favor or your soul by contract. An extra secondary caster can draw a warding circle (Crafting, same DC) that keeps it from attacking or leaving during the bargain, until you act against it or the circle breaks.
+
+  **Critical Success** You call it and can keep it from going home for up to a day, which may get you a better deal.
+
+  **Success** You call it, and must make your case briefly; it can go home whenever it likes.
+
+  **Failure** You fail to call it.
+
+  **Critical Failure** Something vile answers, unbound by your wards, and tries to destroy you.
+rituals.blight.name: 'Blight'
+rituals.blight.texts.secondaryChecks: 'Survival'
+rituals.blight.description: |-
+  Plants within a half-mile of you wither for 1 year, cutting crop yields among other harms. In an area of plant growth, it tries to counteract plant growth instead.
+
+  **Critical Success** Spoil the crops in the area completely, or halve the yield in an area of up to a 1-mile radius.
+
+  **Success** Halve the yield in the area.
+
+  **Failure** No effect.
+
+  **Critical Failure** The plants change unexpectedly, as the GM decides, usually against your wishes (such as enriching crops you wanted blighted).
+rituals.call-spirit.name: 'Call Spirit'
+rituals.call-spirit.texts.cost: 'rare candles and incense worth 50 gp'
+rituals.call-spirit.texts.secondaryChecks: "Occultism or Religion, whichever the primary check doesn't use"
+rituals.call-spirit.description: |-
+  You call a spirit from the afterlife by name, with a link to it such as a possession, garment or piece of its body. An unwilling spirit can avoid the call with a Will save (DC 2 lower if you never met it in life); on its critical success, a trickster spirit impersonates it. The spirit appears in a wispy form, and each minute you can ask it a question, which it answers as it pleases or not at all. If the spirit isn't in the afterlife (an undead, say), every result but a critical failure is a failure.
+
+  **Critical Success** The spirit is especially cooperative and takes a –2 circumstance penalty to Deception checks even if it has reason to deceive you.
+
+  **Success** You call the spirit.
+
+  **Failure** You call no spirit.
+
+  **Critical Failure** One or more evil spirits appear and attack.
+rituals.collective-memories.name: 'Collective Memories'
+rituals.collective-memories.texts.cost: 'rare incense worth 300 gp'
+rituals.collective-memories.texts.secondaryChecks: 'Performance, Society'
+rituals.collective-memories.description: |-
+  You tap mortals' memories, legends and lore about an important person, place or thing. The primary check's degree is one step better if the subject is present, and one step worse if you know only vague things about it (the two cancel out).
+
+  **Critical Success** For 1 hour after the ritual you sift mostly coherent memories, the accurate and useful outweighing the misremembered and exaggerated.
+
+  **Success** For 1 hour you learn useful but incomplete or puzzling information, likely in contradictory versions.
+
+  **Failure** You learn nothing useful.
+
+  **Critical Failure** The flood of knowledge overwhelms you: for 1 week you can do nothing but breathe and sleep. Afterward, you can retrain a skill into a Lore about the subject, as if you had spent the week retraining.
+rituals.commune.name: 'Commune'
+rituals.commune.texts.cost: 'rare incense worth 150 gp'
+rituals.commune.texts.secondaryChecks: 'Nature, Occultism or Religion, whichever the primary check uses'
+rituals.commune.description: |-
+  You ask questions of a powerful unknown being, by the primary check's skill: Nature, primal spirits that know the animals, beasts, fey, fungi, plants, land and resources within 3 miles; Occultism, planar and mysterious entities that know forgotten lore, the planes and secrets; Religion, divine beings that know their gods and their purviews, typically a servitor of your deity. You can ask up to seven yes-or-no questions, answered in a word ("yes," "no," "likely," "unknown"), always to the being's own agenda, perhaps deceptively.
+
+  **Critical Success** A more powerful entity close to your interests answers, perhaps your deity; it won't deceive you, and where clarity matters it answers in up to five words.
+
+  **Success** You ask and are answered.
+
+  **Failure** You reach no fitting being.
+
+  **Critical Failure** The vastness of the cosmos leaves you stupefied 4 for 1 week, which nothing can remove.
+rituals.consecrate.name: 'Consecrate'
+rituals.consecrate.texts.cost: 'rare incense and offerings worth 20 gp × the rank'
+rituals.consecrate.texts.secondaryChecks: 'Crafting, Performance (the secondary casters must worship your deity)'
+rituals.consecrate.description: |-
+  You consecrate a site around an immobile altar, shrine or fixture of your deity for 1 year. In the area, your deity's worshippers gain a +1 status bonus to attack rolls, skill checks, saves and Perception checks, and creatures anathema to your deity take a –1 status penalty to them. If your deity's sanctification lets you choose holy or unholy, you can make the site so; if it must be one, the site matches it. Strikes by your deity's worshippers in the area gain the site's sanctification trait, if any.
+
+  **Critical Success** It works, and either lasts 10 years or covers twice the radius; with your deity's favor, perhaps more, such as a permanent consecration.
+
+  **Success** It works.
+
+  **Failure** It fails.
+
+  **Critical Failure** It fails spectacularly, angering your deity, who sends a sign of displeasure; for at least a year, further attempts to consecrate the site fail.
+
+  **Heightened (7th)** The area also has the effects of planar seal, which doesn't counteract teleportation by your deity's worshippers. The cost is 200 gp × the rank.
+rituals.control-weather.name: 'Control Weather'
+rituals.control-weather.texts.secondaryChecks: 'Survival'
+rituals.control-weather.description: |-
+  For 4d12 hours, the weather within 2 miles of you becomes calm and normal for the season, or takes up to two effects of the season, whose details (a tornado's path, where lightning falls) you can't control. Summer: drizzle, heat, hurricane, sleet, thunderstorm, tornado. Spring: drizzle, downpour, extreme heat, hail, heat. Autumn: cold, fog, mild heat, sleet. Winter: blizzard, mild cold, extreme cold, thaw.
+
+  **Critical Success** As you wish, and over a larger area (up to 5 miles) or for longer (any number of extra d12 hours, up to 16d12).
+
+  **Success** As you wish.
+
+  **Failure** It doesn't change as you wish.
+
+  **Critical Failure** It changes unexpectedly, as the GM decides, usually against your wishes.
+
+  **Heightened (9th)** You can make unseasonable and contradictory weather, such as extreme cold with a hurricane, or the calm weather or effects of another season.
+rituals.create-undead.name: 'Create Undead'
+rituals.create-undead.texts.cost: 'black onyx (see the creature creation table)'
+rituals.create-undead.texts.secondaryChecks: 'Religion'
+rituals.create-undead.description: |-
+  You turn a dead creature into an undead creature of a level the creature creation table allows (as for animate object). Each kind of undead has its own version of the ritual (zombies, skeletons, ghouls…), and those for rare undead are rare; some, such as liches, arise by their own methods and can't be made this way.
+
+  **Critical Success** It becomes the undead. If it is at least 4 levels lower than you, you can make it a minion (at most four). An intelligent undead that isn't your minion is helpful to you for waking it, though it is still a horrid creature; an unintelligent one follows one simple command single-mindedly.
+
+  **Success** As critical success, but an intelligent undead that isn't your minion is only friendly, and an unintelligent one leaves you alone unless attacked and marauds the area instead.
+
+  **Failure** You fail to create it.
+
+  **Critical Failure** You create it, but its tortured soul hates you and tries to destroy you.
+rituals.geas.name: 'Geas'
+rituals.geas.texts.secondaryChecks: 'Society or Legal Lore'
+rituals.geas.description: |-
+  You bind a willing target of a level no greater than twice the ritual's rank to a magic rule: to perform an act (usually conditional, such as "always offer hospitality to strangers"; an unconditional one need not be done exclusively, but comes before all leisure) or to refrain from one (often breaking a contract, whose wording the secondary caster usually attunes). It lasts as long as the target agrees. If the target can't fulfill it, it is sickened 1, rising by 1 for each day in a row it is prevented (to sickened 4); this ends at once when it follows the geas again and can't be removed otherwise. Only powerful magic such as wish removes it from a willing target.
+
+  **Critical Success** It works, and the target gains a +1 status bonus to skill checks that directly uphold it (as the GM rules).
+
+  **Success** It works.
+
+  **Failure** It fails.
+
+  **Critical Failure** It fails, and you are bound by it instead, as an unwilling target (so cleanse affliction can counteract it).
+
+  **Heightened (5th)** You can target an unwilling creature, which can negate it with a Will save; otherwise it lasts up to 1 week. Cleanse affliction can counteract it on an unwilling creature, as can powerful magic such as wish. A clever creature can contrive to be prevented from complying, becoming sickened as above.
+
+  **Heightened (7th)** As 5th, but up to 1 year on an unwilling creature.
+
+  **Heightened (9th)** As 5th, but for any duration you choose, even unlimited, on an unwilling creature.
+rituals.planar-displacement.name: 'Planar Displacement'
+rituals.planar-displacement.texts.requirements: 'a planar key for the destination plane, used as a locus'
+rituals.planar-displacement.texts.cost: 'rare incense, precious metals and purified chalk worth 500 gp'
+rituals.planar-displacement.texts.secondaryChecks: 'Lore about the destination plane, Survival'
+rituals.planar-displacement.description: |-
+  You draw a ritual circle, and at the end of the ritual every creature in it shifts to another plane. The primary check's skill must be one that can Recall Knowledge about the destination. A secondary caster can be at the destination instead; if that caster succeeds and you succeed, the ritual is a critical success.
+
+  **Critical Success** You arrive where one of the targets (your choice) last arrived on that plane, or somewhere random if none has been there. For 1 minute the circle stays open, and any creature it carried can return to the starting point with a single action (concentrate).
+
+  **Success** As critical success, but you arrive 1d10 × 25 miles from your destination.
+
+  **Failure** You fail.
+
+  **Critical Failure** It fails, and the GM decides whether you go to the wrong plane or are barred from planar travel for 1 week.
+rituals.planar-servitor.name: 'Planar Servitor'
+rituals.planar-servitor.texts.cost: "rare incense and offerings worth 2 gp × the rank × the servitor's level"
+rituals.planar-servitor.texts.secondaryChecks: 'Diplomacy'
+rituals.planar-servitor.description: |-
+  You ask a deity or other divine power for a servitor of its choice, of a level no greater than twice the ritual's rank. The secondary casters explain what help you need and why; a task especially fitting to the deity can earn a circumstance bonus or an automatic critical success, and asking without good reason is a critical failure. You must then pay the servitor, at least the price of a consumable of its level, often of a permanent item of its level for it to fight beside you, in offerings to the deity's taste. You can instead name a being from the deity's realm you know personally, within the same level limit, who may ask for something it wants.
+
+  **Critical Success** The deity sends a servitor, which asks only half the usual payment; one you name is likely to come unless busy.
+
+  **Success** The deity sends a servitor.
+
+  **Failure** No servitor comes.
+
+  **Critical Failure** The deity is offended and sends a sign of displeasure, or a servitor to scold or attack you; it might strip divine powers from those who took part until they atone.
+rituals.plant-growth.name: 'Plant Growth'
+rituals.plant-growth.texts.secondaryChecks: 'Farming Lore or Survival'
+rituals.plant-growth.description: |-
+  Plants within a half-mile of you grow healthier and more fruitful for 1 year, raising crop yields among other benefits. In an area of blight, it tries to counteract blight instead.
+
+  **Critical Success** Double the yield in the area, or cover a 1-mile radius.
+
+  **Success** Raise the yield by a third.
+
+  **Failure** No effect.
+
+  **Critical Failure** The plants change unexpectedly, as the GM decides, usually against your wishes (such as blighting crops you wanted to enrich).
+rituals.primal-call.name: 'Primal Call'
+rituals.primal-call.texts.cost: "faerie circle ingredients worth 1 gp × the rank × the creature's level"
+rituals.primal-call.texts.secondaryChecks: 'Crafting, Diplomacy, Survival'
+rituals.primal-call.description: |-
+  As planar servitor, but you craft a faerie circle and call an animal, beast, fey, fungus or plant from within 100 miles.
+rituals.resurrect.name: 'Resurrect'
+rituals.resurrect.texts.cost: "gems worth 75 gp × the target's level"
+rituals.resurrect.texts.secondaryChecks: 'Medicine, Society'
+rituals.resurrect.description: |-
+  You call back the soul of a creature of up to 10th level that died within the past year, its body present and mostly intact. If its time has truly come or it doesn't wish to return, the ritual fails, which you learn after a successful primary check, ending it without paying the cost.
+
+  **Critical Success** It returns with full Hit Points, the spells it had prepared and the points in its pools, keeping the old body's long-term debilitations. An agent of its deity inspires it: a +1 status bonus to attack rolls, Perception, saves and skill checks for 1 week. It is changed somehow by its time beyond.
+
+  **Success** As critical success, but it returns with 1 Hit Point, no prepared spells and no points in its pools, and instead of the bonus it is clumsy 1, drained 1 and enfeebled 1 for 1 week, which nothing can remove or lower.
+
+  **Failure** You fail.
+
+  **Critical Failure** Something goes horribly wrong: an evil spirit possesses the body, it rises as a strange undead, or worse.
+
+  **Heightened (6th)** Up to 12th level; base cost 125 gp.
+
+  **Heightened (7th)** Even a small part of the body is enough: a new body forms on a success. Death within the past decade; four secondary casters, each at least half the target's level; up to 14th level; base cost 200 gp.
+
+  **Heightened (8th)** As 7th, up to 16th level; base cost 300 gp.
+
+  **Heightened (9th)** No body is needed if you know its name and once touched part of its body. Death within the past century, and no conditions on a success; eight secondary casters, each at least half its level; up to 18th level; base cost 600 gp.
+
+  **Heightened (10th)** As 9th, however long ago it died; 16 secondary casters; up to 20th level; base cost 1,000 gp.
+rituals.rune-trap.name: 'Rune Trap'
+rituals.rune-trap.texts.cost: "pigments and oils worth 5 gp × the stored spell's rank"
+rituals.rune-trap.texts.secondaryChecks: 'Crafting'
+rituals.rune-trap.description: |-
+  You bind a hostile spell into a rune on an object or a 10-foot square. As part of the ritual you cast the spell to store: it must take 3 actions or fewer, have a hostile effect, and target one creature or have an area. The primary check's skill is the stored spell's tradition's. You can set a password, a trigger, or both; a creature that moves, opens or touches the object or enters the area without the password, or that matches the trigger, releases the spell. The rune gains the spell's traits; a targeted spell targets the creature that set it off, and an area is centered on it. The rune is a magical trap: noticing it takes a Perception check and disabling it a Thievery check, both against your spell DC and needing training. You can Dismiss it while you can see it.
+
+  **Critical Success** A particularly effective rune: +2 circumstance bonus to the DCs to notice and disable it.
+
+  **Success** You create the rune.
+
+  **Failure** You fail.
+
+  **Critical Failure** The rune backfires: 4d6 force damage per rank of its spell to you, the secondary caster and every creature within 10 feet of the area.
+rituals.wish.name: 'Wish'
+rituals.wish.texts.cost: 'fine ash, imbued pigments and a marquise-cut gem worth 100,000 gp in all'
+rituals.wish.texts.secondaryChecks: 'Crafting, Diplomacy'
+rituals.wish.description: |-
+  You reshape reality to grant the target's greatest desire, declared aloud at the ritual's start and end: anything from riches or a spell or ritual cast, to a kingdom destroyed or ascension to divinity. A wish may draw deities' or other powers' attention and interference. Even deities can't simply undo it, though they can act against it, such as sending servitors to take the riches away.
+
+  **Critical Success** It is granted without complication.
+
+  **Success** It is granted, with unintended consequences, such as riches taken from a notorious criminal or rival gods angered.
+
+  **Failure** It fails, or the GM grants it so meagerly the target is never satisfied.
+
+  **Critical Failure** It is granted cruelly and ironically, as the GM decides, such as being trapped in a vault of riches.

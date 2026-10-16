@@ -1,0 +1,72 @@
+description: 'finishCreation is rejected with creation-incomplete while a creation-only constraint fails or a choice is pending; the issues are returned, each pending choice as too-few-picks'
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          calling:
+            fields:
+              die: { type: dice }
+        fields:
+          health: { type: integer, input: true, default: 0, min: 0 }
+        choices:
+          - id: calling
+            from: { type: calling }
+        constraints:
+          # Only at creation: a new character starts with some health.
+          - id: starting-health
+            check: '!character.creating || health > 0'
+        followUps:
+          # When creation finishes.
+          - id: welcome
+            becomes: '!character.creating'
+            changes:
+              - { type: set, field: health, value: health + 1 }
+        creation:
+          - { id: guided, action: create }
+        actions:
+          - id: create
+            available: character.creating
+            steps:
+              - id: calling
+                kind: choice
+                options: { content: { type: calling } }
+                changes:
+                  - type: choose
+                    path: { choice: [calling] }
+                    option: picked.id
+              - id: gift
+                kind: choice
+                options: [{ id: lantern }, { id: rope }]
+                recommend: "'rope'"
+              - id: health
+                kind: roll
+                parts: [{ dice: steps.calling.item.die }]
+              - id: save
+                kind: changes
+                changes:
+                  - type: choose
+                    path: { choice: "['calling', steps.calling.picked, 'gift']" }
+                    option: steps.gift.picked
+                  - { type: set, field: health, value: steps.health.total }
+                  - { type: finishCreation }
+      content:
+        - id: callings.hunter
+          type: calling
+          fields: { die: 1d8 }
+          choices:
+            - id: gift
+              from: { options: [{ id: lantern }, { id: rope }] }
+        - id: callings.scholar
+          type: calling
+          fields: { die: 1d4 }
+          choices:
+            - id: gift
+              from: { options: [{ id: lantern }, { id: rope }] }

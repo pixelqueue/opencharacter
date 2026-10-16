@@ -1,0 +1,38 @@
+# Attack: 11 + str 0 + prof 3 = 14 against AC 12: a hit. Damage: 1d8 (5) + str 0 = 5.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 14 }
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -5,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.slashing,
+            ],
+        },
+    }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces: [11]
+    total: 14
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [5]
+    total: 5

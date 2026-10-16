@@ -1,0 +1,15 @@
+description: 'Fate Core: Hardcore Parkour adds +2 when its situation applies; after a failed roll the player invokes an aspect to reroll, then pays a fate point for +2, and fails into success with style'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:overcome }
+  params: { skill: fate-core:skills.athletics, opposition: 4 }
+  situational: { fate-core:stunt: true }
+  policy: { choices: pause }
+answers:
+  - option: invoke
+  - option: keep
+  - option: one
+  - option: none

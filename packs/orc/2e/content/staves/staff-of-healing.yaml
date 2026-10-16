@@ -1,0 +1,17 @@
+id: staves.staff-of-healing
+type: staff
+tags: [trait.magical, trait.staff]
+fields:
+  level: 4
+  price: 90
+  bulk: 1
+  rank1: [spells.heal]
+grants:
+  - { item: spells.stabilize, when: self.equipped }
+  - { item: spells.heal, when: self.equipped }
+effects:
+  - target: { rolls: [healing] }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped && has(action.item) && action.item.id == @spells.heal'

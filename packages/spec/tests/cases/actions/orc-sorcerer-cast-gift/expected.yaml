@@ -1,0 +1,29 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 1
+    mode: spontaneous
+    dc: 19
+    defense: will
+    basic: false
+    damage: 0
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: orc-2e:spellSlots.rank1.used
+      by: 1
+  - to: self
+    step: paid
+    change:
+      type: offerFollowUp
+      followUp: orc-2e:features.sorcerer.blood-magic#blood-magic
+      source:
+        type: item
+        id: orc-2e:features.sorcerer.blood-magic
+        entry: class
+      params:
+        rank: 1

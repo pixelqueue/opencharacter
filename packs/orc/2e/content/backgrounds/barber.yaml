@@ -1,0 +1,21 @@
+id: backgrounds.barber
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.medicine }
+    when: "!('skill.medicine' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.surgery }
+    when: "!('skill.lore.surgery' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.risky-surgery
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['dex', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

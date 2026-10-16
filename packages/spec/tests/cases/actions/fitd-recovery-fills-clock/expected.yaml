@@ -1,0 +1,30 @@
+# 2d6 [6, 2] keeps 6: a success, 3 ticks. The clock at 3 of 4 fills once: 3 + 3 - 4 = 2 segments
+# carry into a new clock (adjust by -1). The level 1 harm goes (`flags.fills` substituted into
+# the `where`), and the level 2 and 3 harm move down a level.
+status: finished
+outcome: { result: success }
+proposedChanges:
+  - to: self
+    step: heal/clock
+    change: { type: adjust, field: fitd-scoundrel:healing.current, by: -1 }
+  - to: self
+    step: heal/clock
+    change:
+      type: removeItem
+      copies: { type: fitd-scoundrel:harm, where: self.level <= 1 }
+  - to: self
+    step: heal/clock
+    change:
+      type: adjustState
+      copies: { type: fitd-scoundrel:harm }
+      key: level
+      by: -1
+log:
+  - step: roll
+    action: fitd-scoundrel:recovery-roll
+    kind: dice
+    by: engine
+    faces: [6, 2]
+    total: 6
+    band: success
+    bandSet: fitd-scoundrel:action

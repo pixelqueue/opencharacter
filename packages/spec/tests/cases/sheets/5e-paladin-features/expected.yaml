@@ -1,0 +1,52 @@
+values:
+  5e-srd-5.1:divineSense.uses: { value: 4 } # 1 + cha 3
+  5e-srd-5.1:layOnHands.pool: { value: 25 } # 5 x level 5
+  5e-srd-5.1:channelDivinity.uses: { value: 1 }
+  5e-srd-5.1:aura.range: { value: 0 } # Aura of Protection comes at 6th level
+  5e-srd-5.1:combat.ac: { value: 12 }
+  # Oath spells at paladin levels 3 and 5, always prepared
+  5e-srd-5.1:spells.paladin:
+    value:
+      - 5e-srd-5.1:spells.lesser-restoration
+      - 5e-srd-5.1:spells.protection-from-evil-and-good
+      - 5e-srd-5.1:spells.sanctuary
+      - 5e-srd-5.1:spells.zone-of-truth
+actions:
+  - { action: 5e-srd-5.1:spend-hit-die, entry: paladin }
+  - action: '5e-srd-5.1:features.paladin.divine-sense#divine-sense'
+    entry: paladin
+    source: 5e-srd-5.1:features.paladin.divine-sense
+  - action: '5e-srd-5.1:features.paladin.lay-on-hands#lay-on-hands'
+    entry: paladin
+    source: 5e-srd-5.1:features.paladin.lay-on-hands
+  - action: '5e-srd-5.1:features.paladin.divine-smite#divine-smite'
+    entry: paladin
+    source: 5e-srd-5.1:features.paladin.divine-smite
+  - action: '5e-srd-5.1:features.paladin.turn-the-unholy#turn-the-unholy'
+    entry: paladin
+    source: 5e-srd-5.1:features.paladin.turn-the-unholy
+  # Oath spells at paladin levels 3 and 5
+  - {
+      action: 5e-srd-5.1:cast-spell,
+      entry: paladin,
+      source: 5e-srd-5.1:spells.protection-from-evil-and-good,
+    }
+  - { action: 5e-srd-5.1:cast-spell, entry: paladin, source: 5e-srd-5.1:spells.sanctuary }
+  - { action: 5e-srd-5.1:cast-spell, entry: paladin, source: 5e-srd-5.1:spells.lesser-restoration }
+  - { action: 5e-srd-5.1:cast-spell, entry: paladin, source: 5e-srd-5.1:spells.zone-of-truth }
+  - { action: 5e-srd-5.1:saving-throw }
+  - { action: 5e-srd-5.1:level-up }
+  - { action: 5e-srd-5.1:ability-check }
+  - { action: 5e-srd-5.1:skill-check }
+  - { action: 5e-srd-5.1:initiative }
+  - { action: 5e-srd-5.1:unarmed-strike }
+  - { action: 5e-srd-5.1:fall }
+  - { action: 5e-srd-5.1:take-damage }
+  - { action: 5e-srd-5.1:heal }
+  - { action: 5e-srd-5.1:long-rest }
+  - { action: 5e-srd-5.1:concentration-check }
+  - { action: 5e-srd-5.1:short-rest }
+pending:
+  # Prepared spells are asked until the full number is picked.
+  - { entry: paladin, choice: ['5e-srd-5.1:features.paladin.spellcasting/spells'] }
+issues: []

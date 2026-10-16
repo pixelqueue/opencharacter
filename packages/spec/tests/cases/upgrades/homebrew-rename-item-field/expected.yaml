@@ -1,0 +1,16 @@
+ok: true
+character:
+  homebrew:
+    content:
+      - id: weapons.maul
+        type: weapon
+        fields: { harm: 4, reach: close }
+        effects:
+          - { target: stats.harm, op: add, value: item.harm }
+report:
+  homebrew:
+    - { path: /homebrew/content/0/fields/damage, op: renameItemField }
+    - { path: /homebrew/content/0/effects/0/value, op: renameItemField }
+    - { path: /homebrew/content/0/fields/reach, op: mapItemValues }
+    - { path: /homebrew/content/0/fields/weight, op: removeItemField }
+  errors: []

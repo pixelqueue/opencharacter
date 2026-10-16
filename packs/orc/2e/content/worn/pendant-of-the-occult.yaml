@@ -1,0 +1,20 @@
+id: worn.pendant-of-the-occult
+type: worn
+tags: [trait.invested, trait.occult]
+fields:
+  level: 3
+  price: 60
+grants:
+  - { item: spells.guidance, when: 'self.equipped && self.invested' }
+effects:
+  - target: skills.occultism.mod
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - {
+      target: spells.innate,
+      op: grant,
+      value: { item: spells.guidance },
+      when: 'self.equipped && self.invested',
+    }

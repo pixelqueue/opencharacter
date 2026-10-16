@@ -1,0 +1,32 @@
+id: features.warlock.hurl-through-hell
+type: feature
+actions:
+  - id: hurl-through-hell
+    tags: [feature]
+    results: [hurled]
+    available: '!self.hurlThroughHellUsed'
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: hurlThroughHellUsed, value: true }
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: 10d10
+            tags: [damage.psychic]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage]
+      - id: result
+        kind: outcome
+        result: "'hurled'"
+        data:
+          damage: steps.damage.total

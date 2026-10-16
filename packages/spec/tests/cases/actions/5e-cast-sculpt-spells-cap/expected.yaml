@@ -1,0 +1,23 @@
+# Each target's run sees the earlier runs' picks (`steps.sculpt`): two spared, so Sculpt Spells
+# offers nothing more.
+status: paused
+needs:
+  step: sculpt[2]
+  action: 5e-srd-5.1:cast-spell
+  kind: choice
+  options: [affect]
+  recommended: affect
+log:
+  - { step: damage, kind: dice, by: engine, faces: [3, 4, 5], total: 12 }
+  - {
+      step: 'sculpt[0]',
+      kind: choice,
+      by: app,
+      option: '5e-srd-5.1:features.wizard.sculpt-spells#spare',
+    }
+  - {
+      step: 'sculpt[1]',
+      kind: choice,
+      by: app,
+      option: '5e-srd-5.1:features.wizard.sculpt-spells#spare',
+    }

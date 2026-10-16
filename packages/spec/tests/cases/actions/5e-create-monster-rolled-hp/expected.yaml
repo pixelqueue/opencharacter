@@ -1,0 +1,65 @@
+# The app picks the zombie and rolled hit points: 3d8 + 9 = 8 + 8 + 1 + 9 = 26 (the average is 22).
+status: finished
+outcome:
+  result: created
+  data: { hp: 26 }
+proposedChanges:
+  - {
+      to: self,
+      step: monster,
+      change: { type: addItem, entry: { id: monster, item: 5e-srd-5.1:monsters.zombie } },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:abilities.str.base, value: 13 },
+    }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:abilities.dex.base, value: 6 } }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:abilities.con.base, value: 16 },
+    }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:abilities.int.base, value: 3 } }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:abilities.wis.base, value: 6 } }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:abilities.cha.base, value: 5 } }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:challenge.rating, value: 0.25 },
+    }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:creature.size, value: medium } }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:creature.type, value: undead } }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:creature.alignment, value: neutral-evil },
+    }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:combat.speed, value: 20 } }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:proficiencies.saves, value: [save.wis] },
+    }
+  - {
+      to: self,
+      step: stats,
+      change:
+        {
+          type: set,
+          field: 5e-srd-5.1:conditions.immunities,
+          value: [5e-srd-5.1:conditions.poisoned],
+        },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:damage.immunities, value: [damage.poison] },
+    }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:hp.base, value: 26 } }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:hp.current, value: 26 } }
+  - { to: self, step: finish, change: { type: finishCreation } }
+log:
+  - { step: monster, kind: choice, by: app, option: 5e-srd-5.1:monsters.zombie }
+  - { step: hp, kind: choice, by: app, option: roll }
+  - { step: roll, kind: dice, by: engine, faces: [8, 8, 1], total: 26 }

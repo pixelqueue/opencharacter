@@ -1,0 +1,286 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/character.schema.json",
+  "title": "Character file",
+  "description": "The standard interchange file for one character, monster or NPC. Holds only base state: input field values, owned content and per-copy state, choices made, and which temporary effects are on. Derived values are never saved. Every content and field reference is fully qualified (`pack:id`).",
+  "type": "object",
+  "required": ["specVersion", "id", "packs"],
+  "properties": {
+    "specVersion": {
+      "description": "The OCF spec version this file was written against.",
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "id": {
+      "description": "An ID for this character, unique within the app or campaign (a UUID is a good choice).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "packs": {
+      "description": "The exact pack versions this character uses, in load order (later packs win).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "version"],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/packId"
+          },
+          "version": {
+            "$ref": "common.schema.json#/$defs/semver"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "creating": {
+      "description": "The character is being created. Default false, so a file without it is a finished character. An app sets it on a new character; the change `finishCreation` clears it once the character has no rules issues and no pending choices. Formulas read it as `character.creating`, so a constraint that holds only at creation guards on it.",
+      "type": "boolean"
+    },
+    "values": {
+      "description": "Values of input fields, by qualified field ID. Missing fields take their default.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/qualifiedFieldId"
+      },
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/literal"
+      }
+    },
+    "features": {
+      "description": "Owned content that is not carried: classes (with their level), feats, traits.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/entry"
+      }
+    },
+    "inventory": {
+      "description": "Carried content. The character's copy of an item is a base plus templates.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/entry"
+      }
+    },
+    "applied": {
+      "description": "Temporary effects from content the character doesn't own (Bless cast by an ally, a condition). The app turns them on and off; the engine never tracks time.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "source"],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/instanceId"
+          },
+          "source": {
+            "$ref": "common.schema.json#/$defs/qualifiedId"
+          },
+          "active": {
+            "description": "Default true.",
+            "type": "boolean"
+          },
+          "state": {
+            "$ref": "#/$defs/state"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "followUps": {
+      "description": "Ephemeral follow-ups: each `on` or `becomes` follow-up a batch triggered, stored by that applyChanges until it is acted on (`clearFollowUp`, which startAction proposes) or dismissed (`dismissFollowUp`). The engine writes them; apps change them only with those two changes. computeSheet lists each in `offers`. Derived (`while`) offers are never stored.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/followUp"
+      }
+    },
+    "choices": {
+      "description": "Picks for character-level choices declared in the rules.",
+      "$ref": "#/$defs/choiceTree"
+    },
+    "links": {
+      "description": "Which character fills each link slot, by qualified slot ID: the other character's `id`. How an app finds that character is the app's business.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/slotId"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "homebrew": {
+      "description": "The character's own content and rules additions, loaded on top of the pinned packs as the pack `homebrew`, so the rest of the file refers to them as `homebrew:<id>`.",
+      "$ref": "homebrew.schema.json"
+    },
+    "extensions": {
+      "description": "App-specific extras under each app's own namespace (reverse DNS or npm package name). Other apps carry them along untouched.",
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(@?[a-z0-9-]+([./][a-z0-9-]+)+)$",
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "required": ["id", "item"],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "item": {
+          "$ref": "common.schema.json#/$defs/qualifiedId"
+        },
+        "templates": {
+          "description": "Templates applied to this copy, in order.",
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/qualifiedId"
+          },
+          "uniqueItems": true
+        },
+        "equipped": {
+          "type": "boolean"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "state": {
+          "$ref": "#/$defs/state"
+        },
+        "choices": {
+          "description": "Picks for the choices declared by this item and its templates.",
+          "$ref": "#/$defs/choiceTree"
+        }
+      },
+      "additionalProperties": false
+    },
+    "state": {
+      "description": "Per-copy state values by state key (charges, shots, level).",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/literal"
+      }
+    },
+    "choiceTree": {
+      "description": "Picks keyed by choice ID. The tree's own item (the entry's item, or the picked option) uses bare choice IDs; choices declared by other content in the same tree (templates, granted content) are keyed `<qualified owner id>/<choice id>`. Each pick may carry the picks for the choices its option contains.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^([a-z0-9]+([-.][a-z0-9]+)*:[a-z0-9]+(-[a-z0-9]+)*(\\.[a-z0-9]+(-[a-z0-9]+)*)*/)?[a-z0-9]+(-[a-z0-9]+)*$"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/pick"
+        }
+      }
+    },
+    "pick": {
+      "type": "object",
+      "required": ["option"],
+      "properties": {
+        "option": {
+          "description": "A qualified content ID, an inline option ID, or a value.",
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "choices": {
+          "$ref": "#/$defs/choiceTree"
+        },
+        "state": {
+          "description": "Values for state keys the picked content declares (its content type's or its own), as a copy's state. The picked content sees them as `self.<key>`; a key at its default is left out.",
+          "type": "object",
+          "propertyNames": { "$ref": "common.schema.json#/$defs/name" },
+          "additionalProperties": { "$ref": "common.schema.json#/$defs/literal" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "followUp": {
+      "description": "A stored ephemeral follow-up.",
+      "type": "object",
+      "required": ["id", "followUp"],
+      "properties": {
+        "id": {
+          "description": "Unique among the character's stored follow-ups: `<the follow-up's own ID>-<n>`, the smallest n from 1 not in use.",
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "followUp": {
+          "description": "The follow-up's ID: `<pack>:<id>` for the rules', `<content or type qualified ID>#<id>` for content's.",
+          "type": "string"
+        },
+        "source": {
+          "description": "For a follow-up on content: the content and copy it comes from, as computeSheet's sources name them.",
+          "$ref": "common.schema.json#/$defs/source"
+        },
+        "to": {
+          "description": "For a follow-up to a linked character: `{ link }` with the qualified slot ID. It is stored here, on the character whose change triggered it, since one applyChanges writes one file; the app shows it to whoever runs the linked character. Absent for the character's own.",
+          "type": "object",
+          "required": ["link"],
+          "properties": {
+            "link": {
+              "$ref": "common.schema.json#/$defs/slotId"
+            }
+          },
+          "additionalProperties": false
+        },
+        "character": {
+          "description": "For a follow-up to a link: the ID of the character filling the slot when it was triggered.",
+          "type": "string"
+        },
+        "params": {
+          "description": "The parameters the follow-up fixes, evaluated when it was triggered.",
+          "type": "object"
+        },
+        "cause": {
+          "description": "What triggered an `on` moment: the adjustment entry as the follow-up's formulas saw it as `change` (with `once`, the matching entries summed), and its field.",
+          "type": "object",
+          "required": ["field", "by", "requested", "taken", "reason", "clamped", "tags"],
+          "properties": {
+            "field": {
+              "$ref": "common.schema.json#/$defs/qualifiedId"
+            },
+            "by": {
+              "type": "number"
+            },
+            "requested": {
+              "type": "number"
+            },
+            "taken": {
+              "type": "number"
+            },
+            "reason": {
+              "enum": ["requested", "absorbed", "overflow", "reset", "carry"]
+            },
+            "clamped": {
+              "type": "boolean"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "$ref": "common.schema.json#/$defs/tag"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

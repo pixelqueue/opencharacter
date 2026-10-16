@@ -1,0 +1,21 @@
+id: monsters.gibbering-mouther.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 1 }
+    results: [done]
+    steps:
+      - id: bites
+        kind: action
+        use: monster-attack
+        source: "'monsters.gibbering-mouther.bites'"
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.bites) && steps.bites.result == 'hit' ? 1 : 0)

@@ -1,0 +1,394 @@
+contentTypes:
+  project:
+    nameFrom: label
+    fields:
+      segments: { type: integer, required: true, min: 1 }
+      learns: { type: string }
+    state:
+      label: { type: string, default: '' }
+      progress: { type: integer, default: 0, min: 0, max: item.segments }
+    actions:
+      - use: work-on-project
+      - use: analyst-ticks
+
+fields:
+  stash.lifestyle: { type: integer, formula: 'min(4, floor(stash / 10))' }
+  trauma.retires: { type: boolean, formula: true }
+
+constraints:
+  - id: retire
+    check: '!trauma.retires || trauma.current < trauma.max'
+    data: { trauma: trauma.current }
+
+resultBands:
+  asset:
+    value: >-
+      !roll.empty && count(roll.faces, 6) >= 2 ? 3
+        : max(0, min(3, (roll.total == 6 ? 2 : roll.total >= 4 ? 1 : 0)
+          + roll.tallies.resultLevel))
+    bands:
+      - { id: critical, when: roll.value == 3 }
+      - { id: success, when: roll.value == 2 }
+      - { id: partial, when: roll.value == 1 }
+      - { id: failure, when: true }
+
+actions:
+  - id: flashback
+    tags: [flashback]
+    params:
+      stress: { type: integer, min: 0, default: 0 }
+      downtime: { type: boolean, default: false }
+    results: [flashback]
+    steps:
+      - id: stress
+        kind: changes
+        when: '!params.downtime && params.stress > 0'
+        to: self
+        changes:
+          - { type: adjust, field: stress.current, by: params.stress }
+      - id: coin
+        kind: changes
+        when: params.downtime
+        to: self
+        changes:
+          - { type: adjust, field: coin, by: -1 }
+      - id: result
+        kind: outcome
+        result: "'flashback'"
+
+  - id: stash-coin
+    tags: [downtime]
+    params:
+      coin: { type: integer, min: 1, default: 1 }
+    results: [stashed]
+    steps:
+      - id: move
+        kind: changes
+        to: self
+        changes:
+          - { type: adjust, field: coin, by: -params.coin }
+          - { type: adjust, field: stash, by: params.coin }
+      - { id: result, kind: outcome, result: "'stashed'" }
+  - id: withdraw-stash
+    tags: [downtime]
+    params:
+      coin: { type: integer, min: 1, default: 1 }
+    results: [withdrawn]
+    steps:
+      - id: move
+        kind: changes
+        to: self
+        changes:
+          - { type: adjust, field: stash, by: -2 * params.coin }
+          - { type: adjust, field: coin, by: params.coin }
+      - { id: result, kind: outcome, result: "'withdrawn'" }
+
+  - id: train
+    tags: [downtime]
+    params:
+      track: { type: enum, values: [playbook, insight, prowess, resolve] }
+      upgrade: { type: boolean, default: false }
+    results: [trained]
+    steps:
+      - id: upgrade
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              upgrade: >-
+                has(links.crew) ? [links.crew.upgrades.training.personal,
+                  links.crew.upgrades.training.insight, links.crew.upgrades.training.prowess,
+                  links.crew.upgrades.training.resolve][indexOf(['playbook', 'insight', 'prowess',
+                  'resolve'], params.track)] > 0 : params.upgrade
+      - id: track
+        kind: changes
+        to: self
+        changes:
+          - type: adjust
+            field: { formula: "'xp.' + params.track" }
+            by: 'flags.upgrade ? 2 : 1'
+      - { id: result, kind: outcome, result: "'trained'" }
+
+  - id: work-on-project
+    tags: [downtime]
+    available: self.progress < item.segments
+    params:
+      rating: { type: id, of: field, where: "'rating' in item.tags" }
+    results: [progress, complete]
+    steps:
+      - id: roll
+        kind: action
+        use: action-roll
+        params:
+          rating: params.rating.id
+          downtime: true
+      - id: coin
+        kind: choice
+        when: "coin > 0 && steps.roll.result != 'critical'"
+        options:
+          - { id: keep }
+          - { id: spend1 }
+          - { id: spend2, when: "coin >= 2 && steps.roll.result != 'success'" }
+          - { id: spend3, when: "coin >= 3 && steps.roll.result == 'failure'" }
+        recommend: "'keep'"
+      - id: spent
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              coin: >-
+                !has(steps.coin) ? 0 : steps.coin.picked == 'spend3' ? 3
+                : steps.coin.picked == 'spend2' ? 2 : steps.coin.picked == 'spend1' ? 1 : 0
+      - id: spend
+        kind: changes
+        when: flags.coin > 0
+        to: self
+        changes:
+          - { type: adjust, field: coin, by: -flags.coin }
+      - id: tick
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ticks: >-
+                min(item.segments - self.progress, [1, 2, 3, 5][min(3,
+                (steps.roll.result == 'critical' ? 3 : steps.roll.result == 'success' ? 2
+                : steps.roll.result == 'partial' ? 1 : 0) + flags.coin)])
+      - id: progress
+        kind: changes
+        to: self
+        changes:
+          - { type: adjustState, entry: self, key: progress, by: flags.ticks }
+      - id: learn
+        kind: changes
+        when: has(item.learns) && self.progress + flags.ticks >= item.segments
+        to: self
+        changes:
+          - { type: addItem, entry: { item: item.learns, state: { label: self.label } } }
+      - id: result
+        kind: outcome
+        result: "self.progress + flags.ticks >= item.segments ? 'complete' : 'progress'"
+        data:
+          ticks: flags.ticks
+          roll: steps.roll.result
+
+  - id: start-project
+    tags: [downtime]
+    params:
+      label: { type: string, default: '' }
+    results: [started]
+    steps:
+      - id: clock
+        kind: choice
+        options: { content: { type: project } }
+      - id: add
+        kind: changes
+        to: self
+        changes:
+          - type: addItem
+            entry: { item: steps.clock.picked, state: { label: params.label } }
+      - id: result
+        kind: outcome
+        result: "'started'"
+        data:
+          project: steps.clock.picked
+
+  - id: reduce-heat
+    tags: [downtime]
+    params:
+      rating: { type: id, of: field, where: "'rating' in item.tags" }
+    results: [reduced]
+    steps:
+      - id: roll
+        kind: action
+        use: action-roll
+        params:
+          rating: params.rating.id
+          downtime: true
+        situational: { reducingHeat: true }
+      - id: coin
+        kind: choice
+        when: "coin > 0 && steps.roll.result != 'critical'"
+        options:
+          - { id: keep }
+          - { id: spend1 }
+          - { id: spend2, when: "coin >= 2 && steps.roll.result != 'success'" }
+          - { id: spend3, when: "coin >= 3 && steps.roll.result == 'failure'" }
+        recommend: "'keep'"
+      - id: spent
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              coin: >-
+                !has(steps.coin) ? 0 : steps.coin.picked == 'spend3' ? 3
+                : steps.coin.picked == 'spend2' ? 2 : steps.coin.picked == 'spend1' ? 1 : 0
+      - id: spend
+        kind: changes
+        when: flags.coin > 0
+        to: self
+        changes:
+          - { type: adjust, field: coin, by: -flags.coin }
+      - id: amount
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              heat: >-
+                [1, 2, 3, 5][min(3, (steps.roll.result == 'critical' ? 3
+                  : steps.roll.result == 'success' ? 2 : steps.roll.result == 'partial' ? 1 : 0)
+                  + flags.coin)]
+      - id: heat
+        kind: changes
+        when: has(links.crew)
+        to: { link: crew }
+        changes:
+          - { type: adjust, field: 'fitd-crew:heat.current', by: -flags.heat }
+      - id: result
+        kind: outcome
+        result: "'reduced'"
+        data:
+          heat: flags.heat
+          roll: steps.roll.result
+
+  - id: analyst-ticks
+    tags: [downtime]
+    available: >-
+      @special-abilities.analyst in abilities.special
+      && self.progress < item.segments
+    params:
+      ticks: { type: integer, min: 1, max: 2, default: 2 }
+    results: [progress, complete]
+    steps:
+      - id: tick
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ticks: min(item.segments - self.progress, params.ticks)
+      - id: progress
+        kind: changes
+        to: self
+        changes:
+          - { type: adjustState, entry: self, key: progress, by: flags.ticks }
+      - id: learn
+        kind: changes
+        when: has(item.learns) && self.progress + flags.ticks >= item.segments
+        to: self
+        changes:
+          - { type: addItem, entry: { item: item.learns, state: { label: self.label } } }
+      - id: result
+        kind: outcome
+        result: "self.progress + flags.ticks >= item.segments ? 'complete' : 'progress'"
+        data:
+          ticks: flags.ticks
+
+  - id: ability-stress
+    params:
+      cost: { type: integer, min: 0 }
+      extra: { type: integer, min: 0, default: 0 }
+    results: [paid]
+    steps:
+      - id: cost
+        kind: changes
+        when: params.cost + params.extra > 0
+        to: self
+        changes:
+          - { type: adjust, field: stress.current, by: params.cost + params.extra }
+      - {
+          id: result,
+          kind: outcome,
+          result: "'paid'",
+          data: { stress: params.cost + params.extra },
+        }
+
+  - id: acquire-asset
+    tags: [downtime]
+    results: [acquired, too-low]
+    params:
+      tier: { type: integer, min: 0, default: 0 }
+      again: { type: boolean, default: false }
+      minQuality: { type: integer, min: 0, default: 0 }
+      restricted: { type: boolean, default: false }
+    steps:
+      - id: crew
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              tier: 'has(links.crew) ? links.crew.tier : params.tier'
+      - id: roll
+        kind: roll
+        tags: [asset-roll]
+        bands: asset
+        parts:
+          - id: pool
+            dice: '(flags.tier + (params.again ? 1 : 0))d6kh1'
+            ifEmpty: 2d6kl1
+      - id: level
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              level: steps.roll.bandValue
+      - id: coin
+        kind: choice
+        when: coin > 1 || coin > 0 && flags.level < 3
+        options:
+          - { id: keep }
+          - { id: spend1, when: flags.level < 3 }
+          - { id: spend2, when: coin >= 2 && (flags.level < 2 || flags.level == 3) }
+          - { id: spend3, when: coin >= 3 && flags.level != 1 && flags.level != 3 }
+          - { id: spend4, when: coin >= 4 && (flags.level == 1 || flags.level == 3) }
+        recommend: "'keep'"
+      - id: spent
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              coin: >-
+                !has(steps.coin) ? 0 : steps.coin.picked == 'spend4' ? 4
+                : steps.coin.picked == 'spend3' ? 3 : steps.coin.picked == 'spend2' ? 2
+                : steps.coin.picked == 'spend1' ? 1 : 0
+      - id: quality
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              quality: >-
+                max(0, flags.tier - 1 + flags.level + min(flags.coin, 3 - flags.level)
+                + floor(max(0, flags.coin - (3 - flags.level)) / 2))
+      - id: spend
+        kind: changes
+        when: flags.coin > 0
+        to: self
+        changes:
+          - { type: adjust, field: coin, by: -flags.coin }
+      - id: heat
+        kind: changes
+        when: params.restricted && has(links.crew)
+        to: { link: crew }
+        changes:
+          - { type: adjust, field: 'fitd-crew:heat.current', by: 2 }
+      - id: result
+        kind: outcome
+        result: "flags.quality >= params.minQuality ? 'acquired' : 'too-low'"
+        data:
+          quality: flags.quality
+          roll: steps.roll.band
+          heat: 'params.restricted ? 2 : 0'
+
+  - id: ignore-vice
+    tags: [downtime]
+    results: [ignored]
+    steps:
+      - id: stress
+        kind: changes
+        when: trauma.current > 0
+        to: self
+        changes:
+          - { type: adjust, field: stress.current, by: trauma.current }
+      - id: result
+        kind: outcome
+        result: "'ignored'"
+        data: { stress: trauma.current }

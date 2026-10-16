@@ -1,0 +1,27 @@
+# The bonus is on every Perform (playing the instrument is the player's).
+id: held.maestros-instrument-greater
+type: held
+tags: [trait.magical]
+fields:
+  level: 18
+  price: 19000
+  bulk: 1
+  hands: 2
+  activation: two
+  frequency: once-per-day
+grants:
+  - { item: spells.charm, when: 'self.equipped' }
+effects:
+  - target: { rolls: [skill-action.perform] }
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped'
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.charm && self.used < 1'
+    value:
+      id: charm
+      flags: { itemPaid: true, rank: 8, dc: 38 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

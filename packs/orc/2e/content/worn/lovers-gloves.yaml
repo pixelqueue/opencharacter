@@ -1,0 +1,15 @@
+id: worn.lovers-gloves
+type: worn
+tags: [trait.emotion, trait.invested, trait.magical, trait.mental]
+fields:
+  level: 8
+  price: 500
+  usage: gloves
+  activation: one
+  frequency: once-per-day
+effects:
+  - target: skills.diplomacy.mod
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

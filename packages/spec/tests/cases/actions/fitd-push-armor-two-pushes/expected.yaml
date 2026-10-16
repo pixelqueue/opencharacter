@@ -1,0 +1,13 @@
+# Skirmish 2 + the push die -> [3, 4, 6]: a success, great with the push for effect. Two
+# pushes: Battleborn's special armor pays one, the other costs 2 stress.
+status: finished
+outcome:
+  result: success
+  data: { position: risky, effect: great }
+proposedChanges:
+  - to: self
+    step: pushCost
+    change: { type: set, field: fitd-scoundrel:armor.special, value: true }
+  - to: self
+    step: pushCost
+    change: { type: adjust, field: fitd-scoundrel:stress.current, by: 2 }

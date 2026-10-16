@@ -1,0 +1,12 @@
+description: "5E: the Rod of Lordly Might's Paralyze runs item-power: a DC 17 Strength save, paralyzed on a failure, and the property used until dawn"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: '5e-srd-5.1:magic-items.rod-of-lordly-might#paralyze', entry: rod }
+  participants:
+    target:
+      - { id: troll }
+answers:
+  - { outcome: { result: failure, data: { total: 12 } } }

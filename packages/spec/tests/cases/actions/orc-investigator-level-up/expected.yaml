@@ -1,0 +1,43 @@
+# 2nd level: the investigator's skill increase (Society to expert), then the class feat and the
+# skill feat the level brings.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: gain
+    change: { type: adjust, field: orc-2e:level, by: 1 }
+  - to: self
+    step: gain
+    change: { type: adjust, field: orc-2e:xp.current, by: -1000 }
+  - to: self
+    step: increase
+    change: { type: adjust, field: orc-2e:skills.society.increases, by: 1 }
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { entry: class, choice: [class-feat-2] }
+      option: orc-2e:feats.investigator.certain-stratagem
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { entry: class, choice: [skill-feat-2] }
+      option: orc-2e:feats.skill.steady-balance
+log:
+  - step: increase
+    action: orc-2e:level-up
+    kind: allocate
+    by: app
+    amounts:
+      orc-2e:skills.society.increases: 1
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: app
+    option: orc-2e:feats.investigator.certain-stratagem
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: app
+    option: orc-2e:feats.skill.steady-balance

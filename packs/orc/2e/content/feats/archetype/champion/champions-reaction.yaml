@@ -1,0 +1,21 @@
+id: feats.archetype.champion.champions-reaction
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.champion }
+
+prerequisites:
+  - { id: champion-dedication, when: '@feats.archetype.champion.champion-dedication in feats.held' }
+choices:
+  - id: reaction
+    from:
+      items:
+        [
+          classes.champion.causes.desecration,
+          classes.champion.causes.grandeur,
+          classes.champion.causes.iniquity,
+          classes.champion.causes.justice,
+          classes.champion.causes.liberation,
+          classes.champion.causes.obedience,
+          classes.champion.causes.redemption,
+        ]
+    eligible: "item.id == 'orc-2e:classes.champion.causes.' + champion.cause"

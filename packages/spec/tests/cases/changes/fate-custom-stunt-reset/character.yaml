@@ -1,0 +1,18 @@
+# Custom stunts used this scene: one per scene, one per session, and Killing Stroke (an SRD stunt,
+# once per scene).
+specVersion: 0.1.0
+id: example-fate-custom-stunts
+packs:
+  - { id: fate-core, version: 0.1.0 }
+values:
+  fate-core:aspects.highConcept: Smuggler Queen of the Outer Rim
+features:
+  - id: s-scene
+    item: fate-core:stunts.custom
+    state: { label: Quick Exit, limit: scene, uses: 2, used: 2 }
+  - id: s-session
+    item: fate-core:stunts.custom
+    state: { label: Lucky Break, limit: session, used: 1 }
+  - id: s-stroke
+    item: fate-core:stunts.killing-stroke
+    state: { used: 1 }

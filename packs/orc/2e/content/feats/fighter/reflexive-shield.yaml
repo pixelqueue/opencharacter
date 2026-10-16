@@ -1,0 +1,10 @@
+id: feats.fighter.reflexive-shield
+type: feat
+tags: [archetype-feat]
+fields: { level: 6, category: class, class: classes.fighter }
+effects:
+  - target: saves.reflex.mod
+    op: add
+    value: "sumCopies(copy.fields.acBonus, copy.type == 'shield' && copy.equipped)"
+    stackKey: circumstance-bonus
+    when: shield.raised

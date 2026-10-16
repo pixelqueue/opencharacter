@@ -1,0 +1,46 @@
+id: features.wizard.spellcasting
+type: feature
+effects:
+  - { target: spellcasting.wizard.mod, op: set, value: abilities.int.mod }
+  - { target: spellcasting.wizard.dc, op: set, value: 8 + proficiency.bonus + abilities.int.mod }
+  - { target: spellcasting.wizard.attack, op: set, value: proficiency.bonus + abilities.int.mod }
+  - { target: spellcasting.classes, op: add, value: 1 }
+  - { target: spellcasting.casterLevel, op: add, value: self.level }
+choices:
+  - id: cantrips
+    pick: 'self.level >= 10 ? 5 : self.level >= 4 ? 4 : 3'
+    from: { type: spell, where: 'item.level == 0 && @classes.wizard in item.classes' }
+    effects:
+      - { target: spells.wizard, op: grant, value: { formula: pick.id } }
+  - id: spellbook
+    slots: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    pick: 'slot == 1 ? 6 : 2'
+    unique: spellbook
+    when: self.level >= slot
+    from:
+      {
+        type: spell,
+        where: 'item.level >= 1 && item.level <= min(9, ceil(slot / 2)) && @classes.wizard in item.classes',
+      }
+    effects:
+      - { target: spells.wizardBook, op: grant, value: { formula: pick.id } }
+  - id: copied
+    pick: { min: 0 }
+    required: false
+    unique: spellbook
+    from:
+      {
+        type: spell,
+        where: 'item.level >= 1 && item.level <= min(9, ceil(self.level / 2)) && @classes.wizard in item.classes',
+      }
+    effects:
+      - { target: spells.wizardBook, op: grant, value: { formula: pick.id } }
+  - id: spells
+    pick: 'max(1, abilities.int.mod + self.level)'
+    from:
+      {
+        type: spell,
+        where: 'item.level >= 1 && item.level <= min(9, ceil(self.level / 2)) && item.id in spells.wizardBook',
+      }
+    effects:
+      - { target: spells.wizard, op: grant, value: { formula: pick.id } }

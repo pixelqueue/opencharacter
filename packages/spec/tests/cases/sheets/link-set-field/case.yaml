@@ -1,0 +1,39 @@
+description: "A link slot's declared set field (`of: string`) reads the linked sheet's list as is, and a saved pick it no longer lists is option-not-eligible"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        links:
+          crew:
+            fields:
+              members.siteRatings: { type: set, of: string, default: [] }
+              members.dotRatings: { type: set, of: string, default: [] }
+        fields:
+          sites:
+            { type: integer, formula: 'has(links.crew) ? size(links.crew.members.siteRatings) : 0' }
+          atTavern:
+            type: boolean
+            formula: "has(links.crew) && 'other-pack:ratings.sway' in links.crew.members.siteRatings"
+          crew.dots: { type: set, of: string }
+        choices:
+          - id: crew-dots
+            pick: { min: 0, max: 2 }
+            required: false
+            from: { values: { formula: 'has(links.crew) ? links.crew.members.dotRatings : []' } }
+            effects:
+              - { target: crew.dots, op: grant, value: { formula: pick.value } }
+      content: []
+input:
+  links:
+    test-pack:crew:
+      id: the-crew
+      values:
+        other-pack:members.siteRatings: [other-pack:ratings.sway, other-pack:ratings.consort]
+        other-pack:members.dotRatings: [hunt, prowl]

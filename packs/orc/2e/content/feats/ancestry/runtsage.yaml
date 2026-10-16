@@ -1,0 +1,13 @@
+id: feats.ancestry.runtsage
+type: feat
+fields: { level: 5, category: ancestry, ancestry: ancestries.hobgoblin }
+effects:
+  - { target: ancestry.held, op: grant, value: { formula: '@ancestries.goblin' } }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      {
+        type: feat,
+        where: "item.category == 'ancestry' && item.level <= 1 && has(item.ancestry) && item.ancestry == @ancestries.goblin",
+      }

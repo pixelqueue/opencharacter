@@ -1,0 +1,27 @@
+# 10 + 2 (Presence) = 12 against DR 12: success. The shot spends an arrow (applyChanges picks
+# arrows-2, the first copy with any left). Damage 1d6 = 3.
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 3
+    sepsis: false
+    skullSmashed: false
+proposedChanges:
+  - to: self
+    step: shoot
+    change:
+      type: adjustQuantity
+      copies:
+        type: mork-borg-core:ammo
+        where: item.kind == 'arrows' && self.quantity > 0
+      limit: 1
+      by: -1
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -3
+      tags:
+        - damage

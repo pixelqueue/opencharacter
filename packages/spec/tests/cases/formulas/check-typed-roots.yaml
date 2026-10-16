@@ -1,0 +1,68 @@
+description: Type checking with typed context roots
+specVersion: 0.1.0
+cases:
+  - name: a closed root rejects an unknown key
+    check: item.damge
+    roots: [item]
+    rootTypes:
+      item: { object: { damage: dice, tags: list<string> } }
+    error: unknown-name
+  - name: a closed root types its known keys
+    check: item.damage
+    roots: [item]
+    rootTypes:
+      item: { object: { damage: dice } }
+    type: dice
+  - name: an open root types known keys and allows others
+    check: self.charges
+    roots: [self]
+    rootTypes:
+      self: { object: { equipped: bool }, open: true }
+    type: dyn
+  - name: an open root still types the keys it knows
+    check: self.equipped && true
+    roots: [self]
+    rootTypes:
+      self: { object: { equipped: bool }, open: true }
+    type: bool
+  - name: a known key with the wrong type for its place
+    check: self.equipped
+    roots: [self]
+    rootTypes:
+      self: { object: { equipped: bool }, open: true }
+    expect: int
+    error: type-mismatch
+  - name: nested object types
+    check: steps.attack.total + 1
+    roots: [steps]
+    rootTypes:
+      steps: { object: { attack: { object: { total: int, kept: list<int> } } } }
+    type: int
+  - name: a typo in a nested key
+    check: steps.atack.total
+    roots: [steps]
+    rootTypes:
+      steps: { object: { attack: { object: { total: int } } } }
+    error: unknown-name
+  - name: indexing a typed list
+    check: steps.attack.kept[0] >= 19
+    roots: [steps]
+    rootTypes:
+      steps: { object: { attack: { object: { kept: list<int> } } } }
+    type: bool
+  - name: has() on a declared optional key is fine
+    check: has(item.versatileDamage)
+    roots: [item]
+    rootTypes:
+      item: { object: { versatileDamage: dice } }
+    type: bool
+  - name: has() on a key that can never exist is an error
+    check: has(item.versatile)
+    roots: [item]
+    rootTypes:
+      item: { object: { versatileDamage: dice } }
+    error: unknown-name
+  - name: a root without a type stays dyn
+    check: params.anything.goes
+    roots: [params]
+    type: dyn

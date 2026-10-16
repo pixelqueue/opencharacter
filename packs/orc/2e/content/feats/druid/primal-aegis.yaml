@@ -1,0 +1,11 @@
+id: feats.druid.primal-aegis
+type: feat
+fields: { level: 18, category: class, class: classes.druid }
+effects:
+  - target: { incoming: { fields: [hp.current] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, max(0, attributes.wis.mod))
+    when: >-
+      incoming.amount < 0 && countList(['damage.acid', 'damage.cold', 'damage.electricity', 'damage.fire',
+        'damage.vitality', 'damage.void'], x in incoming.tags) > 0

@@ -1,0 +1,11 @@
+id: feats.sorcerer.propelling-sorcery
+type: feat
+fields: { level: 2, category: class, class: classes.sorcerer }
+effects:
+  - target: { choices: [blood-magic] }
+    op: option
+    value: { id: step }
+  - target: { choices: [blood-magic] }
+    op: option
+    when: flags.hasTarget
+    value: { id: push }

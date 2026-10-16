@@ -1,0 +1,71 @@
+id: features.variants.automatic-bonus-progression
+type: feature
+tags: [variant-rules]
+fields: { level: 1 }
+# A standard copy every character has, doing something only while `variants.automaticBonus` is on.
+keepsTemplates:
+  - template: templates.devastating-attacks
+    copies: { type: weapon, where: 'true' }
+    when: variants.automaticBonus && level >= 4
+choices:
+  - id: skill-potency
+    slots: [3, 6, 9, 13, 15, 17, 20]
+    when: variants.automaticBonus && level >= slot
+    pick: '[1, 1, 1, 2, 2, 2, 3][indexOf([3, 6, 9, 13, 15, 17, 20], slot)]'
+    # A saved pick stays eligible (the sheet's total can't be split by slot); the `skill-potency`
+    # constraint reports a total over the level's cap.
+    eligible: >-
+      maxFields(value in f.tags ? f.value : 0, 'abp-skill' in f.tags)
+        < (slot >= 17 ? 3 : slot >= 9 ? 2 : 1) || value in choice.picks
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+        ]
+    effects:
+      - target: { fields: { where: "'abp-skill' in item.tags && pick.value in item.tags" } }
+        op: add
+        value: 1
+  - id: apex
+    when: variants.automaticBonus && level >= 17
+    from:
+      options:
+        - id: str
+          effects:
+            - { target: attributes.str.mod, op: add, value: 1 }
+            - { target: attributes.str.mod, op: atLeast, value: 4 }
+        - id: dex
+          effects:
+            - { target: attributes.dex.mod, op: add, value: 1 }
+            - { target: attributes.dex.mod, op: atLeast, value: 4 }
+        - id: con
+          effects:
+            - { target: attributes.con.mod, op: add, value: 1 }
+            - { target: attributes.con.mod, op: atLeast, value: 4 }
+        - id: int
+          effects:
+            - { target: attributes.int.mod, op: add, value: 1 }
+            - { target: attributes.int.mod, op: atLeast, value: 4 }
+        - id: wis
+          effects:
+            - { target: attributes.wis.mod, op: add, value: 1 }
+            - { target: attributes.wis.mod, op: atLeast, value: 4 }
+        - id: cha
+          effects:
+            - { target: attributes.cha.mod, op: add, value: 1 }
+            - { target: attributes.cha.mod, op: atLeast, value: 4 }

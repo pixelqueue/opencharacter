@@ -1,0 +1,123 @@
+id: classes.druid
+type: class
+tags: [trait.druid]
+fields: { hp: 8 }
+effects:
+  # The class's trait, for content that reads the class by it (such as Natural Ambition).
+  - { target: class.traits, op: grant, value: { tag: trait.druid } }
+  - { target: attributes.wis.boosts, op: add, value: 1 }
+  - { target: class.keyAttribute, op: set, value: "'wis'" }
+  - { target: perception.rank, op: atLeast, value: 1 }
+  - { target: saves.fortitude.rank, op: atLeast, value: 1 }
+  - { target: saves.reflex.rank, op: atLeast, value: 1 }
+  - { target: saves.will.rank, op: atLeast, value: 2 }
+  - { target: attacks.simple.rank, op: atLeast, value: 1 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 1 }
+  - { target: defenses.unarmored.rank, op: atLeast, value: 1 }
+  - { target: defenses.light.rank, op: atLeast, value: 1 }
+  - { target: defenses.medium.rank, op: atLeast, value: 1 }
+  - { target: classDc.rank, op: atLeast, value: 1 }
+  - { target: spellcasting.tradition, op: set, value: "'primal'" }
+  - { target: spellcasting.kind, op: set, value: "'prepared'" }
+  - { target: spellcasting.attribute, op: set, value: "'wis'" }
+  - { target: spellcasting.slotsPerRank, op: set, value: 2 }
+  - { target: spellcasting.cantrips, op: set, value: 5 }
+  - { target: spellcasting.rank, op: atLeast, value: 1 }
+  # A training like a background's: a skill already trained frees a training for another.
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.nature },
+      when: "!('skill.nature' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - item: features.druid.anathema
+  - item: features.druid.druidic-order
+  - item: features.druid.shield-block
+  - item: features.druid.druidic
+  - { item: features.druid.fortitude-expertise, when: level >= 3 }
+  - { item: features.druid.perception-expertise, when: level >= 3 }
+  - { item: features.druid.reflex-expertise, when: level >= 5 }
+  - { item: features.druid.expert-spellcaster, when: level >= 7 }
+  - { item: features.druid.weapon-expertise, when: level >= 11 }
+  - { item: features.druid.wild-willpower, when: level >= 11 }
+  - { item: features.druid.medium-armor-expertise, when: level >= 13 }
+  - { item: features.druid.weapon-specialization, when: level >= 13 }
+  - { item: features.druid.master-spellcaster, when: level >= 15 }
+  - { item: features.druid.legendary-spellcaster, when: level >= 19 }
+  - { item: features.druid.primal-hierophant, when: level >= 19 }
+choices:
+  - id: order
+    from:
+      items:
+        [
+          classes.druid.orders.animal,
+          classes.druid.orders.leaf,
+          classes.druid.orders.storm,
+          classes.druid.orders.untamed,
+        ]
+  - id: voice-of-nature
+    unique: feats
+    from: { items: [feats.druid.animal-empathy, feats.druid.plant-empathy] }
+  - id: skills
+    unique: skill-training
+    pick: 2 + max(0, attributes.int.mod)
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+          skill.lore.academia,
+          skill.lore.circus,
+          skill.lore.farming,
+          skill.lore.legal,
+          skill.lore.scribing,
+          skill.lore.underworld,
+          skill.lore.warfare,
+        ]
+      where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
+    effects:
+      - { target: skills.chosen, op: grant, value: { formula: pick.value } }
+  - id: class-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    # The class's feats are worked out once (the query reads only the item); the slot's level is the
+    # choice's `eligible`, so a listing reads only them.
+    from:
+      type: feat
+      where: >-
+        item.category == 'class'
+          && (has(item.class) && item.class == @classes.druid || 'trait.druid' in item.tags)
+          || 'archetype-feat' in item.tags
+    eligible: >-
+      (item.category == 'class' && has(item.class) && item.class == @classes.druid
+          || 'trait.druid' in item.tags) && !('trait.archetype' in item.tags) && item.level <= slot && !(item.id in druid.grantedFeats)
+        || 'trait.archetype' in item.tags && item.level <= slot
+          && (!('trait.dedication' in item.tags) || archetypes.open == 0 || item.id in choice.picks
+            || countList(choice.picks, x in archetypes.dedications) > 0)
+        || slot >= 2 && item.id in [archetypes.extra.level2, archetypes.extra.level4, archetypes.extra.level6,
+            archetypes.extra.level8, archetypes.extra.level10, archetypes.extra.level12,
+            archetypes.extra.level14, archetypes.extra.level16, archetypes.extra.level18,
+            archetypes.extra.level20][floor(slot / 2) - 1]
+  - id: skill-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= slot

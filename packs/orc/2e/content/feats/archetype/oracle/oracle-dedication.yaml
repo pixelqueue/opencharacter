@@ -1,0 +1,140 @@
+id: feats.archetype.oracle.oracle-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.oracle }
+
+prerequisites:
+  - { id: cha, when: 'attributes.cha.mod >= 2' }
+  - { id: not-oracle, when: 'countCopies(copy.item == @classes.oracle) == 0' }
+effects:
+  - { target: spellcasting.archetype.oracle.tradition, op: set, value: "'divine'" }
+  - { target: spellcasting.archetype.oracle.kind, op: set, value: "'spontaneous'" }
+  - { target: spellcasting.archetype.oracle.attribute, op: set, value: "'cha'" }
+  - { target: spellcasting.archetype.oracle.rank, op: atLeast, value: 1 }
+  - { target: spellcasting.archetype.oracle.cantrips, op: set, value: 2 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.religion },
+      when: "!('skill.religion' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - { item: features.spellcasting.archetype-repertoire, state: { source: "'oracle'" } }
+  - { item: features.spellcasting.archetype-signature-spells, state: { source: "'oracle'" } }
+choices:
+  - id: mystery
+    from:
+      options:
+        - id: ancestors
+          effects:
+            - { target: oracle.mystery, op: set, value: "'ancestors'" }
+            - { target: oracle.revelations, op: grant, value: { item: spells.ancestral-touch } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.ancestral-defense } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.ancestral-form } }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.society },
+                when: "!('skill.society' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: battle
+          effects:
+            - { target: oracle.mystery, op: set, value: "'battle'" }
+            - { target: oracle.revelations, op: grant, value: { item: spells.weapon-trance } }
+            - {
+                target: oracle.revelations,
+                op: grant,
+                value: { item: spells.battlefield-persistence },
+              }
+            - {
+                target: oracle.revelations,
+                op: grant,
+                value: { item: spells.revel-in-retribution },
+              }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.athletics },
+                when: "!('skill.athletics' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: bones
+          effects:
+            - { target: oracle.mystery, op: set, value: "'bones'" }
+            - { target: oracle.revelations, op: grant, value: { item: spells.soul-siphon } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.armor-of-bones } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.claim-undead } }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.medicine },
+                when: "!('skill.medicine' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: cosmos
+          effects:
+            - { target: oracle.mystery, op: set, value: "'cosmos'" }
+            - { target: oracle.revelations, op: grant, value: { item: spells.spray-of-stars } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.interstellar-void } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.moonlight-bridge } }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.nature },
+                when: "!('skill.nature' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: flames
+          effects:
+            - { target: oracle.mystery, op: set, value: "'flames'" }
+            - { target: oracle.revelations, op: grant, value: { item: spells.incendiary-aura } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.whirling-flames } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.flaming-fusillade } }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.acrobatics },
+                when: "!('skill.acrobatics' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: life
+          effects:
+            - { target: oracle.mystery, op: set, value: "'life'" }
+            - { target: oracle.revelations, op: grant, value: { item: spells.life-link } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.delay-affliction } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.life-giving-form } }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.medicine },
+                when: "!('skill.medicine' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: lore
+          effects:
+            - { target: oracle.mystery, op: set, value: "'lore'" }
+            - { target: oracle.revelations, op: grant, value: { item: spells.brain-drain } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.access-lore } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.dread-secret } }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.occultism },
+                when: "!('skill.occultism' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: tempest
+          effects:
+            - { target: oracle.mystery, op: set, value: "'tempest'" }
+            - { target: oracle.revelations, op: grant, value: { item: spells.tempest-touch } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.thunderburst } }
+            - { target: oracle.revelations, op: grant, value: { item: spells.tempest-form } }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.nature },
+                when: "!('skill.nature' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }

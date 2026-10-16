@@ -1,0 +1,252 @@
+id: feats.archetype.sorcerer.sorcerer-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.sorcerer }
+
+prerequisites:
+  - { id: cha, when: 'attributes.cha.mod >= 2' }
+  - { id: not-sorcerer, when: 'countCopies(copy.item == @classes.sorcerer) == 0' }
+effects:
+  - { target: spellcasting.archetype.sorcerer.kind, op: set, value: "'spontaneous'" }
+  - { target: spellcasting.archetype.sorcerer.attribute, op: set, value: "'cha'" }
+  - { target: spellcasting.archetype.sorcerer.rank, op: atLeast, value: 1 }
+  - { target: spellcasting.archetype.sorcerer.cantrips, op: set, value: 2 }
+grants:
+  - { item: features.spellcasting.archetype-repertoire, state: { source: "'sorcerer'" } }
+  - { item: features.spellcasting.archetype-signature-spells, state: { source: "'sorcerer'" } }
+choices:
+  - id: bloodline
+    from:
+      options:
+        - id: aberrant
+          effects:
+            - { target: sorcerer.bloodline, op: set, value: "'aberrant'" }
+            - { target: spellcasting.archetype.sorcerer.tradition, op: set, value: "'occult'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.intimidation },
+                when: "!('skill.intimidation' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.occultism },
+                when: "!('skill.occultism' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: angelic
+          effects:
+            - { target: sorcerer.bloodline, op: set, value: "'angelic'" }
+            - { target: spellcasting.archetype.sorcerer.tradition, op: set, value: "'divine'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.diplomacy },
+                when: "!('skill.diplomacy' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.religion },
+                when: "!('skill.religion' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: demonic
+          effects:
+            - { target: sorcerer.bloodline, op: set, value: "'demonic'" }
+            - { target: spellcasting.archetype.sorcerer.tradition, op: set, value: "'divine'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.intimidation },
+                when: "!('skill.intimidation' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.religion },
+                when: "!('skill.religion' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: diabolic
+          effects:
+            - { target: sorcerer.bloodline, op: set, value: "'diabolic'" }
+            - { target: spellcasting.archetype.sorcerer.tradition, op: set, value: "'divine'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.deception },
+                when: "!('skill.deception' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.religion },
+                when: "!('skill.religion' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: draconic
+          effects:
+            - { target: sorcerer.bloodline, op: set, value: "'draconic'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.intimidation },
+                when: "!('skill.intimidation' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+          choices:
+            - id: exemplar
+              from:
+                options:
+                  - id: arcane
+                    effects:
+                      - {
+                          target: spellcasting.archetype.sorcerer.tradition,
+                          op: set,
+                          value: "'arcane'",
+                        }
+                      - {
+                          target: skills.trained,
+                          op: grant,
+                          value: { tag: skill.arcana },
+                          when: "!('skill.arcana' in skills.chosen)",
+                        }
+                      - { target: skills.trainings, op: add, value: 1 }
+                  - id: divine
+                    effects:
+                      - {
+                          target: spellcasting.archetype.sorcerer.tradition,
+                          op: set,
+                          value: "'divine'",
+                        }
+                      - {
+                          target: skills.trained,
+                          op: grant,
+                          value: { tag: skill.religion },
+                          when: "!('skill.religion' in skills.chosen)",
+                        }
+                      - { target: skills.trainings, op: add, value: 1 }
+                  - id: occult
+                    effects:
+                      - {
+                          target: spellcasting.archetype.sorcerer.tradition,
+                          op: set,
+                          value: "'occult'",
+                        }
+                      - {
+                          target: skills.trained,
+                          op: grant,
+                          value: { tag: skill.occultism },
+                          when: "!('skill.occultism' in skills.chosen)",
+                        }
+                      - { target: skills.trainings, op: add, value: 1 }
+                  - id: primal
+                    effects:
+                      - {
+                          target: spellcasting.archetype.sorcerer.tradition,
+                          op: set,
+                          value: "'primal'",
+                        }
+                      - {
+                          target: skills.trained,
+                          op: grant,
+                          value: { tag: skill.nature },
+                          when: "!('skill.nature' in skills.chosen)",
+                        }
+                      - { target: skills.trainings, op: add, value: 1 }
+        - id: elemental
+          effects:
+            - { target: sorcerer.bloodline, op: set, value: "'elemental'" }
+            - { target: spellcasting.archetype.sorcerer.tradition, op: set, value: "'primal'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.intimidation },
+                when: "!('skill.intimidation' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.nature },
+                when: "!('skill.nature' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: fey
+          effects:
+            - { target: sorcerer.bloodline, op: set, value: "'fey'" }
+            - { target: spellcasting.archetype.sorcerer.tradition, op: set, value: "'primal'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.deception },
+                when: "!('skill.deception' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.nature },
+                when: "!('skill.nature' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: hag
+          effects:
+            - { target: sorcerer.bloodline, op: set, value: "'hag'" }
+            - { target: spellcasting.archetype.sorcerer.tradition, op: set, value: "'occult'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.deception },
+                when: "!('skill.deception' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.occultism },
+                when: "!('skill.occultism' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: imperial
+          effects:
+            - { target: sorcerer.bloodline, op: set, value: "'imperial'" }
+            - { target: spellcasting.archetype.sorcerer.tradition, op: set, value: "'arcane'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.arcana },
+                when: "!('skill.arcana' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.society },
+                when: "!('skill.society' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: undead
+          effects:
+            - { target: sorcerer.bloodline, op: set, value: "'undead'" }
+            - { target: spellcasting.archetype.sorcerer.tradition, op: set, value: "'divine'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.intimidation },
+                when: "!('skill.intimidation' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.religion },
+                when: "!('skill.religion' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }

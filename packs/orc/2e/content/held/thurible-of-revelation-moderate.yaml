@@ -1,0 +1,24 @@
+id: held.thurible-of-revelation-moderate
+type: held
+tags: [trait.divine]
+fields:
+  level: 10
+  price: 900
+  bulk: 1
+  activation: two
+effects:
+  - target: skills.religion.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    scope: applied
+    duration: { amount: 1, unit: hour }
+actions:
+  - id: burn-incense
+    tags: [activation]
+    available: 'self.equipped'
+    steps:
+      - id: activate
+        kind: changes
+        changes:
+          - { type: applyEffect, source: item.id }

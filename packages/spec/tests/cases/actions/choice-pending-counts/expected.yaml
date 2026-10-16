@@ -1,0 +1,18 @@
+# One basic skill picked, then the advanced skill it opened: the basic skills are asked again,
+# with one of two picked.
+status: paused
+needs:
+  step: picks
+  action: test-pack:create
+  kind: choice
+  options:
+    - test-pack:skills.climbing
+    - test-pack:skills.swimming
+    - '#done'
+  choice:
+    path: { choice: [calling, 'test-pack:callings.hunter', basic] }
+    owner: 'test-pack:callings.hunter'
+    id: basic
+    min: 2
+    max: 2
+    picked: 1

@@ -1,0 +1,22 @@
+id: features.bard.bardic-inspiration
+type: feature
+effects:
+  - target: bardicInspiration.die
+    op: set
+    value: 'self.level >= 15 ? 1d12 : self.level >= 10 ? 1d10 : self.level >= 5 ? 1d8 : 1d6'
+  - { target: bardicInspiration.uses, op: set, value: 'max(1, abilities.cha.mod)' }
+actions:
+  - id: bardic-inspiration
+    tags: [feature]
+    results: [inspired]
+    available: self.bardicInspirationSpent < bardicInspiration.uses
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: bardicInspirationSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'inspired'"
+        data:
+          die: bardicInspiration.die

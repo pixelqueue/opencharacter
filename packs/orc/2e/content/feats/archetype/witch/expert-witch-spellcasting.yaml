@@ -1,0 +1,13 @@
+id: feats.archetype.witch.expert-witch-spellcasting
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 12, category: class, archetype: archetypes.witch }
+prerequisites:
+  - { id: basic, when: '@feats.archetype.witch.basic-witch-spellcasting in feats.held' }
+  - {
+      id: tradition-skill,
+      when: "[skills.arcana.rank, skills.religion.rank, skills.occultism.rank, skills.nature.rank][indexOf(['arcane', 'divine', 'occult', 'primal'], spellcasting.archetype.witch.tradition)] >= 3",
+    }
+effects:
+  - { target: spellcasting.archetype.witch.benefits, op: atLeast, value: 2 }
+  - { target: spellcasting.archetype.witch.rank, op: atLeast, value: 2 }

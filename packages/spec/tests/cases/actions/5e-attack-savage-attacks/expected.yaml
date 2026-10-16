@@ -1,0 +1,62 @@
+# Half-orc fighter 1 (Str 16 + 2 = 18, +4), longsword wielded two-handed (versatile 1d10).
+# Attack 20 + 4 + 2 = 26, natural 20: critical.
+# Damage: the part's 1d10 doubled to 2d10 [6, 3], Str +4, and Savage Attacks' 1d10 [8], which
+# the critical hit leaves alone (multiplied: false). 6 + 3 + 4 + 8 = 21.
+status: finished
+outcome:
+  result: hit
+  data:
+    critical: true
+    attack: 26
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -21,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.slashing,
+            ],
+        },
+    }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces:
+      - 20
+    total: 26
+  - step: damage
+    kind: dice
+    by: engine
+    faces:
+      - 6
+      - 3
+      - 8
+    total: 21
+    items:
+      - kind: dice
+        count: 2
+        sides: 10
+        value: 9
+      - kind: flat
+        value: 4
+      - kind: dice
+        count: 1
+        sides: 10
+        value: 8
+        multiplied: false
+        source:
+          type: item
+          id: 5e-srd-5.1:traits.savage-attacks

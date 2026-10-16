@@ -1,0 +1,48 @@
+id: feats.ranger.deadly-aim
+type: feat
+tags: [trait.flourish]
+fields: { level: 8, category: class, class: classes.ranger }
+prerequisites:
+  - { id: specialization, when: 'classLevel.ranger >= 7' }
+actions:
+  - id: deadly-aim
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    available: >-
+      countCopies(copy.type == 'weapon' && copy.equipped && copy.fields.range > 0) > 0
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: 'self.equipped && item.range > 0'
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [strike.deadly-aim]
+        participants: { target: participants.target }
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.flourishes, by: 1 }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+effects:
+  - target: { rolls: [strike.deadly-aim] }
+    op: add
+    value: -2
+    when: "'attack' in roll.tags"
+  - target: { rolls: [strike.deadly-aim] }
+    op: add
+    value: 'level >= 15 ? 8 : level >= 11 ? 6 : 4'
+    stackKey: circumstance-bonus
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: "'damage' in roll.tags"

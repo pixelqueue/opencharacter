@@ -1,0 +1,8 @@
+description: "5E's random start, run automatically: six rolls of 4d6 dropping the lowest go to the fighter's abilities by its priority (Strength, Constitution, Dexterity, Wisdom, Charisma, Intelligence; tied rolls in roll order), and the engine draws every pick: the race, subrace, class and background, then each pending choice, among the options it offers: the fighter's skills leave out the acolyte's Insight, and the acolyte's languages the dwarf's Common and Dwarvish; then its starting equipment and the acolyte's, each line drawn among its options"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:create-random-character }
+  policy: { dice: auto, choices: auto, allocations: auto }

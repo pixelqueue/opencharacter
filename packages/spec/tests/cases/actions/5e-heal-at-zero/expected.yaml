@@ -1,0 +1,16 @@
+# At 0 hit points: the healing, then both death save counts back to 0.
+status: finished
+outcome:
+  result: healed
+  data: { amount: 5 }
+proposedChanges:
+  - to: self
+    step: restore
+    change: { type: adjust, field: 5e-srd-5.1:hp.current, by: 5, tags: [healing] }
+  - to: self
+    step: restore
+    change: { type: set, field: 5e-srd-5.1:deathSaves.successes, value: 0 }
+  - to: self
+    step: restore
+    change: { type: set, field: 5e-srd-5.1:deathSaves.failures, value: 0 }
+log: []

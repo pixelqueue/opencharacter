@@ -1,0 +1,17 @@
+status: finished
+outcome: { data: { picked: [saw] } }
+proposedChanges:
+  - to: self
+    step: picks
+    change: { type: choose, path: { entry: kit-1, choice: [tool] }, option: saw }
+  - to: self
+    step: picks
+    change: { type: setState, entry: kit-1, key: filled, value: true }
+log:
+  - step: picks
+    action: test-pack:fill-kit
+    kind: choice
+    by: engine
+    option: saw
+    index: 0
+    choice: { entry: kit-1, choice: [tool] }

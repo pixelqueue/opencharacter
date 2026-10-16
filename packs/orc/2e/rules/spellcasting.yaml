@@ -1,0 +1,1949 @@
+# Prepared spells are copies, one per prepared slot (`rank` state the slot's rank, `expended` once
+# cast; a cantrip copy is never expended). A spontaneous repertoire is picks, one choice per rank,
+# so a spell is known at a rank.
+tags:
+  - spell
+  - spell-attack
+  - spell-dc
+  - damage.spell
+  - damage.critical
+  - tradition.arcane
+  - tradition.divine
+  - tradition.occult
+  - tradition.primal
+  - rest
+  - spell-cost
+  - healing
+  - trait.uncommon
+  - trait.cantrip
+  - trait.focus
+  - trait.attack
+  - trait.auditory
+  - trait.visual
+  - trait.linguistic
+  - trait.olfactory
+  - trait.illusion
+  - trait.detection
+  - trait.prediction
+  - trait.revelation
+  - trait.scrying
+  - trait.summon
+  - trait.curse
+  - trait.disease
+  - trait.poison
+  - trait.healing
+  - trait.death
+  - trait.sleep
+  - trait.light
+  - trait.darkness
+  - trait.subtle
+  - trait.aura
+  - trait.move
+  - trait.extradimensional
+  - trait.misfortune
+  - trait.sanctified
+  - trait.holy
+  - trait.unholy
+  - trait.acid
+  - trait.cold
+  - trait.electricity
+  - trait.fire
+  - trait.force
+  - trait.sonic
+  - trait.spirit
+  - trait.vitality
+  - trait.void
+  - trait.air
+  - trait.earth
+  - trait.water
+  - trait.wood
+  - trait.metal
+  - trait.composition
+  - trait.hex
+  - trait.bard
+  - trait.witch
+  - trait.cleric
+  - trait.druid
+  - trait.sorcerer
+  - trait.wizard
+  - trait.oracle
+  - trait.champion
+  - trait.spellshape
+
+families:
+  rank: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+fields:
+  spellcasting.tradition:
+    { type: enum, values: [none, arcane, divine, occult, primal], formula: "'none'" }
+  spellcasting.kind: { type: enum, values: [none, prepared, spontaneous], formula: "'none'" }
+  spellcasting.attribute: { type: enum, values: [none, int, wis, cha], formula: "'none'" }
+  spellcasting.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  spellcasting.proficiency:
+    {
+      type: integer,
+      formula: 'spellcasting.rank > 0 ? 2 * spellcasting.rank + proficiency.level : proficiency.untrained',
+    }
+  # Each is tagged with the spellcasting attribute (a computed tag), so typed bonuses and penalties
+  # to that attribute's checks and DCs reach them. A DC isn't 10 + the attack modifier: a bonus to
+  # attack rolls doesn't raise it.
+  spellcasting.attributeMod:
+    type: integer
+    formula: >-
+      spellcasting.attribute == 'int' ? attributes.int.mod
+        : spellcasting.attribute == 'wis' ? attributes.wis.mod
+        : spellcasting.attribute == 'cha' ? attributes.cha.mod : 0
+  spellcasting.attack:
+    type: integer
+    tags:
+      - check
+      - attack
+      - spell-attack
+      - { formula: "spellcasting.attribute == 'none' ? [] : ['attr.' + spellcasting.attribute]" }
+    formula: spellcasting.attributeMod + spellcasting.proficiency
+  spellcasting.dc:
+    type: integer
+    tags:
+      - dc
+      - spell-dc
+      - { formula: "spellcasting.attribute == 'none' ? [] : ['attr.' + spellcasting.attribute]" }
+    formula: 10 + spellcasting.attributeMod + spellcasting.proficiency
+  spellcasting.innate.rank: { type: integer, formula: 'max(1, spellcasting.rank)', min: 1, max: 4 }
+  spellcasting.innate.attack:
+    type: integer
+    tags: [check, attack, spell-attack, attr.cha]
+    formula: attributes.cha.mod + 2 * spellcasting.innate.rank + proficiency.level
+  spellcasting.innate.dc:
+    type: integer
+    tags: [dc, spell-dc, attr.cha]
+    formula: 10 + attributes.cha.mod + 2 * spellcasting.innate.rank + proficiency.level
+
+  spells.autoRank: { type: integer, formula: 'max(1, ceil(level / 2))' }
+
+  spellcasting.slotsPerRank: { type: integer, formula: 0, min: 0 }
+  spellcasting.extraSlots: { type: integer, formula: 0, min: 0 }
+  spellcasting.cantrips: { type: integer, formula: 0, min: 0 }
+  spells.curriculum: { type: set, of: spell }
+  spellcasting.extraCantrips: { type: integer, formula: 0, min: 0 }
+  # The font's slots are of the highest rank up to 9th; the 10th-rank slot is a single slot of its
+  # own.
+  spellcasting.font: { type: enum, values: [none, heal, harm], formula: "'none'" }
+  spellcasting.fontSlots: { type: integer, formula: 0, min: 0, max: 6 }
+  spellcasting.fontRank: { type: integer, formula: 'min(9, spellcasting.maxRank)' }
+  spellcasting.fontEither: { type: boolean, formula: false }
+  spells.granted.cantrips: { type: integer, formula: 0, min: 0 }
+  'spells.granted.rank{rank}': { type: integer, formula: 0, min: 0 }
+  spellcasting.maxRank:
+    type: integer
+    formula: 'spellcasting.slotsPerRank == 0 ? 0 : min(10, ceil(level / 2))'
+  spellSlots.rank1.max:
+    type: integer
+    formula: >-
+      spellcasting.slotsPerRank == 0 || level < 1 ? 0
+        : spellcasting.slotsPerRank + (level > 1 ? 1 : 0) + spellcasting.extraSlots
+  spellSlots.rank2.max:
+    type: integer
+    formula: >-
+      spellcasting.slotsPerRank == 0 || level < 3 ? 0
+        : spellcasting.slotsPerRank + (level > 3 ? 1 : 0) + spellcasting.extraSlots
+  spellSlots.rank3.max:
+    type: integer
+    formula: >-
+      spellcasting.slotsPerRank == 0 || level < 5 ? 0
+        : spellcasting.slotsPerRank + (level > 5 ? 1 : 0) + spellcasting.extraSlots
+  spellSlots.rank4.max:
+    type: integer
+    formula: >-
+      spellcasting.slotsPerRank == 0 || level < 7 ? 0
+        : spellcasting.slotsPerRank + (level > 7 ? 1 : 0) + spellcasting.extraSlots
+  spellSlots.rank5.max:
+    type: integer
+    formula: >-
+      spellcasting.slotsPerRank == 0 || level < 9 ? 0
+        : spellcasting.slotsPerRank + (level > 9 ? 1 : 0) + spellcasting.extraSlots
+  spellSlots.rank6.max:
+    type: integer
+    formula: >-
+      spellcasting.slotsPerRank == 0 || level < 11 ? 0
+        : spellcasting.slotsPerRank + (level > 11 ? 1 : 0) + spellcasting.extraSlots
+  spellSlots.rank7.max:
+    type: integer
+    formula: >-
+      spellcasting.slotsPerRank == 0 || level < 13 ? 0
+        : spellcasting.slotsPerRank + (level > 13 ? 1 : 0) + spellcasting.extraSlots
+  spellSlots.rank8.max:
+    type: integer
+    formula: >-
+      spellcasting.slotsPerRank == 0 || level < 15 ? 0
+        : spellcasting.slotsPerRank + (level > 15 ? 1 : 0) + spellcasting.extraSlots
+  spellSlots.rank9.max:
+    type: integer
+    formula: >-
+      spellcasting.slotsPerRank == 0 || level < 17 ? 0
+        : spellcasting.slotsPerRank + (level > 17 ? 1 : 0) + spellcasting.extraSlots
+  spellSlots.rank10.max:
+    type: integer
+    formula: >-
+      spellcasting.slotsPerRank > 0 && level >= 19 ? 1 + spellcasting.extraRank10 : 0
+  spellcasting.extraRank10: { type: integer, formula: 0, min: 0 }
+  spellSlots.extra.max: { type: integer, formula: 0, min: 0 }
+  spellSlots.extra.used:
+    { type: integer, input: true, default: 0, min: 0, max: spellSlots.extra.max }
+  spells.extraSlot: { type: set, of: spell }
+  spells.byOption: { type: set, of: spell }
+  'spellSlots.rank{rank}.used':
+    { type: integer, input: true, default: 0, min: 0, max: 'spellSlots.rank{rank}.max' }
+
+  focus.points: { type: integer, formula: 0, min: 0, max: 3 }
+  focus.spent: { type: integer, input: true, default: 0, min: 0, max: focus.points }
+  focus.refocusAll: { type: boolean, formula: false }
+
+  spells.innate: { type: set, of: spell }
+  spells.book: { type: set, of: spell }
+  spells.access: { type: set, of: spell }
+  spellcasting.fromBook: { type: boolean, formula: false }
+  spells.repertoire: { type: set, of: spell }
+  'spells.repertoire.rank{rank}': { type: set, of: spell }
+  spells.signature: { type: set, of: spell }
+  spells.bonusKnown: { type: set, of: spell }
+  spellcasting.allSignature: { type: boolean, formula: false }
+
+constraints:
+  - id: prepared-slots
+    check: >-
+      spellcasting.kind != 'prepared' || (
+        countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(has(copy.state.font) && copy.state.font) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 1 && !(has(copy.state.split) && copy.state.split != '')) <= spellSlots.rank1.max
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(has(copy.state.font) && copy.state.font) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 2 && !(has(copy.state.split) && copy.state.split != '')) <= spellSlots.rank2.max
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(has(copy.state.font) && copy.state.font) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 3 && !(has(copy.state.split) && copy.state.split != '')) <= spellSlots.rank3.max
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(has(copy.state.font) && copy.state.font) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 4 && !(has(copy.state.split) && copy.state.split != '')) <= spellSlots.rank4.max
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(has(copy.state.font) && copy.state.font) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 5 && !(has(copy.state.split) && copy.state.split != '')) <= spellSlots.rank5.max
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(has(copy.state.font) && copy.state.font) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 6 && !(has(copy.state.split) && copy.state.split != '')) <= spellSlots.rank6.max
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(has(copy.state.font) && copy.state.font) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 7 && !(has(copy.state.split) && copy.state.split != '')) <= spellSlots.rank7.max
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(has(copy.state.font) && copy.state.font) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 8 && !(has(copy.state.split) && copy.state.split != '')) <= spellSlots.rank8.max
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(has(copy.state.font) && copy.state.font) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 9 && !(has(copy.state.split) && copy.state.split != '')) <= spellSlots.rank9.max
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(has(copy.state.font) && copy.state.font) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 10 && !(has(copy.state.split) && copy.state.split != '')) <= spellSlots.rank10.max)
+  - id: prepared-cantrips
+    check: >-
+      spellcasting.kind != 'prepared'
+        || countCopies(copy.type == 'spell' && copy.state.source == '' && 'trait.cantrip' in copy.tags)
+          <= spellcasting.cantrips + spellcasting.extraCantrips
+    data:
+      prepared: "countCopies(copy.type == 'spell' && copy.state.source == '' && 'trait.cantrip' in copy.tags)"
+      limit: spellcasting.cantrips + spellcasting.extraCantrips
+  - id: curriculum-slots
+    check: >-
+      spellcasting.kind != 'prepared' || spellcasting.extraSlots + spellcasting.extraCantrips == 0 || (
+        countCopies(copy.type == 'spell' && copy.state.source == '' && 'trait.cantrip' in copy.tags && !(copy.item in spells.curriculum)) <= spellcasting.cantrips
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(copy.item in spells.curriculum) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 1) <= max(0, spellSlots.rank1.max - spellcasting.extraSlots)
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(copy.item in spells.curriculum) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 2) <= max(0, spellSlots.rank2.max - spellcasting.extraSlots)
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(copy.item in spells.curriculum) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 3) <= max(0, spellSlots.rank3.max - spellcasting.extraSlots)
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(copy.item in spells.curriculum) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 4) <= max(0, spellSlots.rank4.max - spellcasting.extraSlots)
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(copy.item in spells.curriculum) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 5) <= max(0, spellSlots.rank5.max - spellcasting.extraSlots)
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(copy.item in spells.curriculum) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 6) <= max(0, spellSlots.rank6.max - spellcasting.extraSlots)
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(copy.item in spells.curriculum) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 7) <= max(0, spellSlots.rank7.max - spellcasting.extraSlots)
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(copy.item in spells.curriculum) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 8) <= max(0, spellSlots.rank8.max - spellcasting.extraSlots)
+        && countCopies(copy.type == 'spell' && copy.state.source == '' && !('trait.cantrip' in copy.tags) && !(copy.item in spells.curriculum) && (has(copy.state.rank) ? copy.state.rank : copy.fields.rank) == 9) <= max(0, spellSlots.rank9.max - spellcasting.extraSlots))
+  - id: font-slots
+    check: >-
+      countCopies(copy.type == 'spell' && has(copy.state.font) && copy.state.font) <= spellcasting.fontSlots
+        && countCopies(copy.type == 'spell' && has(copy.state.font) && copy.state.font
+          && ((spellcasting.fontEither
+            ? !(copy.item in [@spells.heal, @spells.harm])
+            : copy.item != 'orc-2e:spells.' + spellcasting.font)
+            || copy.state.rank != spellcasting.fontRank)) == 0
+  - id: split-slot
+    check: >-
+      countCopies(copy.type == 'spell' && has(copy.state.split) && copy.state.split != '')
+          <= (@feats.wizard.split-slot in feats.held ? 1 : 0)
+        && countCopies(copy.type == 'spell' && has(copy.state.split) && copy.state.split != ''
+          && (!has(copy.state.rank) || copy.state.rank >= spellcasting.maxRank)) == 0
+  - id: prepared-rank
+    check: >-
+      countCopies(copy.type == 'spell' && has(copy.state.rank) && copy.state.rank < copy.fields.rank) == 0
+
+situational:
+  - { id: againstMental, type: boolean, default: false, rolls: [save] }
+  - id: shieldSpellBlock
+    type: boolean
+    default: false
+    incoming: { fields: [hp.current], tags: [damage] }
+    available: >-
+      countList(character.applied, x.active && x.source == @spells.shield) > 0
+
+  - id: bespellStrikes
+    type: boolean
+    default: false
+    rolls: [strike]
+    available: '@feats.spellcasting.bespell-strikes in feats.held'
+    effects:
+      - target: { rolls: [damage.strike] }
+        op: add
+        value: dieOf(1d6, 1)
+        tags: [damage.force]
+        when: situational.bespellStrikes
+
+effects:
+  - id: spell-critical-double
+    target: { rolls: [damage.critical] }
+    op: rollModifier
+    value: { kind: multiply, factor: 2 }
+
+contentTypes:
+  spell:
+    texts: [trigger, requirements]
+    fields:
+      rank: { type: integer, required: true, min: 1, max: 10 }
+      cast:
+        type: enum
+        values:
+          [
+            free,
+            reaction,
+            one,
+            two,
+            three,
+            one-to-two,
+            one-to-three,
+            two-to-three,
+            one-minute,
+            ten-minutes,
+            one-hour,
+          ]
+        required: true
+      range: { type: integer, min: 0 }
+      area: { type: enum, values: [burst, cone, emanation, line, square, cube, wall, other] }
+      areaSize: { type: integer, min: 0 }
+      targets: { type: integer, min: 1 }
+      duration:
+        type: enum
+        values:
+          [
+            rounds,
+            minutes,
+            hours,
+            days,
+            until-next-turn,
+            until-end-of-turn,
+            until-daily-preparations,
+            unlimited,
+            sustained,
+            varies,
+          ]
+      durationAmount: { type: integer, min: 1 }
+      sustained: { type: boolean, default: false }
+      defense: { type: enum, values: [ac, fortitude, reflex, will] }
+      basic: { type: boolean, default: false }
+      saveDamage:
+        type: enum
+        values: [basic, unless-critical-success, none-on-success, full-on-success, half-then-full]
+        default: basic
+      damage: { type: dice, default: 0d6 }
+      damageBonus: { type: integer, default: 0 }
+      damageType:
+        type: enum
+        values:
+          [
+            acid,
+            bleed,
+            bludgeoning,
+            cold,
+            electricity,
+            fire,
+            force,
+            mental,
+            piercing,
+            poison,
+            slashing,
+            sonic,
+            spirit,
+            vitality,
+            void,
+            untyped,
+          ]
+        default: force
+      damageTypeChoice: { type: boolean, default: false }
+      damage2: { type: dice, default: 0d6 }
+      damage2Type:
+        type: enum
+        values:
+          [
+            acid,
+            bleed,
+            bludgeoning,
+            cold,
+            electricity,
+            fire,
+            force,
+            mental,
+            piercing,
+            poison,
+            slashing,
+            sonic,
+            spirit,
+            vitality,
+            void,
+          ]
+        default: force
+      heighten: { type: integer, default: 0, min: 0 }
+      heightenDice: { type: integer, default: 0, min: 0 }
+      heightenBonus: { type: integer, default: 0, min: 0 }
+      heighten2Dice: { type: integer, default: 0, min: 0 }
+      actionScaling:
+        { type: enum, values: [none, per-action, double, die-per-action], default: none }
+      persistent: { type: dice, default: 0d6 }
+      persistentBonus: { type: integer, default: 0, min: 0 }
+      persistentType:
+        type: enum
+        values:
+          [
+            acid,
+            bleed,
+            bludgeoning,
+            cold,
+            electricity,
+            fire,
+            mental,
+            piercing,
+            poison,
+            slashing,
+            sonic,
+            spirit,
+            vitality,
+            void,
+          ]
+        default: fire
+      heightenPersistentDice: { type: integer, default: 0, min: 0 }
+      heightenPersistentBonus: { type: integer, default: 0, min: 0 }
+      persistentAt: { type: integer, default: 2, min: 1, max: 3 }
+      persistentScales: { type: boolean, default: false }
+      healing: { type: dice, default: 0d8 }
+      healingBonus: { type: integer, default: 0, min: 0 }
+      heightenHealingDice: { type: integer, default: 0, min: 0 }
+      heightenHealingBonus: { type: integer, default: 0, min: 0 }
+      twoActionHealing: { type: integer, default: 0, min: 0 }
+      tempHp: { type: integer, default: 0, min: 0 }
+      heightenTempHp: { type: integer, default: 0, min: 0 }
+      success: { type: set, of: condition }
+      successValue: { type: integer, default: 1, min: 1 }
+      failure: { type: set, of: condition }
+      failureValue: { type: integer, default: 1, min: 1 }
+      criticalFailure: { type: set, of: condition }
+      criticalFailureValue: { type: integer, default: 1, min: 1 }
+      heightenAt: { type: integer, default: 0, min: 0, max: 10 }
+      heightenedSuccess: { type: set, of: condition, default: [] }
+      heightenedSuccessValue: { type: integer, default: 1, min: 1 }
+      heightenedFailure: { type: set, of: condition, default: [] }
+      heightenedFailureValue: { type: integer, default: 1, min: 1 }
+      heightenedCriticalFailure: { type: set, of: condition, default: [] }
+      heightenedCriticalFailureValue: { type: integer, default: 1, min: 1 }
+      affliction: { type: id, of: affliction }
+      applyTo: { type: enum, values: [none, self, ally, target], default: none }
+      applyAt: { type: integer, default: 2, min: 1, max: 3 }
+      stabilizes: { type: boolean, default: false }
+      copyTemplates: { type: set, of: string }
+    # An applied spell's `outcome` is the target's: 1 success, 2 failure, 3 critical failure.
+    state:
+      rank: { type: integer, default: item.rank, min: 1, max: 10 }
+      expended: { type: boolean, default: false }
+      font: { type: boolean, default: false }
+      split: { type: string, default: '' }
+      source: { type: string, default: '' }
+      outcome: { type: integer, default: 2, min: 0, max: 3 }
+      value: { type: integer, default: 1, min: 0 }
+      damageType:
+        type: enum
+        values:
+          [
+            acid,
+            bleed,
+            bludgeoning,
+            cold,
+            electricity,
+            fire,
+            force,
+            mental,
+            piercing,
+            poison,
+            slashing,
+            sonic,
+            spirit,
+            vitality,
+            void,
+          ]
+        default: fire
+      copy: { type: string, default: '' }
+      form: { type: string, default: '' }
+    actions:
+      - use: cast-spell
+
+actions:
+  - id: cast-spell
+    tags: [spell]
+    params:
+      rank: { type: integer, optional: true, min: 1, max: 10 }
+      actions: { type: integer, optional: true, min: 1, max: 3 }
+      ac: { type: integer, optional: true }
+      copy: { type: string, optional: true }
+      form: { type: string, optional: true }
+      source: { type: string, optional: true }
+      damageType:
+        type: enum
+        optional: true
+        values:
+          [
+            acid,
+            bleed,
+            bludgeoning,
+            cold,
+            electricity,
+            fire,
+            force,
+            mental,
+            piercing,
+            poison,
+            slashing,
+            sonic,
+            spirit,
+            vitality,
+            void,
+          ]
+    participants:
+      target:
+        fields:
+          defenses.ac: { type: integer }
+          prey.target: { type: string, default: '' }
+          defenses.acPrey: { type: integer }
+          level: { type: integer, default: 0 }
+          conditions.concealed: { type: boolean, default: false }
+          conditions.hidden: { type: boolean, default: false }
+      ally: {}
+    results:
+      [
+        expended,
+        no-slot,
+        no-focus,
+        no-use,
+        not-known,
+        cast,
+        rolled,
+        critical-success,
+        success,
+        failure,
+        critical-failure,
+      ]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              # A copy of the spell is a prepared slot. A picked feat's `self` is its pick's state,
+              # with no `id`.
+              prepared: "has(self.id) && countCopies(copy.id == self.id && copy.type == 'spell') > 0"
+              cantrip: "'trait.cantrip' in item.tags"
+              known: >-
+                size(filterList(keysOf('rank'), item.id in fieldOf('spells.repertoire.rank{rank}', x))) > 0
+                  ? filterList(keysOf('rank'), item.id in fieldOf('spells.repertoire.rank{rank}', x))[0] : 0
+              actions: 'has(params.actions) ? params.actions : 2'
+              repertoires: >-
+                filterList(keysOf('archetypeSource'),
+                  item.id in fieldOf('spells.archetype.{archetypeSource}.repertoire', x))
+              spellSources: >-
+                filterList(keysOf('archetypeSource'),
+                  item.id in fieldOf('spells.archetype.{archetypeSource}.spells', x))
+              classSources: >-
+                'trait.focus' in item.tags ? filterList(keysOf('archetypeSource'),
+                  ('trait.' + x) in item.tags
+                    && fieldOf('spellcasting.archetype.{archetypeSource}.attribute', x) != 'none'
+                    && !(('trait.' + x) in class.traits)) : []
+              incapacitation: "'trait.incapacitation' in item.tags"
+              attack: has(item.defense) && item.defense == 'ac'
+              save: has(item.defense) && item.defense != 'ac'
+              copy: "has(params.copy) ? params.copy : ''"
+              free: false
+              pooled: false
+              item: >-
+                has(self.id) && countCopies(copy.id == self.id && copy.type in ['weapon', 'armor', 'shield',
+                  'gear', 'consumable', 'worn', 'held', 'staff', 'wand']) > 0
+              itemPaid: false
+              overcharge: false
+      - id: mode
+        kind: branch
+        cases:
+          - when: flags.prepared
+            flags: { mode: "'prepared'" }
+          - when: "'trait.focus' in item.tags"
+            flags: { mode: "'focus'" }
+          - when: flags.item && !(item.id in spells.innate)
+            flags: { mode: "'item'" }
+          - when: >-
+              size(flags.repertoires) > 0 && (!(item.id in spells.repertoire)
+                || (has(params.source) && params.source in flags.repertoires))
+            flags: { mode: "'archetype'" }
+          - when: item.id in spells.repertoire
+            flags: { mode: "'spontaneous'" }
+          - when: item.id in spells.innate
+            flags: { mode: "'innate'" }
+          - when: item.id in spells.extraSlot
+            flags: { mode: "'extra'" }
+          - when: item.id in spells.byOption
+            flags: { mode: "'option'" }
+          - when: true
+            flags: { mode: "'other'" }
+      - id: source
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              src: >-
+                flags.mode == 'prepared' ? (has(self.source) ? self.source : '')
+                  : flags.mode == 'archetype'
+                    ? (has(params.source) && params.source in flags.repertoires
+                      ? params.source : flags.repertoires[0])
+                  : size(flags.spellSources) > 0 ? flags.spellSources[0]
+                  : size(flags.classSources) > 0 ? flags.classSources[0]
+                  : flags.mode == 'item' && !(('tradition.' + spellcasting.tradition) in item.tags)
+                    && size(filterList(keysOf('archetypeSource'), ('tradition.'
+                      + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in item.tags)) > 0
+                    ? filterList(keysOf('archetypeSource'), ('tradition.'
+                      + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x)) in item.tags)[0]
+                  : ''
+      - id: known
+        kind: branch
+        cases:
+          - when: flags.mode == 'archetype'
+            flags:
+              archetypeKnown: >-
+                size(filterList(keysOf('archetypeRank'), item.id in fieldOf('spells.archetype.{archetypeSource}.repertoire.rank{archetypeRank}', flags.src, x))) > 0
+                  ? filterList(keysOf('archetypeRank'), item.id in fieldOf('spells.archetype.{archetypeSource}.repertoire.rank{archetypeRank}', flags.src, x))[0] : 0
+          - when: true
+            flags: { archetypeKnown: 0 }
+      - id: numbers
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              rank: >-
+                flags.cantrip || flags.mode == 'focus' ? spells.autoRank
+                  : flags.mode == 'prepared' ? (has(self.rank) ? self.rank : item.rank)
+                  : has(params.rank) ? params.rank
+                  : flags.mode == 'spontaneous' ? flags.known
+                  : flags.mode == 'archetype' ? flags.archetypeKnown : item.rank
+              innateNumbers: flags.mode == 'innate' || spellcasting.attribute == 'none'
+      - id: stats
+        kind: branch
+        cases:
+          - when: >-
+              flags.src != ''
+                && fieldOf('spellcasting.archetype.{archetypeSource}.attribute', flags.src) != 'none'
+            flags:
+              attribute: "fieldOf('spellcasting.archetype.{archetypeSource}.attribute', flags.src)"
+              attackField: "'spellcasting.archetype.' + flags.src + '.attack'"
+              dc: "fieldOf('spellcasting.archetype.{archetypeSource}.dc', flags.src)"
+          - when: flags.innateNumbers
+            flags:
+              attribute: "'cha'"
+              attackField: "'spellcasting.innate.attack'"
+              dc: spellcasting.innate.dc
+          - when: true
+            flags:
+              attribute: spellcasting.attribute
+              attackField: "'spellcasting.attack'"
+              dc: spellcasting.dc
+      - id: cost
+        kind: choice
+        tags: [spell-cost]
+        when: >-
+          !flags.cantrip && (flags.mode == 'innate' || flags.mode == 'item' || flags.mode == 'option'
+            || (item.id in spells.extraSlot && flags.mode != 'prepared' && flags.mode != 'focus'))
+        options:
+          - id: innate
+            when: flags.mode == 'innate'
+          - id: slot
+            when: >-
+              flags.mode == 'spontaneous'
+                && (fieldOf('spellSlots.rank{rank}.max', flags.rank) - fieldOf('spellSlots.rank{rank}.used', flags.rank)) > 0
+        recommend: "flags.mode == 'innate' ? 'innate' : 'slot'"
+      - id: expended
+        kind: outcome
+        when: flags.mode == 'prepared' && !flags.cantrip && self.expended
+        result: "'expended'"
+      - id: notKnown
+        kind: outcome
+        when: >-
+          flags.mode == 'spontaneous' && !flags.cantrip && !flags.pooled
+            && !(item.id in fieldOf('spells.repertoire.rank{rank}', flags.rank))
+            && !((item.id in spells.signature || spellcasting.allSignature) && flags.rank >= item.rank)
+        result: "'not-known'"
+        data: { rank: flags.rank }
+      - id: archetypeNotKnown
+        kind: outcome
+        when: >-
+          flags.mode == 'archetype' && !flags.cantrip
+            && !(flags.rank <= 8 && item.id in fieldOf('spells.archetype.{archetypeSource}.repertoire.rank{archetypeRank}', flags.src, flags.rank))
+            && !(item.id in fieldOf('spells.archetype.{archetypeSource}.signature', flags.src) && flags.rank >= item.rank)
+        result: "'not-known'"
+        data: { rank: flags.rank }
+      - id: noSlot
+        kind: outcome
+        when: >-
+          (flags.mode == 'extra' && !flags.pooled) || flags.mode == 'spontaneous' && !flags.cantrip && !flags.pooled
+            && (fieldOf('spellSlots.rank{rank}.max', flags.rank) - fieldOf('spellSlots.rank{rank}.used', flags.rank)) <= 0
+        result: "'no-slot'"
+        data: { rank: flags.rank }
+      - id: archetypeNoSlot
+        kind: outcome
+        when: >-
+          flags.mode == 'archetype' && !flags.cantrip
+            && (flags.rank <= 8 ? fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', flags.src, flags.rank) - fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', flags.src, flags.rank) : 0) <= 0
+        result: "'no-slot'"
+        data: { rank: flags.rank }
+      - id: noUse
+        kind: outcome
+        when: >-
+          (flags.mode == 'item' && (flags.cantrip
+            ? has(self.prepared) && !self.prepared : !flags.itemPaid))
+            || (flags.mode == 'option' && !flags.cantrip && !flags.itemPaid)
+        result: "'no-use'"
+      - id: noFocus
+        kind: outcome
+        when: flags.mode == 'focus' && !flags.cantrip && focus.points - focus.spent < 1
+        result: "'no-focus'"
+      - id: spend
+        kind: changes
+        when: '!flags.cantrip && !flags.free'
+        changes:
+          - {
+              type: setState,
+              when: "flags.mode == 'prepared'",
+              entry: self,
+              key: expended,
+              value: true,
+            }
+          - type: adjust
+            when: flags.mode == 'spontaneous'
+            field:
+              {
+                formula: "'spellSlots.rank' + ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'][flags.rank - 1] + '.used'",
+              }
+            by: 1
+          - type: adjust
+            when: flags.mode == 'archetype'
+            field:
+              {
+                formula: "'spellSlots.archetype.' + flags.src + '.rank' + string(flags.rank) + '.used'",
+              }
+            by: 1
+          - { type: adjust, when: "flags.mode == 'focus'", field: focus.spent, by: 1 }
+          - type: setState
+            when: "flags.mode == 'prepared' && has(self.split) && self.split != ''"
+            entry: { formula: self.split }
+            key: expended
+            value: true
+          - type: setState
+            when: flags.mode == 'prepared'
+            forEach: >-
+              mapList(filterList(character.features,
+                has(x.state.split) && x.state.split == self.id), x.id)
+            entry: { formula: x }
+            key: expended
+            value: true
+      - id: overcharge
+        kind: action
+        when: flags.overcharge
+        use: flat-check
+        params: { dc: 10 }
+      - id: overcharged
+        kind: changes
+        when: flags.overcharge
+        changes:
+          - type: setState
+            when: "steps.overcharge.result in ['success', 'critical-success']"
+            entry: self
+            key: broken
+            value: true
+          - type: removeItem
+            when: "steps.overcharge.result in ['failure', 'critical-failure']"
+            entry: self
+      - id: paid
+        kind: changes
+        when: '!flags.cantrip'
+        tags: [spell.paid]
+      - id: amounts
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              steps: 'item.heighten > 0 ? max(0, floor((flags.rank - item.rank) / item.heighten)) : 0'
+              damageType: 'item.damageTypeChoice && has(params.damageType) ? params.damageType : item.damageType'
+              heightenedConditions: item.heightenAt > 0 && flags.rank >= item.heightenAt
+      - id: totals
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              damageCount: >-
+                item.actionScaling == 'die-per-action'
+                  ? countOf(item.damage) + flags.actions - 1
+                    + flags.steps * item.heightenDice * (flags.actions >= 2 ? 2 : 1)
+                  : (countOf(item.damage) + flags.steps * item.heightenDice)
+                    * (item.actionScaling == 'per-action' ? flags.actions
+                      : item.actionScaling == 'double' && flags.actions >= 2 ? 2 : 1)
+              damageFlat: >-
+                (item.damageBonus + flags.steps * item.heightenBonus)
+                  * (item.actionScaling == 'per-action' ? flags.actions : 1)
+              damage2Count: 'countOf(item.damage2) + flags.steps * item.heighten2Dice'
+              persistentCount: 'countOf(item.persistent) + flags.steps * item.heightenPersistentDice'
+              persistentFlat: 'item.persistentBonus + flags.steps * item.heightenPersistentBonus'
+              healingCount: 'countOf(item.healing) + flags.steps * item.heightenHealingDice'
+              healingFlat: >-
+                item.healingBonus + flags.steps * item.heightenHealingBonus
+                  + (flags.actions == 2 ? item.twoActionHealing * (flags.steps + 1) : 0)
+              tempHp: 'item.tempHp + flags.steps * item.heightenTempHp'
+              # Every spell attack of one cast takes the multiple attack penalty the cast starts at;
+              # they count toward it only after all of them.
+              attackNumber: 'min(3, turn.attacks + 1)'
+      - id: attack
+        kind: action
+        each: target
+        when: flags.attack
+        use: spell-attack
+        tags: [spell]
+        params:
+          field: flags.attackField
+          attack: flags.attackNumber
+          count: false
+        participants: { target: '[participant.id]' }
+      - id: hit
+        kind: roll
+        each: target
+        when: >-
+          flags.attack && (flags.damageCount > 0 || flags.damageFlat != 0 || flags.damage2Count > 0)
+            && steps.attack.result in ['success', 'critical-success']
+        tags:
+          - damage
+          - damage.spell
+          - { formula: "steps.attack.result == 'critical-success' ? ['damage.critical'] : []" }
+        parts:
+          - dice: dieOf(item.damage, flags.damageCount)
+            when: flags.damageCount > 0
+            tags: [{ formula: "'damage.' + flags.damageType" }]
+          - value: flags.damageFlat
+            when: flags.damageFlat != 0
+            tags: [{ formula: "'damage.' + flags.damageType" }]
+          - dice: dieOf(item.damage2, flags.damage2Count)
+            when: flags.damage2Count > 0
+            tags: [{ formula: "'damage.' + item.damage2Type" }]
+      - id: deal
+        kind: changes
+        each: target
+        when: has(steps.hit)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: hit, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, spell]
+      - id: attackAlone
+        kind: action
+        when: flags.attack && size(participants.target) == 0
+        use: spell-attack
+        tags: [spell]
+        params:
+          field: flags.attackField
+          attack: flags.attackNumber
+          ac: 'has(params.ac) ? params.ac : null'
+          count: false
+      - id: hitAlone
+        kind: roll
+        when: >-
+          has(steps.attackAlone) && steps.attackAlone.result in ['success', 'critical-success', 'rolled']
+            && (flags.damageCount > 0 || flags.damageFlat != 0 || flags.damage2Count > 0)
+        tags:
+          - damage
+          - damage.spell
+          - { formula: "steps.attackAlone.result == 'critical-success' ? ['damage.critical'] : []" }
+        parts:
+          - dice: dieOf(item.damage, flags.damageCount)
+            when: flags.damageCount > 0
+            tags: [{ formula: "'damage.' + flags.damageType" }]
+          - value: flags.damageFlat
+            when: flags.damageFlat != 0
+            tags: [{ formula: "'damage.' + flags.damageType" }]
+          - dice: dieOf(item.damage2, flags.damage2Count)
+            when: flags.damage2Count > 0
+            tags: [{ formula: "'damage.' + item.damage2Type" }]
+      - id: count
+        kind: changes
+        when: flags.attack
+        changes:
+          - { type: adjust, field: turn.attacks, by: 'max(1, size(participants.target))' }
+      - id: damage
+        kind: roll
+        when: '!flags.attack && (flags.damageCount > 0 || flags.damageFlat != 0 || flags.damage2Count > 0)'
+        tags: [damage, damage.spell]
+        parts:
+          - dice: dieOf(item.damage, flags.damageCount)
+            when: flags.damageCount > 0
+            tags: [{ formula: "'damage.' + flags.damageType" }]
+          - value: flags.damageFlat
+            when: flags.damageFlat != 0
+            tags: [{ formula: "'damage.' + flags.damageType" }]
+          - dice: dieOf(item.damage2, flags.damage2Count)
+            when: flags.damage2Count > 0
+            tags: [{ formula: "'damage.' + item.damage2Type" }]
+      - id: save
+        kind: action
+        each: target
+        when: flags.save
+        as: participant
+        use: check
+        params:
+          check: "'saves.' + item.defense + '.mod'"
+          dc: flags.dc
+          spellRank: flags.rank
+      # Each target's outcome, a flag per target: 3 a critical failure (an attack's critical hit), 2
+      # a failure (a hit), 1 a success, 0 a critical success (a miss); 2 for a spell with no
+      # defense. Outside the per-target steps, `flags.outcome` is the list.
+      - id: degree
+        kind: branch
+        each: target
+        cases:
+          - when: true
+            flags:
+              outcome: >-
+                max(0, (has(steps.attack)
+                  ? indexOf(['critical-failure', 'failure', 'success', 'critical-success'], steps.attack.result)
+                  : has(steps.save)
+                  ? indexOf(['critical-success', 'success', 'failure', 'critical-failure'], steps.save.result) : 2)
+                  - (flags.incapacitation && participant.level > 2 * flags.rank ? 1 : 0))
+      - id: burn
+        kind: changes
+        each: target
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            when: flags.outcome > 0
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: >-
+              -floor(max(0, part.total)
+                * [[0, 0.5, 1, 2], [0, 1, 1, 1], [0, 0, 1, 2], [0, 1, 1, 2], [0, 0.5, 1, 1]][indexOf(['basic',
+                  'unless-critical-success', 'none-on-success', 'full-on-success', 'half-then-full'],
+                  item.saveDamage)][flags.outcome])
+            tags: [damage, spell]
+      - id: afflict
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: applyEffect
+            when: >-
+              (flags.persistentCount > 0 || flags.persistentFlat > 0)
+                && flags.outcome >= item.persistentAt
+            source: "'conditions.persistent-damage'"
+            state:
+              damage: >-
+                (flags.persistentCount > 0
+                  ? dieOf(item.persistent, flags.persistentCount * (item.persistentScales
+                    && flags.outcome == 3 ? 2 : 1)) : 0)
+                  + flags.persistentFlat * (item.persistentScales && flags.outcome == 3 ? 2 : 1)
+              damageType: item.persistentType
+          - type: applyEffect
+            forEach: >-
+              flags.heightenedConditions
+                ? [[], item.heightenedSuccess, item.heightenedFailure,
+                  item.heightenedCriticalFailure][flags.outcome]
+                : [[], has(item.success) ? item.success : [], has(item.failure) ? item.failure : [],
+                  has(item.criticalFailure) ? item.criticalFailure : []][flags.outcome]
+            source: x
+            state:
+              value: >-
+                flags.heightenedConditions
+                  ? [1, item.heightenedSuccessValue, item.heightenedFailureValue,
+                    item.heightenedCriticalFailureValue][flags.outcome]
+                  : [1, item.successValue, item.failureValue, item.criticalFailureValue][flags.outcome]
+          - type: applyEffect
+            when: has(item.affliction) && flags.outcome >= 2
+            source: item.affliction
+            state: { stage: flags.outcome - 1, dc: flags.dc }
+          - type: applyEffect
+            when: item.applyTo == 'target' && flags.outcome >= item.applyAt
+            source: item.id
+            state:
+              rank: flags.rank
+              damageType: flags.damageType
+              copy: flags.copy
+              outcome: flags.outcome
+      - id: onTarget
+        kind: changes
+        each: target
+        to: target
+        tags: [spell.target]
+      - id: heal
+        kind: roll
+        when: flags.healingCount > 0 || flags.healingFlat > 0
+        tags: [healing]
+        parts:
+          - dice: dieOf(item.healing, flags.healingCount)
+            when: flags.healingCount > 0
+          - value: flags.healingFlat
+            when: flags.healingFlat > 0
+      - id: restore
+        kind: changes
+        each: ally
+        when: has(steps.heal)
+        to: ally
+        changes:
+          - {
+              type: adjust,
+              field: hp.current,
+              by: 'max(0, steps.heal.total)',
+              tags: [healing, spell],
+            }
+      - id: stabilize
+        kind: action
+        each: ally
+        when: item.stabilizes
+        as: participant
+        use: lose-dying
+      - id: bless
+        kind: changes
+        each: ally
+        when: item.applyTo == 'ally'
+        to: ally
+        changes:
+          - type: applyEffect
+            when: "!('trait.composition' in item.tags)"
+            source: item.id
+            state: { rank: flags.rank, damageType: flags.damageType, copy: flags.copy }
+          - type: applyEffect
+            when: "'trait.composition' in item.tags"
+            source: item.id
+            state:
+              rank: flags.rank
+              damageType: flags.damageType
+              copy: flags.copy
+              value: >-
+                max(1, maxList(character.applied, x.state.value, x.active
+                  && x.source == @spells.fortissimo-composition))
+      - id: enchant
+        kind: changes
+        each: ally
+        when: has(item.copyTemplates) && size(item.copyTemplates) > 0 && flags.copy != ''
+        to: ally
+        changes:
+          - type: applyTemplate
+            entry: { formula: flags.copy }
+            template: >-
+              item.copyTemplates[min(size(item.copyTemplates) - 1,
+                flags.rank >= 9 ? 2 : flags.rank >= 6 ? 1 : 0)]
+      - id: self
+        kind: changes
+        when: item.applyTo == 'self' || flags.tempHp > 0
+        changes:
+          - { type: set, when: 'flags.tempHp > hp.temp', field: hp.temp, value: flags.tempHp }
+          - type: applyEffect
+            when: item.applyTo == 'self'
+            source: item.id
+            state:
+              rank: flags.rank
+              damageType: flags.damageType
+              copy: flags.copy
+              form: "has(params.form) ? params.form : ''"
+      - id: fortissimo
+        kind: changes
+        when: >-
+          'trait.composition' in item.tags && item.id != @spells.fortissimo-composition
+            && countList(character.applied, x.source == @spells.fortissimo-composition) > 0
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @spells.fortissimo-composition' }
+      - id: onCaster
+        kind: changes
+        tags: [spell.caster]
+      - id: result
+        kind: outcome
+        result: >-
+          has(steps.attackAlone) ? steps.attackAlone.result
+            : flags.attack && size(participants.target) > 0 ? steps.attack[0].result : 'cast'
+        data:
+          rank: flags.rank
+          mode: flags.mode
+          dc: flags.dc
+          defense: "has(item.defense) ? item.defense : ''"
+          basic: item.basic
+          damage: >-
+            has(steps.damage) ? steps.damage.total : has(steps.hitAlone) ? steps.hitAlone.total
+              : has(steps.hit) ? sumList(steps.hit, x.total) : 0
+          healing: 'has(steps.heal) ? max(0, steps.heal.total) : 0'
+
+  - id: spell-attack
+    tags: [spell, spell-attack]
+    params:
+      field: { type: id, of: field, where: "'spell-attack' in item.tags", optional: true }
+      ac: { type: integer, optional: true }
+      attack: { type: integer, optional: true, min: 1, max: 3 }
+      count: { type: boolean, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          defenses.ac: { type: integer }
+          prey.target: { type: string, default: '' }
+          defenses.acPrey: { type: integer }
+          conditions.concealed: { type: boolean, default: false }
+          conditions.hidden: { type: boolean, default: false }
+          conditions.obfuscated: { type: boolean, default: false }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              field: >-
+                has(params.field) ? params.field.id
+                  : spellcasting.attribute == 'none' ? 'spellcasting.innate.attack'
+                  : 'spellcasting.attack'
+              prior: 'has(params.attack) ? params.attack - 1 : turn.attacks'
+              dc: >-
+                size(participants.target) == 0 ? (has(params.ac) ? params.ac : -1)
+                  : participants.target[0].prey.target != ''
+                    && participants.target[0].prey.target == character.id
+                    && has(participants.target[0].defenses.acPrey)
+                  ? participants.target[0].defenses.acPrey : participants.target[0].defenses.ac
+              flat: >-
+                max(size(participants.target) > 0 && participants.target[0].conditions.hidden
+                  ? (senses.keenEyes ? 9 : 11) : 0,
+                  (size(participants.target) > 0 && participants.target[0].conditions.concealed)
+                    || conditions.dazzled ? (senses.keenEyes ? 3 : 5) : 0,
+                  size(participants.target) > 0 && participants.target[0].conditions.obfuscated ? 10 : 0)
+      - id: flat
+        kind: action
+        when: flags.flat > 0
+        use: flat-check
+        params: { dc: flags.flat }
+      - id: roll
+        kind: roll
+        when: "!has(steps.flat) || steps.flat.result in ['success', 'critical-success']"
+        tags: [d20, attack, spell-attack]
+        bands: degree
+        parts:
+          - dice: 1d20
+          - field: flags.field
+          - { value: '-min(2, flags.prior) * 5', when: flags.prior > 0 }
+      - id: count
+        kind: changes
+        when: '!has(params.count) || params.count'
+        changes:
+          - { type: adjust, field: turn.attacks, by: 1 }
+      - id: result
+        kind: outcome
+        result: "has(steps.roll) ? steps.roll.band : 'failure'"
+        data:
+          attack: 'has(steps.roll) ? steps.roll.total : 0'
+          dc: flags.dc
+          map: 'min(2, flags.prior) * 5'
+          flatCheck: "!has(steps.flat) || steps.flat.result in ['success', 'critical-success']"
+
+  - id: refocus
+    tags: [spell]
+    available: focus.spent > 0 || oracle.cursebound > 0
+    results: [refocused]
+    steps:
+      - id: regain
+        kind: changes
+        changes:
+          - type: adjust
+            when: focus.spent > 0
+            field: focus.spent
+            by: '-(focus.refocusAll ? focus.spent : 1)'
+          - { type: adjust, when: oracle.cursebound > 0, field: oracle.cursebound, by: -1 }
+      - id: result
+        kind: outcome
+        result: "'refocused'"
+
+  - id: daily-preparations
+    tags: [spell, rest]
+    results: [prepared]
+    steps:
+      - id: regain
+        kind: changes
+        changes:
+          - type: set
+            forEach: keysOf('rank')
+            when: fieldOf('spellSlots.rank{rank}.used', x) > 0
+            field: { formula: "'spellSlots.rank' + string(x) + '.used'" }
+            value: 0
+          - { type: set, when: focus.spent > 0, field: focus.spent, value: 0 }
+          - { type: setState, picks: { where: self.used }, key: used, value: false }
+          - type: setState
+            picks: { where: has(self.fanUses) && self.fanUses > 0 }
+            key: fanUses
+            value: 0
+          - type: set
+            forEach: keysOf('archetypeSource')
+            when: fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 1) > 0
+            field: { formula: "'spellSlots.archetype.' + x + '.rank1.used'" }
+            value: 0
+          - type: set
+            forEach: keysOf('archetypeSource')
+            when: fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 2) > 0
+            field: { formula: "'spellSlots.archetype.' + x + '.rank2.used'" }
+            value: 0
+          - type: set
+            forEach: keysOf('archetypeSource')
+            when: fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 3) > 0
+            field: { formula: "'spellSlots.archetype.' + x + '.rank3.used'" }
+            value: 0
+          - type: set
+            forEach: keysOf('archetypeSource')
+            when: fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 4) > 0
+            field: { formula: "'spellSlots.archetype.' + x + '.rank4.used'" }
+            value: 0
+          - type: set
+            forEach: keysOf('archetypeSource')
+            when: fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 5) > 0
+            field: { formula: "'spellSlots.archetype.' + x + '.rank5.used'" }
+            value: 0
+          - type: set
+            forEach: keysOf('archetypeSource')
+            when: fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 6) > 0
+            field: { formula: "'spellSlots.archetype.' + x + '.rank6.used'" }
+            value: 0
+          - type: set
+            forEach: keysOf('archetypeSource')
+            when: fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 7) > 0
+            field: { formula: "'spellSlots.archetype.' + x + '.rank7.used'" }
+            value: 0
+          - type: set
+            forEach: keysOf('archetypeSource')
+            when: fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 8) > 0
+            field: { formula: "'spellSlots.archetype.' + x + '.rank8.used'" }
+            value: 0
+          - { type: set, when: spellSlots.extra.used > 0, field: spellSlots.extra.used, value: 0 }
+          - type: set
+            when: sorcerer.evolutionSignature != ''
+            field: sorcerer.evolutionSignature
+            value: "''"
+          - {
+              type: set,
+              when: "sorcerer.evolutionSpell != ''",
+              field: sorcerer.evolutionSpell,
+              value: "''",
+            }
+          - { type: set, when: sorcerer.evolutionRank > 0, field: sorcerer.evolutionRank, value: 0 }
+          - type: setState
+            when: "countCopies(copy.type == 'spell' && copy.state.expended) > 0"
+            copies: { type: spell, where: self.expended }
+            key: expended
+            value: false
+          - type: setState
+            when: "countCopies(copy.type == 'class' && has(copy.state.bondDrained) && copy.state.bondDrained > 0) > 0"
+            copies: { type: class, where: 'has(self.bondDrained) && self.bondDrained > 0' }
+            key: bondDrained
+            value: 0
+          - type: setState
+            when: "countCopies(copy.type == 'class' && has(copy.state.linkedFocusUsed) && copy.state.linkedFocusUsed) > 0"
+            copies: { type: class, where: 'has(self.linkedFocusUsed) && self.linkedFocusUsed' }
+            key: linkedFocusUsed
+            value: false
+      - id: items
+        kind: changes
+        changes:
+          - type: set
+            when: investiture.used != investiture.count
+            field: investiture.used
+            value: investiture.count
+          - type: setState
+            when: "countCopies(copy.type == 'wand' && (copy.state.castToday || copy.state.overcharged)) > 0"
+            copies: { type: wand, where: self.castToday }
+            key: castToday
+            value: false
+          - type: setState
+            when: "countCopies(copy.type == 'wand' && copy.state.overcharged) > 0"
+            copies: { type: wand, where: self.overcharged }
+            key: overcharged
+            value: false
+          - type: setState
+            when: "countCopies(copy.type == 'staff' && copy.state.charges > 0) > 0"
+            copies: { type: staff, where: self.charges > 0 }
+            key: charges
+            value: 0
+          - type: setState
+            when: "countCopies(copy.type == 'staff' && copy.state.prepared) > 0"
+            copies: { type: staff, where: self.prepared }
+            key: prepared
+            value: false
+          - type: setState
+            when: "countCopies(copy.type == 'worn' && copy.state.used > 0) > 0"
+            copies: { type: worn, where: self.used > 0 }
+            key: used
+            value: 0
+          - type: setState
+            when: "countCopies(copy.type == 'held' && copy.state.used > 0) > 0"
+            copies: { type: held, where: self.used > 0 }
+            key: used
+            value: 0
+          - type: setState
+            when: "countCopies(copy.type == 'weapon' && copy.state.used > 0) > 0"
+            copies: { type: weapon, where: self.used > 0 }
+            key: used
+            value: 0
+          - type: setState
+            when: "countCopies(copy.type == 'armor' && copy.state.used > 0) > 0"
+            copies: { type: armor, where: self.used > 0 }
+            key: used
+            value: 0
+          - type: setState
+            when: "countCopies(copy.type == 'shield' && copy.state.used > 0) > 0"
+            copies: { type: shield, where: self.used > 0 }
+            key: used
+            value: 0
+      - id: arcaneEvolution
+        kind: choice
+        when: '@feats.sorcerer.arcane-evolution in feats.held'
+        options:
+          content:
+            type: spell
+            where: >-
+              item.id in spells.repertoire && !('trait.cantrip' in item.tags)
+                && !(item.id in spells.signature)
+        prefer: item.rank
+        changes:
+          - { type: set, field: sorcerer.evolutionSignature, value: picked.id }
+      - id: result
+        kind: outcome
+        result: "'prepared'"
+
+  - id: prepare-spells
+    tags: [spell, rest]
+    available: "spellcasting.kind == 'prepared'"
+    results: [prepared]
+    steps:
+      - id: clear
+        kind: changes
+        changes:
+          - type: removeItem
+            when: "countCopies(copy.type == 'spell' && copy.state.source == '') > 0"
+            copies: { type: spell, where: "self.source == ''" }
+          - {
+              type: set,
+              when: spellBlending.rank1.up1 > 0,
+              field: spellBlending.rank1.up1,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank1.up2 > 0,
+              field: spellBlending.rank1.up2,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank1.cantrips > 0,
+              field: spellBlending.rank1.cantrips,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank2.up1 > 0,
+              field: spellBlending.rank2.up1,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank2.up2 > 0,
+              field: spellBlending.rank2.up2,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank2.cantrips > 0,
+              field: spellBlending.rank2.cantrips,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank3.up1 > 0,
+              field: spellBlending.rank3.up1,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank3.up2 > 0,
+              field: spellBlending.rank3.up2,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank3.cantrips > 0,
+              field: spellBlending.rank3.cantrips,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank4.up1 > 0,
+              field: spellBlending.rank4.up1,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank4.up2 > 0,
+              field: spellBlending.rank4.up2,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank4.cantrips > 0,
+              field: spellBlending.rank4.cantrips,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank5.up1 > 0,
+              field: spellBlending.rank5.up1,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank5.up2 > 0,
+              field: spellBlending.rank5.up2,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank5.cantrips > 0,
+              field: spellBlending.rank5.cantrips,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank6.up1 > 0,
+              field: spellBlending.rank6.up1,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank6.up2 > 0,
+              field: spellBlending.rank6.up2,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank6.cantrips > 0,
+              field: spellBlending.rank6.cantrips,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank7.up1 > 0,
+              field: spellBlending.rank7.up1,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank7.up2 > 0,
+              field: spellBlending.rank7.up2,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank7.cantrips > 0,
+              field: spellBlending.rank7.cantrips,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank8.up1 > 0,
+              field: spellBlending.rank8.up1,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank8.cantrips > 0,
+              field: spellBlending.rank8.cantrips,
+              value: 0,
+            }
+          - {
+              type: set,
+              when: spellBlending.rank9.cantrips > 0,
+              field: spellBlending.rank9.cantrips,
+              value: 0,
+            }
+      - id: slots
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              base1: spellSlots.rank1.max - spellBlending.rank1.net
+              slots1: spellSlots.rank1.max - spellBlending.rank1.net
+              base2: spellSlots.rank2.max - spellBlending.rank2.net
+              slots2: spellSlots.rank2.max - spellBlending.rank2.net
+              base3: spellSlots.rank3.max - spellBlending.rank3.net
+              slots3: spellSlots.rank3.max - spellBlending.rank3.net
+              base4: spellSlots.rank4.max - spellBlending.rank4.net
+              slots4: spellSlots.rank4.max - spellBlending.rank4.net
+              base5: spellSlots.rank5.max - spellBlending.rank5.net
+              slots5: spellSlots.rank5.max - spellBlending.rank5.net
+              base6: spellSlots.rank6.max - spellBlending.rank6.net
+              slots6: spellSlots.rank6.max - spellBlending.rank6.net
+              base7: spellSlots.rank7.max - spellBlending.rank7.net
+              slots7: spellSlots.rank7.max - spellBlending.rank7.net
+              base8: spellSlots.rank8.max - spellBlending.rank8.net
+              slots8: spellSlots.rank8.max - spellBlending.rank8.net
+              base9: spellSlots.rank9.max - spellBlending.rank9.net
+              slots9: spellSlots.rank9.max - spellBlending.rank9.net
+              cantrips: spellcasting.cantrips - spellBlending.cantrips
+      - id: blend
+        kind: choice
+        when: wizard.thesis == 'spell-blending'
+        repeat: { max: 40 }
+        options:
+          - id: rank1-up1
+            when: flags.base1 >= 2 && 2 <= spellcasting.maxRank
+            flags: { base1: flags.base1 - 2, slots1: flags.slots1 - 2, slots2: flags.slots2 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank1.up1, by: 1 }]
+          - id: rank1-up2
+            when: flags.base1 >= 2 && 3 <= spellcasting.maxRank
+            flags: { base1: flags.base1 - 2, slots1: flags.slots1 - 2, slots3: flags.slots3 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank1.up2, by: 1 }]
+          - id: rank1-cantrips
+            when: flags.base1 >= 1
+            flags:
+              { base1: flags.base1 - 1, slots1: flags.slots1 - 1, cantrips: flags.cantrips + 2 }
+            changes: [{ type: adjust, field: spellBlending.rank1.cantrips, by: 1 }]
+          - id: rank2-up1
+            when: flags.base2 >= 2 && 3 <= spellcasting.maxRank
+            flags: { base2: flags.base2 - 2, slots2: flags.slots2 - 2, slots3: flags.slots3 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank2.up1, by: 1 }]
+          - id: rank2-up2
+            when: flags.base2 >= 2 && 4 <= spellcasting.maxRank
+            flags: { base2: flags.base2 - 2, slots2: flags.slots2 - 2, slots4: flags.slots4 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank2.up2, by: 1 }]
+          - id: rank2-cantrips
+            when: flags.base2 >= 1
+            flags:
+              { base2: flags.base2 - 1, slots2: flags.slots2 - 1, cantrips: flags.cantrips + 2 }
+            changes: [{ type: adjust, field: spellBlending.rank2.cantrips, by: 1 }]
+          - id: rank3-up1
+            when: flags.base3 >= 2 && 4 <= spellcasting.maxRank
+            flags: { base3: flags.base3 - 2, slots3: flags.slots3 - 2, slots4: flags.slots4 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank3.up1, by: 1 }]
+          - id: rank3-up2
+            when: flags.base3 >= 2 && 5 <= spellcasting.maxRank
+            flags: { base3: flags.base3 - 2, slots3: flags.slots3 - 2, slots5: flags.slots5 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank3.up2, by: 1 }]
+          - id: rank3-cantrips
+            when: flags.base3 >= 1
+            flags:
+              { base3: flags.base3 - 1, slots3: flags.slots3 - 1, cantrips: flags.cantrips + 2 }
+            changes: [{ type: adjust, field: spellBlending.rank3.cantrips, by: 1 }]
+          - id: rank4-up1
+            when: flags.base4 >= 2 && 5 <= spellcasting.maxRank
+            flags: { base4: flags.base4 - 2, slots4: flags.slots4 - 2, slots5: flags.slots5 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank4.up1, by: 1 }]
+          - id: rank4-up2
+            when: flags.base4 >= 2 && 6 <= spellcasting.maxRank
+            flags: { base4: flags.base4 - 2, slots4: flags.slots4 - 2, slots6: flags.slots6 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank4.up2, by: 1 }]
+          - id: rank4-cantrips
+            when: flags.base4 >= 1
+            flags:
+              { base4: flags.base4 - 1, slots4: flags.slots4 - 1, cantrips: flags.cantrips + 2 }
+            changes: [{ type: adjust, field: spellBlending.rank4.cantrips, by: 1 }]
+          - id: rank5-up1
+            when: flags.base5 >= 2 && 6 <= spellcasting.maxRank
+            flags: { base5: flags.base5 - 2, slots5: flags.slots5 - 2, slots6: flags.slots6 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank5.up1, by: 1 }]
+          - id: rank5-up2
+            when: flags.base5 >= 2 && 7 <= spellcasting.maxRank
+            flags: { base5: flags.base5 - 2, slots5: flags.slots5 - 2, slots7: flags.slots7 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank5.up2, by: 1 }]
+          - id: rank5-cantrips
+            when: flags.base5 >= 1
+            flags:
+              { base5: flags.base5 - 1, slots5: flags.slots5 - 1, cantrips: flags.cantrips + 2 }
+            changes: [{ type: adjust, field: spellBlending.rank5.cantrips, by: 1 }]
+          - id: rank6-up1
+            when: flags.base6 >= 2 && 7 <= spellcasting.maxRank
+            flags: { base6: flags.base6 - 2, slots6: flags.slots6 - 2, slots7: flags.slots7 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank6.up1, by: 1 }]
+          - id: rank6-up2
+            when: flags.base6 >= 2 && 8 <= spellcasting.maxRank
+            flags: { base6: flags.base6 - 2, slots6: flags.slots6 - 2, slots8: flags.slots8 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank6.up2, by: 1 }]
+          - id: rank6-cantrips
+            when: flags.base6 >= 1
+            flags:
+              { base6: flags.base6 - 1, slots6: flags.slots6 - 1, cantrips: flags.cantrips + 2 }
+            changes: [{ type: adjust, field: spellBlending.rank6.cantrips, by: 1 }]
+          - id: rank7-up1
+            when: flags.base7 >= 2 && 8 <= spellcasting.maxRank
+            flags: { base7: flags.base7 - 2, slots7: flags.slots7 - 2, slots8: flags.slots8 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank7.up1, by: 1 }]
+          - id: rank7-up2
+            when: flags.base7 >= 2 && 9 <= spellcasting.maxRank
+            flags: { base7: flags.base7 - 2, slots7: flags.slots7 - 2, slots9: flags.slots9 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank7.up2, by: 1 }]
+          - id: rank7-cantrips
+            when: flags.base7 >= 1
+            flags:
+              { base7: flags.base7 - 1, slots7: flags.slots7 - 1, cantrips: flags.cantrips + 2 }
+            changes: [{ type: adjust, field: spellBlending.rank7.cantrips, by: 1 }]
+          - id: rank8-up1
+            when: flags.base8 >= 2 && 9 <= spellcasting.maxRank
+            flags: { base8: flags.base8 - 2, slots8: flags.slots8 - 2, slots9: flags.slots9 + 1 }
+            changes: [{ type: adjust, field: spellBlending.rank8.up1, by: 1 }]
+          - id: rank8-cantrips
+            when: flags.base8 >= 1
+            flags:
+              { base8: flags.base8 - 1, slots8: flags.slots8 - 1, cantrips: flags.cantrips + 2 }
+            changes: [{ type: adjust, field: spellBlending.rank8.cantrips, by: 1 }]
+          - id: rank9-cantrips
+            when: flags.base9 >= 1
+            flags:
+              { base9: flags.base9 - 1, slots9: flags.slots9 - 1, cantrips: flags.cantrips + 2 }
+            changes: [{ type: adjust, field: spellBlending.rank9.cantrips, by: 1 }]
+      - id: cantrips
+        kind: choice
+        when: flags.cantrips > 0
+        options:
+          content:
+            type: spell
+            where: >-
+              'trait.cantrip' in item.tags && !('trait.focus' in item.tags)
+                && ('tradition.' + spellcasting.tradition) in item.tags
+                && (spellcasting.fromBook ? item.id in spells.book
+                  : !('trait.uncommon' in item.tags) || item.id in spells.access)
+                && picks == 0
+        repeat: { max: flags.cantrips + spellcasting.extraCantrips }
+        changes:
+          - { type: addItem, entry: { item: picked.id } }
+      - id: rank1
+        kind: choice
+        when: flags.slots1 > 0
+        options:
+          content:
+            type: spell
+            where: >-
+              !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)
+                && item.rank <= 1 && ('tradition.' + spellcasting.tradition) in item.tags
+                && (spellcasting.fromBook ? item.id in spells.book
+                  : !('trait.uncommon' in item.tags) || item.id in spells.access)
+        repeat: { max: flags.slots1 }
+        changes:
+          - { type: addItem, entry: { item: picked.id, state: { rank: 1 } } }
+      - id: rank2
+        kind: choice
+        when: flags.slots2 > 0
+        options:
+          content:
+            type: spell
+            where: >-
+              !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)
+                && item.rank <= 2 && ('tradition.' + spellcasting.tradition) in item.tags
+                && (spellcasting.fromBook ? item.id in spells.book
+                  : !('trait.uncommon' in item.tags) || item.id in spells.access)
+        repeat: { max: flags.slots2 }
+        changes:
+          - { type: addItem, entry: { item: picked.id, state: { rank: 2 } } }
+      - id: rank3
+        kind: choice
+        when: flags.slots3 > 0
+        options:
+          content:
+            type: spell
+            where: >-
+              !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)
+                && item.rank <= 3 && ('tradition.' + spellcasting.tradition) in item.tags
+                && (spellcasting.fromBook ? item.id in spells.book
+                  : !('trait.uncommon' in item.tags) || item.id in spells.access)
+        repeat: { max: flags.slots3 }
+        changes:
+          - { type: addItem, entry: { item: picked.id, state: { rank: 3 } } }
+      - id: rank4
+        kind: choice
+        when: flags.slots4 > 0
+        options:
+          content:
+            type: spell
+            where: >-
+              !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)
+                && item.rank <= 4 && ('tradition.' + spellcasting.tradition) in item.tags
+                && (spellcasting.fromBook ? item.id in spells.book
+                  : !('trait.uncommon' in item.tags) || item.id in spells.access)
+        repeat: { max: flags.slots4 }
+        changes:
+          - { type: addItem, entry: { item: picked.id, state: { rank: 4 } } }
+      - id: rank5
+        kind: choice
+        when: flags.slots5 > 0
+        options:
+          content:
+            type: spell
+            where: >-
+              !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)
+                && item.rank <= 5 && ('tradition.' + spellcasting.tradition) in item.tags
+                && (spellcasting.fromBook ? item.id in spells.book
+                  : !('trait.uncommon' in item.tags) || item.id in spells.access)
+        repeat: { max: flags.slots5 }
+        changes:
+          - { type: addItem, entry: { item: picked.id, state: { rank: 5 } } }
+      - id: rank6
+        kind: choice
+        when: flags.slots6 > 0
+        options:
+          content:
+            type: spell
+            where: >-
+              !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)
+                && item.rank <= 6 && ('tradition.' + spellcasting.tradition) in item.tags
+                && (spellcasting.fromBook ? item.id in spells.book
+                  : !('trait.uncommon' in item.tags) || item.id in spells.access)
+        repeat: { max: flags.slots6 }
+        changes:
+          - { type: addItem, entry: { item: picked.id, state: { rank: 6 } } }
+      - id: rank7
+        kind: choice
+        when: flags.slots7 > 0
+        options:
+          content:
+            type: spell
+            where: >-
+              !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)
+                && item.rank <= 7 && ('tradition.' + spellcasting.tradition) in item.tags
+                && (spellcasting.fromBook ? item.id in spells.book
+                  : !('trait.uncommon' in item.tags) || item.id in spells.access)
+        repeat: { max: flags.slots7 }
+        changes:
+          - { type: addItem, entry: { item: picked.id, state: { rank: 7 } } }
+      - id: rank8
+        kind: choice
+        when: flags.slots8 > 0
+        options:
+          content:
+            type: spell
+            where: >-
+              !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)
+                && item.rank <= 8 && ('tradition.' + spellcasting.tradition) in item.tags
+                && (spellcasting.fromBook ? item.id in spells.book
+                  : !('trait.uncommon' in item.tags) || item.id in spells.access)
+        repeat: { max: flags.slots8 }
+        changes:
+          - { type: addItem, entry: { item: picked.id, state: { rank: 8 } } }
+      - id: rank9
+        kind: choice
+        when: flags.slots9 > 0
+        options:
+          content:
+            type: spell
+            where: >-
+              !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)
+                && item.rank <= 9 && ('tradition.' + spellcasting.tradition) in item.tags
+                && (spellcasting.fromBook ? item.id in spells.book
+                  : !('trait.uncommon' in item.tags) || item.id in spells.access)
+        repeat: { max: flags.slots9 }
+        changes:
+          - { type: addItem, entry: { item: picked.id, state: { rank: 9 } } }
+      - id: rank10
+        kind: choice
+        when: spellSlots.rank10.max > 0
+        options:
+          content:
+            type: spell
+            where: >-
+              !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)
+                && ('tradition.' + spellcasting.tradition) in item.tags
+                && (spellcasting.fromBook ? item.id in spells.book
+                  : !('trait.uncommon' in item.tags) || item.id in spells.access)
+        repeat: { max: spellSlots.rank10.max }
+        changes:
+          - { type: addItem, entry: { item: picked.id, state: { rank: 10 } } }
+      - id: splitSlot
+        kind: choice
+        when: '@feats.wizard.split-slot in feats.held'
+        options: [{ id: none }, { id: split }]
+        recommend: "'none'"
+      - id: splitWith
+        kind: choice
+        sheet: proposed
+        when: has(steps.splitSlot) && steps.splitSlot.picked == 'split'
+        options:
+          copies:
+            type: spell
+            where: >-
+              !('trait.cantrip' in item.tags) && !self.font && self.split == ''
+                && self.rank < spellcasting.maxRank
+      - id: splitSpell
+        kind: choice
+        when: has(steps.splitWith)
+        options:
+          content:
+            type: spell
+            where: >-
+              !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)
+                && item.rank <= steps.splitWith.self.rank
+                && ('tradition.' + spellcasting.tradition) in item.tags
+                && (spellcasting.fromBook ? item.id in spells.book
+                  : !('trait.uncommon' in item.tags) || item.id in spells.access)
+        changes:
+          - type: addItem
+            entry:
+              item: picked.id
+              state: { rank: steps.splitWith.self.rank, split: steps.splitWith.picked }
+      - id: font
+        kind: changes
+        when: spellcasting.fontSlots > 0 && spellcasting.font != 'none'
+        changes:
+          - type: addItem
+            forEach: '[1, 2, 3, 4, 5, 6]'
+            when: x <= spellcasting.fontSlots
+            entry:
+              item: "'orc-2e:spells.' + spellcasting.font"
+              state: { rank: spellcasting.fontRank, font: true }
+      - id: result
+        kind: outcome
+        result: "'prepared'"
+
+display:
+  groups:
+    - id: spellcasting
+      priority: 1
+      showWhen: >-
+        spellcasting.tradition != 'none' || spellcasting.archetype.any
+          || focus.points > 0 || size(spells.innate) > 0
+    - id: spell-slots
+      priority: 2
+      showWhen: spellcasting.slotsPerRank > 0
+    - id: spell-actions
+      kind: actions
+      priority: 1
+      showWhen: >-
+        spellcasting.tradition != 'none' || spellcasting.archetype.any
+          || focus.points > 0 || size(spells.innate) > 0
+      members: { type: action, where: "'spell' in item.tags" }
+    - id: spells
+      kind: content
+      priority: 1
+      showWhen: >-
+        spellcasting.tradition != 'none' || spellcasting.archetype.any
+          || focus.points > 0 || size(spells.innate) > 0
+      members: { type: spell }
+      sortBy: item.rank
+    - id: spell-effects
+      kind: content
+      priority: 0
+      members: { type: spell, from: applied }
+  fields:
+    spellcasting.tradition:
+      { groups: [spellcasting], priority: 0, showWhen: "spellcasting.tradition != 'none'" }
+    spellcasting.kind:
+      { groups: [spellcasting], priority: 1, showWhen: "spellcasting.tradition != 'none'" }
+    spellcasting.attack:
+      {
+        groups: [spellcasting],
+        priority: 0,
+        format: signed,
+        showWhen: "spellcasting.tradition != 'none'",
+        rolls: [{ action: spell-attack, params: { field: spellcasting.attack } }],
+      }
+    spellcasting.dc:
+      { groups: [spellcasting], priority: 0, showWhen: "spellcasting.tradition != 'none'" }
+    spellcasting.rank:
+      {
+        groups: [spellcasting, proficiencies],
+        priority: 1,
+        format: { bands: rank },
+        showWhen: spellcasting.rank > 0,
+      }
+    spellcasting.innate.attack:
+      {
+        groups: [spellcasting],
+        priority: 2,
+        format: signed,
+        showWhen: size(spells.innate) > 0,
+        rolls: [{ action: spell-attack, params: { field: spellcasting.innate.attack } }],
+      }
+    spellcasting.innate.dc:
+      { groups: [spellcasting], priority: 2, showWhen: size(spells.innate) > 0 }
+    focus.points: { groups: [spellcasting], priority: 0, showWhen: focus.points > 0 }
+    focus.spent:
+      {
+        groups: [spellcasting],
+        priority: 0,
+        showWhen: focus.points > 0,
+        with: [{ field: focus.points, as: max }],
+      }
+    spells.autoRank: { groups: [spellcasting], priority: 2 }
+    spellcasting.maxRank: { groups: [spell-slots], priority: 1 }
+    spellcasting.font: { groups: [spellcasting], priority: 1 }
+    spellcasting.fontSlots: { groups: [spell-slots], priority: 1 }
+    spellcasting.fontRank: { groups: [spell-slots], priority: 1 }
+    spellSlots.rank1.max: { groups: [spell-slots], priority: 0 }
+    spellSlots.rank1.used:
+      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank1.max, as: max }] }
+    spellSlots.rank2.max: { groups: [spell-slots], priority: 0 }
+    spellSlots.rank2.used:
+      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank2.max, as: max }] }
+    spellSlots.rank3.max: { groups: [spell-slots], priority: 0 }
+    spellSlots.rank3.used:
+      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank3.max, as: max }] }
+    spellSlots.rank4.max: { groups: [spell-slots], priority: 0 }
+    spellSlots.rank4.used:
+      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank4.max, as: max }] }
+    spellSlots.rank5.max: { groups: [spell-slots], priority: 0 }
+    spellSlots.rank5.used:
+      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank5.max, as: max }] }
+    spellSlots.rank6.max: { groups: [spell-slots], priority: 0 }
+    spellSlots.rank6.used:
+      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank6.max, as: max }] }
+    spellSlots.rank7.max: { groups: [spell-slots], priority: 0 }
+    spellSlots.rank7.used:
+      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank7.max, as: max }] }
+    spellSlots.rank8.max: { groups: [spell-slots], priority: 0 }
+    spellSlots.rank8.used:
+      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank8.max, as: max }] }
+    spellSlots.rank9.max: { groups: [spell-slots], priority: 0 }
+    spellSlots.rank9.used:
+      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank9.max, as: max }] }
+    spellSlots.rank10.max: { groups: [spell-slots], priority: 0 }
+    spellSlots.rank10.used:
+      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank10.max, as: max }] }
+    spellcasting.attribute: { hidden: true }
+    spellcasting.proficiency: { hidden: true }
+    spellcasting.attributeMod: { hidden: true }
+    spellcasting.innate.rank: { hidden: true }
+    spellcasting.slotsPerRank: { hidden: true }
+    spellcasting.extraSlots: { hidden: true }
+    spellcasting.cantrips: { hidden: true }
+    spellcasting.extraCantrips: { hidden: true }
+    spellcasting.fontEither: { hidden: true }
+    spells.curriculum: { hidden: true }
+    spells.granted.cantrips: { hidden: true }
+    'spells.granted.rank{rank}': { hidden: true }
+    spellcasting.fromBook: { hidden: true }
+    spells.innate: { hidden: true }
+    spells.byOption: { hidden: true }
+    spells.book: { hidden: true }
+    spells.access: { hidden: true }
+    spells.repertoire: { hidden: true }
+    'spells.repertoire.rank{rank}': { hidden: true }
+    spells.signature: { hidden: true }
+    spells.bonusKnown: { hidden: true }
+    spellcasting.extraRank10: { hidden: true }
+    spellcasting.allSignature: { hidden: true }
+    focus.refocusAll: { hidden: true }
+  types:
+    spell:
+      fields:
+        range: { unit: ft }
+        areaSize: { unit: ft }
+      state:
+        rank: { priority: 0 }
+        expended: { priority: 0 }
+        font: { priority: 1 }
+      quantity: { hidden: true }

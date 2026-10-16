@@ -1,0 +1,15 @@
+id: feats.swashbuckler.extravagant-parry
+type: feat
+fields: { level: 1, category: class, class: classes.swashbuckler }
+actions:
+  - id: extravagant-parry
+    tags: [class-action]
+    params:
+      freeHand: { type: boolean, optional: true }
+    steps:
+      - id: parry
+        kind: changes
+        changes:
+          - type: applyEffect
+            source: "'effects.extravagant-parry'"
+            state: { value: 'has(params.freeHand) && !params.freeHand ? 1 : 2' }

@@ -1,0 +1,15 @@
+description: "FitD's guided creation with a table's own playbook (homebrew): the playbook places its own dots, so no starting dots are asked; the four dots follow, then its own special-ability choice, asked with the pending picks"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:create-scoundrel }
+  policy: { dice: pause, choices: pause, allocations: pause }
+answers:
+  - option: homebrew:playbooks.tracker
+  - option: fitd-scoundrel:vices.weird
+  - amounts: { fitd-scoundrel:ratings.prowl: 1 }
+  - amounts: { fitd-scoundrel:ratings.study: 1 }
+  - amounts: { fitd-scoundrel:ratings.prowl: 1, fitd-scoundrel:ratings.survey: 1 }
+  - option: fitd-scoundrel:special-abilities.scout

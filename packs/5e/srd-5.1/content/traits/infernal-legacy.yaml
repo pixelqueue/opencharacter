@@ -1,0 +1,59 @@
+id: traits.infernal-legacy
+type: trait
+# The option casts at 2nd level with Charisma (`slot` and `castAbility`), whatever slot the app
+# passed and even when a class knows the spell. A spell no class knows is also in spells.limited, so
+# no slot is offered for it.
+effects:
+  - { target: spellcasting.racial.mod, op: set, value: abilities.cha.mod }
+  - { target: spellcasting.racial.dc, op: set, value: 8 + proficiency.bonus + abilities.cha.mod }
+  - { target: spellcasting.racial.attack, op: set, value: proficiency.bonus + abilities.cha.mod }
+  - { target: spells.racial, op: grant, value: { item: spells.thaumaturgy } }
+  - {
+      target: spells.racial,
+      op: grant,
+      value: { item: spells.hellish-rebuke },
+      when: level.total >= 3,
+    }
+  - {
+      target: spells.free,
+      op: grant,
+      value: { item: spells.hellish-rebuke },
+      when: level.total >= 3,
+    }
+  - target: spells.limited
+    op: grant
+    value: { item: spells.hellish-rebuke }
+    when: >-
+      level.total >= 3 && !(@spells.hellish-rebuke in spells.bard) && !(@spells.hellish-rebuke in spells.cleric) && !(@spells.hellish-rebuke in spells.druid) && !(@spells.hellish-rebuke in spells.paladin) && !(@spells.hellish-rebuke in spells.ranger) && !(@spells.hellish-rebuke in spells.sorcerer) && !(@spells.hellish-rebuke in spells.warlock) && !(@spells.hellish-rebuke in spells.wizard)
+  - { target: spells.racial, op: grant, value: { item: spells.darkness }, when: level.total >= 5 }
+  - { target: spells.free, op: grant, value: { item: spells.darkness }, when: level.total >= 5 }
+  - target: spells.limited
+    op: grant
+    value: { item: spells.darkness }
+    when: >-
+      level.total >= 5 && !(@spells.darkness in spells.bard) && !(@spells.darkness in spells.cleric) && !(@spells.darkness in spells.druid) && !(@spells.darkness in spells.paladin) && !(@spells.darkness in spells.ranger) && !(@spells.darkness in spells.sorcerer) && !(@spells.darkness in spells.warlock) && !(@spells.darkness in spells.wizard)
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id == @spells.hellish-rebuke && level.total >= 3
+        && !self.hellishRebukeUsed
+    value:
+      id: hellish-rebuke
+      flags: { slot: 2, castAbility: "'cha'" }
+      changes:
+        - { type: setState, entry: self, key: hellishRebukeUsed, value: true }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id == @spells.darkness && level.total >= 5 && !self.darknessUsed
+    value:
+      id: darkness
+      flags: { slot: 2, castAbility: "'cha'" }
+      changes:
+        - { type: setState, entry: self, key: darknessUsed, value: true }
+grants:
+  - item: spells.thaumaturgy
+  - item: spells.hellish-rebuke
+    when: "sumCopies(copy.state.level, copy.type == 'class') >= 3"
+  - item: spells.darkness
+    when: "sumCopies(copy.state.level, copy.type == 'class') >= 5"

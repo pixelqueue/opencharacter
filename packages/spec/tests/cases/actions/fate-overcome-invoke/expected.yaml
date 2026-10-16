@@ -1,0 +1,82 @@
+status: finished
+outcome:
+  result: style
+  data:
+    total: 8
+    opposition: 4
+    shifts: 4
+    boost: true
+proposedChanges:
+  - to: self
+    step: roll/reroll
+    change:
+      type: adjust
+      field: fate-core:fatePoints.current
+      by: -1
+  - to: self
+    step: roll/invokes
+    change:
+      type: adjust
+      field: fate-core:fatePoints.current
+      by: -1
+  - to: self
+    step: boost
+    change:
+      type: addItem
+      entry:
+        id: advantages-advantage-1
+        item: fate-core:advantages.advantage
+        state:
+          kind: boost
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - -1
+      - -1
+      - 0
+      - 0
+    total: 3
+    band: good
+    bandSet: fate-core:ladder
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: invoke
+  - step: roll/again
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 0
+      - 0
+      - 1
+      - 0
+    total: 6
+    band: fantastic
+    bandSet: fate-core:ladder
+  - step: roll/reroll2
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: one
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: none
+  - step: final
+    action: fate-core:overcome
+    kind: dice
+    by: engine
+    total: 8
+    band: style
+    bandSet: fate-core:outcome

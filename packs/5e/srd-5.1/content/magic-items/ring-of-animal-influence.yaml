@@ -1,0 +1,31 @@
+id: magic-items.ring-of-animal-influence
+type: magicItem
+fields:
+  category: ring
+  rarity: rare
+  maxCharges: 3
+  recharge: 1d3
+  spells: [spells.animal-friendship, spells.fear, spells.speak-with-animals]
+  saveDc: 13
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.animal-friendship, when: self.equipped }
+  - { item: spells.fear, when: self.equipped }
+  - { item: spells.speak-with-animals, when: self.equipped }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && ((action.item.id == @spells.animal-friendship &&
+      flags.slot == 1 && self.charges >= 1) || (action.item.id == @spells.fear &&
+      flags.slot == 3 && self.charges >= 1) || (action.item.id ==
+      @spells.speak-with-animals && flags.slot == 1 && self.charges >= 1))
+    value:
+      id: charges
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

@@ -1,0 +1,86 @@
+standardCopies:
+  - { type: faction, where: 'item.id != @factions.faction' }
+
+contentTypes:
+  faction:
+    nameFrom: label
+    fields:
+      tier: { type: integer, required: true, min: 0, max: 6 }
+      hold: { type: enum, values: [strong, weak], required: true }
+    state:
+      label: { type: string, default: '' }
+      status: { type: integer, default: 0, min: -3, max: 3 }
+      tier: { type: integer, default: item.tier, min: 0, max: 6 }
+      weakHold: { type: boolean, default: "item.hold == 'weak'" }
+    actions:
+      - use: faction-status
+
+fields:
+  war.factions:
+    { type: integer, formula: "countCopies(copy.type == 'faction' && copy.state.status <= -3)" }
+  war.active: { type: boolean, formula: war.factions > 0 }
+  allies:
+    { type: integer, formula: "countCopies(copy.type == 'faction' && copy.state.status >= 3)" }
+  # The SRD reads the hold as the war starts; the pack reads it while the war lasts.
+  war.holdLost:
+    type: boolean
+    formula: 'war.active && !(@crew-abilities.war-dogs in abilities.crew)'
+  war.tierLost: { type: boolean, formula: "war.holdLost && hold == 'weak'" }
+  members.downtime: { type: integer, formula: 'war.holdLost ? 1 : 2' }
+
+effects:
+  - { id: war-tier, target: tier, op: add, value: -1, when: war.tierLost }
+  - { id: war-tier-floor, target: tier, op: atLeast, value: 0, when: war.tierLost }
+  - { id: war-heat, target: payoff.heat, op: add, value: 1, when: war.active }
+
+actions:
+  - id: add-faction
+    params:
+      label: { type: string, default: '' }
+      tier: { type: integer, min: 0, max: 6, default: 0 }
+      weakHold: { type: boolean, default: false }
+      status: { type: integer, min: -3, max: 3, default: 0 }
+    results: [added]
+    steps:
+      - id: add
+        kind: changes
+        changes:
+          - type: addItem
+            entry:
+              item: "'factions.faction'"
+              state:
+                label: params.label
+                tier: params.tier
+                weakHold: params.weakHold
+                status: params.status
+      - { id: result, kind: outcome, result: "'added'" }
+
+  - id: faction-status
+    params:
+      by: { type: integer, min: -6, max: 6 }
+    results: [changed]
+    steps:
+      - id: status
+        kind: changes
+        changes:
+          - type: setState
+            entry: self
+            key: status
+            value: max(-3, min(3, self.status + params.by))
+      - id: result
+        kind: outcome
+        result: "'changed'"
+        data:
+          status: max(-3, min(3, self.status + params.by))
+
+display:
+  groups:
+    - id: factions
+      priority: 1
+  fields:
+    war.factions: { groups: [factions], priority: 1 }
+    war.active: { hidden: true }
+    allies: { groups: [factions], priority: 1 }
+    war.holdLost: { groups: [crew], priority: 1, showWhen: war.holdLost }
+    war.tierLost: { hidden: true }
+    members.downtime: { groups: [members], priority: 2 }

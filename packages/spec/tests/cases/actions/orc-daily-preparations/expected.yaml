@@ -1,0 +1,35 @@
+status: finished
+outcome:
+  result: prepared
+proposedChanges:
+  - to: self
+    step: regain
+    change:
+      type: set
+      field: orc-2e:focus.spent
+      value: 0
+  # Every once-a-day feat's pick is reset; with none used, nothing changes.
+  - to: self
+    step: regain
+    change:
+      type: setState
+      key: used
+      picks: { where: self.used }
+      value: false
+  - to: self
+    step: regain
+    change:
+      type: setState
+      key: fanUses
+      picks: { where: has(self.fanUses) && self.fanUses > 0 }
+      value: 0
+  - to: self
+    step: regain
+    change:
+      type: setState
+      key: expended
+      copies:
+        type: orc-2e:spell
+        where: self.expended
+      value: false
+log: []

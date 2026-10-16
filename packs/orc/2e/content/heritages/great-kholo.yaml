@@ -1,0 +1,10 @@
+id: heritages.great-kholo
+type: heritage
+fields: { ancestry: ancestries.kholo }
+effects:
+  - { target: hp.ancestry, op: add, value: 2 }
+  - target: { rolls: [skill-action.reposition, skill-action.shove, skill-action.trip] }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: 'true'

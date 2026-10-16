@@ -1,0 +1,19 @@
+ok: true
+character:
+  homebrew:
+    content:
+      - id: gadgets.zapper
+        type: test-pack:device
+        actions:
+          - use: test-pack:trigger
+  inventory:
+    - { id: z, item: homebrew:gadgets.zapper, state: { charges: 2 } }
+report:
+  steps:
+    - { pack: test-pack, from: 1.0.0, to: 2.0.0, op: renameContentType }
+    - { pack: test-pack, from: 1.0.0, to: 2.0.0, op: renameAction }
+    - { pack: test-pack, from: 1.0.0, to: 2.0.0, op: renameState }
+  homebrew:
+    - { path: /homebrew/content/0/type, op: renameContentType }
+    - { path: /homebrew/content/0/actions/0/use, op: renameAction }
+  errors: []

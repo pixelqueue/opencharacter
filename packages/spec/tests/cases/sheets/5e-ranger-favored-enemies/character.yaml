@@ -1,0 +1,37 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 10
+  5e-srd-5.1:abilities.dex.base: 14
+  5e-srd-5.1:abilities.con.base: 14
+  5e-srd-5.1:abilities.int.base: 10
+  5e-srd-5.1:abilities.wis.base: 14
+  5e-srd-5.1:abilities.cha.base: 8
+  5e-srd-5.1:hp.base: 40
+  5e-srd-5.1:hp.current: 40
+features:
+  - id: ranger
+    item: 5e-srd-5.1:classes.ranger
+    state: { level: 6, startingClass: true }
+    choices:
+      skills: [{ option: skill.perception }, { option: skill.stealth }, { option: skill.survival }]
+      fighting-style: [{ option: 5e-srd-5.1:fighting-styles.archery }]
+      ranger-archetype:
+        - option: 5e-srd-5.1:subclasses.hunter
+          choices:
+            hunters-prey: [{ option: colossus-slayer }]
+      5e-srd-5.1:features.ranger.favored-enemy/enemies: [{ option: undead }, { option: fiends }]
+      5e-srd-5.1:features.ranger.favored-enemy/languages:
+        [{ option: 5e-srd-5.1:languages.abyssal }, { option: 5e-srd-5.1:languages.infernal }]
+      5e-srd-5.1:features.ranger.natural-explorer/terrains: [{ option: forest }]
+      5e-srd-5.1:features.ranger.spellcasting/spells:
+        [
+          { option: 5e-srd-5.1:spells.hunters-mark },
+          { option: 5e-srd-5.1:spells.cure-wounds },
+          { option: 5e-srd-5.1:spells.longstrider },
+          { option: 5e-srd-5.1:spells.goodberry },
+        ]
+      5e-srd-5.1:features.ability-score-improvement/improvement-4:
+        [{ option: 5e-srd-5.1:improvements.plus-two, choices: { ability: [{ option: dex }] } }]

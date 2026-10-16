@@ -1,0 +1,49 @@
+id: magic-items.dragon-scale-mail
+type: template
+tags: [magic]
+appliesTo: { type: armor, where: 'item.id == @armor.scale-mail' }
+fields: { rarity: very-rare, requiresAttunement: true, acBonus: 1 }
+choices:
+  - id: damage-type
+    from:
+      options:
+        - id: acid
+          effects:
+            - {
+                target: { incoming: { fields: [hp.current], tags: [damage.acid] } },
+                op: multiply,
+                value: 0.5,
+                when: self.equipped && self.attuned,
+              }
+        - id: cold
+          effects:
+            - {
+                target: { incoming: { fields: [hp.current], tags: [damage.cold] } },
+                op: multiply,
+                value: 0.5,
+                when: self.equipped && self.attuned,
+              }
+        - id: fire
+          effects:
+            - {
+                target: { incoming: { fields: [hp.current], tags: [damage.fire] } },
+                op: multiply,
+                value: 0.5,
+                when: self.equipped && self.attuned,
+              }
+        - id: lightning
+          effects:
+            - {
+                target: { incoming: { fields: [hp.current], tags: [damage.lightning] } },
+                op: multiply,
+                value: 0.5,
+                when: self.equipped && self.attuned,
+              }
+        - id: poison
+          effects:
+            - {
+                target: { incoming: { fields: [hp.current], tags: [damage.poison] } },
+                op: multiply,
+                value: 0.5,
+                when: self.equipped && self.attuned,
+              }

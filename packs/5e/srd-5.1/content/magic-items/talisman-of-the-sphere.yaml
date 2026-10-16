@@ -1,0 +1,16 @@
+id: magic-items.talisman-of-the-sphere
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: legendary
+  requiresAttunement: true
+# The choice doubles the proficiency bonus, so a proficient character adds it again (not with
+# expertise, which already doubles it).
+effects:
+  - { target: items.sphereControl, op: add, value: 1, when: self.equipped && self.attuned }
+  - target: { rolls: [skill.arcana] }
+    op: add
+    value: proficiency.bonus
+    when: >-
+      self.equipped && self.attuned && situational.sphereControl
+        && 'skill.arcana' in proficiencies.skills && !('skill.arcana' in proficiencies.expertise)

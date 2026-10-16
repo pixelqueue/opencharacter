@@ -1,0 +1,620 @@
+description: 'Dice notation: counts, sides, modifiers and canonical order'
+specVersion: 0.1.0
+cases:
+  - name: a single die
+    parse: 1d20
+    tree:
+      type: dice
+      count: 1
+      sides: 20
+      modifiers: []
+    print: 1d20
+  - name: several dice
+    parse: 2d6
+    tree:
+      type: dice
+      count: 2
+      sides: 6
+      modifiers: []
+    print: 2d6
+  - name: zero dice
+    parse: 0d6
+    tree:
+      type: dice
+      count: 0
+      sides: 6
+      modifiers: []
+    print: 0d6
+  - name: percentile dice are d100
+    parse: 1d%
+    tree:
+      type: dice
+      count: 1
+      sides: 100
+      modifiers: []
+    print: 1d100
+  - name: Fate dice
+    parse: 4dF
+    tree:
+      type: dice
+      count: 4
+      sides: F
+      modifiers: []
+    print: 4dF
+  - name: sides must be at least 1
+    parse: 1d0
+    error: formula-syntax
+  - name: a count with a leading zero
+    parse: 01d6
+    error: formula-syntax
+  - name: keep highest (advantage)
+    parse: 2d20kh1
+    tree:
+      type: dice
+      count: 2
+      sides: 20
+      modifiers:
+        - type: keepHighest
+          count: 1
+    print: 2d20kh1
+  - name: keep lowest (disadvantage)
+    parse: 2d20kl1
+    tree:
+      type: dice
+      count: 2
+      sides: 20
+      modifiers:
+        - type: keepLowest
+          count: 1
+    print: 2d20kl1
+  - name: drop lowest
+    parse: 4d6dl1
+    tree:
+      type: dice
+      count: 4
+      sides: 6
+      modifiers:
+        - type: dropLowest
+          count: 1
+    print: 4d6dl1
+  - name: drop highest
+    parse: 4d6dh1
+    tree:
+      type: dice
+      count: 4
+      sides: 6
+      modifiers:
+        - type: dropHighest
+          count: 1
+    print: 4d6dh1
+  - name: keep count defaults to 1
+    parse: 2d20kh
+    tree:
+      type: dice
+      count: 2
+      sides: 20
+      modifiers:
+        - type: keepHighest
+          count: 1
+    print: 2d20kh1
+  - name: keep lowest count defaults to 1
+    parse: 2d6kl
+    tree:
+      type: dice
+      count: 2
+      sides: 6
+      modifiers:
+        - type: keepLowest
+          count: 1
+    print: 2d6kl1
+  - name: drop lowest count defaults to 1
+    parse: 4d6dl
+    tree:
+      type: dice
+      count: 4
+      sides: 6
+      modifiers:
+        - type: dropLowest
+          count: 1
+    print: 4d6dl1
+  - name: keep several
+    parse: 4d6kh3
+    tree:
+      type: dice
+      count: 4
+      sides: 6
+      modifiers:
+        - type: keepHighest
+          count: 3
+    print: 4d6kh3
+  - name: explode on the highest face by default
+    parse: 1d6!
+    tree:
+      type: dice
+      count: 1
+      sides: 6
+      modifiers:
+        - type: explode
+    print: 1d6!
+  - name: explode with a comparison
+    parse: 1d6!>=5
+    tree:
+      type: dice
+      count: 1
+      sides: 6
+      modifiers:
+        - type: explode
+          compare: '>='
+          target: 5
+    print: 1d6!>=5
+  - name: explode with >
+    parse: 1d6!>4
+    tree:
+      type: dice
+      count: 1
+      sides: 6
+      modifiers:
+        - type: explode
+          compare: '>'
+          target: 4
+    print: 1d6!>4
+  - name: explode on a low face
+    parse: 1d6!<2
+    tree:
+      type: dice
+      count: 1
+      sides: 6
+      modifiers:
+        - type: explode
+          compare: <
+          target: 2
+    print: 1d6!<2
+  - name: explode with an explicit = prints bare
+    parse: 1d6!=5
+    tree:
+      type: dice
+      count: 1
+      sides: 6
+      modifiers:
+        - type: explode
+          compare: =
+          target: 5
+    print: 1d6!5
+  - name: explode with a bare number
+    parse: 1d6!5
+    tree:
+      type: dice
+      count: 1
+      sides: 6
+      modifiers:
+        - type: explode
+          compare: =
+          target: 5
+    print: 1d6!5
+  - name: compound explode
+    parse: 1d6!!
+    tree:
+      type: dice
+      count: 1
+      sides: 6
+      modifiers:
+        - type: explodeCompound
+    print: 1d6!!
+  - name: compound explode with a comparison
+    parse: 1d6!!>5
+    tree:
+      type: dice
+      count: 1
+      sides: 6
+      modifiers:
+        - type: explodeCompound
+          compare: '>'
+          target: 5
+    print: 1d6!!>5
+  - name: reroll ones
+    parse: 1d20r1
+    tree:
+      type: dice
+      count: 1
+      sides: 20
+      modifiers:
+        - type: reroll
+          compare: =
+          target: 1
+    print: 1d20r1
+  - name: reroll with an explicit = prints bare
+    parse: 1d20r=1
+    tree:
+      type: dice
+      count: 1
+      sides: 20
+      modifiers:
+        - type: reroll
+          compare: =
+          target: 1
+    print: 1d20r1
+  - name: reroll at or below
+    parse: 1d20r<=2
+    tree:
+      type: dice
+      count: 1
+      sides: 20
+      modifiers:
+        - type: reroll
+          compare: <=
+          target: 2
+    print: 1d20r<=2
+  - name: reroll once
+    parse: 2d6ro1
+    tree:
+      type: dice
+      count: 2
+      sides: 6
+      modifiers:
+        - type: rerollOnce
+          compare: =
+          target: 1
+    print: 2d6ro1
+  - name: reroll once at or below 2 (Great Weapon Fighting)
+    parse: 2d6ro<=2
+    tree:
+      type: dice
+      count: 2
+      sides: 6
+      modifiers:
+        - type: rerollOnce
+          compare: <=
+          target: 2
+    print: 2d6ro<=2
+  - name: reroll needs a comparison
+    parse: 1d20r
+    error: formula-syntax
+  - name: count successes
+    parse: 5d6cs>=5
+    tree:
+      type: dice
+      count: 5
+      sides: 6
+      modifiers:
+        - type: countSuccesses
+          compare: '>='
+          target: 5
+    print: 5d6cs>=5
+  - name: count successes with a bare number
+    parse: 5d6cs6
+    tree:
+      type: dice
+      count: 5
+      sides: 6
+      modifiers:
+        - type: countSuccesses
+          compare: =
+          target: 6
+    print: 5d6cs6
+  - name: successes and failures
+    parse: 5d10cs>=8cf1
+    tree:
+      type: dice
+      count: 5
+      sides: 10
+      modifiers:
+        - type: countSuccesses
+          compare: '>='
+          target: 8
+        - type: countFailures
+          compare: =
+          target: 1
+    print: 5d10cs>=8cf1
+  - name: count successes needs a comparison
+    parse: 5d6cs
+    error: formula-syntax
+  - name: minimum face
+    parse: 1d20min10
+    tree:
+      type: dice
+      count: 1
+      sides: 20
+      modifiers:
+        - type: minimum
+          target: 10
+    print: 1d20min10
+  - name: maximum face
+    parse: 1d20max15
+    tree:
+      type: dice
+      count: 1
+      sides: 20
+      modifiers:
+        - type: maximum
+          target: 15
+    print: 1d20max15
+  - name: min needs a number
+    parse: 1d20min
+    error: formula-syntax
+  - name: 'modifiers are stored in application order: reroll before keep'
+    parse: 1d20kh1r1
+    tree:
+      type: dice
+      count: 1
+      sides: 20
+      modifiers:
+        - type: reroll
+          compare: =
+          target: 1
+        - type: keepHighest
+          count: 1
+    print: 1d20r1kh1
+  - name: explode before drop
+    parse: 4d6dl1!
+    tree:
+      type: dice
+      count: 4
+      sides: 6
+      modifiers:
+        - type: explode
+        - type: dropLowest
+          count: 1
+    print: 4d6!dl1
+  - name: minimum before maximum
+    parse: 1d20max15min5
+    tree:
+      type: dice
+      count: 1
+      sides: 20
+      modifiers:
+        - type: minimum
+          target: 5
+        - type: maximum
+          target: 15
+    print: 1d20min5max15
+  - name: failures after successes
+    parse: 5d10cf1cs>=8
+    tree:
+      type: dice
+      count: 5
+      sides: 10
+      modifiers:
+        - type: countSuccesses
+          compare: '>='
+          target: 8
+        - type: countFailures
+          compare: =
+          target: 1
+    print: 5d10cs>=8cf1
+  - name: every kind at once, reordered
+    parse: 4d6cs>=4kh3max5min2!>=6ro1r2
+    tree:
+      type: dice
+      count: 4
+      sides: 6
+      modifiers:
+        - type: reroll
+          compare: =
+          target: 2
+        - type: rerollOnce
+          compare: =
+          target: 1
+        - type: explode
+          compare: '>='
+          target: 6
+        - type: minimum
+          target: 2
+        - type: maximum
+          target: 5
+        - type: keepHighest
+          count: 3
+        - type: countSuccesses
+          compare: '>='
+          target: 4
+    print: 4d6r2ro1!>=6min2max5kh3cs>=4
+  - name: the same modifier twice
+    parse: 2d20kh1kh1
+    error: formula-syntax
+  - name: reroll twice
+    parse: 1d6r1r2
+    error: formula-syntax
+  - name: keep and drop together
+    parse: 4d6kh3dl1
+    error: formula-syntax
+  - name: keep highest and keep lowest together
+    parse: 2d20kh1kl1
+    error: formula-syntax
+  - name: explode on Fate dice
+    parse: 4dF!
+    error: formula-syntax
+  - name: compound explode on Fate dice
+    parse: 4dF!!
+    error: formula-syntax
+  - name: unknown modifier
+    parse: 1d6kx1
+    error: formula-syntax
+  - name: space between count and d
+    parse: 1 d6
+    error: formula-syntax
+  - name: space between d and sides
+    parse: 1d 6
+    error: formula-syntax
+  - name: space before a modifier
+    parse: 2d20 kh1
+    error: formula-syntax
+  - name: more dice than the safety limit
+    parse: 1001d6
+    error: safety-limit-exceeded
+  - name: the dice safety limit itself is fine
+    parse: 1000d6
+    tree:
+      type: dice
+      count: 1000
+      sides: 6
+      modifiers: []
+    print: 1000d6
+  - name: computed count
+    parse: (ratings.skirmish)d6kh1
+    tree:
+      type: dice
+      count:
+        type: name
+        path:
+          - ratings
+          - skirmish
+      sides: 6
+      modifiers:
+        - type: keepHighest
+          count: 1
+    print: (ratings.skirmish)d6kh1
+  - name: computed count from a sum
+    parse: (a + 1)d6
+    tree:
+      type: dice
+      count:
+        type: binary
+        op: +
+        left: &a1
+          type: name
+          path:
+            - a
+        right:
+          type: int
+          value: 1
+      sides: 6
+      modifiers: []
+    print: (a + 1)d6
+  - name: computed count with spaces inside the parentheses
+    parse: ( a + 1 )d6
+    tree:
+      type: dice
+      count:
+        type: binary
+        op: +
+        left: *a1
+        right:
+          type: int
+          value: 1
+      sides: 6
+      modifiers: []
+    print: (a + 1)d6
+  - name: a literal computed count becomes a plain count
+    parse: (3)d6
+    tree:
+      type: dice
+      count: 3
+      sides: 6
+      modifiers: []
+    print: 3d6
+  - name: space between ) and d is not a dice suffix
+    parse: (a) d6
+    error: formula-syntax
+  - name: dice in arithmetic
+    parse: 1d8 + abilities.str.mod
+    tree:
+      type: binary
+      op: +
+      left:
+        type: dice
+        count: 1
+        sides: 8
+        modifiers: []
+      right:
+        type: name
+        path:
+          - abilities
+          - str
+          - mod
+    print: 1d8 + abilities.str.mod
+  - name: advantage plus a bonus
+    parse: 2d20kh1 + 3
+    tree:
+      type: binary
+      op: +
+      left:
+        type: dice
+        count: 2
+        sides: 20
+        modifiers:
+          - type: keepHighest
+            count: 1
+      right:
+        type: int
+        value: 3
+    print: 2d20kh1 + 3
+  - name: several terms
+    parse: 2d6+1d4+3
+    tree:
+      type: binary
+      op: +
+      left:
+        type: binary
+        op: +
+        left:
+          type: dice
+          count: 2
+          sides: 6
+          modifiers: []
+        right:
+          type: dice
+          count: 1
+          sides: 4
+          modifiers: []
+      right:
+        type: int
+        value: 3
+    print: 2d6 + 1d4 + 3
+  - name: negated dice
+    parse: -1d4
+    tree:
+      type: unary
+      op: '-'
+      operand:
+        type: dice
+        count: 1
+        sides: 4
+        modifiers: []
+    print: -1d4
+  - name: computed dice in arithmetic
+    parse: (a)d6 + 2
+    tree:
+      type: binary
+      op: +
+      left:
+        type: dice
+        count: *a1
+        sides: 6
+        modifiers: []
+      right:
+        type: int
+        value: 2
+    print: (a)d6 + 2
+  - name: FitD zero-dice pool
+    parse: 'ratings.hunt > 0 ? (ratings.hunt)d6kh1 : 2d6kl1'
+    tree:
+      type: conditional
+      test:
+        type: binary
+        op: '>'
+        left:
+          type: name
+          path:
+            - ratings
+            - hunt
+        right:
+          type: int
+          value: 0
+      then:
+        type: dice
+        count:
+          type: name
+          path:
+            - ratings
+            - hunt
+        sides: 6
+        modifiers:
+          - type: keepHighest
+            count: 1
+      else:
+        type: dice
+        count: 2
+        sides: 6
+        modifiers:
+          - type: keepLowest
+            count: 1
+    print: 'ratings.hunt > 0 ? (ratings.hunt)d6kh1 : 2d6kl1'

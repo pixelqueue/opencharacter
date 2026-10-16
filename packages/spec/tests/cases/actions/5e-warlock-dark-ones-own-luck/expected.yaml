@@ -1,0 +1,17 @@
+# 9 + Strength 1 = 10 fails DC 15. The feature's option sets `luckDie` to 1d10: the check rolls a
+# 7 and adds it, 17, a success, and the use is spent.
+status: finished
+outcome:
+  result: success
+  data: { total: 17 }
+proposedChanges:
+  - to: self
+    step: luck
+    change: { type: setState, entry: warlock, key: darkOnesOwnLuckUsed, value: true }
+log:
+  - { step: check, kind: dice, by: engine, faces: [9], total: 10 }
+  - step: luck
+    kind: choice
+    by: app
+    option: '5e-srd-5.1:features.warlock.dark-ones-own-luck#luck'
+  - { step: added, kind: dice, by: engine, faces: [7], total: 7 }

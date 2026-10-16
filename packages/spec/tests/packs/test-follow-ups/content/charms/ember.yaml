@@ -1,0 +1,26 @@
+id: charms.ember
+type: charm
+# Fire damage makes the ember glow; dropping to half health calls for its own flash, and so
+# does a swing.
+actions:
+  - id: flash
+    results: [flashed]
+    steps:
+      - { id: result, kind: outcome, result: "'flashed'" }
+followUps:
+  - id: warm
+    on: { field: hp.current, tags: [damage.fire] }
+    changes:
+      - { type: adjustState, entry: self, key: glow, by: 1 }
+  - id: burst
+    becomes: hp.current <= 5
+    action: flash
+  # Offered by a swing while the ember is carried.
+  - id: kindle
+    action: flash
+effects:
+  - target: { steps: [swing] }
+    op: changes
+    value:
+      changes:
+        - { type: offerFollowUp, followUp: kindle }

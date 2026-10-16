@@ -1,0 +1,10 @@
+# Can't see. While blinded, the character may grope about (an action of the applied content).
+id: conditions.blinded
+type: condition
+effects:
+  - { target: sees, op: set, value: false, scope: applied }
+actions:
+  - id: grope
+    scope: applied
+    steps:
+      - { id: result, kind: outcome, data: { entry: self.id, item: item.id, value: self.value } }

@@ -1,0 +1,51 @@
+# Strain 3: the lamp (quality 1) wears by 2, the fine blade (quality 2) by 1.
+ok: true
+followUps:
+  - id: wear-1
+    kind: ephemeral
+    followUp: test-pack:gear#wear
+    source:
+      type: item
+      id: test-pack:gear.lamp
+      entry: lamp-1
+    to: self
+    required: false
+    changes:
+      - type: adjustState
+        entry: lamp-1
+        key: wear
+        by: 2
+      - type: clearFollowUp
+        id: wear-1
+    cause:
+      field: test-pack:strain
+      by: 3
+      requested: 3
+      taken: 3
+      reason: requested
+      clamped: false
+      tags: []
+  - id: wear-2
+    kind: ephemeral
+    followUp: test-pack:gear#wear
+    source:
+      type: item
+      id: test-pack:gear.blade
+      entry: blade-1
+    to: self
+    required: false
+    changes:
+      - type: adjustState
+        entry: blade-1
+        key: wear
+        by: 1
+      - type: clearFollowUp
+        id: wear-2
+    cause:
+      field: test-pack:strain
+      by: 3
+      requested: 3
+      taken: 3
+      reason: requested
+      clamped: false
+      tags: []

@@ -1,0 +1,72 @@
+{
+  "set": "safety-limits",
+  "specVersion": "0.1.0",
+  "description": "Limits every implementation enforces, because packs are untrusted. Exceeding one is `safety-limit-exceeded`. PROVISIONAL values.",
+  "items": [
+    {
+      "id": "maxExplosions",
+      "value": 100,
+      "description": "Extra dice from exploding, per dice item."
+    },
+    {
+      "id": "maxRerolls",
+      "value": 100,
+      "description": "Rerolls per dice item."
+    },
+    {
+      "id": "maxDicePerItem",
+      "value": 1000,
+      "description": "Dice in one dice item."
+    },
+    {
+      "id": "maxFormulaDepth",
+      "value": 64,
+      "description": "Nesting depth of a formula tree."
+    },
+    {
+      "id": "maxFormulaLength",
+      "value": 4096,
+      "description": "Characters in a formula's text."
+    },
+    {
+      "id": "maxChoiceDepth",
+      "value": 16,
+      "description": "Nesting depth of choices inside options."
+    },
+    {
+      "id": "maxActionSteps",
+      "value": 1000,
+      "description": "Steps one action may run, including nested actions."
+    },
+    {
+      "id": "maxActionDepth",
+      "value": 16,
+      "description": "Nesting depth of actions running actions."
+    },
+    {
+      "id": "maxExtendsDepth",
+      "value": 16,
+      "description": "Length of an `extends` chain."
+    },
+    {
+      "id": "maxOverflowChain",
+      "value": 16,
+      "description": "Overflow adjusts triggered by one incoming change, cascades included."
+    },
+    {
+      "id": "maxFollowUps",
+      "value": 100,
+      "description": "Follow-ups one applyChanges batch lists."
+    },
+    {
+      "id": "maxHomebrewItems",
+      "value": 500,
+      "description": "Content items and rules-level definitions (fields, content types, actions, choices, effects, …) in a character's homebrew. Exceeding it is `homebrew-error` with this cause."
+    },
+    {
+      "id": "maxHomebrewFormulas",
+      "value": 2000,
+      "description": "Formulas written as text in a character's homebrew. Exceeding it is `homebrew-error` with this cause."
+    }
+  ]
+}

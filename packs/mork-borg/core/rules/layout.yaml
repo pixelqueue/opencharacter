@@ -1,0 +1,132 @@
+display:
+  groups:
+    - id: combat
+      kind: actions
+      priority: 0
+      members:
+        type: action
+        where: "'attack' in item.tags || 'defense' in item.tags || 'initiative' in item.tags"
+    - id: broken
+      kind: actions
+      priority: 0
+      showWhen: hp.current == 0 || (hp.current < 0 && features.dodgingDeath)
+      members: { type: action, where: "'broken' in item.tags" }
+    - id: hit-points
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'hit-points' in item.tags" }
+    - id: tests
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'test' in item.tags" }
+    - id: powers
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'power' in item.tags || 'decoction' in item.tags" }
+    - id: days
+      kind: actions
+      priority: 2
+      members:
+        type: action
+        where: "'daily' in item.tags || 'healing' in item.tags"
+    - id: advancement
+      kind: actions
+      priority: 3
+      visibility: background
+      members: { type: action, where: "'advancement' in item.tags" }
+    - id: creation
+      kind: actions
+      priority: 3
+      visibility: background
+      members: { type: action, where: "'creation' in item.tags" }
+    - id: class
+      kind: content
+      priority: 0
+      showWhen: '!sheet.companion'
+      members: { type: class }
+    - id: weapons
+      kind: content
+      priority: 1
+      showWhen: '!sheet.companion'
+      members: { type: weapon }
+    - id: armor
+      kind: content
+      priority: 1
+      showWhen: '!sheet.companion'
+      members: { type: armor }
+    - id: shields
+      kind: content
+      priority: 1
+      showWhen: '!sheet.companion'
+      members: { type: shield }
+    - id: ammo
+      kind: content
+      priority: 1
+      showWhen: '!sheet.companion'
+      members: { type: ammo }
+    - id: scrolls
+      kind: content
+      priority: 1
+      showWhen: '!sheet.companion'
+      members: { type: scroll }
+      sectionBy: item.kind
+    - id: decoctions
+      kind: content
+      priority: 1
+      showWhen: "countCopies(copy.item == @classes.occult-herbmaster || copy.type == 'decoction') > 0"
+      members: { type: decoction }
+    - id: companions
+      kind: content
+      priority: 2
+      showWhen: sheet.companion
+      members: { type: companion }
+  types:
+    class:
+      fields:
+        strength: { format: dice }
+        agility: { format: dice }
+        presence: { format: dice }
+        toughness: { format: dice }
+        bestOf: { hidden: true }
+        hitDie: { format: dice }
+        omensDie: { format: dice }
+        silver: { format: dice }
+        weaponDie: { hidden: true }
+        armorDie: { hidden: true }
+        scrollWeaponDie: { hidden: true }
+        scrollArmorDie: { hidden: true }
+      quantity: { hidden: true }
+    weapon:
+      state:
+        broken: { priority: 0, showWhen: self.broken }
+      fields:
+        damage: { format: dice }
+        attackDrModifier: { format: signed }
+        defenseDrModifier: { format: signed }
+        price: { unit: silver }
+    armor:
+      state:
+        damage: { priority: 0, input: { widget: dots } }
+      fields:
+        price: { unit: silver }
+      quantity: { hidden: true }
+    shield:
+      state:
+        broken: { priority: 0, showWhen: self.broken }
+      fields:
+        price: { unit: silver }
+      quantity: { hidden: true }
+    scroll:
+      fields:
+        targets: { format: dice }
+        amount: { format: dice }
+        duration: { format: dice }
+        price: { unit: silver }
+    decoction:
+      fields:
+        amount: { format: dice }
+        duration: { format: dice }
+    companion:
+      fields:
+        damage: { format: dice }
+      quantity: { hidden: true }

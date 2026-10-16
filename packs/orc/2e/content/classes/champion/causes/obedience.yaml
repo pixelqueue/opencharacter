@@ -1,0 +1,57 @@
+id: classes.champion.causes.obedience
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: champion.cause, op: set, value: "'obedience'", when: class.has.champion }
+actions:
+  - id: iron-command
+    tags: [reaction]
+    participants:
+      target: { max: 1 }
+    results: [used]
+    steps:
+      - id: command
+        kind: choice
+        options:
+          - id: kneel
+            to: target
+            changes:
+              - { type: applyEffect, source: "'conditions.prone'" }
+          - id: refuse
+        recommend: "'refuse'"
+      - id: anguish
+        kind: roll
+        when: steps.command.picked == 'refuse'
+        tags: [damage, damage.mental]
+        parts:
+          - dice: >-
+              dieOf(1d6, level >= 19 ? 6 : level >= 16 ? 5 : level >= 12 ? 4 : level >= 9 ? 3
+                : level >= 5 ? 2 : 1)
+      - id: deal
+        kind: changes
+        when: steps.command.picked == 'refuse' && size(participants.target) > 0
+        to: target
+        changes:
+          - {
+              type: adjust,
+              field: hp.current,
+              by: -steps.anguish.total,
+              tags: [damage, damage.mental],
+            }
+          - type: applyEffect
+            when: level >= 9 && attributes.cha.mod > 0
+            source: "'conditions.persistent-damage'"
+            state: { damage: attributes.cha.mod, damageType: "'spirit'" }
+      - id: mark
+        kind: changes
+        when: size(participants.target) > 0
+        changes:
+          - { type: set, field: champion.reactionTarget, value: 'participants.target[0].id' }
+          - {
+              type: set,
+              field: champion.reactionDamage,
+              value: 'level >= 16 ? 3 : level >= 9 ? 2 : 1',
+            }
+      - id: result
+        kind: outcome
+        result: "'used'"

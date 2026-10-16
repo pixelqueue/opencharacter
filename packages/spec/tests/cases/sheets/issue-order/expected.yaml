@@ -1,0 +1,6 @@
+# might 10 + 3 (armor, highestOnly) = 13.
+# The rules activation comes first: might-cap (13 <= 12) fails.
+# Then the features in file order: mighty's prerequisite (13 >= 20) fails.
+issues:
+  - { code: constraint-failed, id: test-effects:might-cap }
+  - { code: prerequisite-not-met, id: test-effects:boons.mighty/strong }

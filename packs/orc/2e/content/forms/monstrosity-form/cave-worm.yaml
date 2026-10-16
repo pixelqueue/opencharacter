@@ -1,0 +1,11 @@
+id: forms.monstrosity-form.cave-worm
+type: effect
+standardCopies:
+  - {
+      type: weapon,
+      where: 'item.id == @weapons.forms.monstrosity-form.cave-worm-jaws || item.id == @weapons.forms.monstrosity-form.cave-worm-stinger || item.id == @weapons.forms.monstrosity-form.cave-worm-body',
+    }
+effects:
+  - { target: battleForm.speed, op: set, value: 40, scope: applied }
+  - { target: speed.swim.base, op: atLeast, value: 20, scope: applied }
+  - { target: speed.burrow, op: atLeast, value: 30, scope: applied }

@@ -1,0 +1,19 @@
+id: feats.oracle.glean-lore
+type: feat
+tags: [trait.secret]
+fields: { level: 1, category: class, class: classes.oracle }
+actions:
+  - id: glean-lore
+    tags: [class-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        params: { check: "'skills.religion.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total }

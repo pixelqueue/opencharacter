@@ -1,0 +1,40 @@
+id: feats.ranger.hunters-aim
+type: feat
+tags: [trait.concentrate]
+fields: { level: 2, category: class, class: classes.ranger }
+
+actions:
+  - id: hunters-aim
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    available: >-
+      countCopies(copy.type == 'weapon' && copy.equipped && copy.fields.range > 0) > 0
+    steps:
+      - id: weapon
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range > 0"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [strike.hunters-aim]
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+
+effects:
+  - target: { rolls: [strike.hunters-aim] }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: "'attack' in roll.tags"

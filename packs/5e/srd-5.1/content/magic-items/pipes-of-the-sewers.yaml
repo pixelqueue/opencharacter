@@ -1,0 +1,15 @@
+id: magic-items.pipes-of-the-sewers
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  maxCharges: 3
+  recharge: 1d3
+  requiresAttunement: true
+  weight: 2
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

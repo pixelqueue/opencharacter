@@ -1,0 +1,19 @@
+description: "A template's other formulas don't see `prior`: it is bound in its field values only"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        fields:
+          bonus: { type: integer, formula: 0 }
+        contentTypes:
+          weapon: { carried: true, fields: { bonus: { type: integer, default: 0 } } }
+      content:
+        - id: templates.sharp
+          type: template
+          appliesTo: { type: weapon }
+          fields: { bonus: 'prior.bonus + 1' }
+          effects:
+            - { target: bonus, op: add, value: prior.bonus }

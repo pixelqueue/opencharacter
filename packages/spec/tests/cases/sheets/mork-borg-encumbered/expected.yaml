@@ -1,0 +1,22 @@
+# Six counted items (bow, arrows, crossbow, bolts, coat, page; not the class) plus one extra:
+# 7 > 5 (Strength −3 + 8), so encumbered: Strength tests +2, Agility +2 (and +2 for medium
+# armor), defense +2 (and +2 for medium armor).
+values:
+  mork-borg-core:load.capacity: { value: 5 }
+  mork-borg-core:load.items: { value: 7 }
+  mork-borg-core:load.encumbered: { value: true }
+  mork-borg-core:tests.strengthDr: { value: 2 }
+  mork-borg-core:tests.agilityDr: { value: 4 }
+  mork-borg-core:tests.defenseDr: { value: 4 }
+# The bow has arrows left; the crossbow's bolts are used up, so it can't attack.
+actions:
+  - { action: mork-borg-core:attack, entry: bow }
+  - { action: mork-borg-core:new-day }
+  - { action: mork-borg-core:rest }
+  - { action: mork-borg-core:take-damage }
+  - { action: mork-borg-core:heal }
+  - { action: mork-borg-core:get-better }
+  - { action: mork-borg-core:defend }
+  - { action: mork-borg-core:test }
+  - { action: mork-borg-core:initiative }
+errors: []

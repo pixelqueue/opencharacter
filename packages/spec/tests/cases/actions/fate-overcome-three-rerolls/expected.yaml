@@ -1,0 +1,119 @@
+# Mara (Athletics +3, 2 fate points) rolls Mediocre (+0), rerolls twice for Fair (+2) each, then
+# spends Off Balance's free invocation on a third reroll for Superb (+5): it is used up and goes.
+status: finished
+outcome:
+  result: succeed
+  data:
+    total: 5
+    opposition: 4
+    shifts: 1
+    boost: false
+proposedChanges:
+  - to: self
+    step: roll/reroll
+    change:
+      type: adjust
+      field: fate-core:fatePoints.current
+      by: -1
+  - to: self
+    step: roll/reroll2
+    change:
+      type: adjust
+      field: fate-core:fatePoints.current
+      by: -1
+  - to: self
+    step: roll/rerollFrom3
+    change:
+      type: adjustState
+      entry: a-balance
+      key: invokes
+      by: -1
+  - to: self
+    step: roll/spentOut
+    change:
+      type: removeItem
+      copies:
+        type: fate-core:advantage
+        where: self.invokes == 0
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - -1
+      - -1
+      - -1
+      - 0
+    total: 0
+    band: mediocre
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: invoke
+  - step: roll/again
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - -1
+      - 0
+      - 0
+      - 0
+    total: 2
+    band: fair
+  - step: roll/reroll2
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: invoke
+  - step: roll/again2
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 0
+      - 0
+      - 0
+      - -1
+    total: 2
+    band: fair
+  - step: roll/reroll3
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: free
+  - step: roll/rerollFrom3
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: a-balance
+    index: 0
+  - step: roll/again3
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 1
+      - 0
+      - 0
+    total: 5
+    band: superb
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: app
+    option: none
+  - step: final
+    action: fate-core:overcome
+    kind: dice
+    by: engine
+    total: 5
+    band: succeed

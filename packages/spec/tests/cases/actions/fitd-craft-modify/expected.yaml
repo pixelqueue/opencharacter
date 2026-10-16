@@ -1,0 +1,19 @@
+# Tinker 1d6 [6]: a success, quality tier 1 +1 = 2. A significant modification needs tier +2 =
+# 3; 1 coin raises the quality to 3. The modified item is the player's own: nothing is added.
+status: finished
+outcome:
+  result: modified
+  data: { quality: 3, minimum: 3, roll: success }
+proposedChanges:
+  - { to: self, step: spend, change: { type: adjust, field: fitd-scoundrel:coin, by: -1 } }
+log:
+  - {
+      step: roll/roll,
+      kind: dice,
+      by: engine,
+      faces: [6],
+      total: 6,
+      band: success,
+      bandSet: fitd-scoundrel:action,
+    }
+  - { step: coin, kind: choice, by: app, option: spend1 }

@@ -1,0 +1,30 @@
+# dots 1 + Vigorous's die: 2d6 [6, 6], a critical, 5 ticks. Vigorous's clock has 3 segments:
+# 2 + 5 = 7 fills it twice with 1 left over (adjust by 5 - 6 = -1). Harm at levels 1 and 2 goes
+# and the level 3 harm drops two levels, to 1.
+status: finished
+outcome: { result: critical }
+proposedChanges:
+  - to: self
+    step: heal/clock
+    change: { type: adjust, field: fitd-scoundrel:healing.current, by: -1 }
+  - to: self
+    step: heal/clock
+    change:
+      type: removeItem
+      copies: { type: fitd-scoundrel:harm, where: self.level <= 2 }
+  - to: self
+    step: heal/clock
+    change:
+      type: adjustState
+      copies: { type: fitd-scoundrel:harm }
+      key: level
+      by: -2
+log:
+  - step: roll
+    action: fitd-scoundrel:recovery-roll
+    kind: dice
+    by: engine
+    faces: [6, 6]
+    total: 6
+    band: critical
+    bandSet: fitd-scoundrel:action

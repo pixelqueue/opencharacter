@@ -1,0 +1,28 @@
+id: feats.sorcerer.energy-ward
+type: feat
+fields: { level: 6, category: class, class: classes.sorcerer }
+actions:
+  - id: energy-ward
+    tags: [class-action]
+    params:
+      damageType:
+        type: enum
+        values: [acid, cold, electricity, fire, force, sonic, vitality, void]
+      rank: { type: integer, optional: true, min: 1, max: 10 }
+    results: [warded]
+    steps:
+      - id: ward
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @classes.sorcerer.energy-ward' }
+          - type: applyEffect
+            source: "'classes.sorcerer.energy-ward'"
+            state:
+              damageType: params.damageType
+              amount: '4 + (has(params.rank) ? params.rank : spells.autoRank)'
+      - id: result
+        kind: outcome
+        result: "'warded'"
+        data:
+          resistance: '4 + (has(params.rank) ? params.rank : spells.autoRank)'

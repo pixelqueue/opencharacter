@@ -1,0 +1,15 @@
+id: feats.ancestry.thorned-seedpod
+type: feat
+fields: { level: 9, category: ancestry, ancestry: ancestries.leshy }
+prerequisites:
+  - id: seedpod
+    when: '@feats.ancestry.seedpod in feats.held'
+effects:
+  - target: { steps: [strike.hit.critical] }
+    op: changes
+    when: action.item.id == @weapons.seedpod
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.persistent-damage'"
+          state: { damage: 1d4, damageType: "'piercing'" }

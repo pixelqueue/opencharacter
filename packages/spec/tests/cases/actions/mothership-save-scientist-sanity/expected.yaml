@@ -1,0 +1,26 @@
+# Sanity 24 + the Scientist's +30 = 54; 58 fails. The Scientist gains 1 stress, and so does each
+# close friendly player.
+status: finished
+outcome:
+  result: failure
+proposedChanges:
+  - to: self
+    step: stress
+    change: { type: adjust, field: mothership-1e:stress.current, by: 1 }
+  - to: close
+    character: ally
+    step: contagion
+    change: { type: adjust, field: mothership-1e:stress.current, by: 1 }
+  - to: close
+    character: pilot
+    step: contagion
+    change: { type: adjust, field: mothership-1e:stress.current, by: 1 }
+log:
+  - step: check
+    action: mothership-1e:save
+    kind: dice
+    by: engine
+    faces: [58]
+    total: 58
+    band: failure
+    bandSet: mothership-1e:check

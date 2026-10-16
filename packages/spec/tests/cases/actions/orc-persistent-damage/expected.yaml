@@ -1,0 +1,36 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: take
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -7
+      tags:
+        - damage
+        - damage.fire
+  - to: self
+    step: ended
+    change:
+      type: removeEffect
+      applied:
+        where: self.id == 'burning'
+log:
+  - step: damage
+    action: orc-2e:conditions.persistent-damage#take-persistent-damage
+    kind: dice
+    by: engine
+    faces:
+      - 3
+      - 4
+    total: 7
+  - step: end/roll
+    action: orc-2e:flat-check
+    kind: dice
+    by: engine
+    faces:
+      - 15
+    total: 15
+    band: success
+    bandSet: orc-2e:degree

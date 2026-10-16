@@ -1,0 +1,18 @@
+# A Flame Tongue hit, split by damage type: the rogue reacts, so both adjusts carry the choice.
+- type: adjust
+  field: 5e-srd-5.1:hp.current
+  by: -9
+  tags: [damage, attack, melee, magical, damage.slashing]
+  situational: { 5e-srd-5.1:uncannyDodge: true }
+- type: adjust
+  field: 5e-srd-5.1:hp.current
+  by: -5
+  tags: [damage, attack, melee, magical, damage.fire]
+  situational: { 5e-srd-5.1:uncannyDodge: true }
+# A second attack in the same batch: the reaction is spent, so it isn't halved.
+- {
+    type: adjust,
+    field: 5e-srd-5.1:hp.current,
+    by: -6,
+    tags: [damage, attack, melee, nonmagical, damage.piercing],
+  }

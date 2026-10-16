@@ -1,0 +1,456 @@
+fields:
+  proficiencies.skills:
+    { type: set, of: tag, input: true, default: [], members: { under: [skill] } }
+  proficiencies.expertise:
+    { type: set, of: tag, input: true, default: [], members: { under: [skill, tool] } }
+  proficiencies.tools: { type: set, of: tool, input: true, default: [] }
+
+  skills.acrobatics:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.dex.mod
+        + ('skill.acrobatics' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.acrobatics' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.animalHandling:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.wis.mod
+        + ('skill.animal-handling' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.animal-handling' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.arcana:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.int.mod
+        + ('skill.arcana' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.arcana' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.athletics:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.str.mod
+        + ('skill.athletics' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.athletics' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.deception:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.cha.mod
+        + ('skill.deception' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.deception' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.history:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.int.mod
+        + ('skill.history' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.history' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.insight:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.wis.mod
+        + ('skill.insight' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.insight' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.intimidation:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.cha.mod
+        + ('skill.intimidation' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.intimidation' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.investigation:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.int.mod
+        + ('skill.investigation' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.investigation' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.medicine:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.wis.mod
+        + ('skill.medicine' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.medicine' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.nature:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.int.mod
+        + ('skill.nature' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.nature' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.perception:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.wis.mod
+        + ('skill.perception' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.perception' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.performance:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.cha.mod
+        + ('skill.performance' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.performance' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.persuasion:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.cha.mod
+        + ('skill.persuasion' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.persuasion' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.religion:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.int.mod
+        + ('skill.religion' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.religion' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.sleightOfHand:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.dex.mod
+        + ('skill.sleight-of-hand' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.sleight-of-hand' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.stealth:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.dex.mod
+        + ('skill.stealth' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.stealth' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.survival:
+    type: integer
+    tags: [skill]
+    formula: >-
+      abilities.wis.mod
+        + ('skill.survival' in proficiencies.skills ? proficiency.bonus : 0)
+        + ('skill.survival' in proficiencies.expertise ? proficiency.bonus : 0)
+
+  senses.passivePerception: { type: integer, formula: 10 + skills.perception }
+
+  checks.failToTwenty: { type: boolean, formula: false }
+  checks.addDie: { type: boolean, formula: false }
+
+  racial.stonecunning: { type: boolean, formula: false }
+  racial.artificersLore: { type: boolean, formula: false }
+
+  rogue.thiefsReflexes: { type: boolean, formula: false }
+
+  combat.initiative: { type: integer, formula: abilities.dex.mod }
+
+situational:
+  # Stonecunning and Artificer's Lore: the proficiency bonus counts twice, proficient or not. Which
+  # checks qualify is the player's call; the two don't add up.
+  - id: stonecunning
+    type: boolean
+    default: false
+    available: racial.stonecunning
+    rolls: [skill.history]
+    effects:
+      - target: { rolls: [skill.history] }
+        op: add
+        value: >-
+          max(0, 2 * proficiency.bonus
+            - ('skill.history' in proficiencies.skills ? proficiency.bonus : 0)
+            - ('skill.history' in proficiencies.expertise ? proficiency.bonus : 0))
+        when: situational.stonecunning
+  - id: artificersLore
+    type: boolean
+    default: false
+    available: racial.artificersLore
+    rolls: [skill.history]
+    effects:
+      - target: { rolls: [skill.history] }
+        op: add
+        value: >-
+          max(0, 2 * proficiency.bonus
+            - ('skill.history' in proficiencies.skills ? proficiency.bonus : 0)
+            - ('skill.history' in proficiencies.expertise ? proficiency.bonus : 0))
+        when: situational.artificersLore && !situational.stonecunning
+
+resultBands:
+  dc:
+    - { id: rolled, when: flags.dc < 0 }
+    - { id: success, when: roll.total >= flags.dc }
+    - { id: failure, when: true }
+
+actions:
+  - id: ability-check
+    tags: [check]
+    params:
+      ability: { type: enum, values: [str, dex, con, int, wis, cha] }
+      dc: { type: integer, optional: true }
+    results: [rolled, success, failure]
+    steps:
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags: { dc: 'has(params.dc) ? params.dc : -1' }
+      - id: check
+        kind: roll
+        bands: dc
+        tags: [d20-test, { formula: "'check.' + params.ability" }]
+        parts:
+          - dice: 1d20
+          - field: "'abilities.' + params.ability + '.mod'"
+      - id: defaults
+        kind: branch
+        cases:
+          - when: true
+            flags: { twenty: false, luckDie: 0d10 }
+      - id: luck
+        kind: choice
+        tags: [failed-check]
+        when: >-
+          (checks.failToTwenty || checks.addDie) && has(params.dc) && steps.check.total < params.dc
+        options: [{ id: keep }]
+        recommend: "'keep'"
+      - id: added
+        kind: roll
+        when: maxOf(flags.luckDie) > 0
+        tags: [luck]
+        parts:
+          - dice: flags.luckDie
+      - id: lucky
+        kind: branch
+        when: flags.twenty || has(steps.added)
+        cases:
+          - when: flags.twenty
+            flags:
+              { total: 'max(steps.check.total, steps.check.unbounded - steps.check.kept[0] + 20)' }
+          - when: true
+            flags: { total: steps.check.total + steps.added.total }
+      - id: result
+        kind: outcome
+        result: >-
+          !has(params.dc) ? 'rolled'
+            : (has(flags.total) ? flags.total : steps.check.total) >= params.dc ? 'success'
+            : 'failure'
+        data:
+          total: 'has(flags.total) ? flags.total : steps.check.total'
+
+  # The roll is tagged with both the ability (check.dex) and the skill (skill.stealth), so armor's
+  # Stealth disadvantage and ability-wide effects both apply.
+  - id: skill-check
+    tags: [check]
+    params:
+      skill:
+        type: enum
+        values:
+          [
+            acrobatics,
+            animal-handling,
+            arcana,
+            athletics,
+            deception,
+            history,
+            insight,
+            intimidation,
+            investigation,
+            medicine,
+            nature,
+            perception,
+            performance,
+            persuasion,
+            religion,
+            sleight-of-hand,
+            stealth,
+            survival,
+          ]
+      dc: { type: integer, optional: true }
+    results: [rolled, success, failure]
+    steps:
+      - id: ability
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ability: >-
+                params.skill == 'athletics' ? 'str'
+                  : params.skill in ['acrobatics', 'sleight-of-hand', 'stealth'] ? 'dex'
+                  : params.skill in ['arcana', 'history', 'investigation', 'nature', 'religion'] ? 'int'
+                  : params.skill in ['animal-handling', 'insight', 'medicine', 'perception', 'survival'] ? 'wis'
+                  : 'cha'
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags: { dc: 'has(params.dc) ? params.dc : -1' }
+      - id: check
+        kind: roll
+        bands: dc
+        tags:
+          [
+            d20-test,
+            { formula: "'check.' + flags.ability" },
+            { formula: "'skill.' + params.skill" },
+          ]
+        parts:
+          - dice: 1d20
+          - field: "'abilities.' + flags.ability + '.mod'"
+          - value: proficiency.bonus
+            when: ('skill.' + params.skill) in proficiencies.skills
+          - value: proficiency.bonus
+            when: ('skill.' + params.skill) in proficiencies.expertise
+      - id: defaults
+        kind: branch
+        cases:
+          - when: true
+            flags: { twenty: false, luckDie: 0d10 }
+      - id: luck
+        kind: choice
+        tags: [failed-check]
+        when: >-
+          (checks.failToTwenty || checks.addDie) && has(params.dc) && steps.check.total < params.dc
+        options: [{ id: keep }]
+        recommend: "'keep'"
+      - id: added
+        kind: roll
+        when: maxOf(flags.luckDie) > 0
+        tags: [luck]
+        parts:
+          - dice: flags.luckDie
+      - id: lucky
+        kind: branch
+        when: flags.twenty || has(steps.added)
+        cases:
+          - when: flags.twenty
+            flags:
+              { total: 'max(steps.check.total, steps.check.unbounded - steps.check.kept[0] + 20)' }
+          - when: true
+            flags: { total: steps.check.total + steps.added.total }
+      - id: result
+        kind: outcome
+        result: >-
+          !has(params.dc) ? 'rolled'
+            : (has(flags.total) ? flags.total : steps.check.total) >= params.dc ? 'success'
+            : 'failure'
+        data:
+          total: 'has(flags.total) ? flags.total : steps.check.total'
+
+  # A tool picked for a class's or race's proficiency isn't active (`activate: false`), so only a
+  # carried tool offers the check. `toolProficient` tells features that read proficiency (Jack of
+  # All Trades, Remarkable Athlete, Reliable Talent) whether the bonus applies.
+  - id: tool-check
+    tags: [check]
+    params:
+      ability: { type: enum, values: [str, dex, con, int, wis, cha] }
+      dc: { type: integer, optional: true }
+    results: [rolled, success, failure]
+    steps:
+      - id: proficiency
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              toolProficient: item.id in proficiencies.tools
+              toolExpertise: >-
+                item.id in proficiencies.tools && item.id == @tools.thieves-tools
+                  && 'tool.thieves-tools' in proficiencies.expertise
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags: { dc: 'has(params.dc) ? params.dc : -1' }
+      - id: check
+        kind: roll
+        bands: dc
+        tags: [d20-test, { formula: "'check.' + params.ability" }, tool]
+        parts:
+          - dice: 1d20
+          - field: "'abilities.' + params.ability + '.mod'"
+          - value: proficiency.bonus
+            when: flags.toolProficient
+          - value: proficiency.bonus
+            when: flags.toolExpertise
+      - id: defaults
+        kind: branch
+        cases:
+          - when: true
+            flags: { twenty: false, luckDie: 0d10 }
+      - id: luck
+        kind: choice
+        tags: [failed-check]
+        when: >-
+          (checks.failToTwenty || checks.addDie) && has(params.dc) && steps.check.total < params.dc
+        options: [{ id: keep }]
+        recommend: "'keep'"
+      - id: added
+        kind: roll
+        when: maxOf(flags.luckDie) > 0
+        tags: [luck]
+        parts:
+          - dice: flags.luckDie
+      - id: lucky
+        kind: branch
+        when: flags.twenty || has(steps.added)
+        cases:
+          - when: flags.twenty
+            flags:
+              { total: 'max(steps.check.total, steps.check.unbounded - steps.check.kept[0] + 20)' }
+          - when: true
+            flags: { total: steps.check.total + steps.added.total }
+      - id: result
+        kind: outcome
+        result: >-
+          !has(params.dc) ? 'rolled'
+            : (has(flags.total) ? flags.total : steps.check.total) >= params.dc ? 'success'
+            : 'failure'
+        data:
+          total: 'has(flags.total) ? flags.total : steps.check.total'
+
+  - id: initiative
+    tags: [check]
+    results: [rolled]
+    steps:
+      - id: check
+        kind: roll
+        tags: [d20-test, check.dex, initiative]
+        parts:
+          - dice: 1d20
+          - value: combat.initiative
+      - id: perfectSelf
+        kind: changes
+        when: >-
+          ki.perfectSelf && sumCopies(copy.state.kiSpent, has(copy.state.kiSpent)) >= ki.points
+        changes:
+          - type: adjustState
+            copies: { type: class, where: has(self.kiSpent) && self.kiSpent >= 4 }
+            limit: 1
+            key: kiSpent
+            by: -4
+      - id: superiorInspiration
+        kind: changes
+        when: >-
+          bardicInspiration.superior
+            && sumCopies(copy.state.bardicInspirationSpent, has(copy.state.bardicInspirationSpent))
+              >= bardicInspiration.uses
+        changes:
+          - type: adjustState
+            copies:
+              {
+                type: class,
+                where: has(self.bardicInspirationSpent) && self.bardicInspirationSpent > 0,
+              }
+            limit: 1
+            key: bardicInspirationSpent
+            by: -1
+      - id: twoTurns
+        kind: outcome
+        when: rogue.thiefsReflexes
+        result: "'rolled'"
+        data:
+          total: steps.check.total
+          secondTurn: steps.check.total - 10
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          total: steps.check.total

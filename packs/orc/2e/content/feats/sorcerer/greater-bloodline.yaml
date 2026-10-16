@@ -1,0 +1,62 @@
+id: feats.sorcerer.greater-bloodline
+type: feat
+fields: { level: 10, category: class, class: classes.sorcerer }
+prerequisites:
+  - { id: bloodline, when: "sorcerer.bloodline != 'none'" }
+effects:
+  - { target: focus.points, op: add, value: 1 }
+choices:
+  # A choice by the bloodline, since a grant can't read it.
+  - id: spell
+    from:
+      options:
+        - id: aberrant
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'aberrant'" }
+          grants:
+            - item: spells.unusual-anatomy
+        - id: angelic
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'angelic'" }
+          grants:
+            - item: spells.celestial-brand
+        - id: demonic
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'demonic'" }
+          grants:
+            - item: spells.chthonian-wrath
+        - id: diabolic
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'diabolic'" }
+          grants:
+            - item: spells.hellfire-plume
+        - id: draconic
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'draconic'" }
+          grants:
+            - item: spells.dragon-wings
+        - id: elemental
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'elemental'" }
+          grants:
+            - item: spells.elemental-blast
+        - id: fey
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'fey'" }
+          grants:
+            - item: spells.fey-glamour
+        - id: hag
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'hag'" }
+          grants:
+            - item: spells.youre-mine
+        - id: imperial
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'imperial'" }
+          grants:
+            - item: spells.arcane-countermeasure
+        - id: undead
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'undead'" }
+          grants:
+            - item: spells.grasping-grave

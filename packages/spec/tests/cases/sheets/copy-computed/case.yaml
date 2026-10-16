@@ -1,0 +1,40 @@
+description: "Computed values on copies: the content type's, an item's replacing one by name and adding one, a template's, each from the copy's item, its state and the character's fields; computeSheet returns them per copy"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 0 }
+        contentTypes:
+          gear:
+            carried: true
+            fields:
+              kind: { type: enum, values: [plain, fine], default: plain }
+            state:
+              charges: { type: integer, default: 1 }
+            computed:
+              quality: { type: integer, formula: "tier + (item.kind == 'fine' ? 1 : 0)" }
+              ready: { type: boolean, formula: self.charges > 0 }
+          note:
+            carried: true
+      content:
+        - { id: gear.lamp, type: gear }
+        - { id: gear.blade, type: gear, fields: { kind: fine } }
+        - id: gear.relic
+          type: gear
+          computed:
+            quality: { type: integer, formula: 5 }
+            weight: { type: decimal, formula: 2 }
+        - id: gilded
+          type: template
+          appliesTo: { type: gear }
+          computed:
+            shine: { type: string, formula: "'gold'" }
+        - { id: notes.diary, type: note }

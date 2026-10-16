@@ -1,0 +1,19 @@
+# Content in ID order: hunter, then scholar; `recommend: options[0]` names the hunter.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: calling
+    change: { type: choose, path: { choice: [calling] }, option: test-pack:callings.hunter }
+  - to: self
+    step: save
+    change:
+      type: choose
+      path: { choice: [calling, test-pack:callings.hunter, gift] }
+      option: rope
+  - { to: self, step: save, change: { type: set, field: test-pack:health, value: 6 } }
+  - { to: self, step: save, change: { type: finishCreation } }
+log:
+  - { step: calling, kind: choice, by: engine, option: test-pack:callings.hunter }
+  - { step: gift, kind: choice, by: engine, option: rope }
+  - { step: health, kind: dice, by: engine, faces: [6], total: 6 }

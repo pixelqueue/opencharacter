@@ -1,0 +1,30 @@
+id: features.cleric.divine-intervention
+type: feature
+actions:
+  - id: divine-intervention
+    tags: [feature]
+    results: [answered, unanswered]
+    available: "self.divineIntervention == 'ready'"
+    steps:
+      - id: plea
+        kind: roll
+        when: self.level < 20
+        parts:
+          - dice: 1d100
+      - id: answer
+        kind: branch
+        cases:
+          - when: self.level >= 20 || steps.plea.total <= self.level
+            flags: { answered: true }
+        else:
+          flags: { answered: false }
+      - id: record
+        kind: changes
+        changes:
+          - type: setState
+            entry: self
+            key: divineIntervention
+            value: "flags.answered ? 'answered' : 'failed'"
+      - id: result
+        kind: outcome
+        result: "flags.answered ? 'answered' : 'unanswered'"

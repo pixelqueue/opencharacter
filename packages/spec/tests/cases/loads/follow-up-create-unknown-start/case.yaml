@@ -1,0 +1,19 @@
+description: "A follow-up's linked character names a creation start the ruleset has: an undeclared one is unknown-reference"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        links:
+          pet: { fields: { hp: { type: integer, default: 1 } } }
+        followUps:
+          - id: pet-sheet
+            while: true
+            create: { link: pet, start: pet }
+      content: []

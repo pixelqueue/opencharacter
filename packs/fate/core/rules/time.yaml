@@ -1,0 +1,214 @@
+# A session ends a scene too, and a scenario ends a session, so each runs the shorter one first.
+actions:
+  - id: accept-compel
+    tags: [fate-point]
+    results: [accepted]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: fatePoints.current, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'accepted'"
+
+  # The fate point arrives at the end of the scene, not at once.
+  - id: aspect-invoked
+    tags: [fate-point]
+    results: [earned]
+    steps:
+      - id: earn
+        kind: changes
+        changes:
+          - { type: adjust, field: fatePoints.pending, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'earned'"
+        data: { pending: fatePoints.pending + 1 }
+
+  - id: spend-fate-point
+    tags: [fate-point]
+    available: fatePoints.current > 0
+    params:
+      reason: { type: enum, values: [refuse-compel, story-detail, invoke], default: invoke }
+    results: [spent]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: fatePoints.current, by: -1 }
+      - id: result
+        kind: outcome
+        result: "'spent'"
+        data: { reason: params.reason }
+
+  - id: end-conflict
+    tags: [time]
+    results: [ended]
+    steps:
+      - id: clear
+        kind: changes
+        changes:
+          - { type: set, field: stress.physical.box1, value: false, when: stress.physical.box1 }
+          - { type: set, field: stress.physical.box2, value: false, when: stress.physical.box2 }
+          - { type: set, field: stress.physical.box3, value: false, when: stress.physical.box3 }
+          - { type: set, field: stress.physical.box4, value: false, when: stress.physical.box4 }
+          - { type: set, field: stress.mental.box1, value: false, when: stress.mental.box1 }
+          - { type: set, field: stress.mental.box2, value: false, when: stress.mental.box2 }
+          - { type: set, field: stress.mental.box3, value: false, when: stress.mental.box3 }
+          - { type: set, field: stress.mental.box4, value: false, when: stress.mental.box4 }
+          - type: setState
+            when: >-
+              countCopies(copy.type == 'stunt' && has(copy.state.used) && copy.state.used > 0
+                && (copy.fields.shape == 'custom' ? has(copy.state.limit) && copy.state.limit == 'conflict'
+                  : copy.fields.limit == 'conflict')) > 0
+            copies:
+              type: stunt
+              where: "(item.shape == 'custom' ? self.limit : item.limit) == 'conflict' && self.used > 0"
+            key: used
+            value: 0
+          - type: setState
+            when: "countCopies(copy.type == 'consequence' && copy.state.conflict) > 0"
+            copies: { type: consequence, where: self.conflict }
+            key: conflict
+            value: false
+      - id: result
+        kind: outcome
+        result: "'ended'"
+
+  # Stress clears at the end of a scene too, as after a conflict.
+  - id: end-scene
+    tags: [time]
+    results: [ended]
+    steps:
+      - id: conflict
+        kind: action
+        use: end-conflict
+      - id: recover
+        kind: changes
+        changes:
+          - type: removeItem
+            when: >-
+              countCopies(copy.type == 'consequence' && copy.state.recovering && copy.state.waited >= 1
+                && (copy.state.slot == 'mild' || copy.state.slot == 'mild-physical'
+                  || copy.state.slot == 'mild-mental')) > 0
+            copies:
+              type: consequence
+              where: >-
+                self.recovering && self.waited >= 1
+                  && (self.slot == 'mild' || self.slot == 'mild-physical' || self.slot == 'mild-mental')
+          - type: adjustState
+            when: >-
+              countCopies(copy.type == 'consequence' && copy.state.recovering && copy.state.waited == 0
+                && (copy.state.slot == 'mild' || copy.state.slot == 'mild-physical'
+                  || copy.state.slot == 'mild-mental')) > 0
+            copies:
+              type: consequence
+              where: >-
+                self.recovering && self.waited == 0
+                  && (self.slot == 'mild' || self.slot == 'mild-physical' || self.slot == 'mild-mental')
+            key: waited
+            by: 1
+          - type: setState
+            when: >-
+              countCopies(copy.type == 'stunt' && has(copy.state.used) && copy.state.used > 0
+                && (copy.fields.shape == 'custom' ? has(copy.state.limit) && copy.state.limit == 'scene'
+                  : copy.fields.limit == 'scene')) > 0
+            copies:
+              type: stunt
+              where: "(item.shape == 'custom' ? self.limit : item.limit) == 'scene' && self.used > 0"
+            key: used
+            value: 0
+          - { type: set, field: contest.victories, value: 0, when: contest.victories > 0 }
+          - type: adjust
+            when: fatePoints.pending > 0
+            field: fatePoints.current
+            by: fatePoints.pending
+          - { type: set, field: fatePoints.pending, value: 0, when: fatePoints.pending > 0 }
+          - type: removeItem
+            when: >-
+              countCopies(copy.type == 'advantage'
+                && !(has(copy.state.kind) && copy.state.kind == 'consequence')) > 0
+            copies: { type: advantage, where: "self.kind != 'consequence'" }
+      - id: result
+        kind: outcome
+        result: "'ended'"
+
+  - id: end-session
+    tags: [time]
+    results: [ended]
+    steps:
+      - id: scene
+        kind: action
+        use: end-scene
+      - id: refresh
+        kind: changes
+        sheet: proposed
+        changes:
+          - type: adjust
+            when: fatePoints.current < refresh
+            field: fatePoints.current
+            by: refresh - fatePoints.current
+          - type: removeItem
+            when: >-
+              countCopies(copy.type == 'consequence' && copy.state.recovering
+                && copy.state.waited >= 1 && copy.state.slot == 'moderate') > 0
+            copies:
+              type: consequence
+              where: "self.recovering && self.waited >= 1 && self.slot == 'moderate'"
+          - type: adjustState
+            when: >-
+              countCopies(copy.type == 'consequence' && copy.state.recovering
+                && copy.state.waited == 0 && copy.state.slot == 'moderate') > 0
+            copies:
+              type: consequence
+              where: "self.recovering && self.waited == 0 && self.slot == 'moderate'"
+            key: waited
+            by: 1
+          - type: setState
+            when: >-
+              countCopies(copy.type == 'stunt' && has(copy.state.used) && copy.state.used > 0
+                && (copy.fields.shape == 'custom' ? has(copy.state.limit) && copy.state.limit == 'session'
+                  : copy.fields.limit == 'session')) > 0
+            copies:
+              type: stunt
+              where: "(item.shape == 'custom' ? self.limit : item.limit) == 'session' && self.used > 0"
+            key: used
+            value: 0
+      - id: result
+        kind: outcome
+        sheet: proposed
+        result: "'ended'"
+        data: { fatePoints: fatePoints.current }
+
+  - id: end-scenario
+    tags: [time]
+    results: [ended]
+    steps:
+      - id: session
+        kind: action
+        use: end-session
+      - id: reset
+        kind: changes
+        changes:
+          - { type: set, field: fatePoints.current, value: refresh }
+          - type: removeItem
+            when: >-
+              countCopies(copy.type == 'consequence' && copy.state.recovering
+                && copy.state.waited >= 1 && copy.state.slot == 'severe') > 0
+            copies:
+              type: consequence
+              where: "self.recovering && self.waited >= 1 && self.slot == 'severe'"
+          - type: adjustState
+            when: >-
+              countCopies(copy.type == 'consequence' && copy.state.recovering
+                && copy.state.waited == 0 && copy.state.slot == 'severe') > 0
+            copies:
+              type: consequence
+              where: "self.recovering && self.waited == 0 && self.slot == 'severe'"
+            key: waited
+            by: 1
+      - id: result
+        kind: outcome
+        result: "'ended'"
+        data: { fatePoints: refresh }

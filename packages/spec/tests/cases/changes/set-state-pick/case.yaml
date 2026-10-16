@@ -1,0 +1,30 @@
+description: 'setState names a pick by its choice path and option: the stonewall pick gains `used`; the ferocity pick set back to its default drops its state'
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          ferocity.spent: { type: boolean, formula: false }
+          stonewall.spent: { type: boolean, formula: false }
+        contentTypes:
+          feat:
+            state:
+              used: { type: boolean, default: false }
+        choices:
+          - id: feats
+            pick: { max: 2 }
+            from: { type: feat }
+      content:
+        - id: feats.ferocity
+          type: feat
+          effects: [{ target: ferocity.spent, op: set, value: self.used }]
+        - id: feats.stonewall
+          type: feat
+          effects: [{ target: stonewall.spent, op: set, value: self.used }]

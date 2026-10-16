@@ -1,0 +1,13 @@
+# Finesse 1 (the Lurk's dot) + Daredevil's die: 2d6 [5, 2] keeps 5, a partial. The trade sets the penalty, and the
+# desperate roll marks Prowess xp.
+status: finished
+outcome:
+  result: partial
+  data: { position: desperate, effect: standard }
+proposedChanges:
+  - {
+      to: self,
+      step: daredevilPenalty,
+      change: { type: set, field: fitd-scoundrel:daredevil.penalty, value: true },
+    }
+  - { to: self, step: xp, change: { type: adjust, field: fitd-scoundrel:xp.prowess, by: 1 } }

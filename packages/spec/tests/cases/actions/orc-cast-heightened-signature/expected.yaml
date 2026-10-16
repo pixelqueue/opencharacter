@@ -1,0 +1,51 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 3
+    mode: spontaneous
+    dc: 21
+    defense: reflex
+    basic: true
+    damage: 21
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: orc-2e:spellSlots.rank3.used
+      by: 1
+  - to: target
+    character: goblin
+    step: burn[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -21
+      tags:
+        - damage
+        - spell
+        - damage.fire
+log:
+  - step: damage
+    action: orc-2e:cast-spell
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+    total: 21
+  - step: save[0]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: goblin
+    outcome:
+      result: failure

@@ -1,0 +1,74 @@
+# The parameter leaves one monster to pick; the automatic run takes it and the average hit points.
+# The stat block's numbers become the sheet's inputs; lists the goblin doesn't have (saves,
+# immunities) aren't set.
+status: finished
+outcome:
+  result: created
+  data: { hp: 7 }
+proposedChanges:
+  - {
+      to: self,
+      step: monster,
+      change: { type: addItem, entry: { id: monster, item: 5e-srd-5.1:monsters.goblin } },
+    }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:abilities.str.base, value: 8 } }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:abilities.dex.base, value: 14 },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:abilities.con.base, value: 10 },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:abilities.int.base, value: 10 },
+    }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:abilities.wis.base, value: 8 } }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:abilities.cha.base, value: 8 } }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:challenge.rating, value: 0.25 },
+    }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:creature.size, value: small } }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:creature.type, value: humanoid },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:creature.alignment, value: neutral-evil },
+    }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:combat.speed, value: 30 } }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:proficiencies.skills, value: [skill.stealth] },
+    }
+  - {
+      to: self,
+      step: stats,
+      change: { type: set, field: 5e-srd-5.1:proficiencies.expertise, value: [skill.stealth] },
+    }
+  - {
+      to: self,
+      step: stats,
+      change:
+        {
+          type: set,
+          field: 5e-srd-5.1:proficiencies.languages,
+          value: [5e-srd-5.1:languages.common, 5e-srd-5.1:languages.goblin],
+        },
+    }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:hp.base, value: 7 } }
+  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:hp.current, value: 7 } }
+  - { to: self, step: finish, change: { type: finishCreation } }
+log:
+  - { step: monster, kind: choice, by: engine, option: 5e-srd-5.1:monsters.goblin }
+  - { step: hp, kind: choice, by: engine, option: average }

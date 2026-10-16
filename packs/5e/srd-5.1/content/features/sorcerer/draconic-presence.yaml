@@ -1,0 +1,20 @@
+id: features.sorcerer.draconic-presence
+type: feature
+actions:
+  - id: draconic-presence
+    tags: [feature]
+    results: [save]
+    available: sorcery.points - self.sorceryPointsSpent >= 5
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: sorceryPointsSpent, by: 5 }
+      - id: result
+        kind: outcome
+        result: "'save'"
+        data:
+          dc: spellcasting.sorcerer.dc
+          save: "'wis'"
+          range: 60
+          minutes: 1

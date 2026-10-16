@@ -1,0 +1,317 @@
+# Rolls: 15, 9, 18, 5, 12, 12. Every pending pick is made: `#done` is not offered while creating.
+# Hit points start full: 10 + 3 for Constitution 17 (with the dwarf's +2) + 1 for the hill dwarf.
+status: finished
+proposedChanges:
+  - {
+      to: self,
+      step: race,
+      change: { type: addItem, entry: { id: race, item: 5e-srd-5.1:races.dwarf } },
+    }
+  - {
+      to: self,
+      step: subrace,
+      change:
+        {
+          type: choose,
+          path: { entry: race, choice: [subrace] },
+          option: 5e-srd-5.1:subraces.hill-dwarf,
+        },
+    }
+  - {
+      to: self,
+      step: class,
+      change:
+        {
+          type: addItem,
+          entry:
+            {
+              id: class,
+              item: 5e-srd-5.1:classes.fighter,
+              state: { level: 1, startingClass: true },
+            },
+        },
+    }
+  - {
+      to: self,
+      step: background,
+      change: { type: addItem, entry: { id: background, item: 5e-srd-5.1:backgrounds.acolyte } },
+    }
+  - {
+      to: self,
+      step: scores/rolled,
+      change: { type: set, field: 5e-srd-5.1:abilities.str.base, value: 18 },
+    }
+  - {
+      to: self,
+      step: scores/rolled,
+      change: { type: set, field: 5e-srd-5.1:abilities.dex.base, value: 12 },
+    }
+  - {
+      to: self,
+      step: scores/rolled,
+      change: { type: set, field: 5e-srd-5.1:abilities.con.base, value: 15 },
+    }
+  - {
+      to: self,
+      step: scores/rolled,
+      change: { type: set, field: 5e-srd-5.1:abilities.int.base, value: 5 },
+    }
+  - {
+      to: self,
+      step: scores/rolled,
+      change: { type: set, field: 5e-srd-5.1:abilities.wis.base, value: 12 },
+    }
+  - {
+      to: self,
+      step: scores/rolled,
+      change: { type: set, field: 5e-srd-5.1:abilities.cha.base, value: 9 },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: race, choice: [5e-srd-5.1:traits.tool-proficiency-dwarf/tool] },
+          option: 5e-srd-5.1:tools.smiths-tools,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [fighting-style] },
+          option: 5e-srd-5.1:fighting-styles.archery,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change: { type: choose, path: { entry: class, choice: [skills] }, option: skill.acrobatics },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        { type: choose, path: { entry: class, choice: [skills] }, option: skill.animal-handling },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: background, choice: [languages] },
+          option: 5e-srd-5.1:languages.abyssal,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: background, choice: [languages] },
+          option: 5e-srd-5.1:languages.celestial,
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/fighterArmor,
+      change:
+        {
+          type: addItem,
+          entry: { id: armor-leather-1, item: 5e-srd-5.1:armor.leather, equipped: true },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/fighterArmor,
+      change:
+        {
+          type: addItem,
+          entry: { id: weapons-longbow-1, item: 5e-srd-5.1:weapons.longbow, equipped: true },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/fighterArmor,
+      change:
+        { type: addItem, entry: { id: gear-arrows-1, item: 5e-srd-5.1:gear.arrows, quantity: 20 } },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/fighterMartial,
+      change:
+        {
+          type: addItem,
+          entry: { id: weapons-battleaxe-1, item: 5e-srd-5.1:weapons.battleaxe, equipped: true },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/fighterMartial2,
+      change:
+        {
+          type: addItem,
+          entry: { id: weapons-warhammer-1, item: 5e-srd-5.1:weapons.warhammer, equipped: true },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/fighterRanged,
+      change:
+        {
+          type: addItem,
+          entry:
+            {
+              id: weapons-handaxe-1,
+              item: 5e-srd-5.1:weapons.handaxe,
+              equipped: true,
+              quantity: 2,
+            },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/fighterPack,
+      change:
+        {
+          type: addItem,
+          entry: { id: gear-explorers-pack-1, item: 5e-srd-5.1:gear.explorers-pack },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteSymbol,
+      change: { type: addItem, entry: { id: gear-amulet-1, item: 5e-srd-5.1:gear.amulet } },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change: { type: addItem, entry: { id: gear-book-1, item: 5e-srd-5.1:gear.book } },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change:
+        {
+          type: addItem,
+          entry: { id: gear-incense-1, item: 5e-srd-5.1:gear.incense, quantity: 5 },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change: { type: addItem, entry: { id: gear-vestments-1, item: 5e-srd-5.1:gear.vestments } },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change:
+        {
+          type: addItem,
+          entry: { id: gear-common-clothes-1, item: 5e-srd-5.1:gear.common-clothes },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change: { type: addItem, entry: { id: gear-pouch-1, item: 5e-srd-5.1:gear.pouch } },
+    }
+  - { to: self, step: hitDie, change: { type: set, field: 5e-srd-5.1:hp.base, value: 10 } }
+  - { to: self, step: finish, change: { type: set, field: 5e-srd-5.1:hp.current, value: 14 } }
+  - { to: self, step: finish, change: { type: finishCreation } }
+log:
+  - { step: race, kind: choice, by: app, option: 5e-srd-5.1:races.dwarf }
+  - { step: subrace, kind: choice, by: app, option: 5e-srd-5.1:subraces.hill-dwarf }
+  - { step: class, kind: choice, by: app, option: 5e-srd-5.1:classes.fighter }
+  - { step: background, kind: choice, by: app, option: 5e-srd-5.1:backgrounds.acolyte }
+  - { step: method, kind: choice, by: app, option: roll }
+  - { step: scores/roll1, kind: dice, by: engine, faces: [6, 5, 4, 1], total: 15 }
+  - { step: scores/roll2, kind: dice, by: engine, faces: [3, 3, 3, 3], total: 9 }
+  - { step: scores/roll3, kind: dice, by: engine, faces: [6, 6, 6, 6], total: 18 }
+  - { step: scores/roll4, kind: dice, by: engine, faces: [2, 2, 1, 1], total: 5 }
+  - { step: scores/roll5, kind: dice, by: engine, faces: [5, 4, 3, 2], total: 12 }
+  - { step: scores/roll6, kind: dice, by: engine, faces: [4, 4, 4, 1], total: 12 }
+  - {
+      step: scores/rolled,
+      kind: allocate,
+      by: app,
+      amounts:
+        {
+          5e-srd-5.1:abilities.str.base: 18,
+          5e-srd-5.1:abilities.dex.base: 12,
+          5e-srd-5.1:abilities.con.base: 15,
+          5e-srd-5.1:abilities.int.base: 5,
+          5e-srd-5.1:abilities.wis.base: 12,
+          5e-srd-5.1:abilities.cha.base: 9,
+        },
+    }
+  - {
+      step: picks,
+      kind: choice,
+      by: app,
+      option: 5e-srd-5.1:tools.smiths-tools,
+      index: 0,
+      choice: { entry: race, choice: [5e-srd-5.1:traits.tool-proficiency-dwarf/tool] },
+    }
+  - {
+      step: picks,
+      kind: choice,
+      by: app,
+      option: 5e-srd-5.1:fighting-styles.archery,
+      index: 1,
+      choice: { entry: class, choice: [fighting-style] },
+    }
+  - {
+      step: picks,
+      kind: choice,
+      by: app,
+      option: skill.acrobatics,
+      index: 2,
+      choice: { entry: class, choice: [skills] },
+    }
+  - {
+      step: picks,
+      kind: choice,
+      by: app,
+      option: skill.animal-handling,
+      index: 3,
+      choice: { entry: class, choice: [skills] },
+    }
+  - {
+      step: picks,
+      kind: choice,
+      by: app,
+      option: 5e-srd-5.1:languages.abyssal,
+      index: 4,
+      choice: { entry: background, choice: [languages] },
+    }
+  - {
+      step: picks,
+      kind: choice,
+      by: app,
+      option: 5e-srd-5.1:languages.celestial,
+      index: 5,
+      choice: { entry: background, choice: [languages] },
+    }
+  - { step: equipment/byClass/fighterArmor, kind: choice, by: app, option: leather-longbow }
+  - { step: equipment/byClass/fighterWeapons, kind: choice, by: app, option: two-martial }
+  - {
+      step: equipment/byClass/fighterMartial,
+      kind: choice,
+      by: app,
+      option: 5e-srd-5.1:weapons.battleaxe,
+    }
+  - {
+      step: equipment/byClass/fighterMartial2,
+      kind: choice,
+      by: app,
+      option: 5e-srd-5.1:weapons.warhammer,
+    }
+  - { step: equipment/byClass/fighterRanged, kind: choice, by: app, option: two-handaxes }
+  - { step: equipment/byClass/fighterPack, kind: choice, by: app, option: explorers-pack }
+  - { step: equipment/acolyteSymbol, kind: choice, by: app, option: 5e-srd-5.1:gear.amulet }

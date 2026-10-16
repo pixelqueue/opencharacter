@@ -1,0 +1,34 @@
+id: features.monk.path-to-perfection
+type: feature
+fields: { level: 7 }
+# The save joins `monk.paths`, which the third path picks from; the second path takes another.
+choices:
+  - id: save
+    unique: path-to-perfection
+    from: { values: [save.fortitude, save.reflex, save.will] }
+    effects:
+      - { target: monk.paths, op: grant, value: { formula: pick.value } }
+      - target: saves.fortitude.rank
+        op: atLeast
+        value: 3
+        when: "pick.value == 'save.fortitude'"
+      - target: saves.reflex.rank
+        op: atLeast
+        value: 3
+        when: "pick.value == 'save.reflex'"
+      - target: saves.will.rank
+        op: atLeast
+        value: 3
+        when: "pick.value == 'save.will'"
+      - target: { rolls: [save.fortitude], tally: successToCrit }
+        op: add
+        value: 1
+        when: "pick.value == 'save.fortitude'"
+      - target: { rolls: [save.reflex], tally: successToCrit }
+        op: add
+        value: 1
+        when: "pick.value == 'save.reflex'"
+      - target: { rolls: [save.will], tally: successToCrit }
+        op: add
+        value: 1
+        when: "pick.value == 'save.will'"

@@ -1,0 +1,22 @@
+id: backgrounds.returned
+type: background
+# Afterlife Lore comes through Additional Lore, as the ancestry Lore feats give it: the training and
+# its rises.
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.afterlife }
+    when: "!('skill.lore.afterlife' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.lore.afterlife.rank
+    op: atLeast
+    value: 'level >= 15 ? 4 : level >= 7 ? 3 : level >= 3 ? 2 : 1'
+grants:
+  - item: feats.general.diehard
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['con', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

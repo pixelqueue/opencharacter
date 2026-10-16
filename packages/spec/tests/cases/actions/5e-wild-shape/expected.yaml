@@ -1,0 +1,12 @@
+# Druid 4: 2 uses, 1 spent. Beasts up to CR 1/2, for 2 hours.
+status: finished
+outcome:
+  result: transformed
+  data: { maxCr: 0.5, hours: 2 }
+proposedChanges:
+  - to: self
+    step: transform
+    change: { type: set, field: 5e-srd-5.1:wildShape.active, value: true }
+  - to: self
+    step: transform
+    change: { type: adjustState, entry: druid, key: wildShapeSpent, by: 1 }

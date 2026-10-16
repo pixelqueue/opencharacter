@@ -1,0 +1,22 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 20
+  5e-srd-5.1:abilities.dex.base: 18
+  5e-srd-5.1:abilities.con.base: 14
+  5e-srd-5.1:abilities.int.base: 10
+  5e-srd-5.1:abilities.wis.base: 12
+  5e-srd-5.1:abilities.cha.base: 10
+  5e-srd-5.1:hp.base: 40
+  5e-srd-5.1:hp.current: 40
+features:
+  - id: fighter
+    item: 5e-srd-5.1:classes.fighter
+    state: { level: 4, startingClass: true }
+    choices:
+      fighting-style: [{ option: 5e-srd-5.1:fighting-styles.archery }]
+      martial-archetype: [{ option: 5e-srd-5.1:subclasses.champion }]
+      5e-srd-5.1:features.fighter.ability-score-improvement/improvement-4:
+        - { option: 5e-srd-5.1:improvements.plus-one, choices: {} }

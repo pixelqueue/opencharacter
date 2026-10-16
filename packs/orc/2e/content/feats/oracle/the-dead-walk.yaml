@@ -1,0 +1,22 @@
+id: feats.oracle.the-dead-walk
+type: feat
+tags: [trait.cursebound]
+fields: { level: 10, category: class, class: classes.oracle }
+prerequisites:
+  - { id: mystery, when: "oracle.mystery == 'ancestors' || oracle.mystery == 'battle'" }
+actions:
+  - id: the-dead-walk
+    tags: [class-action]
+    available: oracle.cursebound < oracle.curseMax
+    results: [used]
+    steps:
+      - id: curse
+        kind: changes
+        changes:
+          - { type: adjust, field: oracle.cursebound, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          warriors: 'oracle.cursebound >= 3 ? 4 : oracle.cursebound >= 2 ? 3 : 2'
+          attack: spellcasting.attack

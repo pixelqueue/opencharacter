@@ -1,0 +1,33 @@
+id: spells.heroes-feast
+type: spell
+fields:
+  level: 6
+  school: conjuration
+  classes: [classes.cleric, classes.druid]
+  castingTime: 10-minutes
+  rangeKind: ranged
+  range: 30
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: instantaneous
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.poison] } }
+    op: multiply
+    value: 0
+    scope: applied
+    duration: { amount: 24, unit: hour }
+  - target: { rolls: [save.wis] }
+    op: rollModifier
+    value: { kind: advantage }
+    scope: applied
+    duration: { amount: 24, unit: hour }
+immuneTo:
+  - {
+      id: poisoned-and-frightened,
+      items: [conditions.poisoned, conditions.frightened],
+      scope: applied,
+    }

@@ -1,0 +1,18 @@
+# The Body save: 20 under 27, success. Health 5 -> 14 (its maximum); the wound stays.
+status: finished
+outcome: { result: success }
+proposedChanges:
+  - {
+      to: self,
+      step: restore,
+      change: { type: set, field: mothership-1e:health.current, value: 14 },
+    }
+log:
+  - step: check/check
+    action: mothership-1e:save
+    kind: dice
+    by: engine
+    faces: [20]
+    total: 20
+    band: success
+    bandSet: mothership-1e:check

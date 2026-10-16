@@ -1,0 +1,141 @@
+fields:
+  xp.current: { type: integer, input: true, default: 0, min: 0 }
+  xp.nextLevel:
+    type: integer
+    formula: >-
+      level.total < 1 || level.total >= 20 ? 0
+        : [0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 85000, 100000, 120000,
+          140000, 165000, 195000, 225000, 265000, 305000, 355000][level.total]
+  xp.levelUp: { type: boolean, formula: 'xp.nextLevel > 0 && xp.current >= xp.nextLevel' }
+  multiclass.qualified: { type: set, of: class }
+
+display:
+  fields:
+    xp.current:
+      {
+        groups: [summary],
+        priority: 1,
+        visibility: secondary,
+        with: [{ field: xp.nextLevel, as: max }],
+      }
+    xp.nextLevel:
+      { groups: [summary], priority: 2, visibility: secondary, showWhen: xp.nextLevel > 0 }
+    xp.levelUp: { hidden: true }
+    multiclass.qualified: { hidden: true }
+
+effects:
+  - target: multiclass.qualified
+    op: grant
+    value: { formula: '@classes.barbarian' }
+    when: abilities.str.score >= 13
+  - target: multiclass.qualified
+    op: grant
+    value: { formula: '@classes.bard' }
+    when: abilities.cha.score >= 13
+  - target: multiclass.qualified
+    op: grant
+    value: { formula: '@classes.cleric' }
+    when: abilities.wis.score >= 13
+  - target: multiclass.qualified
+    op: grant
+    value: { formula: '@classes.druid' }
+    when: abilities.wis.score >= 13
+  - target: multiclass.qualified
+    op: grant
+    value: { formula: '@classes.fighter' }
+    when: abilities.str.score >= 13 || abilities.dex.score >= 13
+  - target: multiclass.qualified
+    op: grant
+    value: { formula: '@classes.monk' }
+    when: abilities.dex.score >= 13 && abilities.wis.score >= 13
+  - target: multiclass.qualified
+    op: grant
+    value: { formula: '@classes.paladin' }
+    when: abilities.str.score >= 13 && abilities.cha.score >= 13
+  - target: multiclass.qualified
+    op: grant
+    value: { formula: '@classes.ranger' }
+    when: abilities.dex.score >= 13 && abilities.wis.score >= 13
+  - target: multiclass.qualified
+    op: grant
+    value: { formula: '@classes.rogue' }
+    when: abilities.dex.score >= 13
+  - target: multiclass.qualified
+    op: grant
+    value: { formula: '@classes.sorcerer' }
+    when: abilities.cha.score >= 13
+  - target: multiclass.qualified
+    op: grant
+    value: { formula: '@classes.warlock' }
+    when: abilities.cha.score >= 13
+  - target: multiclass.qualified
+    op: grant
+    value: { formula: '@classes.wizard' }
+    when: abilities.int.score >= 13
+
+followUps:
+  - id: level-up
+    while: xp.levelUp
+    action: level-up
+
+actions:
+  - id: level-up
+    tags: [level-up]
+    available: '!character.creating && level.total > 0 && level.total < 20'
+    steps:
+      - id: before
+        kind: branch
+        cases:
+          - when: true
+            flags: { maxBefore: hp.max }
+      - id: class
+        kind: choice
+        options:
+          content:
+            type: class
+            where: >-
+              item.id in classes.held || (item.id in multiclass.qualified
+                && countCopies(copy.type == 'class' && !(copy.item in multiclass.qualified)) == 0)
+        prefer: sumCopies(copy.state.level, copy.type == 'class' && copy.item == item.id)
+      - id: gain
+        kind: changes
+        changes:
+          - type: adjustState
+            when: steps.class.picked in classes.held
+            copies: { type: class, where: item.id == steps.class.picked }
+            limit: 1
+            key: level
+            by: 1
+          - type: addItem
+            when: '!(steps.class.picked in classes.held)'
+            entry: { item: steps.class.picked, state: { level: 1 } }
+      - id: hitPoints
+        kind: choice
+        options: [{ id: roll }, { id: fixed }]
+        recommend: "'fixed'"
+      - id: hitDie
+        kind: roll
+        when: "steps.hitPoints.picked == 'roll'"
+        tags: [level-up]
+        parts: [{ dice: steps.class.item.hitDie }]
+      - id: hp
+        kind: changes
+        changes:
+          - type: adjust
+            field: hp.base
+            by: >-
+              steps.hitPoints.picked == 'roll' ? steps.hitDie.total
+                : floor(maxOf(steps.class.item.hitDie) / 2) + 1
+      # Current hit points rise by what the maximum gains: the hit die, Constitution and per-level
+      # bonuses (Dwarven Toughness). Read on the proposed sheet, so the new maximum holds them.
+      - id: current
+        kind: changes
+        sheet: proposed
+        changes:
+          - type: adjust
+            when: hp.max > flags.maxBefore
+            field: hp.current
+            by: hp.max - flags.maxBefore
+      - id: picks
+        kind: choice
+        options: { pending: {} }

@@ -1,0 +1,854 @@
+tags:
+  - skill.lore.accounting
+  - skill.lore.astrology
+  - skill.lore.afterlife
+  - skill.lore.curse
+  - skill.lore.driving
+  - skill.lore.fey
+  - skill.lore.piloting
+  - skill.lore.surgery
+  - skill.lore.catfolk
+  - skill.lore.dragon
+  - skill.lore.hobgoblin
+  - skill.lore.kholo
+  - skill.lore.kobold
+  - skill.lore.lizardfolk
+  - skill.lore.ratfolk
+  - skill.lore.tengu
+  - skill.lore.tripkee
+  - skill.lore.vampire
+
+fields:
+  skills.lore.accounting.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.accounting' in skills.trained || 'skill.lore.accounting' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.accounting' in skills.trained || 'skill.lore.accounting' in skills.chosen ? [] : ['untrained']"
+  skills.lore.accounting.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.accounting, lore],
+    }
+  skills.lore.accounting.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.accounting]
+    formula: "('skill.lore.accounting' in skills.trained || 'skill.lore.accounting' in skills.chosen ? 1 : 0) + skills.lore.accounting.increases"
+  skills.lore.accounting.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.accounting
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.accounting.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.accounting.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.accounting.rank > 0 ? 2 * skills.lore.accounting.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.astrology.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.astrology' in skills.trained || 'skill.lore.astrology' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.astrology' in skills.trained || 'skill.lore.astrology' in skills.chosen ? [] : ['untrained']"
+  skills.lore.astrology.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.astrology, lore],
+    }
+  skills.lore.astrology.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.astrology]
+    formula: "('skill.lore.astrology' in skills.trained || 'skill.lore.astrology' in skills.chosen ? 1 : 0) + skills.lore.astrology.increases"
+  skills.lore.astrology.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.astrology
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.astrology.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.astrology.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.astrology.rank > 0 ? 2 * skills.lore.astrology.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.afterlife.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.afterlife' in skills.trained || 'skill.lore.afterlife' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.afterlife' in skills.trained || 'skill.lore.afterlife' in skills.chosen ? [] : ['untrained']"
+  skills.lore.afterlife.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.afterlife, lore],
+    }
+  skills.lore.afterlife.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.afterlife]
+    formula: "('skill.lore.afterlife' in skills.trained || 'skill.lore.afterlife' in skills.chosen ? 1 : 0) + skills.lore.afterlife.increases"
+  skills.lore.afterlife.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.afterlife
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.afterlife.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.afterlife.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.afterlife.rank > 0 ? 2 * skills.lore.afterlife.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.curse.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.curse' in skills.trained || 'skill.lore.curse' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.curse' in skills.trained || 'skill.lore.curse' in skills.chosen ? [] : ['untrained']"
+  skills.lore.curse.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.curse, lore],
+    }
+  skills.lore.curse.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.curse]
+    formula: "('skill.lore.curse' in skills.trained || 'skill.lore.curse' in skills.chosen ? 1 : 0) + skills.lore.curse.increases"
+  skills.lore.curse.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.curse
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.curse.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.curse.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.curse.rank > 0 ? 2 * skills.lore.curse.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.driving.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.driving' in skills.trained || 'skill.lore.driving' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.driving' in skills.trained || 'skill.lore.driving' in skills.chosen ? [] : ['untrained']"
+  skills.lore.driving.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.driving, lore],
+    }
+  skills.lore.driving.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.driving]
+    formula: "('skill.lore.driving' in skills.trained || 'skill.lore.driving' in skills.chosen ? 1 : 0) + skills.lore.driving.increases"
+  skills.lore.driving.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.driving
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.driving.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.driving.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.driving.rank > 0 ? 2 * skills.lore.driving.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.fey.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.fey' in skills.trained || 'skill.lore.fey' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.fey' in skills.trained || 'skill.lore.fey' in skills.chosen ? [] : ['untrained']"
+  skills.lore.fey.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.fey, lore],
+    }
+  skills.lore.fey.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.fey]
+    formula: "('skill.lore.fey' in skills.trained || 'skill.lore.fey' in skills.chosen ? 1 : 0) + skills.lore.fey.increases"
+  skills.lore.fey.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.fey
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.fey.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.fey.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.fey.rank > 0 ? 2 * skills.lore.fey.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.piloting.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.piloting' in skills.trained || 'skill.lore.piloting' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.piloting' in skills.trained || 'skill.lore.piloting' in skills.chosen ? [] : ['untrained']"
+  skills.lore.piloting.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.piloting, lore],
+    }
+  skills.lore.piloting.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.piloting]
+    formula: "('skill.lore.piloting' in skills.trained || 'skill.lore.piloting' in skills.chosen ? 1 : 0) + skills.lore.piloting.increases"
+  skills.lore.piloting.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.piloting
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.piloting.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.piloting.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.piloting.rank > 0 ? 2 * skills.lore.piloting.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.surgery.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.surgery' in skills.trained || 'skill.lore.surgery' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.surgery' in skills.trained || 'skill.lore.surgery' in skills.chosen ? [] : ['untrained']"
+  skills.lore.surgery.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.surgery, lore],
+    }
+  skills.lore.surgery.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.surgery]
+    formula: "('skill.lore.surgery' in skills.trained || 'skill.lore.surgery' in skills.chosen ? 1 : 0) + skills.lore.surgery.increases"
+  skills.lore.surgery.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.surgery
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.surgery.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.surgery.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.surgery.rank > 0 ? 2 * skills.lore.surgery.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.catfolk.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.catfolk' in skills.trained || 'skill.lore.catfolk' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.catfolk' in skills.trained || 'skill.lore.catfolk' in skills.chosen ? [] : ['untrained']"
+  skills.lore.catfolk.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.catfolk, lore],
+    }
+  skills.lore.catfolk.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.catfolk]
+    formula: "('skill.lore.catfolk' in skills.trained || 'skill.lore.catfolk' in skills.chosen ? 1 : 0) + skills.lore.catfolk.increases"
+  skills.lore.catfolk.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.catfolk
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.catfolk.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.catfolk.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.catfolk.rank > 0 ? 2 * skills.lore.catfolk.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.dragon.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.dragon' in skills.trained || 'skill.lore.dragon' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.dragon' in skills.trained || 'skill.lore.dragon' in skills.chosen ? [] : ['untrained']"
+  skills.lore.dragon.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.dragon, lore],
+    }
+  skills.lore.dragon.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.dragon]
+    formula: "('skill.lore.dragon' in skills.trained || 'skill.lore.dragon' in skills.chosen ? 1 : 0) + skills.lore.dragon.increases"
+  skills.lore.dragon.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.dragon
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.dragon.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.dragon.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.dragon.rank > 0 ? 2 * skills.lore.dragon.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.hobgoblin.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.hobgoblin' in skills.trained || 'skill.lore.hobgoblin' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.hobgoblin' in skills.trained || 'skill.lore.hobgoblin' in skills.chosen ? [] : ['untrained']"
+  skills.lore.hobgoblin.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.hobgoblin, lore],
+    }
+  skills.lore.hobgoblin.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.hobgoblin]
+    formula: "('skill.lore.hobgoblin' in skills.trained || 'skill.lore.hobgoblin' in skills.chosen ? 1 : 0) + skills.lore.hobgoblin.increases"
+  skills.lore.hobgoblin.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.hobgoblin
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.hobgoblin.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.hobgoblin.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.hobgoblin.rank > 0 ? 2 * skills.lore.hobgoblin.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.kholo.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.kholo' in skills.trained || 'skill.lore.kholo' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.kholo' in skills.trained || 'skill.lore.kholo' in skills.chosen ? [] : ['untrained']"
+  skills.lore.kholo.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.kholo, lore],
+    }
+  skills.lore.kholo.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.kholo]
+    formula: "('skill.lore.kholo' in skills.trained || 'skill.lore.kholo' in skills.chosen ? 1 : 0) + skills.lore.kholo.increases"
+  skills.lore.kholo.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.kholo
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.kholo.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.kholo.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.kholo.rank > 0 ? 2 * skills.lore.kholo.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.kobold.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.kobold' in skills.trained || 'skill.lore.kobold' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.kobold' in skills.trained || 'skill.lore.kobold' in skills.chosen ? [] : ['untrained']"
+  skills.lore.kobold.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.kobold, lore],
+    }
+  skills.lore.kobold.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.kobold]
+    formula: "('skill.lore.kobold' in skills.trained || 'skill.lore.kobold' in skills.chosen ? 1 : 0) + skills.lore.kobold.increases"
+  skills.lore.kobold.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.kobold
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.kobold.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.kobold.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.kobold.rank > 0 ? 2 * skills.lore.kobold.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.lizardfolk.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.lizardfolk' in skills.trained || 'skill.lore.lizardfolk' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.lizardfolk' in skills.trained || 'skill.lore.lizardfolk' in skills.chosen ? [] : ['untrained']"
+  skills.lore.lizardfolk.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.lizardfolk, lore],
+    }
+  skills.lore.lizardfolk.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.lizardfolk]
+    formula: "('skill.lore.lizardfolk' in skills.trained || 'skill.lore.lizardfolk' in skills.chosen ? 1 : 0) + skills.lore.lizardfolk.increases"
+  skills.lore.lizardfolk.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.lizardfolk
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.lizardfolk.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.lizardfolk.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.lizardfolk.rank > 0 ? 2 * skills.lore.lizardfolk.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.ratfolk.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.ratfolk' in skills.trained || 'skill.lore.ratfolk' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.ratfolk' in skills.trained || 'skill.lore.ratfolk' in skills.chosen ? [] : ['untrained']"
+  skills.lore.ratfolk.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.ratfolk, lore],
+    }
+  skills.lore.ratfolk.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.ratfolk]
+    formula: "('skill.lore.ratfolk' in skills.trained || 'skill.lore.ratfolk' in skills.chosen ? 1 : 0) + skills.lore.ratfolk.increases"
+  skills.lore.ratfolk.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.ratfolk
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.ratfolk.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.ratfolk.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.ratfolk.rank > 0 ? 2 * skills.lore.ratfolk.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.tengu.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.tengu' in skills.trained || 'skill.lore.tengu' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.tengu' in skills.trained || 'skill.lore.tengu' in skills.chosen ? [] : ['untrained']"
+  skills.lore.tengu.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.tengu, lore],
+    }
+  skills.lore.tengu.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.tengu]
+    formula: "('skill.lore.tengu' in skills.trained || 'skill.lore.tengu' in skills.chosen ? 1 : 0) + skills.lore.tengu.increases"
+  skills.lore.tengu.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.tengu
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.tengu.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.tengu.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.tengu.rank > 0 ? 2 * skills.lore.tengu.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.tripkee.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.tripkee' in skills.trained || 'skill.lore.tripkee' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.tripkee' in skills.trained || 'skill.lore.tripkee' in skills.chosen ? [] : ['untrained']"
+  skills.lore.tripkee.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.tripkee, lore],
+    }
+  skills.lore.tripkee.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.tripkee]
+    formula: "('skill.lore.tripkee' in skills.trained || 'skill.lore.tripkee' in skills.chosen ? 1 : 0) + skills.lore.tripkee.increases"
+  skills.lore.tripkee.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.tripkee
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.tripkee.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.tripkee.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.tripkee.rank > 0 ? 2 * skills.lore.tripkee.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.vampire.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.vampire' in skills.trained || 'skill.lore.vampire' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.vampire' in skills.trained || 'skill.lore.vampire' in skills.chosen ? [] : ['untrained']"
+  skills.lore.vampire.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.vampire, lore],
+    }
+  skills.lore.vampire.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.vampire]
+    formula: "('skill.lore.vampire' in skills.trained || 'skill.lore.vampire' in skills.chosen ? 1 : 0) + skills.lore.vampire.increases"
+  skills.lore.vampire.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.vampire
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.vampire.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.vampire.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.vampire.rank > 0 ? 2 * skills.lore.vampire.rank + proficiency.level : proficiency.untrained)'
+# A skill trained by a skill increase counts as a training the player chose.
+effects:
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.accounting },
+      when: skills.lore.accounting.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.astrology },
+      when: skills.lore.astrology.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.afterlife },
+      when: skills.lore.afterlife.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.curse },
+      when: skills.lore.curse.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.driving },
+      when: skills.lore.driving.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.fey },
+      when: skills.lore.fey.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.piloting },
+      when: skills.lore.piloting.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.surgery },
+      when: skills.lore.surgery.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.catfolk },
+      when: skills.lore.catfolk.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.dragon },
+      when: skills.lore.dragon.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.hobgoblin },
+      when: skills.lore.hobgoblin.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.kholo },
+      when: skills.lore.kholo.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.kobold },
+      when: skills.lore.kobold.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.lizardfolk },
+      when: skills.lore.lizardfolk.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.ratfolk },
+      when: skills.lore.ratfolk.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.tengu },
+      when: skills.lore.tengu.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.tripkee },
+      when: skills.lore.tripkee.trainedByIncrease > 0,
+    }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.vampire },
+      when: skills.lore.vampire.trainedByIncrease > 0,
+    }
+
+display:
+  fields:
+    skills.lore.accounting.rank: { format: { bands: rank } }
+    skills.lore.accounting.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.accounting.mod } }] }
+    skills.lore.astrology.rank: { format: { bands: rank } }
+    skills.lore.astrology.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.astrology.mod } }] }
+    skills.lore.afterlife.rank: { format: { bands: rank } }
+    skills.lore.afterlife.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.afterlife.mod } }] }
+    skills.lore.curse.rank: { format: { bands: rank } }
+    skills.lore.curse.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.curse.mod } }] }
+    skills.lore.driving.rank: { format: { bands: rank } }
+    skills.lore.driving.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.driving.mod } }] }
+    skills.lore.fey.rank: { format: { bands: rank } }
+    skills.lore.fey.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.fey.mod } }] }
+    skills.lore.piloting.rank: { format: { bands: rank } }
+    skills.lore.piloting.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.piloting.mod } }] }
+    skills.lore.surgery.rank: { format: { bands: rank } }
+    skills.lore.surgery.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.surgery.mod } }] }
+    skills.lore.catfolk.rank: { format: { bands: rank } }
+    skills.lore.catfolk.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.catfolk.mod } }] }
+    skills.lore.dragon.rank: { format: { bands: rank } }
+    skills.lore.dragon.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.dragon.mod } }] }
+    skills.lore.hobgoblin.rank: { format: { bands: rank } }
+    skills.lore.hobgoblin.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.hobgoblin.mod } }] }
+    skills.lore.kholo.rank: { format: { bands: rank } }
+    skills.lore.kholo.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.kholo.mod } }] }
+    skills.lore.kobold.rank: { format: { bands: rank } }
+    skills.lore.kobold.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.kobold.mod } }] }
+    skills.lore.lizardfolk.rank: { format: { bands: rank } }
+    skills.lore.lizardfolk.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.lizardfolk.mod } }] }
+    skills.lore.ratfolk.rank: { format: { bands: rank } }
+    skills.lore.ratfolk.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.ratfolk.mod } }] }
+    skills.lore.tengu.rank: { format: { bands: rank } }
+    skills.lore.tengu.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.tengu.mod } }] }
+    skills.lore.tripkee.rank: { format: { bands: rank } }
+    skills.lore.tripkee.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.tripkee.mod } }] }
+    skills.lore.vampire.rank: { format: { bands: rank } }
+    skills.lore.vampire.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.vampire.mod } }] }

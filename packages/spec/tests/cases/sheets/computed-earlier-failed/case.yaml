@@ -1,0 +1,25 @@
+description: 'An earlier computed value that failed is absent: has() is false, and a later value reading it fails with its own formula-error'
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 2 }
+        contentTypes:
+          gear:
+            carried: true
+            state:
+              charges: { type: integer, default: 1 }
+            computed:
+              ratio: { type: decimal, formula: tier / self.charges }
+              known: { type: boolean, formula: has(self.ratio) }
+              double: { type: decimal, formula: self.ratio * 2 }
+      content:
+        - { id: gear.lamp, type: gear }

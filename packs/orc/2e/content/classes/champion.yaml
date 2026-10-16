@@ -1,0 +1,230 @@
+id: classes.champion
+type: class
+tags: [trait.champion]
+fields: { hp: 10 }
+# The deity is the player's own (the setting's deities are Reserved Material): its font,
+# sanctification, divine skill and favored weapon are the class's choices, as the cleric's.
+effects:
+  # The class's trait, for content that reads the class by it (such as Natural Ambition).
+  - { target: class.traits, op: grant, value: { tag: trait.champion } }
+  - { target: perception.rank, op: atLeast, value: 1 }
+  - { target: saves.fortitude.rank, op: atLeast, value: 2 }
+  - { target: saves.reflex.rank, op: atLeast, value: 1 }
+  - { target: saves.will.rank, op: atLeast, value: 2 }
+  - { target: attacks.simple.rank, op: atLeast, value: 1 }
+  - { target: attacks.martial.rank, op: atLeast, value: 1 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 1 }
+  - { target: attacks.favoredRank, op: atLeast, value: 1 }
+  - { target: defenses.light.rank, op: atLeast, value: 1 }
+  - { target: defenses.medium.rank, op: atLeast, value: 1 }
+  - { target: defenses.heavy.rank, op: atLeast, value: 1 }
+  - { target: defenses.unarmored.rank, op: atLeast, value: 1 }
+  - { target: classDc.rank, op: atLeast, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.religion },
+      when: "!('skill.religion' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spellcasting.tradition, op: set, value: "'divine'" }
+  - { target: spellcasting.attribute, op: set, value: "'cha'" }
+  - { target: spellcasting.rank, op: atLeast, value: 1 }
+  - { target: focus.points, op: add, value: 1 }
+grants:
+  - item: features.champion.deity
+  - item: features.champion.champions-aura
+  - item: features.champion.devotion-spells
+  - item: feats.general.shield-block
+  - { item: features.champion.blessing-of-the-devoted, when: level >= 3 }
+  - { item: features.champion.weapon-expertise, when: level >= 5 }
+  - { item: features.champion.armor-expertise, when: level >= 7 }
+  - { item: features.champion.weapon-specialization, when: level >= 7 }
+  - { item: features.champion.champion-expertise, when: level >= 9 }
+  - { item: features.champion.reflex-expertise, when: level >= 9 }
+  - { item: features.champion.relentless-reaction, when: level >= 9 }
+  - { item: features.champion.sacred-body, when: level >= 9 }
+  - { item: features.champion.divine-will, when: level >= 11 }
+  - { item: features.champion.exalted-reaction, when: level >= 11 }
+  - { item: features.champion.perception-expertise, when: level >= 11 }
+  - { item: features.champion.armor-mastery, when: level >= 13 }
+  - { item: features.champion.weapon-mastery, when: level >= 13 }
+  - { item: features.champion.greater-weapon-specialization, when: level >= 15 }
+  - { item: features.champion.champion-mastery, when: level >= 17 }
+  - { item: features.champion.legendary-armor, when: level >= 17 }
+  - { item: features.champion.heros-defiance, when: level >= 19 }
+choices:
+  - id: key-attribute
+    from:
+      options:
+        - id: str
+          effects:
+            - { target: attributes.str.boosts, op: add, value: 1 }
+            - { target: class.keyAttribute, op: set, value: "'str'" }
+        - id: dex
+          effects:
+            - { target: attributes.dex.boosts, op: add, value: 1 }
+            - { target: class.keyAttribute, op: set, value: "'dex'" }
+  - id: divine-font
+    from:
+      options:
+        - id: heal
+          effects:
+            - { target: champion.font, op: set, value: "'heal'" }
+        - id: harm
+          effects:
+            - { target: champion.font, op: set, value: "'harm'" }
+  - id: sanctification
+    from:
+      options:
+        - id: none
+        - id: holy
+          effects:
+            - { target: champion.sanctification, op: set, value: "'holy'" }
+            - { target: traits, op: grant, value: { tag: trait.holy } }
+        - id: unholy
+          effects:
+            - { target: champion.sanctification, op: set, value: "'unholy'" }
+            - { target: traits, op: grant, value: { tag: trait.unholy } }
+  # A training like a background's: a skill already trained frees a training for another.
+  - id: divine-skill
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+        ]
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }
+  - id: favored-weapon-category
+    from:
+      options:
+        - id: unarmed
+          effects:
+            - { target: champion.favoredCategory, op: set, value: "'unarmed'" }
+        - id: simple
+          effects:
+            - { target: champion.favoredCategory, op: set, value: "'simple'" }
+        - id: martial
+          effects:
+            - { target: champion.favoredCategory, op: set, value: "'martial'" }
+        - id: advanced
+          effects:
+            - { target: champion.favoredCategory, op: set, value: "'advanced'" }
+  - id: favored-weapon
+    activate: false
+    from:
+      type: weapon
+      where: >-
+        item.category == champion.favoredCategory && item.group != 'bomb'
+          && (item.category != 'unarmed' || item.id == @weapons.fist)
+    effects:
+      - { target: attacks.favoredWeapons, op: grant, value: { formula: pick.id } }
+  - id: cause
+    from:
+      items:
+        [
+          classes.champion.causes.desecration,
+          classes.champion.causes.grandeur,
+          classes.champion.causes.iniquity,
+          classes.champion.causes.justice,
+          classes.champion.causes.liberation,
+          classes.champion.causes.obedience,
+          classes.champion.causes.redemption,
+        ]
+  - id: devotion-spell
+    from:
+      options:
+        - id: shields-of-the-spirit
+          grants:
+            - item: spells.shields-of-the-spirit
+        - id: lay-on-hands
+          prerequisites:
+            - { id: font, when: "champion.font == 'heal'" }
+          grants:
+            - item: spells.lay-on-hands
+        - id: touch-of-the-void
+          prerequisites:
+            - { id: font, when: "champion.font == 'harm'" }
+          grants:
+            - item: spells.touch-of-the-void
+  - id: skills
+    unique: skill-training
+    pick: 2 + max(0, attributes.int.mod)
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+          skill.lore.academia,
+          skill.lore.circus,
+          skill.lore.farming,
+          skill.lore.legal,
+          skill.lore.scribing,
+          skill.lore.underworld,
+          skill.lore.warfare,
+        ]
+      where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
+    effects:
+      - { target: skills.chosen, op: grant, value: { formula: pick.value } }
+  - id: class-feat
+    slots: [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    # The class's feats are worked out once (the query reads only the item); the slot's level is the
+    # choice's `eligible`, so a listing reads only them.
+    from:
+      type: feat
+      where: >-
+        item.category == 'class'
+          && (has(item.class) && item.class == @classes.champion || 'trait.champion' in item.tags)
+          || 'archetype-feat' in item.tags
+    eligible: >-
+      (item.category == 'class' && has(item.class) && item.class == @classes.champion
+          || 'trait.champion' in item.tags) && !('trait.archetype' in item.tags) && item.level <= slot
+        || 'trait.archetype' in item.tags && item.level <= slot
+          && (!('trait.dedication' in item.tags) || archetypes.open == 0 || item.id in choice.picks
+            || countList(choice.picks, x in archetypes.dedications) > 0)
+        || slot >= 2 && item.id in [archetypes.extra.level2, archetypes.extra.level4, archetypes.extra.level6,
+            archetypes.extra.level8, archetypes.extra.level10, archetypes.extra.level12,
+            archetypes.extra.level14, archetypes.extra.level16, archetypes.extra.level18,
+            archetypes.extra.level20][floor(slot / 2) - 1]
+  - id: skill-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= slot

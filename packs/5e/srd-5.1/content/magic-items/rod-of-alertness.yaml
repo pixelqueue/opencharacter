@@ -1,0 +1,84 @@
+id: magic-items.rod-of-alertness
+type: magicItem
+fields:
+  category: rod
+  rarity: very-rare
+  requiresAttunement: true
+  spells:
+    [
+      spells.detect-evil-and-good,
+      spells.detect-magic,
+      spells.detect-poison-and-disease,
+      spells.see-invisibility,
+    ]
+  maxCharges: 1
+  recharge: 1
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.detect-evil-and-good, when: self.equipped && self.attuned }
+  - { item: spells.detect-magic, when: self.equipped && self.attuned }
+  - { item: spells.detect-poison-and-disease, when: self.equipped && self.attuned }
+  - { item: spells.see-invisibility, when: self.equipped && self.attuned }
+effects:
+  - {
+      target: { rolls: [skill.perception] },
+      op: rollModifier,
+      value: { kind: advantage },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: { rolls: [initiative] },
+      op: rollModifier,
+      value: { kind: advantage },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.detect-evil-and-good },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.detect-magic },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.detect-poison-and-disease },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.see-invisibility },
+      when: self.equipped && self.attuned,
+    }
+  - { target: combat.ac, op: add, value: 1, scope: applied }
+  - { target: { rolls: [save] }, op: add, value: 1, scope: applied }
+actions:
+  - id: protective-aura
+    tags: [magic-item]
+    results: [extended]
+    available: self.equipped && self.attuned && self.charges > 0
+    participants:
+      ally: {}
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: charges, by: -1 }
+          - { type: applyEffect, source: item.id }
+      - id: extend
+        kind: changes
+        to: ally
+        changes:
+          - { type: applyEffect, source: item.id }
+      - id: result
+        kind: outcome
+        result: "'extended'"
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

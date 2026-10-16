@@ -1,0 +1,9 @@
+id: runes.keen
+type: template
+tags: [trait.magical, rune.property]
+appliesTo: { type: weapon, where: "item.range == 0 && item.damageType != 'bludgeoning'" }
+fields: { price: '(has(prior.price) ? prior.price : 0) + 3000' }
+effects:
+  - target: { rolls: [strike], from: self, tally: successToCritOn19 }
+    op: add
+    value: 1

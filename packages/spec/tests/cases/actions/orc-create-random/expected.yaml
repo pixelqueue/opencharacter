@@ -1,0 +1,301 @@
+# Each pick is a draw among its options: a d16's 8 is the 8th of 16 ancestries
+# (human), 1 the first of its nine heritages (aiuvarin, a versatile heritage), 10 the 10th of 64
+# backgrounds (barkeep) and 12 the 12th of 16 classes (rogue). The d2's 1 plans Strength as the
+# key, so the human's two free boosts go to Strength and Constitution and the
+# barkeep's to Constitution (of Constitution and Charisma) and Strength; the thief racket makes
+# Dexterity the key, and the four free boosts are Dexterity, Strength, Constitution and Wisdom.
+# Every other pick is uniform among its options. The changes apply cleanly
+# (orc-finish-random-creation).
+status: finished
+proposedChanges:
+  - to: self
+    step: ancestry
+    change:
+      type: addItem
+      entry:
+        id: ancestry
+        item: orc-2e:ancestries.human
+  - to: self
+    step: heritage
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - heritage
+      option: orc-2e:heritages.aiuvarin
+  - to: self
+    step: background
+    change:
+      type: addItem
+      entry:
+        id: background
+        item: orc-2e:backgrounds.barkeep
+  - to: self
+    step: class
+    change:
+      type: addItem
+      entry:
+        id: class
+        item: orc-2e:classes.rogue
+  - to: self
+    step: ancestryPicks
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - boosts
+      option: orc-2e:boosts.str
+  - to: self
+    step: ancestryPicks
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - boosts
+      option: orc-2e:boosts.con
+  - to: self
+    step: backgroundPicks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - boost
+      option: orc-2e:boosts.con
+  - to: self
+    step: backgroundPicks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - free-boost
+      option: orc-2e:boosts.str
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - racket
+      option: orc-2e:classes.rogue.rackets.thief
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - key-attribute
+      option: dex
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.arcana
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.medicine
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.crafting
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.religion
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.performance
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.lore.circus
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.nature
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - class-feat-1
+      option: orc-2e:feats.rogue.twin-feint
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skill-feat-1
+      option: orc-2e:feats.skill.assurance
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skill-feat-1
+          - orc-2e:feats.skill.assurance
+          - skill
+      option: skill.religion
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.dex
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.str
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.con
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.wis
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - ancestry-feat-1
+      option: orc-2e:feats.ancestry.ancestral-longevity
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - ancestry-feat-1
+          - orc-2e:feats.ancestry.ancestral-longevity
+          - skill
+      option: skill.occultism
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - languages
+      option: orc-2e:languages.elven
+  - to: self
+    step: finish
+    change:
+      type: set
+      field: orc-2e:hp.current
+      value: 19
+  - to: self
+    step: finish
+    change:
+      type: finishCreation
+log:
+  - { step: ancestry, kind: dice, faces: [8] }
+  - { step: ancestry, kind: choice, option: 'orc-2e:ancestries.human' }
+  - { step: heritage, kind: dice, faces: [1] }
+  - { step: heritage, kind: choice, option: 'orc-2e:heritages.aiuvarin' }
+  - { step: background, kind: dice, faces: [10] }
+  - { step: background, kind: choice, option: 'orc-2e:backgrounds.barkeep' }
+  - { step: class, kind: dice, faces: [12] }
+  - { step: class, kind: choice, option: 'orc-2e:classes.rogue' }
+  - { step: keyDie, kind: dice, faces: [1] }
+  - { step: ancestryPicks, kind: choice, option: 'orc-2e:boosts.str' }
+  - { step: ancestryPicks, kind: choice, option: 'orc-2e:boosts.con' }
+  - { step: backgroundPicks, kind: choice, option: 'orc-2e:boosts.con' }
+  - { step: backgroundPicks, kind: choice, option: 'orc-2e:boosts.str' }
+  - { step: classPicks, kind: dice, faces: [4] }
+  - { step: classPicks, kind: choice, option: 'orc-2e:classes.rogue.rackets.thief' }
+  - { step: classPicks, kind: choice, option: 'dex' }
+  - { step: classPicks, kind: dice, faces: [2] }
+  - { step: classPicks, kind: choice, option: 'skill.arcana' }
+  - { step: classPicks, kind: dice, faces: [6] }
+  - { step: classPicks, kind: choice, option: 'skill.medicine' }
+  - { step: classPicks, kind: dice, faces: [3] }
+  - { step: classPicks, kind: choice, option: 'skill.crafting' }
+  - { step: classPicks, kind: dice, faces: [8] }
+  - { step: classPicks, kind: choice, option: 'skill.religion' }
+  - { step: classPicks, kind: dice, faces: [7] }
+  - { step: classPicks, kind: choice, option: 'skill.performance' }
+  - { step: classPicks, kind: dice, faces: [10] }
+  - { step: classPicks, kind: choice, option: 'skill.lore.circus' }
+  - { step: classPicks, kind: dice, faces: [5] }
+  - { step: classPicks, kind: choice, option: 'skill.nature' }
+  - { step: classPicks, kind: dice, faces: [4] }
+  - { step: classPicks, kind: choice, option: 'orc-2e:feats.rogue.twin-feint' }
+  - { step: classPicks, kind: dice, faces: [4] }
+  - { step: classPicks, kind: choice, option: 'orc-2e:feats.skill.assurance' }
+  - { step: classPicks, kind: dice, faces: [12] }
+  - { step: classPicks, kind: choice, option: 'skill.religion' }
+  - { step: picks, kind: choice, option: 'orc-2e:boosts.dex' }
+  - { step: picks, kind: choice, option: 'orc-2e:boosts.str' }
+  - { step: picks, kind: choice, option: 'orc-2e:boosts.con' }
+  - { step: picks, kind: choice, option: 'orc-2e:boosts.wis' }
+  - { step: picks, kind: dice, faces: [1] }
+  - { step: picks, kind: choice, option: 'orc-2e:feats.ancestry.ancestral-longevity' }
+  - { step: picks, kind: dice, faces: [5] }
+  - { step: picks, kind: choice, option: 'skill.occultism' }
+  - { step: picks, kind: dice, faces: [5] }
+  - { step: picks, kind: choice, option: 'orc-2e:languages.elven' }

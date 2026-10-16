@@ -1,0 +1,24 @@
+description: "orc-2e: a bard leveling to 5th: four boosts, an
+  ancestry feat, a skill increase, the third rank's two repertoire spells (2
+  slots) and its signature spell"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:level-up
+  policy:
+    choices: pause
+    allocations: pause
+answers:
+  - amounts:
+      orc-2e:skills.occultism.increases: 1
+  - option: orc-2e:boosts.cha
+  - option: orc-2e:boosts.con
+  - option: orc-2e:boosts.dex
+  - option: orc-2e:boosts.wis
+  - option: orc-2e:feats.ancestry.city-scavenger
+  - option: orc-2e:spells.slow
+  - option: orc-2e:spells.alarm
+  - option: orc-2e:spells.slow

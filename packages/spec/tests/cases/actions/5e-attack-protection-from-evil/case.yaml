@@ -1,0 +1,11 @@
+description: '5E a fiend attacking a target under protection from evil and good (Purity of Spirit, from its view) has disadvantage'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: club }
+  participants:
+    target:
+      - id: paladin
+        values: { 5e-srd-5.1:combat.ac: 18, 5e-srd-5.1:protection.evilAndGood: true }

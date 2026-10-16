@@ -1,0 +1,18 @@
+# The special-armor abilities share one option (`stackKey`), so a character with two of them offers
+# it once. Pushing for both a die and effect is two pushes: the armor pays for one.
+id: special-abilities.mastermind
+type: specialAbility
+effects:
+  - { target: armor.hasSpecial, op: set, value: true }
+  - target: { choices: [push-cost] }
+    op: option
+    when: '!armor.special'
+    stackKey: special-armor
+    value:
+      id: special-armor
+      changes:
+        - { type: set, field: armor.special, value: true }
+        - type: adjust
+          field: stress.current
+          by: 2
+          when: "situational.bonusDie == 'push' && situational.pushEffect"

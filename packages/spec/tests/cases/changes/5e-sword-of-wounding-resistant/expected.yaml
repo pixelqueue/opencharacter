@@ -1,0 +1,15 @@
+# Resistance halves the 9 to 4; the temporary hit point absorbs 1, so the hit points lose 3, and
+# the wound holds 3, the amount after resistance.
+ok: true
+character:
+  values:
+    5e-srd-5.1:abilities.str.base: 19
+    5e-srd-5.1:abilities.con.base: 16
+    5e-srd-5.1:hp.base: 59
+    5e-srd-5.1:hp.current: 56
+    5e-srd-5.1:hp.temp: 0
+    5e-srd-5.1:damage.resistances: [damage.slashing]
+  applied:
+    - id: conditions-wound-1
+      source: 5e-srd-5.1:conditions.wound
+      state: { amount: 3, bleeding: false, by: humanoid, magical: true }

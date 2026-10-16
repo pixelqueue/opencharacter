@@ -1,0 +1,81 @@
+# Oriel, the example cleric (examples/characters/orc-oriel.yaml): a 1st-level human
+# cloistered cleric, Wisdom +4 (spell attack +7, spell DC 17), healing font, holy, the fire
+# domain (fire ray, one Focus Point), Healing Hands.
+specVersion: 0.1.0
+id: example-orc-oriel
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:xp.current: 1000
+  orc-2e:hp.current: 19
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      heritage:
+        - option: orc-2e:heritages.versatile-human
+          choices:
+            feat:
+              - option: orc-2e:feats.general.toughness
+      boosts:
+        - option: orc-2e:boosts.wis
+        - option: orc-2e:boosts.con
+  - id: background
+    item: orc-2e:backgrounds.acolyte
+    choices:
+      boost:
+        - option: orc-2e:boosts.wis
+      free-boost:
+        - option: orc-2e:boosts.str
+  - id: class
+    item: orc-2e:classes.cleric
+    choices:
+      divine-font:
+        - option: heal
+      sanctification:
+        - option: holy
+      divine-skill:
+        - option: skill.diplomacy
+      favored-weapon-category:
+        - option: simple
+      favored-weapon:
+        - option: orc-2e:weapons.mace
+      doctrine:
+        - option: orc-2e:classes.cleric.doctrines.cloistered-cleric
+          choices:
+            orc-2e:feats.cleric.domain-initiate/domain:
+              - option: fire
+      skills:
+        - option: skill.nature
+        - option: skill.society
+  # Prepared spells: each a copy of the spell, its slot's rank, and the font's copies marked.
+  - { id: divine-lance, item: orc-2e:spells.divine-lance }
+  - { id: guidance, item: orc-2e:spells.guidance }
+  - { id: light, item: orc-2e:spells.light }
+  - { id: stabilize, item: orc-2e:spells.stabilize }
+  - { id: vitality-lash, item: orc-2e:spells.vitality-lash }
+  - { id: bless-1, item: orc-2e:spells.bless, state: { rank: 1 } }
+  - { id: fear-1, item: orc-2e:spells.fear, state: { rank: 1 } }
+  - { id: font-1, item: orc-2e:spells.heal, state: { rank: 1, font: true } }
+  - { id: font-2, item: orc-2e:spells.heal, state: { rank: 1, font: true } }
+  - { id: font-3, item: orc-2e:spells.heal, state: { rank: 1, font: true } }
+  - { id: font-4, item: orc-2e:spells.heal, state: { rank: 1, font: true } }
+inventory:
+  - { id: mace, item: orc-2e:weapons.mace, equipped: true }
+  - { id: symbol, item: orc-2e:gear.religious-symbol-wooden }
+  - { id: backpack, item: orc-2e:gear.backpack }
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.natural-ambition
+      choices:
+        feat:
+          - option: orc-2e:feats.cleric.healing-hands
+  languages:
+    - option: orc-2e:languages.elven
+  extra-training:
+    - option: skill.medicine

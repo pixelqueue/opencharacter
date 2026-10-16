@@ -1,0 +1,22 @@
+status: finished
+outcome:
+  result: used
+proposedChanges:
+  - to: ally
+    character: wizard
+    step: resist
+    change:
+      type: applyEffect
+      source: orc-2e:classes.champion.resistance
+      state:
+        amount: 5
+  - to: target
+    character: ogre
+    step: strike/deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -8
+      tags:
+        - damage
+        - damage.slashing

@@ -1,0 +1,21 @@
+specVersion: 0.1.0
+id: bad
+packs:
+  - { id: broken, version: 9.9.9 }
+values:
+  broken:abilities.str.score: 99
+  broken:abilities.str.mod: 3
+  broken:resists: [melee, melee.blunt]
+inventory:
+  - { id: a, item: broken:weapons.sword }
+links:
+  broken:ghost: someone
+# Stored follow-ups: a derived one, an unknown one, a duplicate ID.
+followUps:
+  - { id: strong-1, followUp: broken:strong }
+  - { id: lost-1, followUp: broken:lost }
+  - { id: lost-1, followUp: broken:shout }
+# Slots: `perk-1` is a slot of `perk`; `perk-3` is not.
+choices:
+  perk-1: [{ option: grit }]
+  perk-3: [{ option: grit }]

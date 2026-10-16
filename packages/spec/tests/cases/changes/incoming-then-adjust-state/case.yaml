@@ -1,0 +1,35 @@
+description: "An incoming-change effect's `then` adjusts its own copy's state by a formula reading `incoming`"
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp.current: { type: integer, input: true, default: 20, min: 0, max: 20 }
+        contentTypes:
+          # A made-up shield that soaks damage from its own charge until the charge runs out.
+          shield:
+            carried: true
+            equippable: true
+            state:
+              charge: { type: integer, default: 3, min: 0 }
+            effects:
+              - id: soak
+                target: { incoming: { fields: [hp.current], tags: [damage] } }
+                op: add
+                value: min(self.charge, -incoming.amount)
+                when: self.equipped && self.charge > 0 && incoming.amount < 0
+                then:
+                  - type: adjustState
+                    entry: self
+                    key: charge
+                    by: '-min(self.charge, -incoming.amount)'
+      content:
+        - { id: gear.shield, type: shield }

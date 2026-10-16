@@ -1,0 +1,16 @@
+# The Faction F (-1) make a play for a claim; the crew goes to war instead (-3).
+status: finished
+outcome:
+  result: war
+  data:
+    harm: 0
+proposedChanges:
+  - to: self
+    step: status
+    change:
+      type: setState
+      key: status
+      copies:
+        type: fitd-crew:faction
+        where: self.id == 'faction-f'
+      value: -3

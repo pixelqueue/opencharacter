@@ -1,0 +1,10 @@
+id: magic-items.shield-of-missile-attraction
+type: template
+tags: [magic]
+appliesTo: { type: armor, where: "item.category == 'shield'" }
+fields: { rarity: rare, requiresAttunement: true }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [ranged] } }
+    op: multiply
+    value: 0.5
+    when: self.equipped && self.attuned && 'weapon' in incoming.tags

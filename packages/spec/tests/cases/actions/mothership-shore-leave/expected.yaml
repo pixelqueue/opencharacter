@@ -1,0 +1,35 @@
+# The Sanity save: 13 under 24, success. The port's 1d5 rolls 3, under the 4 stress above the
+# minimum (6 - 2): 3 points go to saves as the player splits them (Fear 1, Body 2), and stress is
+# relieved to its minimum, 2.
+status: finished
+outcome:
+  result: success
+  data: { converted: 3 }
+proposedChanges:
+  - { to: self, step: improve, change: { type: adjust, field: mothership-1e:saves.fear, by: 1 } }
+  - { to: self, step: improve, change: { type: adjust, field: mothership-1e:saves.body, by: 2 } }
+  - {
+      to: self,
+      step: relieve,
+      change: { type: set, field: mothership-1e:stress.current, value: 2 },
+    }
+log:
+  - step: check/check
+    action: mothership-1e:save
+    kind: dice
+    by: engine
+    faces: [13]
+    total: 13
+    band: success
+    bandSet: mothership-1e:check
+  - step: conversion
+    action: mothership-1e:shore-leave
+    kind: dice
+    by: engine
+    faces: [3]
+    total: 3
+  - step: improve
+    action: mothership-1e:shore-leave
+    kind: allocate
+    by: app
+    amounts: { 'mothership-1e:saves.fear': 1, 'mothership-1e:saves.body': 2 }

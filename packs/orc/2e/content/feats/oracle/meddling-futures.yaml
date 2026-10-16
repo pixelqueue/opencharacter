@@ -1,0 +1,22 @@
+id: feats.oracle.meddling-futures
+type: feat
+tags: [trait.cursebound]
+fields: { level: 2, category: class, class: classes.oracle }
+actions:
+  - id: meddling-futures
+    tags: [class-action]
+    available: oracle.cursebound < oracle.curseMax
+    results: [used]
+    steps:
+      - id: spirit
+        kind: roll
+        parts: [{ dice: 1d4 }]
+      - id: curse
+        kind: changes
+        changes:
+          - { type: adjust, field: oracle.cursebound, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          spirit: steps.spirit.total

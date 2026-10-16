@@ -1,0 +1,26 @@
+id: worn.winged-sandals
+type: worn
+tags: [trait.air, trait.invested, trait.magical]
+fields:
+  level: 10
+  price: 850
+  bulk: 0.1
+  usage: shoes
+  activation: two
+  frequency: once-per-day
+effects:
+  - target: speed.fly
+    op: atLeast
+    value: 30
+    scope: applied
+    duration: { amount: 10, unit: minute }
+actions:
+  - id: awaken-wings
+    tags: [activation]
+    available: 'self.equipped && self.invested && self.used < 1'
+    steps:
+      - id: activate
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: used, by: 1 }
+          - { type: applyEffect, source: item.id }

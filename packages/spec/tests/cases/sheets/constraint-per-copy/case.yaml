@@ -1,0 +1,35 @@
+description: "A constraint per copy: each bag's contents must fit its capacity; the check runs once per bag copy with `item` and `self` that bag's, so a sum over the copies stored in it is an aggregate in a plain formula. The small bag is overfilled: one issue, its instance ID in `data.entry`; the big bag fits"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          bag:
+            carried: true
+            fields:
+              capacity: { type: integer, default: 0 }
+          stuff:
+            carried: true
+            fields:
+              weight: { type: integer, default: 1 }
+            state:
+              container: { type: string, default: '' }
+        constraints:
+          - id: bag-capacity
+            copies: { type: bag, where: item.capacity > 0 }
+            check: sumCopies(copy.fields.weight, has(copy.state.container) && copy.state.container == self.id) <= item.capacity
+            data:
+              stored: sumCopies(copy.fields.weight, has(copy.state.container) && copy.state.container == self.id)
+              capacity: item.capacity
+      content:
+        - { id: bags.small, type: bag, fields: { capacity: 2 } }
+        - { id: bags.big, type: bag, fields: { capacity: 10 } }
+        - { id: stuff.anvil, type: stuff, fields: { weight: 3 } }
+        - { id: stuff.rope, type: stuff, fields: { weight: 1 } }

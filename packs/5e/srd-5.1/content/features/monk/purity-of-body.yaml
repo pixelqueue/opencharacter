@@ -1,0 +1,10 @@
+id: features.monk.purity-of-body
+type: feature
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.poison] } }
+    op: multiply
+    value: 0
+immuneTo:
+  - { id: poisoned, items: [conditions.poisoned] }
+  - id: disease
+    query: { type: condition, where: "'disease' in item.tags" }

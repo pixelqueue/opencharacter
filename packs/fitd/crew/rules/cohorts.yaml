@@ -1,0 +1,123 @@
+contentTypes:
+  cohort:
+    nameFrom: label
+    fields:
+      kind: { type: enum, values: [gang, expert], required: true }
+      cost: { type: integer, default: 2 }
+    state:
+      label: { type: string, default: '' }
+      traits: { type: integer, default: 1, min: 1, max: 2 }
+      harm: { type: integer, default: 0, min: 0, max: 4 }
+    computed:
+      quality:
+        type: integer
+        formula: "item.kind == 'gang' ? tier : tier + 1"
+      scale:
+        type: integer
+        formula: >-
+          item.kind == 'gang' ? tier + (self.gangType in cohorts.trained
+            || self.extraGangType in cohorts.trained ? 1 : 0) : 0
+    actions:
+      - use: cohort-roll
+      - use: cohort-recover
+      - use: replace-cohort
+  cohortTrait: {}
+
+fields:
+  cohorts.elite:
+    type: set
+    of: string
+    formula: >-
+      (upgrades.elite.adepts > 0 ? ['adepts'] : []) + (upgrades.elite.rooks > 0 ? ['rooks'] : [])
+        + (upgrades.elite.rovers > 0 ? ['rovers'] : []) + (upgrades.elite.skulks > 0 ? ['skulks'] : [])
+        + (upgrades.elite.thugs > 0 ? ['thugs'] : [])
+  cohorts.boxes:
+    type: integer
+    formula: >-
+      sumCopies(copy.fields.cost
+        + ((has(copy.state.extraGangType) && copy.state.extraGangType != 'none')
+          || (has(copy.state.extraType) && copy.state.extraType != '') ? 2 : 0),
+        copy.type == 'cohort')
+
+actions:
+  - id: cohort-roll
+    tags: [cohort-roll]
+    available: self.harm < 4
+    params:
+      type: { type: enum, values: [main, extra, none], default: main }
+    participants:
+      commander:
+        max: 1
+        pack: fitd-scoundrel
+        fields:
+          abilities.special: { type: set, of: string, default: [] }
+    results: [critical, success, partial, failure, broken]
+    steps:
+      - id: dice
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              leader: >-
+                has(participants.commander) && countList(participants.commander,
+                  @fitd-scoundrel:special-abilities.leader in x.abilities.special) > 0
+              typed: >-
+                params.type == 'main' || (params.type == 'extra' && (item.kind == 'gang'
+                  ? self.extraGangType != 'none' : self.extraType != ''))
+              elite: >-
+                item.kind == 'gang' && params.type != 'none'
+                  && (params.type == 'main' ? self.gangType : self.extraGangType) in cohorts.elite
+      - id: broken
+        kind: outcome
+        when: self.harm >= 3 && !flags.leader
+        result: "'broken'"
+      - id: roll
+        kind: roll
+        tags: [cohort-roll]
+        bands: fortune
+        parts:
+          - id: pool
+            dice: >-
+              (max(0, (flags.typed ? self.quality : 0) - (self.harm >= 2 ? 1 : 0)
+                + (flags.elite ? 1 : 0)))d6kh1
+            ifEmpty: 2d6kl1
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data: { weakened: self.harm >= 1, effect: 'flags.leader ? 1 : 0' }
+
+  - id: cohort-recover
+    tags: [downtime]
+    available: self.harm > 0 && self.harm < 4
+    params:
+      help: { type: boolean, default: false }
+    results: [recovered]
+    steps:
+      - id: heal
+        kind: changes
+        changes:
+          - type: adjustState
+            entry: self
+            key: harm
+            by: '-min(self.harm, params.help ? 2 : 1)'
+      - { id: result, kind: outcome, result: "'recovered'" }
+
+  - id: replace-cohort
+    tags: [downtime]
+    available: self.harm >= 4 && coin.current >= tier + 2
+    results: [replaced]
+    steps:
+      - id: replace
+        kind: changes
+        changes:
+          - { type: adjust, field: coin.current, by: -(tier + 2) }
+          - { type: setState, entry: self, key: harm, value: 0 }
+      - { id: result, kind: outcome, result: "'replaced'" }
+
+display:
+  groups:
+    - id: cohorts
+      priority: 1
+  fields:
+    cohorts.elite: { hidden: true }
+    cohorts.boxes: { groups: [cohorts], priority: 2 }

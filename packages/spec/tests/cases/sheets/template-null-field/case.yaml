@@ -1,0 +1,32 @@
+description: "A template's `null` removes a field from the copy's item, its default included, unless a later template sets it again"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        templateFields:
+          bonus: { type: integer, default: 0 }
+        contentTypes:
+          gear:
+            carried: true
+            fields:
+              strength: { type: integer }
+            computed:
+              strength: { type: integer, formula: 'has(item.strength) ? item.strength : -1' }
+              bonus: { type: integer, formula: 'has(item.bonus) ? item.bonus : -1' }
+      content:
+        - { id: gear.plate, type: gear, fields: { strength: 15 } }
+        - id: mithral
+          type: template
+          appliesTo: { type: gear }
+          fields: { strength: null, bonus: null }
+        - id: heavy
+          type: template
+          appliesTo: { type: gear }
+          fields: { strength: 13 }

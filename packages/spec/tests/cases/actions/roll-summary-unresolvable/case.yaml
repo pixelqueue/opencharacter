@@ -1,0 +1,32 @@
+description: "A roll summary leaves a subexpression that fails to evaluate as written: `10 / flags.zero` divides by zero, so the band's condition keeps it and has no tests; the summary doesn't fail the action, and the roll's own band (`high`) holds first"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        resultBands:
+          odd:
+            - { id: high, when: 'roll.total >= flags.high' }
+            - { id: broken, when: 'roll.total < 10 / flags.zero' }
+            - { id: low, when: true }
+        actions:
+          - id: roll
+            steps:
+              - id: setup
+                kind: branch
+                cases:
+                  - when: true
+                    flags: { high: 12, zero: 0 }
+              - id: roll
+                kind: roll
+                bands: odd
+                parts: [{ dice: 1d20 }]
+      content: []
+input:
+  action: { id: test-pack:roll }

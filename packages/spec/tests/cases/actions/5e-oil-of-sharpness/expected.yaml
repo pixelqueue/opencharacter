@@ -1,0 +1,14 @@
+# The club is bludgeoning, so the longsword is the only weapon offered, and the one picked.
+status: finished
+outcome:
+  result: coated
+proposedChanges:
+  - to: self
+    step: weapon
+    change:
+      { type: applyTemplate, entry: sword, template: '5e-srd-5.1:magic-items.sharpness-coating' }
+  - to: self
+    step: spend
+    change: { type: removeItem, entry: oil }
+log:
+  - { step: weapon, kind: choice, by: engine, option: sword }

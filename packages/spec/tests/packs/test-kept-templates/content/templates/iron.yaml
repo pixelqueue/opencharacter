@@ -1,0 +1,11 @@
+# An unarmed weapon's iron: heavy, not light, +2, and it grants training.
+id: templates.iron
+type: template
+appliesTo: { type: weapon, where: "'unarmed' in item.tags" }
+tags: [heavy]
+removeTags: [light]
+fields: { bonus: 2, damage: 1d6 }
+effects:
+  - { target: kept.count, op: add, value: 1 }
+grants:
+  - item: features.training

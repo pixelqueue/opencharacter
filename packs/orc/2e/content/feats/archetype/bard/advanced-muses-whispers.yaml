@@ -1,0 +1,20 @@
+id: feats.archetype.bard.advanced-muses-whispers
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.bard }
+repeatable: true
+
+prerequisites:
+  - { id: basic-muses-whispers, when: '@feats.archetype.bard.basic-muses-whispers in feats.held' }
+effects:
+  # Each time it is taken, it counts as another feat of the archetype.
+  - { target: archetypes.bard.repeats, op: add, value: 1 }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && !('trait.archetype' in item.tags)
+          && (has(item.class) && item.class == @classes.bard || 'trait.bard' in item.tags)
+    eligible: item.level <= floor(level / 2)

@@ -1,0 +1,41 @@
+id: consumables.quicksilver-mutagen-major
+type: consumable
+tags: [trait.alchemical, trait.elixir, trait.mutagen, trait.polymorph]
+fields:
+  category: mutagen
+  level: 17
+  price: 3000
+  bulk: 0.1
+  lasting: true
+  family: consumables.quicksilver-mutagen-lesser
+effects:
+  - target:
+      {
+        fields:
+          {
+            where: "'skill' in item.tags && ('skill.acrobatics' in item.tags || 'skill.stealth' in item.tags || 'skill.thievery' in item.tags)",
+          },
+      }
+    op: add
+    value: 4
+    stackKey: item-bonus
+    scope: applied
+    duration: { amount: 1, unit: hour }
+  - target: saves.reflex.mod
+    op: add
+    value: 4
+    stackKey: item-bonus
+    scope: applied
+    duration: { amount: 1, unit: hour }
+  - target: attacks.dex.mod
+    op: add
+    value: 4
+    stackKey: item-bonus
+    scope: applied
+    duration: { amount: 1, unit: hour }
+  - target: speed.land
+    op: add
+    value: 20
+    stackKey: status-bonus
+    scope: applied
+    duration: { amount: 1, unit: hour }

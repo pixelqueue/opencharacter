@@ -1,0 +1,70 @@
+status: finished
+outcome:
+  data:
+    picked:
+      - test-pack:skills.tracking
+      - test-pack:skills.ambush
+      - test-pack:skills.swimming
+      - rope
+      - bowline
+    asked: 5
+proposedChanges:
+  - to: self
+    step: calling
+    change: { type: choose, path: { choice: [calling] }, option: 'test-pack:callings.hunter' }
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { choice: [calling, 'test-pack:callings.hunter', basic] }
+      option: test-pack:skills.tracking
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { choice: [calling, 'test-pack:callings.hunter', advanced] }
+      option: test-pack:skills.ambush
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { choice: [calling, 'test-pack:callings.hunter', basic] }
+      option: test-pack:skills.swimming
+  - to: self
+    step: picks
+    change:
+      { type: choose, path: { choice: [calling, 'test-pack:callings.hunter', gift] }, option: rope }
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { choice: [calling, 'test-pack:callings.hunter', gift, rope, knot] }
+      option: bowline
+log:
+  - { step: calling, kind: choice, by: engine, option: 'test-pack:callings.hunter' }
+  - step: picks
+    action: test-pack:create
+    kind: choice
+    by: engine
+    option: test-pack:skills.tracking
+    index: 0
+    choice: { choice: [calling, 'test-pack:callings.hunter', basic] }
+  - step: picks
+    kind: choice
+    by: engine
+    option: test-pack:skills.ambush
+    index: 1
+    choice: { choice: [calling, 'test-pack:callings.hunter', advanced] }
+  - step: picks
+    kind: choice
+    by: engine
+    option: test-pack:skills.swimming
+    index: 2
+    choice: { choice: [calling, 'test-pack:callings.hunter', basic] }
+  - { step: picks, kind: choice, by: engine, option: rope, index: 3 }
+  - step: picks
+    kind: choice
+    by: engine
+    option: bowline
+    index: 4
+    choice: { choice: [calling, 'test-pack:callings.hunter', gift, rope, knot] }

@@ -1,0 +1,40 @@
+# `type` says which content type a choice draws from, made or pending, so a display group's
+# `showWhen` can ask `hasChoice('style')`.
+choices:
+  - path: { entry: class, choice: [style] }
+    owner: test-pack:classes.knight
+    id: style
+    type: test-pack:style
+    min: 1
+    max: 1
+    picks: [test-pack:styles.guard]
+    open: false
+  - path: { entry: class, choice: [listed] }
+    owner: test-pack:classes.knight
+    id: listed
+    type: test-pack:style
+    min: 1
+    max: 1
+    picks: []
+    open: true
+  - path: { entry: class, choice: [mixed] }
+    owner: test-pack:classes.knight
+    id: mixed
+    min: 1
+    max: 1
+    picks: []
+    open: true
+  - path: { entry: class, choice: [path] }
+    owner: test-pack:classes.knight
+    id: path
+    min: 1
+    max: 1
+    picks: []
+    open: true
+  - path: { entry: class, choice: [oath] }
+    owner: test-pack:classes.knight
+    id: oath
+    min: 1
+    max: 1
+    picks: []
+    open: true

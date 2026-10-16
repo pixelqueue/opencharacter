@@ -1,0 +1,37 @@
+# Every character has the standard gear and the basic trait; a kit gives its own gear while it's
+# picked.
+standardCopies:
+  - { type: gear, where: "'standard' in item.tags" }
+  - { type: trait }
+
+tags: [standard, kit]
+
+contentTypes:
+  gear:
+    carried: true
+    equippable: true
+    fields:
+      load: { type: integer, default: 1 }
+    state:
+      charges: { type: integer, default: 2 }
+      lit: { type: boolean, default: false }
+    actions:
+      - id: light
+        available: '!self.lit'
+        steps:
+          - id: light
+            kind: changes
+            to: self
+            changes:
+              - { type: setState, entry: self, key: lit, value: true }
+  trait: {}
+  kit: {}
+
+fields:
+  load: { type: integer, formula: 'sumCopies(copy.fields.load, copy.equipped)' }
+  gear.count: { type: integer, formula: "countCopies(copy.type == 'gear')" }
+
+choices:
+  - id: kit
+    pick: { min: 0, max: 1 }
+    from: { type: kit }

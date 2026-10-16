@@ -1,0 +1,20 @@
+id: features.rogue.stroke-of-luck
+type: feature
+effects:
+  - { target: combat.missToHit, op: set, value: true, when: '!self.strokeOfLuckUsed' }
+  - { target: checks.failToTwenty, op: set, value: true, when: '!self.strokeOfLuckUsed' }
+  - target: { choices: [missed-attack] }
+    op: option
+    when: '!self.strokeOfLuckUsed'
+    value:
+      id: hit
+      changes:
+        - { type: setState, entry: self, key: strokeOfLuckUsed, value: true }
+  - target: { choices: [failed-check] }
+    op: option
+    when: '!self.strokeOfLuckUsed'
+    value:
+      id: twenty
+      flags: { twenty: true }
+      changes:
+        - { type: setState, entry: self, key: strokeOfLuckUsed, value: true }

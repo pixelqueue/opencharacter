@@ -1,0 +1,656 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/engine/action-run.schema.json",
+  "title": "Action run",
+  "description": "Shared shapes for startAction and continueAction: checkpoint policy, the action log, paused and finished actions. A paused action is plain data, so the app can continue it later, elsewhere.",
+  "$defs": {
+    "definingAction": {
+      "description": "The qualified ID of the action whose step this is (`mothership-1e:panic-check`); for an action defined inline on an item, the qualified item ID plus `#<action id>`. Apps build the step's text keys from it.",
+      "type": "string"
+    },
+    "rollSummary": {
+      "description": "A roll step's summary: what the roll is rolled against, worked out when the roll is built, before any face is rolled, in the step's band context without `roll`. Output only: replay never reads it.",
+      "type": "object",
+      "required": ["flags"],
+      "properties": {
+        "bandSet": {
+          "description": "The qualified ID of the step's band set; absent when the step has none (then so are `value` and `bands`).",
+          "type": "string"
+        },
+        "value": {
+          "description": "A band set with a `value`: that formula with every subexpression that doesn't read `roll` resolved to a literal, as canonical formula text.",
+          "type": "string"
+        },
+        "bands": {
+          "description": "The bands that can still hold, in the set's order: each band whose resolved condition isn't `false`, up to and including the first whose resolved condition is `true`.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["band", "when"],
+            "properties": {
+              "band": {
+                "description": "The band's ID.",
+                "type": "string"
+              },
+              "when": {
+                "description": "The band's condition with every maximal subexpression that doesn't read `roll` evaluated and printed back as a literal, literal guards folded, as canonical formula text. A subexpression that fails to evaluate, or gives a map, is left as written.",
+                "type": "string"
+              },
+              "tests": {
+                "description": "When the resolved condition is `true`, `[]`; when it is a conjunction (`&&`) of comparisons each between a roll path (`roll.total`, `roll.value`, `roll.unbounded`, `roll.kept[<int>]`) and a number literal, those comparisons in order, the roll path on the left. Absent otherwise: the band has its text only.",
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/rollTest"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "flags": {
+          "description": "The running action's flags at the step (the action `action` names), as data, as `outcome.data` reports values (a dice value as dice notation). `{}` when there are none.",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "rollTest": {
+      "description": "One comparison of a roll path with a number. Apps word it with the pack's `bands.<set>.<band>.condition` text, else the spec's `compare.<code>` text (packages/spec/i18n).",
+      "type": "object",
+      "required": ["of", "compare", "value"],
+      "properties": {
+        "of": {
+          "description": "The roll path, as formula text: `roll.total`, `roll.value`, `roll.unbounded` or `roll.kept[<int>]`.",
+          "type": "string"
+        },
+        "compare": {
+          "description": "The comparison, as a code: `lt` (<), `le` (<=), `gt` (>), `ge` (>=), `eq` (==).",
+          "enum": ["lt", "le", "gt", "ge", "eq"]
+        },
+        "value": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "participant": {
+      "description": "The participant a handoff is for: its role and its view's `id`.",
+      "type": "object",
+      "required": ["role", "id"],
+      "properties": {
+        "role": {
+          "$ref": "../common.schema.json#/$defs/name"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "outcome": {
+      "description": "How an action finished: its `result` and `data`.",
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "amounts": {
+      "description": "Allocation amounts by qualified field ID: for a budget step the amount added, for a values step the value given.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "answer": {
+      "description": "An answer to one pause, as continueAction takes it and as startAction's `answers` lists them: `faces` for a dice pause, `option` for a choice, `amounts` for an allocation, `outcome` for a handoff.",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["faces"],
+          "properties": {
+            "faces": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["option"],
+          "properties": {
+            "option": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "An allocation's answer: amounts by field ID. A negative amount, a field not offered, an amount over its limit, a total cost that breaks the budget, or values not each used exactly once, is `answer-mismatch`.",
+          "type": "object",
+          "required": ["amounts"],
+          "properties": {
+            "amounts": {
+              "$ref": "action-run.schema.json#/$defs/amounts"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "A handoff's answer: the outcome of the used action the app ran on the participant's own character, as that run finished. A `result` the used action doesn't declare is `answer-mismatch`.",
+          "type": "object",
+          "required": ["outcome"],
+          "properties": {
+            "outcome": {
+              "$ref": "action-run.schema.json#/$defs/outcome"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "policy": {
+      "description": "When the engine continues by itself and when it pauses. Rules are checked in order; the first matching rule decides; unmatched checkpoints use the defaults.",
+      "type": "object",
+      "properties": {
+        "dice": {
+          "enum": ["auto", "pause"]
+        },
+        "choices": {
+          "enum": ["auto", "pause"]
+        },
+        "allocations": {
+          "description": "Allocation steps. Default `auto`.",
+          "enum": ["auto", "pause"]
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["then"],
+            "properties": {
+              "kind": {
+                "enum": ["roll", "choice", "allocate"]
+              },
+              "tags": {
+                "description": "Matches a roll step, a choice step or an allocation step carrying any of these tags, or a tag below one.",
+                "$ref": "../common.schema.json#/$defs/tags"
+              },
+              "step": {
+                "type": "string"
+              },
+              "then": {
+                "enum": ["auto", "pause"]
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "logEntry": {
+      "description": "One die face set, choice, allocation or handoff answer, however supplied. Replaying an action from its log always gives the same result.",
+      "type": "object",
+      "required": ["step", "action", "kind", "by"],
+      "properties": {
+        "step": {
+          "type": "string",
+          "description": "Step path, e.g. `attack`, `hit/damage`, or `saves[1]` for the second participant of an `each` step."
+        },
+        "action": {
+          "$ref": "#/$defs/definingAction"
+        },
+        "kind": {
+          "enum": ["dice", "choice", "allocate", "handoff"]
+        },
+        "by": {
+          "enum": ["engine", "app"]
+        },
+        "of": {
+          "description": "A roll step with `of`: the full path of the earlier roll it classified again (`check/roll`). It rolled nothing, so the entry has no `faces`; `items` and `total` are that roll's, `band` its own.",
+          "type": "string"
+        },
+        "faces": {
+          "description": "The faces the step used. A roll step with no dice items is not a checkpoint and has none.",
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "draw": {
+          "description": "Dice entries of a random draw on a choice or allocate step: what the face picked among. Its one face is `faces[0]`.",
+          "$ref": "#/$defs/draw"
+        },
+        "option": {
+          "description": "The picked option ID; `#done` when a repeated choice step was ended early.",
+          "type": "string"
+        },
+        "index": {
+          "description": "Choice steps with `repeat`: which pick of the step this is, from 0. Each pick is its own entry with the same `step`.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "choice": {
+          "description": "Choice steps over pending choices: the path of the choice the pick answered. On replay, a recorded pick whose choice is no longer the one asked is `answer-mismatch`.",
+          "$ref": "../change.schema.json#/$defs/choicePath"
+        },
+        "amounts": {
+          "description": "Allocation steps: the amounts, as answered or recommended.",
+          "$ref": "#/$defs/amounts"
+        },
+        "participant": {
+          "description": "Handoffs: the participant who ran the used action.",
+          "$ref": "#/$defs/participant"
+        },
+        "outcome": {
+          "description": "Handoffs: the outcome the app answered with.",
+          "$ref": "#/$defs/outcome"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "../roll-item.schema.json"
+          }
+        },
+        "total": {
+          "type": "number"
+        },
+        "band": {
+          "type": "string"
+        },
+        "bandSet": {
+          "description": "Roll steps with a band: the qualified ID of the band set the step classified by, so an app names the band `bands.<set>.<band>.name` in the set's pack.",
+          "type": "string"
+        },
+        "bandValue": {
+          "description": "Roll steps classified by a band set with a `value`: that value, as data (orc-2e's degree of success as a rank)."
+        },
+        "summary": {
+          "description": "Roll steps, a dice-less roll step's entry included: the roll's summary, worked out before the roll, so it matches what a pause for it showed.",
+          "$ref": "#/$defs/rollSummary"
+        },
+        "bounds": {
+          "description": "Roll steps: each `atLeast` or `atMost` roll effect that changed the total, in the order applied (the highest `atLeast`, then the lowest `atMost`). `total` is the bounded total; `items` and `faces` are unchanged.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["source", "op", "value"],
+            "properties": {
+              "source": {
+                "$ref": "../common.schema.json#/$defs/source"
+              },
+              "op": {
+                "enum": ["atLeast", "atMost"]
+              },
+              "value": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "tallies": {
+          "description": "Roll steps: each roll tally with a non-zero value, with what contributed to it.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "value", "sources"],
+            "properties": {
+              "name": {
+                "$ref": "../common.schema.json#/$defs/name"
+              },
+              "value": {
+                "type": "integer"
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["source", "op", "value"],
+                  "properties": {
+                    "source": {
+                      "$ref": "../common.schema.json#/$defs/source"
+                    },
+                    "op": {
+                      "enum": ["add", "atLeast", "atMost"]
+                    },
+                    "value": {
+                      "type": "integer"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "need": {
+      "description": "What a paused action is waiting for.",
+      "type": "object",
+      "required": ["step", "action", "kind"],
+      "properties": {
+        "step": {
+          "description": "Step path, e.g. `hit/confirm`, `panic/panic` or `saves[1]`.",
+          "type": "string"
+        },
+        "action": {
+          "$ref": "#/$defs/definingAction"
+        },
+        "kind": {
+          "description": "`dice`, `choice`, `allocate` (the app answers with `amounts`), or `handoff`: the app runs `run` on `participant`'s own character and answers with its outcome.",
+          "enum": ["dice", "choice", "allocate", "handoff"]
+        },
+        "dice": {
+          "description": "The dice to roll, in order; the app answers with one face per die.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["count", "sides"],
+            "properties": {
+              "count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "sides": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  {
+                    "const": "F"
+                  }
+                ]
+              },
+              "tags": {
+                "$ref": "../common.schema.json#/$defs/tags"
+              },
+              "zero": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "draw": {
+          "description": "A dice pause for a random draw on a choice or allocate step: one die, as many sides as `among` has entries; the face picks among them.",
+          "$ref": "#/$defs/draw"
+        },
+        "items": {
+          "description": "The itemized roll so far, for display while waiting.",
+          "type": "array",
+          "items": {
+            "$ref": "../roll-item.schema.json"
+          }
+        },
+        "summary": {
+          "description": "Dice steps: the summary of the roll the pause is for; a pause for more dice mid-roll carries the same one. To preview a roll, an app starts the action with `dice: 'pause'`, reads this and drops the result.",
+          "$ref": "#/$defs/rollSummary"
+        },
+        "options": {
+          "description": "The offered option IDs, in order: written option IDs, qualified content IDs or instance IDs. A repeated step that has its `min` picks offers the reserved `#done` last.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recommended": {
+          "description": "The recommended option, if any; never `#done`.",
+          "type": "string"
+        },
+        "choice": {
+          "description": "Choice steps over pending choices: the choice being asked, also on a random draw's dice pause there. The app names it with the choice's own text (`<owner>.choices.<id>.prompt`) and its options as it names `listOptions` results.",
+          "type": "object",
+          "required": ["path", "owner", "id"],
+          "properties": {
+            "path": {
+              "$ref": "../change.schema.json#/$defs/choicePath"
+            },
+            "owner": {
+              "description": "The key root of the choice's owner, qualified: the content ID (`5e-srd-5.1:classes.fighter`), `<pack>:rules` for a rules-level choice, and for a choice nested in an inline option the owner's root plus `.choices.<choice>.options.<option>`.",
+              "type": "string"
+            },
+            "id": {
+              "description": "The choice's ID: for a slot of a slotted choice, the slot's own (`class-feat-2`).",
+              "type": "string"
+            },
+            "slot": {
+              "description": "A slot of a slotted choice: the declared choice ID, whose prompt names it, and the slot's number, the prompt's `{slot}`.",
+              "type": "object",
+              "required": ["choice", "number"],
+              "properties": {
+                "choice": {
+                  "type": "string"
+                },
+                "number": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false
+            },
+            "min": {
+              "description": "The choice's evaluated `min` picks, as `listOptions` gives it.",
+              "type": "integer",
+              "minimum": 0
+            },
+            "max": {
+              "description": "The choice's evaluated `max` picks, as `listOptions` gives it; absent when unbounded.",
+              "type": "integer",
+              "minimum": 0
+            },
+            "picked": {
+              "description": "How many picks the choice has so far, on the proposed sheet, this step's earlier picks included. An app shows \"pick 2 of 6\" from `picked`, `min` and `max`.",
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        "allocate": {
+          "description": "Allocation steps: what may be allocated. The app answers with `amounts`, a map of field ID to amount (fields left out get nothing).",
+          "type": "object",
+          "required": ["fields"],
+          "properties": {
+            "fields": {
+              "description": "The offered fields in order: the qualified ID, the computed value before the step, the input value before the step and, for a budget step, the most the field can take (the smaller of its `max` less its input value and the step's `limit`) and each amount's cost.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "value", "input"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "description": "The field's computed value before the step: its input value with every effect applied.",
+                    "type": "number"
+                  },
+                  "input": {
+                    "description": "The field's input value before the step (saved, else its default), before effects. The step's amounts add to it; `value` less `input` is what effects add.",
+                    "type": "integer"
+                  },
+                  "limit": {
+                    "type": "integer"
+                  },
+                  "costs": {
+                    "description": "Budget steps: `costs[n]` is what giving the field `n` costs, from 0 (always 0) to its `limit`, or to the budget when it has none, and to 100 at most; it stops before an amount whose cost fails to evaluate. The amounts' total cost is the sum of `costs[amount]`. An amount past the array may still be answered; the engine checks it.",
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "budget": {
+              "description": "Budget steps: the total to spend. Nothing is spent before the answer: the step is one checkpoint.",
+              "type": "integer"
+            },
+            "spend": {
+              "description": "Budget steps: `all` or `upTo`.",
+              "enum": ["all", "upTo"]
+            },
+            "values": {
+              "description": "Values steps: the values to hand out, one field each, every value used once.",
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "recommended": {
+              "description": "The recommended amounts, when the step has a usable recommendation.",
+              "$ref": "#/$defs/amounts"
+            }
+          },
+          "additionalProperties": false
+        },
+        "participant": {
+          "description": "Handoffs: who runs the action.",
+          "$ref": "#/$defs/participant"
+        },
+        "run": {
+          "description": "Handoffs: the action to run on the participant, `action` the qualified ID of the step's `use`, `params` its evaluated parameters and `participants` (when the step passes any) the used action's roles, each a list of IDs: participants of the running action, or the running character's own `id`. The app passes their views to the run.",
+          "type": "object",
+          "required": ["action", "params"],
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "params": {
+              "type": "object"
+            },
+            "participants": {
+              "type": "object",
+              "propertyNames": {
+                "$ref": "../common.schema.json#/$defs/name"
+              },
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "result": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["status", "outcome", "proposedChanges", "log"],
+          "properties": {
+            "status": {
+              "const": "finished"
+            },
+            "outcome": {
+              "$ref": "#/$defs/outcome"
+            },
+            "proposedChanges": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["to", "step", "change"],
+                "properties": {
+                  "to": {
+                    "description": "`self`, `target`, a role of the action, or `{ link }` with the qualified slot ID.",
+                    "anyOf": [
+                      {
+                        "$ref": "../common.schema.json#/$defs/name"
+                      },
+                      {
+                        "type": "object",
+                        "required": ["link"],
+                        "properties": {
+                          "link": {
+                            "$ref": "../common.schema.json#/$defs/slotId"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "character": {
+                    "description": "The ID of the character the change is for: for `to: { link }`, the character filling that slot (its view's `id`), absent when the slot is empty; for a role (`target`, `helper`), the participant's view `id`, absent when no participant was given. The slot is qualified (`{ link: fitd-scoundrel:crew }`).",
+                    "type": "string"
+                  },
+                  "step": {
+                    "description": "The path of the `changes` step that proposed it (`deal`, `panic/stress`); a split adjust's changes share it.",
+                    "type": "string"
+                  },
+                  "change": {
+                    "$ref": "../change.schema.json"
+                  }
+                }
+              }
+            },
+            "log": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/logEntry"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["status", "needs", "state", "log"],
+          "properties": {
+            "status": {
+              "const": "paused"
+            },
+            "needs": {
+              "$ref": "#/$defs/need"
+            },
+            "state": {
+              "description": "Everything needed to continue: the action, character, inputs (link views and participants included, so continueAction takes none) and position, handoff outcomes included. Plain data; engine-defined beyond being JSON. PROVISIONAL.",
+              "type": "object"
+            },
+            "log": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/logEntry"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "$ref": "load-ruleset.schema.json#/$defs/failure"
+        }
+      ]
+    },
+    "draw": {
+      "description": "A random draw: the die picks `among[face - 1]`, the option IDs a choice step offers (its source's, in order) or the field IDs an allocate step may give the next value or unit to, by qualified ID in field order.",
+      "type": "object",
+      "required": ["among"],
+      "properties": {
+        "among": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

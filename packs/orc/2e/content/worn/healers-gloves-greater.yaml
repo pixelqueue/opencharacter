@@ -1,0 +1,37 @@
+id: worn.healers-gloves-greater
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 9
+  price: 700
+  bulk: 0.1
+  usage: gloves
+  activation: one
+  frequency: once-per-day
+effects:
+  - target: skills.medicine.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+actions:
+  - id: healers-touch
+    tags: [activation]
+    available: 'self.equipped && self.invested && self.used < 1'
+    participants: { ally: { min: 1, max: 1 } }
+    steps:
+      - id: heal
+        kind: roll
+        tags: [healing]
+        parts:
+          - dice: 4d6 + 15
+      - id: restore
+        kind: changes
+        each: ally
+        to: ally
+        changes:
+          - { type: adjust, field: hp.current, by: 'max(0, steps.heal.total)', tags: [healing] }
+      - id: activate
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: used, by: 1 }

@@ -1,0 +1,40 @@
+description: renameField moves the saved value and rewrites the homebrew's effect target and formula names, an input and a derived field alike
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might: { type: integer, input: true, default: 1 }
+          stats.power: { type: integer, formula: stats.might * 2 }
+        contentTypes:
+          gear: { carried: true }
+      content: []
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.strength: { type: integer, input: true, default: 1 }
+          stats.force: { type: integer, formula: stats.strength * 2 }
+        contentTypes:
+          gear: { carried: true }
+      content: []
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - { op: renameField, from: stats.might, to: stats.strength }
+            - { op: renameField, from: stats.power, to: stats.force }

@@ -1,0 +1,220 @@
+status: finished
+outcome:
+  result: prepared
+proposedChanges:
+  - to: self
+    step: clear
+    change:
+      type: removeItem
+      copies:
+        type: orc-2e:spell
+        where: "self.source == ''"
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-daze-1
+        item: orc-2e:spells.daze
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-detect-magic-1
+        item: orc-2e:spells.detect-magic
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-electric-arc-1
+        item: orc-2e:spells.electric-arc
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-frostbite-1
+        item: orc-2e:spells.frostbite
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-ignition-1
+        item: orc-2e:spells.ignition
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-shield-1
+        item: orc-2e:spells.shield
+  - to: self
+    step: rank1
+    change:
+      type: addItem
+      entry:
+        id: spells-force-barrage-1
+        item: orc-2e:spells.force-barrage
+        state:
+          rank: 1
+  - to: self
+    step: rank1
+    change:
+      type: addItem
+      entry:
+        id: spells-sleep-1
+        item: orc-2e:spells.sleep
+        state:
+          rank: 1
+  - to: self
+    step: rank1
+    change:
+      type: addItem
+      entry:
+        id: spells-grease-1
+        item: orc-2e:spells.grease
+        state:
+          rank: 1
+  - to: self
+    step: rank1
+    change:
+      type: addItem
+      entry:
+        id: spells-mystic-armor-1
+        item: orc-2e:spells.mystic-armor
+        state:
+          rank: 1
+  - to: self
+    step: rank2
+    change:
+      type: addItem
+      entry:
+        id: spells-force-barrage-2
+        item: orc-2e:spells.force-barrage
+        state:
+          rank: 2
+  - to: self
+    step: rank2
+    change:
+      type: addItem
+      entry:
+        id: spells-runic-weapon-1
+        item: orc-2e:spells.runic-weapon
+        state:
+          rank: 2
+  - to: self
+    step: rank2
+    change:
+      type: addItem
+      entry:
+        id: spells-breathe-fire-1
+        item: orc-2e:spells.breathe-fire
+        state:
+          rank: 2
+  - to: self
+    step: splitSpell
+    change:
+      type: addItem
+      entry:
+        id: spells-fear-1
+        item: orc-2e:spells.fear
+        state:
+          rank: 1
+          split: spells-sleep-1
+log:
+  - step: cantrips
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.daze
+    index: 0
+  - step: cantrips
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.detect-magic
+    index: 1
+  - step: cantrips
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.electric-arc
+    index: 2
+  - step: cantrips
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.frostbite
+    index: 3
+  - step: cantrips
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.ignition
+    index: 4
+  - step: cantrips
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.shield
+    index: 5
+  - step: rank1
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.force-barrage
+    index: 0
+  - step: rank1
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.sleep
+    index: 1
+  - step: rank1
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.grease
+    index: 2
+  - step: rank1
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.mystic-armor
+    index: 3
+  - step: rank2
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.force-barrage
+    index: 0
+  - step: rank2
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.runic-weapon
+    index: 1
+  - step: rank2
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.breathe-fire
+    index: 2
+  - step: splitSlot
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: split
+  - step: splitWith
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: spells-sleep-1
+  - step: splitSpell
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.fear

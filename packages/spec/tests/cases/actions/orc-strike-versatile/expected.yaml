@@ -1,0 +1,55 @@
+status: finished
+outcome:
+  result: success
+  data:
+    attack: 21
+    dc: 15
+    map: 0
+    flatCheck: true
+    damage: 10
+proposedChanges:
+  - to: self
+    step: count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 1
+      tags:
+        - attack-count
+  - to: target
+    character: goblin
+    step: deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -10
+      tags:
+        - damage
+        - damage.piercing
+log:
+  - step: attack
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 12
+    total: 21
+    band: success
+    bandSet: orc-2e:degree
+  - step: damage
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces:
+      - 6
+    total: 10
+    items:
+      - kind: dice
+        value: 6
+        tags:
+          - part.weapon-die
+          - damage.piercing
+      - kind: flat
+        value: 4
+        tags:
+          - damage.piercing

@@ -1,0 +1,21 @@
+id: consumables.elixir-of-life-lesser
+type: consumable
+tags: [trait.alchemical, trait.elixir, healing]
+fields:
+  {
+    category: elixir,
+    level: 5,
+    price: 30,
+    bulk: 0.1,
+    healing: 3d6 + 6,
+    lasting: true,
+    family: consumables.elixir-of-life-minor,
+  }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: situational.againstDisease || situational.againstPoison
+    scope: applied
+    duration: { amount: 10, unit: minute }

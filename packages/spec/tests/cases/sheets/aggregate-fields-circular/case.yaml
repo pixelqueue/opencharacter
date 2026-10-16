@@ -1,0 +1,25 @@
+description: 'A field that sums over a set of fields holding itself is circular-formula, and so is every field that reads it; a count reads no values, so it is fine'
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might: { type: integer, input: true, default: 0, tags: [stat] }
+          stats.wits: { type: integer, input: true, default: 0, tags: [stat] }
+          # Tagged `stat` itself, so it is in its own sum.
+          stats.total:
+            { type: integer, tags: [stat], formula: "sumFields(f.value, 'stat' in f.tags)" }
+          stats.double: { type: integer, formula: stats.total * 2 }
+          stats.count: { type: integer, formula: "countFields('stat' in f.tags)" }
+          # The highest of the inputs only: the filter keeps the total out by its ID.
+          stats.best:
+            type: integer
+            formula: "maxFields(f.value, 'stat' in f.tags && f.id != 'test-pack:stats.total')"
+      content: []

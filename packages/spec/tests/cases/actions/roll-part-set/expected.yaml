@@ -1,0 +1,33 @@
+# 12 + 3 - 3: the penalty part (-5) is the effect's -3 now.
+status: finished
+outcome: { data: { total: 12 } }
+log:
+  - step: roll
+    action: 'test-roll-parts:attack'
+    kind: dice
+    by: engine
+    faces: [12]
+    total: 12
+    items:
+      - { kind: dice, count: 1, sides: 20, faces: [{ value: 12 }], value: 12, tags: [die] }
+      - {
+          kind: flat,
+          value: 3,
+          source: { type: field, id: 'test-roll-parts:attack.str' },
+          tags: [attribute],
+        }
+      - {
+          kind: flat,
+          value: -3,
+          source: { type: rules, id: 'test-roll-parts:rules' },
+          tags: [map],
+          replaces:
+            [
+              {
+                kind: flat,
+                value: -5,
+                source: { type: rules, id: 'test-roll-parts:attack' },
+                tags: [map],
+              },
+            ],
+        }

@@ -1,0 +1,23 @@
+id: backgrounds.pilgrim
+type: background
+# The Lore of the patron deity is the first custom Lore (`skills.lore.custom1`), its subject named
+# by the player.
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.religion }
+    when: "!('skill.religion' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.custom1 }
+    when: "!('skill.lore.custom1' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.pilgrims-token
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['wis', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

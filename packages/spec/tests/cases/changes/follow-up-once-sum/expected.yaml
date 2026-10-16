@@ -1,0 +1,70 @@
+# The ward halves the fire to 2, which temporary health absorbs; the 12 then takes health from
+# 10 to 0, clamped. The brace sees taken 14 (2 + 12), requested 16, by 10 and clamped, its cause
+# the entries on health summed. Dropping to 0 counts a fall; tired, the rest isn't listed.
+ok: true
+adjustments:
+  - { field: test-follow-ups:hp.temp, by: -2, reason: absorbed }
+  - { field: test-follow-ups:hp.current, by: 0, requested: -4, taken: -2, reason: requested }
+  - {
+      field: test-follow-ups:hp.current,
+      by: -10,
+      requested: -12,
+      taken: -12,
+      reason: requested,
+      clamped: true,
+    }
+followUps:
+  - id: fall-1
+    kind: ephemeral
+    followUp: test-follow-ups:fall
+    to: self
+    required: false
+    changes:
+      - type: adjust
+        field: test-follow-ups:falls
+        by: 1
+      - type: clearFollowUp
+        id: fall-1
+  - id: call-ally-1
+    kind: ephemeral
+    followUp: test-follow-ups:call-ally
+    to:
+      link: test-follow-ups:ally
+    required: false
+    action:
+      id: test-ally:help
+    params:
+      lost: 10
+    cause:
+      field: test-follow-ups:hp.current
+      by: -10
+      requested: -12
+      taken: -12
+      reason: requested
+      clamped: true
+      tags:
+        - damage
+  - id: brace-1
+    kind: ephemeral
+    followUp: test-follow-ups:brace
+    to: self
+    required: false
+    action:
+      id: test-follow-ups:brace
+      followUp: brace-1
+    params:
+      taken: 14
+      requested: 16
+      by: 10
+      clamped: true
+      fire: true
+    cause:
+      field: test-follow-ups:hp.current
+      by: -10
+      requested: -16
+      taken: -14
+      reason: requested
+      clamped: true
+      tags:
+        - damage
+        - damage.fire

@@ -1,0 +1,41 @@
+# 8 slashing drops 6 hit points to 0 (clamped): Undead Fortitude's save is listed with the damage
+# (DC 5 + 8, in the action). The trait is granted by the monster copy.
+ok: true
+adjustments:
+  - {
+      field: 5e-srd-5.1:hp.current,
+      by: -6,
+      requested: -8,
+      taken: -8,
+      reason: requested,
+      clamped: true,
+    }
+followUps:
+  - id: undead-fortitude-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:monsters.zombie.undead-fortitude#undead-fortitude
+    source:
+      type: item
+      id: 5e-srd-5.1:monsters.zombie.undead-fortitude
+      entry: monster
+    to: self
+    required: false
+    action:
+      id: 5e-srd-5.1:monsters.zombie.undead-fortitude#undead-fortitude
+      entry: monster
+      source: 5e-srd-5.1:monsters.zombie.undead-fortitude
+      followUp: undead-fortitude-1
+    params:
+      damage: 8
+    cause:
+      field: 5e-srd-5.1:hp.current
+      by: -6
+      requested: -8
+      taken: -8
+      reason: requested
+      clamped: true
+      tags:
+        - damage
+        - melee
+        - nonmagical
+        - damage.slashing

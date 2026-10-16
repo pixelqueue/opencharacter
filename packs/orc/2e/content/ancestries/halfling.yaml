@@ -1,0 +1,32 @@
+id: ancestries.halfling
+type: ancestry
+tags: [trait.halfling, trait.humanoid]
+fields: { hp: 6, size: small, speed: 25 }
+effects:
+  - { target: languages, op: grant, value: { item: languages.common } }
+  - { target: languages, op: grant, value: { item: languages.halfling } }
+  - { target: traits, op: grant, value: { tag: trait.halfling } }
+  - { target: traits, op: grant, value: { tag: trait.humanoid } }
+  - { target: senses.keenEyes, op: set, value: true }
+choices:
+  - id: heritage
+    from:
+      type: heritage
+      where: 'item.versatile || item.ancestry == @ancestries.halfling'
+  - id: boosts
+    recommend: "'standard'"
+    from:
+      options:
+        - id: standard
+          effects:
+            - { target: attributes.dex.boosts, op: add, value: 1 }
+            - { target: attributes.wis.boosts, op: add, value: 1 }
+            - { target: attributes.str.boosts, op: add, value: -1 }
+          choices:
+            - id: free
+              from: { type: boost, where: "!(item.attribute in ['dex', 'wis'])" }
+        - id: alternate
+          choices:
+            - id: free
+              pick: 2
+              from: { type: boost }

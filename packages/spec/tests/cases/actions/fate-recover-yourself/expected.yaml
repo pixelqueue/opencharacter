@@ -1,0 +1,49 @@
+status: finished
+outcome:
+  result: recovering
+  data:
+    difficulty: 4
+    roll: tie
+proposedChanges:
+  - to: self
+    step: begin
+    change:
+      type: setState
+      entry: c-ribs
+      key: recovering
+      value: true
+log:
+  - step: yourself/roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 1
+      - 1
+      - 0
+    total: 4
+    band: great
+    bandSet: fate-core:ladder
+  - step: yourself/roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: yourself/roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: yourself/roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: yourself/final
+    action: fate-core:overcome
+    kind: dice
+    by: engine
+    total: 4
+    band: tie
+    bandSet: fate-core:outcome

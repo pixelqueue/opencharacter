@@ -1,0 +1,10 @@
+description: "Mothership: a Marine's stat check that panics passes its close players on to `panic-check` as views, whose trauma response hands each a Fear save"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/mothership/1e
+input:
+  action: { id: mothership-1e:stat-check }
+  params: { stat: stats.strength }
+  participants:
+    close: [{ id: ally, values: {} }]

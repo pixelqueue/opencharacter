@@ -1,0 +1,27 @@
+id: consumables.juggernaut-mutagen-moderate
+type: consumable
+tags: [trait.alchemical, trait.elixir, trait.mutagen, trait.polymorph]
+fields:
+  category: mutagen
+  level: 3
+  price: 12
+  bulk: 0.1
+  lasting: true
+  family: consumables.juggernaut-mutagen-lesser
+effects:
+  - target: saves.fortitude.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    scope: applied
+    duration: { amount: 10, unit: minute }
+  - target: saves.will.mod
+    op: add
+    value: -2
+    scope: applied
+    duration: { amount: 10, unit: minute }
+  - target: perception.mod
+    op: add
+    value: -2
+    scope: applied
+    duration: { amount: 10, unit: minute }

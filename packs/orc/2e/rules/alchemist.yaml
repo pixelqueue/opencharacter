@@ -1,0 +1,269 @@
+fields:
+  attacks.bomb.rank:
+    type: integer
+    formula: attacks.martial.rank
+    min: 0
+    max: 4
+  attacks.bomb.proficiency:
+    type: integer
+    formula: 'attacks.bomb.rank > 0 ? 2 * attacks.bomb.rank + proficiency.level : proficiency.untrained'
+  attacks.bomb.specialization:
+    type: integer
+    formula: '[[0, 0, 0, 0, 0], [0, 0, 2, 3, 4], [0, 0, 4, 6, 8]][weapons.specialization][attacks.bomb.rank]'
+  # A formula is for a family of alchemical consumables, recorded as the family's lowest item.
+  alchemist.field:
+    { type: enum, values: [none, bomber, chirurgeon, mutagenist, toxicologist], formula: "'none'" }
+  alchemist.vials.max: { type: integer, formula: 'max(0, 2 + attributes.int.mod)' }
+  alchemist.vials.used: { type: integer, input: true, default: 0, min: 0, max: alchemist.vials.max }
+  alchemist.formulas: { type: set, of: consumable }
+  alchemist.advancedItems: { type: integer, formula: 0, min: 0 }
+  alchemist.vialDice:
+    { type: integer, formula: 'level >= 17 ? 4 : level >= 11 ? 3 : level >= 3 ? 2 : 1' }
+
+tags:
+  - bomb
+  - damage.bomb
+  - splash
+  - consumable.drink
+  - trait.additive
+  - trait.bomb
+  - trait.infused
+  - trait.mutagen
+  - trait.injury
+  - trait.ingested
+  - trait.inhaled
+  - trait.contact
+  - trait.splash
+  - trait.coagulant
+
+actions:
+  - id: bomb-strike
+    tags: [bomb, strike]
+    params:
+      damage: { type: dice, optional: true }
+      flat: { type: integer, optional: true }
+      damageType:
+        type: enum
+        values:
+          [
+            acid,
+            bludgeoning,
+            cold,
+            electricity,
+            fire,
+            mental,
+            piercing,
+            poison,
+            slashing,
+            sonic,
+            vitality,
+          ]
+      splash: { type: integer, optional: true, min: 0 }
+      persistent: { type: dice, optional: true }
+      persistentFlat: { type: integer, optional: true, min: 0 }
+      persistentType: { type: enum, optional: true, values: [acid, bleed, fire, poison] }
+      itemBonus: { type: integer, optional: true, min: 0, max: 4 }
+      hitCondition:
+        { type: enum, optional: true, values: [none, off-guard, enfeebled, frightened, speed] }
+      hitValue: { type: integer, optional: true, min: 0 }
+      critValue: { type: integer, optional: true, min: 0 }
+      ac: { type: integer, optional: true }
+      attack: { type: integer, optional: true, min: 1, max: 3 }
+    participants:
+      target:
+        max: 1
+        fields:
+          defenses.ac: { type: integer }
+          conditions.concealed: { type: boolean, default: false }
+          conditions.hidden: { type: boolean, default: false }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              prior: 'has(params.attack) ? params.attack - 1 : turn.attacks'
+              dc: >-
+                size(participants.target) > 0 ? participants.target[0].defenses.ac
+                  : has(params.ac) ? params.ac : -1
+              flat: >-
+                max(size(participants.target) > 0 && participants.target[0].conditions.hidden
+                  ? (senses.keenEyes ? 9 : 11) : 0,
+                  (size(participants.target) > 0 && participants.target[0].conditions.concealed)
+                    || conditions.dazzled ? (senses.keenEyes ? 3 : 5) : 0)
+              splash: 'has(params.splash) ? params.splash : 0'
+              itemBonus: 'has(params.itemBonus) ? params.itemBonus : 0'
+      - id: flat
+        kind: action
+        when: flags.flat > 0
+        use: flat-check
+        params: { dc: flags.flat }
+      - id: attack
+        kind: roll
+        when: "!has(steps.flat) || steps.flat.result in ['success', 'critical-success']"
+        tags: [d20, attack, strike, attack.ranged, attr.dex, bomb]
+        bands: degree
+        parts:
+          - dice: 1d20
+          - field: "'attacks.dex.mod'"
+            tags: [part.attribute]
+          - value: attacks.bomb.proficiency
+          - { value: flags.itemBonus, when: flags.itemBonus > 0 }
+          - { value: '-min(2, flags.prior) * 5', when: flags.prior > 0, tags: [part.map] }
+      - id: hit
+        kind: branch
+        cases:
+          - when: "has(steps.attack) && steps.attack.band in ['critical-success', 'success']"
+            flags:
+              hit: true
+              crit: "steps.attack.band == 'critical-success'"
+          - when: true
+            flags: { hit: false, crit: false }
+      - id: damage
+        kind: roll
+        when: flags.hit && (has(params.damage) || (has(params.flat) && params.flat > 0))
+        tags:
+          - damage
+          - damage.bomb
+          - { formula: "'damage.' + params.damageType" }
+          - { formula: "flags.crit ? ['damage.critical'] : []" }
+        parts:
+          - { dice: params.damage, when: has(params.damage) }
+          - { value: params.flat, when: has(params.flat) && params.flat > 0 }
+          - { value: attacks.bomb.specialization, when: attacks.bomb.specialization > 0 }
+      - id: deal
+        kind: changes
+        when: size(participants.target) > 0
+        to: target
+        changes:
+          - type: adjust
+            when: has(steps.damage)
+            field: hp.current
+            by: -steps.damage.total
+            tags: [damage, { formula: "'damage.' + params.damageType" }]
+          - type: adjust
+            when: "flags.splash > 0 && has(steps.attack) && steps.attack.band != 'critical-failure'"
+            field: hp.current
+            by: -flags.splash
+            tags: [damage, splash, { formula: "'damage.' + params.damageType" }]
+          - type: applyEffect
+            when: flags.hit && has(params.persistentType) && (has(params.persistent) || has(params.persistentFlat))
+            source: "'conditions.persistent-damage'"
+            state:
+              damage: >-
+                has(params.persistent) ? params.persistent * (flags.crit ? 2 : 1)
+                  : params.persistentFlat * (flags.crit ? 2 : 1)
+              damageType: params.persistentType
+          - type: applyEffect
+            when: "flags.hit && has(params.hitCondition) && params.hitCondition == 'off-guard'"
+            source: "'conditions.off-guard'"
+          - type: applyEffect
+            when: "flags.hit && has(params.hitCondition) && params.hitCondition == 'enfeebled'"
+            source: "'conditions.enfeebled'"
+            state:
+              {
+                value: 'flags.crit && has(params.critValue) ? params.critValue : has(params.hitValue) ? params.hitValue : 1',
+              }
+          - type: applyEffect
+            when: "flags.hit && has(params.hitCondition) && params.hitCondition == 'frightened'"
+            source: "'conditions.frightened'"
+            state:
+              {
+                value: 'flags.crit && has(params.critValue) ? params.critValue : has(params.hitValue) ? params.hitValue : 1',
+              }
+          - type: applyEffect
+            when: "flags.hit && has(params.hitCondition) && params.hitCondition == 'speed' && has(params.hitValue)"
+            source: "'effects.speed-status-penalty'"
+            state: { value: params.hitValue }
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.attacks, by: 1 }
+      - id: result
+        kind: outcome
+        result: "has(steps.attack) ? steps.attack.band : 'failure'"
+        data:
+          attack: 'has(steps.attack) ? steps.attack.total : 0'
+          dc: flags.dc
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+          splash: "has(steps.attack) && steps.attack.band != 'critical-failure' ? flags.splash : 0"
+
+  - id: throw
+    tags: [bomb, strike]
+    available: "self.quantity > 0 && item.category == 'bomb'"
+    participants:
+      target: { max: 1 }
+    params:
+      ac: { type: integer, optional: true }
+      attack: { type: integer, optional: true, min: 1, max: 3 }
+    results: { bands: degree }
+    steps:
+      - id: strike
+        kind: action
+        use: bomb-strike
+        params:
+          damage: 'has(item.damage) ? item.damage : null'
+          flat: item.damageFlat
+          damageType: "item.damageType == 'none' ? 'bludgeoning' : item.damageType"
+          splash: item.splash
+          persistent: 'has(item.persistent) ? item.persistent : null'
+          persistentFlat: 'item.persistentFlat > 0 ? item.persistentFlat : null'
+          persistentType: "item.persistentType == 'none' ? null : item.persistentType"
+          itemBonus: item.itemBonus
+          hitCondition: item.hitCondition
+          hitValue: item.hitValue
+          critValue: item.critValue
+          ac: 'has(params.ac) ? params.ac : null'
+          attack: 'has(params.attack) ? params.attack : null'
+        participants: { target: participants.target }
+      - id: use
+        kind: changes
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1 }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+          splash: steps.strike.data.splash
+
+  - id: advanced-alchemy
+    tags: [rest, class-action]
+    available: alchemist.advancedItems > 0
+    results: [made]
+    steps:
+      - id: item
+        kind: choice
+        options:
+          content:
+            type: consumable
+            where: >-
+              item.level <= level && has(item.family) && item.family in alchemist.formulas
+        repeat: { max: alchemist.advancedItems }
+        changes:
+          - { type: addItem, entry: { item: picked.id, state: { infused: true } } }
+      - id: vials
+        kind: changes
+        changes:
+          - { type: set, when: alchemist.vials.used > 0, field: alchemist.vials.used, value: 0 }
+      - id: result
+        kind: outcome
+        result: "'made'"
+
+display:
+  fields:
+    attacks.bomb.rank:
+      { groups: [proficiencies], format: { bands: rank }, showWhen: attacks.bomb.rank > 0 }
+    attacks.bomb.proficiency: { hidden: true }
+    attacks.bomb.specialization: { hidden: true }
+    alchemist.field: { groups: [summary], priority: 2, showWhen: "alchemist.field != 'none'" }
+    alchemist.vials.max: { groups: [turn], priority: 1, showWhen: "alchemist.field != 'none'" }
+    alchemist.vials.used:
+      groups: [turn]
+      priority: 1
+      showWhen: "alchemist.field != 'none'"
+      with: [{ field: alchemist.vials.max, as: max }]
+    alchemist.formulas: { hidden: true }
+    alchemist.advancedItems: { groups: [turn], priority: 2, showWhen: alchemist.advancedItems > 0 }
+    alchemist.vialDice: { hidden: true }

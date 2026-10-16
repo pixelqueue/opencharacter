@@ -1,0 +1,19 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.int.base: 15
+  5e-srd-5.1:hp.base: 10
+  5e-srd-5.1:hp.current: 10
+features:
+  - id: elf
+    item: 5e-srd-5.1:races.elf
+    choices:
+      subrace:
+        - option: 5e-srd-5.1:subraces.high-elf
+          choices:
+            5e-srd-5.1:traits.high-elf-cantrip/cantrip: [{ option: 5e-srd-5.1:spells.fire-bolt }]
+  - id: fighter
+    item: 5e-srd-5.1:classes.fighter
+    state: { level: 1, startingClass: true }

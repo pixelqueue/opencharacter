@@ -1,0 +1,18 @@
+# 5 + 2 (Presence) = 7 against DR 12: failure. The shot still spends a bolt, and only a bolt.
+status: finished
+outcome:
+  result: failure
+  data:
+    damage: 0
+    sepsis: false
+    skullSmashed: false
+proposedChanges:
+  - to: self
+    step: shoot
+    change:
+      type: adjustQuantity
+      copies:
+        type: mork-borg-core:ammo
+        where: item.kind == 'bolts' && self.quantity > 0
+      limit: 1
+      by: -1

@@ -1,0 +1,30 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: fitd-scoundrel, version: 0.1.0 }
+homebrew:
+  content:
+    - {
+        id: gear.armor,
+        type: gear,
+        tags: [standard],
+        fields: { load: 2, kind: gear },
+        effects: [{ target: armor.hasArmor, op: set, value: true, when: self.equipped }],
+      }
+    - {
+        id: gear.heavy-armor,
+        type: gear,
+        tags: [standard],
+        fields: { load: 3, kind: gear },
+        effects: [{ target: armor.hasHeavy, op: set, value: true, when: self.equipped }],
+      }
+    - { id: gear.spiritbane-charm, type: gear, fields: { load: 0, kind: implements } }
+values:
+  fitd-scoundrel:load.selected: light
+inventory:
+  - { id: fitd-scoundrel-gear-armor, item: homebrew:gear.armor, equipped: true }
+  - { id: fitd-scoundrel-gear-heavy-armor, item: homebrew:gear.heavy-armor, equipped: true }
+  - { id: g-charm, item: homebrew:gear.spiritbane-charm, equipped: true }
+choices:
+  vice:
+    - option: fitd-scoundrel:vices.faith

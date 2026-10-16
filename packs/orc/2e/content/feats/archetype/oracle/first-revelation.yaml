@@ -1,0 +1,92 @@
+id: feats.archetype.oracle.first-revelation
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.oracle }
+prerequisites:
+  - { id: oracle-dedication, when: '@feats.archetype.oracle.oracle-dedication in feats.held' }
+effects:
+  - { target: focus.points, op: add, value: 1 }
+choices:
+  - id: spell
+    from:
+      options:
+        - id: ancestors
+          prerequisites: [{ id: mystery, when: "oracle.mystery == 'ancestors'" }]
+          effects:
+            - {
+                target: spells.archetype.oracle.spells,
+                op: grant,
+                value: { item: spells.ancestral-touch },
+              }
+          grants:
+            - item: spells.ancestral-touch
+        - id: battle
+          prerequisites: [{ id: mystery, when: "oracle.mystery == 'battle'" }]
+          effects:
+            - {
+                target: spells.archetype.oracle.spells,
+                op: grant,
+                value: { item: spells.weapon-trance },
+              }
+          grants:
+            - item: spells.weapon-trance
+        - id: bones
+          prerequisites: [{ id: mystery, when: "oracle.mystery == 'bones'" }]
+          effects:
+            - {
+                target: spells.archetype.oracle.spells,
+                op: grant,
+                value: { item: spells.soul-siphon },
+              }
+          grants:
+            - item: spells.soul-siphon
+        - id: cosmos
+          prerequisites: [{ id: mystery, when: "oracle.mystery == 'cosmos'" }]
+          effects:
+            - {
+                target: spells.archetype.oracle.spells,
+                op: grant,
+                value: { item: spells.spray-of-stars },
+              }
+          grants:
+            - item: spells.spray-of-stars
+        - id: flames
+          prerequisites: [{ id: mystery, when: "oracle.mystery == 'flames'" }]
+          effects:
+            - {
+                target: spells.archetype.oracle.spells,
+                op: grant,
+                value: { item: spells.incendiary-aura },
+              }
+          grants:
+            - item: spells.incendiary-aura
+        - id: life
+          prerequisites: [{ id: mystery, when: "oracle.mystery == 'life'" }]
+          effects:
+            - {
+                target: spells.archetype.oracle.spells,
+                op: grant,
+                value: { item: spells.life-link },
+              }
+          grants:
+            - item: spells.life-link
+        - id: lore
+          prerequisites: [{ id: mystery, when: "oracle.mystery == 'lore'" }]
+          effects:
+            - {
+                target: spells.archetype.oracle.spells,
+                op: grant,
+                value: { item: spells.brain-drain },
+              }
+          grants:
+            - item: spells.brain-drain
+        - id: tempest
+          prerequisites: [{ id: mystery, when: "oracle.mystery == 'tempest'" }]
+          effects:
+            - {
+                target: spells.archetype.oracle.spells,
+                op: grant,
+                value: { item: spells.tempest-touch },
+              }
+          grants:
+            - item: spells.tempest-touch

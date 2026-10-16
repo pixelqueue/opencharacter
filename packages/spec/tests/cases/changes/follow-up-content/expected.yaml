@@ -1,0 +1,59 @@
+# The rules' follow-ups come first (the ally's help), then the ember's: warm (fire damage) and
+# burst (health at 5 or less), which names the ember's own action with its copy.
+ok: true
+followUps:
+  - id: call-ally-1
+    kind: ephemeral
+    followUp: test-follow-ups:call-ally
+    to:
+      link: test-follow-ups:ally
+    required: false
+    action:
+      id: test-ally:help
+    params:
+      lost: 6
+    cause:
+      field: test-follow-ups:hp.current
+      by: -6
+      requested: -6
+      taken: -6
+      reason: requested
+      clamped: false
+      tags:
+        - damage.fire
+  - id: warm-1
+    kind: ephemeral
+    followUp: test-follow-ups:charms.ember#warm
+    source: &a1
+      type: item
+      id: test-follow-ups:charms.ember
+      entry: ember-1
+    to: self
+    required: false
+    changes:
+      - type: adjustState
+        entry: ember-1
+        key: glow
+        by: 1
+      - type: clearFollowUp
+        id: warm-1
+    cause:
+      field: test-follow-ups:hp.current
+      by: -6
+      requested: -6
+      taken: -6
+      reason: requested
+      clamped: false
+      tags:
+        - damage.fire
+  - id: burst-1
+    kind: ephemeral
+    followUp: test-follow-ups:charms.ember#burst
+    source: *a1
+    to: self
+    required: false
+    action:
+      id: test-follow-ups:charms.ember#flash
+      entry: ember-1
+      followUp: burst-1
+    params: {}

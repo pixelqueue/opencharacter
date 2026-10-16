@@ -1,0 +1,30 @@
+id: feats.archetype.dual-weapon-warrior.flensing-slice
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 8, category: class, archetype: archetypes.dual-weapon-warrior }
+
+prerequisites:
+  - {
+      id: dual-weapon-warrior-dedication,
+      when: '@feats.archetype.dual-weapon-warrior.dual-weapon-warrior-dedication in feats.held',
+    }
+actions:
+  - id: flensing-slice
+    tags: [class-action]
+    participants:
+      target: { min: 1, max: 1 }
+    params:
+      dice: { type: integer, min: 1, max: 4 }
+    results: [flensed]
+    steps:
+      - id: flense
+        kind: changes
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.persistent-damage'"
+            state: { damage: 'dieOf(1d8, params.dice)', damageType: "'bleed'" }
+          - { type: applyEffect, source: "'conditions.off-guard'" }
+      - id: result
+        kind: outcome
+        result: "'flensed'"

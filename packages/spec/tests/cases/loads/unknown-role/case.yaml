@@ -1,0 +1,36 @@
+description: 'An action step naming a role its action does not declare (in `each` and in `to`) is unknown-role; `target` in `to` needs no declaration'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          hp.current: { type: integer, input: true, default: 10 }
+        actions:
+          - id: rally
+            participants:
+              ally: {}
+            steps:
+              - id: cheer
+                kind: changes
+                each: helper
+                to: ally
+                changes:
+                  - { type: adjust, field: hp.current, by: 1 }
+              - id: shove
+                kind: changes
+                to: enemy
+                changes:
+                  - { type: adjust, field: hp.current, by: -1 }
+              - id: hit
+                kind: changes
+                to: target
+                changes:
+                  - { type: adjust, field: hp.current, by: -1 }
+      content: []

@@ -1,0 +1,35 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: fitd-scoundrel, version: 0.1.0 }
+homebrew:
+  content:
+    - {
+        id: gear.armor,
+        type: gear,
+        tags: [standard],
+        fields: { load: 2, kind: gear },
+        effects: [{ target: armor.hasArmor, op: set, value: true, when: self.equipped }],
+      }
+values:
+  fitd-scoundrel:ratings.wreck: 1
+  fitd-scoundrel:ratings.tinker: 2
+  fitd-scoundrel:load.selected: light
+inventory:
+  - { id: fitd-scoundrel-gear-armor, item: homebrew:gear.armor, equipped: true }
+  - id: rifle
+    item: fitd-scoundrel:creations.creation
+    equipped: true
+    state: { label: Folding rifle, quality: 2, load: 2 }
+  - id: vial
+    item: fitd-scoundrel:creations.creation
+    equipped: true
+    state: { label: Slumber vial, quality: 1, load: 0, consumable: true, uses: 0 }
+  - id: spare
+    item: fitd-scoundrel:creations.creation
+    state: { label: Spare gadget, quality: 1, load: 1 }
+choices:
+  vice:
+    - option: fitd-scoundrel:vices.faith
+  special-abilities:
+    - option: fitd-scoundrel:special-abilities.alchemist

@@ -1,0 +1,298 @@
+# Money, investiture, magic items and item casting (rules/treasure.yaml, rules/magic-items.yaml).
+fields.coins.cp.name: Copper pieces
+fields.coins.sp.name: Silver pieces
+fields.coins.gp.name: Gold pieces
+fields.coins.pp.name: Platinum pieces
+fields.coins.total.name: Worth (gp)
+fields.investiture.count.name: Invested items
+fields.investiture.max.name: Investiture limit
+fields.investiture.used.name: Invested today
+groups.money.label: Money
+groups.investiture.label: Investiture
+groups.inventory-actions.label: Inventory
+groups.worn-items.label: Worn items
+groups.held-items.label: Held items
+groups.staves.label: Staves
+groups.wands.label: Wands
+constraints.investiture-limit: 'You have {invested} items invested; the limit is {limit}.'
+constraints.container-capacity-held: 'A container holds {bulk} Bulk (or too many items); it holds {capacity} Bulk.'
+constraints.container-capacity-worn: 'A container holds {bulk} Bulk (or too many items); it holds {capacity} Bulk.'
+constraints.one-prepared-staff: Only one staff can be prepared each day.
+
+tags.money.name: Money
+tags.inventory.name: Inventory
+tags.invest.name: Investiture
+tags.consumable.activate.name: Activating a consumable
+tags.trait.invested.name: Invested
+tags.trait.apex.name: Apex
+tags.trait.staff.name: Staff
+tags.activation.name: Item activation
+tags.trait.arcane.name: Arcane
+tags.trait.unique.name: Unique
+tags.trait.scroll.name: Scroll
+tags.trait.precious.name: Precious
+tags.material.name: Precious material
+tags.material.adamantine.name: Adamantine
+tags.material.cold-iron.name: Cold iron
+tags.material.dawnsilver.name: Dawnsilver
+tags.material.duskwood.name: Duskwood
+tags.material.orichalcum.name: Orichalcum
+tags.material.silver.name: Silver
+tags.material.dragonhide.name: Dragonhide
+tags.trait.expandable.name: Expandable
+tags.trait.kobold.name: Kobold
+tags.trait.mechanical.name: Mechanical
+tags.trait.oil.name: Oil
+tags.trait.snare.name: Snare
+tags.trait.talisman.name: Talisman
+tags.trait.trap.name: Trap
+tags.invest.item.name: Investing an item
+situational.usingSight.name: The check involves sight
+tags.trait.wand.name: Wand
+tags.trait.focused.name: Focused
+tags.trait.companion.name: Companion
+tags.trait.cursed.name: Cursed
+tags.trait.intelligent.name: Intelligent
+tags.trait.artifact.name: Artifact
+tags.trait.structure.name: Structure
+
+actions.buy.name: Buy
+actions.buy.description: >-
+  Buy an item at its full Price, paid from your coins (copper first, then silver, gold and
+  platinum, with change in the coins below the last one paid).
+actions.buy.params.quantity.name: How many
+actions.buy.steps.kind.prompt: What kind of item?
+actions.buy.options.weapon.name: Weapon
+actions.buy.options.armor.name: Armor
+actions.buy.options.shield.name: Shield
+actions.buy.options.gear.name: Adventuring gear
+actions.buy.options.consumable.name: Consumable
+actions.buy.options.worn.name: Worn item
+actions.buy.options.held.name: Held item
+actions.buy.options.staff.name: Staff
+actions.buy.options.wand.name: Wand
+actions.buy.steps.weapon.prompt: Which weapon?
+actions.buy.steps.armor.prompt: Which armor?
+actions.buy.steps.shield.prompt: Which shield?
+actions.buy.steps.gear.prompt: Which gear?
+actions.buy.steps.consumable.prompt: Which consumable?
+actions.buy.steps.worn.prompt: Which worn item?
+actions.buy.steps.held.prompt: Which held item?
+actions.buy.steps.staff.prompt: Which staff?
+actions.buy.steps.wand.prompt: Which wand?
+actions.buy.results.bought.name: Bought
+actions.buy.results.cannot-afford.name: Can't afford it
+actions.sell.name: Sell
+actions.sell.description: Sell this item for half its Price.
+actions.sell.params.quantity.name: How many
+actions.sell.results.sold.name: Sold
+actions.invest.name: Invest an Item
+actions.invest.description: >-
+  Invest this worn item so its magic works. You can invest up to 10 items a day; the first apex
+  item you invest raises its attribute.
+actions.invest.results.invested.name: Invested
+actions.invest.results.limit.name: Investiture limit reached
+actions.divest.name: Remove investiture
+actions.divest.description: Stop investing this item (it still counts toward today's limit).
+actions.divest.results.divested.name: No longer invested
+actions.store.name: Store
+actions.store.description: Put this item in an extradimensional container, where its Bulk doesn't count.
+actions.store.steps.kind.prompt: Which kind of container?
+actions.store.options.held.name: A held container
+actions.store.options.worn.name: A worn container
+actions.store.steps.held.prompt: Which container?
+actions.store.steps.worn.prompt: Which container?
+actions.store.results.stored.name: Stored
+actions.retrieve.name: Retrieve
+actions.retrieve.description: Take this item out of its container.
+actions.retrieve.results.retrieved.name: Retrieved
+actions.activate.name: Activate
+actions.activate.description: Activate this consumable; it's used up.
+actions.activate.results.activated.name: Activated
+actions.affix.name: Affix a Talisman
+actions.affix.description: Affix this talisman to armor, a weapon or a shield (10 minutes).
+actions.affix.steps.kind.prompt: Affix it to what?
+actions.affix.options.armor.name: Armor
+actions.affix.options.weapon.name: A weapon
+actions.affix.options.shield.name: A shield
+actions.affix.steps.armor.prompt: Which armor?
+actions.affix.steps.weapon.prompt: Which weapon?
+actions.affix.steps.shield.prompt: Which shield?
+actions.affix.results.affixed.name: Affixed
+actions.prepare-staff.name: Prepare a staff
+actions.prepare-staff.description: >-
+  During your daily preparations, give this staff charges equal to the rank of your highest spell
+  slot. A prepared caster can expend one prepared spell to add charges equal to its rank.
+actions.prepare-staff.params.expend.name: Prepared spell to expend
+actions.prepare-staff.results.prepared.name: Prepared
+actions.cast-spell.results.no-use.name: The item can't cast it now
+
+# Consumables' new categories and fields.
+types.consumable.fields.category.values.scroll.name: 'Scroll'
+types.consumable.fields.category.values.talisman.name: 'Talisman'
+types.consumable.fields.category.values.oil.name: 'Oil'
+types.consumable.fields.category.values.ammunition.name: 'Ammunition'
+types.consumable.fields.category.values.snare.name: 'Snare'
+types.consumable.fields.category.values.other.name: 'Consumable'
+types.consumable.fields.spellRank.name: Spell rank
+types.consumable.fields.affixTo.name: Affixed to
+types.consumable.fields.affixTo.values.none.name: 'Nothing'
+types.consumable.fields.affixTo.values.armor.name: 'Armor'
+types.consumable.fields.affixTo.values.weapon.name: 'A weapon'
+types.consumable.fields.affixTo.values.melee-weapon.name: 'A melee weapon'
+types.consumable.fields.affixTo.values.ranged-weapon.name: 'A ranged weapon'
+types.consumable.fields.affixTo.values.shield.name: 'A shield'
+types.consumable.fields.affixTo.values.shield-or-weapon.name: 'A shield or weapon'
+types.consumable.fields.activation.name: Activation
+types.consumable.fields.activation.values.none.name: '—'
+types.consumable.fields.activation.values.free.name: 'Free action'
+types.consumable.fields.activation.values.reaction.name: 'Reaction'
+types.consumable.fields.activation.values.one.name: '1 action'
+types.consumable.fields.activation.values.two.name: '2 actions'
+types.consumable.fields.activation.values.three.name: '3 actions'
+types.consumable.fields.activation.values.cast.name: 'Cast a Spell'
+types.consumable.fields.activation.values.one-minute.name: '1 minute'
+types.consumable.fields.activation.values.ten-minutes.name: '10 minutes'
+types.consumable.fields.activation.values.one-hour.name: '1 hour'
+types.consumable.state.affixed.name: Affixed to
+types.consumable.state.copy.name: On the item
+actions.activate.params.copy.name: The weapon or armor
+actions.activate.params.copy.description: For an oil put on a weapon or armor (an oil of potency), the copy it goes on.
+types.consumable.state.container.name: Stored in
+types.weapon.state.used.name: Activations used today
+types.weapon.state.container.name: Stored in
+types.armor.state.invested.name: Invested
+types.armor.state.used.name: Activations used today
+types.armor.state.container.name: Stored in
+types.shield.state.used.name: Activations used today
+types.shield.state.container.name: Stored in
+types.gear.state.container.name: Stored in
+
+# Worn items.
+types.worn.name: Worn item
+types.worn.block: >-
+  **{name}** — *Item {level}* · {usage_name}{has_tags, select, true { · {tags_name}} other {}}{activation, select, none {} other { · Activate {activation_name}{frequency, select, none {} other {, {frequency_name}}}}}{has_capacity, select, true { · Holds {capacity} Bulk} other {}}{bulk, plural, =0 {} other { · Bulk {bulk_name}}}{has_price, select, true { · {price} gp} other {}}
+types.worn.fields.level.name: Level
+types.worn.fields.price.name: Price
+types.worn.fields.bulk.name: Bulk
+types.worn.fields.bulk.values.0.1.name: 'L'
+types.worn.fields.usage.name: Usage
+types.worn.fields.activation.name: Activation
+types.worn.fields.frequency.name: Frequency
+types.worn.fields.capacity.name: Capacity (Bulk)
+types.worn.fields.capacityItems.name: Capacity (items)
+types.worn.state.invested.name: Invested
+types.worn.state.apex.name: Apex attribute increase
+types.worn.state.used.name: Activations used today
+types.worn.state.container.name: Stored in
+types.worn.fields.usage.values.worn.name: 'Worn'
+types.worn.fields.usage.values.amulet.name: 'Worn amulet'
+types.worn.fields.usage.values.anklets.name: 'Worn anklets'
+types.worn.fields.usage.values.armbands.name: 'Worn armbands'
+types.worn.fields.usage.values.backpack.name: 'Worn backpack'
+types.worn.fields.usage.values.belt.name: 'Worn belt'
+types.worn.fields.usage.values.bracelet.name: 'Worn bracelet'
+types.worn.fields.usage.values.bracers.name: 'Worn bracers'
+types.worn.fields.usage.values.circlet.name: 'Worn circlet'
+types.worn.fields.usage.values.cloak.name: 'Worn cloak'
+types.worn.fields.usage.values.collar.name: 'Worn collar'
+types.worn.fields.usage.values.eyepiece.name: 'Worn eyepiece'
+types.worn.fields.usage.values.garment.name: 'Worn garment'
+types.worn.fields.usage.values.gloves.name: 'Worn gloves'
+types.worn.fields.usage.values.headwear.name: 'Worn headwear'
+types.worn.fields.usage.values.horseshoes.name: 'Worn horseshoes'
+types.worn.fields.usage.values.barding.name: 'Worn barding'
+types.worn.fields.usage.values.mask.name: 'Worn mask'
+types.worn.fields.usage.values.necklace.name: 'Worn necklace'
+types.worn.fields.usage.values.ring.name: 'Worn ring'
+types.worn.fields.usage.values.shoes.name: 'Worn shoes'
+types.worn.fields.activation.values.none.name: '—'
+types.worn.fields.activation.values.free.name: 'free action'
+types.worn.fields.activation.values.reaction.name: 'reaction'
+types.worn.fields.activation.values.one.name: '1 action'
+types.worn.fields.activation.values.two.name: '2 actions'
+types.worn.fields.activation.values.three.name: '3 actions'
+types.worn.fields.activation.values.cast.name: 'Cast a Spell'
+types.worn.fields.activation.values.one-minute.name: '1 minute'
+types.worn.fields.activation.values.ten-minutes.name: '10 minutes'
+types.worn.fields.activation.values.one-hour.name: '1 hour'
+types.worn.fields.frequency.values.none.name: 'at will'
+types.worn.fields.frequency.values.once-per-round.name: 'once per round'
+types.worn.fields.frequency.values.once-per-minute.name: 'once per minute'
+types.worn.fields.frequency.values.once-per-ten-minutes.name: 'once per 10 minutes'
+types.worn.fields.frequency.values.once-per-hour.name: 'once per hour'
+types.worn.fields.frequency.values.once-per-day.name: 'once per day'
+
+# Held items.
+types.held.name: Held item
+types.held.block: >-
+  **{name}** — *Item {level}* · Held in {hands, plural, =0 {no hands} one {1 hand} other {# hands}}{has_tags, select, true { · {tags_name}} other {}}{activation, select, none {} other { · Activate {activation_name}{frequency, select, none {} other {, {frequency_name}}}}}{has_capacity, select, true { · Holds {capacity} Bulk} other {}}{bulk, plural, =0 {} other { · Bulk {bulk_name}}}{has_price, select, true { · {price} gp} other {}}
+types.held.fields.level.name: Level
+types.held.fields.price.name: Price
+types.held.fields.bulk.name: Bulk
+types.held.fields.bulk.values.0.1.name: 'L'
+types.held.fields.hands.name: Hands
+types.held.fields.activation.name: Activation
+types.held.fields.frequency.name: Frequency
+types.held.fields.capacity.name: Capacity (Bulk)
+types.held.fields.capacityItems.name: Capacity (items)
+types.held.state.invested.name: Invested
+types.held.state.used.name: Activations used today
+types.held.state.container.name: Stored in
+types.held.fields.activation.values.none.name: '—'
+types.held.fields.activation.values.free.name: 'free action'
+types.held.fields.activation.values.reaction.name: 'reaction'
+types.held.fields.activation.values.one.name: '1 action'
+types.held.fields.activation.values.two.name: '2 actions'
+types.held.fields.activation.values.three.name: '3 actions'
+types.held.fields.activation.values.cast.name: 'Cast a Spell'
+types.held.fields.activation.values.one-minute.name: '1 minute'
+types.held.fields.activation.values.ten-minutes.name: '10 minutes'
+types.held.fields.activation.values.one-hour.name: '1 hour'
+types.held.fields.frequency.values.none.name: 'at will'
+types.held.fields.frequency.values.once-per-round.name: 'once per round'
+types.held.fields.frequency.values.once-per-minute.name: 'once per minute'
+types.held.fields.frequency.values.once-per-ten-minutes.name: 'once per 10 minutes'
+types.held.fields.frequency.values.once-per-hour.name: 'once per hour'
+types.held.fields.frequency.values.once-per-day.name: 'once per day'
+
+# Staves and wands.
+types.staff.name: Staff
+types.staff.block: >-
+  **{name}** — *Staff {level}*{tradition, select, any {} other { · {tradition_name}}}{has_tags, select, true { · {tags_name}} other {}} · Held in 1 hand · Bulk {bulk_name}{has_price, select, true { · {price} gp} other {}}
+types.staff.fields.level.name: Level
+types.staff.fields.price.name: Price
+types.staff.fields.bulk.name: Bulk
+types.staff.fields.bulk.values.0.1.name: 'L'
+types.staff.fields.tradition.name: Tradition
+types.staff.fields.tradition.values.any.name: 'Any tradition'
+types.staff.fields.tradition.values.arcane.name: 'Arcane'
+types.staff.fields.tradition.values.divine.name: 'Divine'
+types.staff.fields.tradition.values.occult.name: 'Occult'
+types.staff.fields.tradition.values.primal.name: 'Primal'
+types.staff.state.charges.name: Charges
+types.staff.state.prepared.name: Prepared today
+types.staff.state.container.name: Stored in
+types.wand.name: Wand
+types.wand.block: >-
+  **{name}** — *Wand {level}* · {spellRank, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}-rank spell{has_tags, select, true { · {tags_name}} other {}} · Activate Cast a Spell, once per day plus overcharge{has_price, select, true { · {price} gp} other {}}
+types.wand.fields.level.name: Level
+types.wand.fields.price.name: Price
+types.wand.fields.bulk.name: Bulk
+types.wand.fields.bulk.values.0.1.name: 'L'
+types.wand.fields.spellRank.name: Spell rank
+types.wand.state.castToday.name: Cast today
+types.wand.state.overcharged.name: Overcharged today
+types.wand.state.broken.name: Broken
+types.wand.state.container.name: Stored in
+types.consumable.fields.save.name: Save
+types.consumable.fields.save.values.reflex.name: 'Reflex'
+types.consumable.fields.save.values.fortitude.name: 'Fortitude'
+types.consumable.fields.save.values.will.name: 'Will'
+actions.spring-snare.name: Spring the snare
+actions.spring-snare.description: >-
+  A creature triggers this snare: its damage is rolled, each creature caught attempts the save and
+  takes damage by its result (a basic save); the snare is used up.
+actions.spring-snare.participants.target.name: Creatures caught
+actions.spring-snare.results.sprung.name: Sprung
+actions.spring-snare.steps.damage.name: Damage

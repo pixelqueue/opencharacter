@@ -1,0 +1,20 @@
+id: feats.archetype.ranger.advanced-hunters-trick
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.ranger }
+repeatable: true
+
+prerequisites:
+  - { id: basic-hunters-trick, when: '@feats.archetype.ranger.basic-hunters-trick in feats.held' }
+effects:
+  # Each time it is taken, it counts as another feat of the archetype.
+  - { target: archetypes.ranger.repeats, op: add, value: 1 }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && !('trait.archetype' in item.tags)
+          && (has(item.class) && item.class == @classes.ranger || 'trait.ranger' in item.tags)
+    eligible: item.level <= floor(level / 2)

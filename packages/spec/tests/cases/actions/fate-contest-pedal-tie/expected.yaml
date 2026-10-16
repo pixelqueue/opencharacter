@@ -1,0 +1,51 @@
+status: finished
+outcome:
+  result: victory
+  data:
+    total: 1
+    opposition: 1
+    victories: 1
+    tally: 2
+    opponentVictories: 0
+proposedChanges:
+  - to: self
+    step: mark
+    change:
+      type: adjust
+      field: fate-core:contest.victories
+      by: 1
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 0
+      - 0
+      - 0
+      - 0
+    total: 1
+    band: average
+    bandSet: fate-core:ladder
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: final
+    action: fate-core:contest-exchange
+    kind: dice
+    by: engine
+    total: 1
+    band: tie
+    bandSet: fate-core:outcome

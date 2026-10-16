@@ -1,0 +1,26 @@
+id: staves.staff-of-control-greater
+type: staff
+tags: [trait.magical, trait.staff]
+fields:
+  level: 10
+  price: 900
+  bulk: 1
+  rank1: [spells.charm, spells.command]
+  rank2: [spells.laughing-fit, spells.stupefy]
+  rank3: [spells.enthrall]
+  rank4: [spells.charm, spells.confusion, spells.suggestion]
+grants:
+  - { item: spells.daze, when: self.equipped }
+  - { item: spells.charm, when: self.equipped }
+  - { item: spells.command, when: self.equipped }
+  - { item: spells.laughing-fit, when: self.equipped }
+  - { item: spells.stupefy, when: self.equipped }
+  - { item: spells.enthrall, when: self.equipped }
+  - { item: spells.confusion, when: self.equipped }
+  - { item: spells.suggestion, when: self.equipped }
+effects:
+  - target: { rolls: [skill-action.request] }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    when: 'self.equipped'

@@ -1,0 +1,20 @@
+id: invocations.minions-of-chaos
+type: invocation
+prerequisites:
+  - id: level
+    when: self.level >= 9
+grants:
+  - { item: spells.conjure-elemental }
+effects:
+  - { target: spells.warlock, op: grant, value: { item: spells.conjure-elemental } }
+  - { target: spells.limited, op: grant, value: { item: spells.conjure-elemental } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id == @spells.conjure-elemental && flags.slot == pactSlots.level
+        && pactSlots.used < pactSlots.max && !self.minionsOfChaosUsed
+    value:
+      id: invocation
+      changes:
+        - { type: adjust, field: pactSlots.used, by: 1 }
+        - { type: setState, entry: self, key: minionsOfChaosUsed, value: true }

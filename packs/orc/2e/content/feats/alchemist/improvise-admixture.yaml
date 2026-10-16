@@ -1,0 +1,27 @@
+id: feats.alchemist.improvise-admixture
+type: feat
+tags: [trait.concentrate, trait.manipulate]
+fields: { level: 2, category: class, class: classes.alchemist }
+actions:
+  - id: improvise-admixture
+    tags: [class-action]
+    available: alchemist.vials.used > 0
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        params: { check: "'skills.crafting.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: regain
+        kind: changes
+        changes:
+          - type: adjust
+            field: alchemist.vials.used
+            by: >-
+              -min(alchemist.vials.used, steps.check.result == 'critical-success' ? 3
+                : steps.check.result == 'success' ? 2 : steps.check.result == 'failure' ? 1 : 0)
+      - id: result
+        kind: outcome
+        result: steps.check.result

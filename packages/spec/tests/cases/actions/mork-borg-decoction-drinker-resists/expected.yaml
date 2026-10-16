@@ -1,0 +1,21 @@
+status: paused
+needs:
+  step: resist[0]
+  action: mork-borg-core:use-decoction
+  kind: handoff
+  participant:
+    role: drinker
+    id: victim
+  run:
+    action: mork-borg-core:test
+    params:
+      ability: mork-borg-core:abilities.toughness
+      dr: 12
+log:
+  - step: amount
+    action: mork-borg-core:use-decoction
+    kind: dice
+    by: engine
+    faces:
+      - 7
+    total: 7

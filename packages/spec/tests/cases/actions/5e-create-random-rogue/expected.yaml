@@ -1,0 +1,257 @@
+status: finished
+proposedChanges:
+  - {
+      to: self,
+      step: race,
+      change: { type: addItem, entry: { id: race, item: 5e-srd-5.1:races.half-elf } },
+    }
+  - {
+      to: self,
+      step: class,
+      change:
+        {
+          type: addItem,
+          entry:
+            { id: class, item: 5e-srd-5.1:classes.rogue, state: { level: 1, startingClass: true } },
+        },
+    }
+  - {
+      to: self,
+      step: background,
+      change: { type: addItem, entry: { id: background, item: 5e-srd-5.1:backgrounds.acolyte } },
+    }
+  - {
+      to: self,
+      step: scores,
+      change: { type: set, field: 5e-srd-5.1:abilities.str.base, value: 10 },
+    }
+  - {
+      to: self,
+      step: scores,
+      change: { type: set, field: 5e-srd-5.1:abilities.dex.base, value: 18 },
+    }
+  - {
+      to: self,
+      step: scores,
+      change: { type: set, field: 5e-srd-5.1:abilities.con.base, value: 15 },
+    }
+  - {
+      to: self,
+      step: scores,
+      change: { type: set, field: 5e-srd-5.1:abilities.int.base, value: 12 },
+    }
+  - {
+      to: self,
+      step: scores,
+      change: { type: set, field: 5e-srd-5.1:abilities.wis.base, value: 13 },
+    }
+  - {
+      to: self,
+      step: scores,
+      change: { type: set, field: 5e-srd-5.1:abilities.cha.base, value: 10 },
+    }
+  - {
+      to: self,
+      step: picks,
+      change: { type: choose, path: { entry: race, choice: [ability-scores] }, option: dex },
+    }
+  - {
+      to: self,
+      step: picks,
+      change: { type: choose, path: { entry: race, choice: [ability-scores] }, option: con },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: race, choice: [5e-srd-5.1:traits.skill-versatility/skills] },
+          option: skill.intimidation,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: race, choice: [5e-srd-5.1:traits.skill-versatility/skills] },
+          option: skill.perception,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: race, choice: [5e-srd-5.1:traits.extra-language/language] },
+          option: 5e-srd-5.1:languages.dwarvish,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change: { type: choose, path: { entry: class, choice: [skills] }, option: skill.athletics },
+    }
+  - {
+      to: self,
+      step: picks,
+      change: { type: choose, path: { entry: class, choice: [skills] }, option: skill.stealth },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        { type: choose, path: { entry: class, choice: [skills] }, option: skill.investigation },
+    }
+  - {
+      to: self,
+      step: picks,
+      change: { type: choose, path: { entry: class, choice: [skills] }, option: skill.deception },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.rogue.expertise/skills-1] },
+          option: skill.deception,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: class, choice: [5e-srd-5.1:features.rogue.expertise/skills-1] },
+          option: tool.thieves-tools,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: background, choice: [languages] },
+          option: 5e-srd-5.1:languages.draconic,
+        },
+    }
+  - {
+      to: self,
+      step: picks,
+      change:
+        {
+          type: choose,
+          path: { entry: background, choice: [languages] },
+          option: 5e-srd-5.1:languages.sylvan,
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/rogueWeapon,
+      change:
+        {
+          type: addItem,
+          entry: { id: weapons-rapier-1, item: 5e-srd-5.1:weapons.rapier, equipped: true },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/rogueSecond,
+      change:
+        {
+          type: addItem,
+          entry: { id: weapons-shortbow-1, item: 5e-srd-5.1:weapons.shortbow, equipped: true },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/rogueSecond,
+      change: { type: addItem, entry: { id: gear-quiver-1, item: 5e-srd-5.1:gear.quiver } },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/rogueSecond,
+      change:
+        { type: addItem, entry: { id: gear-arrows-1, item: 5e-srd-5.1:gear.arrows, quantity: 20 } },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/roguePack,
+      change:
+        { type: addItem, entry: { id: gear-burglars-pack-1, item: 5e-srd-5.1:gear.burglars-pack } },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/rogueKit,
+      change:
+        {
+          type: addItem,
+          entry: { id: armor-leather-1, item: 5e-srd-5.1:armor.leather, equipped: true },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/rogueKit,
+      change:
+        {
+          type: addItem,
+          entry:
+            { id: weapons-dagger-1, item: 5e-srd-5.1:weapons.dagger, equipped: true, quantity: 2 },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/byClass/rogueKit,
+      change:
+        {
+          type: addItem,
+          entry: { id: tools-thieves-tools-1, item: 5e-srd-5.1:tools.thieves-tools },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteSymbol,
+      change: { type: addItem, entry: { id: gear-amulet-1, item: 5e-srd-5.1:gear.amulet } },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change: { type: addItem, entry: { id: gear-book-1, item: 5e-srd-5.1:gear.book } },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change:
+        {
+          type: addItem,
+          entry: { id: gear-incense-1, item: 5e-srd-5.1:gear.incense, quantity: 5 },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change: { type: addItem, entry: { id: gear-vestments-1, item: 5e-srd-5.1:gear.vestments } },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change:
+        {
+          type: addItem,
+          entry: { id: gear-common-clothes-1, item: 5e-srd-5.1:gear.common-clothes },
+        },
+    }
+  - {
+      to: self,
+      step: equipment/acolyteKit,
+      change: { type: addItem, entry: { id: gear-pouch-1, item: 5e-srd-5.1:gear.pouch } },
+    }
+  - { to: self, step: hitDie, change: { type: set, field: 5e-srd-5.1:hp.base, value: 8 } }
+  - { to: self, step: finish, change: { type: set, field: 5e-srd-5.1:hp.current, value: 11 } }
+  - { to: self, step: finish, change: { type: finishCreation } }

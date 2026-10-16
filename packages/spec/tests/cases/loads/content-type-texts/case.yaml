@@ -1,0 +1,19 @@
+description: 'A content type may declare named texts (`texts`): text keys only, so the ruleset loads as it would without them'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: text-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          spell:
+            texts: [material, trigger]
+            fields:
+              level: { type: integer }
+      content:
+        - { id: spells.shield, type: spell, fields: { level: 1 } }

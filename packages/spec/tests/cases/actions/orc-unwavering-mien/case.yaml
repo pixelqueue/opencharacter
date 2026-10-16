@@ -1,0 +1,9 @@
+description: 'orc-2e: Unwavering Mien makes a save against falling asleep one degree better (the roll tally `degreeShift`): a failure becomes a success'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:check }
+  params: { check: orc-2e:saves.will.mod, dc: 10 }
+  situational: { orc-2e:againstSleep: true }

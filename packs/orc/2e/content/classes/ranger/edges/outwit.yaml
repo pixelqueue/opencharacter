@@ -1,0 +1,14 @@
+id: classes.ranger.edges.outwit
+type: feature
+fields: { level: 1 }
+# AC against the prey is `defenses.acPrey`, which the prey's Strikes and spell attacks read when you
+# are their target.
+effects:
+  - { target: ranger.edge, op: set, value: "'outwit'" }
+  - target: defenses.acPrey
+    op: add
+    value: >-
+      level >= 17 && (armor.category == 'light' ? defenses.light.rank : armor.category == 'medium'
+        ? defenses.medium.rank : armor.category == 'heavy' ? defenses.heavy.rank
+        : defenses.unarmored.rank) >= 3 ? 2 : 1
+    stackKey: circumstance-bonus

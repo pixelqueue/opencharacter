@@ -1,0 +1,27 @@
+# Temporary health takes all 3: health's entry is by 0, requested -3. The steady roll is stored
+# for it (its cause that entry); the ally's help isn't, since health lost nothing. The empty link slot gives
+# the ally follow-up no character.
+ok: true
+adjustments:
+  - { field: test-follow-ups:hp.temp, by: -3, reason: absorbed }
+  - { field: test-follow-ups:hp.current, by: 0, requested: -3, taken: -3, reason: requested }
+followUps:
+  - id: steady-1
+    kind: ephemeral
+    followUp: test-follow-ups:steady
+    to: self
+    required: false
+    action:
+      id: test-follow-ups:steady
+      followUp: steady-1
+    params:
+      damage: 3
+    cause:
+      field: test-follow-ups:hp.current
+      by: 0
+      requested: -3
+      taken: -3
+      reason: requested
+      clamped: false
+      tags:
+        - damage

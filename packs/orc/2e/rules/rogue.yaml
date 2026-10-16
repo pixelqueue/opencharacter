@@ -1,0 +1,46 @@
+fields:
+  rogue.racket:
+    { type: enum, values: [none, mastermind, ruffian, scoundrel, thief], formula: "'none'" }
+  sneakAttack.dice: { type: integer, formula: 0, min: 0 }
+  nimbleDodge.active: { type: boolean, input: true, default: false }
+
+effects:
+  - id: nimble-dodge
+    target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: nimbleDodge.active
+
+situational:
+  - id: againstTrap
+    type: boolean
+    default: false
+    rolls: [perception, save]
+    available: '@feats.rogue.trap-finder in feats.held'
+    effects:
+      - target: { rolls: [perception, save] }
+        op: add
+        value: 'skills.thievery.rank >= 3 ? 2 : 1'
+        stackKey: circumstance-bonus
+        when: situational.againstTrap
+
+tags:
+  - precision
+  - sneak.underhanded-assault
+  - trait.emotion
+  - trait.exploration
+  - trait.fear
+  - trait.mental
+
+display:
+  fields:
+    sneakAttack.dice: { groups: [summary], priority: 1, showWhen: sneakAttack.dice > 0 }
+    nimbleDodge.active:
+      {
+        groups: [defenses],
+        priority: 2,
+        input: { widget: checkbox },
+        showWhen: '@feats.rogue.nimble-dodge in feats.held',
+      }
+    rogue.racket: { hidden: true }

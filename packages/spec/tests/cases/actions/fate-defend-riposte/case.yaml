@@ -1,0 +1,11 @@
+description: "Fate Core: Riposte: a Fight defense with style hits the `attacker` for 2 shifts (a handoff to their `take-hit`) instead of taking the boost; the attacker is passed as an attack's handoff passes it"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:defend }
+  params: { skill: fate-core:skills.fight, opposition: 2 }
+  participants:
+    attacker: [{ id: brute, values: {} }]
+  policy: { choices: auto }

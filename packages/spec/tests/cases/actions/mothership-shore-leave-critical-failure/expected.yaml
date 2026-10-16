@@ -1,0 +1,29 @@
+# The Sanity save: 88, a double over 24: critical failure. The save's 1 stress, and its panic
+# check: 4, not over stress 9, panic. Nothing converts or is relieved.
+status: finished
+outcome:
+  result: critical-failure
+  data: { converted: 0 }
+proposedChanges:
+  - {
+      to: self,
+      step: check/stress,
+      change: { type: adjust, field: mothership-1e:stress.current, by: 1 },
+    }
+log:
+  - step: check/check
+    action: mothership-1e:save
+    kind: dice
+    by: engine
+    faces: [88]
+    total: 88
+    band: critical-failure
+    bandSet: mothership-1e:check
+  - step: check/panic/panic
+    action: mothership-1e:panic-check
+    kind: dice
+    by: engine
+    faces: [4]
+    total: 4
+    band: panic
+    bandSet: mothership-1e:panic

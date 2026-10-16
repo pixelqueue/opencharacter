@@ -1,0 +1,952 @@
+# A dedication can't be taken while another archetype's dedication is open (held with fewer than two
+# other feats of its archetype). An archetype's additional feats are granted into
+# `archetypes.extra.level<N>` from its archetype level on, carry `archetype-feat` so class feat
+# choices offer them, and count toward the archetype's feats.
+tags:
+  - trait.archetype
+  - trait.dedication
+  - trait.multiclass
+  - trait.vigilante
+  - archetype-feat
+  - archetype-feats
+  - archetype-extra.at2
+  - archetype-extra.at4
+  - archetype-extra.at6
+  - archetype-extra.at8
+  - archetype-extra.at10
+  - archetype-extra.at12
+  - archetype-extra.at14
+  - archetype-extra.at16
+  - archetype-extra.at18
+  - archetype-extra.at20
+  - strike.archers-aim
+  - strike.enchanting-shot
+  - strike.fatal-shot
+  - strike.grievous-blow
+  - strike.suplex
+  - strike.strangle
+  - strike.aerial-piledriver
+
+contentTypes:
+  archetype:
+    copies: { max: 0 }
+    fields:
+      dedication: { type: id, of: feat, required: true }
+      multiclass: { type: id, of: class }
+
+fields:
+  archetypes.dedications: { type: set, of: feat }
+  archetypes.open:
+    type: integer
+    formula: "sumFields(f.value > 0 && f.value < 3 ? 1 : 0, 'archetype-feats' in f.tags)"
+  archetypes.openAllowance: { type: integer, formula: 0, min: 0 }
+  archetypes.extra.level2: { type: set, of: feat, tags: [archetype-extra.at2] }
+  archetypes.extra.level4: { type: set, of: feat, tags: [archetype-extra.at2, archetype-extra.at4] }
+  archetypes.extra.level6:
+    type: set
+    of: feat
+    tags: [archetype-extra.at2, archetype-extra.at4, archetype-extra.at6]
+  archetypes.extra.level8:
+    type: set
+    of: feat
+    tags: [archetype-extra.at2, archetype-extra.at4, archetype-extra.at6, archetype-extra.at8]
+  archetypes.extra.level10:
+    type: set
+    of: feat
+    tags:
+      [
+        archetype-extra.at2,
+        archetype-extra.at4,
+        archetype-extra.at6,
+        archetype-extra.at8,
+        archetype-extra.at10,
+      ]
+  archetypes.extra.level12:
+    type: set
+    of: feat
+    tags:
+      [
+        archetype-extra.at2,
+        archetype-extra.at4,
+        archetype-extra.at6,
+        archetype-extra.at8,
+        archetype-extra.at10,
+        archetype-extra.at12,
+      ]
+  archetypes.extra.level14:
+    type: set
+    of: feat
+    tags:
+      [
+        archetype-extra.at2,
+        archetype-extra.at4,
+        archetype-extra.at6,
+        archetype-extra.at8,
+        archetype-extra.at10,
+        archetype-extra.at12,
+        archetype-extra.at14,
+      ]
+  archetypes.extra.level16:
+    type: set
+    of: feat
+    tags:
+      [
+        archetype-extra.at2,
+        archetype-extra.at4,
+        archetype-extra.at6,
+        archetype-extra.at8,
+        archetype-extra.at10,
+        archetype-extra.at12,
+        archetype-extra.at14,
+        archetype-extra.at16,
+      ]
+  archetypes.extra.level18:
+    type: set
+    of: feat
+    tags:
+      [
+        archetype-extra.at2,
+        archetype-extra.at4,
+        archetype-extra.at6,
+        archetype-extra.at8,
+        archetype-extra.at10,
+        archetype-extra.at12,
+        archetype-extra.at14,
+        archetype-extra.at16,
+        archetype-extra.at18,
+      ]
+  archetypes.extra.level20:
+    type: set
+    of: feat
+    tags:
+      [
+        archetype-extra.at2,
+        archetype-extra.at4,
+        archetype-extra.at6,
+        archetype-extra.at8,
+        archetype-extra.at10,
+        archetype-extra.at12,
+        archetype-extra.at14,
+        archetype-extra.at16,
+        archetype-extra.at18,
+        archetype-extra.at20,
+      ]
+  assassin.mark: { type: string, input: true, default: '' }
+  archetypes.fighter.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.fighter.fighter-dedication in feats.held
+        ? countList([@feats.archetype.fighter.fighter-dedication,
+          @feats.archetype.fighter.basic-maneuver,
+          @feats.archetype.fighter.fighter-resiliency,
+          @feats.archetype.fighter.reactive-striker,
+          @feats.archetype.fighter.diverse-weapon-expert],
+          x in feats.held) + archetypes.fighter.repeats : 0
+  archetypes.fighter.repeats: { type: integer, formula: 0 }
+  archetypes.rogue.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.rogue.rogue-dedication in feats.held
+        ? countList([@feats.archetype.rogue.rogue-dedication,
+          @feats.archetype.rogue.basic-trickery,
+          @feats.archetype.rogue.sneak-attacker,
+          @feats.archetype.rogue.uncanny-dodge,
+          @feats.archetype.rogue.evasiveness],
+          x in feats.held) + archetypes.rogue.repeats : 0
+  archetypes.rogue.repeats: { type: integer, formula: 0 }
+  archetypes.ranger.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.ranger.ranger-dedication in feats.held
+        ? countList([@feats.archetype.ranger.ranger-dedication,
+          @feats.archetype.ranger.basic-hunters-trick,
+          @feats.archetype.ranger.ranger-resiliency,
+          @feats.archetype.ranger.master-spotter],
+          x in feats.held) + archetypes.ranger.repeats : 0
+  archetypes.ranger.repeats: { type: integer, formula: 0 }
+  archetypes.barbarian.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.barbarian.barbarian-dedication in feats.held
+        ? countList([@feats.archetype.barbarian.barbarian-dedication,
+          @feats.archetype.barbarian.barbarian-resiliency,
+          @feats.archetype.barbarian.basic-fury,
+          @feats.archetype.barbarian.instinct-ability,
+          @feats.archetype.barbarian.juggernauts-fortitude],
+          x in feats.held) + archetypes.barbarian.repeats : 0
+  archetypes.barbarian.repeats: { type: integer, formula: 0 }
+  archetypes.champion.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.champion.champion-dedication in feats.held
+        ? countList([@feats.archetype.champion.champion-dedication,
+          @feats.archetype.champion.basic-devotion,
+          @feats.archetype.champion.champion-resiliency,
+          @feats.archetype.champion.devout-magic,
+          @feats.archetype.champion.champions-reaction,
+          @feats.archetype.champion.devout-blessing],
+          x in feats.held) + archetypes.champion.repeats : 0
+  archetypes.champion.repeats: { type: integer, formula: 0 }
+  archetypes.monk.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.monk.monk-dedication in feats.held
+        ? countList([@feats.archetype.monk.monk-dedication,
+          @feats.archetype.monk.basic-kata,
+          @feats.archetype.monk.monk-resiliency,
+          @feats.archetype.monk.monk-moves,
+          @feats.archetype.monk.monks-flurry,
+          @feats.archetype.monk.perfections-path],
+          x in feats.held) + archetypes.monk.repeats : 0
+  archetypes.monk.repeats: { type: integer, formula: 0 }
+  archetypes.swashbuckler.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.swashbuckler.swashbuckler-dedication in feats.held
+        ? countList([@feats.archetype.swashbuckler.swashbuckler-dedication,
+          @feats.archetype.swashbuckler.basic-flair,
+          @feats.archetype.swashbuckler.finishing-precision,
+          @feats.archetype.swashbuckler.swashbucklers-riposte,
+          @feats.archetype.swashbuckler.swashbucklers-speed,
+          @feats.archetype.swashbuckler.evasiveness],
+          x in feats.held) + archetypes.swashbuckler.repeats : 0
+  archetypes.swashbuckler.repeats: { type: integer, formula: 0 }
+  archetypes.investigator.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.investigator.investigator-dedication in feats.held
+        ? countList([@feats.archetype.investigator.investigator-dedication,
+          @feats.archetype.investigator.basic-deduction,
+          @feats.archetype.investigator.investigators-stratagem,
+          @feats.archetype.investigator.keen-recollection,
+          @feats.archetype.investigator.master-spotter],
+          x in feats.held) + archetypes.investigator.repeats : 0
+  archetypes.investigator.repeats: { type: integer, formula: 0 }
+  archetypes.alchemist.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.alchemist.alchemist-dedication in feats.held
+        ? countList([@feats.archetype.alchemist.alchemist-dedication,
+          @feats.archetype.alchemist.advanced-alchemy,
+          @feats.archetype.alchemist.basic-concoction,
+          @feats.archetype.alchemist.voluminous-vials,
+          @feats.archetype.alchemist.alchemical-power],
+          x in feats.held) + archetypes.alchemist.repeats : 0
+  archetypes.alchemist.repeats: { type: integer, formula: 0 }
+  archetypes.acrobat.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.acrobat.acrobat-dedication in feats.held
+        ? countList([@feats.archetype.acrobat.acrobat-dedication,
+          @feats.archetype.acrobat.contortionist,
+          @feats.archetype.acrobat.dodge-away,
+          @feats.archetype.acrobat.graceful-leaper,
+          @feats.archetype.acrobat.tumbling-strike,
+          @feats.archetype.acrobat.tumbling-opportunist],
+          x in feats.held) : 0
+  archetypes.archaeologist.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.archaeologist.archaeologist-dedication in feats.held
+        ? countList([@feats.archetype.archaeologist.archaeologist-dedication,
+          @feats.archetype.archaeologist.magical-scholastics,
+          @feats.archetype.archaeologist.scholastic-identification,
+          @feats.archetype.archaeologist.archaeologists-luck,
+          @feats.archetype.archaeologist.greater-magical-scholastics],
+          x in feats.held) + archetypes.archaeologist.repeats : 0
+  archetypes.archaeologist.repeats: { type: integer, formula: 0 }
+  archetypes.archer.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.archer.archer-dedication in feats.held
+        ? countList([@feats.archetype.archer.archer-dedication,
+          @feats.archetype.archer.quick-shot,
+          @feats.archetype.archer.crossbow-terror,
+          @feats.archetype.archer.archers-aim,
+          @feats.archetype.archer.unobstructed-shot,
+          @feats.fighter.assisting-shot,
+          @feats.ranger.crossbow-ace,
+          @feats.fighter.point-blank-stance,
+          @feats.fighter.double-shot,
+          @feats.fighter.parting-shot,
+          @feats.ranger.running-reload,
+          @feats.fighter.triple-shot,
+          @feats.fighter.mobile-shot-stance,
+          @feats.fighter.multishot-stance,
+          @feats.fighter.impossible-volley],
+          x in feats.held) : 0
+  archetypes.assassin.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.assassin.assassin-dedication in feats.held
+        ? countList([@feats.archetype.assassin.assassin-dedication,
+          @feats.archetype.assassin.expert-backstabber,
+          @feats.archetype.assassin.surprise-attack,
+          @feats.archetype.assassin.angel-of-death,
+          @feats.archetype.assassin.assassinate,
+          @feats.druid.poison-resistance,
+          @feats.rogue.poison-weapon,
+          @feats.rogue.improved-poison-weapon,
+          @feats.archetype.rogue.sneak-attacker],
+          x in feats.held) : 0
+  archetypes.bastion.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.bastion.bastion-dedication in feats.held
+        ? countList([@feats.archetype.bastion.bastion-dedication,
+          @feats.archetype.bastion.disarming-block,
+          @feats.archetype.bastion.nimble-shield-hand,
+          @feats.archetype.bastion.destructive-block,
+          @feats.archetype.bastion.shield-salvation,
+          @feats.fighter.shielded-stride,
+          @feats.fighter.reflexive-shield,
+          @feats.fighter.shield-warden,
+          @feats.fighter.quick-shield-block,
+          @feats.fighter.mirror-shield,
+          @feats.fighter.improved-reflexive-shield],
+          x in feats.held) : 0
+  archetypes.beastmaster.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.beastmaster.beastmaster-dedication in feats.held
+        ? countList([@feats.archetype.beastmaster.beastmaster-dedication,
+          @feats.archetype.beastmaster.mature-beastmaster-companion,
+          @feats.archetype.beastmaster.beastmasters-trance,
+          @feats.archetype.beastmaster.swift-guardian,
+          @feats.archetype.beastmaster.incredible-beastmaster-companion,
+          @feats.archetype.beastmaster.beastmaster-bond,
+          @feats.archetype.beastmaster.beastmasters-call,
+          @feats.archetype.beastmaster.lead-the-pack,
+          @feats.ranger.animal-empathy-ranger,
+          @feats.ranger.initiate-warden,
+          @feats.ranger.advanced-warden,
+          @feats.ranger.companions-cry,
+          @feats.druid.side-by-side-druid],
+          x in feats.held) + archetypes.beastmaster.repeats : 0
+  archetypes.beastmaster.repeats: { type: integer, formula: 0 }
+  archetypes.blessedOne.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.blessed-one.blessed-one-dedication in feats.held
+        ? countList([@feats.archetype.blessed-one.blessed-one-dedication,
+          @feats.archetype.blessed-one.blessed-sacrifice,
+          @feats.archetype.blessed-one.blessed-spell,
+          @feats.archetype.blessed-one.blessed-denial,
+          @feats.champion.greater-mercy,
+          @feats.champion.affliction-mercy,
+          @feats.champion.rejuvenating-touch,
+          @feats.champion.ultimate-mercy],
+          x in feats.held) + champion.mercies : 0
+  archetypes.bountyHunter.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.bounty-hunter.bounty-hunter-dedication in feats.held
+        ? countList([@feats.archetype.bounty-hunter.bounty-hunter-dedication,
+          @feats.archetype.bounty-hunter.posse,
+          @feats.archetype.bounty-hunter.tools-of-the-trade,
+          @feats.archetype.bounty-hunter.keep-pace,
+          @feats.archetype.bounty-hunter.opportunistic-grapple,
+          @feats.ranger.monster-hunter,
+          @feats.ranger.double-prey],
+          x in feats.held) : 0
+  archetypes.cavalier.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.cavalier.cavalier-dedication in feats.held
+        ? countList([@feats.archetype.cavalier.cavalier-dedication,
+          @feats.archetype.cavalier.cavaliers-banner,
+          @feats.archetype.cavalier.cavaliers-charge,
+          @feats.archetype.cavalier.impressive-mount,
+          @feats.archetype.cavalier.quick-mount,
+          @feats.archetype.cavalier.defend-mount,
+          @feats.archetype.cavalier.mounted-shield,
+          @feats.archetype.cavalier.incredible-mount,
+          @feats.archetype.cavalier.trampling-charge,
+          @feats.archetype.cavalier.unseat,
+          @feats.archetype.cavalier.legendary-rider],
+          x in feats.held) + archetypes.cavalier.repeats : 0
+  archetypes.cavalier.repeats: { type: integer, formula: 0 }
+  archetypes.celebrity.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.celebrity.celebrity-dedication in feats.held
+        ? countList([@feats.archetype.celebrity.celebrity-dedication,
+          @feats.archetype.celebrity.never-tire,
+          @feats.archetype.celebrity.mesmerizing-gaze,
+          @feats.archetype.celebrity.command-attention],
+          x in feats.held) : 0
+  archetypes.dandy.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.dandy.dandy-dedication in feats.held
+        ? countList([@feats.archetype.dandy.dandy-dedication,
+          @feats.archetype.dandy.distracting-flattery,
+          @feats.archetype.dandy.gossip-lore,
+          @feats.archetype.dandy.fabricated-connections,
+          @feats.archetype.dandy.party-crasher],
+          x in feats.held) : 0
+  archetypes.dualWeaponWarrior.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.dual-weapon-warrior.dual-weapon-warrior-dedication in feats.held
+        ? countList([@feats.archetype.dual-weapon-warrior.dual-weapon-warrior-dedication,
+          @feats.archetype.dual-weapon-warrior.dual-thrower,
+          @feats.archetype.dual-weapon-warrior.dual-weapon-reload,
+          @feats.archetype.dual-weapon-warrior.flensing-slice,
+          @feats.archetype.dual-weapon-warrior.dual-weapon-blitz,
+          @feats.archetype.dual-weapon-warrior.dual-onslaught,
+          @feats.ranger.quick-draw,
+          @feats.ranger.twin-parry,
+          @feats.fighter.twin-riposte,
+          @feats.fighter.improved-twin-riposte-fighter,
+          @feats.fighter.two-weapon-flurry,
+          @feats.fighter.twinned-defense-fighter],
+          x in feats.held) : 0
+  archetypes.duelist.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.duelist.duelist-dedication in feats.held
+        ? countList([@feats.archetype.duelist.duelist-dedication,
+          @feats.archetype.duelist.duelists-challenge,
+          @feats.archetype.duelist.selfless-parry,
+          @feats.archetype.duelist.student-of-the-dueling-arts,
+          @feats.fighter.dueling-parry,
+          @feats.fighter.disarming-stance,
+          @feats.fighter.dueling-riposte,
+          @feats.fighter.disarming-twist,
+          @feats.fighter.dueling-dance-fighter,
+          @feats.fighter.improved-dueling-riposte,
+          @feats.fighter.guiding-riposte],
+          x in feats.held) : 0
+  archetypes.eldritchArcher.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.eldritch-archer.eldritch-archer-dedication in feats.held
+        ? countList([@feats.archetype.eldritch-archer.eldritch-archer-dedication,
+          @feats.archetype.eldritch-archer.basic-eldritch-archer-spellcasting,
+          @feats.archetype.eldritch-archer.enchanting-shot,
+          @feats.archetype.eldritch-archer.precious-ammunition,
+          @feats.archetype.eldritch-archer.eldritch-reload,
+          @feats.archetype.eldritch-archer.expert-eldritch-archer-spellcasting,
+          @feats.archetype.eldritch-archer.homing-shot,
+          @feats.archetype.eldritch-archer.incorporeal-shot,
+          @feats.archetype.eldritch-archer.fatal-shot,
+          @feats.archetype.eldritch-archer.master-eldritch-archer-spellcasting,
+          @feats.ranger.running-reload,
+          @feats.fighter.impossible-volley],
+          x in feats.held) + archetypes.eldritchArcher.repeats : 0
+  archetypes.eldritchArcher.repeats: { type: integer, formula: 0 }
+  archetypes.familiarMaster.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.familiar-master.familiar-master-dedication in feats.held
+        ? countList([@feats.archetype.familiar-master.familiar-master-dedication,
+          @feats.archetype.familiar-master.familiar-mascot,
+          @feats.archetype.familiar-master.familiar-conduit,
+          @feats.archetype.familiar-master.improved-familiar,
+          @feats.archetype.familiar-master.mutable-familiar,
+          @feats.archetype.familiar-master.incredible-familiar,
+          @feats.spellcasting.enhanced-familiar],
+          x in feats.held) : 0
+  archetypes.gladiator.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.gladiator.gladiator-dedication in feats.held
+        ? countList([@feats.archetype.gladiator.gladiator-dedication,
+          @feats.archetype.gladiator.fancy-moves,
+          @feats.archetype.gladiator.play-to-the-crowd,
+          @feats.archetype.gladiator.stage-fighting,
+          @feats.archetype.gladiator.performative-weapons-training,
+          @feats.archetype.gladiator.call-your-shot],
+          x in feats.held) : 0
+  archetypes.herbalist.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.herbalist.herbalist-dedication in feats.held
+        ? countList([@feats.archetype.herbalist.herbalist-dedication,
+          @feats.archetype.herbalist.fresh-ingredients,
+          @feats.archetype.herbalist.poultice-preparation,
+          @feats.archetype.herbalist.advanced-herbalism,
+          @feats.archetype.herbalist.endemic-herbs],
+          x in feats.held) : 0
+  archetypes.linguist.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.linguist.linguist-dedication in feats.held
+        ? countList([@feats.archetype.linguist.linguist-dedication,
+          @feats.archetype.linguist.multilingual-cipher,
+          @feats.archetype.linguist.phonetic-training,
+          @feats.archetype.linguist.spot-translate,
+          @feats.archetype.linguist.analyze-idiolect,
+          @feats.archetype.linguist.read-shibboleths,
+          @feats.archetype.linguist.crude-communication],
+          x in feats.held) : 0
+  archetypes.marshal.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.marshal.marshal-dedication in feats.held
+        ? countList([@feats.archetype.marshal.marshal-dedication,
+          @feats.archetype.marshal.dread-marshal-stance,
+          @feats.archetype.marshal.inspiring-marshal-stance,
+          @feats.archetype.marshal.snap-out-of-it,
+          @feats.archetype.marshal.steel-yourself,
+          @feats.archetype.marshal.cadence-call,
+          @feats.archetype.marshal.rallying-charge,
+          @feats.archetype.marshal.back-to-back,
+          @feats.archetype.marshal.to-battle,
+          @feats.archetype.marshal.topple-foe,
+          @feats.archetype.marshal.coordinated-charge,
+          @feats.archetype.marshal.tactical-cadence,
+          @feats.archetype.marshal.target-of-opportunity,
+          @feats.barbarian.reactive-strike],
+          x in feats.held) : 0
+  archetypes.martialArtist.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.martial-artist.martial-artist-dedication in feats.held
+        ? countList([@feats.archetype.martial-artist.martial-artist-dedication,
+          @feats.archetype.martial-artist.follow-up-strike,
+          @feats.archetype.martial-artist.grievous-blow,
+          @feats.archetype.martial-artist.path-of-iron,
+          @feats.monk.crane-stance,
+          @feats.monk.dragon-stance,
+          @feats.monk.mountain-stance,
+          @feats.monk.stumbling-stance,
+          @feats.monk.tiger-stance,
+          @feats.monk.wolf-stance,
+          @feats.monk.advanced-monastic-weaponry,
+          @feats.monk.crane-flutter,
+          @feats.monk.dragon-roar,
+          @feats.monk.mountain-stronghold,
+          @feats.monk.tiger-slash,
+          @feats.monk.wolf-drag,
+          @feats.monk.mountain-quake],
+          x in feats.held) : 0
+  archetypes.mauler.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.mauler.mauler-dedication in feats.held
+        ? countList([@feats.archetype.mauler.mauler-dedication,
+          @feats.archetype.mauler.clear-the-way,
+          @feats.archetype.mauler.shoving-sweep,
+          @feats.archetype.mauler.hammer-quake,
+          @feats.archetype.mauler.avalanche-strike,
+          @feats.fighter.slam-down,
+          @feats.fighter.vicious-swing,
+          @feats.fighter.crashing-slam,
+          @feats.fighter.brutal-finish,
+          @feats.barbarian.unbalancing-sweep],
+          x in feats.held) : 0
+  archetypes.medic.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.medic.medic-dedication in feats.held
+        ? countList([@feats.archetype.medic.medic-dedication,
+          @feats.archetype.medic.doctors-visitation,
+          @feats.archetype.medic.treat-condition,
+          @feats.archetype.medic.holistic-care,
+          @feats.archetype.medic.resuscitate],
+          x in feats.held) : 0
+  archetypes.pirate.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.pirate.pirate-dedication in feats.held
+        ? countList([@feats.archetype.pirate.pirate-dedication,
+          @feats.archetype.pirate.pirate-combat-training,
+          @feats.archetype.pirate.rope-runner,
+          @feats.archetype.pirate.walk-the-plank,
+          @feats.swashbuckler.antagonize,
+          @feats.rogue.youre-next],
+          x in feats.held) : 0
+  archetypes.poisoner.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.poisoner.poisoner-dedication in feats.held
+        ? countList([@feats.archetype.poisoner.poisoner-dedication,
+          @feats.archetype.poisoner.poisoners-twist,
+          @feats.archetype.poisoner.advanced-poisoncraft,
+          @feats.archetype.poisoner.poison-coat,
+          @feats.archetype.poisoner.acquired-tolerance,
+          @feats.archetype.poisoner.chemical-contagion,
+          @feats.alchemist.blowgun-poisoner,
+          @feats.druid.poison-resistance,
+          @feats.rogue.poison-weapon,
+          @feats.alchemist.tenacious-toxins,
+          @feats.alchemist.sticky-poison,
+          @feats.rogue.improved-poison-weapon,
+          @feats.alchemist.pinpoint-poisoner],
+          x in feats.held) : 0
+  archetypes.ritualist.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.ritualist.ritualist-dedication in feats.held
+        ? countList([@feats.archetype.ritualist.ritualist-dedication,
+          @feats.archetype.ritualist.flexible-ritualist,
+          @feats.archetype.ritualist.resourceful-ritualist,
+          @feats.archetype.ritualist.efficient-rituals,
+          @feats.archetype.ritualist.assured-ritualist,
+          @feats.archetype.ritualist.enterprising-ritualist],
+          x in feats.held) : 0
+  archetypes.scout.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.scout.scout-dedication in feats.held
+        ? countList([@feats.archetype.scout.scout-dedication,
+          @feats.archetype.scout.scouts-charge,
+          @feats.archetype.scout.terrain-scout,
+          @feats.archetype.scout.fleeting-shadow,
+          @feats.archetype.scout.scouts-speed,
+          @feats.archetype.scout.scouts-pounce,
+          @feats.ranger.camouflage],
+          x in feats.held) : 0
+  archetypes.scrollTrickster.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.scroll-trickster.scroll-trickster-dedication in feats.held
+        ? countList([@feats.archetype.scroll-trickster.scroll-trickster-dedication,
+          @feats.archetype.scroll-trickster.basic-scroll-cache,
+          @feats.archetype.scroll-trickster.skim-scroll,
+          @feats.archetype.scroll-trickster.expert-scroll-cache,
+          @feats.archetype.scroll-trickster.master-scroll-cache],
+          x in feats.held) : 0
+  archetypes.scrounger.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.scrounger.scrounger-dedication in feats.held
+        ? countList([@feats.archetype.scrounger.scrounger-dedication,
+          @feats.archetype.scrounger.reverse-engineering,
+          @feats.archetype.scrounger.magical-scrounger,
+          @feats.archetype.scrounger.expert-disassembly],
+          x in feats.held) : 0
+  archetypes.sentinel.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.sentinel.sentinel-dedication in feats.held
+        ? countList([@feats.archetype.sentinel.sentinel-dedication,
+          @feats.archetype.sentinel.steel-skin,
+          @feats.archetype.sentinel.armor-specialist,
+          @feats.archetype.sentinel.armored-rebuff],
+          x in feats.held) : 0
+  archetypes.snarecrafter.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.snarecrafter.snarecrafter-dedication in feats.held
+        ? countList([@feats.archetype.snarecrafter.snarecrafter-dedication,
+          @feats.archetype.snarecrafter.surprise-snare,
+          @feats.archetype.snarecrafter.remote-trigger,
+          @feats.archetype.snarecrafter.giant-snare,
+          @feats.archetype.snarecrafter.lightning-snares,
+          @feats.archetype.snarecrafter.plentiful-snares],
+          x in feats.held) : 0
+  archetypes.talismanDabbler.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.talisman-dabbler.talisman-dabbler-dedication in feats.held
+        ? countList([@feats.archetype.talisman-dabbler.talisman-dabbler-dedication,
+          @feats.archetype.talisman-dabbler.quick-fix,
+          @feats.archetype.talisman-dabbler.talismanic-sage],
+          x in feats.held) + archetypes.talismanDabbler.deeperDabblers : 0
+  archetypes.talismanDabbler.deeperDabblers: { type: integer, formula: 0 }
+  archetypes.vigilante.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.vigilante.vigilante-dedication in feats.held
+        ? countList([@feats.archetype.vigilante.vigilante-dedication,
+          @feats.archetype.vigilante.hidden-magic,
+          @feats.archetype.vigilante.minion-guise,
+          @feats.archetype.vigilante.safe-house,
+          @feats.archetype.vigilante.social-purview,
+          @feats.archetype.vigilante.startling-appearance,
+          @feats.archetype.vigilante.quick-change,
+          @feats.archetype.vigilante.subjective-truth,
+          @feats.archetype.vigilante.many-guises,
+          @feats.archetype.vigilante.frightening-appearance,
+          @feats.archetype.vigilante.stunning-appearance,
+          @feats.ranger.quick-draw],
+          x in feats.held) : 0
+  archetypes.viking.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.viking.viking-dedication in feats.held
+        ? countList([@feats.archetype.viking.viking-dedication,
+          @feats.archetype.viking.hurling-charge,
+          @feats.archetype.viking.viking-weapon-familiarity,
+          @feats.archetype.viking.second-shield,
+          @feats.archetype.viking.into-the-fray,
+          @feats.fighter.reactive-shield,
+          @feats.fighter.shielded-stride,
+          @feats.fighter.quick-shield-block],
+          x in feats.held) : 0
+  archetypes.weaponImproviser.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.weapon-improviser.weapon-improviser-dedication in feats.held
+        ? countList([@feats.archetype.weapon-improviser.weapon-improviser-dedication,
+          @feats.archetype.weapon-improviser.improvised-pummel,
+          @feats.archetype.weapon-improviser.surprise-strike,
+          @feats.archetype.weapon-improviser.improvised-critical,
+          @feats.archetype.weapon-improviser.makeshift-strike,
+          @feats.archetype.weapon-improviser.shattering-strike],
+          x in feats.held) : 0
+  archetypes.wrestler.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.wrestler.wrestler-dedication in feats.held
+        ? countList([@feats.archetype.wrestler.wrestler-dedication,
+          @feats.archetype.wrestler.disengaging-twist,
+          @feats.archetype.wrestler.elbow-breaker,
+          @feats.archetype.wrestler.suplex,
+          @feats.archetype.wrestler.clinch-strike,
+          @feats.archetype.wrestler.running-tackle,
+          @feats.archetype.wrestler.strangle,
+          @feats.archetype.wrestler.submission-hold,
+          @feats.archetype.wrestler.aerial-piledriver,
+          @feats.archetype.wrestler.spinebreaker,
+          @feats.archetype.wrestler.inescapable-grasp,
+          @feats.fighter.combat-grab,
+          @feats.monk.crushing-grab,
+          @feats.fighter.snagging-strike,
+          @feats.monk.whirling-throw,
+          @feats.monk.form-lock,
+          @feats.monk.godbreaker],
+          x in feats.held) : 0
+  archetypes.bard.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.bard.bard-dedication in feats.held
+        ? countList([@feats.archetype.bard.bard-dedication,
+          @feats.archetype.bard.basic-bard-spellcasting,
+          @feats.archetype.bard.basic-muses-whispers,
+          @feats.archetype.bard.counter-perform,
+          @feats.archetype.bard.anthemic-performance,
+          @feats.archetype.bard.occult-breadth,
+          @feats.archetype.bard.expert-bard-spellcasting,
+          @feats.archetype.bard.master-bard-spellcasting],
+          x in feats.held) + archetypes.bard.repeats : 0
+  archetypes.bard.repeats: { type: integer, formula: 0 }
+  archetypes.cleric.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.cleric.cleric-dedication in feats.held
+        ? countList([@feats.archetype.cleric.cleric-dedication,
+          @feats.archetype.cleric.basic-cleric-spellcasting,
+          @feats.archetype.cleric.basic-dogma,
+          @feats.archetype.cleric.divine-breadth,
+          @feats.archetype.cleric.expert-cleric-spellcasting,
+          @feats.archetype.cleric.master-cleric-spellcasting],
+          x in feats.held) + archetypes.cleric.repeats : 0
+  archetypes.cleric.repeats: { type: integer, formula: 0 }
+  archetypes.druid.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.druid.druid-dedication in feats.held
+        ? countList([@feats.archetype.druid.druid-dedication,
+          @feats.archetype.druid.basic-druid-spellcasting,
+          @feats.archetype.druid.basic-wilding,
+          @feats.archetype.druid.order-spell,
+          @feats.archetype.druid.primal-breadth,
+          @feats.archetype.druid.expert-druid-spellcasting,
+          @feats.archetype.druid.master-druid-spellcasting],
+          x in feats.held) + archetypes.druid.repeats : 0
+  archetypes.druid.repeats: { type: integer, formula: 0 }
+  archetypes.oracle.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.oracle.oracle-dedication in feats.held
+        ? countList([@feats.archetype.oracle.oracle-dedication,
+          @feats.archetype.oracle.basic-mysteries,
+          @feats.archetype.oracle.basic-oracle-spellcasting,
+          @feats.archetype.oracle.first-revelation,
+          @feats.archetype.oracle.mysterious-breadth,
+          @feats.archetype.oracle.expert-oracle-spellcasting,
+          @feats.archetype.oracle.master-oracle-spellcasting],
+          x in feats.held) + archetypes.oracle.repeats : 0
+  archetypes.oracle.repeats: { type: integer, formula: 0 }
+  archetypes.sorcerer.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.sorcerer.sorcerer-dedication in feats.held
+        ? countList([@feats.archetype.sorcerer.sorcerer-dedication,
+          @feats.archetype.sorcerer.basic-sorcerer-spellcasting,
+          @feats.archetype.sorcerer.basic-blood-potency,
+          @feats.archetype.sorcerer.basic-bloodline-spell,
+          @feats.archetype.sorcerer.bloodline-breadth,
+          @feats.archetype.sorcerer.expert-sorcerer-spellcasting,
+          @feats.archetype.sorcerer.master-sorcerer-spellcasting],
+          x in feats.held) + archetypes.sorcerer.repeats : 0
+  archetypes.sorcerer.repeats: { type: integer, formula: 0 }
+  archetypes.witch.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.witch.witch-dedication in feats.held
+        ? countList([@feats.archetype.witch.witch-dedication,
+          @feats.archetype.witch.basic-witch-spellcasting,
+          @feats.archetype.witch.basic-witchcraft,
+          @feats.archetype.witch.patrons-breadth,
+          @feats.archetype.witch.expert-witch-spellcasting,
+          @feats.archetype.witch.master-witch-spellcasting],
+          x in feats.held) + archetypes.witch.repeats : 0
+  archetypes.witch.repeats: { type: integer, formula: 0 }
+  archetypes.wizard.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.wizard.wizard-dedication in feats.held
+        ? countList([@feats.archetype.wizard.wizard-dedication,
+          @feats.archetype.wizard.arcane-school-spell,
+          @feats.archetype.wizard.basic-arcana,
+          @feats.archetype.wizard.basic-wizard-spellcasting,
+          @feats.archetype.wizard.arcane-breadth,
+          @feats.archetype.wizard.expert-wizard-spellcasting,
+          @feats.archetype.wizard.master-wizard-spellcasting],
+          x in feats.held) + archetypes.wizard.repeats : 0
+  archetypes.wizard.repeats: { type: integer, formula: 0 }
+
+constraints:
+  - id: dedication-lock
+    check: archetypes.open <= 1 + archetypes.openAllowance
+    data: { open: archetypes.open }
+
+display:
+  fields:
+    assassin.mark:
+      {
+        groups: [turn],
+        priority: 1,
+        showWhen: '@feats.archetype.assassin.assassin-dedication in feats.held',
+      }
+    archetypes.open: { hidden: true }
+    archetypes.openAllowance: { hidden: true }
+    archetypes.dedications: { hidden: true }
+    archetypes.extra.level2: { hidden: true }
+    archetypes.extra.level4: { hidden: true }
+    archetypes.extra.level6: { hidden: true }
+    archetypes.extra.level8: { hidden: true }
+    archetypes.extra.level10: { hidden: true }
+    archetypes.extra.level12: { hidden: true }
+    archetypes.extra.level14: { hidden: true }
+    archetypes.extra.level16: { hidden: true }
+    archetypes.extra.level18: { hidden: true }
+    archetypes.extra.level20: { hidden: true }
+    archetypes.fighter.feats: { hidden: true }
+    archetypes.fighter.repeats: { hidden: true }
+    archetypes.rogue.feats: { hidden: true }
+    archetypes.rogue.repeats: { hidden: true }
+    archetypes.ranger.feats: { hidden: true }
+    archetypes.ranger.repeats: { hidden: true }
+    archetypes.barbarian.feats: { hidden: true }
+    archetypes.barbarian.repeats: { hidden: true }
+    archetypes.champion.feats: { hidden: true }
+    archetypes.champion.repeats: { hidden: true }
+    archetypes.monk.feats: { hidden: true }
+    archetypes.monk.repeats: { hidden: true }
+    archetypes.swashbuckler.feats: { hidden: true }
+    archetypes.swashbuckler.repeats: { hidden: true }
+    archetypes.investigator.feats: { hidden: true }
+    archetypes.investigator.repeats: { hidden: true }
+    archetypes.alchemist.feats: { hidden: true }
+    archetypes.alchemist.repeats: { hidden: true }
+    archetypes.acrobat.feats: { hidden: true }
+    archetypes.archaeologist.feats: { hidden: true }
+    archetypes.archaeologist.repeats: { hidden: true }
+    archetypes.archer.feats: { hidden: true }
+    archetypes.assassin.feats: { hidden: true }
+    archetypes.bastion.feats: { hidden: true }
+    archetypes.beastmaster.feats: { hidden: true }
+    archetypes.beastmaster.repeats: { hidden: true }
+    archetypes.blessedOne.feats: { hidden: true }
+    archetypes.bountyHunter.feats: { hidden: true }
+    archetypes.cavalier.feats: { hidden: true }
+    archetypes.cavalier.repeats: { hidden: true }
+    archetypes.celebrity.feats: { hidden: true }
+    archetypes.dandy.feats: { hidden: true }
+    archetypes.dualWeaponWarrior.feats: { hidden: true }
+    archetypes.duelist.feats: { hidden: true }
+    archetypes.eldritchArcher.feats: { hidden: true }
+    archetypes.eldritchArcher.repeats: { hidden: true }
+    archetypes.familiarMaster.feats: { hidden: true }
+    archetypes.gladiator.feats: { hidden: true }
+    archetypes.herbalist.feats: { hidden: true }
+    archetypes.linguist.feats: { hidden: true }
+    archetypes.marshal.feats: { hidden: true }
+    archetypes.martialArtist.feats: { hidden: true }
+    archetypes.mauler.feats: { hidden: true }
+    archetypes.medic.feats: { hidden: true }
+    archetypes.pirate.feats: { hidden: true }
+    archetypes.poisoner.feats: { hidden: true }
+    archetypes.ritualist.feats: { hidden: true }
+    archetypes.scout.feats: { hidden: true }
+    archetypes.scrollTrickster.feats: { hidden: true }
+    archetypes.scrounger.feats: { hidden: true }
+    archetypes.sentinel.feats: { hidden: true }
+    archetypes.snarecrafter.feats: { hidden: true }
+    archetypes.talismanDabbler.feats: { hidden: true }
+    archetypes.talismanDabbler.deeperDabblers: { hidden: true }
+    archetypes.vigilante.feats: { hidden: true }
+    archetypes.viking.feats: { hidden: true }
+    archetypes.weaponImproviser.feats: { hidden: true }
+    archetypes.wrestler.feats: { hidden: true }
+    archetypes.bard.feats: { hidden: true }
+    archetypes.bard.repeats: { hidden: true }
+    archetypes.cleric.feats: { hidden: true }
+    archetypes.cleric.repeats: { hidden: true }
+    archetypes.druid.feats: { hidden: true }
+    archetypes.druid.repeats: { hidden: true }
+    archetypes.oracle.feats: { hidden: true }
+    archetypes.oracle.repeats: { hidden: true }
+    archetypes.sorcerer.feats: { hidden: true }
+    archetypes.sorcerer.repeats: { hidden: true }
+    archetypes.witch.feats: { hidden: true }
+    archetypes.witch.repeats: { hidden: true }
+    archetypes.wizard.feats: { hidden: true }
+    archetypes.wizard.repeats: { hidden: true }

@@ -1,0 +1,18 @@
+id: feats.ancestry.spell-devourer
+type: feat
+fields: { level: 13, category: ancestry, ancestry: ancestries.orc }
+prerequisites:
+  - id: pervasive-superstition
+    when: '@feats.ancestry.pervasive-superstition in feats.held'
+effects:
+  - target: { steps: [check.after] }
+    op: changes
+    when: >-
+      has(params.spellRank) && params.spellRank > 0
+        && steps.roll.band in ['success', 'critical-success']
+    value:
+      changes:
+        - type: set
+          when: 2 * params.spellRank > hp.temp
+          field: hp.temp
+          value: 2 * params.spellRank

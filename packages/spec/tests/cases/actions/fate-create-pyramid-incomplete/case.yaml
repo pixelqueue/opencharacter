@@ -1,0 +1,11 @@
+description: 'Fate Core guided creation: a pyramid that leaves values out is answer-mismatch: each value goes to a skill'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:create-character }
+  policy: { allocations: pause }
+answers:
+  - amounts:
+      { fate-core:skills.fight: 4, fate-core:skills.athletics: 3, fate-core:skills.physique: 3 }

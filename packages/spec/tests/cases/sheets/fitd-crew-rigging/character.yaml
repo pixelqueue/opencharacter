@@ -1,0 +1,22 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: fitd-scoundrel, version: 0.1.0 }
+homebrew:
+  content:
+    - { id: gear.blade-or-two, type: gear, tags: [standard], fields: { load: 1, kind: weapons } }
+    - { id: gear.documents, type: gear, tags: [standard], fields: { load: 1, kind: documents } }
+    - { id: gear.large-weapon, type: gear, tags: [standard], fields: { load: 2, kind: weapons } }
+values:
+  fitd-scoundrel:ratings.command: 1
+  fitd-scoundrel:ratings.skirmish: 2
+  fitd-scoundrel:load.selected: light
+choices:
+  special-abilities:
+    - option: fitd-scoundrel:special-abilities.battleborn
+links:
+  fitd-scoundrel:crew: example-fitd-crew-ravens
+inventory:
+  - { id: fitd-scoundrel-gear-blade-or-two, item: homebrew:gear.blade-or-two, equipped: true }
+  - { id: fitd-scoundrel-gear-large-weapon, item: homebrew:gear.large-weapon, equipped: true }
+  - { id: fitd-scoundrel-gear-documents, item: homebrew:gear.documents, equipped: true }

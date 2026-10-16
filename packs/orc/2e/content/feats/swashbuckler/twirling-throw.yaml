@@ -1,0 +1,38 @@
+id: feats.swashbuckler.twirling-throw
+type: feat
+tags: [trait.finisher]
+fields: { level: 4, category: class, class: classes.swashbuckler }
+prerequisites:
+  - { id: flying-blade, when: '@feats.swashbuckler.flying-blade in feats.held' }
+actions:
+  - id: twirling-throw
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    available: >-
+      panache.active && countCopies(copy.type == 'weapon' && copy.equipped && has(copy.fields.thrown) && copy.fields.thrown > 0) > 0
+    steps:
+      - id: weapon
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options: { copies: { type: weapon, where: 'self.equipped && item.thrown > 0' } }
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [finisher]
+        params: { thrown: true }
+        participants: { target: participants.target }
+      - id: spend
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @effects.panache' }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+          returns: "steps.strike.result != 'critical-failure'"

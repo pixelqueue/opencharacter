@@ -1,0 +1,70 @@
+status: finished
+outcome:
+  result: summoned
+  data:
+    count: 2
+    kind: sacred
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: set
+      field: mork-borg-core:daily.college
+      value: true
+  - to: self
+    step: scroll1
+    change:
+      type: addItem
+      entry:
+        id: scrolls-sacred-whispers-pass-the-gate-1
+        item: mork-borg-core:scrolls.sacred.whispers-pass-the-gate
+        state:
+          summoned: true
+  - to: self
+    step: scroll2
+    change:
+      type: addItem
+      entry:
+        id: scrolls-sacred-false-dawn-nights-chariot-1
+        item: mork-borg-core:scrolls.sacred.false-dawn-nights-chariot
+        state:
+          summoned: true
+log:
+  - step: count
+    action: mork-borg-core:invisible-college
+    kind: dice
+    by: engine
+    faces:
+      - 2
+    total: 2
+  - step: kind
+    action: mork-borg-core:invisible-college
+    kind: dice
+    by: engine
+    faces:
+      - 1
+    total: 1
+  - step: first
+    action: mork-borg-core:invisible-college
+    kind: dice
+    by: engine
+    faces:
+      - 3
+    total: 3
+  - step: scroll1
+    action: mork-borg-core:invisible-college
+    kind: choice
+    by: engine
+    option: mork-borg-core:scrolls.sacred.whispers-pass-the-gate
+  - step: second
+    action: mork-borg-core:invisible-college
+    kind: dice
+    by: engine
+    faces:
+      - 7
+    total: 7
+  - step: scroll2
+    action: mork-borg-core:invisible-college
+    kind: choice
+    by: engine
+    option: mork-borg-core:scrolls.sacred.false-dawn-nights-chariot

@@ -1,0 +1,33 @@
+# `bonus-skills` is answered with the inline option `trained`, which `activations` doesn't list;
+# its nested `trained` choice has one of two skills, so it's open and the only pending choice.
+# Its owner is the inline option's key root, so the prompt is
+# `classes.marine.choices.bonus-skills.options.trained.choices.trained.prompt`.
+choices:
+  - path: { entry: class, choice: [bonus-skills] }
+    owner: mothership-1e:classes.marine
+    id: bonus-skills
+    min: 1
+    max: 1
+    picks: [trained]
+    open: false
+  - path: { entry: class, choice: [bonus-skills, trained, trained] }
+    owner: mothership-1e:classes.marine.choices.bonus-skills.options.trained
+    id: trained
+    type: mothership-1e:skill
+    min: 2
+    max: 2
+    picks: [mothership-1e:skills.computers]
+    open: true
+pending:
+  - { entry: class, choice: [bonus-skills, trained, trained] }
+activations:
+  - { item: mothership-1e:classes.marine, entry: class, via: copy }
+  - { item: mothership-1e:skills.military-training, entry: class, via: grant, parent: 0 }
+  - { item: mothership-1e:skills.athletics, entry: class, via: grant, parent: 0 }
+  - item: mothership-1e:skills.computers
+    entry: class
+    via: pick
+    parent: 0
+    path: { entry: class, choice: [bonus-skills, trained, trained, mothership-1e:skills.computers] }
+issues: []
+errors: []

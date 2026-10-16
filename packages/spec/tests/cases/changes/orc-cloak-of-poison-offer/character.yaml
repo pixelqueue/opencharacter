@@ -1,0 +1,19 @@
+# A 13th-level leshy fighter with Cloak of Poison (13th), cloaked. Only what the retort reads is
+# filled.
+specVersion: 0.1.0
+id: example-orc-cloaked-leshy
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 13
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.leshy
+  - id: class
+    item: orc-2e:classes.fighter
+choices:
+  ancestry-feat-13:
+    - option: orc-2e:feats.ancestry.cloak-of-poison
+      state: { used: true }
+applied:
+  - { id: cloak, source: orc-2e:effects.cloak-of-poison }

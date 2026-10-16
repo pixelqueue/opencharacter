@@ -1,0 +1,17 @@
+id: features.fighter.action-surge
+type: feature
+effects:
+  - { target: actionSurge.uses, op: set, value: 'self.level >= 17 ? 2 : 1' }
+actions:
+  - id: action-surge
+    tags: [feature]
+    results: [surged]
+    available: self.actionSurgeSpent < actionSurge.uses
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: actionSurgeSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'surged'"

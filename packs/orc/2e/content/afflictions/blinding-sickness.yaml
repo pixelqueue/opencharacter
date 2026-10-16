@@ -1,0 +1,13 @@
+id: afflictions.blinding-sickness
+type: affliction
+tags: [trait.disease]
+fields: { kind: disease, level: 7, dc: 23, stages: 7 }
+grants:
+  - { item: conditions.enfeebled, scope: applied, when: self.stage == 2, state: { value: 1 } }
+  - { item: conditions.enfeebled, scope: applied, when: self.stage == 3, state: { value: 2 } }
+  - { item: conditions.enfeebled, scope: applied, when: self.stage == 4, state: { value: 2 } }
+  - { item: conditions.blinded, scope: applied, when: self.stage == 4 }
+  - { item: conditions.enfeebled, scope: applied, when: self.stage == 5, state: { value: 4 } }
+  - { item: conditions.blinded, scope: applied, when: self.stage == 5 }
+  - { item: conditions.unconscious, scope: applied, when: self.stage == 6 }
+  - { item: conditions.blinded, scope: applied, when: self.stage == 6 }

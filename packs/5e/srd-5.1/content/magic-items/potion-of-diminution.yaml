@@ -1,0 +1,17 @@
+id: magic-items.potion-of-diminution
+type: magicItem
+fields:
+  category: potion
+  rarity: rare
+  lasting: true
+  spells: [spells.enlarge-reduce]
+effects:
+  - {
+      target: { rolls: [check.str, save.str] },
+      op: rollModifier,
+      value: { kind: disadvantage },
+      scope: applied,
+    }
+  - { target: { rolls: [damage.weapon] }, op: add, value: -1d4, scope: applied }
+actions:
+  - use: drink-potion

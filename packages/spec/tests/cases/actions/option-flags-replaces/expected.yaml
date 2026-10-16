@@ -1,0 +1,12 @@
+# `fire` sets the element and the first count, and the step's change after it reads `fire`; `ice`
+# replaces the element and counts on, so no change follows it.
+status: finished
+outcome:
+  data: { element: ice, count: 2 }
+proposedChanges:
+  - to: self
+    step: pick
+    change: { type: adjust, field: test-pack:heat, by: 1 }
+log:
+  - { step: pick, action: test-pack:infuse, kind: choice, by: app, option: fire, index: 0 }
+  - { step: pick, action: test-pack:infuse, kind: choice, by: app, option: ice, index: 1 }

@@ -1,0 +1,57 @@
+# Defense DR 14; 13 - 1 = 12 fails, and the roll is kept. The attack's 1d8 = 8; the app spends
+# an omen for d6 = 5 less: 3 damage, less armor and shield when it is applied.
+status: finished
+outcome:
+  result: failure
+  data:
+    damage: 3
+    counterAttack: false
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: mork-borg-core:omens.current
+      by: -1
+  - to: self
+    step: take
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -3
+      tags:
+        - damage
+log:
+  - step: check/check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 13
+    total: 12
+    band: failure
+    bandSet: mork-borg-core:test
+  - step: check/fate
+    action: mork-borg-core:test
+    kind: choice
+    by: app
+    option: keep
+  - step: hit
+    action: mork-borg-core:defend
+    kind: dice
+    by: engine
+    faces:
+      - 8
+    total: 8
+  - step: ward
+    action: mork-borg-core:defend
+    kind: choice
+    by: app
+    option: reduce
+  - step: warding
+    action: mork-borg-core:defend
+    kind: dice
+    by: engine
+    faces:
+      - 5
+    total: 5

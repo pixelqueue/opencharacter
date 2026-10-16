@@ -1,0 +1,14 @@
+id: feats.alchemist.improved-invigorating-elixir
+type: feat
+fields: { level: 8, category: class, class: classes.alchemist }
+repeatable: true
+prerequisites:
+  - { id: invigorating-elixir, when: '@feats.alchemist.invigorating-elixir in feats.held' }
+choices:
+  - id: invigoration
+    unique: invigorations
+    requiresOption: true
+    from:
+      options:
+        - id: physical
+        - id: mental

@@ -1,0 +1,9 @@
+description: "FitD's random start, run automatically: with no playbook the engine draws a special ability from the SRD's pool, the vice, the three starting dots and each of the four more (the heritage's, the background's and two more) among the actions that can still take one, then Expertise's action, so the scoundrel finishes"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:create-scoundrel }
+  params: { random: true }
+  policy: { dice: auto, choices: auto, allocations: auto }

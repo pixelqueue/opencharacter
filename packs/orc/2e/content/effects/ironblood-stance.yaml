@@ -1,0 +1,12 @@
+id: effects.ironblood-stance
+type: effect
+tags: [trait.stance]
+standardCopies:
+  - { type: weapon, where: 'item.id == @weapons.unarmed.iron-sweep' }
+effects:
+  - target: { incoming: { fields: [hp.current] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, level >= 20 ? 5 : level >= 16 ? 4 : level >= 12 ? 3 : 2)'
+    when: incoming.amount < 0 && 'damage' in incoming.tags
+    scope: applied

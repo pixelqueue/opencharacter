@@ -1,0 +1,12 @@
+description: 'Replayed dice faces: a reroll that pauses again for one die takes its own answer, and the roll logs every face in one entry'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../packs/test-roll-bounds
+input:
+  action: { id: test-roll-bounds:pool }
+  policy: { dice: pause }
+  answers:
+    - { faces: [3, 1, 2, 1] }
+    - { faces: [6] }
+    - { faces: [5] }

@@ -1,0 +1,18 @@
+id: ancestries.orc
+type: ancestry
+tags: [trait.orc, trait.humanoid]
+fields: { hp: 10, size: medium, speed: 25 }
+effects:
+  - { target: languages, op: grant, value: { item: languages.common } }
+  - { target: languages, op: grant, value: { item: languages.orcish } }
+  - { target: senses, op: grant, value: { tag: sense.darkvision } }
+  - { target: traits, op: grant, value: { tag: trait.orc } }
+  - { target: traits, op: grant, value: { tag: trait.humanoid } }
+choices:
+  - id: heritage
+    from:
+      type: heritage
+      where: 'item.versatile || item.ancestry == @ancestries.orc'
+  - id: boosts
+    pick: 2
+    from: { type: boost }

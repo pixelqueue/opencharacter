@@ -1,0 +1,39 @@
+description: 'A view: values matched by field ID with or without the pack, dotted IDs nested, enum and dice values typed'
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        links:
+          group:
+            fields:
+              tier: { type: integer, default: 2 }
+              size: { type: integer }
+              upgrades.big: { type: boolean, default: false }
+              dice: { type: dice, default: 1d6 }
+              mood: { type: enum, values: [calm, angry], default: calm }
+        fields:
+          linked: { type: boolean, formula: has(links.group) }
+          group.tier: { type: integer, formula: 'has(links.group) ? links.group.tier : -1' }
+          group.size: { type: integer, formula: 'has(links.group.size) ? links.group.size : 5' }
+          group.big: { type: boolean, formula: 'has(links.group) && links.group.upgrades.big' }
+          group.id: { type: string, formula: "has(links.group) ? links.group.id : 'none'" }
+          group.mood: { type: string, formula: "has(links.group) ? links.group.mood : 'none'" }
+      content: []
+input:
+  links:
+    test-pack:group:
+      id: grp-7
+      values:
+        some-crew-pack:tier: 4
+        size: 6
+        some-crew-pack:upgrades.big: true
+        mood: angry
+        dice: 2d6
+        some-crew-pack:unread: 9

@@ -1,0 +1,26 @@
+description: 'Fate Core: a setting pack adds Pilot as a field tagged `skill`; the pyramid counts it, so Pilot at Great completes the pyramid and is the highest skill'
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - path: ../../../../../../packs/fate/core
+  - inline:
+      manifest:
+        id: test-fate-setting
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies:
+          fate-core: ^0.1.0
+      rules:
+        fields:
+          skills.pilot:
+            {
+              type: integer,
+              input: true,
+              default: 0,
+              min: 0,
+              max: 8,
+              tags: [skill, skill.overcome, skill.advantage, skill.defend],
+            }
+      content: []

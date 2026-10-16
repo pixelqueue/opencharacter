@@ -1,0 +1,22 @@
+id: classes.champion.causes.liberation
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: champion.cause, op: set, value: "'liberation'", when: class.has.champion }
+actions:
+  - id: liberating-step
+    tags: [reaction]
+    participants:
+      ally: { max: 1 }
+    results: [used]
+    steps:
+      - id: resist
+        kind: changes
+        to: ally
+        changes:
+          - type: applyEffect
+            source: "'classes.champion.resistance'"
+            state: { amount: champion.allyResistance }
+      - id: result
+        kind: outcome
+        result: "'used'"

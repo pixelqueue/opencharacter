@@ -1,0 +1,18 @@
+description: "orc-2e: a critical hit with a shortbow in Point-Blank Stance doubles the
+  bow's die and the stance's +2 (an effect's flat bonus); deadly's die is added after doubling
+  "
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:strike
+    entry: shortbow
+  participants:
+    target:
+      - id: goblin
+        values:
+          orc-2e:defenses.ac: 16
+  situational:
+    orc-2e:pointBlank: true

@@ -1,0 +1,19 @@
+id: feats.rogue.instant-opening
+type: feat
+tags: [trait.concentrate]
+fields: { level: 14, category: class, class: classes.rogue }
+actions:
+  - id: instant-opening
+    tags: [class-action]
+    participants:
+      target: { min: 1, max: 1 }
+    results: [opened]
+    steps:
+      - id: open
+        kind: changes
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.off-guard'" }
+      - id: result
+        kind: outcome
+        result: "'opened'"

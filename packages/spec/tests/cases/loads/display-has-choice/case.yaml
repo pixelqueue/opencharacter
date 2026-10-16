@@ -1,0 +1,38 @@
+description: "`hasChoice` is bound only in display hints' `showWhen`, and a literal type must be a content type the pack sees: a field formula calling it is `unknown-function`, an unknown type `unknown-reference`; a group's, a field hint's and a state hint's `showWhen` may call it"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          styled: { type: boolean, formula: "hasChoice('style')" }
+          level: { type: integer, input: true, default: 1 }
+        contentTypes:
+          style: { carried: false }
+          class:
+            carried: false
+            state:
+              rank: { type: integer, default: 0 }
+        display:
+          groups:
+            - id: styles
+              kind: content
+              showWhen: hasChoice('style')
+              members: { type: style }
+            - id: oaths
+              kind: content
+              showWhen: hasChoice('oath')
+              members: { type: style }
+          fields:
+            level: { showWhen: "hasChoice('test-pack:style')" }
+          types:
+            class:
+              state:
+                rank: { showWhen: "hasChoice('style') && self.rank > 0" }
+      content: []

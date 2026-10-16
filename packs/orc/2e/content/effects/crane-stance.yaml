@@ -1,0 +1,14 @@
+id: effects.crane-stance
+type: effect
+tags: [trait.stance]
+standardCopies:
+  - { type: weapon, where: 'item.id == @weapons.unarmed.crane-wing' }
+effects:
+  - {
+      target: { fields: { where: "'ac' in item.tags" } },
+      op: add,
+      value: 1,
+      stackKey: circumstance-bonus,
+      scope: applied,
+    }
+  - { target: stance.current, op: set, value: "'crane'", scope: applied }

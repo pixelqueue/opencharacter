@@ -1,0 +1,24 @@
+id: worn.bands-of-force-greater
+type: worn
+tags: [trait.force, trait.invested, trait.magical]
+fields:
+  level: 14
+  price: 4500
+  bulk: 0.1
+  usage: armbands
+  activation: reaction
+effects:
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: armor.dexCap
+    op: atMost
+    value: 5
+    when: 'self.equipped && self.invested'

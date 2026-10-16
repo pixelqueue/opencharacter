@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/situational.schema.json",
+  "title": "Situational choice",
+  "description": "A choice the player or GM makes when a roll happens (advantage, cover, a GM's bonus, pushing yourself) or when a change arrives (a reaction that halves one attack's damage), declared in game data so apps can offer it without knowing the game. Formulas see the selected value as `situational.<id>`.",
+  "type": "object",
+  "required": ["id", "type"],
+  "properties": {
+    "id": {
+      "$ref": "common.schema.json#/$defs/name"
+    },
+    "type": {
+      "enum": ["boolean", "integer", "enum"]
+    },
+    "values": {
+      "description": "Allowed values when `type` is `enum`.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/slug"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "default": {
+      "$ref": "common.schema.json#/$defs/literal"
+    },
+    "rolls": {
+      "description": "Roll tags this choice is offered for. A tag matches itself and every tag below it.",
+      "$ref": "common.schema.json#/$defs/tags"
+    },
+    "incoming": {
+      "description": "Incoming changes this choice is offered for, matched as an incoming-change effect's target is: an `adjust` whose field is one of `fields` (if given) and with a tag matching one of `tags` (if given). The receiving player selects it on the change (`situational` on an `adjust`); its incoming-change effects then apply while that change is routed.",
+      "type": "object",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/fieldRef"
+          },
+          "minItems": 1
+        },
+        "tags": {
+          "$ref": "common.schema.json#/$defs/tags",
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "additionalProperties": false
+    },
+    "available": {
+      "description": "When the choice is offered: a condition on the character (fields and `character`), checked before any roll. Absent means always.",
+      "$ref": "formula.schema.json#/$defs/condition"
+    },
+    "effects": {
+      "description": "Effects that apply while this choice is selected (boolean) or non-default (integer, enum): its roll effects on a roll it is selected for, its incoming-change effects on a change it is selected for. The selected value is visible as `situational.<id>`.",
+      "type": "array",
+      "items": {
+        "$ref": "effect.schema.json"
+      }
+    },
+    "label": {
+      "$ref": "common.schema.json#/$defs/i18nKey"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "enum"
+          }
+        },
+        "type": "object"
+      },
+      "then": {
+        "required": ["values"],
+        "type": "object"
+      }
+    }
+  ],
+  "additionalProperties": false
+}

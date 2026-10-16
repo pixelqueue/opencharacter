@@ -1,0 +1,57 @@
+id: feats.skill.dirty-trick
+type: feat
+tags: [trait.attack, trait.manipulate]
+fields: { level: 1, category: skill, skills: [skill.thievery] }
+
+prerequisites:
+  - { id: trained, when: 'skills.thievery.rank >= 1' }
+actions:
+  - id: dirty-trick
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+      attack: { type: integer, optional: true, min: 1, max: 3 }
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.reflex.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              map: '5 * min(2, has(params.attack) ? params.attack - 1 : turn.attacks)'
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.dirty-trick]
+        situational: { penalty: 'situational.penalty + flags.map' }
+        params:
+          check: "'skills.thievery.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.reflex.dc)
+              ? participants.target[0].saves.reflex.dc : has(params.dc) ? params.dc : null
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.attacks, by: 1, tags: [attack-count] }
+      - id: hamper
+        kind: changes
+        when: "steps.check.result in ['success', 'critical-success']"
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.clumsy'"
+            state: { value: 1 }
+      - id: fall
+        kind: changes
+        when: steps.check.result == 'critical-failure'
+        changes:
+          - { type: applyEffect, source: "'conditions.prone'" }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }

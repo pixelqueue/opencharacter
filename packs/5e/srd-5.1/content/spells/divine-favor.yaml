@@ -1,0 +1,26 @@
+id: spells.divine-favor
+type: spell
+fields:
+  level: 1
+  school: evocation
+  classes: [classes.paladin]
+  concentration: true
+  castingTime: bonus-action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  damageType: radiant
+  damage: 1d4
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 1d4
+    tags: [damage.radiant]
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }

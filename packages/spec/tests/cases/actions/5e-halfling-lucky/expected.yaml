@@ -1,0 +1,18 @@
+# Lucky rerolls a 1 once; the second 1 stands. 1 + dex 1 (10 + halfling 2) = 2.
+status: finished
+outcome:
+  result: rolled
+  data: { total: 2 }
+log:
+  - step: save
+    action: 5e-srd-5.1:saving-throw
+    kind: dice
+    by: engine
+    faces: [1, 1]
+    items:
+      - kind: dice
+        modifiers: [{ type: rerollOnce, compare: '<=', target: 1 }]
+        faces: [{ value: 1, kept: false, rerolled: true }, { value: 1, kept: true }]
+        value: 1
+      - { kind: flat, value: 1 }
+    total: 2

@@ -1,0 +1,14 @@
+# `equipped` is evaluated by the action; the query's `where` is passed on.
+status: finished
+proposedChanges:
+  - to: self
+    step: draw
+    change: { type: equip, entry: knife-1, equipped: true }
+  - to: self
+    step: draw
+    change:
+      {
+        type: equip,
+        copies: { type: 'test-pack:blade', where: "self.id != 'knife-1'" },
+        equipped: false,
+      }

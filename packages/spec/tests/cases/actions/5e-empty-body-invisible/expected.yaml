@@ -1,0 +1,24 @@
+# 4 ki; the monk is invisible as entry empty-body.
+status: finished
+outcome:
+  result: vanished
+proposedChanges:
+  - to: self
+    step: vanish
+    change:
+      type: adjustState
+      entry: monk
+      key: kiSpent
+      by: 4
+  - to: self
+    step: vanish
+    change:
+      type: set
+      field: 5e-srd-5.1:emptyBody.active
+      value: true
+  - to: self
+    step: vanish
+    change:
+      type: applyEffect
+      id: empty-body
+      source: 5e-srd-5.1:conditions.invisible

@@ -1,0 +1,13 @@
+id: feats.cleric.cast-down
+type: feat
+tags: [trait.concentrate, trait.spellshape]
+fields: { level: 6, category: class, class: classes.cleric }
+effects:
+  - target: { steps: [spell.target] }
+    op: changes
+    when: >-
+      situational.castDown && action.item.id in [@spells.heal, @spells.harm]
+        && size(participants.target) == 1 && has(steps.damage) && flags.outcome >= 1
+    value:
+      changes:
+        - { type: applyEffect, source: "'conditions.prone'" }

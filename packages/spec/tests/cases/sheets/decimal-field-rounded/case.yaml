@@ -1,0 +1,41 @@
+description: "Decimal fields are rounded to six places: an input's saved value when read, a formula's result, each effect step, an item field and a copy's computed value"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          purse: { type: decimal, input: true, default: 0 }
+          load:
+            {
+              type: decimal,
+              formula: 'sumCopies(copy.fields.weight * copy.quantity, has(copy.fields.weight))',
+            }
+          load.whole: { type: integer, formula: floor(load) }
+          load.exact: { type: boolean, formula: load == 1.3 }
+          charm: { type: decimal, formula: 0.1 }
+          share: { type: decimal, formula: 1 / 3 }
+          tithe: { type: integer, formula: 50, rounding: ceil }
+        contentTypes:
+          gear:
+            carried: true
+            fields:
+              weight: { type: decimal, default: 0 }
+            computed:
+              total: { type: decimal, formula: item.weight * self.quantity }
+          boon: {}
+      content:
+        - { id: gear.coin, type: gear, fields: { weight: 0.1 } }
+        - { id: gear.charm, type: gear, fields: { weight: 0.1 } }
+        - id: boons.luck
+          type: boon
+          effects:
+            - { target: charm, op: add, value: 0.2 }
+            - { target: share, op: multiply, value: 3 }
+            - { target: tithe, op: multiply, value: 0.14 }

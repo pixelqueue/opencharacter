@@ -1,0 +1,13 @@
+description: '5E: a zombie from the monster start with its hit dice rolled (3d8 + 9), and its condition and damage immunities copied'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:create-monster }
+  params:
+    monster: 5e-srd-5.1:monsters.zombie
+  policy: { choices: pause }
+answers:
+  - { option: 5e-srd-5.1:monsters.zombie }
+  - { option: roll }

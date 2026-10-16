@@ -1,0 +1,27 @@
+id: features.ranger.primeval-awareness
+type: feature
+actions:
+  - id: primeval-awareness
+    tags: [feature]
+    results: [no-slot, sensing]
+    params:
+      slot: { type: integer }
+    steps:
+      - id: spend
+        kind: action
+        use: spend-spell-slot
+        params:
+          slot: params.slot
+      - id: noSlot
+        kind: outcome
+        when: steps.spend.result != 'spent'
+        result: "'no-slot'"
+        data:
+          slot: params.slot
+      - id: result
+        kind: outcome
+        result: "'sensing'"
+        data:
+          minutes: params.slot
+          miles: 1
+          favoredTerrainMiles: 6

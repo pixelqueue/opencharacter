@@ -1,0 +1,86 @@
+id: spells.scorching-ray
+type: spell
+fields:
+  level: 2
+  school: evocation
+  classes: [classes.sorcerer, classes.wizard]
+  castingTime: action
+  rangeKind: ranged
+  range: 120
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: instantaneous
+# Casting it spends the slot and rolls nothing: each ray is its own attack, made with `ray`. A ray
+# uses the attack bonus of the class it was cast as; without one, the first of the sorcerer and the
+# wizard that knows the spell.
+actions:
+  - use: cast-spell
+  - id: ray
+    tags: [spell]
+    params:
+      caster: { type: enum, values: [sorcerer, wizard], optional: true }
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              cls: >-
+                has(params.caster) ? params.caster
+                  : item.id in spells.sorcerer ? 'sorcerer' : 'wizard'
+              ac: >-
+                size(participants.target) > 0 && has(participants.target[0].combat.rangedAc)
+                  ? participants.target[0].combat.rangedAc
+                : size(participants.target) > 0 && has(participants.target[0].combat.ac)
+                  ? participants.target[0].combat.ac
+                : has(params.targetAc) ? params.targetAc : -1
+      - id: attack
+        kind: roll
+        tags: [d20-test, attack.spell.ranged]
+        parts:
+          - dice: 1d20
+          - value: fieldOf('spellcasting.{caster}.attack', flags.cls)
+      - id: hit
+        kind: branch
+        cases:
+          - when: steps.attack.kept[0] == 20
+            flags: { hit: true, critical: true }
+          - when: steps.attack.kept[0] == 1
+            flags: { hit: false, critical: false }
+          - when: flags.ac >= 0
+            flags: { hit: steps.attack.total >= flags.ac, critical: false }
+        else:
+          flags: { hit: false, critical: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options: [{ id: hit }, { id: miss }]
+      - id: damage
+        kind: roll
+        when: flags.hit || (has(steps.confirm) && steps.confirm.picked == 'hit')
+        tags: [damage.spell]
+        parts:
+          - dice: 2d6
+            tags: [damage.fire]
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, attack, spell, magical, ranged]
+      - id: result
+        kind: outcome
+        result: "has(steps.damage) ? 'hit' : 'miss'"
+        data:
+          critical: flags.critical
+          attack: steps.attack.total
+          spellcastingClass: flags.cls

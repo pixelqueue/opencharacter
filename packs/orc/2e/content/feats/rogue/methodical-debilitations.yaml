@@ -1,0 +1,21 @@
+id: feats.rogue.methodical-debilitations
+type: feat
+fields: { level: 10, category: class, class: classes.rogue }
+prerequisites:
+  - { id: racket, when: "rogue.racket == 'mastermind'" }
+  - { id: debilitating, when: 'classLevel.rogue >= 9' }
+effects:
+  - target: { choices: [debilitation] }
+    op: option
+    value:
+      id: no-flanking
+      to: target
+      changes:
+        - { type: applyEffect, source: "'classes.rogue.debilitations.no-flanking'" }
+  - target: { choices: [debilitation] }
+    op: option
+    value:
+      id: no-cover
+      to: target
+      changes:
+        - { type: applyEffect, source: "'classes.rogue.debilitations.no-cover'" }

@@ -1,0 +1,18 @@
+# Battleborn's option is offered while the special armor box is unmarked, with the ability's
+# qualified ID; the recommendation is still the rules' stress.
+status: paused
+needs:
+  step: pushCost
+  action: fitd-scoundrel:action-roll
+  kind: choice
+  options: [stress, 'fitd-scoundrel:special-abilities.battleborn#special-armor']
+  recommended: stress
+log:
+  - step: roll
+    action: fitd-scoundrel:action-roll
+    kind: dice
+    by: engine
+    faces: [2, 4, 6]
+    total: 6
+    band: success
+    bandSet: fitd-scoundrel:action

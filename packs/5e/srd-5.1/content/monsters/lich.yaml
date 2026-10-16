@@ -1,0 +1,44 @@
+id: monsters.lich
+type: monster
+fields:
+  size: medium
+  creatureType: undead
+  alignment: any-evil
+  ac: 17
+  naturalArmor: true
+  hp: 135
+  hitDice: 18d8 + 54
+  speed: 30
+  str: 11
+  dex: 16
+  con: 16
+  int: 20
+  wis: 14
+  cha: 16
+  saves: [save.con, save.int, save.wis]
+  skills: [skill.arcana, skill.history, skill.insight, skill.perception]
+  damageResistances: [damage.cold, damage.lightning, damage.necrotic]
+  damageImmunities: [damage.poison, nonmagical]
+  conditionImmunities:
+    [conditions.charmed, conditions.frightened, conditions.paralyzed, conditions.poisoned]
+  exhaustionImmune: true
+  truesight: 120
+  languages: [languages.common]
+  languagesNote: up-to-five
+  cr: 21
+  legendaryActions: 3
+  ownCopies:
+    - monsters.lich.legendary-resistance
+# The stat block's bonus differs from proficiency: the difference is added.
+effects:
+  - { target: skills.arcana, op: add, value: 6 }
+  - { target: { rolls: [skill.arcana] }, op: add, value: 6 }
+grants:
+  - item: monsters.lich.rejuvenation
+  - item: monsters.lich.spellcasting
+  - item: monsters.lich.turn-resistance
+  - item: monsters.lich.paralyzing-touch
+  - item: monsters.lich.cantrip
+  - item: monsters.lich.paralyzing-touch-legendary
+  - item: monsters.lich.frightening-gaze
+  - item: monsters.lich.disrupt-life

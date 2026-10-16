@@ -1,0 +1,33 @@
+# The Vice Den, taken from Faction E (-1, -2 more: -3, war); Faction G,
+# their enemies, are pleased (+1 to 2). The claim records its place and the faction.
+status: finished
+outcome:
+  result: seized
+  data:
+    claim: fitd-crew:claims.vice-den
+    faction: faction-e
+proposedChanges:
+  - to: self
+    step: from
+    change:
+      type: setState
+      entry: faction-e
+      key: status
+      value: -3
+  - to: self
+    step: enemies
+    change:
+      type: setState
+      entry: faction-g
+      key: status
+      value: 2
+  - to: self
+    step: add
+    change:
+      type: addItem
+      entry:
+        id: claims-vice-den-1
+        item: fitd-crew:claims.vice-den
+        state:
+          label: The old tannery
+          faction: faction-e

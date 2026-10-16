@@ -1,0 +1,172 @@
+# Without a crew sheet, the scoundrel's own `crew.mastery` input and the actions' `tier`, `workshop`
+# and `upgrade` parameters stand in for the crew, and none of the crew's member benefits apply.
+links:
+  crew:
+    pack: fitd-crew
+    fields:
+      tier: { type: integer, default: 0 }
+      upgrades.mastery: { type: boolean, default: false }
+      upgrades.workshop: { type: boolean, default: false }
+      upgrades.training.insight: { type: integer, default: 0 }
+      upgrades.training.prowess: { type: integer, default: 0 }
+      upgrades.training.resolve: { type: integer, default: 0 }
+      upgrades.training.personal: { type: integer, default: 0 }
+      upgrades.quality.documents: { type: integer, default: 0 }
+      upgrades.quality.gear: { type: integer, default: 0 }
+      upgrades.quality.implements: { type: integer, default: 0 }
+      upgrades.quality.supplies: { type: integer, default: 0 }
+      upgrades.quality.tools: { type: integer, default: 0 }
+      upgrades.quality.weapons: { type: integer, default: 0 }
+      members.stress.bonus: { type: integer, default: 0 }
+      members.trauma.bonus: { type: integer, default: 0 }
+      members.dotRatings: { type: set, of: string, default: [] }
+      members.dotCount: { type: integer, default: 0 }
+      members.resistance.dice: { type: integer, default: 0 }
+      members.supernatural.dice: { type: integer, default: 0 }
+      members.asset.dice: { type: integer, default: 0 }
+      members.recovery.dice: { type: integer, default: 0 }
+      members.gatherInfo.dice: { type: integer, default: 0 }
+      members.siteRatings: { type: set, of: string, default: [] }
+      members.eliteInfo.dice: { type: integer, default: 0 }
+      members.passing.dice: { type: integer, default: 0 }
+      members.synchronized: { type: boolean, default: false }
+      members.prison.load: { type: integer, default: 0 }
+      upgrades.rigging: { type: integer, default: 0 }
+      rigging.kinds: { type: set, of: string, default: [] }
+
+# A dot counts only once the scoundrel is past creation, so the creation checks don't see it.
+choices:
+  - id: crew-dots
+    pick:
+      { min: 0, max: 'has(links.crew) && !character.creating ? links.crew.members.dotCount : 0' }
+    required: false
+    from: { values: { formula: 'has(links.crew) ? links.crew.members.dotRatings : []' } }
+    effects:
+      - target: crew.dots
+        op: grant
+        value: { formula: pick.value }
+        when: >-
+          !character.creating && has(links.crew) && pick.value in links.crew.members.dotRatings
+
+fields:
+  crew.dots: { type: set, of: field }
+  prison.serving: { type: boolean, input: true, default: false }
+  load.free:
+    type: integer
+    formula: >-
+      !has(links.crew) || links.crew.upgrades.rigging == 0 ? 0
+        : min(2, sumCopies(copy.fields.load, copy.equipped && has(copy.fields.kind)
+          && copy.fields.kind in links.crew.rigging.kinds))
+
+effects:
+  - target: load.limit
+    op: set
+    value: 'has(links.crew) ? links.crew.members.prison.load : 0'
+    when: prison.serving
+  - target: stress.max
+    op: add
+    value: links.crew.members.stress.bonus
+    when: has(links.crew)
+  - target: trauma.max
+    op: add
+    value: links.crew.members.trauma.bonus
+    when: has(links.crew)
+  - { target: ratings.hunt, op: add, value: 1, when: '@ratings.hunt in crew.dots' }
+  - { target: ratings.study, op: add, value: 1, when: '@ratings.study in crew.dots' }
+  - { target: ratings.survey, op: add, value: 1, when: '@ratings.survey in crew.dots' }
+  - { target: ratings.tinker, op: add, value: 1, when: '@ratings.tinker in crew.dots' }
+  - { target: ratings.finesse, op: add, value: 1, when: '@ratings.finesse in crew.dots' }
+  - { target: ratings.prowl, op: add, value: 1, when: '@ratings.prowl in crew.dots' }
+  - { target: ratings.skirmish, op: add, value: 1, when: '@ratings.skirmish in crew.dots' }
+  - { target: ratings.wreck, op: add, value: 1, when: '@ratings.wreck in crew.dots' }
+  - { target: ratings.attune, op: add, value: 1, when: '@ratings.attune in crew.dots' }
+  - { target: ratings.command, op: add, value: 1, when: '@ratings.command in crew.dots' }
+  - { target: ratings.consort, op: add, value: 1, when: '@ratings.consort in crew.dots' }
+  - { target: ratings.sway, op: add, value: 1, when: '@ratings.sway in crew.dots' }
+  - target: { rolls: [resistance-roll] }
+    op: rollModifier
+    value: { kind: poolDice, count: links.crew.members.resistance.dice }
+    when: has(links.crew) && links.crew.members.resistance.dice > 0
+  - target: { rolls: [asset-roll] }
+    op: rollModifier
+    value: { kind: poolDice, count: links.crew.members.asset.dice }
+    when: has(links.crew) && links.crew.members.asset.dice > 0
+  - target: { rolls: [recovery-roll] }
+    op: rollModifier
+    value: { kind: poolDice, count: links.crew.members.recovery.dice }
+    when: has(links.crew) && links.crew.members.recovery.dice > 0
+  - target: { rolls: [action-roll] }
+    op: rollModifier
+    value: { kind: poolDice, count: links.crew.members.gatherInfo.dice }
+    when: situational.gatheringInfo && has(links.crew)
+  - target: { rolls: [resistance-roll, recovery-roll] }
+    op: rollModifier
+    value: { kind: poolDice, count: links.crew.members.supernatural.dice }
+    when: situational.supernatural && has(links.crew)
+  - target: { rolls: [action-roll] }
+    op: rollModifier
+    value: { kind: poolDice, count: 1 }
+    when: >-
+      situational.atClaimSite && has(links.crew)
+        && params.rating.id in links.crew.members.siteRatings
+  - target: { rolls: [action-roll] }
+    op: rollModifier
+    value: { kind: poolDice, count: links.crew.members.eliteInfo.dice }
+    when: situational.eliteInfo && has(links.crew)
+  - target: { rolls: [action-roll] }
+    op: rollModifier
+    value: { kind: poolDice, count: links.crew.members.passing.dice }
+    when: situational.passingAsCitizens && has(links.crew)
+
+situational:
+  - id: gatheringInfo
+    type: boolean
+    default: false
+    rolls: [action-roll]
+    available: has(links.crew) && links.crew.members.gatherInfo.dice > 0
+  - id: supernatural
+    type: boolean
+    default: false
+    rolls: [resistance-roll, recovery-roll]
+    available: has(links.crew) && links.crew.members.supernatural.dice > 0
+  - id: atClaimSite
+    type: boolean
+    default: false
+    rolls: [action-roll]
+    available: has(links.crew) && size(links.crew.members.siteRatings) > 0
+  - id: eliteInfo
+    type: boolean
+    default: false
+    rolls: [action-roll]
+    available: has(links.crew) && links.crew.members.eliteInfo.dice > 0
+  - id: passingAsCitizens
+    type: boolean
+    default: false
+    rolls: [action-roll]
+    available: has(links.crew) && links.crew.members.passing.dice > 0
+
+constraints:
+  - id: crew-dot-limit
+    check: >-
+      (!(@ratings.hunt in crew.dots) || ratings.hunt <= 3)
+        && (!(@ratings.study in crew.dots) || ratings.study <= 3)
+        && (!(@ratings.survey in crew.dots) || ratings.survey <= 3)
+        && (!(@ratings.tinker in crew.dots) || ratings.tinker <= 3)
+        && (!(@ratings.finesse in crew.dots) || ratings.finesse <= 3)
+        && (!(@ratings.prowl in crew.dots) || ratings.prowl <= 3)
+        && (!(@ratings.skirmish in crew.dots) || ratings.skirmish <= 3)
+        && (!(@ratings.wreck in crew.dots) || ratings.wreck <= 3)
+        && (!(@ratings.attune in crew.dots) || ratings.attune <= 3)
+        && (!(@ratings.command in crew.dots) || ratings.command <= 3)
+        && (!(@ratings.consort in crew.dots) || ratings.consort <= 3)
+        && (!(@ratings.sway in crew.dots) || ratings.sway <= 3)
+
+display:
+  groups:
+    - id: crew-dots
+      priority: 1
+  fields:
+    crew.dots: { groups: [crew-dots], priority: 1 }
+    prison.serving:
+      { groups: [load], priority: 1, input: { widget: checkbox }, visibility: background }
+    load.free: { hidden: true }

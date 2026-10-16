@@ -1,0 +1,85 @@
+contentTypes:
+  decoction:
+    carried: true
+    fields:
+      resistDr: { type: integer, min: 1 }
+      amount: { type: dice }
+      amountKind: { type: enum, values: [damage, healing] }
+      duration: { type: dice }
+      durationUnit: { type: enum, values: [rounds, minutes, hours] }
+      curesInfection: { type: boolean }
+      state: { type: enum, values: [philtre, berserk] }
+    actions:
+      - use: use-decoction
+
+actions:
+  - id: use-decoction
+    tags: [decoction]
+    available: self.quantity > 0
+    participants:
+      # A dose is for one drinker.
+      drinker: { max: 1 }
+    results: [used]
+    steps:
+      - id: dose
+        kind: changes
+        to: self
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1, when: self.quantity > 1 }
+          - { type: removeItem, entry: self, when: self.quantity <= 1 }
+      - id: amount
+        kind: roll
+        when: has(item.amount)
+        tags: [decoction]
+        parts:
+          - dice: item.amount
+      - id: duration
+        kind: roll
+        when: has(item.duration)
+        tags: [decoction]
+        parts:
+          - dice: item.duration
+      - id: resist
+        kind: action
+        when: has(item.resistDr)
+        each: drinker
+        as: participant
+        use: test
+        params: { ability: '@abilities.toughness', dr: item.resistDr }
+      - id: harm
+        kind: changes
+        each: drinker
+        when: >-
+          has(steps.amount) && item.amountKind == 'damage'
+            && (!has(steps.resist) || steps.resist.result == 'failure'
+              || steps.resist.result == 'fumble')
+        to: drinker
+        changes:
+          - { type: adjust, field: hp.current, by: -steps.amount.total, tags: [damage.direct] }
+      - id: heal
+        kind: changes
+        when: has(steps.amount) && item.amountKind == 'healing'
+        to: drinker
+        changes:
+          - { type: adjust, field: hp.current, by: steps.amount.total, tags: [healing] }
+      - id: cure
+        kind: changes
+        when: has(item.curesInfection) && item.curesInfection
+        to: drinker
+        changes:
+          - { type: set, field: condition.infected, value: false }
+      - id: state
+        kind: changes
+        when: has(item.state)
+        to: drinker
+        changes:
+          - { type: set, field: condition.philtre, value: true, when: "item.state == 'philtre'" }
+          - { type: set, field: condition.berserk, value: true, when: "item.state == 'berserk'" }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          resistDr: 'has(item.resistDr) ? item.resistDr : 0'
+          amount: 'has(steps.amount) ? steps.amount.total : 0'
+          duration: 'has(steps.duration) ? steps.duration.total : 0'
+          curesInfection: has(item.curesInfection) && item.curesInfection

@@ -1,0 +1,30 @@
+id: monsters.fire-elemental.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: touch1
+        kind: action
+        use: monster-attack
+        source: "'monsters.fire-elemental.touch'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: touch2
+        kind: action
+        use: monster-attack
+        source: "'monsters.fire-elemental.touch'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.touch1) && steps.touch1.result == 'hit' ? 1 : 0)
+              + (has(steps.touch2) && steps.touch2.result == 'hit' ? 1 : 0)

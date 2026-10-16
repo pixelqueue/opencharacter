@@ -1,0 +1,70 @@
+id: feats.skill.disturbing-knowledge
+type: feat
+tags: [trait.emotion, trait.fear, trait.mental]
+fields: { level: 7, category: skill, skills: [skill.occultism] }
+
+prerequisites:
+  - { id: master, when: 'skills.occultism.rank >= 3' }
+actions:
+  - id: disturbing-knowledge
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        fields:
+          saves.will.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.disturbing-knowledge]
+        params:
+          check: "'skills.occultism.mod'"
+          dc: >-
+            size(participants.target) == 1 && has(participants.target[0].saves.will.dc)
+              ? participants.target[0].saves.will.dc : has(params.dc) ? params.dc : null
+      - id: dcs
+        kind: branch
+        each: target
+        cases:
+          - when: true
+            flags:
+              dc: 'has(participant.saves.will.dc) ? participant.saves.will.dc : has(params.dc) ? params.dc : -1'
+      - id: against
+        kind: roll
+        each: target
+        of: check/roll
+        bands: degree
+      - id: unsettle
+        kind: changes
+        each: target
+        when: indexOf(['critical-failure', 'failure', 'success', 'critical-success'], steps.against.band) >= 2
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.frightened'"
+            state: { value: 1 }
+          - type: applyEffect
+            when: steps.against.band == 'critical-success'
+            source: "'conditions.confused'"
+      - id: backfire
+        kind: changes
+        when: size(participants.target) <= 1 && steps.check.result == 'critical-failure'
+        changes:
+          - type: applyEffect
+            source: "'conditions.frightened'"
+            state: { value: 1 }
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.target) > 1
+            ? ['critical-failure', 'failure', 'success', 'critical-success'][minList(mapList(steps.against, indexOf(['critical-failure', 'failure', 'success', 'critical-success'], x.band)), x)]
+            : steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          degrees: >-
+            size(participants.target) > 0
+              ? mapList(steps.against, x.band) : []

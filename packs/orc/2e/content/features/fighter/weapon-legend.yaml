@@ -1,0 +1,32 @@
+id: features.fighter.weapon-legend
+type: feature
+fields: { level: 13 }
+effects:
+  - { target: attacks.simple.rank, op: atLeast, value: 3 }
+  - { target: attacks.martial.rank, op: atLeast, value: 3 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 3 }
+  - { target: attacks.advanced.rank, op: atLeast, value: 2 }
+choices:
+  - id: group
+    from:
+      values:
+        [
+          group.axe,
+          group.bomb,
+          group.bow,
+          group.brawling,
+          group.club,
+          group.crossbow,
+          group.dart,
+          group.flail,
+          group.hammer,
+          group.knife,
+          group.pick,
+          group.polearm,
+          group.shield,
+          group.sling,
+          group.spear,
+          group.sword,
+        ]
+    effects:
+      - { target: attacks.legendGroups, op: grant, value: { formula: pick.value } }

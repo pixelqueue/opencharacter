@@ -1,0 +1,27 @@
+# The Signature Spells option casts fireball at 3rd level without a slot: no spend3 change, only
+# the first signature spell marked used. 8d6 = 24 fire; DC 8 + proficiency 6 + Intelligence 5 = 19.
+status: finished
+outcome:
+  result: save
+  data:
+    slot: 3
+    spellcastingClass: wizard
+    metamagic: none
+    dc: 19
+    save: dex
+    halfOnSave: true
+    damage: 24
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: cost
+    change: { type: setState, entry: wizard, key: signatureSpell1Used, value: true }
+log:
+  - step: cost
+    action: 5e-srd-5.1:cast-spell
+    kind: choice
+    by: app
+    option: '5e-srd-5.1:features.wizard.signature-spells#signature'
+  - { step: damage, kind: dice, by: engine, faces: [1, 2, 3, 4, 5, 6, 1, 2], total: 24 }

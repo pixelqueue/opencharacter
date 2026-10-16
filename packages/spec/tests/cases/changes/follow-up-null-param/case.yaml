@@ -1,0 +1,30 @@
+description: "A follow-up's parameter whose formula gives `null` is left out of the listed params"
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage, fire]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+        actions:
+          - id: steady
+            params:
+              damage: { type: integer }
+              element: { type: string, optional: true }
+            steps:
+              - { id: done, kind: outcome }
+        followUps:
+          - id: steady
+            on: { field: hp, tags: [damage] }
+            action: steady
+            params:
+              damage: -change.by
+              element: "'fire' in change.tags ? 'fire' : null"
+      content: []

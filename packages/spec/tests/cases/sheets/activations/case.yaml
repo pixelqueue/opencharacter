@@ -1,0 +1,62 @@
+description: "The activation list: copies, a template, grants (one whose `when` doesn't hold left out), picks (one under an inline option, which isn't listed; an `activate: false` pick left out; a rules-level pick with no entry or parent), applied content and its applied grant, and an applied entry an immunity blocks left out"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          level: { type: integer, input: true, default: 1 }
+        contentTypes:
+          class: { carried: false }
+          skill: { carried: false }
+          tool: { carried: false }
+          condition: { carried: false }
+          weapon: { carried: true }
+        choices:
+          - id: bonus
+            from: { type: skill }
+      content:
+        - id: classes.teamster
+          type: class
+          grants:
+            - { item: skills.zero-g }
+            - { item: skills.mastery, when: 'level >= 5' }
+          immuneTo:
+            - { id: steady, items: [conditions.panicked] }
+          choices:
+            - id: trained
+              from: { type: skill }
+            - id: kit
+              from: { type: tool }
+              activate: false
+            - id: path
+              from:
+                options:
+                  - id: mechanic
+                    choices:
+                      - id: specialty
+                        from: { type: skill }
+        - id: skills.zero-g
+          type: skill
+          grants: [{ item: skills.athletics }]
+        - { id: skills.athletics, type: skill }
+        - { id: skills.mastery, type: skill }
+        - { id: skills.repair, type: skill }
+        - { id: skills.piloting, type: skill }
+        - { id: skills.hacking, type: skill }
+        - { id: tools.wrench, type: tool }
+        - { id: weapons.knife, type: weapon }
+        - id: weapons.sharp
+          type: template
+          appliesTo: { type: weapon }
+        - id: conditions.dying
+          type: condition
+          grants: [{ item: conditions.unconscious, scope: applied }]
+        - { id: conditions.unconscious, type: condition }
+        - { id: conditions.panicked, type: condition }

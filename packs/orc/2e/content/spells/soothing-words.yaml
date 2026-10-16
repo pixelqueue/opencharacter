@@ -1,0 +1,17 @@
+id: spells.soothing-words
+type: spell
+tags: [trait.cleric, trait.concentrate, trait.emotion, trait.focus, trait.mental, trait.uncommon]
+fields:
+  rank: 1
+  cast: one
+  range: 30
+  targets: 1
+  duration: minutes
+  durationAmount: 1
+  applyTo: ally
+effects:
+  - target: saves.will.mod
+    op: add
+    value: 'self.rank >= 5 ? 2 : 1'
+    stackKey: status-bonus
+    scope: applied

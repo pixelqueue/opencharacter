@@ -1,0 +1,14 @@
+id: feats.barbarian.animal-skin
+type: feat
+tags: [trait.morph, trait.primal]
+fields: { level: 6, category: class, class: classes.barbarian }
+
+prerequisites:
+  - { id: instinct, when: "barbarian.instinct == 'animal'" }
+effects:
+  - { target: defenses.unarmored.rank, op: atLeast, value: 2 }
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 'saves.fortitude.rank >= 4 ? 3 : 2'
+    stackKey: item-bonus
+    when: rage.active && armor.category == 'unarmored'

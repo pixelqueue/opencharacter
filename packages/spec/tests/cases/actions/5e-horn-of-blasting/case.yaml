@@ -1,0 +1,14 @@
+description: 'A horn of blasting (item-power): 5d6 thunder rolled once, each target makes its DC 15 Constitution save on its own sheet and takes half on a success'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:item-power, entry: horn }
+  participants:
+    target:
+      - { id: goblin-1 }
+      - { id: goblin-2 }
+answers:
+  - { outcome: { result: success, data: { total: 16 } } }
+  - { outcome: { result: failure, data: { total: 9 } } }

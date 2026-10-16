@@ -1,0 +1,47 @@
+status: finished
+outcome:
+  result: succeed
+  data:
+    total: 4
+    opposition: 3
+    hit: 1
+    harm: physical
+    boost: false
+    takenOut: false
+    strokeSecond: false
+proposedChanges: []
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 0
+      - 0
+      - 0
+      - 0
+    total: 4
+    band: great
+    bandSet: fate-core:ladder
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: final
+    action: fate-core:attack
+    kind: dice
+    by: engine
+    total: 4
+    band: succeed
+    bandSet: fate-core:outcome

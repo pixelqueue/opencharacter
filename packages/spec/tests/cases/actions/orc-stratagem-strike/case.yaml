@@ -1,0 +1,20 @@
+description: "orc-2e: the attack stratagem's Strike (an action of the applied stratagem): a
+  rapier Strike with Intelligence instead of Dexterity (its attribute part replaced) and strategic strike's 1d6; the stored roll (15) is its d20 (`setFaces`);
+  the stratagem ends"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:effects.attack-stratagem#strike'
+    entry: stratagem
+  participants:
+    target:
+      - id: suspect
+        values:
+          orc-2e:defenses.ac: 18
+  policy:
+    choices: pause
+answers:
+  - option: rapier

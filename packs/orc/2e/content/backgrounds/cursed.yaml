@@ -1,0 +1,19 @@
+id: backgrounds.cursed
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.occultism }
+    when: "!('skill.occultism' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.curse }
+    when: "!('skill.lore.curse' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['int', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

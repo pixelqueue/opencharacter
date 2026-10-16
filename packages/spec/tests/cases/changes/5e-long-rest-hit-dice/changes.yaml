@@ -1,0 +1,5 @@
+# A long rest's hit-dice regain as one change by query.
+- type: setState
+  copies: { type: 5e-srd-5.1:class, where: self.hitDiceSpent > 0 }
+  key: hitDiceSpent
+  value: max(0, self.hitDiceSpent - max(1, floor(self.level / 2)))

@@ -1,0 +1,11 @@
+description: "orc-2e: runic weapon on an ally's longsword (the `copy` parameter, its instance ID on the ally's sheet). `cast-spell` applies the runic template (+1 striking) to that copy with a computed `entry`, and the spell to the ally for its duration"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: runic-1 }
+  params: { copy: longsword }
+  participants:
+    ally:
+      - { id: fighter }

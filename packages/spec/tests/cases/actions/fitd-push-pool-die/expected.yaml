@@ -1,0 +1,54 @@
+# Action roll: (params.rating.value)d6kh1; ifEmpty 2d6kl1. Bands: critical (not empty and two or
+# more 6s among all faces), success (total 6), partial (4-5), failure.
+# Position and effect take their defaults (risky, standard) and pass through to the outcome.
+# bonusDie push: poolDice count 1 joins the pool part: 3d6kh1. The added (third) die records the push
+# situational choice (bonusDie) as its face source. [2, 4, 6] keeps 6: success. pushCost: +2 stress to self
+status: finished
+outcome:
+  result: success
+  data:
+    position: risky
+    effect: standard
+proposedChanges:
+  - to: self
+    step: pushCost
+    change:
+      type: adjust
+      field: fitd-scoundrel:stress.current
+      by: 2
+log:
+  - step: roll
+    action: fitd-scoundrel:action-roll
+    kind: dice
+    by: engine
+    faces:
+      - 2
+      - 4
+      - 6
+    total: 6
+    band: success
+    bandSet: fitd-scoundrel:action
+    items:
+      - kind: dice
+        count: 3
+        sides: 6
+        modifiers:
+          - type: keepHighest
+            count: 1
+        value: 6
+        faces:
+          - value: 2
+            kept: false
+          - value: 4
+            kept: false
+          - value: 6
+            kept: true
+            source:
+              type: situational
+              id: fitd-scoundrel:bonusDie
+  # The push cost is a choice; the engine takes the recommended stress.
+  - step: pushCost
+    action: fitd-scoundrel:action-roll
+    kind: choice
+    by: engine
+    option: stress

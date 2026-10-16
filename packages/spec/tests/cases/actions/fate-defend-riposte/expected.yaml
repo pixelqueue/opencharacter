@@ -1,0 +1,53 @@
+status: paused
+needs:
+  step: counter[0]
+  action: fate-core:defend
+  kind: handoff
+  participant:
+    role: attacker
+    id: brute
+  run:
+    action: fate-core:take-hit
+    params:
+      shifts: 2
+      harm: physical
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 1
+      - 1
+      - 0
+    total: 7
+    band: epic
+    bandSet: fate-core:ladder
+  - step: roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: final
+    action: fate-core:defend
+    kind: dice
+    by: engine
+    total: 7
+    band: style
+    bandSet: fate-core:outcome
+  - step: riposte
+    action: fate-core:defend
+    kind: choice
+    by: engine
+    option: riposte

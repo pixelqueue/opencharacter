@@ -1,0 +1,11 @@
+id: magic-items.vicious-weapon
+type: template
+tags: [magic]
+appliesTo: { type: weapon }
+fields: { rarity: rare }
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 7
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: has(flags.natural20) && flags.natural20

@@ -1,0 +1,25 @@
+id: backgrounds.detective
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.society },
+      when: "!('skill.society' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.underworld },
+      when: "!('skill.lore.underworld' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.streetwise
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['int', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

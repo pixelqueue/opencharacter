@@ -1,0 +1,84 @@
+id: classes.oracle.mysteries.life
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: oracle.mystery, op: set, value: "'life'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.medicine },
+      when: "!('skill.medicine' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: oracle.grantedFeats, op: grant, value: { item: feats.oracle.nudge-the-scales } }
+  - { target: focus.points, op: add, value: 1 }
+  - { target: oracle.revelations, op: grant, value: { item: spells.life-link } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.delay-affliction } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.life-giving-form } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.vitality-lash } }
+  - { target: oracle.granted, op: grant, value: { item: spells.vitality-lash } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.vitality-lash } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.soothe } }
+  - { target: oracle.granted, op: grant, value: { item: spells.soothe } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.soothe } }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.soothe }
+    when: '@feats.oracle.gifted-power in feats.held'
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.soothe } }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.false-vitality },
+      when: level >= 3,
+    }
+  - { target: oracle.granted, op: grant, value: { item: spells.false-vitality }, when: level >= 3 }
+  - {
+      target: spells.bonusKnown,
+      op: grant,
+      value: { item: spells.false-vitality },
+      when: level >= 3,
+    }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.false-vitality }
+    when: 'level >= 3 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank2,
+      op: grant,
+      value: { item: spells.false-vitality },
+      when: level >= 3,
+    }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.grisly-growths },
+      when: level >= 9,
+    }
+  - { target: oracle.granted, op: grant, value: { item: spells.grisly-growths }, when: level >= 9 }
+  - {
+      target: spells.bonusKnown,
+      op: grant,
+      value: { item: spells.grisly-growths },
+      when: level >= 9,
+    }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.grisly-growths }
+    when: 'level >= 9 && @feats.oracle.gifted-power in feats.held'
+  - target: spells.repertoire.rank5
+    op: grant
+    value: { item: spells.grisly-growths }
+    when: level >= 9
+  - target: { incoming: { fields: [hp.current], tags: [healing] } }
+    op: add
+    stackKey: status-penalty
+    value: '-min(incoming.amount, max(1, level) * oracle.cursebound)'
+    when: oracle.cursebound > 0 && incoming.amount > 0
+grants:
+  - item: feats.oracle.nudge-the-scales
+  - item: spells.life-link
+  - { item: spells.vitality-lash }
+  - { item: spells.soothe }
+  - { item: spells.false-vitality, when: level >= 3 }
+  - { item: spells.grisly-growths, when: level >= 9 }

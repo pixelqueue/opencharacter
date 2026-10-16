@@ -1,0 +1,42 @@
+# Level 5: thaumaturgy, hellish rebuke and darkness. The two leveled spells are cast once per
+# long rest without a slot (spells.free) and only that way (spells.limited). Charisma 16: DC 8 +
+# proficiency 3 + 3 = 14, attack +6. Each granted spell offers its cast.
+values:
+  5e-srd-5.1:spells.racial:
+    {
+      value:
+        [
+          5e-srd-5.1:spells.darkness,
+          5e-srd-5.1:spells.hellish-rebuke,
+          5e-srd-5.1:spells.thaumaturgy,
+        ],
+    }
+  5e-srd-5.1:spells.free: { value: [5e-srd-5.1:spells.darkness, 5e-srd-5.1:spells.hellish-rebuke] }
+  5e-srd-5.1:spells.limited:
+    { value: [5e-srd-5.1:spells.darkness, 5e-srd-5.1:spells.hellish-rebuke] }
+  5e-srd-5.1:spellcasting.racial.dc: { value: 14 }
+  5e-srd-5.1:spellcasting.racial.attack: { value: 6 }
+actions:
+  - { action: 5e-srd-5.1:cast-spell, entry: tiefling, source: 5e-srd-5.1:spells.thaumaturgy }
+  - { action: 5e-srd-5.1:cast-spell, entry: tiefling, source: 5e-srd-5.1:spells.hellish-rebuke }
+  - { action: 5e-srd-5.1:cast-spell, entry: tiefling, source: 5e-srd-5.1:spells.darkness }
+  - { action: 5e-srd-5.1:spend-hit-die, entry: fighter }
+  - action: 5e-srd-5.1:features.fighter.second-wind#second-wind
+    entry: fighter
+    source: 5e-srd-5.1:features.fighter.second-wind
+  - action: 5e-srd-5.1:features.fighter.action-surge#action-surge
+    entry: fighter
+    source: 5e-srd-5.1:features.fighter.action-surge
+  - { action: 5e-srd-5.1:saving-throw }
+  - { action: 5e-srd-5.1:level-up }
+  - { action: 5e-srd-5.1:ability-check }
+  - { action: 5e-srd-5.1:skill-check }
+  - { action: 5e-srd-5.1:initiative }
+  - { action: 5e-srd-5.1:unarmed-strike }
+  - { action: 5e-srd-5.1:fall }
+  - { action: 5e-srd-5.1:take-damage }
+  - { action: 5e-srd-5.1:heal }
+  - { action: 5e-srd-5.1:long-rest }
+  - { action: 5e-srd-5.1:concentration-check }
+  - { action: 5e-srd-5.1:short-rest }
+issues: []

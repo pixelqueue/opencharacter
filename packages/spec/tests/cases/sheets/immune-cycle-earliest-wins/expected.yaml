@@ -1,0 +1,9 @@
+# Every entry has an undecided blocker: slowed (paper), rock (paper), paper (scissors), scissors
+# (rock). Slowed is the earliest entry but on no cycle; rock is the cycle's earliest, so it is
+# active (-1) and blocks scissors. Paper's only blocker, scissors, is blocked, so paper is active
+# (-2) and blocks slowed. Paper's immunity to rock doesn't count: rock won the cycle.
+values:
+  test-immunity:speed: { value: 27 }
+issues:
+  - { code: immune, id: test-immunity:conditions.rock/scissors }
+  - { code: immune, id: test-immunity:conditions.paper/slowed }

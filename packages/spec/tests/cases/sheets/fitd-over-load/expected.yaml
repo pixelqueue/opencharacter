@@ -1,0 +1,19 @@
+# No playbook. Light load 3; carried armor 2 + heavy 3 + a charm 0 = 5 -> load-limit fails.
+# The table's armor and heavy armor set their boxes' flags.
+values:
+  fitd-scoundrel:load.limit:
+    value: 3
+  fitd-scoundrel:load.used:
+    value: 5
+  fitd-scoundrel:armor.hasArmor:
+    value: true
+  fitd-scoundrel:armor.hasHeavy:
+    value: true
+  fitd-scoundrel:playbook.tag:
+    value: ''
+issues:
+  - code: constraint-failed
+    id: fitd-scoundrel:load-limit
+pending:
+  - choice:
+      - special-abilities

@@ -1,0 +1,34 @@
+id: features.investigator.devise-a-stratagem
+type: feature
+fields: { level: 1 }
+actions:
+  - id: devise-a-stratagem
+    tags: [class-action]
+    results: [attack, skill]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [stratagem-roll]
+        parts:
+          - dice: 1d20
+      - id: plan
+        kind: choice
+        recommend: "'attack'"
+        options:
+          - id: attack
+            changes:
+              - type: removeEffect
+                applied: { where: "'stratagem' in item.tags" }
+              - type: applyEffect
+                source: "'effects.attack-stratagem'"
+                state: { roll: steps.roll.total }
+          - id: skill
+            changes:
+              - type: removeEffect
+                applied: { where: "'stratagem' in item.tags" }
+              - { type: applyEffect, source: "'effects.skill-stratagem'" }
+      - id: result
+        kind: outcome
+        result: steps.plan.picked
+        data:
+          roll: steps.roll.total

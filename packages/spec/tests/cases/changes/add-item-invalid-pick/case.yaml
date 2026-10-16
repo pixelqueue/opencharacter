@@ -1,0 +1,22 @@
+description: "An added copy's picks are checked as a `choose` of each would be: an option that isn't one of the choice's is `invalid-option`"
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          spell: {}
+          charm: {}
+      content:
+        - { id: spells.light, type: spell }
+        - id: charms.spellbound
+          type: charm
+          choices:
+            - id: spell
+              from: { type: spell }

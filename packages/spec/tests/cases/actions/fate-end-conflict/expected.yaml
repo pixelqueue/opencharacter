@@ -1,0 +1,41 @@
+status: finished
+outcome:
+  result: ended
+proposedChanges:
+  - to: self
+    step: clear
+    change:
+      type: set
+      field: fate-core:stress.physical.box1
+      value: false
+  - to: self
+    step: clear
+    change:
+      type: set
+      field: fate-core:stress.physical.box3
+      value: false
+  - to: self
+    step: clear
+    change:
+      type: set
+      field: fate-core:stress.mental.box2
+      value: false
+  - to: self
+    step: clear
+    change:
+      type: setState
+      key: used
+      copies:
+        type: fate-core:stunt
+        where: "(item.shape == 'custom' ? self.limit : item.limit) == 'conflict' &&
+          self.used > 0"
+      value: 0
+  - to: self
+    step: clear
+    change:
+      type: setState
+      key: conflict
+      copies:
+        type: fate-core:consequence
+        where: self.conflict
+      value: false

@@ -1,0 +1,14 @@
+id: feats.ancestry.vivacious-conduit
+type: feat
+fields: { level: 9, category: ancestry, ancestry: ancestries.gnome }
+actions:
+  - id: vivacious-rest
+    tags: [feat-action]
+    steps:
+      - id: heal
+        kind: changes
+        changes:
+          - type: adjust
+            field: hp.current
+            by: 'max(0, attributes.con.mod * floor(level / 2))'
+            tags: [healing]

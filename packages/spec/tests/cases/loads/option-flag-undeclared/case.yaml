@@ -1,0 +1,37 @@
+description: "An added option may set only flags its action sets elsewhere: one a reached action doesn't set is formula-error with cause unknown-name"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [cost]
+        contentTypes:
+          trait: {}
+        actions:
+          - id: cast
+            steps:
+              - id: start
+                kind: branch
+                cases:
+                  - when: true
+                    flags: { slot: 1 }
+              - id: cost
+                kind: choice
+                tags: [cost]
+                options: [{ id: slot }]
+      content:
+        # `slott` is a typo: the action sets `slot`.
+        - id: traits.legacy
+          type: trait
+          effects:
+            - target: { choices: [cost] }
+              op: option
+              value:
+                id: legacy
+                flags: { slott: 2 }

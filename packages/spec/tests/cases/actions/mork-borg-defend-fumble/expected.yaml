@@ -1,0 +1,54 @@
+# Natural 1: fumble. 7 doubled is 14 (armor and shield come off when it is applied). The worn
+# armor drops a tier.
+status: finished
+outcome:
+  result: fumble
+  data:
+    damage: 14
+    counterAttack: false
+proposedChanges:
+  - to: self
+    step: take
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -14
+      tags:
+        - damage
+  - to: self
+    step: wear
+    change:
+      type: adjustState
+      copies:
+        type: mork-borg-core:armor
+        where: self.equipped && self.damage < item.tier
+      limit: 1
+      key: damage
+      by: 1
+log:
+  - step: check/check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 1
+    total: 0
+    band: fumble
+    bandSet: mork-borg-core:test
+  - step: check/fate
+    action: mork-borg-core:test
+    kind: choice
+    by: engine
+    option: keep
+  - step: hit
+    action: mork-borg-core:defend
+    kind: dice
+    by: engine
+    faces:
+      - 7
+    total: 14
+  - step: ward
+    action: mork-borg-core:defend
+    kind: choice
+    by: engine
+    option: take

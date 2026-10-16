@@ -1,0 +1,19 @@
+id: classes.druid.orders.storm
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: druid.order, op: set, value: "'storm'" }
+  - { target: druid.orders, op: grant, value: { tag: druid-order.storm } }
+  - { target: druid.orderSpells, op: grant, value: { item: spells.tempest-surge } }
+  - { target: druid.grantedFeats, op: grant, value: { item: feats.druid.storm-born } }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.acrobatics },
+      when: "!('skill.acrobatics' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: focus.points, op: add, value: 1 }
+grants:
+  - item: feats.druid.storm-born
+  - item: spells.tempest-surge

@@ -1,0 +1,42 @@
+id: features.monk.ki
+type: feature
+effects:
+  - { target: ki.points, op: set, value: self.level }
+  - { target: ki.saveDc, op: set, value: 8 + proficiency.bonus + abilities.wis.mod }
+actions:
+  - id: flurry-of-blows
+    tags: [feature]
+    results: [spent]
+    available: self.kiSpent + 1 <= ki.points
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: kiSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'spent'"
+  - id: patient-defense
+    tags: [feature]
+    results: [spent]
+    available: self.kiSpent + 1 <= ki.points
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: kiSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'spent'"
+  - id: step-of-the-wind
+    tags: [feature]
+    results: [spent]
+    available: self.kiSpent + 1 <= ki.points
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: kiSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'spent'"

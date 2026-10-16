@@ -1,0 +1,16 @@
+id: afflictions.cave-worm-venom
+type: affliction
+fields:
+  {
+    kind: poison,
+    level: 12,
+    dc: 32,
+    stages: 3,
+    stage1Damage: 5d6,
+    stage2Damage: 6d6,
+    stage3Damage: 8d6,
+  }
+grants:
+  - { item: conditions.enfeebled, scope: applied, when: self.stage == 1, state: { value: 2 } }
+  - { item: conditions.enfeebled, scope: applied, when: self.stage == 2, state: { value: 2 } }
+  - { item: conditions.enfeebled, scope: applied, when: self.stage == 3, state: { value: 2 } }

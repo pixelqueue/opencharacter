@@ -1,0 +1,30 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: fitd-crew, version: 0.1.0 }
+values:
+  fitd-crew:tier: 1
+  fitd-crew:upgrades.lair.secure: 1
+  fitd-crew:upgrades.training.resolve: 1
+choices:
+  crew-abilities:
+    - option: fitd-crew:crew-abilities.accord
+  operation:
+    - option: fitd-crew:operations.sale
+features:
+  - { id: claim-1, item: fitd-crew:claims.turf }
+  - id: c-rooks
+    item: fitd-crew:cohorts.gang
+    state: { gangType: rooks }
+    choices:
+      edges: [{ option: fitd-crew:cohort-traits.loyal }]
+      flaws: [{ option: fitd-crew:cohort-traits.wild }]
+  - id: faction-a
+    item: fitd-crew:factions.faction
+    state: { label: Faction A, tier: 4, status: 3 }
+  - id: faction-b
+    item: fitd-crew:factions.faction
+    state: { label: Faction B, tier: 2, status: 3 }
+  - id: faction-c
+    item: fitd-crew:factions.faction
+    state: { label: Faction C, tier: 2, weakHold: true, status: 2 }

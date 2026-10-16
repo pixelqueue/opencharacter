@@ -1,0 +1,9 @@
+description: 'Fate Core with Weapon and Armor ratings: Armor:2 takes a 2-shift physical hit to 0; it does no harm, and the outcome says the armor stopped it (the attacker gets a boost)'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:take-hit }
+  params: { shifts: 2, harm: physical }
+  policy: { choices: auto }

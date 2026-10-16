@@ -1,0 +1,20 @@
+# The 24 cold damage lists the check, DC max(10, 24 / 2) = 12 in the action.
+ok: true
+adjustments:
+  - { field: 5e-srd-5.1:hp.current, by: -24, requested: -24, taken: -24, reason: requested }
+followUps:
+  - id: concentration-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:concentration
+    to: self
+    required: true
+    action: { id: 5e-srd-5.1:concentration-check, followUp: concentration-1 }
+    params: { damage: 24 }
+    cause:
+      field: 5e-srd-5.1:hp.current
+      by: -24
+      requested: -24
+      taken: -24
+      reason: requested
+      clamped: false
+      tags: [damage, damage.cold]

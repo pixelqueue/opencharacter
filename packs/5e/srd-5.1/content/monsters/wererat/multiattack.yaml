@@ -1,0 +1,72 @@
+id: monsters.wererat.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: shortswords }, { id: crossbows }, { id: shortsword-and-bite }]
+        recommend: "'shortswords'"
+      - id: shortsword1
+        kind: action
+        when: "steps.form.picked == 'shortswords'"
+        use: monster-attack
+        source: "'monsters.wererat.shortsword'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: shortsword2
+        kind: action
+        when: "steps.form.picked == 'shortswords'"
+        use: monster-attack
+        source: "'monsters.wererat.shortsword'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: handCrossbow1
+        kind: action
+        when: "steps.form.picked == 'crossbows'"
+        use: monster-attack
+        source: "'monsters.wererat.hand-crossbow'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: handCrossbow2
+        kind: action
+        when: "steps.form.picked == 'crossbows'"
+        use: monster-attack
+        source: "'monsters.wererat.hand-crossbow'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: shortsword3
+        kind: action
+        when: "steps.form.picked == 'shortsword-and-bite'"
+        use: monster-attack
+        source: "'monsters.wererat.shortsword'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: bite1
+        kind: action
+        when: "steps.form.picked == 'shortsword-and-bite'"
+        use: monster-attack
+        source: "'monsters.wererat.bite'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.shortsword1) && steps.shortsword1.result == 'hit' ? 1 : 0)
+              + (has(steps.shortsword2) && steps.shortsword2.result == 'hit' ? 1 : 0)
+              + (has(steps.handCrossbow1) && steps.handCrossbow1.result == 'hit' ? 1 : 0)
+              + (has(steps.handCrossbow2) && steps.handCrossbow2.result == 'hit' ? 1 : 0)
+              + (has(steps.shortsword3) && steps.shortsword3.result == 'hit' ? 1 : 0)
+              + (has(steps.bite1) && steps.bite1.result == 'hit' ? 1 : 0)

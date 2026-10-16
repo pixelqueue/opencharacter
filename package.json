@@ -1,0 +1,42 @@
+{
+  "name": "opencharacter-monorepo",
+  "private": true,
+  "description": "Open Character Format (OCF): spec, reference engine, and content packs.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "lint": "oxlint --deny-warnings && oxfmt --check",
+    "format": "oxfmt",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p apps/web-editor/tsconfig.json",
+    "test": "vitest run",
+    "validate": "tsx scripts/validate/cli.ts",
+    "types": "tsx scripts/types/cli.ts",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm validate",
+    "changeset": "changeset",
+    "build:packs": "tsx scripts/build/cli.ts",
+    "release:check": "tsx scripts/release/check-cli.ts",
+    "version-packages": "changeset version && tsx scripts/release/sync-cli.ts",
+    "release": "pnpm check && pnpm build:packs && pnpm release:check && echo 'Publishing is disabled: packs are private until the release flow is enabled.'",
+    "editor": "pnpm --filter @opencharacter/web-editor dev",
+    "website": "pnpm --filter @opencharacter/website dev",
+    "build:website": "pnpm --filter @opencharacter/website build"
+  },
+  "devDependencies": {
+    "@changesets/cli": "3.0.3",
+    "@types/node": "^22.20.5",
+    "@types/semver": "^7.8.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "oxfmt": "0.72.0",
+    "oxlint": "1.87.0",
+    "semver": "^7.8.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "5.0.3",
+    "yaml": "2.9.1"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.20.0"
+}

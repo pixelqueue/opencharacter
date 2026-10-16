@@ -1,0 +1,16 @@
+description: "MÖRK BORG: Barbarister's help makes a Presence test DR 12 into DR 10; the horse's linked sheet has HP left"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/mork-borg/core
+input:
+  action: { id: mork-borg-core:test }
+  params:
+    ability: mork-borg-core:abilities.presence
+  situational:
+    mork-borg-core:barbarister: true
+  links:
+    mork-borg-core:barbarister:
+      id: example-barbarister
+      values:
+        mork-borg-core:hp.current: 3

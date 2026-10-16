@@ -1,0 +1,16 @@
+id: classes.witch.patrons.silence-in-snow
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: witch.patron, op: set, value: "'silence-in-snow'" }
+  - { target: spellcasting.tradition, op: set, value: "'primal'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.nature },
+      when: "!('skill.nature' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.book, op: grant, value: { item: spells.gust-of-wind } }
+grants:
+  - item: spells.clinging-ice

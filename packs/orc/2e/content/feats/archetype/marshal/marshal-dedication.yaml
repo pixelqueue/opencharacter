@@ -1,0 +1,28 @@
+id: feats.archetype.marshal.marshal-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.marshal }
+
+# A skill already trained frees a training (the book makes it expert instead; the player can spend a
+# skill increase).
+prerequisites:
+  - {
+      id: diplomacy-or-intimidation,
+      when: 'skills.diplomacy.rank >= 1 || skills.intimidation.rank >= 1',
+    }
+  - { id: martial, when: 'attacks.martial.rank >= 1' }
+choices:
+  - id: skill
+    from: { values: [skill.diplomacy, skill.intimidation] }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }
+effects:
+  - target: { fields: { where: "'archetype-extra.at8' in item.tags" } }
+    op: grant
+    value: { item: feats.barbarian.reactive-strike }

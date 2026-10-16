@@ -1,0 +1,385 @@
+# Paying takes copper first, then silver, gold and platinum, and gives change in the largest coins
+# below the last one paid with. `investiture.used` counts the items invested since the daily
+# preparations, and `invest` won't pass the limit.
+fields:
+  coins.cp: { type: integer, input: true, default: 0, min: 0 }
+  coins.sp: { type: integer, input: true, default: 0, min: 0 }
+  coins.gp: { type: integer, input: true, default: 15, min: 0 }
+  coins.pp: { type: integer, input: true, default: 0, min: 0 }
+  coins.total:
+    type: decimal
+    formula: coins.cp / 100 + coins.sp / 10 + coins.gp + coins.pp * 10
+  coins.bulk:
+    type: integer
+    formula: floor((coins.cp + coins.sp + coins.gp + coins.pp) / 1000)
+
+  investiture.max: { type: integer, formula: 10, min: 0 }
+  investiture.count:
+    type: integer
+    formula: countCopies(has(copy.state.invested) && copy.state.invested)
+  investiture.used: { type: integer, input: true, default: 0, min: 0 }
+
+constraints:
+  - id: investiture-limit
+    check: investiture.count <= investiture.max
+    data: { invested: investiture.count, limit: investiture.max }
+  # It holds no more than its capacity, however its contents got there.
+  - id: container-capacity-held
+    copies: { type: held, where: has(item.capacity) && item.capacity > 0 }
+    check: >-
+      sumCopies(copy.fields.bulk * copy.quantity, has(copy.fields.bulk)
+          && has(copy.state.container) && copy.state.container == self.id) <= item.capacity
+        && (!has(item.capacityItems) || countCopies(has(copy.state.container)
+          && copy.state.container == self.id) <= item.capacityItems)
+    data:
+      bulk: >-
+        sumCopies(copy.fields.bulk * copy.quantity, has(copy.fields.bulk)
+          && has(copy.state.container) && copy.state.container == self.id)
+      capacity: item.capacity
+  # It holds no more than its capacity, however its contents got there.
+  - id: container-capacity-worn
+    copies: { type: worn, where: has(item.capacity) && item.capacity > 0 }
+    check: >-
+      sumCopies(copy.fields.bulk * copy.quantity, has(copy.fields.bulk)
+          && has(copy.state.container) && copy.state.container == self.id) <= item.capacity
+        && (!has(item.capacityItems) || countCopies(has(copy.state.container)
+          && copy.state.container == self.id) <= item.capacityItems)
+    data:
+      bulk: >-
+        sumCopies(copy.fields.bulk * copy.quantity, has(copy.fields.bulk)
+          && has(copy.state.container) && copy.state.container == self.id)
+      capacity: item.capacity
+
+actions:
+  - id: buy
+    tags: [inventory, money]
+    params:
+      quantity: { type: integer, optional: true, min: 1 }
+    results: [bought, cannot-afford]
+    steps:
+      - id: kind
+        kind: choice
+        options:
+          - { id: weapon }
+          - { id: armor }
+          - { id: shield }
+          - { id: gear }
+          - { id: consumable }
+          - { id: worn }
+          - { id: held }
+          - { id: staff }
+          - { id: wand }
+      - id: weapon
+        kind: choice
+        when: "steps.kind.picked == 'weapon'"
+        options: { content: { type: weapon, where: has(item.price) } }
+      - id: armor
+        kind: choice
+        when: "steps.kind.picked == 'armor'"
+        options: { content: { type: armor, where: has(item.price) } }
+      - id: shield
+        kind: choice
+        when: "steps.kind.picked == 'shield'"
+        options: { content: { type: shield, where: has(item.price) } }
+      - id: gear
+        kind: choice
+        when: "steps.kind.picked == 'gear'"
+        options: { content: { type: gear, where: has(item.price) } }
+      - id: consumable
+        kind: choice
+        when: "steps.kind.picked == 'consumable'"
+        options: { content: { type: consumable, where: has(item.price) } }
+      - id: worn
+        kind: choice
+        when: "steps.kind.picked == 'worn'"
+        options: { content: { type: worn, where: has(item.price) } }
+      - id: held
+        kind: choice
+        when: "steps.kind.picked == 'held'"
+        options: { content: { type: held, where: has(item.price) } }
+      - id: staff
+        kind: choice
+        when: "steps.kind.picked == 'staff'"
+        options: { content: { type: staff, where: has(item.price) } }
+      - id: wand
+        kind: choice
+        when: "steps.kind.picked == 'wand'"
+        options: { content: { type: wand, where: has(item.price) } }
+      - id: picked
+        kind: branch
+        cases:
+          - when: has(steps.weapon)
+            flags: { id: steps.weapon.picked, price: steps.weapon.item.price }
+          - when: has(steps.armor)
+            flags: { id: steps.armor.picked, price: steps.armor.item.price }
+          - when: has(steps.shield)
+            flags: { id: steps.shield.picked, price: steps.shield.item.price }
+          - when: has(steps.gear)
+            flags: { id: steps.gear.picked, price: steps.gear.item.price }
+          - when: has(steps.consumable)
+            flags: { id: steps.consumable.picked, price: steps.consumable.item.price }
+          - when: has(steps.worn)
+            flags: { id: steps.worn.picked, price: steps.worn.item.price }
+          - when: has(steps.held)
+            flags: { id: steps.held.picked, price: steps.held.item.price }
+          - when: has(steps.staff)
+            flags: { id: steps.staff.picked, price: steps.staff.item.price }
+          - when: true
+            flags: { id: steps.wand.picked, price: steps.wand.item.price }
+      - id: owed
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              quantity: 'has(params.quantity) ? params.quantity : 1'
+              owed: 'round(flags.price * (has(params.quantity) ? params.quantity : 1) * 100)'
+      - id: copper
+        kind: branch
+        cases:
+          - when: true
+            flags: { cp: 'min(coins.cp, flags.owed)' }
+      - id: silver
+        kind: branch
+        cases:
+          - when: true
+            flags: { sp: 'min(coins.sp, ceil((flags.owed - flags.cp) / 10))' }
+      - id: gold
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              { gp: 'min(coins.gp, ceil(max(0, flags.owed - flags.cp - 10 * flags.sp) / 100))' }
+      - id: platinum
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              pp: 'ceil(max(0, flags.owed - flags.cp - 10 * flags.sp - 100 * flags.gp) / 1000)'
+      - id: change
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              change: '1000 * flags.pp + 100 * flags.gp + 10 * flags.sp + flags.cp - flags.owed'
+      - id: short
+        kind: outcome
+        when: flags.pp > coins.pp
+        result: "'cannot-afford'"
+        data: { price: flags.price * flags.quantity, coins: coins.total }
+      - id: pay
+        kind: changes
+        changes:
+          - type: set
+            when: flags.cp != flags.change % 10
+            field: coins.cp
+            value: coins.cp - flags.cp + flags.change % 10
+          - type: set
+            when: flags.sp != floor(flags.change / 10) % 10
+            field: coins.sp
+            value: coins.sp - flags.sp + floor(flags.change / 10) % 10
+          - type: set
+            when: flags.gp != floor(flags.change / 100) % 10
+            field: coins.gp
+            value: coins.gp - flags.gp + floor(flags.change / 100) % 10
+          - type: set
+            when: flags.pp != floor(flags.change / 1000)
+            field: coins.pp
+            value: coins.pp - flags.pp + floor(flags.change / 1000)
+          - type: addItem
+            entry: { item: flags.id, quantity: flags.quantity }
+      - id: result
+        kind: outcome
+        result: "'bought'"
+        data: { item: flags.id, price: flags.price * flags.quantity }
+
+  - id: sell
+    tags: [inventory, money]
+    available: has(item.price) && self.quantity > 0
+    params:
+      quantity: { type: integer, optional: true, min: 1 }
+    results: [sold]
+    steps:
+      - id: amount
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              quantity: 'min(self.quantity, has(params.quantity) ? params.quantity : 1)'
+      - id: worth
+        kind: branch
+        cases:
+          - when: true
+            flags: { cp: floor(item.price * flags.quantity * 50) }
+      - id: sell
+        kind: changes
+        changes:
+          - { type: set, when: flags.cp % 10 > 0, field: coins.cp, value: coins.cp + flags.cp % 10 }
+          - type: set
+            when: floor(flags.cp / 10) % 10 > 0
+            field: coins.sp
+            value: coins.sp + floor(flags.cp / 10) % 10
+          - type: set
+            when: floor(flags.cp / 100) > 0
+            field: coins.gp
+            value: coins.gp + floor(flags.cp / 100)
+          - { type: removeItem, when: flags.quantity >= self.quantity, entry: self }
+          - type: adjustQuantity
+            when: flags.quantity < self.quantity
+            entry: self
+            by: -flags.quantity
+      - id: result
+        kind: outcome
+        result: "'sold'"
+        data: { gp: flags.cp / 100 }
+
+  - id: invest
+    tags: [inventory, invest]
+    available: "'trait.invested' in item.tags && self.equipped && !self.invested"
+    results: [invested, limit]
+    steps:
+      - id: limit
+        kind: outcome
+        when: investiture.used >= investiture.max
+        result: "'limit'"
+        data: { limit: investiture.max }
+      - id: invest
+        kind: changes
+        tags: [invest.item]
+        changes:
+          - { type: setState, entry: self, key: invested, value: true }
+          - { type: adjust, field: investiture.used, by: 1 }
+          - type: setState
+            when: >-
+              'trait.apex' in item.tags
+                && countCopies(has(copy.state.apex) && copy.state.apex) == 0
+            entry: self
+            key: apex
+            value: true
+      - id: result
+        kind: outcome
+        result: "'invested'"
+
+  # It still counts toward today's limit.
+  - id: divest
+    tags: [inventory, invest]
+    available: self.invested
+    results: [divested]
+    steps:
+      - id: divest
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: invested, value: false }
+          - {
+              type: setState,
+              when: has(self.apex) && self.apex,
+              entry: self,
+              key: apex,
+              value: false,
+            }
+      - id: result
+        kind: outcome
+        result: "'divested'"
+
+  - id: store
+    tags: [inventory]
+    available: >-
+      self.container == '' && !(item.type == 'weapon' && item.category == 'unarmed')
+        && countCopies((copy.type == 'worn' || copy.type == 'held') && copy.id != self.id
+          && has(copy.fields.capacity) && copy.fields.capacity > 0) > 0
+    results: [stored]
+    steps:
+      - id: kind
+        kind: choice
+        options:
+          - id: held
+            when: >-
+              countCopies(copy.type == 'held' && copy.id != self.id
+                && has(copy.fields.capacity) && copy.fields.capacity > 0) > 0
+          - id: worn
+            when: >-
+              countCopies(copy.type == 'worn' && copy.id != self.id
+                && has(copy.fields.capacity) && copy.fields.capacity > 0) > 0
+      - id: held
+        kind: choice
+        when: "steps.kind.picked == 'held'"
+        options:
+          copies:
+            type: held
+            where: >-
+              self.id != action.self.id && has(item.capacity) && item.capacity > 0
+                && sumCopies(copy.fields.bulk * copy.quantity, has(copy.fields.bulk)
+                  && has(copy.state.container) && copy.state.container == self.id)
+                  + (has(action.item.bulk) ? action.item.bulk * action.self.quantity : 0)
+                  <= item.capacity
+                && (!has(item.capacityItems) || countCopies(has(copy.state.container)
+                  && copy.state.container == self.id) < item.capacityItems)
+      - id: worn
+        kind: choice
+        when: "steps.kind.picked == 'worn'"
+        options:
+          copies:
+            type: worn
+            where: >-
+              self.id != action.self.id && has(item.capacity) && item.capacity > 0
+                && sumCopies(copy.fields.bulk * copy.quantity, has(copy.fields.bulk)
+                  && has(copy.state.container) && copy.state.container == self.id)
+                  + (has(action.item.bulk) ? action.item.bulk * action.self.quantity : 0)
+                  <= item.capacity
+                && (!has(item.capacityItems) || countCopies(has(copy.state.container)
+                  && copy.state.container == self.id) < item.capacityItems)
+      - id: store
+        kind: changes
+        changes:
+          - type: setState
+            entry: self
+            key: container
+            value: 'has(steps.held) ? steps.held.picked : steps.worn.picked'
+          - { type: equip, when: self.equipped, entry: self, equipped: false }
+      - id: result
+        kind: outcome
+        result: "'stored'"
+
+  - id: retrieve
+    tags: [inventory]
+    available: self.container != ''
+    results: [retrieved]
+    steps:
+      - id: retrieve
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: container, value: "''" }
+      - id: result
+        kind: outcome
+        result: "'retrieved'"
+
+display:
+  groups:
+    - id: money
+      priority: 1
+    - id: investiture
+      priority: 2
+    - id: inventory-actions
+      kind: actions
+      priority: 3
+      members:
+        type: action
+        where: "'inventory' in item.tags || 'consumable' in item.tags || 'activation' in item.tags"
+  fields:
+    coins.pp: { groups: [money], priority: 0 }
+    coins.gp: { groups: [money], priority: 0 }
+    coins.sp: { groups: [money], priority: 0 }
+    coins.cp: { groups: [money], priority: 0 }
+    coins.total: { groups: [money], priority: 1 }
+    coins.bulk: { hidden: true }
+    investiture.count:
+      { groups: [investiture], priority: 0, with: [{ field: investiture.max, as: max }] }
+    investiture.max: { groups: [investiture], priority: 1 }
+    investiture.used: { groups: [investiture], priority: 2 }
+
+tags:
+  - money
+  - inventory
+  - invest
+  - trait.invested
+  - trait.apex
+  - invest.item

@@ -1,0 +1,32 @@
+description: "Each slot's `when` reads its own `slot`: at 2nd level the 4th-level slot doesn't apply, so a pick saved there is `choice-not-applicable`"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          level: { type: integer, input: true, default: 1 }
+          feats.slots: { type: integer, formula: 0 }
+        contentTypes:
+          feat:
+            fields:
+              level: { type: integer, required: true }
+        choices:
+          # A feat at 1st, 2nd and 4th level, each of its slot's level or lower.
+          - id: feat
+            slots: [1, 2, 4]
+            unique: feats
+            when: level >= slot
+            from: { type: feat, where: item.level <= slot }
+            effects:
+              - { target: feats.slots, op: add, value: slot }
+      content:
+        - { id: feats.alertness, type: feat, fields: { level: 1 } }
+        - { id: feats.toughness, type: feat, fields: { level: 2 } }
+        - { id: feats.mastery, type: feat, fields: { level: 4 } }

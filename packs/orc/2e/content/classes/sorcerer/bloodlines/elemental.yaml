@@ -1,0 +1,440 @@
+id: classes.sorcerer.bloodlines.elemental
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: sorcerer.bloodline, op: set, value: "'elemental'" }
+  - { target: spellcasting.tradition, op: set, value: "'primal'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.intimidation },
+      when: "!('skill.intimidation' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.nature },
+      when: "!('skill.nature' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.resist-energy },
+      when: level >= 3,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.resist-energy }, when: level >= 3 }
+  - {
+      target: spells.repertoire.rank2,
+      op: grant,
+      value: { item: spells.resist-energy },
+      when: level >= 3,
+    }
+  - { target: spells.granted.rank2, op: add, value: 1, when: level >= 3 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.unfettered-movement },
+      when: level >= 7,
+    }
+  - {
+      target: sorcerer.gifts,
+      op: grant,
+      value: { item: spells.unfettered-movement },
+      when: level >= 7,
+    }
+  - target: spells.repertoire.rank4
+    op: grant
+    value: { item: spells.unfettered-movement }
+    when: level >= 7
+  - { target: spells.granted.rank4, op: add, value: 1, when: level >= 7 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.elemental-form },
+      when: level >= 9,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.elemental-form }, when: level >= 9 }
+  - target: spells.repertoire.rank5
+    op: grant
+    value: { item: spells.elemental-form }
+    when: level >= 9
+  - { target: spells.granted.rank5, op: add, value: 1, when: level >= 9 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.energy-aegis },
+      when: level >= 13,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.energy-aegis }, when: level >= 13 }
+  - target: spells.repertoire.rank7
+    op: grant
+    value: { item: spells.energy-aegis }
+    when: level >= 13
+  - { target: spells.granted.rank7, op: add, value: 1, when: level >= 13 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.earthquake }, when: level >= 15 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.earthquake }, when: level >= 15 }
+  - target: spells.repertoire.rank8
+    op: grant
+    value: { item: spells.earthquake }
+    when: level >= 15
+  - { target: spells.granted.rank8, op: add, value: 1, when: level >= 15 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.wrathful-storm },
+      when: level >= 17,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.wrathful-storm }, when: level >= 17 }
+  - target: spells.repertoire.rank9
+    op: grant
+    value: { item: spells.wrathful-storm }
+    when: level >= 17
+  - { target: spells.granted.rank9, op: add, value: 1, when: level >= 17 }
+  - { target: focus.points, op: add, value: 1 }
+  - target: { choices: [blood-magic] }
+    op: option
+    value:
+      id: fury-self
+      changes:
+        - type: removeEffect
+          applied: { where: "'blood-magic' in item.tags" }
+        - {
+            type: applyEffect,
+            source: "'classes.sorcerer.blood-magic.elemental-fury'",
+            state: { rank: flags.rank },
+          }
+  - target: { choices: [blood-magic] }
+    op: option
+    when: flags.hasTarget
+    value:
+      id: fury-target
+      to: target
+      changes:
+        - type: adjust
+          field: hp.current
+          by: -flags.rank
+          tags: [damage, { formula: "'damage.' + sorcerer.elementDamage" }]
+grants:
+  - { item: spells.unfettered-movement, when: level >= 7 }
+  - { item: spells.elemental-form, when: level >= 9 }
+  - { item: spells.energy-aegis, when: level >= 13 }
+  - { item: spells.earthquake, when: level >= 15 }
+  - { item: spells.wrathful-storm, when: level >= 17 }
+  - { item: spells.resist-energy, when: level >= 3 }
+  - item: spells.elemental-toss
+choices:
+  - id: influence
+    from:
+      options:
+        - id: air
+          effects:
+            - { target: sorcerer.element, op: set, value: "'air'" }
+            - { target: spells.repertoire, op: grant, value: { item: spells.gale-blast } }
+            - { target: sorcerer.gifts, op: grant, value: { item: spells.gale-blast } }
+            - { target: spells.granted.cantrips, op: add, value: 1 }
+            - { target: spells.repertoire, op: grant, value: { item: spells.tailwind } }
+            - { target: sorcerer.gifts, op: grant, value: { item: spells.tailwind } }
+            - { target: spells.repertoire.rank1, op: grant, value: { item: spells.tailwind } }
+            - { target: spells.granted.rank1, op: add, value: 1 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.wall-of-wind },
+                when: level >= 5,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.wall-of-wind },
+                when: level >= 5,
+              }
+            - {
+                target: spells.repertoire.rank3,
+                op: grant,
+                value: { item: spells.wall-of-wind },
+                when: level >= 5,
+              }
+            - { target: spells.granted.rank3, op: add, value: 1, when: level >= 5 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.chain-lightning },
+                when: level >= 11,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.chain-lightning },
+                when: level >= 11,
+              }
+            - target: spells.repertoire.rank6
+              op: grant
+              value: { item: spells.chain-lightning }
+              when: level >= 11
+            - { target: spells.granted.rank6, op: add, value: 1, when: level >= 11 }
+          grants:
+            - { item: spells.gale-blast }
+            - { item: spells.chain-lightning, when: level >= 11 }
+            - { item: spells.tailwind }
+            - { item: spells.wall-of-wind, when: level >= 5 }
+        - id: earth
+          effects:
+            - { target: sorcerer.element, op: set, value: "'earth'" }
+            - { target: spells.repertoire, op: grant, value: { item: spells.scatter-scree } }
+            - { target: sorcerer.gifts, op: grant, value: { item: spells.scatter-scree } }
+            - { target: spells.granted.cantrips, op: add, value: 1 }
+            - { target: spells.repertoire, op: grant, value: { item: spells.pummeling-rubble } }
+            - { target: sorcerer.gifts, op: grant, value: { item: spells.pummeling-rubble } }
+            - {
+                target: spells.repertoire.rank1,
+                op: grant,
+                value: { item: spells.pummeling-rubble },
+              }
+            - { target: spells.granted.rank1, op: add, value: 1 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.earthbind },
+                when: level >= 5,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.earthbind },
+                when: level >= 5,
+              }
+            - {
+                target: spells.repertoire.rank3,
+                op: grant,
+                value: { item: spells.earthbind },
+                when: level >= 5,
+              }
+            - { target: spells.granted.rank3, op: add, value: 1, when: level >= 5 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.petrify },
+                when: level >= 11,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.petrify },
+                when: level >= 11,
+              }
+            - target: spells.repertoire.rank6
+              op: grant
+              value: { item: spells.petrify }
+              when: level >= 11
+            - { target: spells.granted.rank6, op: add, value: 1, when: level >= 11 }
+          grants:
+            - { item: spells.scatter-scree }
+            - { item: spells.petrify, when: level >= 11 }
+            - { item: spells.pummeling-rubble }
+            - { item: spells.earthbind, when: level >= 5 }
+        - id: fire
+          effects:
+            - { target: sorcerer.element, op: set, value: "'fire'" }
+            - { target: spells.repertoire, op: grant, value: { item: spells.ignition } }
+            - { target: sorcerer.gifts, op: grant, value: { item: spells.ignition } }
+            - { target: spells.granted.cantrips, op: add, value: 1 }
+            - { target: spells.repertoire, op: grant, value: { item: spells.breathe-fire } }
+            - { target: sorcerer.gifts, op: grant, value: { item: spells.breathe-fire } }
+            - { target: spells.repertoire.rank1, op: grant, value: { item: spells.breathe-fire } }
+            - { target: spells.granted.rank1, op: add, value: 1 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.fireball },
+                when: level >= 5,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.fireball },
+                when: level >= 5,
+              }
+            - {
+                target: spells.repertoire.rank3,
+                op: grant,
+                value: { item: spells.fireball },
+                when: level >= 5,
+              }
+            - { target: spells.granted.rank3, op: add, value: 1, when: level >= 5 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.tree-of-seasons },
+                when: level >= 11,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.tree-of-seasons },
+                when: level >= 11,
+              }
+            - target: spells.repertoire.rank6
+              op: grant
+              value: { item: spells.tree-of-seasons }
+              when: level >= 11
+            - { target: spells.granted.rank6, op: add, value: 1, when: level >= 11 }
+          grants:
+            - { item: spells.tree-of-seasons, when: level >= 11 }
+            - { item: spells.ignition }
+            - { item: spells.breathe-fire }
+            - { item: spells.fireball, when: level >= 5 }
+        - id: metal
+          effects:
+            - { target: sorcerer.element, op: set, value: "'metal'" }
+            - { target: spells.repertoire, op: grant, value: { item: spells.electric-arc } }
+            - { target: sorcerer.gifts, op: grant, value: { item: spells.electric-arc } }
+            - { target: spells.granted.cantrips, op: add, value: 1 }
+            - { target: spells.repertoire, op: grant, value: { item: spells.thunderstrike } }
+            - { target: sorcerer.gifts, op: grant, value: { item: spells.thunderstrike } }
+            - { target: spells.repertoire.rank1, op: grant, value: { item: spells.thunderstrike } }
+            - { target: spells.granted.rank1, op: add, value: 1 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.lightning-bolt },
+                when: level >= 5,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.lightning-bolt },
+                when: level >= 5,
+              }
+            - {
+                target: spells.repertoire.rank3,
+                op: grant,
+                value: { item: spells.lightning-bolt },
+                when: level >= 5,
+              }
+            - { target: spells.granted.rank3, op: add, value: 1, when: level >= 5 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.chain-lightning },
+                when: level >= 11,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.chain-lightning },
+                when: level >= 11,
+              }
+            - target: spells.repertoire.rank6
+              op: grant
+              value: { item: spells.chain-lightning }
+              when: level >= 11
+            - { target: spells.granted.rank6, op: add, value: 1, when: level >= 11 }
+          grants:
+            - { item: spells.chain-lightning, when: level >= 11 }
+            - { item: spells.electric-arc }
+            - { item: spells.thunderstrike }
+            - { item: spells.lightning-bolt, when: level >= 5 }
+        - id: water
+          effects:
+            - { target: sorcerer.element, op: set, value: "'water'" }
+            - { target: spells.repertoire, op: grant, value: { item: spells.frostbite } }
+            - { target: sorcerer.gifts, op: grant, value: { item: spells.frostbite } }
+            - { target: spells.granted.cantrips, op: add, value: 1 }
+            - { target: spells.repertoire, op: grant, value: { item: spells.hydraulic-push } }
+            - { target: sorcerer.gifts, op: grant, value: { item: spells.hydraulic-push } }
+            - { target: spells.repertoire.rank1, op: grant, value: { item: spells.hydraulic-push } }
+            - { target: spells.granted.rank1, op: add, value: 1 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.aqueous-orb },
+                when: level >= 5,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.aqueous-orb },
+                when: level >= 5,
+              }
+            - {
+                target: spells.repertoire.rank3,
+                op: grant,
+                value: { item: spells.aqueous-orb },
+                when: level >= 5,
+              }
+            - { target: spells.granted.rank3, op: add, value: 1, when: level >= 5 }
+            - target: spells.repertoire
+              op: grant
+              value: { item: spells.scintillating-safeguard }
+              when: level >= 11
+            - target: sorcerer.gifts
+              op: grant
+              value: { item: spells.scintillating-safeguard }
+              when: level >= 11
+            - target: spells.repertoire.rank6
+              op: grant
+              value: { item: spells.scintillating-safeguard }
+              when: level >= 11
+            - { target: spells.granted.rank6, op: add, value: 1, when: level >= 11 }
+          grants:
+            - { item: spells.scintillating-safeguard, when: level >= 11 }
+            - { item: spells.frostbite }
+            - { item: spells.hydraulic-push }
+            - { item: spells.aqueous-orb, when: level >= 5 }
+        - id: wood
+          effects:
+            - { target: sorcerer.element, op: set, value: "'wood'" }
+            - { target: spells.repertoire, op: grant, value: { item: spells.tangle-vine } }
+            - { target: sorcerer.gifts, op: grant, value: { item: spells.tangle-vine } }
+            - { target: spells.granted.cantrips, op: add, value: 1 }
+            - { target: spells.repertoire, op: grant, value: { item: spells.cleanse-cuisine } }
+            - { target: sorcerer.gifts, op: grant, value: { item: spells.cleanse-cuisine } }
+            - {
+                target: spells.repertoire.rank1,
+                op: grant,
+                value: { item: spells.cleanse-cuisine },
+              }
+            - { target: spells.granted.rank1, op: add, value: 1 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.wall-of-thorns },
+                when: level >= 5,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.wall-of-thorns },
+                when: level >= 5,
+              }
+            - {
+                target: spells.repertoire.rank3,
+                op: grant,
+                value: { item: spells.wall-of-thorns },
+                when: level >= 5,
+              }
+            - { target: spells.granted.rank3, op: add, value: 1, when: level >= 5 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.tangling-creepers },
+                when: level >= 11,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.tangling-creepers },
+                when: level >= 11,
+              }
+            - target: spells.repertoire.rank6
+              op: grant
+              value: { item: spells.tangling-creepers }
+              when: level >= 11
+            - { target: spells.granted.rank6, op: add, value: 1, when: level >= 11 }
+          grants:
+            - { item: spells.tangling-creepers, when: level >= 11 }
+            - { item: spells.tangle-vine }
+            - { item: spells.cleanse-cuisine }
+            - { item: spells.wall-of-thorns, when: level >= 5 }

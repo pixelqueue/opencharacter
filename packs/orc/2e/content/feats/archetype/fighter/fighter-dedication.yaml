@@ -1,0 +1,23 @@
+id: feats.archetype.fighter.fighter-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.fighter }
+
+prerequisites:
+  - { id: str, when: 'attributes.str.mod >= 2' }
+  - { id: dex, when: 'attributes.dex.mod >= 2' }
+  - { id: not-fighter, when: 'countCopies(copy.item == @classes.fighter) == 0' }
+effects:
+  - { target: classDc.fighter.rank, op: atLeast, value: 1 }
+  - { target: attacks.martial.rank, op: atLeast, value: 1 }
+choices:
+  - id: skill
+    from: { values: [skill.acrobatics, skill.athletics] }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }

@@ -1,0 +1,51 @@
+id: features.spellcasting.archetype-book
+type: feature
+fields: { level: 2 }
+state:
+  source: { type: string, default: wizard }
+choices:
+  - id: cantrips
+    pick: "fieldOf('spellcasting.archetype.{archetypeSource}.bookCantrips', self.source)"
+    from:
+      type: spell
+      where: >-
+        'trait.cantrip' in item.tags && !('trait.focus' in item.tags)
+          && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', self.source)) in item.tags
+          && !('trait.uncommon' in item.tags)
+    effects:
+      - {
+          target: spells.archetype.wizard.book,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'wizard'",
+        }
+      - {
+          target: spells.archetype.witch.book,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'witch'",
+        }
+  - id: spells
+    slots: [1, 2, 3, 4, 5, 6, 7, 8]
+    when: level >= [4, 6, 8, 12, 14, 16, 18, 20][slot - 1]
+    pick: >-
+      fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', self.source, slot) > 0 ? 2 : 0
+    from:
+      type: spell
+      where: >-
+        !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags) && item.rank == slot
+          && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', self.source)) in item.tags
+          && !('trait.uncommon' in item.tags)
+    effects:
+      - {
+          target: spells.archetype.wizard.book,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'wizard'",
+        }
+      - {
+          target: spells.archetype.witch.book,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'witch'",
+        }

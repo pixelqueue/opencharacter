@@ -1,0 +1,137 @@
+contentTypes:
+  stunt:
+    fields:
+      shape: { type: enum, values: [bonus, swap, exception, custom], required: true }
+      # The loader qualifies these (`fate-core:skills.lore`), as an action's `params.skill.id` is.
+      skill: { type: id, of: field }
+      replaces: { type: id, of: field }
+      action: { type: enum, values: [any, overcome, advantage, attack, defend], default: any }
+      limit: { type: enum, values: [none, conflict, scene, session], default: none }
+      uses: { type: integer, default: 1, min: 1 }
+      fatePoint: { type: boolean, default: false }
+      contestTie: { type: boolean, default: false }
+      boost: { type: boolean, default: false }
+    state:
+      used: { type: integer, default: 0, min: 0 }
+      label: { type: string, default: '' }
+    effects:
+      - target: stunts.held
+        op: grant
+        value: { formula: item.id }
+      - id: bonus
+        target: { rolls: [skill-roll] }
+        op: add
+        value: 2
+        when: >-
+          situational.stunt && has(params.skill)
+            && (item.shape == 'bonus'
+              ? has(item.skill) && item.skill == params.skill.id
+                && (item.action == 'any' || item.action == params.action)
+              : item.shape == 'custom' && self.bonus && self.skill == params.skill.id
+                && (self.action == 'any' || self.action == params.action))
+    actions:
+      - id: use
+        available: >-
+          ((item.shape == 'custom' ? self.limit : item.limit) != 'none'
+              || (item.shape == 'custom' ? self.fatePoint : item.fatePoint))
+            && ((item.shape == 'custom' ? self.limit : item.limit) == 'none'
+              || self.used < (item.shape == 'custom' ? self.uses : item.uses))
+            && (!(item.shape == 'custom' ? self.fatePoint : item.fatePoint) || fatePoints.current > 0)
+        results: [used]
+        steps:
+          - id: stunt
+            kind: branch
+            cases:
+              - when: true
+                flags:
+                  limited: "(item.shape == 'custom' ? self.limit : item.limit) != 'none'"
+                  uses: "item.shape == 'custom' ? self.uses : item.uses"
+                  fatePoint: "item.shape == 'custom' ? self.fatePoint : item.fatePoint"
+          - id: spend
+            kind: changes
+            changes:
+              - type: adjustState
+                when: flags.limited
+                entry: self
+                key: used
+                by: 1
+              - type: adjust
+                when: flags.fatePoint
+                field: fatePoints.current
+                by: -1
+              - type: addItem
+                when: item.boost
+                entry: { item: "'advantages.advantage'", state: { kind: "'boost'" } }
+          - id: result
+            kind: outcome
+            result: "'used'"
+            data:
+              left: 'flags.limited ? flags.uses - self.used - 1 : 0'
+
+fields:
+  identity.name: { type: string, input: true, default: '' }
+  aspects.highConcept: { type: string, input: true, default: '' }
+  aspects.trouble: { type: string, input: true, default: '' }
+  aspects.phase1: { type: string, input: true, default: '' }
+  aspects.phase2: { type: string, input: true, default: '' }
+  aspects.phase3: { type: string, input: true, default: '' }
+
+  refresh.base: { type: integer, input: true, default: 3, min: 1 }
+  stunts.free: { type: integer, formula: 3 }
+  stunts.count: { type: integer, formula: "countCopies(copy.type == 'stunt')" }
+  stunts.extra: { type: integer, formula: 'max(0, stunts.count - stunts.free)' }
+  refresh: { type: integer, formula: refresh.base - stunts.extra - extras.refresh }
+  fatePoints.current: { type: integer, input: true, default: 3, min: 0 }
+  fatePoints.pending: { type: integer, input: true, default: 0, min: 0 }
+  stunts.held: { type: set, of: stunt }
+  stunts.bonus:
+    type: integer
+    formula: >-
+      countCopies(copy.type == 'stunt' && (copy.fields.shape == 'bonus'
+        || (copy.fields.shape == 'custom' && has(copy.state.bonus) && copy.state.bonus)))
+
+constraints:
+  - id: refresh-minimum
+    check: refresh >= 1
+    data: { refresh: refresh }
+  - id: starting-refresh
+    check: '!character.creating || refresh.base == 3'
+    data: { refresh: refresh.base }
+  # Not checked while creating: a creation start finishes without a high concept (a random one never
+  # has the player's words), and the finished sheet reports it until the player writes one.
+  - id: high-concept
+    check: "character.creating || npc.kind == 'nameless' || aspects.highConcept != ''"
+
+display:
+  groups:
+    - id: identity
+      priority: 0
+    - id: aspects
+      priority: 0
+    - id: fate
+      priority: 0
+  fields:
+    identity.name: { groups: [identity], priority: 0, input: { widget: text } }
+    aspects.highConcept:
+      { groups: [aspects], priority: 0, input: { widget: text }, visibility: primary }
+    aspects.trouble: { groups: [aspects], priority: 0, input: { widget: text } }
+    aspects.phase1: { groups: [aspects], priority: 1, input: { widget: text } }
+    aspects.phase2: { groups: [aspects], priority: 1, input: { widget: text } }
+    aspects.phase3: { groups: [aspects], priority: 1, input: { widget: text } }
+    fatePoints.current:
+      {
+        groups: [fate],
+        priority: 0,
+        input: { widget: number },
+        visibility: primary,
+        with: [{ field: refresh, as: detail }],
+      }
+    refresh: { groups: [fate], priority: 0 }
+    fatePoints.pending:
+      { groups: [fate], priority: 1, input: { widget: number }, showWhen: fatePoints.pending > 0 }
+    refresh.base: { groups: [fate], priority: 2, input: { widget: number }, visibility: background }
+    stunts.count: { groups: [fate], priority: 1 }
+    stunts.free: { groups: [fate], priority: 2, visibility: background }
+    stunts.extra: { groups: [fate], priority: 2, visibility: background }
+    stunts.held: { hidden: true }
+    stunts.bonus: { hidden: true }

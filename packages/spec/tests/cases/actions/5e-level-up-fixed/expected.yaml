@@ -1,0 +1,70 @@
+# Fighter 3 to 4. The fixed hit points of a d10 are 10 / 2 + 1 = 6; Constitution is hp.max's.
+# On the proposed sheet the fighter is 4th level, so its Ability Score Improvement is pending:
+# +2 to one ability, then which.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: gain
+    change:
+      type: adjustState
+      key: level
+      copies: { type: 5e-srd-5.1:class, where: "item.id == '5e-srd-5.1:classes.fighter'" }
+      limit: 1
+      by: 1
+  - { to: self, step: hp, change: { type: adjust, field: 5e-srd-5.1:hp.base, by: 6 } }
+  # Current hit points rise by what the maximum gains: 6 and Constitution +2.
+  - { to: self, step: current, change: { type: adjust, field: 5e-srd-5.1:hp.current, by: 8 } }
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        {
+          entry: fighter,
+          choice: ['5e-srd-5.1:features.fighter.ability-score-improvement/improvement-4'],
+        }
+      option: 5e-srd-5.1:improvements.plus-two
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        {
+          entry: fighter,
+          choice:
+            [
+              '5e-srd-5.1:features.fighter.ability-score-improvement/improvement-4',
+              5e-srd-5.1:improvements.plus-two,
+              ability,
+            ],
+        }
+      option: str
+log:
+  - { step: class, kind: choice, by: app, option: 5e-srd-5.1:classes.fighter }
+  - { step: hitPoints, kind: choice, by: app, option: fixed }
+  - step: picks
+    kind: choice
+    by: app
+    option: 5e-srd-5.1:improvements.plus-two
+    index: 0
+    choice:
+      {
+        entry: fighter,
+        choice: ['5e-srd-5.1:features.fighter.ability-score-improvement/improvement-4'],
+      }
+  - step: picks
+    kind: choice
+    by: app
+    option: str
+    index: 1
+    choice:
+      {
+        entry: fighter,
+        choice:
+          [
+            '5e-srd-5.1:features.fighter.ability-score-improvement/improvement-4',
+            5e-srd-5.1:improvements.plus-two,
+            ability,
+          ],
+      }

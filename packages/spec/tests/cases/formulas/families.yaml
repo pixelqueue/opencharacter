@@ -1,0 +1,30 @@
+description: 'fieldOf and keysOf outside a pack: no family is bound, so they type as dyn and evaluate to unknown-name; a pattern must be a literal with a key per placeholder'
+specVersion: 0.1.0
+cases:
+  - name: fieldOf without families is dyn
+    check: "fieldOf('stats.{stat}.score', 'might')"
+    type: dyn
+
+  - name: fieldOf needs a literal pattern
+    check: "fieldOf('stats.' + 'might', 'might')"
+    error: type-mismatch
+
+  - name: fieldOf takes a key per placeholder
+    check: "fieldOf('stats.{a}.{b}', 'might')"
+    error: wrong-arity
+
+  - name: fieldOf with two placeholders and two keys is dyn
+    check: "fieldOf('stats.{a}.{b}', 'might', 2)"
+    type: dyn
+
+  - name: fieldOf names each family once
+    check: "fieldOf('stats.{a}.{a}', 'might', 'wits')"
+    error: type-mismatch
+
+  - name: keysOf needs a literal name
+    check: "keysOf('st' + 'at')"
+    error: type-mismatch
+
+  - name: fieldOf evaluated with no family
+    evaluate: "fieldOf('stats.{stat}.score', 'might')"
+    error: unknown-name

@@ -1,0 +1,65 @@
+description: "Added options are never recommended: `options` in `recommend` lists only the source's options, so an automatic policy picks the last copy, not the added option"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [recharge]
+        fields:
+          stress: { type: integer, input: true, default: 0 }
+        contentTypes:
+          gem:
+            carried: true
+            fields:
+              color: { type: enum, values: [red, blue] }
+            state:
+              charge: { type: integer, min: 0, max: 3, default: 3 }
+          wand:
+            carried: true
+            fields:
+              color: { type: enum, values: [red, blue] }
+          ability:
+            fields:
+              color: { type: enum, values: [red, blue] }
+      content:
+        - { id: gems.ruby, type: gem, fields: { color: red } }
+        - id: wands.red
+          type: wand
+          fields: { color: red }
+          actions:
+            - id: recharge
+              steps:
+                - id: source
+                  kind: choice
+                  tags: [recharge]
+                  options:
+                    copies: { type: gem, where: item.color == action.item.color && self.charge < 3 }
+                  recommend: options[size(options) - 1]
+                  changes:
+                    - { type: adjust, field: stress, by: 0 }
+                - id: done
+                  kind: outcome
+                  data:
+                    picked: steps.source.picked
+                    fromGem: has(steps.source.item)
+        # Channel your own blood: 1 stress per charge, for a wand of your color.
+        - id: abilities.blood-channel
+          type: ability
+          fields: { color: red }
+          effects:
+            - target: { choices: [recharge] }
+              op: option
+              when: item.color == action.item.color
+              value:
+                id: blood
+                changes:
+                  - { type: adjust, field: stress, by: 3 }
+input:
+  action: { id: 'test-pack:wands.red#recharge', entry: wand-1 }
+  policy: { choices: auto }

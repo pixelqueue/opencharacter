@@ -1,0 +1,22 @@
+# Attack: 7 + dex 3 = 10 against AC 18: a miss. The shot still spends a crossbow bolt (the
+# arrows are another kind); no damage.
+status: finished
+outcome:
+  result: miss
+  data: { critical: false, attack: 10 }
+proposedChanges:
+  - to: self
+    step: ammo
+    change: { type: adjustQuantity, entry: bolts, by: -1 }
+log:
+  - step: ammo
+    action: 5e-srd-5.1:weapon-attack
+    kind: choice
+    by: engine
+    option: bolts
+  - step: attack
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [7]
+    total: 10

@@ -1,0 +1,48 @@
+id: classes.champion.causes.justice
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: champion.cause, op: set, value: "'justice'", when: class.has.champion }
+actions:
+  - id: retributive-strike
+    tags: [reaction]
+    participants:
+      ally: { max: 1 }
+      target: { max: 1 }
+    results: [used]
+    steps:
+      - id: resist
+        kind: changes
+        to: ally
+        changes:
+          - type: applyEffect
+            source: "'classes.champion.resistance'"
+            state: { amount: champion.allyResistance }
+      - id: weapon
+        kind: choice
+        when: size(participants.target) > 0
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: strike
+        kind: action
+        when: has(steps.weapon)
+        use: strike
+        entry: steps.weapon.picked
+        params: { reaction: true }
+        participants: { target: participants.target }
+      - id: relentless
+        kind: changes
+        when: >-
+          level >= 9 && attributes.cha.mod > 0 && has(steps.strike)
+            && steps.strike.result in ['success', 'critical-success']
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.persistent-damage'"
+            state: { damage: attributes.cha.mod, damageType: "'spirit'" }
+      - id: result
+        kind: outcome
+        result: "'used'"

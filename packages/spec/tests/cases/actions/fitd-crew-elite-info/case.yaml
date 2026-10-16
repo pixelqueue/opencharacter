@@ -1,0 +1,15 @@
+description: "FitD: the crew's High Society adds a die to gather information about the elite"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:action-roll }
+  params: { rating: fitd-scoundrel:ratings.finesse }
+  situational:
+    fitd-scoundrel:eliteInfo: true
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:members.eliteInfo.dice: 1

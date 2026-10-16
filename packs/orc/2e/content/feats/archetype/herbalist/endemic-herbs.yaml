@@ -1,0 +1,11 @@
+id: feats.archetype.herbalist.endemic-herbs
+type: feat
+tags: [trait.archetype, trait.additive, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.herbalist }
+
+prerequisites:
+  - {
+      id: herbalist-dedication,
+      when: '@feats.archetype.herbalist.herbalist-dedication in feats.held',
+    }
+  - { id: survival, when: 'skills.survival.rank >= 1' }

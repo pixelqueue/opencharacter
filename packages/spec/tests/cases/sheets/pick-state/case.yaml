@@ -1,0 +1,30 @@
+description: "A pick keeps state its picked content declares: a rules-level feat reads its pick's `used` as `self.used`, and one with no saved state reads the default; content without state keeps the owner's `self`"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          ferocity.spent: { type: boolean, formula: false }
+          stonewall.spent: { type: boolean, formula: false }
+        contentTypes:
+          feat:
+            state:
+              used: { type: boolean, default: false }
+        choices:
+          - id: feats
+            pick: { max: 2 }
+            from: { type: feat }
+      content:
+        - id: feats.ferocity
+          type: feat
+          effects: [{ target: ferocity.spent, op: set, value: self.used }]
+        - id: feats.stonewall
+          type: feat
+          effects: [{ target: stonewall.spent, op: set, value: self.used }]

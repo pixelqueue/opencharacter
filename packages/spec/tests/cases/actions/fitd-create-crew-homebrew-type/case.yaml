@@ -1,0 +1,53 @@
+description: "FitD crew creation with a table's own crew type: a box on each of the type's starting upgrades, whatever they are (a Workshop and Mastery), and the type's own ability and operation choices asked with the pending picks"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/crew
+  - inline:
+      manifest:
+        id: homebrew-crews
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies:
+          fitd-crew: ^0.1.0
+      rules: { tags: [tinkers] }
+      content:
+        - id: crew-types.tinkers
+          type: crewType
+          tags: [tinkers]
+          fields:
+            upgrades: [fitd-crew:upgrades.composed]
+            startingUpgrades:
+              [fitd-crew:upgrades.lair.workshop, fitd-crew:upgrades.training.mastery]
+          choices:
+            - id: special-ability
+              pick: 1
+              from:
+                type: crewAbility
+                where: >-
+                  item.id in [@fitd-crew:crew-abilities.pack-rats,
+                    @fitd-crew:crew-abilities.second-story]
+            - id: operation
+              pick: 1
+              from:
+                type: operation
+                where: >-
+                  item.id in [@fitd-crew:operations.burglary,
+                    @fitd-crew:operations.espionage]
+input:
+  action: { id: fitd-crew:create-crew }
+  policy: { dice: pause, choices: pause, allocations: pause }
+answers:
+  - option: homebrew-crews:crew-types.tinkers
+  - option: free
+  - option: faction-e
+  - option: expert
+  - option: fitd-crew:cohort-traits.tenacious
+  - option: fitd-crew:cohort-traits.unreliable
+  - option: none
+  - option: none
+  - option: none
+  - option: fitd-crew:crew-abilities.pack-rats
+  - option: fitd-crew:operations.burglary

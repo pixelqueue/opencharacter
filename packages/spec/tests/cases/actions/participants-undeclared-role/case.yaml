@@ -1,0 +1,59 @@
+description: 'Participants for a role the action does not declare are invalid-participants'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          hp.current: { type: integer, input: true, default: 10 }
+        actions:
+          - id: save
+            params:
+              dc: { type: integer }
+            results: [success, failure]
+            steps:
+              - id: roll
+                kind: roll
+                parts: [{ dice: 1d20 }]
+              - id: result
+                kind: outcome
+                result: "steps.roll.total >= params.dc ? 'success' : 'failure'"
+          - id: blast
+            participants:
+              target:
+                max: 3
+                fields:
+                  ward: { type: integer, default: 0 }
+                  hp.current: { type: integer }
+            steps:
+              - id: saves
+                kind: action
+                each: target
+                as: participant
+                use: save
+                params: { dc: 12 + participant.ward }
+              - id: burn
+                kind: changes
+                each: target
+                to: target
+                changes:
+                  - type: adjust
+                    field: hp.current
+                    by: "steps.saves.result == 'success' ? -2 : -4"
+              - id: result
+                kind: outcome
+                result: "'done'"
+                data:
+                  saved: size(steps.saves)
+      content: []
+input:
+  action: { id: test-pack:blast }
+  participants:
+    helper:
+      - { id: ally-1 }

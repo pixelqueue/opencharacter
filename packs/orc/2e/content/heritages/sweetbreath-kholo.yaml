@@ -1,0 +1,9 @@
+id: heritages.sweetbreath-kholo
+type: heritage
+fields: { ancestry: ancestries.kholo }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.diplomacy }
+    when: "!('skill.diplomacy' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }

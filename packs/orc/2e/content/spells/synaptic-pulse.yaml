@@ -1,0 +1,17 @@
+# "Stunned for 1 round" on a critical failure is stunned 3: a turn without actions.
+id: spells.synaptic-pulse
+type: spell
+tags: [trait.concentrate, trait.incapacitation, trait.manipulate, trait.mental, tradition.occult]
+fields:
+  rank: 5
+  cast: two
+  area: emanation
+  areaSize: 30
+  duration: rounds
+  durationAmount: 1
+  defense: will
+  success: [conditions.stunned]
+  failure: [conditions.stunned]
+  failureValue: 2
+  criticalFailure: [conditions.stunned]
+  criticalFailureValue: 3

@@ -1,0 +1,53 @@
+id: spells.animal-form
+type: spell
+tags: [trait.concentrate, trait.manipulate, trait.polymorph, tradition.primal]
+fields:
+  rank: 2
+  cast: two
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+  tempHp: 5
+  heighten: 1
+  heightenTempHp: 5
+effects:
+  - { target: battleForm.active, op: set, value: true, scope: applied }
+  - {
+      target: battleForm.acBase,
+      op: set,
+      value: 'self.rank >= 5 ? 18 : self.rank >= 4 ? 18 : self.rank >= 3 ? 17 : 16',
+      scope: applied,
+    }
+  - { target: battleForm.formAttacks, op: set, value: true, scope: applied }
+  - {
+      target: battleForm.attack,
+      op: set,
+      value: 'self.rank >= 5 ? 18 : self.rank >= 4 ? 16 : self.rank >= 3 ? 14 : 9',
+      scope: applied,
+    }
+  - {
+      target: battleForm.damage,
+      op: set,
+      value: 'self.rank >= 5 ? 7 : self.rank >= 4 ? 9 : self.rank >= 3 ? 5 : 1',
+      scope: applied,
+    }
+  - {
+      target: battleForm.diceMultiplier,
+      op: set,
+      value: 'self.rank >= 5 ? 2 : self.rank >= 4 ? 1 : self.rank >= 3 ? 1 : 1',
+      scope: applied,
+    }
+  - target: skills.athletics.mod
+    op: atLeast
+    value: 'self.rank >= 5 ? 20 : self.rank >= 4 ? 16 : self.rank >= 3 ? 14 : 9'
+    scope: applied
+grants:
+  - { item: forms.animal-form.ape, scope: applied, when: "self.form == 'ape'" }
+  - { item: forms.animal-form.bear, scope: applied, when: "self.form == 'bear'" }
+  - { item: forms.animal-form.bull, scope: applied, when: "self.form == 'bull'" }
+  - { item: forms.animal-form.canine, scope: applied, when: "self.form == 'canine'" }
+  - { item: forms.animal-form.cat, scope: applied, when: "self.form == 'cat'" }
+  - { item: forms.animal-form.deer, scope: applied, when: "self.form == 'deer'" }
+  - { item: forms.animal-form.frog, scope: applied, when: "self.form == 'frog'" }
+  - { item: forms.animal-form.shark, scope: applied, when: "self.form == 'shark'" }
+  - { item: forms.animal-form.snake, scope: applied, when: "self.form == 'snake'" }

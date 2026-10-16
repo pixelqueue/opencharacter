@@ -1,0 +1,54 @@
+id: monsters.vampire.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: unarmed }, { id: bite }]
+        recommend: "'unarmed'"
+      - id: unarmedStrike1
+        kind: action
+        when: "steps.form.picked == 'unarmed'"
+        use: monster-attack
+        source: "'monsters.vampire.unarmed-strike'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: unarmedStrike2
+        kind: action
+        when: "steps.form.picked == 'unarmed'"
+        use: monster-attack
+        source: "'monsters.vampire.unarmed-strike'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: unarmedStrike3
+        kind: action
+        when: "steps.form.picked == 'bite'"
+        use: monster-attack
+        source: "'monsters.vampire.unarmed-strike'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: bite1
+        kind: action
+        when: "steps.form.picked == 'bite'"
+        use: monster-attack
+        source: "'monsters.vampire.bite'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.unarmedStrike1) && steps.unarmedStrike1.result == 'hit' ? 1 : 0)
+              + (has(steps.unarmedStrike2) && steps.unarmedStrike2.result == 'hit' ? 1 : 0)
+              + (has(steps.unarmedStrike3) && steps.unarmedStrike3.result == 'hit' ? 1 : 0)
+              + (has(steps.bite1) && steps.bite1.result == 'hit' ? 1 : 0)

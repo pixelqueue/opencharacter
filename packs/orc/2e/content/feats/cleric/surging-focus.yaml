@@ -1,0 +1,16 @@
+id: feats.cleric.surging-focus
+type: feat
+fields: { level: 8, category: class, class: classes.cleric }
+actions:
+  - id: surging-focus
+    tags: [class-action]
+    available: focus.spent > 0
+    results: [regained]
+    steps:
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: focus.spent, by: -1 }
+      - id: result
+        kind: outcome
+        result: "'regained'"

@@ -1,0 +1,9 @@
+id: magic-items.goggles-of-night
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+# Not modeled: race traits raise darkvision with atLeast, which applies after any add, so adding 60
+# feet is left to the app.
+effects:
+  - { target: senses.darkvision, op: atLeast, value: 60, when: self.equipped }

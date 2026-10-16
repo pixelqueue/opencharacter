@@ -1,0 +1,15 @@
+id: feats.oracle.gifted-power
+type: feat
+fields: { level: 6, category: class, class: classes.oracle }
+effects:
+  - { target: spellSlots.extra.max, op: add, value: 1 }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id in oracle.granted && !('trait.cantrip' in action.item.tags)
+        && spellSlots.extra.used < spellSlots.extra.max
+    value:
+      id: gifted-power
+      flags: { rank: spellcasting.maxRank, pooled: true, free: true }
+      changes:
+        - { type: adjust, field: spellSlots.extra.used, by: 1 }

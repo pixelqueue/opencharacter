@@ -1,0 +1,93 @@
+id: magic-items.ring-of-the-ram
+type: magicItem
+fields:
+  category: ring
+  rarity: rare
+  requiresAttunement: true
+  maxCharges: 3
+  recharge: 1d3
+  attackBonus: 7
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - id: ram
+    tags: [attack]
+    available: self.equipped && self.attuned && self.charges > 0
+    results: [hit, miss, no-charges]
+    params:
+      charges: { type: integer, default: 1, min: 1, max: 3 }
+      targetAc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          combat.ac: { type: integer }
+          conditions.prone: { type: boolean, default: false }
+          conditions.restrained: { type: boolean, default: false }
+          conditions.blinded: { type: boolean, default: false }
+          conditions.invisible: { type: boolean, default: false }
+          protection.evilAndGood: { type: boolean, default: false }
+          combat.elusive: { type: boolean, default: false }
+          combat.noCriticals: { type: boolean, default: false }
+          combat.attackersDisadvantage: { type: boolean, default: false }
+    steps:
+      - id: empty
+        kind: outcome
+        when: self.charges < params.charges
+        result: "'no-charges'"
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: charges, by: -params.charges }
+      - id: attack
+        kind: roll
+        tags: [d20-test, attack.item]
+        parts:
+          - dice: 1d20
+          - value: item.attackBonus
+      - id: hit
+        kind: branch
+        cases:
+          - when: steps.attack.kept[0] == 20
+            flags:
+              hit: true
+              critical: '!(size(participants.target) > 0 && participants.target[0].combat.noCriticals)'
+          - when: steps.attack.kept[0] == 1
+            flags: { hit: false, critical: false }
+          - when: size(participants.target) > 0 && has(participants.target[0].combat.ac)
+            flags:
+              hit: steps.attack.total >= participants.target[0].combat.ac
+              critical: false
+          - when: has(params.targetAc)
+            flags: { hit: steps.attack.total >= params.targetAc, critical: false }
+        else:
+          flags: { hit: false, critical: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options: [{ id: hit }, { id: miss }]
+      - id: damage
+        kind: roll
+        when: flags.hit || (has(steps.confirm) && steps.confirm.picked == 'hit')
+        tags: [damage]
+        parts:
+          - { dice: (params.charges * 2)d10, tags: [damage.force] }
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, attack, magical]
+      - id: result
+        kind: outcome
+        result: "has(steps.damage) ? 'hit' : 'miss'"
+        data:
+          attack: steps.attack.total
+          critical: flags.critical
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

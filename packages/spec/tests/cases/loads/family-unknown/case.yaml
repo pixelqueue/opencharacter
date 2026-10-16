@@ -1,0 +1,27 @@
+description: "A family key naming no family, a role naming no view-field set, or an addition to a family that doesn't exist is invalid-family"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        families:
+          stat: [might, wits]
+          'other-pack:stat': [luck]
+        viewFields:
+          foe: { defense: { type: integer } }
+        fields:
+          'stats.{stat}.base': { type: integer, input: true, default: 1 }
+          'skills.{skill}': { type: integer, input: true, default: 0 }
+        actions:
+          - id: poke
+            participants:
+              target: { fields: enemy }
+            steps:
+              - { id: done, kind: outcome }
+      content: []

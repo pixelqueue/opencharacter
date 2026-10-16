@@ -1,0 +1,30 @@
+id: worn.voyagers-pack
+type: worn
+tags: [trait.invested, trait.magical, trait.uncommon]
+fields:
+  level: 17
+  price: 14800
+  usage: backpack
+  activation: ten-minutes
+  capacity: 50
+grants:
+  - { item: spells.teleport, when: 'self.equipped && self.invested' }
+  - { item: spells.interplanar-teleport, when: 'self.equipped && self.invested' }
+effects:
+  - target: skills.survival.mod
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.teleport'
+    value:
+      id: teleport
+      flags: { itemPaid: true, rank: 7 }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.interplanar-teleport'
+    value:
+      id: interplanar-teleport
+      flags: { itemPaid: true, rank: 7 }

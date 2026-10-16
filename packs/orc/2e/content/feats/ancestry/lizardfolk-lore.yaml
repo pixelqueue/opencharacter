@@ -1,0 +1,33 @@
+id: feats.ancestry.lizardfolk-lore
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.lizardfolk }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.survival }
+    when: "!('skill.survival' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+choices:
+  - id: skill
+    from: { values: [skill.nature, skill.occultism] }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }
+  - id: lore
+    from: { values: [skill.lore.astrology, skill.lore.lizardfolk] }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }
+      - target: { fields: { where: "'skill-rank' in item.tags && pick.value in item.tags" } }
+        op: atLeast
+        value: 'level >= 15 ? 4 : level >= 7 ? 3 : level >= 3 ? 2 : 1'

@@ -1,0 +1,32 @@
+description: "A content type's state hint sees the copy as self; a field hint doesn't"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          speed: { type: integer, input: true, default: 30 }
+        contentTypes:
+          wand:
+            fields:
+              maxCharges: { type: integer, default: 7 }
+            state:
+              charges: { type: integer, default: 0 }
+        display:
+          fields:
+            speed: { unit: ft, showWhen: self.charges > 0 }
+          types:
+            wand:
+              state:
+                charges:
+                  { input: { widget: track }, showWhen: item.maxCharges > 0 && self.charges >= 0 }
+              fields:
+                maxCharges: { hidden: true }
+              quantity: { hidden: true }
+      content: []

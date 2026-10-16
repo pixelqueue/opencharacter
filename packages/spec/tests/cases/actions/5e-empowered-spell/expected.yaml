@@ -1,0 +1,35 @@
+# Charisma modifier 0, so Empowered Spell rerolls one die: of the 2 and the 3 (both at or below
+# 5), the 2. Attack 12 + 3 = 15 hits AC 13. 2d10: 2 → 9, + 3 = 12, + Elemental Affinity 0 = 12.
+status: finished
+outcome:
+  result: hit
+  data:
+    slot: 0
+    spellcastingClass: sorcerer
+    metamagic: empowered
+    dc: 11
+    save: ''
+    halfOnSave: false
+    damage: 12
+    healing: 0
+    concentration: false
+    critical: false
+log:
+  - step: metamagic
+    kind: choice
+    by: app
+    option: '5e-srd-5.1:features.sorcerer.metamagic#empowered'
+  - { step: attack, kind: dice, by: engine, faces: [12], total: 15 }
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [2, 3, 9]
+    total: 12
+    items:
+      - kind: dice
+        modifiers: [{ type: rerollOnce, compare: '<=', target: 5, count: 1 }]
+        faces:
+          - { value: 2, kept: false, rerolled: true }
+          - { value: 3, kept: true }
+          - { value: 9, kept: true }
+      - { kind: flat, value: 0 }

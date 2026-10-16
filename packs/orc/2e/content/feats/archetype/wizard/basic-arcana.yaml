@@ -1,0 +1,15 @@
+id: feats.archetype.wizard.basic-arcana
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.wizard }
+prerequisites:
+  - { id: wizard-dedication, when: '@feats.archetype.wizard.wizard-dedication in feats.held' }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && !('trait.archetype' in item.tags)
+          && (has(item.class) && item.class == @classes.wizard || 'trait.wizard' in item.tags)
+    eligible: item.level <= 2

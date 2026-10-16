@@ -1,0 +1,11 @@
+id: feats.cleric.deadly-simplicity
+type: feat
+fields: { level: 1, category: class, class: classes.cleric }
+prerequisites:
+  - { id: simple, when: "cleric.favoredCategory in ['simple', 'unarmed']" }
+# A die step: a fist's d4 becomes the d6 the feat names.
+effects:
+  - target: { rolls: [damage.strike], parts: [part.weapon-die] }
+    op: rollModifier
+    value: { kind: stepDie, steps: 1 }
+    when: roll.item.id in attacks.favoredWeapons

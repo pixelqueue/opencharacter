@@ -1,0 +1,25 @@
+# 3, 1, 2, 1 all match (3 or less); the two 1s are rerolled (the lowest, earliest first among
+# equals), in the order rolled: the first 1 becomes 6, the second 5. 3 + 6 + 2 + 5 = 16.
+status: finished
+outcome:
+  data: { total: 16 }
+log:
+  - step: roll
+    action: test-roll-bounds:pool
+    kind: dice
+    by: engine
+    faces: [3, 1, 2, 1, 6, 5]
+    total: 16
+    items:
+      - kind: dice
+        count: 4
+        sides: 6
+        modifiers: [{ type: rerollOnce, compare: '<=', target: 3, count: 2 }]
+        faces:
+          - { value: 3, kept: true }
+          - { value: 1, kept: false, rerolled: true }
+          - { value: 2, kept: true }
+          - { value: 1, kept: false, rerolled: true }
+          - { value: 6, kept: true }
+          - { value: 5, kept: true }
+        value: 16

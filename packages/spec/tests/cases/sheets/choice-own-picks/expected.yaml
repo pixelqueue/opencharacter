@@ -1,0 +1,12 @@
+# Arcana, picked by the training choice, passes its where (it is the choice's own pick). Elvish,
+# picked by the sage, passes eligible; Draconic doesn't, the character not being wise.
+values:
+  test-choice-picks:skills: { value: [arcana] }
+  test-choice-picks:known:
+    value:
+      - test-choice-picks:languages.common
+      - test-choice-picks:languages.draconic
+      - test-choice-picks:languages.elvish
+issues:
+  - { code: option-not-eligible, id: test-choice-picks:backgrounds.sage/language }
+errors: []

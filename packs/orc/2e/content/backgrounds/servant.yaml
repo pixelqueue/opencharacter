@@ -1,0 +1,21 @@
+id: backgrounds.servant
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.society }
+    when: "!('skill.society' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.labor }
+    when: "!('skill.lore.labor' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.read-lips
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['dex', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

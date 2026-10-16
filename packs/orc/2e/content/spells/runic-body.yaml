@@ -1,0 +1,34 @@
+id: spells.runic-body
+type: spell
+tags:
+  [
+    trait.concentrate,
+    trait.manipulate,
+    tradition.arcane,
+    tradition.divine,
+    tradition.occult,
+    tradition.primal,
+  ]
+# While the spell is applied, the target keeps the template on its unarmed copies, by the rank it
+# was cast at.
+fields:
+  rank: 1
+  cast: two
+  range: 0
+  targets: 1
+  duration: minutes
+  durationAmount: 1
+  applyTo: ally
+keepsTemplates:
+  - template: templates.runic
+    copies: { type: weapon, where: "item.category == 'unarmed'" }
+    when: self.rank < 6
+    scope: applied
+  - template: templates.runic-greater
+    copies: { type: weapon, where: "item.category == 'unarmed'" }
+    when: self.rank >= 6 && self.rank < 9
+    scope: applied
+  - template: templates.runic-major
+    copies: { type: weapon, where: "item.category == 'unarmed'" }
+    when: self.rank >= 9
+    scope: applied

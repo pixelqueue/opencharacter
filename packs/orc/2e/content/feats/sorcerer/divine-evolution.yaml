@@ -1,0 +1,22 @@
+id: feats.sorcerer.divine-evolution
+type: feat
+fields: { level: 4, category: class, class: classes.sorcerer }
+prerequisites:
+  - { id: tradition, when: "spellcasting.tradition == 'divine'" }
+effects:
+  - { target: spellSlots.extra.max, op: add, value: 1 }
+  - { target: spells.extraSlot, op: grant, value: { item: spells.heal } }
+  - { target: spells.extraSlot, op: grant, value: { item: spells.harm } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id in [@spells.heal, @spells.harm]
+        && spellSlots.extra.used < spellSlots.extra.max
+    value:
+      id: extra-slot
+      flags: { rank: spellcasting.maxRank, pooled: true, free: true }
+      changes:
+        - { type: adjust, field: spellSlots.extra.used, by: 1 }
+grants:
+  - item: spells.heal
+  - item: spells.harm

@@ -1,0 +1,18 @@
+id: feats.rogue.bloody-debilitation
+type: feat
+fields: { level: 12, category: class, class: classes.rogue }
+prerequisites:
+  - { id: medicine, when: 'skills.medicine.rank >= 1' }
+  - { id: debilitating, when: 'classLevel.rogue >= 9' }
+effects:
+  - target: { choices: [debilitation] }
+    op: option
+    value:
+      id: bleed
+      to: target
+      changes:
+        - {
+            type: applyEffect,
+            source: "'conditions.persistent-damage'",
+            state: { damage: 3d6, damageType: "'bleed'" },
+          }

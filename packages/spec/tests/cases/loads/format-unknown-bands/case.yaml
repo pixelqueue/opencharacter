@@ -1,0 +1,24 @@
+description: "A field's display format names a band set the field's pack doesn't see"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          skill: { type: integer, input: true, default: 0 }
+          rank: { type: integer, input: true, default: 0 }
+        resultBands:
+          ladder:
+            - { id: good, when: roll.total >= 3 }
+            - { id: poor, when: true }
+        display:
+          fields:
+            skill: { format: { bands: ladder } }
+            rank: { format: { bands: rungs } }
+      content: []

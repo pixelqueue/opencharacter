@@ -1,0 +1,19 @@
+id: feats.ancestry.cultural-adaptability
+type: feat
+fields: { level: 5, category: ancestry, ancestry: ancestries.halfling }
+choices:
+  - id: ancestry
+    activate: false
+    from:
+      type: ancestry
+      where: "countCopies(copy.type == 'ancestry' && copy.item == item.id) == 0"
+    effects:
+      - { target: ancestry.held, op: grant, value: { formula: pick.id } }
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: "item.category == 'ancestry' && item.level <= 1 && has(item.ancestry)"
+    eligible: >-
+      item.ancestry in ancestry.held
+        && countCopies(copy.type == 'ancestry' && copy.item == item.ancestry) == 0

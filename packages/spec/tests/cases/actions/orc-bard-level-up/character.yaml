@@ -1,0 +1,90 @@
+# An orc-2e character: a 4th-level irongut goblin bard of the maestro
+# muse, with a prisoner background.
+#
+# Boosts: her ancestry's Dexterity and Charisma (Wisdom flaw) and a free Constitution, the
+# prisoner's Constitution and a free Charisma, the bard's Charisma, and four free (Charisma,
+# Constitution, Dexterity, Wisdom): Str +0, Dex +2, Con +3, Int +0, Wis +0, Cha +4. Spell attack
+# +10, spell DC 20, 54 Hit Points, AC 19 in leather armor. Trained skills: Stealth and Underworld Lore (prisoner),
+# Occultism and Performance (bard) and four more.
+#
+# Occult spells, spontaneous: the maestro muse adds soothe (and Lingering Composition) to the
+# repertoire beside her picks; soothe and noise blast are her signature spells. Compositions:
+# counter performance (a focus spell) and courageous anthem, and lingering composition from the
+# muse: two Focus Points.
+specVersion: 0.1.0
+id: example-orc-lyra
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 4
+  orc-2e:hp.current: 54
+  orc-2e:skills.performance.increases: 1
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.goblin
+    choices:
+      heritage:
+        - option: orc-2e:heritages.irongut-goblin
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-2e:boosts.con
+  - id: background
+    item: orc-2e:backgrounds.prisoner
+    choices:
+      boost:
+        - option: orc-2e:boosts.con
+      free-boost:
+        - option: orc-2e:boosts.cha
+  - id: class
+    item: orc-2e:classes.bard
+    choices:
+      muse:
+        - option: orc-2e:classes.bard.muses.maestro
+      skills:
+        - option: skill.diplomacy
+        - option: skill.deception
+        - option: skill.nature
+        - option: skill.lore.legal
+      orc-2e:features.spellcasting.repertoire/cantrips:
+        - option: orc-2e:spells.daze
+        - option: orc-2e:spells.figment
+        - option: orc-2e:spells.summon-instrument
+        - option: orc-2e:spells.shield
+        - option: orc-2e:spells.guidance
+      orc-2e:features.spellcasting.repertoire/spells-1:
+        - option: orc-2e:spells.fear
+        - option: orc-2e:spells.sanctuary
+        - option: orc-2e:spells.illusory-disguise
+      orc-2e:features.spellcasting.repertoire/spells-2:
+        - option: orc-2e:spells.paranoia
+        - option: orc-2e:spells.noise-blast
+        - option: orc-2e:spells.laughing-fit
+      orc-2e:features.spellcasting.signature-spells/signature-1:
+        - option: orc-2e:spells.soothe
+      orc-2e:features.spellcasting.signature-spells/signature-2:
+        - option: orc-2e:spells.noise-blast
+      class-feat-2:
+        - option: orc-2e:feats.bard.uplifting-overture
+      skill-feat-2:
+        - option: orc-2e:feats.skill.impressive-performance
+      class-feat-4:
+        - option: orc-2e:feats.bard.melodious-spell
+      skill-feat-4:
+        - option: orc-2e:feats.skill.charming-liar
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.cha
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.burn-it
+  general-feat-3:
+    - option: orc-2e:feats.general.toughness
+inventory:
+  - { id: rapier, item: orc-2e:weapons.rapier, equipped: true }
+  - { id: armor, item: orc-2e:armor.leather-armor, equipped: true }
+  - { id: lute, item: orc-2e:gear.musical-instrument-handheld }
+  - { id: backpack, item: orc-2e:gear.backpack }

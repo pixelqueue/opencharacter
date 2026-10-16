@@ -1,0 +1,10 @@
+id: runes.holy
+type: template
+tags: [trait.magical, rune.property]
+appliesTo: { type: weapon }
+fields: { price: '(has(prior.price) ? prior.price : 0) + 1400' }
+effects:
+  - target: { rolls: [damage.strike], from: self }
+    op: add
+    value: 'situational.unholyTarget ? 2d4 : 1d4'
+    tags: [damage.spirit]

@@ -1,0 +1,90 @@
+# Aldric at 8th level, whose Second Blessing repeats his first blessing (blessed shield).
+specVersion: 0.1.0
+id: case-orc-second-blessing-repeats-first
+packs:
+  - id: orc-2e
+    version: 0.1.0
+values:
+  orc-2e:level: 8
+  orc-2e:hp.current: 42
+  orc-2e:skills.athletics.increases: 1
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.elf
+    choices:
+      heritage:
+        - option: orc-2e:heritages.woodland-elf
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-2e:boosts.con
+  - id: background
+    item: orc-2e:backgrounds.artist
+    choices:
+      boost:
+        - option: orc-2e:boosts.dex
+      free-boost:
+        - option: orc-2e:boosts.str
+      orc-2e:feats.skill.specialty-crafting/specialty:
+        - option: artistry
+  - id: class
+    item: orc-2e:classes.champion
+    choices:
+      key-attribute:
+        - option: str
+      divine-font:
+        - option: heal
+      sanctification:
+        - option: holy
+      divine-skill:
+        - option: skill.diplomacy
+      favored-weapon-category:
+        - option: martial
+      favored-weapon:
+        - option: orc-2e:weapons.longsword
+      cause:
+        - option: orc-2e:classes.champion.causes.justice
+      devotion-spell:
+        - option: lay-on-hands
+      skills:
+        - option: skill.athletics
+        - option: skill.medicine
+        - option: skill.intimidation
+      class-feat-1:
+        - option: orc-2e:feats.champion.defensive-advance
+      class-feat-2:
+        - option: orc-2e:feats.champion.divine-grace
+      skill-feat-2:
+        - option: orc-2e:feats.skill.intimidating-glare
+      orc-2e:features.champion.blessing-of-the-devoted/blessing:
+        - option: shield
+      class-feat-8:
+        - option: orc-2e:feats.champion.second-blessing
+          choices:
+            blessing:
+              - option: shield
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis
+    - option: orc-2e:boosts.cha
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.elven-lore
+  languages:
+    - option: orc-2e:languages.halfling
+  general-feat-3:
+    - option: orc-2e:feats.general.toughness
+inventory:
+  - id: longsword
+    item: orc-2e:weapons.longsword
+    equipped: true
+  - id: shield
+    item: orc-2e:shields.steel-shield
+    equipped: true
+  - id: armor
+    item: orc-2e:armor.chain-mail
+    equipped: true
+  - id: backpack
+    item: orc-2e:gear.backpack

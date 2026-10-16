@@ -1,0 +1,9 @@
+# Rock, paper and scissors block each other in a cycle. Paper also blocks slowed, an entry
+# outside the cycle.
+id: conditions.paper
+type: condition
+effects:
+  - { target: speed, op: add, value: -2, scope: applied }
+immuneTo:
+  - { id: rock, items: [conditions.rock], scope: applied }
+  - { id: slowed, items: [conditions.slowed], scope: applied }

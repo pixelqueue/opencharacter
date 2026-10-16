@@ -1,0 +1,18 @@
+# The potion is spent, and applied to the drinker; applyChanges gives the entry its ID.
+status: finished
+outcome:
+  result: drunk
+  data:
+    healed: 0
+proposedChanges:
+  - to: self
+    step: drink
+    change:
+      type: adjustQuantity
+      entry: potion
+      by: -1
+  - to: self
+    step: drink
+    change:
+      type: applyEffect
+      source: 5e-srd-5.1:magic-items.potion-of-hill-giant-strength

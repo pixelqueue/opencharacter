@@ -1,0 +1,25 @@
+id: spells.aid
+type: spell
+fields:
+  level: 2
+  school: abjuration
+  classes: [classes.cleric, classes.paladin]
+  castingTime: action
+  rangeKind: ranged
+  range: 30
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 8
+  applied: true
+  maxHp: 5
+  upcastMaxHp: 5
+actions:
+  - use: cast-spell
+effects:
+  - target: hp.max
+    op: add
+    value: item.maxHp + max(0, self.castSlot - item.level) * item.upcastMaxHp
+    scope: applied
+    duration: { amount: 8, unit: hour }

@@ -1,0 +1,48 @@
+# A Forged in the Dark scoundrel with no playbook (the SRD names none): seven action dots, the
+# three starting dots (Skirmish 2, Command 1) and four more (Hunt, Prowl, Survey, Wreck), and
+# Mule from the SRD's special abilities. Vex's gear is the player's own, each item with its load; the file marks what Vex
+# carries on this score.
+# Vex's crew is its own character file (fitd-crew-ravens.yaml), linked through the `crew` slot.
+specVersion: 0.1.0
+id: example-fitd-vex
+packs:
+  - { id: fitd-scoundrel, version: 0.1.0 }
+homebrew:
+  defaultLanguage: en
+  content:
+    - { id: gear.cleaver, type: gear, fields: { load: 1, kind: weapons } }
+    - { id: gear.maul, type: gear, tags: [fine], fields: { load: 2, kind: weapons } }
+  i18n:
+    en:
+      gear.cleaver.name: A butcher's cleaver
+      gear.maul.name: A fine maul
+values:
+  fitd-scoundrel:identity.alias: Vex
+  fitd-scoundrel:identity.heritage: Northern hill folk, driven out by the war
+  fitd-scoundrel:identity.background: 'Military: deserter'
+  fitd-scoundrel:vice.purveyor: Old Gussie at the Silver Stag
+  fitd-scoundrel:relationships.friend: Mara, a prizefighter
+  fitd-scoundrel:relationships.rival: Dunn, a debt collector
+  fitd-scoundrel:ratings.command: 1
+  fitd-scoundrel:ratings.hunt: 1
+  fitd-scoundrel:ratings.prowl: 1
+  fitd-scoundrel:ratings.survey: 1
+  fitd-scoundrel:ratings.skirmish: 2
+  fitd-scoundrel:ratings.wreck: 1
+  fitd-scoundrel:stress.current: 3
+  fitd-scoundrel:trauma.current: 0
+inventory:
+  - { id: g-cleaver, item: homebrew:gear.cleaver, equipped: true }
+  - { id: g-maul, item: homebrew:gear.maul, equipped: true }
+# Harm is a copy per wound, with its level and Vex's own words for it.
+features:
+  - id: h-cut
+    item: fitd-scoundrel:harm.harm
+    state: { level: 1, label: Cut across the knuckles }
+choices:
+  special-abilities:
+    - option: fitd-scoundrel:special-abilities.mule
+  vice:
+    - option: fitd-scoundrel:vices.gambling
+links:
+  fitd-scoundrel:crew: example-fitd-crew-ravens

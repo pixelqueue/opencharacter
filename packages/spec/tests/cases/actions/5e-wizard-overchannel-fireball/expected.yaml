@@ -1,0 +1,26 @@
+# Overchannel: 8d6 all treated as 6 = 48, + int 3 = 51.
+status: finished
+outcome:
+  result: save
+  data:
+    slot: 3
+    spellcastingClass: wizard
+    metamagic: none
+    dc: 16
+    save: dex
+    halfOnSave: true
+    damage: 51
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change: { type: adjust, field: 5e-srd-5.1:spellSlots.level3.used, by: 1 }
+log:
+  - step: damage
+    action: 5e-srd-5.1:cast-spell
+    kind: dice
+    by: engine
+    faces: [1, 2, 3, 4, 5, 6, 1, 2]
+    total: 51

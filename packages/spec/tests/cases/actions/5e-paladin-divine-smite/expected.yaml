@@ -1,0 +1,22 @@
+# 2d8 + 1d8 for the 2nd-level slot + 1d8 against an undead = 4d8: 8 + 7 + 6 + 5 = 26 radiant.
+status: finished
+outcome:
+  result: smite
+  data: { slot: 2, damage: 26 }
+proposedChanges:
+  - to: self
+    step: spend/spend
+    change: { type: adjust, field: 5e-srd-5.1:spellSlots.level2.used, by: 1 }
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.1:hp.current
+      by: -26
+      tags: [damage, attack, damage.radiant]
+log:
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [8, 7, 6, 5]
+    total: 26

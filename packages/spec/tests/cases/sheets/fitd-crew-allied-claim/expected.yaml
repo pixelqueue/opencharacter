@@ -1,0 +1,11 @@
+# The allied Training Rooms trains Thugs gangs (the type its copy names); the allied Tavern is on
+# the Wardens' own map, so allied-claims fails (its benefit still applies). Pack Rats gives members +1d to
+# asset rolls.
+values:
+  fitd-crew:cohorts.trained: { value: [thugs] }
+  fitd-crew:members.asset.dice: { value: 1 }
+  fitd-crew:members.siteRatings:
+    { value: [fitd-scoundrel:ratings.consort, fitd-scoundrel:ratings.sway] }
+issues:
+  - { code: constraint-failed, id: fitd-crew:allied-claims }
+errors: []

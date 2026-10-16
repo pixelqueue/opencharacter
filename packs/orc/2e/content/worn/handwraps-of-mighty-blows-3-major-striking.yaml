@@ -1,0 +1,16 @@
+# The handwraps keep their runes on every unarmed attack; runes the player etches go on the attacks
+# themselves.
+id: worn.handwraps-of-mighty-blows-3-major-striking
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 19
+  price: 40000
+  usage: gloves
+keepsTemplates:
+  - template: runes.weapon-potency-3
+    copies: { type: weapon, where: "item.category == 'unarmed'" }
+    when: 'self.equipped && self.invested'
+  - template: runes.major-striking
+    copies: { type: weapon, where: "item.category == 'unarmed'" }
+    when: 'self.equipped && self.invested'

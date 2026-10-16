@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/pack.schema.json",
+  "title": "Pack manifest",
+  "description": "`pack.yaml`: identifies a content pack and declares its version, license, credit line and other license notices, dependencies, minimum spec version and default language. The pack's display name is the translation key `pack.name`.",
+  "type": "object",
+  "required": ["id", "version", "specVersion", "license", "defaultLanguage"],
+  "properties": {
+    "id": {
+      "description": "`homebrew` is reserved for a character's own homebrew.",
+      "$ref": "common.schema.json#/$defs/packId",
+      "not": { "const": "homebrew" }
+    },
+    "version": {
+      "description": "This pack's version. Every update gets a unique version; published versions never change.",
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "specVersion": {
+      "description": "The minimum OCF spec version this pack needs. loadRuleset refuses a pack that needs a newer spec.",
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "license": {
+      "description": "An SPDX license identifier (`CC-BY-4.0`, `CC0-1.0`), `ORC`, `OGL-1.0a` (the Open Game License v1.0a, which has no SPDX identifier), or `mechanics-only` for packs that carry no copyrighted text.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9.+-]+$"
+    },
+    "credit": {
+      "description": "The credit line (attribution) the license requires. Required for CC-BY and ORC licenses; must reach downstream users.",
+      "type": "string",
+      "minLength": 1
+    },
+    "notices": {
+      "description": "Other legal notices the license requires besides `credit`, by name, in the order written. Legal text, shown verbatim and not translated; must reach downstream users after `credit`. An `ORC` pack must have `orc` (the ORC Notice), `reserved-material` and `expressly-designated` (the Expressly Designated Licensed Material notice); an `OGL-1.0a` pack must have `ogl-license` (the license's full text) and `section-15` (its COPYRIGHT NOTICE); other names may follow.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/slug"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "defaultLanguage": {
+      "$ref": "common.schema.json#/$defs/languageTag"
+    },
+    "dependencies": {
+      "description": "Packs this pack builds on, by pack ID and version range.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/packId"
+      },
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/semverRange"
+      }
+    },
+    "hides": {
+      "description": "Homebrew: content from dependencies to hide from this ruleset.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/qualifiedId"
+      },
+      "uniqueItems": true
+    },
+    "homepage": {
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "license": {
+            "pattern": "^CC-BY",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "then": {
+        "required": ["credit"],
+        "type": "object"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "license": {
+            "const": "ORC"
+          }
+        },
+        "required": ["license"],
+        "type": "object"
+      },
+      "then": {
+        "required": ["credit", "notices"],
+        "properties": {
+          "notices": {
+            "required": ["orc", "reserved-material", "expressly-designated"],
+            "type": "object"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "license": {
+            "const": "OGL-1.0a"
+          }
+        },
+        "required": ["license"],
+        "type": "object"
+      },
+      "then": {
+        "required": ["notices"],
+        "properties": {
+          "notices": {
+            "required": ["ogl-license", "section-15"],
+            "type": "object"
+          }
+        },
+        "type": "object"
+      }
+    }
+  ],
+  "additionalProperties": false
+}

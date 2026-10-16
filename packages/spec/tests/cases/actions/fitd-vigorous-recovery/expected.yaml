@@ -1,0 +1,23 @@
+# dots 1 -> (1)d6kh1; Vigorous poolDice 1 on recovery-roll -> 2d6kh1 [3, 5] keeps 5: partial.
+# A partial ticks 2 segments of the healing clock.
+status: finished
+outcome:
+  result: partial
+proposedChanges:
+  - to: self
+    step: heal/clock
+    change:
+      type: adjust
+      field: fitd-scoundrel:healing.current
+      by: 2
+log:
+  - step: roll
+    action: fitd-scoundrel:recovery-roll
+    kind: dice
+    by: engine
+    faces:
+      - 3
+      - 5
+    total: 5
+    band: partial
+    bandSet: fitd-scoundrel:action

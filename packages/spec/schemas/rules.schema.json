@@ -1,0 +1,388 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/rules.schema.json",
+  "title": "Rules document",
+  "description": "The rules layer of a pack: fields and their formulas, content types, game settings, situational choices, result bands, shared actions, always-on effects, character-level choices, constraints and display hints. A pack may split its rules over several files in `rules/`; every section is optional and the build merges them. IDs must be unique across the merged result.",
+  "type": "object",
+  "properties": {
+    "families": {
+      "description": "Named lists of keys: any mapping key of the pack's rules documents that holds `{<name>}` stands for one entry per value, with `{<name>}` replaced in the key and in every string of the entry. Declared once per pack, in any rules document; seen by the pack and the packs that depend on it. A qualified name (`<pack>:<name>`) adds values to that pack's family. Expanded by the engine with the packs loaded together; a built release keeps it as written.",
+      "type": "object",
+      "propertyNames": {
+        "anyOf": [
+          {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          {
+            "type": "string",
+            "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*:[a-z][a-zA-Z0-9_]*$"
+          }
+        ]
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$"
+            },
+            {
+              "type": "integer",
+              "minimum": 0
+            }
+          ]
+        },
+        "minItems": 1,
+        "uniqueItems": true
+      }
+    },
+    "viewFields": {
+      "description": "Named sets of declared fields read from other characters: a link slot's or a participant role's `fields` may name one instead of declaring them again. Expanded before the pack loads.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/declaredFields"
+      }
+    },
+    "fields": {
+      "type": "object",
+      "propertyNames": {
+        "anyOf": [
+          {
+            "$ref": "common.schema.json#/$defs/fieldId"
+          },
+          {
+            "$ref": "common.schema.json#/$defs/familyKey"
+          }
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "field.schema.json"
+      }
+    },
+    "links": {
+      "description": "Link slots: named places for another character, such as a scoundrel's crew. A character file saves which character fills each slot (`links`), and the app passes that character's view (`{ id, values }`) to the calls. Formulas read it as `links.<slot>`. Slot IDs are names, qualified like field IDs. Text: `links.<slot>.name` (optional).",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/linkSlot"
+      }
+    },
+    "contentTypes": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name",
+        "not": {
+          "enum": ["template", "field", "tag", "string", "contentType"]
+        }
+      },
+      "additionalProperties": {
+        "$ref": "content-type.schema.json"
+      }
+    },
+    "templateFields": {
+      "description": "Item fields every template may set, by name, merged across packs: a name declared again must have the same `type` (and `of` and `values`), else the load error `template-field-mismatch`; the later declaration replaces the earlier. A copy's `item` has each one its content type doesn't declare: the last value its templates give, else the declaration's `default`, else it is absent. Each is named by `templateFields.<name>.name` (required) and `.description` (optional) in the declaring pack's text.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "content-type.schema.json#/$defs/valueDecl"
+      }
+    },
+    "settings": {
+      "$ref": "#/$defs/settings"
+    },
+    "situational": {
+      "type": "array",
+      "items": {
+        "$ref": "situational.schema.json"
+      }
+    },
+    "rollTallies": {
+      "description": "Roll tallies: named integer counters on a roll that effects add to without changing its total. Roll steps expose them as `steps.<id>.tallies.<name>`, result bands as `roll.tallies.<name>`. Text: `tallies.<name>.name` (optional).",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "uniqueItems": true
+    },
+    "resultBands": {
+      "description": "Named sets of result bands, e.g. FitD's 1–3 / 4–5 / 6 / critical. Bands are checked in order; the first whose `when` is true wins. Formulas see the roll as `roll` (`roll.total`, `roll.faces`, `roll.kept`) and the running action's `flags`, `params` and `steps` (provisional). A set is a list of bands, or `{ value, bands }`: `value` is evaluated once per classification, before the bands, which read it as `roll.value`.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/slug"
+      },
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/bandList"
+          },
+          {
+            "type": "object",
+            "required": ["value", "bands"],
+            "properties": {
+              "value": {
+                "description": "A formula in the band context, evaluated once each time the set classifies a roll; its bands read it as `roll.value`, and the roll step's result keeps it as `bandValue`.",
+                "$ref": "formula.schema.json"
+              },
+              "bands": {
+                "$ref": "#/$defs/bandList"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "actions": {
+      "description": "Shared actions items and content types can `use`. A shared action has no `scope`: the `use` that lists it does.",
+      "type": "array",
+      "items": {
+        "$ref": "action.schema.json",
+        "not": {
+          "type": "object",
+          "required": ["scope"]
+        }
+      }
+    },
+    "effects": {
+      "description": "Effects that are always active (critical hits doubling damage dice).",
+      "type": "array",
+      "items": {
+        "$ref": "effect.schema.json"
+      }
+    },
+    "followUps": {
+      "description": "What the rules say should happen next when a change does something to the character: listed by applyChanges, never run by it.",
+      "type": "array",
+      "items": {
+        "$ref": "follow-up.schema.json"
+      }
+    },
+    "creation": {
+      "description": "How a character is created: the starting points an app offers for a new character, each running a rules action. An app offers a guided run of every start, a random run of a start with `random`, and always a blank sheet (manual creation). A start's text is `creation.<id>.name`. Packs' lists are concatenated in load order, and a later start with the same `id` replaces the earlier one in its place. Without any start, characters are created by hand only.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/creationStart"
+      }
+    },
+    "standardCopies": {
+      "description": "Content every character of the game holds a copy of, e.g. FitD's standard gear: queries that read only `item`, resolved by loadRuleset. Each match is a standard copy with the instance ID `<pack>-<local ID>`, the colon and dots as hyphens, in `inventory` for carried types and `features` otherwise; the character file saves it only once it differs from its defaults.",
+      "type": "array",
+      "items": {
+        "$ref": "query.schema.json"
+      }
+    },
+    "immuneTo": {
+      "description": "Applied content every character of the game can't be affected by while the immunity's `when` holds, e.g. a monster's condition immunities listed in an input set field. Without `scope`: the rules are always a holder.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/immunity",
+        "not": {
+          "type": "object",
+          "required": ["scope"]
+        }
+      }
+    },
+    "choices": {
+      "description": "Character-level choices (pick a playbook).",
+      "type": "array",
+      "items": {
+        "$ref": "choice.schema.json"
+      }
+    },
+    "constraints": {
+      "description": "Game rules checked against the current character. A failing check is a rules issue with code `constraint-failed` and this constraint's ID. With `copies`, the check runs once per copy of a content type, and each copy that fails is an issue of its own.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "check"],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/slug"
+          },
+          "check": {
+            "$ref": "formula.schema.json#/$defs/condition"
+          },
+          "data": {
+            "description": "Values reported with the issue so the app can render it (`limit: 3`).",
+            "type": "object",
+            "propertyNames": {
+              "$ref": "common.schema.json#/$defs/name"
+            },
+            "additionalProperties": {
+              "$ref": "formula.schema.json"
+            }
+          },
+          "copies": {
+            "description": "Check each of the character's copies of this content type (`features` and `inventory`, standard copies included) whose `where` holds, with `item` and `self` that copy's item and copy, as a choice step over copies sees them (its computed values included). Each failing copy is its own `constraint-failed`, its instance ID in `data.entry` and its own `data` values evaluated for it.",
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "$ref": "common.schema.json#/$defs/ref"
+              },
+              "where": {
+                "$ref": "formula.schema.json#/$defs/condition"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "display": {
+      "$ref": "display.schema.json"
+    },
+    "tags": {
+      "description": "The tags this pack declares. Every tag the pack uses (content, fields, rolls, effects, changes, `tag` set members) must be declared here or by a dependency. Declaring `damage.fire` also declares `damage`. Optional text: `tags.<tag>.name`.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/tag"
+      },
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "bandList": {
+      "description": "Result bands, checked in order.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "when"],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/slug"
+          },
+          "when": {
+            "$ref": "formula.schema.json#/$defs/condition"
+          },
+          "tags": {
+            "$ref": "common.schema.json#/$defs/tags"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "rounding": {
+          "description": "How the game rounds results of multiply effects and decimal division (5E rounds down). Default `floor`.",
+          "$ref": "common.schema.json#/$defs/rounding"
+        },
+        "stacking": {
+          "type": "object",
+          "properties": {
+            "default": {
+              "description": "Policy for effects sharing a stack key that has no specific policy. Default `addAll`.",
+              "$ref": "#/$defs/stackingPolicy"
+            },
+            "keys": {
+              "description": "Policy per stack key (`source`, `item`, `status`, …).",
+              "type": "object",
+              "propertyNames": {
+                "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+                "type": "string"
+              },
+              "additionalProperties": {
+                "$ref": "#/$defs/stackingPolicy"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "competing": {
+          "type": "object",
+          "properties": {
+            "recommend": {
+              "$ref": "field.schema.json#/$defs/recommendPolicy"
+            }
+          },
+          "additionalProperties": false
+        },
+        "roundIncoming": {
+          "description": "How multiply effects on incoming changes round: `value` rounds the signed amount (default); `magnitude` rounds its size and restores the sign, so halving −11 damage gives −5 with `floor` (5E: round down the damage).",
+          "enum": ["value", "magnitude"]
+        },
+        "rollModifiers": {
+          "description": "How opposing roll modifiers combine. `advantage`: `cancel` (default; advantage and disadvantage together cancel, and any number of sources give one extra die), `net` (the difference between the counts of sources decides the direction and number of extra dice), or `stack` (every source adds a die; both kinds together is an error in the pack).",
+          "type": "object",
+          "properties": {
+            "advantage": {
+              "enum": ["cancel", "net", "stack"]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "stackingPolicy": {
+      "description": "Kept in sync with `data/stacking-policies.json`.",
+      "enum": ["addAll", "highestOnly", "lowestOnly", "playerChooses"]
+    },
+    "linkSlot": {
+      "type": "object",
+      "required": ["fields"],
+      "properties": {
+        "pack": {
+          "description": "The pack the linked character is expected to use. Optional, and not a dependency: any character whose view has the declared fields may fill the slot. When this pack is loaded alongside, loadRuleset and the build check each declared field against it (`link-field-mismatch`); the engine never checks the linked character's packs.",
+          "$ref": "common.schema.json#/$defs/packId"
+        },
+        "fields": {
+          "description": "The fields this pack reads from the linked character, typed, so formulas type-check without the other pack; or the name of a `viewFields` set.",
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/declaredFields"
+            },
+            {
+              "$ref": "common.schema.json#/$defs/viewFieldsRef"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "creationStart": {
+      "description": "One way to start creating a character: a rules action, run on a character with `creating: true`.",
+      "type": "object",
+      "required": ["id", "action"],
+      "properties": {
+        "id": {
+          "description": "The start's ID, unique across the loaded packs (a later pack's start with the same ID replaces it). Text: `creation.<id>.name` and, optionally, `creation.<id>.description`.",
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "action": {
+          "description": "A rules action: a local or qualified action ID. Every parameter it requires must be given in `params`.",
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "description": "Parameters the start passes to the action, as literal values, so two starts can share one action.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "common.schema.json#/$defs/literal"
+          }
+        },
+        "random": {
+          "description": "Default false. Set it only when the source creates characters at random: running the action with every checkpoint automatic (`{ dice: auto, choices: auto, allocations: auto }`) makes a character the source's own random creation could produce. Without it, an automatic run takes each step's recommendation, a default character rather than a random one. `pnpm validate` warns about a step that would pause in such a run: a choice step over a written list, or an `allocate` step, without `recommend`.",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

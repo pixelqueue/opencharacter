@@ -1,0 +1,23 @@
+# `action.item.color`, `action.step.id` and `action.self.power` (the wand's, default 2) become
+# literals; `item` and `self` are left for applyChanges, each gem's.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: drain
+    change:
+      type: adjustState
+      key: charge
+      copies:
+        type: test-pack:gem
+        where: item.color == 'red' && self.charge > 0 && 'drain' == 'drain'
+      limit: 1
+      by: -1
+  - to: self
+    step: drain
+    change:
+      type: adjustState
+      key: charge
+      copies: { type: test-pack:gem, where: item.color == 'red' }
+      by: min(2, self.charge) * -1
+log: []

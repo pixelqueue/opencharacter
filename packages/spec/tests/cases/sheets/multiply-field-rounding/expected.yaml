@@ -1,0 +1,13 @@
+# guard 15 * 0.5 = 7.5 -> game rounding floor -> 7
+# guard-up 15 * 0.5 = 7.5 -> field rounding ceil -> 8
+values:
+  test-effects:stats.guard:
+    value: 7
+    base: 15
+    breakdown:
+      - {
+          op: multiply,
+          value: 0.5,
+          source: { type: item, id: test-effects:boons.halve, entry: halve },
+        }
+  test-effects:stats.guard-up: { value: 8 }

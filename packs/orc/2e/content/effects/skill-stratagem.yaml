@@ -1,0 +1,13 @@
+id: effects.skill-stratagem
+type: effect
+tags: [stratagem]
+effects:
+  - target:
+      fields:
+        where: >-
+          'perception' in item.tags || ('skill' in item.tags && ('attr.int' in item.tags
+            || 'attr.wis' in item.tags || 'attr.cha' in item.tags))
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    scope: applied

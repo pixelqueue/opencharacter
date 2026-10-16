@@ -1,0 +1,37 @@
+id: monsters.half-red-dragon-veteran
+type: monster
+fields:
+  size: medium
+  creatureType: humanoid
+  subtype: human
+  alignment: any
+  ac: 18
+  armor: [armor.plate]
+  hp: 65
+  hitDice: 10d8 + 20
+  speed: 30
+  str: 16
+  dex: 13
+  con: 14
+  int: 10
+  wis: 11
+  cha: 10
+  skills: [skill.athletics, skill.perception]
+  damageResistances: [damage.fire]
+  darkvision: 60
+  blindsight: 10
+  languages: [languages.common, languages.draconic]
+  cr: 5
+  ownCopies:
+    - monsters.half-red-dragon-veteran.fire-breath
+# The stat block's bonus differs from proficiency: the difference is added.
+effects:
+  - { target: skills.athletics, op: add, value: -1 }
+  - { target: { rolls: [skill.athletics] }, op: add, value: -1 }
+  - { target: skills.perception, op: add, value: -1 }
+  - { target: { rolls: [skill.perception] }, op: add, value: -1 }
+grants:
+  - item: monsters.half-red-dragon-veteran.multiattack
+  - item: monsters.half-red-dragon-veteran.longsword
+  - item: monsters.half-red-dragon-veteran.shortsword
+  - item: monsters.half-red-dragon-veteran.heavy-crossbow

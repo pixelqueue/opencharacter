@@ -1,0 +1,8 @@
+id: afflictions.goblin-pox
+type: affliction
+fields: { kind: disease, level: 1, stages: 3 }
+grants:
+  - { item: conditions.sickened, scope: applied, when: self.stage == 1, state: { value: 1 } }
+  - { item: conditions.sickened, scope: applied, when: self.stage == 2, state: { value: 1 } }
+  - { item: conditions.slowed, scope: applied, when: self.stage == 2, state: { value: 1 } }
+  - { item: conditions.sickened, scope: applied, when: self.stage == 3, state: { value: 1 } }

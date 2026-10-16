@@ -1,0 +1,11 @@
+id: invocations.chains-of-carceri
+type: invocation
+prerequisites:
+  - id: level
+    when: self.level >= 15
+  - id: pact
+    when: '@pact-boons.chain in warlock.boons'
+grants:
+  - { item: spells.hold-monster }
+effects:
+  - { target: spells.warlock, op: grant, value: { item: spells.hold-monster } }

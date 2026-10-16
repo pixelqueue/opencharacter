@@ -1,0 +1,41 @@
+description: 'string(): an int, a string or a bool as text'
+specVersion: 0.1.0
+cases:
+  - name: an int
+    evaluate: "'rank' + string(3)"
+    value: rank3
+    valueType: string
+  - name: a negative int
+    evaluate: string(-12)
+    value: '-12'
+    valueType: string
+  - name: a string is itself
+    evaluate: string('fire')
+    value: fire
+    valueType: string
+  - name: a bool
+    evaluate: string(1 < 2)
+    value: 'true'
+    valueType: string
+  - name: a root's int
+    evaluate: "'spells.rank' + string(slot)"
+    roots: { slot: 10 }
+    value: spells.rank10
+    valueType: string
+  - name: a decimal is a type mismatch
+    evaluate: string(1.5)
+    error: type-mismatch
+  - name: a list is a type mismatch
+    evaluate: string([1])
+    error: type-mismatch
+  - name: one argument
+    evaluate: string(1, 2)
+    error: wrong-arity
+  - name: checked as a string
+    check: "'rank' + string(level)"
+    fields: { level: { type: integer } }
+    type: string
+  - name: checking a decimal argument
+    check: string(speed)
+    fields: { speed: { type: decimal } }
+    error: type-mismatch

@@ -1,0 +1,57 @@
+# Attack roll (inv-1, longsword +1): 1d20 + Str mod 4 (Str 19 from the Gauntlets) + prof 2
+# + 1 (weapon-plus-one's attackBonus, added by the weapon type) + 1d4 (Bless, applied). Dice in
+# item order: d20, d4.
+# Damage roll: 1d8 slashing + Str 4 slashing + 2 (Dueling: melee, one-handed, one weapon
+# equipped) + 1 (weapon-plus-one's damageBonus). All slashing, so one split adjust.
+# critRange 19 (Champion's Improved Critical, fighter level 3).
+# Items: parts in order, then add effects in instance order (the copy's type effect before the
+# applied Bless). The d20 part's source is the copy's item; a field part's source is the field; the
+# single-field value part (proficiency.bonus) takes that field as its source.
+status: finished
+outcome:
+  result: miss
+  data:
+    critical: false
+    attack: 22
+proposedChanges: []
+log:
+  - step: attack
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces:
+      - 12
+      - 3
+    total: 22
+    items:
+      - kind: dice
+        count: 1
+        sides: 20
+        value: 12
+        source:
+          type: item
+          id: 5e-srd-5.1:weapons.longsword
+          entry: inv-1
+      - kind: flat
+        value: 4
+        source:
+          type: field
+          id: 5e-srd-5.1:abilities.str.mod
+      - kind: flat
+        value: 2
+        source:
+          type: field
+          id: 5e-srd-5.1:proficiency.bonus
+      - kind: flat
+        value: 1
+        source:
+          type: item
+          id: 5e-srd-5.1:weapons.longsword
+          entry: inv-1
+      - kind: dice
+        count: 1
+        sides: 4
+        value: 3
+        source:
+          type: item
+          id: 5e-srd-5.1:spells.bless

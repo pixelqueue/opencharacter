@@ -1,0 +1,18 @@
+id: armor.specific.lions-armor-greater
+type: armor
+extends: armor.half-plate
+tags: [trait.invested, trait.magical]
+fields:
+  price: 30500
+effects:
+  - target: skills.intimidation.mod
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.armor-potency-3
+    copies: { type: armor, where: 'item.id == @armor.specific.lions-armor-greater' }
+  - template: runes.greater-resilient
+    copies: { type: armor, where: 'item.id == @armor.specific.lions-armor-greater' }

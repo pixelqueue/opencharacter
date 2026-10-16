@@ -1,0 +1,11 @@
+description: "5E ranged attack against a target with an Arrow-Catching Shield: its view's AC against ranged attacks (AC + 2) decides the hit"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: bow }
+  participants:
+    target:
+      - id: knight
+        values: { 5e-srd-5.1:combat.ac: 18, 5e-srd-5.1:combat.rangedAc: 20 }

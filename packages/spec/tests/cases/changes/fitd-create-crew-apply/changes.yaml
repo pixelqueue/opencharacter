@@ -1,0 +1,15 @@
+- type: choose
+  path: { choice: [crew-abilities] }
+  option: fitd-crew:crew-abilities.fiends
+- type: choose
+  path: { choice: [operation] }
+  option: fitd-crew:operations.extortion
+- { type: adjust, field: fitd-crew:coin.current, by: 2 }
+- { type: adjust, field: fitd-crew:upgrades.lair.hidden, by: 1 }
+- { type: adjust, field: fitd-crew:upgrades.training.prowess, by: 1 }
+- { type: adjust, field: fitd-crew:coin.current, by: -1 }
+- { type: adjust, field: fitd-crew:upgrades.lair.vault, by: 1 }
+- { type: adjust, field: fitd-crew:upgrades.rigging, by: 1 }
+- { type: choose, path: { choice: [rigging] }, option: weapons }
+- { type: choose, path: { choice: [rigging] }, option: gear }
+- { type: finishCreation }

@@ -1,0 +1,20 @@
+id: consumables.antidote-major
+type: consumable
+tags: [trait.alchemical, trait.elixir, healing]
+fields:
+  {
+    category: elixir,
+    level: 14,
+    price: 675,
+    bulk: 0.1,
+    lasting: true,
+    family: consumables.antidote-lesser,
+  }
+effects:
+  - target: { rolls: [save.fortitude] }
+    op: add
+    value: 4
+    stackKey: item-bonus
+    when: situational.againstPoison
+    scope: applied
+    duration: { amount: 6, unit: hour }

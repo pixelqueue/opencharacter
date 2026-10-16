@@ -1,0 +1,9 @@
+id: feats.barbarian.unstoppable-juggernaut
+type: feat
+fields: { level: 20, category: class, class: classes.barbarian }
+effects:
+  - target: { incoming: { fields: [hp.current] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 3 + attributes.con.mod)
+    when: incoming.amount < 0 && 'damage' in incoming.tags

@@ -1,0 +1,17 @@
+id: feats.ancestry.goblin-song
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.goblin }
+actions:
+  - id: goblin-song
+    tags: [check]
+    params:
+      dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: sing
+        kind: action
+        use: check
+        params: { check: "'skills.performance.mod'", dc: params.dc }
+      - id: result
+        kind: outcome
+        result: steps.sing.result

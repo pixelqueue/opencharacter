@@ -1,0 +1,16 @@
+- type: choose
+  path: { choice: [crew-abilities] }
+  option: fitd-crew:crew-abilities.deadly
+- type: choose
+  path: { choice: [operation] }
+  option: fitd-crew:operations.robbery
+- { type: adjust, field: fitd-crew:coin.current, by: 2 }
+- { type: adjust, field: fitd-crew:upgrades.lair.carriage, by: 1 }
+- { type: adjust, field: fitd-crew:upgrades.rigging, by: 1 }
+- { type: adjust, field: fitd-crew:coin.current, by: -1 }
+- { type: adjust, field: fitd-crew:upgrades.lair.workshop, by: 1 }
+- { type: adjust, field: fitd-crew:upgrades.undergroundMaps, by: 1 }
+- { type: adjust, field: fitd-crew:coin.current, by: -1 }
+- { type: choose, path: { choice: [rigging] }, option: weapons }
+- { type: choose, path: { choice: [rigging] }, option: documents }
+- type: finishCreation

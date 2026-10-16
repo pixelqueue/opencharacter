@@ -1,0 +1,73 @@
+# Numbers per class, so what an archetype gives of another class is that class's. A class's feats
+# read `classDc.<class>.value`, so the same feat works for a member and through its archetype. A
+# class level through the class's multiclass archetype is half the character level, for meeting
+# prerequisites.
+families:
+  class:
+    [
+      alchemist,
+      barbarian,
+      bard,
+      champion,
+      cleric,
+      druid,
+      fighter,
+      investigator,
+      monk,
+      oracle,
+      ranger,
+      rogue,
+      sorcerer,
+      swashbuckler,
+      witch,
+      wizard,
+    ]
+
+fields:
+  'class.has.{class}': { type: boolean, formula: 'countCopies(copy.item == @classes.{class}) > 0' }
+  'classLevel.{class}':
+    type: integer
+    formula: >-
+      class.has.{class} ? level : archetypes.{class}.feats > 0 ? floor(level / 2) : 0
+  'classDc.{class}.rank':
+    { type: integer, formula: 'class.has.{class} ? classDc.rank : 0', min: 0, max: 4 }
+  classDc.alchemist.archetypeMod: { type: integer, formula: attributes.int.mod }
+  classDc.barbarian.archetypeMod: { type: integer, formula: attributes.str.mod }
+  classDc.bard.archetypeMod: { type: integer, formula: attributes.cha.mod }
+  classDc.champion.archetypeMod:
+    { type: integer, formula: 'max(attributes.str.mod, attributes.dex.mod)' }
+  classDc.cleric.archetypeMod: { type: integer, formula: attributes.wis.mod }
+  classDc.druid.archetypeMod: { type: integer, formula: attributes.wis.mod }
+  classDc.fighter.archetypeMod:
+    { type: integer, formula: 'max(attributes.str.mod, attributes.dex.mod)' }
+  classDc.investigator.archetypeMod: { type: integer, formula: attributes.int.mod }
+  classDc.monk.archetypeMod:
+    { type: integer, formula: 'max(attributes.str.mod, attributes.dex.mod)' }
+  classDc.oracle.archetypeMod: { type: integer, formula: attributes.cha.mod }
+  classDc.ranger.archetypeMod:
+    { type: integer, formula: 'max(attributes.str.mod, attributes.dex.mod)' }
+  classDc.rogue.archetypeMod: { type: integer, formula: attributes.dex.mod }
+  classDc.sorcerer.archetypeMod: { type: integer, formula: attributes.cha.mod }
+  classDc.swashbuckler.archetypeMod: { type: integer, formula: attributes.dex.mod }
+  classDc.witch.archetypeMod: { type: integer, formula: attributes.int.mod }
+  classDc.wizard.archetypeMod: { type: integer, formula: attributes.int.mod }
+  'classDc.{class}.value':
+    type: integer
+    tags:
+      - dc
+      - class-dc
+      - formula: >-
+          class.has.{class} && class.keyAttribute != 'none' ? ['attr.' + class.keyAttribute] : []
+    formula: >-
+      class.has.{class} ? classDc.value
+        : 10 + (classDc.{class}.rank > 0 ? 2 * classDc.{class}.rank + proficiency.level
+          : proficiency.untrained) + classDc.{class}.archetypeMod
+
+display:
+  fields:
+    'classDc.{class}.value':
+      { groups: [summary], priority: 1, showWhen: '!class.has.{class} && classDc.{class}.rank > 0' }
+    'class.has.{class}': { hidden: true }
+    'classLevel.{class}': { hidden: true }
+    'classDc.{class}.rank': { hidden: true }
+    'classDc.{class}.archetypeMod': { hidden: true }

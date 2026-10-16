@@ -1,0 +1,58 @@
+id: monsters.werebear
+type: monster
+fields:
+  size: medium
+  creatureType: humanoid
+  subtype: human
+  shapechanger: true
+  alignment: neutral-good
+  ac: 10
+  hp: 135
+  hitDice: 18d8 + 54
+  speed: 30
+  str: 19
+  dex: 10
+  con: 17
+  int: 11
+  wis: 12
+  cha: 12
+  skills: [skill.perception]
+  expertise: [skill.perception]
+  damageImmunities: [nonmagical-unsilvered]
+  languages: [languages.common]
+  startingForm: humanoid
+  cr: 5
+grants:
+  - item: monsters.werebear.shapechanger
+  - item: monsters.werebear.keen-smell
+  - item: monsters.werebear.multiattack
+choices:
+  - id: form
+    from:
+      options:
+        - id: humanoid
+          effects:
+            - { target: creature.form, op: set, value: "'humanoid'" }
+          grants:
+            - item: monsters.werebear.greataxe
+        - id: hybrid
+          effects:
+            - { target: creature.form, op: set, value: "'hybrid'" }
+            - { target: combat.ac, op: atLeast, value: 11 }
+            - { target: creature.size, op: set, value: "'large'" }
+            - { target: combat.speed, op: atLeast, value: 40 }
+            - { target: combat.climbSpeed, op: atLeast, value: 30 }
+          grants:
+            - item: monsters.werebear.bite
+            - item: monsters.werebear.claw
+            - item: monsters.werebear.greataxe
+        - id: bear
+          effects:
+            - { target: creature.form, op: set, value: "'bear'" }
+            - { target: combat.ac, op: atLeast, value: 11 }
+            - { target: creature.size, op: set, value: "'large'" }
+            - { target: combat.speed, op: atLeast, value: 40 }
+            - { target: combat.climbSpeed, op: atLeast, value: 30 }
+          grants:
+            - item: monsters.werebear.bite
+            - item: monsters.werebear.claw

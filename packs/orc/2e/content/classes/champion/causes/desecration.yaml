@@ -1,0 +1,37 @@
+id: classes.champion.causes.desecration
+type: feature
+tags: [trait.uncommon]
+fields: { level: 1 }
+prerequisites:
+  - { id: sanctification, when: "champion.sanctification == 'unholy'" }
+effects:
+  - { target: champion.cause, op: set, value: "'desecration'", when: class.has.champion }
+actions:
+  - id: selfish-shield
+    tags: [reaction]
+    participants:
+      target: { max: 1 }
+    results: [used]
+    steps:
+      - id: shield
+        kind: changes
+        changes:
+          - type: applyEffect
+            source: "'classes.champion.resistance'"
+            state:
+              amount: >-
+                level >= 9 && attributes.cha.mod >= 3 ? attributes.cha.mod + floor(level / 2)
+                  : 2 + floor(level / 2)
+      - id: mark
+        kind: changes
+        when: size(participants.target) > 0
+        changes:
+          - { type: set, field: champion.reactionTarget, value: 'participants.target[0].id' }
+          - {
+              type: set,
+              field: champion.reactionDamage,
+              value: 'level >= 16 ? 3 : level >= 9 ? 2 : 1',
+            }
+      - id: result
+        kind: outcome
+        result: "'used'"

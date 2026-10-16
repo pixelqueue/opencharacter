@@ -1,0 +1,10 @@
+id: forms.monstrosity-form.sea-serpent
+type: effect
+standardCopies:
+  - {
+      type: weapon,
+      where: 'item.id == @weapons.forms.monstrosity-form.sea-serpent-jaws || item.id == @weapons.forms.monstrosity-form.sea-serpent-tail',
+    }
+effects:
+  - { target: battleForm.speed, op: set, value: 20, scope: applied }
+  - { target: speed.swim.base, op: atLeast, value: 90, scope: applied }

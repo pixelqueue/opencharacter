@@ -1,0 +1,20 @@
+# might 10; armor group (highestOnly): ring-a +2, ring-b +3 -> only +3 counts -> 13
+values:
+  test-effects:stats.might:
+    value: 13
+    base: 10
+    breakdown:
+      - { op: add, value: 3, source: { type: item, id: test-effects:boons.ring-b, entry: ring-b } }
+effects:
+  - {
+      source: { type: item, id: test-effects:boons.ring-a, entry: ring-a },
+      target: test-effects:stats.might,
+      op: add,
+      suppressed: true,
+    }
+  - {
+      source: { type: item, id: test-effects:boons.ring-b, entry: ring-b },
+      target: test-effects:stats.might,
+      op: add,
+    }
+competing: []

@@ -1,0 +1,19 @@
+# max 3: the step ends after the third pick.
+status: finished
+outcome:
+  result: trained
+  data: { drills: [swim, run, lift], count: 3 }
+proposedChanges:
+  - to: self
+    step: drills
+    change: { type: adjust, field: test-pack:score, by: 2 }
+  - to: self
+    step: drills
+    change: { type: adjust, field: test-pack:score, by: 1 }
+  - to: self
+    step: drills
+    change: { type: adjust, field: test-pack:score, by: 1 }
+log:
+  - { step: drills, action: test-pack:train, kind: choice, by: app, option: swim, index: 0 }
+  - { step: drills, action: test-pack:train, kind: choice, by: app, option: run, index: 1 }
+  - { step: drills, action: test-pack:train, kind: choice, by: app, option: lift, index: 2 }

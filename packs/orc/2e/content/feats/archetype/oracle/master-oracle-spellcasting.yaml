@@ -1,0 +1,10 @@
+id: feats.archetype.oracle.master-oracle-spellcasting
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 18, category: class, archetype: archetypes.oracle }
+prerequisites:
+  - { id: expert, when: '@feats.archetype.oracle.expert-oracle-spellcasting in feats.held' }
+  - { id: religion, when: 'skills.religion.rank >= 4' }
+effects:
+  - { target: spellcasting.archetype.oracle.benefits, op: atLeast, value: 3 }
+  - { target: spellcasting.archetype.oracle.rank, op: atLeast, value: 3 }

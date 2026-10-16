@@ -1,0 +1,13 @@
+id: magic-items.winged-boots
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  - {
+      target: combat.flySpeed,
+      op: atLeast,
+      value: combat.speed,
+      when: self.equipped && self.attuned,
+    }

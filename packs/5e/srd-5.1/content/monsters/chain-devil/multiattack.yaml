@@ -1,0 +1,30 @@
+id: monsters.chain-devil.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: chain1
+        kind: action
+        use: monster-attack
+        source: "'monsters.chain-devil.chain'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: chain2
+        kind: action
+        use: monster-attack
+        source: "'monsters.chain-devil.chain'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.chain1) && steps.chain1.result == 'hit' ? 1 : 0)
+              + (has(steps.chain2) && steps.chain2.result == 'hit' ? 1 : 0)

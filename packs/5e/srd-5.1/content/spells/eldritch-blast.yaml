@@ -1,0 +1,69 @@
+id: spells.eldritch-blast
+type: spell
+fields:
+  level: 0
+  school: evocation
+  classes: [classes.warlock]
+  castingTime: action
+  rangeKind: ranged
+  range: 120
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: instantaneous
+  attack: ranged
+# Casting it rolls nothing: each beam is its own attack, made with `beam` once per beam.
+actions:
+  - use: cast-spell
+  - id: beam
+    tags: [spell]
+    params:
+      targetAc: { type: integer, optional: true }
+    results: [hit, miss]
+    steps:
+      - id: attack
+        kind: roll
+        tags: [d20-test, attack.spell.ranged]
+        parts:
+          - dice: 1d20
+          - value: spellcasting.warlock.attack
+      - id: hit
+        kind: branch
+        cases:
+          - when: steps.attack.kept[0] == 20
+            flags: { hit: true, critical: true }
+          - when: steps.attack.kept[0] == 1
+            flags: { hit: false, critical: false }
+          - when: has(params.targetAc)
+            flags: { hit: steps.attack.total >= params.targetAc, critical: false }
+        else:
+          flags: { hit: false, critical: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options: [{ id: hit }, { id: miss }]
+      - id: damage
+        kind: roll
+        when: flags.hit || (has(steps.confirm) && steps.confirm.picked == 'hit')
+        tags: [damage.spell]
+        parts:
+          - dice: 1d10
+            tags: [damage.force]
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, attack]
+      - id: result
+        kind: outcome
+        result: "has(steps.damage) ? 'hit' : 'miss'"
+        data:
+          critical: flags.critical
+          attack: steps.attack.total
+          range: eldritchBlast.range
+          push: 'has(steps.damage) ? eldritchBlast.push : 0'

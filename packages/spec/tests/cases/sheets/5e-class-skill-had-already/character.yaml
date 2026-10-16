@@ -1,0 +1,26 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:hp.base: 8
+  5e-srd-5.1:hp.current: 8
+features:
+  - id: race
+    item: 5e-srd-5.1:races.half-elf
+    choices:
+      ability-scores:
+        - { option: str }
+        - { option: wis }
+      5e-srd-5.1:traits.skill-versatility/skills:
+        - { option: skill.medicine }
+        - { option: skill.stealth }
+  - id: class
+    item: 5e-srd-5.1:classes.cleric
+    state: { level: 1, startingClass: true }
+    choices:
+      skills:
+        - { option: skill.insight }
+        - { option: skill.medicine }
+  - id: background
+    item: 5e-srd-5.1:backgrounds.acolyte

@@ -1,0 +1,16 @@
+id: worn.living-mantle
+type: worn
+tags: [trait.focused, trait.invested, trait.plant, trait.primal]
+fields:
+  level: 10
+  price: 1000
+  bulk: 0.1
+  usage: cloak
+  activation: free
+  frequency: once-per-day
+effects:
+  - target: skills.nature.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

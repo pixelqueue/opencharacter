@@ -1,0 +1,23 @@
+# Resolve 0 is the lowest -> 0d6kh1 is empty -> ifEmpty 2d6kl1 [6, 2] keeps 2: clear 2 of 4
+status: finished
+outcome:
+  result: indulged
+  data:
+    cleared: 2
+    overindulgence: none
+proposedChanges:
+  - to: self
+    step: clear
+    change:
+      type: adjust
+      field: fitd-scoundrel:stress.current
+      by: -2
+log:
+  - step: roll
+    action: fitd-scoundrel:indulge-vice
+    kind: dice
+    by: engine
+    faces:
+      - 6
+      - 2
+    total: 2

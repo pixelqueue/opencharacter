@@ -1,0 +1,12 @@
+# Fire, the first school by ID, is recommended: common lore and fire lore are offered, not frost.
+status: paused
+needs:
+  step: points
+  kind: allocate
+  allocate:
+    fields:
+      - { id: 'test-pack:lore.common', value: 0, limit: 2 }
+      - { id: 'test-pack:lore.fire', value: 0, limit: 2 }
+    budget: 2
+log:
+  - { step: school, kind: choice, by: engine, option: test-pack:schools.fire }

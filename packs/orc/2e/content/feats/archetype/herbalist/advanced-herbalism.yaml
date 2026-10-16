@@ -1,0 +1,13 @@
+id: feats.archetype.herbalist.advanced-herbalism
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.herbalist }
+
+prerequisites:
+  - {
+      id: herbalist-dedication,
+      when: '@feats.archetype.herbalist.herbalist-dedication in feats.held',
+    }
+  - { id: nature, when: 'skills.nature.rank >= 2' }
+effects:
+  - { target: alchemist.advancedItems, op: add, value: 2 }

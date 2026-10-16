@@ -1,0 +1,15 @@
+id: consumables.potion-of-quickness
+type: consumable
+tags: [trait.magical, trait.potion]
+fields:
+  level: 8
+  price: 90
+  bulk: 0.1
+  category: potion
+effects:
+  - target: { steps: [consumable.drink] }
+    op: changes
+    when: action.self.id == self.id
+    value:
+      changes:
+        - { type: applyEffect, source: "'spells.haste'", state: { rank: 3 } }

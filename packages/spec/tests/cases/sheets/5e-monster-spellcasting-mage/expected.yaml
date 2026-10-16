@@ -1,0 +1,50 @@
+# The Spellcasting trait's numbers as printed: DC 14, +6, and the 9th-level slots (3 of 3rd
+# level, 1 of 5th, none of 6th). Each spell it has is castable.
+values:
+  5e-srd-5.1:spellcasting.monster.dc: { value: 14 }
+  5e-srd-5.1:spellcasting.monster.attack: { value: 6 }
+  5e-srd-5.1:spellcasting.monster.level: { value: 9 }
+  5e-srd-5.1:spellSlots.level3.max: { value: 3 }
+  5e-srd-5.1:spellSlots.level5.max: { value: 1 }
+  5e-srd-5.1:spellSlots.level6.max: { value: 0 }
+actions:
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.fire-bolt }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.light }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.mage-hand }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.prestidigitation }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.detect-magic }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.mage-armor }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.magic-missile }
+  # Magic missile's darts.
+  - {
+      action: '5e-srd-5.1:spells.magic-missile#dart',
+      entry: monster,
+      source: 5e-srd-5.1:spells.magic-missile,
+    }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.shield }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.misty-step }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.suggestion }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.counterspell }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.fireball }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.fly }
+  - {
+      action: 5e-srd-5.1:cast-spell,
+      entry: monster,
+      source: 5e-srd-5.1:spells.greater-invisibility,
+    }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.ice-storm }
+  - { action: 5e-srd-5.1:cast-spell, entry: monster, source: 5e-srd-5.1:spells.cone-of-cold }
+  - { action: 5e-srd-5.1:monster-attack, entry: monster, source: 5e-srd-5.1:monsters.mage.dagger }
+  - { action: 5e-srd-5.1:saving-throw }
+  - { action: 5e-srd-5.1:ability-check }
+  - { action: 5e-srd-5.1:skill-check }
+  - { action: 5e-srd-5.1:initiative }
+  - { action: 5e-srd-5.1:unarmed-strike }
+  - { action: 5e-srd-5.1:fall }
+  - { action: 5e-srd-5.1:take-damage }
+  - { action: 5e-srd-5.1:heal }
+  - { action: 5e-srd-5.1:long-rest }
+  - { action: 5e-srd-5.1:concentration-check }
+  - { action: 5e-srd-5.1:short-rest }
+issues: []
+errors: []

@@ -1,0 +1,42 @@
+# A Fate Core character: a duelist with the default skill pyramid and four stunts. The fourth
+# stunt costs one refresh, so her refresh is 2. She is mid-scenario: one physical stress box is
+# checked and she carries a mild consequence from the last fight.
+specVersion: 0.1.0
+id: example-fate-mara
+packs:
+  - { id: fate-core, version: 0.1.0 }
+values:
+  fate-core:identity.name: Mara Vell
+  fate-core:aspects.highConcept: Disgraced Duelist of the Seven Courts
+  fate-core:aspects.trouble: My Pride Writes Checks My Blade Must Cash
+  fate-core:aspects.phase1: I Still Have the Prince's Ring
+  fate-core:aspects.phase2: Owes Tobias a Life
+  fate-core:aspects.phase3: Every Fencing Hall Knows My Face
+  # One Great, two Good, three Fair, four Average.
+  fate-core:skills.fight: 4
+  fate-core:skills.athletics: 3
+  fate-core:skills.physique: 3
+  fate-core:skills.notice: 2
+  fate-core:skills.will: 2
+  fate-core:skills.rapport: 2
+  fate-core:skills.deceive: 1
+  fate-core:skills.stealth: 1
+  fate-core:skills.empathy: 1
+  fate-core:skills.lore: 1
+  fate-core:fatePoints.current: 2
+  fate-core:stress.physical.box1: true
+features:
+  - { id: s-riposte, item: fate-core:stunts.riposte }
+  - { id: s-parkour, item: fate-core:stunts.hardcore-parkour }
+  - { id: s-blow, item: fate-core:stunts.take-the-blow }
+  # Specialist's field of study is the copy's label.
+  - id: s-specialist
+    item: fate-core:stunts.specialist
+    state: { label: Fencing schools of the Seven Courts }
+  # A consequence is a copy with its slot and the player's words for it.
+  - id: c-ribs
+    item: fate-core:consequences.consequence
+    state: { slot: mild, label: Bruised Ribs, harm: physical }
+  - id: c-cut
+    item: fate-core:consequences.consequence
+    state: { slot: moderate, label: Deep Cut, harm: physical, conflict: true }

@@ -1,0 +1,38 @@
+description: "A copy's actions read its computed values as self.<name>, in `available` too: the content type's own action and a rules action it uses"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 0 }
+        contentTypes:
+          gear:
+            carried: true
+            fields:
+              kind: { type: enum, values: [plain, fine], default: plain }
+            state:
+              charges: { type: integer, default: 1 }
+            computed:
+              quality: { type: integer, formula: "tier + (item.kind == 'fine' ? 1 : 0)" }
+              ready: { type: boolean, formula: self.charges > 0 }
+            actions:
+              - id: zap
+                available: self.ready
+                steps:
+                  - { id: done, kind: outcome }
+              - use: polish
+        actions:
+          - id: polish
+            available: self.quality >= 4
+            steps:
+              - { id: done, kind: outcome }
+      content:
+        - { id: gear.lamp, type: gear }
+        - { id: gear.blade, type: gear, fields: { kind: fine } }

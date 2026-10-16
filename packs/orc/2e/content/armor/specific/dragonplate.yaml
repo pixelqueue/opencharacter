@@ -1,0 +1,14 @@
+id: armor.specific.dragonplate
+type: armor
+extends: armor.full-plate
+tags: [trait.bulwark, trait.invested, trait.magical, trait.uncommon]
+fields:
+  price: 10000
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.armor-potency-2
+    copies: { type: armor, where: 'item.id == @armor.specific.dragonplate' }
+  - template: runes.greater-resilient
+    copies: { type: armor, where: 'item.id == @armor.specific.dragonplate' }
+  - template: materials.dragonhide-armor-standard
+    copies: { type: armor, where: 'item.id == @armor.specific.dragonplate' }

@@ -1,0 +1,10 @@
+id: feats.ancestry.slip-sideways
+type: feat
+fields: { level: 13, category: ancestry, heritage: heritages.nephilim }
+prerequisites:
+  - id: lineage
+    when: '@feats.ancestry.grimspawn in feats.held || @feats.ancestry.pitborn in feats.held || @feats.ancestry.hellspawn in feats.held'
+effects:
+  - { target: spells.innate, op: grant, value: { item: spells.translocate } }
+grants:
+  - item: spells.translocate

@@ -1,0 +1,19 @@
+# One omen on the DR: 2 + 1 + 4 = 7 against 12 fails; the other rerolls it: 9 + 1 + 4 = 14, a
+# success. No omen is left, so the 1d6 is rolled (3) and no third omen is spent.
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 3
+    sepsis: false
+    skullSmashed: false
+proposedChanges:
+  - to: self
+    step: check/omen
+    change: { type: adjust, field: mork-borg-core:omens.current, by: -1 }
+  - to: self
+    step: check/spend
+    change: { type: adjust, field: mork-borg-core:omens.current, by: -1 }
+  - to: target
+    step: deal
+    change: { type: adjust, field: mork-borg-core:hp.current, by: -3, tags: [damage] }

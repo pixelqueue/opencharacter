@@ -1,0 +1,9 @@
+id: materials.duskwood-armor-standard
+type: template
+tags: [trait.precious, material.duskwood, trait.uncommon]
+appliesTo: { type: armor }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + 1600 + 160 * max(1, floor(base.bulk))'
+  bulk: 'base.bulk >= 2 ? base.bulk - 1 : base.bulk >= 1 ? 0.1 : base.bulk'
+  strength: 'has(base.strength) ? max(0, base.strength - 1) : 0'
+  speedPenalty: max(0, base.speedPenalty - 5)

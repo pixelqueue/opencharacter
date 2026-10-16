@@ -1,0 +1,28 @@
+description: "A field parameter's `type` is a string, not its list of tags: `in` over it is a formula error"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          ratings.skirmish:
+            { type: integer, input: true, default: 0, min: 0, max: 4, tags: [rating] }
+          xp: { type: integer, input: true, default: 0, min: 0, max: 8 }
+        actions:
+          - id: roll
+            params:
+              rating: { type: id, of: field, where: "'rating' in item.tags" }
+            steps:
+              - id: mark
+                kind: changes
+                when: "'rating' in params.rating.type"
+                to: self
+                changes:
+                  - { type: adjust, field: xp, by: 1 }
+      content: []

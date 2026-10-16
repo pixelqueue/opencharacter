@@ -1,0 +1,35 @@
+id: classes.ranger.edges.precision
+type: feature
+fields: { level: 1 }
+# Hits on the prey are counted in `prey.hits` on each hit and reset at the start of the turn. Two
+# Strikes in one action (Double Slice) both read the count as the action starts.
+effects:
+  - { target: ranger.edge, op: set, value: "'precision'" }
+  - id: precision
+    target: { rolls: [damage.strike] }
+    op: add
+    value: >-
+      dieOf(1d8, prey.hits == 0 ? (level >= 19 ? 3 : level >= 11 ? 2 : 1)
+        : prey.hits == 1 ? (level >= 19 ? 2 : level >= 17 ? 1 : 0)
+        : prey.hits == 2 && level >= 19 ? 1 : 0)
+    tags: [precision, { formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      (situational.huntedPrey || (prey.target != '' && has(participants.target)
+        && size(participants.target) > 0 && participants.target[0].id == prey.target))
+  - id: count
+    target: { steps: [strike.hit] }
+    op: changes
+    when: >-
+      situational.huntedPrey || (prey.target != '' && size(participants.target) > 0
+        && participants.target[0].id == prey.target)
+    value:
+      to: self
+      changes:
+        - { type: adjust, field: prey.hits, by: 1 }
+  - id: reset
+    target: { steps: [turn.start] }
+    op: changes
+    when: prey.hits > 0
+    value:
+      changes:
+        - { type: set, field: prey.hits, value: 0 }

@@ -1,0 +1,107 @@
+id: classes.rogue
+type: class
+fields:
+  hitDie: 1d8
+state:
+  strokeOfLuckUsed: { type: boolean, default: false }
+prerequisites:
+  - id: multiclass
+    when: (self.startingClass && self.level == level.total) || item.id in multiclass.qualified
+effects:
+  - { target: proficiencies.armor, op: grant, value: { tag: light } }
+  - { target: proficiencies.tools, op: grant, value: { item: tools.thieves-tools } }
+  - target: proficiencies.weapons
+    op: grant
+    value: { query: { type: weapon, where: "item.category == 'simple'" } }
+    when: self.startingClass
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.hand-crossbow },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.longsword },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.rapier },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.shortsword },
+      when: self.startingClass,
+    }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.dex }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.int }, when: self.startingClass }
+grants:
+  - { item: features.rogue.expertise, when: self.level >= 1 }
+  - { item: features.rogue.sneak-attack, when: self.level >= 1 }
+  - { item: features.rogue.thieves-cant, when: self.level >= 1 }
+  - { item: features.rogue.cunning-action, when: self.level >= 2 }
+  - { item: features.rogue.uncanny-dodge, when: self.level >= 5 }
+  - { item: features.evasion, when: self.level >= 7 }
+  - { item: features.rogue.reliable-talent, when: self.level >= 11 }
+  - { item: features.rogue.blindsense, when: self.level >= 14 }
+  - { item: features.rogue.slippery-mind, when: self.level >= 15 }
+  - { item: features.rogue.elusive, when: self.level >= 18 }
+  - { item: features.rogue.stroke-of-luck, when: self.level >= 20 }
+  - { item: features.rogue.ability-score-improvement, when: self.level >= 4 }
+choices:
+  - id: skills
+    pick: 4
+    unique: skills
+    from:
+      {
+        values:
+          [
+            skill.acrobatics,
+            skill.athletics,
+            skill.deception,
+            skill.insight,
+            skill.intimidation,
+            skill.investigation,
+            skill.perception,
+            skill.performance,
+            skill.persuasion,
+            skill.sleight-of-hand,
+            skill.stealth,
+          ],
+        where: '!(value in proficiencies.skills) || value in choice.picks',
+      }
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: multiclass-skill
+    pick: 1
+    unique: skills
+    from:
+      {
+        values:
+          [
+            skill.acrobatics,
+            skill.athletics,
+            skill.deception,
+            skill.insight,
+            skill.intimidation,
+            skill.investigation,
+            skill.perception,
+            skill.performance,
+            skill.persuasion,
+            skill.sleight-of-hand,
+            skill.stealth,
+          ],
+        where: '!(value in proficiencies.skills) || value in choice.picks',
+      }
+    when: '!self.startingClass'
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: roguish-archetype
+    from: { type: subclass, where: 'item.class == @classes.rogue' }
+    when: self.level >= 3

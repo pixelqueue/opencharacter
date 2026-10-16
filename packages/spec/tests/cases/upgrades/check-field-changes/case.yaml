@@ -1,0 +1,77 @@
+description: field-removed (removed, or no longer input) and field-type-changed (type changed, enum
+  lost a value)
+specVersion: 0.1.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      fields:
+        stats.might:
+          type: integer
+          input: true
+          default: 1
+          min: 0
+          max: 10
+        stats.luck:
+          type: integer
+          input: true
+          default: 0
+        stats.grit:
+          type: integer
+          input: true
+          default: 0
+        stats.size:
+          type: enum
+          values:
+            - small
+            - medium
+            - large
+          input: true
+          default: medium
+    content: []
+next:
+  inline:
+    manifest:
+      id: test-pack
+      version: 2.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      fields:
+        stats.might:
+          type: integer
+          formula: 5
+        stats.grit:
+          type: decimal
+          input: true
+          default: 0
+        stats.size:
+          type: enum
+          values:
+            - small
+            - medium
+          input: true
+          default: medium
+    content: []
+    upgrades:
+      - pack: test-pack
+        from: 1.0.0
+        to: 2.0.0
+        steps:
+          - op: removeField
+            field: stats.luck
+          - op: removeField
+            field: stats.might
+          - op: removeField
+            field: stats.grit
+          - op: mapValues
+            field: stats.size
+            map:
+              large: medium

@@ -1,0 +1,10 @@
+id: tricks.spin
+type: trick
+# Its own action, which a rules action's step runs with `source`.
+actions:
+  - id: whirl
+    steps:
+      - { id: done, kind: outcome, result: "'done'" }
+# A grant whose state names a key the granted item does not declare.
+grants:
+  - { item: tricks.hop, state: { shots: 3 } }

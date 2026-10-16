@@ -1,0 +1,58 @@
+# A Mothership Marine with the player's own gear and skill. The homebrew blaster is a `weapon` (the
+# pack's type), so it has the type's shots and its `shoot` action; the custom Trained skill
+# Xenoarchaeology joins the Marine's Trained picks, and the custom Expert skill Ruin Diving names it
+# as its prerequisite. The rest of the file names them `homebrew:<id>`.
+specVersion: 0.1.0
+id: example-mothership-reyes
+packs:
+  - { id: mothership-1e, version: 0.1.0 }
+homebrew:
+  defaultLanguage: en
+  rules:
+    tags: [energy]
+  content:
+    - id: gear.blaster
+      type: weapon # resolves to mothership-1e:weapon
+      tags: [ranged, energy]
+      fields: { damage: 2d10, magazine: 12, range: long, woundType: fire }
+    - id: skills.xenoarchaeology
+      type: skill
+      fields: { tier: trained }
+    - id: skills.ruin-diving
+      type: skill
+      fields: { tier: expert }
+      prerequisites:
+        - id: skill
+          when: '@skills.xenoarchaeology in skills.known'
+  i18n:
+    en:
+      gear.blaster.name: Blaster
+      tags.energy.name: Energy
+      skills.xenoarchaeology.name: Xenoarchaeology
+      skills.ruin-diving.name: Ruin Diving
+      skills.ruin-diving.prerequisites.skill: Requires Xenoarchaeology.
+values:
+  mothership-1e:stats.strength: 35
+  mothership-1e:stats.speed: 30
+  mothership-1e:stats.intellect: 33
+  mothership-1e:stats.combat: 39
+  mothership-1e:saves.sanity: 28
+  mothership-1e:saves.fear: 30
+  mothership-1e:saves.body: 25
+  mothership-1e:stress.current: 2
+  mothership-1e:health.max: 15
+  mothership-1e:health.current: 15
+  mothership-1e:wounds.max: 2
+  mothership-1e:wounds.current: 0
+features:
+  - id: class
+    item: mothership-1e:classes.marine
+    choices:
+      bonus-skills:
+        - option: trained
+          choices:
+            trained:
+              - option: homebrew:skills.xenoarchaeology
+              - option: mothership-1e:skills.zero-g
+inventory:
+  - { id: inv-1, item: homebrew:gear.blaster, equipped: true, state: { shots: 12 } }

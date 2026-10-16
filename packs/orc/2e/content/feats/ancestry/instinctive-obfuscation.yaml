@@ -1,0 +1,19 @@
+id: feats.ancestry.instinctive-obfuscation
+type: feat
+tags: [trait.reaction]
+fields: { level: 13, category: ancestry, ancestry: ancestries.gnome }
+prerequisites:
+  - id: innate
+    when: '@heritages.wellspring-gnome in heritages.held'
+actions:
+  - id: double
+    tags: [reaction]
+    results: [doubled]
+    steps:
+      - id: apply
+        kind: changes
+        changes:
+          - { type: applyEffect, source: "'effects.instinctive-obfuscation'" }
+      - id: result
+        kind: outcome
+        result: "'doubled'"

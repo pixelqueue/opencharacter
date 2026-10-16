@@ -1,0 +1,176 @@
+contentTypes:
+  weapon:
+    carried: true
+    equippable: true
+    fields:
+      damage: { type: dice }
+      woundDamage: { type: integer, min: 1 }
+      magazine: { type: integer, min: 1 }
+      range: { type: enum, values: [adjacent, close, long, extreme] }
+      woundType: { type: enum, values: [blunt, bleeding, gunshot, fire, gore] }
+      antiArmor: { type: boolean }
+    state:
+      # A new copy starts loaded: the default is evaluated when the copy is added.
+      shots:
+        type: integer
+        min: 0
+        max: 'has(item.magazine) ? item.magazine : 0'
+        default: 'has(item.magazine) ? item.magazine : 0'
+    actions:
+      - use: shoot
+      - use: attack
+
+  armor:
+    carried: true
+    equippable: true
+    fields:
+      ap: { type: integer, required: true, min: 0 }
+      dr: { type: integer, min: 0 }
+      bulky: { type: boolean }
+    state:
+      destroyed: { type: boolean, default: false }
+    effects:
+      # Bulky armor's [-] applies while worn, destroyed or not.
+      - id: bulky
+        target: { rolls: [check.speed] }
+        op: rollModifier
+        value: { kind: disadvantage }
+        when: self.equipped && has(item.bulky) && item.bulky
+      # Damage reduction comes first, and always: on destroyed armor too, and against anti-armor
+      # weapons.
+      - id: damage-reduction
+        target: { incoming: { fields: [health.current], tags: [damage] } }
+        op: add
+        value: item.dr
+        when: self.equipped && has(item.dr)
+      # The effects see the damage as dealt, so they take DR off themselves.
+      - id: armor-points-hold
+        target: { incoming: { fields: [health.current], tags: [damage] } }
+        op: multiply
+        value: 0
+        when: >-
+          self.equipped && !self.destroyed && item.ap > 0
+            && !('damage.anti-armor' in incoming.tags)
+            && -incoming.amount - (has(item.dr) ? item.dr : 0) < item.ap
+      - id: armor-points-break
+        target: { incoming: { fields: [health.current], tags: [damage] } }
+        op: add
+        value: item.ap
+        when: >-
+          self.equipped && !self.destroyed && item.ap > 0
+            && !('damage.anti-armor' in incoming.tags)
+            && -incoming.amount - (has(item.dr) ? item.dr : 0) >= item.ap
+        then:
+          - { type: setState, entry: self, key: destroyed, value: true }
+      - id: anti-armor
+        target: { incoming: { fields: [health.current], tags: [damage.anti-armor] } }
+        op: add
+        value: 0
+        when: self.equipped && !self.destroyed
+        then:
+          - { type: setState, entry: self, key: destroyed, value: true }
+      - id: damage-floor
+        target: { incoming: { fields: [health.current], tags: [damage] } }
+        op: atMost
+        value: 0
+        when: self.equipped && has(item.dr)
+
+actions:
+  - id: shoot
+    tags: [attack]
+    available: 'self.equipped && has(item.magazine) && self.shots > 0'
+    results: { bands: check }
+    steps:
+      - id: spend
+        kind: changes
+        to: self
+        changes:
+          - { type: adjustState, entry: self, key: shots, by: -1 }
+      - id: check
+        kind: action
+        use: stat-check
+        params:
+          stat: "'stats.combat'"
+      - id: hit
+        kind: branch
+        cases:
+          - when: "steps.check.result == 'success' || steps.check.result == 'critical-success'"
+            steps:
+              - id: damage
+                kind: roll
+                when: has(item.damage)
+                tags: [damage]
+                parts:
+                  - dice: item.damage
+              - id: wound
+                kind: changes
+                when: has(steps.damage)
+                to: target
+                changes:
+                  - type: adjust
+                    field: health.current
+                    by: '-steps.damage.total'
+                    tags:
+                      - formula: "has(item.antiArmor) && item.antiArmor ? 'damage.anti-armor' : 'damage'"
+              - id: wounds
+                kind: changes
+                when: has(item.woundDamage)
+                to: target
+                changes:
+                  - type: adjust
+                    field: wounds.current
+                    by: item.woundDamage
+                    tags:
+                      - formula: "has(item.antiArmor) && item.antiArmor ? 'damage.anti-armor' : 'damage'"
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+
+  - id: attack
+    tags: [attack]
+    available: 'self.equipped && !has(item.magazine)'
+    results: { bands: check }
+    steps:
+      - id: check
+        kind: action
+        use: stat-check
+        params:
+          stat: "'stats.combat'"
+      - id: hit
+        kind: branch
+        cases:
+          - when: "steps.check.result == 'success' || steps.check.result == 'critical-success'"
+            steps:
+              - id: damage
+                kind: roll
+                when: has(item.damage)
+                tags: [damage]
+                parts:
+                  - dice: item.damage
+              - id: wound
+                kind: changes
+                when: has(steps.damage)
+                to: target
+                changes:
+                  - type: adjust
+                    field: health.current
+                    by: '-steps.damage.total'
+                    tags:
+                      - formula: "has(item.antiArmor) && item.antiArmor ? 'damage.anti-armor' : 'damage'"
+              - id: wounds
+                kind: changes
+                when: has(item.woundDamage)
+                to: target
+                changes:
+                  - type: adjust
+                    field: wounds.current
+                    by: item.woundDamage
+                    tags:
+                      - formula: "has(item.antiArmor) && item.antiArmor ? 'damage.anti-armor' : 'damage'"
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          damage: 'has(steps.damage) ? steps.damage.total : 0'

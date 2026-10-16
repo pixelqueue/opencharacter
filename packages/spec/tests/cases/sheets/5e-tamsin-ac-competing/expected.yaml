@@ -1,0 +1,12 @@
+# base: 10 + dex mod 2 = 12
+# set options, in instance order (features before applied):
+#   Unarmored Defense (granted by barbarian, level 1 >= 1; no 'armor' in equipment.tags): 10 + 2 + 2 = 14
+#   Mage Armor (applied, scope applied; no armor): 13 + 2 = 15
+# recommend highest -> Mage Armor 15; add: shield equipped +2 -> 17
+values:
+  5e-srd-5.1:combat.ac: { value: 17 }
+competing:
+  - field: 5e-srd-5.1:combat.ac
+    options: [5e-srd-5.1:features.unarmored-defense#0, 5e-srd-5.1:spells.mage-armor#0]
+    recommended: 5e-srd-5.1:spells.mage-armor#0
+    applied: 5e-srd-5.1:spells.mage-armor#0

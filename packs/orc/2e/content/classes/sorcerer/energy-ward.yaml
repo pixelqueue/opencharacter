@@ -1,0 +1,15 @@
+id: classes.sorcerer.energy-ward
+type: effect
+state:
+  damageType:
+    type: enum
+    values: [acid, cold, electricity, fire, force, sonic, vitality, void]
+    default: fire
+  amount: { type: integer, default: 5, min: 0 }
+effects:
+  - target: { incoming: { fields: [hp.current] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, self.amount)
+    when: incoming.amount < 0 && ('damage.' + self.damageType) in incoming.tags
+    scope: applied

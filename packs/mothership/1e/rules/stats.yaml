@@ -1,0 +1,180 @@
+fields:
+  stats.strength: { type: integer, input: true, default: 25, min: 0, max: 100, tags: [stat] }
+  stats.speed: { type: integer, input: true, default: 25, min: 0, max: 100, tags: [stat] }
+  stats.intellect: { type: integer, input: true, default: 25, min: 0, max: 100, tags: [stat] }
+  stats.combat: { type: integer, input: true, default: 25, min: 0, max: 100, tags: [stat] }
+  saves.sanity: { type: integer, input: true, default: 15, min: 0, max: 100, tags: [save] }
+  saves.fear: { type: integer, input: true, default: 15, min: 0, max: 100, tags: [save] }
+  saves.body: { type: integer, input: true, default: 15, min: 0, max: 100, tags: [save] }
+
+  stress.minimum: { type: integer, input: true, default: 2, min: 0, max: 20 }
+  stress.current: { type: integer, input: true, default: 2, min: stress.minimum, max: 20 }
+
+  health.max: { type: integer, input: true, default: 10, min: 1 }
+  # A carry that reaches 0 again is another wound.
+  health.current:
+    type: integer
+    input: true
+    default: 10
+    min: 0
+    max: health.max
+    overflow:
+      - { at: min, inclusive: true, into: wounds.current, by: 1, reset: health.max, carry: true }
+  wounds.max: { type: integer, input: true, default: 2, min: 0 }
+  wounds.current: { type: integer, input: true, default: 0, min: 0, max: wounds.max }
+  bleeding.current: { type: integer, input: true, default: 0, min: 0 }
+
+  credits.current: { type: integer, input: true, default: 0, min: 0 }
+  highScore.current: { type: integer, input: true, default: 0, min: 0 }
+
+  skills.known: { type: set, of: skill, input: true, default: [] }
+
+followUps:
+  # One roll per adjustment, so a weapon dealing 2 wounds lists one roll for both.
+  - id: wound
+    on: { field: wounds.current }
+    required: true
+    when: change.by > 0
+    action: wound-roll
+  - id: dying
+    becomes: wounds.current >= wounds.max
+    required: true
+    action: death-save
+
+actions:
+  # The `wound` and `dying` follow-ups read the fields, not the tags, so a hand edit fires them too.
+  - id: take-damage
+    tags: [health]
+    params:
+      amount: { type: integer, min: 0 }
+      wounds: { type: integer, default: 0, min: 0 }
+      antiArmor: { type: boolean, default: false }
+    results: [taken]
+    steps:
+      - id: deal
+        kind: changes
+        to: self
+        changes:
+          - type: adjust
+            when: params.amount > 0
+            field: health.current
+            by: -params.amount
+            tags: [{ formula: "params.antiArmor ? 'damage.anti-armor' : 'damage'" }]
+          - type: adjust
+            when: params.wounds > 0
+            field: wounds.current
+            by: params.wounds
+            tags: [{ formula: "params.antiArmor ? 'damage.anti-armor' : 'damage'" }]
+      - id: result
+        kind: outcome
+        result: "'taken'"
+        data:
+          amount: params.amount
+          wounds: params.wounds
+  - id: heal
+    tags: [health]
+    params:
+      amount: { type: integer, min: 0 }
+    results: [healed]
+    steps:
+      - id: restore
+        kind: changes
+        to: self
+        changes:
+          - type: adjust
+            when: params.amount > 0
+            field: health.current
+            by: params.amount
+            tags: [healing]
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          amount: params.amount
+
+  - id: natural-healing
+    tags: [health]
+    results: { bands: check }
+    steps:
+      - id: check
+        kind: action
+        use: save
+        params: { save: '@saves.body' }
+      - id: restore
+        kind: changes
+        when: "steps.check.result == 'success' || steps.check.result == 'critical-success'"
+        to: self
+        changes:
+          - { type: set, field: health.current, value: health.max }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+
+  - id: bleed
+    tags: [wound]
+    available: bleeding.current > 0
+    results: [bled]
+    steps:
+      - id: bleed
+        kind: changes
+        to: self
+        changes:
+          - { type: adjust, field: health.current, by: -bleeding.current, tags: [bleeding] }
+      - id: result
+        kind: outcome
+        result: "'bled'"
+        data:
+          damage: bleeding.current
+
+settings:
+  rounding: floor
+  rollModifiers:
+    advantage: cancel
+
+display:
+  groups:
+    - id: stats
+      priority: 0
+      members: { type: field, where: "'stat' in item.tags" }
+    - id: saves
+      priority: 0
+      members: { type: field, where: "'save' in item.tags" }
+    - id: condition
+      priority: 1
+    - id: record
+      priority: 2
+  fields:
+    stress.current:
+      with: [{ field: stress.minimum, as: detail }]
+      groups: [condition]
+      priority: 0
+      input: { min: 2, max: 20, widget: track }
+      visibility: primary
+    health.current:
+      groups: [condition]
+      priority: 0
+      visibility: primary
+      with: [{ field: health.max, as: max }]
+      rolls: [{ action: take-damage }, { action: heal }]
+    health.max: { groups: [condition], priority: 1 }
+    wounds.current:
+      {
+        groups: [condition],
+        priority: 0,
+        input: { widget: track },
+        visibility: primary,
+        with: [{ field: wounds.max, as: max }],
+      }
+    wounds.max: { groups: [condition], priority: 1 }
+    stress.minimum: { groups: [condition], priority: 1 }
+    bleeding.current: { groups: [condition], priority: 1 }
+    credits.current: { groups: [record], priority: 0 }
+    highScore.current: { groups: [record], priority: 0 }
+    skills.known: { hidden: true }
+    stats.strength: { rolls: [{ action: stat-check, params: { stat: stats.strength } }] }
+    stats.speed: { rolls: [{ action: stat-check, params: { stat: stats.speed } }] }
+    stats.intellect: { rolls: [{ action: stat-check, params: { stat: stats.intellect } }] }
+    stats.combat: { rolls: [{ action: stat-check, params: { stat: stats.combat } }] }
+    saves.sanity: { rolls: [{ action: save, params: { save: saves.sanity } }] }
+    saves.fear: { rolls: [{ action: save, params: { save: saves.fear } }] }
+    saves.body: { rolls: [{ action: save, params: { save: saves.body } }] }

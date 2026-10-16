@@ -1,0 +1,55 @@
+status: finished
+outcome:
+  result: started
+  data:
+    actions: 3
+proposedChanges:
+  - to: self
+    step: reset
+    change:
+      type: set
+      field: orc-2e:turn.attacks
+      value: 0
+  - to: self
+    step: reset
+    change:
+      type: set
+      field: orc-2e:turn.flourishes
+      value: 0
+  - to: self
+    step: reset
+    change:
+      type: set
+      field: orc-2e:shield.raised
+      value: false
+  - to: self
+    step: reset
+    change:
+      type: set
+      field: orc-2e:parry.active
+      value: false
+  - to: self
+    step: reset
+    change:
+      type: set
+      field: orc-2e:parry.weapon
+      value: false
+  - to: self
+    step: recovery/update
+    change:
+      type: setState
+      key: value
+      applied:
+        where: item.id == 'orc-2e:conditions.dying'
+        limit: 1
+      value: 1
+log:
+  - step: recovery/check/roll
+    action: orc-2e:flat-check
+    kind: dice
+    by: engine
+    faces:
+      - 13
+    total: 13
+    band: success
+    bandSet: orc-2e:degree

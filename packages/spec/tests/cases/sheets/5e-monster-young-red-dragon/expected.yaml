@@ -1,0 +1,43 @@
+# CR 10: proficiency +4. Saves and Perception as printed: Dex +0 + 4 = +4; Perception
+# Wis +0 + 4 x 2 = +8 (expertise), passive 18. Strength 23 is no rules issue: a monster's maximum
+# is 30. Multiattack is its own action, which runs the bite and claws.
+values:
+  5e-srd-5.1:proficiency.bonus: { value: 4 }
+  5e-srd-5.1:combat.ac: { value: 18 }
+  5e-srd-5.1:hp.max: { value: 178 }
+  5e-srd-5.1:abilities.str.score: { value: 23 }
+  5e-srd-5.1:abilities.str.max: { value: 30 }
+  5e-srd-5.1:saves.dex: { value: 4 }
+  5e-srd-5.1:skills.perception: { value: 8 }
+  5e-srd-5.1:senses.passivePerception: { value: 18 }
+  5e-srd-5.1:combat.speed: { value: 40 }
+  5e-srd-5.1:combat.flySpeed: { value: 80 }
+  5e-srd-5.1:combat.climbSpeed: { value: 40 }
+  5e-srd-5.1:senses.darkvision: { value: 120 }
+  5e-srd-5.1:senses.blindsight: { value: 30 }
+  5e-srd-5.1:challenge.xp: { value: 5900 }
+actions:
+  - action: '5e-srd-5.1:monsters.young-red-dragon.multiattack#multiattack'
+    entry: monster
+    source: 5e-srd-5.1:monsters.young-red-dragon.multiattack
+  - action: 5e-srd-5.1:monster-attack
+    entry: monster
+    source: 5e-srd-5.1:monsters.young-red-dragon.bite
+  - action: 5e-srd-5.1:monster-attack
+    entry: monster
+    source: 5e-srd-5.1:monsters.young-red-dragon.claw
+  - { action: 5e-srd-5.1:monster-effect, entry: fire-breath }
+  - { action: 5e-srd-5.1:saving-throw }
+  - { action: 5e-srd-5.1:ability-check }
+  - { action: 5e-srd-5.1:skill-check }
+  - { action: 5e-srd-5.1:initiative }
+  - { action: 5e-srd-5.1:unarmed-strike }
+  - { action: 5e-srd-5.1:fall }
+  - { action: 5e-srd-5.1:take-damage }
+  - { action: 5e-srd-5.1:heal }
+  - { action: 5e-srd-5.1:long-rest }
+  - { action: 5e-srd-5.1:concentration-check }
+  - { action: 5e-srd-5.1:short-rest }
+pending: []
+issues: []
+errors: []

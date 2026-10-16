@@ -1,0 +1,54 @@
+# Fire ray at 1st rank (half the level rounded up): a Focus Point spent, a spell attack
+# 10 + 7 = 17 against AC 15, a hit: 2d6 = 4 + 5 fire damage.
+status: finished
+outcome:
+  result: success
+  data:
+    rank: 1
+    mode: focus
+    dc: 17
+    defense: ac
+    basic: false
+    damage: 9
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: orc-2e:focus.spent
+      by: 1
+  - to: target
+    character: goblin
+    step: deal[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -9
+      tags:
+        - damage
+        - spell
+        - damage.fire
+  - to: self
+    step: count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 1
+log:
+  - step: attack[0]/roll
+    action: orc-2e:spell-attack
+    kind: dice
+    by: engine
+    faces:
+      - 10
+    total: 17
+    band: success
+  - step: hit[0]
+    action: orc-2e:cast-spell
+    kind: dice
+    by: engine
+    faces:
+      - 4
+      - 5
+    total: 9

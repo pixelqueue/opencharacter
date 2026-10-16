@@ -1,0 +1,19 @@
+id: classes.druid.orders.untamed
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: druid.order, op: set, value: "'untamed'" }
+  - { target: druid.orders, op: grant, value: { tag: druid-order.untamed } }
+  - { target: druid.orderSpells, op: grant, value: { item: spells.untamed-shift } }
+  - { target: druid.grantedFeats, op: grant, value: { item: feats.druid.untamed-form } }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.intimidation },
+      when: "!('skill.intimidation' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: focus.points, op: add, value: 1 }
+grants:
+  - item: feats.druid.untamed-form
+  - item: spells.untamed-shift

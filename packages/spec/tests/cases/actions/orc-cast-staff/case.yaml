@@ -1,0 +1,19 @@
+description: "orc-2e casting from a staff: a prepared staff of healing casts heal at
+  1st rank for 1 charge (its option on spell-cost), and the staff's +1 item bonus adds to the
+  healing"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:cast-spell
+    entry: staff
+    source: orc-2e:spells.heal
+  participants:
+    ally:
+      - id: fighter
+  policy:
+    choices: pause
+answers:
+  - option: orc-2e:staves.staff-of-healing#rank1

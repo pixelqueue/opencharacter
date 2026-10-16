@@ -1,0 +1,27 @@
+id: feats.general.canny-acumen
+type: feat
+fields: { level: 1, category: general }
+choices:
+  - id: proficiency
+    from:
+      options:
+        - id: fortitude
+          effects:
+            - target: saves.fortitude.rank
+              op: atLeast
+              value: 'level >= 17 ? 3 : 2'
+        - id: reflex
+          effects:
+            - target: saves.reflex.rank
+              op: atLeast
+              value: 'level >= 17 ? 3 : 2'
+        - id: will
+          effects:
+            - target: saves.will.rank
+              op: atLeast
+              value: 'level >= 17 ? 3 : 2'
+        - id: perception
+          effects:
+            - target: perception.rank
+              op: atLeast
+              value: 'level >= 17 ? 3 : 2'

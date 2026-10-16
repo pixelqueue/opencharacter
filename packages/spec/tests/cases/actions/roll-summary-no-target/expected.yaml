@@ -1,0 +1,19 @@
+# No target and no `targetAc`: `ac` is -1, so `rolled` folds to true and nothing after it can be
+# reached. The tile shows the dice with no target.
+status: paused
+needs:
+  step: attack
+  action: 5e-srd-5.1:weapon-attack
+  kind: dice
+  summary:
+    bandSet: 5e-srd-5.1:attack
+    bands:
+      - band: critical
+        when: 'roll.kept[0] >= 19'
+        tests: [{ of: 'roll.kept[0]', compare: ge, value: 19 }]
+      - band: natural-miss
+        when: 'roll.kept[0] == 1'
+        tests: [{ of: 'roll.kept[0]', compare: eq, value: 1 }]
+      - { band: rolled, when: 'true', tests: [] }
+    flags: { monk: false, dice: 1d8, crit: 19, ac: -1 }
+log: []

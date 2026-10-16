@@ -1,0 +1,39 @@
+# Attack: 11 + dex 3 (14 + 2) + prof 3 = 17 against AC 15: a hit.
+# Damage: rapier 1d8 (5) + dex 3 + Sneak Attack 3d6 (2 + 3 + 4) = 17 piercing.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 17 }
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -17,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.piercing,
+            ],
+        },
+    }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces: [11]
+    total: 17
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [5, 2, 3, 4]
+    total: 17

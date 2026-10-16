@@ -1,0 +1,43 @@
+# A ranger 11 (Hunter) with Volley and one arrow; the choices past 6th level other than Multiattack are left
+# open.
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 10
+  5e-srd-5.1:abilities.dex.base: 14
+  5e-srd-5.1:abilities.con.base: 14
+  5e-srd-5.1:abilities.int.base: 10
+  5e-srd-5.1:abilities.wis.base: 14
+  5e-srd-5.1:abilities.cha.base: 8
+  5e-srd-5.1:hp.base: 40
+  5e-srd-5.1:hp.current: 40
+features:
+  - id: ranger
+    item: 5e-srd-5.1:classes.ranger
+    state: { level: 11, startingClass: true }
+    choices:
+      skills: [{ option: skill.perception }, { option: skill.stealth }, { option: skill.survival }]
+      fighting-style: [{ option: 5e-srd-5.1:fighting-styles.archery }]
+      ranger-archetype:
+        - option: 5e-srd-5.1:subclasses.hunter
+          choices:
+            hunters-prey: [{ option: colossus-slayer }]
+            multiattack: [{ option: volley }]
+      5e-srd-5.1:features.ranger.favored-enemy/enemies: [{ option: undead }, { option: fiends }]
+      5e-srd-5.1:features.ranger.favored-enemy/languages:
+        [{ option: 5e-srd-5.1:languages.abyssal }, { option: 5e-srd-5.1:languages.infernal }]
+      5e-srd-5.1:features.ranger.natural-explorer/terrains: [{ option: forest }, { option: swamp }]
+      5e-srd-5.1:features.ranger.spellcasting/spells:
+        [
+          { option: 5e-srd-5.1:spells.hunters-mark },
+          { option: 5e-srd-5.1:spells.cure-wounds },
+          { option: 5e-srd-5.1:spells.longstrider },
+          { option: 5e-srd-5.1:spells.goodberry },
+        ]
+      5e-srd-5.1:features.ability-score-improvement/improvement-4:
+        [{ option: 5e-srd-5.1:improvements.plus-two, choices: { ability: [{ option: dex }] } }]
+inventory:
+  - { id: longbow, item: 5e-srd-5.1:weapons.longbow, equipped: true }
+  - { id: arrows, item: 5e-srd-5.1:gear.arrows, quantity: 1 }

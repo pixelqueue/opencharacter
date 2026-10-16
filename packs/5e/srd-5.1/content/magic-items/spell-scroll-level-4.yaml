@@ -1,0 +1,22 @@
+id: magic-items.spell-scroll-level-4
+type: magicItem
+fields:
+  category: scroll
+  rarity: rare
+  spellLevel: 4
+  saveDc: 15
+  spellAttackBonus: 7
+choices:
+  - id: spell
+    from: { type: spell, where: item.level == 4 }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && self.quantity > 0
+        && (countList(action.item.classes, x in classes.held) > 0
+          || magicItems.ignoreRequirements)
+    value:
+      id: read
+      changes:
+        - { type: adjustQuantity, entry: self, by: -1 }

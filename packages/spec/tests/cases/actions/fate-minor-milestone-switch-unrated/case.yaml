@@ -1,0 +1,11 @@
+description: "Fate Core: switching two unrated skills changes nothing, so the minor milestone doesn't offer it"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:minor-milestone }
+  params: { skillA: skills.burglary, skillB: skills.crafts, recover: false }
+  policy: { choices: pause }
+answers:
+  - option: skills

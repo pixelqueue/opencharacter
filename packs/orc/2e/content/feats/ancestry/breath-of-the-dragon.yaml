@@ -1,0 +1,56 @@
+id: feats.ancestry.breath-of-the-dragon
+type: feat
+tags: [trait.magical]
+fields: { level: 1, category: ancestry, heritage: heritages.dragonblood }
+actions:
+  - id: breath-of-the-dragon
+    tags: [feat-action]
+    available: "dragonblood.damageType != ''"
+    participants:
+      target: {}
+    results: [breathed]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: >-
+              @feats.ancestry.formidable-breath in feats.held
+                ? (floor((level + 1) / 2))d6 : (floor((level + 1) / 2))d4
+            tags: [{ formula: "'damage.' + dragonblood.damageType" }]
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: check
+        params:
+          check: "'saves.' + dragonblood.save + '.mod'"
+          dc: ancestry.dc
+      - id: degree
+        kind: branch
+        each: target
+        cases:
+          - when: true
+            flags:
+              outcome: >-
+                max(0, indexOf(['critical-success', 'success', 'failure', 'critical-failure'],
+                  steps.save.result))
+      - id: deal
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            when: flags.outcome > 0
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: '-floor(max(0, part.total) * [0, 0.5, 1, 2][flags.outcome])'
+            tags: [damage]
+          - type: applyEffect
+            when: 'flags.outcome >= 2 && @feats.ancestry.lingering-breath in feats.held'
+            source: "'conditions.persistent-damage'"
+            state: { damage: 2d6, damageType: dragonblood.damageType }
+      - id: result
+        kind: outcome
+        result: "'breathed'"
+        data: { damage: steps.damage.total, dc: ancestry.dc }

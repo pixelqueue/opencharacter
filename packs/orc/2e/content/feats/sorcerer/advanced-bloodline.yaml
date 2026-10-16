@@ -1,0 +1,62 @@
+id: feats.sorcerer.advanced-bloodline
+type: feat
+fields: { level: 6, category: class, class: classes.sorcerer }
+prerequisites:
+  - { id: bloodline, when: "sorcerer.bloodline != 'none'" }
+effects:
+  - { target: focus.points, op: add, value: 1 }
+choices:
+  # A choice by the bloodline, since a grant can't read it.
+  - id: spell
+    from:
+      options:
+        - id: aberrant
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'aberrant'" }
+          grants:
+            - item: spells.aberrant-whispers
+        - id: angelic
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'angelic'" }
+          grants:
+            - item: spells.angelic-wings
+        - id: demonic
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'demonic'" }
+          grants:
+            - item: spells.swamp-of-sloth
+        - id: diabolic
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'diabolic'" }
+          grants:
+            - item: spells.embrace-the-pit
+        - id: draconic
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'draconic'" }
+          grants:
+            - item: spells.dragon-breath
+        - id: elemental
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'elemental'" }
+          grants:
+            - item: spells.elemental-motion
+        - id: fey
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'fey'" }
+          grants:
+            - item: spells.fey-disappearance
+        - id: hag
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'hag'" }
+          grants:
+            - item: spells.horrific-visage
+        - id: imperial
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'imperial'" }
+          grants:
+            - item: spells.extend-blood-magic
+        - id: undead
+          prerequisites:
+            - { id: bloodline, when: "sorcerer.bloodline == 'undead'" }
+          grants:
+            - item: spells.drain-life

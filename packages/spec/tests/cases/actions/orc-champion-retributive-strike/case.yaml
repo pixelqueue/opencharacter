@@ -1,0 +1,15 @@
+description: "orc-2e: a justice champion's Retributive Strike: the ally gains resistance 5 (2 + level) to the triggering damage, an applied effect, and he Strikes the enemy with his longsword as a reaction"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:classes.champion.causes.justice#retributive-strike'
+    entry: class
+    source: orc-2e:classes.champion.causes.justice
+  participants:
+    ally:
+      - { id: wizard }
+    target:
+      - { id: ogre, values: { orc-2e:defenses.ac: 17 } }

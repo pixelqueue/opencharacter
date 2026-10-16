@@ -1,0 +1,17 @@
+id: spells.infuse-vitality
+type: spell
+tags: [trait.concentrate, trait.manipulate, trait.vitality, tradition.divine]
+fields:
+  rank: 1
+  cast: one-to-three
+  range: 30
+  targets: 3
+  duration: minutes
+  durationAmount: 1
+  applyTo: ally
+effects:
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: 'dieOf(1d4, self.rank >= 5 ? 3 : self.rank >= 3 ? 2 : 1)'
+    tags: [damage.vitality]
+    scope: applied

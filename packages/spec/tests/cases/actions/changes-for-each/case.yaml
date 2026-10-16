@@ -1,0 +1,34 @@
+description: 'A proposed change with `forEach` is proposed once per element in list order, with `x` bound and `when` tested per element; an empty list proposes nothing'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          marks.a: { type: integer, input: true, default: 0 }
+          marks.b: { type: integer, input: true, default: 0 }
+          marks.c: { type: integer, input: true, default: 0 }
+          coin: { type: integer, input: true, default: 0 }
+        actions:
+          - id: start
+            steps:
+              - id: mark
+                kind: changes
+                changes:
+                  - type: adjust
+                    forEach: "['test-pack:marks.c', 'marks.b', 'marks.a']"
+                    when: x != 'marks.b'
+                    field: { formula: x }
+                    by: 1
+                  - { type: adjust, forEach: '[2, 3]', field: coin, by: x }
+                  - { type: adjust, forEach: '[]', field: coin, by: 100 }
+      content: []
+input:
+  action:
+    id: test-pack:start

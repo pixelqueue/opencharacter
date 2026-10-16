@@ -1,0 +1,15 @@
+# Picked content's actions carry the picked item as source, so both picks of
+# the same shared action are listed, in pick order. `show` is a rules action no content uses.
+actions:
+  - { action: test-actions:perform, entry: box, source: test-actions:tricks.spark }
+  - { action: test-actions:perform, entry: box, source: test-actions:tricks.flare }
+  - { action: test-actions:show }
+  # The bow and the actions that hold its changes, rules actions too.
+  - { action: test-actions:bow }
+  - { action: test-actions:bow-dropped }
+  - { action: test-actions:bow-released }
+  - { action: test-actions:bow-filtered }
+  - { action: test-actions:bows-combined }
+# The rules-level knack choice is still open.
+pending:
+  - { choice: [knack] }

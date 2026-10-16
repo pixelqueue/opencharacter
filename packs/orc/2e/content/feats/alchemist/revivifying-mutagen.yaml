@@ -1,0 +1,24 @@
+id: feats.alchemist.revivifying-mutagen
+type: feat
+tags: [trait.concentrate]
+fields: { level: 2, category: class, class: classes.alchemist }
+actions:
+  - id: revivifying-mutagen
+    tags: [class-action]
+    available: 'countList(character.applied, x.active && x.source in [@consumables.bestial-mutagen-lesser, @consumables.bestial-mutagen-moderate, @consumables.bestial-mutagen-greater, @consumables.bestial-mutagen-major, @consumables.cognitive-mutagen-lesser, @consumables.cognitive-mutagen-moderate, @consumables.cognitive-mutagen-greater, @consumables.cognitive-mutagen-major, @consumables.juggernaut-mutagen-lesser, @consumables.juggernaut-mutagen-moderate, @consumables.juggernaut-mutagen-greater, @consumables.juggernaut-mutagen-major, @consumables.quicksilver-mutagen-lesser, @consumables.quicksilver-mutagen-moderate, @consumables.quicksilver-mutagen-greater, @consumables.quicksilver-mutagen-major, @consumables.serene-mutagen-lesser, @consumables.serene-mutagen-moderate, @consumables.serene-mutagen-greater, @consumables.serene-mutagen-major, @consumables.silvertongue-mutagen-lesser, @consumables.silvertongue-mutagen-moderate, @consumables.silvertongue-mutagen-greater, @consumables.silvertongue-mutagen-major, @consumables.drakeheart-mutagen-lesser, @consumables.drakeheart-mutagen-moderate, @consumables.drakeheart-mutagen-greater, @consumables.drakeheart-mutagen-major]) > 0'
+    results: [revived]
+    steps:
+      - id: healing
+        kind: roll
+        tags: [healing]
+        parts: [{ dice: 'dieOf(1d6, max(1, floor(level / 2)))' }]
+      - id: heal
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: steps.healing.total, tags: [healing] }
+          - type: removeEffect
+            applied: { where: "'trait.mutagen' in item.tags" }
+      - id: result
+        kind: outcome
+        result: "'revived'"
+        data: { healing: steps.healing.total }

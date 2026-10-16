@@ -1,0 +1,12 @@
+id: features.swashbuckler.keen-flair
+type: feature
+fields: { level: 15 }
+effects:
+  - target: { rolls: [attack], tally: successToCritOn19 }
+    op: add
+    value: 1
+    when: >-
+      'strike' in roll.tags
+        && (roll.item.category == 'simple' ? attacks.simple.rank
+          : roll.item.category == 'martial' ? attacks.martial.rank
+          : roll.item.category == 'advanced' ? attacks.advanced.rank : attacks.unarmed.rank) >= 3

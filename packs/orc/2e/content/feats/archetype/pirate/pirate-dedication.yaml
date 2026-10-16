@@ -1,0 +1,16 @@
+id: feats.archetype.pirate.pirate-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.pirate }
+
+prerequisites:
+  - { id: intimidation, when: 'skills.intimidation.rank >= 1' }
+grants:
+  - { item: feats.skill.additional-lore }
+effects:
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.swashbuckler.antagonize }
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.rogue.youre-next }

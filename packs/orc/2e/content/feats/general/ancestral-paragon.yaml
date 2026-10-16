@@ -1,0 +1,10 @@
+id: feats.general.ancestral-paragon
+type: feat
+fields: { level: 3, category: general }
+choices:
+  - id: feat
+    unique: feats
+    from: { type: feat, where: "item.category == 'ancestry' && item.level <= 1" }
+    eligible: >-
+      has(item.ancestry) && item.ancestry in ancestry.held
+        || has(item.heritage) && item.heritage in heritages.held

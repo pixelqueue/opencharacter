@@ -1,0 +1,253 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: ancestry
+    change:
+      type: addItem
+      entry:
+        id: ancestry
+        item: orc-2e:ancestries.dwarf
+  - to: self
+    step: heritage
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - heritage
+      option: orc-2e:heritages.strong-blooded-dwarf
+  - to: self
+    step: background
+    change:
+      type: addItem
+      entry:
+        id: background
+        item: orc-2e:backgrounds.charlatan
+  - to: self
+    step: class
+    change:
+      type: addItem
+      entry:
+        id: class
+        item: orc-2e:classes.champion
+  - to: self
+    step: ancestryPicks
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - boosts
+      option: standard
+  - to: self
+    step: ancestryPicks
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - boosts
+          - standard
+          - free
+      option: orc-2e:boosts.str
+  - to: self
+    step: backgroundPicks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - boost
+      option: orc-2e:boosts.int
+  - to: self
+    step: backgroundPicks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - free-boost
+      option: orc-2e:boosts.str
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - key-attribute
+      option: str
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - divine-font
+      option: heal
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - sanctification
+      option: unholy
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - divine-skill
+      option: skill.arcana
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - favored-weapon-category
+      option: martial
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - favored-weapon
+      option: orc-2e:weapons.khakkhara
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - cause
+      option: orc-2e:classes.champion.causes.justice
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - devotion-spell
+      option: shields-of-the-spirit
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.crafting
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.thievery
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.medicine
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - class-feat-1
+      option: orc-2e:feats.champion.nimble-reprisal
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.str
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.con
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.dex
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.wis
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - ancestry-feat-1
+      option: orc-2e:feats.ancestry.dwarven-lore
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - languages
+      option: orc-2e:languages.giant
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - extra-training
+      option: skill.diplomacy
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - extra-training
+      option: skill.acrobatics
+  - to: self
+    step: finish
+    change:
+      type: set
+      field: orc-2e:hp.current
+      value: 22
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

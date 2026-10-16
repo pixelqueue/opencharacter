@@ -1,0 +1,29 @@
+id: feats.ranger.initiate-warden
+type: feat
+tags: [archetype-feat]
+fields: { level: 1, category: class, class: classes.ranger }
+repeatable: true
+# Taken through an archetype (Beastmaster), the spells are cast with innate numbers (Charisma,
+# trained), as the beastmaster's are: there is no ranger archetype spellcasting. The tradition and
+# attribute are set once, however often the feat is taken (rules/ranger.yaml).
+effects:
+  - { target: focus.points, op: add, value: 1 }
+  - target: spellcasting.rank
+    op: atLeast
+    value: 'level >= 17 ? 3 : level >= 9 ? 2 : 1'
+    when: class.has.ranger
+choices:
+  - id: spell
+    unique: warden-spells
+    requiresOption: true
+    from:
+      options:
+        - id: gravity-weapon
+          grants:
+            - item: spells.gravity-weapon
+        - id: heal-companion
+          grants:
+            - item: spells.heal-companion
+        - id: magic-hide
+          grants:
+            - item: spells.magic-hide

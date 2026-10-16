@@ -1,0 +1,48 @@
+id: monsters.pit-fiend.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 4 }
+    results: [done]
+    steps:
+      - id: bite
+        kind: action
+        use: monster-attack
+        source: "'monsters.pit-fiend.bite'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: claw
+        kind: action
+        use: monster-attack
+        source: "'monsters.pit-fiend.claw'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: mace
+        kind: action
+        use: monster-attack
+        source: "'monsters.pit-fiend.mace'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(2, size(participants.target) - 1)].id] : []
+      - id: tail
+        kind: action
+        use: monster-attack
+        source: "'monsters.pit-fiend.tail'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(3, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.bite) && steps.bite.result == 'hit' ? 1 : 0)
+              + (has(steps.claw) && steps.claw.result == 'hit' ? 1 : 0)
+              + (has(steps.mace) && steps.mace.result == 'hit' ? 1 : 0)
+              + (has(steps.tail) && steps.tail.result == 'hit' ? 1 : 0)

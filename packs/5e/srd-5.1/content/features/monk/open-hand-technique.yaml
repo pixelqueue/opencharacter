@@ -1,0 +1,15 @@
+id: features.monk.open-hand-technique
+type: feature
+actions:
+  - id: open-hand-technique
+    tags: [feature]
+    results: [prone, push, no-reactions]
+    params:
+      technique: { type: enum, values: [prone, push, no-reactions] }
+    steps:
+      - id: result
+        kind: outcome
+        result: params.technique
+        data:
+          dc: ki.saveDc
+          save: "params.technique == 'prone' ? 'dex' : params.technique == 'push' ? 'str' : ''"

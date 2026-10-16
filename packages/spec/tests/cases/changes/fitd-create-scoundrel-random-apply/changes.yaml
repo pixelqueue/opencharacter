@@ -1,0 +1,15 @@
+- {
+    type: choose,
+    path: { choice: [special-abilities] },
+    option: fitd-scoundrel:special-abilities.expertise,
+  }
+- { type: choose, path: { choice: [vice] }, option: fitd-scoundrel:vices.luxury }
+- { type: adjust, field: fitd-scoundrel:ratings.hunt, by: 1 }
+- { type: adjust, field: fitd-scoundrel:ratings.attune, by: 2 }
+- { type: adjust, field: fitd-scoundrel:ratings.finesse, by: 1 }
+- { type: adjust, field: fitd-scoundrel:ratings.finesse, by: 1 }
+- { type: adjust, field: fitd-scoundrel:ratings.consort, by: 2 }
+- type: choose
+  path: { choice: [special-abilities, fitd-scoundrel:special-abilities.expertise, action] }
+  option: tinker
+- { type: finishCreation }

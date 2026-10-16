@@ -1,0 +1,69 @@
+# No crew type: Deadly (the SRD's first ability, recommended) and the first operation, the
+# recommended Prowess training and Secure lair as starting upgrades, room to work, and the
+# recommended Quarters and Vault.
+status: finished
+outcome:
+  result: created
+  data:
+    groundsStatus: 0
+    helpedStatus: 0
+    harmedStatus: 0
+    friendStatus: 0
+    enemyStatus: 0
+proposedChanges:
+  - to: self
+    step: ability
+    change:
+      type: choose
+      path:
+        choice:
+          - crew-abilities
+      option: fitd-crew:crew-abilities.deadly
+  - to: self
+    step: operation
+    change:
+      type: choose
+      path:
+        choice:
+          - operation
+      option: fitd-crew:operations.accident
+  - to: self
+    step: start
+    change:
+      type: adjust
+      field: fitd-crew:coin.current
+      by: 2
+  - to: self
+    step: startingUpgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.lair.secure
+      by: 1
+  - to: self
+    step: startingUpgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.training.prowess
+      by: 1
+  - to: self
+    step: huntingGrounds
+    change:
+      type: adjust
+      field: fitd-crew:coin.current
+      by: -1
+  - to: self
+    step: upgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.lair.quarters
+      by: 1
+  - to: self
+    step: upgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.lair.vault
+      by: 1
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

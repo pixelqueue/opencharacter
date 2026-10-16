@@ -1,0 +1,36 @@
+# The slot is spent; each ally gets aid applied with `castSlot: 3` (its hit point maximum +10 on its
+# own sheet) and 10 more current hit points: 5, and 5 for the slot above 2nd.
+status: finished
+outcome:
+  result: cast
+  data:
+    slot: 3
+    spellcastingClass: cleric
+    dc: 14
+    save: ''
+    halfOnSave: false
+    damage: 0
+    healing: 0
+    concentration: false
+    critical: false
+    metamagic: none
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change: { type: adjust, field: 5e-srd-5.1:spellSlots.level3.used, by: 1 }
+  - to: target
+    character: ally-1
+    step: applyOn[0]
+    change: { type: applyEffect, source: 5e-srd-5.1:spells.aid, state: { castSlot: 3 } }
+  - to: target
+    character: ally-1
+    step: applyOn[0]
+    change: { type: adjust, field: 5e-srd-5.1:hp.current, by: 10 }
+  - to: target
+    character: ally-2
+    step: applyOn[1]
+    change: { type: applyEffect, source: 5e-srd-5.1:spells.aid, state: { castSlot: 3 } }
+  - to: target
+    character: ally-2
+    step: applyOn[1]
+    change: { type: adjust, field: 5e-srd-5.1:hp.current, by: 10 }

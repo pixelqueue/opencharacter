@@ -1,0 +1,41 @@
+id: features.wizard.overchannel
+type: feature
+effects:
+  - { target: spellcasting.overchannel, op: set, value: true }
+actions:
+  - id: overchannel
+    tags: [feature]
+    results: [overchanneled]
+    params:
+      spellLevel: { type: integer }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dice: 'self.overchannelUses == 0 ? 0 : params.spellLevel * (self.overchannelUses + 1)'
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: overchannelUses, by: 1 }
+      - id: free
+        kind: outcome
+        when: flags.dice == 0
+        result: "'overchanneled'"
+        data:
+          damage: 0
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: (flags.dice)d12
+      - id: hurt
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: -steps.damage.total, tags: [damage] }
+      - id: result
+        kind: outcome
+        result: "'overchanneled'"
+        data:
+          damage: steps.damage.total

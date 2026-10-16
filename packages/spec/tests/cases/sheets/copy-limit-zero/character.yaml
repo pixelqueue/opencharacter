@@ -1,0 +1,19 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: fitd-scoundrel, version: 0.1.0 }
+# A table's own playbook (the pack has none).
+homebrew:
+  rules: { tags: [tracker] }
+  content:
+    - id: playbooks.tracker
+      type: playbook
+      tags: [tracker]
+      fields:
+        twoDots: [fitd-scoundrel:ratings.hunt]
+        oneDot: [fitd-scoundrel:ratings.survey]
+choices:
+  playbook: [{ option: homebrew:playbooks.tracker }]
+features:
+  - id: tracker
+    item: homebrew:playbooks.tracker

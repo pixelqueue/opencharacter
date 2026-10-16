@@ -1,0 +1,18 @@
+ok: true
+adjustments:
+  - field: orc-2e:hp.current
+    by: -21
+    requested: -30
+    taken: -30
+    reason: requested
+    clamped: true
+followUps:
+  - id: knocked-out-1
+    kind: ephemeral
+    followUp: orc-2e:knocked-out
+    to: self
+    required: true
+    action:
+      id: orc-2e:knocked-out
+      followUp: knocked-out-1
+    params: {}

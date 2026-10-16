@@ -1,0 +1,25 @@
+# Each problem is a rules issue on its pick; ineligible picks stay picked, so fireball is still in
+# the book until the player removes it.
+values:
+  5e-srd-5.1:spells.wizardBook:
+    value:
+      - 5e-srd-5.1:spells.burning-hands
+      - 5e-srd-5.1:spells.detect-magic
+      - 5e-srd-5.1:spells.fireball
+      - 5e-srd-5.1:spells.identify
+      - 5e-srd-5.1:spells.mage-armor
+      - 5e-srd-5.1:spells.magic-missile
+      - 5e-srd-5.1:spells.misty-step
+      - 5e-srd-5.1:spells.shield
+      - 5e-srd-5.1:spells.sleep
+      - 5e-srd-5.1:spells.web
+pending:
+  # Prepared spells are asked until the full number is picked.
+  - { entry: wizard, choice: ['5e-srd-5.1:features.wizard.spellcasting/spells'] }
+issues:
+  # Fireball (3rd level) can't be copied before wizard 5.
+  - { code: option-not-eligible, id: 5e-srd-5.1:features.wizard.spellcasting/copied }
+  # Invisibility isn't in the book.
+  - { code: option-not-eligible, id: 5e-srd-5.1:features.wizard.spellcasting/spells }
+  # The book choices share one exclusivity group.
+  - { code: already-picked, id: 5e-srd-5.1:features.wizard.spellcasting/spellbook-2 }

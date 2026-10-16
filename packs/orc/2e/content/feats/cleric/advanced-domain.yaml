@@ -1,0 +1,200 @@
+id: feats.cleric.advanced-domain
+type: feat
+fields: { level: 8, category: class, class: classes.cleric }
+repeatable: true
+prerequisites:
+  - id: domain-initiate
+    when: '@feats.cleric.domain-initiate in feats.held'
+effects:
+  - { target: focus.points, op: add, value: 1 }
+choices:
+  - id: domain
+    unique: advanced-domains
+    requiresOption: true
+    from:
+      options:
+        - id: air
+          prerequisites:
+            - { id: initial, when: '@spells.pushing-gust in cleric.domainSpells' }
+          grants:
+            - item: spells.disperse-into-air
+        - id: ambition
+          prerequisites:
+            - { id: initial, when: '@spells.ignite-ambition in cleric.domainSpells' }
+          grants:
+            - item: spells.competitive-edge
+        - id: cities
+          prerequisites:
+            - { id: initial, when: '@spells.face-in-the-crowd in cleric.domainSpells' }
+          grants:
+            - item: spells.pulse-of-civilization
+        - id: confidence
+          prerequisites:
+            - { id: initial, when: '@spells.veil-of-confidence in cleric.domainSpells' }
+          grants:
+            - item: spells.delusional-pride
+        - id: creation
+          prerequisites:
+            - { id: initial, when: '@spells.creative-splash in cleric.domainSpells' }
+          grants:
+            - item: spells.artistic-flourish
+        - id: darkness
+          prerequisites:
+            - { id: initial, when: '@spells.cloak-of-shadow in cleric.domainSpells' }
+          grants:
+            - item: spells.darkened-sight
+        - id: death
+          prerequisites:
+            - { id: initial, when: '@spells.deaths-call in cleric.domainSpells' }
+          grants:
+            - item: spells.eradicate-undeath
+        - id: destruction
+          prerequisites:
+            - { id: initial, when: '@spells.cry-of-destruction in cleric.domainSpells' }
+          grants:
+            - item: spells.destructive-aura
+        - id: dreams
+          prerequisites:
+            - { id: initial, when: '@spells.sweet-dream in cleric.domainSpells' }
+          grants:
+            - item: spells.dreamers-call
+        - id: earth
+          prerequisites:
+            - { id: initial, when: '@spells.hurtling-stone in cleric.domainSpells' }
+          grants:
+            - item: spells.localized-quake
+        - id: family
+          prerequisites:
+            - { id: initial, when: '@spells.soothing-words in cleric.domainSpells' }
+          grants:
+            - item: spells.unity
+        - id: fate
+          prerequisites:
+            - { id: initial, when: '@spells.read-fate in cleric.domainSpells' }
+          grants:
+            - item: spells.tempt-fate
+        - id: fire
+          prerequisites:
+            - { id: initial, when: '@spells.fire-ray in cleric.domainSpells' }
+          grants:
+            - item: spells.flame-barrier
+        - id: freedom
+          prerequisites:
+            - { id: initial, when: '@spells.unimpeded-stride in cleric.domainSpells' }
+          grants:
+            - item: spells.word-of-freedom
+        - id: healing
+          prerequisites:
+            - { id: initial, when: '@spells.healers-blessing in cleric.domainSpells' }
+          grants:
+            - item: spells.rebuke-death
+        - id: indulgence
+          prerequisites:
+            - { id: initial, when: '@spells.overstuff in cleric.domainSpells' }
+          grants:
+            - item: spells.take-its-course
+        - id: knowledge
+          prerequisites:
+            - { id: initial, when: '@spells.scholarly-recollection in cleric.domainSpells' }
+          grants:
+            - item: spells.know-the-enemy
+        - id: luck
+          prerequisites:
+            - { id: initial, when: '@spells.bit-of-luck in cleric.domainSpells' }
+          grants:
+            - item: spells.lucky-break
+        - id: magic
+          prerequisites:
+            - { id: initial, when: '@spells.magics-vessel in cleric.domainSpells' }
+          grants:
+            - item: spells.mystic-beacon
+        - id: might
+          prerequisites:
+            - { id: initial, when: '@spells.athletic-rush in cleric.domainSpells' }
+          grants:
+            - item: spells.enduring-might
+        - id: moon
+          prerequisites:
+            - { id: initial, when: '@spells.moonbeam in cleric.domainSpells' }
+          grants:
+            - item: spells.touch-of-the-moon
+        - id: nature
+          prerequisites:
+            - { id: initial, when: '@spells.vibrant-thorns in cleric.domainSpells' }
+          grants:
+            - item: spells.natures-bounty
+        - id: nightmares
+          prerequisites:
+            - { id: initial, when: '@spells.waking-nightmare in cleric.domainSpells' }
+          grants:
+            - item: spells.shared-nightmare
+        - id: pain
+          prerequisites:
+            - { id: initial, when: '@spells.savor-the-sting in cleric.domainSpells' }
+          grants:
+            - item: spells.retributive-pain
+        - id: passion
+          prerequisites:
+            - { id: initial, when: '@spells.charming-touch in cleric.domainSpells' }
+          grants:
+            - item: spells.captivating-adoration
+        - id: perfection
+          prerequisites:
+            - { id: initial, when: '@spells.perfected-mind in cleric.domainSpells' }
+          grants:
+            - item: spells.perfected-body
+        - id: protection
+          prerequisites:
+            - { id: initial, when: '@spells.protectors-sacrifice in cleric.domainSpells' }
+          grants:
+            - item: spells.protectors-sphere
+        - id: secrecy
+          prerequisites:
+            - { id: initial, when: '@spells.whispering-quiet in cleric.domainSpells' }
+          grants:
+            - item: spells.safeguard-secret
+        - id: sun
+          prerequisites:
+            - { id: initial, when: '@spells.dazzling-flash in cleric.domainSpells' }
+          grants:
+            - item: spells.vital-luminance
+        - id: travel
+          prerequisites:
+            - { id: initial, when: '@spells.agile-feet in cleric.domainSpells' }
+          grants:
+            - item: spells.travelers-transit
+        - id: trickery
+          prerequisites:
+            - { id: initial, when: '@spells.sudden-shift in cleric.domainSpells' }
+          grants:
+            - item: spells.tricksters-twin
+        - id: truth
+          prerequisites:
+            - { id: initial, when: '@spells.word-of-truth in cleric.domainSpells' }
+          grants:
+            - item: spells.glimpse-the-truth
+        - id: tyranny
+          prerequisites:
+            - { id: initial, when: '@spells.touch-of-obedience in cleric.domainSpells' }
+          grants:
+            - item: spells.commanding-lash
+        - id: undeath
+          prerequisites:
+            - { id: initial, when: '@spells.touch-of-undeath in cleric.domainSpells' }
+          grants:
+            - item: spells.malignant-sustenance
+        - id: water
+          prerequisites:
+            - { id: initial, when: '@spells.tidal-surge in cleric.domainSpells' }
+          grants:
+            - item: spells.downpour
+        - id: wealth
+          prerequisites:
+            - { id: initial, when: '@spells.appearance-of-wealth in cleric.domainSpells' }
+          grants:
+            - item: spells.precious-metals
+        - id: zeal
+          prerequisites:
+            - { id: initial, when: '@spells.weapon-surge in cleric.domainSpells' }
+          grants:
+            - item: spells.zeal-for-battle

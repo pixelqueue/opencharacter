@@ -1,0 +1,46 @@
+id: feats.archetype.vigilante.startling-appearance
+type: feat
+tags: [trait.archetype, trait.vigilante, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.vigilante }
+
+prerequisites:
+  - {
+      id: vigilante-dedication,
+      when: '@feats.archetype.vigilante.vigilante-dedication in feats.held',
+    }
+actions:
+  - id: startling-appearance
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0 || (self.equipped && item.range > 0)"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+      - id: hit
+        kind: changes
+        when: "steps.strike.result in ['success', 'critical-success'] && size(participants.target) > 0"
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.frightened'"
+            state: { value: "steps.strike.result == 'critical-success' ? 2 : 1" }
+          - type: applyEffect
+            when: 'level >= 16 && @feats.archetype.vigilante.stunning-appearance in feats.held'
+            source: "'conditions.stunned'"
+            state: { value: "steps.strike.result == 'critical-success' ? 2 : 1" }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage

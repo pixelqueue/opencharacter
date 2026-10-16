@@ -1,0 +1,10 @@
+id: feats.archetype.ranger.ranger-resiliency
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.ranger }
+
+prerequisites:
+  - { id: ranger-dedication, when: '@feats.archetype.ranger.ranger-dedication in feats.held' }
+  - { id: class-hp, when: 'hp.class <= 8' }
+effects:
+  - { target: hp.max, op: add, value: '3 * archetypes.ranger.feats' }

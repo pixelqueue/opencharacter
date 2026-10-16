@@ -1,0 +1,74 @@
+fields:
+  rage.active: { type: boolean, input: true, default: false }
+  rage.damage: { type: integer, formula: 0 }
+  brutalCritical.dice: { type: integer, formula: 0 }
+  rage.uses: { type: integer, formula: 0 }
+  rage.unlimited: { type: boolean, formula: false }
+  rage.frenzied: { type: boolean, input: true, default: false }
+  barbarian.recklessAttack: { type: boolean, formula: false }
+  barbarian.dangerSense: { type: boolean, formula: false }
+  barbarian.retaliation: { type: boolean, formula: false }
+  bardicInspiration.die: { type: dice, formula: 0 }
+  bardicInspiration.uses: { type: integer, formula: 0 }
+  bardicInspiration.shortRest: { type: boolean, formula: false }
+  bardicInspiration.superior: { type: boolean, formula: false }
+  songOfRest.die: { type: dice, formula: 0 }
+  channelDivinity.uses: { type: integer, formula: 0 }
+  destroyUndead.cr: { type: decimal, formula: 0 }
+  divineStrike.dice: { type: integer, formula: 0 }
+  wildShape.active: { type: boolean, input: true, default: false }
+  wildShape.uses: { type: integer, formula: 0 }
+  wildShape.unlimited: { type: boolean, formula: false }
+  wildShape.maxCr: { type: decimal, formula: 0 }
+  wildShape.swimming: { type: boolean, formula: false }
+  wildShape.flying: { type: boolean, formula: false }
+  wildShape.hours: { type: integer, formula: 0 }
+  actionSurge.uses: { type: integer, formula: 0 }
+  indomitable.uses: { type: integer, formula: 0 }
+  martialArts.die: { type: dice, formula: 0 }
+  ki.points: { type: integer, formula: 0 }
+  ki.saveDc: { type: integer, formula: 0 }
+  martialArts.known: { type: boolean, formula: false }
+  ki.perfectSelf: { type: boolean, formula: false }
+  slowFall.reduction: { type: integer, formula: 0 }
+  emptyBody.active: { type: boolean, input: true, default: false }
+  divineSense.uses: { type: integer, formula: 0 }
+  layOnHands.pool: { type: integer, formula: 0 }
+  cleansingTouch.uses: { type: integer, formula: 0 }
+  aura.range: { type: integer, formula: 0 }
+  sacredWeapon.active: { type: boolean, input: true, default: false }
+  hideInPlainSight.active: { type: boolean, input: true, default: false }
+  foeSlayer.bonus: { type: integer, formula: 0 }
+  hunter.colossusSlayer: { type: boolean, formula: false }
+  sneakAttack.dice: { type: integer, formula: 0 }
+  sorcery.points: { type: integer, formula: 0 }
+  sorcery.left:
+    type: integer
+    formula: >-
+      sorcery.points - sumCopies(copy.state.sorceryPointsSpent,
+        copy.type == 'class' && has(copy.state.sorceryPointsSpent))
+  sorcery.shortRestRegain: { type: integer, formula: 0 }
+  sorcery.metamagic: { type: boolean, formula: false }
+  draconic.damageType:
+    { type: enum, values: [none, acid, cold, fire, lightning, poison], formula: "'none'" }
+  elementalAffinity.resistant: { type: boolean, input: true, default: false }
+  dragonWings.active: { type: boolean, input: true, default: false }
+  warlock.boons: { type: set, of: pactBoon }
+  eldritchBlast.beams:
+    {
+      type: integer,
+      formula: 'level.total >= 17 ? 4 : level.total >= 11 ? 3 : level.total >= 5 ? 2 : 1',
+    }
+  eldritchBlast.range: { type: integer, formula: 120 }
+  eldritchBlast.push: { type: integer, formula: 0 }
+
+contentTypes:
+  invocation:
+    copies: { max: 0 }
+
+  pactBoon:
+    copies: { max: 0 }
+    effects:
+      - target: warlock.boons
+        op: grant
+        value: { formula: item.id }

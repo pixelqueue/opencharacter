@@ -1,0 +1,284 @@
+tags: [melee, melee.blunt]
+fields:
+  # An enum field whose values have no names.
+  mood: { type: enum, values: [calm, angry], input: true, default: calm }
+  # A tag set whose `members` names an undeclared tag and doesn't take its default.
+  resists:
+    type: set
+    of: tag
+    input: true
+    default: [melee.blunt]
+    members: { under: [melee, fire], except: [melee.blunt] }
+  abilities.str.score: { type: integer, input: true, min: 1, max: 30 }
+  abilities.str.mod: { type: integer, formula: 'floor((abilities.strength.score - 10) / 2)' }
+  combat.ac: { type: integer, formula: 'clamp(10, 1, 2)' }
+  cyc.a: { type: integer, formula: 'cyc.b + 1' }
+  cyc.b: { type: integer, formula: 'cyc.a + 1' }
+  self.thing: { type: integer, input: true }
+  loop.count: { type: integer, input: true }
+  check.cond: { type: boolean, formula: 'abilities.str.score' }
+  carry.rate: { type: decimal, formula: '0.12345678 * 2' }
+  check.roots: { type: integer, formula: 'steps.attack.total' }
+  hp.current: { type: integer, formula: 10, absorbedBy: [hp.missing] }
+# Link slots: a pack the repo doesn't have, and changes sent to a link with a
+# bare field and to a slot nobody declares.
+links:
+  crew:
+    pack: test-nope
+    fields: { tier: { type: integer }, tier.max: { type: integer } }
+actions:
+  # A random creation action: the written choice, the content choice (no recommend or prefer)
+  # and the allocation have no recommend, so an automatic run pauses at them, also
+  # inside the action it runs. The preferred trick doesn't. Its roll has no name.
+  - id: roll-up
+    steps:
+      - { id: luck, kind: roll, parts: [{ dice: 1d6 }] }
+      - id: origin
+        kind: choice
+        options: [{ id: north }, { id: south }]
+      - id: trick
+        kind: choice
+        options: { content: { type: trick } }
+      - id: favorite
+        kind: choice
+        options: { content: { type: trick } }
+        prefer: '1'
+      - id: inner
+        kind: action
+        use: spread
+  - id: spread
+    steps:
+      - id: points
+        kind: allocate
+        fields: { type: field, where: 'false' }
+        budget: 2
+      - id: more
+        kind: allocate
+        fields: { type: field }
+        budget: 1
+        recommend: { nope.field: 1 }
+  # An action step with `source` may use the content's own action: the spin trick's
+  # `whirl` is fine, `lunge` it doesn't define.
+  - id: brawl
+    steps:
+      - { id: whirl, kind: action, use: whirl, source: "'tricks.spin'" }
+      - { id: lunge, kind: action, use: lunge, source: "'tricks.spin'" }
+  - id: needs-kind
+    params:
+      kind: { type: string }
+    results: [done]
+    steps:
+      - { id: done, kind: outcome, result: "'done'" }
+  - id: heist
+    # Roles: a declared field the pack lacks, an undeclared role in `each` and
+    # in `to`.
+    participants:
+      lookout: { fields: { lookout.eyes: { type: integer } } }
+    steps:
+      - id: bribe
+        kind: changes
+        each: ghost
+        changes:
+          - { type: adjust, field: abilities.str.score, by: -1 }
+      - id: tip
+        kind: changes
+        to: accomplice
+        changes:
+          - { type: adjust, field: abilities.str.score, by: 1 }
+      # Applied content: an unknown literal source, an entry named both ways,
+      # and a query on a change type that doesn't take one.
+      - id: hex
+        kind: changes
+        to: lookout
+        changes:
+          - { type: applyEffect, source: "'weapons.nothing'" }
+          - { type: removeEffect, id: x, applied: { where: 'true' } }
+          - { type: setQuantity, value: '1', applied: { where: 'true' } }
+      # Equipping and templates: an unknown template, and an equip
+      # without equipped.
+      - id: oil
+        kind: changes
+        changes:
+          - { type: applyTemplate, entry: self, template: "'templates.nothing'" }
+          - { type: equip, entry: self }
+      - id: heat
+        kind: changes
+        to: { link: crew }
+        changes:
+          - { type: adjust, field: heat, by: 1 }
+      - id: hull
+        kind: changes
+        to: { link: ship }
+        changes:
+          - { type: adjust, field: 'test-ship:hull', by: -1 }
+  - id: swing
+    params:
+      who: { type: integer, where: 'true' }
+      stat: { type: id, of: field, where: "'nothing-has-this' in item.tags" }
+    steps:
+      - id: hit
+        kind: roll
+        tags: [attack]
+        parts: [{ dice: 1d6 }, { value: 1, ifEmpty: 1d4 }]
+      - id: total
+        kind: outcome
+        result: "steps.hitt.total > 3 ? 'big' : 'small'"
+      - id: deal
+        kind: changes
+        changes:
+          - {
+              type: adjust,
+              field: abilities.str.score,
+              split: { roll: nope, by: melee },
+              by: -part.total,
+            }
+          - { type: addItem, entry: { item: "'weapons.nope'" } }
+          - { type: equip, entry: { item: "'weapons.club'" } }
+          - { type: set, field: abilities.str.score, value: 1, copies: { type: weapon } }
+          - { type: removeItem, copies: { type: gadget } }
+          - { type: adjustQuantity, copies: { type: weapon }, value: 2 }
+          - { type: setQuantity, entry: self, value: 1.5 }
+          - { type: removeItem, copies: { type: weapon, where: 'steps.hit != null' } }
+          - { type: removeItem, entry: picked }
+  # Text for actions: no prompt, parameter label or result names, a literal
+  # result it doesn't declare, and results from an unknown band set.
+  - id: aim
+    params:
+      range: { type: integer, optional: true }
+      stance: { type: enum, values: [low, high], optional: true }
+    results: [ok]
+    steps:
+      - id: pick
+        kind: choice
+        tags: [ranged]
+        options: [{ id: left, changes: [{ type: adjust, field: hp.gone, by: 1 }] }]
+      - id: done
+        kind: outcome
+        result: "'other'"
+  - id: peek
+    results: { bands: nothing }
+    steps:
+      - id: done
+        kind: outcome
+        result: "'seen'"
+# An option effect is for content items only.
+effects:
+  - target: { choices: [melee] }
+    op: option
+    value: { id: rest, changes: [{ type: adjust, field: abilities.str.score, by: 1 }] }
+  # `then` changes the effect's copy, and a rules effect has none.
+  - id: break-me
+    target: { incoming: { tags: [melee] } }
+    op: atMost
+    value: -incoming.amount
+    then: [{ type: setState, entry: self, key: broken, value: true }]
+# Follow-ups: an unknown action, `change` read by a `becomes` follow-up, and
+# `entry: self` at the rules level.
+# Creation starts: a random start whose action would pause, a start
+# naming no action, and one leaving out a required parameter.
+immuneTo:
+  # A duplicate immunity ID, and a `when` reading a derived field.
+  - { id: calm, items: [weapons.mace], when: 'abilities.str.mod > 0' }
+  - { id: calm, query: { type: template } }
+creation:
+  - { id: roll, action: roll-up, random: true }
+  - { id: ghost, action: haunt }
+  - { id: bare, action: needs-kind }
+followUps:
+  - id: shout
+    on: { field: abilities.str.score }
+    action: shout
+  - id: notice
+    becomes: change.by > 0
+    changes: [{ type: adjust, field: abilities.str.score, by: 1 }]
+  - id: mark
+    on: { field: abilities.str.score }
+    changes: [{ type: setState, entry: self, key: broken, value: true }]
+  # A derived offer, which a character never stores.
+  - id: strong
+    while: abilities.str.score > 18
+    changes: [{ type: adjust, field: abilities.str.score, by: -1 }]
+  # Linked characters to make: an undeclared slot, an undeclared start, and a
+  # start the slot's pack doesn't load with a parameter its action lacks.
+  - id: ship-sheet
+    while: true
+    create: { link: ship, start: roll }
+  - id: crew-ghost
+    while: true
+    create: { link: crew, start: nowhere }
+  - id: crew-roll
+    while: true
+    create: { link: crew, start: roll, params: { size: 1 } }
+# Template fields: a default not of its enum; `rarity` has a name, `edge` none.
+# Slots: the second slot of `perk` is keyed `perk-2`, which another choice is;
+# its prompt doesn't name the slot.
+choices:
+  - { id: perk, slots: [1, 2], from: { options: [{ id: grit }] } }
+  - { id: perk-2, from: { options: [{ id: grit }] } }
+  # An exclusivity group of a pack it doesn't depend on.
+  - { id: knack, unique: 'other-pack:knacks', from: { options: [{ id: grit }] } }
+# An enum situational choice: its values need names.
+situational:
+  - { id: cover, type: enum, values: [none, half], default: none }
+templateFields:
+  rarity: { type: enum, values: [common, rare], default: legendary }
+  edge: { type: integer, default: 0 }
+# Every weapon is a standard copy, but weapons are never held as copies.
+standardCopies:
+  - { type: weapon }
+
+contentTypes:
+  # Content with an action of its own.
+  # A copy's name from a state key it doesn't have.
+  trick: { nameFrom: nope }
+  weapon:
+    carried: true
+    copies: { max: 0 }
+    # Named texts: `<id>.texts.inscription` may be translated, nothing else.
+    texts: [inscription]
+    fields:
+      damage: { type: dice, required: true }
+      skill: { type: id, of: field, default: skills.nope }
+      grade: { type: enum, values: [plain, fine], default: shiny }
+    state:
+      ammo: { type: integer, default: item.magazinee }
+      charge: { type: integer, min: 0, max: item.chargee }
+    # Computed values can't reuse a state key or a core property.
+    computed:
+      ammo: { type: integer, formula: 1 }
+      equipped: { type: boolean, formula: true }
+# Display groups for actions and content: members of the wrong kind, a field in
+# an actions group, a section key of the wrong type, hints for unknown types, state and fields,
+# and a unit without text.
+display:
+  groups:
+    - id: moves
+      kind: actions
+      members: { type: weapon }
+    - id: kit
+      kind: content
+      members: { type: field }
+    - id: arsenal
+      kind: content
+      members: { type: weapon }
+      sectionBy: item.damage
+    - id: attacks
+      kind: actions
+      members: { type: action, where: "'melee' in item.tags" }
+  fields:
+    combat.ac:
+      groups: [attacks]
+      unit: furlong
+      rolls: [{ action: nope }, { action: aim, params: { range: far, reach: 1 } }]
+      with:
+        - { field: combat.ac, as: detail }
+        - { field: check.cond, as: max }
+        - { field: hp.gone, as: detail }
+    abilities.str.mod: { hidden: true }
+    abilities.str.score:
+      with: [{ field: abilities.str.mod, as: modifier }, { field: combat.ac, as: max }]
+  types:
+    gadget: { quantity: { hidden: true } }
+    weapon:
+      state: { nope: { hidden: true } }
+      fields: { heft: { unit: furlong } }

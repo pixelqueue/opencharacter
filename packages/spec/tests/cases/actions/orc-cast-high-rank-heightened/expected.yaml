@@ -1,0 +1,46 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 8
+    mode: other
+    dc: 21
+    defense: fortitude
+    basic: true
+    damage: 60
+    healing: 0
+proposedChanges:
+  - to: target
+    character: a
+    step: burn[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -30
+      tags: [damage, spell, damage.spirit]
+  - to: target
+    character: b
+    step: burn[1]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -120
+      tags: [damage, spell, damage.spirit]
+log:
+  - step: damage
+    action: orc-2e:cast-spell
+    kind: dice
+    by: engine
+    total: 60
+  - step: save[0]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant: { role: target, id: a }
+    outcome: { result: success }
+  - step: save[1]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant: { role: target, id: b }
+    outcome: { result: critical-failure }

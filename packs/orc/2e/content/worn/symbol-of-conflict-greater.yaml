@@ -1,0 +1,51 @@
+id: worn.symbol-of-conflict-greater
+type: worn
+tags: [trait.divine, trait.invested, trait.uncommon]
+fields:
+  level: 10
+  price: 900
+  activation: two
+  frequency: once-per-day
+grants:
+  - { item: spells.bane, when: 'self.equipped && self.invested' }
+  - { item: spells.bless, when: 'self.equipped && self.invested' }
+  - { item: spells.divine-wrath, when: 'self.equipped && self.invested' }
+  - { item: spells.cleanse-affliction, when: 'self.equipped && self.invested' }
+effects:
+  - target: skills.religion.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.bane && self.used < 1'
+    value:
+      id: bane
+      flags: { itemPaid: true, rank: 4, dc: 27 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.bless && self.used < 1'
+    value:
+      id: bless
+      flags: { itemPaid: true, rank: 4 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.divine-wrath && self.used < 1'
+    value:
+      id: divine-wrath
+      flags: { itemPaid: true, rank: 4, dc: 27 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.cleanse-affliction && self.used < 1'
+    value:
+      id: cleanse-affliction
+      flags: { itemPaid: true, rank: 4 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

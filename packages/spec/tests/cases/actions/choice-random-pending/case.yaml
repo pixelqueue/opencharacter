@@ -1,0 +1,89 @@
+description: 'Over pending choices, `random` sees `choice`: the trophy is drawn among its options, the charm keeps its own recommendation'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [stat, pick]
+        contentTypes:
+          kit: {}
+          calling: {}
+        fields:
+          stats.might: { type: integer, input: true, default: 0, min: 0, max: 5, tags: [stat] }
+          stats.wits: { type: integer, input: true, default: 0, min: 0, max: 5, tags: [stat] }
+          stats.grace: { type: integer, input: true, default: 0, min: 0, max: 5, tags: [stat] }
+        choices:
+          - id: calling
+            from: { type: calling }
+        actions:
+          - id: pick-kit
+            params:
+              random: { type: boolean, optional: true }
+            steps:
+              - id: kit
+                kind: choice
+                tags: [pick]
+                options: { content: { type: kit } }
+                random: has(params.random) && params.random
+                recommend: options[0]
+              - id: done
+                kind: outcome
+                data: { kit: steps.kit.picked }
+          - id: pick-some
+            steps:
+              - id: kits
+                kind: choice
+                options: { content: { type: kit, where: picks == 0 } }
+                repeat: { max: 2 }
+                random: true
+          - id: fill
+            steps:
+              - id: calling
+                kind: choice
+                options: { content: { type: calling } }
+                recommend: options[0]
+                changes:
+                  - { type: choose, path: { choice: [calling] }, option: picked.id }
+              - id: picks
+                kind: choice
+                options: { pending: {} }
+                random: "choice.id != 'charm'"
+          - id: hand-out
+            steps:
+              - id: scores
+                kind: allocate
+                fields: { type: field, where: "'stat' in item.tags" }
+                values: [3, 2]
+                random: true
+          - id: spend
+            params:
+              budget: { type: integer }
+              limit: { type: integer }
+            steps:
+              - id: points
+                kind: allocate
+                fields: { type: field, where: "'stat' in item.tags" }
+                budget: params.budget
+                limit: params.limit
+                cost: '[0, 1, 3][amount]'
+                random: true
+      content:
+        - { id: kits.rope, type: kit }
+        - { id: kits.lamp, type: kit }
+        - { id: kits.saw, type: kit }
+        - id: callings.hunter
+          type: calling
+          choices:
+            - id: trophy
+              from: { options: [{ id: antler }, { id: fang }, { id: hide }] }
+            - id: charm
+              from: { options: [{ id: bone }, { id: shell }] }
+              recommend: "'shell'"
+input:
+  action: { id: test-pack:fill }

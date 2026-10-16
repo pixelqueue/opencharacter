@@ -1,0 +1,75 @@
+id: monsters.marilith.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 7 }
+    results: [done]
+    steps:
+      - id: longsword1
+        kind: action
+        use: monster-attack
+        source: "'monsters.marilith.longsword'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: longsword2
+        kind: action
+        use: monster-attack
+        source: "'monsters.marilith.longsword'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: longsword3
+        kind: action
+        use: monster-attack
+        source: "'monsters.marilith.longsword'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(2, size(participants.target) - 1)].id] : []
+      - id: longsword4
+        kind: action
+        use: monster-attack
+        source: "'monsters.marilith.longsword'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(3, size(participants.target) - 1)].id] : []
+      - id: longsword5
+        kind: action
+        use: monster-attack
+        source: "'monsters.marilith.longsword'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(4, size(participants.target) - 1)].id] : []
+      - id: longsword6
+        kind: action
+        use: monster-attack
+        source: "'monsters.marilith.longsword'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(5, size(participants.target) - 1)].id] : []
+      - id: tail
+        kind: action
+        use: monster-attack
+        source: "'monsters.marilith.tail'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(6, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.longsword1) && steps.longsword1.result == 'hit' ? 1 : 0)
+              + (has(steps.longsword2) && steps.longsword2.result == 'hit' ? 1 : 0)
+              + (has(steps.longsword3) && steps.longsword3.result == 'hit' ? 1 : 0)
+              + (has(steps.longsword4) && steps.longsword4.result == 'hit' ? 1 : 0)
+              + (has(steps.longsword5) && steps.longsword5.result == 'hit' ? 1 : 0)
+              + (has(steps.longsword6) && steps.longsword6.result == 'hit' ? 1 : 0)
+              + (has(steps.tail) && steps.tail.result == 'hit' ? 1 : 0)

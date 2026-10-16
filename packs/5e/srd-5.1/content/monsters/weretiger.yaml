@@ -1,0 +1,58 @@
+id: monsters.weretiger
+type: monster
+fields:
+  size: medium
+  creatureType: humanoid
+  subtype: human
+  shapechanger: true
+  alignment: neutral
+  ac: 12
+  hp: 120
+  hitDice: 16d8 + 48
+  speed: 30
+  str: 17
+  dex: 15
+  con: 16
+  int: 10
+  wis: 13
+  cha: 11
+  skills: [skill.perception, skill.stealth]
+  expertise: [skill.perception]
+  damageImmunities: [nonmagical-unsilvered]
+  languages: [languages.common]
+  startingForm: humanoid
+  cr: 4
+  darkvision: 60
+grants:
+  - item: monsters.weretiger.shapechanger
+  - item: monsters.weretiger.keen-hearing-and-smell
+choices:
+  - id: form
+    from:
+      options:
+        - id: humanoid
+          effects:
+            - { target: creature.form, op: set, value: "'humanoid'" }
+          grants:
+            - item: monsters.weretiger.multiattack
+            - item: monsters.weretiger.scimitar
+            - item: monsters.weretiger.longbow
+        - id: hybrid
+          effects:
+            - { target: creature.form, op: set, value: "'hybrid'" }
+          grants:
+            - item: monsters.weretiger.pounce
+            - item: monsters.weretiger.multiattack
+            - item: monsters.weretiger.bite
+            - item: monsters.weretiger.claw
+            - item: monsters.weretiger.scimitar
+            - item: monsters.weretiger.longbow
+        - id: tiger
+          effects:
+            - { target: creature.form, op: set, value: "'tiger'" }
+            - { target: creature.size, op: set, value: "'large'" }
+            - { target: combat.speed, op: atLeast, value: 40 }
+          grants:
+            - item: monsters.weretiger.pounce
+            - item: monsters.weretiger.bite
+            - item: monsters.weretiger.claw

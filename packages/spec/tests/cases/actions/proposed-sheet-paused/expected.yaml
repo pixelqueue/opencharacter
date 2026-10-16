@@ -1,0 +1,14 @@
+# Might shows 1, the calling's point, and can take 1 more; wits 0, 2.
+status: paused
+needs:
+  step: dots
+  action: test-pack:train
+  kind: allocate
+  allocate:
+    fields:
+      - { id: 'test-pack:stats.might', value: 1, limit: 1 }
+      - { id: 'test-pack:stats.wits', value: 0, limit: 2 }
+    budget: 2
+    spend: all
+log:
+  - { step: calling, kind: choice, by: engine, option: test-pack:callings.brute }

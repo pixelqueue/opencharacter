@@ -1,0 +1,11 @@
+description: "A nested action's roll summary: a stat check's critical failure runs the panic check, whose pause carries the panic bands and its own (empty) flags; the stat check's log entry carries its own"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/mothership/1e
+input:
+  action: { id: mothership-1e:stat-check }
+  params: { stat: mothership-1e:stats.combat }
+  policy:
+    rules:
+      - { step: panic/panic, then: pause }

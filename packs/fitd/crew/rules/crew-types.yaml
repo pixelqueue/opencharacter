@@ -1,0 +1,63 @@
+contentTypes:
+  # `startingUpgrades` are field IDs, qualified at load.
+  crewType:
+    copies: { max: 0 }
+    fields:
+      upgrades: { type: set, of: field, required: true }
+      startingUpgrades: { type: set, of: field, required: true }
+      startingCohort: { type: string, default: '' }
+      claims: { type: set, of: claim, default: [] }
+    effects:
+      - { id: tag, target: crewType.tag, op: set, value: 'item.tags[0]' }
+      - { id: id, target: crewType.id, op: set, value: item.id }
+      - { id: upgrades, target: crewType.upgrades, op: set, value: item.upgrades }
+      - { id: claims, target: crewType.claims, op: set, value: item.claims }
+      - id: starting
+        target: upgrades.starting
+        op: set
+        value: "size(item.startingUpgrades) + (item.startingCohort != '' ? 2 : 0)"
+  crewAbility:
+    effects:
+      - target: abilities.crew
+        op: grant
+        value: { formula: item.id }
+  operation: {}
+  contact:
+    nameFrom: label
+    state:
+      label: { type: string, default: '' }
+      favorite: { type: boolean, default: false }
+
+fields:
+  crewType.tag: { type: string, formula: "''" }
+  crewType.id: { type: string, formula: "''" }
+  crewType.upgrades: { type: set, of: field, formula: '[]' }
+  crewType.claims: { type: set, of: claim, formula: '[]' }
+  abilities.crew: { type: set, of: crewAbility }
+
+choices:
+  - id: crew-type
+    pick: { min: 0, max: 1 }
+    required: false
+    from: { type: crewType }
+  - id: crew-abilities
+    pick: "crewType.tag == '' ? 1 + advances.abilities : 0"
+    from: { type: crewAbility }
+  - id: operation
+    pick: "crewType.tag == '' ? 1 : 0"
+    from: { type: operation }
+
+constraints:
+  - id: favorite-contact
+    check: "countCopies(copy.type == 'contact' && copy.state.favorite) <= 1"
+
+display:
+  groups:
+    - id: crew-type
+      priority: 0
+  fields:
+    crewType.tag: { hidden: true }
+    crewType.id: { hidden: true }
+    crewType.upgrades: { hidden: true }
+    crewType.claims: { hidden: true }
+    abilities.crew: { hidden: true }

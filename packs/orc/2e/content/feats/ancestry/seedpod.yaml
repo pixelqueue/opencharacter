@@ -1,0 +1,14 @@
+id: feats.ancestry.seedpod
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.leshy }
+standardCopies:
+  - { type: weapon, where: 'item.id == @weapons.seedpod' }
+effects:
+  - target: { steps: [strike.hit.critical] }
+    op: changes
+    when: action.item.id == @weapons.seedpod
+    value:
+      changes:
+        - type: applyEffect
+          source: "'effects.speed-circumstance-penalty'"
+          state: { value: 10 }

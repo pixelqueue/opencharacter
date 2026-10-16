@@ -1,0 +1,10 @@
+description: "5E attack that misses the AC in the target's view, given without the pack prefix"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: inv-1 }
+  participants:
+    target:
+      - { id: ogre-1, values: { combat.ac: 23 } }

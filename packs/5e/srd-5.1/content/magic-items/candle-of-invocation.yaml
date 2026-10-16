@@ -1,0 +1,19 @@
+id: magic-items.candle-of-invocation
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+  spells: [spells.gate]
+grants:
+  - { item: spells.gate, when: self.equipped && self.attuned }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.gate && flags.slot == 9 &&
+      self.quantity > 0
+    value:
+      id: candle
+      changes:
+        - { type: adjustQuantity, entry: self, by: -1 }

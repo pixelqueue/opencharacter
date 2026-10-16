@@ -1,0 +1,14 @@
+id: consumables.scroll-2nd-rank
+type: consumable
+tags: [trait.magical, trait.scroll]
+fields:
+  level: 3
+  price: 12
+  bulk: 0.1
+  category: scroll
+  spellRank: 2
+choices:
+  - id: spell
+    from:
+      type: spell
+      where: "item.rank <= 2 && !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)"

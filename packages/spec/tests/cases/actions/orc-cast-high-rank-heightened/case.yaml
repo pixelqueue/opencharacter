@@ -1,0 +1,15 @@
+description: 'orc-2e: spirit blast (6th rank, 16d6 spirit, basic Fortitude) cast heightened to 8th rank (+1: 2d6 more per rank, so 20d6) as a spell other content grants, against two targets: a success takes half (30), a critical failure double (120)'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: orc-2e:spells.spirit-blast }
+  params: { rank: 8 }
+  participants:
+    target:
+      - { id: a }
+      - { id: b }
+answers:
+  - { outcome: { result: success } }
+  - { outcome: { result: critical-failure } }

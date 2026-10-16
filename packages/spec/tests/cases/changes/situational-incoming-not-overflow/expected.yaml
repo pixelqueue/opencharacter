@@ -1,0 +1,12 @@
+# Dodged, the 10 is 5: health 2 goes below 0 and overflows into a wound, tagged damage. The
+# dodge would halve that 1 to 0, but overflow skips incoming-change effects: the wound is 1.
+ok: true
+adjustments:
+  - { field: test-situational:hp, by: -5, requested: -10, taken: -5, reason: requested }
+  - { field: test-situational:wounds, by: 1, reason: overflow }
+  - { field: test-situational:hp, by: 3, reason: reset }
+character:
+  values:
+    test-situational:agile: true
+    test-situational:hp: 0
+    test-situational:wounds: 1

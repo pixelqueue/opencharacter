@@ -1,0 +1,13 @@
+id: weapons.specific.serpent-dagger
+type: weapon
+extends: weapons.dagger
+tags: [trait.agile, trait.finesse, trait.magical, trait.poison, trait.thrown, trait.versatile]
+fields:
+  price: 150
+  bulk: 0.1
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.weapon-potency-1
+    copies: { type: weapon, where: 'item.id == @weapons.specific.serpent-dagger' }
+  - template: runes.striking
+    copies: { type: weapon, where: 'item.id == @weapons.specific.serpent-dagger' }

@@ -1,0 +1,66 @@
+description: 'Added options sharing a `stackKey` offer only the first whose `when` holds, in instance order; two copies of one item offer its option once'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [cost]
+        fields:
+          stress: { type: integer, input: true, default: 0 }
+        contentTypes:
+          charm:
+            carried: true
+            state:
+              charges: { type: integer, min: 0, default: 2 }
+        actions:
+          - id: strain
+            steps:
+              - id: pay
+                kind: choice
+                tags: [cost]
+                options:
+                  - id: stress
+                    changes:
+                      - { type: adjust, field: stress, by: 2 }
+                recommend: "'stress'"
+      content:
+        - id: charms.luck
+          type: charm
+          effects:
+            - target: { choices: [cost] }
+              op: option
+              when: self.charges > 0
+              stackKey: lucky
+              value:
+                id: charge
+                changes:
+                  - { type: adjustState, entry: self, key: charges, by: -1 }
+        - id: charms.clover
+          type: charm
+          effects:
+            - target: { choices: [cost] }
+              op: option
+              when: self.charges > 0
+              stackKey: lucky
+              value:
+                id: charge
+                changes:
+                  - { type: adjustState, entry: self, key: charges, by: -1 }
+        - id: charms.coin
+          type: charm
+          effects:
+            - target: { choices: [cost] }
+              op: option
+              value:
+                id: spend
+                changes:
+                  - { type: adjustState, entry: self, key: charges, by: -1 }
+input:
+  action: { id: test-pack:strain }
+  policy: { choices: pause }

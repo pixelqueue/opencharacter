@@ -1,0 +1,58 @@
+# The example storm druid (examples/characters/orc-bramble.yaml) without its prepared spells
+# and gear, with the XP for 4th level.
+specVersion: 0.1.0
+id: test-orc-druid-level-up
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 3
+  orc-2e:xp.current: 1000
+  orc-2e:hp.current: 38
+  orc-2e:skills.nature.increases: 1
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.leshy
+    choices:
+      heritage:
+        - option: orc-2e:heritages.leaf-leshy
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-2e:boosts.dex
+  - id: background
+    item: orc-2e:backgrounds.scout
+    choices:
+      boost:
+        - option: orc-2e:boosts.wis
+      free-boost:
+        - option: orc-2e:boosts.cha
+      lore:
+        - option: skill.lore.forest
+  - id: class
+    item: orc-2e:classes.druid
+    choices:
+      order:
+        - option: orc-2e:classes.druid.orders.storm
+      voice-of-nature:
+        - option: orc-2e:feats.druid.plant-empathy
+      skills:
+        - option: skill.medicine
+        - option: skill.athletics
+      class-feat-2:
+        - option: orc-2e:feats.druid.order-explorer
+          choices:
+            order:
+              - option: leaf
+      skill-feat-2:
+        - option: orc-2e:feats.skill.natural-medicine
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.seedpod
+  general-feat-3:
+    - option: orc-2e:feats.general.fleet

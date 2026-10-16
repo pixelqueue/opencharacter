@@ -1,0 +1,147 @@
+contentTypes:
+  harm:
+    nameFrom: label
+    carried: false
+    state:
+      level: { type: integer, default: 1, min: 1, max: 3 }
+      label: { type: string, default: '' }
+
+fields:
+  harm.level1:
+    { type: integer, formula: "countCopies(copy.type == 'harm' && copy.state.level == 1)" }
+  harm.level2:
+    { type: integer, formula: "countCopies(copy.type == 'harm' && copy.state.level == 2)" }
+  harm.level3:
+    { type: integer, formula: "countCopies(copy.type == 'harm' && copy.state.level == 3)" }
+  harm.toughAsNails: { type: boolean, formula: false }
+  harm.lessEffect:
+    { type: boolean, formula: 'harm.toughAsNails ? harm.level2 > 0 : harm.level1 > 0' }
+  harm.lessDice: { type: boolean, formula: 'harm.toughAsNails ? harm.level3 > 0 : harm.level2 > 0' }
+  harm.needHelp: { type: boolean, formula: '!harm.toughAsNails && harm.level3 > 0' }
+
+  daredevil.penalty: { type: boolean, input: true, default: false }
+
+  healing.max: { type: integer, formula: 4 }
+  healing.current: { type: integer, input: true, default: 0, min: 0, max: healing.max }
+
+  # The SRD lists no armor items, so the standard and heavy boxes are always on the sheet; homebrew
+  # gear may set `hasArmor` and `hasHeavy`.
+  armor.standard: { type: boolean, input: true, default: false }
+  armor.heavy: { type: boolean, input: true, default: false }
+  armor.special: { type: boolean, input: true, default: false }
+  armor.hasArmor: { type: boolean, formula: false }
+  armor.hasHeavy: { type: boolean, formula: false }
+  armor.hasSpecial: { type: boolean, formula: false }
+
+effects:
+  - target: { rolls: [action-roll] }
+    op: rollModifier
+    value: { kind: poolDice, count: -1 }
+    when: harm.lessDice
+  - target: { rolls: [resistance-roll] }
+    op: rollModifier
+    value: { kind: poolDice, count: -1 }
+    when: daredevil.penalty
+  - target: { rolls: [action-roll], tally: effect }
+    op: add
+    value: -1
+    when: harm.lessEffect
+
+actions:
+  - id: take-harm
+    tags: [harm]
+    params:
+      level: { type: integer, min: 1, max: 4 }
+      label: { type: string, default: '' }
+    results: [harmed, fatal]
+    steps:
+      - id: place
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              level: >-
+                params.level <= 1 && harm.level1 < 2 ? 1 :
+                params.level <= 2 && harm.level2 < 2 ? 2 :
+                params.level <= 3 && harm.level3 < 1 ? 3 : 4
+      - id: mark
+        kind: changes
+        when: flags.level <= 3
+        to: self
+        changes:
+          - type: addItem
+            entry: { item: "'harm.harm'", state: { level: flags.level, label: params.label } }
+          - { type: set, field: healing.current, value: 0, when: healing.current > 0 }
+      - id: result
+        kind: outcome
+        result: "flags.level == 4 ? 'fatal' : 'harmed'"
+        data: { level: flags.level }
+
+  # On a double fill level 2 harm drops too, so no harm drops below 1.
+  - id: heal
+    tags: [harm]
+    params:
+      ticks: { type: integer, min: 0 }
+    results: [ticked, filled]
+    steps:
+      - id: fill
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              fills: floor((healing.current + params.ticks) / healing.max)
+      - id: clock
+        kind: changes
+        to: self
+        changes:
+          - { type: adjust, field: healing.current, by: params.ticks - flags.fills * healing.max }
+          - type: removeItem
+            when: flags.fills > 0
+            copies: { type: harm, where: self.level <= flags.fills }
+          - type: adjustState
+            when: flags.fills > 0
+            copies: { type: harm }
+            key: level
+            by: -flags.fills
+      - id: result
+        kind: outcome
+        result: "flags.fills > 0 ? 'filled' : 'ticked'"
+        data: { fills: flags.fills }
+
+display:
+  groups:
+    - id: harm
+      priority: 0
+    - id: armor
+      priority: 1
+  fields:
+    harm.level3: { groups: [harm], priority: 1 }
+    harm.level2: { groups: [harm], priority: 1 }
+    harm.level1: { groups: [harm], priority: 1 }
+    harm.lessEffect: { hidden: true }
+    harm.lessDice: { hidden: true }
+    harm.needHelp: { hidden: true }
+    harm.toughAsNails: { hidden: true }
+    healing.current:
+      {
+        groups: [harm],
+        priority: 0,
+        input: { widget: track },
+        with: [{ field: healing.max, as: max }],
+      }
+    healing.max: { groups: [harm], priority: 2 }
+    armor.standard: { groups: [armor], priority: 0, input: { widget: checkbox } }
+    armor.heavy: { groups: [armor], priority: 0, input: { widget: checkbox } }
+    armor.hasArmor: { hidden: true }
+    armor.hasHeavy: { hidden: true }
+    armor.special:
+      { groups: [armor], priority: 0, input: { widget: checkbox }, showWhen: armor.hasSpecial }
+    armor.hasSpecial: { hidden: true }
+    daredevil.penalty:
+      {
+        groups: [harm],
+        priority: 1,
+        input: { widget: checkbox },
+        showWhen: daredevil.penalty,
+        visibility: background,
+      }

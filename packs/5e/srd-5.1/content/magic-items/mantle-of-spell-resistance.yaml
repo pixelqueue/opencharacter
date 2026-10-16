@@ -1,0 +1,12 @@
+id: magic-items.mantle-of-spell-resistance
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  requiresAttunement: true
+effects:
+  - { target: items.spellSave, op: add, value: 1, when: self.equipped && self.attuned }
+  - target: { rolls: [save] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.equipped && self.attuned && situational.spellSave != 'none'

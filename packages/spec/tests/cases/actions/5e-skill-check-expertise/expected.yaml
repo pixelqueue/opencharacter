@@ -1,0 +1,19 @@
+# Stealth is Dexterity: 1d20 + dex 3 + proficiency 2 + proficiency 2 again (expertise).
+# 9 + 3 + 2 + 2 = 16 >= 15: success
+status: finished
+outcome:
+  result: success
+  data: { total: 16 }
+proposedChanges: []
+log:
+  - step: check
+    action: 5e-srd-5.1:skill-check
+    kind: dice
+    by: engine
+    faces: [9]
+    items:
+      - { kind: dice, value: 9 }
+      - { kind: flat, value: 3, source: { type: field, id: 5e-srd-5.1:abilities.dex.mod } }
+      - { kind: flat, value: 2, source: { type: field, id: 5e-srd-5.1:proficiency.bonus } }
+      - { kind: flat, value: 2, source: { type: field, id: 5e-srd-5.1:proficiency.bonus } }
+    total: 16

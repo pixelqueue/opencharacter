@@ -1,0 +1,17 @@
+# Health is still 4, but without the ember its burst counts as false: burst-1 goes. warm-1 is an
+# event and stays, listed without its changes, until dismissed.
+ok: true
+followUps: []
+character:
+  followUps:
+    - id: warm-1
+      followUp: test-follow-ups:charms.ember#warm
+      source: { type: item, id: test-follow-ups:charms.ember, entry: ember-1 }
+      cause:
+        field: test-follow-ups:hp.current
+        by: -6
+        requested: -6
+        taken: -6
+        reason: requested
+        clamped: false
+        tags: [damage.fire]

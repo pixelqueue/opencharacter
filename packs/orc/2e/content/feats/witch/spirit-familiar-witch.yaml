@@ -1,0 +1,21 @@
+id: feats.witch.spirit-familiar-witch
+type: feat
+tags: [trait.spirit]
+fields: { level: 8, category: class, class: classes.witch }
+prerequisites:
+  - { id: patron, when: "spellcasting.tradition == 'divine' || spellcasting.tradition == 'occult'" }
+actions:
+  - id: shed-spirit
+    tags: [class-action]
+    results: [shed]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage, damage.spirit]
+        parts: [{ dice: 'dieOf(1d6, 6 + 2 * max(0, floor((level - 7) / 2)))' }]
+      - id: result
+        kind: outcome
+        result: "'shed'"
+        data:
+          damage: steps.damage.total
+          dc: spellcasting.dc

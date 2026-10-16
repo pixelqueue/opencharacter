@@ -1,0 +1,27 @@
+id: spells.pest-form
+type: spell
+tags: [trait.concentrate, trait.manipulate, trait.polymorph, tradition.arcane, tradition.primal]
+fields:
+  rank: 1
+  cast: two
+  duration: minutes
+  durationAmount: 10
+  applyTo: self
+effects:
+  - { target: battleForm.active, op: set, value: true, scope: applied }
+  - { target: battleForm.acBase, op: set, value: 15, scope: applied }
+  - { target: battleForm.formAttacks, op: set, value: true, scope: applied }
+  - { target: battleForm.speed, op: set, value: 20, scope: applied }
+  - { target: speed.fly, op: atLeast, value: 20, when: self.rank >= 4, scope: applied }
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    stackKey: weakness
+    value: -5
+    when: >-
+      incoming.amount < 0 && ('damage.bludgeoning' in incoming.tags
+        || 'damage.piercing' in incoming.tags || 'damage.slashing' in incoming.tags)
+    scope: applied
+  - { target: skills.acrobatics.mod, op: atLeast, value: 10, scope: applied }
+  - { target: skills.stealth.mod, op: atLeast, value: 10, scope: applied }
+  - { target: skills.athletics.mod, op: set, value: -4, scope: applied }
+  - { target: speed.fly, op: atLeast, value: 20, when: self.rank >= 4, scope: applied }

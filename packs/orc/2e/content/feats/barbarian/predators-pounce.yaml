@@ -1,0 +1,35 @@
+id: feats.barbarian.predators-pounce
+type: feat
+tags: [trait.flourish, trait.rage]
+fields: { level: 12, category: class, class: classes.barbarian }
+prerequisites:
+  - { id: instinct, when: "barbarian.instinct == 'animal'" }
+actions:
+  - id: predators-pounce
+    tags: [strike]
+    available: rage.active
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags)"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.flourishes, by: 1 }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage

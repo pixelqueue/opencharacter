@@ -1,0 +1,21 @@
+description: 'A creation start must give every parameter its action requires: missing-param'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: create
+            params:
+              kind: { type: string }
+              size: { type: integer, default: 1 }
+            steps: [{ id: done, kind: outcome }]
+        creation:
+          - { id: guided, action: create }
+      content: []

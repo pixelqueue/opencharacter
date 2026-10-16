@@ -1,0 +1,11 @@
+id: invocations.agonizing-blast
+type: invocation
+prerequisites:
+  - id: spell
+    when: '@spells.eldritch-blast in spells.warlock'
+effects:
+  - target: { rolls: [damage.spell] }
+    op: add
+    value: abilities.cha.mod
+    tags: [damage.force]
+    when: roll.item.id == @spells.eldritch-blast

@@ -1,0 +1,13 @@
+description: "5E sorcerer 6 (red dragon) casts Fire Bolt with Empowered Spell: the Metamagic option added to cast-spell's metamagic step sets `metamagic` and spends 1 sorcery point, and the damage roll rerolls its low dice once"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:cast-spell, entry: sorcerer, source: 5e-srd-5.1:spells.fire-bolt }
+  params: { targetAc: 13 }
+  policy:
+    rules:
+      - { kind: choice, tags: [metamagic], then: pause }
+answers:
+  - { option: '5e-srd-5.1:features.sorcerer.metamagic#empowered' }

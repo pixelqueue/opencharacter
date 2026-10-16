@@ -1,0 +1,25 @@
+description: "FitD crew creation: a crew marks a Boat among its starting upgrades, spends both more upgrades on a gang of Rovers with an edge and a flaw, and records the factions' status"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/crew
+input:
+  action: { id: fitd-crew:create-crew }
+  policy: { dice: pause, choices: pause, allocations: pause }
+answers:
+  - option: fitd-crew:crew-abilities.just-passing-through
+  - option: fitd-crew:operations.contraband
+  - amounts: { fitd-crew:upgrades.lair.boat: 1, fitd-crew:upgrades.training.prowess: 1 }
+  - option: favor
+  - option: faction-n
+  - option: gang
+  - option: rovers
+  - option: fitd-crew:cohort-traits.tenacious
+  - option: fitd-crew:cohort-traits.unreliable
+  - option: plus1
+  - option: faction-n
+  - option: minus2
+  - option: faction-d
+  - option: closer
+  - option: faction-o
+  - option: faction-d

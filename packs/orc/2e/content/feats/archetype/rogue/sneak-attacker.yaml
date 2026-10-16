@@ -1,0 +1,21 @@
+id: feats.archetype.rogue.sneak-attacker
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.rogue }
+
+prerequisites:
+  - {
+      id: rogue-or-assassin,
+      when: '@feats.archetype.rogue.rogue-dedication in feats.held || @feats.archetype.assassin.assassin-dedication in feats.held',
+    }
+effects:
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: 'level >= 6 ? 1d6 : 1d4'
+    tags: [precision, { formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      (situational.offGuardTarget
+        || (has(participants.target) && size(participants.target) > 0
+          && participants.target[0].conditions.offGuard))
+        && (roll.item.range > 0 || 'trait.agile' in roll.item.tags
+          || 'trait.finesse' in roll.item.tags)

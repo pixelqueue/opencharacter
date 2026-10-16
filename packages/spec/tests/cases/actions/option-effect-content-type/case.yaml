@@ -1,0 +1,58 @@
+description: "A content type's option effect: every active item of the type offers it, as if each item wrote it: `item` and `self` are that item and its copy, and its ID is `<item>#<option>`. Two charms of the type each offer theirs; only the one with charges left is offered"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [pay]
+        fields:
+          stress: { type: integer, input: true, default: 0 }
+        contentTypes:
+          charm:
+            carried: true
+            fields:
+              cost: { type: integer, default: 1 }
+            state:
+              charges: { type: integer, min: 0, default: 1 }
+            # Each charm pays with one of its charges.
+            effects:
+              - target: { choices: [pay] }
+                op: option
+                when: self.charges > 0
+                value:
+                  id: spend
+                  flags: { paid: item.cost }
+                  changes:
+                    - { type: adjustState, entry: self, key: charges, by: -1 }
+        actions:
+          - id: cast
+            steps:
+              - id: setup
+                kind: branch
+                cases:
+                  - when: true
+                    flags: { paid: 0 }
+              - id: pay
+                kind: choice
+                tags: [pay]
+                options:
+                  - id: stress
+                    changes:
+                      - { type: adjust, field: stress, by: 1 }
+              - id: done
+                kind: outcome
+                data: { picked: steps.pay.picked, paid: flags.paid }
+      content:
+        - { id: charms.copper, type: charm, fields: { cost: 1 } }
+        - { id: charms.silver, type: charm, fields: { cost: 2 } }
+input:
+  action: { id: 'test-pack:cast' }
+  policy: { choices: pause }
+answers:
+  - { option: 'test-pack:charms.silver#spend' }

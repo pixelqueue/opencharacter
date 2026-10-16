@@ -1,0 +1,14 @@
+# The wolf fails its DC 13 Wisdom save (the app's answer to the handoff) and is charmed,
+# magically, by a humanoid. Nothing is spent: the cast is at will while the potion is applied.
+status: finished
+outcome:
+  result: used
+  data: { dc: 13 }
+proposedChanges:
+  - to: target
+    character: wolf
+    step: power/condition[0]
+    change:
+      type: applyEffect
+      source: 5e-srd-5.1:conditions.charmed
+      state: { by: humanoid, magical: true }

@@ -1,0 +1,24 @@
+description: "`batch.adjustments` in a change aimed at copies lists the field entries of the batch's earlier changes on the character, each with its field, amount, request, reason, clamping and tags"
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage, fire]
+        fields:
+          ward: { type: integer, input: true, default: 0, min: 0 }
+          hp: { type: integer, input: true, default: 10, min: 0, absorbedBy: [ward] }
+        contentTypes:
+          tally:
+            carried: true
+            state:
+              lost: { type: integer, default: 0 }
+              entries: { type: integer, default: 0 }
+      content:
+        - { id: tallies.wounds, type: tally }

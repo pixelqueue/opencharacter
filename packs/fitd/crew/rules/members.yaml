@@ -1,0 +1,39 @@
+# Exposed as fields because a link reads fields, not content. The crew can't reach its members, so
+# it only shows these; each scoundrel's sheet reads them.
+fields:
+  # Each dot ability adds one to the count and grants its three ratings; a member picks from all of
+  # them together, so a homebrew dot ability needs only this pack.
+  members.dotRatings: { type: set, of: string }
+  members.dotCount: { type: integer, formula: 0 }
+
+  members.resistance.dice: { type: integer, formula: 0 }
+  members.supernatural.dice: { type: integer, formula: 0 }
+  members.asset.dice: { type: integer, formula: 0 }
+  members.recovery.dice: { type: integer, formula: 0 }
+  members.gatherInfo.dice: { type: integer, formula: 0 }
+  members.siteRatings: { type: set, of: string }
+  members.prison.load: { type: integer, formula: 0 }
+  members.eliteInfo.dice: { type: integer, formula: 0 }
+  members.passing.dice: { type: integer, formula: 0 }
+  members.synchronized: { type: boolean, formula: false }
+
+display:
+  groups:
+    - id: members
+      priority: 2
+  fields:
+    members.dotCount: { groups: [members], priority: 2, showWhen: members.dotCount > 0 }
+    members.dotRatings: { groups: [members], priority: 2, showWhen: size(members.dotRatings) > 0 }
+    members.resistance.dice:
+      { groups: [members], priority: 2, showWhen: members.resistance.dice > 0 }
+    members.supernatural.dice:
+      { groups: [members], priority: 2, showWhen: members.supernatural.dice > 0 }
+    members.asset.dice: { groups: [members], priority: 2, showWhen: members.asset.dice > 0 }
+    members.recovery.dice: { groups: [members], priority: 2, showWhen: members.recovery.dice > 0 }
+    members.gatherInfo.dice:
+      { groups: [members], priority: 2, showWhen: members.gatherInfo.dice > 0 }
+    members.siteRatings: { groups: [members], priority: 2, showWhen: size(members.siteRatings) > 0 }
+    members.prison.load: { groups: [members], priority: 2, showWhen: members.prison.load > 0 }
+    members.eliteInfo.dice: { groups: [members], priority: 2, showWhen: members.eliteInfo.dice > 0 }
+    members.passing.dice: { groups: [members], priority: 2, showWhen: members.passing.dice > 0 }
+    members.synchronized: { groups: [members], priority: 2, showWhen: members.synchronized }

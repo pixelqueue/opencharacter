@@ -1,0 +1,12 @@
+id: feats.ancestry.irrepressible
+type: feat
+fields: { level: 9, category: ancestry, ancestry: ancestries.halfling }
+effects:
+  - target: { rolls: [save], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.againstEmotion
+  - target: { rolls: [save], tally: critFailToFail }
+    op: add
+    value: 1
+    when: 'situational.againstEmotion && @heritages.gutsy-halfling in heritages.held'

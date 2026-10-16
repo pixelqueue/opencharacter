@@ -1,0 +1,28 @@
+id: magic-items.potion-of-animal-friendship
+type: magicItem
+fields:
+  category: potion
+  rarity: uncommon
+  lasting: true
+  spells: [spells.animal-friendship]
+actions:
+  - use: drink-potion
+  - id: animal-friendship
+    scope: applied
+    tags: [magic-item, spell]
+    results: [used]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          save: "'wis'"
+          dc: 13
+          condition: "'conditions.charmed'"
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data: { dc: 13 }

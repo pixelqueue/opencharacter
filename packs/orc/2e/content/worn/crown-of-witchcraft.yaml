@@ -1,0 +1,15 @@
+id: worn.crown-of-witchcraft
+type: worn
+tags: [trait.focused, trait.invested, trait.magical]
+fields:
+  level: 10
+  price: 1000
+  usage: headwear
+  activation: free
+  frequency: once-per-day
+effects:
+  - target: skills.intimidation.mod
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

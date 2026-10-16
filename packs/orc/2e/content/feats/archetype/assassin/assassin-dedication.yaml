@@ -1,0 +1,46 @@
+id: feats.archetype.assassin.assassin-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.assassin }
+
+prerequisites:
+  - { id: deception, when: 'skills.deception.rank >= 1' }
+  - { id: stealth, when: 'skills.stealth.rank >= 1' }
+actions:
+  - id: mark-for-death
+    tags: [class-action]
+    participants:
+      target: { min: 1, max: 1 }
+    results: [marked]
+    steps:
+      - id: mark
+        kind: changes
+        changes:
+          - { type: set, field: assassin.mark, value: 'participants.target[0].id' }
+      - id: result
+        kind: outcome
+        result: "'marked'"
+effects:
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.druid.poison-resistance }
+  - target: { fields: { where: "'archetype-extra.at6' in item.tags" } }
+    op: grant
+    value: { item: feats.rogue.poison-weapon }
+  - target: { fields: { where: "'archetype-extra.at10' in item.tags" } }
+    op: grant
+    value: { item: feats.rogue.improved-poison-weapon }
+  - target: { fields: { where: "'archetype-extra.at6' in item.tags" } }
+    op: grant
+    value: { item: feats.archetype.rogue.sneak-attacker }
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: 'sneakAttack.dice > 0 ? (level >= 6 ? 2 : 1) : level >= 6 ? 1d6 : 1d4'
+    tags: [precision, { formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      assassin.mark != '' && has(participants.target) && size(participants.target) > 0
+        && participants.target[0].id == assassin.mark
+        && (situational.offGuardTarget || participants.target[0].conditions.offGuard
+          || sneakAttack.dice > 0)
+        && (roll.item.range > 0 || 'trait.agile' in roll.item.tags
+          || 'trait.finesse' in roll.item.tags)

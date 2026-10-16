@@ -1,0 +1,8 @@
+id: classes.rogue.evasive-reflexes
+type: feature
+fields: { level: 7 }
+effects:
+  - { target: saves.reflex.rank, op: atLeast, value: 3 }
+  - target: { rolls: [save.reflex], tally: successToCrit }
+    op: add
+    value: 1

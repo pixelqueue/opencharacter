@@ -1,0 +1,26 @@
+description: "applyTemplate evaluates the template's own formula state defaults with the copy's item, its new templates included, and saves them; a value already saved is kept"
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        templateFields:
+          maxCharges: { type: integer, min: 0 }
+        contentTypes:
+          gear:
+            carried: true
+      content:
+        - { id: gear.rod, type: gear }
+        - id: charged
+          type: template
+          appliesTo: { type: gear }
+          fields: { maxCharges: 3 }
+          state:
+            charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+            glow: { type: integer, default: item.maxCharges * 2 }

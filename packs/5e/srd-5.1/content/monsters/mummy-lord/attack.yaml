@@ -1,0 +1,37 @@
+id: monsters.mummy-lord.attack
+type: monsterAction
+fields:
+  kind: legendary
+  legendaryCost: 1
+actions:
+  - id: attack
+    tags: [legendary]
+    participants:
+      target: { max: 1 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: fist }, { id: glare }]
+        recommend: "'fist'"
+      - id: rottingFist
+        kind: action
+        when: "steps.form.picked == 'fist'"
+        use: monster-attack
+        source: "'monsters.mummy-lord.rotting-fist'"
+        participants:
+          target: participants.target
+      - id: dreadfulGlare
+        kind: action
+        when: "steps.form.picked == 'glare'"
+        use: monster-effect
+        source: "'monsters.mummy-lord.dreadful-glare'"
+        participants:
+          target: 'size(participants.target) >= 1 ? [participants.target[0].id] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.rottingFist) && steps.rottingFist.result == 'hit' ? 1 : 0)
+              + (has(steps.dreadfulGlare) && steps.dreadfulGlare.result == 'hit' ? 1 : 0)

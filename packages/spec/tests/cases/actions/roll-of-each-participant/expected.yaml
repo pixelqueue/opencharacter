@@ -1,0 +1,25 @@
+# 15 + 2 = 17: a critical success against 7 (17 >= 17), a critical success against 16 (a
+# success the tally raises), a failure against 18. The nested roll has no DC: rolled.
+status: finished
+outcome:
+  result: rolled
+  data: { bands: [critical-success, critical-success, failure], totals: [17, 17, 17] }
+log:
+  - { step: check/roll, kind: dice, by: engine, faces: [15], total: 17, band: rolled }
+  - {
+      step: 'against[0]',
+      kind: dice,
+      by: engine,
+      of: check/roll,
+      total: 17,
+      band: critical-success,
+    }
+  - {
+      step: 'against[1]',
+      kind: dice,
+      by: engine,
+      of: check/roll,
+      total: 17,
+      band: critical-success,
+    }
+  - { step: 'against[2]', kind: dice, by: engine, of: check/roll, total: 17, band: failure }

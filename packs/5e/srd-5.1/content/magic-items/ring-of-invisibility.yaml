@@ -1,0 +1,19 @@
+id: magic-items.ring-of-invisibility
+type: magicItem
+fields:
+  category: ring
+  rarity: legendary
+  requiresAttunement: true
+state:
+  invisible: { type: boolean, default: false }
+effects:
+  - {
+      target: conditions.invisible,
+      op: set,
+      value: true,
+      when: self.equipped && self.attuned && self.invisible,
+    }
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.equipped && self.attuned && self.invisible

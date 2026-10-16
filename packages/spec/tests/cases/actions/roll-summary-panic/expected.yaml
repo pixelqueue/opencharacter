@@ -1,0 +1,15 @@
+# `roll.total > stress.current` with stress 4: "roll over 4". The panic check sets no flags.
+status: paused
+needs:
+  step: panic
+  action: mothership-1e:panic-check
+  kind: dice
+  summary:
+    bandSet: mothership-1e:panic
+    bands:
+      - band: pass
+        when: 'roll.total > 4'
+        tests: [{ of: roll.total, compare: gt, value: 4 }]
+      - { band: panic, when: 'true', tests: [] }
+    flags: {}
+log: []

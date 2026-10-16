@@ -1,0 +1,73 @@
+# An orc-2e character: a 1st-level gutsy halfling thief rogue with a
+# criminal background, a rapier, a dagger and a shortbow, in leather armor.
+#
+# Boosts: the halfling's Dexterity and Wisdom (Strength flaw) and a free Constitution, the
+# criminal's Dexterity and a free Intelligence, the rogue's Dexterity, and four free (Dexterity,
+# Constitution, Intelligence, Charisma): Str -1, Dex +4, Con +2, Int +2, Wis +1, Cha +1. Trained
+# skills: Stealth and Underworld Lore (criminal), Stealth again (rogue, which frees a training:
+# Medicine), Thievery (thief), and nine more (7 + Intelligence +2). Two more languages.
+specVersion: 0.1.0
+id: example-orc-pip
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:hp.current: 16
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.halfling
+    choices:
+      heritage:
+        - option: orc-2e:heritages.gutsy-halfling
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-2e:boosts.con
+  - id: background
+    item: orc-2e:backgrounds.criminal
+    choices:
+      boost:
+        - option: orc-2e:boosts.dex
+      free-boost:
+        - option: orc-2e:boosts.int
+  - id: class
+    item: orc-2e:classes.rogue
+    choices:
+      racket:
+        - option: orc-2e:classes.rogue.rackets.thief
+      key-attribute:
+        - option: dex
+      skills:
+        - option: skill.acrobatics
+        - option: skill.athletics
+        - option: skill.deception
+        - option: skill.diplomacy
+        - option: skill.intimidation
+        - option: skill.occultism
+        - option: skill.performance
+        - option: skill.society
+        - option: skill.survival
+      class-feat-1:
+        - option: orc-2e:feats.rogue.twin-feint
+      skill-feat-1:
+        - option: orc-2e:feats.skill.steady-balance
+inventory:
+  - { id: rapier, item: orc-2e:weapons.rapier, equipped: true }
+  - { id: dagger, item: orc-2e:weapons.dagger, equipped: true }
+  - { id: shortbow, item: orc-2e:weapons.shortbow }
+  - { id: armor, item: orc-2e:armor.leather-armor, equipped: true }
+  - { id: backpack, item: orc-2e:gear.backpack }
+  - { id: rope, item: orc-2e:gear.rope }
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.int
+    - option: orc-2e:boosts.cha
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.halfling-luck
+  languages:
+    - option: orc-2e:languages.elven
+    - option: orc-2e:languages.gnomish
+  extra-training:
+    - option: skill.medicine

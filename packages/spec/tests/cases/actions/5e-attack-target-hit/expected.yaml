@@ -1,0 +1,42 @@
+# As 5e-attack-hit: attack 12 + 4 + 2 + 1 + 3 (Bless) = 22 against the goblin's AC 15: a hit.
+# Damage 6 + 4 + 2 + 1 = 13 slashing, proposed to goblin-2.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 22 }
+proposedChanges:
+  - {
+      to: target,
+      character: goblin-2,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -13,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              magical,
+              plain-material,
+              wielder.neutral,
+              damage.slashing,
+            ],
+        },
+    }
+log:
+  - step: attack
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [12, 3]
+    total: 22
+  - step: damage
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [6]
+    total: 13

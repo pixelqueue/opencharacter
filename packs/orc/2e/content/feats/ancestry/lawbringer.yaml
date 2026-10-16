@@ -1,0 +1,14 @@
+id: feats.ancestry.lawbringer
+type: feat
+tags: [trait.lineage]
+fields: { level: 1, category: ancestry, heritage: heritages.nephilim }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: situational.againstEmotion
+  - target: { rolls: [save], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.againstEmotion

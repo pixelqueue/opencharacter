@@ -1,0 +1,16 @@
+id: runes.greater-brilliant
+type: template
+tags: [trait.magical, rune.property]
+appliesTo: { type: weapon }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + 24000'
+effects:
+  - target: { rolls: [damage.strike], from: self }
+    op: add
+    value: 1d4
+    tags: [damage.fire]
+  - target: { rolls: [damage.strike], from: self }
+    op: add
+    value: 1d4
+    tags: [damage.vitality]
+    when: situational.undeadTarget

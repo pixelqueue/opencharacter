@@ -1,0 +1,11 @@
+description: "5E Dragon Slayer against a target whose view says it is a dragon: 3d6 more of the sword's damage type"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: sword }
+  participants:
+    target:
+      - id: wyrmling
+        values: { 5e-srd-5.1:combat.ac: 17, 5e-srd-5.1:creature.type: dragon }

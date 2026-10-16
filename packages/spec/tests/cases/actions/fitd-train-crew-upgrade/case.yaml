@@ -1,0 +1,12 @@
+description: "FitD training with a linked crew: the crew's Prowess training gives 2 xp, whatever the `upgrade` parameter says"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:train }
+  params: { track: prowess, upgrade: false }
+  links:
+    fitd-scoundrel:crew:
+      id: crew-1
+      values: { fitd-crew:upgrades.training.prowess: 1 }

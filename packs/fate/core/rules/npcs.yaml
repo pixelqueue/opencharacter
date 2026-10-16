@@ -1,0 +1,38 @@
+# Supporting NPCs' skills aren't held to the columns: the SRD's own examples break them.
+fields:
+  npc.kind:
+    { type: enum, values: [player, main, supporting, nameless], input: true, default: player }
+  npc.moderate: { type: boolean, input: true, default: false }
+  mob.size: { type: integer, input: true, default: 1, min: 1 }
+  npc.stressBoxes:
+    { type: integer, formula: "npc.kind == 'nameless' ? min(2, max(0, pyramid.highest - 1)) : 0" }
+
+effects:
+  - id: mob-teamwork
+    target: { rolls: [skill-roll] }
+    op: add
+    value: mob.size - 1
+    when: "npc.kind == 'nameless' && mob.size > 1"
+
+constraints:
+  - id: nameless-skills
+    check: "npc.kind != 'nameless' || pyramid.highest <= 3"
+  - id: mob-nameless
+    check: "npc.kind == 'nameless' || mob.size == 1"
+
+display:
+  groups:
+    - id: npc
+      priority: 2
+  fields:
+    npc.kind: { groups: [npc], priority: 1, input: { widget: select } }
+    npc.moderate:
+      {
+        groups: [npc],
+        priority: 1,
+        input: { widget: checkbox },
+        showWhen: "npc.kind == 'supporting'",
+      }
+    mob.size:
+      { groups: [npc], priority: 0, input: { widget: number }, showWhen: "npc.kind == 'nameless'" }
+    npc.stressBoxes: { hidden: true }

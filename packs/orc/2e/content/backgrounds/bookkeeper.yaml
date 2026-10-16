@@ -1,0 +1,21 @@
+id: backgrounds.bookkeeper
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.society }
+    when: "!('skill.society' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.accounting }
+    when: "!('skill.lore.accounting' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.eye-for-numbers
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['int', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

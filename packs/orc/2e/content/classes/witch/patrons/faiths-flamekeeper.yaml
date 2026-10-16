@@ -1,0 +1,16 @@
+id: classes.witch.patrons.faiths-flamekeeper
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: witch.patron, op: set, value: "'faiths-flamekeeper'" }
+  - { target: spellcasting.tradition, op: set, value: "'divine'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.religion },
+      when: "!('skill.religion' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.book, op: grant, value: { item: spells.command } }
+grants:
+  - item: spells.stoke-the-heart

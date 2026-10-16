@@ -1,0 +1,942 @@
+# A monster's stat block numbers (to hit, damage, DC) are its fields as printed, not recomputed.
+
+tags:
+  - monster-effect
+  - legendary
+
+contentTypes:
+  monster:
+    carried: false
+    fields:
+      size: { type: enum, values: [tiny, small, medium, large, huge, gargantuan], required: true }
+      creatureType:
+        {
+          type: enum,
+          values:
+            [
+              aberration,
+              beast,
+              celestial,
+              construct,
+              dragon,
+              elemental,
+              fey,
+              fiend,
+              giant,
+              humanoid,
+              monstrosity,
+              ooze,
+              plant,
+              undead,
+            ],
+          required: true,
+        }
+      subtype:
+        {
+          type: enum,
+          values:
+            [
+              any-race,
+              demon,
+              devil,
+              dwarf,
+              elf,
+              gnoll,
+              gnome,
+              goblinoid,
+              grimlock,
+              human,
+              kobold,
+              lizardfolk,
+              merfolk,
+              orc,
+              sahuagin,
+              titan,
+            ],
+        }
+      shapechanger: { type: boolean }
+      swarm: { type: boolean }
+      alignment:
+        {
+          type: enum,
+          values:
+            [
+              lawful-good,
+              neutral-good,
+              chaotic-good,
+              lawful-neutral,
+              neutral,
+              chaotic-neutral,
+              lawful-evil,
+              neutral-evil,
+              chaotic-evil,
+              unaligned,
+              any,
+              any-chaotic,
+              any-evil,
+              any-non-good,
+              any-non-lawful,
+              neutral-good-or-evil,
+            ],
+          required: true,
+        }
+      # Worn armor is listed for the app, not equipped: the printed AC already counts it.
+      ac: { type: integer, required: true }
+      armor: { type: set, of: armor, default: [] }
+      naturalArmor: { type: boolean }
+      hp: { type: integer, required: true, min: 1 }
+      hitDice: { type: dice, required: true }
+      speed: { type: integer, required: true, min: 0 }
+      flySpeed: { type: integer, min: 0 }
+      climbSpeed: { type: integer, min: 0 }
+      swimSpeed: { type: integer, min: 0 }
+      burrowSpeed: { type: integer, min: 0 }
+      hover: { type: boolean }
+      '{ability}': { type: integer, required: true, min: 1, max: 30 }
+      saves: { type: set, of: tag, default: [], members: { under: [save], except: [save.death] } }
+      skills: { type: set, of: tag, default: [], members: { under: [skill] } }
+      expertise: { type: set, of: tag, default: [], members: { under: [skill] } }
+      damageResistances: &damage-defense
+        type: set
+        of: tag
+        default: []
+        members: &damage-members
+          under: [damage]
+          tags:
+            [
+              spell,
+              nonmagical,
+              nonmagical-unsilvered,
+              nonmagical-not-adamantine,
+              piercing-slashing-not-adamantine,
+              piercing-magic-weapon-by-good,
+            ]
+          except: [damage.weapon, damage.spell]
+      damageImmunities: *damage-defense
+      damageVulnerabilities: *damage-defense
+      conditionImmunities: { type: set, of: condition, default: [] }
+      exhaustionImmune: { type: boolean }
+      darkvision: { type: integer, min: 0 }
+      blindsight: { type: integer, min: 0 }
+      blindBeyond: { type: boolean }
+      tremorsense: { type: integer, min: 0 }
+      truesight: { type: integer, min: 0 }
+      languages: { type: set, of: language, default: [] }
+      understands: { type: set, of: language, default: [] }
+      languagesNote:
+        {
+          type: enum,
+          values:
+            [
+              knew-in-life,
+              understands-knew-in-life,
+              understands-creator,
+              creator-one,
+              understands-commands,
+              any-one,
+              any-two,
+              any-four,
+              any-six,
+              up-to-five,
+              all,
+            ],
+        }
+      telepathy: { type: integer, min: 0 }
+      cr: { type: decimal, required: true, min: 0, max: 30 }
+      xp: { type: integer, min: 0 }
+      legendaryActions: { type: integer, min: 1 }
+      ownCopies: { type: set, of: monsterAction, default: [] }
+      innateOncePerDay: { type: set, of: spell, default: [] }
+      innateTwicePerDay: { type: set, of: spell, default: [] }
+      innateThricePerDay: { type: set, of: spell, default: [] }
+      startingForm: { type: string }
+    effects:
+      - { id: ac, target: combat.ac, op: set, value: item.ac }
+      - id: fly
+        target: combat.flySpeed
+        op: atLeast
+        value: item.flySpeed
+        when: has(item.flySpeed)
+      - id: climb
+        target: combat.climbSpeed
+        op: atLeast
+        value: item.climbSpeed
+        when: has(item.climbSpeed)
+      - id: swim
+        target: combat.swimSpeed
+        op: atLeast
+        value: item.swimSpeed
+        when: has(item.swimSpeed)
+      - id: burrow
+        target: combat.burrowSpeed
+        op: atLeast
+        value: item.burrowSpeed
+        when: has(item.burrowSpeed)
+      - id: hover
+        target: combat.hover
+        op: set
+        value: true
+        when: has(item.hover) && item.hover
+      - id: darkvision
+        target: senses.darkvision
+        op: atLeast
+        value: item.darkvision
+        when: has(item.darkvision)
+      - id: blindsight
+        target: senses.blindsight
+        op: atLeast
+        value: item.blindsight
+        when: has(item.blindsight)
+      - id: tremorsense
+        target: senses.tremorsense
+        op: atLeast
+        value: item.tremorsense
+        when: has(item.tremorsense)
+      - id: truesight
+        target: senses.truesight
+        op: atLeast
+        value: item.truesight
+        when: has(item.truesight)
+      - id: telepathy
+        target: senses.telepathy
+        op: atLeast
+        value: item.telepathy
+        when: has(item.telepathy)
+      - id: xp
+        target: challenge.xp
+        op: set
+        value: item.xp
+        when: has(item.xp)
+      - id: legendary
+        target: legendary.actions
+        op: set
+        value: item.legendaryActions
+        when: has(item.legendaryActions)
+      - { id: str-max, target: abilities.str.max, op: atLeast, value: 30 }
+      - { id: dex-max, target: abilities.dex.max, op: atLeast, value: 30 }
+      - { id: con-max, target: abilities.con.max, op: atLeast, value: 30 }
+      - { id: int-max, target: abilities.int.max, op: atLeast, value: 30 }
+      - { id: wis-max, target: abilities.wis.max, op: atLeast, value: 30 }
+      - { id: cha-max, target: abilities.cha.max, op: atLeast, value: 30 }
+    actions:
+      - use: change-form
+
+  monsterSpellcasting:
+    carried: false
+    fields:
+      ability: { type: enum, values: [str, dex, con, int, wis, cha], required: true }
+      dc: { type: integer }
+      attack: { type: integer }
+      level: { type: integer, min: 1, max: 20 }
+      innate: { type: boolean }
+      slots1: { type: integer, min: 0 }
+      slots2: { type: integer, min: 0 }
+      slots3: { type: integer, min: 0 }
+      slots4: { type: integer, min: 0 }
+      slots5: { type: integer, min: 0 }
+      slots6: { type: integer, min: 0 }
+      slots7: { type: integer, min: 0 }
+      slots8: { type: integer, min: 0 }
+      slots9: { type: integer, min: 0 }
+    effects:
+      - target: spellcasting.monster.ability
+        op: set
+        value: item.ability
+      - target: spellcasting.monster.mod
+        op: set
+        value: >-
+          item.ability == 'str' ? abilities.str.mod : item.ability == 'dex' ? abilities.dex.mod
+            : item.ability == 'con' ? abilities.con.mod : item.ability == 'int' ? abilities.int.mod
+            : item.ability == 'wis' ? abilities.wis.mod : abilities.cha.mod
+      - target: spellcasting.monster.dc
+        op: set
+        value: 'has(item.dc) ? item.dc : 8 + proficiency.bonus + spellcasting.monster.mod'
+      - target: spellcasting.monster.attack
+        op: set
+        value: 'has(item.attack) ? item.attack : proficiency.bonus + spellcasting.monster.mod'
+      - { target: spellcasting.monster.level, op: set, value: item.level, when: has(item.level) }
+      - { target: spellSlots.level1.max, op: set, value: item.slots1, when: has(item.slots1) }
+      - { target: spellSlots.level2.max, op: set, value: item.slots2, when: has(item.slots2) }
+      - { target: spellSlots.level3.max, op: set, value: item.slots3, when: has(item.slots3) }
+      - { target: spellSlots.level4.max, op: set, value: item.slots4, when: has(item.slots4) }
+      - { target: spellSlots.level5.max, op: set, value: item.slots5, when: has(item.slots5) }
+      - { target: spellSlots.level6.max, op: set, value: item.slots6, when: has(item.slots6) }
+      - { target: spellSlots.level7.max, op: set, value: item.slots7, when: has(item.slots7) }
+      - { target: spellSlots.level8.max, op: set, value: item.slots8, when: has(item.slots8) }
+      - { target: spellSlots.level9.max, op: set, value: item.slots9, when: has(item.slots9) }
+
+  monsterAction:
+    carried: false
+    fields:
+      kind:
+        { type: enum, values: [action, bonus-action, reaction, legendary, trait], default: action }
+      legendaryCost: { type: integer, min: 1 }
+      attack: { type: enum, values: [melee, ranged] }
+      spell: { type: boolean }
+      toHit: { type: integer }
+      reach: { type: integer } # feet
+      normalRange: { type: integer } # feet
+      longRange: { type: integer } # feet
+      damage: { type: dice }
+      damageType:
+        {
+          type: enum,
+          values:
+            [
+              acid,
+              bludgeoning,
+              cold,
+              fire,
+              force,
+              lightning,
+              necrotic,
+              piercing,
+              poison,
+              psychic,
+              radiant,
+              slashing,
+              thunder,
+            ],
+        }
+      versatileDamage: { type: dice }
+      damage2: { type: dice }
+      damage2Type:
+        {
+          type: enum,
+          values:
+            [
+              acid,
+              bludgeoning,
+              cold,
+              fire,
+              force,
+              lightning,
+              necrotic,
+              piercing,
+              poison,
+              psychic,
+              radiant,
+              slashing,
+              thunder,
+            ],
+        }
+      magical: { type: boolean }
+      save: { type: enum, values: [str, dex, con, int, wis, cha] }
+      saveDc: { type: integer }
+      saveDamage: { type: dice }
+      saveDamageType:
+        {
+          type: enum,
+          values:
+            [
+              acid,
+              bludgeoning,
+              cold,
+              fire,
+              force,
+              lightning,
+              necrotic,
+              piercing,
+              poison,
+              psychic,
+              radiant,
+              slashing,
+              thunder,
+            ],
+        }
+      saveEffect: { type: enum, values: [half, none], default: none }
+      condition: { type: id, of: condition }
+      areaShape: { type: enum, values: [cone, cube, cylinder, line, sphere] }
+      areaSize: { type: integer } # feet
+      recharge: { type: integer, min: 2, max: 6 }
+      perDay: { type: integer, min: 1 }
+      perRest: { type: boolean }
+    state:
+      recharging: { type: boolean, default: false }
+      usesLeft: { type: integer, min: 0, default: 'has(item.perDay) ? item.perDay : 1' }
+    actions:
+      - use: monster-attack
+      - use: monster-effect
+      - use: recharge
+      - use: legendary-action
+      - use: use-monster-action
+
+fields:
+  sheet.monster: { type: boolean, formula: "countCopies(copy.type == 'monster') > 0" }
+  challenge.xp:
+    type: integer
+    formula: >-
+      challenge.rating == 0 ? 10 : challenge.rating <= 0.125 ? 25 : challenge.rating <= 0.25 ? 50
+        : challenge.rating <= 0.5 ? 100
+        : [200, 450, 700, 1100, 1800, 2300, 2900, 3900, 5000, 5900, 7200, 8400, 10000, 11500,
+          13000, 15000, 18000, 20000, 22000, 25000, 33000, 41000, 50000, 62000, 75000, 90000,
+          105000, 120000, 135000, 155000][min(29, floor(challenge.rating) - 1)]
+  creature.form: { type: string, formula: "''" }
+  combat.burrowSpeed: { type: integer, formula: 0, min: 0 }
+  combat.hover: { type: boolean, formula: false }
+  senses.blindsight: { type: integer, formula: 0, min: 0 }
+  senses.tremorsense: { type: integer, formula: 0, min: 0 }
+  senses.truesight: { type: integer, formula: 0, min: 0 }
+  senses.telepathy: { type: integer, formula: 0, min: 0 }
+  damage.resistances: { type: set, of: tag, input: true, default: [], members: *damage-members }
+  damage.immunities: { type: set, of: tag, input: true, default: [], members: *damage-members }
+  damage.vulnerabilities: { type: set, of: tag, input: true, default: [], members: *damage-members }
+  # Exhaustion is a field, so it can't be in `conditions.immunities`.
+  conditions.exhaustionImmune: { type: boolean, input: true, default: false }
+  spellcasting.monster.ability:
+    { type: enum, values: [none, str, dex, con, int, wis, cha], formula: "'none'" }
+  spellcasting.monster.level: { type: integer, formula: 0, min: 0 }
+  spells.monsterAtWill: { type: set, of: spell }
+  legendary.actions: { type: integer, formula: 0, min: 0 }
+  legendary.spent: { type: integer, input: true, default: 0, min: 0 }
+
+effects:
+  # Immunity first: a multiplier of 0 leaves nothing for the others to change.
+  - id: damage-immunity
+    target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: multiply
+    value: 0
+    when: >-
+      countList(damage.immunities, x != 'nonmagical' && x in incoming.tags) > 0
+        || ('nonmagical' in incoming.tags
+          && (('nonmagical' in damage.immunities
+              || ('nonmagical-unsilvered' in damage.immunities && !('silvered' in incoming.tags))
+              || ('nonmagical-not-adamantine' in damage.immunities && !('adamantine' in incoming.tags)))
+            && countList(['damage.bludgeoning', 'damage.piercing', 'damage.slashing'],
+              x in incoming.tags) > 0
+          || ('piercing-slashing-not-adamantine' in damage.immunities && !('adamantine' in incoming.tags)
+            && countList(['damage.piercing', 'damage.slashing'], x in incoming.tags) > 0)))
+        || ('piercing-magic-weapon-by-good' in damage.immunities && 'damage.piercing' in incoming.tags
+          && 'magical' in incoming.tags && 'weapon' in incoming.tags
+          && 'wielder.good' in incoming.tags)
+  - id: damage-resistance
+    target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: multiply
+    value: 0.5
+    when: >-
+      countList(damage.resistances, x != 'nonmagical' && x in incoming.tags) > 0
+        || ('nonmagical' in incoming.tags
+          && (('nonmagical' in damage.resistances
+              || ('nonmagical-unsilvered' in damage.resistances && !('silvered' in incoming.tags))
+              || ('nonmagical-not-adamantine' in damage.resistances && !('adamantine' in incoming.tags)))
+            && countList(['damage.bludgeoning', 'damage.piercing', 'damage.slashing'],
+              x in incoming.tags) > 0
+          || ('piercing-slashing-not-adamantine' in damage.resistances && !('adamantine' in incoming.tags)
+            && countList(['damage.piercing', 'damage.slashing'], x in incoming.tags) > 0)))
+        || ('piercing-magic-weapon-by-good' in damage.resistances && 'damage.piercing' in incoming.tags
+          && 'magical' in incoming.tags && 'weapon' in incoming.tags
+          && 'wielder.good' in incoming.tags)
+  - id: damage-vulnerability
+    target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: multiply
+    value: 2
+    when: >-
+      countList(damage.vulnerabilities, x != 'nonmagical' && x in incoming.tags) > 0
+        || ('nonmagical' in incoming.tags
+          && (('nonmagical' in damage.vulnerabilities
+              || ('nonmagical-unsilvered' in damage.vulnerabilities && !('silvered' in incoming.tags))
+              || ('nonmagical-not-adamantine' in damage.vulnerabilities && !('adamantine' in incoming.tags)))
+            && countList(['damage.bludgeoning', 'damage.piercing', 'damage.slashing'],
+              x in incoming.tags) > 0
+          || ('piercing-slashing-not-adamantine' in damage.vulnerabilities && !('adamantine' in incoming.tags)
+            && countList(['damage.piercing', 'damage.slashing'], x in incoming.tags) > 0)))
+        || ('piercing-magic-weapon-by-good' in damage.vulnerabilities && 'damage.piercing' in incoming.tags
+          && 'magical' in incoming.tags && 'weapon' in incoming.tags
+          && 'wielder.good' in incoming.tags)
+  - id: exhaustion-immunity
+    target: conditions.exhaustion
+    op: atMost
+    value: 0
+    when: conditions.exhaustionImmune
+
+creation:
+  - { id: monster, action: create-monster }
+
+actions:
+  - id: create-monster
+    tags: [creation]
+    available: character.creating
+    params:
+      monster: { type: id, of: monster, optional: true }
+    results: [created]
+    steps:
+      - id: monster
+        kind: choice
+        options:
+          content:
+            type: monster
+            where: '!has(params.monster) || item.id == params.monster'
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { id: monster, item: picked.id }
+      - id: hp
+        kind: choice
+        options: [{ id: average }, { id: roll }]
+        recommend: "'average'"
+      - id: roll
+        kind: roll
+        when: "steps.hp.picked == 'roll'"
+        tags: [creation]
+        parts: [{ dice: steps.monster.item.hitDice }]
+      - id: stats
+        kind: changes
+        changes:
+          - { type: set, field: abilities.str.base, value: steps.monster.item.str }
+          - { type: set, field: abilities.dex.base, value: steps.monster.item.dex }
+          - { type: set, field: abilities.con.base, value: steps.monster.item.con }
+          - { type: set, field: abilities.int.base, value: steps.monster.item.int }
+          - { type: set, field: abilities.wis.base, value: steps.monster.item.wis }
+          - { type: set, field: abilities.cha.base, value: steps.monster.item.cha }
+          - { type: set, field: challenge.rating, value: steps.monster.item.cr }
+          - { type: set, field: creature.size, value: steps.monster.item.size }
+          - { type: set, field: creature.type, value: steps.monster.item.creatureType }
+          - { type: set, field: creature.alignment, value: steps.monster.item.alignment }
+          - { type: set, field: combat.speed, value: steps.monster.item.speed }
+          - type: set
+            field: proficiencies.saves
+            value: steps.monster.item.saves
+            when: size(steps.monster.item.saves) > 0
+          - type: set
+            field: proficiencies.skills
+            value: steps.monster.item.skills
+            when: size(steps.monster.item.skills) > 0
+          - type: set
+            field: proficiencies.expertise
+            value: steps.monster.item.expertise
+            when: size(steps.monster.item.expertise) > 0
+          - type: set
+            field: proficiencies.languages
+            value: steps.monster.item.languages
+            when: size(steps.monster.item.languages) > 0
+          - type: set
+            field: conditions.immunities
+            value: steps.monster.item.conditionImmunities
+            when: size(steps.monster.item.conditionImmunities) > 0
+          - type: set
+            field: conditions.exhaustionImmune
+            value: true
+            when: has(steps.monster.item.exhaustionImmune) && steps.monster.item.exhaustionImmune
+          - type: set
+            field: damage.resistances
+            value: steps.monster.item.damageResistances
+            when: size(steps.monster.item.damageResistances) > 0
+          - type: set
+            field: damage.immunities
+            value: steps.monster.item.damageImmunities
+            when: size(steps.monster.item.damageImmunities) > 0
+          - type: set
+            field: damage.vulnerabilities
+            value: steps.monster.item.damageVulnerabilities
+            when: size(steps.monster.item.damageVulnerabilities) > 0
+          - type: set
+            field: hp.base
+            value: "steps.hp.picked == 'roll' ? max(1, steps.roll.total) : steps.monster.item.hp"
+          - type: set
+            field: hp.current
+            value: "steps.hp.picked == 'roll' ? max(1, steps.roll.total) : steps.monster.item.hp"
+      - id: ownCopies
+        kind: changes
+        changes:
+          - type: choose
+            when: has(steps.monster.item.startingForm)
+            path: { entry: monster, choice: [form] }
+            option: steps.monster.item.startingForm
+          - type: addItem
+            forEach: steps.monster.item.ownCopies
+            entry: { item: x }
+          - type: addItem
+            forEach: steps.monster.item.innateOncePerDay
+            entry:
+              item: "'monster-actions.innate-spell'"
+              state: { perDay: 1, usesLeft: 1 }
+              choices: { spell: [{ option: { formula: x } }] }
+          - type: addItem
+            forEach: steps.monster.item.innateTwicePerDay
+            entry:
+              item: "'monster-actions.innate-spell'"
+              state: { perDay: 2, usesLeft: 2 }
+              choices: { spell: [{ option: { formula: x } }] }
+          - type: addItem
+            forEach: steps.monster.item.innateThricePerDay
+            entry:
+              item: "'monster-actions.innate-spell'"
+              state: { perDay: 3, usesLeft: 3 }
+              choices: { spell: [{ option: { formula: x } }] }
+      - id: finish
+        kind: changes
+        changes:
+          - { type: finishCreation }
+      - id: result
+        kind: outcome
+        result: "'created'"
+        data:
+          hp: "steps.hp.picked == 'roll' ? max(1, steps.roll.total) : steps.monster.item.hp"
+
+  - id: monster-attack
+    tags: [attack]
+    available: >-
+      has(item.toHit) && (!has(item.recharge) || !self.recharging)
+        && (!has(item.perDay) && !(has(item.perRest) && item.perRest) || self.usesLeft > 0)
+    params:
+      targetAc: { type: integer, optional: true }
+      twoHanded: { type: boolean, default: false }
+      thrown: { type: boolean, default: false }
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [hit, miss, retarget]
+    steps:
+      - id: sanctuary
+        kind: action
+        when: >-
+          size(participants.target) > 0
+            && (participants.target[0].sanctuary.dc > 0
+              || (participants.target[0].sanctuary.beastsAndPlantsDc > 0
+                && creature.type in ['beast', 'plant']))
+        use: saving-throw
+        params:
+          ability: "'wis'"
+          dc: >-
+            max(participants.target[0].sanctuary.dc, creature.type in ['beast', 'plant']
+              ? participants.target[0].sanctuary.beastsAndPlantsDc : 0)
+      - id: retarget
+        kind: outcome
+        when: has(steps.sanctuary) && steps.sanctuary.result == 'failure'
+        result: "'retarget'"
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              range: "params.thrown && has(item.normalRange) ? 'ranged' : item.attack"
+              crit: combat.critRange
+              ac: >-
+                size(participants.target) > 0 && (params.thrown && has(item.normalRange) ? 'ranged' : item.attack) == 'ranged'
+                    && has(participants.target[0].combat.rangedAc)
+                  ? participants.target[0].combat.rangedAc
+                : size(participants.target) > 0 && has(participants.target[0].combat.ac)
+                  ? participants.target[0].combat.ac
+                : has(params.targetAc) ? params.targetAc : -1
+      - id: attack
+        kind: roll
+        tags:
+          - d20-test
+          - {
+              formula: "(has(item.spell) && item.spell ? 'attack.spell.' : 'attack.') + flags.range",
+            }
+        bands: attack
+        parts:
+          - dice: 1d20
+          - value: item.toHit
+      - id: hit
+        kind: branch
+        cases:
+          - when: steps.attack.band == 'critical'
+            flags: { hit: true, critical: true }
+          - when: steps.attack.band == 'hit'
+            flags: { hit: true, critical: false }
+          - when: steps.attack.band != 'rolled'
+            flags: { hit: false, critical: false }
+        else:
+          flags: { hit: false, critical: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options: [{ id: hit }, { id: miss }]
+      - id: landed
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              landed: flags.hit || (has(steps.confirm) && steps.confirm.picked == 'hit')
+      - id: damage
+        kind: roll
+        when: flags.landed && has(item.damage)
+        tags: [{ formula: "has(item.spell) && item.spell ? 'damage.spell' : 'damage.weapon'" }]
+        parts:
+          - dice: >-
+              params.twoHanded && has(item.versatileDamage) ? item.versatileDamage : item.damage
+            tags: [{ formula: "'damage.' + item.damageType" }]
+          - dice: 'has(item.damage2) ? item.damage2 : 0'
+            when: has(item.damage2)
+            tags: [{ formula: "'damage.' + item.damage2Type" }]
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags:
+              - damage
+              - attack
+              - { formula: flags.range }
+              - { formula: "has(item.spell) && item.spell ? 'spell' : 'weapon'" }
+              - formula: >-
+                  (has(item.spell) && item.spell) || (has(item.magical) && item.magical)
+                    ? 'magical' : 'nonmagical'
+              - formula: >-
+                  creature.alignment in ['lawful-good', 'neutral-good', 'chaotic-good'] ? 'wielder.good'
+                    : creature.alignment in ['lawful-evil', 'neutral-evil', 'chaotic-evil', 'any-evil']
+                      ? 'wielder.evil' : 'wielder.neutral'
+      # Rolled once, not doubled by a critical hit (the roll isn't a `damage` roll).
+      - id: saves
+        kind: action
+        when: flags.landed && has(item.saveDc)
+        each: target
+        as: participant
+        use: saving-throw
+        params:
+          ability: item.save
+          dc: item.saveDc
+      - id: riderDamage
+        kind: roll
+        when: flags.landed && has(item.saveDamage)
+        parts:
+          - dice: item.saveDamage
+            tags: [{ formula: "'damage.' + item.saveDamageType" }]
+      - id: riderDeal
+        kind: changes
+        when: has(steps.riderDamage) && has(steps.saves)
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: riderDamage, by: damage }
+            by: >-
+              steps.saves.result != 'success' ? -max(0, part.total)
+                : item.saveEffect == 'half' ? -floor(max(0, part.total) / 2) : 0
+            tags:
+              - damage
+              - { formula: "item.saveEffect == 'half' ? 'save-half' : 'save-negates'" }
+              - { formula: "'save.' + item.save" }
+              - { formula: "steps.saves.result == 'success' ? 'save-success' : 'save-failure'" }
+      - id: condition
+        kind: changes
+        each: target
+        when: >-
+          flags.landed && has(item.condition)
+            && (!has(item.saveDc) || (has(steps.saves) && steps.saves.result == 'failure'))
+        to: target
+        changes:
+          - type: applyEffect
+            source: item.condition
+            state: { by: creature.type, magical: has(item.spell) && item.spell }
+      - id: spend
+        kind: changes
+        when: has(item.recharge) || has(item.perDay) || (has(item.perRest) && item.perRest)
+        changes:
+          - { type: setState, entry: self, key: recharging, value: true, when: has(item.recharge) }
+          - type: adjustState
+            when: has(item.perDay) || (has(item.perRest) && item.perRest)
+            entry: self
+            key: usesLeft
+            by: -1
+      - id: result
+        kind: outcome
+        result: "flags.landed ? 'hit' : 'miss'"
+        data:
+          critical: flags.critical
+          attack: steps.attack.total
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+          riderDamage: 'has(steps.riderDamage) ? steps.riderDamage.total : 0'
+          dc: 'has(item.saveDc) ? item.saveDc : 0'
+          save: "has(item.save) ? item.save : ''"
+          condition: "flags.landed && has(item.condition) ? item.condition : ''"
+
+  - id: monster-effect
+    tags: [monster-effect]
+    available: >-
+      !has(item.toHit) && has(item.saveDc) && (!has(item.recharge) || !self.recharging)
+        && (!has(item.perDay) && !(has(item.perRest) && item.perRest) || self.usesLeft > 0)
+    participants:
+      target: {}
+    results: [used]
+    steps:
+      - id: damage
+        kind: roll
+        when: has(item.saveDamage)
+        tags: [damage]
+        parts:
+          - dice: item.saveDamage
+            tags: [{ formula: "'damage.' + item.saveDamageType" }]
+      - id: saves
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params:
+          ability: item.save
+          dc: item.saveDc
+      - id: burn
+        kind: changes
+        when: has(steps.damage)
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: >-
+              steps.saves.result != 'success' ? -max(0, part.total)
+                : item.saveEffect == 'half' ? -floor(max(0, part.total) / 2) : 0
+            tags:
+              - damage
+              - { formula: "item.saveEffect == 'half' ? 'save-half' : 'save-negates'" }
+              - { formula: "'save.' + item.save" }
+              - { formula: "steps.saves.result == 'success' ? 'save-success' : 'save-failure'" }
+      - id: condition
+        kind: changes
+        each: target
+        when: has(item.condition) && steps.saves.result == 'failure'
+        to: target
+        changes:
+          - type: applyEffect
+            source: item.condition
+            state: { by: creature.type, magical: has(item.spell) && item.spell }
+      - id: spend
+        kind: changes
+        when: has(item.recharge) || has(item.perDay) || (has(item.perRest) && item.perRest)
+        changes:
+          - { type: setState, entry: self, key: recharging, value: true, when: has(item.recharge) }
+          - type: adjustState
+            when: has(item.perDay) || (has(item.perRest) && item.perRest)
+            entry: self
+            key: usesLeft
+            by: -1
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+          dc: item.saveDc
+          save: item.save
+          condition: "has(item.condition) ? item.condition : ''"
+
+  - id: change-form
+    tags: [monster-effect]
+    available: has(item.startingForm)
+    params:
+      form: { type: string }
+    results: [changed]
+    steps:
+      - id: change
+        kind: changes
+        changes:
+          - { type: unchoose, path: { entry: self, choice: [form] } }
+          - { type: choose, path: { entry: self, choice: [form] }, option: params.form }
+      - id: result
+        kind: outcome
+        result: "'changed'"
+        data:
+          form: params.form
+
+  - id: use-monster-action
+    tags: [monster-effect]
+    available: >-
+      !has(item.toHit) && !has(item.saveDc)
+        && (has(item.perDay) || (has(item.perRest) && item.perRest)) && self.usesLeft > 0
+    results: [used]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: usesLeft, by: -1 }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          left: self.usesLeft - 1
+
+  - id: legendary-action
+    tags: [legendary]
+    available: >-
+      item.kind == 'legendary' && has(item.legendaryCost)
+        && legendary.spent + item.legendaryCost <= legendary.actions
+    results: [used]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: legendary.spent, by: item.legendaryCost }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          cost: item.legendaryCost
+          left: legendary.actions - legendary.spent - item.legendaryCost
+
+  - id: legendary-reset
+    tags: [legendary]
+    available: legendary.spent > 0
+    results: [reset]
+    steps:
+      - id: reset
+        kind: changes
+        changes:
+          - { type: set, field: legendary.spent, value: 0 }
+      - id: result
+        kind: outcome
+        result: "'reset'"
+
+  - id: recharge
+    tags: [recharge]
+    available: has(item.recharge) && self.recharging
+    results: [recharged, spent]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [recharge]
+        parts: [{ dice: 1d6 }]
+      - id: ready
+        kind: changes
+        when: steps.roll.total >= item.recharge
+        changes:
+          - { type: setState, entry: self, key: recharging, value: false }
+      - id: result
+        kind: outcome
+        result: "steps.roll.total >= item.recharge ? 'recharged' : 'spent'"
+
+display:
+  fields:
+    sheet.monster: { hidden: true }
+    challenge.xp: { groups: [summary], priority: 2, showWhen: sheet.monster }
+    combat.burrowSpeed:
+      { unit: ft, groups: [combat], priority: 1, showWhen: combat.burrowSpeed > 0 }
+    combat.hover: { groups: [combat], priority: 2, showWhen: combat.hover }
+    senses.blindsight: { unit: ft, groups: [summary], priority: 2, showWhen: senses.blindsight > 0 }
+    senses.tremorsense:
+      { unit: ft, groups: [summary], priority: 2, showWhen: senses.tremorsense > 0 }
+    senses.truesight: { unit: ft, groups: [summary], priority: 2, showWhen: senses.truesight > 0 }
+    senses.telepathy: { unit: ft, groups: [summary], priority: 2, showWhen: senses.telepathy > 0 }
+    damage.resistances: { groups: [combat], priority: 3 }
+    damage.immunities: { groups: [combat], priority: 3 }
+    damage.vulnerabilities: { groups: [combat], priority: 3 }
+    conditions.exhaustionImmune: { groups: [combat], priority: 3, showWhen: sheet.monster }
+    legendary.actions: { groups: [combat], priority: 1, showWhen: legendary.actions > 0 }
+    legendary.spent:
+      {
+        groups: [combat],
+        priority: 1,
+        showWhen: legendary.actions > 0,
+        input: { min: 0, widget: track },
+        with: [{ field: legendary.actions, as: max }],
+      }
+    creature.form: { groups: [summary], priority: 2, showWhen: "creature.form != ''" }
+    spellcasting.monster.ability:
+      { groups: [spellcasting], priority: 0, showWhen: spellcasting.monster.dc > 0 }
+    spellcasting.monster.dc:
+      { groups: [spellcasting], priority: 0, showWhen: spellcasting.monster.dc > 0 }
+    spellcasting.monster.attack:
+      { groups: [spellcasting], priority: 0, format: signed, showWhen: spellcasting.monster.dc > 0 }
+    spellcasting.monster.mod: { hidden: true }
+    spellcasting.monster.level:
+      { groups: [spellcasting], priority: 2, showWhen: spellcasting.monster.level > 0 }
+    spells.monster: { groups: [spellcasting], priority: 1, showWhen: size(spells.monster) > 0 }
+    spells.monsterAtWill:
+      { groups: [spellcasting], priority: 1, showWhen: size(spells.monsterAtWill) > 0 }

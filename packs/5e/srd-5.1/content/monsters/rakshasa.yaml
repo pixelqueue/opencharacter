@@ -1,0 +1,38 @@
+# Its immunity to nonmagical weapons is read as nonmagical attacks.
+id: monsters.rakshasa
+type: monster
+fields:
+  size: medium
+  creatureType: fiend
+  alignment: lawful-evil
+  ac: 16
+  naturalArmor: true
+  hp: 110
+  hitDice: 13d8 + 52
+  speed: 40
+  str: 14
+  dex: 17
+  con: 18
+  int: 13
+  wis: 16
+  cha: 20
+  skills: [skill.deception, skill.insight]
+  damageVulnerabilities: [piercing-magic-weapon-by-good]
+  damageImmunities: [nonmagical]
+  darkvision: 60
+  languages: [languages.common, languages.infernal]
+  cr: 13
+  innateOncePerDay: [spells.dominate-person, spells.fly, spells.plane-shift, spells.true-seeing]
+  innateThricePerDay:
+    [
+      spells.charm-person,
+      spells.detect-magic,
+      spells.invisibility,
+      spells.major-image,
+      spells.suggestion,
+    ]
+grants:
+  - item: monsters.rakshasa.limited-magic-immunity
+  - item: monsters.rakshasa.innate-spellcasting
+  - item: monsters.rakshasa.multiattack
+  - item: monsters.rakshasa.claw

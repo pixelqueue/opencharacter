@@ -1,0 +1,9 @@
+id: magic-items.periapt-of-health
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+immuneTo:
+  - id: disease
+    when: self.equipped
+    query: { type: condition, where: "'disease' in item.tags" }

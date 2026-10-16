@@ -1,0 +1,24 @@
+description: "entry is bound only in an immunity query's where: elsewhere it is unknown-name"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          speed: { type: integer, formula: 30 }
+        contentTypes:
+          condition:
+            carried: false
+            state:
+              magical: { type: boolean, default: false }
+      content:
+        - id: conditions.slowed
+          type: condition
+          effects:
+            - { target: speed, op: add, value: -10, scope: applied, when: entry.magical }

@@ -1,0 +1,11 @@
+id: feats.champion.sacred-defender
+type: feat
+fields: { level: 20, category: class, class: classes.champion }
+effects:
+  - target: { incoming: { fields: [hp.current] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 5)
+    when: >-
+      incoming.amount < 0 && countList(['damage.bludgeoning', 'damage.piercing',
+        'damage.slashing'], x in incoming.tags) > 0

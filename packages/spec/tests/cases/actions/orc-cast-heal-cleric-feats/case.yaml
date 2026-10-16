@@ -1,0 +1,17 @@
+description: "orc-2e: heal with 2 actions against two undead, with Panic the Dead and Communal Healing. Each target's outcome is a flag per target; Panic the Dead frightens the zombie that failed and also makes the skeleton that critically failed flee (`spell.target`), and Communal Healing gives the caster the spell's rank in Hit Points, having healed one ally (`spell.caster`)"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: heal-1 }
+  params: { actions: 2 }
+  participants:
+    ally:
+      - { id: fighter }
+    target:
+      - { id: zombie }
+      - { id: skeleton }
+answers:
+  - { outcome: { result: failure } }
+  - { outcome: { result: critical-failure } }

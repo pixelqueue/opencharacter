@@ -1,0 +1,41 @@
+# Attack: 11 + str 2 = 13 against AC 12: a hit. Damage: 1d6 (4) + str 2 = 6 bludgeoning. A mace
+# has no ammunition, so the only proposed change is the damage.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 13 }
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -6,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.bludgeoning,
+            ],
+        },
+    }
+log:
+  - step: attack
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [11]
+    total: 13
+  - step: damage
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [4]
+    total: 6

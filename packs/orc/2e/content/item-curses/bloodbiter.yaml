@@ -1,0 +1,20 @@
+id: item-curses.bloodbiter
+type: template
+tags: [trait.cursed, trait.magical, item-curse]
+appliesTo: { type: weapon, where: "item.damageType in ['piercing', 'slashing']" }
+effects:
+  - target: { steps: [strike.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.persistent-damage'"
+          state: { damage: 1d6, damageType: "'bleed'" }
+  - target: { steps: [strike.hit], from: self }
+    op: changes
+    value:
+      to: self
+      changes:
+        - type: applyEffect
+          source: "'conditions.persistent-damage'"
+          state: { damage: 1d6, damageType: "'bleed'" }

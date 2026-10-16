@@ -1,0 +1,112 @@
+id: features.spellcasting.archetype-repertoire
+type: feature
+fields: { level: 2 }
+state:
+  source: { type: string, default: bard }
+choices:
+  - id: cantrips
+    pick: "fieldOf('spellcasting.archetype.{archetypeSource}.cantrips', self.source)"
+    from:
+      type: spell
+      where: >-
+        'trait.cantrip' in item.tags && !('trait.focus' in item.tags)
+          && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', self.source)) in item.tags
+          && (!('trait.uncommon' in item.tags) || item.id in spells.access)
+    effects:
+      - {
+          target: spells.archetype.bard.repertoire,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'bard'",
+        }
+      - {
+          target: spells.archetype.oracle.repertoire,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'oracle'",
+        }
+      - {
+          target: spells.archetype.sorcerer.repertoire,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'sorcerer'",
+        }
+      - {
+          target: spells.archetype.eldritchArcher.repertoire,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'eldritchArcher'",
+        }
+  - id: spells
+    slots: [1, 2, 3, 4, 5, 6, 7, 8]
+    when: level >= [4, 6, 8, 12, 14, 16, 18, 20][slot - 1]
+    pick: "fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', self.source, slot)"
+    from:
+      type: spell
+      where: >-
+        !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags) && item.rank <= slot
+          && ('tradition.' + fieldOf('spellcasting.archetype.{archetypeSource}.tradition', self.source)) in item.tags
+          && (!('trait.uncommon' in item.tags) || item.id in spells.access)
+    effects:
+      - {
+          target: spells.archetype.bard.repertoire,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'bard'",
+        }
+      - {
+          target: spells.archetype.oracle.repertoire,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'oracle'",
+        }
+      - {
+          target: spells.archetype.sorcerer.repertoire,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'sorcerer'",
+        }
+      - {
+          target: spells.archetype.eldritchArcher.repertoire,
+          op: grant,
+          value: { formula: pick.id },
+          when: "self.source == 'eldritchArcher'",
+        }
+      - target:
+          {
+            fields:
+              { where: "item.id == 'orc-2e:spells.archetype.bard.repertoire.rank' + string(slot)" },
+          }
+        op: grant
+        value: { formula: pick.id }
+        when: "self.source == 'bard'"
+      - target:
+          {
+            fields:
+              {
+                where: "item.id == 'orc-2e:spells.archetype.oracle.repertoire.rank' + string(slot)",
+              },
+          }
+        op: grant
+        value: { formula: pick.id }
+        when: "self.source == 'oracle'"
+      - target:
+          {
+            fields:
+              {
+                where: "item.id == 'orc-2e:spells.archetype.sorcerer.repertoire.rank' + string(slot)",
+              },
+          }
+        op: grant
+        value: { formula: pick.id }
+        when: "self.source == 'sorcerer'"
+      - target:
+          {
+            fields:
+              {
+                where: "item.id == 'orc-2e:spells.archetype.eldritchArcher.repertoire.rank' + string(slot)",
+              },
+          }
+        op: grant
+        value: { formula: pick.id }
+        when: "self.source == 'eldritchArcher'"

@@ -1,0 +1,114 @@
+# Tessaly, a 2nd-level wizard, with Sentinel Dedication.
+specVersion: 0.1.0
+id: case-orc-sentinel-dedication-armor
+packs:
+  - id: orc-2e
+    version: 0.1.0
+values:
+  orc-2e:hp.current: 16
+  orc-2e:level: 2
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.gnome
+    choices:
+      heritage:
+        - option: orc-2e:heritages.sensate-gnome
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-2e:boosts.int
+  - id: background
+    item: orc-2e:backgrounds.scholar
+    choices:
+      boost:
+        - option: orc-2e:boosts.int
+      free-boost:
+        - option: orc-2e:boosts.dex
+      skill:
+        - option: occultism
+  - id: class
+    item: orc-2e:classes.wizard
+    choices:
+      school:
+        - option: orc-2e:classes.wizard.schools.battle-magic
+      curriculum-cantrip:
+        - option: orc-2e:spells.shield
+      curriculum-1:
+        - option: orc-2e:spells.force-barrage
+        - option: orc-2e:spells.mystic-armor
+      thesis:
+        - option: orc-2e:classes.wizard.theses.spell-substitution
+      skills:
+        - option: skill.crafting
+        - option: skill.diplomacy
+        - option: skill.medicine
+        - option: skill.nature
+        - option: skill.religion
+        - option: skill.society
+      spellbook-cantrips:
+        - option: orc-2e:spells.electric-arc
+        - option: orc-2e:spells.frostbite
+        - option: orc-2e:spells.ignition
+        - option: orc-2e:spells.daze
+        - option: orc-2e:spells.detect-magic
+        - option: orc-2e:spells.light
+        - option: orc-2e:spells.prestidigitation
+        - option: orc-2e:spells.read-aura
+        - option: orc-2e:spells.telekinetic-hand
+        - option: orc-2e:spells.message
+      spellbook-spells:
+        - option: orc-2e:spells.sleep
+        - option: orc-2e:spells.grease
+        - option: orc-2e:spells.runic-weapon
+        - option: orc-2e:spells.fear
+        - option: orc-2e:spells.breathe-fire
+      class-feat-2:
+        - option: orc-2e:feats.archetype.sentinel.sentinel-dedication
+  - id: electric-arc
+    item: orc-2e:spells.electric-arc
+  - id: frostbite
+    item: orc-2e:spells.frostbite
+  - id: detect-magic
+    item: orc-2e:spells.detect-magic
+  - id: telekinetic-hand
+    item: orc-2e:spells.telekinetic-hand
+  - id: daze
+    item: orc-2e:spells.daze
+  - id: shield
+    item: orc-2e:spells.shield
+  - id: sleep-1
+    item: orc-2e:spells.sleep
+    state:
+      rank: 1
+  - id: fear-1
+    item: orc-2e:spells.fear
+    state:
+      rank: 1
+  - id: force-barrage-1
+    item: orc-2e:spells.force-barrage
+    state:
+      rank: 1
+inventory:
+  - id: staff
+    item: orc-2e:weapons.staff
+    equipped: true
+  - id: spellbook
+    item: orc-2e:gear.spellbook-blank
+  - id: backpack
+    item: orc-2e:gear.backpack
+  - id: writing-set
+    item: orc-2e:gear.writing-set
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.int
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.illusion-sense
+  languages:
+    - option: orc-2e:languages.draconic
+    - option: orc-2e:languages.elven
+    - option: orc-2e:languages.dwarven
+    - option: orc-2e:languages.goblin

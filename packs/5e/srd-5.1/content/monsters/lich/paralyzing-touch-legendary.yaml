@@ -1,0 +1,24 @@
+id: monsters.lich.paralyzing-touch-legendary
+type: monsterAction
+fields:
+  kind: legendary
+  legendaryCost: 2
+actions:
+  - id: paralyzing-touch-legendary
+    tags: [legendary]
+    participants:
+      target: { max: 1 }
+    results: [done]
+    steps:
+      - id: paralyzingTouch
+        kind: action
+        use: monster-attack
+        source: "'monsters.lich.paralyzing-touch'"
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.paralyzingTouch) && steps.paralyzingTouch.result == 'hit' ? 1 : 0)

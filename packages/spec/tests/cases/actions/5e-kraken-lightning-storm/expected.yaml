@@ -1,0 +1,34 @@
+# 4d10 = 40 lightning, DC 23 Dexterity, at all three targets: ship-1 and ship-3 fail (40),
+# ship-2 saves (half, 20).
+status: finished
+proposedChanges:
+  - to: target
+    character: ship-1
+    step: lightningStorm/burn[0]
+    change:
+      {
+        type: adjust,
+        field: 5e-srd-5.1:hp.current,
+        by: -40,
+        tags: [damage, save-half, save.dex, save-failure, damage.lightning],
+      }
+  - to: target
+    character: ship-2
+    step: lightningStorm/burn[1]
+    change:
+      {
+        type: adjust,
+        field: 5e-srd-5.1:hp.current,
+        by: -20,
+        tags: [damage, save-half, save.dex, save-success, damage.lightning],
+      }
+  - to: target
+    character: ship-3
+    step: lightningStorm/burn[2]
+    change:
+      {
+        type: adjust,
+        field: 5e-srd-5.1:hp.current,
+        by: -40,
+        tags: [damage, save-half, save.dex, save-failure, damage.lightning],
+      }

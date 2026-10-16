@@ -1,0 +1,23 @@
+id: gear.entertainers-pack
+type: gear
+tags: [equipment-pack]
+fields:
+  category: equipment-pack
+  cost: 40
+actions:
+  - id: unpack
+    tags: [item]
+    available: self.quantity > 0
+    steps:
+      - id: unpack
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'gear.backpack'" } }
+          - { type: addItem, entry: { item: "'gear.bedroll'" } }
+          - { type: addItem, entry: { item: "'gear.costume'", quantity: 2 } }
+          - { type: addItem, entry: { item: "'gear.candle'", quantity: 5 } }
+          - { type: addItem, entry: { item: "'gear.rations'", quantity: 5 } }
+          - { type: addItem, entry: { item: "'gear.waterskin'" } }
+          - { type: addItem, entry: { item: "'tools.disguise-kit'" } }
+          - { type: adjustQuantity, entry: self, by: -1, when: self.quantity > 1 }
+          - { type: removeItem, entry: self, when: self.quantity <= 1 }

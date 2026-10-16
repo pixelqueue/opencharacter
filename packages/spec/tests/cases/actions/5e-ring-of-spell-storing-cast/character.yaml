@@ -1,0 +1,21 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 15
+  5e-srd-5.1:hp.base: 40
+  5e-srd-5.1:hp.current: 40
+inventory:
+  - id: ring
+    item: 5e-srd-5.1:magic-items.ring-of-spell-storing
+    equipped: true
+    state: { attuned: true }
+features:
+  # A wizard cast fireball into the ring with a 4th-level slot, DC 15, +7, Intelligence +4.
+  - id: stored-1
+    item: 5e-srd-5.1:magic-items.stored-spell
+    state: { slot: 4, dc: 15, attack: 7, mod: 4, storedIn: ring }
+    choices:
+      spell:
+        - option: 5e-srd-5.1:spells.fireball

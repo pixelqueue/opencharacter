@@ -1,0 +1,45 @@
+# Both reach hit points already at 0 (clamped): one failure for the hit, its cause the two summed.
+ok: true
+adjustments:
+  - {
+      field: 5e-srd-5.1:hp.current,
+      by: 0,
+      requested: -4,
+      taken: -4,
+      reason: requested,
+      clamped: true,
+    }
+  - {
+      field: 5e-srd-5.1:hp.current,
+      by: 0,
+      requested: -3,
+      taken: -3,
+      reason: requested,
+      clamped: true,
+    }
+followUps:
+  - id: damage-while-dying-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:damage-while-dying
+    to: self
+    required: true
+    changes:
+      - type: adjust
+        field: 5e-srd-5.1:deathSaves.failures
+        by: 1
+      - type: clearFollowUp
+        id: damage-while-dying-1
+    cause:
+      field: 5e-srd-5.1:hp.current
+      by: 0
+      requested: -7
+      taken: -7
+      reason: requested
+      clamped: true
+      tags:
+        - damage
+        - attack
+        - melee
+        - magical
+        - damage.slashing
+        - damage.fire

@@ -1,0 +1,111 @@
+description: 'A step reading the proposed sheet pauses with the values on that sheet: the calling picked before the pause is applied again on replay'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [stat]
+        contentTypes:
+          calling: {}
+          charm: {}
+        fields:
+          stats.might: { type: integer, input: true, default: 0, min: 0, max: 3, tags: [stat] }
+          stats.wits: { type: integer, input: true, default: 0, min: 0, max: 3, tags: [stat] }
+          health: { type: integer, input: true, default: 0 }
+        choices:
+          - id: calling
+            from: { type: calling }
+        actions:
+          # Pick a calling, then two points, none taking a stat above 2 counting the calling's
+          # own point, which the proposed sheet shows.
+          - id: train
+            steps:
+              - id: calling
+                kind: choice
+                options: { content: { type: calling } }
+                recommend: options[0]
+                changes:
+                  - { type: choose, path: { choice: [calling] }, option: picked.id }
+              - id: dots
+                kind: allocate
+                sheet: proposed
+                fields: { type: field, where: "'stat' in item.tags" }
+                budget: 2
+                limit: 2 - field.value
+                recommend: { stats.might: 1, stats.wits: 1 }
+              - id: done
+                kind: outcome
+                sheet: proposed
+                data: { might: stats.might, wits: stats.wits }
+          # A nested action reads the changes its parent proposed.
+          - id: outer
+            steps:
+              - id: heal
+                kind: changes
+                changes:
+                  - { type: set, field: health, value: 5 }
+              - id: inner
+                kind: action
+                use: inner-check
+              - id: done
+                kind: outcome
+                data: { seen: steps.inner.data.proposed, given: steps.inner.data.given }
+          - id: inner-check
+            steps:
+              - id: look
+                kind: branch
+                cases:
+                  - when: 'true'
+                    flags: { given: health }
+              - id: done
+                kind: outcome
+                sheet: proposed
+                data: { proposed: health, given: flags.given }
+          # A choice in a copy that isn't there: the proposed sheet can't be built.
+          - id: broken
+            steps:
+              - id: pick
+                kind: changes
+                changes:
+                  - { type: choose, path: { entry: ghost, choice: [calling] }, option: "'x'" }
+              - id: done
+                kind: outcome
+                sheet: proposed
+                data: { might: stats.might }
+      content:
+        - id: callings.brute
+          type: calling
+          effects:
+            - { target: stats.might, op: add, value: 1 }
+        - id: callings.sage
+          type: calling
+          effects:
+            - { target: stats.wits, op: add, value: 1 }
+        # Snapping the charm removes it: on the proposed sheet the action's own copy is gone.
+        - id: charms.lucky
+          type: charm
+          actions:
+            - id: snap
+              steps:
+                - id: look
+                  kind: branch
+                  cases:
+                    - when: 'true'
+                      flags: { before: has(self) }
+                - id: gone
+                  kind: changes
+                  changes:
+                    - { type: removeItem, entry: self }
+                - id: done
+                  kind: outcome
+                  sheet: proposed
+                  data: { before: flags.before, after: has(self) }
+input:
+  action: { id: test-pack:train }
+  policy: { allocations: pause }

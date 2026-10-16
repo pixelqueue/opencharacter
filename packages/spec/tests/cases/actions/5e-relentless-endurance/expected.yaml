@@ -1,0 +1,14 @@
+status: finished
+outcome:
+  result: endured
+proposedChanges:
+  - to: self
+    step: endure
+    change: { type: set, field: 5e-srd-5.1:hp.current, value: 1 }
+  - to: self
+    step: endure
+    change:
+      type: setState
+      copies: { type: 5e-srd-5.1:race, where: has(self.relentlessEnduranceUsed) }
+      key: relentlessEnduranceUsed
+      value: true

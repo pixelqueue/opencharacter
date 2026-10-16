@@ -1,0 +1,14 @@
+description: '5E breath weapon at two targets: each makes its saving throw on its own sheet, half damage on a success'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:breath-weapon, entry: race, source: 5e-srd-5.1:draconic-ancestries.red }
+  participants:
+    target:
+      - { id: kobold-1 }
+      - { id: kobold-2 }
+answers:
+  - { outcome: { result: failure } }
+  - { outcome: { result: success } }

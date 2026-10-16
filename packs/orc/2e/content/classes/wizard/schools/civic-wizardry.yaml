@@ -1,0 +1,40 @@
+id: classes.wizard.schools.civic-wizardry
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: wizard.school, op: set, value: "'civic-wizardry'" }
+  - { target: spellcasting.extraSlots, op: add, value: 1 }
+  - { target: spellcasting.extraCantrips, op: add, value: 1 }
+  - { target: focus.points, op: add, value: 1 }
+  - target: spells.curriculum
+    op: grant
+    value:
+      query:
+        type: spell
+        where: >-
+          item.id in [
+            @spells.prestidigitation,
+            @spells.read-aura,
+            @spells.hydraulic-push,
+            @spells.pummeling-rubble,
+            @spells.summon-construct,
+            @spells.revealing-light,
+            @spells.water-walk,
+            @spells.cozy-cabin,
+            @spells.safe-passage,
+            @spells.creation,
+            @spells.unfettered-movement,
+            @spells.control-water,
+            @spells.wall-of-stone,
+            @spells.disintegrate,
+            @spells.wall-of-force,
+            @spells.planar-palace,
+            @spells.retrocognition,
+            @spells.earthquake,
+            @spells.pinpoint,
+            @spells.foresight
+          ]
+  - { target: spells.access, op: grant, value: { formula: '@spells.planar-palace' } }
+  - { target: spells.access, op: grant, value: { formula: '@spells.pinpoint' } }
+grants:
+  - item: spells.earthworks

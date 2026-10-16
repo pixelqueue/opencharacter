@@ -1,0 +1,13 @@
+id: armor.specific.onslaught-hide
+type: armor
+extends: armor.hide-armor
+tags: [trait.invested, trait.magical]
+fields:
+  price: 700
+  checkPenalty: 1
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.armor-potency-1
+    copies: { type: armor, where: 'item.id == @armor.specific.onslaught-hide' }
+  - template: runes.resilient
+    copies: { type: armor, where: 'item.id == @armor.specific.onslaught-hide' }

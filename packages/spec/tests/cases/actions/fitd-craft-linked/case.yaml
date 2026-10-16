@@ -1,0 +1,17 @@
+description: "FitD: crafting reads the linked crew's tier and Workshop instead of parameters"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:craft-design, entry: fitd-scoundrel-designs-alchemical }
+  situational:
+    fitd-scoundrel:craftingAlchemical: true
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:tier: 2
+        fitd-crew:upgrades.mastery: false
+        fitd-crew:upgrades.workshop: true
+        fitd-crew:heat.current: 3

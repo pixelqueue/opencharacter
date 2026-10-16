@@ -1,0 +1,12 @@
+description: 'FitD entanglements: Rivals come from a neutral faction; forfeiting coin costs 1 per tier of the rival'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/crew
+input:
+  action: { id: fitd-crew:resolve-entanglement }
+  params: { entanglement: rivals }
+  policy: { dice: auto, choices: pause, allocations: pause }
+answers:
+  - option: faction-c
+  - option: forfeit-coin

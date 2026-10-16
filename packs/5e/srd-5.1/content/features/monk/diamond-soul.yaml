@@ -1,0 +1,31 @@
+id: features.monk.diamond-soul
+type: feature
+effects:
+  - { target: proficiencies.saves, op: grant, value: { tag: save.str } }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.dex } }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.con } }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.int } }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.wis } }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.cha } }
+actions:
+  - id: diamond-soul
+    tags: [save]
+    results: [success, failure]
+    available: self.kiSpent + 1 <= ki.points
+    params:
+      ability: { type: enum, values: [str, dex, con, int, wis, cha] }
+      dc: { type: integer }
+    steps:
+      - id: save
+        kind: action
+        use: saving-throw
+        params: { ability: params.ability, dc: params.dc }
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: kiSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: steps.save.result
+        data:
+          total: steps.save.data.total

@@ -1,0 +1,19 @@
+description: 'FitD: a Lurk with Expertise in Skirmish leads a Skirmish group action and takes at most 1 stress, however many rolls fail'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action:
+    id: fitd-scoundrel:group-action
+  params:
+    rating: fitd-scoundrel:ratings.skirmish
+  participants:
+    member:
+      - { id: vex }
+      - { id: nyryx }
+      - { id: arcy }
+answers:
+  - outcome: { result: failure, data: { position: risky, effect: standard } }
+  - outcome: { result: failure, data: { position: risky, effect: standard } }
+  - outcome: { result: partial, data: { position: risky, effect: standard } }

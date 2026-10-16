@@ -1,0 +1,151 @@
+situational:
+  - id: omen
+    type: boolean
+    default: false
+    rolls: [test]
+    available: omens.current > 0
+    effects:
+      - target: { rolls: [test] }
+        op: add
+        value: 4
+  - id: invisible
+    type: boolean
+    default: false
+    rolls: [attack, defense]
+    effects:
+      - { target: { rolls: [attack, defense] }, op: add, value: 6 }
+  - id: grace
+    type: boolean
+    default: false
+    rolls: [test, damage]
+    effects:
+      - { target: { rolls: [test, damage] }, op: add, value: 1d6 }
+  - id: omenDamage
+    type: boolean
+    default: false
+    rolls: [damage.weapon]
+    available: omens.current > 0
+
+effects:
+  - id: crit-damage
+    target: { rolls: [damage] }
+    op: rollModifier
+    value: { kind: multiply, factor: 2 }
+    when: "has(steps.check) && steps.check.result == 'crit'"
+  - id: fumble-damage
+    target: { rolls: [damage.taken] }
+    op: rollModifier
+    value: { kind: multiply, factor: 2 }
+    when: "has(steps.check) && steps.check.result == 'fumble'"
+
+resultBands:
+  test:
+    - id: crit
+      when: roll.kept[0] == 20
+    - id: fumble
+      when: roll.kept[0] == 1
+    - id: success
+      when: roll.total >= flags.dr
+    - id: failure
+      when: true
+
+actions:
+  - id: test
+    tags: [test]
+    params:
+      ability: { type: id, of: field, where: "'ability' in item.tags" }
+      dr: { type: integer, default: 12, min: 1 }
+      defense: { type: boolean, default: false }
+      combat: { type: boolean, default: false }
+    results: { bands: test }
+    steps:
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              horn: tests.horn && !params.defense && !params.combat
+              dr: >-
+                (condition.hemorrhage >= 2 ? max(params.dr, 16)
+                  : condition.hemorrhage == 1 ? max(params.dr, 18) : params.dr)
+                + (params.defense ? tests.defenseDr
+                : params.ability.id == @abilities.strength ? tests.strengthDr
+                : params.ability.id == @abilities.agility ? tests.agilityDr
+                : params.ability.id == @abilities.presence ? tests.presenceDr
+                : tests.toughnessDr)
+                - (situational.barbarister
+                  && params.ability.id == @abilities.presence ? 2 : 0)
+                - (tests.truth ? 4 : 0)
+      - id: clarity
+        kind: changes
+        when: tests.truth || flags.horn
+        to: self
+        changes:
+          - { type: set, field: tests.truth, value: false, when: tests.truth }
+          - { type: set, field: tests.horn, value: false, when: flags.horn }
+      - id: omen
+        kind: changes
+        when: situational.omen
+        to: self
+        changes:
+          - { type: adjust, field: omens.current, by: -1 }
+      - id: check
+        kind: roll
+        tags: [test]
+        bands: test
+        parts:
+          - dice: 1d20
+          - field: params.ability.id
+      - id: fate
+        kind: choice
+        sheet: proposed
+        when: >-
+          !flags.horn && omens.current > 0
+            && (steps.check.band == 'failure' || steps.check.band == 'fumble')
+        options:
+          - id: keep
+          - id: reroll
+          - id: cancel
+            when: "steps.check.band == 'fumble'"
+        recommend: "'keep'"
+      - id: spend
+        kind: changes
+        when: has(steps.fate) && steps.fate.picked != 'keep'
+        to: self
+        changes:
+          - { type: adjust, field: omens.current, by: -1 }
+      - id: reroll
+        kind: roll
+        when: has(steps.fate) && steps.fate.picked == 'reroll'
+        tags: [test]
+        bands: test
+        parts:
+          - dice: 1d20
+          - field: params.ability.id
+      - id: result
+        kind: outcome
+        result: >-
+          flags.horn && steps.check.band != 'crit' ? 'success'
+            : has(steps.reroll) ? steps.reroll.band
+            : has(steps.fate) && steps.fate.picked == 'cancel' ? 'failure' : steps.check.band
+        data:
+          total: 'has(steps.reroll) ? steps.reroll.total : steps.check.total'
+          dr: flags.dr
+          omensSpent: >-
+            (situational.omen ? 1 : 0) + (has(steps.fate) && steps.fate.picked != 'keep' ? 1 : 0)
+
+  - id: initiative
+    tags: [initiative]
+    results: [rolled]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [initiative]
+        parts:
+          - dice: 1d6
+          - field: "'abilities.agility'"
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          total: steps.roll.total

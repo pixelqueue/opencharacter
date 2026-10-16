@@ -1,0 +1,21 @@
+id: consumables.elixir-of-life-minor
+type: consumable
+tags: [trait.alchemical, trait.elixir, healing]
+fields:
+  {
+    category: elixir,
+    level: 1,
+    price: 3,
+    bulk: 0.1,
+    healing: 1d6,
+    lasting: true,
+    family: consumables.elixir-of-life-minor,
+  }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: situational.againstDisease || situational.againstPoison
+    scope: applied
+    duration: { amount: 10, unit: minute }

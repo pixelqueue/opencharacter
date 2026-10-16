@@ -1,0 +1,11 @@
+description: "Fate Core: an attack with a helper pauses before the dice for the helper's app to run `assist-check` with the attack's skill"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:attack }
+  params: { skill: fate-core:skills.fight }
+  participants:
+    helper: [{ id: tobias, values: {} }]
+  policy: { choices: auto }

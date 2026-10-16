@@ -1,0 +1,15 @@
+id: classes.rogue.rackets.ruffian
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: rogue.racket, op: set, value: "'ruffian'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.intimidation },
+      when: "!('skill.intimidation' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: defenses.medium.rank
+    op: atLeast
+    value: 'level >= 19 ? 3 : level >= 13 ? 2 : 1'

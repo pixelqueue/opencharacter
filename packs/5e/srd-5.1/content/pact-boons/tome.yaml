@@ -1,0 +1,8 @@
+id: pact-boons.tome
+type: pactBoon
+choices:
+  - id: cantrips
+    pick: 3
+    from: { type: spell, where: item.level == 0 }
+    effects:
+      - { target: spells.warlock, op: grant, value: { formula: pick.id } }

@@ -1,0 +1,145 @@
+description: Boolean logic, short-circuiting and error propagation
+specVersion: 0.1.0
+cases:
+  - name: and
+    evaluate: true && false
+    value: false
+    valueType: bool
+  - name: or
+    evaluate: false || true
+    value: true
+    valueType: bool
+  - name: not
+    evaluate: '!true'
+    value: false
+    valueType: bool
+  - name: double not
+    evaluate: '!!false'
+    value: false
+    valueType: bool
+  - name: not of an int
+    evaluate: '!1'
+    error: type-mismatch
+  - name: and of an int
+    evaluate: 1 && true
+    error: type-mismatch
+  - name: or of a string
+    evaluate: "'a' || true"
+    error: type-mismatch
+  - name: false && skips an erroring right operand
+    evaluate: false && (1 / 0 > 0)
+    value: false
+    valueType: bool
+  - name: true || skips an erroring right operand
+    evaluate: true || (1 / 0 > 0)
+    value: true
+    valueType: bool
+  - name: true && evaluates the right operand and its error
+    evaluate: true && (1 / 0 > 0)
+    error: division-by-zero
+  - name: false || evaluates the right operand and its error
+    evaluate: false || (1 % 0 == 0)
+    error: division-by-zero
+  - name: 'left to right: an error on the left is not absorbed by && (unlike CEL)'
+    evaluate: (1 / 0 > 0) && false
+    error: division-by-zero
+  - name: 'left to right: an error on the left is not absorbed by || (unlike CEL)'
+    evaluate: (1 / 0 > 0) || true
+    error: division-by-zero
+  - name: false && skips a missing key
+    evaluate: false && params.missing
+    roots:
+      params: {}
+    value: false
+    valueType: bool
+  - name: a skipped type error does not matter at evaluation
+    evaluate: false && ('a' + 1 == 2)
+    value: false
+    valueType: bool
+  - name: conditional takes the then branch
+    evaluate: 'true ? 1 : 2'
+    value: 1
+    valueType: int
+  - name: conditional takes the else branch
+    evaluate: 'false ? 1 : 2'
+    value: 2
+    valueType: int
+  - name: conditional does not evaluate the else branch
+    evaluate: 'true ? 1 : 1 / 0'
+    value: 1
+    valueType: int
+  - name: conditional does not evaluate the then branch
+    evaluate: 'false ? 1 / 0 : 2'
+    value: 2
+    valueType: int
+  - name: an error in the test propagates
+    evaluate: '(1 / 0 > 0) ? 1 : 2'
+    error: division-by-zero
+  - name: a conditional test must be a bool
+    evaluate: '1 ? 2 : 3'
+    error: type-mismatch
+  - name: nested conditionals evaluate right-associatively
+    evaluate: 'false ? 1 : true ? 2 : 3'
+    value: 2
+    valueType: int
+  - name: has guards a missing parameter
+    evaluate: has(params.targetAc) && params.targetAc > 10
+    roots:
+      params: {}
+    value: false
+    valueType: bool
+  - name: has passes a present parameter
+    evaluate: has(params.targetAc) && params.targetAc > 10
+    roots:
+      params:
+        targetAc: 15
+    value: true
+    valueType: bool
+  - name: an unguarded missing parameter is an error
+    evaluate: params.targetAc > 10
+    roots:
+      params: {}
+    error: no-such-key
+  - name: errors propagate through function arguments
+    evaluate: max(1, 1 / 0)
+    error: division-by-zero
+  - name: errors propagate through floor
+    evaluate: floor(1 / 0)
+    error: division-by-zero
+  - name: errors propagate through list literals
+    evaluate: '[1, 1 / 0]'
+    error: division-by-zero
+  - name: errors propagate through comparisons
+    evaluate: 1 / 0 == 1
+    error: division-by-zero
+  - name: errors propagate through unary minus
+    evaluate: -(1 % 0)
+    error: division-by-zero
+  - name: errors propagate through in
+    evaluate: 1 in [1 / 0]
+    error: division-by-zero
+  - name: errors propagate through indexing
+    evaluate: '[1, 2][1 / 0 > 0 ? 0 : 1]'
+    error: division-by-zero
+  - name: 'a guarded hit check: crit'
+    evaluate: steps.attack.kept[0] >= 20 || (has(params.targetAc) && steps.attack.total >= params.targetAc)
+    roots:
+      steps:
+        attack:
+          total: 25
+          kept:
+            - 20
+      params: {}
+    value: true
+    valueType: bool
+  - name: 'a guarded hit check: no target AC, no crit'
+    evaluate: steps.attack.kept[0] >= 20 || (has(params.targetAc) && steps.attack.total >= params.targetAc)
+    roots:
+      steps:
+        attack:
+          total: 15
+          kept:
+            - 11
+      params: {}
+    value: false
+    valueType: bool

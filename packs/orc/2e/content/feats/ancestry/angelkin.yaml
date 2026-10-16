@@ -1,0 +1,14 @@
+id: feats.ancestry.angelkin
+type: feat
+tags: [trait.lineage]
+fields: { level: 1, category: ancestry, heritage: heritages.nephilim }
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.society },
+      when: "!('skill.society' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - { item: feats.skill.multilingual, waivePrerequisites: true }

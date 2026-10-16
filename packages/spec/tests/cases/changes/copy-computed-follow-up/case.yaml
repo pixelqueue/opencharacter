@@ -1,0 +1,34 @@
+description: "A copy's follow-ups read its computed values as self.<name>"
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 0 }
+          strain: { type: integer, input: true, default: 0 }
+        contentTypes:
+          gear:
+            carried: true
+            fields:
+              kind: { type: enum, values: [plain, fine], default: plain }
+            state:
+              wear: { type: integer, default: 0 }
+            computed:
+              quality: { type: integer, formula: "tier + (item.kind == 'fine' ? 1 : 0)" }
+            # Strain wears gear down, less the better it is.
+            followUps:
+              - id: wear
+                on: { field: strain }
+                when: change.by > self.quality
+                changes:
+                  - { type: adjustState, entry: self, key: wear, by: change.by - self.quality }
+      content:
+        - { id: gear.lamp, type: gear }
+        - { id: gear.blade, type: gear, fields: { kind: fine } }

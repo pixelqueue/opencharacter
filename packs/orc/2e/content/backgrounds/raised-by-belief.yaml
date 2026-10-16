@@ -1,0 +1,166 @@
+id: backgrounds.raised-by-belief
+type: background
+# With no deities in the pack, the boost can go to any attribute. The deity's Lore is the first
+# custom Lore (`skills.lore.custom1`), its subject named by the player.
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.custom1 },
+      when: "!('skill.lore.custom1' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }
+  - id: skill
+    from:
+      options:
+        - id: acrobatics
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.acrobatics }
+              when: "!('skill.acrobatics' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.acrobatics'" } }
+        - id: arcana
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.arcana }
+              when: "!('skill.arcana' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.arcana'" } }
+        - id: athletics
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.athletics }
+              when: "!('skill.athletics' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.athletics'" } }
+        - id: crafting
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.crafting }
+              when: "!('skill.crafting' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.crafting'" } }
+        - id: deception
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.deception }
+              when: "!('skill.deception' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.deception'" } }
+        - id: diplomacy
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.diplomacy }
+              when: "!('skill.diplomacy' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.diplomacy'" } }
+        - id: intimidation
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.intimidation }
+              when: "!('skill.intimidation' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.intimidation'" } }
+        - id: medicine
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.medicine }
+              when: "!('skill.medicine' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.medicine'" } }
+        - id: nature
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.nature }
+              when: "!('skill.nature' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.nature'" } }
+        - id: occultism
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.occultism }
+              when: "!('skill.occultism' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.occultism'" } }
+        - id: performance
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.performance }
+              when: "!('skill.performance' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.performance'" } }
+        - id: religion
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.religion }
+              when: "!('skill.religion' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.religion'" } }
+        - id: society
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.society }
+              when: "!('skill.society' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.society'" } }
+        - id: stealth
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.stealth }
+              when: "!('skill.stealth' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.stealth'" } }
+        - id: survival
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.survival }
+              when: "!('skill.survival' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.survival'" } }
+        - id: thievery
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.thievery }
+              when: "!('skill.thievery' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.thievery'" } }

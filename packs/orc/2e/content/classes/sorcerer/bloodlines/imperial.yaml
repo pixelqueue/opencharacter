@@ -1,0 +1,129 @@
+id: classes.sorcerer.bloodlines.imperial
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: sorcerer.bloodline, op: set, value: "'imperial'" }
+  - { target: spellcasting.tradition, op: set, value: "'arcane'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.arcana },
+      when: "!('skill.arcana' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.society },
+      when: "!('skill.society' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.detect-magic } }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.detect-magic } }
+  - { target: spells.granted.cantrips, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.force-barrage } }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.force-barrage } }
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.force-barrage } }
+  - { target: spells.granted.rank1, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.dispel-magic }, when: level >= 3 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.dispel-magic }, when: level >= 3 }
+  - {
+      target: spells.repertoire.rank2,
+      op: grant,
+      value: { item: spells.dispel-magic },
+      when: level >= 3,
+    }
+  - { target: spells.granted.rank2, op: add, value: 1, when: level >= 3 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.haste }, when: level >= 5 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.haste }, when: level >= 5 }
+  - { target: spells.repertoire.rank3, op: grant, value: { item: spells.haste }, when: level >= 5 }
+  - { target: spells.granted.rank3, op: add, value: 1, when: level >= 5 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.translocate }, when: level >= 7 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.translocate }, when: level >= 7 }
+  - target: spells.repertoire.rank4
+    op: grant
+    value: { item: spells.translocate }
+    when: level >= 7
+  - { target: spells.granted.rank4, op: add, value: 1, when: level >= 7 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.scouting-eye }, when: level >= 9 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.scouting-eye }, when: level >= 9 }
+  - target: spells.repertoire.rank5
+    op: grant
+    value: { item: spells.scouting-eye }
+    when: level >= 9
+  - { target: spells.granted.rank5, op: add, value: 1, when: level >= 9 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.disintegrate },
+      when: level >= 11,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.disintegrate }, when: level >= 11 }
+  - target: spells.repertoire.rank6
+    op: grant
+    value: { item: spells.disintegrate }
+    when: level >= 11
+  - { target: spells.granted.rank6, op: add, value: 1, when: level >= 11 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.retrocognition },
+      when: level >= 13,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.retrocognition }, when: level >= 13 }
+  - target: spells.repertoire.rank7
+    op: grant
+    value: { item: spells.retrocognition }
+    when: level >= 13
+  - { target: spells.granted.rank7, op: add, value: 1, when: level >= 13 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.quandary }, when: level >= 15 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.quandary }, when: level >= 15 }
+  - target: spells.repertoire.rank8
+    op: grant
+    value: { item: spells.quandary }
+    when: level >= 15
+  - { target: spells.granted.rank8, op: add, value: 1, when: level >= 15 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.implosion }, when: level >= 17 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.implosion }, when: level >= 17 }
+  - target: spells.repertoire.rank9
+    op: grant
+    value: { item: spells.implosion }
+    when: level >= 17
+  - { target: spells.granted.rank9, op: add, value: 1, when: level >= 17 }
+  - { target: focus.points, op: add, value: 1 }
+  - target: { choices: [blood-magic] }
+    op: option
+    value:
+      id: defense-ac
+      changes:
+        - type: removeEffect
+          applied: { where: "'blood-magic' in item.tags" }
+        - {
+            type: applyEffect,
+            source: "'classes.sorcerer.blood-magic.imperious-defense-ac'",
+            state: { rank: flags.rank },
+          }
+  - target: { choices: [blood-magic] }
+    op: option
+    value:
+      id: defense-saves
+      changes:
+        - type: removeEffect
+          applied: { where: "'blood-magic' in item.tags" }
+        - {
+            type: applyEffect,
+            source: "'classes.sorcerer.blood-magic.imperious-defense-saves'",
+            state: { rank: flags.rank },
+          }
+grants:
+  - { item: spells.translocate, when: level >= 7 }
+  - { item: spells.scouting-eye, when: level >= 9 }
+  - { item: spells.disintegrate, when: level >= 11 }
+  - { item: spells.retrocognition, when: level >= 13 }
+  - { item: spells.quandary, when: level >= 15 }
+  - { item: spells.implosion, when: level >= 17 }
+  - { item: spells.detect-magic }
+  - { item: spells.force-barrage }
+  - { item: spells.dispel-magic, when: level >= 3 }
+  - { item: spells.haste, when: level >= 5 }
+  - item: spells.ancestral-memories

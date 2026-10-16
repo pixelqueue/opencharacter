@@ -1,0 +1,26 @@
+# Wits takes 1 (cost 1), then 1 more (cost 2, 3 in all); 1 point is left, and wits is at its
+# limit, so the last unit goes to might or grace.
+status: finished
+proposedChanges:
+  - { to: self, step: points, change: { type: adjust, field: 'test-pack:stats.wits', by: 2 } }
+  - { to: self, step: points, change: { type: adjust, field: 'test-pack:stats.grace', by: 1 } }
+log:
+  - step: points
+    kind: dice
+    by: engine
+    faces: [2]
+    draw: { among: ['test-pack:stats.might', 'test-pack:stats.wits', 'test-pack:stats.grace'] }
+  - step: points
+    kind: dice
+    by: engine
+    faces: [2]
+    draw: { among: ['test-pack:stats.might', 'test-pack:stats.wits', 'test-pack:stats.grace'] }
+  - step: points
+    kind: dice
+    by: engine
+    faces: [2]
+    draw: { among: ['test-pack:stats.might', 'test-pack:stats.grace'] }
+  - step: points
+    kind: allocate
+    by: engine
+    amounts: { 'test-pack:stats.wits': 2, 'test-pack:stats.grace': 1 }

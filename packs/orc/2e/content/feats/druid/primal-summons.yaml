@@ -1,0 +1,11 @@
+id: feats.druid.primal-summons
+type: feat
+fields: { level: 12, category: class, class: classes.druid }
+prerequisites:
+  - id: call-of-the-wild
+    when: '@feats.druid.call-of-the-wild in feats.held'
+effects:
+  - { target: focus.points, op: add, value: 1 }
+  - { target: druid.orderSpells, op: grant, value: { item: spells.primal-summons } }
+grants:
+  - item: spells.primal-summons

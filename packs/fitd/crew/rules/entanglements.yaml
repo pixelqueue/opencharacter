@@ -1,0 +1,240 @@
+fields:
+  downtime.heat: { type: integer, formula: 0 }
+  downtime.rep: { type: integer, formula: 0 }
+
+actions:
+  - id: entanglement-roll
+    tags: [entanglement-roll]
+    results:
+      - gang-trouble
+      - the-usual-suspects
+      - questioning
+      - flipped
+      - interrogation
+      - rivals
+      - unquiet-dead
+      - reprisals
+      - demonic-notice
+      - show-of-force
+      - cooperation
+      - arrest
+    steps:
+      - id: roll
+        kind: roll
+        tags: [entanglement-roll]
+        parts:
+          - { id: pool, dice: '(wanted.current)d6kh1', ifEmpty: 2d6kl1 }
+      - id: cell
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              total: steps.roll.total
+      - id: table
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              row: 'flags.total <= 3 ? 0 : flags.total <= 5 ? 1 : 2'
+              column: 'heat.current <= 3 ? 0 : heat.current <= 5 ? 1 : 2'
+      - id: entanglement
+        kind: choice
+        options:
+          - { id: gang-trouble, when: flags.row == 0 && flags.column <= 1 }
+          - { id: the-usual-suspects, when: flags.row == 0 && flags.column == 0 }
+          - { id: questioning, when: flags.row == 0 && flags.column == 1 }
+          - { id: flipped, when: flags.row == 0 && flags.column == 2 }
+          - { id: interrogation, when: flags.row == 0 && flags.column == 2 }
+          - { id: rivals, when: flags.row == 1 && flags.column == 0 }
+          - { id: reprisals, when: flags.row == 1 && flags.column == 1 }
+          - { id: unquiet-dead, when: flags.row == 1 && flags.column <= 1 }
+          - { id: demonic-notice, when: flags.row == 1 && flags.column == 2 }
+          - id: show-of-force
+            when: flags.row == 1 && flags.column == 2 || flags.row == 2 && flags.column == 1
+          - { id: cooperation, when: flags.row == 2 && flags.column == 0 }
+          - { id: arrest, when: flags.row == 2 && flags.column == 2 }
+        recommend: >-
+          [['gang-trouble', 'gang-trouble', 'flipped'], ['rivals', 'reprisals', 'demonic-notice'],
+            ['cooperation', 'show-of-force', 'arrest']][flags.row][flags.column]
+      - id: result
+        kind: outcome
+        result: steps.entanglement.picked
+        data:
+          roll: flags.total
+          avoided: "steps.entanglement.picked == 'cooperation' && allies == 0"
+
+  - id: resolve-entanglement
+    params:
+      entanglement:
+        type: enum
+        values:
+          - arrest
+          - cooperation
+          - demonic-notice
+          - gang-trouble
+          - interrogation
+          - questioning
+          - reprisals
+          - rivals
+          - show-of-force
+          - the-usual-suspects
+      dice: { type: integer, min: 0, default: 2 }
+      tier: { type: integer, min: 0, max: 6, default: 0 }
+    results:
+      [
+        pay,
+        forfeit-rep,
+        forfeit-coin,
+        lose-status,
+        war,
+        give-claim,
+        lose-hold,
+        hand-over,
+        talk,
+        other,
+      ]
+    steps:
+      - id: faction
+        kind: choice
+        when: >-
+          params.entanglement in ['cooperation', 'reprisals', 'rivals', 'show-of-force']
+            && countCopies(copy.type == 'faction' && (params.entanglement == 'cooperation'
+              ? copy.state.status >= 3 : params.entanglement == 'rivals'
+              ? copy.state.status == 0 : copy.state.status < 0)) > 0
+        options:
+          copies:
+            type: faction
+            where: >-
+              params.entanglement == 'cooperation' ? self.status >= 3
+                : params.entanglement == 'rivals' ? self.status == 0 : self.status < 0
+      - id: costs
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              tier: 'has(steps.faction) ? steps.faction.self.tier : params.tier'
+      - id: amounts
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              coin: >-
+                params.entanglement == 'arrest' ? wanted.current + 3
+                  : params.entanglement == 'interrogation' ? 3
+                  : params.entanglement == 'questioning' ? 2
+                  : params.entanglement == 'the-usual-suspects' ? 1
+                  : params.entanglement in ['reprisals', 'rivals'] ? flags.tier : 0
+              rep: >-
+                params.entanglement in ['cooperation', 'reprisals', 'rivals'] ? flags.tier
+                  : params.entanglement == 'gang-trouble' ? tier + 1
+                  : params.entanglement == 'demonic-notice' ? 3 : 0
+      - id: answer
+        kind: choice
+        options:
+          - id: pay
+            when: >-
+              params.entanglement in ['arrest', 'interrogation', 'questioning',
+                'the-usual-suspects', 'reprisals'] && coin.current >= flags.coin
+            changes:
+              - { type: adjust, field: coin.current, by: -flags.coin }
+              - type: set
+                when: "params.entanglement == 'reprisals'"
+                field: rep.current
+                value: max(0, rep.current - flags.rep)
+          - id: forfeit-rep
+            when: >-
+              params.entanglement in ['cooperation', 'rivals', 'gang-trouble', 'demonic-notice']
+            changes:
+              - { type: set, field: rep.current, value: 'max(0, rep.current - flags.rep)' }
+          - id: forfeit-coin
+            when: "params.entanglement == 'rivals' && coin.current >= flags.coin"
+            changes:
+              - { type: adjust, field: coin.current, by: -flags.coin }
+          - id: lose-status
+            when: params.entanglement in ['cooperation', 'rivals']
+          - id: war
+            when: "params.entanglement == 'show-of-force'"
+          - id: give-claim
+            when: "params.entanglement == 'show-of-force' && countCopies(copy.type == 'claim') > 0"
+          - id: lose-hold
+            when: "params.entanglement == 'show-of-force' && countCopies(copy.type == 'claim') == 0"
+            changes:
+              - { type: set, when: "hold == 'strong'", field: hold, value: "'weak'" }
+              - { type: adjust, when: "hold == 'weak'", field: tier, by: -1 }
+          - id: hand-over
+            when: "params.entanglement == 'arrest'"
+            changes:
+              - { type: set, field: heat.current, value: 0 }
+          - id: talk
+            when: params.entanglement in ['interrogation', 'questioning', 'the-usual-suspects']
+            changes:
+              - type: adjust
+                when: "params.entanglement == 'interrogation'"
+                field: heat.current
+                by: 3
+          - id: other
+      - id: newStatus
+        kind: branch
+        cases:
+          - when: has(steps.faction) && steps.answer.picked in ['lose-status', 'war']
+            flags:
+              status: "steps.answer.picked == 'war' ? -3 : max(-3, steps.faction.self.status - 1)"
+      - id: status
+        kind: changes
+        when: has(steps.faction) && steps.answer.picked in ['lose-status', 'war']
+        changes:
+          - type: setState
+            copies: { type: faction, where: self.id == steps.faction.picked }
+            key: status
+            value: flags.status
+      - id: claim
+        kind: choice
+        when: "steps.answer.picked == 'give-claim'"
+        options: { copies: { type: claim } }
+        changes:
+          - { type: removeItem, entry: picked }
+      - id: roll
+        kind: roll
+        when: "steps.answer.picked == 'talk' && params.entanglement != 'interrogation'"
+        bands: fortune
+        parts:
+          - { id: pool, dice: '(params.dice)d6kh1', ifEmpty: 2d6kl1 }
+      - id: heat
+        kind: changes
+        when: >-
+          has(steps.roll) && (steps.roll.band == 'failure'
+            || params.entanglement == 'questioning' && steps.roll.band == 'partial')
+        changes:
+          - type: adjust
+            field: heat.current
+            by: "steps.roll.band == 'failure' ? 2 : 1"
+      - id: result
+        kind: outcome
+        result: steps.answer.picked
+        data:
+          harm: >-
+            steps.answer.picked == 'talk' && (params.entanglement == 'interrogation'
+              || params.entanglement == 'the-usual-suspects' && steps.roll.band == 'partial')
+              ? 2 : 0
+
+  - id: crew-downtime
+    tags: [downtime]
+    results: [done]
+    steps:
+      - id: heat
+        kind: changes
+        when: downtime.heat > 0 && heat.current > 0
+        changes:
+          - { type: set, field: heat.current, value: 'max(0, heat.current - downtime.heat)' }
+      - id: rep
+        kind: changes
+        sheet: proposed
+        when: downtime.rep > 0 && heat.current == 0
+        changes:
+          - { type: set, field: rep.current, value: 'min(rep.max, rep.current + downtime.rep)' }
+      - { id: result, kind: outcome, result: "'done'" }
+
+display:
+  fields:
+    downtime.heat: { groups: [heat], priority: 2, showWhen: downtime.heat > 0 }
+    downtime.rep: { groups: [heat], priority: 2, showWhen: downtime.rep > 0 }

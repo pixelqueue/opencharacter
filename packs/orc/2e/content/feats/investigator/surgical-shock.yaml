@@ -1,0 +1,24 @@
+id: feats.investigator.surgical-shock
+type: feat
+tags: [trait.attack]
+fields: { level: 12, category: class, class: classes.investigator }
+prerequisites:
+  - { id: methodology, when: "investigator.methodology == 'forensic-medicine'" }
+actions:
+  - id: surgical-shock
+    tags: [class-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        params: { check: "'skills.medicine.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.attacks, by: 1 }
+      - id: result
+        kind: outcome
+        result: steps.check.result

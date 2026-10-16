@@ -1,0 +1,17 @@
+description: 'orc-2e: leveling from 2nd to 3rd: the level rises, 1,000 experience is spent, a
+  skill increase (Athletics to expert: one increase on the
+  trained skill) and the general feat the new level brings'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:level-up
+  policy:
+    choices: pause
+    allocations: pause
+answers:
+  - amounts:
+      orc-2e:skills.athletics.increases: 1
+  - option: orc-2e:feats.general.fleet

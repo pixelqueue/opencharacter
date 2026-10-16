@@ -1,0 +1,29 @@
+id: feats.alchemist.quick-bomber
+type: feat
+fields: { level: 1, category: class, class: classes.alchemist }
+actions:
+  - id: quick-bomber
+    tags: [strike, bomb]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    available: >-
+      countCopies(copy.type == 'consumable' && copy.fields.category == 'bomb' && copy.quantity > 0) > 0
+    steps:
+      - id: bomb
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: consumable
+            where: "item.category == 'bomb' && self.quantity > 0"
+      - id: throw
+        kind: action
+        use: throw
+        entry: steps.bomb.picked
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.throw.result
+        data:
+          damage: steps.throw.data.damage

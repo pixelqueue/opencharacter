@@ -1,0 +1,20 @@
+description: "FitD: with the crew's Synchronized, 6s on different rolls of a group action make a critical"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:group-action }
+  params: { rating: fitd-scoundrel:ratings.study }
+  participants:
+    member:
+      - { id: vex }
+      - { id: arcy }
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:members.synchronized: true
+answers:
+  - outcome: { result: success, data: { position: risky, effect: standard } }
+  - outcome: { result: failure, data: { position: risky, effect: standard } }

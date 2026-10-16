@@ -1,0 +1,25 @@
+fields:
+  xp.max.playbook: { type: integer, formula: 8 }
+  xp.max.attribute: { type: integer, formula: 6 }
+  xp.playbook: { type: integer, input: true, default: 0, min: 0, max: xp.max.playbook }
+  xp.insight: { type: integer, input: true, default: 0, min: 0, max: xp.max.attribute }
+  xp.prowess: { type: integer, input: true, default: 0, min: 0, max: xp.max.attribute }
+  xp.resolve: { type: integer, input: true, default: 0, min: 0, max: xp.max.attribute }
+
+  coin: { type: integer, input: true, default: 0, min: 0, max: 4 }
+  stash: { type: integer, input: true, default: 0, min: 0, max: 40 }
+
+display:
+  groups:
+    - id: xp
+      priority: 1
+    - id: wealth
+      priority: 1
+  fields:
+    xp.playbook: { groups: [xp], priority: 0, input: { widget: track } }
+    xp.insight: { groups: [xp], priority: 0, input: { widget: track } }
+    xp.prowess: { groups: [xp], priority: 0, input: { widget: track } }
+    xp.resolve: { groups: [xp], priority: 0, input: { widget: track } }
+    coin: { groups: [wealth], priority: 0, input: { widget: track } }
+    stash: { groups: [wealth], priority: 0, input: { widget: number } }
+    stash.lifestyle: { groups: [wealth], priority: 2 }

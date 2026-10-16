@@ -1,0 +1,17 @@
+# 16d6 = 52 fire. Without targets the outcome gives the damage, DC and save for the app; using
+# the breath marks it as recharging on its own copy.
+status: finished
+outcome:
+  result: used
+  data: { damage: 52, dc: 17, save: dex, condition: '' }
+proposedChanges:
+  - to: self
+    step: spend
+    change: { type: setState, entry: fire-breath, key: recharging, value: true }
+log:
+  - step: damage
+    action: 5e-srd-5.1:monster-effect
+    kind: dice
+    by: engine
+    faces: [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4]
+    total: 52

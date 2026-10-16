@@ -1,0 +1,17 @@
+id: spells.bit-of-luck
+type: spell
+tags:
+  [trait.cleric, trait.concentrate, trait.focus, trait.fortune, trait.manipulate, trait.uncommon]
+fields:
+  rank: 1
+  cast: two
+  range: 30
+  targets: 1
+  duration: minutes
+  durationAmount: 1
+  applyTo: ally
+effects:
+  - target: { rolls: [save] }
+    op: rollModifier
+    value: { kind: advantage }
+    scope: applied

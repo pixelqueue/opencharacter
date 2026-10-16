@@ -1,0 +1,30 @@
+description: 'A computed field naming a derived field fails the action with not-input-field'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might: { type: integer, input: true, default: 1 }
+          stats.bonus: { type: integer, formula: stats.might * 2 }
+        actions:
+          - id: raise
+            params:
+              stat: { type: id, of: field }
+            steps:
+              - id: raise
+                kind: changes
+                changes:
+                  - { type: adjust, field: { formula: params.stat.id }, by: 1 }
+      content: []
+input:
+  action:
+    id: test-pack:raise
+  params:
+    stat: stats.bonus

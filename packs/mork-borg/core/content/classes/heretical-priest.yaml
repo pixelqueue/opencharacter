@@ -1,0 +1,29 @@
+id: classes.heretical-priest
+type: class
+fields:
+  strength: 3d6-2
+  agility: 3d6
+  presence: 3d6+2
+  toughness: 3d6
+  hitDie: 1d8
+  omensDie: 1d4
+  silver: 3d6
+  weaponDie: 1d8
+  armorDie: 1d4
+effects:
+  - { target: powers.armorLimit, op: atLeast, value: 2 }
+choices:
+  # The mitre is read as worn: defense DR10.
+  - id: feature
+    from:
+      options:
+        - id: sacred-shepherds-crook
+        - id: stolen-mitre
+          effects: [{ target: tests.defenseDr, op: add, value: -2 }]
+        - id: list-of-sins
+          effects: [{ target: features.listOfSins, op: set, value: true }]
+        - id: blasphemous-nechrubel-bible
+          effects: [{ target: features.nechrubelBible, op: set, value: true }]
+        - id: stones-of-thel-emas
+          effects: [{ target: features.stones, op: set, value: true }]
+        - id: crucifix

@@ -1,0 +1,16 @@
+# 3 + Strength 0 fails DC 20. The feature's option counts the d20 as a 20: 20 + 0 = 20, a
+# success, and the use is spent.
+status: finished
+outcome:
+  result: success
+  data: { total: 20 }
+proposedChanges:
+  - to: self
+    step: luck
+    change: { type: setState, entry: rogue, key: strokeOfLuckUsed, value: true }
+log:
+  - { step: check, kind: dice, by: engine, faces: [3], total: 3 }
+  - step: luck
+    kind: choice
+    by: app
+    option: '5e-srd-5.1:features.rogue.stroke-of-luck#twenty'

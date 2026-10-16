@@ -1,0 +1,38 @@
+description: 'A field parameter exposes the field view (`id`, `type`, `tags`, `[]` if none) and its `value`'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might:
+            { type: integer, input: true, default: 1, min: 0, max: 10, tags: [stat, stat.body] }
+          stats.wits: { type: integer, input: true, default: 1, min: 0, max: 10 }
+        actions:
+          - id: inspect
+            params:
+              stat: { type: id, of: field, where: "item.type == 'integer'" }
+              other: { type: id, of: field }
+            steps:
+              - id: result
+                kind: outcome
+                result: "'stat.body' in params.stat.tags ? 'body' : 'other'"
+                data:
+                  id: params.stat.id
+                  type: params.stat.type
+                  tags: params.stat.tags
+                  value: params.stat.value
+                  otherTags: params.other.tags
+      content: []
+input:
+  action:
+    id: test-pack:inspect
+  params:
+    stat: stats.might
+    other: test-pack:stats.wits

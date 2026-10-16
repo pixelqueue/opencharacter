@@ -1,0 +1,61 @@
+{
+  "set": "effect-operations",
+  "specVersion": "0.1.0",
+  "description": "The fixed set of effect operations. Per field, effects apply in `order` (lower first); atLeast and atMost share the last stage.",
+  "items": [
+    {
+      "id": "set",
+      "order": 1,
+      "targets": ["field", "roll"],
+      "description": "Replace the value from the field's own formula. Several active set effects on one field compete; the engine reports them and the recommended one. On a roll, it replaces the parts its target's `parts` tags name."
+    },
+    {
+      "id": "add",
+      "order": 2,
+      "targets": ["field", "fields", "roll", "incoming"],
+      "description": "Add a number. On a roll, adds a roll item (a flat number, or dice such as 1d4). On an incoming change, adds to its amount."
+    },
+    {
+      "id": "multiply",
+      "order": 3,
+      "targets": ["field", "fields", "incoming"],
+      "description": "Multiply by a number (0.5 halves, 2 doubles), then round by the game's rounding. Applied after add, matching resistance applied to the total."
+    },
+    {
+      "id": "atLeast",
+      "order": 4,
+      "targets": ["field", "fields", "roll", "incoming"],
+      "description": "Raise the value to at least this number. On a roll, raise its total once the dice are rolled; the step's result and log list the bound in `bounds`."
+    },
+    {
+      "id": "atMost",
+      "order": 4,
+      "targets": ["field", "fields", "roll", "incoming"],
+      "description": "Lower the value to at most this number. On a roll, lower its total once the dice are rolled, after any atLeast."
+    },
+    {
+      "id": "grant",
+      "order": 0,
+      "targets": ["field", "fields"],
+      "description": "Add a member to a set field: a proficiency, a tag, an action, or every match of a query. On a set of fields, to each `set` field it matches."
+    },
+    {
+      "id": "rollModifier",
+      "order": 5,
+      "targets": ["roll"],
+      "description": "Change how a roll is made: one of the roll modifier kinds (advantage, extra dice multiplier, reroll, …)."
+    },
+    {
+      "id": "option",
+      "order": 0,
+      "targets": ["choice"],
+      "description": "Add an option to an action's choice steps with a matching tag: `{ id, changes, to? }`, offered after the step's own options while the effect's `when` holds, with ID `<content id>#<id>`."
+    },
+    {
+      "id": "changes",
+      "order": 0,
+      "targets": ["step"],
+      "description": "Add changes to an action's changes steps with a matching tag: `{ changes, to? }`, proposed after the step's own changes each time it runs while the effect's `when` holds."
+    }
+  ]
+}

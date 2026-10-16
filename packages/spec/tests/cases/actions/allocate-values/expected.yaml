@@ -1,0 +1,13 @@
+status: finished
+outcome:
+  data: { given: true }
+proposedChanges:
+  - { to: self, step: scores, change: { type: set, field: 'test-pack:stats.might', value: 2 } }
+  - { to: self, step: scores, change: { type: set, field: 'test-pack:stats.wits', value: 3 } }
+  - { to: self, step: scores, change: { type: set, field: 'test-pack:stats.grace', value: 1 } }
+log:
+  - step: scores
+    action: test-pack:assign
+    kind: allocate
+    by: app
+    amounts: { 'test-pack:stats.might': 2, 'test-pack:stats.wits': 3, 'test-pack:stats.grace': 1 }

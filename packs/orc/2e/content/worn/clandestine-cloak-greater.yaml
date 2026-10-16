@@ -1,0 +1,37 @@
+# The hood is taken as up while the cloak is worn.
+id: worn.clandestine-cloak-greater
+type: worn
+tags: [trait.invested, trait.magical, trait.uncommon]
+fields:
+  level: 10
+  price: 900
+  bulk: 0.1
+  usage: cloak
+  activation: two
+  frequency: once-per-day
+grants:
+  - { item: spells.veil-of-privacy, when: 'self.equipped && self.invested' }
+effects:
+  - target: skills.stealth.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: skills.diplomacy.mod
+    op: add
+    value: -1
+    stackKey: item-penalty
+    when: 'self.equipped && self.invested'
+  - target: skills.intimidation.mod
+    op: add
+    value: -1
+    stackKey: item-penalty
+    when: 'self.equipped && self.invested'
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.veil-of-privacy && self.used < 1'
+    value:
+      id: veil-of-privacy
+      flags: { itemPaid: true, rank: 5 }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

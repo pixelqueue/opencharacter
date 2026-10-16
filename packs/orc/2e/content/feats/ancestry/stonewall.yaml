@@ -1,0 +1,16 @@
+id: feats.ancestry.stonewall
+type: feat
+tags: [trait.reaction]
+fields: { level: 17, category: ancestry, ancestry: ancestries.dwarf }
+state:
+  used: { type: boolean, default: false }
+actions:
+  - id: stonewall
+    tags: [reaction]
+    available: '!self.used'
+    steps:
+      - id: petrify
+        kind: changes
+        changes:
+          - { type: applyEffect, source: "'conditions.petrified'" }
+          - { type: setState, pick: self, key: used, value: true }

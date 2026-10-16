@@ -1,0 +1,16 @@
+# no script starts at 1.0.0; the smallest from above it (1.1.0) not above the target is applied
+ok: true
+character:
+  packs:
+    - id: test-pack
+      version: 2.0.0
+  values:
+    test-pack:stats.power: 5
+pending: []
+report:
+  values: []
+  steps:
+    - pack: test-pack
+      from: 1.1.0
+      to: 2.0.0
+      op: renameField

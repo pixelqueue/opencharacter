@@ -1,0 +1,17 @@
+description: "A field's computed tag gives a string or a list of strings: one giving a number is a formula-error (type-mismatch) at load"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [high]
+        fields:
+          level: { type: integer, input: true, default: 1 }
+          stat: { type: integer, formula: 3, tags: [high, { formula: level + 1 }] }
+      content: []

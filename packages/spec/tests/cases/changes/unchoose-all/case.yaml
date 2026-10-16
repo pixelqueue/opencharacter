@@ -1,0 +1,29 @@
+description: '`unchoose` without `option` removes every pick of the choice with its nested picks, so a batch can clear a choice and pick again'
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          kit:
+            carried: true
+      content:
+        - id: kits.paint
+          type: kit
+          choices:
+            - id: marks
+              pick: 2
+              from:
+                options:
+                  - id: stripe
+                    choices:
+                      - id: shade
+                        from: { options: [{ id: dark }, { id: light }] }
+                  - { id: dot }
+                  - { id: ring }

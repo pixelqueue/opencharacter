@@ -1,0 +1,119 @@
+id: classes.sorcerer
+type: class
+tags: [trait.sorcerer]
+fields: { hp: 6 }
+# Each rank's bloodline spell is granted and counted in `spells.granted.*`, so the repertoire's
+# picks shrink by one.
+effects:
+  # The class's trait, for content that reads the class by it (such as Natural Ambition).
+  - { target: class.traits, op: grant, value: { tag: trait.sorcerer } }
+  - { target: attributes.cha.boosts, op: add, value: 1 }
+  - { target: class.keyAttribute, op: set, value: "'cha'" }
+  - { target: perception.rank, op: atLeast, value: 1 }
+  - { target: saves.fortitude.rank, op: atLeast, value: 1 }
+  - { target: saves.reflex.rank, op: atLeast, value: 1 }
+  - { target: saves.will.rank, op: atLeast, value: 2 }
+  - { target: attacks.simple.rank, op: atLeast, value: 1 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 1 }
+  - { target: defenses.unarmored.rank, op: atLeast, value: 1 }
+  - { target: classDc.rank, op: atLeast, value: 1 }
+  - { target: spellcasting.kind, op: set, value: "'spontaneous'" }
+  - { target: spellcasting.attribute, op: set, value: "'cha'" }
+  - { target: spellcasting.slotsPerRank, op: set, value: 3 }
+  - { target: spellcasting.cantrips, op: add, value: 5 }
+  - { target: spellcasting.rank, op: atLeast, value: 1 }
+grants:
+  - item: features.spellcasting.repertoire
+  - item: features.sorcerer.sorcerous-potency
+  - item: features.sorcerer.blood-magic
+  - { item: features.spellcasting.signature-spells, when: level >= 3 }
+  - { item: features.sorcerer.magical-fortitude, when: level >= 5 }
+  - { item: features.sorcerer.expert-spellcaster, when: level >= 7 }
+  - { item: features.sorcerer.reflex-expertise, when: level >= 9 }
+  - { item: features.sorcerer.perception-expertise, when: level >= 11 }
+  - { item: features.sorcerer.weapon-expertise, when: level >= 11 }
+  - { item: features.sorcerer.defensive-robes, when: level >= 13 }
+  - { item: features.sorcerer.weapon-specialization, when: level >= 13 }
+  - { item: features.sorcerer.master-spellcaster, when: level >= 15 }
+  - { item: features.sorcerer.majestic-will, when: level >= 17 }
+  - { item: features.sorcerer.bloodline-paragon, when: level >= 19 }
+  - { item: features.sorcerer.legendary-spellcaster, when: level >= 19 }
+choices:
+  # Asked first, so the repertoire's picks see the tradition and the free skills the bloodline's
+  # trainings.
+  - id: bloodline
+    from:
+      items:
+        [
+          classes.sorcerer.bloodlines.aberrant,
+          classes.sorcerer.bloodlines.angelic,
+          classes.sorcerer.bloodlines.demonic,
+          classes.sorcerer.bloodlines.diabolic,
+          classes.sorcerer.bloodlines.draconic,
+          classes.sorcerer.bloodlines.elemental,
+          classes.sorcerer.bloodlines.fey,
+          classes.sorcerer.bloodlines.hag,
+          classes.sorcerer.bloodlines.imperial,
+          classes.sorcerer.bloodlines.undead,
+        ]
+  - id: skills
+    unique: skill-training
+    pick: 2 + max(0, attributes.int.mod)
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+          skill.lore.academia,
+          skill.lore.circus,
+          skill.lore.farming,
+          skill.lore.legal,
+          skill.lore.scribing,
+          skill.lore.underworld,
+          skill.lore.warfare,
+        ]
+      where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
+    effects:
+      - { target: skills.chosen, op: grant, value: { formula: pick.value } }
+  - id: class-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    # The class's feats are worked out once (the query reads only the item); the slot's level is the
+    # choice's `eligible`, so a listing reads only them.
+    from:
+      type: feat
+      where: >-
+        item.category == 'class'
+          && (has(item.class) && item.class == @classes.sorcerer || 'trait.sorcerer' in item.tags)
+          || 'archetype-feat' in item.tags
+    eligible: >-
+      (item.category == 'class' && has(item.class) && item.class == @classes.sorcerer
+          || 'trait.sorcerer' in item.tags) && !('trait.archetype' in item.tags) && item.level <= slot
+        || 'trait.archetype' in item.tags && item.level <= slot
+          && (!('trait.dedication' in item.tags) || archetypes.open == 0 || item.id in choice.picks
+            || countList(choice.picks, x in archetypes.dedications) > 0)
+        || slot >= 2 && item.id in [archetypes.extra.level2, archetypes.extra.level4, archetypes.extra.level6,
+            archetypes.extra.level8, archetypes.extra.level10, archetypes.extra.level12,
+            archetypes.extra.level14, archetypes.extra.level16, archetypes.extra.level18,
+            archetypes.extra.level20][floor(slot / 2) - 1]
+  - id: skill-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: level >= slot
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= slot

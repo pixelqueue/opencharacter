@@ -1,0 +1,12 @@
+description: 'orc-2e: a prepared caster casts fear from a 2nd-rank slot: the copy is expended, and a target that fails its Will save (DC 18) is frightened 2'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: fear-2 }
+  participants:
+    target:
+      - { id: goblin }
+answers:
+  - { outcome: { result: failure } }

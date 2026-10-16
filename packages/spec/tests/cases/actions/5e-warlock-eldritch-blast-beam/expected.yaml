@@ -1,0 +1,24 @@
+# Attack 11 + prof 4 + cha 3 = 18 against AC 14: a hit. Damage 1d10 (7) + cha 3 = 10 force.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 18, range: 300, push: 10 }
+proposedChanges:
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.1:hp.current
+      by: -10
+      tags: [damage, attack, damage.force]
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces: [11]
+    total: 18
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [7]
+    total: 10

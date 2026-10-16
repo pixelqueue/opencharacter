@@ -1,0 +1,25 @@
+id: backgrounds.merchant
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.diplomacy },
+      when: "!('skill.diplomacy' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.mercantile },
+      when: "!('skill.lore.mercantile' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.bargain-hunter
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['int', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

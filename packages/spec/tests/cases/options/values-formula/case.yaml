@@ -1,0 +1,37 @@
+description: "A value choice's values come from a formula over a linked sheet's set field"
+specVersion: 0.1.0
+call: listOptions
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        links:
+          crew:
+            fields:
+              members.dotRatings: { type: set, of: string, default: [] }
+              members.dotCount: { type: integer, default: 0 }
+        fields:
+          crew.dots: { type: set, of: string }
+        choices:
+          - id: crew-dots
+            pick: { min: 0, max: 'has(links.crew) ? links.crew.members.dotCount : 0' }
+            required: false
+            from:
+              values: { formula: 'has(links.crew) ? links.crew.members.dotRatings : []' }
+              where: value != 'wreck'
+            effects:
+              - { target: crew.dots, op: grant, value: { formula: pick.value } }
+      content: []
+input:
+  choice: { choice: [crew-dots] }
+  links:
+    test-pack:crew:
+      id: the-crew
+      values:
+        members.dotRatings: [skirmish, hunt, wreck, hunt]
+        members.dotCount: 1

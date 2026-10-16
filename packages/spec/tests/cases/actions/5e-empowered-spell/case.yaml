@@ -1,0 +1,13 @@
+description: '5E sorcerer 6 with Charisma 10 casts Fire Bolt with Empowered Spell: it rerolls up to its Charisma modifier (minimum one) of the damage dice, the lowest first'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:cast-spell, entry: sorcerer, source: 5e-srd-5.1:spells.fire-bolt }
+  params: { targetAc: 13 }
+  policy:
+    rules:
+      - { kind: choice, tags: [metamagic], then: pause }
+answers:
+  - { option: '5e-srd-5.1:features.sorcerer.metamagic#empowered' }

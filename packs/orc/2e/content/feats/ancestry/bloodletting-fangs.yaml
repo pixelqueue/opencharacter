@@ -1,0 +1,17 @@
+id: feats.ancestry.bloodletting-fangs
+type: feat
+fields: { level: 9, category: ancestry, heritage: heritages.dhampir }
+prerequisites:
+  - {
+      id: fangs,
+      when: 'countCopies(copy.item in [@weapons.dhampir-fangs, @weapons.lizardfolk-fangs]) > 0',
+    }
+effects:
+  - target: { steps: [strike.hit.critical] }
+    op: changes
+    when: 'action.item.id in [@weapons.dhampir-fangs, @weapons.lizardfolk-fangs]'
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.persistent-damage'"
+          state: { damage: 1d4, damageType: "'bleed'" }

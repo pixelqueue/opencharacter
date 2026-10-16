@@ -1,0 +1,306 @@
+description: 'Dice values: building unrolled dice expressions'
+specVersion: 0.1.0
+cases:
+  - name: a single die
+    evaluate: 1d20
+    value:
+      terms:
+        - sign: 1
+          count: 1
+          sides: 20
+          modifiers: []
+      flat: 0
+    valueType: dice
+  - name: dice plus a flat bonus
+    evaluate: 2d6 + 3
+    value:
+      terms:
+        - sign: 1
+          count: 2
+          sides: 6
+          modifiers: []
+      flat: 3
+    valueType: dice
+  - name: a flat number before dice
+    evaluate: 2 + 1d6
+    value:
+      terms:
+        - sign: 1
+          count: 1
+          sides: 6
+          modifiers: []
+      flat: 2
+    valueType: dice
+  - name: dice plus a field
+    evaluate: 1d8 + abilities.str.mod
+    fields:
+      abilities.str.mod:
+        type: integer
+        value: 3
+    value:
+      terms:
+        - sign: 1
+          count: 1
+          sides: 8
+          modifiers: []
+      flat: 3
+    valueType: dice
+  - name: dice minus a flat penalty
+    evaluate: 1d20 - 2
+    value:
+      terms:
+        - sign: 1
+          count: 1
+          sides: 20
+          modifiers: []
+      flat: -2
+    valueType: dice
+  - name: negated dice
+    evaluate: -1d4
+    value:
+      terms:
+        - sign: -1
+          count: 1
+          sides: 4
+          modifiers: []
+      flat: 0
+    valueType: dice
+  - name: negating dice with a flat part
+    evaluate: -(1d4 + 2)
+    value:
+      terms:
+        - sign: -1
+          count: 1
+          sides: 4
+          modifiers: []
+      flat: -2
+    valueType: dice
+  - name: a flat number minus dice
+    evaluate: 3 - 1d4
+    value:
+      terms:
+        - sign: -1
+          count: 1
+          sides: 4
+          modifiers: []
+      flat: 3
+    valueType: dice
+  - name: dice minus dice
+    evaluate: 1d8 - 1d4
+    value:
+      terms:
+        - sign: 1
+          count: 1
+          sides: 8
+          modifiers: []
+        - sign: -1
+          count: 1
+          sides: 4
+          modifiers: []
+      flat: 0
+    valueType: dice
+  - name: dice plus dice keeps both terms in order
+    evaluate: 2d6 + 1d4 + 3
+    value:
+      terms:
+        - sign: 1
+          count: 2
+          sides: 6
+          modifiers: []
+        - sign: 1
+          count: 1
+          sides: 4
+          modifiers: []
+      flat: 3
+    valueType: dice
+  - name: equal dice terms are not merged
+    evaluate: 1d6 + 1d6
+    value:
+      terms:
+        - sign: 1
+          count: 1
+          sides: 6
+          modifiers: []
+        - sign: 1
+          count: 1
+          sides: 6
+          modifiers: []
+      flat: 0
+    valueType: dice
+  - name: modifiers carry into the value
+    evaluate: 2d20kh1
+    value:
+      terms:
+        - sign: 1
+          count: 2
+          sides: 20
+          modifiers:
+            - type: keepHighest
+              count: 1
+      flat: 0
+    valueType: dice
+  - name: Fate dice
+    evaluate: 4dF
+    value:
+      terms:
+        - sign: 1
+          count: 4
+          sides: F
+          modifiers: []
+      flat: 0
+    valueType: dice
+  - name: a computed count is evaluated
+    evaluate: (ratings.skirmish)d6kh1
+    fields:
+      ratings.skirmish:
+        type: integer
+        value: 3
+    value:
+      terms:
+        - sign: 1
+          count: 3
+          sides: 6
+          modifiers:
+            - type: keepHighest
+              count: 1
+      flat: 0
+    valueType: dice
+  - name: a computed count from flags
+    evaluate: (flags.pool)d6kh1
+    roots:
+      flags:
+        pool: 2
+    value:
+      terms:
+        - sign: 1
+          count: 2
+          sides: 6
+          modifiers:
+            - type: keepHighest
+              count: 1
+      flat: 0
+    valueType: dice
+  - name: a computed count of zero
+    evaluate: (flags.pool)d6
+    roots:
+      flags:
+        pool: 0
+    value:
+      terms:
+        - sign: 1
+          count: 0
+          sides: 6
+          modifiers: []
+      flat: 0
+    valueType: dice
+  - name: a negative computed count
+    evaluate: (flags.pool)d6
+    roots:
+      flags:
+        pool: -1
+    error: type-mismatch
+  - name: a decimal computed count
+    evaluate: (1.5)d6
+    error: type-mismatch
+  - name: a string computed count
+    evaluate: ('a')d6
+    error: type-mismatch
+  - name: a computed count above the safety limit
+    evaluate: (flags.pool)d6
+    roots:
+      flags:
+        pool: 1001
+    error: safety-limit-exceeded
+  - name: a conditional chooses dice (versatile two-handed)
+    evaluate: "self.wielding == 'two-handed' ? 1d10 : 1d8"
+    roots:
+      self:
+        wielding: two-handed
+    value:
+      terms:
+        - sign: 1
+          count: 1
+          sides: 10
+          modifiers: []
+      flat: 0
+    valueType: dice
+  - name: a conditional chooses dice (one-handed)
+    evaluate: "self.wielding == 'two-handed' ? 1d10 : 1d8"
+    roots:
+      self:
+        wielding: one-handed
+    value:
+      terms:
+        - sign: 1
+          count: 1
+          sides: 8
+          modifiers: []
+      flat: 0
+    valueType: dice
+  - name: FitD pool with dots
+    evaluate: 'ratings.hunt > 0 ? (ratings.hunt)d6kh1 : 2d6kl1'
+    fields:
+      ratings.hunt:
+        type: integer
+        value: 2
+    value:
+      terms:
+        - sign: 1
+          count: 2
+          sides: 6
+          modifiers:
+            - type: keepHighest
+              count: 1
+      flat: 0
+    valueType: dice
+  - name: FitD pool with zero dots
+    evaluate: 'ratings.hunt > 0 ? (ratings.hunt)d6kh1 : 2d6kl1'
+    fields:
+      ratings.hunt:
+        type: integer
+        value: 0
+    value:
+      terms:
+        - sign: 1
+          count: 2
+          sides: 6
+          modifiers:
+            - type: keepLowest
+              count: 1
+      flat: 0
+    valueType: dice
+  - name: dice times an int
+    evaluate: 2 * 1d6
+    value: { terms: [{ sign: 1, count: 2, sides: 6, modifiers: [] }], flat: 0 }
+    valueType: dice
+  - name: dice times an int, dice on the left
+    evaluate: 1d6 * 2
+    value: { terms: [{ sign: 1, count: 2, sides: 6, modifiers: [] }], flat: 0 }
+    valueType: dice
+  - name: dice divided
+    evaluate: 1d6 / 2
+    error: type-mismatch
+  - name: dice plus a decimal
+    evaluate: 1d6 + 0.5
+    error: type-mismatch
+  - name: dice plus a string
+    evaluate: 1d6 + 'a'
+    error: type-mismatch
+  - name: dice equality
+    evaluate: 1d6 == 1d6
+    error: type-mismatch
+  - name: dice compared with a number
+    evaluate: 1d6 < 3
+    error: type-mismatch
+  - name: dice inequality
+    evaluate: 1d6 != 2
+    error: type-mismatch
+  - name: not of dice
+    evaluate: '!1d6'
+    error: type-mismatch
+  - name: dice in a list membership
+    evaluate: 1d6 in [1, 2]
+    error: type-mismatch
+  - name: floor of dice
+    evaluate: floor(1d6)
+    error: type-mismatch

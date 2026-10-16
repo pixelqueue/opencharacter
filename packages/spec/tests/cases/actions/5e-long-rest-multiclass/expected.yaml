@@ -1,0 +1,74 @@
+# hp.max = 29 + Con mod 2 * total level 4 = 37. The hit dice budget is max(1, floor(4 / 2)) = 2.
+# prefer (self.hitDiceSpent - picks): fighter 3, barbarian 1, then fighter 2, barbarian 1.
+status: finished
+outcome:
+  result: rested
+proposedChanges:
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:hp.current, value: 37 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:hp.temp, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:deathSaves.successes, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:deathSaves.failures, value: 0 }
+  - to: self
+    step: rest
+    change: { type: adjust, field: 5e-srd-5.1:conditions.exhaustion, by: -1 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level1.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level2.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level3.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level4.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level5.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level6.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level7.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level8.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:spellSlots.level9.used, value: 0 }
+  - to: self
+    step: rest
+    change: { type: set, field: 5e-srd-5.1:pactSlots.used, value: 0 }
+  - to: self
+    step: hitDice
+    change: { type: adjustState, entry: fighter, key: hitDiceSpent, by: -1 }
+  - to: self
+    step: hitDice
+    change: { type: adjustState, entry: fighter, key: hitDiceSpent, by: -1 }
+log:
+  - {
+      step: hitDice,
+      action: 5e-srd-5.1:long-rest,
+      kind: choice,
+      by: engine,
+      option: 'fighter',
+      index: 0,
+    }
+  - {
+      step: hitDice,
+      action: 5e-srd-5.1:long-rest,
+      kind: choice,
+      by: engine,
+      option: 'fighter',
+      index: 1,
+    }

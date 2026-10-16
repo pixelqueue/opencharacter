@@ -1,0 +1,14 @@
+# Tier I, +1 in prison (Ironhook Contacts), +1d Guard Payoff: 3d6 [2, 3, 1] keeps 3, a failure,
+# but Cell Block Control spares the member the trauma. The wanted level drops to 1 and heat
+# clears; Parole Influence reads the sentence at wanted level 1.
+status: finished
+outcome:
+  result: failure
+  data: { prisonClaim: false, trauma: false, sentence: 1 }
+proposedChanges:
+  - to: self
+    step: wanted
+    change: { type: set, field: fitd-crew:wanted.current, value: 1 }
+  - to: self
+    step: wanted
+    change: { type: set, field: fitd-crew:heat.current, value: 0 }

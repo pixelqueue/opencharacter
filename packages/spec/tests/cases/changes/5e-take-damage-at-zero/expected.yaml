@@ -1,0 +1,28 @@
+# Hit points already at 0: one failed death save.
+ok: true
+adjustments:
+  - {
+      field: 5e-srd-5.1:hp.current,
+      by: 0,
+      requested: -3,
+      taken: -3,
+      reason: requested,
+      clamped: true,
+    }
+followUps:
+  - id: damage-while-dying-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:damage-while-dying
+    to: self
+    required: true
+    changes:
+      - { type: adjust, field: 5e-srd-5.1:deathSaves.failures, by: 1 }
+      - { type: clearFollowUp, id: damage-while-dying-1 }
+    cause:
+      field: 5e-srd-5.1:hp.current
+      by: 0
+      requested: -3
+      taken: -3
+      reason: requested
+      clamped: true
+      tags: [damage, damage.piercing, magical]

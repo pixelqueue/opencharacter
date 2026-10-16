@@ -1,0 +1,110 @@
+settings:
+  stacking:
+    keys:
+      status-penalty: lowestOnly
+
+tags: [attack, damage, die, attribute, map, weapon-die, extra, attr.str, attr.int]
+
+fields:
+  # The attack with Strength and with Intelligence: typed effects reach them by tag.
+  attack.str: { type: integer, formula: 3, tags: [attr.str] }
+  attack.int: { type: integer, formula: 4, tags: [attr.int] }
+  # The attack's penalty (0 for none).
+  map: { type: integer, input: true, default: 5 }
+  # Switches for the effects below.
+  useInt: { type: boolean, input: true, default: false }
+  stupid: { type: boolean, input: true, default: false }
+  cursed: { type: boolean, input: true, default: false }
+  smallMap: { type: boolean, input: true, default: false }
+  smallerMap: { type: boolean, input: true, default: false }
+  diceMap: { type: boolean, input: true, default: false }
+  stepAll: { type: integer, input: true, default: 0 }
+  stepWeapon: { type: boolean, input: true, default: false }
+  fixed: { type: integer, input: true, default: 0 }
+  fixedExtra: { type: integer, input: true, default: 0 }
+  lucky: { type: boolean, input: true, default: false }
+
+effects:
+  # Stupid: -1 to Intelligence-based fields (status).
+  - target: { fields: { where: "'attr.int' in item.tags" } }
+    op: add
+    value: -1
+    stackKey: status-penalty
+    when: stupid
+  # Cursed: -2 to attacks (status), which beats a field's own status penalty.
+  - target: { rolls: [attack] }
+    op: add
+    value: -2
+    stackKey: status-penalty
+    when: cursed
+  # The attack with Intelligence instead: a single field reference.
+  - target: { rolls: [attack], parts: [attribute] }
+    op: set
+    value: attack.int
+    when: useInt
+  # Smaller penalties: of two counted sets on one part, the recommended (highest) one.
+  - target: { rolls: [attack], parts: [map] }
+    op: set
+    value: -3
+    when: smallMap
+  - target: { rolls: [attack], parts: [map] }
+    op: set
+    value: -2
+    when: smallerMap
+  # A penalty of dice.
+  - target: { rolls: [attack], parts: [map] }
+    op: set
+    value: -1d4
+    when: diceMap
+  # Die steps: every part's dice, or only the weapon die's.
+  - target: { rolls: [damage] }
+    op: rollModifier
+    value: { kind: stepDie, steps: stepAll }
+    when: stepAll != 0
+  - target: { rolls: [damage], parts: [weapon-die] }
+    op: rollModifier
+    value: { kind: stepDie, steps: 1 }
+    when: stepWeapon
+  # Given faces: the attack's d20, or the damage's extra die.
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: setFaces, faces: [fixed] }
+    when: fixed != 0
+  - target: { rolls: [damage], parts: [extra] }
+    op: rollModifier
+    value: { kind: setFaces, faces: [fixedExtra] }
+    when: fixedExtra != 0
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: lucky
+  # An added die: not a part, so no step reaches it.
+  - { target: { rolls: [damage] }, op: add, value: 1d4 }
+
+actions:
+  # A d20, Strength, and the penalty.
+  - id: attack
+    steps:
+      - id: roll
+        kind: roll
+        tags: [attack]
+        parts:
+          - { dice: 1d20, tags: [die] }
+          - { field: "'attack.str'", tags: [attribute] }
+          - { value: -map, when: map > 0, tags: [map] }
+      - id: result
+        kind: outcome
+        data: { total: steps.roll.total }
+  # 1d8 weapon damage and 1d6 extra; a d20 the steps leave alone; an added 1d4 they don't reach.
+  - id: damage
+    steps:
+      - id: roll
+        kind: roll
+        tags: [damage]
+        parts:
+          - { dice: 1d8, tags: [weapon-die] }
+          - { dice: 1d6, tags: [extra] }
+          - { dice: 1d20, tags: [die] }
+      - id: result
+        kind: outcome
+        data: { total: steps.roll.total }

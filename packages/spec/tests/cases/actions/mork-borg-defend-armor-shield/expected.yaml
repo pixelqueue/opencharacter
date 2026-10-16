@@ -1,0 +1,45 @@
+# Defense DR 12 + 2 (medium armor) = 14; 13 - 1 = 12 fails. The attack's 1d8 = 7 gets through: the
+# medium armor's d4 and the shield's 1 come off when the character applies it
+# (changes/mork-borg-armor-shield-defend).
+status: finished
+outcome:
+  result: failure
+  data:
+    damage: 7
+    counterAttack: false
+proposedChanges:
+  - to: self
+    step: take
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -7
+      tags:
+        - damage
+log:
+  - step: check/check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 13
+    total: 12
+    band: failure
+    bandSet: mork-borg-core:test
+  - step: check/fate
+    action: mork-borg-core:test
+    kind: choice
+    by: engine
+    option: keep
+  - step: hit
+    action: mork-borg-core:defend
+    kind: dice
+    by: engine
+    faces:
+      - 7
+    total: 7
+  - step: ward
+    action: mork-borg-core:defend
+    kind: choice
+    by: engine
+    option: take

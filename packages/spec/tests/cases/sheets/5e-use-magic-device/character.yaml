@@ -1,0 +1,26 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 10
+  5e-srd-5.1:abilities.dex.base: 16
+  5e-srd-5.1:abilities.con.base: 12
+  5e-srd-5.1:hp.base: 60
+  5e-srd-5.1:hp.current: 60
+features:
+  - id: cls
+    item: 5e-srd-5.1:classes.rogue
+    state: { level: 13, startingClass: true }
+    choices:
+      roguish-archetype: [{ option: 5e-srd-5.1:subclasses.thief }]
+inventory:
+  - id: wand
+    item: 5e-srd-5.1:magic-items.wand-of-fireballs
+    equipped: true
+    state: { attuned: true }
+  - id: staff
+    item: 5e-srd-5.1:weapons.quarterstaff
+    templates: [5e-srd-5.1:magic-items.staff-of-healing]
+    equipped: true
+    state: { attuned: true }

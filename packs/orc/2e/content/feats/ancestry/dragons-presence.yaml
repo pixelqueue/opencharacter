@@ -1,0 +1,14 @@
+id: feats.ancestry.dragons-presence
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.kobold }
+prerequisites:
+  - { id: dragonscaled, when: '@heritages.dragonscaled-kobold in heritages.held' }
+effects:
+  - target: { rolls: [save], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.againstFear
+  - target: { rolls: [save], tally: failToCritFail }
+    op: add
+    value: 1
+    when: situational.againstFear

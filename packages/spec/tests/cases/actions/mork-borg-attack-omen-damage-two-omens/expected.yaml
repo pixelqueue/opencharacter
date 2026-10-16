@@ -1,0 +1,30 @@
+# Two omens: one on the DR (9 + 1 + 4 = 14 against 12, a success), one on the damage
+# (maxOf(1d6) = 6). Both are spent.
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 6
+    sepsis: false
+    skullSmashed: false
+proposedChanges:
+  - to: self
+    step: check/omen
+    change:
+      type: adjust
+      field: mork-borg-core:omens.current
+      by: -1
+  - to: self
+    step: spendOmen
+    change:
+      type: adjust
+      field: mork-borg-core:omens.current
+      by: -1
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -6
+      tags:
+        - damage

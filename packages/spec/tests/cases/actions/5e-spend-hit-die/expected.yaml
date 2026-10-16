@@ -1,0 +1,22 @@
+# Fighter hit die 1d10 (7) + con 1 = 8 hit points; the fighter copy spends one hit die.
+status: finished
+outcome:
+  result: healed
+  data: { healed: 8 }
+proposedChanges:
+  - to: self
+    step: regain
+    change: { type: adjust, field: 5e-srd-5.1:hp.current, by: 8, tags: [healing.hit-die] }
+  - to: self
+    step: regain
+    change: { type: adjustState, entry: fighter, key: hitDiceSpent, by: 1 }
+log:
+  - step: heal
+    action: 5e-srd-5.1:spend-hit-die
+    kind: dice
+    by: engine
+    faces: [7]
+    items:
+      - { kind: dice, sides: 10, value: 7, source: { type: item, entry: fighter } }
+      - { kind: flat, value: 1, source: { type: field, id: 5e-srd-5.1:abilities.con.mod } }
+    total: 8

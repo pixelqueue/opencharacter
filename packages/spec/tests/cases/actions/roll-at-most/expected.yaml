@@ -1,0 +1,15 @@
+# 6, lowered to at most 3 by the rules' cap: a miss.
+status: finished
+outcome:
+  result: miss
+  data: { total: 3, unbounded: 6, bounds: 1 }
+log:
+  - step: roll
+    action: test-roll-bounds:try
+    kind: dice
+    by: engine
+    faces: [6]
+    total: 3
+    band: miss
+    bounds:
+      - { source: { type: rules, id: test-roll-bounds:rules }, op: atMost, value: 3 }

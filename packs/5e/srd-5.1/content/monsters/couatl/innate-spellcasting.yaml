@@ -1,0 +1,29 @@
+id: monsters.couatl.innate-spellcasting
+type: monsterSpellcasting
+fields:
+  ability: cha
+  dc: 14
+  innate: true
+grants:
+  - item: spells.detect-evil-and-good
+  - item: spells.detect-magic
+  - item: spells.detect-thoughts
+effects:
+  - { target: spells.monster, op: grant, value: { item: spells.detect-evil-and-good } }
+  - { target: spells.monster, op: grant, value: { item: spells.detect-magic } }
+  - { target: spells.monster, op: grant, value: { item: spells.detect-thoughts } }
+  - { target: spells.monsterAtWill, op: grant, value: { item: spells.detect-evil-and-good } }
+  - { target: spells.monsterAtWill, op: grant, value: { item: spells.detect-magic } }
+  - { target: spells.monsterAtWill, op: grant, value: { item: spells.detect-thoughts } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      countCopies(copy.id == action.self.id && copy.type == 'monsterAction'
+        && has(copy.state.usesLeft) && copy.state.usesLeft > 0) > 0
+    value:
+      id: innate
+      changes:
+        - type: adjustState
+          copies: { type: monsterAction, where: self.id == action.self.id }
+          key: usesLeft
+          by: -1

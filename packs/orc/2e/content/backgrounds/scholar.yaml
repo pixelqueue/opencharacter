@@ -1,0 +1,56 @@
+id: backgrounds.scholar
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.academia },
+      when: "!('skill.lore.academia' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['int', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }
+  - id: skill
+    from:
+      options:
+        - id: arcana
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.arcana }
+              when: "!('skill.arcana' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.arcana'" } }
+        - id: nature
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.nature }
+              when: "!('skill.nature' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.nature'" } }
+        - id: occultism
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.occultism }
+              when: "!('skill.occultism' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.occultism'" } }
+        - id: religion
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.religion }
+              when: "!('skill.religion' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+          grants:
+            - { item: feats.skill.assurance, state: { skill: "'skill.religion'" } }

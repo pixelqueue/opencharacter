@@ -1,0 +1,29 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 1
+    mode: item
+    dc: 18
+    defense: fortitude
+    basic: true
+    damage: 5
+    healing: 14
+proposedChanges:
+  - to: self
+    step: cost
+    change:
+      type: adjustState
+      entry: staff
+      key: charges
+      by: -1
+  - to: ally
+    character: fighter
+    step: restore[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: 14
+      tags:
+        - healing
+        - spell

@@ -1,0 +1,74 @@
+id: classes.wizard
+type: class
+fields:
+  hitDie: 1d6
+state:
+  arcaneRecoveryUsed: { type: boolean, default: false }
+  overchannelUses: { type: integer, default: 0, min: 0 }
+  signatureSpell1Used: { type: boolean, default: false }
+  signatureSpell2Used: { type: boolean, default: false }
+prerequisites:
+  - id: multiclass
+    when: (self.startingClass && self.level == level.total) || item.id in multiclass.qualified
+effects:
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.dagger },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.dart },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.sling },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.quarterstaff },
+      when: self.startingClass,
+    }
+  - {
+      target: proficiencies.weapons,
+      op: grant,
+      value: { item: weapons.light-crossbow },
+      when: self.startingClass,
+    }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.int }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.wis }, when: self.startingClass }
+grants:
+  - { item: features.wizard.spellcasting, when: self.level >= 1 }
+  - { item: features.wizard.arcane-recovery, when: self.level >= 1 }
+  - { item: features.wizard.spell-mastery, when: self.level >= 18 }
+  - { item: features.wizard.signature-spells, when: self.level >= 20 }
+  - { item: features.ability-score-improvement, when: self.level >= 4 }
+choices:
+  - id: skills
+    pick: 2
+    unique: skills
+    from:
+      {
+        values:
+          [
+            skill.arcana,
+            skill.history,
+            skill.insight,
+            skill.investigation,
+            skill.medicine,
+            skill.religion,
+          ],
+        where: '!(value in proficiencies.skills) || value in choice.picks',
+      }
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: arcane-tradition
+    from: { type: subclass, where: 'item.class == @classes.wizard' }
+    when: self.level >= 2

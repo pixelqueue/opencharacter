@@ -1,0 +1,27 @@
+id: backgrounds.street-urchin
+type: background
+# The Lore of the city you grew up in is the first custom Lore (`skills.lore.custom1`), its subject
+# named by the player.
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.thievery },
+      when: "!('skill.thievery' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.custom1 },
+      when: "!('skill.lore.custom1' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.pickpocket
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['dex', 'con']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

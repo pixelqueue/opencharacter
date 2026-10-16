@@ -1,0 +1,128 @@
+# The step reads the proposed sheet: the starting dots put 2 in Skirmish and 1 in Command, so
+# those take 0 and 1 more; the heritage's and background's dots went to Prowl, which takes no
+# more.
+status: paused
+needs:
+  step: dots
+  action: fitd-scoundrel:create-scoundrel
+  kind: allocate
+  allocate:
+    fields:
+      - id: fitd-scoundrel:ratings.hunt
+        value: 0
+        input: 0
+        limit: 2
+        costs:
+          - 0
+          - 1
+          - 2
+      - id: fitd-scoundrel:ratings.study
+        value: 0
+        input: 0
+        limit: 2
+        costs:
+          - 0
+          - 1
+          - 2
+      - id: fitd-scoundrel:ratings.survey
+        value: 0
+        input: 0
+        limit: 2
+        costs:
+          - 0
+          - 1
+          - 2
+      - id: fitd-scoundrel:ratings.tinker
+        value: 0
+        input: 0
+        limit: 2
+        costs:
+          - 0
+          - 1
+          - 2
+      - id: fitd-scoundrel:ratings.finesse
+        value: 0
+        input: 0
+        limit: 2
+        costs:
+          - 0
+          - 1
+          - 2
+      - id: fitd-scoundrel:ratings.prowl
+        value: 2
+        input: 2
+        limit: 0
+        costs:
+          - 0
+      - id: fitd-scoundrel:ratings.skirmish
+        value: 2
+        input: 2
+        limit: 0
+        costs:
+          - 0
+      - id: fitd-scoundrel:ratings.wreck
+        value: 0
+        input: 0
+        limit: 2
+        costs:
+          - 0
+          - 1
+          - 2
+      - id: fitd-scoundrel:ratings.attune
+        value: 0
+        input: 0
+        limit: 2
+        costs:
+          - 0
+          - 1
+          - 2
+      - id: fitd-scoundrel:ratings.command
+        value: 1
+        input: 1
+        limit: 1
+        costs:
+          - 0
+          - 1
+      - id: fitd-scoundrel:ratings.consort
+        value: 0
+        input: 0
+        limit: 2
+        costs:
+          - 0
+          - 1
+          - 2
+      - id: fitd-scoundrel:ratings.sway
+        value: 0
+        input: 0
+        limit: 2
+        costs:
+          - 0
+          - 1
+          - 2
+    budget: 2
+    spend: all
+log:
+  - step: poolAbility
+    kind: choice
+    by: app
+    option: fitd-scoundrel:special-abilities.mule
+  - step: vice
+    kind: choice
+    by: app
+    option: fitd-scoundrel:vices.gambling
+  - step: startingDots
+    kind: allocate
+    by: app
+    amounts:
+      fitd-scoundrel:ratings.skirmish: 2
+      fitd-scoundrel:ratings.command: 1
+  - step: heritageDot
+    kind: allocate
+    by: app
+    amounts:
+      fitd-scoundrel:ratings.prowl: 1
+  - step: backgroundDot
+    kind: allocate
+    by: app
+    amounts:
+      fitd-scoundrel:ratings.prowl: 1

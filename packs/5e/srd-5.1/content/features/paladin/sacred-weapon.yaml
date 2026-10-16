@@ -1,0 +1,24 @@
+id: features.paladin.sacred-weapon
+type: feature
+# Approximated as every weapon attack: the app knows which weapon is held.
+effects:
+  - target: { rolls: [attack.melee, attack.ranged] }
+    op: add
+    value: max(1, abilities.cha.mod)
+    when: sacredWeapon.active
+actions:
+  - id: sacred-weapon
+    tags: [feature]
+    results: [active]
+    available: self.channelDivinitySpent < channelDivinity.uses && !sacredWeapon.active
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: channelDivinitySpent, by: 1 }
+          - { type: set, field: sacredWeapon.active, value: true }
+      - id: result
+        kind: outcome
+        result: "'active'"
+        data:
+          minutes: 1

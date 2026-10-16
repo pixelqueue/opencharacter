@@ -1,0 +1,30 @@
+# Skills and languages the character knows, from content and from its own choices. A feat may be
+# taken in either feat choice, once, unless it is repeatable; a bonus feat needs no prerequisites.
+tags: [secret, hard]
+
+fields:
+  skills: { type: set, of: string }
+  known: { type: set, of: language }
+  wise: { type: boolean, input: true, default: false }
+  toughness: { type: integer, formula: 0 }
+
+contentTypes:
+  language: {}
+  background: {}
+  feature: {}
+  feat: {}
+
+choices:
+  - id: feat-1
+    unique: feats
+    pick: { max: 2 }
+    from: { type: feat }
+  - id: feat-2
+    unique: feats
+    pick: { max: 2 }
+    from: { type: feat }
+  # A feat whose prerequisites don't apply.
+  - id: bonus-feat
+    required: false
+    waivePrerequisites: true
+    from: { type: feat }

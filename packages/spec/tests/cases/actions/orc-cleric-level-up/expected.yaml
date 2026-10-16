@@ -1,0 +1,46 @@
+# 2nd level: no skill increase (3rd and every odd level), then the cleric feat and the skill
+# feat the level brings.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: gain
+    change:
+      type: adjust
+      field: orc-2e:level
+      by: 1
+  - to: self
+    step: gain
+    change:
+      type: adjust
+      field: orc-2e:xp.current
+      by: -1000
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - class-feat-2
+      option: orc-2e:feats.cleric.communal-healing
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skill-feat-2
+      option: orc-2e:feats.skill.battle-medicine
+log:
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: app
+    option: orc-2e:feats.cleric.communal-healing
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: app
+    option: orc-2e:feats.skill.battle-medicine

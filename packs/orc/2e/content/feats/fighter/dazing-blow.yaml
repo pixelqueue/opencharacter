@@ -1,0 +1,29 @@
+id: feats.fighter.dazing-blow
+type: feat
+tags: [trait.press]
+fields: { level: 6, category: class, class: classes.fighter }
+actions:
+  - id: dazing-blow
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+          dc: classDc.fighter.value

@@ -1,0 +1,22 @@
+status: finished
+outcome:
+  result: succeed
+  data:
+    total: 4
+    opposition: 3
+    hit: 5
+    harm: physical
+    boost: true
+    takenOut: false
+    strokeSecond: false
+# The armor stopped the hit, so the attacker holds a boost.
+proposedChanges:
+  - to: self
+    step: gain
+    change:
+      type: addItem
+      entry:
+        id: advantages-advantage-1
+        item: fate-core:advantages.advantage
+        state:
+          kind: boost

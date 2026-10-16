@@ -1,0 +1,19 @@
+id: runes.greater-winged
+type: template
+tags: [trait.magical, trait.invested, rune.property]
+appliesTo: { type: armor }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + 35000'
+actions:
+  - id: take-to-the-skies
+    tags: [activation]
+    available: self.equipped
+    results: [flying]
+    steps:
+      - id: fly
+        kind: changes
+        changes:
+          - { type: applyEffect, source: "'effects.winged-flight'" }
+      - id: result
+        kind: outcome
+        result: "'flying'"

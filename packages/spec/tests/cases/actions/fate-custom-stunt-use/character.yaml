@@ -1,0 +1,18 @@
+# A Fate Core character with a custom stunt she wrote: twice per scene, for a fate point. She has
+# used it once this scene.
+specVersion: 0.1.0
+id: example-fate-custom-stunt
+packs:
+  - { id: fate-core, version: 0.1.0 }
+values:
+  fate-core:aspects.highConcept: Smuggler Queen of the Outer Rim
+  fate-core:fatePoints.current: 2
+features:
+  - id: s-hidden
+    item: fate-core:stunts.custom
+    state:
+      label: Hidden Compartments
+      limit: scene
+      uses: 2
+      fatePoint: true
+      used: 1

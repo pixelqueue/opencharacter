@@ -1,0 +1,81 @@
+id: features.wizard.arcane-recovery
+type: feature
+actions:
+  - id: arcane-recovery
+    tags: [feature]
+    results: [too-many, recovered]
+    available: '!self.arcaneRecoveryUsed'
+    params:
+      level1: { type: integer, optional: true }
+      level2: { type: integer, optional: true }
+      level3: { type: integer, optional: true }
+      level4: { type: integer, optional: true }
+      level5: { type: integer, optional: true }
+    steps:
+      - id: counts
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              level1: 'has(params.level1) ? params.level1 : 0'
+              level2: 'has(params.level2) ? params.level2 : 0'
+              level3: 'has(params.level3) ? params.level3 : 0'
+              level4: 'has(params.level4) ? params.level4 : 0'
+              level5: 'has(params.level5) ? params.level5 : 0'
+      - id: total
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              levels: flags.level1 + 2 * flags.level2 + 3 * flags.level3 + 4 * flags.level4 + 5 * flags.level5
+      - id: tooMany
+        kind: outcome
+        when: >-
+          flags.levels == 0 || flags.levels > ceil(self.level / 2)
+            || flags.level1 < 0 || flags.level1 > spellSlots.level1.used
+            || flags.level2 < 0 || flags.level2 > spellSlots.level2.used
+            || flags.level3 < 0 || flags.level3 > spellSlots.level3.used
+            || flags.level4 < 0 || flags.level4 > spellSlots.level4.used
+            || flags.level5 < 0 || flags.level5 > spellSlots.level5.used
+        result: "'too-many'"
+        data:
+          maxLevels: ceil(self.level / 2)
+      - id: recover
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: arcaneRecoveryUsed, value: true }
+          - {
+              type: adjust,
+              field: spellSlots.level1.used,
+              by: -flags.level1,
+              when: flags.level1 > 0,
+            }
+          - {
+              type: adjust,
+              field: spellSlots.level2.used,
+              by: -flags.level2,
+              when: flags.level2 > 0,
+            }
+          - {
+              type: adjust,
+              field: spellSlots.level3.used,
+              by: -flags.level3,
+              when: flags.level3 > 0,
+            }
+          - {
+              type: adjust,
+              field: spellSlots.level4.used,
+              by: -flags.level4,
+              when: flags.level4 > 0,
+            }
+          - {
+              type: adjust,
+              field: spellSlots.level5.used,
+              by: -flags.level5,
+              when: flags.level5 > 0,
+            }
+      - id: result
+        kind: outcome
+        result: "'recovered'"
+        data:
+          levels: flags.levels

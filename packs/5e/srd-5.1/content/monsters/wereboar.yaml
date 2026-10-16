@@ -1,0 +1,54 @@
+id: monsters.wereboar
+type: monster
+fields:
+  size: medium
+  creatureType: humanoid
+  subtype: human
+  shapechanger: true
+  alignment: neutral-evil
+  ac: 10
+  hp: 78
+  hitDice: 12d8 + 24
+  speed: 30
+  str: 17
+  dex: 10
+  con: 15
+  int: 10
+  wis: 11
+  cha: 8
+  skills: [skill.perception]
+  damageImmunities: [nonmagical-unsilvered]
+  languages: [languages.common]
+  startingForm: humanoid
+  cr: 4
+  ownCopies:
+    - monsters.wereboar.relentless
+grants:
+  - item: monsters.wereboar.shapechanger
+choices:
+  - id: form
+    from:
+      options:
+        - id: humanoid
+          effects:
+            - { target: creature.form, op: set, value: "'humanoid'" }
+          grants:
+            - item: monsters.wereboar.multiattack
+            - item: monsters.wereboar.maul
+        - id: hybrid
+          effects:
+            - { target: creature.form, op: set, value: "'hybrid'" }
+            - { target: combat.ac, op: atLeast, value: 11 }
+          grants:
+            - item: monsters.wereboar.charge
+            - item: monsters.wereboar.multiattack
+            - item: monsters.wereboar.maul
+            - item: monsters.wereboar.tusks
+        - id: boar
+          effects:
+            - { target: creature.form, op: set, value: "'boar'" }
+            - { target: combat.ac, op: atLeast, value: 11 }
+            - { target: combat.speed, op: atLeast, value: 40 }
+          grants:
+            - item: monsters.wereboar.charge
+            - item: monsters.wereboar.tusks

@@ -1,0 +1,16 @@
+id: worn.devoted-vestments
+type: worn
+tags: [trait.divine, trait.focused, trait.invested]
+fields:
+  level: 11
+  price: 1250
+  bulk: 0.1
+  usage: garment
+  activation: free
+  frequency: once-per-day
+effects:
+  - target: skills.religion.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

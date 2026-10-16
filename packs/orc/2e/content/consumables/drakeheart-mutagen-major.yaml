@@ -1,0 +1,33 @@
+id: consumables.drakeheart-mutagen-major
+type: consumable
+tags: [trait.alchemical, trait.elixir, trait.mutagen, trait.polymorph]
+fields:
+  category: mutagen
+  level: 17
+  price: 3000
+  bulk: 0.1
+  lasting: true
+  family: consumables.drakeheart-mutagen-lesser
+effects:
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 7
+    stackKey: item-bonus
+    scope: applied
+    duration: { amount: 1, unit: hour }
+  - target: perception.mod
+    op: add
+    value: 4
+    stackKey: item-bonus
+    scope: applied
+    duration: { amount: 1, unit: hour }
+  - target: saves.will.mod
+    op: add
+    value: -1
+    scope: applied
+    duration: { amount: 1, unit: hour }
+  - target: saves.reflex.mod
+    op: add
+    value: -1
+    scope: applied
+    duration: { amount: 1, unit: hour }

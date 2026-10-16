@@ -1,0 +1,46 @@
+status: finished
+outcome:
+  result: ended
+  data:
+    fatePoints: 2
+proposedChanges:
+  - to: self
+    step: scene/conflict/clear
+    change:
+      type: set
+      field: fate-core:stress.physical.box1
+      value: false
+  - to: self
+    step: scene/recover
+    change:
+      type: removeItem
+      copies:
+        type: fate-core:consequence
+        where: >-
+          self.recovering && self.waited >= 1
+            && (self.slot == 'mild' || self.slot == 'mild-physical' || self.slot == 'mild-mental')
+  - to: self
+    step: refresh
+    change:
+      type: adjust
+      field: fate-core:fatePoints.current
+      by: 2
+  - to: self
+    step: refresh
+    change:
+      type: adjustState
+      key: waited
+      copies:
+        type: fate-core:consequence
+        where: self.recovering && self.waited == 0 && self.slot == 'moderate'
+      by: 1
+  - to: self
+    step: refresh
+    change:
+      type: setState
+      key: used
+      copies:
+        type: fate-core:stunt
+        where: "(item.shape == 'custom' ? self.limit : item.limit) == 'session' && self.used > 0"
+      value: 0
+log: []

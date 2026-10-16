@@ -1,0 +1,36 @@
+id: spells.fiery-body
+type: spell
+tags:
+  [
+    trait.concentrate,
+    trait.fire,
+    trait.manipulate,
+    trait.polymorph,
+    tradition.arcane,
+    tradition.primal,
+  ]
+fields:
+  rank: 7
+  cast: two
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+effects:
+  - { target: immunities.damage, op: grant, value: { tag: damage.fire }, scope: applied }
+  - target:
+      incoming:
+        fields: [hp.current]
+        tags: [damage.cold]
+    op: add
+    stackKey: weakness
+    value: -5
+    when: incoming.amount < 0
+    scope: applied
+  - { target: speed.fly, op: atLeast, value: 'self.rank >= 9 ? 60 : 40', scope: applied }
+  - target:
+      rolls: [damage.strike]
+    op: add
+    value: 'dieOf(1d4, self.rank >= 9 ? 2 : 1)'
+    tags: [damage.fire]
+    when: roll.item.category == 'unarmed'
+    scope: applied

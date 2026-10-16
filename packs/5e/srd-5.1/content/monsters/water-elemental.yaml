@@ -1,0 +1,40 @@
+id: monsters.water-elemental
+type: monster
+fields:
+  size: large
+  creatureType: elemental
+  alignment: neutral
+  ac: 14
+  naturalArmor: true
+  hp: 114
+  hitDice: 12d10 + 48
+  speed: 30
+  swimSpeed: 90
+  str: 18
+  dex: 14
+  con: 18
+  int: 5
+  wis: 10
+  cha: 8
+  damageResistances: [damage.acid, nonmagical]
+  damageImmunities: [damage.poison]
+  conditionImmunities:
+    [
+      conditions.grappled,
+      conditions.paralyzed,
+      conditions.petrified,
+      conditions.poisoned,
+      conditions.prone,
+      conditions.restrained,
+      conditions.unconscious,
+    ]
+  exhaustionImmune: true
+  darkvision: 60
+  languages: [languages.primordial]
+  cr: 5
+grants:
+  - item: monsters.water-elemental.water-form
+  - item: monsters.water-elemental.freeze
+  - item: monsters.water-elemental.multiattack
+  - item: monsters.water-elemental.slam
+  - item: monsters.water-elemental.whelm

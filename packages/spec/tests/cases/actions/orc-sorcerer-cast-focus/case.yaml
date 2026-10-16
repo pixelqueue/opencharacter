@@ -1,0 +1,12 @@
+description: "orc-2e: a draconic sorcerer's flurry of claws (a focus spell, a Focus Point, heightened to 2nd rank at 3rd level): a spell attack (+9) against each of two goblins at one multiple attack penalty, a hit dealing 2d4 fire (the primal exemplar's type) and 2d8 slashing; Sorcerous Potency adds nothing (not cast from a slot), and the two attacks count after both"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: orc-2e:spells.flurry-of-claws }
+  params: { damageType: fire }
+  participants:
+    target:
+      - { id: goblin-a, values: { orc-2e:defenses.ac: 16 } }
+      - { id: goblin-b, values: { orc-2e:defenses.ac: 16 } }

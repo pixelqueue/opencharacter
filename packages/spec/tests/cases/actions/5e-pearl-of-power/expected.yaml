@@ -1,0 +1,12 @@
+# Two 1st-level slots spent: the pearl regains one and spends its charge for the day.
+status: finished
+outcome:
+  result: recovered
+  data: { slot: level-1 }
+proposedChanges:
+  - to: self
+    step: slot
+    change: { type: adjust, field: 5e-srd-5.1:spellSlots.level1.used, by: -1 }
+  - to: self
+    step: spend
+    change: { type: adjustState, entry: pearl, key: charges, by: -1 }

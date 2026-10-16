@@ -1,0 +1,26 @@
+id: magic-items.ring-of-regeneration
+type: magicItem
+fields:
+  category: ring
+  rarity: very-rare
+  requiresAttunement: true
+actions:
+  - id: regenerate
+    tags: [healing]
+    available: self.equipped && self.attuned && hp.current >= 1
+    results: [healed]
+    steps:
+      - id: heal
+        kind: roll
+        tags: [healing]
+        parts:
+          - dice: 1d6
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: steps.heal.total, tags: [healing] }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: steps.heal.total

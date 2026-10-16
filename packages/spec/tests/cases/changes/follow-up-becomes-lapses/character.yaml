@@ -1,0 +1,22 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: test-follow-ups, version: 0.1.0 }
+values:
+  test-follow-ups:hp.current: 0
+  test-follow-ups:focus: true
+followUps:
+  - id: steady-1
+    followUp: test-follow-ups:steady
+    params: { damage: 4 }
+    cause:
+      field: test-follow-ups:hp.current
+      by: -4
+      requested: -4
+      taken: -4
+      reason: requested
+      clamped: false
+      tags: [damage]
+  - { id: down-1, followUp: test-follow-ups:down }
+  - id: fall-1
+    followUp: test-follow-ups:fall

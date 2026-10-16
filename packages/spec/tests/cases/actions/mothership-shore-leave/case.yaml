@@ -1,0 +1,11 @@
+description: "Mothership shore leave: a passed Sanity save converts up to the port's roll of stress into save points, split by the player, then relieves the rest down to the minimum"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/mothership/1e
+input:
+  action: { id: mothership-1e:shore-leave }
+  params: { convert: 1d5 }
+  policy: { allocations: pause }
+answers:
+  - amounts: { 'mothership-1e:saves.fear': 1, 'mothership-1e:saves.body': 2 }

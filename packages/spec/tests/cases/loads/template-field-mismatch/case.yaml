@@ -1,0 +1,29 @@
+description: 'Template fields are merged across packs by name: one declared again with another type is template-field-mismatch; the same type is fine'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-core
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        templateFields:
+          rarity: { type: enum, values: [common, rare] }
+          bonus: { type: integer, default: 0 }
+      content: []
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { test-core: ^1.0.0 }
+      rules:
+        templateFields:
+          rarity: { type: integer }
+          bonus: { type: integer, default: 1 }
+      content: []

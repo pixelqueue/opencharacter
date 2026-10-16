@@ -1,0 +1,13 @@
+description: 'orc-2e: breathe fire, a 1st-rank signature spell, cast heightened to 3rd rank (+1: 2d6 more per rank, so 6d6), spending a 3rd-rank slot'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: orc-2e:spells.breathe-fire }
+  params: { rank: 3 }
+  participants:
+    target:
+      - { id: goblin }
+answers:
+  - { outcome: { result: failure } }

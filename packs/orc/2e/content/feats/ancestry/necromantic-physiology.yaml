@@ -1,0 +1,13 @@
+id: feats.ancestry.necromantic-physiology
+type: feat
+fields: { level: 5, category: ancestry, heritage: heritages.dhampir }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: situational.againstDisease
+  - target: { rolls: [save], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.againstDisease

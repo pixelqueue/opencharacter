@@ -1,0 +1,18 @@
+id: feats.rogue.impossible-striker
+type: feat
+fields: { level: 20, category: class, class: classes.rogue }
+prerequisites:
+  - { id: sly-striker, when: '@feats.rogue.sly-striker in feats.held' }
+effects:
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: dieOf(1d6, sneakAttack.dice)
+    tags: [precision, { formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      !(situational.offGuardTarget
+        || (has(participants.target) && size(participants.target) > 0
+          && participants.target[0].conditions.offGuard))
+        && (roll.item.range > 0 || 'trait.agile' in roll.item.tags
+          || 'trait.finesse' in roll.item.tags
+          || (rogue.racket == 'ruffian' && maxOf(dieOf(roll.item.damage))
+            <= (roll.item.category == 'simple' ? 8 : 6)))

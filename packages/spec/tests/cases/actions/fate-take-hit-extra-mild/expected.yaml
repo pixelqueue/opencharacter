@@ -1,0 +1,29 @@
+status: finished
+outcome:
+  result: absorbed
+  data:
+    shifts: 6
+    box: 4
+    unabsorbed: 0
+    consequences: 1
+    slots:
+      - mild-physical
+proposedChanges:
+  - to: self
+    step: extraMild
+    change:
+      type: addItem
+      entry:
+        id: consequences-consequence-1
+        item: fate-core:consequences.consequence
+        state:
+          slot: mild-physical
+          label: Cracked Skull
+          harm: physical
+          conflict: true
+  - to: self
+    step: box
+    change:
+      type: set
+      field: fate-core:stress.physical.box4
+      value: true

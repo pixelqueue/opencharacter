@@ -1,0 +1,31 @@
+id: spells.oaken-resilience
+type: spell
+tags:
+  [trait.concentrate, trait.manipulate, trait.plant, trait.wood, tradition.arcane, tradition.primal]
+fields:
+  rank: 2
+  cast: two
+  range: 0
+  targets: 1
+  duration: minutes
+  durationAmount: 10
+  applyTo: ally
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.bludgeoning] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 2 + 2 * floor((self.rank - 2) / 2))
+    when: incoming.amount < 0
+    scope: applied
+  - target: { incoming: { fields: [hp.current], tags: [damage.piercing] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 2 + 2 * floor((self.rank - 2) / 2))
+    when: incoming.amount < 0
+    scope: applied
+  - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+    op: add
+    stackKey: weakness
+    value: -(3 + 3 * floor((self.rank - 2) / 2))
+    when: incoming.amount < 0
+    scope: applied

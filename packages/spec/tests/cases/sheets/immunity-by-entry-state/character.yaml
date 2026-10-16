@@ -1,0 +1,12 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: test-immunity, version: 0.1.0 }
+features:
+  - { id: warded, item: test-immunity:features.warded }
+  - { id: unbound, item: test-immunity:features.unbound }
+applied:
+  - { id: fey-daze, source: test-immunity:conditions.dazed, state: { by: fey } }
+  - { id: fiend-burn, source: test-immunity:conditions.burning, state: { by: fiend } }
+  - { id: spell-slow, source: test-immunity:conditions.slowed, state: { magical: true } }
+  - { id: mud-slow, source: test-immunity:conditions.slowed }

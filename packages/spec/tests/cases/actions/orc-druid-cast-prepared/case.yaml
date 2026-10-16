@@ -1,0 +1,12 @@
+description: 'orc-2e: a 3rd-level druid casts thunderstrike from a 1st-rank slot (1d12 electricity + 1d4 sonic, a basic Reflex save against spell DC 19): the copy is expended, and a target that fails takes the full damage'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: thunderstrike-1 }
+  participants:
+    target:
+      - { id: goblin }
+answers:
+  - { outcome: { result: failure } }

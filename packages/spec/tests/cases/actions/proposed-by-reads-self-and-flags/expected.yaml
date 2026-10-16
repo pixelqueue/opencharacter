@@ -1,0 +1,13 @@
+# `by` reads `self`, so it is passed on as a formula, with `flags.amount` (2 × 2) substituted.
+# The `where` reads no action root and is passed on as written.
+status: finished
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjustState
+      copies:
+        type: test-pack:gem
+        where: self.charge > 0
+      key: charge
+      by: -min(self.charge, 4)

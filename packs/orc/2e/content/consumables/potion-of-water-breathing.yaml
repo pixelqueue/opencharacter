@@ -1,0 +1,15 @@
+id: consumables.potion-of-water-breathing
+type: consumable
+tags: [trait.magical, trait.potion]
+fields:
+  level: 3
+  price: 11
+  bulk: 0.1
+  category: potion
+effects:
+  - target: { steps: [consumable.drink] }
+    op: changes
+    when: action.self.id == self.id
+    value:
+      changes:
+        - { type: applyEffect, source: "'spells.water-breathing'", state: { rank: 2 } }

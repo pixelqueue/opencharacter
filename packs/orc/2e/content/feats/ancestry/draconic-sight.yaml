@@ -1,0 +1,12 @@
+id: feats.ancestry.draconic-sight
+type: feat
+fields: { level: 1, category: ancestry, heritage: heritages.dragonblood }
+effects:
+  - target: senses
+    op: grant
+    value: { tag: sense.low-light-vision }
+    when: countCopies(copy.type == 'ancestry' && 'sense.low-light-vision' in copy.tags) == 0
+  - target: senses
+    op: grant
+    value: { tag: sense.darkvision }
+    when: countCopies(copy.type == 'ancestry' && 'sense.low-light-vision' in copy.tags) > 0

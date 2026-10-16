@@ -1,0 +1,17 @@
+id: spells.fortify-summoning
+type: spell
+tags: [trait.uncommon, trait.concentrate, trait.focus, trait.wizard]
+fields:
+  rank: 1
+  cast: one
+  range: 30
+  targets: 1
+  duration: minutes
+  durationAmount: 1
+  applyTo: ally
+effects:
+  - target: { fields: { where: "'check' in item.tags || 'dc' in item.tags" } }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    scope: applied

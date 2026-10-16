@@ -1,0 +1,15 @@
+description: "5E scorching ray: one ray is a ranged spell attack with the wizard's spell attack bonus (+6 at 7th level with Intelligence 16), against the given AC, and 2d6 fire to its target on a hit"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action:
+    {
+      id: '5e-srd-5.1:spells.scorching-ray#ray',
+      entry: wizard,
+      source: 5e-srd-5.1:spells.scorching-ray,
+    }
+  params: { targetAc: 13 }
+  participants:
+    target: [{ id: goblin }]

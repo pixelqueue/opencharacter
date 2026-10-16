@@ -1,0 +1,19 @@
+id: feats.witch.major-lesson
+type: feat
+fields: { level: 10, category: class, class: classes.witch }
+repeatable: true
+# Taken a second time from 14th level, a third from 18th.
+prerequisites:
+  - id: retake-level
+    when: 'witch.majorLessons <= (level >= 18 ? 3 : level >= 14 ? 2 : 1)'
+effects:
+  - { target: witch.majorLessons, op: add, value: 1 }
+choices:
+  - id: lesson
+    unique: witch-lessons
+    requiresOption: true
+    from:
+      {
+        type: feature,
+        where: "'lesson.basic' in item.tags || 'lesson.greater' in item.tags || 'lesson.major' in item.tags",
+      }

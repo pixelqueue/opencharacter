@@ -1,0 +1,34 @@
+# Unarmored monk: Dexterity (+3) over Strength (+0), 12 + 3 + proficiency 3 = 18 >= 15. Damage
+# the martial arts d6 (4) + 3 = 7, magical (Ki-Empowered Strikes, monk 6).
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 18 }
+proposedChanges:
+  - to: target
+    step: deal
+    change:
+      {
+        type: adjust,
+        field: 5e-srd-5.1:hp.current,
+        by: -7,
+        tags: [damage, attack, melee, magical, damage.bludgeoning],
+      }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces: [12]
+    items:
+      - { kind: dice, sides: 20, value: 12 }
+      - { kind: flat, value: 3, source: { type: field, id: 5e-srd-5.1:abilities.dex.mod } }
+      - { kind: flat, value: 3, source: { type: field, id: 5e-srd-5.1:proficiency.bonus } }
+    total: 18
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [4]
+    items:
+      - { kind: dice, sides: 6, value: 4, tags: [damage.bludgeoning] }
+      - { kind: flat, value: 3, source: { type: field, id: 5e-srd-5.1:abilities.dex.mod } }
+    total: 7

@@ -1,0 +1,58 @@
+description: Deprecating an item (it stays) is not a shape change
+specVersion: 0.1.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      fields:
+        stats.might:
+          type: integer
+          input: true
+          default: 1
+          min: 0
+          max: 10
+        stats.bonus:
+          type: integer
+          formula: stats.might * 2
+      contentTypes:
+        gear:
+          carried: true
+    content:
+      - id: gear.rope
+        type: gear
+next:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.1.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      fields:
+        stats.might:
+          type: integer
+          input: true
+          default: 1
+          min: 0
+          max: 10
+        stats.bonus:
+          type: integer
+          formula: stats.might * 2
+      contentTypes:
+        gear:
+          carried: true
+    content:
+      - id: gear.rope
+        type: gear
+        deprecated:
+          since: 1.1.0
+          replacedBy: test-pack:gear.cord
+      - id: gear.cord
+        type: gear

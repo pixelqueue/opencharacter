@@ -1,0 +1,52 @@
+id: monsters.werewolf
+type: monster
+fields:
+  size: medium
+  creatureType: humanoid
+  subtype: human
+  shapechanger: true
+  alignment: chaotic-evil
+  ac: 11
+  hp: 58
+  hitDice: 9d8 + 18
+  speed: 30
+  str: 15
+  dex: 13
+  con: 14
+  int: 10
+  wis: 11
+  cha: 10
+  skills: [skill.perception, skill.stealth]
+  expertise: [skill.perception]
+  damageImmunities: [nonmagical-unsilvered]
+  languages: [languages.common]
+  startingForm: humanoid
+  cr: 3
+grants:
+  - item: monsters.werewolf.shapechanger
+  - item: monsters.werewolf.keen-hearing-and-smell
+choices:
+  - id: form
+    from:
+      options:
+        - id: humanoid
+          effects:
+            - { target: creature.form, op: set, value: "'humanoid'" }
+          grants:
+            - item: monsters.werewolf.multiattack
+            - item: monsters.werewolf.spear
+        - id: hybrid
+          effects:
+            - { target: creature.form, op: set, value: "'hybrid'" }
+            - { target: combat.ac, op: atLeast, value: 12 }
+          grants:
+            - item: monsters.werewolf.multiattack
+            - item: monsters.werewolf.bite
+            - item: monsters.werewolf.claws
+        - id: wolf
+          effects:
+            - { target: creature.form, op: set, value: "'wolf'" }
+            - { target: combat.ac, op: atLeast, value: 12 }
+            - { target: combat.speed, op: atLeast, value: 40 }
+          grants:
+            - item: monsters.werewolf.bite

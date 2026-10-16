@@ -1,0 +1,21 @@
+id: feats.ancestry.energized-font
+type: feat
+fields: { level: 5, category: ancestry, ancestry: ancestries.gnome }
+prerequisites:
+  - { id: focus, when: focus.points >= 1 }
+state:
+  used: { type: boolean, default: false }
+actions:
+  - id: energize
+    tags: [feat-action]
+    available: '!self.used && focus.spent > 0'
+    results: [energized]
+    steps:
+      - id: regain
+        kind: changes
+        changes:
+          - { type: setState, pick: self, key: used, value: true }
+          - { type: adjust, field: focus.spent, by: -1 }
+      - id: result
+        kind: outcome
+        result: "'energized'"

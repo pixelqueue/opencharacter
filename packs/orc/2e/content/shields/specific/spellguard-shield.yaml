@@ -1,0 +1,14 @@
+id: shields.specific.spellguard-shield
+type: shield
+extends: shields.steel-shield
+fields:
+  price: 250
+  hardness: 6
+  hp: 24
+  bt: 12
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: item.acBonus
+    stackKey: circumstance-bonus
+    when: self.equipped && shield.raised && situational.againstSpell

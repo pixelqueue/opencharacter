@@ -1,0 +1,18 @@
+description: "Only a choice's effects see the pick in a set of fields' `where`: elsewhere `pick` is unknown-name"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        tags: [check]
+        fields:
+          reflex: { type: integer, formula: 2, tags: [check] }
+        contentTypes:
+          feature: {}
+      content:
+        - id: features.knack
+          type: feature
+          effects:
+            - { target: { fields: { where: 'pick.value in item.tags' } }, op: add, value: 1 }

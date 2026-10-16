@@ -1,0 +1,22 @@
+id: spells.volcanic-eruption
+type: spell
+tags: [trait.concentrate, trait.fire, trait.manipulate, tradition.primal]
+fields:
+  rank: 7
+  cast: two
+  range: 120
+  area: other
+  defense: reflex
+  damage: 14d6
+  damageType: fire
+  heighten: 1
+  heightenDice: 2
+  applyTo: target
+grants:
+  - { item: conditions.clumsy, scope: applied }
+effects:
+  - target: speed.land
+    op: add
+    value: -10
+    stackKey: status-penalty
+    scope: applied

@@ -1,0 +1,18 @@
+description: "FitD's guided creation: a dot in an action the playbook already has at 2 is over its limit, answer-mismatch"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:create-scoundrel }
+  policy: { dice: pause, choices: pause, allocations: pause }
+answers:
+  - option: fitd-scoundrel:playbooks.cutter
+  - option: fitd-scoundrel:special-abilities.mule
+  - option: fitd-scoundrel:vices.gambling
+  - amounts:
+      {
+        fitd-scoundrel:ratings.skirmish: 1,
+        fitd-scoundrel:ratings.prowl: 2,
+        fitd-scoundrel:ratings.command: 1,
+      }

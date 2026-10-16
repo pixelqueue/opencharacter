@@ -1,0 +1,11 @@
+id: feats.ancestry.vandal
+type: feat
+fields: { level: 5, category: ancestry, ancestry: ancestries.goblin }
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.thievery },
+      when: "!('skill.thievery' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }

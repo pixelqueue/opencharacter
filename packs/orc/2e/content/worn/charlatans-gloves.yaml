@@ -1,0 +1,22 @@
+id: worn.charlatans-gloves
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 3
+  price: 50
+  bulk: 0.1
+  usage: gloves
+grants:
+  - { item: spells.telekinetic-hand, when: 'self.equipped && self.invested' }
+effects:
+  - target: skills.thievery.mod
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - {
+      target: spells.innate,
+      op: grant,
+      value: { item: spells.telekinetic-hand },
+      when: 'self.equipped && self.invested',
+    }

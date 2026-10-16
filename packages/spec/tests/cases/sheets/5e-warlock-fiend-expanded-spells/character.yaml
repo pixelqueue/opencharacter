@@ -1,0 +1,40 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 10
+  5e-srd-5.1:abilities.dex.base: 14
+  5e-srd-5.1:abilities.con.base: 14
+  5e-srd-5.1:abilities.int.base: 10
+  5e-srd-5.1:abilities.wis.base: 12
+  5e-srd-5.1:abilities.cha.base: 16
+  5e-srd-5.1:hp.base: 33
+  5e-srd-5.1:hp.current: 33
+features:
+  - id: warlock
+    item: 5e-srd-5.1:classes.warlock
+    state: { level: 5, startingClass: true }
+    choices:
+      skills: [{ option: skill.arcana }, { option: skill.deception }]
+      otherworldly-patron: [{ option: 5e-srd-5.1:subclasses.the-fiend }]
+      5e-srd-5.1:features.ability-score-improvement/improvement-4:
+        [{ option: 5e-srd-5.1:improvements.plus-two, choices: { ability: [{ option: cha }] } }]
+      5e-srd-5.1:features.warlock.pact-boon/boon: [{ option: 5e-srd-5.1:pact-boons.blade }]
+      5e-srd-5.1:features.warlock.eldritch-invocations/invocations:
+        - option: 5e-srd-5.1:invocations.agonizing-blast
+        - option: 5e-srd-5.1:invocations.devils-sight
+        - option: 5e-srd-5.1:invocations.thirsting-blade
+      5e-srd-5.1:features.warlock.pact-magic/cantrips:
+        - option: 5e-srd-5.1:spells.eldritch-blast
+        - option: 5e-srd-5.1:spells.minor-illusion
+        - option: 5e-srd-5.1:spells.prestidigitation
+      # Burning hands, scorching ray and fireball are on the Fiend's expanded list, not the
+      # warlock's.
+      5e-srd-5.1:features.warlock.pact-magic/spells:
+        - option: 5e-srd-5.1:spells.burning-hands
+        - option: 5e-srd-5.1:spells.fireball
+        - option: 5e-srd-5.1:spells.hellish-rebuke
+        - option: 5e-srd-5.1:spells.charm-person
+        - option: 5e-srd-5.1:spells.hold-person
+        - option: 5e-srd-5.1:spells.scorching-ray

@@ -1,0 +1,12 @@
+description: "A 5E attack's summary: the `attack` band set against the target's AC 15, set before the roll, with the champion's critical range"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: inv-1 }
+  participants:
+    target:
+      - id: goblin-2
+        values: { 5e-srd-5.1:combat.ac: 15, 5e-srd-5.1:hp.current: 7 }
+  policy: { dice: pause }

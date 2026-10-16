@@ -1,0 +1,27 @@
+# Warlock 13 has no 7th-level slot, so the cost step offers only the arcanum's option. Picking it
+# casts etherealness at 7th level and marks the 7th-level arcanum used on the warlock copy. DC 8
+# + proficiency 5 + Charisma 3 = 16.
+status: finished
+outcome:
+  result: cast
+  data:
+    slot: 7
+    spellcastingClass: warlock
+    metamagic: none
+    dc: 16
+    save: ''
+    halfOnSave: false
+    damage: 0
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: cost
+    change: { type: setState, entry: warlock, key: arcanum7Used, value: true }
+log:
+  - step: cost
+    action: 5e-srd-5.1:cast-spell
+    kind: choice
+    by: app
+    option: '5e-srd-5.1:features.warlock.mystic-arcanum#arcanum'

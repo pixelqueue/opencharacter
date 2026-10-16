@@ -1,0 +1,16 @@
+description: 'Fate Core: an attack lands for 5 shifts and the target takes a moderate consequence; the attacker holds a free invocation on it'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:attack }
+  params: { skill: fate-core:skills.fight }
+  participants:
+    target: [{ id: duelist, values: {} }]
+  policy: { choices: auto }
+answers:
+  # The duelist's app ran `defend` (opposition 5) and rolled a Mediocre (+0) defense.
+  - outcome: { result: fail, data: { total: 0 } }
+  # It then ran `take-hit` with 5 shifts: a moderate consequence and the 1-point box.
+  - outcome: { result: absorbed, data: { shifts: 5, box: 1, consequences: 1 } }

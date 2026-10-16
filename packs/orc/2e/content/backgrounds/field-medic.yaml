@@ -1,0 +1,25 @@
+id: backgrounds.field-medic
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.medicine },
+      when: "!('skill.medicine' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.warfare },
+      when: "!('skill.lore.warfare' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.battle-medicine
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['con', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

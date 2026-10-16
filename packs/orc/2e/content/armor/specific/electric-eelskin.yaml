@@ -1,0 +1,28 @@
+id: armor.specific.electric-eelskin
+type: armor
+extends: armor.leather-armor
+tags: [trait.invested, trait.magical]
+fields:
+  price: 950
+grants:
+  - { item: spells.thunderstrike, when: 'self.equipped && self.invested' }
+effects:
+  - target: { rolls: [skill-action.swim] }
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.thunderstrike'
+    value:
+      id: thunderstrike
+      flags: { itemPaid: true, rank: 2, dc: 29 }
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.armor-potency-1
+    copies: { type: armor, where: 'item.id == @armor.specific.electric-eelskin' }
+  - template: runes.resilient
+    copies: { type: armor, where: 'item.id == @armor.specific.electric-eelskin' }
+  - template: runes.greater-slick
+    copies: { type: armor, where: 'item.id == @armor.specific.electric-eelskin' }

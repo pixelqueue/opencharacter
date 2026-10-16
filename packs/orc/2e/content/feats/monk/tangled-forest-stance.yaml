@@ -1,0 +1,14 @@
+id: feats.monk.tangled-forest-stance
+type: feat
+tags: [trait.stance]
+fields: { level: 8, category: class, class: classes.monk }
+actions:
+  - id: tangled-forest-stance
+    tags: [stance]
+    steps:
+      - id: enter
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: "'trait.stance' in item.tags" }
+          - { type: applyEffect, source: "'effects.tangled-forest-stance'" }

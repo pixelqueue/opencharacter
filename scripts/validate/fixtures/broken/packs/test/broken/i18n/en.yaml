@@ -1,0 +1,38 @@
+pack.name: Broken
+fields.resists.name: Resists
+fields.mood.name: Mood
+fields.mood.values.calm.name: Calm
+situational.cover.name: Cover
+situational.cover.values.none.name: No cover
+stray.key: Nothing uses this
+# Text keys: declared ones are fine, others are unused; no HTML in a description.
+weapons.mace.texts.inscription: Fine
+weapons.mace.texts.motto: Unused
+types.weapon.state.ammo.name: Ammo
+types.weapon.computed.ammo.name: Ammo
+tags.melee.name: Melee
+tags.ranged.name: Unused
+weapons.mace.description: A <b>heavy</b> mace. `<i>` in code is fine, and so is <https://example.com>.
+rules.choices.perk.prompt: Perk
+rules.choices.perk.options.grit.name: Grit
+rules.choices.perk-2.prompt: Second perk
+rules.choices.perk-2.options.grit.name: Grit
+rules.choices.knack.prompt: Knack
+rules.choices.knack.options.grit.name: Grit
+# Blocks: arguments the type doesn't give, a value without a name, a parse error.
+types.weapon.block: '**{name}** · {damage} · {grade_name} · {texts_inscription} · {self_ammo} · {has_heft} · {self_nope} · {tag_melee_blunt} · {tag_nope}'
+# A template's own block: its literal fields, not a formula one.
+templates.keen.block: '**{name}** · {sharpness} · {damage}'
+# Item and template field names: `skill` and `edge` have none.
+templateFields.rarity.name: Rarity
+types.weapon.fields.damage.name: Damage
+types.weapon.fields.damage.description: The weapon's damage dice
+types.weapon.fields.grade.name: Grade
+types.weapon.fields.grade.values.plain.name: Plain
+types.weapon.fields.grade.values.gold.name: Gold
+weapons.mace.block: '{name, select, other {x}'
+# The headline: a field, a type and a link it sees, and three it doesn't; a
+# headline piece naming a state key the type doesn't declare.
+headline: '{field_abilities_str_score_text} {type_weapon_count} {has_link_crew} {field_nope} {type_nope_each} {link_nope}'
+headline.separator: ' / '
+types.weapon.headline: '{name} {self_nope}'

@@ -1,0 +1,24 @@
+id: classes.rogue.rackets.mastermind
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: rogue.racket, op: set, value: "'mastermind'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.society },
+      when: "!('skill.society' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+choices:
+  # A training like a background's: a skill already trained frees a training for another.
+  - id: skill
+    from: { values: [skill.arcana, skill.nature, skill.occultism, skill.religion] }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }

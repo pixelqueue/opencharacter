@@ -1,0 +1,20 @@
+# The rest targets the lowest save (`minFields`): Sanity 24.
+status: paused
+needs:
+  step: check
+  action: mothership-1e:rest
+  kind: dice
+  summary:
+    bandSet: mothership-1e:check
+    bands:
+      - band: critical-success
+        when: 'roll.total < 24 && roll.total < 90 && roll.total % 11 == 0'
+      - band: success
+        when: 'roll.total < 24 && roll.total < 90'
+        tests:
+          - { of: roll.total, compare: lt, value: 24 }
+          - { of: roll.total, compare: lt, value: 90 }
+      - { band: critical-failure, when: 'roll.total % 11 == 0' }
+      - { band: failure, when: 'true', tests: [] }
+    flags: { target: 24 }
+log: []

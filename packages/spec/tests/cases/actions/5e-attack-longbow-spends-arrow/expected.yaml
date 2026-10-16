@@ -1,0 +1,51 @@
+# Attack: 10 + dex 3 = 13 against AC 13: a hit (no class, so no proficiency). Damage: 1d8 (5)
+# + dex 3 = 8 piercing. The shot spends an arrow from arrows-2, the first gear copy of the
+# longbow's kind with any left, which the ammo step recommends (arrows-1 is empty; the bolts are
+# another kind).
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 13 }
+proposedChanges:
+  - to: self
+    step: ammo
+    change: { type: adjustQuantity, entry: arrows-2, by: -1 }
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -8,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              ranged,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.piercing,
+            ],
+        },
+    }
+log:
+  - step: ammo
+    action: 5e-srd-5.1:weapon-attack
+    kind: choice
+    by: engine
+    option: arrows-2
+  - step: attack
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [10]
+    total: 13
+  - step: damage
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces: [5]
+    total: 8

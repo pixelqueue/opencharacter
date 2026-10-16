@@ -1,0 +1,10 @@
+id: feats.archetype.bard.expert-bard-spellcasting
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 12, category: class, archetype: archetypes.bard }
+prerequisites:
+  - { id: basic, when: '@feats.archetype.bard.basic-bard-spellcasting in feats.held' }
+  - { id: occultism, when: 'skills.occultism.rank >= 3' }
+effects:
+  - { target: spellcasting.archetype.bard.benefits, op: atLeast, value: 2 }
+  - { target: spellcasting.archetype.bard.rank, op: atLeast, value: 2 }

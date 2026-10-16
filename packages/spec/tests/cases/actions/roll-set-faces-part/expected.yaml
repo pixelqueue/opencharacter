@@ -1,0 +1,15 @@
+# The extra die is a d8 now; its face is 6, given. 7 + 6 + 15 + 2.
+status: finished
+outcome: { data: { total: 30 } }
+log:
+  - step: roll
+    action: 'test-roll-parts:damage'
+    kind: dice
+    by: engine
+    faces: [7, 15, 2]
+    total: 30
+    items:
+      - { kind: dice, sides: 10, steppedFrom: 8, faces: [{ value: 7 }] }
+      - { kind: dice, sides: 8, steppedFrom: 6, faces: [{ value: 6, set: true }] }
+      - { kind: dice, sides: 20, faces: [{ value: 15 }] }
+      - { kind: dice, sides: 4, faces: [{ value: 2 }] }

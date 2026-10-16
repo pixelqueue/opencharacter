@@ -1,0 +1,34 @@
+id: ancestries.kholo
+type: ancestry
+tags: [trait.kholo, trait.humanoid, trait.uncommon, sense.low-light-vision]
+fields: { hp: 8, size: medium, speed: 25 }
+effects:
+  - { target: languages, op: grant, value: { item: languages.common } }
+  - { target: languages, op: grant, value: { item: languages.kholo } }
+  - { target: senses, op: grant, value: { tag: sense.low-light-vision } }
+  - { target: traits, op: grant, value: { tag: trait.kholo } }
+  - { target: traits, op: grant, value: { tag: trait.humanoid } }
+standardCopies:
+  - { type: weapon, where: 'item.id == @weapons.jaws-brawling' }
+choices:
+  - id: heritage
+    from:
+      type: heritage
+      where: 'item.versatile || item.ancestry == @ancestries.kholo'
+  - id: boosts
+    recommend: "'standard'"
+    from:
+      options:
+        - id: standard
+          effects:
+            - { target: attributes.str.boosts, op: add, value: 1 }
+            - { target: attributes.int.boosts, op: add, value: 1 }
+            - { target: attributes.wis.boosts, op: add, value: -1 }
+          choices:
+            - id: free
+              from: { type: boost, where: "!(item.attribute in ['str', 'int'])" }
+        - id: alternate
+          choices:
+            - id: free
+              pick: 2
+              from: { type: boost }

@@ -1,0 +1,11 @@
+description: "5E attack against a restrained target has advantage, read from the target's view"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:weapon-attack, entry: inv-1 }
+  participants:
+    target:
+      - id: goblin-2
+        values: { 5e-srd-5.1:combat.ac: 15, 5e-srd-5.1:conditions.restrained: true }

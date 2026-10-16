@@ -1,0 +1,27 @@
+id: feats.monk.qi-spells
+type: feat
+fields: { level: 1, category: class, class: classes.monk }
+repeatable: true
+# The tradition and attribute are set once, however often the feat is taken (rules/monk.yaml).
+effects:
+  - { target: focus.points, op: add, value: 1 }
+  - target: spellcasting.rank
+    op: atLeast
+    value: 1
+    when: countCopies(copy.item == @classes.monk) > 0
+  - target: spellcasting.archetype.monk.rank
+    op: atLeast
+    value: 1
+    when: countCopies(copy.item == @classes.monk) == 0
+choices:
+  - id: spell
+    unique: qi-spells
+    requiresOption: true
+    from:
+      options:
+        - id: inner-upheaval
+          grants:
+            - item: spells.inner-upheaval
+        - id: qi-rush
+          grants:
+            - item: spells.qi-rush

@@ -1,0 +1,16 @@
+id: consumables.gecko-potion
+type: consumable
+tags: [trait.magical, trait.potion]
+fields:
+  level: 1
+  price: 3
+  bulk: 0.1
+  category: potion
+  lasting: true
+effects:
+  - target: { rolls: [skill-action.climb, skill-action.palm-an-object] }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    scope: applied
+    duration: { amount: 5, unit: minute }

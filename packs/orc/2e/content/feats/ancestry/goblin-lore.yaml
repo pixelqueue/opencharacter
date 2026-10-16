@@ -1,0 +1,26 @@
+id: feats.ancestry.goblin-lore
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.goblin }
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.nature },
+      when: "!('skill.nature' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.stealth },
+      when: "!('skill.stealth' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.goblin },
+      when: "!('skill.lore.goblin' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 3 }
+  - target: skills.lore.goblin.rank
+    op: atLeast
+    value: 'level >= 15 ? 4 : level >= 7 ? 3 : level >= 3 ? 2 : 1'

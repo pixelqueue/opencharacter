@@ -1,0 +1,17 @@
+# A 3 counts as 10 (Reliable Talent, proficient with thieves' tools): 10 + Dexterity 2 +
+# proficiency 4 = 16.
+status: finished
+outcome:
+  result: rolled
+  data: { total: 16 }
+log:
+  - step: check
+    action: 5e-srd-5.1:tool-check
+    kind: dice
+    by: engine
+    faces: [3]
+    items:
+      - { kind: dice, value: 10, modifiers: [{ type: minimum, target: 10 }] }
+      - { kind: flat, value: 2, source: { type: field, id: 5e-srd-5.1:abilities.dex.mod } }
+      - { kind: flat, value: 4, source: { type: field, id: 5e-srd-5.1:proficiency.bonus } }
+    total: 16

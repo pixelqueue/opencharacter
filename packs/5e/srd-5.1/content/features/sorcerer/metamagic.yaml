@@ -1,0 +1,98 @@
+id: features.sorcerer.metamagic
+type: feature
+# Empowered Spell rerolls, once, the lowest damage dice at or below half their faces, up to the
+# Charisma modifier (at least one).
+effects:
+  - target: { rolls: [damage.spell] }
+    op: rollModifier
+    value:
+      kind: reroll
+      below: 'floor(maxOf(dieOf(roll.item.damage)) / 2)'
+      once: true
+      count: max(1, abilities.cha.mod)
+    when: >-
+      has(flags.metamagic) && flags.metamagic == 'empowered' && has(roll.item.damage)
+choices:
+  - id: options
+    pick: 'self.level >= 17 ? 4 : self.level >= 10 ? 3 : 2'
+    from:
+      options:
+        - { id: careful-spell }
+        - { id: distant-spell }
+        - { id: empowered-spell }
+        - { id: extended-spell }
+        - { id: heightened-spell }
+        - { id: quickened-spell }
+        - { id: subtle-spell }
+        - { id: twinned-spell }
+    effects:
+      - { target: sorcery.metamagic, op: set, value: sorcery.left > 0 }
+      - target: { choices: [metamagic] }
+        op: option
+        when: "pick.id == 'careful-spell' && has(action.item.save) && sorcery.left >= 1"
+        value:
+          id: careful
+          flags: { metamagic: "'careful'" }
+          changes:
+            - { type: adjustState, entry: self, key: sorceryPointsSpent, by: 1 }
+      - target: { choices: [metamagic] }
+        op: option
+        when: "pick.id == 'distant-spell' && sorcery.left >= 1"
+        value:
+          id: distant
+          flags: { metamagic: "'distant'" }
+          changes:
+            - { type: adjustState, entry: self, key: sorceryPointsSpent, by: 1 }
+      - target: { choices: [metamagic] }
+        op: option
+        when: "pick.id == 'empowered-spell' && has(action.item.damage) && sorcery.left >= 1"
+        value:
+          id: empowered
+          flags: { metamagic: "'empowered'" }
+          changes:
+            - { type: adjustState, entry: self, key: sorceryPointsSpent, by: 1 }
+      - target: { choices: [metamagic] }
+        op: option
+        when: "pick.id == 'extended-spell' && sorcery.left >= 1"
+        value:
+          id: extended
+          flags: { metamagic: "'extended'" }
+          changes:
+            - { type: adjustState, entry: self, key: sorceryPointsSpent, by: 1 }
+      - target: { choices: [metamagic] }
+        op: option
+        when: "pick.id == 'heightened-spell' && has(action.item.save) && sorcery.left >= 3"
+        value:
+          id: heightened
+          flags: { metamagic: "'heightened'" }
+          changes:
+            - { type: adjustState, entry: self, key: sorceryPointsSpent, by: 3 }
+      - target: { choices: [metamagic] }
+        op: option
+        when: "pick.id == 'quickened-spell' && sorcery.left >= 2"
+        value:
+          id: quickened
+          flags: { metamagic: "'quickened'" }
+          changes:
+            - { type: adjustState, entry: self, key: sorceryPointsSpent, by: 2 }
+      - target: { choices: [metamagic] }
+        op: option
+        when: "pick.id == 'subtle-spell' && sorcery.left >= 1"
+        value:
+          id: subtle
+          flags: { metamagic: "'subtle'" }
+          changes:
+            - { type: adjustState, entry: self, key: sorceryPointsSpent, by: 1 }
+      - target: { choices: [metamagic] }
+        op: option
+        when: "pick.id == 'twinned-spell' && sorcery.left >= max(1, action.item.level)"
+        value:
+          id: twinned
+          flags: { metamagic: "'twinned'" }
+          changes:
+            - {
+                type: adjustState,
+                entry: self,
+                key: sorceryPointsSpent,
+                by: 'max(1, action.item.level)',
+              }

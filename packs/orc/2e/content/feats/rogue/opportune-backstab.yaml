@@ -1,0 +1,28 @@
+id: feats.rogue.opportune-backstab
+type: feat
+fields: { level: 8, category: class, class: classes.rogue }
+actions:
+  - id: opportune-backstab
+    tags: [reaction]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags)"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        params: { reaction: true }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage

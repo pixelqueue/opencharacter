@@ -1,0 +1,43 @@
+# 4th level: the sorcerer feat (Bespell Strikes, a wizard-owned feat with the sorcerer's trait),
+# the skill feat, and one more 2nd-rank repertoire spell (four slots, the bloodline's shatter
+# among them).
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: gain
+    change: { type: adjust, field: orc-2e:level, by: 1 }
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { entry: class, choice: [class-feat-4] }
+      option: orc-2e:feats.spellcasting.bespell-strikes
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { entry: class, choice: [skill-feat-4] }
+      option: orc-2e:feats.skill.group-coercion
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { entry: class, choice: [orc-2e:features.spellcasting.repertoire/spells-2] }
+      option: orc-2e:spells.blazing-bolt
+log:
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: app
+    option: orc-2e:feats.spellcasting.bespell-strikes
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: app
+    option: orc-2e:feats.skill.group-coercion
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: app
+    option: orc-2e:spells.blazing-bolt

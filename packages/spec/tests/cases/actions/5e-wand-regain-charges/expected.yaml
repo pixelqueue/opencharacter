@@ -1,0 +1,10 @@
+# 1d6 + 1 with a 6 is 7, but the wand holds 7 and has 3, so it regains 4. The dice come from
+# the wand's `recharge` field, fixed by its `use`.
+status: finished
+outcome:
+  result: recharged
+  data: { regained: 4 }
+proposedChanges:
+  - to: self
+    step: restore
+    change: { type: adjustState, entry: wand, key: charges, by: 4 }

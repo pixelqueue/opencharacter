@@ -1,0 +1,15 @@
+status: finished
+outcome:
+  result: fell
+  data: { damage: 21 }
+proposedChanges:
+  - to: self
+    step: land
+    change:
+      type: adjust
+      field: 5e-srd-5.1:hp.current
+      by: -21
+      tags: [damage, damage.bludgeoning, falling]
+  - to: self
+    step: land
+    change: { type: applyEffect, source: 5e-srd-5.1:conditions.prone }

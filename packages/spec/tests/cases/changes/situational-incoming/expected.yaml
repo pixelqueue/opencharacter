@@ -1,0 +1,17 @@
+# The dodged attack is halved (taken -3); the next one, in the same batch, is not. The batch
+# comes back as given, the choice kept on its change for the log.
+ok: true
+adjustments:
+  - { field: test-situational:hp, by: -3, requested: -6, taken: -3, reason: requested }
+  - { field: test-situational:hp, by: -2, requested: -2, taken: -2, reason: requested }
+changes:
+  - type: adjust
+    field: test-situational:hp
+    by: -6
+    tags: [damage, attack]
+    situational: { test-situational:dodge: true }
+  - { type: adjust, field: test-situational:hp, by: -2, tags: [damage, attack] }
+character:
+  values:
+    test-situational:agile: true
+    test-situational:hp: 5

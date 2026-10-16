@@ -1,0 +1,14 @@
+id: magic-items.cube-of-force
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  requiresAttunement: true
+  maxCharges: 36
+  recharge: 1d20
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

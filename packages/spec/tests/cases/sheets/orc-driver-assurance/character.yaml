@@ -1,0 +1,40 @@
+# A 1st-level human fighter with Player Core 2's driver background: Piloting Lore, and
+# Assurance granted for it (the grant's `skill` state), so Assurance asks nothing.
+specVersion: 0.1.0
+id: test-driver-assurance
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 1
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      heritage:
+        - option: orc-2e:heritages.skilled-human
+          choices:
+            skill:
+              - option: skill.stealth
+      boosts:
+        - option: orc-2e:boosts.str
+        - option: orc-2e:boosts.con
+  - id: background
+    item: orc-2e:backgrounds.driver
+    choices:
+      boost:
+        - option: orc-2e:boosts.dex
+      free-boost:
+        - option: orc-2e:boosts.str
+      lore:
+        - option: piloting
+  - id: class
+    item: orc-2e:classes.fighter
+    choices:
+      key-attribute:
+        - option: str
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.wis

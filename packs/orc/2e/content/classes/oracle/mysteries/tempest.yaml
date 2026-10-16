@@ -1,0 +1,106 @@
+id: classes.oracle.mysteries.tempest
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: oracle.mystery, op: set, value: "'tempest'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.nature },
+      when: "!('skill.nature' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: oracle.grantedFeats, op: grant, value: { item: feats.oracle.foretell-harm } }
+  - { target: focus.points, op: add, value: 1 }
+  - { target: oracle.revelations, op: grant, value: { item: spells.tempest-touch } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.thunderburst } }
+  - { target: oracle.revelations, op: grant, value: { item: spells.tempest-form } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.electric-arc } }
+  - { target: oracle.granted, op: grant, value: { item: spells.electric-arc } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.electric-arc } }
+  - { target: spells.repertoire, op: grant, value: { item: spells.thunderstrike } }
+  - { target: oracle.granted, op: grant, value: { item: spells.thunderstrike } }
+  - { target: spells.bonusKnown, op: grant, value: { item: spells.thunderstrike } }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.thunderstrike }
+    when: '@feats.oracle.gifted-power in feats.held'
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.thunderstrike } }
+  - target: { incoming: { fields: [hp.current], tags: [damage.electricity] } }
+    op: add
+    stackKey: weakness
+    value: '-(oracle.cursebound >= 3 ? 5 + level : 2)'
+    when: oracle.cursebound >= 1 && incoming.amount < 0
+  - target: { rolls: [attack.ranged] }
+    op: add
+    value: -2
+    stackKey: circumstance-penalty
+    when: oracle.cursebound >= 2
+  - target: speed.land
+    op: add
+    value: -10
+    stackKey: status-penalty
+    when: oracle.cursebound >= 4
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.hydraulic-torrent },
+      when: level >= 7,
+    }
+  - {
+      target: oracle.granted,
+      op: grant,
+      value: { item: spells.hydraulic-torrent },
+      when: level >= 7,
+    }
+  - {
+      target: spells.bonusKnown,
+      op: grant,
+      value: { item: spells.hydraulic-torrent },
+      when: level >= 7,
+    }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.hydraulic-torrent }
+    when: 'level >= 7 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank4,
+      op: grant,
+      value: { item: spells.hydraulic-torrent },
+      when: level >= 7,
+    }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.chain-lightning },
+      when: level >= 11,
+    }
+  - {
+      target: oracle.granted,
+      op: grant,
+      value: { item: spells.chain-lightning },
+      when: level >= 11,
+    }
+  - {
+      target: spells.bonusKnown,
+      op: grant,
+      value: { item: spells.chain-lightning },
+      when: level >= 11,
+    }
+  - target: spells.extraSlot
+    op: grant
+    value: { item: spells.chain-lightning }
+    when: 'level >= 11 && @feats.oracle.gifted-power in feats.held'
+  - {
+      target: spells.repertoire.rank6,
+      op: grant,
+      value: { item: spells.chain-lightning },
+      when: level >= 11,
+    }
+grants:
+  - item: feats.oracle.foretell-harm
+  - item: spells.tempest-touch
+  - { item: spells.electric-arc }
+  - { item: spells.thunderstrike }
+  - { item: spells.hydraulic-torrent, when: level >= 7 }
+  - { item: spells.chain-lightning, when: level >= 11 }

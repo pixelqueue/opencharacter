@@ -1,0 +1,36 @@
+{
+  "name": "@opencharacter/packs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Every official Open Character Format pack, as releases by pack ID, and their English text.",
+  "license": "SEE LICENSE IN LICENSE",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./i18n/*": {
+      "types": "./dist/i18n/*.d.ts",
+      "import": "./dist/i18n/*.js",
+      "default": "./dist/i18n/*.json"
+    }
+  },
+  "scripts": {
+    "prepack": "node -e \"require('node:fs').existsSync('dist')||(console.error('No dist/: run pnpm build:packs from the repo root first'),process.exit(1))\""
+  },
+  "dependencies": {
+    "@opencharacter/5e-srd-5.1": "workspace:*",
+    "@opencharacter/fate-core": "workspace:*",
+    "@opencharacter/fitd-crew": "workspace:*",
+    "@opencharacter/fitd-scoundrel": "workspace:*",
+    "@opencharacter/mork-borg-core": "workspace:*",
+    "@opencharacter/mothership-1e": "workspace:*",
+    "@opencharacter/orc-2e": "workspace:*"
+  }
+}

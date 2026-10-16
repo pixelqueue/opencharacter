@@ -1,0 +1,35 @@
+id: feats.sorcerer.bleed-out
+type: feat
+tags: [trait.attack]
+fields: { level: 2, category: class, class: classes.sorcerer }
+actions:
+  - id: bleed-out
+    tags: [class-action]
+    params:
+      rank: { type: integer, optional: true, min: 1, max: 10 }
+      ac: { type: integer, optional: true }
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: attack
+        kind: action
+        use: spell-attack
+        params:
+          ac: 'has(params.ac) ? params.ac : null'
+        participants: { target: participants.target }
+      - id: bleed
+        kind: changes
+        when: "steps.attack.result in ['success', 'critical-success'] && size(participants.target) > 0"
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.persistent-damage'"
+            state:
+              damage: 'has(params.rank) ? params.rank : spells.autoRank'
+              damageType: "'bleed'"
+      - id: result
+        kind: outcome
+        result: steps.attack.result
+        data:
+          bleed: 'has(params.rank) ? params.rank : spells.autoRank'

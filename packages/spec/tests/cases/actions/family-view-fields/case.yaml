@@ -1,0 +1,31 @@
+description: "A role's `fields` naming a view-field set declares that set: the target's defense is read from its view, its missing `dodge` takes the set's default"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        viewFields:
+          foe:
+            defense: { type: integer }
+            dodge: { type: integer, default: 2 }
+        actions:
+          - id: poke
+            participants:
+              target: { max: 1, fields: foe }
+            steps:
+              - id: done
+                kind: outcome
+                data:
+                  against: participants.target[0].defense + participants.target[0].dodge
+      content: []
+input:
+  action: { id: test-pack:poke }
+  participants:
+    target:
+      - { id: goblin, values: { test-pack:defense: 13 } }

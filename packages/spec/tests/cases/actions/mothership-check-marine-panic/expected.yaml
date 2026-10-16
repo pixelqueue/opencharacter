@@ -1,0 +1,14 @@
+# 77 is a critical failure (doubles, over 32): a panic check, which rolls 4, not over stress 6:
+# panic. The close ally came along, so panic-check's trauma response hands it a Fear save.
+status: paused
+needs:
+  step: panic/trauma[0]
+  action: mothership-1e:panic-check
+  kind: handoff
+  participant:
+    role: close
+    id: ally
+  run:
+    action: mothership-1e:save
+    params:
+      save: mothership-1e:saves.fear

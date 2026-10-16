@@ -1,0 +1,41 @@
+id: feats.ancestry.fiendish-magic
+type: feat
+fields: { level: 9, category: ancestry, heritage: heritages.nephilim }
+prerequisites:
+  - id: lineage
+    when: '@feats.ancestry.grimspawn in feats.held || @feats.ancestry.pitborn in feats.held || @feats.ancestry.hellspawn in feats.held'
+choices:
+  - id: spells
+    pick: 2
+    from:
+      options:
+        - id: disguise-magic
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.disguise-magic } }
+          grants:
+            - item: spells.disguise-magic
+        - id: false-vitality
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.false-vitality } }
+          grants:
+            - item: spells.false-vitality
+        - id: invisibility
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.invisibility } }
+          grants:
+            - item: spells.invisibility
+        - id: see-the-unseen
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.see-the-unseen } }
+          grants:
+            - item: spells.see-the-unseen
+        - id: shatter
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.shatter } }
+          grants:
+            - item: spells.shatter
+        - id: paranoia
+          effects:
+            - { target: spells.innate, op: grant, value: { item: spells.paranoia } }
+          grants:
+            - item: spells.paranoia

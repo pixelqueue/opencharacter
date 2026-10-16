@@ -1,0 +1,11 @@
+id: feats.ancestry.enduring-lineage
+type: feat
+tags: [trait.lineage]
+fields: { level: 1, category: ancestry, heritage: heritages.dhampir }
+effects:
+  - { target: conditions.drainedOffset, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.diplomacy }
+    when: "!('skill.diplomacy' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }

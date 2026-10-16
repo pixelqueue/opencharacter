@@ -1,0 +1,10 @@
+description: "5E: Iron Bands of Binding hit with Dexterity and proficiency against the target's AC, restrain it, and are used until dawn"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: '5e-srd-5.1:magic-items.iron-bands-of-binding#bind', entry: bands }
+  participants:
+    target:
+      - { id: ogre, values: { 5e-srd-5.1:combat.ac: 11 } }

@@ -1,0 +1,15 @@
+description: "FitD: a linked crew's Anointed adds a die to resist the supernatural"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:resistance-roll }
+  params: { attribute: fitd-scoundrel:attributes.prowess }
+  situational:
+    fitd-scoundrel:supernatural: true
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:members.supernatural.dice: 1

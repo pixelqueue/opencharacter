@@ -1,0 +1,42 @@
+id: classes.android
+type: class
+fields:
+  trauma: fear-disadvantage
+effects:
+  - { target: stats.intellect, op: add, value: 20 }
+  - { target: saves.fear, op: add, value: 60 }
+  - { target: wounds.max, op: add, value: 1 }
+grants:
+  - item: skills.linguistics
+  - item: skills.computers
+  - item: skills.mathematics
+choices:
+  - id: stat-penalty
+    from:
+      options:
+        - id: strength
+          effects:
+            - { target: stats.strength, op: add, value: -10 }
+        - id: speed
+          effects:
+            - { target: stats.speed, op: add, value: -10 }
+        - id: intellect
+          effects:
+            - { target: stats.intellect, op: add, value: -10 }
+        - id: combat
+          effects:
+            - { target: stats.combat, op: add, value: -10 }
+  - id: bonus-skills
+    from:
+      options:
+        - id: expert
+          choices:
+            - id: expert
+              from: { type: skill, where: "item.tier == 'expert'" }
+              eligible: '!(item.id in skills.known) || item.id in choice.picks'
+        - id: trained
+          choices:
+            - id: trained
+              from: { type: skill, where: "item.tier == 'trained'" }
+              eligible: '!(item.id in skills.known) || item.id in choice.picks'
+              pick: 2

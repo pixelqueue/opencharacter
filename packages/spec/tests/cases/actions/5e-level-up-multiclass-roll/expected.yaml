@@ -1,0 +1,25 @@
+# A new class: added at level 1 (startingClass stays false, so it grants the multiclass
+# proficiencies), with an instance ID the engine picks. The rogue's d8 rolls 5. What the new
+# class brings is asked on the new copy, first the rogue's own multiclass skill, before the
+# Expertise the class grants; it is left for later.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: gain
+    change:
+      type: addItem
+      entry: { id: classes-rogue-1, item: 5e-srd-5.1:classes.rogue, state: { level: 1 } }
+  - { to: self, step: hp, change: { type: adjust, field: 5e-srd-5.1:hp.base, by: 5 } }
+  # Current hit points rise by what the maximum gains: the roll and Constitution.
+  - { to: self, step: current, change: { type: adjust, field: 5e-srd-5.1:hp.current, by: 7 } }
+log:
+  - { step: class, kind: choice, by: app, option: 5e-srd-5.1:classes.rogue }
+  - { step: hitPoints, kind: choice, by: app, option: roll }
+  - { step: hitDie, kind: dice, by: app, faces: [5], total: 5 }
+  - step: picks
+    kind: choice
+    by: app
+    option: '#done'
+    index: 0
+    choice: { entry: classes-rogue-1, choice: [multiclass-skill] }

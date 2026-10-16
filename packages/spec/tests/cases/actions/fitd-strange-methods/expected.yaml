@@ -1,0 +1,34 @@
+# Tinker 1d6 [3]: a failure, moved up to a partial by Strange Methods. Pushing for effect
+# raises standard to great.
+status: finished
+outcome:
+  result: partial
+  data:
+    position: risky
+    effect: great
+log:
+  - step: roll
+    action: fitd-scoundrel:action-roll
+    kind: dice
+    by: engine
+    faces: [3]
+    total: 3
+    band: partial
+    bandSet: fitd-scoundrel:action
+    tallies:
+      - name: effect
+        value: 1
+        sources:
+          - { source: { type: situational, id: fitd-scoundrel:pushEffect }, op: add, value: 1 }
+      - name: resultLevel
+        value: 1
+        sources:
+          - source: { type: item, id: fitd-scoundrel:special-abilities.strange-methods }
+            op: add
+            value: 1
+  # The push cost is a choice; the engine takes the recommended stress.
+  - step: pushCost
+    action: fitd-scoundrel:action-roll
+    kind: choice
+    by: engine
+    option: stress

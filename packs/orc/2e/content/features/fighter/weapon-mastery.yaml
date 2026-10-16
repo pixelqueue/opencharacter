@@ -1,0 +1,27 @@
+id: features.fighter.weapon-mastery
+type: feature
+fields: { level: 5 }
+choices:
+  - id: group
+    from:
+      values:
+        [
+          group.axe,
+          group.bomb,
+          group.bow,
+          group.brawling,
+          group.club,
+          group.crossbow,
+          group.dart,
+          group.flail,
+          group.hammer,
+          group.knife,
+          group.pick,
+          group.polearm,
+          group.shield,
+          group.sling,
+          group.spear,
+          group.sword,
+        ]
+    effects:
+      - { target: attacks.masterGroups, op: grant, value: { formula: pick.value } }

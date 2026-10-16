@@ -1,0 +1,13 @@
+id: feats.swashbuckler.elegant-buckler
+type: feat
+fields: { level: 1, category: class, class: classes.swashbuckler }
+# The raised buckler's +1 is the same bonus type, so only the higher counts.
+effects:
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: >-
+      shield.raised && countCopies(copy.type == 'shield' && copy.equipped
+        && copy.item == @shields.buckler
+        && copy.fields.hp - (has(copy.state.damage) ? copy.state.damage : 0) > copy.fields.bt) > 0

@@ -1,0 +1,22 @@
+description: 'A grant whose item formula names no content grants nothing, with the sheet error `unknown-id`'
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          daily.spell: { type: string, input: true, default: '' }
+        contentTypes:
+          feature: {}
+          spell: {}
+      content:
+        - id: features.evolution
+          type: feature
+          grants:
+            - { item: { formula: daily.spell }, when: "daily.spell != ''" }

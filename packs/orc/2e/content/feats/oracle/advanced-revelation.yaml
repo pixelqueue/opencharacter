@@ -1,0 +1,15 @@
+id: feats.oracle.advanced-revelation
+type: feat
+fields: { level: 6, category: class, class: classes.oracle }
+prerequisites:
+  - id: mystery
+    when: >-
+      countCopies(copy.item == @classes.oracle) > 0
+        || @feats.archetype.oracle.first-revelation in feats.held
+effects:
+  - { target: focus.points, op: add, value: 1 }
+choices:
+  - id: spell
+    from:
+      type: spell
+      where: item.id in oracle.revelations && item.rank == 3

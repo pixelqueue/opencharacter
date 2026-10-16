@@ -1,0 +1,36 @@
+# The fist keeps the iron template: bonus 2, heavy (added), not light (removed), one template in
+# `self.templates`. The template's effect counts, and its grant (training) is active on the fist;
+# training keeps sharp on heavy base items only, and the fist's base item isn't heavy.
+values:
+  test-kept-templates:kept.count:
+    value: 1
+    breakdown:
+      - op: add
+        value: 1
+        source:
+          type: template
+          id: test-kept-templates:templates.iron
+          entry: test-kept-templates-weapons-fist
+  test-kept-templates:heavy.count: { value: 1 }
+copies:
+  test-kept-templates-weapons-fist: { bonus: 2, heavy: true, light: false, templates: 1 }
+activations:
+  - { item: test-kept-templates:features.iron-fists, entry: iron, via: copy }
+  - { item: test-kept-templates:weapons.fist, entry: test-kept-templates-weapons-fist, via: copy }
+  - item: test-kept-templates:templates.iron
+    entry: test-kept-templates-weapons-fist
+    via: template
+    parent: 1
+    keptBy: 0
+  - item: test-kept-templates:features.training
+    entry: test-kept-templates-weapons-fist
+    via: grant
+    parent: 2
+standardCopies:
+  - {
+      entry: test-kept-templates-weapons-fist,
+      item: test-kept-templates:weapons.fist,
+      saved: false,
+    }
+issues: []
+errors: []

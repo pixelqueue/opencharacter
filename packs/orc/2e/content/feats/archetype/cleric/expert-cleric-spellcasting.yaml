@@ -1,0 +1,10 @@
+id: feats.archetype.cleric.expert-cleric-spellcasting
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 12, category: class, archetype: archetypes.cleric }
+prerequisites:
+  - { id: basic, when: '@feats.archetype.cleric.basic-cleric-spellcasting in feats.held' }
+  - { id: religion, when: 'skills.religion.rank >= 3' }
+effects:
+  - { target: spellcasting.archetype.cleric.benefits, op: atLeast, value: 2 }
+  - { target: spellcasting.archetype.cleric.rank, op: atLeast, value: 2 }

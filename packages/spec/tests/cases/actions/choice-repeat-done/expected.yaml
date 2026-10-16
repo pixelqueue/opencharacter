@@ -1,0 +1,12 @@
+# One change per pick, at the choice step's path; #done is logged but not in `picked`.
+status: finished
+outcome:
+  result: trained
+  data: { drills: [swim], count: 1 }
+proposedChanges:
+  - to: self
+    step: drills
+    change: { type: adjust, field: test-pack:score, by: 2 }
+log:
+  - { step: drills, action: test-pack:train, kind: choice, by: app, option: swim, index: 0 }
+  - { step: drills, action: test-pack:train, kind: choice, by: app, option: '#done', index: 1 }

@@ -1,0 +1,9 @@
+id: conditions.sewer-plague
+type: condition
+tags: [disease]
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [healing.hit-die] } }
+    op: multiply
+    value: 0.5
+    scope: applied
+  - { target: rest.longRestHeals, op: set, value: false, scope: applied }

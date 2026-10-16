@@ -1,0 +1,72 @@
+description: "An allocate step without a usable recommendation pauses even under an automatic policy; without `limit`, a field's limit is what its max leaves"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [stat]
+        fields:
+          stats.might: { type: integer, input: true, default: 1, min: 0, max: 5, tags: [stat] }
+          stats.wits: { type: integer, input: true, default: 0, min: 0, max: 5, tags: [stat] }
+          stats.grace: { type: integer, input: true, default: 0, min: 0, max: 5, tags: [stat] }
+          stats.luck: { type: integer, input: true, default: 0, min: 0, max: 5 }
+        effects:
+          - { target: stats.wits, op: add, value: 1 }
+        actions:
+          # Three points, none taking a stat past 2.
+          - id: spend
+            steps:
+              - id: dots
+                kind: allocate
+                fields: { type: field, where: "'stat' in item.tags" }
+                budget: 3
+                limit: 2 - field.value
+                recommend: { stats.wits: 1, stats.grace: 2 }
+          # Up to five points, two at most per stat, the second point costing 2 more.
+          - id: buy
+            steps:
+              - id: points
+                kind: allocate
+                fields: { type: field, where: "'stat' in item.tags" }
+                budget: 5
+                spend: upTo
+                limit: 2
+                cost: '[0, 1, 3][amount]'
+          # Three points with no limit but the fields' max, and no recommendation.
+          - id: free
+            steps:
+              - id: points
+                kind: allocate
+                fields: { type: field, where: "'stat' in item.tags" }
+                budget: 3
+          # One value each.
+          - id: assign
+            steps:
+              - id: scores
+                kind: allocate
+                fields: { type: field, where: "'stat' in item.tags" }
+                values: [3, 2, 1]
+              - id: done
+                kind: outcome
+                data:
+                  given: has(steps.scores.amounts)
+          # A query that matches no field: the step is skipped.
+          - id: nothing
+            steps:
+              - id: points
+                kind: allocate
+                fields: { type: field, where: "'missing' in item.tags" }
+                budget: 3
+              - id: done
+                kind: outcome
+                data:
+                  ran: has(steps.points)
+      content: []
+input:
+  action: { id: test-pack:free }

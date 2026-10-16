@@ -1,0 +1,9 @@
+id: feats.ancestry.mountains-stoutness
+type: feat
+fields: { level: 9, category: ancestry, ancestry: ancestries.dwarf }
+# With Toughness, the two feats together lower the recovery DC by 4.
+effects:
+  - { target: hp.max, op: add, value: level }
+  - target: dying.recoveryDc
+    op: add
+    value: '@feats.general.toughness in feats.held ? -3 : -1'

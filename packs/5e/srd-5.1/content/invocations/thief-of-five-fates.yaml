@@ -1,0 +1,17 @@
+id: invocations.thief-of-five-fates
+type: invocation
+grants:
+  - { item: spells.bane }
+effects:
+  - { target: spells.warlock, op: grant, value: { item: spells.bane } }
+  - { target: spells.limited, op: grant, value: { item: spells.bane } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id == @spells.bane && flags.slot == pactSlots.level
+        && pactSlots.used < pactSlots.max && !self.thiefOfFiveFatesUsed
+    value:
+      id: invocation
+      changes:
+        - { type: adjust, field: pactSlots.used, by: 1 }
+        - { type: setState, entry: self, key: thiefOfFiveFatesUsed, value: true }

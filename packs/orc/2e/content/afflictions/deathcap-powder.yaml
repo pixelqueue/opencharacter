@@ -1,0 +1,15 @@
+id: afflictions.deathcap-powder
+type: affliction
+fields:
+  {
+    kind: poison,
+    level: 13,
+    dc: 33,
+    stages: 3,
+    stage1Damage: 7d8,
+    stage2Damage: 9d6,
+    stage3Damage: 8d10,
+  }
+grants:
+  - { item: conditions.sickened, scope: applied, when: self.stage == 2, state: { value: 2 } }
+  - { item: conditions.sickened, scope: applied, when: self.stage == 3, state: { value: 3 } }

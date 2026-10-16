@@ -1,0 +1,373 @@
+id: classes.sorcerer.bloodlines.draconic
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: sorcerer.bloodline, op: set, value: "'draconic'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.intimidation },
+      when: "!('skill.intimidation' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.shield } }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.shield } }
+  - { target: spells.granted.cantrips, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.fear } }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.fear } }
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.fear } }
+  - { target: spells.granted.rank1, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.haste }, when: level >= 5 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.haste }, when: level >= 5 }
+  - { target: spells.repertoire.rank3, op: grant, value: { item: spells.haste }, when: level >= 5 }
+  - { target: spells.granted.rank3, op: add, value: 1, when: level >= 5 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.fly }, when: level >= 7 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.fly }, when: level >= 7 }
+  - target: spells.repertoire.rank4
+    op: grant
+    value: { item: spells.fly }
+    when: level >= 7
+  - { target: spells.granted.rank4, op: add, value: 1, when: level >= 7 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.dragon-form }, when: level >= 11 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.dragon-form }, when: level >= 11 }
+  - target: spells.repertoire.rank6
+    op: grant
+    value: { item: spells.dragon-form }
+    when: level >= 11
+  - { target: spells.granted.rank6, op: add, value: 1, when: level >= 11 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.mask-of-terror },
+      when: level >= 13,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.mask-of-terror }, when: level >= 13 }
+  - target: spells.repertoire.rank7
+    op: grant
+    value: { item: spells.mask-of-terror }
+    when: level >= 13
+  - { target: spells.granted.rank7, op: add, value: 1, when: level >= 13 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.overwhelming-presence },
+      when: level >= 17,
+    }
+  - {
+      target: sorcerer.gifts,
+      op: grant,
+      value: { item: spells.overwhelming-presence },
+      when: level >= 17,
+    }
+  - target: spells.repertoire.rank9
+    op: grant
+    value: { item: spells.overwhelming-presence }
+    when: level >= 17
+  - { target: spells.granted.rank9, op: add, value: 1, when: level >= 17 }
+  - { target: focus.points, op: add, value: 1 }
+  - target: { choices: [blood-magic] }
+    op: option
+    value:
+      id: scales-self
+      changes:
+        - type: removeEffect
+          applied: { where: "'blood-magic' in item.tags" }
+        - {
+            type: applyEffect,
+            source: "'classes.sorcerer.blood-magic.scaly-hide'",
+            state: { rank: flags.rank },
+          }
+  - target: { choices: [blood-magic] }
+    op: option
+    when: flags.hasTarget
+    value:
+      id: scales-target
+      to: target
+      changes:
+        - {
+            type: applyEffect,
+            source: "'classes.sorcerer.blood-magic.scaly-hide'",
+            state: { rank: flags.rank },
+          }
+grants:
+  - { item: spells.fly, when: level >= 7 }
+  - { item: spells.dragon-form, when: level >= 11 }
+  - { item: spells.mask-of-terror, when: level >= 13 }
+  - { item: spells.overwhelming-presence, when: level >= 17 }
+  - { item: spells.shield }
+  - { item: spells.fear }
+  - { item: spells.haste, when: level >= 5 }
+  - item: spells.flurry-of-claws
+choices:
+  # Asked right after the bloodline, before the class's free skills.
+  - id: exemplar
+    from:
+      options:
+        - id: arcane
+          effects:
+            - { target: spellcasting.tradition, op: set, value: "'arcane'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.arcana },
+                when: "!('skill.arcana' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.blazing-bolt },
+                when: level >= 3,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.blazing-bolt },
+                when: level >= 3,
+              }
+            - {
+                target: spells.repertoire.rank2,
+                op: grant,
+                value: { item: spells.blazing-bolt },
+                when: level >= 3,
+              }
+            - { target: spells.granted.rank2, op: add, value: 1, when: level >= 3 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.subconscious-suggestion },
+                when: level >= 9,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.subconscious-suggestion },
+                when: level >= 9,
+              }
+            - target: spells.repertoire.rank5
+              op: grant
+              value: { item: spells.subconscious-suggestion }
+              when: level >= 9
+            - { target: spells.granted.rank5, op: add, value: 1, when: level >= 9 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.quandary },
+                when: level >= 15,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.quandary },
+                when: level >= 15,
+              }
+            - target: spells.repertoire.rank8
+              op: grant
+              value: { item: spells.quandary }
+              when: level >= 15
+            - { target: spells.granted.rank8, op: add, value: 1, when: level >= 15 }
+          grants:
+            - { item: spells.quandary, when: level >= 15 }
+            - { item: spells.subconscious-suggestion, when: level >= 9 }
+            - { item: spells.blazing-bolt, when: level >= 3 }
+        - id: divine
+          effects:
+            - { target: spellcasting.tradition, op: set, value: "'divine'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.religion },
+                when: "!('skill.religion' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.augury },
+                when: level >= 3,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.augury },
+                when: level >= 3,
+              }
+            - {
+                target: spells.repertoire.rank2,
+                op: grant,
+                value: { item: spells.augury },
+                when: level >= 3,
+              }
+            - { target: spells.granted.rank2, op: add, value: 1, when: level >= 3 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.divine-immolation },
+                when: level >= 9,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.divine-immolation },
+                when: level >= 9,
+              }
+            - target: spells.repertoire.rank5
+              op: grant
+              value: { item: spells.divine-immolation }
+              when: level >= 9
+            - { target: spells.granted.rank5, op: add, value: 1, when: level >= 9 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.divine-inspiration },
+                when: level >= 15,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.divine-inspiration },
+                when: level >= 15,
+              }
+            - target: spells.repertoire.rank8
+              op: grant
+              value: { item: spells.divine-inspiration }
+              when: level >= 15
+            - { target: spells.granted.rank8, op: add, value: 1, when: level >= 15 }
+          grants:
+            - { item: spells.divine-inspiration, when: level >= 15 }
+            - { item: spells.divine-immolation, when: level >= 9 }
+            - { item: spells.augury, when: level >= 3 }
+        - id: occult
+          effects:
+            - { target: spellcasting.tradition, op: set, value: "'occult'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.occultism },
+                when: "!('skill.occultism' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.blood-vendetta },
+                when: level >= 3,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.blood-vendetta },
+                when: level >= 3,
+              }
+            - {
+                target: spells.repertoire.rank2,
+                op: grant,
+                value: { item: spells.blood-vendetta },
+                when: level >= 3,
+              }
+            - { target: spells.granted.rank2, op: add, value: 1, when: level >= 3 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.slither },
+                when: level >= 9,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.slither },
+                when: level >= 9,
+              }
+            - target: spells.repertoire.rank5
+              op: grant
+              value: { item: spells.slither }
+              when: level >= 9
+            - { target: spells.granted.rank5, op: add, value: 1, when: level >= 9 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.unrelenting-observation },
+                when: level >= 15,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.unrelenting-observation },
+                when: level >= 15,
+              }
+            - target: spells.repertoire.rank8
+              op: grant
+              value: { item: spells.unrelenting-observation }
+              when: level >= 15
+            - { target: spells.granted.rank8, op: add, value: 1, when: level >= 15 }
+          grants:
+            - { item: spells.unrelenting-observation, when: level >= 15 }
+            - { item: spells.slither, when: level >= 9 }
+            - { item: spells.blood-vendetta, when: level >= 3 }
+        - id: primal
+          effects:
+            - { target: spellcasting.tradition, op: set, value: "'primal'" }
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.nature },
+                when: "!('skill.nature' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.shatter },
+                when: level >= 3,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.shatter },
+                when: level >= 3,
+              }
+            - {
+                target: spells.repertoire.rank2,
+                op: grant,
+                value: { item: spells.shatter },
+                when: level >= 3,
+              }
+            - { target: spells.granted.rank2, op: add, value: 1, when: level >= 3 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.howling-blizzard },
+                when: level >= 9,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.howling-blizzard },
+                when: level >= 9,
+              }
+            - target: spells.repertoire.rank5
+              op: grant
+              value: { item: spells.howling-blizzard }
+              when: level >= 9
+            - { target: spells.granted.rank5, op: add, value: 1, when: level >= 9 }
+            - {
+                target: spells.repertoire,
+                op: grant,
+                value: { item: spells.earthquake },
+                when: level >= 15,
+              }
+            - {
+                target: sorcerer.gifts,
+                op: grant,
+                value: { item: spells.earthquake },
+                when: level >= 15,
+              }
+            - target: spells.repertoire.rank8
+              op: grant
+              value: { item: spells.earthquake }
+              when: level >= 15
+            - { target: spells.granted.rank8, op: add, value: 1, when: level >= 15 }
+          grants:
+            - { item: spells.earthquake, when: level >= 15 }
+            - { item: spells.howling-blizzard, when: level >= 9 }
+            - { item: spells.shatter, when: level >= 3 }

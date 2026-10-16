@@ -1,0 +1,17 @@
+description: "orc-2e: Double Slice picks two melee weapons and runs each copy's Strike:
+  both at the first's multiple attack penalty, the second -2 with a weapon that
+  isn't agile; each counts as an attack, the counts released as one adjust"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:feats.fighter.double-slice#double-slice'
+    entry: class
+    source: orc-2e:feats.fighter.double-slice
+  participants:
+    target:
+      - id: goblin
+        values:
+          orc-2e:defenses.ac: 16

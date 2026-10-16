@@ -1,0 +1,21 @@
+id: backgrounds.astrologer
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.occultism }
+    when: "!('skill.occultism' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.astrology }
+    when: "!('skill.lore.astrology' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.oddity-identification
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['int', 'wis']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

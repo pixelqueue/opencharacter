@@ -1,0 +1,18 @@
+id: feats.ancestry.traditional-resistances
+type: feat
+fields: { level: 5, category: ancestry, heritage: heritages.dragonblood }
+prerequisites:
+  - {
+      id: lineage,
+      when: '@feats.ancestry.arcane-dragonblood in feats.held || @feats.ancestry.divine-dragonblood in feats.held || @feats.ancestry.occult-dragonblood in feats.held || @feats.ancestry.primal-dragonblood in feats.held',
+    }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 'situational.againstSleep || situational.againstParalysis ? 2 : 1'
+    stackKey: status-bonus
+    when: >-
+      @feats.ancestry.arcane-dragonblood in feats.held && situational.againstArcane
+        || @feats.ancestry.divine-dragonblood in feats.held && situational.againstDivine
+        || @feats.ancestry.occult-dragonblood in feats.held && situational.againstOccult
+        || @feats.ancestry.primal-dragonblood in feats.held && situational.againstPrimal

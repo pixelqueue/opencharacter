@@ -1,0 +1,17 @@
+# -7 + 3 (the d4, from the dice function) + 1 (the shield) = -3.
+ok: true
+changes:
+  - { type: adjust, field: mork-borg-core:hp.current, by: -7, tags: [damage], faces: [3] }
+adjustments:
+  - field: mork-borg-core:hp.current
+    by: -3
+    requested: -7
+    taken: -3
+    reason: requested
+    rolled:
+      - {
+          source: { type: item, id: mork-borg-core:armor.medium, entry: worn, effect: armor-die },
+          dice: 1d4,
+          faces: [3],
+          total: 3,
+        }

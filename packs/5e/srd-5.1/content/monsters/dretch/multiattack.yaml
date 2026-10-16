@@ -1,0 +1,30 @@
+id: monsters.dretch.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: bite
+        kind: action
+        use: monster-attack
+        source: "'monsters.dretch.bite'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: claws
+        kind: action
+        use: monster-attack
+        source: "'monsters.dretch.claws'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.bite) && steps.bite.result == 'hit' ? 1 : 0)
+              + (has(steps.claws) && steps.claws.result == 'hit' ? 1 : 0)

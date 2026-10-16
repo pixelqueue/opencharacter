@@ -1,0 +1,16 @@
+id: feats.archetype.assassin.expert-backstabber
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.assassin }
+
+prerequisites:
+  - { id: assassin-dedication, when: '@feats.archetype.assassin.assassin-dedication in feats.held' }
+effects:
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: 'roll.item.potency >= 3 ? 2 : 1'
+    tags: [precision, { formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      'trait.backstabber' in roll.item.tags
+        && (situational.offGuardTarget || (has(participants.target) && size(participants.target) > 0
+          && participants.target[0].conditions.offGuard))

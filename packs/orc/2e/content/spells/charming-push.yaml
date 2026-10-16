@@ -1,0 +1,22 @@
+id: spells.charming-push
+type: spell
+tags:
+  [trait.uncommon, trait.concentrate, trait.focus, trait.incapacitation, trait.mental, trait.wizard]
+fields:
+  rank: 1
+  cast: one
+  range: 30
+  targets: 1
+  duration: until-next-turn
+  defense: will
+  applyTo: target
+  applyAt: 1
+  criticalFailure: [conditions.stunned]
+  criticalFailureValue: 1
+effects:
+  - target: { rolls: [attack, damage] }
+    op: add
+    value: -1
+    stackKey: circumstance-penalty
+    when: self.outcome == 1
+    scope: applied

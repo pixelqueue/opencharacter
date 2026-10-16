@@ -1,0 +1,598 @@
+pack.name: Forged in the Dark scoundrel
+# The character's headline: the playbook, and the crew when the app names the linked one. "Bruiser
+# of the Ravens", for a homebrew Bruiser.
+headline: '{has_type_playbook, select, true {{type_playbook}{has_link_crew, select, true { of {link_crew}} other {}}} other {}}'
+
+fields.ratings.hunt.name: Hunt
+fields.ratings.study.name: Study
+fields.ratings.survey.name: Survey
+fields.ratings.tinker.name: Tinker
+fields.ratings.finesse.name: Finesse
+fields.ratings.prowl.name: Prowl
+fields.ratings.skirmish.name: Skirmish
+fields.ratings.wreck.name: Wreck
+fields.ratings.attune.name: Attune
+fields.ratings.command.name: Command
+fields.ratings.consort.name: Consort
+fields.ratings.sway.name: Sway
+fields.attributes.insight.name: Insight
+fields.attributes.prowess.name: Prowess
+fields.attributes.resolve.name: Resolve
+fields.stress.max.name: Maximum stress
+fields.stress.current.name: Stress
+fields.trauma.max.name: Maximum trauma
+fields.trauma.current.name: Trauma
+fields.load.light.name: Light load
+fields.load.normal.name: Normal load
+fields.load.heavy.name: Heavy load
+fields.crew.mastery.name: Crew has Mastery
+fields.crew.mastery.description: 'Used when no crew sheet is linked.'
+links.crew.name: Crew
+fields.ratings.max.name: Maximum action rating
+fields.harm.level1.name: Lesser harm (level 1)
+fields.harm.level2.name: Moderate harm (level 2)
+fields.harm.level3.name: Severe harm (level 3)
+fields.healing.current.name: Healing
+fields.healing.max.name: Healing clock segments
+fields.armor.standard.name: Armor
+fields.armor.heavy.name: Heavy armor
+fields.armor.special.name: Special armor
+fields.xp.playbook.name: Playbook xp
+fields.xp.insight.name: Insight xp
+fields.xp.prowess.name: Prowess xp
+fields.xp.resolve.name: Resolve xp
+fields.coin.name: Coin
+fields.stash.name: Stash
+fields.load.selected.name: Load for this score
+fields.load.limit.name: Load limit
+fields.load.used.name: Load carried
+fields.advances.playbook.name: Playbook advances
+fields.identity.alias.name: Alias
+fields.identity.look.name: Look
+fields.identity.heritage.name: Heritage
+fields.identity.background.name: Background
+fields.relationships.friend.name: Close friend
+fields.relationships.rival.name: Rival
+fields.load.encumbered.name: Encumbered load
+fields.vice.purveyor.name: Vice purveyor
+
+groups.insight.label: Insight
+groups.prowess.label: Prowess
+groups.resolve.label: Resolve
+groups.attributes.label: Attributes
+groups.condition.label: Stress and trauma
+groups.load.label: Load
+groups.harm.label: Harm
+groups.armor.label: Armor
+groups.xp.label: Experience
+groups.wealth.label: Coin and stash
+groups.identity.label: Identity
+
+# Tags shown to players
+tags.standard.name: Standard item
+tags.fine.name: Fine
+
+types.playbook.name: Playbook
+types.playbook.copies: A playbook is chosen, not added
+types.specialAbility.name: Special ability
+types.vice.name: Vice
+types.traumaCondition.name: Trauma condition
+types.gear.name: Gear
+types.gear.computed.quality.name: Quality
+types.project.name: Long-term project
+types.project.state.label.name: Project
+types.project.state.progress.name: Progress
+
+situational.bonusDie.name: Push yourself or take a devil's bargain (+1d)
+situational.bonusDie.values.none.name: 'No bonus die'
+situational.bonusDie.values.push.name: 'Push yourself (+1d, 2 stress)'
+situational.bonusDie.values.devils-bargain.name: "Take a devil's bargain (+1d)"
+situational.assist.name: Assist
+situational.pushEffect.name: Push yourself for +1 effect
+situational.protectingTeammate.name: Protecting a teammate
+situational.frightenedTarget.name: The target is frightened of you
+situational.supernaturalInfo.name: Gathering information about the supernatural
+situational.avoidingDetection.name: Hiding in a prepared position
+situational.ambushing.name: Attacking from hiding or springing a trap
+situational.daredevilTrade.name: Take −1d to resist this roll's consequences for +1d
+situational.intimateTarget.name: The target is someone you're close to
+situational.scoreTarget.name: Gathering information on a score's target
+situational.engagementRoll.name: Engagement roll for a score you researched
+situational.threatInfo.name: Gathering information about threats
+situational.locatingTarget.name: Gathering information to locate a target
+situational.craftingArcane.name: Inventing or crafting something arcane
+situational.craftingAlchemical.name: Inventing or crafting something alchemical
+situational.craftingSparkCraft.name: Inventing or crafting spark-craft
+situational.reducingHeat.name: Reducing heat in downtime
+situational.pushAbility.name: Push yourself for a special ability's benefit
+situational.friendHelps.name: A friend or contact helps (+1d)
+situational.position.name: Position
+situational.position.values.controlled.name: 'Controlled'
+situational.position.values.risky.name: 'Risky'
+situational.position.values.desperate.name: 'Desperate'
+tallies.effect.name: Effect
+tallies.resultLevel.name: Result level
+situational.effect.name: Effect
+situational.effect.values.limited.name: 'Limited'
+situational.effect.values.standard.name: 'Standard'
+situational.effect.values.great.name: 'Great'
+
+bands.action.critical.name: Critical
+bands.action.success.name: Full success
+bands.action.partial.name: Partial success
+bands.action.failure.name: Bad outcome
+# How a band reads: its `roll.value` tests are the result level.
+bands.action.critical.condition: 'Two or more 6s'
+bands.action.success.condition: 'A 6'
+bands.action.partial.condition: 'A 4 or 5'
+bands.action.failure.condition: 'A 1 to 3'
+bands.asset.critical.name: Critical
+bands.asset.success.name: Full success
+bands.asset.partial.name: Partial success
+bands.asset.failure.name: Bad outcome
+bands.asset.critical.condition: 'Two or more 6s'
+bands.asset.success.condition: 'A 6'
+bands.asset.partial.condition: 'A 4 or 5'
+bands.asset.failure.condition: 'A 1 to 3'
+
+actions.action-roll.name: Action roll
+actions.resistance-roll.name: Resistance roll
+actions.recovery-roll.name: Recover
+actions.indulge-vice.name: Indulge vice
+
+constraints.load-limit: 'Carrying {used} load, over the limit of {limit}'
+constraints.creation-dots: "A new scoundrel adds 4 action dots to the playbook's ({spent} added)"
+constraints.creation-rating-limit: 'No action starts above {limit}'
+
+creation.scoundrel.name: Create a scoundrel
+creation.scoundrel.description: 'Write your heritage, background, alias, look, close friend, rival and vice purveyor; choose a playbook, a special ability and a vice, then add four action dots (one for your heritage, one for your background, two anywhere).'
+creation.random.name: Create a random scoundrel
+creation.random.description: 'A random playbook, special ability, vice and action dots; you write the heritage, background, alias, look, close friend, rival and vice purveyor.'
+actions.create-scoundrel.params.random.name: Roll every pick
+actions.create-scoundrel.name: Create a scoundrel
+actions.create-scoundrel.steps.playbook.prompt: Choose a playbook
+actions.create-scoundrel.steps.poolAbility.prompt: Choose a special ability
+actions.create-scoundrel.steps.startingDots.prompt: Place your three starting action dots, none above 2
+actions.create-scoundrel.steps.vice.prompt: Choose a vice
+actions.create-scoundrel.params.heritage.name: Heritage (where your family is from)
+actions.create-scoundrel.params.background.name: Background (what you did before the crew)
+actions.create-scoundrel.params.alias.name: Alias
+actions.create-scoundrel.params.look.name: Look
+actions.create-scoundrel.params.friend.name: Close friend
+actions.create-scoundrel.params.rival.name: Rival
+actions.create-scoundrel.params.purveyor.name: Vice purveyor
+actions.create-scoundrel.steps.heritageDot.prompt: Add one action dot that reflects your heritage, none above 2
+actions.create-scoundrel.steps.backgroundDot.prompt: Add one action dot that reflects your background, none above 2
+actions.create-scoundrel.steps.dots.prompt: Add two more action dots anywhere, none above 2
+actions.fortune-roll.name: Fortune roll
+actions.group-action.name: Group action
+actions.group-action.params.rating.name: Action rating
+actions.group-action.params.rating.description: 'Dots in the action rolled; 0 rolls two dice and keeps the lower.'
+actions.flashback.name: Flashback
+actions.stash-coin.name: Stash coin
+actions.withdraw-stash.name: Withdraw from stash
+actions.train.name: Train
+actions.work-on-project.name: Work on a long-term project
+actions.start-project.name: Start a long-term project
+actions.start-project.params.label.name: What the project is
+actions.start-project.steps.clock.prompt: Choose the project's clock
+actions.start-project.results.started.name: Project started
+actions.reduce-heat.name: Reduce heat
+actions.reduce-heat.params.rating.name: Action rating
+actions.reduce-heat.params.rating.description: 'Dots in the action rolled; 0 rolls two dice and keeps the lower.'
+actions.reduce-heat.steps.coin.prompt: Spend coin to raise the result?
+actions.reduce-heat.options.keep.name: Keep the result
+actions.reduce-heat.options.spend1.name: Spend 1 coin to raise the result a level
+actions.reduce-heat.options.spend2.name: Spend 2 coin to raise the result two levels
+actions.reduce-heat.options.spend3.name: Spend 3 coin to raise the result three levels
+actions.reduce-heat.results.reduced.name: Heat reduced
+actions.work-on-project.options.keep.name: Keep the result
+actions.work-on-project.options.spend1.name: Spend 1 coin to raise the result a level
+actions.work-on-project.options.spend2.name: Spend 2 coin to raise the result two levels
+actions.work-on-project.options.spend3.name: Spend 3 coin to raise the result three levels
+actions.recovery-roll.options.keep.name: Keep the result
+actions.recovery-roll.options.spend1.name: Spend 1 coin to raise the result a level
+actions.recovery-roll.options.spend2.name: Spend 2 coin to raise the result two levels
+actions.recovery-roll.options.spend3.name: Spend 3 coin to raise the result three levels
+actions.acquire-asset.name: Acquire an asset
+actions.acquire-asset.options.keep.name: Keep the result
+actions.acquire-asset.options.spend1.name: Spend 1 coin
+actions.acquire-asset.options.spend2.name: Spend 2 coin
+actions.acquire-asset.options.spend3.name: Spend 3 coin
+actions.acquire-asset.options.spend4.name: Spend 4 coin
+
+rules.choices.playbook.prompt: Choose a playbook
+rules.choices.special-abilities.prompt: Choose your special abilities
+rules.choices.vice.prompt: Choose a vice
+rules.choices.trauma.prompt: Choose a trauma condition for each trauma
+
+special-abilities.battleborn.name: Battleborn
+special-abilities.battleborn.description: Spend your special armor to shrug off harm in a fight or to push yourself while fighting.
+special-abilities.battleborn.options.special-armor.name: 'Mark special armor instead of stress (Battleborn: pushing while fighting)'
+special-abilities.mule.name: Mule
+special-abilities.mule.description: You can carry more. Your load limits are 5, 7 and 8.
+special-abilities.vigorous.name: Vigorous
+special-abilities.bodyguard.name: Bodyguard
+special-abilities.bodyguard.description: Resistance rolls get an extra die while you protect a teammate, and you get more effect when gathering information about threats.
+special-abilities.arcane-fighter.name: Arcane Fighter
+special-abilities.arcane-fighter.description: You can charge your hands, melee weapons and tools with spirit energy, and you have potency in combat against the supernatural.
+special-abilities.leader.name: Leader
+special-abilities.leader.description: Cohorts you command in a fight keep fighting through severe harm, with +1 effect and 1 armor.
+special-abilities.not-to-be-trifled-with.name: Not to Be Trifled With
+special-abilities.not-to-be-trifled-with.description: Push yourself to perform a feat of near-superhuman strength, or to take on a small gang on equal footing.
+special-abilities.savage.name: Savage
+special-abilities.savage.description: Your violence frightens onlookers, and you get an extra die to Command someone who fears you.
+special-abilities.vigorous.description: One segment of your healing clock is always filled, and recovery rolls for you get an extra die.
+
+special-abilities.arcane-mind.name: Arcane Mind
+special-abilities.arcane-mind.description: You always sense supernatural beings nearby, and get an extra die to learn about the supernatural.
+special-abilities.iron-will.name: Iron Will
+special-abilities.iron-will.description: Supernatural terror doesn't touch you, and resistance rolls with Resolve get an extra die.
+special-abilities.ritual.name: Ritual
+special-abilities.ritual.description: You can Study and perform rituals to summon supernatural effects or beings, and start with one.
+special-abilities.strange-methods.name: Strange Methods
+special-abilities.strange-methods.description: Inventing or crafting something arcane improves your result by a level, and you start with one arcane design.
+special-abilities.warded.name: Warded
+special-abilities.warded.description: Spend your special armor to resist a supernatural consequence, or to push yourself against arcane forces.
+special-abilities.warded.options.special-armor.name: 'Mark special armor instead of stress (Warded: pushing against arcane forces)'
+
+special-abilities.sharpshooter.name: 'Sharpshooter'
+special-abilities.sharpshooter.description: 'Push yourself to shoot at extreme range, or to lay down suppressing fire.'
+special-abilities.focused.name: 'Focused'
+special-abilities.focused.description: 'Spend your special armor to resist surprise or mental harm, or to push yourself when shooting or tracking.'
+special-abilities.focused.options.special-armor.name: 'Mark special armor instead of stress (Focused: pushing when shooting or tracking)'
+special-abilities.scout.name: 'Scout'
+special-abilities.scout.description: 'More effect when locating a target, and an extra die to stay hidden from a prepared position.'
+special-abilities.tough-as-nails.name: 'Tough as Nails'
+special-abilities.tough-as-nails.description: 'Each harm penalty counts as one level less severe; fatal harm is still fatal.'
+special-abilities.vengeful.name: 'Vengeful'
+special-abilities.vengeful.description: 'You earn xp for getting payback on those who hurt you or yours.'
+special-abilities.alchemist.name: 'Alchemist'
+special-abilities.alchemist.description: 'Inventing or crafting something alchemical improves your result by a level, and you start with one formula.'
+special-abilities.analyst.name: 'Analyst'
+special-abilities.analyst.description: 'Each downtime, put two extra ticks on long-term projects about research or new designs.'
+special-abilities.artificer.name: 'Artificer'
+special-abilities.artificer.description: 'Inventing or crafting something spark-craft improves your result by a level, and you start with one design.'
+special-abilities.fortitude.name: 'Fortitude'
+special-abilities.fortitude.description: 'Spend your special armor to resist fatigue, weakness or chemicals, or to push yourself on technical or alchemical work.'
+special-abilities.fortitude.options.special-armor.name: 'Mark special armor instead of stress (Fortitude: pushing on technical or alchemical work)'
+special-abilities.supernatural-ward.name: 'Supernatural Ward'
+special-abilities.supernatural-ward.description: 'An area you Wreck with arcane substances becomes repellent or alluring to the supernatural, as you choose.'
+special-abilities.saboteur.name: 'Saboteur'
+special-abilities.saboteur.description: 'Your Wreck work is quiet, and the damage is hard to spot.'
+special-abilities.infiltrator.name: 'Infiltrator'
+special-abilities.infiltrator.description: "Quality and Tier don't hinder you when you get past security."
+special-abilities.ambush.name: 'Ambush'
+special-abilities.ambush.description: 'An extra die when you attack from hiding or spring a trap.'
+special-abilities.daredevil.name: 'Daredevil'
+special-abilities.daredevil.description: 'On a desperate roll, take an extra die in exchange for one less die to resist what follows.'
+special-abilities.devils-footsteps.name: "The Devil's Footsteps"
+special-abilities.devils-footsteps.description: 'Push yourself for a near-superhuman athletic feat, or to trick enemies into attacking each other.'
+special-abilities.expertise.name: 'Expertise'
+special-abilities.expertise.description: 'Pick an action; leading a group action with it costs you at most 1 stress.'
+special-abilities.expertise.choices.action.prompt: Choose an action
+special-abilities.expertise.choices.action.options.hunt.name: Hunt
+special-abilities.expertise.choices.action.options.study.name: Study
+special-abilities.expertise.choices.action.options.survey.name: Survey
+special-abilities.expertise.choices.action.options.tinker.name: Tinker
+special-abilities.expertise.choices.action.options.finesse.name: Finesse
+special-abilities.expertise.choices.action.options.prowl.name: Prowl
+special-abilities.expertise.choices.action.options.skirmish.name: Skirmish
+special-abilities.expertise.choices.action.options.wreck.name: Wreck
+special-abilities.expertise.choices.action.options.attune.name: Attune
+special-abilities.expertise.choices.action.options.command.name: Command
+special-abilities.expertise.choices.action.options.consort.name: Consort
+special-abilities.expertise.choices.action.options.sway.name: Sway
+special-abilities.reflexes.name: 'Reflexes'
+special-abilities.reflexes.description: 'When it matters who acts first, you do.'
+special-abilities.shadow.name: 'Shadow'
+special-abilities.shadow.description: 'Spend your special armor to resist detection or security, or to push yourself on athletics or stealth.'
+special-abilities.shadow.options.special-armor.name: 'Mark special armor instead of stress (Shadow: pushing on athletics or stealth)'
+special-abilities.rooks-gambit.name: "Rook's Gambit"
+special-abilities.rooks-gambit.description: 'Take 2 stress to roll your best action rating in place of another action.'
+special-abilities.rooks-gambit.actions.rooks-gambit.name: "Rook's Gambit"
+special-abilities.rooks-gambit.actions.rooks-gambit.steps.pushCost.prompt: How do you pay for pushing yourself?
+special-abilities.rooks-gambit.actions.rooks-gambit.options.stress.name: Take 2 stress per push
+special-abilities.like-looking-into-a-mirror.name: 'Like Looking into a Mirror'
+special-abilities.like-looking-into-a-mirror.description: 'You always know when someone lies to you.'
+special-abilities.a-little-something-on-the-side.name: 'A Little Something on the Side'
+special-abilities.a-little-something-on-the-side.description: 'You add 2 to your stash at the end of each downtime.'
+special-abilities.mesmerism.name: 'Mesmerism'
+special-abilities.mesmerism.description: 'Someone you Sway can forget it happened until they next meet you.'
+special-abilities.subterfuge.name: 'Subterfuge'
+special-abilities.subterfuge.description: 'Spend your special armor to resist suspicion or persuasion, or to push yourself for subterfuge.'
+special-abilities.subterfuge.options.special-armor.name: 'Mark special armor instead of stress (Subterfuge: pushing for subterfuge)'
+special-abilities.trust-in-me.name: 'Trust in Me'
+special-abilities.trust-in-me.description: 'An extra die against someone you have a close relationship with.'
+special-abilities.foresight.name: 'Foresight'
+special-abilities.foresight.description: 'Twice a score, assist a teammate without paying stress.'
+special-abilities.calculating.name: 'Calculating'
+special-abilities.calculating.description: 'Give yourself or a crewmate one more downtime activity.'
+special-abilities.connected.name: 'Connected'
+special-abilities.connected.description: 'Acquiring assets and reducing heat in downtime improve by a result level.'
+special-abilities.mastermind.name: 'Mastermind'
+special-abilities.mastermind.description: 'Spend your special armor to protect a teammate, or to push yourself on research or a long-term project.'
+special-abilities.mastermind.options.special-armor.name: 'Mark special armor instead of stress (Mastermind: pushing on research or a long-term project)'
+special-abilities.weaving-the-web.name: 'Weaving the Web'
+special-abilities.weaving-the-web.description: "An extra die to Consort for information on a score's target, and to that score's engagement roll."
+
+vices.faith.name: Faith
+vices.gambling.name: Gambling
+vices.luxury.name: Luxury
+vices.obligation.name: Obligation
+vices.pleasure.name: Pleasure
+vices.stupor.name: Stupor
+vices.weird.name: Weird
+
+trauma-conditions.cold.name: Cold
+trauma-conditions.cold.description: Unmoved by emotional appeals and social bonds.
+trauma-conditions.haunted.name: Haunted
+trauma-conditions.haunted.description: Often lost in reverie, reliving past horrors.
+trauma-conditions.obsessed.name: Obsessed
+trauma-conditions.obsessed.description: Fixated on one thing above all else.
+trauma-conditions.paranoid.name: Paranoid
+trauma-conditions.paranoid.description: Trusts no one, and sees danger everywhere.
+trauma-conditions.reckless.name: Reckless
+trauma-conditions.reckless.description: Careless of their own safety.
+trauma-conditions.soft.name: Soft
+trauma-conditions.soft.description: Has lost their edge and their stomach for violence.
+trauma-conditions.unstable.name: Unstable
+trauma-conditions.unstable.description: Moods swing wildly and without warning.
+trauma-conditions.vicious.name: Vicious
+trauma-conditions.vicious.description: Seeks out chances to hurt people.
+fields.daredevil.penalty.name: Daredevil's −1d to resist
+fields.stash.lifestyle.name: Lifestyle
+constraints.retire: 'Four trauma: this scoundrel must retire'
+projects.clock-4.name: 4-segment project
+projects.clock-6.name: 6-segment project
+projects.clock-8.name: 8-segment project
+projects.clock-12.name: 12-segment project
+projects.learn-ritual.name: Learn a ritual (8 segments)
+rituals.ritual.name: Ritual
+types.ritual.name: Ritual
+types.ritual.state.label.name: Name
+types.ritual.state.primed.name: Primed
+actions.perform-ritual.name: Perform a ritual
+actions.perform-ritual.options.keep.name: Keep the result
+actions.perform-ritual.options.spend1.name: Spend 1 coin on rare materials (+1 result level)
+actions.perform-ritual.options.spend2.name: Spend 2 coin on rare materials (+2 result levels)
+actions.perform-ritual.options.spend3.name: Spend 3 coin on rare materials (+3 result levels)
+actions.unleash-ritual.name: Unleash a primed ritual
+projects.invent.name: Invent a formula or design (8 segments)
+designs.design.name: Formula or design
+designs.alchemical.name: Alchemical formula
+designs.spark-craft.name: Spark-craft design
+designs.arcane.name: Arcane design
+creations.creation.name: Creation
+types.design.name: Formula or design
+types.design.state.label.name: Name
+types.design.state.kind.name: Kind
+types.design.state.kind.values.mundane.name: 'Mundane'
+types.design.state.kind.values.alchemical.name: 'Alchemical'
+types.design.state.kind.values.arcane.name: 'Arcane'
+types.design.state.kind.values.spark-craft.name: 'Spark-craft'
+types.design.state.minQuality.name: Minimum quality
+types.design.state.load.name: Load
+types.design.state.stages.name: Stages
+types.design.state.consumable.name: Consumable
+types.design.state.uses.name: Uses
+types.design.state.conspicuous.name: Conspicuous
+types.design.state.rare.name: Rare
+types.design.state.unreliable.name: Unreliable
+types.design.state.volatile.name: Volatile
+types.creation.name: Creation
+types.creation.state.label.name: Name
+types.creation.state.quality.name: Quality
+types.creation.state.load.name: Load
+types.creation.state.consumable.name: Consumable
+types.creation.state.uses.name: Uses
+types.creation.state.conspicuous.name: Conspicuous
+types.creation.state.unreliable.name: Unreliable
+types.creation.state.volatile.name: Volatile
+actions.craft.name: Craft
+actions.craft.options.keep.name: Keep the result
+actions.craft.options.spend1.name: Spend 1 coin for +1 quality
+actions.craft.options.spend2.name: Spend 2 coin for +2 quality
+actions.craft.options.spend3.name: Spend 3 coin for +3 quality
+actions.craft.options.spend4.name: Spend 4 coin for +4 quality
+actions.use-creation.name: Use a creation
+actions.craft-design.name: Craft a design
+
+# Action text: parameters, choice prompts and results
+actions.flashback.params.stress.name: Stress cost
+actions.flashback.params.stress.description: 'The stress the GM sets for the flashback.'
+actions.flashback.params.downtime.name: Downtime activity
+actions.flashback.results.flashback.name: Flashback
+actions.stash-coin.params.coin.name: Coin
+actions.stash-coin.results.stashed.name: Stashed
+actions.withdraw-stash.params.coin.name: Coin
+actions.withdraw-stash.results.withdrawn.name: Withdrawn
+actions.train.params.track.name: Xp track
+actions.train.params.upgrade.name: Training upgrade
+actions.train.results.trained.name: Trained
+actions.work-on-project.params.rating.name: Action rating
+actions.work-on-project.params.rating.description: 'Dots in the action rolled; 0 rolls two dice and keeps the lower.'
+actions.work-on-project.steps.coin.prompt: Spend coin to raise the result?
+actions.work-on-project.results.progress.name: Progress made
+actions.work-on-project.results.complete.name: Project complete
+actions.action-roll.params.rating.name: Action rating
+actions.action-roll.params.rating.description: 'Dots in the action rolled; 0 rolls two dice and keeps the lower.'
+actions.action-roll.steps.pushCost.prompt: How do you pay for pushing yourself?
+actions.action-roll.options.stress.name: Take 2 stress per push
+actions.resistance-roll.params.attribute.name: Attribute
+actions.recovery-roll.params.dots.name: "Healer's rating"
+actions.recovery-roll.params.dots.description: "The healer's Tinker rating, or an NPC healer's quality."
+actions.recovery-roll.params.treatment.name: Treatment
+actions.recovery-roll.steps.coin.prompt: Spend coin to raise the result?
+actions.indulge-vice.results.indulged.name: Indulged
+actions.indulge-vice.results.overindulged.name: Overindulged
+actions.indulge-vice.steps.overindulgence.prompt: You overindulged. Choose the bad call you made
+actions.indulge-vice.options.trouble.name: Attract trouble (an extra entanglement for the crew)
+actions.indulge-vice.options.brag.name: Brag about your exploits (+2 heat to the crew)
+actions.indulge-vice.options.lost.name: Lost on a bender for a few weeks (back with harm healed)
+actions.indulge-vice.options.tapped.name: Tapped (your purveyor cuts you off)
+actions.fortune-roll.params.dice.name: Dice
+actions.fortune-roll.params.dice.description: 'Dice to roll; 0 rolls two and keeps the lower.'
+actions.acquire-asset.params.tier.name: Crew tier
+actions.acquire-asset.params.again.name: Acquiring the same asset again
+actions.acquire-asset.params.minQuality.name: Minimum quality
+actions.acquire-asset.params.restricted.name: Restricted item (alchemical, poison, bomb or dangerous gadget)
+actions.acquire-asset.steps.coin.prompt: Spend coin to raise the quality?
+actions.acquire-asset.results.acquired.name: Asset acquired
+actions.acquire-asset.results.too-low.name: Quality too low
+actions.ignore-vice.name: Ignore your vice
+actions.ignore-vice.results.ignored.name: Vice ignored
+actions.craft.params.tier.name: Crew tier
+actions.craft.params.workshop.name: Crew has a Workshop
+actions.craft.params.modification.name: Modification
+actions.craft.params.minQuality.name: Minimum quality
+actions.craft.params.label.name: What it is
+actions.craft.params.load.name: Load
+actions.craft.params.consumable.name: Consumable
+actions.craft.params.uses.name: Uses
+actions.craft.params.conspicuous.name: Conspicuous
+actions.craft.params.unreliable.name: Unreliable
+actions.craft.params.volatile.name: Volatile
+actions.craft.params.finalStage.name: Final stage
+actions.craft.params.finalStage.description: 'The last roll of a complex creation.'
+actions.craft.steps.coin.prompt: Spend coin to raise the quality?
+actions.craft.results.crafted.name: Crafted
+actions.craft.results.stage-done.name: Stage done
+actions.craft.results.modified.name: Item modified
+actions.craft.results.too-low.name: Quality too low
+actions.craft-design.params.tier.name: Crew tier
+actions.craft-design.params.workshop.name: Crew has a Workshop
+actions.craft-design.params.finalStage.name: Final stage
+actions.craft-design.params.finalStage.description: 'The last roll of a complex design.'
+actions.craft-design.results.crafted.name: Crafted
+actions.craft-design.results.stage-done.name: Stage done
+actions.craft-design.results.too-low.name: Quality too low
+actions.use-creation.results.used.name: Used
+actions.perform-ritual.params.stress.name: Stress cost
+actions.perform-ritual.params.dangerous.name: Dangerous (action roll)
+actions.perform-ritual.params.rating.name: Action rating
+actions.perform-ritual.params.rating.description: 'Dots in the action rolled; 0 rolls two dice and keeps the lower.'
+actions.perform-ritual.params.uncertain.name: Uncertain (fortune roll)
+actions.perform-ritual.params.dice.name: Fortune roll dice
+actions.perform-ritual.params.prime.name: Prime it to unleash later
+actions.perform-ritual.steps.coin.prompt: Spend coin on rare materials?
+actions.perform-ritual.results.performed.name: Ritual performed
+actions.perform-ritual.results.primed.name: Ritual primed
+actions.unleash-ritual.results.unleashed.name: Ritual unleashed
+types.harm.name: Harm
+types.harm.state.level.name: Level
+types.harm.state.label.name: Harm
+harm.harm.name: Harm
+actions.take-harm.name: Take harm
+actions.take-harm.params.level.name: Harm level
+actions.take-harm.params.label.name: What the harm is
+actions.take-harm.results.harmed.name: Harm marked
+actions.take-harm.results.fatal.name: Fatal or catastrophic harm (level 4)
+actions.heal.name: Tick the healing clock
+actions.heal.params.ticks.name: Segments
+actions.heal.results.ticked.name: Healing clock ticked
+actions.heal.results.filled.name: Healing clock filled, harm reduced
+fields.foresight.used.name: Foresight assists used this score
+actions.action-roll.params.downtime.name: Rolled for a downtime activity
+actions.action-roll.steps.foresight.prompt: Use Foresight to assist without stress?
+actions.action-roll.options.foresight.name: Use Foresight (no stress)
+actions.action-roll.options.assist-stress.name: Take 1 stress for assisting
+actions.analyst-ticks.name: 'Analyst: extra ticks'
+actions.analyst-ticks.params.ticks.name: Ticks
+actions.analyst-ticks.results.progress.name: Progress made
+actions.analyst-ticks.results.complete.name: Project complete
+actions.ability-stress.name: Use the ability
+actions.ability-stress.params.cost.name: Stress
+actions.ability-stress.params.extra.name: Extra stress
+actions.ability-stress.results.paid.name: Stress taken
+special-abilities.a-little-something-on-the-side.actions.side-income.name: Add 2 to your stash
+special-abilities.a-little-something-on-the-side.actions.side-income.results.stashed.name: Stashed
+
+# What the linked crew gives.
+groups.crew-dots.label: Crew dots
+groups.action-rolls.label: Action rolls
+groups.resistance-rolls.label: Resistance
+groups.score-actions.label: On the score
+groups.harm-actions.label: Harm and healing
+groups.downtime.label: Downtime
+groups.creation-actions.label: Character creation
+groups.playbook.label: Playbook
+groups.special-abilities.label: Special abilities
+groups.harm-list.label: Harm
+groups.trauma-conditions.label: Trauma
+groups.gear.label: Items
+groups.vice.label: Vice
+groups.creations.label: Creations
+groups.projects.label: Long-term projects
+groups.rituals.label: Rituals
+groups.designs.label: Designs
+fields.crew.dots.name: Actions with your crew's extra dot
+rules.choices.crew-dots.prompt: Choose an action for each of your crew's extra dots
+constraints.crew-dot-limit: "A crew ability's dot can't raise an action past 3"
+situational.gatheringInfo.name: Gathering information for a score
+situational.supernatural.name: Against the supernatural, or recovering from supernatural harm
+situational.atClaimSite.name: At one of the crew's claims that helps this action
+
+# What the crew's abilities and claims give.
+situational.eliteInfo.name: Gathering information about the city's elite
+situational.passingAsCitizens.name: Deceiving people as ordinary citizens
+fields.prison.serving.name: Serving time in prison
+fields.prison.serving.description: "The load is the prison loadout's: 0, or 2 for each of the crew's Smuggling claims."
+
+# Tag names: every declared tag, parents included
+tags.action-roll.name: 'Action roll'
+tags.action-roll.downtime.name: 'Downtime action roll'
+tags.asset-roll.name: 'Asset roll'
+tags.attribute.name: 'Attribute'
+tags.craft.name: 'Craft'
+tags.creation.name: 'Creation'
+tags.downtime.name: 'Downtime'
+tags.flashback.name: 'Flashback'
+tags.fortune-roll.name: 'Fortune roll'
+tags.group-action.name: 'Group action'
+tags.harm.name: 'Harm'
+tags.push-cost.name: 'Push cost'
+tags.rating.name: 'Rating'
+tags.rating.insight.name: 'Insight'
+tags.rating.insight.hunt.name: 'Hunt'
+tags.rating.insight.study.name: 'Study'
+tags.rating.insight.survey.name: 'Survey'
+tags.rating.insight.tinker.name: 'Tinker'
+tags.rating.prowess.name: 'Prowess'
+tags.rating.prowess.finesse.name: 'Finesse'
+tags.rating.prowess.prowl.name: 'Prowl'
+tags.rating.prowess.skirmish.name: 'Skirmish'
+tags.rating.prowess.wreck.name: 'Wreck'
+tags.rating.resolve.name: 'Resolve'
+tags.rating.resolve.attune.name: 'Attune'
+tags.rating.resolve.command.name: 'Command'
+tags.rating.resolve.consort.name: 'Consort'
+tags.rating.resolve.sway.name: 'Sway'
+tags.recovery-roll.name: 'Recovery roll'
+tags.resistance-roll.name: 'Resistance roll'
+tags.ritual.name: 'Ritual'
+tags.scoundrel.name: 'Scoundrel'
+tags.vice-roll.name: 'Vice roll'
+
+# Content blocks: each type's header line, filled from the item's fields (and a copy's state and
+# computed values when the app gives one), and the names of the enum values they show. Apps show the
+# block, then the description.
+types.gear.block: >-
+  **{name}** — *{load, plural, =0 {No load} other {# load}}*{has_self_quality, select, true { · Quality {self_quality}} other {}}
+
+# Enum value names: rule-level fields' and action parameters' values.
+fields.load.selected.values.light.name: 'Light'
+fields.load.selected.values.normal.name: 'Normal'
+fields.load.selected.values.heavy.name: 'Heavy'
+fields.load.selected.values.encumbered.name: 'Encumbered'
+actions.craft.params.modification.values.none.name: 'No modification'
+actions.craft.params.modification.values.simple.name: 'Simple'
+actions.craft.params.modification.values.significant.name: 'Significant'
+actions.craft.params.modification.values.special.name: 'Special'
+actions.recovery-roll.params.treatment.values.healer.name: 'A healer'
+actions.recovery-roll.params.treatment.values.self.name: 'Yourself'
+actions.recovery-roll.params.treatment.values.none.name: 'No one'
+actions.train.params.track.values.insight.name: 'Insight'
+actions.train.params.track.values.prowess.name: 'Prowess'
+actions.train.params.track.values.resolve.name: 'Resolve'
+actions.train.params.track.values.playbook.name: 'Playbook'

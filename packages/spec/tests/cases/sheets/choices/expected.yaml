@@ -1,0 +1,82 @@
+# The rules-level choice first; then the class's own choices in declaration order (the
+# `activate: false` kit, the inline option `path` followed at once by the picked mechanic
+# option's `specialty`, one of two picked, the applicable slot `talent-1` but not
+# `talent-3`, the optional `hobby`, which is never open, and `languages`, unbounded; `mastery`'s
+# `when` doesn't hold); then those of what the class grants (zero-g's `focus`). `pending` is the
+# open ones, in the same order.
+choices:
+  - path: { choice: [bonus] }
+    owner: test-pack:rules
+    id: bonus
+    type: test-pack:skill
+    min: 1
+    max: 1
+    picks: [test-pack:skills.hacking]
+    open: false
+  - path: { entry: class, choice: [trained] }
+    owner: test-pack:classes.teamster
+    id: trained
+    type: test-pack:skill
+    min: 1
+    max: 1
+    picks: [test-pack:skills.repair]
+    open: false
+  - path: { entry: class, choice: [kit] }
+    owner: test-pack:classes.teamster
+    id: kit
+    type: test-pack:tool
+    min: 1
+    max: 1
+    picks: [test-pack:tools.wrench]
+    open: false
+  - path: { entry: class, choice: [path] }
+    owner: test-pack:classes.teamster
+    id: path
+    min: 1
+    max: 1
+    picks: [mechanic]
+    open: false
+  - path: { entry: class, choice: [path, mechanic, specialty] }
+    owner: test-pack:classes.teamster.choices.path.options.mechanic
+    id: specialty
+    type: test-pack:skill
+    min: 2
+    max: 2
+    picks: [test-pack:skills.piloting]
+    open: true
+  - path: { entry: class, choice: [talent-1] }
+    owner: test-pack:classes.teamster
+    id: talent-1
+    slot: { choice: talent, number: 1 }
+    type: test-pack:skill
+    min: 1
+    max: 1
+    picks: []
+    open: true
+  - path: { entry: class, choice: [hobby] }
+    owner: test-pack:classes.teamster
+    id: hobby
+    min: 1
+    max: 1
+    picks: []
+    open: false
+  - path: { entry: class, choice: [languages] }
+    owner: test-pack:classes.teamster
+    id: languages
+    min: 1
+    picks: [common, trade]
+    open: false
+  - path: { entry: class, choice: [test-pack:skills.zero-g/focus] }
+    owner: test-pack:skills.zero-g
+    id: focus
+    type: test-pack:skill
+    min: 1
+    max: 1
+    picks: []
+    open: true
+pending:
+  - { entry: class, choice: [path, mechanic, specialty] }
+  - { entry: class, choice: [talent-1] }
+  - { entry: class, choice: [test-pack:skills.zero-g/focus] }
+issues: []
+errors: []

@@ -1,0 +1,385 @@
+fields:
+  deathSaves.successes: { type: integer, input: true, default: 0, min: 0, max: 3 }
+  deathSaves.failures: { type: integer, input: true, default: 0, min: 0, max: 3 }
+  rest.longRestHeals: { type: boolean, formula: true }
+
+followUps:
+  # Only damage that reached hit points already at 0 counts, so temporary hit points that absorb it
+  # all, or damage resisted to nothing, don't. One per batch, so one per hit however many damage
+  # types it deals.
+  - id: damage-while-dying
+    on: { field: hp.current, tags: [damage], once: true }
+    required: true
+    when: change.taken < 0 && change.by == 0 && change.clamped && hp.current == 0
+    changes:
+      - { type: adjust, field: deathSaves.failures, by: 1 }
+
+actions:
+  - id: death-save
+    tags: [save]
+    # Monsters die at 0 hit points, so they never make one.
+    available: >-
+      !sheet.monster && hp.current == 0 && deathSaves.successes < 3 && deathSaves.failures < 3
+    results: [revived, stable, success, failure, dead]
+    steps:
+      - id: save
+        kind: roll
+        tags: [d20-test, save.death]
+        parts:
+          - dice: 1d20
+      - id: revive
+        kind: changes
+        when: steps.save.kept[0] == 20
+        changes:
+          - { type: set, field: hp.current, value: 1 }
+          - { type: set, field: deathSaves.successes, value: 0 }
+          - { type: set, field: deathSaves.failures, value: 0 }
+      - id: success
+        kind: changes
+        when: steps.save.kept[0] != 20 && steps.save.total >= 10
+        changes:
+          - { type: adjust, field: deathSaves.successes, by: 1 }
+      - id: failure
+        kind: changes
+        when: steps.save.total < 10
+        changes:
+          - { type: adjust, field: deathSaves.failures, by: 'steps.save.kept[0] == 1 ? 2 : 1' }
+      - id: result
+        kind: outcome
+        result: >-
+          steps.save.kept[0] == 20 ? 'revived'
+            : steps.save.total >= 10 ? (deathSaves.successes + 1 >= 3 ? 'stable' : 'success')
+            : deathSaves.failures + (steps.save.kept[0] == 1 ? 2 : 1) >= 3 ? 'dead' : 'failure'
+        data:
+          total: steps.save.total
+
+  - id: spend-hit-die
+    tags: [healing]
+    available: self.hitDiceSpent < self.level
+    results: [healed]
+    steps:
+      - id: heal
+        kind: roll
+        tags: [hit-die]
+        parts:
+          - dice: item.hitDie
+          - value: abilities.con.mod
+      - id: regain
+        kind: changes
+        changes:
+          - {
+              type: adjust,
+              field: hp.current,
+              by: 'max(0, steps.heal.total)',
+              tags: [healing.hit-die],
+            }
+          - { type: adjustState, entry: self, key: hitDiceSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: max(0, steps.heal.total)
+
+  - id: long-rest
+    tags: [rest]
+    results: [rested]
+    steps:
+      - id: rest
+        kind: changes
+        changes:
+          - { type: set, field: hp.current, value: hp.max, when: rest.longRestHeals }
+          - { type: set, field: hp.temp, value: 0 }
+          - { type: set, field: deathSaves.successes, value: 0 }
+          - { type: set, field: deathSaves.failures, value: 0 }
+          - { type: adjust, field: conditions.exhaustion, by: -1 }
+          - { type: set, field: spellSlots.level1.used, value: 0 }
+          - { type: set, field: spellSlots.level2.used, value: 0 }
+          - { type: set, field: spellSlots.level3.used, value: 0 }
+          - { type: set, field: spellSlots.level4.used, value: 0 }
+          - { type: set, field: spellSlots.level5.used, value: 0 }
+          - { type: set, field: spellSlots.level6.used, value: 0 }
+          - { type: set, field: spellSlots.level7.used, value: 0 }
+          - { type: set, field: spellSlots.level8.used, value: 0 }
+          - { type: set, field: spellSlots.level9.used, value: 0 }
+          - { type: set, field: pactSlots.used, value: 0 }
+          - { type: set, field: tranquility.active, value: true, when: tranquility.known }
+          - type: adjustState
+            when: >-
+              countList(character.applied,
+                x.source == @conditions.sight-rot && x.state.penalty < 5) > 0
+            applied:
+              where: 'item.id == @conditions.sight-rot && self.penalty < 5'
+            key: penalty
+            by: 1
+          - type: applyEffect
+            when: >-
+              countList(character.applied,
+                x.source == @conditions.sight-rot && x.state.penalty == 4) > 0
+            source: "'conditions.blinded'"
+          - type: removeEffect
+            when: 'countList(character.applied, x.source == @conditions.wound) > 0'
+            applied: { where: 'item.id == @conditions.wound' }
+          - type: setState
+            when: countCopies(has(copy.state.divineSenseSpent) && copy.state.divineSenseSpent > 0) > 0
+            copies: { type: class, where: has(self.divineSenseSpent) && self.divineSenseSpent > 0 }
+            key: divineSenseSpent
+            value: 0
+          - type: setState
+            when: countCopies(has(copy.state.layOnHandsSpent) && copy.state.layOnHandsSpent > 0) > 0
+            copies: { type: class, where: has(self.layOnHandsSpent) && self.layOnHandsSpent > 0 }
+            key: layOnHandsSpent
+            value: 0
+          - type: setState
+            when: countCopies(has(copy.state.channelDivinitySpent) && copy.state.channelDivinitySpent > 0) > 0
+            copies:
+              {
+                type: class,
+                where: has(self.channelDivinitySpent) && self.channelDivinitySpent > 0,
+              }
+            key: channelDivinitySpent
+            value: 0
+          - type: setState
+            when: countCopies(has(copy.state.cleansingTouchSpent) && copy.state.cleansingTouchSpent > 0) > 0
+            copies:
+              { type: class, where: has(self.cleansingTouchSpent) && self.cleansingTouchSpent > 0 }
+            key: cleansingTouchSpent
+            value: 0
+          - type: setState
+            when: countCopies(has(copy.state.holyNimbusUsed) && copy.state.holyNimbusUsed) > 0
+            copies: { type: class, where: has(self.holyNimbusUsed) && self.holyNimbusUsed }
+            key: holyNimbusUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.strokeOfLuckUsed) && copy.state.strokeOfLuckUsed) > 0
+            copies: { type: class, where: has(self.strokeOfLuckUsed) && self.strokeOfLuckUsed }
+            key: strokeOfLuckUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.sorceryPointsSpent) && copy.state.sorceryPointsSpent > 0) > 0
+            copies:
+              { type: class, where: has(self.sorceryPointsSpent) && self.sorceryPointsSpent > 0 }
+            key: sorceryPointsSpent
+            value: 0
+          - type: setState
+            when: countCopies(has(copy.state.arcanum6Used) && copy.state.arcanum6Used) > 0
+            copies: { type: class, where: has(self.arcanum6Used) && self.arcanum6Used }
+            key: arcanum6Used
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.arcanum7Used) && copy.state.arcanum7Used) > 0
+            copies: { type: class, where: has(self.arcanum7Used) && self.arcanum7Used }
+            key: arcanum7Used
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.arcanum8Used) && copy.state.arcanum8Used) > 0
+            copies: { type: class, where: has(self.arcanum8Used) && self.arcanum8Used }
+            key: arcanum8Used
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.arcanum9Used) && copy.state.arcanum9Used) > 0
+            copies: { type: class, where: has(self.arcanum9Used) && self.arcanum9Used }
+            key: arcanum9Used
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.eldritchMasterUsed) && copy.state.eldritchMasterUsed) > 0
+            copies: { type: class, where: has(self.eldritchMasterUsed) && self.eldritchMasterUsed }
+            key: eldritchMasterUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.darkOnesOwnLuckUsed) && copy.state.darkOnesOwnLuckUsed) > 0
+            copies:
+              { type: class, where: has(self.darkOnesOwnLuckUsed) && self.darkOnesOwnLuckUsed }
+            key: darkOnesOwnLuckUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.hurlThroughHellUsed) && copy.state.hurlThroughHellUsed) > 0
+            copies:
+              { type: class, where: has(self.hurlThroughHellUsed) && self.hurlThroughHellUsed }
+            key: hurlThroughHellUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.arcaneRecoveryUsed) && copy.state.arcaneRecoveryUsed) > 0
+            copies: { type: class, where: has(self.arcaneRecoveryUsed) && self.arcaneRecoveryUsed }
+            key: arcaneRecoveryUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.overchannelUses) && copy.state.overchannelUses > 0) > 0
+            copies: { type: class, where: has(self.overchannelUses) && self.overchannelUses > 0 }
+            key: overchannelUses
+            value: 0
+          - type: setState
+            when: countCopies(has(copy.state.rageSpent) && copy.state.rageSpent > 0) > 0
+            copies: { type: class, where: has(self.rageSpent) && self.rageSpent > 0 }
+            key: rageSpent
+            value: 0
+          - type: setState
+            when: >-
+              countCopies(has(copy.state.relentlessRageSpent) && copy.state.relentlessRageSpent > 0) > 0
+            copies:
+              { type: class, where: has(self.relentlessRageSpent) && self.relentlessRageSpent > 0 }
+            key: relentlessRageSpent
+            value: 0
+          - type: setState
+            when: >-
+              countCopies(has(copy.state.bardicInspirationSpent) && copy.state.bardicInspirationSpent > 0) > 0
+            copies:
+              {
+                type: class,
+                where: has(self.bardicInspirationSpent) && self.bardicInspirationSpent > 0,
+              }
+            key: bardicInspirationSpent
+            value: 0
+          - type: setState
+            when: >-
+              countCopies(has(copy.state.divineIntervention) && copy.state.divineIntervention == 'failed') > 0
+            copies:
+              {
+                type: class,
+                where: "has(self.divineIntervention) && self.divineIntervention == 'failed'",
+              }
+            key: divineIntervention
+            value: "'ready'"
+          - type: setState
+            when: countCopies(has(copy.state.wildShapeSpent) && copy.state.wildShapeSpent > 0) > 0
+            copies: { type: class, where: has(self.wildShapeSpent) && self.wildShapeSpent > 0 }
+            key: wildShapeSpent
+            value: 0
+          - type: setState
+            when: >-
+              countCopies(has(copy.state.naturalRecoveryUsed) && copy.state.naturalRecoveryUsed) > 0
+            copies:
+              { type: class, where: has(self.naturalRecoveryUsed) && self.naturalRecoveryUsed }
+            key: naturalRecoveryUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.secondWindUsed) && copy.state.secondWindUsed) > 0
+            copies: { type: class, where: has(self.secondWindUsed) && self.secondWindUsed }
+            key: secondWindUsed
+            value: false
+          - type: setState
+            when: >-
+              countCopies(has(copy.state.actionSurgeSpent) && copy.state.actionSurgeSpent > 0) > 0
+            copies: { type: class, where: has(self.actionSurgeSpent) && self.actionSurgeSpent > 0 }
+            key: actionSurgeSpent
+            value: 0
+          - type: setState
+            when: >-
+              countCopies(has(copy.state.indomitableSpent) && copy.state.indomitableSpent > 0) > 0
+            copies: { type: class, where: has(self.indomitableSpent) && self.indomitableSpent > 0 }
+            key: indomitableSpent
+            value: 0
+          - type: setState
+            when: countCopies(has(copy.state.kiSpent) && copy.state.kiSpent > 0) > 0
+            copies: { type: class, where: has(self.kiSpent) && self.kiSpent > 0 }
+            key: kiSpent
+            value: 0
+          - type: setState
+            when: countCopies(has(copy.state.wholenessUsed) && copy.state.wholenessUsed) > 0
+            copies: { type: class, where: has(self.wholenessUsed) && self.wholenessUsed }
+            key: wholenessUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.hellishRebukeUsed) && copy.state.hellishRebukeUsed) > 0
+            copies: { type: race, where: has(self.hellishRebukeUsed) && self.hellishRebukeUsed }
+            key: hellishRebukeUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.darknessUsed) && copy.state.darknessUsed) > 0
+            copies: { type: race, where: has(self.darknessUsed) && self.darknessUsed }
+            key: darknessUsed
+            value: false
+          - type: setState
+            when: >-
+              countCopies(copy.item == @magic-items.ring-of-x-ray-vision
+                && copy.state.used) > 0
+            copies:
+              {
+                type: magicItem,
+                where: 'item.id == @magic-items.ring-of-x-ray-vision && self.used',
+              }
+            key: used
+            value: false
+          - type: setState
+            when: >-
+              countCopies(has(copy.state.relentlessEnduranceUsed)
+                && copy.state.relentlessEnduranceUsed) > 0
+            copies:
+              {
+                type: race,
+                where: has(self.relentlessEnduranceUsed) && self.relentlessEnduranceUsed,
+              }
+            key: relentlessEnduranceUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.signatureSpell1Used) && copy.state.signatureSpell1Used) > 0
+            copies:
+              { type: class, where: has(self.signatureSpell1Used) && self.signatureSpell1Used }
+            key: signatureSpell1Used
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.signatureSpell2Used) && copy.state.signatureSpell2Used) > 0
+            copies:
+              { type: class, where: has(self.signatureSpell2Used) && self.signatureSpell2Used }
+            key: signatureSpell2Used
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.bewitchingWhispersUsed) && copy.state.bewitchingWhispersUsed) > 0
+            copies:
+              {
+                type: class,
+                where: has(self.bewitchingWhispersUsed) && self.bewitchingWhispersUsed,
+              }
+            key: bewitchingWhispersUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.dreadfulWordUsed) && copy.state.dreadfulWordUsed) > 0
+            copies: { type: class, where: has(self.dreadfulWordUsed) && self.dreadfulWordUsed }
+            key: dreadfulWordUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.minionsOfChaosUsed) && copy.state.minionsOfChaosUsed) > 0
+            copies: { type: class, where: has(self.minionsOfChaosUsed) && self.minionsOfChaosUsed }
+            key: minionsOfChaosUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.mireTheMindUsed) && copy.state.mireTheMindUsed) > 0
+            copies: { type: class, where: has(self.mireTheMindUsed) && self.mireTheMindUsed }
+            key: mireTheMindUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.sculptorOfFleshUsed) && copy.state.sculptorOfFleshUsed) > 0
+            copies:
+              { type: class, where: has(self.sculptorOfFleshUsed) && self.sculptorOfFleshUsed }
+            key: sculptorOfFleshUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.signOfIllOmenUsed) && copy.state.signOfIllOmenUsed) > 0
+            copies: { type: class, where: has(self.signOfIllOmenUsed) && self.signOfIllOmenUsed }
+            key: signOfIllOmenUsed
+            value: false
+          - type: setState
+            when: countCopies(has(copy.state.thiefOfFiveFatesUsed) && copy.state.thiefOfFiveFatesUsed) > 0
+            copies:
+              { type: class, where: has(self.thiefOfFiveFatesUsed) && self.thiefOfFiveFatesUsed }
+            key: thiefOfFiveFatesUsed
+            value: false
+          - type: setState
+            when: countCopies(copy.type == 'monsterAction') > 0
+            copies:
+              type: monsterAction
+              where: >-
+                (has(item.perDay) || (has(item.perRest) && item.perRest) || has(self.perDay))
+                && self.usesLeft < (has(item.perDay) ? item.perDay : has(self.perDay) ? self.perDay : 1)
+            key: usesLeft
+            value: 'has(item.perDay) ? item.perDay : has(self.perDay) ? self.perDay : 1'
+      - id: hitDice
+        kind: choice
+        options:
+          copies: { type: class, where: self.hitDiceSpent > picks }
+        repeat: { max: 'max(1, floor(level.total / 2))' }
+        prefer: self.hitDiceSpent - picks
+        changes:
+          - { type: adjustState, entry: picked, key: hitDiceSpent, by: -1 }
+      - id: result
+        kind: outcome
+        result: "'rested'"

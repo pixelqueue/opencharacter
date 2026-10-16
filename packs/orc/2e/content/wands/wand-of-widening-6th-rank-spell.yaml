@@ -1,0 +1,13 @@
+id: wands.wand-of-widening-6th-rank-spell
+type: wand
+tags: [trait.magical, trait.wand]
+fields:
+  level: 14
+  price: 4500
+  bulk: 0.1
+  spellRank: 6
+choices:
+  - id: spell
+    from:
+      type: spell
+      where: "item.rank <= 6 && !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags) && has(item.area) && item.area in ['burst', 'cone', 'line']"

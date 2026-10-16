@@ -1,0 +1,25 @@
+description: "A set of fields is chosen by the field's view alone: a `where` reading a field is unknown-name at load"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [save]
+        fields:
+          luck: { type: integer, input: true, default: 0 }
+          reflex: { type: integer, formula: 2, tags: [save] }
+        contentTypes:
+          feature: {}
+      content:
+        - id: features.lucky
+          type: feature
+          effects:
+            - target: { fields: { where: "luck > 0 && 'save' in item.tags" } }
+              op: add
+              value: 1

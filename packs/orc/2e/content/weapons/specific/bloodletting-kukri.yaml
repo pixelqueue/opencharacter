@@ -1,0 +1,23 @@
+id: weapons.specific.bloodletting-kukri
+type: weapon
+extends: weapons.kukri
+tags: [trait.agile, trait.finesse, trait.magical, trait.trip, trait.uncommon]
+fields:
+  price: 240
+  bulk: 0.1
+effects:
+  - target: { steps: [strike.hit.critical], from: self }
+    op: changes
+    value:
+      changes:
+        - {
+            type: applyEffect,
+            source: "'conditions.persistent-damage'",
+            state: { damage: 1d8, damageType: "'bleed'" },
+          }
+keepsFields: [price]
+keepsTemplates:
+  - template: runes.weapon-potency-1
+    copies: { type: weapon, where: 'item.id == @weapons.specific.bloodletting-kukri' }
+  - template: runes.striking
+    copies: { type: weapon, where: 'item.id == @weapons.specific.bloodletting-kukri' }

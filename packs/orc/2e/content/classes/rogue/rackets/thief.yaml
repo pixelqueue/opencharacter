@@ -1,0 +1,21 @@
+id: classes.rogue.rackets.thief
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: rogue.racket, op: set, value: "'thief'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.thievery },
+      when: "!('skill.thievery' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  # The Strike adds Strength, so this adds the difference when Dexterity is higher.
+  - id: dexterity-damage
+    target: { rolls: [damage.strike] }
+    op: add
+    value: attributes.dex.mod - attributes.str.mod
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      roll.item.range == 0 && !(has(flags.thrown) && flags.thrown)
+        && 'trait.finesse' in roll.item.tags && attributes.dex.mod > attributes.str.mod

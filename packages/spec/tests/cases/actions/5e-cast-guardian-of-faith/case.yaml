@@ -1,0 +1,14 @@
+description: '5E guardian of faith: flat 20 radiant damage, a Dexterity save against the cleric DC halves it'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:cast-spell, entry: cleric, source: 5e-srd-5.1:spells.guardian-of-faith }
+  participants:
+    target:
+      - { id: ogre-1 }
+      - { id: ogre-2 }
+answers:
+  - { outcome: { result: success, data: { total: 15 } } }
+  - { outcome: { result: failure, data: { total: 6 } } }

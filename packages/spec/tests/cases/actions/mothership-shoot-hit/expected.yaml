@@ -1,0 +1,42 @@
+# spend: adjustState shots -1 on entry self (inv-1)
+# check: nested stat-check with stat 'stats.combat' (41): 20 < 41 -> success; its log entry is check/check
+# hit branch: damage 1d8 = 7 (path hit/damage) -> adjust health.current -7 for the target
+# outcome: steps.check.result = success, damage 7
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 7
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjustState
+      entry: inv-1
+      key: shots
+      by: -1
+  - to: target
+    step: hit/wound
+    change:
+      type: adjust
+      field: mothership-1e:health.current
+      by: -7
+      tags:
+        - damage
+log:
+  - step: check/check
+    action: mothership-1e:stat-check
+    kind: dice
+    by: engine
+    faces:
+      - 20
+    total: 20
+    band: success
+    bandSet: mothership-1e:check
+  - step: hit/damage
+    action: mothership-1e:shoot
+    kind: dice
+    by: engine
+    faces:
+      - 7
+    total: 7

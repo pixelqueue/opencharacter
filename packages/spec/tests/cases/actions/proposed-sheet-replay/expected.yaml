@@ -1,0 +1,10 @@
+status: finished
+outcome: { data: { might: 1, wits: 2 } }
+proposedChanges:
+  - to: self
+    step: calling
+    change: { type: choose, path: { choice: [calling] }, option: test-pack:callings.brute }
+  - { to: self, step: dots, change: { type: adjust, field: 'test-pack:stats.wits', by: 2 } }
+log:
+  - { step: calling, kind: choice, by: engine, option: test-pack:callings.brute }
+  - { step: dots, kind: allocate, by: app, amounts: { 'test-pack:stats.wits': 2 } }

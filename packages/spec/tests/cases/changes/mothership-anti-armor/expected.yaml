@@ -1,0 +1,12 @@
+# Tagged damage.anti-armor: AP doesn't apply and the vest is destroyed; DR still does: -6 + 2 = -4,
+# health 11 -> 7.
+ok: true
+character:
+  inventory:
+    - { id: vest, item: test-gear:gear.vest, equipped: true, state: { destroyed: true } }
+adjustments:
+  - { field: mothership-1e:health.current, by: -4, requested: -6, taken: -4, reason: requested }
+  - entry: vest
+    key: destroyed
+    value: true
+    source: { type: item, id: 'test-gear:gear.vest', entry: vest, effect: anti-armor }

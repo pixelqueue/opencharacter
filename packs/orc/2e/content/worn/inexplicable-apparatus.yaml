@@ -1,0 +1,17 @@
+# The bonus applies to every Earn Income check (the skill used is the player's).
+id: worn.inexplicable-apparatus
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 18
+  price: 19000
+  bulk: 2
+  usage: garment
+  activation: three
+  frequency: once-per-day
+effects:
+  - target: { rolls: [skill-action.craft, skill-action.earn-income, skill-action.repair] }
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'

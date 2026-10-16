@@ -1,0 +1,30 @@
+id: monsters.spy.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: shortsword1
+        kind: action
+        use: monster-attack
+        source: "'monsters.spy.shortsword'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: shortsword2
+        kind: action
+        use: monster-attack
+        source: "'monsters.spy.shortsword'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.shortsword1) && steps.shortsword1.result == 'hit' ? 1 : 0)
+              + (has(steps.shortsword2) && steps.shortsword2.result == 'hit' ? 1 : 0)

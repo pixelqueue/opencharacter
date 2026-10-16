@@ -1,0 +1,18 @@
+# A knack for the checks based on a picked attribute: the set of fields reads the
+# pick. Its second slot adds the slot's number to the picked attribute's saves.
+id: features.knack
+type: feature
+choices:
+  - id: attribute
+    from: { values: [attr.dex, attr.con] }
+    effects:
+      - target: { fields: { where: "pick.value in item.tags && 'check' in item.tags" } }
+        op: add
+        value: 1
+  - id: save
+    slots: [2]
+    from: { values: [attr.dex, attr.con] }
+    effects:
+      - target: { fields: { where: "pick.value in item.tags && 'save' in item.tags" } }
+        op: add
+        value: slot

@@ -1,0 +1,25 @@
+description: "A slot's key that equals another choice of the same owner is `duplicate-id`"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          feature: {}
+          feat: {}
+      content:
+        - id: features.training
+          type: feature
+          choices:
+            # The second slot is keyed `feat-2`, which the next choice also is.
+            - id: feat
+              slots: [1, 2]
+              from: { type: feat }
+            - id: feat-2
+              from: { type: feat }

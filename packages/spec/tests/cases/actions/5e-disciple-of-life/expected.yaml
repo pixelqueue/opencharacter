@@ -1,0 +1,37 @@
+# Cure Wounds is a Life domain spell, so it needs no pick. 2d8 (5, 2) + wis 3 = 10, plus
+# Disciple of Life 2 + slot 2 = 14.
+status: finished
+outcome:
+  result: cast
+  data:
+    slot: 2
+    spellcastingClass: cleric
+    metamagic: none
+    dc: 13
+    save: ''
+    halfOnSave: false
+    damage: 0
+    healing: 14
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change: { type: adjust, field: 5e-srd-5.1:spellSlots.level2.used, by: 1 }
+  - to: target
+    step: restore
+    change: { type: adjust, field: 5e-srd-5.1:hp.current, by: 14, tags: [healing] }
+log:
+  - step: heal
+    kind: dice
+    by: engine
+    faces: [5, 2]
+    items:
+      - { kind: dice, count: 2, sides: 8, value: 7 }
+      - { kind: flat, value: 3 }
+      - {
+          kind: flat,
+          value: 4,
+          source: { type: item, id: 5e-srd-5.1:features.cleric.disciple-of-life, entry: cleric },
+        }
+    total: 14

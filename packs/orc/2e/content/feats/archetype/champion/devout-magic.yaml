@@ -1,0 +1,43 @@
+id: feats.archetype.champion.devout-magic
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.champion }
+
+prerequisites:
+  - { id: champion-dedication, when: '@feats.archetype.champion.champion-dedication in feats.held' }
+effects:
+  - { target: focus.points, op: add, value: 1 }
+  - { target: spellcasting.archetype.champion.tradition, op: set, value: "'divine'" }
+  - { target: spellcasting.archetype.champion.attribute, op: set, value: "'cha'" }
+  - { target: spellcasting.archetype.champion.rank, op: atLeast, value: 1 }
+choices:
+  - id: devotion-spell
+    from:
+      options:
+        - id: shields-of-the-spirit
+          effects:
+            - {
+                target: spells.archetype.champion.spells,
+                op: grant,
+                value: { item: spells.shields-of-the-spirit },
+              }
+          grants:
+            - item: spells.shields-of-the-spirit
+        - id: lay-on-hands
+          effects:
+            - {
+                target: spells.archetype.champion.spells,
+                op: grant,
+                value: { item: spells.lay-on-hands },
+              }
+          grants:
+            - item: spells.lay-on-hands
+        - id: touch-of-the-void
+          effects:
+            - {
+                target: spells.archetype.champion.spells,
+                op: grant,
+                value: { item: spells.touch-of-the-void },
+              }
+          grants:
+            - item: spells.touch-of-the-void

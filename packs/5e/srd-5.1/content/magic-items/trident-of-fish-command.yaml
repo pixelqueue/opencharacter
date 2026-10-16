@@ -1,0 +1,23 @@
+id: magic-items.trident-of-fish-command
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: 'item.id == @weapons.trident' }
+fields: { rarity: uncommon, requiresAttunement: true, maxCharges: 3, recharge: 1d3 }
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.dominate-beast, when: self.equipped && self.attuned }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.dominate-beast &&
+      flags.slot == 4 && self.charges >= 1
+    value:
+      id: charges
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

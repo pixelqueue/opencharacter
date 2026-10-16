@@ -1,0 +1,15 @@
+description: 'An effect on a roll tally that no pack declares is unknown-tally'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        effects:
+          - { target: { rolls: [attack], tally: boost }, op: add, value: 1 }
+      content: []

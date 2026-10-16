@@ -1,0 +1,21 @@
+id: feats.ranger.twin-parry
+type: feat
+tags: [trait.fighter, trait.ranger, archetype-feat]
+fields: { level: 4, category: class, class: classes.ranger }
+
+actions:
+  - id: twin-parry
+    tags: [feat-action]
+    available: '!twinParry.active'
+    steps:
+      - id: parry
+        kind: changes
+        changes:
+          - { type: set, field: twinParry.active, value: true }
+effects:
+  - target: { steps: [turn.start] }
+    op: changes
+    when: twinParry.active
+    value:
+      changes:
+        - { type: set, field: twinParry.active, value: false }

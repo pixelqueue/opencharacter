@@ -1,0 +1,13 @@
+id: wands.wand-of-continuation-7th-rank-spell
+type: wand
+tags: [trait.magical, trait.wand]
+fields:
+  level: 17
+  price: 15000
+  bulk: 0.1
+  spellRank: 7
+choices:
+  - id: spell
+    from:
+      type: spell
+      where: "item.rank <= 7 && !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags) && has(item.duration) && item.duration in ['rounds', 'minutes', 'hours', 'until-next-turn']"

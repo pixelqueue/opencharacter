@@ -1,0 +1,65 @@
+# The greataxe (+7) rolls 19: 26 against AC 16, a critical hit. Damage, two-handed: 1d12 (8) +
+# Strength 4 + Rage 3 + the finish's 4 (a circumstance bonus), doubled: 38. Then the rage ends.
+status: finished
+outcome:
+  result: critical-success
+  data:
+    damage: 38
+proposedChanges:
+  - to: self
+    step: strike/count
+    change:
+      type: adjust
+      field: orc-2e:turn.attacks
+      by: 1
+      tags: [attack-count]
+  - to: target
+    character: goblin
+    step: strike/deal
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -38
+      tags: [damage, damage.slashing]
+  - to: self
+    step: end
+    change:
+      type: removeEffect
+      applied:
+        where: item.id == 'orc-2e:classes.barbarian.raging'
+  - to: self
+    step: end
+    change: { type: set, field: orc-2e:hp.temp, value: 0 }
+  - to: self
+    step: end
+    change: { type: set, field: orc-2e:rage.tempHpBlocked, value: true }
+  - to: self
+    step: end
+    change: { type: applyEffect, source: orc-2e:conditions.fatigued }
+log:
+  - step: weapon
+    action: orc-2e:feats.barbarian.furious-finish#furious-finish
+    kind: choice
+    by: engine
+    option: greataxe
+  - step: strike/attack
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces: [19]
+    total: 26
+    band: critical-success
+  - step: strike/damage
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces: [8]
+    total: 38
+    items:
+      - { kind: dice, value: 16, factor: 2, tags: [part.weapon-die, damage.slashing] }
+      - { kind: flat, value: 8, factor: 2, tags: [damage.slashing] }
+      - { kind: flat, value: 6, factor: 2, source: { id: orc-2e:classes.barbarian.raging } }
+      - kind: flat
+        value: 8
+        factor: 2
+        source: { type: situational, id: orc-2e:damageCircumstanceBonus }

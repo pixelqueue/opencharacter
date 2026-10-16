@@ -1,0 +1,9 @@
+id: feats.ancestry.scion-of-many-planes
+type: feat
+fields: { level: 5, category: ancestry, heritage: heritages.nephilim }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: "has(item.heritage) && item.heritage == @heritages.nephilim && 'trait.lineage' in item.tags"

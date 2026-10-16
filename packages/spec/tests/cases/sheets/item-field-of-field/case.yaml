@@ -1,0 +1,52 @@
+description: 'Item fields of `field` hold qualified field IDs: local values and defaults resolve in their pack'
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          trick:
+            fields:
+              stat: { type: id, of: field, default: stats.might }
+              stats: { type: set, of: field }
+            effects:
+              - target: tricks.might
+                op: add
+                value: 1
+                when: item.stat == 'test-pack:stats.might'
+              - target: tricks.speed
+                op: add
+                value: 1
+                when: item.stat == 'test-pack:stats.speed'
+              - target: tricks.pair
+                op: add
+                value: 1
+                when: has(item.stats) && 'test-pack:stats.speed' in item.stats
+        fields:
+          stats.might: { type: integer, input: true, default: 1 }
+          stats.speed: { type: integer, input: true, default: 1 }
+          tricks.might: { type: integer, formula: 0 }
+          tricks.speed: { type: integer, formula: 0 }
+          tricks.pair: { type: integer, formula: 0 }
+      content:
+        - { id: tricks.lift, type: trick }
+        - { id: tricks.dash, type: trick, fields: { stat: stats.speed } }
+        - { id: tricks.both, type: trick, fields: { stats: [stats.might, stats.speed] } }
+  - inline:
+      manifest:
+        id: extra-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies:
+          test-pack: ^1.0.0
+      rules: {}
+      content:
+        - { id: tricks.zip, type: trick, fields: { stat: stats.speed } }

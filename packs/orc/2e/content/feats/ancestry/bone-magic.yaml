@@ -1,0 +1,12 @@
+id: feats.ancestry.bone-magic
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.lizardfolk }
+choices:
+  - id: cantrip
+    from:
+      type: spell
+      where: >-
+        'trait.cantrip' in item.tags && ('tradition.occult' in item.tags || 'tradition.primal' in item.tags)
+          && !('trait.uncommon' in item.tags) && !('trait.rare' in item.tags) && !('trait.unique' in item.tags) && !('trait.focus' in item.tags)
+    effects:
+      - { target: spells.innate, op: grant, value: { formula: pick.id } }

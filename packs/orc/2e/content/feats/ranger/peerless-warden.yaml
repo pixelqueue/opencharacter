@@ -1,0 +1,47 @@
+id: feats.ranger.peerless-warden
+type: feat
+fields: { level: 10, category: class, class: classes.ranger }
+repeatable: true
+prerequisites:
+  - { id: initiate-warden, when: '@feats.ranger.initiate-warden in feats.held' }
+effects:
+  - { target: focus.points, op: add, value: 1 }
+choices:
+  - id: spell
+    unique: warden-spells
+    requiresOption: true
+    from:
+      options:
+        - id: gravity-weapon
+          grants:
+            - item: spells.gravity-weapon
+        - id: heal-companion
+          grants:
+            - item: spells.heal-companion
+        - id: magic-hide
+          grants:
+            - item: spells.magic-hide
+        - id: animal-feature
+          grants:
+            - item: spells.animal-feature
+        - id: enlarge-companion
+          grants:
+            - item: spells.enlarge-companion
+        - id: hunters-luck
+          grants:
+            - item: spells.hunters-luck
+        - id: soothing-mist
+          grants:
+            - item: spells.soothing-mist
+        - id: ephemeral-tracking
+          grants:
+            - item: spells.ephemeral-tracking
+        - id: rangers-bramble
+          grants:
+            - item: spells.rangers-bramble
+        - id: hunters-vision
+          grants:
+            - item: spells.hunters-vision
+        - id: terrain-transposition
+          grants:
+            - item: spells.terrain-transposition

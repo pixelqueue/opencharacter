@@ -1,0 +1,59 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 1
+    mode: prepared
+    dc: 19
+    defense: reflex
+    basic: true
+    damage: 10
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: setState
+      entry: thunderstrike-1
+      key: expended
+      value: true
+  - to: target
+    character: goblin
+    step: burn[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -7
+      tags:
+        - damage
+        - spell
+        - damage.electricity
+  - to: target
+    character: goblin
+    step: burn[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -3
+      tags:
+        - damage
+        - spell
+        - damage.sonic
+log:
+  - step: damage
+    action: orc-2e:cast-spell
+    kind: dice
+    by: engine
+    faces:
+      - 7
+      - 3
+    total: 10
+  - step: save[0]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: goblin
+    outcome:
+      result: failure

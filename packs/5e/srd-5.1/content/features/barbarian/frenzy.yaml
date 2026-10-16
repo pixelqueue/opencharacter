@@ -1,0 +1,15 @@
+id: features.barbarian.frenzy
+type: feature
+actions:
+  - id: frenzy
+    tags: [feature]
+    results: [frenzied]
+    available: rage.active && !rage.frenzied
+    steps:
+      - id: start
+        kind: changes
+        changes:
+          - { type: set, field: rage.frenzied, value: true }
+      - id: result
+        kind: outcome
+        result: "'frenzied'"

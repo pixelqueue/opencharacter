@@ -1,0 +1,24 @@
+# The weapon it was affixed to is the applied entry's `copy`; the entry ends with the turn.
+id: consumables.potency-crystal-greater
+type: consumable
+tags: [trait.magical, trait.talisman]
+fields:
+  level: 9
+  price: 150
+  category: talisman
+  affixTo: weapon
+  lasting: true
+effects:
+  - target: { rolls: [strike] }
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: action.self.id == self.copy
+    scope: applied
+    duration: { amount: 1, unit: round }
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: dieOf(action.item.damage, max(0, 3 - action.item.dice))
+    when: action.self.id == self.copy
+    scope: applied
+    duration: { amount: 1, unit: round }

@@ -1,0 +1,15 @@
+description: "FitD: Battleborn adds marking special armor as a way to pay for a push, after the rules' stress, which stays recommended"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action:
+    id: fitd-scoundrel:action-roll
+  params:
+    rating: fitd-scoundrel:ratings.skirmish
+  situational:
+    fitd-scoundrel:bonusDie: push
+  policy:
+    rules:
+      - { kind: choice, tags: [push-cost], then: pause }

@@ -1,0 +1,16 @@
+# 12 + 7 = 19 against 18: a hit for 1d6 (5) + Strength -1 + precise strike's 2 = 6.
+status: finished
+outcome:
+  result: success
+  data: { attack: 19, dc: 18, map: 0, flatCheck: true, damage: 6 }
+proposedChanges:
+  - to: self
+    step: count
+    change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
+  - to: target
+    character: bandit
+    step: deal
+    change: { type: adjust, field: orc-2e:hp.current, by: -6, tags: [damage, damage.piercing] }
+log:
+  - { step: attack, action: orc-2e:strike, kind: dice, faces: [12], total: 19 }
+  - { step: damage, action: orc-2e:strike, kind: dice, faces: [5], total: 6 }

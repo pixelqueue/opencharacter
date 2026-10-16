@@ -1,0 +1,18 @@
+description: 'orc-2e overcharging a wand: cast today already, the wand offers only
+  its overcharge; after the spell, the DC 10 flat check fails (a 6) and the wand is destroyed'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:cast-spell
+    entry: wand
+    source: orc-2e:spells.heal
+  participants:
+    ally:
+      - id: fighter
+  policy:
+    choices: pause
+answers:
+  - option: orc-2e:wands.magic-wand-1st-rank-spell#overcharge

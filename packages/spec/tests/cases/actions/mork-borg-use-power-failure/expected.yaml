@@ -1,0 +1,41 @@
+# One use spent. 5 + 2 (Presence) = 7 against DR 12: failure. The reader takes 1d2 = 2.
+status: finished
+outcome:
+  result: failure
+  data:
+    catastrophe: false
+    targets: 0
+    amount: 0
+    duration: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: mork-borg-core:powers.current
+      by: -1
+  - to: self
+    step: hurt
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -2
+      tags:
+        - damage.direct
+log:
+  - step: check/check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 5
+    total: 7
+    band: failure
+    bandSet: mork-borg-core:test
+  - step: backlash
+    action: mork-borg-core:use-power
+    kind: dice
+    by: engine
+    faces:
+      - 2
+    total: 2

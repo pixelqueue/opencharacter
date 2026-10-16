@@ -1,0 +1,12 @@
+# DR first: 8 - 2 = 6, at least AP 5: -8 + 2 (DR) + 5 (AP) = -1, health 11 -> 10, and the vest
+# is destroyed.
+ok: true
+character:
+  inventory:
+    - { id: vest, item: test-gear:gear.vest, equipped: true, state: { destroyed: true } }
+adjustments:
+  - { field: mothership-1e:health.current, by: -1, requested: -8, taken: -1, reason: requested }
+  - entry: vest
+    key: destroyed
+    value: true
+    source: { type: item, id: 'test-gear:gear.vest', entry: vest, effect: armor-points-break }

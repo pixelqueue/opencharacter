@@ -1,0 +1,20 @@
+description: "A step's `random` is a condition; it sees `options` as `recommend` does, and a list is a type mismatch"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: pick
+            steps:
+              - id: ask
+                kind: choice
+                options: [{ id: a }, { id: b }]
+                random: options
+      content: []

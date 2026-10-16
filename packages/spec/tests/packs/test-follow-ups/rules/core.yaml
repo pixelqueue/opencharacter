@@ -1,0 +1,105 @@
+tags: [damage, damage.fire, healing, swing]
+fields:
+  hp.current: { type: integer, input: true, default: 10, min: 0, max: 10, absorbedBy: [hp.temp] }
+  hp.temp: { type: integer, input: true, default: 0, min: 0 }
+  # Holding focus calls for a steadying roll after damage.
+  focus: { type: boolean, input: true, default: false }
+  # A tired character can't rest, so the rest follow-up isn't listed.
+  tired: { type: boolean, input: true, default: false }
+  falls: { type: integer, input: true, default: 0, min: 0 }
+  # A guarded character braces once per batch of damage, and a warded one halves
+  # fire damage before temporary health takes it.
+  guarded: { type: boolean, input: true, default: false }
+  fireWard: { type: boolean, input: true, default: false }
+
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+    op: multiply
+    value: 0.5
+    when: fireWard
+
+links:
+  ally:
+    fields:
+      hp.current: { type: integer }
+
+contentTypes:
+  charm:
+    carried: true
+    state:
+      glow: { type: integer, default: 0, min: 0 }
+
+actions:
+  - id: steady
+    params:
+      damage: { type: integer }
+    results: [steady]
+    steps:
+      - { id: result, kind: outcome, result: "'steady'" }
+  # Bracing reports the batch's damage summed.
+  - id: brace
+    params:
+      taken: { type: integer }
+      requested: { type: integer }
+      by: { type: integer }
+      clamped: { type: boolean }
+      fire: { type: boolean }
+    results: [braced]
+    steps:
+      - { id: result, kind: outcome, result: "'braced'" }
+  # A swing offers a recovery after it; content adds to its `swing` step.
+  - id: swing
+    results: [swung]
+    steps:
+      - id: hit
+        kind: changes
+        tags: [swing]
+        changes:
+          - { type: offerFollowUp, followUp: recover, params: { damage: 1 + 2 } }
+      - { id: result, kind: outcome, result: "'swung'" }
+  - id: rest
+    available: '!tired'
+    results: [rested]
+    steps:
+      - { id: result, kind: outcome, result: "'rested'" }
+
+followUps:
+  # After tagged damage while focused, with the damage as a parameter.
+  - id: steady
+    on: { field: hp.current, tags: [damage] }
+    when: focus && change.requested < 0
+    action: steady
+    params:
+      damage: -change.requested
+  # Dropping to 0: rest (unless tired), and count the fall.
+  - id: down
+    becomes: hp.current == 0
+    action: rest
+  - id: fall
+    becomes: hp.current == 0
+    changes:
+      - { type: adjust, field: falls, by: 1 }
+  # Damage calls for the ally's help, on the ally's own sheet.
+  - id: call-ally
+    on: { field: hp.current, tags: [damage] }
+    when: change.by < 0
+    to: { link: ally }
+    action: test-ally:help
+    params:
+      lost: -change.by
+  # Once per batch of damage while guarded, on the damage summed.
+  - id: brace
+    on: { field: hp.current, tags: [damage], once: true }
+    when: guarded && change.taken < 0
+    action: brace
+    params:
+      taken: -change.taken
+      requested: -change.requested
+      by: -change.by
+      clamped: change.clamped
+      fire: "'damage.fire' in change.tags"
+  # No trigger: offered only by an action (the swing).
+  - id: recover
+    action: steady
+    params:
+      damage: 1

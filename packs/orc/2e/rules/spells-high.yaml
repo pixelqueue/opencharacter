@@ -1,0 +1,17 @@
+fields:
+  speed.fly: { type: integer, formula: 0, min: 0 }
+  speed.climb.base: { type: integer, formula: 0, min: 0 }
+  speed.climb: { type: integer, formula: speed.climb.base, min: 0 }
+  speed.burrow: { type: integer, formula: 0, min: 0 }
+
+tags:
+  - trait.teleportation
+  - trait.possession
+  - trait.rare
+
+display:
+  fields:
+    speed.fly: { groups: [summary], priority: 2, unit: ft }
+    speed.climb: { groups: [summary], priority: 2, unit: ft }
+    speed.climb.base: { hidden: true }
+    speed.burrow: { groups: [summary], priority: 2, unit: ft }

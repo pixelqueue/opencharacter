@@ -1,0 +1,24 @@
+id: features.paladin.aura-of-devotion
+type: feature
+immuneTo:
+  - id: charmed
+    items: [conditions.charmed]
+    when: >-
+      countList(character.applied,
+        x.active && x.source == @conditions.unconscious) == 0
+  - { id: ally-charmed, items: [conditions.charmed], scope: applied }
+actions:
+  - id: aura-of-devotion
+    tags: [feature]
+    results: [extended]
+    participants:
+      ally: {}
+    steps:
+      - id: extend
+        kind: changes
+        to: ally
+        changes:
+          - { type: applyEffect, source: item.id }
+      - id: result
+        kind: outcome
+        result: "'extended'"

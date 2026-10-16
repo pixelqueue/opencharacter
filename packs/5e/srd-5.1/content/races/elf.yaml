@@ -1,0 +1,17 @@
+id: races.elf
+type: race
+fields:
+  speed: 30
+  size: medium
+effects:
+  - { target: abilities.dex.base, op: add, value: 2 }
+grants:
+  - item: traits.darkvision
+  - item: traits.keen-senses
+  - item: traits.fey-ancestry
+  - item: traits.trance
+  - item: languages.common
+  - item: languages.elvish
+choices:
+  - id: subrace
+    from: { type: subrace, where: 'item.race == @races.elf' }

@@ -1,0 +1,39 @@
+# Advantage: 2d20 keep highest (4, 13) + str 3 + proficiency 2 = 18 >= 15: hit.
+# Greataxe 1d12 (6) + str 3 = 9 slashing; not raging, so no rage damage.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 18 }
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -9,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.slashing,
+            ],
+        },
+    }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces: [4, 13]
+    total: 18
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [6]
+    total: 9

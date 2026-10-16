@@ -1,0 +1,16 @@
+description: "`incoming` is bound only in incoming-change effects: a field formula can't read it"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          hp.current: { type: integer, input: true, default: 10, min: 0 }
+          hp.hit: { type: integer, formula: '-incoming.amount' }
+      content: []

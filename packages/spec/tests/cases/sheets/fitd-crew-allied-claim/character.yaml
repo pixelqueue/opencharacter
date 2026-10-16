@@ -1,0 +1,45 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: fitd-crew, version: 0.1.0 }
+# The table's own crew type (the SRD names none), with the Tavern on its claim map.
+homebrew:
+  defaultLanguage: en
+  rules: { tags: [wardens] }
+  content:
+    - id: crew-types.wardens
+      type: crewType # resolves to fitd-crew:crewType
+      tags: [wardens]
+      fields:
+        upgrades: [fitd-crew:upgrades.prisonContacts]
+        startingUpgrades: [fitd-crew:upgrades.lair.hidden, fitd-crew:upgrades.training.prowess]
+        claims: [fitd-crew:claims.tavern]
+      choices:
+        - id: special-ability
+          pick: 1 + advances.abilities
+          from: { type: crewAbility }
+        - id: operation
+          pick: 1
+          from: { type: operation }
+  i18n:
+    en:
+      crew-types.wardens.name: Wardens
+      tags.wardens.name: Wardens
+values:
+  fitd-crew:upgrades.lair.hidden: 1
+  fitd-crew:upgrades.training.prowess: 1
+choices:
+  crew-type:
+    - option: homebrew:crew-types.wardens
+      choices:
+        special-ability:
+          - option: fitd-crew:crew-abilities.pack-rats
+        operation:
+          - option: fitd-crew:operations.burglary
+features:
+  # Fine: Training Rooms isn't on the Wardens' map, nor turf.
+  - id: claim-1
+    item: fitd-crew:claims.training-rooms
+    state: { allied: true, trainedGang: thugs }
+  # Not fine: the Tavern is on the Wardens' own map.
+  - { id: claim-2, item: fitd-crew:claims.tavern, state: { allied: true } }

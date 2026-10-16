@@ -1,0 +1,15 @@
+id: magic-items.wings-of-flying
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  requiresAttunement: true
+state:
+  active: { type: boolean, default: false }
+effects:
+  - {
+      target: combat.flySpeed,
+      op: atLeast,
+      value: 60,
+      when: self.equipped && self.attuned && self.active,
+    }

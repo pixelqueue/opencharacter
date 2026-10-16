@@ -1,0 +1,12 @@
+id: feats.ancestry.fey-realm-adept
+type: feat
+fields: { level: 9, category: ancestry, ancestry: ancestries.gnome }
+prerequisites:
+  - id: innate
+    when: '@feats.ancestry.fey-realm-magic in feats.held || @heritages.fey-touched-gnome in heritages.held'
+effects:
+  - { target: spells.innate, op: grant, value: { item: spells.invisibility } }
+  - { target: spells.innate, op: grant, value: { item: spells.revealing-light } }
+grants:
+  - item: spells.invisibility
+  - item: spells.revealing-light

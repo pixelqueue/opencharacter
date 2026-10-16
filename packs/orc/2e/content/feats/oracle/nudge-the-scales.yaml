@@ -1,0 +1,26 @@
+id: feats.oracle.nudge-the-scales
+type: feat
+tags: [trait.cursebound, trait.healing, trait.spirit]
+fields: { level: 1, category: class, class: classes.oracle }
+actions:
+  - id: nudge-the-scales
+    tags: [class-action]
+    available: oracle.cursebound < oracle.curseMax
+    participants:
+      ally: { max: 1 }
+    results: [used]
+    steps:
+      - id: heal
+        kind: changes
+        to: ally
+        changes:
+          - { type: adjust, field: hp.current, by: 2 + 2 * level, tags: [healing] }
+      - id: curse
+        kind: changes
+        changes:
+          - { type: adjust, field: oracle.cursebound, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          healing: 2 + 2 * level

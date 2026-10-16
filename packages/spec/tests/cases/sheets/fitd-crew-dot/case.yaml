@@ -1,0 +1,17 @@
+description: "FitD: a linked crew's Deadly lets the scoundrel pick a dot in Hunt, Prowl or Skirmish"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:members.dotRatings:
+          [
+            fitd-scoundrel:ratings.hunt,
+            fitd-scoundrel:ratings.prowl,
+            fitd-scoundrel:ratings.skirmish,
+          ]
+        fitd-crew:members.dotCount: 1

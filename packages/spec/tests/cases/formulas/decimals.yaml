@@ -1,0 +1,92 @@
+description: "Decimals are rounded to six places, ties away from zero, on the double's exact value"
+specVersion: 0.1.0
+cases:
+  - name: decimal-sum-exact
+    evaluate: 0.1 + 0.2 == 0.3
+    value: true
+    valueType: bool
+  - name: decimal-sum-exact, ten tenths make one
+    evaluate: floor(0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1)
+    value: 1
+    valueType: int
+  - name: decimal-sum-exact, a list sum
+    evaluate: sumList([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1], x)
+    value: 1
+    valueType: decimal
+  - name: decimal-sum-exact, a difference
+    evaluate: 1.1 - 0.2
+    value: 0.9
+    valueType: decimal
+  - name: decimal-product
+    evaluate: 0.1 * 3
+    value: 0.3
+    valueType: decimal
+  - name: decimal-product, fifty coins of 0.02
+    evaluate: 0.02 * 50
+    value: 1
+    valueType: decimal
+  - name: decimal-division-six-places
+    evaluate: 1 / 3
+    value: 0.333333
+    valueType: decimal
+  - name: decimal-division-six-places, rounding up
+    evaluate: 2 / 3
+    value: 0.666667
+    valueType: decimal
+  - name: decimal-division-six-places, negative
+    evaluate: -2 / 3
+    value: -0.666667
+    valueType: decimal
+  - name: decimal-tie-away-from-zero
+    # 1/128 = 0.0078125 exactly: a tie, rounded away from zero.
+    evaluate: 1 / 128
+    value: 0.007813
+    valueType: decimal
+  - name: decimal-tie-away-from-zero, negative
+    evaluate: -1 / 128
+    value: -0.007813
+    valueType: decimal
+  - name: decimal-tie-away-from-zero, decided on the exact double
+    # The double nearest 0.0000005 is a little below it, so it rounds to zero.
+    evaluate: 5 / 10000000
+    value: 0
+    valueType: decimal
+  - name: decimal-tie-away-from-zero, a double a little above the tie
+    # The double nearest 0.0000015 is a little above it.
+    evaluate: 15 / 10000000
+    value: 0.000002
+    valueType: decimal
+  - name: decimal-literal-rounded
+    parse: '0.1234567'
+    tree:
+      type: decimal
+      value: 0.123457
+    print: '0.123457'
+  - name: decimal-literal-rounded, to zero
+    parse: '0.0000001'
+    tree:
+      type: decimal
+      value: 0
+    print: '0.0'
+  - name: decimal-literal-rounded, when evaluated
+    evaluate: 0.1234567 * 2
+    value: 0.246914
+    valueType: decimal
+  - name: large decimals stay exact to six places
+    evaluate: 123456789.1 + 0.2
+    value: 123456789.3
+    valueType: decimal
+  - name: min, max and abs give six places
+    evaluate: '[min(0.1 + 0.2, 1), max(0.1 * 3, 0), abs(0.1 - 0.4)]'
+    value: [0.3, 0.3, 0.3]
+  - name: equality sees the rounded value
+    evaluate: 0.3 - 0.1 == 0.2
+    value: true
+    valueType: bool
+  - name: ints mixed in are exact
+    evaluate: 3 + 0.000001
+    value: 3.000001
+    valueType: decimal
+  - name: rounding to an integer applies to the six-place value
+    evaluate: '[floor(0.7 + 0.1 + 0.2), ceil(1.1 - 0.1), round(0.0000004 + 0.4999996)]'
+    value: [1, 1, 1]

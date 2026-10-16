@@ -1,0 +1,25 @@
+id: features.warlock.pact-magic
+type: feature
+effects:
+  - { target: spellcasting.warlock.mod, op: set, value: abilities.cha.mod }
+  - { target: spellcasting.warlock.dc, op: set, value: 8 + proficiency.bonus + abilities.cha.mod }
+  - { target: spellcasting.warlock.attack, op: set, value: proficiency.bonus + abilities.cha.mod }
+  - target: pactSlots.max
+    op: set
+    value: 'self.level >= 17 ? 4 : self.level >= 11 ? 3 : self.level >= 2 ? 2 : 1'
+  - { target: pactSlots.level, op: set, value: 'min(5, ceil(self.level / 2))' }
+choices:
+  - id: cantrips
+    pick: 'self.level >= 10 ? 4 : self.level >= 4 ? 3 : 2'
+    from: { type: spell, where: 'item.level == 0 && @classes.warlock in item.classes' }
+    effects:
+      - { target: spells.warlock, op: grant, value: { formula: pick.id } }
+  - id: spells
+    pick: '[2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15][self.level - 1]'
+    from:
+      {
+        type: spell,
+        where: 'item.level >= 1 && item.level <= min(5, ceil(self.level / 2)) && (@classes.warlock in item.classes || item.id in spells.warlockExpanded)',
+      }
+    effects:
+      - { target: spells.warlock, op: grant, value: { formula: pick.id } }

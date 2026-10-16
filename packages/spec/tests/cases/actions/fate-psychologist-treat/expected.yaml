@@ -1,0 +1,57 @@
+status: finished
+outcome:
+  result: succeed
+proposedChanges:
+  - to: self
+    step: mark
+    change:
+      type: adjustState
+      entry: s-psych
+      key: used
+      by: 1
+  - to: patient
+    character: friend
+    step: ease
+    change:
+      type: setState
+      key: slot
+      copies:
+        type: fate-core:consequence
+        where: self.slot == 'moderate'
+      limit: 1
+      value: "'mild'"
+log:
+  - step: roll/roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 1
+      - 1
+      - 0
+    total: 4
+    band: great
+    bandSet: fate-core:ladder
+  - step: roll/roll/reroll
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: keep
+  - step: roll/roll/invokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/roll/freeInvokes
+    action: fate-core:skill-roll
+    kind: choice
+    by: engine
+    option: none
+  - step: roll/final
+    action: fate-core:overcome
+    kind: dice
+    by: engine
+    total: 4
+    band: succeed
+    bandSet: fate-core:outcome

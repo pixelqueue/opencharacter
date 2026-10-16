@@ -1,0 +1,20 @@
+# 1, raised to 5 by the anchor, then lowered to 4 by the cap: a hit, with both bounds listed.
+status: finished
+outcome:
+  result: hit
+  data: { total: 4, unbounded: 1, bounds: 2 }
+log:
+  - step: roll
+    action: test-roll-bounds:try
+    kind: dice
+    by: engine
+    faces: [1]
+    total: 4
+    band: hit
+    bounds:
+      - {
+          source: { type: item, id: test-roll-bounds:charms.anchor, entry: anchor },
+          op: atLeast,
+          value: 5,
+        }
+      - { source: { type: rules, id: test-roll-bounds:rules }, op: atMost, value: 4 }

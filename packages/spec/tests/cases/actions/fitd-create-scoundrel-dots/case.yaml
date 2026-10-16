@@ -1,0 +1,14 @@
+description: "FitD's guided creation: after the special ability and vice, the three starting dots, then the heritage's and background's dots pause as allocations of 1, then the last two of 2; each action takes up to 2 counting the dots placed already, which the step reads on the proposed sheet"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  action: { id: fitd-scoundrel:create-scoundrel }
+  policy: { dice: pause, choices: pause, allocations: pause }
+answers:
+  - option: fitd-scoundrel:special-abilities.mule
+  - option: fitd-scoundrel:vices.gambling
+  - amounts: { fitd-scoundrel:ratings.skirmish: 2, fitd-scoundrel:ratings.command: 1 }
+  - amounts: { fitd-scoundrel:ratings.prowl: 1 }
+  - amounts: { fitd-scoundrel:ratings.prowl: 1 }

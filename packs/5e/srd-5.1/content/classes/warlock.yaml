@@ -1,0 +1,60 @@
+id: classes.warlock
+type: class
+fields:
+  hitDie: 1d8
+state:
+  arcanum6Used: { type: boolean, default: false }
+  arcanum7Used: { type: boolean, default: false }
+  arcanum8Used: { type: boolean, default: false }
+  arcanum9Used: { type: boolean, default: false }
+  eldritchMasterUsed: { type: boolean, default: false }
+  darkOnesOwnLuckUsed: { type: boolean, default: false }
+  hurlThroughHellUsed: { type: boolean, default: false }
+  bewitchingWhispersUsed: { type: boolean, default: false }
+  dreadfulWordUsed: { type: boolean, default: false }
+  minionsOfChaosUsed: { type: boolean, default: false }
+  mireTheMindUsed: { type: boolean, default: false }
+  sculptorOfFleshUsed: { type: boolean, default: false }
+  signOfIllOmenUsed: { type: boolean, default: false }
+  thiefOfFiveFatesUsed: { type: boolean, default: false }
+prerequisites:
+  - id: multiclass
+    when: (self.startingClass && self.level == level.total) || item.id in multiclass.qualified
+effects:
+  - { target: proficiencies.armor, op: grant, value: { tag: light } }
+  - target: proficiencies.weapons
+    op: grant
+    value: { query: { type: weapon, where: "item.category == 'simple'" } }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.wis }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.cha }, when: self.startingClass }
+grants:
+  - { item: features.warlock.pact-magic, when: self.level >= 1 }
+  - { item: features.warlock.eldritch-invocations, when: self.level >= 2 }
+  - { item: features.warlock.pact-boon, when: self.level >= 3 }
+  - { item: features.warlock.mystic-arcanum, when: self.level >= 11 }
+  - { item: features.warlock.eldritch-master, when: self.level >= 20 }
+  - { item: features.ability-score-improvement, when: self.level >= 4 }
+choices:
+  - id: skills
+    pick: 2
+    unique: skills
+    from:
+      {
+        values:
+          [
+            skill.arcana,
+            skill.deception,
+            skill.history,
+            skill.intimidation,
+            skill.investigation,
+            skill.nature,
+            skill.religion,
+          ],
+        where: '!(value in proficiencies.skills) || value in choice.picks',
+      }
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: otherworldly-patron
+    from: { type: subclass, where: 'item.class == @classes.warlock' }
+    when: self.level >= 1

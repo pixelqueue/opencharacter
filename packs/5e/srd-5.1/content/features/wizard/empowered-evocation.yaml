@@ -1,0 +1,10 @@
+id: features.wizard.empowered-evocation
+type: feature
+effects:
+  - target: { rolls: [damage.spell] }
+    op: add
+    value: abilities.int.mod
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      has(roll.item.school) && roll.item.school == 'evocation' && has(roll.item.damageType)
+        && has(flags.cls) && flags.cls == 'wizard'

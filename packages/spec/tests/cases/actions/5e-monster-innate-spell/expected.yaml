@@ -1,0 +1,45 @@
+# The only way to pay is the Innate Spellcasting trait's option, which spends the darkness copy's
+# use (by query, on the copy the cast came from); no slot is spent.
+status: finished
+outcome:
+  {
+    result: cast,
+    data:
+      {
+        slot: 2,
+        spellcastingClass: monster,
+        dc: 11,
+        save: '',
+        halfOnSave: false,
+        damage: 0,
+        healing: 0,
+        concentration: true,
+        critical: false,
+        metamagic: none,
+      },
+  }
+proposedChanges:
+  - {
+      to: self,
+      step: cost,
+      change:
+        {
+          type: adjustState,
+          key: usesLeft,
+          copies: { type: '5e-srd-5.1:monsterAction', where: "self.id == 'darkness'" },
+          by: -1,
+        },
+    }
+  - {
+      to: self,
+      step: concentrate,
+      change: { type: set, field: '5e-srd-5.1:concentration.active', value: true },
+    }
+log:
+  - {
+      step: cost,
+      action: '5e-srd-5.1:cast-spell',
+      kind: choice,
+      by: app,
+      option: '5e-srd-5.1:monsters.drow.innate-spellcasting#innate',
+    }

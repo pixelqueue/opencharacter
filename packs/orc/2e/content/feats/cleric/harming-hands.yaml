@@ -1,0 +1,10 @@
+id: feats.cleric.harming-hands
+type: feat
+fields: { level: 1, category: class, class: classes.cleric }
+prerequisites:
+  - { id: font, when: "spellcasting.font == 'harm'" }
+effects:
+  - target: { rolls: [healing, damage.spell] }
+    op: rollModifier
+    value: { kind: stepDie, steps: 1 }
+    when: 'has(action.item) && action.item.id == @spells.harm'

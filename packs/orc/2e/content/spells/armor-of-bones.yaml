@@ -1,0 +1,18 @@
+id: spells.armor-of-bones
+type: spell
+tags: [trait.focus, trait.manipulate, trait.oracle, trait.uncommon]
+fields:
+  rank: 3
+  cast: one
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+effects:
+  - target: { incoming: { fields: [hp.current] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, self.rank)
+    when: >-
+      incoming.amount < 0 && countList(['damage.cold', 'damage.electricity', 'damage.fire',
+        'damage.piercing', 'damage.slashing'], x in incoming.tags) > 0
+    scope: applied

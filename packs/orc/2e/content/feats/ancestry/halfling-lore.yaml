@@ -1,0 +1,26 @@
+id: feats.ancestry.halfling-lore
+type: feat
+fields: { level: 1, category: ancestry, ancestry: ancestries.halfling }
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.acrobatics },
+      when: "!('skill.acrobatics' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.stealth },
+      when: "!('skill.stealth' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.halfling },
+      when: "!('skill.lore.halfling' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 3 }
+  - target: skills.lore.halfling.rank
+    op: atLeast
+    value: 'level >= 15 ? 4 : level >= 7 ? 3 : level >= 3 ? 2 : 1'

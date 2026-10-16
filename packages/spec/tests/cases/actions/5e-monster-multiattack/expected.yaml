@@ -1,0 +1,86 @@
+# Bite on tamsin: 10 + 14 = 24 against AC 18, a hit for 5 + 5 + 8 = 18 piercing and 3 + 4 = 7 fire.
+# Claw 1 on brann: 2 + 14 = 16 against AC 20, a miss. Claw 2 on brann too (the last target
+# given): 6 + 14 = 20, a hit for 5 + 4 + 8 = 17 slashing. Each attack's steps are under its own
+# step's path.
+status: finished
+outcome:
+  result: done
+  data:
+    hits: 2
+proposedChanges:
+  - {
+      to: target,
+      character: tamsin,
+      step: bite/deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -18,
+          tags: [damage, attack, melee, weapon, nonmagical, wielder.neutral, damage.piercing],
+        },
+    }
+  - {
+      to: target,
+      character: tamsin,
+      step: bite/deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -7,
+          tags: [damage, attack, melee, weapon, nonmagical, wielder.neutral, damage.fire],
+        },
+    }
+  - {
+      to: target,
+      character: brann,
+      step: claw2/deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -17,
+          tags: [damage, attack, melee, weapon, nonmagical, wielder.neutral, damage.slashing],
+        },
+    }
+log:
+  - step: bite/attack
+    action: 5e-srd-5.1:monster-attack
+    kind: dice
+    by: engine
+    faces:
+      - 10
+    total: 24
+  - step: bite/damage
+    action: 5e-srd-5.1:monster-attack
+    kind: dice
+    by: engine
+    faces:
+      - 5
+      - 5
+      - 3
+      - 4
+    total: 25
+  - step: claw1/attack
+    action: 5e-srd-5.1:monster-attack
+    kind: dice
+    by: engine
+    faces:
+      - 2
+    total: 16
+  - step: claw2/attack
+    action: 5e-srd-5.1:monster-attack
+    kind: dice
+    by: engine
+    faces:
+      - 6
+    total: 20
+  - step: claw2/damage
+    action: 5e-srd-5.1:monster-attack
+    kind: dice
+    by: engine
+    faces:
+      - 5
+      - 4
+    total: 17

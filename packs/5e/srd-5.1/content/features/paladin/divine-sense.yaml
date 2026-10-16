@@ -1,0 +1,20 @@
+id: features.paladin.divine-sense
+type: feature
+effects:
+  - { target: divineSense.uses, op: set, value: 'max(1, 1 + abilities.cha.mod)' }
+actions:
+  - id: divine-sense
+    tags: [feature]
+    results: [sensed]
+    available: self.divineSenseSpent < divineSense.uses
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: divineSenseSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'sensed'"
+        data:
+          range: 60
+          left: divineSense.uses - self.divineSenseSpent - 1

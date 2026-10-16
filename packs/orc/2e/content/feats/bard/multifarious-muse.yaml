@@ -1,0 +1,54 @@
+id: feats.bard.multifarious-muse
+type: feat
+fields: { level: 2, category: class, class: classes.bard }
+repeatable: true
+choices:
+  - id: muse
+    unique: multifarious-muse
+    requiresOption: true
+    from:
+      options:
+        - id: enigma
+          prerequisites:
+            - { id: other, when: "bard.muse != 'enigma'" }
+          effects:
+            - { target: bard.muses, op: grant, value: { tag: muse.enigma } }
+            - { target: bard.grantedFeats, op: grant, value: { item: feats.bard.bardic-lore } }
+          grants:
+            - item: feats.bard.bardic-lore
+        - id: maestro
+          prerequisites:
+            - { id: other, when: "bard.muse != 'maestro'" }
+          effects:
+            - { target: bard.muses, op: grant, value: { tag: muse.maestro } }
+            - {
+                target: bard.grantedFeats,
+                op: grant,
+                value: { item: feats.bard.lingering-composition },
+              }
+          grants:
+            - item: feats.bard.lingering-composition
+        - id: polymath
+          prerequisites:
+            - { id: other, when: "bard.muse != 'polymath'" }
+          effects:
+            - { target: bard.muses, op: grant, value: { tag: muse.polymath } }
+            - {
+                target: bard.grantedFeats,
+                op: grant,
+                value: { item: feats.bard.versatile-performance },
+              }
+          grants:
+            - item: feats.bard.versatile-performance
+        - id: warrior
+          prerequisites:
+            - { id: other, when: "bard.muse != 'warrior'" }
+          effects:
+            - { target: bard.muses, op: grant, value: { tag: muse.warrior } }
+            - {
+                target: bard.grantedFeats,
+                op: grant,
+                value: { item: feats.bard.martial-performance },
+              }
+          grants:
+            - item: feats.bard.martial-performance

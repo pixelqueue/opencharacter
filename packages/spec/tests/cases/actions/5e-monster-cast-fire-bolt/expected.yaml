@@ -1,0 +1,48 @@
+# 12 + 6 = 18 hits AC 15; a 9th-level caster's fire bolt is 2d10: 7 + 4 = 11 fire.
+status: finished
+outcome:
+  {
+    result: hit,
+    data:
+      {
+        slot: 0,
+        spellcastingClass: monster,
+        dc: 14,
+        save: '',
+        halfOnSave: false,
+        damage: 11,
+        healing: 0,
+        concentration: false,
+        critical: false,
+        metamagic: none,
+      },
+  }
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: '5e-srd-5.1:hp.current',
+          by: -11,
+          tags: [damage, attack, spell, magical, ranged, damage.fire],
+        },
+    }
+log:
+  - {
+      step: attack,
+      action: '5e-srd-5.1:cast-spell',
+      kind: dice,
+      by: engine,
+      faces: [12],
+      total: 18,
+    }
+  - {
+      step: damage,
+      action: '5e-srd-5.1:cast-spell',
+      kind: dice,
+      by: engine,
+      faces: [7, 4],
+      total: 11,
+    }

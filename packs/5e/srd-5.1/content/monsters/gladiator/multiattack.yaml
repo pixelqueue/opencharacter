@@ -1,0 +1,67 @@
+# Its melee attacks are read as the spear's.
+id: monsters.gladiator.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: melee }, { id: ranged }]
+        recommend: "'melee'"
+      - id: spear1
+        kind: action
+        when: "steps.form.picked == 'melee'"
+        use: monster-attack
+        source: "'monsters.gladiator.spear'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: spear2
+        kind: action
+        when: "steps.form.picked == 'melee'"
+        use: monster-attack
+        source: "'monsters.gladiator.spear'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: spear3
+        kind: action
+        when: "steps.form.picked == 'melee'"
+        use: monster-attack
+        source: "'monsters.gladiator.spear'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(2, size(participants.target) - 1)].id] : []
+      - id: spear4
+        kind: action
+        when: "steps.form.picked == 'ranged'"
+        use: monster-attack
+        source: "'monsters.gladiator.spear'"
+        params: { thrown: true }
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: spear5
+        kind: action
+        when: "steps.form.picked == 'ranged'"
+        use: monster-attack
+        source: "'monsters.gladiator.spear'"
+        params: { thrown: true }
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.spear1) && steps.spear1.result == 'hit' ? 1 : 0)
+              + (has(steps.spear2) && steps.spear2.result == 'hit' ? 1 : 0)
+              + (has(steps.spear3) && steps.spear3.result == 'hit' ? 1 : 0)
+              + (has(steps.spear4) && steps.spear4.result == 'hit' ? 1 : 0)
+              + (has(steps.spear5) && steps.spear5.result == 'hit' ? 1 : 0)

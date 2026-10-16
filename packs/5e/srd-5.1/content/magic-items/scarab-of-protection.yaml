@@ -1,0 +1,17 @@
+id: magic-items.scarab-of-protection
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: legendary
+  requiresAttunement: true
+  maxCharges: 12
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+effects:
+  - { target: items.spellSave, op: add, value: 1, when: self.equipped && self.attuned }
+  - target: { rolls: [save] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.equipped && self.attuned && situational.spellSave != 'none'
+actions:
+  - use: use-charges

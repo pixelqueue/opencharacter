@@ -1,0 +1,15 @@
+id: feats.archetype.oracle.basic-mysteries
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.oracle }
+prerequisites:
+  - { id: oracle-dedication, when: '@feats.archetype.oracle.oracle-dedication in feats.held' }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && !('trait.archetype' in item.tags)
+          && (has(item.class) && item.class == @classes.oracle || 'trait.oracle' in item.tags)
+    eligible: item.level <= 2

@@ -1,0 +1,17 @@
+id: monsters.kraken.lightning-storm-legendary
+type: monsterAction
+fields:
+  kind: legendary
+  legendaryCost: 2
+actions:
+  - id: lightning-storm-legendary
+    tags: [legendary]
+    participants:
+      target: { max: 3 }
+    steps:
+      - id: lightningStorm
+        kind: action
+        use: monster-effect
+        source: "'monsters.kraken.lightning-storm'"
+        participants:
+          target: participants.target

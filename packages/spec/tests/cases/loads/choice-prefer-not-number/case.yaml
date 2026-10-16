@@ -1,0 +1,28 @@
+description: "A choice step\u2019s `prefer` must be a number"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          gem:
+            carried: true
+            fields:
+              color: { type: enum, values: [red, blue] }
+            state:
+              charge: { type: integer, default: 3 }
+        actions:
+          - id: pick
+            steps:
+              - id: gem
+                kind: choice
+                options: { copies: { type: gem } }
+                prefer: item.color
+      content:
+        - { id: gems.ruby, type: gem, fields: { color: red } }

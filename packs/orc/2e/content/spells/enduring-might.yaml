@@ -1,0 +1,14 @@
+id: spells.enduring-might
+type: spell
+tags: [trait.cleric, trait.focus, trait.manipulate, trait.uncommon]
+fields: { rank: 4, cast: reaction, applyTo: self }
+effects:
+  - target:
+      incoming:
+        fields: [hp.current]
+        tags: [damage]
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 8 + attributes.str.mod + 2 * (self.rank - 4))
+    when: incoming.amount < 0
+    scope: applied

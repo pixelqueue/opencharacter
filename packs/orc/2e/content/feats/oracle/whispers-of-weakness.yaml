@@ -1,0 +1,17 @@
+id: feats.oracle.whispers-of-weakness
+type: feat
+tags: [trait.cursebound]
+fields: { level: 1, category: class, class: classes.oracle }
+actions:
+  - id: whispers-of-weakness
+    tags: [class-action]
+    available: oracle.cursebound < oracle.curseMax
+    results: [used]
+    steps:
+      - id: curse
+        kind: changes
+        changes:
+          - { type: adjust, field: oracle.cursebound, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'used'"

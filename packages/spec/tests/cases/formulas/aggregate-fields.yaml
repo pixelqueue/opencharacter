@@ -1,0 +1,183 @@
+description: 'Aggregates over fields: countFields, sumFields, maxFields, minFields and the f root'
+specVersion: 0.1.0
+cases:
+  # Evaluation. The case's fields are the ruleset's fields, in order; `f.id` is the key.
+  - name: countFields counts the fields the filter keeps
+    evaluate: "countFields('skill' in f.tags)"
+    fields: &skills
+      skills.fight: { type: integer, value: 4, tags: [skill, skill.attack] }
+      skills.shoot: { type: integer, value: 3, tags: [skill, skill.attack] }
+      skills.will: { type: integer, value: 3, tags: [skill] }
+      skills.pilot: { type: integer, value: 0, tags: [skill] }
+      skills.cap: { type: integer, value: 4 }
+      refresh: { type: decimal, value: 2.5, tags: [points] }
+      aspects.trouble: { type: string, value: 'In debt', tags: [aspect] }
+    value: 4
+    valueType: int
+  - name: countFields without a match is 0
+    evaluate: "countFields('stunt' in f.tags)"
+    fields: *skills
+    value: 0
+    valueType: int
+  - name: countFields can read the ID and the type
+    evaluate: "countFields(f.type == 'integer' && f.id != 'skills.cap')"
+    fields: *skills
+    value: 4
+    valueType: int
+  - name: sumFields counts by value
+    evaluate: "sumFields(f.value == 3 ? 1 : 0, 'skill' in f.tags)"
+    fields: *skills
+    value: 2
+    valueType: int
+  - name: sumFields adds the values
+    evaluate: "sumFields(f.value, 'skill' in f.tags)"
+    fields: *skills
+    value: 10
+    valueType: int
+  - name: sumFields of a decimal field is a decimal
+    evaluate: "sumFields(f.value, 'points' in f.tags)"
+    fields: *skills
+    value: 2.5
+    valueType: decimal
+  - name: sumFields without a condition goes over every field
+    evaluate: sumFields(1)
+    fields: *skills
+    value: 7
+    valueType: int
+  - name: sumFields without a match is 0
+    evaluate: "sumFields(f.value, 'stunt' in f.tags)"
+    fields: *skills
+    value: 0
+    valueType: int
+  - name: maxFields is the highest value
+    evaluate: "maxFields(f.value, 'skill' in f.tags)"
+    fields: *skills
+    value: 4
+    valueType: int
+  - name: minFields is the lowest value
+    evaluate: "minFields(f.value, 'skill.attack' in f.tags)"
+    fields: *skills
+    value: 3
+    valueType: int
+  - name: maxFields without a match is 0
+    evaluate: "maxFields(f.value, 'stunt' in f.tags)"
+    fields: *skills
+    value: 0
+    valueType: int
+  - name: minFields without a match is 0
+    evaluate: "minFields(f.value, 'stunt' in f.tags) + 1"
+    fields: *skills
+    value: 1
+    valueType: int
+  - name: the value may read other fields and roots
+    evaluate: "sumFields(f.value > skills.cap - 2 ? item.weight : 0, 'skill' in f.tags)"
+    fields: *skills
+    roots: { item: { weight: 2 } }
+    value: 6
+    valueType: int
+  - name: a kept field whose value is not a number
+    evaluate: "sumFields(f.value, 'skill' in f.tags || 'aspect' in f.tags)"
+    fields: *skills
+    error: type-mismatch
+  - name: the filter keeps out the field the value can't add
+    evaluate: "sumFields(f.value, f.type == 'integer')"
+    fields: *skills
+    value: 14
+    valueType: int
+  - name: the filter can't read f.value
+    evaluate: countFields(f.value == 4)
+    fields: *skills
+    error: type-mismatch
+  - name: the filter can't read a field
+    evaluate: "sumFields(f.value, f.id == 'skills.fight' || skills.cap > 3)"
+    fields: *skills
+    error: type-mismatch
+  - name: the filter can't read another root
+    evaluate: countFields(f.id == item.rated)
+    fields: *skills
+    roots: { item: { rated: skills.fight } }
+    error: type-mismatch
+  - name: a filter that isn't a bool
+    evaluate: countFields(f.id)
+    fields: *skills
+    error: type-mismatch
+  - name: a value that isn't a number
+    evaluate: maxFields(f.id)
+    fields: *skills
+    error: type-mismatch
+  - name: f outside the call
+    evaluate: f.value
+    fields: *skills
+    error: unknown-name
+  - name: a nested field function is not bound
+    evaluate: "sumFields(countFields(true), 'skill' in f.tags)"
+    fields: *skills
+    error: unknown-function
+  - name: a copy function inside is not bound either
+    evaluate: "sumFields(countCopies(true), 'skill' in f.tags)"
+    fields: *skills
+    error: unknown-function
+  - name: countFields without a character
+    evaluate: countFields(true)
+    character: false
+    error: unknown-function
+  - name: countFields with two arguments
+    evaluate: countFields(true, true)
+    fields: *skills
+    error: wrong-arity
+  - name: maxFields with no arguments
+    evaluate: maxFields()
+    fields: *skills
+    error: wrong-arity
+
+  # Type checking.
+  - name: countFields is an int
+    check: "countFields('skill' in f.tags)"
+    type: int
+  - name: sumFields over f.value is dyn
+    check: "sumFields(f.value, 'skill' in f.tags)"
+    type: dyn
+  - name: sumFields of an int value is an int
+    check: "sumFields(f.value == 4 ? 1 : 0, 'skill' in f.tags)"
+    type: int
+  - name: maxFields of a decimal value is a decimal
+    check: maxFields(1.5)
+    type: decimal
+  - name: the f root is closed
+    check: countFields(f.name == 'x')
+    error: unknown-name
+  - name: f.tags is a list of strings
+    check: countFields(f.tags + 1 > 0)
+    error: type-mismatch
+  - name: the filter can't read f.value
+    check: countFields(f.value > 0)
+    error: type-mismatch
+  - name: the filter can't read f as a whole
+    check: countFields(has(f))
+    error: type-mismatch
+  - name: the filter can't read a field
+    check: countFields(skills.cap > 3)
+    fields: { skills.cap: { type: integer } }
+    error: type-mismatch
+  - name: the filter can't read another root
+    check: countFields(item.id == f.id)
+    roots: [item]
+    error: type-mismatch
+  - name: the value can read other roots and fields
+    check: "sumFields(f.value * item.weight + skills.cap, 'skill' in f.tags)"
+    fields: { skills.cap: { type: integer } }
+    roots: [item]
+    type: dyn
+  - name: f outside the call
+    check: f.id == 'x'
+    error: unknown-name
+  - name: a nested call
+    check: maxFields(sumFields(1))
+    error: unknown-function
+  - name: a value that isn't a number
+    check: sumFields(f.type)
+    error: type-mismatch
+  - name: not bound in item fields
+    check: countFields(true)
+    character: false
+    error: unknown-function

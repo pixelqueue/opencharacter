@@ -1,0 +1,25 @@
+id: feats.oracle.roll-the-bones-of-fate
+type: feat
+tags: [trait.cursebound, trait.prediction]
+fields: { level: 10, category: class, class: classes.oracle }
+prerequisites:
+  - { id: mystery, when: "oracle.mystery == 'bones' || oracle.mystery == 'lore'" }
+actions:
+  - id: roll-the-bones-of-fate
+    tags: [class-action]
+    available: oracle.cursebound < oracle.curseMax
+    results: [used]
+    steps:
+      - id: bones
+        kind: roll
+        parts: [{ dice: 1d4 }]
+      - id: curse
+        kind: changes
+        changes:
+          - { type: adjust, field: oracle.cursebound, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          result: steps.bones.total
+          dc: spellcasting.dc

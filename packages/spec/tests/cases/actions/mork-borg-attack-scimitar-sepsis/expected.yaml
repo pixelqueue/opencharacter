@@ -1,0 +1,40 @@
+status: finished
+outcome:
+  result: success
+  data:
+    damage: 4
+    sepsis: true
+    skullSmashed: false
+proposedChanges:
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: mork-borg-core:hp.current
+      by: -4
+      tags:
+        - damage
+log:
+  - step: check/check
+    action: mork-borg-core:test
+    kind: dice
+    by: engine
+    faces:
+      - 11
+    total: 11
+    band: success
+    bandSet: mork-borg-core:test
+  - step: damage
+    action: mork-borg-core:attack
+    kind: dice
+    by: engine
+    faces:
+      - 4
+    total: 4
+  - step: doom
+    action: mork-borg-core:attack
+    kind: dice
+    by: engine
+    faces:
+      - 1
+    total: 1

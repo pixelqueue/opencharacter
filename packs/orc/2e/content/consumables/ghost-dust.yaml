@@ -1,0 +1,15 @@
+id: consumables.ghost-dust
+type: consumable
+tags: [trait.illusion, trait.occult, trait.talisman]
+fields:
+  level: 16
+  price: 1800
+  category: talisman
+  affixTo: armor
+effects:
+  - target: { steps: [consumable.activate] }
+    op: changes
+    when: action.self.id == self.id
+    value:
+      changes:
+        - { type: applyEffect, source: "'spells.invisibility'", state: { rank: 4 } }

@@ -1,0 +1,23 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 10
+  5e-srd-5.1:abilities.dex.base: 10
+  5e-srd-5.1:abilities.con.base: 10
+  5e-srd-5.1:abilities.int.base: 10
+  5e-srd-5.1:abilities.wis.base: 10
+  5e-srd-5.1:abilities.cha.base: 10
+  5e-srd-5.1:hp.base: 8
+  5e-srd-5.1:hp.current: 8
+features:
+  - id: fighter
+    item: 5e-srd-5.1:classes.fighter
+    state: { level: 2, startingClass: true }
+    choices:
+      skills: [{ option: skill.athletics }, { option: skill.perception }]
+      fighting-style:
+        - option: 5e-srd-5.1:fighting-styles.dueling
+      martial-archetype:
+        - option: 5e-srd-5.1:subclasses.champion

@@ -1,0 +1,30 @@
+# A natural 20 (+7: Dex +2, expert +5) is a critical hit. Damage: the shortbow's 1d6 (4) and
+# Point-Blank Stance's +2, each doubled (8 + 4); deadly's 1d10 (7) after: 19.
+status: finished
+outcome:
+  result: critical-success
+  data:
+    attack: 27
+    dc: 16
+    map: 0
+    flatCheck: true
+    damage: 19
+log:
+  - step: attack
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces: [20]
+    total: 27
+    band: critical-success
+  - step: damage
+    action: orc-2e:strike
+    kind: dice
+    by: engine
+    faces: [4, 7]
+    total: 19
+    items:
+      - { kind: dice, sides: 6, value: 8, factor: 2 }
+      - { kind: flat, value: 0, factor: 2 }
+      - { kind: dice, sides: 10, value: 7, multiplied: false }
+      - { kind: flat, value: 4, factor: 2, source: { type: situational, id: orc-2e:pointBlank } }

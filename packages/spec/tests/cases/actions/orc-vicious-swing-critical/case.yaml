@@ -1,0 +1,18 @@
+description: "orc-2e: Vicious Swing is an action that picks a melee weapon and runs its Strike.
+  On a natural 20 a critical hit doubles the damage (the longsword's die, Vicious
+  Swing's extra die and the Strike's flat bonus: (5 + 3 + 4) × 2); it counts as two attacks and a
+  flourish"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:feats.fighter.vicious-swing#vicious-swing'
+    entry: class
+    source: orc-2e:feats.fighter.vicious-swing
+  participants:
+    target:
+      - id: goblin
+        values:
+          orc-2e:defenses.ac: 16

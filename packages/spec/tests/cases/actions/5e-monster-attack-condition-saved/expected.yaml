@@ -1,0 +1,26 @@
+# The same hit; the target saves, so it isn't paralyzed. The outcome still names the
+# condition for apps that pass no target.
+status: finished
+outcome:
+  result: hit
+  data:
+    critical: false
+    attack: 16
+    damage: 7
+    riderDamage: 0
+    dc: 10
+    save: con
+    condition: 5e-srd-5.1:conditions.paralyzed
+proposedChanges:
+  - {
+      to: target,
+      character: tamsin,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -7,
+          tags: [damage, attack, melee, weapon, nonmagical, wielder.neutral, damage.slashing],
+        },
+    }

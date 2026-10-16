@@ -1,0 +1,49 @@
+description: renameContentType and renameAction rewrite the homebrew's type and use, written qualified; renameState after them finds the homebrew item's copies by the renamed type
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          gadget:
+            carried: true
+            state:
+              uses: { type: integer, default: 0 }
+        actions:
+          - id: activate
+            steps:
+              - { id: result, kind: outcome, result: item.id }
+      content: []
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          device:
+            carried: true
+            state:
+              charges: { type: integer, default: 0 }
+        actions:
+          - id: trigger
+            steps:
+              - { id: result, kind: outcome, result: item.id }
+      content: []
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - { op: renameContentType, from: gadget, to: device }
+            - { op: renameAction, from: activate, to: trigger }
+            - { op: renameState, type: device, from: uses, to: charges }

@@ -1,0 +1,18 @@
+description: "FitD: a crew ability's dot can't raise an action past 3, even with Mastery"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - path: ../../../../../../packs/fitd/scoundrel
+input:
+  links:
+    fitd-scoundrel:crew:
+      id: example-fitd-crew-ravens
+      values:
+        fitd-crew:upgrades.mastery: true
+        fitd-crew:members.dotRatings:
+          [
+            fitd-scoundrel:ratings.hunt,
+            fitd-scoundrel:ratings.prowl,
+            fitd-scoundrel:ratings.skirmish,
+          ]
+        fitd-crew:members.dotCount: 1

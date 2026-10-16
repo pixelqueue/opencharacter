@@ -1,0 +1,15 @@
+# stats.luck exists only in the old version, so it is reported with before only
+ok: true
+character:
+  values:
+    test-pack:stats.might: 4
+pending: []
+report:
+  values:
+    - field: test-pack:stats.luck
+      before: 3
+  steps:
+    - pack: test-pack
+      from: 1.0.0
+      to: 2.0.0
+      op: removeField

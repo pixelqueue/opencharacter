@@ -1,0 +1,18 @@
+# Cast with the default slot (1), the trait's option raises it to its own level (2) and sets the
+# ability; its second change reads the new slot. No slot is spent.
+status: finished
+outcome:
+  data: { slot: 2, ability: cha }
+proposedChanges:
+  - to: self
+    step: cost
+    change: { type: setState, entry: legacy-1, key: used, value: true }
+  - to: self
+    step: cost
+    change: { type: setState, entry: legacy-1, key: lastLevel, value: 2 }
+log:
+  - step: cost
+    action: test-pack:cast
+    kind: choice
+    by: app
+    option: 'test-pack:traits.legacy#legacy'

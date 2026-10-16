@@ -1,0 +1,21 @@
+id: worn.ventriloquists-ring-greater
+type: worn
+tags: [trait.invested, trait.magical]
+fields:
+  level: 9
+  price: 670
+  activation: two
+grants:
+  - { item: spells.ventriloquism, when: 'self.equipped && self.invested' }
+effects:
+  - target: skills.deception.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'self.equipped && self.invested'
+  - target: { choices: [spell-cost] }
+    op: option
+    when: 'action.self.id == self.id && action.item.id == @spells.ventriloquism'
+    value:
+      id: ventriloquism
+      flags: { itemPaid: true, rank: 2, dc: 27 }

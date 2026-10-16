@@ -1,0 +1,16 @@
+description: "orc-2e: Reactive Strike picks a melee weapon and runs its Strike as a reaction:
+  no multiple attack penalty after two attacks, and it doesn't count"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:features.fighter.reactive-strike#reactive-strike'
+    entry: class
+    source: orc-2e:features.fighter.reactive-strike
+  participants:
+    target:
+      - id: goblin
+        values:
+          orc-2e:defenses.ac: 16

@@ -1,0 +1,31 @@
+id: spells.frostbite
+type: spell
+tags:
+  [
+    trait.cantrip,
+    trait.cold,
+    trait.concentrate,
+    trait.manipulate,
+    tradition.arcane,
+    tradition.primal,
+  ]
+fields:
+  rank: 1
+  cast: two
+  range: 60
+  targets: 1
+  defense: fortitude
+  basic: true
+  damage: 2d4
+  damageType: cold
+  heighten: 1
+  heightenDice: 1
+  applyTo: target
+  applyAt: 3
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.bludgeoning] } }
+    op: add
+    stackKey: weakness
+    value: -self.rank
+    when: incoming.amount < 0
+    scope: applied

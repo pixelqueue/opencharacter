@@ -1,0 +1,13 @@
+description: "A nested action's pause names the action that defines the step (the panic check), not the one that started it"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/mothership/1e
+input:
+  action:
+    id: mothership-1e:stat-check
+  params:
+    stat: mothership-1e:stats.combat
+  policy:
+    rules:
+      - { step: panic/panic, then: pause }

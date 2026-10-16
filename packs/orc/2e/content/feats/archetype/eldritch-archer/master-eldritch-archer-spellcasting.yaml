@@ -1,0 +1,12 @@
+id: feats.archetype.eldritch-archer.master-eldritch-archer-spellcasting
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 18, category: class, archetype: archetypes.eldritch-archer }
+prerequisites:
+  - {
+      id: expert-eldritch-archer-spellcasting,
+      when: '@feats.archetype.eldritch-archer.expert-eldritch-archer-spellcasting in feats.held',
+    }
+effects:
+  - { target: spellcasting.archetype.eldritchArcher.benefits, op: atLeast, value: 3 }
+  - { target: spellcasting.archetype.eldritchArcher.rank, op: atLeast, value: 3 }

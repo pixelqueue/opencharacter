@@ -1,0 +1,10 @@
+id: conditions.sight-rot
+type: condition
+tags: [disease]
+state:
+  penalty: { type: integer, default: 1, min: 1, max: 5 }
+effects:
+  - target: { rolls: [attack, check] }
+    op: add
+    value: -self.penalty
+    scope: applied

@@ -1,0 +1,15 @@
+id: feats.druid.poison-resistance
+type: feat
+tags: [trait.alchemist, trait.druid, archetype-feat]
+fields: { level: 2, category: class, class: classes.druid }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.poison] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, floor(level / 2))
+    when: incoming.amount < 0
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    when: situational.againstPoison

@@ -1,0 +1,14 @@
+id: magic-items.cloak-of-the-bat
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  requiresAttunement: true
+  spells: [spells.polymorph]
+effects:
+  - {
+      target: { rolls: [skill.stealth] },
+      op: rollModifier,
+      value: { kind: advantage },
+      when: self.equipped && self.attuned,
+    }

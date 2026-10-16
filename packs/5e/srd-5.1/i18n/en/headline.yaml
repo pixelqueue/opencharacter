@@ -1,0 +1,11 @@
+# The character's headline: a monster's name and challenge rating; else the subrace (or the race)
+# and the class with the character level, or each class with its level when multiclassed. "Level 3
+# Hill dwarf Wizard", "Hill dwarf Wizard 2 / Fighter 1", "Goblin, CR 1/4".
+headline: >-
+  {has_type_monster, select,
+    true {{type_monster}, CR {field_challenge_rating_text}}
+    other {{type_class_count, plural, one {Level {field_level_total}} other {}}
+      {has_type_subrace, select, true {{type_subrace}} other {{type_race}}}
+      {type_class_count, plural, one {{type_class}} other {{type_class_each}}}}}
+headline.separator: ' / '
+types.class.headline: '{name} {self_level}'

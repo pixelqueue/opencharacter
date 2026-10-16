@@ -1,0 +1,52 @@
+tags: [strike, damage.cold, damage.fire]
+
+fields:
+  hp: { type: integer, input: true, default: 30 }
+  # A critical strike doubles every item of the strike's roll.
+  crit: { type: boolean, input: true, default: false }
+  # A weak strike halves every item, each rounded down (`settings.rounding`).
+  weak: { type: boolean, input: true, default: false }
+  # A blessed strike adds 1 fire damage that isn't multiplied (a roll part).
+  blessed: { type: boolean, input: true, default: false }
+  # A cap on the strike's total; 99 is none.
+  cap: { type: integer, input: true, default: 99 }
+
+contentTypes:
+  charm: {}
+
+effects:
+  - id: crit
+    target: { rolls: [strike] }
+    op: rollModifier
+    value: { kind: multiply, factor: 2 }
+    when: crit
+  - id: weak
+    target: { rolls: [strike] }
+    op: rollModifier
+    value: { kind: multiply, factor: 0.5 }
+    when: weak
+  - { id: cap, target: { rolls: [strike] }, op: atMost, value: cap }
+
+actions:
+  # 1d6 + 3 cold damage (and 1 fire when blessed), dealt to the character split by type.
+  - id: strike
+    steps:
+      - id: roll
+        kind: roll
+        tags: [strike]
+        parts:
+          - { dice: 1d6, tags: [damage.cold] }
+          - { value: 3, tags: [damage.cold] }
+          - { value: 1, tags: [damage.fire], multiplied: false, when: blessed }
+      - id: deal
+        kind: changes
+        changes:
+          - type: adjust
+            field: hp
+            split: { roll: roll, by: damage }
+            by: -part.total
+      - id: result
+        kind: outcome
+        data:
+          total: steps.roll.total
+          unbounded: steps.roll.unbounded

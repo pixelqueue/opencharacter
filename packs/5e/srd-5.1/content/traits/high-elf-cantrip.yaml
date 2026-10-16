@@ -1,0 +1,11 @@
+id: traits.high-elf-cantrip
+type: trait
+effects:
+  - { target: spellcasting.racial.mod, op: set, value: abilities.int.mod }
+  - { target: spellcasting.racial.dc, op: set, value: 8 + proficiency.bonus + abilities.int.mod }
+  - { target: spellcasting.racial.attack, op: set, value: proficiency.bonus + abilities.int.mod }
+choices:
+  - id: cantrip
+    from: { type: spell, where: 'item.level == 0 && @classes.wizard in item.classes' }
+    effects:
+      - { target: spells.racial, op: grant, value: { formula: pick.id } }

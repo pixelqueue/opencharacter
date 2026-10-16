@@ -1,0 +1,27 @@
+description: 'An option effect aimed at a choice tag no pack declares is unknown-tag'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [push-cost]
+        fields:
+          stress: { type: integer, input: true, default: 0 }
+        contentTypes:
+          ability: {}
+      content:
+        - id: abilities.steady
+          type: ability
+          effects:
+            - target: { choices: [push-costs] }
+              op: option
+              value:
+                id: calm
+                changes:
+                  - { type: adjust, field: stress, by: 1 }

@@ -1,0 +1,16 @@
+# Bard 2, not proficient in Arcana: 12 + int 0 + floor(2 / 2) = 13
+status: finished
+outcome:
+  result: rolled
+  data: { total: 13 }
+log:
+  - step: check
+    action: 5e-srd-5.1:skill-check
+    kind: dice
+    by: engine
+    faces: [12]
+    items:
+      - { kind: dice, value: 12 }
+      - { kind: flat, value: 0, source: { type: field, id: 5e-srd-5.1:abilities.int.mod } }
+      - { kind: flat, value: 1, source: { type: item, entry: bard } }
+    total: 13

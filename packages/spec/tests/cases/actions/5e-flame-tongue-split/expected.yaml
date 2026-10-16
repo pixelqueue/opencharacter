@@ -1,0 +1,66 @@
+# Flame Tongue longsword (inv-2) equipped, attuned and ignited; inv-1 unequipped.
+# Attack: 1d20 + Str 4 + prof 2 + Bless 1d4 (no +1 template on this copy).
+# Damage items in order: 1d8 slashing (part), Str 4 slashing (part), Dueling +2 (tagged
+# damage.slashing via roll.item.damageType), Flame Tongue 2d6 tagged damage.fire (from self).
+# split by damage: one adjust per tag group, in first-appearance order: slashing, then fire.
+# attack 14 + 4 + 2 + 2 = 22 >= 17 hit
+# damage: 1d8 = 7, 2d6 = [4, 5] = 9; total 7 + 4 + 2 + 9 = 22
+# slashing group 7 + 4 + 2 = 13 -> by -13; fire group 9 -> by -9
+status: finished
+outcome:
+  result: hit
+  data:
+    critical: false
+    attack: 22
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -13,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              magical,
+              plain-material,
+              wielder.neutral,
+              damage.slashing,
+            ],
+        },
+    }
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -9,
+          tags:
+            [damage, attack, weapon, melee, magical, plain-material, wielder.neutral, damage.fire],
+        },
+    }
+log:
+  - step: attack
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces:
+      - 14
+      - 2
+    total: 22
+  - step: damage
+    action: 5e-srd-5.1:weapon-attack
+    kind: dice
+    by: engine
+    faces:
+      - 7
+      - 4
+      - 5
+    total: 22

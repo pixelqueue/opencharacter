@@ -1,0 +1,59 @@
+# The Tracker's Hunt 2 and Survey 1 are on the proposed sheet; Prowl, Study, then Survey and Prowl
+# again take the four dots (none above 2). Scout comes from the playbook's own choice.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: playbook
+    change:
+      type: choose
+      path:
+        choice:
+          - playbook
+      option: homebrew:playbooks.tracker
+  - to: self
+    step: vice
+    change:
+      type: choose
+      path:
+        choice:
+          - vice
+      option: fitd-scoundrel:vices.weird
+  - to: self
+    step: heritageDot
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.prowl
+      by: 1
+  - to: self
+    step: backgroundDot
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.study
+      by: 1
+  - to: self
+    step: dots
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.survey
+      by: 1
+  - to: self
+    step: dots
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.prowl
+      by: 1
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - playbook
+          - homebrew:playbooks.tracker
+          - special-ability
+      option: fitd-scoundrel:special-abilities.scout
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

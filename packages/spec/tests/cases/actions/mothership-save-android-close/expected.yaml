@@ -1,0 +1,18 @@
+# The Fear save's roll is tagged `save.fear`, so `android` applies: [-] keeps the worse (higher)
+# of 12 and 47. 47 isn't under Fear 31: failure, +1 stress.
+status: finished
+outcome:
+  result: failure
+proposedChanges:
+  - to: self
+    step: stress
+    change: { type: adjust, field: mothership-1e:stress.current, by: 1 }
+log:
+  - step: check
+    action: mothership-1e:save
+    kind: dice
+    by: engine
+    faces: [12, 47]
+    total: 47
+    band: failure
+    bandSet: mothership-1e:check

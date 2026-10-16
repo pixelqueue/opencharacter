@@ -1,0 +1,55 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 2
+    mode: focus
+    dc: 19
+    defense: reflex
+    basic: true
+    damage: 14
+    healing: 0
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: orc-2e:focus.spent
+      by: 1
+  - to: target
+    character: goblin
+    step: burn[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -28
+      tags:
+        - damage
+        - spell
+        - damage.electricity
+  - to: target
+    character: goblin
+    step: afflict[0]
+    change:
+      type: applyEffect
+      source: orc-2e:conditions.clumsy
+      state:
+        value: 2
+log:
+  - step: damage
+    action: orc-2e:cast-spell
+    kind: dice
+    by: engine
+    faces:
+      - 5
+      - 9
+    total: 14
+  - step: save[0]
+    action: orc-2e:cast-spell
+    kind: handoff
+    by: app
+    participant:
+      role: target
+      id: goblin
+    outcome:
+      result: critical-failure

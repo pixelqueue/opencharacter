@@ -1,0 +1,15 @@
+id: feats.ancestry.shadow-self
+type: feat
+tags: [trait.reaction]
+fields: { level: 17, category: ancestry, ancestry: ancestries.halfling }
+prerequisites:
+  - id: legendary
+    when: 'skills.stealth.rank >= 4'
+actions:
+  - id: shadow-self
+    tags: [reaction]
+    steps:
+      - id: vanish
+        kind: changes
+        changes:
+          - { type: applyEffect, source: "'conditions.invisible'" }

@@ -1,0 +1,45 @@
+description: '5E''s guided creation of a hill dwarf cleric: the starting equipment''s "a warhammer (if proficient)" is offered, since Dwarven Combat Training grants it; the step reads the proposed sheet'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:create-character }
+  # The pending picks take their recommendations where they have one: `#done` isn't
+  # offered while the character is being created.
+  policy:
+    {
+      dice: auto,
+      choices: pause,
+      allocations: pause,
+      rules: [{ kind: choice, step: picks, then: auto }],
+    }
+answers:
+  - option: 5e-srd-5.1:races.dwarf
+  - option: 5e-srd-5.1:subraces.hill-dwarf
+  - option: 5e-srd-5.1:classes.cleric
+  - option: 5e-srd-5.1:backgrounds.acolyte
+  - option: standard-array
+  - amounts:
+      {
+        5e-srd-5.1:abilities.str.base: 14,
+        5e-srd-5.1:abilities.dex.base: 10,
+        5e-srd-5.1:abilities.con.base: 13,
+        5e-srd-5.1:abilities.int.base: 8,
+        5e-srd-5.1:abilities.wis.base: 15,
+        5e-srd-5.1:abilities.cha.base: 12,
+      }
+  # The pending picks the recommendations leave open, in the step's order.
+  - option: 5e-srd-5.1:tools.smiths-tools
+  - option: skill.history
+  - option: skill.medicine
+  - option: 5e-srd-5.1:subclasses.life-domain
+  - option: 5e-srd-5.1:spells.guidance
+  - option: 5e-srd-5.1:spells.light
+  - option: 5e-srd-5.1:spells.mending
+  - option: 5e-srd-5.1:spells.bane
+  - option: 5e-srd-5.1:spells.bless
+  - option: 5e-srd-5.1:spells.command
+  - option: 5e-srd-5.1:spells.create-or-destroy-water
+  - option: 5e-srd-5.1:languages.abyssal
+  - option: 5e-srd-5.1:languages.celestial

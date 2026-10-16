@@ -1,0 +1,16 @@
+status: finished
+outcome:
+  result: advanced
+  data:
+    benefit: aspect
+proposedChanges:
+  - to: self
+    step: benefit
+    change: { type: set, field: fate-core:aspects.phase2, value: Tobias and I Are Square }
+  - to: self
+    step: moderate
+    change:
+      type: setState
+      key: recovering
+      copies: { type: fate-core:consequence, where: self.slot == 'moderate' && !self.recovering }
+      value: true

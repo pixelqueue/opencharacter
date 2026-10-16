@@ -1,0 +1,141 @@
+settings:
+  rounding: floor
+  stacking:
+    default: addAll
+    keys:
+      source: highestOnly # Effects from the same source (two Blesses) don't stack.
+  rollModifiers:
+    advantage: cancel
+  roundIncoming: magnitude # Halved damage rounds down: 11 fire damage halved is 5.
+  competing:
+    recommend: highest
+
+fields:
+  level.total: { type: integer, formula: "sumCopies(copy.state.level, copy.type == 'class')" }
+
+  challenge.rating: { type: decimal, input: true, default: 0, min: 0, max: 30 }
+  proficiency.bonus:
+    type: integer
+    formula: >-
+      level.total > 0
+        ? 2 + floor((level.total - 1) / 4)
+        : 2 + floor((max(1, ceil(challenge.rating)) - 1) / 4)
+
+  # Hit points from hit dice, before Constitution, which is added per level so changes to it
+  # recalculate.
+  hp.base: { type: integer, input: true, default: 1, min: 1 }
+  hp.max: { type: integer, formula: 'max(1, hp.base + abilities.con.mod * level.total)' }
+  hp.current: { type: integer, input: true, default: 1, min: 0, max: hp.max, absorbedBy: [hp.temp] }
+  hp.temp: { type: integer, input: true, default: 0, min: 0 }
+
+  proficiencies.weapons: { type: set, of: weapon, input: true, default: [] }
+  proficiencies.languages: { type: set, of: language, input: true, default: [] }
+  proficiencies.armor:
+    {
+      type: set,
+      of: tag,
+      input: true,
+      default: [],
+      members: { tags: [light, medium, heavy, shield] },
+    }
+
+  creature.size:
+    {
+      type: enum,
+      values: [tiny, small, medium, large, huge, gargantuan],
+      input: true,
+      default: medium,
+    }
+  creature.type:
+    {
+      type: enum,
+      values:
+        [
+          aberration,
+          beast,
+          celestial,
+          construct,
+          dragon,
+          elemental,
+          fey,
+          fiend,
+          giant,
+          humanoid,
+          monstrosity,
+          ooze,
+          plant,
+          undead,
+        ],
+      input: true,
+      default: humanoid,
+    }
+  creature.alignment:
+    {
+      type: enum,
+      values:
+        [
+          lawful-good,
+          neutral-good,
+          chaotic-good,
+          lawful-neutral,
+          neutral,
+          chaotic-neutral,
+          lawful-evil,
+          neutral-evil,
+          chaotic-evil,
+          unaligned,
+          any,
+          any-chaotic,
+          any-evil,
+          any-non-good,
+          any-non-lawful,
+          neutral-good-or-evil,
+        ],
+      input: true,
+      default: unaligned,
+    }
+  senses.darkvision: { type: integer, formula: 0, min: 0 }
+  senses.blindsense: { type: integer, formula: 0, min: 0 }
+
+  carrying.weight:
+    type: decimal
+    formula: >-
+      sumCopies(copy.fields.weight * copy.quantity, has(copy.fields.weight)
+        && !(has(copy.state.stowed) && copy.state.stowed)
+        && !(has(copy.state.quivered) && copy.state.quivered))
+  carrying.capacity:
+    type: decimal
+    formula: >-
+      abilities.str.score * 15 * (creature.size == 'tiny' ? 0.5 : creature.size == 'large' ? 2
+        : creature.size == 'huge' ? 4 : creature.size == 'gargantuan' ? 8 : 1)
+
+  classes.held: { type: set, of: class }
+  creature.race: { type: string, formula: "''" }
+  magicItems.ignoreRequirements: { type: boolean, formula: false }
+
+  equipment.tags: { type: set, of: tag, members: { tags: [armor, shield, light, medium, heavy] } }
+
+constraints:
+  - id: attunement-requirement
+    check: >-
+      magicItems.ignoreRequirements || countCopies(has(copy.state.attuned) && copy.state.attuned
+        && (('attunement.spellcaster' in copy.tags && spellcasting.casterLevel == 0 && pactSlots.max == 0)
+          || ('attunement.dwarf' in copy.tags && creature.race != @races.dwarf)
+          || (('attunement.barbarian' in copy.tags || 'attunement.bard' in copy.tags || 'attunement.cleric' in copy.tags || 'attunement.druid' in copy.tags || 'attunement.fighter' in copy.tags || 'attunement.monk' in copy.tags || 'attunement.paladin' in copy.tags || 'attunement.ranger' in copy.tags || 'attunement.rogue' in copy.tags || 'attunement.sorcerer' in copy.tags || 'attunement.warlock' in copy.tags || 'attunement.wizard' in copy.tags)
+            && !(('attunement.barbarian' in copy.tags && @classes.barbarian in classes.held)
+          || ('attunement.bard' in copy.tags && @classes.bard in classes.held)
+          || ('attunement.cleric' in copy.tags && @classes.cleric in classes.held)
+          || ('attunement.druid' in copy.tags && @classes.druid in classes.held)
+          || ('attunement.fighter' in copy.tags && @classes.fighter in classes.held)
+          || ('attunement.monk' in copy.tags && @classes.monk in classes.held)
+          || ('attunement.paladin' in copy.tags && @classes.paladin in classes.held)
+          || ('attunement.ranger' in copy.tags && @classes.ranger in classes.held)
+          || ('attunement.rogue' in copy.tags && @classes.rogue in classes.held)
+          || ('attunement.sorcerer' in copy.tags && @classes.sorcerer in classes.held)
+          || ('attunement.warlock' in copy.tags && @classes.warlock in classes.held)
+          || ('attunement.wizard' in copy.tags && @classes.wizard in classes.held))))) == 0
+  - id: attunement-limit
+    check: countCopies(has(copy.state.attuned) && copy.state.attuned) <= 3
+    data:
+      limit: 3
+      attuned: countCopies(has(copy.state.attuned) && copy.state.attuned)

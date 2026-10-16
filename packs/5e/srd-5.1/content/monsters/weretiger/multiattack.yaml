@@ -1,0 +1,72 @@
+id: monsters.weretiger.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: scimitars }, { id: longbows }, { id: claws }]
+        recommend: "'scimitars'"
+      - id: scimitar1
+        kind: action
+        when: "steps.form.picked == 'scimitars'"
+        use: monster-attack
+        source: "'monsters.weretiger.scimitar'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: scimitar2
+        kind: action
+        when: "steps.form.picked == 'scimitars'"
+        use: monster-attack
+        source: "'monsters.weretiger.scimitar'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: longbow1
+        kind: action
+        when: "steps.form.picked == 'longbows'"
+        use: monster-attack
+        source: "'monsters.weretiger.longbow'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: longbow2
+        kind: action
+        when: "steps.form.picked == 'longbows'"
+        use: monster-attack
+        source: "'monsters.weretiger.longbow'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: claw1
+        kind: action
+        when: "steps.form.picked == 'claws'"
+        use: monster-attack
+        source: "'monsters.weretiger.claw'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: claw2
+        kind: action
+        when: "steps.form.picked == 'claws'"
+        use: monster-attack
+        source: "'monsters.weretiger.claw'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.scimitar1) && steps.scimitar1.result == 'hit' ? 1 : 0)
+              + (has(steps.scimitar2) && steps.scimitar2.result == 'hit' ? 1 : 0)
+              + (has(steps.longbow1) && steps.longbow1.result == 'hit' ? 1 : 0)
+              + (has(steps.longbow2) && steps.longbow2.result == 'hit' ? 1 : 0)
+              + (has(steps.claw1) && steps.claw1.result == 'hit' ? 1 : 0)
+              + (has(steps.claw2) && steps.claw2.result == 'hit' ? 1 : 0)

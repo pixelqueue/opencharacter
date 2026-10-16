@@ -1,0 +1,7 @@
+id: features.druid.bonus-cantrip
+type: feature
+choices:
+  - id: cantrip
+    from: { type: spell, where: 'item.level == 0 && @classes.druid in item.classes' }
+    effects:
+      - { target: spells.druid, op: grant, value: { formula: pick.id } }

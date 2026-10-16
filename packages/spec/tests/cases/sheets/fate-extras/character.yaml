@@ -1,0 +1,28 @@
+# A superhero: the game gives every character 4 more refresh for powers. Super-Strength at two
+# ranks costs 4, the dueling pistol 1, so refresh is 7 - 5 = 2. The pistol's permission aspect
+# isn't named yet.
+specVersion: 0.1.0
+id: example-fate-hero
+packs:
+  - { id: fate-core, version: 0.1.0 }
+values:
+  fate-core:identity.name: Iron Juno
+  fate-core:aspects.highConcept: Strongest Woman in Chrome City
+  fate-core:refresh.base: 7
+  fate-core:fatePoints.current: 2
+  fate-core:skills.physique: 4
+  fate-core:skills.fight: 3
+  fate-core:skills.shoot: 3
+  fate-core:skills.athletics: 2
+  fate-core:skills.will: 2
+  fate-core:skills.notice: 2
+  fate-core:skills.contacts: 1
+  fate-core:skills.provoke: 1
+  fate-core:skills.rapport: 1
+  fate-core:skills.drive: 1
+features:
+  - id: x-strength
+    item: fate-core:extras.super-strength
+    state: { ranks: 2 }
+  - id: x-pistol
+    item: fate-core:extras.dueling-pistol

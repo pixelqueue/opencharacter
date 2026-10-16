@@ -1,0 +1,58 @@
+id: feats.ranger.twin-takedown
+type: feat
+tags: [trait.flourish]
+fields: { level: 1, category: class, class: classes.ranger }
+
+# Both Strikes' changes are held and released together, so their damage combines for resistances and
+# weaknesses.
+actions:
+  - id: twin-takedown
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    available: >-
+      countCopies(copy.type == 'weapon' && copy.equipped && copy.fields.range == 0) > 0
+    steps:
+      - id: first
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: second
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0 && self.id != steps.first.picked"
+      - id: strike1
+        kind: action
+        use: strike
+        entry: steps.first.picked
+        hold: true
+        participants: { target: participants.target }
+      - id: strike2
+        kind: action
+        use: strike
+        entry: steps.second.picked
+        hold: true
+        params: { attack: 'min(3, turn.attacks + 2)' }
+        participants: { target: participants.target }
+      - id: deal
+        kind: changes
+        release: { steps: [strike1, strike2], combine: true }
+      - id: flourish
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.flourishes, by: 1 }
+      - id: result
+        kind: outcome
+        result: steps.strike2.result
+        data:
+          first: steps.strike1.result
+          damage: steps.strike1.data.damage + steps.strike2.data.damage

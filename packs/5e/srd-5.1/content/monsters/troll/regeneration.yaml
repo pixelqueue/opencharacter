@@ -1,0 +1,15 @@
+id: monsters.troll.regeneration
+type: trait
+actions:
+  - id: regenerate
+    tags: [healing]
+    available: hp.current < hp.max
+    results: [regenerated]
+    steps:
+      - id: heal
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: 10, tags: [healing] }
+      - id: result
+        kind: outcome
+        result: "'regenerated'"

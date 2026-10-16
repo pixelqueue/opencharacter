@@ -1,0 +1,21 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: test-pack, version: 1.0.0 }
+choices:
+  bonus: [{ option: test-pack:skills.hacking }]
+features:
+  - id: class
+    item: test-pack:classes.teamster
+    choices:
+      trained: [{ option: test-pack:skills.repair }]
+      kit: [{ option: test-pack:tools.wrench }]
+      path:
+        - option: mechanic
+          choices:
+            specialty: [{ option: test-pack:skills.piloting }]
+inventory:
+  - { id: knife, item: test-pack:weapons.knife, templates: [test-pack:weapons.sharp] }
+applied:
+  - { id: dying, source: test-pack:conditions.dying }
+  - { id: panic, source: test-pack:conditions.panicked }

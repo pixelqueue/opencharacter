@@ -1,0 +1,10 @@
+# No `cost`: each amount costs itself.
+status: paused
+needs:
+  step: points
+  kind: allocate
+  allocate:
+    fields:
+      - { id: 'test-pack:stats.luck', value: 2, input: 2, costs: [0, 1, 2, 3] }
+    budget: 3
+    spend: all

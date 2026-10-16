@@ -1,0 +1,64 @@
+id: monsters.vampire
+type: monster
+fields:
+  size: medium
+  creatureType: undead
+  shapechanger: true
+  alignment: lawful-evil
+  ac: 16
+  naturalArmor: true
+  hp: 144
+  hitDice: 17d8 + 68
+  speed: 30
+  str: 18
+  dex: 18
+  con: 18
+  int: 17
+  wis: 15
+  cha: 18
+  saves: [save.dex, save.wis, save.cha]
+  skills: [skill.perception, skill.stealth]
+  damageResistances: [damage.necrotic, nonmagical]
+  darkvision: 120
+  languagesNote: knew-in-life
+  startingForm: vampire
+  cr: 13
+  legendaryActions: 3
+  ownCopies:
+    - monsters.vampire.legendary-resistance
+    - monsters.vampire.children-of-the-night
+grants:
+  - item: monsters.vampire.shapechanger
+  - item: monsters.vampire.misty-escape
+  - item: monsters.vampire.regeneration
+  - item: monsters.vampire.spider-climb
+  - item: monsters.vampire.vampire-weaknesses
+  - item: monsters.vampire.charm
+  - item: monsters.vampire.move
+  - item: monsters.vampire.legendary-unarmed-strike
+  - item: monsters.vampire.legendary-bite
+choices:
+  - id: form
+    from:
+      options:
+        - id: vampire
+          effects:
+            - { target: creature.form, op: set, value: "'vampire'" }
+          grants:
+            - item: monsters.vampire.multiattack
+            - item: monsters.vampire.unarmed-strike
+            - item: monsters.vampire.bite
+        - id: bat
+          effects:
+            - { target: creature.form, op: set, value: "'bat'" }
+            - { target: creature.size, op: set, value: "'tiny'" }
+            - { target: combat.speed, op: atMost, value: 5 }
+            - { target: combat.flySpeed, op: atLeast, value: 30 }
+          grants:
+            - item: monsters.vampire.bite
+        - id: mist
+          effects:
+            - { target: creature.form, op: set, value: "'mist'" }
+            - { target: combat.speed, op: atMost, value: 0 }
+            - { target: combat.flySpeed, op: atLeast, value: 20 }
+            - { target: combat.hover, op: set, value: true }

@@ -1,0 +1,11 @@
+id: feats.archetype.vigilante.vigilante-dedication
+type: feat
+tags: [trait.archetype, trait.uncommon, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.vigilante }
+
+prerequisites:
+  - { id: deception, when: 'skills.deception.rank >= 1' }
+effects:
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.ranger.quick-draw }

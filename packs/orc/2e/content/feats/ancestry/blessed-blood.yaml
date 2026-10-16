@@ -1,0 +1,36 @@
+id: feats.ancestry.blessed-blood
+type: feat
+fields: { level: 5, category: ancestry, heritage: heritages.nephilim }
+followUps:
+  - id: holy-blood
+    on: { field: hp.current, tags: [damage] }
+    when: >-
+      change.taken < 0 && ('damage.piercing' in change.tags || 'damage.slashing' in change.tags)
+    action: holy-blood
+actions:
+  - id: holy-blood
+    tags: [feat-action]
+    participants:
+      attacker: { max: 1 }
+    results: [burned]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: 1d6
+            tags: [damage.spirit]
+      - id: deal
+        kind: changes
+        each: attacker
+        to: attacker
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, trait.holy]
+      - id: result
+        kind: outcome
+        result: "'burned'"
+        data: { damage: steps.damage.total }

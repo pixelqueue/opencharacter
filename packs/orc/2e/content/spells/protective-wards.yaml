@@ -1,0 +1,20 @@
+id: spells.protective-wards
+type: spell
+tags: [trait.uncommon, trait.aura, trait.focus, trait.manipulate, trait.wizard]
+# Pass yourself as an ally too.
+fields:
+  rank: 1
+  cast: one
+  area: emanation
+  areaSize: 5
+  duration: sustained
+  sustained: true
+  applyTo: ally
+effects:
+  - {
+      target: { fields: { where: "'ac' in item.tags" } },
+      op: add,
+      value: 1,
+      stackKey: status-bonus,
+      scope: applied,
+    }

@@ -1,0 +1,45 @@
+id: feats.fighter.vicious-swing
+type: feat
+tags: [trait.flourish, archetype-feat]
+fields: { level: 1, category: class, class: classes.fighter }
+
+# Counts as two attacks for the multiple attack penalty: the Strike counts one and the feat adds
+# one.
+actions:
+  - id: vicious-swing
+    tags: [strike]
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [strike.vicious-swing]
+        participants: { target: participants.target }
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.attacks, by: 1 }
+          - { type: adjust, field: turn.flourishes, by: 1 }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage
+
+effects:
+  - target: { rolls: [strike.vicious-swing] }
+    op: add
+    value: 'dieOf(roll.item.damage, level >= 18 ? 3 : level >= 10 ? 2 : 1)'
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: "'damage' in roll.tags"

@@ -1,0 +1,815 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.1/effect.schema.json",
+  "title": "Effect",
+  "description": "How content changes the character, and when. Effects apply while the content carrying them is active on the character and `when` is true. Fixed order per field: the field's own formula, then set, add, multiply, atLeast/atMost.",
+  "type": "object",
+  "required": ["target", "op"],
+  "properties": {
+    "id": {
+      "description": "Optional ID, unique within the content item, so apps and rules issues can point at this effect.",
+      "$ref": "common.schema.json#/$defs/slug"
+    },
+    "target": {
+      "$ref": "#/$defs/target"
+    },
+    "op": {
+      "description": "One of the fixed effect operations. Kept in sync with `data/effect-operations.json`.",
+      "enum": [
+        "add",
+        "set",
+        "multiply",
+        "atLeast",
+        "atMost",
+        "grant",
+        "rollModifier",
+        "option",
+        "changes"
+      ]
+    },
+    "value": {
+      "description": "A formula for add/set/multiply/atLeast/atMost (on rolls and on incoming changes, `add` accepts dice: `1d4`; on rolls, `atLeast` and `atMost` take an integer and bound the roll's total after the dice); a grant value object for grant; a roll modifier for rollModifier; an option for option; changes for a tagged changes step for changes. On a roll's parts, `set` takes a formula (dice or a number) that replaces each matching part."
+    },
+    "when": {
+      "description": "Condition for the effect to be active. `self` is the character's copy of the item carrying it. For `option`, the added option is offered only while this holds; it also sees the action context and `action`. For `changes`, the changes are added only while this holds, with the same context and `participant` in an `each` step. On an incoming target, it also sees `incoming`.",
+      "$ref": "formula.schema.json#/$defs/condition"
+    },
+    "stackKey": {
+      "description": "Effects sharing a stack key on the same target are combined by the game's stacking policy for that key. The reserved value `source` means the content item the effect comes from (5E: two Blesses don't stack). Any other value is a literal key (orc-2e: `item`, `status`, `circumstance`). On a choice step, `option` effects sharing a key add only the first of them, in instance order, whatever the stacking policy.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "rounding": {
+      "description": "Overrides the game's rounding for this effect's multiply.",
+      "$ref": "common.schema.json#/$defs/rounding"
+    },
+    "duration": {
+      "description": "Informational only. Time tracking is the app's job; the engine never ends an effect by itself.",
+      "type": "object",
+      "required": ["unit"],
+      "properties": {
+        "amount": {
+          "$ref": "formula.schema.json"
+        },
+        "unit": {
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "concentration": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "tags": {
+      "description": "Rolls with op `add` only: tags for the roll item the effect adds (Flame Tongue's `damage.fire`). Entries may be formulas.",
+      "$ref": "common.schema.json#/$defs/tagList"
+    },
+    "multiplied": {
+      "description": "Rolls with op `add` only: `false` leaves the roll items the effect adds, dice or flat, alone when `multiplyDice` multiplies the roll's dice or `multiply` its items (5E's Savage Attacks: an extra die rolled once on a critical hit, not doubled; orc-2e's deadly die, added after doubling). Default `true`.",
+      "type": "boolean"
+    },
+    "then": {
+      "description": "Incoming-change effects only: state changes to the effect's own copy, applied by applyChanges right after the adjust is routed, when the effect counted (its `when` held and stacking kept it). Each is a `setState` or `adjustState` with `entry: self`; `value` and `by` are formulas seeing `item`, `self` and `incoming`. Only for effects with a copy: on the rules' effects, `applied`-scope effects and choice effects it is a load error (`then-without-copy`).",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/thenChange"
+      },
+      "minItems": 1
+    },
+    "scope": {
+      "description": "Who the effect applies to. `holder` (default): a character who has the content active (features, inventory, picks, grants). `applied`: a character the content is applied to (its `applied` list: cast on them, a condition). Content in `applied` runs only its `applied` effects; held content runs only its `holder` effects.",
+      "enum": ["holder", "applied"]
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/$defs/fieldsOps"
+    },
+    {
+      "$ref": "#/$defs/tallyOps"
+    },
+    {
+      "$ref": "#/$defs/thenTarget"
+    },
+    {
+      "$ref": "#/$defs/choiceOps"
+    },
+    {
+      "$ref": "#/$defs/stepOps"
+    },
+    {
+      "if": {
+        "properties": {
+          "op": {
+            "const": "changes"
+          }
+        },
+        "type": "object"
+      },
+      "then": {
+        "required": ["value"],
+        "properties": {
+          "target": {
+            "$ref": "#/$defs/stepTarget"
+          },
+          "value": {
+            "$ref": "#/$defs/stepChanges"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "op": {
+            "const": "option"
+          }
+        },
+        "type": "object"
+      },
+      "then": {
+        "required": ["value"],
+        "properties": {
+          "target": {
+            "$ref": "#/$defs/choiceTarget"
+          },
+          "value": {
+            "$ref": "#/$defs/option"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "$ref": "#/$defs/multipliedOps"
+    },
+    {
+      "if": {
+        "properties": {
+          "op": {
+            "const": "grant"
+          }
+        },
+        "type": "object"
+      },
+      "then": {
+        "required": ["value"],
+        "properties": {
+          "value": {
+            "$ref": "#/$defs/grantValue"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "op": {
+            "const": "rollModifier"
+          }
+        },
+        "type": "object"
+      },
+      "then": {
+        "required": ["value"],
+        "properties": {
+          "target": {
+            "$ref": "#/$defs/rollTarget"
+          },
+          "value": {
+            "$ref": "#/$defs/rollModifier"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "op": {
+            "enum": ["add", "set", "multiply", "atLeast", "atMost"]
+          }
+        },
+        "type": "object"
+      },
+      "then": {
+        "required": ["value"],
+        "properties": {
+          "value": {
+            "$ref": "formula.schema.json"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "$ref": "#/$defs/partsOps"
+    },
+    {
+      "$ref": "#/$defs/rollSet"
+    }
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "multipliedOps": {
+      "description": "`multiplied` is only for `add` effects on rolls (not on a roll tally).",
+      "if": {
+        "required": ["multiplied"],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "op": {
+            "const": "add"
+          },
+          "target": {
+            "$ref": "#/$defs/rollTarget",
+            "not": {
+              "required": ["tally"],
+              "type": "object"
+            }
+          }
+        },
+        "type": "object"
+      }
+    },
+    "thenTarget": {
+      "description": "`then` is only for incoming-change effects.",
+      "if": {
+        "required": ["then"],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "target": {
+            "$ref": "#/$defs/incomingTarget"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "thenChange": {
+      "description": "A change an incoming-change effect makes to its own copy after the adjust is routed: `setState` with `value`, or `adjustState` with `by`, always `entry: self`.",
+      "type": "object",
+      "required": ["type", "entry", "key"],
+      "properties": {
+        "type": {
+          "enum": ["setState", "adjustState"]
+        },
+        "entry": {
+          "const": "self"
+        },
+        "key": {
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "value": {
+          "$ref": "formula.schema.json"
+        },
+        "by": {
+          "$ref": "formula.schema.json"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "setState"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["value"],
+            "not": {
+              "required": ["by"],
+              "type": "object"
+            },
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "adjustState"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["by"],
+            "not": {
+              "required": ["value"],
+              "type": "object"
+            },
+            "type": "object"
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "tallyOps": {
+      "description": "An effect on a roll tally uses add, atLeast or atMost.",
+      "if": {
+        "properties": {
+          "target": {
+            "type": "object",
+            "required": ["tally"]
+          }
+        },
+        "required": ["target"],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "op": {
+            "enum": ["add", "atLeast", "atMost"]
+          }
+        },
+        "type": "object"
+      }
+    },
+    "choiceOps": {
+      "description": "`option` is the only op on a choice target.",
+      "if": {
+        "properties": {
+          "target": {
+            "type": "object",
+            "required": ["choices"]
+          }
+        },
+        "required": ["target"],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "op": {
+            "const": "option"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "stepOps": {
+      "description": "`changes` is the only op on a step target.",
+      "if": {
+        "properties": {
+          "target": {
+            "type": "object",
+            "required": ["steps"]
+          }
+        },
+        "required": ["target"],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "op": {
+            "const": "changes"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "stepTarget": {
+      "description": "Changes steps of actions as they run, by tag. Only op `changes`.",
+      "type": "object",
+      "required": ["steps"],
+      "properties": {
+        "steps": {
+          "description": "Changes step tags; the effect adds its changes to a step carrying any of them (a tag matches itself and every tag below it; tags an `action` step adds count).",
+          "$ref": "common.schema.json#/$defs/tags",
+          "minItems": 1,
+          "type": "array"
+        },
+        "from": {
+          "description": "`self`: only changes steps of actions made by the item carrying this effect. `any` (default): every matching changes step the character's actions reach.",
+          "enum": ["self", "any"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "stepChanges": {
+      "description": "What a `changes` effect adds to a tagged changes step: `changes`, proposed after the step's own each time the step runs (per participant in an `each` step) while the effect's `when` holds, `to` this `to`, else the step's. In its `when` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy), the action's own are `action.item`, `action.self` and `action.step`, and the action's `params`, `situational`, `steps`, `flags`, `participants` (and `participant` in an `each` step) are bound.",
+      "type": "object",
+      "required": ["changes"],
+      "properties": {
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "change.schema.json#/$defs/proposed"
+          },
+          "minItems": 1
+        },
+        "to": {
+          "description": "Who the changes are for, as a `changes` step's `to`. Default: the step's `to`.",
+          "$ref": "action.schema.json#/$defs/destination"
+        }
+      },
+      "additionalProperties": false
+    },
+    "target": {
+      "description": "A character field (by ID), a set of fields (by a static query over their tags), rolls as they happen (by tag), incoming changes (by field and tag), an action's choice steps (by tag), or an action's changes steps (by tag).",
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/fieldRef"
+        },
+        {
+          "$ref": "#/$defs/rollTarget"
+        },
+        {
+          "$ref": "#/$defs/incomingTarget"
+        },
+        {
+          "$ref": "#/$defs/choiceTarget"
+        },
+        {
+          "$ref": "#/$defs/stepTarget"
+        },
+        {
+          "$ref": "#/$defs/fieldsTarget"
+        }
+      ]
+    },
+    "choiceTarget": {
+      "description": "Choice steps of actions as they run, by tag. Only op `option`.",
+      "type": "object",
+      "required": ["choices"],
+      "properties": {
+        "choices": {
+          "description": "Choice step tags; the effect adds its option to a step carrying any of them (a tag matches itself and every tag below it).",
+          "$ref": "common.schema.json#/$defs/tags",
+          "minItems": 1,
+          "type": "array"
+        },
+        "from": {
+          "description": "`self`: only choice steps of actions made by the item carrying this effect. `any` (default): every matching choice step the character's actions reach.",
+          "enum": ["self", "any"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "option": {
+      "description": "An option an `option` effect adds to a choice step. Its ID is `<content id>#<id>`, named by `<content id>.options.<id>.name`; the effect's `when` is its condition. When it is picked, its `flags` are set, then its `changes`, if any, are resolved like a `changes` step's at the choice step's path, before the step's own `changes`; without them the pick is only recorded, for later steps to read (`steps.<id>.picked`). In its `when` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy), and the action's own are `action.item`, `action.self` and `action.step`.",
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "change.schema.json#/$defs/proposed"
+          },
+          "minItems": 1
+        },
+        "to": {
+          "description": "Who the changes are for, as a `changes` step's `to`. Default `self`.",
+          "$ref": "action.schema.json#/$defs/destination"
+        },
+        "flags": {
+          "description": "Flags set when the option is picked, as a branch case's: each formula is evaluated in the option's context (`item` and `self` the content's, the action's as `action.*`, `picked` bound) and set as `flags.<name>`, in order, before the option's `changes`. A flag already set is replaced. The action must set each flag elsewhere, in a branch case or a written option: one it doesn't is `formula-error` (cause `unknown-name`) at load, and a value of another type `type-mismatch`.",
+          "$ref": "action.schema.json#/$defs/optionFlags"
+        }
+      },
+      "additionalProperties": false
+    },
+    "rollTarget": {
+      "type": "object",
+      "required": ["rolls"],
+      "properties": {
+        "rolls": {
+          "description": "Roll tags; the effect applies to a roll carrying any of them (a tag matches itself and every tag below it).",
+          "$ref": "common.schema.json#/$defs/tags",
+          "minItems": 1,
+          "type": "array"
+        },
+        "from": {
+          "description": "`self`: only rolls made by the item carrying this effect. `any` (default): every matching roll the character makes.",
+          "enum": ["self", "any"]
+        },
+        "tally": {
+          "description": "A declared roll tally (`rollTallies`) the effect adds to instead of the roll's total. Ops: `add`, `atLeast`, `atMost`, with an integer value. Without it, `atLeast` and `atMost` bound the roll's total once it is rolled.",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "parts": {
+          "description": "The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part) and the roll modifiers `stepDie` and `setFaces`. Not with `tally`.",
+          "$ref": "common.schema.json#/$defs/tags",
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "additionalProperties": false
+    },
+    "incomingTarget": {
+      "type": "object",
+      "required": ["incoming"],
+      "properties": {
+        "incoming": {
+          "description": "Changes about to be applied to this character (an `adjust` change with tags, e.g. damage). The effect modifies the change's amount before it is applied. Its `when`, `value` and `then` see `incoming`: the adjust's requested `amount`, its `field` and its `tags`. They also see `situational`: the receiving player's choices on the change, defaults for the rest.",
+          "type": "object",
+          "properties": {
+            "fields": {
+              "type": "array",
+              "items": {
+                "$ref": "common.schema.json#/$defs/fieldRef"
+              },
+              "minItems": 1
+            },
+            "tags": {
+              "$ref": "common.schema.json#/$defs/tags",
+              "minItems": 1,
+              "type": "array"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "grantValue": {
+      "description": "What a grant adds to a `set` field. Exactly one of: `item` (a content reference, e.g. a weapon proficiency or an action-granting feature), `tag`, `field` (a field ID), `query` (every match), or `formula` (a computed member, e.g. `pick.id` in a choice's effects).",
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "common.schema.json#/$defs/ref"
+        },
+        "tag": {
+          "$ref": "common.schema.json#/$defs/tag"
+        },
+        "field": {
+          "$ref": "common.schema.json#/$defs/fieldRef"
+        },
+        "query": {
+          "$ref": "query.schema.json"
+        },
+        "formula": {
+          "$ref": "formula.schema.json"
+        }
+      },
+      "minProperties": 1,
+      "maxProperties": 1,
+      "additionalProperties": false
+    },
+    "rollModifier": {
+      "description": "A change to how a roll is made. Kinds are a fixed set kept in sync with `data/roll-modifiers.json`.",
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "advantage",
+            "disadvantage",
+            "noAdvantage",
+            "noDisadvantage",
+            "reroll",
+            "multiplyDice",
+            "multiply",
+            "minimumFace",
+            "explode",
+            "poolDice",
+            "stepDie",
+            "setFaces"
+          ]
+        },
+        "below": {
+          "description": "reroll: reroll faces at or below this value.",
+          "$ref": "formula.schema.json"
+        },
+        "once": {
+          "description": "reroll: reroll at most once per die.",
+          "type": "boolean"
+        },
+        "factor": {
+          "description": "multiplyDice: multiply the dice count of every dice item in the roll. multiply: multiply the value of every rolled item, dice and flat, before the roll's bounds, rounding an integer result. Both leave items marked `multiplied: false` alone.",
+          "$ref": "formula.schema.json"
+        },
+        "value": {
+          "description": "minimumFace: treat lower faces as this value.",
+          "$ref": "formula.schema.json"
+        },
+        "at": {
+          "description": "explode: explode on faces at or above this value (default: the highest face).",
+          "$ref": "formula.schema.json"
+        },
+        "count": {
+          "description": "poolDice: how many dice to add to the pool (a formula). reroll: at most this many dice matching `below` are rerolled, lowest faces first (earliest first among equal faces); an integer formula. Default: every matching die.",
+          "$ref": "formula.schema.json"
+        },
+        "part": {
+          "description": "poolDice: the roll part (by `id`) whose dice the new dice join. Default: the roll step's first dice part.",
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "steps": {
+          "description": "stepDie: how many steps along d4, d6, d8, d10, d12 each matching die moves (negative for smaller); an integer formula.",
+          "$ref": "formula.schema.json"
+        },
+        "faces": {
+          "description": "setFaces: the dice item's first faces, as integer formulas, used instead of asking for them.",
+          "type": "array",
+          "items": {
+            "$ref": "formula.schema.json"
+          },
+          "minItems": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "reroll"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["below"],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": ["multiplyDice", "multiply"]
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["factor"],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "minimumFace"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["value"],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "poolDice"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["count"]
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "stepDie"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["steps"]
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "setFaces"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["faces"]
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "fieldsTarget": {
+      "description": "A set of fields: every `integer` and `decimal` field of the ruleset whose view matches `where`, resolved once by loadRuleset (homebrew fields included). The effect is one instance per matching field, in field order, each exactly as if written with that field as its `target`, so it stacks, competes and is listed per field. Ops: add, multiply, atLeast, atMost; or `grant`, which matches every `set` field instead.",
+      "type": "object",
+      "required": ["fields"],
+      "properties": {
+        "fields": {
+          "type": "object",
+          "required": ["where"],
+          "properties": {
+            "where": {
+              "description": "A condition over each field's view as `item`: `id` (qualified), `type` and `tags`. It may read nothing else (`unknown-name` at load), so the set is fixed: `'attr.dex' in item.tags`.",
+              "$ref": "formula.schema.json#/$defs/condition"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "fieldsOps": {
+      "description": "An effect on a set of fields uses add, multiply, atLeast or atMost, or grant into set fields.",
+      "if": {
+        "properties": {
+          "target": {
+            "type": "object",
+            "required": ["fields"]
+          }
+        },
+        "required": ["target"],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "op": {
+            "enum": ["add", "multiply", "atLeast", "atMost", "grant"]
+          }
+        },
+        "type": "object"
+      }
+    },
+    "partsOps": {
+      "description": "An effect on a roll's parts uses `set`, or a `stepDie` or `setFaces` roll modifier, and has no tally.",
+      "if": {
+        "properties": {
+          "target": {
+            "type": "object",
+            "required": ["parts"]
+          }
+        },
+        "required": ["target"],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "op": {
+            "enum": ["set", "rollModifier"]
+          },
+          "target": {
+            "not": {
+              "required": ["tally"],
+              "type": "object"
+            }
+          },
+          "value": {
+            "if": {
+              "type": "object",
+              "required": ["kind"]
+            },
+            "then": {
+              "properties": {
+                "kind": {
+                  "enum": ["stepDie", "setFaces"]
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "type": "object"
+      }
+    },
+    "rollSet": {
+      "description": "`set` on rolls replaces a roll's part, so its target names the parts.",
+      "if": {
+        "properties": {
+          "op": {
+            "const": "set"
+          },
+          "target": {
+            "type": "object",
+            "required": ["rolls"]
+          }
+        },
+        "required": ["op", "target"],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "target": {
+            "required": ["parts"],
+            "type": "object"
+          }
+        },
+        "type": "object"
+      }
+    }
+  }
+}

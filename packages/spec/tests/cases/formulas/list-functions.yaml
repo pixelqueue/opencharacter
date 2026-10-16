@@ -1,0 +1,118 @@
+description: 'Lists from lists: filterList, mapList and sortList, and aggregates in a list argument'
+specVersion: 0.1.0
+cases:
+  - name: filterList keeps the elements the condition holds for, in order
+    evaluate: filterList([3, 8, 1, 9], x > 2)
+    value: [3, 8, 9]
+  - name: filterList skips null elements
+    evaluate: filterList(steps.rolls, true)
+    roots:
+      steps:
+        rolls: [{ total: 4 }, null, { total: 6 }]
+    value: [{ total: 4 }, { total: 6 }]
+  - name: filterList of nothing kept is an empty list
+    evaluate: filterList(['a', 'b'], x == 'c')
+    value: []
+  - name: filterList reads other roots
+    evaluate: '!(3 in filterList(item.options, !(x in self.held)))'
+    roots:
+      item: { options: [1, 2, 3] }
+      self: { held: [3] }
+    value: true
+  - name: mapList gives each element's value
+    evaluate: mapList(steps.rolls, x.total * 2)
+    roots:
+      steps:
+        rolls: [{ total: 4 }, { total: 6 }]
+    value: [8, 12]
+  - name: mapList builds strings
+    evaluate: "mapList(['str', 'dex'], 'abilities.' + x)"
+    value: [abilities.str, abilities.dex]
+  - name: sortList sorts numbers ascending
+    evaluate: sortList([12, 9, 15, 9])
+    value: [9, 9, 12, 15]
+  - name: sortList with a negated key sorts descending
+    evaluate: sortList([12, 9, 15, 10], -x)
+    value: [15, 12, 10, 9]
+  - name: sortList is stable for equal keys
+    evaluate: sortList(steps.rolls, -x.total)
+    roots:
+      steps:
+        rolls: [{ total: 9, n: 1 }, { total: 12, n: 2 }, { total: 9, n: 3 }]
+    value: [{ total: 12, n: 2 }, { total: 9, n: 1 }, { total: 9, n: 3 }]
+  - name: sortList sorts strings
+    evaluate: sortList(['wis', 'cha', 'int'])
+    value: [cha, int, wis]
+  - name: sortList mixes ints and decimals
+    evaluate: sortList([2, 1.5, 1])
+    value: [1, 1.5, 2]
+  - name: the k-th highest value
+    evaluate: sortList([12, 9, 15, 10], -x)[1]
+    value: 12
+    valueType: int
+  - name: an aggregate in a list argument
+    evaluate: sumList(filterList([1, 2, 3, 4], x % 2 == 0), x)
+    value: 6
+    valueType: int
+  - name: list functions in a list argument nest
+    evaluate: sortList(mapList(filterList([3, 1, 2], x > 1), x * 10), -x)
+    value: [30, 20]
+  - name: a list function inside the condition is still not bound
+    evaluate: filterList([[1], [2]], countList(x, true) > 0)
+    error: unknown-function
+  - name: sortList keys that mix numbers and strings
+    evaluate: "sortList([1, 'a'])"
+    error: type-mismatch
+  - name: sortList keys that aren't numbers or strings
+    evaluate: sortList([true, false])
+    error: type-mismatch
+  - name: filterList's condition must be a bool
+    evaluate: filterList([1], x)
+    error: type-mismatch
+  - name: filterList needs a list
+    evaluate: filterList(3, true)
+    error: type-mismatch
+  - name: filterList with one argument
+    evaluate: filterList([1])
+    error: wrong-arity
+  - name: mapList with one argument
+    evaluate: mapList([1])
+    error: wrong-arity
+  - name: sortList with three arguments
+    evaluate: sortList([1], x, x)
+    error: wrong-arity
+  - name: the list functions need no character
+    evaluate: sortList([2, 1])
+    character: false
+    value: [1, 2]
+  # Type checking.
+  - name: filterList keeps the list's element type
+    check: filterList(item.kept, x > 2)
+    roots: [item]
+    rootTypes:
+      item: { object: { kept: list<int> } }
+    type: list<int>
+  - name: mapList's element type is the value's
+    check: mapList(item.kept, x > 1)
+    roots: [item]
+    rootTypes:
+      item: { object: { kept: list<int> } }
+    type: list<bool>
+  - name: sortList keeps the list's element type
+    check: sortList(item.kept, -x)
+    roots: [item]
+    rootTypes:
+      item: { object: { kept: list<int> } }
+    type: list<int>
+  - name: a sort key that is a bool
+    check: sortList(item.kept, x > 1)
+    roots: [item]
+    rootTypes:
+      item: { object: { kept: list<int> } }
+    error: type-mismatch
+  - name: sortList of bools needs a key
+    check: sortList(item.flags)
+    roots: [item]
+    rootTypes:
+      item: { object: { flags: list<bool> } }
+    error: type-mismatch

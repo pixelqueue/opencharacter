@@ -1,0 +1,19 @@
+id: features.cleric.turn-undead
+type: feature
+actions:
+  - id: turn-undead
+    tags: [feature]
+    results: [turning]
+    available: self.channelDivinitySpent < channelDivinity.uses
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: channelDivinitySpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'turning'"
+        data:
+          dc: spellcasting.cleric.dc
+          save: "'wis'"
+          destroyCr: destroyUndead.cr

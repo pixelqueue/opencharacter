@@ -1,0 +1,124 @@
+# An orc-2e character: a 6th-level human fighter who multiclasses into the wizard archetype, with a
+# longsword and a steel shield, in a breastplate.
+#
+# Boosts: two free from his ancestry (Strength, Intelligence), the warrior's Strength and a free
+# Intelligence, the fighter's Strength, four free at 1st level (Strength, Dexterity, Constitution,
+# Intelligence) and four at 5th (Strength, Dexterity, Constitution, Wisdom): Str +4, Dex +2, Con +2,
+# Int +3, Wis +1. A versatile human takes a general feat (Toughness); Natural Ambition gives a
+# second fighter feat (Sudden Charge).
+#
+# Archetype: Wizard Dedication at 2nd level (the school of battle magic, a spellbook of four arcane
+# cantrips and two spells of each rank he has slots for), Basic Wizard Spellcasting at 4th (a
+# 1st-rank and, from 6th, a 2nd-rank archetype slot) and Arcane School Spell at 6th (force bolt and
+# a Focus Point), which completes the archetype. He casts with Intelligence, trained: archetype
+# spell attack +11, DC 21. His prepared archetype spells are today's copies.
+specVersion: 0.1.0
+id: example-orc-corvin
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 6
+  orc-2e:hp.current: 86
+  orc-2e:skills.athletics.increases: 1
+  orc-2e:skills.arcana.increases: 1
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      heritage:
+        - option: orc-2e:heritages.versatile-human
+          choices:
+            feat:
+              - option: orc-2e:feats.general.toughness
+      boosts:
+        - option: orc-2e:boosts.str
+        - option: orc-2e:boosts.int
+  - id: background
+    item: orc-2e:backgrounds.warrior
+    choices:
+      boost:
+        - option: orc-2e:boosts.str
+      free-boost:
+        - option: orc-2e:boosts.int
+  - id: class
+    item: orc-2e:classes.fighter
+    choices:
+      key-attribute:
+        - option: str
+      class-skill:
+        - option: skill.athletics
+      skills:
+        - option: skill.acrobatics
+        - option: skill.medicine
+        - option: skill.society
+        - option: skill.crafting
+        - option: skill.diplomacy
+        - option: skill.survival
+      class-feat-1:
+        - option: orc-2e:feats.fighter.vicious-swing
+      class-feat-2:
+        - option: orc-2e:feats.archetype.wizard.wizard-dedication
+          choices:
+            school:
+              - option: battle-magic
+            orc-2e:features.spellcasting.archetype-book/cantrips:
+              - option: orc-2e:spells.electric-arc
+              - option: orc-2e:spells.detect-magic
+              - option: orc-2e:spells.daze
+              - option: orc-2e:spells.figment
+            orc-2e:features.spellcasting.archetype-book/spells-1:
+              - option: orc-2e:spells.force-barrage
+              - option: orc-2e:spells.breathe-fire
+            orc-2e:features.spellcasting.archetype-book/spells-2:
+              - option: orc-2e:spells.blur
+              - option: orc-2e:spells.acid-grip
+      class-feat-4:
+        - option: orc-2e:feats.archetype.wizard.basic-wizard-spellcasting
+      class-feat-6:
+        - option: orc-2e:feats.archetype.wizard.arcane-school-spell
+          choices:
+            spell:
+              - option: battle-magic
+      skill-feat-2:
+        - option: orc-2e:feats.skill.battle-medicine
+      skill-feat-4:
+        - option: orc-2e:feats.skill.cat-fall
+      skill-feat-6:
+        - option: orc-2e:feats.skill.quick-jump
+      orc-2e:features.fighter.weapon-mastery/group:
+        - option: group.sword
+  - { id: force-barrage, item: orc-2e:spells.force-barrage, state: { rank: 1, source: wizard } }
+  - { id: blur, item: orc-2e:spells.blur, state: { rank: 2, source: wizard } }
+  - { id: electric-arc, item: orc-2e:spells.electric-arc, state: { source: wizard } }
+  - { id: detect-magic, item: orc-2e:spells.detect-magic, state: { source: wizard } }
+inventory:
+  - { id: longsword, item: orc-2e:weapons.longsword, equipped: true }
+  - { id: shield, item: orc-2e:shields.steel-shield, equipped: true }
+  - { id: armor, item: orc-2e:armor.breastplate, equipped: true }
+  - { id: backpack, item: orc-2e:gear.backpack }
+  - { id: rope, item: orc-2e:gear.rope }
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.int
+  boosts-5:
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.natural-ambition
+      choices:
+        feat:
+          - option: orc-2e:feats.fighter.sudden-charge
+  ancestry-feat-5:
+    - option: orc-2e:feats.ancestry.clever-improviser
+  general-feat-3:
+    - option: orc-2e:feats.general.fleet
+  languages:
+    - option: orc-2e:languages.dwarven
+    - option: orc-2e:languages.elven
+    - option: orc-2e:languages.draconic
+    - option: orc-2e:languages.gnomish

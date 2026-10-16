@@ -1,0 +1,11 @@
+id: monster-actions.innate-spell
+type: monsterAction
+state:
+  perDay: { type: integer, min: 1, default: 1 }
+choices:
+  - id: spell
+    from: { type: spell }
+    effects:
+      - { target: spells.monster, op: grant, value: { formula: pick.id } }
+      - { target: spells.free, op: grant, value: { formula: pick.id } }
+      - { target: spells.limited, op: grant, value: { formula: pick.id } }

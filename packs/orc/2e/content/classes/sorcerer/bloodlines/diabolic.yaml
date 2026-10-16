@@ -1,0 +1,150 @@
+id: classes.sorcerer.bloodlines.diabolic
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: sorcerer.bloodline, op: set, value: "'diabolic'" }
+  - { target: spellcasting.tradition, op: set, value: "'divine'" }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.deception },
+      when: "!('skill.deception' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.religion },
+      when: "!('skill.religion' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.ignition } }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.ignition } }
+  - { target: spells.granted.cantrips, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.charm } }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.charm } }
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.charm } }
+  - { target: spells.granted.rank1, op: add, value: 1 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.floating-flame },
+      when: level >= 3,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.floating-flame }, when: level >= 3 }
+  - {
+      target: spells.repertoire.rank2,
+      op: grant,
+      value: { item: spells.floating-flame },
+      when: level >= 3,
+    }
+  - { target: spells.granted.rank2, op: add, value: 1, when: level >= 3 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.enthrall }, when: level >= 5 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.enthrall }, when: level >= 5 }
+  - {
+      target: spells.repertoire.rank3,
+      op: grant,
+      value: { item: spells.enthrall },
+      when: level >= 5,
+    }
+  - { target: spells.granted.rank3, op: add, value: 1, when: level >= 5 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.suggestion }, when: level >= 7 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.suggestion }, when: level >= 7 }
+  - target: spells.repertoire.rank4
+    op: grant
+    value: { item: spells.suggestion }
+    when: level >= 7
+  - { target: spells.granted.rank4, op: add, value: 1, when: level >= 7 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.wave-of-despair },
+      when: level >= 9,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.wave-of-despair }, when: level >= 9 }
+  - target: spells.repertoire.rank5
+    op: grant
+    value: { item: spells.wave-of-despair }
+    when: level >= 9
+  - { target: spells.granted.rank5, op: add, value: 1, when: level >= 9 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.truesight }, when: level >= 11 }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.truesight }, when: level >= 11 }
+  - target: spells.repertoire.rank6
+    op: grant
+    value: { item: spells.truesight }
+    when: level >= 11
+  - { target: spells.granted.rank6, op: add, value: 1, when: level >= 11 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.divine-decree },
+      when: level >= 13,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.divine-decree }, when: level >= 13 }
+  - target: spells.repertoire.rank7
+    op: grant
+    value: { item: spells.divine-decree }
+    when: level >= 13
+  - { target: spells.granted.rank7, op: add, value: 1, when: level >= 13 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.divine-inspiration },
+      when: level >= 15,
+    }
+  - {
+      target: sorcerer.gifts,
+      op: grant,
+      value: { item: spells.divine-inspiration },
+      when: level >= 15,
+    }
+  - target: spells.repertoire.rank8
+    op: grant
+    value: { item: spells.divine-inspiration }
+    when: level >= 15
+  - { target: spells.granted.rank8, op: add, value: 1, when: level >= 15 }
+  - {
+      target: spells.repertoire,
+      op: grant,
+      value: { item: spells.falling-stars },
+      when: level >= 17,
+    }
+  - { target: sorcerer.gifts, op: grant, value: { item: spells.falling-stars }, when: level >= 17 }
+  - target: spells.repertoire.rank9
+    op: grant
+    value: { item: spells.falling-stars }
+    when: level >= 17
+  - { target: spells.granted.rank9, op: add, value: 1, when: level >= 17 }
+  - { target: focus.points, op: add, value: 1 }
+  - target: { choices: [blood-magic] }
+    op: option
+    value:
+      id: flame-self
+      changes:
+        - type: removeEffect
+          applied: { where: "'blood-magic' in item.tags" }
+        - {
+            type: applyEffect,
+            source: "'classes.sorcerer.blood-magic.tongue-of-flame'",
+            state: { rank: flags.rank },
+          }
+  - target: { choices: [blood-magic] }
+    op: option
+    when: flags.hasTarget
+    value:
+      id: flame-target
+      to: target
+      changes:
+        - { type: adjust, field: hp.current, by: -flags.rank, tags: [damage, damage.fire] }
+grants:
+  - { item: spells.suggestion, when: level >= 7 }
+  - { item: spells.wave-of-despair, when: level >= 9 }
+  - { item: spells.truesight, when: level >= 11 }
+  - { item: spells.divine-decree, when: level >= 13 }
+  - { item: spells.divine-inspiration, when: level >= 15 }
+  - { item: spells.falling-stars, when: level >= 17 }
+  - { item: spells.ignition }
+  - { item: spells.charm }
+  - { item: spells.floating-flame, when: level >= 3 }
+  - { item: spells.enthrall, when: level >= 5 }
+  - item: spells.diabolic-edict

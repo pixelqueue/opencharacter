@@ -1,0 +1,51 @@
+id: magic-items.ring-of-fire-elemental-command
+type: magicItem
+fields:
+  category: ring
+  rarity: legendary
+  requiresAttunement: true
+  maxCharges: 5
+  recharge: 1d4 + 1
+  saveDc: 17
+  spells: [spells.dominate-monster, spells.burning-hands, spells.fireball, spells.wall-of-fire]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+  elementalSlain: { type: boolean, default: false }
+grants:
+  - { item: spells.dominate-monster, when: self.equipped && self.attuned }
+  - { item: spells.burning-hands, when: self.equipped && self.attuned }
+  - { item: spells.fireball, when: self.equipped && self.attuned }
+  - { item: spells.wall-of-fire, when: self.equipped && self.attuned }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+    op: multiply
+    value: 0.5
+    when: self.equipped && self.attuned && !self.elementalSlain
+  - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+    op: multiply
+    value: 0
+    when: self.equipped && self.attuned && self.elementalSlain
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && ((action.item.id == @spells.dominate-monster &&
+      flags.slot == 8 && self.charges >= 2) || (action.item.id == @spells.burning-hands
+      && flags.slot == 1 && self.charges >= 1 && self.elementalSlain) || (action.item.id ==
+      @spells.fireball && flags.slot == 3 && self.charges >= 2 && self.elementalSlain)
+      || (action.item.id == @spells.wall-of-fire && flags.slot == 4 && self.charges >=
+      3 && self.elementalSlain))
+    value:
+      id: charges
+      changes:
+        - {
+            type: adjustState,
+            entry: self,
+            key: charges,
+            by: '-(action.item.id == @spells.dominate-monster ? 2 : action.item.id ==
+              @spells.burning-hands ? 1 : action.item.id ==
+              @spells.fireball ? 2 : 3)',
+          }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

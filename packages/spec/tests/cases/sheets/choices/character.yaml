@@ -1,0 +1,19 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: test-pack, version: 1.0.0 }
+values:
+  test-pack:level: 2
+choices:
+  bonus: [{ option: test-pack:skills.hacking }]
+features:
+  - id: class
+    item: test-pack:classes.teamster
+    choices:
+      trained: [{ option: test-pack:skills.repair }]
+      kit: [{ option: test-pack:tools.wrench }]
+      path:
+        - option: mechanic
+          choices:
+            specialty: [{ option: test-pack:skills.piloting }]
+      languages: [{ option: common }, { option: trade }]

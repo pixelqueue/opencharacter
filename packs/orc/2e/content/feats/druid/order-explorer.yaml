@@ -1,0 +1,42 @@
+id: feats.druid.order-explorer
+type: feat
+fields: { level: 2, category: class, class: classes.druid }
+repeatable: true
+choices:
+  - id: order
+    unique: order-explorer
+    requiresOption: true
+    from:
+      options:
+        - id: animal
+          prerequisites: [{ id: other-order, when: "druid.order != 'animal'" }]
+          effects:
+            - { target: druid.orders, op: grant, value: { tag: druid-order.animal } }
+            - {
+                target: druid.grantedFeats,
+                op: grant,
+                value: { item: feats.druid.animal-companion },
+              }
+          grants:
+            - item: feats.druid.animal-companion
+        - id: leaf
+          prerequisites: [{ id: other-order, when: "druid.order != 'leaf'" }]
+          effects:
+            - { target: druid.orders, op: grant, value: { tag: druid-order.leaf } }
+            - { target: druid.grantedFeats, op: grant, value: { item: feats.druid.leshy-familiar } }
+          grants:
+            - item: feats.druid.leshy-familiar
+        - id: storm
+          prerequisites: [{ id: other-order, when: "druid.order != 'storm'" }]
+          effects:
+            - { target: druid.orders, op: grant, value: { tag: druid-order.storm } }
+            - { target: druid.grantedFeats, op: grant, value: { item: feats.druid.storm-born } }
+          grants:
+            - item: feats.druid.storm-born
+        - id: untamed
+          prerequisites: [{ id: other-order, when: "druid.order != 'untamed'" }]
+          effects:
+            - { target: druid.orders, op: grant, value: { tag: druid-order.untamed } }
+            - { target: druid.grantedFeats, op: grant, value: { item: feats.druid.untamed-form } }
+          grants:
+            - item: feats.druid.untamed-form

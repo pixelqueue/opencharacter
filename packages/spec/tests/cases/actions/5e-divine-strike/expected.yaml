@@ -1,0 +1,60 @@
+# Attack 10 + str 2 + proficiency 3 = 15 >= 12: hit. Mace 1d6 (4) + str 2 bludgeoning, Divine
+# Strike 1d8 (6) radiant: two typed damage changes.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 15 }
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -6,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.bludgeoning,
+            ],
+        },
+    }
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -6,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.radiant,
+            ],
+        },
+    }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces: [10]
+    total: 15
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [4, 6]
+    total: 12

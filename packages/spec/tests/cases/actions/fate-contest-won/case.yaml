@@ -1,0 +1,14 @@
+description: "Fate Core: a contest exchange with Athletics (+3) and +2 on the dice beats the opponent's Fair (+2) by 3: two victories, and with the one already scored the contest is won"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:contest-exchange }
+  params: { skill: fate-core:skills.athletics }
+  participants:
+    opponent: [{ id: teran, values: {} }]
+  policy: { choices: auto }
+answers:
+  # Teran's app ran `oppose` with Lore and rolled a Fair (+2).
+  - outcome: { result: fail, data: { total: 2 } }

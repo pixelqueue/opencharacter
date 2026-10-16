@@ -1,0 +1,26 @@
+description: 'A follow-up that makes a linked character is a derived offer only: `create` with `on` is invalid-create-offer'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          hp: { type: integer, input: true, default: 1 }
+        links:
+          pet: { fields: { hp: { type: integer, default: 1 } } }
+        actions:
+          - id: make-pet
+            steps: [{ id: done, kind: outcome }]
+        creation:
+          - { id: pet, action: make-pet }
+        followUps:
+          - id: pet-sheet
+            on: { field: hp }
+            create: { link: pet, start: pet }
+      content: []

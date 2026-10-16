@@ -1,0 +1,46 @@
+# The club is a monk weapon: Dexterity (+3) instead of Strength (+0), and the martial arts d6
+# instead of the club's d4. Attack 9 + 3 + proficiency 3 = 15 >= 14. Damage d6 (5) + 3 = 8.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 15 }
+proposedChanges:
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -8,
+          tags:
+            [
+              damage,
+              attack,
+              weapon,
+              melee,
+              nonmagical,
+              plain-material,
+              wielder.neutral,
+              damage.bludgeoning,
+            ],
+        },
+    }
+log:
+  - step: attack
+    kind: dice
+    by: engine
+    faces: [9]
+    items:
+      - { kind: dice, sides: 20, value: 9 }
+      - { kind: flat, value: 3, source: { type: field, id: 5e-srd-5.1:abilities.dex.mod } }
+      - { kind: flat, value: 3, source: { type: field, id: 5e-srd-5.1:proficiency.bonus } }
+    total: 15
+  - step: damage
+    kind: dice
+    by: engine
+    faces: [5]
+    items:
+      - { kind: dice, sides: 6, value: 5, tags: [damage.bludgeoning] }
+      - { kind: flat, value: 3, source: { type: field, id: 5e-srd-5.1:abilities.dex.mod } }
+    total: 8

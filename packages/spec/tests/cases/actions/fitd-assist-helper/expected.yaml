@@ -1,0 +1,25 @@
+# Skirmish 2 plus the helper's die: 3d6kh1 [2, 4, 5] = 5, a partial.
+# Vex takes 1 stress for assisting.
+status: finished
+outcome:
+  result: partial
+  data: { position: risky, effect: standard }
+proposedChanges:
+  - to: helper
+    character: vex
+    step: assistCost[0]
+    change: { type: adjust, field: fitd-scoundrel:stress.current, by: 1 }
+log:
+  - step: roll
+    action: fitd-scoundrel:action-roll
+    kind: dice
+    by: engine
+    faces: [2, 4, 5]
+    items:
+      - kind: dice
+        count: 3
+        sides: 6
+        value: 5
+    total: 5
+    band: partial
+    bandSet: fitd-scoundrel:action

@@ -1,0 +1,15 @@
+id: feats.monk.mountain-stronghold
+type: feat
+tags: [archetype-feat]
+fields: { level: 6, category: class, class: classes.monk }
+prerequisites:
+  - { id: mountain-stance, when: '@feats.monk.mountain-stance in feats.held' }
+actions:
+  - id: mountain-stronghold
+    tags: [class-action]
+    available: stance.current == 'mountain'
+    steps:
+      - id: hold
+        kind: changes
+        changes:
+          - { type: applyEffect, source: "'effects.mountain-stronghold'" }

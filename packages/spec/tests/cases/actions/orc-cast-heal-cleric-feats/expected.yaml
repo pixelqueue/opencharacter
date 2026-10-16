@@ -1,0 +1,50 @@
+# 1d8 (5) vitality damage: the zombie fails (5), the skeleton critically fails (10). Panic the
+# Dead: both frightened 1, the skeleton fleeing too. The fighter regains 1d8 (3) + 8; Communal
+# Healing gives the caster 1 (the rank).
+status: finished
+outcome:
+  result: cast
+  data: { rank: 1, mode: prepared, dc: 18, defense: fortitude, basic: true, damage: 5, healing: 11 }
+proposedChanges:
+  - to: self
+    step: spend
+    change: { type: setState, entry: heal-1, key: expended, value: true }
+  - to: target
+    character: zombie
+    step: burn[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -5
+      tags: [damage, spell, damage.vitality]
+  - to: target
+    character: skeleton
+    step: burn[1]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -10
+      tags: [damage, spell, damage.vitality]
+  - to: target
+    character: zombie
+    step: onTarget[0]
+    change: { type: applyEffect, source: orc-2e:conditions.frightened, state: { value: 1 } }
+  - to: target
+    character: skeleton
+    step: onTarget[1]
+    change: { type: applyEffect, source: orc-2e:conditions.frightened, state: { value: 1 } }
+  - to: target
+    character: skeleton
+    step: onTarget[1]
+    change: { type: applyEffect, source: orc-2e:conditions.fleeing }
+  - to: ally
+    character: fighter
+    step: restore[0]
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: 11
+      tags: [healing, spell]
+  - to: self
+    step: onCaster
+    change: { type: adjust, field: orc-2e:hp.current, by: 1, tags: [healing] }

@@ -1,0 +1,16 @@
+id: spells.guidance
+type: spell
+tags: [trait.cantrip, trait.concentrate, tradition.divine, tradition.occult, tradition.primal]
+fields:
+  rank: 1
+  cast: one
+  range: 30
+  targets: 1
+  duration: until-next-turn
+  applyTo: ally
+effects:
+  - target: { rolls: [check, attack] }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    scope: applied

@@ -1,0 +1,61 @@
+# 14 + 5 = 19 hits AC 14: 5 + 3 = 8 piercing. The target's Constitution save (its own sheet, a
+# handoff) succeeds, so the 2d8 poison (6 + 3 = 9) is halved to 4. The poison roll isn't a
+# damage roll, so a critical hit wouldn't double it.
+status: finished
+outcome:
+  result: hit
+  data: { critical: false, attack: 19, damage: 8, riderDamage: 9, dc: 11, save: con, condition: '' }
+proposedChanges:
+  - {
+      to: target,
+      character: tamsin,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -8,
+          tags: [damage, attack, melee, weapon, nonmagical, wielder.neutral, damage.piercing],
+        },
+    }
+  - to: target
+    character: tamsin
+    step: riderDeal[0]
+    change:
+      {
+        type: adjust,
+        field: 5e-srd-5.1:hp.current,
+        by: -4,
+        tags: [damage, save-half, save.con, save-success, damage.poison],
+      }
+log:
+  - {
+      step: attack,
+      action: 5e-srd-5.1:monster-attack,
+      kind: dice,
+      by: engine,
+      faces: [14],
+      total: 19,
+    }
+  - {
+      step: damage,
+      action: 5e-srd-5.1:monster-attack,
+      kind: dice,
+      by: engine,
+      faces: [5],
+      total: 8,
+    }
+  - step: saves[0]
+    action: 5e-srd-5.1:monster-attack
+    kind: handoff
+    by: app
+    participant: { role: target, id: tamsin }
+    outcome: { result: success, data: { total: 13 } }
+  - {
+      step: riderDamage,
+      action: 5e-srd-5.1:monster-attack,
+      kind: dice,
+      by: engine,
+      faces: [6, 3],
+      total: 9,
+    }

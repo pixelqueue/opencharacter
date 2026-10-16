@@ -1,0 +1,19 @@
+id: spells.unusual-anatomy
+type: spell
+tags: [trait.focus, trait.manipulate, trait.polymorph, trait.sorcerer, trait.uncommon]
+fields:
+  rank: 5
+  cast: one
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+effects:
+  - target:
+      incoming:
+        fields: [hp.current]
+        tags: [precision]
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, 10 + 5 * floor((self.rank - 5) / 2))
+    when: incoming.amount < 0
+    scope: applied

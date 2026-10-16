@@ -1,0 +1,34 @@
+status: finished
+outcome:
+  result: recovering
+  data:
+    difficulty: 2
+    roll: succeed
+proposedChanges:
+  - to: self
+    step: begin
+    change:
+      type: setState
+      entry: c-ribs
+      key: recovering
+      value: true
+  - to: self
+    step: begin
+    change:
+      type: setState
+      entry: c-ribs
+      key: label
+      value: Taped Ribs
+log:
+  - step: treat[0]
+    action: fate-core:consequences.consequence#recover
+    kind: handoff
+    by: app
+    participant:
+      role: healer
+      id: tobias
+    outcome:
+      result: succeed
+      data:
+        total: 4
+        opposition: 2

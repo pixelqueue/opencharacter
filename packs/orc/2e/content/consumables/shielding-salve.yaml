@@ -1,0 +1,16 @@
+id: consumables.shielding-salve
+type: consumable
+tags: [trait.magical, trait.oil]
+fields:
+  level: 1
+  price: 4
+  bulk: 0.1
+  category: oil
+  lasting: true
+effects:
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    scope: applied
+    duration: { amount: 1, unit: round }

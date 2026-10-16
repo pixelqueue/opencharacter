@@ -1,0 +1,325 @@
+description: 'Type checking: result types, places, names, functions'
+specVersion: 0.1.0
+cases:
+  - name: an int field has type int
+    check: abilities.str.score
+    fields: &a1
+      abilities.str.score:
+        type: integer
+    type: int
+  - name: a condition must be boolean
+    check: abilities.str.score
+    fields: *a1
+    expect: bool
+    error: type-mismatch
+  - name: a comparison is a boolean condition
+    check: abilities.str.score >= 13
+    fields: *a1
+    expect: bool
+    type: bool
+  - name: the ability modifier formula is int
+    check: floor((abilities.str.score - 10) / 2)
+    fields: *a1
+    expect: int
+    type: int
+  - name: a division is decimal
+    check: (abilities.str.score - 10) / 2
+    fields: *a1
+    type: decimal
+  - name: a decimal where an int is expected
+    check: (abilities.str.score - 10) / 2
+    fields: *a1
+    expect: int
+    error: type-mismatch
+  - name: an int where a decimal is expected
+    check: '1'
+    expect: decimal
+    type: int
+  - name: an int where dice are expected
+    check: '1'
+    expect: dice
+    type: int
+  - name: a decimal where dice are expected
+    check: '1.5'
+    expect: dice
+    error: type-mismatch
+  - name: dice where an int is expected
+    check: 1d6
+    expect: int
+    error: type-mismatch
+  - name: dice plus an int is dice
+    check: 1d6 + 2
+    type: dice
+  - name: dice plus an int field is dice
+    check: 1d8 + abilities.str.score
+    fields: *a1
+    expect: dice
+    type: dice
+  - name: a computed count from an int field
+    check: (abilities.str.score)d6
+    fields: *a1
+    type: dice
+  - name: a computed count must be int
+    check: (1.5)d6
+    error: type-mismatch
+  - name: a string computed count
+    check: ('a')d6
+    error: type-mismatch
+  - name: a string where a bool is expected
+    check: "'yes'"
+    expect: bool
+    error: type-mismatch
+  - name: a dyn root path where a string is expected
+    check: item.range
+    roots:
+      - item
+    expect: string
+  - name: a decimal field
+    check: challenge.rating
+    fields:
+      challenge.rating:
+        type: decimal
+    type: decimal
+  - name: a decimal field where an int is expected
+    check: challenge.rating
+    fields:
+      challenge.rating:
+        type: decimal
+    expect: int
+    error: type-mismatch
+  - name: ceil of a decimal field is int
+    check: ceil(challenge.rating)
+    fields:
+      challenge.rating:
+        type: decimal
+    expect: int
+    type: int
+  - name: a boolean field is bool
+    check: traits.raging
+    fields:
+      traits.raging:
+        type: boolean
+    expect: bool
+    type: bool
+  - name: an enum field is string
+    check: stance.current
+    fields:
+      stance.current:
+        type: enum
+    type: string
+  - name: an id field is string
+    check: class.main
+    fields:
+      class.main:
+        type: id
+    type: string
+  - name: a dice field is dice
+    check: weapon.damage
+    fields:
+      weapon.damage:
+        type: dice
+    type: dice
+  - name: a set field indexed is string
+    check: proficiencies.saves[0]
+    fields:
+      proficiencies.saves:
+        type: set
+    type: string
+  - name: membership in a set field
+    check: "'str' in proficiencies.saves"
+    fields:
+      proficiencies.saves:
+        type: set
+    expect: bool
+    type: bool
+  - name: an unknown name
+    check: foo.bar
+    error: unknown-name
+  - name: a prefix of a field is unknown
+    check: abilities.str
+    fields: *a1
+    error: unknown-name
+  - name: a root that is not bound here
+    check: self.equipped
+    roots:
+      - item
+    error: unknown-name
+  - name: a bound root is accepted
+    check: self.equipped
+    roots:
+      - self
+    expect: bool
+  - name: a root path is dyn and accepted as a condition
+    check: item.tags
+    roots:
+      - item
+    expect: bool
+  - name: a root path is dyn
+    check: item.tags
+    roots:
+      - item
+    type: dyn
+  - name: in with a dyn list
+    check: "'a' in item.tags"
+    roots:
+      - item
+    expect: bool
+    type: bool
+  - name: string plus a dyn root
+    check: "'a' + item.name"
+    roots:
+      - item
+  - name: an unknown root inside has
+    check: has(foo.bar)
+    error: unknown-name
+  - name: has is bool
+    check: has(params.targetAc)
+    roots:
+      - params
+    expect: bool
+    type: bool
+  - name: has with a literal argument
+    check: has(1)
+    error: type-mismatch
+  - name: has with a call argument
+    check: has(max(1, 2))
+    error: type-mismatch
+  - name: has with two arguments
+    check: has(params.a, params.b)
+    roots:
+      - params
+    error: wrong-arity
+  - name: an unknown function
+    check: clamp(1, 2, 3)
+    error: unknown-function
+  - name: wrong number of arguments to floor
+    check: floor(1, 2)
+    error: wrong-arity
+  - name: wrong number of arguments to count
+    check: count([1])
+    error: wrong-arity
+  - name: max with no arguments
+    check: max()
+    error: wrong-arity
+  - name: max of ints is int
+    check: max(1, 2)
+    type: int
+  - name: max with a decimal is decimal
+    check: max(1, 2.0)
+    type: decimal
+  - name: size is int
+    check: size(item.tags)
+    roots:
+      - item
+    type: int
+  - name: size of an int
+    check: size(1)
+    error: type-mismatch
+  - name: a conditional with the same branch types
+    check: 'true ? 1 : 2'
+    type: int
+  - name: a conditional mixing int and decimal is decimal
+    check: 'true ? 1 : 2.5'
+    type: decimal
+  - name: a conditional mixing int and dice is dice
+    check: 'true ? 1 : 1d6'
+    type: dice
+  - name: a conditional mixing int and string
+    check: "true ? 1 : 'a'"
+    error: type-mismatch
+  - name: a conditional mixing bool and int
+    check: 'true ? true : 1'
+    error: type-mismatch
+  - name: a conditional with a dyn branch
+    check: 'true ? item.x : 1'
+    roots:
+      - item
+  - name: a conditional test must be bool
+    check: '1 ? 2 : 3'
+    error: type-mismatch
+  - name: in with an int on the right
+    check: 1 in 2
+    error: type-mismatch
+  - name: string plus int
+    check: "'a' + 1"
+    error: type-mismatch
+  - name: field plus string
+    check: abilities.str.score + 'x'
+    fields: *a1
+    error: type-mismatch
+  - name: not of an int field
+    check: '!abilities.str.score'
+    fields: *a1
+    error: type-mismatch
+  - name: and of an int
+    check: 1 && true
+    error: type-mismatch
+  - name: remainder of a decimal
+    check: abilities.str.score % 2.0
+    fields: *a1
+    error: type-mismatch
+  - name: unary minus of a string
+    check: -'a'
+    error: type-mismatch
+  - name: dice equality
+    check: 1d6 == 1d6
+    error: type-mismatch
+  - name: dice ordering
+    check: 1d6 < 2
+    error: type-mismatch
+  - name: int times dice
+    check: 2 * 1d6
+    type: dice
+  - name: dice times int
+    check: 1d6 * 2
+    type: dice
+  - name: equality across kinds is allowed and bool
+    check: 1 == 'a'
+    type: bool
+  - name: ordering across kinds is not
+    check: 1 < 'a'
+    error: type-mismatch
+  - name: a method call is a syntax error
+    check: item.tags.exists(t)
+    roots:
+      - item
+    error: formula-syntax
+  - name: a reserved word is a syntax error
+    check: if
+    error: formula-syntax
+  - name: indexing with a string
+    check: "[1, 2]['a']"
+    error: type-mismatch
+  - name: indexing an int
+    check: 5[0]
+    error: type-mismatch
+  - name: a list literal of ints indexed is int
+    check: '[1, 2][0]'
+    type: int
+  - name: the 5E proficiency formula is int
+    check: 'level.total > 0 ? 2 + floor((level.total - 1) / 4) : 2 + floor((max(1, ceil(challenge.rating)) - 1) / 4)'
+    fields:
+      level.total:
+        type: integer
+      challenge.rating:
+        type: decimal
+    expect: int
+    type: int
+  - name: the finesse field choice is a string
+    check: "item.range == 'ranged' || ('finesse' in item.tags && abilities.dex.mod > abilities.str.mod) ? 'abilities.dex.mod' : 'abilities.str.mod'"
+    fields:
+      abilities.dex.mod:
+        type: integer
+      abilities.str.mod:
+        type: integer
+    roots:
+      - item
+    expect: string
+    type: string
+  - name: character functions are int
+    check: countState('attuned') <= 3
+    expect: bool
+    type: bool
+  - name: countEquipped needs a string
+    check: countEquipped(1)
+    error: type-mismatch

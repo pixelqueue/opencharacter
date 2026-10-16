@@ -1,0 +1,104 @@
+# An orc-2e character: a 5th-level rainfall orc oracle of the cosmos
+# mystery, with a farmhand background.
+#
+# Boosts: her ancestry's two free boosts (Charisma, Constitution), the farmhand's Constitution
+# and a free Charisma, the oracle's Charisma, four free (Charisma, Constitution, Dexterity,
+# Wisdom) and four more at 5th level (Charisma, Constitution, Wisdom, Strength): Str +1, Dex +1,
+# Con +4, Int +0, Wis +2, Cha +4. Spell attack +11, spell DC 21, 75 Hit Points. Trained skills:
+# Athletics and Farming Lore (farmhand), Religion (oracle), Nature (the cosmos mystery) and three
+# more.
+#
+# Divine spells, spontaneous: the mystery adds light, dizzying colors and darkness to the
+# repertoire beside her picks. Spray of stars (her initial revelation spell) and one Focus Point;
+# Oracular Warning (the mystery's cursebound feat) and Thousand Visions are cursebound actions:
+# her curse of the sky's call makes her enfeebled while cursebound (at most 2 at this level).
+specVersion: 0.1.0
+id: example-orc-cassia
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:oracle.cursebound: 2
+  orc-2e:level: 5
+  orc-2e:hp.current: 75
+  orc-2e:skills.religion.increases: 1
+  orc-2e:skills.nature.increases: 1
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.orc
+    choices:
+      heritage:
+        - option: orc-2e:heritages.rainfall-orc
+      boosts:
+        - option: orc-2e:boosts.cha
+        - option: orc-2e:boosts.con
+  - id: background
+    item: orc-2e:backgrounds.farmhand
+    choices:
+      boost:
+        - option: orc-2e:boosts.con
+      free-boost:
+        - option: orc-2e:boosts.cha
+  - id: class
+    item: orc-2e:classes.oracle
+    choices:
+      mystery:
+        - option: orc-2e:classes.oracle.mysteries.cosmos
+      skills:
+        - option: skill.occultism
+        - option: skill.medicine
+        - option: skill.diplomacy
+      orc-2e:features.spellcasting.repertoire/cantrips:
+        - option: orc-2e:spells.read-aura
+        - option: orc-2e:spells.forbidding-ward
+        - option: orc-2e:spells.sigil
+        - option: orc-2e:spells.guidance
+        - option: orc-2e:spells.divine-lance
+      orc-2e:features.spellcasting.repertoire/spells-1:
+        - option: orc-2e:spells.heal
+        - option: orc-2e:spells.bless
+        - option: orc-2e:spells.sanctuary
+        - option: orc-2e:spells.spirit-link
+      orc-2e:features.spellcasting.repertoire/spells-2:
+        - option: orc-2e:spells.silence
+        - option: orc-2e:spells.calm
+        - option: orc-2e:spells.clear-mind
+        - option: orc-2e:spells.heal
+      orc-2e:features.spellcasting.repertoire/spells-3:
+        - option: orc-2e:spells.heal
+        - option: orc-2e:spells.fear
+        - option: orc-2e:spells.sound-body
+      orc-2e:features.spellcasting.signature-spells/signature-1:
+        - option: orc-2e:spells.bless
+      orc-2e:features.spellcasting.signature-spells/signature-2:
+        - option: orc-2e:spells.silence
+      orc-2e:features.spellcasting.signature-spells/signature-3:
+        - option: orc-2e:spells.heal
+      class-feat-2:
+        - option: orc-2e:feats.oracle.divine-aegis
+      skill-feat-2:
+        - option: orc-2e:feats.skill.student-of-the-canon
+      class-feat-4:
+        - option: orc-2e:feats.oracle.thousand-visions
+      skill-feat-4:
+        - option: orc-2e:feats.skill.battle-medicine
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.cha
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-2e:feats.ancestry.orc-weapon-familiarity
+  general-feat-3:
+    - option: orc-2e:feats.general.toughness
+  boosts-5:
+    - option: orc-2e:boosts.cha
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis
+    - option: orc-2e:boosts.str
+  ancestry-feat-5:
+    - option: orc-2e:feats.ancestry.tusks
+inventory:
+  - { id: mace, item: orc-2e:weapons.mace, equipped: true }
+  - { id: armor, item: orc-2e:armor.studded-leather-armor, equipped: true }
+  - { id: backpack, item: orc-2e:gear.backpack }

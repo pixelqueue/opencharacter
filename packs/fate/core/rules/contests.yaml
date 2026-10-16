@@ -1,0 +1,138 @@
+fields:
+  contest.victories: { type: integer, input: true, default: 0, min: 0 }
+
+actions:
+  - id: contest-exchange
+    tags: [contest]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags", optional: true }
+      opposition: { type: integer, default: 0 }
+      speed: { type: boolean, default: false }
+    participants:
+      helper: {}
+      opponent: {}
+    results: [won, victory, twist, behind]
+    steps:
+      - id: assist
+        kind: action
+        when: has(params.skill)
+        each: helper
+        as: participant
+        use: assist-check
+        params: { skill: params.skill.id }
+      - id: roll
+        kind: action
+        when: has(params.skill)
+        use: skill-roll
+        params:
+          skill: params.skill.id
+          action: "'overcome'"
+          helpers: 'has(steps.assist) ? countList(steps.assist, x.data.helps) : 0'
+      - id: mediocre
+        kind: action
+        when: '!has(params.skill)'
+        use: skill-roll
+        params: { action: "'overcome'" }
+      - id: opposed
+        kind: action
+        each: opponent
+        as: participant
+        use: oppose
+        params:
+          { opposition: 'has(steps.roll) ? steps.roll.data.total : steps.mediocre.data.total' }
+      - id: against
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              total: 'has(steps.roll) ? steps.roll.data.total : steps.mediocre.data.total'
+              rolled: has(steps.opposed) && size(steps.opposed) > 0
+      - id: best
+        kind: branch
+        cases:
+          - when: flags.rolled
+            flags:
+              opposition: maxList(steps.opposed, x.data.total)
+          - when: true
+            flags:
+              opposition: params.opposition
+      - id: others
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              winners: 'flags.rolled ? countList(steps.opposed, x.data.total == flags.opposition) : 1'
+              below: 'flags.rolled ? countList(steps.opposed, x.data.total < flags.opposition) : 0'
+      - id: final
+        kind: roll
+        tags: [outcome]
+        bands: outcome
+        parts:
+          - { id: total, value: flags.total }
+      - id: exchange
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              tieWins: >-
+                params.speed && has(params.skill) && countCopies(copy.type == 'stunt'
+                  && has(copy.fields.contestTie) && copy.fields.contestTie
+                  && has(copy.fields.skill) && copy.fields.skill == params.skill.id) > 0
+              second: >-
+                flags.below > 0
+                  ? max(flags.total, maxList(steps.opposed, x.data.total, x.data.total < flags.opposition))
+                  : flags.total
+      - id: score
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              mine: >-
+                steps.final.band == 'style' ? 2 : steps.final.band == 'succeed' ? 1
+                  : steps.final.band == 'tie' && flags.tieWins && flags.winners == 1 ? 1 : 0
+              theirs: >-
+                flags.total < flags.opposition && flags.winners == 1
+                  ? (flags.opposition - flags.second >= 3 ? 2 : 1) : 0
+      - id: mark
+        kind: changes
+        when: flags.mine > 0
+        changes:
+          - { type: adjust, field: contest.victories, by: flags.mine }
+      - id: theirs
+        kind: changes
+        each: opponent
+        to: opponent
+        when: flags.theirs > 0 && steps.opposed.data.total == flags.opposition
+        changes:
+          - { type: adjust, field: contest.victories, by: flags.theirs }
+      - id: result
+        kind: outcome
+        result: >-
+          flags.mine > 0 ? (contest.victories + flags.mine >= 3 ? 'won' : 'victory')
+            : flags.theirs > 0 ? 'behind' : 'twist'
+        data:
+          total: flags.total
+          opposition: flags.opposition
+          victories: flags.mine
+          tally: contest.victories + flags.mine
+          opponentVictories: flags.theirs
+
+  - id: end-contest
+    tags: [contest]
+    available: contest.victories > 0
+    results: [ended]
+    steps:
+      - id: clear
+        kind: changes
+        changes:
+          - { type: set, field: contest.victories, value: 0 }
+      - id: result
+        kind: outcome
+        result: "'ended'"
+
+display:
+  groups:
+    - id: contest
+      priority: 1
+  fields:
+    contest.victories: { groups: [contest], priority: 0, input: { widget: number } }

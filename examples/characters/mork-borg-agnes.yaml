@@ -1,0 +1,29 @@
+# A MÖRK BORG Heretical Priest: rolled abilities, HP, today's omens (on the class's d4) and power
+# uses, and silver. She carries a staff, wears medium armor (priests can still use powers in
+# it) and has a sacred scroll. Her starting item is the List of Sins.
+specVersion: 0.1.0
+id: example-mork-borg-agnes
+packs:
+  - { id: mork-borg-core, version: 0.1.0 }
+values:
+  mork-borg-core:abilities.strength: -1
+  mork-borg-core:abilities.agility: 0
+  mork-borg-core:abilities.presence: 2
+  mork-borg-core:abilities.toughness: 1
+  mork-borg-core:hp.max: 6
+  mork-borg-core:hp.current: 4
+  mork-borg-core:omens.max: 3
+  mork-borg-core:omens.current: 2
+  mork-borg-core:powers.max: 5
+  mork-borg-core:powers.current: 5
+  mork-borg-core:silver.current: 110
+features:
+  - id: class
+    item: mork-borg-core:classes.heretical-priest
+    choices:
+      feature:
+        - option: list-of-sins
+inventory:
+  - { id: staff, item: mork-borg-core:weapons.staff, equipped: true, state: { broken: false } }
+  - { id: armor, item: mork-borg-core:armor.medium, equipped: true, state: { damage: 0 } }
+  - { id: scroll, item: mork-borg-core:scrolls.sacred.grace-of-a-dead-saint }

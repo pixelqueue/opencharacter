@@ -1,0 +1,30 @@
+id: feats.archetype.duelist.duelist-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.duelist }
+prerequisites:
+  - { id: trained, when: 'defenses.light.rank >= 1 && attacks.simple.rank >= 1' }
+grants:
+  - { item: feats.ranger.quick-draw, waivePrerequisites: true }
+effects:
+  - target: { fields: { where: "'archetype-extra.at4' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.dueling-parry }
+  - target: { fields: { where: "'archetype-extra.at8' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.disarming-stance }
+  - target: { fields: { where: "'archetype-extra.at10' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.dueling-riposte }
+  - target: { fields: { where: "'archetype-extra.at12' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.disarming-twist }
+  - target: { fields: { where: "'archetype-extra.at14' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.dueling-dance-fighter }
+  - target: { fields: { where: "'archetype-extra.at14' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.improved-dueling-riposte }
+  - target: { fields: { where: "'archetype-extra.at16' in item.tags" } }
+    op: grant
+    value: { item: feats.fighter.guiding-riposte }

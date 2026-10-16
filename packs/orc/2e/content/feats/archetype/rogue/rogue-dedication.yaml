@@ -1,0 +1,54 @@
+id: feats.archetype.rogue.rogue-dedication
+type: feat
+tags: [trait.archetype, trait.dedication, trait.multiclass, archetype-feat]
+fields: { level: 2, category: class, archetype: archetypes.rogue }
+
+prerequisites:
+  - { id: dex, when: 'attributes.dex.mod >= 2' }
+  - { id: not-rogue, when: 'countCopies(copy.item == @classes.rogue) == 0' }
+effects:
+  - { target: classDc.rogue.rank, op: atLeast, value: 1 }
+  - { target: defenses.light.rank, op: atLeast, value: 1 }
+grants:
+  - item: classes.rogue.surprise-attack
+choices:
+  - id: skill
+    from: { values: [skill.stealth, skill.thievery] }
+    effects:
+      - {
+          target: skills.trained,
+          op: grant,
+          value: { formula: pick.value },
+          when: '!(pick.value in skills.chosen)',
+        }
+      - { target: skills.trainings, op: add, value: 1 }
+  - id: free-skill
+    unique: skill-training
+    pick: 1
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+        ]
+      where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
+    effects:
+      - { target: skills.chosen, op: grant, value: { formula: pick.value } }
+  - id: skill-feat
+    unique: feats
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= level

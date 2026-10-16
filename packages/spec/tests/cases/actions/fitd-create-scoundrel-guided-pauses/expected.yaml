@@ -1,0 +1,16 @@
+# No playbook: the first special ability and the first vice, then a pause for the three
+# starting dots.
+status: paused
+needs:
+  step: startingDots
+  action: fitd-scoundrel:create-scoundrel
+  kind: allocate
+log:
+  - step: poolAbility
+    kind: choice
+    by: engine
+    option: fitd-scoundrel:special-abilities.a-little-something-on-the-side
+  - step: vice
+    kind: choice
+    by: engine
+    option: fitd-scoundrel:vices.faith

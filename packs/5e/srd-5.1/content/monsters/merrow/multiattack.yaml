@@ -1,0 +1,54 @@
+id: monsters.merrow.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: claws }, { id: harpoon }]
+        recommend: "'claws'"
+      - id: bite1
+        kind: action
+        when: "steps.form.picked == 'claws'"
+        use: monster-attack
+        source: "'monsters.merrow.bite'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: claws
+        kind: action
+        when: "steps.form.picked == 'claws'"
+        use: monster-attack
+        source: "'monsters.merrow.claws'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: bite2
+        kind: action
+        when: "steps.form.picked == 'harpoon'"
+        use: monster-attack
+        source: "'monsters.merrow.bite'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: harpoon
+        kind: action
+        when: "steps.form.picked == 'harpoon'"
+        use: monster-attack
+        source: "'monsters.merrow.harpoon'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.bite1) && steps.bite1.result == 'hit' ? 1 : 0)
+              + (has(steps.claws) && steps.claws.result == 'hit' ? 1 : 0)
+              + (has(steps.bite2) && steps.bite2.result == 'hit' ? 1 : 0)
+              + (has(steps.harpoon) && steps.harpoon.result == 'hit' ? 1 : 0)

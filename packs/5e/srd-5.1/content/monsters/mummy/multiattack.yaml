@@ -1,0 +1,21 @@
+id: monsters.mummy.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 1 }
+    results: [done]
+    steps:
+      - id: rottingFist
+        kind: action
+        use: monster-attack
+        source: "'monsters.mummy.rotting-fist'"
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.rottingFist) && steps.rottingFist.result == 'hit' ? 1 : 0)

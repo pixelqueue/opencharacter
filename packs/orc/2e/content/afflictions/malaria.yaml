@@ -1,0 +1,9 @@
+id: afflictions.malaria
+type: affliction
+tags: [trait.disease]
+fields: { kind: disease, level: 2, dc: 16, stages: 5 }
+grants:
+  - { item: conditions.sickened, scope: applied, when: self.stage == 1, state: { value: 1 } }
+  - { item: conditions.sickened, scope: applied, when: self.stage == 2, state: { value: 2 } }
+  - { item: conditions.sickened, scope: applied, when: self.stage == 3, state: { value: 2 } }
+  - { item: conditions.unconscious, scope: applied, when: self.stage == 4 }

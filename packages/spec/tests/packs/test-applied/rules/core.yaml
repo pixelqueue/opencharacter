@@ -1,0 +1,71 @@
+fields:
+  speed: { type: integer, formula: 30 }
+  hp.current: { type: integer, input: true, default: 10, min: 0 }
+
+contentTypes:
+  condition:
+    carried: false
+    # How bad it is, and who applied it, filled in by the change that applies it.
+    state:
+      level: { type: integer, default: 1, min: 1, max: 5 }
+      by: { type: enum, values: [fey, fiend] }
+  potion:
+    carried: true
+
+actions:
+  # Puts a condition on each target, at the level the app names.
+  - id: curse
+    params:
+      condition: { type: string }
+      level: { type: integer, default: 1 }
+    participants:
+      target: {}
+    steps:
+      - id: curse
+        kind: changes
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.' + params.condition"
+            state: { level: params.level, by: "'fiend'" }
+  # Ends the first of the actor's conditions the app names.
+  - id: calm
+    params:
+      condition: { type: enum, values: [charmed, poisoned] }
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: "item.id == 'test-applied:conditions.' + params.condition", limit: 1 }
+  # Worsens every poison on the actor by `by`, and suppresses its charms.
+  - id: worsen
+    params:
+      by: { type: integer, default: 1 }
+    steps:
+      - id: worsen
+        kind: changes
+        changes:
+          - type: adjustState
+            applied: { where: "item.id == 'test-applied:conditions.poisoned' && self.level < 5" }
+            key: level
+            by: params.by
+          - type: toggleEffect
+            applied: { where: "item.id == 'test-applied:conditions.charmed'" }
+            active: 'false'
+  # Marks the target in a pack this ruleset doesn't load: passed on as written.
+  - id: mark
+    participants:
+      target: { pack: test-elsewhere }
+    steps:
+      - id: mark
+        kind: changes
+        to: target
+        changes:
+          - { type: adjust, field: 'test-elsewhere:marks.count', by: 1 }
+          - { type: applyEffect, source: "'test-elsewhere:conditions.marked'" }
+          - { type: addItem, entry: { item: "'test-elsewhere:marks.brand'" } }
+  # Used by the potion of haste's applied entries: names the entry it runs for.
+  - id: boast
+    steps:
+      - { id: result, kind: outcome, data: { entry: self.id, item: item.id } }

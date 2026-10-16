@@ -1,0 +1,18 @@
+id: magic-items.elemental-gem-red-corundum
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  spells: [spells.conjure-elemental]
+grants:
+  - { item: spells.conjure-elemental, when: self.equipped }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.conjure-elemental &&
+      flags.slot == 5 && self.quantity > 0
+    value:
+      id: gem
+      changes:
+        - { type: adjustQuantity, entry: self, by: -1 }

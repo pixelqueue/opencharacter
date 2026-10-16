@@ -1,0 +1,21 @@
+values:
+  test-includes:ac: { value: 8 }
+  test-includes:speed: { value: 0 }
+  test-includes:sees: { value: false }
+effects:
+  - {
+      source: { type: item, id: test-includes:conditions.unconscious },
+      target: test-includes:speed,
+      op: atMost,
+    }
+  - {
+      source: { type: item, id: test-includes:conditions.blinded },
+      target: test-includes:sees,
+      op: set,
+    }
+  - {
+      source: { type: item, id: test-includes:conditions.off-guard },
+      target: test-includes:ac,
+      op: add,
+    }
+issues: []

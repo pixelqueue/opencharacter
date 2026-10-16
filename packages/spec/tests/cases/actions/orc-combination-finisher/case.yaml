@@ -1,0 +1,20 @@
+description: "orc-2e: Combination Finisher replaces a finisher Strike's multiple attack
+  penalty part: -4 instead of -5 on the second attack this turn"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:features.swashbuckler.confident-finisher#confident-finisher'
+    entry: class
+    source: orc-2e:features.swashbuckler.confident-finisher
+  participants:
+    target:
+      - id: bandit
+        values:
+          orc-2e:defenses.ac: 18
+  policy:
+    choices: pause
+answers:
+  - option: rapier

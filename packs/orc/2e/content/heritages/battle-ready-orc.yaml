@@ -1,0 +1,13 @@
+id: heritages.battle-ready-orc
+type: heritage
+fields: { ancestry: ancestries.orc }
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.intimidation },
+      when: "!('skill.intimidation' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - item: feats.skill.intimidating-glare

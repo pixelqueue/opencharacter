@@ -1,0 +1,25 @@
+id: backgrounds.gladiator
+type: background
+effects:
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.performance },
+      when: "!('skill.performance' in skills.chosen)",
+    }
+  - {
+      target: skills.trained,
+      op: grant,
+      value: { tag: skill.lore.gladiatorial },
+      when: "!('skill.lore.gladiatorial' in skills.chosen)",
+    }
+  - { target: skills.trainings, op: add, value: 2 }
+grants:
+  - item: feats.skill.impressive-performance
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

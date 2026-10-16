@@ -1,0 +1,54 @@
+id: monsters.sahuagin.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: claws }, { id: spear }]
+        recommend: "'claws'"
+      - id: bite1
+        kind: action
+        when: "steps.form.picked == 'claws'"
+        use: monster-attack
+        source: "'monsters.sahuagin.bite'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: claws
+        kind: action
+        when: "steps.form.picked == 'claws'"
+        use: monster-attack
+        source: "'monsters.sahuagin.claws'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: bite2
+        kind: action
+        when: "steps.form.picked == 'spear'"
+        use: monster-attack
+        source: "'monsters.sahuagin.bite'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: spear
+        kind: action
+        when: "steps.form.picked == 'spear'"
+        use: monster-attack
+        source: "'monsters.sahuagin.spear'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.bite1) && steps.bite1.result == 'hit' ? 1 : 0)
+              + (has(steps.claws) && steps.claws.result == 'hit' ? 1 : 0)
+              + (has(steps.bite2) && steps.bite2.result == 'hit' ? 1 : 0)
+              + (has(steps.spear) && steps.spear.result == 'hit' ? 1 : 0)

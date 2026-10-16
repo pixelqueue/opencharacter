@@ -1,0 +1,16 @@
+description: "A field function's condition is a static filter: reading `f.value` there is a type-mismatch at load"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          skills.fight: { type: integer, input: true, default: 0, tags: [skill] }
+          skills.great: { type: integer, formula: "countFields('skill' in f.tags && f.value == 4)" }
+      content: []

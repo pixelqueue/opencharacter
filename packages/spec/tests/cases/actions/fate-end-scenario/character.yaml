@@ -1,0 +1,26 @@
+# Mara at the end of a scenario: five fate points, and a severe consequence a scenario into recovery.
+specVersion: 0.1.0
+id: example-fate-mara
+packs:
+  - { id: fate-core, version: 0.1.0 }
+values:
+  fate-core:aspects.highConcept: Disgraced Duelist of the Seven Courts
+  fate-core:skills.fight: 4
+  fate-core:skills.athletics: 3
+  fate-core:skills.physique: 3
+  fate-core:skills.notice: 2
+  fate-core:skills.will: 2
+  fate-core:skills.rapport: 2
+  fate-core:skills.deceive: 1
+  fate-core:skills.stealth: 1
+  fate-core:skills.empathy: 1
+  fate-core:skills.lore: 1
+  fate-core:fatePoints.current: 5
+features:
+  - { id: s-riposte, item: fate-core:stunts.riposte }
+  - { id: s-parkour, item: fate-core:stunts.hardcore-parkour }
+  - { id: s-blow, item: fate-core:stunts.take-the-blow }
+  - { id: s-specialist, item: fate-core:stunts.specialist }
+  - id: c-gut
+    item: fate-core:consequences.consequence
+    state: { slot: severe, label: Stitched Up, harm: physical, recovering: true, waited: 1 }

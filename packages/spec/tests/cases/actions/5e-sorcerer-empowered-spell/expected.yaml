@@ -1,0 +1,40 @@
+# The metamagic step comes after paying for the spell: Empowered Spell spends 1 point and sets
+# `metamagic`, so the Metamagic feature's reroll applies to the damage roll. Attack 12 + 6 = 18
+# hits AC 13. 2d10: the 3 (at or below 5) is rerolled once to an 8, 7 + 8 = 15, + Elemental
+# Affinity 3 = 18 fire.
+status: finished
+outcome:
+  result: hit
+  data:
+    slot: 0
+    spellcastingClass: sorcerer
+    metamagic: empowered
+    dc: 14
+    save: ''
+    halfOnSave: false
+    damage: 18
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: metamagic
+    change: { type: adjustState, entry: sorcerer, key: sorceryPointsSpent, by: 1 }
+  - {
+      to: target,
+      step: deal,
+      change:
+        {
+          type: adjust,
+          field: 5e-srd-5.1:hp.current,
+          by: -18,
+          tags: [damage, attack, spell, magical, ranged, damage.fire],
+        },
+    }
+log:
+  - step: metamagic
+    kind: choice
+    by: app
+    option: '5e-srd-5.1:features.sorcerer.metamagic#empowered'
+  - { step: attack, kind: dice, by: engine, faces: [12], total: 18 }
+  - { step: damage, kind: dice, by: engine, faces: [7, 3, 8], total: 18 }

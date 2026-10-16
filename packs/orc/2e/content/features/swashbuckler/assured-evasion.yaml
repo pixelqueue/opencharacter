@@ -1,0 +1,8 @@
+id: features.swashbuckler.assured-evasion
+type: feature
+fields: { level: 13 }
+effects:
+  - { target: saves.reflex.rank, op: atLeast, value: 4 }
+  - target: { rolls: [save.reflex], tally: critFailToFail }
+    op: add
+    value: 1

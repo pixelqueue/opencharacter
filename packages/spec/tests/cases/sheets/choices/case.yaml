@@ -1,0 +1,63 @@
+description: "The choice list: every applicable choice in pending order, answered or open: a rules-level choice, a copy's own (an `activate: false` one, an inline option and the choice nested under it, a slotted choice's applicable slot, an optional one), a granted item's (keyed `<owner>/<choice>`); a choice whose `when` doesn't hold, and the later slot, left out. `pending` is the open ones"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          level: { type: integer, input: true, default: 1 }
+        contentTypes:
+          class: { carried: false }
+          skill: { carried: false }
+          tool: { carried: false }
+        choices:
+          - id: bonus
+            from: { type: skill }
+      content:
+        - id: classes.teamster
+          type: class
+          grants:
+            - { item: skills.zero-g }
+          choices:
+            - id: trained
+              from: { type: skill }
+            - id: kit
+              from: { type: tool }
+              activate: false
+            - id: path
+              from:
+                options:
+                  - id: mechanic
+                    choices:
+                      - id: specialty
+                        pick: 2
+                        from: { type: skill }
+                  - id: pilot
+            - id: talent
+              slots: [1, 3]
+              when: level >= slot
+              from: { type: skill }
+            - id: hobby
+              required: false
+              from: { values: [chess, darts] }
+            - id: mastery
+              when: level >= 5
+              from: { type: skill }
+            - id: languages
+              pick: { min: 1 }
+              from: { values: [common, trade] }
+        - id: skills.zero-g
+          type: skill
+          choices:
+            - id: focus
+              from: { type: skill }
+        - { id: skills.repair, type: skill }
+        - { id: skills.piloting, type: skill }
+        - { id: skills.hacking, type: skill }
+        - { id: tools.wrench, type: tool }

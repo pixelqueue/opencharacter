@@ -1,0 +1,29 @@
+description: 'A release names `hold` action steps of its action: an action step without `hold`, or no step, is unknown-reference (kind step) at load'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          score: { type: integer, input: true, default: 0 }
+        actions:
+          - id: score
+            steps:
+              - id: add
+                kind: changes
+                changes:
+                  - { type: adjust, field: score, by: 1 }
+          - id: twice
+            steps:
+              - { id: first, kind: action, use: score }
+              - { id: second, kind: action, use: score, hold: true }
+              - id: pass
+                kind: changes
+                release: { steps: [first, second, third] }
+      content: []

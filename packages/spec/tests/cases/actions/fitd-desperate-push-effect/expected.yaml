@@ -1,0 +1,41 @@
+# Skirmish 2 + devil's bargain die -> 3d6kh1 [1, 3, 5] keeps 5: partial.
+# Effect: standard, +1 for pushing, -1 for level 1 harm -> standard.
+# Pushing for effect costs 2 stress (the bargain costs none); a desperate Skirmish roll marks
+# Prowess xp.
+status: finished
+outcome:
+  result: partial
+  data:
+    position: desperate
+    effect: standard
+proposedChanges:
+  - to: self
+    step: pushCost
+    change:
+      type: adjust
+      field: fitd-scoundrel:stress.current
+      by: 2
+  - to: self
+    step: xp
+    change:
+      type: adjust
+      field: fitd-scoundrel:xp.prowess
+      by: 1
+log:
+  - step: roll
+    action: fitd-scoundrel:action-roll
+    kind: dice
+    by: engine
+    faces:
+      - 1
+      - 3
+      - 5
+    total: 5
+    band: partial
+    bandSet: fitd-scoundrel:action
+  # The push cost is a choice; the engine takes the recommended stress.
+  - step: pushCost
+    action: fitd-scoundrel:action-roll
+    kind: choice
+    by: engine
+    option: stress

@@ -1,0 +1,28 @@
+# The engine takes the recommended stress; the special armor stays unmarked.
+status: finished
+outcome:
+  result: success
+  data:
+    position: risky
+    effect: standard
+proposedChanges:
+  - to: self
+    step: pushCost
+    change:
+      type: adjust
+      field: fitd-scoundrel:stress.current
+      by: 2
+log:
+  - step: roll
+    action: fitd-scoundrel:action-roll
+    kind: dice
+    by: engine
+    faces: [2, 4, 6]
+    total: 6
+    band: success
+    bandSet: fitd-scoundrel:action
+  - step: pushCost
+    action: fitd-scoundrel:action-roll
+    kind: choice
+    by: engine
+    option: stress

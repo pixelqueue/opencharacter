@@ -1,0 +1,36 @@
+# A 7th-level Life cleric (Wisdom 16): DC 8 + 3 + 3 = 14, a 4th-level slot. 20 radiant, flat
+# (no dice to roll): ogre-1 saves (10), ogre-2 fails (20).
+status: finished
+outcome:
+  result: save
+  data:
+    slot: 4
+    spellcastingClass: cleric
+    metamagic: none
+    dc: 14
+    save: dex
+    halfOnSave: true
+    damage: 20
+    healing: 0
+    concentration: false
+    critical: false
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change: { type: adjust, field: 5e-srd-5.1:spellSlots.level4.used, by: 1 }
+  - to: target
+    character: ogre-1
+    step: burn[0]
+    change:
+      type: adjust
+      field: 5e-srd-5.1:hp.current
+      by: -10
+      tags: [damage, spell, magical, save-half, save.dex, save-success, damage.radiant]
+  - to: target
+    character: ogre-2
+    step: burn[1]
+    change:
+      type: adjust
+      field: 5e-srd-5.1:hp.current
+      by: -20
+      tags: [damage, spell, magical, save-half, save.dex, save-failure, damage.radiant]

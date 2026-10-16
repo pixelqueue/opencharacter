@@ -1,0 +1,13 @@
+# Pool 5 x 5 = 25, 5 already spent: 20 left. 10 hit points + 5 for one cure = 15; 5 left.
+status: finished
+outcome:
+  result: healed
+  data: { healed: 10, cured: 1, left: 5 }
+proposedChanges:
+  - to: self
+    step: spend
+    change: { type: adjustState, entry: paladin, key: layOnHandsSpent, by: 15 }
+  - to: target
+    step: heal
+    change: { type: adjust, field: 5e-srd-5.1:hp.current, by: 10, tags: [healing] }
+log: []

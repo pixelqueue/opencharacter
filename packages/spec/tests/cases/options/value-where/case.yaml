@@ -1,0 +1,28 @@
+description: "A value choice's `where` reads the character: Expertise offers only skills the character is proficient in"
+specVersion: 0.1.0
+call: listOptions
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          skills.proficient: { type: set, of: string, input: true, default: [] }
+          skills.expertise: { type: set, of: string }
+        contentTypes:
+          feature: {}
+      content:
+        - id: features.expertise
+          type: feature
+          choices:
+            - id: skills
+              pick: 2
+              from: { values: [athletics, perception, stealth], where: value in skills.proficient }
+              effects:
+                - { target: skills.expertise, op: grant, value: { formula: pick.value } }
+input:
+  choice: { entry: expertise, choice: [skills] }

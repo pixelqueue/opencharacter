@@ -1,0 +1,22 @@
+contentTypes:
+  gem:
+    carried: true
+    state:
+      glow: { type: integer, default: 0 }
+
+actions:
+  # Adds `count` copies (one or two) of the gem the app names.
+  - id: find
+    params:
+      name: { type: string }
+      count: { type: integer, default: 1 }
+    steps:
+      - id: add
+        kind: changes
+        to: self
+        changes:
+          - type: addItem
+            entry: { item: "'gems.' + params.name", quantity: 1, state: { glow: params.count * 2 } }
+          - type: addItem
+            when: params.count >= 2
+            entry: { item: "'gems.' + params.name" }

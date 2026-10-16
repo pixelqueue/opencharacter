@@ -1,0 +1,17 @@
+id: runes.flaming
+type: template
+tags: [trait.magical, rune.property]
+appliesTo: { type: weapon }
+fields: { price: '(has(prior.price) ? prior.price : 0) + 500' }
+effects:
+  - target: { rolls: [damage.strike], from: self }
+    op: add
+    value: 1d6
+    tags: [damage.fire]
+  - target: { steps: [strike.hit.critical], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.persistent-damage'"
+          state: { damage: 1d10, damageType: "'fire'" }

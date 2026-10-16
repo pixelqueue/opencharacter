@@ -1,0 +1,10 @@
+id: heritages.cliffscale-lizardfolk
+type: heritage
+fields: { ancestry: ancestries.lizardfolk }
+grants:
+  - { item: feats.skill.combat-climber, waivePrerequisites: true }
+effects:
+  - target: { rolls: [skill-action.climb], tally: successToCrit }
+    op: add
+    value: 1
+    when: 'true'

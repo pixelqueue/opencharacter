@@ -1,0 +1,12 @@
+# Prowess 2 - 1 (the penalty) = 1d6 [4]: 6 - 4 = 2 stress. The penalty is cleared.
+status: finished
+outcome:
+  result: partial
+  data: { stress: 2 }
+proposedChanges:
+  - {
+      to: self,
+      step: clearDaredevil,
+      change: { type: set, field: fitd-scoundrel:daredevil.penalty, value: false },
+    }
+  - { to: self, step: cost, change: { type: adjust, field: fitd-scoundrel:stress.current, by: 2 } }

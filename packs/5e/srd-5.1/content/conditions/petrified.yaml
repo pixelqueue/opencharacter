@@ -1,0 +1,16 @@
+id: conditions.petrified
+type: condition
+grants:
+  - { item: conditions.incapacitated, scope: applied }
+effects:
+  - { target: combat.speed, op: atMost, value: 0, scope: applied }
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: multiply
+    value: 0.5
+    scope: applied
+  - target: { incoming: { fields: [hp.current], tags: [damage.poison] } }
+    op: multiply
+    value: 0
+    scope: applied
+immuneTo:
+  - { id: poisoned, items: [conditions.poisoned], scope: applied }

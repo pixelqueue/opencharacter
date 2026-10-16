@@ -1,0 +1,22 @@
+id: consumables.potion-of-emergency-escape
+type: consumable
+tags: [trait.magical, trait.potion]
+fields:
+  level: 1
+  price: 3
+  bulk: 0.1
+  category: potion
+  lasting: true
+effects:
+  - target: speed.land
+    op: add
+    value: 40
+    stackKey: status-bonus
+    scope: applied
+    duration: { amount: 1, unit: minute }
+  - target: { steps: [consumable.drink] }
+    op: changes
+    when: action.self.id == self.id
+    value:
+      changes:
+        - { type: applyEffect, source: "'conditions.fleeing'" }

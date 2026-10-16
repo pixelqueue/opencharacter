@@ -1,0 +1,24 @@
+id: monsters.unicorn.hooves-legendary
+type: monsterAction
+fields:
+  kind: legendary
+  legendaryCost: 1
+actions:
+  - id: hooves-legendary
+    tags: [legendary]
+    participants:
+      target: { max: 1 }
+    results: [done]
+    steps:
+      - id: hooves
+        kind: action
+        use: monster-attack
+        source: "'monsters.unicorn.hooves'"
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.hooves) && steps.hooves.result == 'hit' ? 1 : 0)

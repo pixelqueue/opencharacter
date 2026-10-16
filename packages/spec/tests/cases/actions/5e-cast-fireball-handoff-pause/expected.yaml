@@ -1,0 +1,26 @@
+# Handoffs always pause, even under an automatic policy. The first is answered; the second
+# names goblin-2 and the saving throw to run on its sheet.
+status: paused
+needs:
+  step: saves[1]
+  action: 5e-srd-5.1:cast-spell
+  kind: handoff
+  participant: { role: target, id: goblin-2 }
+  run: { action: 5e-srd-5.1:saving-throw, params: { ability: dex, dc: 14 } }
+log:
+  - step: damage
+    action: 5e-srd-5.1:cast-spell
+    kind: dice
+    by: engine
+    faces: [6, 5, 4, 3, 2, 1, 6, 5]
+    total: 32
+  # An evocation: whether it affects each target (Sculpt Spells could spare some), taking the
+  # recommendation.
+  - { step: 'sculpt[0]', kind: choice, by: engine, option: affect }
+  - { step: 'sculpt[1]', kind: choice, by: engine, option: affect }
+  - step: saves[0]
+    action: 5e-srd-5.1:cast-spell
+    kind: handoff
+    by: app
+    participant: { role: target, id: goblin-1 }
+    outcome: { result: success, data: { total: 16 } }

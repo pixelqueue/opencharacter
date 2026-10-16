@@ -1,0 +1,34 @@
+# The item it was put on is `activate`'s `copy`, kept in the applied entry.
+id: consumables.oil-of-potency
+type: consumable
+tags: [trait.magical, trait.oil]
+fields:
+  level: 2
+  price: 7
+  bulk: 0.1
+  category: oil
+  lasting: true
+effects:
+  - target: { rolls: [strike] }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: action.self.id == self.copy
+    scope: applied
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: dieOf(action.item.damage, max(0, 2 - action.item.dice))
+    when: action.self.id == self.copy
+    scope: applied
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: maxCopies(copy.fields.acBonus, copy.id == self.copy && copy.type == 'armor') + 1
+    stackKey: item-bonus
+    when: countCopies(copy.id == self.copy && copy.type == 'armor' && copy.equipped) > 0
+    scope: applied
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: countCopies(copy.id == self.copy && copy.type == 'armor' && copy.equipped) > 0
+    scope: applied

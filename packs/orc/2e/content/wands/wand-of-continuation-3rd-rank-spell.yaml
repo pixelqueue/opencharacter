@@ -1,0 +1,13 @@
+id: wands.wand-of-continuation-3rd-rank-spell
+type: wand
+tags: [trait.magical, trait.wand]
+fields:
+  level: 9
+  price: 700
+  bulk: 0.1
+  spellRank: 3
+choices:
+  - id: spell
+    from:
+      type: spell
+      where: "item.rank <= 3 && !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags) && has(item.duration) && item.duration in ['rounds', 'minutes', 'hours', 'until-next-turn']"

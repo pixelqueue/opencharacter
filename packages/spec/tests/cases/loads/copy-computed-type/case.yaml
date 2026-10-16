@@ -1,0 +1,26 @@
+description: "A computed value's formula has its declared type, and self.<name> has it in the copy's actions"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          tier: { type: integer, input: true, default: 0 }
+        contentTypes:
+          gear:
+            carried: true
+            computed:
+              quality: { type: integer, formula: "'high'" }
+              fine: { type: boolean, formula: tier > 1 }
+            actions:
+              - id: boast
+                available: self.fine + 1 > 2
+                steps:
+                  - { id: done, kind: outcome }
+      content: []

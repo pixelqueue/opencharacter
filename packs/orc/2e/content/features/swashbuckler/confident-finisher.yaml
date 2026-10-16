@@ -1,0 +1,66 @@
+id: features.swashbuckler.confident-finisher
+type: feature
+fields: { level: 1 }
+actions:
+  - id: confident-finisher
+    tags: [strike]
+    available: panache.active
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "self.equipped || 'standard' in item.tags || 'unarmed' in item.tags"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        tags: [finisher]
+        participants: { target: participants.target }
+      - id: precise
+        kind: roll
+        when: >-
+          steps.strike.result == 'failure' && steps.weapon.item.range == 0
+            && ('trait.agile' in steps.weapon.item.tags || 'trait.finesse' in steps.weapon.item.tags)
+        tags: [damage]
+        parts:
+          - dice: dieOf(1d6, swashbuckler.preciseStrike)
+            tags: [{ formula: "'damage.' + steps.weapon.item.damageType" }]
+      - id: graze
+        kind: changes
+        when: has(steps.precise)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            by: >-
+              @feats.swashbuckler.precise-finisher in feats.held
+                ? -steps.precise.total : -floor(steps.precise.total / 2)
+            tags: [damage, { formula: "'damage.' + steps.weapon.item.damageType" }]
+      - id: exemplary
+        kind: changes
+        when: >-
+          level >= 9 && swashbuckler.style == 'fencer'
+            && steps.strike.result in ['success', 'critical-success']
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.off-guard'" }
+      - id: spend
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @effects.panache' }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: >-
+            steps.strike.data.damage + (has(steps.precise)
+              ? (@feats.swashbuckler.precise-finisher in feats.held
+                ? steps.precise.total : floor(steps.precise.total / 2)) : 0)

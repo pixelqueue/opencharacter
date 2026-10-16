@@ -1,0 +1,24 @@
+id: monsters.kraken.tentacle-attack-or-fling
+type: monsterAction
+fields:
+  kind: legendary
+  legendaryCost: 1
+actions:
+  - id: tentacle-attack-or-fling
+    tags: [legendary]
+    participants:
+      target: { max: 1 }
+    results: [done]
+    steps:
+      - id: tentacle
+        kind: action
+        use: monster-attack
+        source: "'monsters.kraken.tentacle'"
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.tentacle) && steps.tentacle.result == 'hit' ? 1 : 0)

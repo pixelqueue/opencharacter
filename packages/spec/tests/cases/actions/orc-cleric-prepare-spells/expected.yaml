@@ -1,0 +1,142 @@
+# The day's spells: yesterday's copies go, five cantrips and two 1st-rank spells are picked,
+# and the healing font adds four heal copies at the font's rank (1st) by itself.
+status: finished
+outcome:
+  result: prepared
+proposedChanges:
+  - to: self
+    step: clear
+    change:
+      type: removeItem
+      copies:
+        type: orc-2e:spell
+        where: "self.source == ''"
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-divine-lance-1
+        item: orc-2e:spells.divine-lance
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-guidance-1
+        item: orc-2e:spells.guidance
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-light-1
+        item: orc-2e:spells.light
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-stabilize-1
+        item: orc-2e:spells.stabilize
+  - to: self
+    step: cantrips
+    change:
+      type: addItem
+      entry:
+        id: spells-vitality-lash-1
+        item: orc-2e:spells.vitality-lash
+  - to: self
+    step: rank1
+    change:
+      type: addItem
+      entry:
+        id: spells-bless-1
+        item: orc-2e:spells.bless
+        state:
+          rank: 1
+  - to: self
+    step: rank1
+    change:
+      type: addItem
+      entry:
+        id: spells-fear-1
+        item: orc-2e:spells.fear
+        state:
+          rank: 1
+  - to: self
+    step: font
+    change:
+      type: addItem
+      entry:
+        id: spells-heal-1
+        item: orc-2e:spells.heal
+        state:
+          rank: 1
+          font: true
+  - to: self
+    step: font
+    change:
+      type: addItem
+      entry:
+        id: spells-heal-2
+        item: orc-2e:spells.heal
+        state:
+          rank: 1
+          font: true
+  - to: self
+    step: font
+    change:
+      type: addItem
+      entry:
+        id: spells-heal-3
+        item: orc-2e:spells.heal
+        state:
+          rank: 1
+          font: true
+  - to: self
+    step: font
+    change:
+      type: addItem
+      entry:
+        id: spells-heal-4
+        item: orc-2e:spells.heal
+        state:
+          rank: 1
+          font: true
+log:
+  - step: cantrips
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.divine-lance
+  - step: cantrips
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.guidance
+  - step: cantrips
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.light
+  - step: cantrips
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.stabilize
+  - step: cantrips
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.vitality-lash
+  - step: rank1
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.bless
+  - step: rank1
+    action: orc-2e:prepare-spells
+    kind: choice
+    by: app
+    option: orc-2e:spells.fear

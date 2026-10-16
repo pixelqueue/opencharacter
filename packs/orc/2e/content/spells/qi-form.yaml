@@ -1,0 +1,20 @@
+id: spells.qi-form
+type: spell
+tags: [trait.concentrate, trait.focus, trait.monk, trait.polymorph, trait.uncommon]
+fields:
+  rank: 9
+  cast: one
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+  damageTypeChoice: true
+  damageType: force
+effects:
+  - { target: speed.fly, op: atLeast, value: speed.land, scope: applied }
+  - target:
+      rolls: [damage.strike]
+    op: add
+    value: 1d6
+    tags:
+      - { formula: "'damage.' + self.damageType" }
+    scope: applied

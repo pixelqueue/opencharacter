@@ -1,0 +1,14 @@
+id: materials.dawnsilver-shield-standard
+type: template
+tags: [trait.precious, material.dawnsilver, trait.uncommon]
+appliesTo:
+  {
+    type: shield,
+    where: 'item.id in [@shields.buckler, @shields.steel-shield, @shields.wooden-shield]',
+  }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + (base.acBonus == 1 ? 400 : 440)'
+  hardness: 'base.acBonus == 1 ? 3 : 5'
+  hp: 'base.acBonus == 1 ? 12 : 20'
+  bt: 'base.acBonus == 1 ? 6 : 10'
+  bulk: 'base.bulk >= 2 ? base.bulk - 1 : base.bulk >= 1 ? 0.1 : base.bulk'

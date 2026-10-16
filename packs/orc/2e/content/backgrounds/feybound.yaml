@@ -1,0 +1,16 @@
+id: backgrounds.feybound
+type: background
+# Fey's Fortune is the generic `fortune` choice on the skill check.
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.fey }
+    when: "!('skill.lore.fey' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['dex', 'cha']" }
+  - id: free-boost
+    unique: background-boosts
+    from: { type: boost }

@@ -1,0 +1,31 @@
+id: feats.barbarian.cleave
+type: feat
+tags: [trait.rage, trait.reaction]
+fields: { level: 6, category: class, class: classes.barbarian }
+
+actions:
+  - id: cleave
+    tags: [strike, reaction]
+    available: rage.active
+    participants:
+      target: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: weapon
+        kind: choice
+        # The first weapon that fits, in sheet order, so an automatic run strikes.
+        recommend: options[0]
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.range == 0"
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data:
+          damage: steps.strike.data.damage

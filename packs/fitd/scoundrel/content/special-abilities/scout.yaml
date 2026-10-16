@@ -1,0 +1,11 @@
+id: special-abilities.scout
+type: specialAbility
+effects:
+  - target: { rolls: [action-roll] }
+    op: rollModifier
+    value: { kind: poolDice, count: 1 }
+    when: 'situational.avoidingDetection'
+  - target: { rolls: [action-roll], tally: effect }
+    op: add
+    value: 1
+    when: situational.locatingTarget

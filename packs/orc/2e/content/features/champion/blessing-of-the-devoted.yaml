@@ -1,0 +1,26 @@
+id: features.champion.blessing-of-the-devoted
+type: feature
+fields: { level: 3 }
+choices:
+  - id: blessing
+    from:
+      options:
+        - id: armament
+          prerequisites:
+            - { id: other, when: "!('blessing.armament' in champion.secondBlessing)" }
+          effects:
+            - { target: champion.blessing, op: grant, value: { tag: blessing.armament } }
+            - { target: champion.firstBlessing, op: grant, value: { tag: blessing.armament } }
+        - id: shield
+          prerequisites:
+            - { id: other, when: "!('blessing.shield' in champion.secondBlessing)" }
+          effects:
+            - { target: champion.blessing, op: grant, value: { tag: blessing.shield } }
+            - { target: champion.firstBlessing, op: grant, value: { tag: blessing.shield } }
+        - id: swiftness
+          prerequisites:
+            - { id: other, when: "!('blessing.swiftness' in champion.secondBlessing)" }
+          effects:
+            - { target: champion.blessing, op: grant, value: { tag: blessing.swiftness } }
+            - { target: champion.firstBlessing, op: grant, value: { tag: blessing.swiftness } }
+            - { target: speed.land, op: add, value: 5, stackKey: status-bonus }

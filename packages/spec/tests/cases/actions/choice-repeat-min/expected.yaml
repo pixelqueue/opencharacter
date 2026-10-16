@@ -1,0 +1,10 @@
+# min 1: the first pick offers run, lift and swim, without #done. After lift, `picks == 0` no
+# longer holds for it, and #done is offered last. No `recommend`, so none is recommended.
+status: paused
+needs:
+  step: drills
+  action: test-pack:train
+  kind: choice
+  options: [run, swim, '#done']
+log:
+  - { step: drills, action: test-pack:train, kind: choice, by: app, option: lift, index: 0 }

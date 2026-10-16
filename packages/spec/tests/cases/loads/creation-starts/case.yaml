@@ -1,0 +1,40 @@
+description: 'Creation starts are concatenated in load order; a later start with the same ID replaces the earlier one in its place; actions are qualified and `random` defaults to false'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: base-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: roll-up
+            params:
+              kind: { type: enum, values: [plain, fancy] }
+            steps: [{ id: done, kind: outcome }]
+          - id: build
+            steps: [{ id: done, kind: outcome }]
+        creation:
+          - { id: plain, action: roll-up, params: { kind: plain }, random: true }
+          - { id: fancy, action: roll-up, params: { kind: fancy }, random: true }
+          - { id: built, action: build }
+      content: []
+  - inline:
+      manifest:
+        id: extra-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { base-pack: ^1.0.0 }
+      rules:
+        actions:
+          - id: build
+            steps: [{ id: done, kind: outcome }]
+        creation:
+          - { id: fancy, action: build }
+          - { id: quick, action: base-pack:build, random: false }
+      content: []

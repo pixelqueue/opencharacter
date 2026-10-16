@@ -1,0 +1,24 @@
+id: spells.personal-blizzard
+type: spell
+tags: [trait.cold, trait.focus, trait.hex, trait.uncommon, trait.witch]
+# Full damage on a success and the critical failure's flat 2d6 aren't modeled: the generic save
+# damage stands in.
+fields:
+  rank: 3
+  cast: one
+  range: 30
+  targets: 1
+  duration: sustained
+  defense: fortitude
+  saveDamage: basic
+  damage: 1d6
+  damageType: cold
+  heighten: 1
+  heightenBonus: 1
+  persistent: 1d6
+  persistentType: cold
+  persistentAt: 2
+  persistentScales: true
+  heightenPersistentBonus: 1
+  failure: [conditions.concealed]
+  criticalFailure: [conditions.concealed]

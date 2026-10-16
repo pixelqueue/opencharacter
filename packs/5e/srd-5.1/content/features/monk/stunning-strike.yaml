@@ -1,0 +1,18 @@
+id: features.monk.stunning-strike
+type: feature
+actions:
+  - id: stunning-strike
+    tags: [feature]
+    results: [stunning]
+    available: self.kiSpent + 1 <= ki.points
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: kiSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'stunning'"
+        data:
+          dc: ki.saveDc
+          save: "'con'"

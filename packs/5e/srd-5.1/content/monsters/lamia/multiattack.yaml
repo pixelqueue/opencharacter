@@ -1,0 +1,54 @@
+id: monsters.lamia.multiattack
+type: monsterAction
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2 }
+    results: [done]
+    steps:
+      - id: form
+        kind: choice
+        options: [{ id: dagger }, { id: touch }]
+        recommend: "'dagger'"
+      - id: claws1
+        kind: action
+        when: "steps.form.picked == 'dagger'"
+        use: monster-attack
+        source: "'monsters.lamia.claws'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: dagger
+        kind: action
+        when: "steps.form.picked == 'dagger'"
+        use: monster-attack
+        source: "'monsters.lamia.dagger'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: claws2
+        kind: action
+        when: "steps.form.picked == 'touch'"
+        use: monster-attack
+        source: "'monsters.lamia.claws'"
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0].id] : []'
+      - id: intoxicatingTouch
+        kind: action
+        when: "steps.form.picked == 'touch'"
+        use: monster-attack
+        source: "'monsters.lamia.intoxicating-touch'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)].id] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.claws1) && steps.claws1.result == 'hit' ? 1 : 0)
+              + (has(steps.dagger) && steps.dagger.result == 'hit' ? 1 : 0)
+              + (has(steps.claws2) && steps.claws2.result == 'hit' ? 1 : 0)
+              + (has(steps.intoxicatingTouch) && steps.intoxicatingTouch.result == 'hit' ? 1 : 0)

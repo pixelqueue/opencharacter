@@ -1,0 +1,9 @@
+id: heritages.stormtossed-tengu
+type: heritage
+fields: { ancestry: ancestries.tengu }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.electricity] } }
+    op: add
+    stackKey: resistance
+    value: min(-incoming.amount, max(1, floor(level / 2)))
+    when: incoming.amount < 0

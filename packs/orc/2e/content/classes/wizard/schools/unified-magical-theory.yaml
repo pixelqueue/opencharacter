@@ -1,0 +1,16 @@
+id: classes.wizard.schools.unified-magical-theory
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: wizard.school, op: set, value: "'unified-magical-theory'" }
+  - { target: focus.points, op: add, value: 1 }
+grants:
+  - item: spells.hand-of-the-apprentice
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: >-
+        item.category == 'class' && item.level <= 1
+          && (item.class == @classes.wizard || 'trait.wizard' in item.tags)

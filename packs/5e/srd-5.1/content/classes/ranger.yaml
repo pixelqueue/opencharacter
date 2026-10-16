@@ -1,0 +1,90 @@
+id: classes.ranger
+type: class
+fields:
+  hitDie: 1d10
+prerequisites:
+  - id: multiclass
+    when: (self.startingClass && self.level == level.total) || item.id in multiclass.qualified
+effects:
+  - target: proficiencies.weapons
+    op: grant
+    value: { query: { type: weapon, where: "item.category == 'simple'" } }
+  - target: proficiencies.weapons
+    op: grant
+    value: { query: { type: weapon, where: "item.category == 'martial'" } }
+  - { target: proficiencies.armor, op: grant, value: { tag: light } }
+  - { target: proficiencies.armor, op: grant, value: { tag: medium } }
+  - { target: proficiencies.armor, op: grant, value: { tag: shield } }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.str }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.dex }, when: self.startingClass }
+grants:
+  - { item: features.ranger.favored-enemy, when: self.level >= 1 }
+  - { item: features.ranger.natural-explorer, when: self.level >= 1 }
+  - { item: features.ranger.spellcasting, when: self.level >= 2 }
+  - { item: features.ranger.primeval-awareness, when: self.level >= 3 }
+  - { item: features.extra-attack, when: self.level >= 5 }
+  - { item: features.ranger.lands-stride, when: self.level >= 8 }
+  - { item: features.ranger.hide-in-plain-sight, when: self.level >= 10 }
+  - { item: features.ranger.vanish, when: self.level >= 14 }
+  - { item: features.ranger.feral-senses, when: self.level >= 18 }
+  - { item: features.ranger.foe-slayer, when: self.level >= 20 }
+  - { item: features.ability-score-improvement, when: self.level >= 4 }
+choices:
+  - id: skills
+    pick: 3
+    unique: skills
+    from:
+      {
+        values:
+          [
+            skill.animal-handling,
+            skill.athletics,
+            skill.insight,
+            skill.investigation,
+            skill.nature,
+            skill.perception,
+            skill.stealth,
+            skill.survival,
+          ],
+        where: '!(value in proficiencies.skills) || value in choice.picks',
+      }
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: multiclass-skill
+    pick: 1
+    unique: skills
+    from:
+      {
+        values:
+          [
+            skill.animal-handling,
+            skill.athletics,
+            skill.insight,
+            skill.investigation,
+            skill.nature,
+            skill.perception,
+            skill.stealth,
+            skill.survival,
+          ],
+        where: '!(value in proficiencies.skills) || value in choice.picks',
+      }
+    when: '!self.startingClass'
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: fighting-style
+    from:
+      {
+        items:
+          [
+            fighting-styles.archery,
+            fighting-styles.defense,
+            fighting-styles.dueling,
+            fighting-styles.two-weapon-fighting,
+          ],
+      }
+    when: self.level >= 2
+    unique: fighting-style
+  - id: ranger-archetype
+    from: { type: subclass, where: 'item.class == @classes.ranger' }
+    when: self.level >= 3

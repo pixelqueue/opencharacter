@@ -1,0 +1,24 @@
+id: spells.mind-blank
+type: spell
+fields:
+  level: 8
+  school: abjuration
+  classes: [classes.bard, classes.wizard]
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: hour
+  durationAmount: 24
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.psychic] } }
+    op: multiply
+    value: 0
+    scope: applied
+    duration: { amount: 24, unit: hour }
+immuneTo:
+  - { id: charmed, items: [conditions.charmed], scope: applied }

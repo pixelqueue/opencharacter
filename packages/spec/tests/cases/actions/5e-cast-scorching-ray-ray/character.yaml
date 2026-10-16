@@ -1,0 +1,31 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: 5e-srd-5.1, version: 0.1.0 }
+values:
+  5e-srd-5.1:abilities.str.base: 10
+  5e-srd-5.1:abilities.dex.base: 14
+  5e-srd-5.1:abilities.con.base: 14
+  5e-srd-5.1:abilities.int.base: 16
+  5e-srd-5.1:abilities.wis.base: 16
+  5e-srd-5.1:abilities.cha.base: 16
+  5e-srd-5.1:hp.base: 30
+  5e-srd-5.1:hp.current: 30
+features:
+  - id: wizard
+    item: 5e-srd-5.1:classes.wizard
+    state: { level: 7, startingClass: true }
+    choices:
+      skills: [{ option: skill.arcana }, { option: skill.history }]
+      arcane-tradition: [{ option: 5e-srd-5.1:subclasses.school-of-evocation }]
+      5e-srd-5.1:features.ability-score-improvement/improvement-4:
+        [{ option: 5e-srd-5.1:improvements.plus-two, choices: { ability: [{ option: con }] } }]
+      5e-srd-5.1:features.wizard.spellcasting/cantrips:
+        - option: 5e-srd-5.1:spells.fire-bolt
+        - option: 5e-srd-5.1:spells.light
+        - option: 5e-srd-5.1:spells.mage-hand
+        - option: 5e-srd-5.1:spells.ray-of-frost
+      5e-srd-5.1:features.wizard.spellcasting/spells:
+        - option: 5e-srd-5.1:spells.fireball
+        - option: 5e-srd-5.1:spells.magic-missile
+        - option: 5e-srd-5.1:spells.scorching-ray

@@ -1,0 +1,13 @@
+id: feats.bard.eclectic-skill
+type: feat
+fields: { level: 8, category: class, class: classes.bard }
+# Gains the level less what Untrained Improvisation already gives, so the two don't add up.
+prerequisites:
+  - { id: polymath, when: "'muse.polymath' in bard.muses" }
+  - { id: occultism, when: 'skills.occultism.rank >= 3' }
+effects:
+  - target: { fields: { where: "'skill' in item.tags && 'untrained' in item.tags" } }
+    op: add
+    value: >-
+      level - (@feats.general.untrained-improvisation in feats.held
+        ? max(0, level >= 7 ? level : level >= 5 ? level - 1 : level - 2) : 0)
