@@ -2,8 +2,7 @@
 
 Every official [Open Character Format](https://opencharacterformat.org/) (OCF) pack in one
 install, for apps that want all of them: each pack's release by pack ID, and each pack's English
-text. It depends on each pack's own package and re-exports it. It is not published yet
-(`private`); it will be with the packs' first releases.
+text. It depends on each pack's own package and re-exports it.
 
 ## Install
 
@@ -52,4 +51,4 @@ must show them to its users (an About or Credits screen is the usual place); the
 repeats every pack's credit and notices verbatim, and each pack's package has its own `LICENSE`.
 The package's own code (the generated index files) is under Apache 2.0.
 
-Built by `pnpm build:packs` in the OCF repository.
+Built by `pnpm build` in the OCF repository.

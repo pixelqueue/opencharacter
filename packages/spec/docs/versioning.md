@@ -39,10 +39,13 @@ Each engine library (the TypeScript reference engine and community ports) has it
      (`published-version-changed` otherwise);
    - otherwise `checkRelease` against the latest lower version must pass: shape changes need a
      breaking bump and a covering upgrade script ([upgrades.md](upgrades.md#the-build-check)).
-4. **Publish:** `changeset publish` publishes changed packages and tags them. Built
-   output (`dist/`: the packs' releases and text, the bundle, the spec's standard text) comes
-   from step 3; each published package's `prepack` refuses to pack without it, so packing a
-   package on its own needs `pnpm build:packs` first.
+4. **Publish:** the release workflow (`.github/workflows/release.yml`) runs on every push to
+   `main`. With pending changesets it opens a "Version Packages" pull request that runs step 2;
+   with none it runs `pnpm release`, then `changeset publish`, which publishes every package
+   whose version isn't on npm yet (with npm provenance) and tags it. Built output (`dist/`: the
+   engine, text and spec modules, the packs' releases and text, the bundle) comes from
+   `pnpm build`, which `pnpm release` runs; each published package's `prepack` refuses to pack
+   without it, so packing a package on its own needs `pnpm build` first.
 
 ## Character files
 

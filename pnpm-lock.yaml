@@ -95,7 +95,7 @@ importers:
   packages/engine:
     dependencies:
       '@opencharacter/spec':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../spec
       semver:
         specifier: ^7.8.5
@@ -108,26 +108,30 @@ importers:
   packages/packs:
     dependencies:
       '@opencharacter/5e-srd-5.1':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packs/5e/srd-5.1
       '@opencharacter/fate-core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packs/fate/core
       '@opencharacter/fitd-crew':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packs/fitd/crew
       '@opencharacter/fitd-scoundrel':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packs/fitd/scoundrel
       '@opencharacter/mork-borg-core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packs/mork-borg/core
       '@opencharacter/mothership-1e':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packs/mothership/1e
       '@opencharacter/orc-2e':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packs/orc/2e
+    devDependencies:
+      '@opencharacter/engine':
+        specifier: workspace:*
+        version: link:../engine
 
   packages/spec:
     devDependencies:
@@ -147,7 +151,7 @@ importers:
         specifier: 3.5.20
         version: 3.5.20
       '@opencharacter/spec':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../spec
       intl-messageformat:
         specifier: 12.1.2
@@ -160,19 +164,47 @@ importers:
         specifier: 2.9.1
         version: 2.9.1
 
-  packs/5e/srd-5.1: {}
+  packs/5e/srd-5.1:
+    devDependencies:
+      '@opencharacter/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
 
-  packs/fate/core: {}
+  packs/fate/core:
+    devDependencies:
+      '@opencharacter/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
 
-  packs/fitd/crew: {}
+  packs/fitd/crew:
+    devDependencies:
+      '@opencharacter/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
 
-  packs/fitd/scoundrel: {}
+  packs/fitd/scoundrel:
+    devDependencies:
+      '@opencharacter/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
 
-  packs/mork-borg/core: {}
+  packs/mork-borg/core:
+    devDependencies:
+      '@opencharacter/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
 
-  packs/mothership/1e: {}
+  packs/mothership/1e:
+    devDependencies:
+      '@opencharacter/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
 
-  packs/orc/2e: {}
+  packs/orc/2e:
+    devDependencies:
+      '@opencharacter/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
 
 packages:
 

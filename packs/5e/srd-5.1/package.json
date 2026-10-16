@@ -1,9 +1,28 @@
 {
   "name": "@opencharacter/5e-srd-5.1",
   "version": "0.1.0",
-  "private": true,
   "description": "Open Character Format pack: the 5E System Reference Document 5.1.",
+  "keywords": [
+    "5e",
+    "character-sheet",
+    "content-pack",
+    "ocf",
+    "open-character-format",
+    "rpg",
+    "srd",
+    "tabletop",
+    "ttrpg"
+  ],
+  "homepage": "https://opencharacterformat.org",
+  "bugs": {
+    "url": "https://github.com/pixelqueue/opencharacter/issues"
+  },
   "license": "CC-BY-4.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pixelqueue/opencharacter.git",
+    "directory": "packs/5e/srd-5.1"
+  },
   "files": [
     "dist",
     "pack.yaml",
@@ -15,6 +34,7 @@
     "LICENSE"
   ],
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -28,7 +48,17 @@
       "default": "./dist/i18n/*.json"
     }
   },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
-    "prepack": "node -e \"require('node:fs').existsSync('dist')||(console.error('No dist/: run pnpm build:packs from the repo root first'),process.exit(1))\""
+    "prepack": "node -e \"for(const f of ['dist/index.js','dist/release.json'])require('node:fs').existsSync(f)||(console.error('Missing '+f+': run pnpm build from the repo root first'),process.exit(1))\""
+  },
+  "devDependencies": {
+    "@opencharacter/engine": "workspace:*"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

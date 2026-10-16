@@ -4,7 +4,7 @@ The TypeScript reference engine for the [Open Character Format](https://openchar
 (OCF), for apps that build, show and change tabletop RPG characters: it loads packs into a
 ruleset, computes a character's sheet, lists options, applies changes and runs actions and dice.
 It has no runtime dependencies on Node, so it runs in browsers, servers and workers. It ships as
-TypeScript source, so use a runner or bundler that compiles TypeScript (tsx, Vite, Bun, Deno).
+ES modules with type declarations, for Node 22 and later and current browsers.
 
 ## Install
 

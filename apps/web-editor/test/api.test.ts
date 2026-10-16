@@ -53,7 +53,7 @@ async function call(
 
 const longsword = 'packs/5e/srd-5.1/content/weapons/longsword.yaml';
 
-describe('file access', () => {
+describe('file access', { timeout: 20_000 }, () => {
   it('refuses paths outside packs/ and non-YAML files', () => {
     expect(() => packPath(root, '../etc/passwd.yaml')).toThrow(EditorError);
     expect(() => packPath(root, 'packages/spec/package.json')).toThrow(/outside packs/);

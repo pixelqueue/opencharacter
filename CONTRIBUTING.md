@@ -41,6 +41,14 @@ agreement: you keep your copyright and license your contribution under the licen
    `pnpm build:website` when you change packs, scripts or docs.
 4. Open a pull request. CODEOWNERS routes review to the spec's or the game's maintainers.
 
+## Releases
+
+A change to a published package or pack adds a changeset (`pnpm changeset`; while a package is
+0.x, `minor` for a breaking change, `patch` otherwise). On `main`, the release workflow opens a
+"Version Packages" pull request from pending changesets; merging it publishes the new versions
+to npm with provenance and tags them. Nobody publishes by hand. See
+[versioning](packages/spec/docs/versioning.md#the-release-flow).
+
 ## Proposing a spec change
 
 Spec changes start as a GitHub issue, before any pull request. Describe:

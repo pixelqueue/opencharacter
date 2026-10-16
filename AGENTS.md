@@ -42,10 +42,11 @@ The documentation website (https://opencharacterformat.org/) is built from these
 | `pnpm editor`           | Start the local pack editor (`apps/web-editor`) at http://127.0.0.1:5173                                           |
 | `pnpm website`          | Start the documentation website (`apps/website`) at http://localhost:4321/                                         |
 | `pnpm build:website`    | Build the website into `apps/website/dist/` and check every internal link                                          |
+| `pnpm build`            | Build every published package: `build:ts` (spec, engine and text to `dist/` with tsc), then `build:packs`          |
 | `pnpm build:packs`      | Validate, then build every pack's release (`dist/`), the `@opencharacter/packs` bundle and the spec's text modules |
 | `pnpm release:check`    | Compare each pack with its last published release (git tags): published versions unchanged, shape changes covered  |
 | `pnpm version-packages` | `changeset version`, then sync `pack.yaml` versions                                                                |
-| `pnpm release`          | Every check plus build and release check. Publishing is disabled until the release flow is enabled                 |
+| `pnpm release`          | Every check, `pnpm build` and the release check. Publishing happens only in CI (`release.yml`)                     |
 | `pnpm check`            | Lint, typecheck, test and validate. CI also runs `build:packs`, `release:check` and `build:website`                |
 
 Run `pnpm check` before every commit, and `pnpm release` and `pnpm build:website` too when you
@@ -63,8 +64,11 @@ change packs, scripts or docs.
 - **Every pack declares a license** in `pack.yaml` (and a `credit` for CC-BY; a `credit` and
   `notices` for ORC).
 - **No PDF support, no hosted service.** The only editor is the local `apps/web-editor`.
-- **Packages and packs publish only through the release flow** (changesets, `pnpm release`);
-  packs stay `private: true` until then.
+- **Packages and packs publish only through the release workflow** (changesets on `main`, see
+  [versioning](packages/spec/docs/versioning.md#the-release-flow)); never `npm publish` by hand.
+- **In the repo, packages resolve to their TypeScript sources** through the
+  `@opencharacter/source` export condition (tsconfig, vitest, the editor's Vite config, `tsx
+  --conditions`), so nothing needs a build first. Outside it, they resolve to `dist/`.
 - **Commits are small, logical and signed off** (`git commit -s`, DCO; see
   [CONTRIBUTING.md](CONTRIBUTING.md)).
 
