@@ -1,8 +1,8 @@
+import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import ts from 'typescript';
 import { parse } from 'yaml';
 import { describe, expect, it } from 'vitest';
 import * as engine from '../../../packages/engine/src/index.ts';
@@ -37,6 +37,27 @@ function mainBlock(file: string): string {
 const quickStart = () => mainBlock(join(guides, 'quick-start.md'));
 const readme = () => mainBlock(join(root, 'README.md'));
 
+/** The repository's TypeScript compiler, run in `dir`: its output, whether or not it fails. */
+function tsc(dir: string, args: string[]): string {
+  const bin = join(root, 'node_modules/typescript/bin/tsc');
+  try {
+    return execFileSync(process.execPath, [bin, '--pretty', 'false', ...args], {
+      cwd: dir,
+      encoding: 'utf8',
+    });
+  } catch (error) {
+    return String((error as { stdout?: unknown }).stdout ?? error);
+  }
+}
+
+/** Writes each code block to its own module (`export {}`), so their names don't clash. */
+const writeBlocks = (dir: string, codes: string[]) =>
+  codes.map((code, i) => {
+    const file = `example-${i}.ts`;
+    writeFileSync(join(dir, file), `${code}\nexport {};\n`);
+    return file;
+  });
+
 /**
  * TypeScript's errors in each code block, its published package names pointed at the repository.
  * One program checks every block, so the engine's source is checked once.
@@ -54,29 +75,21 @@ function typeErrors(codes: string[]): string[][] {
   );
   const dir = mkdtempSync(join(tmpdir(), 'ocf-guide-'));
   try {
-    // Each block is its own module (`export {}`), so their names don't clash.
-    const files = sources.map((source, i) => {
-      const file = join(dir, `example-${i}.ts`);
-      writeFileSync(file, `${source}\nexport {};\n`);
-      return file;
-    });
-    const program = ts.createProgram(files, {
+    const files = writeBlocks(dir, sources);
+    const compilerOptions = {
       strict: true,
       noEmit: true,
-      target: ts.ScriptTarget.ES2022,
-      module: ts.ModuleKind.ESNext,
-      moduleResolution: ts.ModuleResolutionKind.Bundler,
+      target: 'ES2022',
+      module: 'ESNext',
+      moduleResolution: 'Bundler',
       allowImportingTsExtensions: true,
       skipLibCheck: true,
-      baseUrl: root,
-      paths: { '@opencharacter/spec': ['packages/spec/src/index.ts'] },
-    });
-    const diagnostics = ts.getPreEmitDiagnostics(program);
-    return files.map((file) =>
-      diagnostics
-        .filter((d) => d.file?.fileName === file)
-        .map((d) => ts.flattenDiagnosticMessageText(d.messageText, '\n')),
-    );
+      paths: { '@opencharacter/spec': [join(root, 'packages/spec/src/index.ts')] },
+    };
+    writeFileSync(join(dir, 'tsconfig.json'), JSON.stringify({ compilerOptions, files }));
+    // One error per line, its message's further lines indented.
+    const errors = tsc(dir, ['-p', '.']).split(/\n(?=\S)/);
+    return files.map((file) => errors.filter((e) => e.startsWith(`${file}(`)));
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -98,13 +111,18 @@ const srdDir = join(root, 'packs/5e/srd-5.1');
 const srd = once(() => readPack(srdDir));
 
 /** A code block as a function body: types removed, its imports left for the caller to supply. */
-const runnable = (code: string) =>
-  ts
-    .transpileModule(code, {
-      compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
-    })
-    .outputText.replace(/^import .*$/gm, '')
-    .replace(/^export \{\};$/m, '');
+function runnable(code: string): string {
+  const dir = mkdtempSync(join(tmpdir(), 'ocf-guide-'));
+  try {
+    const [file = ''] = writeBlocks(dir, [code]);
+    tsc(dir, ['--noCheck', '--noResolve', '--target', 'ES2022', '--module', 'ESNext', file]);
+    return read(join(dir, file.replace(/\.ts$/, '.js')))
+      .replace(/^import .*$/gm, '')
+      .replace(/^export \{\};$/m, '');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
 
 // The type checks build one TypeScript program over the engine's sources: seconds under load.
 describe('guides', { timeout: 30_000 }, () => {
