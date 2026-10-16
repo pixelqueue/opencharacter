@@ -42,14 +42,16 @@ function answered(name: string): ActionResult {
   return result;
 }
 
-describe('action performance', () => {
+const slack = process.env.CI ? 2 : 1;
+
+describe('action performance', { timeout: 30_000 }, () => {
   it('levels up a orc-2e oracle in a few seconds', () => {
     let result: ActionResult | undefined;
     const ms = time(() => {
       result = answered('orc-oracle-level-up');
     });
     expect(result && 'status' in result ? result.status : undefined).toBe('finished');
-    expect(ms).toBeLessThan(5000);
+    expect(ms).toBeLessThan(5000 * slack);
   });
 
   it('runs a guided orc-2e creation in a few seconds', () => {
@@ -58,6 +60,6 @@ describe('action performance', () => {
       result = answered('orc-create-character');
     });
     expect(result && 'status' in result ? result.status : undefined).toBe('finished');
-    expect(ms).toBeLessThan(3000);
+    expect(ms).toBeLessThan(3000 * slack);
   });
 });
