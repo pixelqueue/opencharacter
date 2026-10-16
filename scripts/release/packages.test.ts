@@ -3,9 +3,6 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-// Every published package's package.json: public, with provenance, built output only, and an
-// exports map whose published form drops the in-repo source condition.
-
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const SOURCE = '@opencharacter/source';
 

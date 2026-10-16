@@ -1,9 +1,5 @@
 name: Release
 
-# On main: with pending changesets, opens or updates the "Version Packages" pull request; with
-# none, publishes every package whose version isn't on npm yet (all of them on the first run) and
-# tags it.
-
 on:
   push:
     branches: [main]
@@ -24,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # release:check compares with earlier releases by git tag
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:

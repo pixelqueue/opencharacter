@@ -53,7 +53,6 @@ async function call(
 
 const longsword = 'packs/5e/srd-5.1/content/weapons/longsword.yaml';
 
-// Patching the 5E pack's text file parses it in full: slow on CI runners.
 describe('file access', { timeout: 20_000 }, () => {
   it('refuses paths outside packs/ and non-YAML files', () => {
     expect(() => packPath(root, '../etc/passwd.yaml')).toThrow(EditorError);

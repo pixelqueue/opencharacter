@@ -4,7 +4,6 @@ import { defineConfig, type Plugin } from 'vite';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 
-// Workspace packages resolve to their TypeScript sources, so the editor needs no build first.
 const source = '@opencharacter/source';
 
 function api(): Plugin {
@@ -12,7 +11,6 @@ function api(): Plugin {
     name: 'ocf-editor-api',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        // Loaded through Vite (not imported by this config) so it resolves workspace sources.
         server
           .ssrLoadModule('/server/api.ts')
           .then((mod) => (mod as typeof import('./server/api.ts')).handle(root, req, res))
