@@ -10,8 +10,8 @@ npm install @opencharacter/engine @opencharacter/5e-srd-5.1
 ```
 
 - `@opencharacter/engine` is the TypeScript reference engine. It has no runtime dependencies
-  on Node, so it runs in browsers, servers and workers. It ships as TypeScript source, so use a
-  runner or bundler that compiles TypeScript (tsx, Vite, Bun, Deno).
+  on Node, so it runs in browsers, servers and workers. It ships as ES modules with type
+  declarations, for Node 22 and later and current browsers.
 - `@opencharacter/5e-srd-5.1` is one content pack: its rules, content and English text.
 
 ## Load, compute, change, roll

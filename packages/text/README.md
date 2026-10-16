@@ -6,8 +6,6 @@ options, issues, roll summaries and dice) into finished, ICU-formatted text in t
 language, from pack text and the spec's standard text. The engine never outputs text; this is the
 app's side, so every app needn't build text keys by hand.
 
-It is not published yet (`private`); it will be with the first release.
-
 ## Install
 
 ```sh

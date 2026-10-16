@@ -34,15 +34,15 @@ console.log(validate?.(character), validate?.errors); // true null
 
 ## What's in it
 
-| Path or export                               | What                                                                                                                                                         |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [`docs/`](docs/README.md)                    | The written spec, for implementers; also at [opencharacterformat.org/spec](https://opencharacterformat.org/spec/).                                           |
-| `schemas/` (`@opencharacter/spec/schemas/*`) | JSON Schemas (draft 2020-12) for packs, rules, content, characters, changes, roll items and the engine calls' inputs and outputs (`schemas/engine/`).        |
-| `data/` (`@opencharacter/spec/data/*`)       | The fixed sets as JSON: effect operations, dice modifiers, change types, stacking policies, error codes, formula context, …                                  |
-| `i18n/` (`@opencharacter/spec/i18n/en`)      | Standard English text for the spec's error and rules-issue codes, as JavaScript and JSON (built by `pnpm build:packs`); the YAML source as `…/i18n/en.yaml`. |
-| [`tests/`](tests/README.md)                  | The shared conformance test suite: cases with packs, characters and expected output.                                                                         |
-| `@opencharacter/spec`                        | `SPEC_VERSION`, `SCHEMA_BASE` and the TypeScript types generated from the schemas (`CharacterFile`, …).                                                      |
-| `@opencharacter/spec/node`                   | Node.js helpers: `loadSchemas`, `loadFixedSet`, `fixedSetIds` and the package's `paths`.                                                                     |
+| Path or export                               | What                                                                                                                                                   |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`docs/`](docs/README.md)                    | The written spec, for implementers; also at [opencharacterformat.org/spec](https://opencharacterformat.org/spec/).                                     |
+| `schemas/` (`@opencharacter/spec/schemas/*`) | JSON Schemas (draft 2020-12) for packs, rules, content, characters, changes, roll items and the engine calls' inputs and outputs (`schemas/engine/`).  |
+| `data/` (`@opencharacter/spec/data/*`)       | The fixed sets as JSON: effect operations, dice modifiers, change types, stacking policies, error codes, formula context, …                            |
+| `i18n/` (`@opencharacter/spec/i18n/en`)      | Standard English text for the spec's error and rules-issue codes, as JavaScript and JSON (built by `pnpm build`); the YAML source as `…/i18n/en.yaml`. |
+| [`tests/`](tests/README.md)                  | The shared conformance test suite: cases with packs, characters and expected output.                                                                   |
+| `@opencharacter/spec`                        | `SPEC_VERSION`, `SCHEMA_BASE` and the TypeScript types generated from the schemas (`CharacterFile`, …).                                                |
+| `@opencharacter/spec/node`                   | Node.js helpers: `loadSchemas`, `loadFixedSet`, `fixedSetIds` and the package's `paths`.                                                               |
 
 The schemas' `$id`s are under `https://opencharacterformat.org/schemas/0.1/`, where the website
 serves them too. The [guides](https://opencharacterformat.org/guides/) show how an app uses OCF;
