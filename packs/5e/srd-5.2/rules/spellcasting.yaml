@@ -520,16 +520,6 @@ actions:
         to: target
         changes:
           - { type: adjust, field: hp.current, by: 'max(0, steps.heal.total)', tags: [healing] }
-      - id: tempHp
-        kind: changes
-        when: has(item.tempHp)
-        to: target
-        changes:
-          - type: set
-            field: hp.temp
-            value: >-
-              item.tempHp + max(0, flags.slot - item.level)
-                * (has(item.upcastTempHp) ? item.upcastTempHp : 0)
       - id: unsap
         kind: changes
         when: >-

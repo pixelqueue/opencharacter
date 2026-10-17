@@ -125,8 +125,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Grapple and Shove:** the target saves with the better of Strength and Dexterity (its
   player's choice).
 - **Death saves:** damage at 0 hit points from a Critical Hit counts two failures.
-- **Temporary Hit Points** from a spell replace the target's (the caster can't read them); the
-  `gain-temporary-hit-points` action keeps the higher.
+- **Temporary Hit Points** don't stack: `gain-temporary-hit-points` keeps the higher, and the
+  features and spells that grant them (False Life's roll among them) go through it.
 - **Spell slots:** without a slot type, a spell slot of the cast's level pays when one is left,
   else a pact slot; when both can, the player chooses (the pact slot recommended for a warlock
   spell). Free casts (once per Long Rest, species and feat spells) are offered as a cost option.
