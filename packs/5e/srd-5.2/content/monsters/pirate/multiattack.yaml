@@ -1,0 +1,45 @@
+id: monsters.pirate.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: dagger1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.pirate.dagger)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options:
+          - { id: dagger }
+          - { id: enthralling-panache }
+        recommend: "'dagger'"
+      - id: dagger2
+        kind: action
+        when: "steps.pick2.picked == 'dagger'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.pirate.dagger)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: enthrallingPanache
+        kind: action
+        when: "steps.pick2.picked == 'enthralling-panache'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.pirate.enthralling-panache)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.dagger1.result == 'hit' ? 1 : 0)
+              + (has(steps.dagger2) && steps.dagger2.result == 'hit' ? 1 : 0)

@@ -1,0 +1,47 @@
+id: monsters.doppelganger.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: slam1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.doppelganger.slam)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: slam2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.doppelganger.slam)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: extra
+        kind: choice
+        options:
+          - id: unsettling-visage
+            when: >-
+              countCopies(copy.item == @monsters.doppelganger.unsettling-visage
+                && !copy.state.recharging) > 0
+          - id: none
+        recommend: options[0]
+      - id: visage
+        kind: action
+        when: "steps.extra.picked == 'unsettling-visage'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.doppelganger.unsettling-visage)[0].id
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.slam1.result == 'hit' ? 1 : 0)
+              + (steps.slam2.result == 'hit' ? 1 : 0)

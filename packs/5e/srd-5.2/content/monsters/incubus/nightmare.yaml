@@ -1,0 +1,61 @@
+id: monsters.incubus.nightmare
+type: monsterAction
+fields:
+  kind: bonus-action
+  order: 5
+  recharge: 6
+actions:
+  # A failed save: Unconscious at 20 Hit Points or fewer, otherwise the Psychic damage.
+  - id: nightmare
+    tags: [monster-effect]
+    available: '!self.recharging'
+    participants:
+      target:
+        max: 1
+        fields: { hp.current: { type: integer } }
+    results: [used]
+    steps:
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params:
+          ability: "'wis'"
+          dc: 15
+      - id: low
+        kind: branch
+        each: target
+        cases:
+          - when: true
+            flags:
+              low: has(participant.hp.current) && participant.hp.current <= 20
+      - id: sleep
+        kind: changes
+        each: target
+        when: steps.save.result == 'failure' && flags.low
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.unconscious'", state: { by: creature.type } }
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts: [{ dice: 4d8, tags: [damage.psychic] }]
+      - id: deal
+        kind: changes
+        each: target
+        when: steps.save.result == 'failure' && !flags.low
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, save-negates, save.wis, save-failure]
+      - id: spend
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: recharging, value: true }
+      - id: result
+        kind: outcome
+        result: "'used'"

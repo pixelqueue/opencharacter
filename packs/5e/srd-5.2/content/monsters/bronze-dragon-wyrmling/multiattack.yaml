@@ -1,0 +1,31 @@
+id: monsters.bronze-dragon-wyrmling.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: rend1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.bronze-dragon-wyrmling.rend)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: rend2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.bronze-dragon-wyrmling.rend)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.rend1.result == 'hit' ? 1 : 0)
+              + (steps.rend2.result == 'hit' ? 1 : 0)

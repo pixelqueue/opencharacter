@@ -1,0 +1,51 @@
+id: monsters.clay-golem.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 5
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      # "If it used Hasten this turn": Hasten is spent until it recharges.
+      - id: mode
+        kind: choice
+        options:
+          - id: three
+            when: >-
+              countCopies(copy.item == @monsters.clay-golem.hasten && copy.state.recharging) > 0
+          - id: two
+        recommend: options[0]
+      - id: slam1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.clay-golem.slam)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: slam2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.clay-golem.slam)[0].id
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)]] : []
+      - id: slam3
+        kind: action
+        when: "steps.mode.picked == 'three'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.clay-golem.slam)[0].id
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(2, size(participants.target) - 1)]] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.slam1.result == 'hit' ? 1 : 0) + (steps.slam2.result == 'hit' ? 1 : 0)
+              + (has(steps.slam3) && steps.slam3.result == 'hit' ? 1 : 0)

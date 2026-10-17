@@ -1,0 +1,77 @@
+id: monsters.assassin.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: shortsword }, { id: light-crossbow }]
+        recommend: "'shortsword'"
+      - id: shortsword1
+        kind: action
+        when: "steps.pick1.picked == 'shortsword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.assassin.shortsword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: lightCrossbow1
+        kind: action
+        when: "steps.pick1.picked == 'light-crossbow'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.assassin.light-crossbow)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: shortsword }, { id: light-crossbow }]
+        recommend: "'shortsword'"
+      - id: shortsword2
+        kind: action
+        when: "steps.pick2.picked == 'shortsword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.assassin.shortsword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: lightCrossbow2
+        kind: action
+        when: "steps.pick2.picked == 'light-crossbow'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.assassin.light-crossbow)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pick3
+        kind: choice
+        options: [{ id: shortsword }, { id: light-crossbow }]
+        recommend: "'shortsword'"
+      - id: shortsword3
+        kind: action
+        when: "steps.pick3.picked == 'shortsword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.assassin.shortsword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: lightCrossbow3
+        kind: action
+        when: "steps.pick3.picked == 'light-crossbow'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.assassin.light-crossbow)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.shortsword1) && steps.shortsword1.result == 'hit' ? 1 : 0)
+              + (has(steps.lightCrossbow1) && steps.lightCrossbow1.result == 'hit' ? 1 : 0)
+              + (has(steps.shortsword2) && steps.shortsword2.result == 'hit' ? 1 : 0)
+              + (has(steps.lightCrossbow2) && steps.lightCrossbow2.result == 'hit' ? 1 : 0)
+              + (has(steps.shortsword3) && steps.shortsword3.result == 'hit' ? 1 : 0)
+              + (has(steps.lightCrossbow3) && steps.lightCrossbow3.result == 'hit' ? 1 : 0)

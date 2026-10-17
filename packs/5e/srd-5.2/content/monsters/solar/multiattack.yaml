@@ -1,0 +1,43 @@
+id: monsters.solar.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 5
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: flyingSword1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.solar.flying-sword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: flying-sword }, { id: slaying-bow }]
+        recommend: "'flying-sword'"
+      - id: flyingSword2
+        kind: action
+        when: "steps.pick2.picked == 'flying-sword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.solar.flying-sword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: slayingBow
+        kind: action
+        when: "steps.pick2.picked == 'slaying-bow'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.solar.slaying-bow)[0].id
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.flyingSword1.result == 'hit' ? 1 : 0)
+              + (has(steps.flyingSword2) && steps.flyingSword2.result == 'hit' ? 1 : 0)

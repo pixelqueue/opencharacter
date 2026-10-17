@@ -1,0 +1,44 @@
+id: monsters.elephant.gore
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+  attack: melee
+  toHit: 8
+  reach: 5
+  damage: 2d8 + 6
+  damageType: piercing
+actions:
+  # "If the target is a Huge or smaller creature and the elephant moved 20+ feet straight toward it
+  # immediately before the hit".
+  - id: charge
+    tags: [attack]
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: gore
+        kind: action
+        use: monster-attack
+        entry: self.id
+        participants:
+          target: participants.target
+      - id: rider
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              rider: >-
+                steps.gore.result == 'hit' && size(participants.target) > 0
+                  && indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                    participants.target[0].creature.size) <= 4
+      - id: prone
+        kind: changes
+        when: flags.rider
+        each: target
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.prone'", state: { by: creature.type } }
+      - id: result
+        kind: outcome
+        result: "steps.gore.result == 'hit' ? 'hit' : 'miss'"

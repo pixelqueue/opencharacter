@@ -1,0 +1,79 @@
+id: monsters.pit-fiend.hellfire-spellcasting
+type: monsterAction
+fields:
+  kind: action
+  order: 9
+  recharge: 4
+  spellAbility: cha
+  spellDc: 21
+# Its three spells are cast only through this action.
+grants:
+  - item: spells.fireball
+  - item: spells.hold-monster
+  - item: spells.wall-of-fire
+effects:
+  - { target: spells.monster, op: grant, value: { item: spells.fireball } }
+  - { target: spells.monster, op: grant, value: { item: spells.hold-monster } }
+  - { target: spells.monster, op: grant, value: { item: spells.wall-of-fire } }
+  - { target: spells.limited, op: grant, value: { item: spells.fireball } }
+  - { target: spells.limited, op: grant, value: { item: spells.hold-monster } }
+  - { target: spells.limited, op: grant, value: { item: spells.wall-of-fire } }
+actions:
+  # Fireball (level 5) twice; the second can be Hold Monster (level 7) or Wall of Fire.
+  - id: hellfire
+    tags: [spell]
+    available: '!self.recharging'
+    participants:
+      target: { fields: target }
+    results: [cast]
+    steps:
+      - id: fireball
+        kind: action
+        use: cast-spell
+        source: "'spells.fireball'"
+        params:
+          slotType: "'none'"
+          slot: 5
+        participants:
+          target: participants.target
+      - id: second
+        kind: choice
+        options: [{ id: fireball }, { id: hold-monster }, { id: wall-of-fire }]
+        recommend: "'fireball'"
+      - id: fireball2
+        kind: action
+        when: "steps.second.picked == 'fireball'"
+        use: cast-spell
+        source: "'spells.fireball'"
+        params:
+          slotType: "'none'"
+          slot: 5
+        participants:
+          target: participants.target
+      - id: holdMonster
+        kind: action
+        when: "steps.second.picked == 'hold-monster'"
+        use: cast-spell
+        source: "'spells.hold-monster'"
+        params:
+          slotType: "'none'"
+          slot: 7
+        participants:
+          target: participants.target
+      - id: wallOfFire
+        kind: action
+        when: "steps.second.picked == 'wall-of-fire'"
+        use: cast-spell
+        source: "'spells.wall-of-fire'"
+        params:
+          slotType: "'none'"
+          slot: 4
+        participants:
+          target: participants.target
+      - id: spend
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: recharging, value: true }
+      - id: result
+        kind: outcome
+        result: "'cast'"

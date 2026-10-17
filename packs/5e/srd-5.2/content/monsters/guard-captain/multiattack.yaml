@@ -1,0 +1,57 @@
+id: monsters.guard-captain.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: javelin }, { id: longsword }]
+        recommend: "'javelin'"
+      - id: javelin1
+        kind: action
+        when: "steps.pick1.picked == 'javelin'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.guard-captain.javelin)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: longsword1
+        kind: action
+        when: "steps.pick1.picked == 'longsword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.guard-captain.longsword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: javelin }, { id: longsword }]
+        recommend: "'javelin'"
+      - id: javelin2
+        kind: action
+        when: "steps.pick2.picked == 'javelin'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.guard-captain.javelin)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: longsword2
+        kind: action
+        when: "steps.pick2.picked == 'longsword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.guard-captain.longsword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.javelin1) && steps.javelin1.result == 'hit' ? 1 : 0)
+              + (has(steps.longsword1) && steps.longsword1.result == 'hit' ? 1 : 0)
+              + (has(steps.javelin2) && steps.javelin2.result == 'hit' ? 1 : 0)
+              + (has(steps.longsword2) && steps.longsword2.result == 'hit' ? 1 : 0)

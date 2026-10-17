@@ -1,0 +1,38 @@
+id: monsters.giant-scorpion.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: claw1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.giant-scorpion.claw)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: claw2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.giant-scorpion.claw)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: sting3
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.giant-scorpion.sting)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.claw1.result == 'hit' ? 1 : 0)
+              + (steps.claw2.result == 'hit' ? 1 : 0)
+              + (steps.sting3.result == 'hit' ? 1 : 0)

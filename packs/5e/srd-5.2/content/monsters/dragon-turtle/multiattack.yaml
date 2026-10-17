@@ -1,0 +1,51 @@
+id: monsters.dragon-turtle.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: bite1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.dragon-turtle.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: bite2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.dragon-turtle.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pick3
+        kind: choice
+        options: [{ id: bite }, { id: tail }]
+        recommend: "'bite'"
+      - id: bite3
+        kind: action
+        when: "steps.pick3.picked == 'bite'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.dragon-turtle.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: tail3
+        kind: action
+        when: "steps.pick3.picked == 'tail'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.dragon-turtle.tail)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.bite1.result == 'hit' ? 1 : 0)
+              + (steps.bite2.result == 'hit' ? 1 : 0)
+              + (has(steps.bite3) && steps.bite3.result == 'hit' ? 1 : 0)
+              + (has(steps.tail3) && steps.tail3.result == 'hit' ? 1 : 0)

@@ -1,0 +1,17 @@
+id: monsters.swarm-of-venomous-snakes.bites
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+  attack: melee
+  toHit: 6
+  reach: 5
+  damage: 1d8 + 4
+  damageType: piercing
+  damage2: 3d6
+  damage2Type: poison
+effects:
+  - target: { rolls: [damage.weapon], parts: [damage.piercing], from: self }
+    op: set
+    value: 1d4 + 4
+    when: hp.bloodied

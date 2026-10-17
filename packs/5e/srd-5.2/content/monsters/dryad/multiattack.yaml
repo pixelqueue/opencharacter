@@ -1,0 +1,52 @@
+id: monsters.dryad.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 3
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: vine-lash }, { id: thorn-burst }]
+        recommend: "'vine-lash'"
+      - id: vineLash
+        kind: action
+        when: "steps.pick1.picked == 'vine-lash'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.dryad.vine-lash)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: thornBurst
+        kind: action
+        when: "steps.pick1.picked == 'thorn-burst'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.dryad.thorn-burst)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: extra
+        kind: choice
+        options: [{ id: charm-monster }, { id: none }]
+        recommend: "'charm-monster'"
+      - id: charmMonster
+        kind: action
+        when: "steps.extra.picked == 'charm-monster'"
+        use: cast-spell
+        source: "'spells.charm-monster'"
+        params:
+          slotType: "'none'"
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)]] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.vineLash) && steps.vineLash.result == 'hit' ? 1 : 0)
+              + (has(steps.thornBurst) && steps.thornBurst.result == 'hit' ? 1 : 0)

@@ -1,0 +1,10 @@
+id: monsters.berserker.bloodied-frenzy
+type: monsterAction
+fields:
+  kind: trait
+  order: 1
+effects:
+  - target: { rolls: [attack, save] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: hp.bloodied && hp.current > 0

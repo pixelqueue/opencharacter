@@ -1,0 +1,17 @@
+id: monsters.swarm-of-crawling-claws.swarm-of-grasping-hands
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+  attack: melee
+  toHit: 4
+  reach: 5
+  damage: 4d8 + 2
+  damageType: necrotic
+  conditions: [conditions.prone]
+  maxSize: medium
+effects:
+  - target: { rolls: [damage.weapon], parts: [damage.necrotic], from: self }
+    op: set
+    value: 2d8 + 2
+    when: hp.bloodied

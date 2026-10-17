@@ -1,0 +1,15 @@
+id: monsters.animated-rug-of-smothering.smother
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+  attack: melee
+  toHit: 5
+  reach: 5
+  damage: 2d6 + 3
+  damageType: bludgeoning
+  # Blinded and Restrained last until the grapple ends: the app ends them with it.
+  conditions: [conditions.grappled, conditions.blinded, conditions.restrained]
+  escapeDc: 13
+  maxSize: medium
+  conditionsInstead: true

@@ -1,0 +1,31 @@
+id: monsters.ettin.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: battleaxe1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.ettin.battleaxe)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: morningstar2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.ettin.morningstar)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.battleaxe1.result == 'hit' ? 1 : 0)
+              + (steps.morningstar2.result == 'hit' ? 1 : 0)

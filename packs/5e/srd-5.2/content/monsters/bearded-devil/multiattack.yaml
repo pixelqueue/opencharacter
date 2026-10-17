@@ -1,0 +1,31 @@
+id: monsters.bearded-devil.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: beard1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.bearded-devil.beard)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: infernalGlaive2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.bearded-devil.infernal-glaive)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.beard1.result == 'hit' ? 1 : 0)
+              + (steps.infernalGlaive2.result == 'hit' ? 1 : 0)

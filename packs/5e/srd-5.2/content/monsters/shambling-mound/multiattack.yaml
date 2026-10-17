@@ -1,0 +1,52 @@
+id: monsters.shambling-mound.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: chargedTendril1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.shambling-mound.charged-tendril)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: chargedTendril2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.shambling-mound.charged-tendril)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pick3
+        kind: choice
+        options:
+          - { id: charged-tendril }
+          - { id: engulf }
+        recommend: "'charged-tendril'"
+      - id: chargedTendril3
+        kind: action
+        when: "steps.pick3.picked == 'charged-tendril'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.shambling-mound.charged-tendril)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: engulf
+        kind: action
+        when: "steps.pick3.picked == 'engulf'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.shambling-mound.engulf)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.chargedTendril1.result == 'hit' ? 1 : 0)
+              + (steps.chargedTendril2.result == 'hit' ? 1 : 0)
+              + (has(steps.chargedTendril3) && steps.chargedTendril3.result == 'hit' ? 1 : 0)

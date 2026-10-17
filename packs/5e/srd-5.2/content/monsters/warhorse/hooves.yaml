@@ -1,0 +1,59 @@
+id: monsters.warhorse.hooves
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+  attack: melee
+  toHit: 6
+  reach: 5
+  damage: 2d4 + 4
+  damageType: bludgeoning
+actions:
+  # After moving 20+ feet straight toward the target: the attack, then the extra damage and Prone.
+  - id: charge
+    tags: [attack]
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: hooves
+        kind: action
+        use: monster-attack
+        entry: self.id
+        params:
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+        participants:
+          target: participants.target
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              critical: "steps.hooves.result == 'hit' && steps.hooves.data.critical"
+              sizeOk: >-
+                size(participants.target) == 0
+                  || indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                    participants.target[0].creature.size) <= 3
+      - id: extra
+        kind: roll
+        when: steps.hooves.result == 'hit' && flags.sizeOk
+        tags: [damage.weapon]
+        parts: [{ dice: 2d4, tags: [damage.bludgeoning] }]
+      - id: deal
+        kind: changes
+        when: has(steps.extra)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: extra, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, attack, melee, { formula: "flags.critical ? ['critical'] : []" }]
+          - { type: applyEffect, source: "'conditions.prone'", state: { by: creature.type } }
+      - id: result
+        kind: outcome
+        result: "steps.hooves.result == 'hit' ? 'hit' : 'miss'"
+        data:
+          damage: 'steps.hooves.data.damage + (has(steps.extra) ? steps.extra.total : 0)'

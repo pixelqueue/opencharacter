@@ -1,0 +1,42 @@
+id: monsters.gray-ooze
+type: monster
+fields:
+  size: medium
+  creatureType: ooze
+  alignment: unaligned
+  ac: 9
+  initiative: -2
+  hp: 22
+  hitDice: 3d8 + 9
+  speed: 10
+  climbSpeed: 10
+  str: 12
+  dex: 6
+  con: 16
+  int: 1
+  wis: 6
+  cha: 2
+  skills: [skill.stealth]
+  expertise: [skill.stealth]
+  damageResistances: [damage.acid, damage.cold, damage.fire]
+  conditionImmunities:
+    [
+      conditions.blinded,
+      conditions.charmed,
+      conditions.deafened,
+      conditions.frightened,
+      conditions.grappled,
+      conditions.prone,
+      conditions.restrained,
+    ]
+  exhaustionImmune: true
+  blindsight: 60
+  cr: 0.5
+  xp: 100
+  entries:
+    - monsters.gray-ooze.amorphous
+    - monsters.gray-ooze.corrosive-form
+    - monsters.gray-ooze.pseudopod
+effects:
+  # Initiative score 13 as printed (10 + the modifier would be 8).
+  - { target: initiative.score, op: add, value: 5 }

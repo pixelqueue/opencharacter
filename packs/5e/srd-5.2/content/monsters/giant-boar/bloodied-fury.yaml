@@ -1,0 +1,10 @@
+id: monsters.giant-boar.bloodied-fury
+type: monsterAction
+fields:
+  kind: trait
+  order: 1
+effects:
+  - target: { rolls: [attack.melee] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: hp.bloodied && hp.current > 0

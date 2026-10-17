@@ -1,0 +1,77 @@
+id: monsters.pirate-captain.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: rapier }, { id: pistol }]
+        recommend: "'rapier'"
+      - id: rapier1
+        kind: action
+        when: "steps.pick1.picked == 'rapier'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.pirate-captain.rapier)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pistol1
+        kind: action
+        when: "steps.pick1.picked == 'pistol'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.pirate-captain.pistol)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: rapier }, { id: pistol }]
+        recommend: "'rapier'"
+      - id: rapier2
+        kind: action
+        when: "steps.pick2.picked == 'rapier'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.pirate-captain.rapier)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pistol2
+        kind: action
+        when: "steps.pick2.picked == 'pistol'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.pirate-captain.pistol)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pick3
+        kind: choice
+        options: [{ id: rapier }, { id: pistol }]
+        recommend: "'rapier'"
+      - id: rapier3
+        kind: action
+        when: "steps.pick3.picked == 'rapier'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.pirate-captain.rapier)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: pistol3
+        kind: action
+        when: "steps.pick3.picked == 'pistol'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.pirate-captain.pistol)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.rapier1) && steps.rapier1.result == 'hit' ? 1 : 0)
+              + (has(steps.pistol1) && steps.pistol1.result == 'hit' ? 1 : 0)
+              + (has(steps.rapier2) && steps.rapier2.result == 'hit' ? 1 : 0)
+              + (has(steps.pistol2) && steps.pistol2.result == 'hit' ? 1 : 0)
+              + (has(steps.rapier3) && steps.rapier3.result == 'hit' ? 1 : 0)
+              + (has(steps.pistol3) && steps.pistol3.result == 'hit' ? 1 : 0)

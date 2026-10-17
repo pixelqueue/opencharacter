@@ -1,0 +1,50 @@
+id: monsters.gladiator.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: spear1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.gladiator.spear)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: spear2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.gladiator.spear)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pick3
+        kind: choice
+        options: [{ id: spear }, { id: shield-bash }]
+        recommend: "'spear'"
+      - id: spear3
+        kind: action
+        when: "steps.pick3.picked == 'spear'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.gladiator.spear)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: shieldBash
+        kind: action
+        when: "steps.pick3.picked == 'shield-bash'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.gladiator.shield-bash)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.spear1.result == 'hit' ? 1 : 0)
+              + (steps.spear2.result == 'hit' ? 1 : 0)
+              + (has(steps.spear3) && steps.spear3.result == 'hit' ? 1 : 0)

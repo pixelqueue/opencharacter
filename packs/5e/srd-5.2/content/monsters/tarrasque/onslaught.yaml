@@ -1,0 +1,42 @@
+# "…makes one Claw or Tail attack": `uses` names one entry, so the choice is an action of its own.
+id: monsters.tarrasque.onslaught
+type: monsterAction
+fields:
+  kind: legendary
+  order: 11
+actions:
+  - id: onslaught
+    tags: [attack, legendary]
+    available: >-
+      legendary.spent + item.legendaryCost <= legendary.actions && !conditions.incapacitated
+    participants:
+      target: { max: 1, fields: target }
+    results: [used]
+    steps:
+      - id: attack
+        kind: choice
+        options: [{ id: claw }, { id: tail }]
+        recommend: "'claw'"
+      - id: claw
+        kind: action
+        when: "steps.attack.picked == 'claw'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.tarrasque.claw)[0].id
+        participants:
+          target: participants.target
+      - id: tail
+        kind: action
+        when: "steps.attack.picked == 'tail'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.tarrasque.tail)[0].id
+        participants:
+          target: participants.target
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: legendary.spent, by: item.legendaryCost }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          result: 'has(steps.claw) ? steps.claw.result : steps.tail.result'

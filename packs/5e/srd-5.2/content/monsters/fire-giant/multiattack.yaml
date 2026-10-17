@@ -1,0 +1,57 @@
+id: monsters.fire-giant.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: flame-sword }, { id: hammer-throw }]
+        recommend: "'flame-sword'"
+      - id: flameSword1
+        kind: action
+        when: "steps.pick1.picked == 'flame-sword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.fire-giant.flame-sword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: hammerThrow1
+        kind: action
+        when: "steps.pick1.picked == 'hammer-throw'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.fire-giant.hammer-throw)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: flame-sword }, { id: hammer-throw }]
+        recommend: "'flame-sword'"
+      - id: flameSword2
+        kind: action
+        when: "steps.pick2.picked == 'flame-sword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.fire-giant.flame-sword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: hammerThrow2
+        kind: action
+        when: "steps.pick2.picked == 'hammer-throw'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.fire-giant.hammer-throw)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.flameSword1) && steps.flameSword1.result == 'hit' ? 1 : 0)
+              + (has(steps.hammerThrow1) && steps.hammerThrow1.result == 'hit' ? 1 : 0)
+              + (has(steps.flameSword2) && steps.flameSword2.result == 'hit' ? 1 : 0)
+              + (has(steps.hammerThrow2) && steps.hammerThrow2.result == 'hit' ? 1 : 0)

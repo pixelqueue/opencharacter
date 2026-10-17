@@ -1,0 +1,31 @@
+id: monsters.purple-worm.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: bite1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.purple-worm.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: tailStinger2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.purple-worm.tail-stinger)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.bite1.result == 'hit' ? 1 : 0)
+              + (steps.tailStinger2.result == 'hit' ? 1 : 0)

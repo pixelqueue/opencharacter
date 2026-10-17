@@ -1,0 +1,71 @@
+id: monsters.medusa.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: mode
+        kind: choice
+        options:
+          - { id: claws-and-snake-hair }
+          - { id: poison-rays }
+        recommend: "'claws-and-snake-hair'"
+      - id: claw1
+        kind: action
+        when: "steps.mode.picked == 'claws-and-snake-hair'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.medusa.claw)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: claw2
+        kind: action
+        when: "steps.mode.picked == 'claws-and-snake-hair'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.medusa.claw)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: snakeHair
+        kind: action
+        when: "steps.mode.picked == 'claws-and-snake-hair'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.medusa.snake-hair)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: poisonRay1
+        kind: action
+        when: "steps.mode.picked == 'poison-rays'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.medusa.poison-ray)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: poisonRay2
+        kind: action
+        when: "steps.mode.picked == 'poison-rays'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.medusa.poison-ray)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: poisonRay3
+        kind: action
+        when: "steps.mode.picked == 'poison-rays'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.medusa.poison-ray)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.claw1) && steps.claw1.result == 'hit' ? 1 : 0)
+              + (has(steps.claw2) && steps.claw2.result == 'hit' ? 1 : 0)
+              + (has(steps.snakeHair) && steps.snakeHair.result == 'hit' ? 1 : 0)
+              + (has(steps.poisonRay1) && steps.poisonRay1.result == 'hit' ? 1 : 0)
+              + (has(steps.poisonRay2) && steps.poisonRay2.result == 'hit' ? 1 : 0)
+              + (has(steps.poisonRay3) && steps.poisonRay3.result == 'hit' ? 1 : 0)

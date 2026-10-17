@@ -1,0 +1,13 @@
+id: monsters.invisible-stalker.invisibility
+type: monsterAction
+fields:
+  kind: trait
+  order: 2
+effects:
+  # Always Invisible: the condition's own effects. Its Initiative score (22) is printed with the
+  # Advantage counted (+5).
+  - { target: combat.attackersDisadvantage, op: set, value: true }
+  - target: { rolls: [attack, initiative] }
+    op: rollModifier
+    value: { kind: advantage }
+  - { target: initiative.score, op: add, value: 5 }

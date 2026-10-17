@@ -1,0 +1,13 @@
+id: monsters.rakshasa.greater-magic-resistance
+type: monsterAction
+fields:
+  kind: trait
+  order: 1
+effects:
+  # The GM picks it on a failed save against a spell or other magical effect.
+  - target: { choices: [failed-save] }
+    op: option
+    when: has(params.dc)
+    value:
+      id: greater-magic-resistance
+      flags: { addBonus: 'params.dc - flags.total' }

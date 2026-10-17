@@ -1,0 +1,57 @@
+id: monsters.barbed-devil.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 4
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: mode
+        kind: choice
+        options: [{ id: claws-and-tail }, { id: hurl-flame }]
+        recommend: "'claws-and-tail'"
+      - id: claws
+        kind: action
+        when: "steps.mode.picked == 'claws-and-tail'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.barbed-devil.claws)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: tail
+        kind: action
+        when: "steps.mode.picked == 'claws-and-tail'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.barbed-devil.tail)[0].id
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)]] : []
+      - id: hurlFlame1
+        kind: action
+        when: "steps.mode.picked == 'hurl-flame'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.barbed-devil.hurl-flame)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: hurlFlame2
+        kind: action
+        when: "steps.mode.picked == 'hurl-flame'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.barbed-devil.hurl-flame)[0].id
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)]] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.claws) && steps.claws.result == 'hit' ? 1 : 0)
+              + (has(steps.tail) && steps.tail.result == 'hit' ? 1 : 0)
+              + (has(steps.hurlFlame1) && steps.hurlFlame1.result == 'hit' ? 1 : 0)
+              + (has(steps.hurlFlame2) && steps.hurlFlame2.result == 'hit' ? 1 : 0)

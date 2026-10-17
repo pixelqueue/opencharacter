@@ -1,0 +1,65 @@
+id: monsters.werebear.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: handaxe }, { id: rend }]
+        recommend: "'handaxe'"
+      - id: handaxe1
+        kind: action
+        when: "steps.pick1.picked == 'handaxe'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.werebear.handaxe)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: rend1
+        kind: action
+        when: "steps.pick1.picked == 'rend'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.werebear.rend)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: handaxe }, { id: rend }, { id: bite }]
+        recommend: "'handaxe'"
+      - id: handaxe2
+        kind: action
+        when: "steps.pick2.picked == 'handaxe'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.werebear.handaxe)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: rend2
+        kind: action
+        when: "steps.pick2.picked == 'rend'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.werebear.rend)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: bite2
+        kind: action
+        when: "steps.pick2.picked == 'bite'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.werebear.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.handaxe1) && steps.handaxe1.result == 'hit' ? 1 : 0)
+              + (has(steps.rend1) && steps.rend1.result == 'hit' ? 1 : 0)
+              + (has(steps.handaxe2) && steps.handaxe2.result == 'hit' ? 1 : 0)
+              + (has(steps.rend2) && steps.rend2.result == 'hit' ? 1 : 0)
+              + (has(steps.bite2) && steps.bite2.result == 'hit' ? 1 : 0)

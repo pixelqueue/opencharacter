@@ -1,0 +1,29 @@
+id: monsters.priest.divine-aid
+type: monsterAction
+fields:
+  kind: bonus-action
+  order: 5
+  perDay: 3
+  spell: spells.bless
+  spell2: spells.dispel-magic
+# Its other spells, on the same count as `spell` and `spell2`.
+grants:
+  - item: spells.healing-word
+  - item: spells.lesser-restoration
+effects:
+  - { target: spells.monster, op: grant, value: { item: spells.healing-word } }
+  - { target: spells.monster, op: grant, value: { item: spells.lesser-restoration } }
+  - { target: spells.limited, op: grant, value: { item: spells.healing-word } }
+  - { target: spells.limited, op: grant, value: { item: spells.lesser-restoration } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id in [@spells.healing-word, @spells.lesser-restoration] && self.used < self.uses
+        && (!has(params.slot) || params.slot == action.item.level)
+    value:
+      id: divine-aid
+      flags:
+        slot: action.item.level
+        castAbility: "'monster'"
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

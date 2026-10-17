@@ -1,0 +1,37 @@
+id: monsters.vampire.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 9
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: graveStrike1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.vampire.grave-strike)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: graveStrike2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.vampire.grave-strike)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: bite
+        kind: action
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.vampire.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.graveStrike1.result == 'hit' ? 1 : 0)
+              + (steps.graveStrike2.result == 'hit' ? 1 : 0)

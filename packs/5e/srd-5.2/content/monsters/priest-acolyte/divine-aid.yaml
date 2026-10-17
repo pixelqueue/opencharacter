@@ -1,0 +1,26 @@
+id: monsters.priest-acolyte.divine-aid
+type: monsterAction
+fields:
+  kind: bonus-action
+  order: 4
+  perDay: 1
+  spell: spells.bless
+  spell2: spells.healing-word
+# Its other spell, on the same count as `spell` and `spell2`.
+grants:
+  - item: spells.sanctuary
+effects:
+  - { target: spells.monster, op: grant, value: { item: spells.sanctuary } }
+  - { target: spells.limited, op: grant, value: { item: spells.sanctuary } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id in [@spells.sanctuary] && self.used < self.uses
+        && (!has(params.slot) || params.slot == action.item.level)
+    value:
+      id: divine-aid
+      flags:
+        slot: action.item.level
+        castAbility: "'monster'"
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

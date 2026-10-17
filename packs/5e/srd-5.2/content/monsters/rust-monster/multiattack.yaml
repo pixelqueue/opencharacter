@@ -1,0 +1,36 @@
+id: monsters.rust-monster.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: bite
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.rust-monster.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: antennae1
+        kind: action
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.rust-monster.antennae)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: antennae2
+        kind: action
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.rust-monster.antennae)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.bite.result == 'hit' ? 1 : 0)

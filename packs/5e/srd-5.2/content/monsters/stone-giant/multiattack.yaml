@@ -1,0 +1,57 @@
+id: monsters.stone-giant.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: stone-club }, { id: boulder }]
+        recommend: "'stone-club'"
+      - id: stoneClub1
+        kind: action
+        when: "steps.pick1.picked == 'stone-club'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.stone-giant.stone-club)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: boulder1
+        kind: action
+        when: "steps.pick1.picked == 'boulder'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.stone-giant.boulder)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: stone-club }, { id: boulder }]
+        recommend: "'stone-club'"
+      - id: stoneClub2
+        kind: action
+        when: "steps.pick2.picked == 'stone-club'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.stone-giant.stone-club)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: boulder2
+        kind: action
+        when: "steps.pick2.picked == 'boulder'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.stone-giant.boulder)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.stoneClub1) && steps.stoneClub1.result == 'hit' ? 1 : 0)
+              + (has(steps.boulder1) && steps.boulder1.result == 'hit' ? 1 : 0)
+              + (has(steps.stoneClub2) && steps.stoneClub2.result == 'hit' ? 1 : 0)
+              + (has(steps.boulder2) && steps.boulder2.result == 'hit' ? 1 : 0)

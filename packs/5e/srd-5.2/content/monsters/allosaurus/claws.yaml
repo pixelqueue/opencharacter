@@ -1,0 +1,51 @@
+id: monsters.allosaurus.claws
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+  attack: melee
+  toHit: 6
+  reach: 5
+  damage: 1d8 + 4
+  damageType: slashing
+actions:
+  # "If the target is a Large or smaller creature and the allosaurus moved 30+ feet straight toward it
+  # immediately before the hit".
+  - id: charge
+    tags: [attack]
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: claws
+        kind: action
+        use: monster-attack
+        entry: self.id
+        participants:
+          target: participants.target
+      - id: rider
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              rider: >-
+                steps.claws.result == 'hit' && size(participants.target) > 0
+                  && indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                    participants.target[0].creature.size) <= 3
+      - id: prone
+        kind: changes
+        when: flags.rider
+        each: target
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.prone'", state: { by: creature.type } }
+      - id: bite
+        kind: action
+        when: flags.rider
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.allosaurus.bite)[0].id
+        participants:
+          target: participants.target
+      - id: result
+        kind: outcome
+        result: "steps.claws.result == 'hit' ? 'hit' : 'miss'"

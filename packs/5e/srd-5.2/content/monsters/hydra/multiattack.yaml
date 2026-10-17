@@ -1,0 +1,100 @@
+id: monsters.hydra.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 4
+actions:
+  # "As many Bite attacks as it has heads": the heads it has now (five to start; Multiple Heads
+  # changes the count) are a param.
+  - id: multiattack
+    tags: [attack]
+    params:
+      heads: { type: integer, default: 5, min: 1, max: 10 }
+    participants:
+      target: { max: 10, fields: target }
+    results: [done]
+    steps:
+      - id: bite1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.hydra.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: bite2
+        kind: action
+        when: params.heads >= 2
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.hydra.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: bite3
+        kind: action
+        when: params.heads >= 3
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.hydra.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: bite4
+        kind: action
+        when: params.heads >= 4
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.hydra.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(3, size(participants.target) - 1)]] : []'
+      - id: bite5
+        kind: action
+        when: params.heads >= 5
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.hydra.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(4, size(participants.target) - 1)]] : []'
+      - id: bite6
+        kind: action
+        when: params.heads >= 6
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.hydra.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(5, size(participants.target) - 1)]] : []'
+      - id: bite7
+        kind: action
+        when: params.heads >= 7
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.hydra.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(6, size(participants.target) - 1)]] : []'
+      - id: bite8
+        kind: action
+        when: params.heads >= 8
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.hydra.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(7, size(participants.target) - 1)]] : []'
+      - id: bite9
+        kind: action
+        when: params.heads >= 9
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.hydra.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(8, size(participants.target) - 1)]] : []'
+      - id: bite10
+        kind: action
+        when: params.heads >= 10
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.hydra.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(9, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.bite1.result == 'hit' ? 1 : 0)
+              + (has(steps.bite2) && steps.bite2.result == 'hit' ? 1 : 0)
+              + (has(steps.bite3) && steps.bite3.result == 'hit' ? 1 : 0)
+              + (has(steps.bite4) && steps.bite4.result == 'hit' ? 1 : 0)
+              + (has(steps.bite5) && steps.bite5.result == 'hit' ? 1 : 0)
+              + (has(steps.bite6) && steps.bite6.result == 'hit' ? 1 : 0)
+              + (has(steps.bite7) && steps.bite7.result == 'hit' ? 1 : 0)
+              + (has(steps.bite8) && steps.bite8.result == 'hit' ? 1 : 0)
+              + (has(steps.bite9) && steps.bite9.result == 'hit' ? 1 : 0)
+              + (has(steps.bite10) && steps.bite10.result == 'hit' ? 1 : 0)

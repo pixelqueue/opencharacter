@@ -1,0 +1,49 @@
+id: monsters.erinyes.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 4
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: witheringSword1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.erinyes.withering-sword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: witheringSword2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.erinyes.withering-sword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: witheringSword3
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.erinyes.withering-sword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: extra
+        kind: choice
+        options: [{ id: entangling-rope }, { id: none }]
+        recommend: "'entangling-rope'"
+      - id: rope
+        kind: action
+        when: "steps.extra.picked == 'entangling-rope'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.erinyes.entangling-rope)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.witheringSword1.result == 'hit' ? 1 : 0)
+              + (steps.witheringSword2.result == 'hit' ? 1 : 0)
+              + (steps.witheringSword3.result == 'hit' ? 1 : 0)

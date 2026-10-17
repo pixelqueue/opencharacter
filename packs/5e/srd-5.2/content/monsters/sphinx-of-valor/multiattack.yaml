@@ -1,0 +1,83 @@
+# "…and uses Roar": the next roar of the sequence (First, Second, Third: Roar's uses spent so far),
+# then a use of Roar.
+id: monsters.sphinx-of-valor.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 3
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: claw1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.sphinx-of-valor.claw)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: claw2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.sphinx-of-valor.claw)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: roar
+        kind: choice
+        options:
+          - id: first-roar
+            when: >-
+              countCopies(copy.item == @monsters.sphinx-of-valor.roar
+                && copy.state.used < copy.state.uses) > 0
+          - id: second-roar
+            when: >-
+              countCopies(copy.item == @monsters.sphinx-of-valor.roar
+                && copy.state.used < copy.state.uses) > 0
+          - id: third-roar
+            when: >-
+              countCopies(copy.item == @monsters.sphinx-of-valor.roar
+                && copy.state.used < copy.state.uses) > 0
+          - id: none
+        recommend: >-
+          countCopies(copy.item == @monsters.sphinx-of-valor.roar && copy.state.used == 0) > 0
+            ? 'first-roar'
+          : countCopies(copy.item == @monsters.sphinx-of-valor.roar && copy.state.used == 1) > 0
+            ? 'second-roar'
+          : countCopies(copy.item == @monsters.sphinx-of-valor.roar && copy.state.used == 2) > 0
+            ? 'third-roar'
+          : 'none'
+      - id: firstRoar
+        kind: action
+        when: "steps.roar.picked == 'first-roar'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.sphinx-of-valor.first-roar)[0].id
+        participants:
+          target: participants.target
+      - id: secondRoar
+        kind: action
+        when: "steps.roar.picked == 'second-roar'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.sphinx-of-valor.second-roar)[0].id
+        participants:
+          target: participants.target
+      - id: thirdRoar
+        kind: action
+        when: "steps.roar.picked == 'third-roar'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.sphinx-of-valor.third-roar)[0].id
+        participants:
+          target: participants.target
+      - id: spendRoar
+        kind: action
+        when: "steps.roar.picked != 'none'"
+        use: use-monster-action
+        entry: filterList(character.features, x.item == @monsters.sphinx-of-valor.roar)[0].id
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.claw1.result == 'hit' ? 1 : 0)
+              + (steps.claw2.result == 'hit' ? 1 : 0)
