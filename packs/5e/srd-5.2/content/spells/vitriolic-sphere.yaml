@@ -1,0 +1,50 @@
+id: spells.vitriolic-sphere
+type: spell
+fields:
+  level: 4
+  school: evocation
+  classes: [classes.sorcerer, classes.wizard]
+  castingTime: action
+  rangeKind: ranged
+  range: 150
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: instantaneous
+  areaShape: sphere
+  areaSize: 20
+  save: dex
+  saveEffect: half
+  applied: true
+  damageType: acid
+  damage: 10d4
+  upcastDice: 2
+# A creature that failed the save takes the acid at the end of its next turn, with `acid`.
+actions:
+  - use: cast-spell
+  - id: acid
+    scope: applied
+    tags: [spell]
+    results: [done]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage.spell]
+        parts:
+          - dice: 5d4
+            tags: [damage.acid]
+      - id: deal
+        kind: changes
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, spell, magical]
+          - type: removeEffect
+            applied: { where: item.id == @spells.vitriolic-sphere }
+      - id: result
+        kind: outcome
+        result: "'done'"
+        data:
+          damage: steps.damage.total

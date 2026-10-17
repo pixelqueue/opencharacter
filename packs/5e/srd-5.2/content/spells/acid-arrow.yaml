@@ -1,0 +1,62 @@
+id: spells.acid-arrow
+type: spell
+fields:
+  level: 2
+  school: evocation
+  classes: [classes.wizard]
+  castingTime: action
+  rangeKind: ranged
+  range: 90
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: instantaneous
+  attack: ranged
+  damageType: acid
+  damage: 4d4
+  upcastDice: 1
+actions:
+  - use: cast-spell
+  # On a miss, the splash: half the initial damage. On a hit, the acid at the end of the
+  # target's next turn is `lingering`.
+  - id: splash
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+    participants:
+      target: { fields: target }
+    results: [done]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          dice: 'dieOf(1d4, 4 + max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+          damageType: "'acid'"
+          halve: true
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage
+  - id: lingering
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+    participants:
+      target: { fields: target }
+    results: [done]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          dice: 'dieOf(1d4, 2 + max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+          damageType: "'acid'"
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage

@@ -1,0 +1,26 @@
+id: spells.befuddlement
+type: spell
+# On a failed save the spell is applied: no spells while it lasts (the Magic action is the app's).
+fields:
+  level: 8
+  school: enchantment
+  classes: [classes.bard, classes.druid, classes.warlock, classes.wizard]
+  castingTime: action
+  rangeKind: ranged
+  range: 150
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: instantaneous
+  save: int
+  saveEffect: half
+  applied: true
+  damageType: psychic
+  damage: 10d12
+actions:
+  - use: cast-spell
+effects:
+  - target: spellcasting.blocked
+    op: set
+    value: true
+    scope: applied

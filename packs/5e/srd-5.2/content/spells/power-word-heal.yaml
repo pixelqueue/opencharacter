@@ -1,0 +1,36 @@
+id: spells.power-word-heal
+type: spell
+fields:
+  level: 9
+  school: enchantment
+  classes: [classes.bard, classes.cleric]
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: instantaneous
+# Casting it spends the slot; `restore` is the healing, on the target.
+actions:
+  - use: cast-spell
+  - id: restore
+    tags: [spell]
+    participants:
+      target: { max: 1 }
+    results: [done]
+    steps:
+      - id: restore
+        kind: changes
+        to: target
+        changes:
+          # All its Hit Points: more than any maximum, which clamps it.
+          - { type: adjust, field: hp.current, by: 1000000, tags: [healing] }
+          - type: removeEffect
+            applied:
+              where: >-
+                item.id in [@conditions.charmed, @conditions.frightened, @conditions.paralyzed,
+                  @conditions.poisoned, @conditions.stunned]
+      - id: result
+        kind: outcome
+        result: "'done'"

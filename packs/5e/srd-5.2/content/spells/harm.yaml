@@ -1,0 +1,47 @@
+id: spells.harm
+type: spell
+fields:
+  level: 6
+  school: necromancy
+  classes: [classes.cleric]
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: instantaneous
+  save: con
+  saveEffect: half
+  damageType: necrotic
+  damage: 14d6
+  applied: true
+state: { reduction: { type: integer, default: 0, min: 0 } }
+effects:
+  - target: hp.max
+    op: add
+    value: -self.reduction
+    scope: applied
+    when: self.reduction > 0
+# On a failed save the spell stays applied to the target; `reduce-maximum` (on the target) records
+# the Necrotic damage it took.
+actions:
+  - use: cast-spell
+  - id: reduce-maximum
+    scope: applied
+    tags: [spell]
+    params: { amount: { type: integer, min: 0 } }
+    results: [reduced]
+    steps:
+      - id: set
+        kind: changes
+        changes:
+          - type: setState
+            entry: self
+            key: reduction
+            value: min(params.amount, max(0, hp.max + self.reduction - 1))
+      - id: result
+        kind: outcome
+        result: "'reduced'"
+        data:
+          amount: min(params.amount, max(0, hp.max + self.reduction - 1))

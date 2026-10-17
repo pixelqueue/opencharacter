@@ -1,0 +1,27 @@
+id: spells.enthrall
+type: spell
+# Passive Perception follows the Perception modifier.
+fields:
+  level: 2
+  school: enchantment
+  classes: [classes.bard, classes.warlock]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  save: wis
+  saveEffect: none
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: skills.perception
+    op: add
+    value: -10
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }

@@ -1,0 +1,54 @@
+id: spells.heat-metal
+type: spell
+fields:
+  level: 2
+  school: transmutation
+  classes: [classes.bard, classes.druid]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+# Casting it spends the slot; the damage, on the cast and on later turns, is `heat`.
+actions:
+  - use: cast-spell
+  - id: heat
+    tags: [spell]
+    params: { slot: { type: integer, optional: true } }
+    participants: { target: {} }
+    results: [damage]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              slot: 'has(params.slot) ? max(item.level, min(9, params.slot)) : item.level'
+              critical: 'false'
+      - id: damage
+        kind: roll
+        tags: [damage.spell]
+        parts:
+          - dice: (2 + 1 * (flags.slot - item.level))d8
+            tags: [damage.fire]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags:
+              - damage
+              - spell
+              - magical
+              - { formula: "flags.critical ? ['critical'] : []" }
+      - id: result
+        kind: outcome
+        result: "'damage'"
+        data: { damage: steps.damage.total }

@@ -1,0 +1,24 @@
+id: spells.divine-favor
+type: spell
+fields:
+  level: 1
+  school: transmutation
+  classes: [classes.paladin]
+  castingTime: bonus-action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 1d4
+    tags: [damage.radiant]
+    when: "!('unarmed' in roll.tags)"
+    scope: applied
+    duration: { amount: 1, unit: minute }

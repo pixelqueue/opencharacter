@@ -1,0 +1,26 @@
+id: spells.shining-smite
+type: spell
+fields:
+  level: 2
+  school: transmutation
+  classes: [classes.paladin]
+  concentration: true
+  castingTime: bonus-action
+  rangeKind: self
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  applied: true
+  damageType: radiant
+  damage: 2d6
+  upcastDice: 1
+actions:
+  - use: cast-spell
+effects:
+  - target: combat.attackersAdvantage
+    op: set
+    value: true
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }

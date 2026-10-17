@@ -1,0 +1,41 @@
+id: spells.conjure-woodland-beings
+type: spell
+fields:
+  level: 4
+  school: conjuration
+  classes: [classes.druid, classes.ranger]
+  concentration: true
+  castingTime: action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 10
+  areaShape: emanation
+  areaSize: 10
+actions:
+  - use: cast-spell
+  # Casting it spends the slot; the spirits' damage, when a creature comes near, is `spirits`.
+  - id: spirits
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+    participants:
+      target: { fields: target }
+    results: [save]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          save: "'wis'"
+          half: true
+          dice: 'dieOf(1d8, 5 + max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+          damageType: "'force'"
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage

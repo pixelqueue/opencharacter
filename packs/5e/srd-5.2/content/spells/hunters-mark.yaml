@@ -1,0 +1,52 @@
+id: spells.hunters-mark
+type: spell
+fields:
+  level: 1
+  school: divination
+  classes: [classes.ranger]
+  concentration: true
+  castingTime: bonus-action
+  rangeKind: ranged
+  range: 90
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: hour
+  durationAmount: 1
+# The extra die is the field `huntersMark.die` (1d6; the ranger's Foe Slayer makes it 1d10).
+actions:
+  - use: cast-spell
+  - id: mark-damage
+    tags: [spell]
+    params: { critical: { type: boolean, optional: true } }
+    participants: { target: {} }
+    results: [damage]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              slot: item.level
+              critical: has(params.critical) && params.critical
+      - id: damage
+        kind: roll
+        tags: [damage.spell]
+        parts: [{ dice: huntersMark.die, tags: [damage.force] }]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags:
+              - damage
+              - spell
+              - magical
+              - { formula: "flags.critical ? ['critical'] : []" }
+      - id: result
+        kind: outcome
+        result: "'damage'"
+        data: { damage: steps.damage.total }

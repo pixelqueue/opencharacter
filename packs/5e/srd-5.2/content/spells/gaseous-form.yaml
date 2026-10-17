@@ -1,0 +1,83 @@
+id: spells.gaseous-form
+type: spell
+fields:
+  level: 3
+  school: transmutation
+  classes: [classes.sorcerer, classes.warlock, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+effects:
+  - target: combat.speed
+    op: atMost
+    value: 0
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: combat.climbSpeed
+    op: atMost
+    value: 0
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: combat.swimSpeed
+    op: atMost
+    value: 0
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: combat.burrowSpeed
+    op: atMost
+    value: 0
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: combat.flySpeed
+    op: atLeast
+    value: 10
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: combat.flySpeed
+    op: atMost
+    value: 10
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: combat.hover
+    op: set
+    value: true
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: damage.resistances
+    op: grant
+    value: { tag: damage.bludgeoning }
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: damage.resistances
+    op: grant
+    value: { tag: damage.piercing }
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: damage.resistances
+    op: grant
+    value: { tag: damage.slashing }
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: conditions.immunities
+    op: grant
+    value: { item: conditions.prone }
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [save.str, save.dex, save.con] }
+    op: rollModifier
+    value: { kind: advantage }
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: spellcasting.blocked
+    op: set
+    value: true
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+actions:
+  - use: cast-spell

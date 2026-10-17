@@ -1,0 +1,40 @@
+id: spells.ensnaring-strike
+type: spell
+fields:
+  level: 1
+  school: conjuration
+  classes: [classes.ranger]
+  concentration: true
+  castingTime: bonus-action
+  rangeKind: self
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  save: str
+  saveEffect: none
+  condition: conditions.restrained
+actions:
+  - use: cast-spell
+  # The damage at the start of each of the Restrained target's turns.
+  - id: vines
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+    participants:
+      target: { fields: target }
+    results: [done]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          dice: 'dieOf(1d6, 1 + max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+          damageType: "'piercing'"
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage

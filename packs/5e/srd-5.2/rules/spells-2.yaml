@@ -1,0 +1,33 @@
+situational:
+  # Guidance's skill is chosen when it is cast: while it is applied, the player marks a check with
+  # that skill.
+  - id: guidance
+    type: boolean
+    default: false
+    rolls:
+      &skills [
+        skill.acrobatics,
+        skill.animal-handling,
+        skill.arcana,
+        skill.athletics,
+        skill.deception,
+        skill.history,
+        skill.insight,
+        skill.intimidation,
+        skill.investigation,
+        skill.medicine,
+        skill.nature,
+        skill.perception,
+        skill.performance,
+        skill.persuasion,
+        skill.religion,
+        skill.sleight-of-hand,
+        skill.stealth,
+        skill.survival,
+      ]
+    available: countList(character.applied, x.active && x.source == @spells.guidance) > 0
+    effects:
+      - target: { rolls: *skills }
+        op: add
+        value: 1d4
+        when: situational.guidance

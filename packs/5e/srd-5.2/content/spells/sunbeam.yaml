@@ -1,0 +1,46 @@
+id: spells.sunbeam
+type: spell
+fields:
+  level: 6
+  school: evocation
+  classes: [classes.cleric, classes.druid, classes.sorcerer, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+  areaShape: line
+  areaSize: 60
+  save: con
+  saveEffect: half
+  condition: conditions.blinded
+  damageType: radiant
+  damage: 6d8
+# The cast makes the first Line; each later one is `beam`.
+actions:
+  - use: cast-spell
+  - id: beam
+    tags: [spell]
+    participants:
+      target: { fields: target }
+    results: [save]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          dice: 6d8
+          damageType: "'radiant'"
+          save: "'con'"
+          half: true
+          condition: "'conditions.blinded'"
+      - id: result
+        kind: outcome
+        result: "'save'"
+        data:
+          damage: steps.effect.data.damage
+          dc: steps.effect.data.dc

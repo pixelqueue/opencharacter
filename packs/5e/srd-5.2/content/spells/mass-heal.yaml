@@ -1,0 +1,49 @@
+id: spells.mass-heal
+type: spell
+fields:
+  level: 9
+  school: abjuration
+  classes: [classes.cleric]
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: instantaneous
+effects:
+  - target:
+      steps: [spell.slot-spent]
+    op: changes
+    value:
+      to: target
+      changes:
+        - type: removeEffect
+          applied: { where: item.id == @conditions.blinded }
+        - type: removeEffect
+          applied: { where: item.id == @conditions.deafened }
+        - type: removeEffect
+          applied: { where: item.id == @conditions.poisoned }
+    when: action.item.id == item.id
+# Casting it ends the three conditions on each target; `restore` gives one creature its share of
+# the 700 Hit Points.
+actions:
+  - use: cast-spell
+  - id: restore
+    tags: [spell, healing]
+    params: { amount: { type: integer, min: 0, max: 700 } }
+    participants: { target: { max: 1 } }
+    results: [healed]
+    steps:
+      - id: heal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            by: params.amount
+            tags: [healing]
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data: { amount: params.amount }

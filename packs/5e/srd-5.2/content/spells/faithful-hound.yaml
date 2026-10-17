@@ -1,0 +1,72 @@
+id: spells.faithful-hound
+type: spell
+fields:
+  level: 4
+  school: conjuration
+  classes: [classes.wizard]
+  castingTime: action
+  rangeKind: ranged
+  range: 30
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 8
+actions:
+  - use: cast-spell
+  - id: bite
+    tags: [spell]
+    params: { slot: { type: integer, optional: true } }
+    participants: { target: { fields: target } }
+    results: [save]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              cls: "countList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x)) > 0 ? filterList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x))[0] : 'none'"
+              slot: 'has(params.slot) ? max(item.level, min(9, params.slot)) : item.level'
+      - id: numbers
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dc: "flags.cls != 'none' ? fieldOf('spellcasting.{caster}.dc', flags.cls) : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.dc', x))"
+              attackBonus: "flags.cls != 'none' ? fieldOf('spellcasting.{caster}.attack', flags.cls) : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.attack', x))"
+              mod: "flags.cls != 'none' ? fieldOf('spellcasting.{caster}.mod', flags.cls) : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.mod', x))"
+      - id: damage
+        kind: roll
+        tags: [damage.spell]
+        parts: [{ dice: 4d8, tags: [damage.force] }]
+      - id: saves
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params: { ability: "'dex'", dc: flags.dc }
+      - id: burn
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            when: steps.saves.result != 'success'
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags:
+              - damage
+              - spell
+              - magical
+              - save-negates
+              - save.dex
+              - formula: "steps.saves.result == 'success' ? 'save-success' : 'save-failure'"
+      - id: result
+        kind: outcome
+        result: "'save'"
+        data:
+          slot: flags.slot
+          dc: flags.dc
+          save: "'dex'"
+          damage: steps.damage.total

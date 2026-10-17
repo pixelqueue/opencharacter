@@ -1,0 +1,113 @@
+id: spells.hex
+type: spell
+fields:
+  level: 1
+  school: enchantment
+  classes: [classes.warlock]
+  concentration: true
+  castingTime: bonus-action
+  rangeKind: ranged
+  range: 90
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+state:
+  ability:
+    type: enum
+    values: [none, str, dex, con, int, wis, cha]
+    default: none
+effects:
+  - target: { rolls: [check.str] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    when: self.ability == 'str'
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.dex] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    when: self.ability == 'dex'
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.con] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    when: self.ability == 'con'
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.int] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    when: self.ability == 'int'
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.wis] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    when: self.ability == 'wis'
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.cha] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    when: self.ability == 'cha'
+    duration: { amount: 1, unit: hour, concentration: true }
+# Applied to the target; the ability with Disadvantage is the `ability` the target's app sets with
+# `curse-ability`. The extra damage is `hex-damage`, run on a hit.
+actions:
+  - use: cast-spell
+  - id: hex-damage
+    tags: [spell]
+    params: { critical: { type: boolean, optional: true } }
+    participants: { target: {} }
+    results: [damage]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              slot: item.level
+              critical: has(params.critical) && params.critical
+      - id: damage
+        kind: roll
+        tags: [damage.spell]
+        parts: [{ dice: 1d6, tags: [damage.necrotic] }]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags:
+              - damage
+              - spell
+              - magical
+              - { formula: "flags.critical ? ['critical'] : []" }
+      - id: result
+        kind: outcome
+        result: "'damage'"
+        data: { damage: steps.damage.total }
+  - id: curse-ability
+    scope: applied
+    tags: [spell]
+    params:
+      ability: { type: enum, values: [str, dex, con, int, wis, cha] }
+    results: [cursed]
+    steps:
+      - id: set
+        kind: changes
+        changes:
+          - type: setState
+            entry: self
+            key: ability
+            value: params.ability
+      - id: result
+        kind: outcome
+        result: "'cursed'"

@@ -1,0 +1,23 @@
+id: spells.mage-armor
+type: spell
+fields:
+  level: 1
+  school: abjuration
+  classes: [classes.sorcerer, classes.wizard]
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 8
+  applied: true
+effects:
+  - target: combat.ac
+    op: set
+    value: 13 + abilities.dex.mod
+    scope: applied
+    when: "!('armor' in equipment.tags)"
+    duration: { amount: 8, unit: hour }
+actions:
+  - use: cast-spell

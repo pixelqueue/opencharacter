@@ -1,0 +1,28 @@
+id: spells.fly
+type: spell
+fields:
+  level: 3
+  school: transmutation
+  classes: [classes.sorcerer, classes.warlock, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 10
+  applied: true
+effects:
+  - target: combat.flySpeed
+    op: atLeast
+    value: 60
+    scope: applied
+    duration: { amount: 10, unit: minute, concentration: true }
+  - target: combat.hover
+    op: set
+    value: true
+    scope: applied
+    duration: { amount: 10, unit: minute, concentration: true }
+actions:
+  - use: cast-spell

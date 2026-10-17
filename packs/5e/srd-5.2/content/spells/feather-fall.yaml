@@ -1,0 +1,23 @@
+id: spells.feather-fall
+type: spell
+fields:
+  level: 1
+  school: transmutation
+  classes: [classes.bard, classes.sorcerer, classes.wizard]
+  castingTime: reaction
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: false
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+  applied: true
+effects:
+  - target: combat.featherFall
+    op: set
+    value: true
+    scope: applied
+    duration: { amount: 1, unit: minute }
+actions:
+  - use: cast-spell

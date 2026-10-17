@@ -1,0 +1,51 @@
+id: spells.vampiric-touch
+type: spell
+fields:
+  level: 3
+  school: necromancy
+  classes: [classes.sorcerer, classes.warlock, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+# Casting it spends the slot and rolls nothing: each touch, the first included, is `touch`, with the
+# slot it was cast with. The caster regains half the rolled damage.
+actions:
+  - use: cast-spell
+  - id: touch
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 3, max: 9 }
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          dice: 'dieOf(3d6, has(params.slot) ? params.slot : 3)'
+          damageType: "'necrotic'"
+          attack: "'melee'"
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+      - id: drain
+        kind: changes
+        when: steps.effect.result == 'hit' && steps.effect.data.damage > 1
+        changes:
+          - type: adjust
+            field: hp.current
+            by: floor(steps.effect.data.damage / 2)
+            tags: [healing]
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage
+          healing: "steps.effect.result == 'hit' ? floor(steps.effect.data.damage / 2) : 0"
+          critical: steps.effect.data.critical

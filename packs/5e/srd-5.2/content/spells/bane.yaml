@@ -1,0 +1,27 @@
+id: spells.bane
+type: spell
+fields:
+  level: 1
+  school: enchantment
+  classes: [classes.bard, classes.cleric, classes.warlock]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 30
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+  save: cha
+  saveEffect: none
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: { rolls: [attack, save] }
+    op: add
+    value: -1d4
+    stackKey: source
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }

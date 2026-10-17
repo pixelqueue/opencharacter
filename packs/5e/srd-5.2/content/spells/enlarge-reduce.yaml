@@ -1,0 +1,81 @@
+id: spells.enlarge-reduce
+type: spell
+# Only an unwilling creature saves: a willing one is treated as failing. The size change is the
+# text.
+fields:
+  level: 2
+  school: transmutation
+  classes: [classes.bard, classes.druid, classes.sorcerer, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 30
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+  save: con
+  saveEffect: none
+  applied: true
+state:
+  effect: { type: enum, values: [enlarge, reduce], default: enlarge }
+actions:
+  - use: cast-spell
+  # The chosen option is state on the applied spell; it starts as the first.
+  - id: choose
+    scope: applied
+    tags: [spell]
+    results: [chosen]
+    steps:
+      - id: option
+        kind: choice
+        options:
+          - id: enlarge
+            changes:
+              - { type: setState, entry: self, key: effect, value: "'enlarge'" }
+          - id: reduce
+            changes:
+              - { type: setState, entry: self, key: effect, value: "'reduce'" }
+        recommend: self.effect
+      - id: result
+        kind: outcome
+        result: "'chosen'"
+effects:
+  - target: { rolls: [check.str, save.str] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.effect == 'enlarge'
+    scope: applied
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 1d4
+    tags:
+      [
+        {
+          formula: "'damage.' + (has(roll.item.damageType) ? roll.item.damageType : 'bludgeoning')",
+        },
+      ]
+    when: self.effect == 'enlarge'
+    scope: applied
+  - target: { rolls: [check.str, save.str] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: self.effect == 'reduce'
+    scope: applied
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: -1d4
+    tags:
+      [
+        {
+          formula: "'damage.' + (has(roll.item.damageType) ? roll.item.damageType : 'bludgeoning')",
+        },
+      ]
+    when: self.effect == 'reduce'
+    scope: applied
+  - target: { rolls: [damage.weapon] }
+    op: atLeast
+    value: 1
+    when: self.effect == 'reduce'
+    scope: applied

@@ -1,0 +1,38 @@
+id: spells.divine-smite
+type: spell
+fields:
+  level: 1
+  school: evocation
+  classes: [classes.paladin]
+  castingTime: bonus-action
+  rangeKind: self
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: instantaneous
+actions:
+  - use: cast-spell
+  # Casting it spends the slot; `smite` deals the damage to the creature hit, doubled on a
+  # Critical Hit (the attack's dice and the spell's roll together).
+  - id: smite
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+      critical: { type: boolean, default: false }
+    participants:
+      target: { fields: target }
+    results: [done]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          dice: "dieOf(1d8, 2 + max(0, (has(params.slot) ? params.slot : item.level) - item.level) + (size(participants.target) > 0 && participants.target[0].creature.type in ['fiend', 'undead'] ? 1 : 0))"
+          damageType: "'radiant'"
+          critical: params.critical
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage

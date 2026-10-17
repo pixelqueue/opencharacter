@@ -1,0 +1,87 @@
+id: spells.contagion
+type: spell
+# On a failed save the spell is applied: Poisoned, and Disadvantage on the chosen ability's saves.
+fields:
+  level: 5
+  school: necromancy
+  classes: [classes.cleric, classes.druid]
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: day
+  durationAmount: 7
+  save: con
+  saveEffect: none
+  applied: true
+  damageType: necrotic
+  damage: 11d8
+state:
+  ability: { type: enum, values: [str, dex, con, int, wis, cha], default: str }
+actions:
+  - use: cast-spell
+  # The chosen option is state on the applied spell; it starts as the first.
+  - id: choose
+    scope: applied
+    tags: [spell]
+    results: [chosen]
+    steps:
+      - id: option
+        kind: choice
+        options:
+          - id: str
+            changes:
+              - { type: setState, entry: self, key: ability, value: "'str'" }
+          - id: dex
+            changes:
+              - { type: setState, entry: self, key: ability, value: "'dex'" }
+          - id: con
+            changes:
+              - { type: setState, entry: self, key: ability, value: "'con'" }
+          - id: int
+            changes:
+              - { type: setState, entry: self, key: ability, value: "'int'" }
+          - id: wis
+            changes:
+              - { type: setState, entry: self, key: ability, value: "'wis'" }
+          - id: cha
+            changes:
+              - { type: setState, entry: self, key: ability, value: "'cha'" }
+        recommend: self.ability
+      - id: result
+        kind: outcome
+        result: "'chosen'"
+grants:
+  - { item: conditions.poisoned, scope: applied }
+effects:
+  - target: { rolls: [save.str] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: self.ability == 'str'
+    scope: applied
+  - target: { rolls: [save.dex] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: self.ability == 'dex'
+    scope: applied
+  - target: { rolls: [save.con] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: self.ability == 'con'
+    scope: applied
+  - target: { rolls: [save.int] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: self.ability == 'int'
+    scope: applied
+  - target: { rolls: [save.wis] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: self.ability == 'wis'
+    scope: applied
+  - target: { rolls: [save.cha] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: self.ability == 'cha'
+    scope: applied

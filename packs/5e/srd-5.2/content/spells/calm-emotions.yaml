@@ -1,0 +1,48 @@
+id: spells.calm-emotions
+type: spell
+fields:
+  level: 2
+  school: enchantment
+  classes: [classes.bard, classes.cleric]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  areaShape: sphere
+  areaSize: 20
+  save: cha
+  saveEffect: none
+  applied: true
+state:
+  effect: { type: enum, values: [immunity, indifference], default: immunity }
+actions:
+  - use: cast-spell
+  # The chosen option is state on the applied spell; it starts as the first.
+  - id: choose
+    scope: applied
+    tags: [spell]
+    results: [chosen]
+    steps:
+      - id: option
+        kind: choice
+        options:
+          - id: immunity
+            changes:
+              - { type: setState, entry: self, key: effect, value: "'immunity'" }
+          - id: indifference
+            changes:
+              - { type: setState, entry: self, key: effect, value: "'indifference'" }
+        recommend: self.effect
+      - id: result
+        kind: outcome
+        result: "'chosen'"
+immuneTo:
+  - id: charmed-and-frightened
+    items: [conditions.charmed, conditions.frightened]
+    scope: applied
+    when: self.effect == 'immunity'

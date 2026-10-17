@@ -1,0 +1,43 @@
+id: spells.conjure-fey
+type: spell
+fields:
+  level: 6
+  school: conjuration
+  classes: [classes.druid]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 10
+actions:
+  - use: cast-spell
+  # Casting it spends the slot: each of the spirit's attacks, the first included, is `strike`.
+  - id: strike
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { fields: target }
+    results: [hit, miss]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          attack: "'melee'"
+          dice: 'dieOf(1d12, 3 + max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+          damageType: "'psychic'"
+          addMod: true
+          condition: "'conditions.frightened'"
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage

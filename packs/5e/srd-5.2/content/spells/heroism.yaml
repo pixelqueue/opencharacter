@@ -1,0 +1,23 @@
+id: spells.heroism
+type: spell
+fields:
+  level: 1
+  school: enchantment
+  classes: [classes.bard, classes.paladin]
+  concentration: true
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  applied: true
+effects:
+  - target: conditions.immunities
+    op: grant
+    value: { item: conditions.frightened }
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
+actions:
+  - use: cast-spell

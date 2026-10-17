@@ -1,0 +1,23 @@
+id: spells.hideous-laughter
+type: spell
+fields:
+  level: 1
+  school: enchantment
+  classes: [classes.bard, classes.warlock, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 30
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+  save: wis
+  saveEffect: none
+  condition: conditions.prone
+  applied: true
+grants:
+  - { item: conditions.incapacitated, scope: applied }
+actions:
+  - use: cast-spell

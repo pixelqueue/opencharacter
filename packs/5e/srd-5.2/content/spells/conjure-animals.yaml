@@ -1,0 +1,39 @@
+id: spells.conjure-animals
+type: spell
+fields:
+  level: 3
+  school: conjuration
+  classes: [classes.druid, classes.ranger]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 10
+actions:
+  - use: cast-spell
+  # Casting it spends the slot; the pack's damage, when a creature comes near it, is `pack`.
+  - id: pack
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+    participants:
+      target: { fields: target }
+    results: [save]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          save: "'dex'"
+          dice: 'dieOf(1d10, 3 + max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+          damageType: "'slashing'"
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage

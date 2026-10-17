@@ -1,0 +1,33 @@
+id: spells.stoneskin
+type: spell
+fields:
+  level: 4
+  school: transmutation
+  classes: [classes.druid, classes.ranger, classes.sorcerer, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: damage.resistances
+    op: grant
+    value: { tag: damage.bludgeoning }
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: damage.resistances
+    op: grant
+    value: { tag: damage.piercing }
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: damage.resistances
+    op: grant
+    value: { tag: damage.slashing }
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }

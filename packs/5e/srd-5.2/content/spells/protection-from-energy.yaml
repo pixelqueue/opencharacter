@@ -1,0 +1,42 @@
+id: spells.protection-from-energy
+type: spell
+fields:
+  level: 3
+  school: abjuration
+  classes: [classes.cleric, classes.druid, classes.ranger, classes.sorcerer, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+state:
+  energy: { type: string, default: '' }
+effects:
+  - target: damage.resistances
+    op: grant
+    value: { formula: "'damage.' + self.energy" }
+    when: "self.energy != ''"
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+# The damage type is chosen on the creature it protects.
+actions:
+  - use: cast-spell
+  - id: choose-energy
+    scope: applied
+    tags: [spell]
+    results: [done]
+    steps:
+      - id: energy
+        kind: choice
+        options: [{ id: acid }, { id: cold }, { id: fire }, { id: lightning }, { id: thunder }]
+      - id: set
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: energy, value: steps.energy.picked }
+      - id: result
+        kind: outcome
+        result: "'done'"
