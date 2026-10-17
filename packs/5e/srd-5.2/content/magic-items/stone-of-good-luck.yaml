@@ -1,0 +1,21 @@
+id: magic-items.stone-of-good-luck
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  # Checks that read a field get it there, so the sheet shows it; the rest get it on the roll.
+  - target: { fields: { where: "'skill' in item.tags || item.id == @combat.initiative" } }
+    op: add
+    value: 1
+    when: self.attuned
+  - target: { rolls: [check] }
+    op: add
+    value: 1
+    when: self.attuned && !has(params.field)
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 1
+    when: self.attuned
+  - { target: { rolls: [save.death] }, op: add, value: 1, when: self.attuned }

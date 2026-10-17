@@ -1,0 +1,33 @@
+id: magic-items.gem-of-seeing
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  requiresAttunement: true
+  maxCharges: 3
+  recharge: 1d3
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+effects:
+  - target: senses.truesight
+    op: atLeast
+    value: 120
+    scope: applied
+    duration: { amount: 10, unit: minute }
+actions:
+  - id: peer
+    tags: [magic-item]
+    available: self.equipped && self.attuned && self.charges > 0
+    results: [seeing]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: charges, by: -1 }
+          - { type: applyEffect, source: item.id }
+      - id: result
+        kind: outcome
+        result: "'seeing'"
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

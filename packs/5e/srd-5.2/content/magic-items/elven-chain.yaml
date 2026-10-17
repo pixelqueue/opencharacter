@@ -1,0 +1,11 @@
+id: magic-items.elven-chain
+type: template
+tags: [magic]
+appliesTo: { type: armor, where: 'item.id in [@armor.chain-mail, @armor.chain-shirt]' }
+fields: { rarity: rare, acBonus: 1 }
+# "Considered trained with this armor": its own category, while it is worn.
+effects:
+  - target: proficiencies.armor
+    op: grant
+    value: { formula: item.category }
+    when: self.equipped

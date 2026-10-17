@@ -1,0 +1,82 @@
+id: magic-items.dragon-orb
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: artifact
+  requiresAttunement: true
+  maxCharges: 7
+  recharge: 1d4 + 3
+  saveDc: 18
+  spells:
+    [spells.cure-wounds, spells.daylight, spells.death-ward, spells.detect-magic, spells.scrying]
+# `controlled` after a successful save on peering into it; Charmed by it otherwise.
+state:
+  controlled: { type: boolean, default: false }
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.cure-wounds, when: self.attuned && self.controlled }
+  - { item: spells.daylight, when: self.attuned && self.controlled }
+  - { item: spells.death-ward, when: self.attuned && self.controlled }
+  - { item: spells.detect-magic, when: self.attuned && self.controlled }
+  - { item: spells.scrying, when: self.attuned && self.controlled }
+effects:
+  - target: spells.atWill
+    op: grant
+    value: { item: spells.detect-magic }
+    when: self.attuned && self.controlled
+  # Cure Wounds is the level 9 version.
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.cure-wounds && flags.slot == 1
+        && self.charges >= 4
+    value:
+      id: cure-wounds
+      flags: { slot: 9 }
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -4 }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id
+        && ((action.item.id == @spells.daylight && flags.slot == 3 && self.charges >= 1)
+        || (action.item.id == @spells.death-ward && flags.slot == 4 && self.charges >= 2)
+        || (action.item.id == @spells.scrying && flags.slot == 5 && self.charges >= 3))
+    value:
+      id: charges
+      changes:
+        - type: adjustState
+          entry: self
+          key: charges
+          by: >-
+            -(action.item.id == @spells.daylight ? 1
+            : action.item.id == @spells.death-ward ? 2
+            : 3)
+actions:
+  - id: peer
+    tags: [magic-item]
+    available: self.attuned && !self.controlled
+    results: [controlled, charmed]
+    steps:
+      - id: save
+        kind: action
+        use: saving-throw
+        params: { ability: "'cha'", dc: 15 }
+      - id: control
+        kind: changes
+        changes:
+          - type: setState
+            when: steps.save.result == 'success'
+            entry: self
+            key: controlled
+            value: true
+          - type: applyEffect
+            when: steps.save.result != 'success'
+            source: "'conditions.charmed'"
+            state: { magical: true }
+      - id: result
+        kind: outcome
+        result: "steps.save.result == 'success' ? 'controlled' : 'charmed'"
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

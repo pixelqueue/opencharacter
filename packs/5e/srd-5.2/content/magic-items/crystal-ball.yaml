@@ -1,0 +1,17 @@
+id: magic-items.crystal-ball
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+  spells: [spells.scrying]
+  saveDc: 17
+grants:
+  - { item: spells.scrying, when: self.equipped && self.attuned }
+effects:
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.scrying },
+      when: self.equipped && self.attuned,
+    }

@@ -1,0 +1,101 @@
+id: magic-items.staff-of-thunder-and-lightning
+type: template
+tags: [magic, staff]
+appliesTo: { type: weapon, where: 'item.id == @weapons.quarterstaff' }
+fields: { rarity: very-rare, requiresAttunement: true, attackBonus: 2, damageBonus: 2 }
+state:
+  usedToday: { type: set, of: string, default: [] }
+effects:
+  - target: combat.hitOptions
+    op: add
+    value: 1
+    when: >-
+      self.equipped && self.attuned
+        && (!('lightning' in self.usedToday) || !('thunder' in self.usedToday)
+          || !('both' in self.usedToday))
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: "action.self.id == self.id && self.attuned && !('lightning' in self.usedToday)"
+    value:
+      id: lightning
+      changes:
+        - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['lightning']" }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: "action.self.id == self.id && self.attuned && !('thunder' in self.usedToday)"
+    value:
+      id: thunder
+      changes:
+        - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['thunder']" }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: "action.self.id == self.id && self.attuned && !('both' in self.usedToday)"
+    value:
+      id: thunder-and-lightning
+      changes:
+        - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['both']" }
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: 2d6
+    tags: [damage.lightning]
+    when: >-
+      has(steps.onHit) && steps.onHit.picked in [
+        '5e-srd-5.2:magic-items.staff-of-thunder-and-lightning#lightning',
+        '5e-srd-5.2:magic-items.staff-of-thunder-and-lightning#thunder-and-lightning']
+actions:
+  - id: thunder
+    tags: [magic-item]
+    available: self.equipped && self.attuned
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { save: "'con'", dc: 17, condition: "'conditions.stunned'" }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+  - id: lightning-strike
+    tags: [magic-item]
+    available: "self.equipped && self.attuned && !('strike' in self.usedToday)"
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          daily: "'strike'"
+          dice: 9d6
+          damageType: "'lightning'"
+          save: "'dex'"
+          dc: 17
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+  - id: thunderclap
+    tags: [magic-item]
+    available: "self.equipped && self.attuned && !('thunderclap' in self.usedToday)"
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          daily: "'thunderclap'"
+          dice: 2d6
+          damageType: "'thunder'"
+          save: "'con'"
+          dc: 17
+          condition: "'conditions.deafened'"
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result

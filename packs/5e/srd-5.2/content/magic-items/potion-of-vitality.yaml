@@ -1,0 +1,30 @@
+id: magic-items.potion-of-vitality
+type: magicItem
+fields:
+  category: potion
+  rarity: very-rare
+effects:
+  # Each Hit Point Die spent regains its maximum.
+  - target: { rolls: [hit-die] }
+    op: atLeast
+    value: maxOf(action.item.hitDie) + abilities.con.mod
+    scope: applied
+    duration: { amount: 24, unit: hour }
+actions:
+  - id: drink
+    tags: [potion]
+    available: self.quantity > 0
+    results: [drunk]
+    steps:
+      - id: drink
+        kind: changes
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1 }
+          - { type: set, field: conditions.exhaustion, value: 0, when: conditions.exhaustion > 0 }
+          - type: removeEffect
+            when: countList(character.applied, x.source == @conditions.poisoned) > 0
+            applied: { where: 'item.id == @conditions.poisoned' }
+          - { type: applyEffect, source: item.id }
+      - id: result
+        kind: outcome
+        result: "'drunk'"

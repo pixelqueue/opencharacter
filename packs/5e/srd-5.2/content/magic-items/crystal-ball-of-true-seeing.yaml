@@ -1,0 +1,17 @@
+id: magic-items.crystal-ball-of-true-seeing
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: legendary
+  requiresAttunement: true
+  spells: [spells.scrying]
+  saveDc: 17
+grants:
+  - { item: spells.scrying, when: self.equipped && self.attuned }
+effects:
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.scrying },
+      when: self.equipped && self.attuned,
+    }

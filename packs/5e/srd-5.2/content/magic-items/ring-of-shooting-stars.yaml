@@ -1,0 +1,98 @@
+id: magic-items.ring-of-shooting-stars
+type: magicItem
+fields:
+  category: ring
+  rarity: very-rare
+  requiresAttunement: true
+  maxCharges: 6
+  recharge: 1d6
+  spells: [spells.dancing-lights, spells.light, spells.faerie-fire]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.dancing-lights, when: self.equipped && self.attuned }
+  - { item: spells.light, when: self.equipped && self.attuned }
+  - { item: spells.faerie-fire, when: self.equipped && self.attuned }
+effects:
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.dancing-lights },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.light },
+      when: self.equipped && self.attuned,
+    }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && true && action.item.id == @spells.faerie-fire
+        && self.charges >= 1
+    value:
+      id: charges
+      flags: { slot: 1 }
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }
+  - id: lightning-spheres
+    tags: [magic-item]
+    available: self.equipped && self.attuned && self.charges >= 2
+    results: [created]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: charges, by: -2 }
+          - { type: set, field: concentration.active, value: true }
+      - id: result
+        kind: outcome
+        result: "'created'"
+  - id: sphere-discharge
+    tags: [magic-item]
+    available: self.equipped && self.attuned
+    params:
+      spheres: { type: integer, default: 1, min: 1, max: 4 }
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          dice: 'params.spheres == 1 ? 4d12 : params.spheres == 2 ? 5d4 : params.spheres == 3 ? 2d6 : 2d4'
+          damageType: "'lightning'"
+          save: "'dex'"
+          dc: 15
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+  - id: shooting-stars
+    tags: [magic-item]
+    available: self.equipped && self.attuned && self.charges > 0
+    params:
+      charges: { type: integer, default: 1, min: 1, max: 3 }
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          charges: params.charges
+          dice: 5d4
+          damageType: "'radiant'"
+          save: "'dex'"
+          dc: 15
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result

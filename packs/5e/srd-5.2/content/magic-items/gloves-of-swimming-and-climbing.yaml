@@ -1,0 +1,20 @@
+id: magic-items.gloves-of-swimming-and-climbing
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  - {
+      target: combat.climbSpeed,
+      op: atLeast,
+      value: combat.speed,
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: combat.swimSpeed,
+      op: atLeast,
+      value: combat.speed,
+      when: self.equipped && self.attuned,
+    }
+  - { target: items.climbSwimBonus, op: atLeast, value: 5, when: self.equipped && self.attuned }

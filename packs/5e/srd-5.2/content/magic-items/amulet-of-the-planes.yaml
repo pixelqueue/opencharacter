@@ -1,0 +1,37 @@
+id: magic-items.amulet-of-the-planes
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+  spells: [spells.plane-shift]
+grants:
+  - { item: spells.plane-shift, when: self.equipped && self.attuned }
+effects:
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.plane-shift },
+      when: self.equipped && self.attuned,
+    }
+actions:
+  # The DC 15 Intelligence (Arcana) check before the spell: on a failure, the random destination.
+  - id: name-a-plane
+    tags: [magic-item]
+    available: self.equipped && self.attuned
+    results: [plane-shift, astray]
+    steps:
+      - id: check
+        kind: action
+        use: skill-check
+        params: { skill: "'arcana'", dc: 15 }
+      - id: astray
+        kind: roll
+        when: steps.check.result == 'failure'
+        parts:
+          - dice: 1d100
+      - id: result
+        kind: outcome
+        result: "steps.check.result == 'failure' ? 'astray' : 'plane-shift'"
+        data:
+          destination: 'has(steps.astray) ? steps.astray.total : 0'

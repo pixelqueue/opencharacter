@@ -1,0 +1,15 @@
+id: magic-items.helm-of-comprehending-languages
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  spells: [spells.comprehend-languages]
+grants:
+  - { item: spells.comprehend-languages, when: self.equipped }
+effects:
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.comprehend-languages },
+      when: self.equipped,
+    }

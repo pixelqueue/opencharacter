@@ -1,0 +1,36 @@
+id: magic-items.ring-of-invisibility
+type: magicItem
+fields:
+  category: ring
+  rarity: legendary
+  requiresAttunement: true
+actions:
+  - id: vanish
+    tags: [magic-item]
+    available: >-
+      self.equipped && self.attuned
+        && countList(character.applied, x.source == @conditions.invisible) == 0
+    results: [invisible]
+    steps:
+      - id: apply
+        kind: changes
+        changes:
+          - { type: applyEffect, source: "'conditions.invisible'", state: { magical: true } }
+      - id: result
+        kind: outcome
+        result: "'invisible'"
+  - id: reappear
+    tags: [magic-item]
+    available: >-
+      self.equipped && self.attuned
+        && countList(character.applied, x.source == @conditions.invisible) > 0
+    results: [visible]
+    steps:
+      - id: remove
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.invisible' }
+      - id: result
+        kind: outcome
+        result: "'visible'"

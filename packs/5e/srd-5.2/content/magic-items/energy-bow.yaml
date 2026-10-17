@@ -1,0 +1,30 @@
+id: magic-items.energy-bow
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: 'item.id in [@weapons.longbow, @weapons.shortbow]' }
+fields:
+  {
+    rarity: very-rare,
+    requiresAttunement: true,
+    attackBonus: 1,
+    damageBonus: 1,
+    damageType: force,
+    ammunition: null,
+  }
+actions:
+  # Arrow of Restraint: a hit that restrains instead of dealing damage.
+  - id: arrow-of-restraint
+    tags: [magic-item]
+    available: self.equipped && self.attuned
+    participants:
+      target: { max: 1, fields: target }
+    results: [used]
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { save: "'str'", dc: 15, condition: "'conditions.restrained'" }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: "'used'"

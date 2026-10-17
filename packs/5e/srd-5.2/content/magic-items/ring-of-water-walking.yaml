@@ -1,0 +1,10 @@
+id: magic-items.ring-of-water-walking
+type: magicItem
+fields:
+  category: ring
+  rarity: uncommon
+  spells: [spells.water-walk]
+grants:
+  - { item: spells.water-walk, when: self.equipped }
+effects:
+  - { target: spells.atWill, op: grant, value: { item: spells.water-walk }, when: self.equipped }

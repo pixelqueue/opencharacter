@@ -1,0 +1,26 @@
+id: magic-items.gloves-of-missile-snaring
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+actions:
+  - id: snare
+    tags: [magic-item]
+    available: self.equipped && self.attuned
+    params:
+      damage: { type: integer, default: 0 }
+    results: [snared]
+    steps:
+      - id: reduce
+        kind: roll
+        parts:
+          - dice: 1d10
+          - field: "'abilities.dex.mod'"
+      - id: result
+        kind: outcome
+        result: "'snared'"
+        data:
+          reduced: max(0, steps.reduce.total)
+          remaining: max(0, params.damage - max(0, steps.reduce.total))
+          caught: params.damage <= steps.reduce.total

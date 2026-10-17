@@ -1,0 +1,29 @@
+id: magic-items.medallion-of-thoughts
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+  maxCharges: 5
+  recharge: 1d4
+  saveDc: 13
+  spells: [spells.detect-thoughts]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.detect-thoughts, when: self.equipped && self.attuned }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && true && action.item.id == @spells.detect-thoughts
+        && self.charges >= 1
+    value:
+      id: charges
+      flags: { slot: 2 }
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

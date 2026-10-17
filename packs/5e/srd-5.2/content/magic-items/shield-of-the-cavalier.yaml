@@ -1,0 +1,90 @@
+id: magic-items.shield-of-the-cavalier
+type: template
+tags: [magic]
+appliesTo: { type: armor, where: "item.category == 'shield'" }
+fields: { rarity: very-rare, requiresAttunement: true, acBonus: 2 }
+state:
+  usedToday: { type: set, of: string, default: [] }
+actions:
+  - id: forceful-bash
+    tags: [attack]
+    available: self.equipped && self.attuned
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [hit, miss]
+    steps:
+      - id: test
+        kind: action
+        use: d20-test
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+        tags: [attack, attack.melee]
+        params:
+          kind: "'attack'"
+          ability: "'str'"
+          proficiency: 1
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].combat.ac)
+              ? participants.target[0].combat.ac : has(params.targetAc) ? params.targetAc : null
+      - id: hit
+        kind: branch
+        cases:
+          - when: steps.test.result == 'critical'
+            flags:
+              hit: true
+              critical: '!(size(participants.target) > 0 && participants.target[0].combat.noCriticals)'
+          - when: steps.test.result == 'hit'
+            flags: { hit: true, critical: false }
+          - when: steps.test.result == 'miss'
+            flags: { hit: false, critical: false }
+        else:
+          flags: { hit: false, critical: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options:
+                - id: hit
+                  flags: { hit: true }
+                - id: miss
+      - id: damage
+        kind: roll
+        when: flags.hit
+        tags: [damage]
+        parts:
+          - { dice: 2d6, tags: [damage.force] }
+          - { value: 2, tags: [damage.force] }
+          - { field: "'abilities.str.mod'", tags: [damage.force] }
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags:
+              [damage, attack, melee, magical, { formula: "flags.critical ? ['critical'] : []" }]
+      - id: result
+        kind: outcome
+        result: "flags.hit ? 'hit' : 'miss'"
+        data:
+          attack: steps.test.data.total
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+  - id: protective-field
+    tags: [magic-item]
+    available: "self.equipped && self.attuned && !('field' in self.usedToday)"
+    results: [shielded]
+    steps:
+      - id: use
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['field']" }
+          - { type: set, field: concentration.active, value: true }
+      - id: result
+        kind: outcome
+        result: "'shielded'"

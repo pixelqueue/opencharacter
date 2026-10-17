@@ -1,0 +1,26 @@
+id: magic-items.nine-lives-stealer
+type: template
+tags: [magic]
+appliesTo: { type: weapon }
+# The weapon starts with 1d8 + 1 charges and never regains them.
+fields:
+  { rarity: very-rare, requiresAttunement: true, maxCharges: 9, attackBonus: 2, damageBonus: 2 }
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - use: use-charges
+  - id: life-stealing
+    tags: [magic-item]
+    available: self.attuned && self.charges > 0
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { save: "'con'", dc: 15 }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result

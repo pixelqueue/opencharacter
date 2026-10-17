@@ -1,0 +1,40 @@
+id: magic-items.luck-blade
+type: template
+tags: [magic]
+appliesTo:
+  {
+    type: weapon,
+    where: 'item.id in [@weapons.glaive, @weapons.greatsword, @weapons.longsword, @weapons.rapier, @weapons.scimitar, @weapons.sickle, @weapons.shortsword]',
+  }
+fields:
+  { rarity: legendary, requiresAttunement: true, attackBonus: 1, damageBonus: 1, maxCharges: 3 }
+# Wish charges: 1d3 when found, never regained.
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+  usedToday: { type: set, of: string, default: [] }
+grants:
+  - { item: spells.wish, when: self.equipped && self.attuned && self.charges > 0 }
+effects:
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 1
+    when: self.attuned
+  # Luck: reroll a failed D20 Test, once per dawn.
+  - target: { choices: [failed-check, failed-save, failed-attack] }
+    op: option
+    when: "self.attuned && !conditions.incapacitated && !('luck' in self.usedToday)"
+    value:
+      id: luck
+      flags: { retry: true }
+      changes:
+        - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['luck']" }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.wish && flags.slot == 9
+        && self.charges >= 1 && !('wish' in self.usedToday)
+    value:
+      id: wish
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+        - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['wish']" }

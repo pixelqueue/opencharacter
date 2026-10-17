@@ -1,0 +1,21 @@
+id: magic-items.rope-of-entanglement
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+actions:
+  - id: entangle
+    tags: [magic-item]
+    available: 'self.equipped'
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { save: "'dex'", dc: 15, condition: "'conditions.restrained'" }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result

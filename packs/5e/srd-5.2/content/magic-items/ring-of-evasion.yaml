@@ -1,0 +1,24 @@
+id: magic-items.ring-of-evasion
+type: magicItem
+fields:
+  category: ring
+  rarity: rare
+  requiresAttunement: true
+  maxCharges: 3
+  recharge: 1d3
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+effects:
+  - target: { choices: [failed-save] }
+    op: option
+    when: >-
+      self.equipped && self.attuned && self.charges > 0 && params.ability == 'dex' && has(params.dc)
+    value:
+      id: evade
+      flags: { addBonus: 'max(0, params.dc - flags.total)' }
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

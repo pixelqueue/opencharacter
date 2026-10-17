@@ -1,0 +1,50 @@
+id: magic-items.horn-of-blasting
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  saveDc: 15
+actions:
+  - id: blow
+    tags: [magic-item]
+    available: self.quantity > 0
+    participants:
+      target: { fields: target }
+    results: [blasted, exploded]
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          dice: 5d8
+          damageType: "'thunder'"
+          save: "'con'"
+          dc: 15
+          condition: "'conditions.deafened'"
+        participants: { target: participants.target }
+      # A 20 percent chance that the horn explodes.
+      - id: chance
+        kind: roll
+        parts:
+          - dice: 1d100
+      - id: explosion
+        kind: roll
+        when: steps.chance.total <= 20
+        tags: [damage]
+        parts:
+          - dice: 10d6
+            tags: [damage.force]
+      - id: explode
+        kind: changes
+        when: has(steps.explosion)
+        changes:
+          - type: adjust
+            field: hp.current
+            by: -max(0, steps.explosion.total)
+            tags: [damage, damage.force, magical]
+          - { type: adjustQuantity, entry: self, by: -1 }
+      - id: result
+        kind: outcome
+        result: "has(steps.explosion) ? 'exploded' : 'blasted'"
+        data:
+          damage: steps.power.data.damage

@@ -1,0 +1,133 @@
+fields:
+  # "Requires Attunement by a Spellcaster": a spell from the creature's own traits or features.
+  items.spellcaster:
+    type: boolean
+    formula: >-
+      countList(keysOf('caster'), size(fieldOf('spells.{caster}', x)) > 0) > 0
+        || spellcasting.casterLevel > 0 || pactSlots.max > 0
+  # Extradimensional containers: what is stowed in them leaves the carried weight
+  # (`carrying.weight`), up to the containers' capacity in pounds.
+  items.stowed:
+    type: decimal
+    formula: >-
+      sumCopies(copy.fields.weight * copy.quantity, has(copy.fields.weight)
+        && has(copy.state.stowed) && copy.state.stowed)
+  items.stowCapacity: { type: decimal, formula: 0, min: 0 }
+  items.stowUnlimited: { type: boolean, formula: false }
+  # Flags items set so the player's situational choices are offered.
+  items.sightPerception: { type: boolean, formula: false }
+  items.closeInvestigation: { type: boolean, formula: false }
+  items.dwarfFriend: { type: boolean, formula: false }
+  items.breathAdvantage: { type: boolean, formula: false }
+  items.spellSaveAdvantage: { type: boolean, formula: false }
+  items.magicSaveAdvantage: { type: boolean, formula: false }
+  items.demonCurse: { type: boolean, formula: false }
+  items.climbSwimBonus: { type: integer, formula: 0, min: 0 }
+
+constraints:
+  - id: stowed-without-container
+    check: >-
+      countCopies(has(copy.state.stowed) && copy.state.stowed) == 0
+        || items.stowUnlimited || items.stowCapacity > 0
+  - id: stowed-over-capacity
+    check: items.stowUnlimited || items.stowed <= items.stowCapacity
+    data:
+      stowed: items.stowed
+      capacity: items.stowCapacity
+
+situational:
+  # Eyes of the Eagle: a Wisdom (Perception) check that relies on sight.
+  - id: bySight
+    type: boolean
+    default: false
+    available: items.sightPerception
+    rolls: [skill.perception]
+    effects:
+      - target: { rolls: [skill.perception] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.bySight
+  # Eyes of Minute Seeing: examining something within 1 foot.
+  - id: closeUp
+    type: boolean
+    default: false
+    available: items.closeInvestigation
+    rolls: [skill.investigation]
+    effects:
+      - target: { rolls: [skill.investigation] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.closeUp
+  # Belt of Dwarvenkind: Persuasion to interact with dwarves.
+  - id: withDwarves
+    type: boolean
+    default: false
+    available: items.dwarfFriend
+    rolls: [skill.persuasion]
+    effects:
+      - target: { rolls: [skill.persuasion] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.withDwarves
+  # Dragon Scale Mail: a save against a Dragon's breath weapon.
+  - id: breathWeapon
+    type: boolean
+    default: false
+    available: items.breathAdvantage
+    rolls: [save]
+    effects:
+      - target: { rolls: [save] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.breathWeapon
+  # A save against a spell, or another magical effect: Advantage from items that grant it.
+  - id: spellSave
+    type: enum
+    values: [none, spell, magic]
+    default: none
+    available: items.spellSaveAdvantage || items.magicSaveAdvantage
+    rolls: [save]
+    effects:
+      - target: { rolls: [save] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: >-
+          (situational.spellSave == 'spell' && items.spellSaveAdvantage)
+            || (situational.spellSave != 'none' && items.magicSaveAdvantage)
+  # Demon Armor's curse: an attack against a demon, or a save against its spell or ability.
+  - id: againstDemon
+    type: boolean
+    default: false
+    available: items.demonCurse
+    rolls: [attack, save]
+    effects:
+      - target: { rolls: [attack, save] }
+        op: rollModifier
+        value: { kind: disadvantage }
+        when: situational.againstDemon
+  # Gloves of Swimming and Climbing: a Strength (Athletics) check to climb or swim.
+  - id: climbOrSwim
+    type: boolean
+    default: false
+    available: items.climbSwimBonus > 0
+    rolls: [skill.athletics]
+    effects:
+      - target: { rolls: [skill.athletics] }
+        op: add
+        value: items.climbSwimBonus
+        when: situational.climbOrSwim
+
+display:
+  fields:
+    items.spellcaster: { hidden: true }
+    items.stowed: { groups: [summary], priority: 3, showWhen: items.stowed > 0, unit: lb }
+    items.stowCapacity: { hidden: true }
+    items.stowUnlimited: { hidden: true }
+    items.sightPerception: { hidden: true }
+    items.closeInvestigation: { hidden: true }
+    items.dwarfFriend: { hidden: true }
+    items.breathAdvantage: { hidden: true }
+    items.spellSaveAdvantage: { hidden: true }
+    items.magicSaveAdvantage: { hidden: true }
+    items.demonCurse: { hidden: true }
+    items.climbSwimBonus: { hidden: true }

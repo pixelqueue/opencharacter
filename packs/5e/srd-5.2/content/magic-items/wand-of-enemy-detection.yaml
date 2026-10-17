@@ -1,0 +1,14 @@
+id: magic-items.wand-of-enemy-detection
+type: magicItem
+fields:
+  category: wand
+  rarity: rare
+  requiresAttunement: true
+  maxCharges: 7
+  recharge: 1d6 + 1
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

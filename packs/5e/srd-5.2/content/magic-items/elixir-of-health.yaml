@@ -1,0 +1,23 @@
+id: magic-items.elixir-of-health
+type: magicItem
+fields:
+  category: potion
+  rarity: rare
+actions:
+  - id: drink
+    tags: [potion]
+    available: self.quantity > 0
+    results: [drunk]
+    steps:
+      - id: drink
+        kind: changes
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1 }
+          - type: removeEffect
+            applied:
+              where: >-
+                item.id in [@conditions.blinded, @conditions.deafened, @conditions.paralyzed,
+                  @conditions.poisoned]
+      - id: result
+        kind: outcome
+        result: "'drunk'"

@@ -1,0 +1,25 @@
+id: magic-items.oathbow
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: 'item.id in [@weapons.longbow, @weapons.shortbow]' }
+fields: { rarity: very-rare, requiresAttunement: true }
+state:
+  # A sworn enemy lives.
+  swornEnemy: { type: boolean, default: false }
+effects:
+  - { target: items.swornEnemy, op: set, value: true, when: self.equipped && self.attuned }
+  - target: { rolls: [attack.ranged], from: self }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.attuned && situational.swornEnemy
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: 3d6
+    tags: [damage.piercing]
+    when: self.attuned && situational.swornEnemy
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: >-
+      self.attuned && self.swornEnemy && action.self.id != self.id
+        && has(action.item.category) && action.item.category in ['simple', 'martial']

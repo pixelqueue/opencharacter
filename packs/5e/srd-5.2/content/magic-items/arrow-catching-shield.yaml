@@ -1,0 +1,7 @@
+id: magic-items.arrow-catching-shield
+type: template
+tags: [magic]
+appliesTo: { type: armor, where: "item.category == 'shield'" }
+fields: { rarity: rare, requiresAttunement: true }
+effects:
+  - { target: combat.rangedAc, op: add, value: 2, when: self.equipped && self.attuned }

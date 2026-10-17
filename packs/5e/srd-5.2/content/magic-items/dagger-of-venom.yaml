@@ -1,0 +1,18 @@
+id: magic-items.dagger-of-venom
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: 'item.id in [@weapons.dagger]' }
+fields: { rarity: rare, attackBonus: 1, damageBonus: 1 }
+state:
+  usedToday: { type: set, of: string, default: [] }
+actions:
+  # The poison on the blade, used on the creature the next hit strikes.
+  - use: item-power
+    params:
+      daily: "'venom'"
+      dice: 2d10
+      damageType: "'poison'"
+      save: "'con'"
+      dc: 15
+      half: false
+      condition: "'conditions.poisoned'"

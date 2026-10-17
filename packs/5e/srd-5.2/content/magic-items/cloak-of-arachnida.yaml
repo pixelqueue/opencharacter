@@ -1,0 +1,34 @@
+id: magic-items.cloak-of-arachnida
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+  spells: [spells.web]
+  saveDc: 13
+state:
+  usedToday: { type: set, of: string, default: [] }
+grants:
+  - { item: spells.web, when: self.equipped && self.attuned }
+effects:
+  - {
+      target: damage.resistances,
+      op: grant,
+      value: { tag: damage.poison },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: combat.climbSpeed,
+      op: atLeast,
+      value: combat.speed,
+      when: self.equipped && self.attuned,
+    }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.web && flags.slot == 2
+        && !('web' in self.usedToday)
+    value:
+      id: daily
+      changes:
+        - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['web']" }

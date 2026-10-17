@@ -1,0 +1,40 @@
+id: magic-items.candle-of-invocation
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+  spells: [spells.gate]
+# `lit` while it burns and you are in its light; `minutesBurned` counts toward its 4 hours.
+state:
+  lit: { type: boolean, default: false }
+  minutesBurned: { type: integer, min: 0, max: 240, default: 0 }
+grants:
+  - { item: spells.gate, when: self.equipped && self.attuned }
+effects:
+  - target: { rolls: [d20-test] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.attuned && self.lit
+  # A Cleric or Druid in the light casts prepared level 1 spells without a slot.
+  - target: spells.free
+    op: grant
+    value: { query: { type: spell, where: item.level == 1 } }
+    when: >-
+      self.attuned && self.lit
+        && (@classes.cleric in classes.held || @classes.druid in classes.held)
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      self.attuned && self.lit && action.item.level == 1 && flags.cls in ['cleric', 'druid']
+    value:
+      id: light
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.gate && flags.slot == 9
+        && self.minutesBurned == 0
+    value:
+      id: gate
+      changes:
+        - { type: adjustQuantity, entry: self, by: -1 }

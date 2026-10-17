@@ -1,0 +1,51 @@
+id: magic-items.ammunition-of-slaying
+type: template
+tags: [magic]
+appliesTo: { type: gear, where: "item.category == 'ammunition'" }
+fields: { rarity: very-rare }
+# One template covers every creature type, so the type is the copy's state.
+state:
+  slays:
+    type: enum
+    default: aberration
+    values:
+      [
+        aberration,
+        beast,
+        celestial,
+        construct,
+        dragon,
+        elemental,
+        fey,
+        fiend,
+        giant,
+        humanoid,
+        monstrosity,
+        ooze,
+        plant,
+        undead,
+      ]
+actions:
+  # Run after the ammunition damages a creature of its type.
+  - id: slay
+    tags: [magic-item]
+    participants:
+      target: { max: 1, fields: target }
+    results: [slain, wrong-type]
+    steps:
+      - id: wrongType
+        kind: outcome
+        when: >-
+          size(participants.target) > 0 && has(participants.target[0].creature.type)
+            && participants.target[0].creature.type != self.slays
+        result: "'wrong-type'"
+      - id: power
+        kind: action
+        use: item-power
+        params: { dice: 6d10, damageType: "'force'", save: "'con'", dc: 17 }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: "'slain'"
+        data:
+          damage: steps.power.data.damage

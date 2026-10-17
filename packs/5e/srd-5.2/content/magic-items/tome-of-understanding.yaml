@@ -1,0 +1,15 @@
+id: magic-items.tome-of-understanding
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+# The copy stays once the book loses its magic: it carries the increase. `read` marks it studied.
+state:
+  read: { type: boolean, default: false }
+effects:
+  - target: abilities.wis.score
+    op: add
+    value: min(2, max(0, 30 - abilities.wis.base))
+    when: self.read
+actions:
+  - use: study-book

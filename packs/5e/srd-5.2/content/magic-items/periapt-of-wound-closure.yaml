@@ -1,0 +1,16 @@
+id: magic-items.periapt-of-wound-closure
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  # Life Preservation: a Death Saving Throw of 9 or lower counts as a 10.
+  - target: { rolls: [save.death] }
+    op: atLeast
+    value: 10
+    when: self.equipped && self.attuned
+  - target: { incoming: { fields: [hp.current], tags: [healing.hit-die] } }
+    op: multiply
+    value: 2
+    when: self.equipped && self.attuned

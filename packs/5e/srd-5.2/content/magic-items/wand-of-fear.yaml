@@ -1,0 +1,34 @@
+id: magic-items.wand-of-fear
+type: magicItem
+fields:
+  category: wand
+  rarity: rare
+  requiresAttunement: true
+  maxCharges: 7
+  recharge: 1d6 + 1
+  saveDc: 15
+  spells: [spells.command, spells.fear]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.command, when: self.equipped && self.attuned }
+  - { item: spells.fear, when: self.equipped && self.attuned }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && true && action.item.id in [@spells.command, @spells.fear]
+        && self.charges >= [1, 3][indexOf([@spells.command, @spells.fear], action.item.id)]
+    value:
+      id: charges
+      flags:
+        slot: '[1, 3][indexOf([@spells.command, @spells.fear], action.item.id)]'
+      changes:
+        - type: adjustState
+          entry: self
+          key: charges
+          by: '-[1, 3][indexOf([@spells.command, @spells.fear], action.item.id)]'
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

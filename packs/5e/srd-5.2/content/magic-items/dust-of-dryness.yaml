@@ -1,0 +1,15 @@
+id: magic-items.dust-of-dryness
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  maxCharges: 10
+  saveDc: 13
+# Pinches of dust: 1d6 + 4 when found.
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  # A pinch on an Elemental composed mostly of water.
+  - use: item-power
+    params: { charges: 1, dice: 10d6, damageType: "'necrotic'", save: "'con'", dc: 13 }
+  - use: use-charges

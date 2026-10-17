@@ -1,0 +1,19 @@
+id: magic-items.defender
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: "item.range == 'melee'" }
+fields: { rarity: legendary, requiresAttunement: true, attackBonus: 3, damageBonus: 3 }
+# The part of the +3 moved to Armor Class until the start of your next turn.
+state:
+  defense: { type: integer, min: 0, max: 3, default: 0 }
+effects:
+  - target: { rolls: [attack.melee, attack.ranged], from: self }
+    op: add
+    value: -self.defense
+    when: self.attuned && self.defense > 0
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: -self.defense
+    tags: [{ formula: "'damage.' + item.damageType" }]
+    when: self.attuned && self.defense > 0
+  - { target: combat.ac, op: add, value: self.defense, when: self.equipped && self.attuned }

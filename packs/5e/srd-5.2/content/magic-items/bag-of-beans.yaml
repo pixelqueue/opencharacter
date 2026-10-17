@@ -1,0 +1,36 @@
+id: magic-items.bag-of-beans
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  weight: 0.5
+state:
+  beans: { type: integer, min: 0, max: 12, default: 12 }
+actions:
+  # Dumping beans out: one explosion, every dumped bean destroyed.
+  - id: dump-beans
+    tags: [magic-item]
+    available: self.beans > 0
+    params:
+      beans: { type: integer, default: 1 }
+    participants:
+      target: { fields: target }
+    results: [exploded]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - type: adjustState
+            entry: self
+            key: beans
+            by: -min(params.beans, self.beans)
+      - id: power
+        kind: action
+        use: item-power
+        params: { dice: 5d4, damageType: "'force'", save: "'dex'", dc: 15 }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: "'exploded'"
+        data:
+          damage: steps.power.data.damage

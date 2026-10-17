@@ -1,0 +1,25 @@
+id: magic-items.rod-of-rulership
+type: magicItem
+fields:
+  category: rod
+  rarity: rare
+  requiresAttunement: true
+  saveDc: 15
+state:
+  usedToday: { type: set, of: string, default: [] }
+actions:
+  - id: command-obedience
+    tags: [magic-item]
+    available: "self.equipped && self.attuned && !('rulership' in self.usedToday)"
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { daily: "'rulership'", save: "'wis'", dc: 15, condition: "'conditions.charmed'" }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result

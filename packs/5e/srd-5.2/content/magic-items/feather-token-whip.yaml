@@ -1,0 +1,110 @@
+id: magic-items.feather-token-whip
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  attackBonus: 9
+# Thrown, the token becomes the whip; each Bonus Action after that is a `lash`.
+state:
+  thrown: { type: boolean, default: false }
+actions:
+  - id: throw
+    tags: [magic-item]
+    available: self.quantity > 0 && !self.thrown
+    results: [whip]
+    steps:
+      - id: throw
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: thrown, value: true }
+      - id: result
+        kind: outcome
+        result: "'whip'"
+  - id: lash
+    tags: [attack, magic-item]
+    available: self.thrown
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ac: >-
+                size(participants.target) > 0 && has(participants.target[0].combat.ac)
+                  ? participants.target[0].combat.ac
+                  : has(params.targetAc) ? params.targetAc : -1
+      - id: test
+        kind: action
+        use: d20-test
+        tags: [attack, attack.spell.melee]
+        params:
+          kind: "'attack'"
+          bonus: item.attackBonus
+          dc: 'flags.ac >= 0 ? flags.ac : null'
+      - id: hit
+        kind: branch
+        cases:
+          - when: steps.test.result in ['hit', 'critical']
+            flags: { hit: true, critical: "steps.test.result == 'critical'" }
+          - when: steps.test.result == 'miss'
+            flags: { hit: false, critical: false }
+        else:
+          flags: { hit: false, critical: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options:
+                - id: hit
+                  flags: { hit: true }
+                - id: critical
+                  flags: { hit: true, critical: true }
+                - id: miss
+      - id: damage
+        kind: roll
+        when: flags.hit
+        tags: [damage]
+        parts:
+          - dice: 1d6
+            tags: [damage.force]
+          - value: 5
+            tags: [damage.force]
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            by: -max(0, steps.damage.total)
+            tags:
+              [
+                damage,
+                damage.force,
+                attack,
+                magical,
+                { formula: "flags.critical ? ['critical'] : []" },
+              ]
+      - id: result
+        kind: outcome
+        result: "flags.hit ? 'hit' : 'miss'"
+        data:
+          attack: steps.test.data.total
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+  - id: dismiss
+    tags: [magic-item]
+    available: self.thrown
+    results: [gone]
+    steps:
+      - id: gone
+        kind: changes
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1 }
+          - { type: setState, entry: self, key: thrown, value: false }
+      - id: result
+        kind: outcome
+        result: "'gone'"

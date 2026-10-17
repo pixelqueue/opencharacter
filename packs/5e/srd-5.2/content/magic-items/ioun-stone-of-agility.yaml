@@ -1,0 +1,13 @@
+id: magic-items.ioun-stone-of-agility
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+# An increase to a maximum of 20 adds only what fits under 20; an item that sets the score still
+# applies after it.
+effects:
+  - target: abilities.dex.score
+    op: add
+    value: 'min(2, max(0, 20 - abilities.dex.base))'
+    when: self.equipped && self.attuned

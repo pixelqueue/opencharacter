@@ -1,0 +1,79 @@
+id: magic-items.helm-of-brilliance
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+  saveDc: 18
+  spells: [spells.daylight, spells.fireball, spells.prismatic-spray, spells.wall-of-fire]
+# Gems left in the helm (found with 1d10 diamonds, 2d10 rubies, 3d10 fire opals and 4d10 opals);
+# `flaming` while a held weapon burns.
+state:
+  diamonds: { type: integer, min: 0, max: 10, default: 10 }
+  rubies: { type: integer, min: 0, max: 20, default: 20 }
+  fireOpals: { type: integer, min: 0, max: 30, default: 30 }
+  opals: { type: integer, min: 0, max: 40, default: 40 }
+  flaming: { type: boolean, default: false }
+grants:
+  - {
+      item: spells.daylight,
+      when: self.equipped && self.attuned && self.diamonds + self.rubies + self.fireOpals + self.opals > 0,
+    }
+  - {
+      item: spells.fireball,
+      when: self.equipped && self.attuned && self.diamonds + self.rubies + self.fireOpals + self.opals > 0,
+    }
+  - {
+      item: spells.prismatic-spray,
+      when: self.equipped && self.attuned && self.diamonds + self.rubies + self.fireOpals + self.opals > 0,
+    }
+  - {
+      item: spells.wall-of-fire,
+      when: self.equipped && self.attuned && self.diamonds + self.rubies + self.fireOpals + self.opals > 0,
+    }
+effects:
+  - target: damage.resistances
+    op: grant
+    value: { tag: damage.fire }
+    when: self.equipped && self.attuned && self.rubies > 0
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 1d6
+    tags: [damage.fire]
+    when: self.equipped && self.attuned && self.flaming && self.fireOpals > 0
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.daylight && flags.slot == 3
+        && self.opals > 0
+    value:
+      id: opal
+      changes:
+        - { type: adjustState, entry: self, key: opals, by: -1 }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.fireball && flags.slot == 3
+        && self.fireOpals > 0
+    value:
+      id: fire-opal
+      changes:
+        - { type: adjustState, entry: self, key: fireOpals, by: -1 }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.prismatic-spray && flags.slot == 7
+        && self.diamonds > 0
+    value:
+      id: diamond
+      changes:
+        - { type: adjustState, entry: self, key: diamonds, by: -1 }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.wall-of-fire && flags.slot == 4
+        && self.rubies > 0
+    value:
+      id: ruby
+      changes:
+        - { type: adjustState, entry: self, key: rubies, by: -1 }

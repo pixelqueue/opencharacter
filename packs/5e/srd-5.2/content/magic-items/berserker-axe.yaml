@@ -1,0 +1,24 @@
+id: magic-items.berserker-axe
+type: template
+tags: [magic]
+appliesTo:
+  { type: weapon, where: 'item.id in [@weapons.battleaxe, @weapons.greataxe, @weapons.halberd]' }
+fields: { rarity: rare, requiresAttunement: true, attackBonus: 1, damageBonus: 1 }
+effects:
+  - { target: hp.max, op: add, value: level.total, when: self.attuned }
+  # The curse: Disadvantage on attack rolls with other weapons.
+  - target: { rolls: [attack.melee, attack.ranged] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: >-
+      self.attuned && !('unarmed' in roll.tags) && has(action.item) && has(action.item.damageType)
+        && action.self.id != self.id
+followUps:
+  - id: berserk
+    on: { field: hp.current, tags: [damage], once: true }
+    required: true
+    when: self.attuned && change.taken < 0 && hp.current > 0
+    action: saving-throw
+    params:
+      ability: "'wis'"
+      dc: 15

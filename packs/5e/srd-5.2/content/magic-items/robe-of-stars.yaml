@@ -1,0 +1,34 @@
+id: magic-items.robe-of-stars
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+  # Its six large stars; 1d6 reappear daily at dusk.
+  maxCharges: 6
+  recharge: 1d6
+  spells: [spells.magic-missile]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.magic-missile, when: self.equipped && self.attuned }
+effects:
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 1
+    when: self.equipped && self.attuned
+  - { target: { rolls: [save.death] }, op: add, value: 1, when: self.equipped && self.attuned }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && true && action.item.id == @spells.magic-missile
+        && self.charges >= 1
+    value:
+      id: charges
+      flags: { slot: 5 }
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

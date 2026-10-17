@@ -1,0 +1,13 @@
+id: magic-items.shield-of-missile-attraction
+type: template
+tags: [magic]
+appliesTo: { type: armor, where: "item.category == 'shield'" }
+fields: { rarity: rare, requiresAttunement: true }
+effects:
+  # Resistance to a ranged weapon attack's damage, unless the damage type is resisted already.
+  - target: { incoming: { fields: [hp.current], tags: [ranged] } }
+    op: multiply
+    value: 0.5
+    when: >-
+      self.equipped && self.attuned && 'weapon' in incoming.tags && 'attack' in incoming.tags
+        && countList(damage.resistances, x in incoming.tags) == 0
