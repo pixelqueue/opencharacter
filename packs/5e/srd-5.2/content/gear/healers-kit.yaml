@@ -1,0 +1,29 @@
+id: gear.healers-kit
+type: gear
+fields:
+  category: adventuring-gear
+  cost: 5
+  weight: 3
+state:
+  usesSpent: { type: integer, default: 0, min: 0, max: 10 }
+actions:
+  - id: stabilize
+    tags: [item, healing]
+    available: self.usesSpent < 10
+    participants:
+      target:
+        max: 1
+    results: [stabilized]
+    steps:
+      - id: stabilize
+        kind: changes
+        to: target
+        changes:
+          - { type: set, field: deathSaves.successes, value: 3 }
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: usesSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'stabilized'"

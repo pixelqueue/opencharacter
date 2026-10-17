@@ -1,0 +1,442 @@
+# Each class's and background's Starting Equipment: a choice of option A (the listed equipment and
+# gold, recommended) or B (gold only; the Fighter has a second equipment option, B, and gold as C).
+# Armor, a Shield and weapons come equipped; equipment packs come whole (`unpack` adds the contents).
+actions:
+  - id: starting-equipment
+    available: false
+    params:
+      class: { type: id, of: class }
+      background: { type: id, of: background, optional: true }
+      random: { type: boolean, default: false }
+    results: [equipped]
+    steps:
+      - id: byClass
+        kind: branch
+        cases:
+          - when: 'params.class == @classes.barbarian'
+            steps:
+              - id: barbarian
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - { type: addItem, entry: { item: "'weapons.greataxe'", equipped: true } }
+                      - {
+                          type: addItem,
+                          entry: { item: "'weapons.handaxe'", quantity: 4, equipped: true },
+                        }
+                      - { type: addItem, entry: { item: "'gear.explorers-pack'" } }
+                      - { type: adjust, field: coins.gp, by: 15 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 75 }
+                recommend: "'a'"
+                random: params.random
+          - when: 'params.class == @classes.bard'
+            steps:
+              - id: bard
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+                      - {
+                          type: addItem,
+                          entry: { item: "'weapons.dagger'", quantity: 2, equipped: true },
+                        }
+                      - { type: addItem, entry: { item: "'gear.entertainers-pack'" } }
+                      - { type: adjust, field: coins.gp, by: 19 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 90 }
+                recommend: "'a'"
+                random: params.random
+              - id: bardInstrument
+                kind: choice
+                when: "steps.bard.picked == 'a'"
+                sheet: proposed
+                options: { content: { type: tool, where: "item.category == 'musical-instrument'" } }
+                recommend: >-
+                  countList(options, x in proficiencies.tools) > 0
+                    ? filterList(options, x in proficiencies.tools)[0] : options[0]
+                random: params.random && countList(options, x in proficiencies.tools) == 0
+                changes:
+                  - { type: addItem, entry: { item: picked.id } }
+          - when: 'params.class == @classes.cleric'
+            steps:
+              - id: cleric
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - { type: addItem, entry: { item: "'armor.chain-shirt'", equipped: true } }
+                      - { type: addItem, entry: { item: "'armor.shield'", equipped: true } }
+                      - { type: addItem, entry: { item: "'weapons.mace'", equipped: true } }
+                      - { type: addItem, entry: { item: "'gear.priests-pack'" } }
+                      - { type: adjust, field: coins.gp, by: 7 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 110 }
+                recommend: "'a'"
+                random: params.random
+              - id: clericHolySymbol
+                kind: choice
+                when: "steps.cleric.picked == 'a'"
+                sheet: proposed
+                options: { content: { type: gear, where: "item.category == 'holy-symbol'" } }
+                recommend: options[0]
+                random: params.random
+                changes:
+                  - { type: addItem, entry: { item: picked.id } }
+          - when: 'params.class == @classes.druid'
+            steps:
+              - id: druid
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+                      - { type: addItem, entry: { item: "'armor.shield'", equipped: true } }
+                      - { type: addItem, entry: { item: "'weapons.sickle'", equipped: true } }
+                      - {
+                          type: addItem,
+                          entry:
+                            {
+                              item: "'weapons.quarterstaff'",
+                              equipped: true,
+                              templates: ['gear.wooden-staff'],
+                            },
+                        }
+                      - { type: addItem, entry: { item: "'gear.explorers-pack'" } }
+                      - { type: addItem, entry: { item: "'tools.herbalism-kit'" } }
+                      - { type: adjust, field: coins.gp, by: 9 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 50 }
+                recommend: "'a'"
+                random: params.random
+          - when: 'params.class == @classes.fighter'
+            steps:
+              - id: fighter
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - { type: addItem, entry: { item: "'armor.chain-mail'", equipped: true } }
+                      - { type: addItem, entry: { item: "'weapons.greatsword'", equipped: true } }
+                      - { type: addItem, entry: { item: "'weapons.flail'", equipped: true } }
+                      - {
+                          type: addItem,
+                          entry: { item: "'weapons.javelin'", quantity: 8, equipped: true },
+                        }
+                      - { type: addItem, entry: { item: "'gear.dungeoneers-pack'" } }
+                      - { type: adjust, field: coins.gp, by: 4 }
+                  - id: b
+                    changes:
+                      - {
+                          type: addItem,
+                          entry: { item: "'armor.studded-leather'", equipped: true },
+                        }
+                      - { type: addItem, entry: { item: "'weapons.scimitar'", equipped: true } }
+                      - { type: addItem, entry: { item: "'weapons.shortsword'", equipped: true } }
+                      - { type: addItem, entry: { item: "'weapons.longbow'", equipped: true } }
+                      - { type: addItem, entry: { item: "'gear.arrows'", quantity: 20 } }
+                      - { type: addItem, entry: { item: "'gear.quiver'" } }
+                      - { type: addItem, entry: { item: "'gear.dungeoneers-pack'" } }
+                      - { type: adjust, field: coins.gp, by: 11 }
+                  - id: c
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 155 }
+                recommend: "'a'"
+                random: params.random
+          - when: 'params.class == @classes.monk'
+            steps:
+              - id: monk
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - { type: addItem, entry: { item: "'weapons.spear'", equipped: true } }
+                      - {
+                          type: addItem,
+                          entry: { item: "'weapons.dagger'", quantity: 5, equipped: true },
+                        }
+                      - { type: addItem, entry: { item: "'gear.explorers-pack'" } }
+                      - { type: adjust, field: coins.gp, by: 11 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 50 }
+                recommend: "'a'"
+                random: params.random
+              - id: monkTool
+                kind: choice
+                when: "steps.monk.picked == 'a'"
+                sheet: proposed
+                # The one picked for the tool proficiency; any of the kind if there was none.
+                options:
+                  content:
+                    type: tool
+                    where: >-
+                      item.category in ['artisans-tools', 'musical-instrument']
+                        && (item.id in proficiencies.tools
+                          || countList(proficiencies.tools, x in [@tools.alchemists-supplies, @tools.brewers-supplies, @tools.calligraphers-supplies, @tools.carpenters-tools, @tools.cartographers-tools, @tools.cobblers-tools, @tools.cooks-utensils, @tools.glassblowers-tools, @tools.jewelers-tools, @tools.leatherworkers-tools, @tools.masons-tools, @tools.painters-supplies, @tools.potters-tools, @tools.smiths-tools, @tools.tinkers-tools, @tools.weavers-tools, @tools.woodcarvers-tools, @tools.bagpipes, @tools.drum, @tools.dulcimer, @tools.flute, @tools.horn, @tools.lute, @tools.lyre, @tools.pan-flute, @tools.shawm, @tools.viol]) == 0)
+                recommend: options[0]
+                random: params.random
+                changes:
+                  - { type: addItem, entry: { item: picked.id } }
+          - when: 'params.class == @classes.paladin'
+            steps:
+              - id: paladin
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - { type: addItem, entry: { item: "'armor.chain-mail'", equipped: true } }
+                      - { type: addItem, entry: { item: "'armor.shield'", equipped: true } }
+                      - { type: addItem, entry: { item: "'weapons.longsword'", equipped: true } }
+                      - {
+                          type: addItem,
+                          entry: { item: "'weapons.javelin'", quantity: 6, equipped: true },
+                        }
+                      - { type: addItem, entry: { item: "'gear.priests-pack'" } }
+                      - { type: adjust, field: coins.gp, by: 9 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 150 }
+                recommend: "'a'"
+                random: params.random
+              - id: paladinHolySymbol
+                kind: choice
+                when: "steps.paladin.picked == 'a'"
+                sheet: proposed
+                options: { content: { type: gear, where: "item.category == 'holy-symbol'" } }
+                recommend: options[0]
+                random: params.random
+                changes:
+                  - { type: addItem, entry: { item: picked.id } }
+          - when: 'params.class == @classes.ranger'
+            steps:
+              - id: ranger
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - {
+                          type: addItem,
+                          entry: { item: "'armor.studded-leather'", equipped: true },
+                        }
+                      - { type: addItem, entry: { item: "'weapons.scimitar'", equipped: true } }
+                      - { type: addItem, entry: { item: "'weapons.shortsword'", equipped: true } }
+                      - { type: addItem, entry: { item: "'weapons.longbow'", equipped: true } }
+                      - { type: addItem, entry: { item: "'gear.arrows'", quantity: 20 } }
+                      - { type: addItem, entry: { item: "'gear.quiver'" } }
+                      - { type: addItem, entry: { item: "'gear.sprig-of-mistletoe'" } }
+                      - { type: addItem, entry: { item: "'gear.explorers-pack'" } }
+                      - { type: adjust, field: coins.gp, by: 7 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 150 }
+                recommend: "'a'"
+                random: params.random
+          - when: 'params.class == @classes.rogue'
+            steps:
+              - id: rogue
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+                      - {
+                          type: addItem,
+                          entry: { item: "'weapons.dagger'", quantity: 2, equipped: true },
+                        }
+                      - { type: addItem, entry: { item: "'weapons.shortsword'", equipped: true } }
+                      - { type: addItem, entry: { item: "'weapons.shortbow'", equipped: true } }
+                      - { type: addItem, entry: { item: "'gear.arrows'", quantity: 20 } }
+                      - { type: addItem, entry: { item: "'gear.quiver'" } }
+                      - { type: addItem, entry: { item: "'tools.thieves-tools'" } }
+                      - { type: addItem, entry: { item: "'gear.burglars-pack'" } }
+                      - { type: adjust, field: coins.gp, by: 8 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 100 }
+                recommend: "'a'"
+                random: params.random
+          - when: 'params.class == @classes.sorcerer'
+            steps:
+              - id: sorcerer
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - { type: addItem, entry: { item: "'weapons.spear'", equipped: true } }
+                      - {
+                          type: addItem,
+                          entry: { item: "'weapons.dagger'", quantity: 2, equipped: true },
+                        }
+                      - { type: addItem, entry: { item: "'gear.crystal'" } }
+                      - { type: addItem, entry: { item: "'gear.dungeoneers-pack'" } }
+                      - { type: adjust, field: coins.gp, by: 28 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 50 }
+                recommend: "'a'"
+                random: params.random
+          - when: 'params.class == @classes.warlock'
+            steps:
+              - id: warlock
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+                      - { type: addItem, entry: { item: "'weapons.sickle'", equipped: true } }
+                      - {
+                          type: addItem,
+                          entry: { item: "'weapons.dagger'", quantity: 2, equipped: true },
+                        }
+                      - { type: addItem, entry: { item: "'gear.orb'" } }
+                      - { type: addItem, entry: { item: "'gear.book'" } }
+                      - { type: addItem, entry: { item: "'gear.scholars-pack'" } }
+                      - { type: adjust, field: coins.gp, by: 15 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 100 }
+                recommend: "'a'"
+                random: params.random
+          - when: 'params.class == @classes.wizard'
+            steps:
+              - id: wizard
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - {
+                          type: addItem,
+                          entry: { item: "'weapons.dagger'", quantity: 2, equipped: true },
+                        }
+                      - {
+                          type: addItem,
+                          entry:
+                            {
+                              item: "'weapons.quarterstaff'",
+                              equipped: true,
+                              templates: ['gear.staff'],
+                            },
+                        }
+                      - { type: addItem, entry: { item: "'gear.robe'" } }
+                      - { type: addItem, entry: { item: "'gear.spellbook'" } }
+                      - { type: addItem, entry: { item: "'gear.scholars-pack'" } }
+                      - { type: adjust, field: coins.gp, by: 5 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 55 }
+                recommend: "'a'"
+                random: params.random
+      - id: byBackground
+        kind: branch
+        when: has(params.background)
+        cases:
+          - when: 'params.background == @backgrounds.acolyte'
+            steps:
+              - id: acolyte
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - { type: addItem, entry: { item: "'tools.calligraphers-supplies'" } }
+                      - { type: addItem, entry: { item: "'gear.book'" } }
+                      - { type: addItem, entry: { item: "'gear.parchment'", quantity: 10 } }
+                      - { type: addItem, entry: { item: "'gear.robe'" } }
+                      - { type: adjust, field: coins.gp, by: 8 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 50 }
+                recommend: "'a'"
+                random: params.random
+              - id: acolyteHolySymbol
+                kind: choice
+                when: "steps.acolyte.picked == 'a'"
+                sheet: proposed
+                options: { content: { type: gear, where: "item.category == 'holy-symbol'" } }
+                recommend: options[0]
+                random: params.random
+                changes:
+                  - { type: addItem, entry: { item: picked.id } }
+          - when: 'params.background == @backgrounds.criminal'
+            steps:
+              - id: criminal
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - {
+                          type: addItem,
+                          entry: { item: "'weapons.dagger'", quantity: 2, equipped: true },
+                        }
+                      - { type: addItem, entry: { item: "'tools.thieves-tools'" } }
+                      - { type: addItem, entry: { item: "'gear.crowbar'" } }
+                      - { type: addItem, entry: { item: "'gear.pouch'", quantity: 2 } }
+                      - { type: addItem, entry: { item: "'gear.travelers-clothes'" } }
+                      - { type: adjust, field: coins.gp, by: 16 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 50 }
+                recommend: "'a'"
+                random: params.random
+          - when: 'params.background == @backgrounds.sage'
+            steps:
+              - id: sage
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - { type: addItem, entry: { item: "'weapons.quarterstaff'", equipped: true } }
+                      - { type: addItem, entry: { item: "'tools.calligraphers-supplies'" } }
+                      - { type: addItem, entry: { item: "'gear.book'" } }
+                      - { type: addItem, entry: { item: "'gear.parchment'", quantity: 8 } }
+                      - { type: addItem, entry: { item: "'gear.robe'" } }
+                      - { type: adjust, field: coins.gp, by: 8 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 50 }
+                recommend: "'a'"
+                random: params.random
+          - when: 'params.background == @backgrounds.soldier'
+            steps:
+              - id: soldier
+                kind: choice
+                options:
+                  - id: a
+                    changes:
+                      - { type: addItem, entry: { item: "'weapons.spear'", equipped: true } }
+                      - { type: addItem, entry: { item: "'weapons.shortbow'", equipped: true } }
+                      - { type: addItem, entry: { item: "'gear.arrows'", quantity: 20 } }
+                      - { type: addItem, entry: { item: "'gear.healers-kit'" } }
+                      - { type: addItem, entry: { item: "'gear.quiver'" } }
+                      - { type: addItem, entry: { item: "'gear.travelers-clothes'" } }
+                      - { type: adjust, field: coins.gp, by: 14 }
+                  - id: b
+                    changes:
+                      - { type: adjust, field: coins.gp, by: 50 }
+                recommend: "'a'"
+                random: params.random
+              - id: soldierGamingSet
+                kind: choice
+                when: "steps.soldier.picked == 'a'"
+                sheet: proposed
+                # The one picked for the tool proficiency; any of the kind if there was none.
+                options:
+                  content:
+                    type: tool
+                    where: >-
+                      item.category in ['gaming-set']
+                        && (item.id in proficiencies.tools
+                          || countList(proficiencies.tools, x in [@tools.dice, @tools.dragonchess, @tools.playing-cards, @tools.three-dragon-ante]) == 0)
+                recommend: options[0]
+                random: params.random
+                changes:
+                  - { type: addItem, entry: { item: picked.id } }
+      - id: result
+        kind: outcome
+        result: "'equipped'"

@@ -1,0 +1,69 @@
+id: gear.torch
+type: gear
+fields:
+  category: adventuring-gear
+  cost: 0.01
+  weight: 1
+# A Simple Melee weapon: proficiency with Simple weapons is read as proficiency with the Club, which
+# every grant of Simple weapons includes.
+actions:
+  - id: attack
+    tags: [attack, item]
+    available: self.quantity > 0
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [hit, miss]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ac: >-
+                size(participants.target) > 0 && has(participants.target[0].combat.ac)
+                  ? participants.target[0].combat.ac
+                : has(params.targetAc) ? params.targetAc : -1
+      - id: test
+        kind: action
+        use: d20-test
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+        tags: [attack, attack.melee]
+        params:
+          kind: "'attack'"
+          ability: "'str'"
+          proficiency: '@weapons.club in proficiencies.weapons ? 1 : 0'
+          dc: 'flags.ac >= 0 ? flags.ac : null'
+          crit: combat.critRange
+      - id: hit
+        kind: branch
+        cases:
+          - when: steps.test.result in ['hit', 'critical']
+            flags: { hit: true }
+          - when: steps.test.result == 'miss'
+            flags: { hit: false }
+        else:
+          flags: { hit: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options:
+                - id: hit
+                  flags: { hit: true }
+                - id: miss
+      - id: deal
+        kind: changes
+        when: flags.hit
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            by: -1
+            tags: [damage, damage.fire, attack, melee, nonmagical]
+      - id: result
+        kind: outcome
+        result: "flags.hit ? 'hit' : 'miss'"

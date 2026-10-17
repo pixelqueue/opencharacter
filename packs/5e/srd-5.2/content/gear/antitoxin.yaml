@@ -1,0 +1,22 @@
+id: gear.antitoxin
+type: gear
+fields:
+  category: adventuring-gear
+  cost: 50
+# Drunk, it is applied to the drinker for 1 hour.
+effects:
+  - target: origins.conditionAdvantage
+    op: grant
+    value: { item: conditions.poisoned }
+    scope: applied
+actions:
+  - id: drink
+    tags: [item]
+    available: self.quantity > 0
+    steps:
+      - id: drink
+        kind: changes
+        changes:
+          - { type: applyEffect, source: "'gear.antitoxin'" }
+          - { type: adjustQuantity, entry: self, by: -1, when: self.quantity > 1 }
+          - { type: removeItem, entry: self, when: self.quantity <= 1 }

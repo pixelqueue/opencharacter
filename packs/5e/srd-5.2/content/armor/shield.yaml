@@ -1,0 +1,16 @@
+id: armor.shield
+type: armor
+tags: [shield]
+fields:
+  category: shield
+  baseAc: 2
+  weight: 6
+  cost: 10
+# A Shield adds to AC, only with training, and isn't armor: without training it just gives no AC.
+suppress: [base-ac, wearing-armor, armor-category, untrained]
+effects:
+  - target: combat.ac
+    op: add
+    value: item.baseAc
+    when: "self.equipped && 'shield' in proficiencies.armor"
+  - { target: equipment.tags, op: grant, value: { tag: shield }, when: self.equipped }

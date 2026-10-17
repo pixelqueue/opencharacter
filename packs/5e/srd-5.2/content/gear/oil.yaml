@@ -1,0 +1,17 @@
+id: gear.oil
+type: gear
+fields:
+  category: adventuring-gear
+  cost: 0.1
+  weight: 1
+# Applied to a creature that fails the save: covered in oil, it takes 5 extra Fire damage from Fire
+# damage until the oil dries or burns (the app removes it).
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+    op: add
+    value: -5
+    when: incoming.amount < 0
+    scope: applied
+actions:
+  - use: throw-item
+    params: { applies: "'gear.oil'" }

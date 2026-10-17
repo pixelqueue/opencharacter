@@ -1,0 +1,975 @@
+# Weapon properties and kinds
+tags.simple.description: 'Simple weapons. Weapon proficiencies are usually tied to a category: Simple or Martial.'
+tags.martial.description: 'Martial weapons. Weapon proficiencies are usually tied to a category: Simple or Martial.'
+tags.melee.description: 'A Melee weapon is used to attack a target within 5 feet.'
+tags.ranged.description: 'A Ranged weapon is used to attack at a greater distance.'
+tags.ammunition.description: "You can use a weapon that has the Ammunition property to make a ranged attack only if you have ammunition to fire from it. The type of ammunition required is specified with the weapon's range. Each attack expends one piece of ammunition. Drawing the ammunition is part of the attack (you need a free hand to load a one-handed weapon). After a fight, you can spend 1 minute to recover half the ammunition (round down) you used in the fight; the rest is lost."
+tags.finesse.description: 'When making an attack with a Finesse weapon, use your choice of your Strength or Dexterity modifier for the attack and damage rolls. You must use the same modifier for both rolls.'
+tags.property.heavy.description: "You have Disadvantage on attack rolls with a Heavy weapon if it's a Melee weapon and your Strength score isn't at least 13 or if it's a Ranged weapon and your Dexterity score isn't at least 13."
+tags.property.light.description: "When you take the Attack action on your turn and attack with a Light weapon, you can make one extra attack as a Bonus Action later on the same turn. That extra attack must be made with a different Light weapon, and you don't add your ability modifier to the extra attack's damage unless that modifier is negative. For example, you can attack with a Shortsword in one hand and a Dagger in the other using the Attack action and a Bonus Action, but you don't add your Strength or Dexterity modifier to the damage roll of the Bonus Action unless that modifier is negative."
+tags.loading.description: 'You can fire only one piece of ammunition from a Loading weapon when you use an action, a Bonus Action, or a Reaction to fire it, regardless of the number of attacks you can normally make.'
+tags.property.range.description: "A Range weapon has a range in parentheses after the Ammunition or Thrown property. The range lists two numbers. The first is the weapon's normal range in feet, and the second is the weapon's long range. When attacking a target beyond normal range, you have Disadvantage on the attack roll. You can't attack a target beyond the long range."
+tags.reach.description: 'A Reach weapon adds 5 feet to your reach when you attack with it, as well as when determining your reach for Opportunity Attacks with it.'
+tags.thrown.description: 'If a weapon has the Thrown property, you can throw the weapon to make a ranged attack, and you can draw that weapon as part of the attack. If the weapon is a Melee weapon, use the same ability modifier for the attack and damage rolls that you use for a melee attack with that weapon.'
+tags.two-handed.description: 'A Two-Handed weapon requires two hands when you attack with it.'
+tags.versatile.description: 'A Versatile weapon can be used with one or two hands. A damage value in parentheses appears with the property. The weapon deals that damage when used with two hands to make a melee attack.'
+tags.arcane-focus.name: 'Arcane Focus'
+tags.arcane-focus.description: 'A Sorcerer, Warlock, or Wizard can use it as a Spellcasting Focus.'
+tags.druidic-focus.name: 'Druidic Focus'
+tags.druidic-focus.description: 'A Druid or Ranger can use it as a Spellcasting Focus.'
+
+# Mastery properties
+types.weapon.fields.mastery.description: 'Usable only by a character who has a feature, such as Weapon Mastery, that unlocks the property.'
+tags.mastery.name: 'Mastery property'
+tags.mastery.cleave.name: 'Cleave'
+tags.mastery.graze.name: 'Graze'
+tags.mastery.nick.name: 'Nick'
+tags.mastery.push.name: 'Push'
+tags.mastery.sap.name: 'Sap'
+tags.mastery.slow.name: 'Slow'
+tags.mastery.topple.name: 'Topple'
+tags.mastery.vex.name: 'Vex'
+types.weapon.fields.mastery.values.cleave.name: 'Cleave'
+tags.mastery.cleave.description: "If you hit a creature with a melee attack roll using this weapon, you can make a melee attack roll with the weapon against a second creature within 5 feet of the first that is also within your reach. On a hit, the second creature takes the weapon's damage, but don't add your ability modifier to that damage unless that modifier is negative. You can make this extra attack only once per turn."
+types.weapon.fields.mastery.values.graze.name: 'Graze'
+tags.mastery.graze.description: 'If your attack roll with this weapon misses a creature, you can deal damage to that creature equal to the ability modifier you used to make the attack roll. This damage is the same type dealt by the weapon, and the damage can be increased only by increasing the ability modifier.'
+types.weapon.fields.mastery.values.nick.name: 'Nick'
+tags.mastery.nick.description: 'When you make the extra attack of the Light property, you can make it as part of the Attack action instead of as a Bonus Action. You can make this extra attack only once per turn.'
+types.weapon.fields.mastery.values.push.name: 'Push'
+tags.mastery.push.description: 'If you hit a creature with this weapon, you can push the creature up to 10 feet straight away from yourself if it is Large or smaller.'
+types.weapon.fields.mastery.values.sap.name: 'Sap'
+tags.mastery.sap.description: 'If you hit a creature with this weapon, that creature has Disadvantage on its next attack roll before the start of your next turn.'
+types.weapon.fields.mastery.values.slow.name: 'Slow'
+tags.mastery.slow.description: "If you hit a creature with this weapon and deal damage to it, you can reduce its Speed by 10 feet until the start of your next turn. If the creature is hit more than once by weapons that have this property, the Speed reduction doesn't exceed 10 feet."
+types.weapon.fields.mastery.values.topple.name: 'Topple'
+tags.mastery.topple.description: 'If you hit a creature with this weapon, you can force the creature to make a Constitution saving throw (DC 8 plus the ability modifier used to make the attack roll and your Proficiency Bonus). On a failed save, the creature has the Prone condition.'
+types.weapon.fields.mastery.values.vex.name: 'Vex'
+tags.mastery.vex.description: 'If you hit a creature with this weapon and deal damage to the creature, you have Advantage on your next attack roll against that creature before the end of your next turn.'
+
+# Field values
+types.weapon.fields.category.values.simple.name: 'Simple'
+types.weapon.fields.category.values.martial.name: 'Martial'
+types.weapon.fields.range.values.melee.name: 'Melee'
+types.weapon.fields.range.values.ranged.name: 'Ranged'
+types.weapon.fields.ammunition.values.arrow.name: 'Arrow'
+types.weapon.fields.ammunition.values.bolt.name: 'Bolt'
+types.weapon.fields.ammunition.values.firearm-bullet.name: 'Bullet (firearm)'
+types.weapon.fields.ammunition.values.sling-bullet.name: 'Bullet (sling)'
+types.weapon.fields.ammunition.values.needle.name: 'Needle'
+types.armor.fields.category.values.light.name: 'Light'
+types.armor.fields.category.values.medium.name: 'Medium'
+types.armor.fields.category.values.heavy.name: 'Heavy'
+types.armor.fields.category.values.shield.name: 'Shield'
+types.gear.fields.category.values.adventuring-gear.name: 'Adventuring gear'
+types.gear.fields.category.values.ammunition.name: 'Ammunition'
+types.gear.fields.category.values.arcane-focus.name: 'Arcane Focus'
+types.gear.fields.category.values.druidic-focus.name: 'Druidic Focus'
+types.gear.fields.category.values.holy-symbol.name: 'Holy Symbol'
+types.gear.fields.category.values.equipment-pack.name: 'Equipment pack'
+types.gear.fields.category.values.tack.name: 'Tack and harness'
+types.gear.fields.ammunition.values.arrow.name: 'Arrow'
+types.gear.fields.ammunition.values.bolt.name: 'Bolt'
+types.gear.fields.ammunition.values.firearm-bullet.name: 'Bullet (firearm)'
+types.gear.fields.ammunition.values.sling-bullet.name: 'Bullet (sling)'
+types.gear.fields.ammunition.values.needle.name: 'Needle'
+types.gear.state.stowed.name: 'Stowed'
+types.tool.fields.category.values.artisans-tools.name: "Artisan's Tools"
+types.tool.fields.category.values.gaming-set.name: 'Gaming Set'
+types.tool.fields.category.values.musical-instrument.name: 'Musical Instrument'
+types.tool.fields.category.values.other.name: 'Other tools'
+types.tool.state.stowed.name: 'Stowed'
+types.vehicle.fields.category.values.drawn.name: 'Drawn'
+types.vehicle.fields.category.values.waterborne.name: 'Waterborne'
+types.vehicle.fields.category.values.airborne.name: 'Airborne'
+types.vehicle.fields.crew.name: 'Crew'
+types.vehicle.fields.passengers.name: 'Passengers'
+types.vehicle.fields.cargoTons.name: 'Cargo (tons)'
+types.vehicle.fields.ac.name: 'AC'
+types.vehicle.fields.hp.name: 'HP'
+types.vehicle.fields.damageThreshold.name: 'Damage Threshold'
+
+# Antitoxin and the Poisoned condition
+
+# Thrown items
+actions.throw-item.name: 'Throw'
+actions.throw-item.description: 'Replaces one attack of the Attack action. The target makes a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus).'
+actions.throw-item.params.damage.name: 'Damage'
+actions.throw-item.params.damageType.name: 'Damage type'
+actions.throw-item.params.damageType.values.acid.name: 'Acid'
+actions.throw-item.params.damageType.values.fire.name: 'Fire'
+actions.throw-item.params.damageType.values.radiant.name: 'Radiant'
+actions.throw-item.params.fiendOrUndead.name: 'Harms only Fiends and Undead'
+actions.throw-item.params.hugeSucceeds.name: 'A Huge or larger target succeeds'
+actions.throw-item.params.applies.name: 'Applied on a failed save'
+actions.throw-item.params.appliesCondition.name: 'Applies a condition'
+actions.throw-item.results.thrown.name: 'Thrown'
+actions.throw-item.steps.damage.name: 'Damage'
+
+gear.antitoxin.actions.drink.name: 'Drink'
+gear.healers-kit.actions.stabilize.name: 'Stabilize'
+gear.healers-kit.actions.stabilize.results.stabilized.name: 'Stabilized'
+gear.healers-kit.state.usesSpent.name: 'Uses expended'
+gear.basic-poison.actions.coat.name: 'Coat a weapon'
+gear.basic-poison.options.poison.name: 'Basic Poison: +1d4 Poison damage'
+gear.torch.actions.attack.name: 'Attack'
+gear.torch.actions.attack.params.targetAc.name: "Target's Armor Class"
+gear.torch.actions.attack.results.hit.name: 'Hit'
+gear.torch.actions.attack.results.miss.name: 'Miss'
+gear.torch.actions.attack.steps.confirm.prompt: 'Did the attack hit?'
+gear.torch.actions.attack.options.hit.name: 'Hit'
+gear.torch.actions.attack.options.miss.name: 'Miss'
+
+# Starting equipment
+actions.starting-equipment.options.a.name: 'A'
+actions.starting-equipment.options.b.name: 'B'
+actions.starting-equipment.options.c.name: 'C'
+actions.starting-equipment.steps.barbarian.prompt: "Barbarian: (A) Greataxe, 4 Handaxes, Explorer's Pack, and 15 GP; or (B) 75 GP"
+actions.starting-equipment.steps.bard.prompt: "Bard: (A) Leather Armor, 2 Daggers, Musical Instrument of your choice, Entertainer's Pack, and 19 GP; or (B) 90 GP"
+actions.starting-equipment.steps.bardInstrument.prompt: 'Which Musical Instrument?'
+actions.starting-equipment.steps.cleric.prompt: "Cleric: (A) Chain Shirt, Shield, Mace, Holy Symbol, Priest's Pack, and 7 GP; or (B) 110 GP"
+actions.starting-equipment.steps.clericHolySymbol.prompt: 'Which Holy Symbol?'
+actions.starting-equipment.steps.druid.prompt: "Druid: (A) Leather Armor, Shield, Sickle, Druidic Focus (Quarterstaff), Explorer's Pack, Herbalism Kit, and 9 GP; or (B) 50 GP"
+actions.starting-equipment.steps.fighter.prompt: "Fighter: (A) Chain Mail, Greatsword, Flail, 8 Javelins, Dungeoneer's Pack, and 4 GP; (B) Studded Leather Armor, Scimitar, Shortsword, Longbow, 20 Arrows, Quiver, Dungeoneer's Pack, and 11 GP; or (C) 155 GP"
+actions.starting-equipment.steps.monk.prompt: "Monk: (A) Spear, 5 Daggers, Artisan's Tools or Musical Instrument chosen for the tool proficiency, Explorer's Pack, and 11 GP; or (B) 50 GP"
+actions.starting-equipment.steps.monkTool.prompt: 'Which tool (the one you chose for your tool proficiency)?'
+actions.starting-equipment.steps.paladin.prompt: "Paladin: (A) Chain Mail, Shield, Longsword, 6 Javelins, Holy Symbol, Priest's Pack, and 9 GP; or (B) 150 GP"
+actions.starting-equipment.steps.paladinHolySymbol.prompt: 'Which Holy Symbol?'
+actions.starting-equipment.steps.ranger.prompt: "Ranger: (A) Studded Leather Armor, Scimitar, Shortsword, Longbow, 20 Arrows, Quiver, Druidic Focus (sprig of mistletoe), Explorer's Pack, and 7 GP; or (B) 150 GP"
+actions.starting-equipment.steps.rogue.prompt: "Rogue: (A) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves' Tools, Burglar's Pack, and 8 GP; or (B) 100 GP"
+actions.starting-equipment.steps.sorcerer.prompt: "Sorcerer: (A) Spear, 2 Daggers, Arcane Focus (crystal), Dungeoneer's Pack, and 28 GP; or (B) 50 GP"
+actions.starting-equipment.steps.warlock.prompt: "Warlock: (A) Leather Armor, Sickle, 2 Daggers, Arcane Focus (orb), Book (occult lore), Scholar's Pack, and 15 GP; or (B) 100 GP"
+actions.starting-equipment.steps.wizard.prompt: "Wizard: (A) 2 Daggers, Arcane Focus (Quarterstaff), Robe, Spellbook, Scholar's Pack, and 5 GP; or (B) 55 GP"
+actions.starting-equipment.steps.acolyte.prompt: "Acolyte: (A) Calligrapher's Supplies, Book (prayers), Holy Symbol, Parchment (10 sheets), Robe, and 8 GP; or (B) 50 GP"
+actions.starting-equipment.steps.acolyteHolySymbol.prompt: 'Which Holy Symbol?'
+actions.starting-equipment.steps.criminal.prompt: "Criminal: (A) 2 Daggers, Thieves' Tools, Crowbar, 2 Pouches, Traveler's Clothes, and 16 GP; or (B) 50 GP"
+actions.starting-equipment.steps.sage.prompt: "Sage: (A) Quarterstaff, Calligrapher's Supplies, Book (history), Parchment (8 sheets), Robe, and 8 GP; or (B) 50 GP"
+actions.starting-equipment.steps.soldier.prompt: "Soldier: (A) Spear, Shortbow, 20 Arrows, Gaming Set (the one you're proficient with), Healer's Kit, Quiver, Traveler's Clothes, and 14 GP; or (B) 50 GP"
+actions.starting-equipment.steps.soldierGamingSet.prompt: 'Which Gaming Set (the one you chose for your tool proficiency)?'
+weapons.club.name: 'Club'
+weapons.dagger.name: 'Dagger'
+weapons.greatclub.name: 'Greatclub'
+weapons.handaxe.name: 'Handaxe'
+weapons.javelin.name: 'Javelin'
+weapons.light-hammer.name: 'Light Hammer'
+weapons.mace.name: 'Mace'
+weapons.quarterstaff.name: 'Quarterstaff'
+weapons.sickle.name: 'Sickle'
+weapons.spear.name: 'Spear'
+weapons.dart.name: 'Dart'
+weapons.light-crossbow.name: 'Light Crossbow'
+weapons.shortbow.name: 'Shortbow'
+weapons.sling.name: 'Sling'
+weapons.battleaxe.name: 'Battleaxe'
+weapons.flail.name: 'Flail'
+weapons.glaive.name: 'Glaive'
+weapons.greataxe.name: 'Greataxe'
+weapons.greatsword.name: 'Greatsword'
+weapons.halberd.name: 'Halberd'
+weapons.lance.name: 'Lance'
+weapons.longsword.name: 'Longsword'
+weapons.maul.name: 'Maul'
+weapons.morningstar.name: 'Morningstar'
+weapons.pike.name: 'Pike'
+weapons.rapier.name: 'Rapier'
+weapons.scimitar.name: 'Scimitar'
+weapons.shortsword.name: 'Shortsword'
+weapons.trident.name: 'Trident'
+weapons.warhammer.name: 'Warhammer'
+weapons.war-pick.name: 'War Pick'
+weapons.whip.name: 'Whip'
+weapons.blowgun.name: 'Blowgun'
+weapons.hand-crossbow.name: 'Hand Crossbow'
+weapons.heavy-crossbow.name: 'Heavy Crossbow'
+weapons.longbow.name: 'Longbow'
+weapons.musket.name: 'Musket'
+weapons.pistol.name: 'Pistol'
+weapons.lance.description: 'The Lance has the Two-Handed property unless you are mounted.'
+armor.padded.name: 'Padded Armor'
+armor.leather.name: 'Leather Armor'
+armor.studded-leather.name: 'Studded Leather Armor'
+armor.hide.name: 'Hide Armor'
+armor.chain-shirt.name: 'Chain Shirt'
+armor.scale-mail.name: 'Scale Mail'
+armor.breastplate.name: 'Breastplate'
+armor.half-plate.name: 'Half Plate Armor'
+armor.ring-mail.name: 'Ring Mail'
+armor.chain-mail.name: 'Chain Mail'
+armor.splint.name: 'Splint Armor'
+armor.plate.name: 'Plate Armor'
+armor.shield.name: 'Shield'
+gear.acid.name: 'Acid'
+gear.acid.description: |-
+  When you take the Attack action, you can replace one of your attacks with throwing a vial of Acid. Target one creature or object you can see within 20 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or take 2d6 Acid damage.
+gear.alchemists-fire.name: "Alchemist's Fire"
+gear.alchemists-fire.description: |-
+  When you take the Attack action, you can replace one of your attacks with throwing a flask of Alchemist's Fire. Target one creature or object you can see within 20 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or take 1d4 Fire damage and start burning (see "Rules Glossary").
+gear.antitoxin.name: 'Antitoxin'
+gear.antitoxin.description: |-
+  As a Bonus Action, you can drink a vial of Antitoxin to gain Advantage on saving throws to avoid or end the Poisoned condition for 1 hour.
+gear.backpack.name: 'Backpack'
+gear.backpack.description: |-
+  A Backpack holds up to 30 pounds within 1 cubic foot. It can also serve as a saddlebag.
+gear.ball-bearings.name: 'Ball Bearings'
+gear.ball-bearings.description: |-
+  As a Utilize action, you can spill Ball Bearings from their pouch. They spread to cover a level, 10-foot-square area within 10 feet of yourself. A creature that enters this area for the first time on a turn must succeed on a DC 10 Dexterity saving throw or have the Prone condition. It takes 10 minutes to recover the Ball Bearings.
+gear.barrel.name: 'Barrel'
+gear.barrel.description: |-
+  A Barrel holds up to 40 gallons of liquid or up to 4 cubic feet of dry goods.
+gear.basket.name: 'Basket'
+gear.basket.description: |-
+  A Basket holds up to 40 pounds within 2 cubic feet.
+gear.bedroll.name: 'Bedroll'
+gear.bedroll.description: |-
+  A Bedroll sleeps one Small or Medium creature. While in a Bedroll, you automatically succeed on saving throws against extreme cold (see "Gameplay Toolbox").
+gear.bell.name: 'Bell'
+gear.bell.description: |-
+  When rung as a Utilize action, a Bell produces a sound that can be heard up to 60 feet away.
+gear.blanket.name: 'Blanket'
+gear.blanket.description: |-
+  While wrapped in a blanket, you have Advantage on saving throws against extreme cold (see "Gameplay Toolbox").
+gear.block-and-tackle.name: 'Block and Tackle'
+gear.block-and-tackle.description: |-
+  A Block and Tackle allows you to hoist up to four times the weight you can normally lift.
+gear.book.name: 'Book'
+gear.book.description: |-
+  A Book contains fiction or nonfiction. If you consult an accurate nonfiction Book about its topic, you gain a +5 bonus to Intelligence (Arcana, History, Nature, or Religion) checks you make about that topic.
+gear.glass-bottle.name: 'Glass Bottle'
+gear.glass-bottle.description: |-
+  A Glass Bottle holds up to 1½ pints.
+gear.bucket.name: 'Bucket'
+gear.bucket.description: |-
+  A Bucket holds up to half a cubic foot of contents.
+gear.caltrops.name: 'Caltrops'
+gear.caltrops.description: |-
+  As a Utilize action, you can spread Caltrops from their bag to cover a 5-foot-square area within 5 feet of yourself. A creature that enters this area for the first time on a turn must succeed on a DC 15 Dexterity saving throw or take 1 Piercing damage and have its Speed reduced to 0 until the start of its next turn. It takes 10 minutes to recover the Caltrops.
+gear.candle.name: 'Candle'
+gear.candle.description: |-
+  For 1 hour, a lit Candle sheds Bright Light in a 5-foot radius and Dim Light for an additional 5 feet.
+gear.crossbow-bolt-case.name: 'Crossbow Bolt Case'
+gear.crossbow-bolt-case.description: |-
+  A Crossbow Bolt Case holds up to 20 Bolts.
+gear.map-or-scroll-case.name: 'Map or Scroll Case'
+gear.map-or-scroll-case.description: |-
+  A Map or Scroll Case holds up to 10 sheets of paper or 5 sheets of parchment.
+gear.chain.name: 'Chain'
+gear.chain.description: |-
+  As a Utilize action, you can wrap a Chain around an unwilling creature within 5 feet of yourself that has the Grappled, Incapacitated, or Restrained condition if you succeed on a DC 13 Strength (Athletics) check. If the creature's legs are bound, the creature has the Restrained condition until it escapes. Escaping the Chain requires the creature to make a successful DC 18 Dexterity (Acrobatics) check as an action. Bursting the Chain requires a successful DC 20 Strength (Athletics) check as an action.
+gear.chest.name: 'Chest'
+gear.chest.description: |-
+  A Chest holds up to 12 cubic feet of contents.
+gear.climbers-kit.name: "Climber's Kit"
+gear.climbers-kit.description: |-
+  A Climber's Kit includes boot tips, gloves, pitons, and a harness. As a Utilize action, you can use the Climber's Kit to anchor yourself; when you do, you can't fall more than 25 feet from the anchor point, and you can't move more than 25 feet from there without undoing the anchor as a Bonus Action.
+gear.fine-clothes.name: 'Fine Clothes'
+gear.fine-clothes.description: |-
+  Fine Clothes are made of expensive fabrics and adorned with expertly crafted details. Some events and locations admit only people wearing these clothes.
+gear.travelers-clothes.name: "Traveler's Clothes"
+gear.travelers-clothes.description: |-
+  Traveler's Clothes are resilient garments designed for travel in various environments.
+gear.component-pouch.name: 'Component Pouch'
+gear.component-pouch.description: |-
+  A Component Pouch is watertight and filled with compartments that hold all the free Material components of your spells.
+gear.costume.name: 'Costume'
+gear.costume.description: |-
+  While wearing a Costume, you have Advantage on any ability check you make to impersonate the person or type of person it represents.
+gear.crowbar.name: 'Crowbar'
+gear.crowbar.description: |-
+  Using a Crowbar gives you Advantage on Strength checks where the Crowbar's leverage can be applied.
+gear.flask.name: 'Flask'
+gear.flask.description: |-
+  A Flask holds up to 1 pint.
+gear.grappling-hook.name: 'Grappling Hook'
+gear.grappling-hook.description: |-
+  As a Utilize action, you can throw the Grappling Hook at a railing, a ledge, or another catch within 50 feet of yourself, and the hook catches on if you succeed on a DC 13 Dexterity (Acrobatics) check. If you tied a Rope to the hook, you can then climb it.
+gear.healers-kit.name: "Healer's Kit"
+gear.healers-kit.description: |-
+  A Healer's Kit has ten uses. As a Utilize action, you can expend one of its uses to stabilize an Unconscious creature that has 0 Hit Points without needing to make a Wisdom (Medicine) check.
+gear.holy-water.name: 'Holy Water'
+gear.holy-water.description: |-
+  When you take the Attack action, you can replace one of your attacks with throwing a flask of Holy Water. Target one creature you can see within 20 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or take 2d8 Radiant damage if it is a Fiend or an Undead.
+gear.hunting-trap.name: 'Hunting Trap'
+gear.hunting-trap.description: |-
+  As a Utilize action, you can set a Hunting Trap, which is a sawtooth steel ring that snaps shut when a creature steps on a pressure plate in the center. The trap is affixed by a heavy chain to an immobile object, such as a tree or a spike driven into the ground. A creature that steps on the plate must succeed on a DC 13 Dexterity saving throw or take 1d4 Piercing damage and have its Speed reduced to 0 until the start of its next turn. Thereafter, until the creature breaks free of the trap, its movement is limited by the length of the chain (typically 3 feet). A creature can use its action to make a DC 13 Strength (Athletics) check, freeing itself or another creature within its reach on a success. Each failed check deals 1 Piercing damage to the trapped creature.
+gear.ink.name: 'Ink'
+gear.ink.description: |-
+  Ink comes in a 1-ounce bottle, which provides enough ink to write about 500 pages.
+gear.ink-pen.name: 'Ink Pen'
+gear.ink-pen.description: |-
+  Using Ink, an Ink Pen is used to write or draw.
+gear.jug.name: 'Jug'
+gear.jug.description: |-
+  A Jug holds up to 1 gallon.
+gear.ladder.name: 'Ladder'
+gear.ladder.description: |-
+  A Ladder is 10 feet tall. You must climb to move up or down it.
+gear.lamp.name: 'Lamp'
+gear.lamp.description: |-
+  A Lamp burns Oil as fuel to cast Bright Light in a 15-foot radius and Dim Light for an additional 30 feet.
+gear.bullseye-lantern.name: 'Bullseye Lantern'
+gear.bullseye-lantern.description: |-
+  A Bullseye Lantern burns Oil as fuel to cast Bright Light in a 60-foot Cone and Dim Light for an additional 60 feet.
+gear.hooded-lantern.name: 'Hooded Lantern'
+gear.hooded-lantern.description: |-
+  A Hooded Lantern burns Oil as fuel to cast Bright Light in a 30-foot radius and Dim Light for an additional 30 feet. As a Bonus Action, you can lower the hood, reducing the light to Dim Light in a 5-foot radius, or raise it again.
+gear.lock.name: 'Lock'
+gear.lock.description: |-
+  A Lock comes with a key. Without the key, a creature can use Thieves' Tools to pick this Lock with a successful DC 15 Dexterity (Sleight of Hand) check.
+gear.magnifying-glass.name: 'Magnifying Glass'
+gear.magnifying-glass.description: |-
+  A Magnifying Glass grants Advantage on any ability check made to appraise or inspect a highly detailed item. Lighting a fire with a Magnifying Glass requires light as bright as sunlight to focus, tinder to ignite, and about 5 minutes for the fire to ignite.
+gear.manacles.name: 'Manacles'
+gear.manacles.description: |-
+  As a Utilize action, you can use Manacles to bind an unwilling Small or Medium creature within 5 feet of yourself that has the Grappled, Incapacitated, or Restrained condition if you succeed on a DC 13 Dexterity (Sleight of Hand) check. While bound, a creature has Disadvantage on attack rolls, and the creature is Restrained if the Manacles are attached to a chain or hook that is fixed in place. Escaping the Manacles requires a successful DC 20 Dexterity (Sleight of Hand) check as an action. Bursting them requires a successful DC 25 Strength (Athletics) check as an action.
+
+  Each set of Manacles comes with a key. Without the key, a creature can use Thieves' Tools to pick the Manacles' lock with a successful DC 15 Dexterity (Sleight of Hand) check.
+gear.map.name: 'Map'
+gear.map.description: |-
+  If you consult an accurate Map, you gain a +5 bonus to Wisdom (Survival) checks you make to find your way in the place represented on it.
+gear.mirror.name: 'Mirror'
+gear.mirror.description: |-
+  A handheld steel Mirror is useful for personal cosmetics but also for peeking around corners and reflecting light as a signal.
+gear.net.name: 'Net'
+gear.net.description: |-
+  When you take the Attack action, you can replace one of your attacks with throwing a Net. Target a creature you can see within 15 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or have the Restrained condition until it escapes. The target succeeds automatically if it is Huge or larger.
+
+  To escape, the target or a creature within 5 feet of it must take an action to make a DC 10 Strength (Athletics) check, freeing the Restrained creature on a success. Destroying the Net (AC 10; 5 HP; Immunity to Bludgeoning, Poison, and Psychic damage) also frees the target, ending the effect.
+gear.oil.name: 'Oil'
+gear.oil.description: |-
+  You can douse a creature, object, or space with Oil or use it as fuel, as detailed below.
+
+  ***Dousing a Creature or an Object.*** When you take the Attack action, you can replace one of your attacks with throwing an Oil flask. Target one creature or object within 20 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or be covered in oil. If the target takes Fire damage before the oil dries (after 1 minute), the target takes an extra 5 Fire damage from burning oil.
+
+  ***Dousing a Space.*** You can take the Utilize action to pour an Oil flask on level ground to cover a 5-foot-square area within 5 feet of yourself. If lit, the oil burns until the end of the turn 2 rounds from when the oil was lit (or 12 seconds) and deals 5 Fire damage to any creature that enters the area or ends its turn there. A creature can take this damage only once per turn.
+
+  ***Fuel.*** Oil serves as fuel for Lamps and Lanterns. Once lit, a flask of Oil burns for 6 hours in a Lamp or Lantern. That duration doesn't need to be consecutive; you can extinguish the burning Oil (as a Utilize action) and rekindle it again until it has burned for a total of 6 hours.
+gear.paper.name: 'Paper'
+gear.paper.description: |-
+  One sheet of Paper can hold about 250 handwritten words.
+gear.parchment.name: 'Parchment'
+gear.parchment.description: |-
+  One sheet of Parchment can hold about 250 handwritten words.
+gear.perfume.name: 'Perfume'
+gear.perfume.description: |-
+  Perfume comes in a 4-ounce vial. For 1 hour after applying Perfume to yourself, you have Advantage on Charisma (Persuasion) checks made to influence an Indifferent Humanoid within 5 feet of yourself.
+gear.basic-poison.name: 'Basic Poison'
+gear.basic-poison.description: |-
+  As a Bonus Action, you can use a vial of Basic Poison to coat one weapon or up to three pieces of ammunition. A creature that takes Piercing or Slashing damage from the poisoned weapon or ammunition takes an extra 1d4 Poison damage. Once applied, the poison retains potency for 1 minute or until its damage is dealt, whichever comes first.
+gear.pole.name: 'Pole'
+gear.pole.description: |-
+  A Pole is 10 feet long. You can use it to touch something up to 10 feet away. If you must make a Strength (Athletics) check as part of a High or Long Jump, you can use the Pole to vault, giving yourself Advantage on the check.
+gear.iron-pot.name: 'Iron Pot'
+gear.iron-pot.description: |-
+  An Iron Pot holds up to 1 gallon.
+gear.pouch.name: 'Pouch'
+gear.pouch.description: |-
+  A Pouch holds up to 6 pounds within one-fifth of a cubic foot.
+gear.quiver.name: 'Quiver'
+gear.quiver.description: |-
+  A Quiver holds up to 20 Arrows.
+gear.portable-ram.name: 'Portable Ram'
+gear.portable-ram.description: |-
+  You can use a Portable Ram to break down doors. When doing so, you gain a +4 bonus to the Strength check. One other character can help you use the ram, giving you Advantage on this check.
+gear.rations.name: 'Rations'
+gear.rations.description: |-
+  Rations consist of travel-ready food, including jerky, dried fruit, hardtack, and nuts. See "Malnutrition" in "Rules Glossary" for the risks of not eating.
+gear.robe.name: 'Robe'
+gear.robe.description: |-
+  A Robe has vocational or ceremonial significance. Some events and locations admit only people wearing a Robe bearing certain colors or symbols.
+gear.rope.name: 'Rope'
+gear.rope.description: |-
+  As a Utilize action, you can tie a knot with Rope if you succeed on a DC 10 Dexterity (Sleight of Hand) check. The Rope can be burst with a successful DC 20 Strength (Athletics) check.
+
+  You can bind an unwilling creature with the Rope only if the creature has the Grappled, Incapacitated, or Restrained condition. If the creature's legs are bound, the creature has the Restrained condition until it escapes. Escaping the Rope requires the creature to make a successful DC 15 Dexterity (Acrobatics) check as an action.
+gear.sack.name: 'Sack'
+gear.sack.description: |-
+  A Sack holds up to 30 pounds within 1 cubic foot.
+gear.shovel.name: 'Shovel'
+gear.shovel.description: |-
+  Working for 1 hour, you can use a Shovel to dig a hole that is 5 feet on each side in soil or similar material.
+gear.signal-whistle.name: 'Signal Whistle'
+gear.signal-whistle.description: |-
+  When blown as a Utilize action, a Signal Whistle produces a sound that can be heard up to 600 feet away.
+gear.iron-spikes.name: 'Iron Spike'
+gear.iron-spikes.description: |-
+  Iron Spikes come in bundles of ten. As a Utilize action, you can use a blunt object, such as a Light Hammer, to hammer a spike into wood, earth, or a similar material. You can do so to jam a door shut or to then tie a Rope or Chain to the Spike.
+gear.spyglass.name: 'Spyglass'
+gear.spyglass.description: |-
+  Objects viewed through a Spyglass are magnified to twice their size.
+gear.string.name: 'String'
+gear.string.description: |-
+  String is 10 feet long. You can tie a knot in it as a Utilize action.
+gear.tent.name: 'Tent'
+gear.tent.description: |-
+  A Tent sleeps up to two Small or Medium creatures.
+gear.tinderbox.name: 'Tinderbox'
+gear.tinderbox.description: |-
+  A Tinderbox is a small container holding flint, fire steel, and tinder (usually dry cloth soaked in light oil) used to kindle a fire. Using it to light a Candle, Lamp, Lantern, or Torch—or anything else with exposed fuel—takes a Bonus Action. Lighting any other fire takes 1 minute.
+gear.torch.name: 'Torch'
+gear.torch.description: |-
+  A Torch burns for 1 hour, casting Bright Light in a 20-foot radius and Dim Light for an additional 20 feet. When you take the Attack action, you can attack with the Torch, using it as a Simple Melee weapon. On a hit, the target takes 1 Fire damage.
+gear.vial.name: 'Vial'
+gear.vial.description: |-
+  A Vial holds up to 4 ounces.
+gear.waterskin.name: 'Waterskin'
+gear.waterskin.description: |-
+  A Waterskin holds up to 4 pints. If you don't drink sufficient water, you risk dehydration (see "Rules Glossary").
+gear.arrows.name: 'Arrows'
+gear.arrows.description: |-
+  Ammunition is required by a weapon that has the Ammunition property. A weapon's description specifies the type of ammunition used by the weapon.
+
+  Sold 20 for 1 GP (1 lb.); typically stored in a Quiver, bought separately.
+gear.bolts.name: 'Bolts'
+gear.bolts.description: |-
+  Ammunition is required by a weapon that has the Ammunition property. A weapon's description specifies the type of ammunition used by the weapon.
+
+  Sold 20 for 1 GP (1½ lb.); typically stored in a Case, bought separately.
+gear.firearm-bullets.name: 'Firearm Bullets'
+gear.firearm-bullets.description: |-
+  Ammunition is required by a weapon that has the Ammunition property. A weapon's description specifies the type of ammunition used by the weapon.
+
+  Sold 10 for 3 GP (2 lb.); typically stored in a Pouch, bought separately.
+gear.sling-bullets.name: 'Sling Bullets'
+gear.sling-bullets.description: |-
+  Ammunition is required by a weapon that has the Ammunition property. A weapon's description specifies the type of ammunition used by the weapon.
+
+  Sold 20 for 4 CP (1½ lb.); typically stored in a Pouch, bought separately.
+gear.needles.name: 'Needles'
+gear.needles.description: |-
+  Ammunition is required by a weapon that has the Ammunition property. A weapon's description specifies the type of ammunition used by the weapon.
+
+  Sold 50 for 1 GP (1 lb.); typically stored in a Pouch, bought separately.
+gear.crystal.name: 'Crystal'
+gear.crystal.description: |-
+  An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus.
+gear.orb.name: 'Orb'
+gear.orb.description: |-
+  An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus.
+gear.rod.name: 'Rod'
+gear.rod.description: |-
+  An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus.
+gear.wand.name: 'Wand'
+gear.wand.description: |-
+  An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus.
+gear.sprig-of-mistletoe.name: 'Sprig of Mistletoe'
+gear.sprig-of-mistletoe.description: |-
+  A Druidic Focus takes one of the forms in the Druidic Focuses table and is carved, tied with ribbon, or painted to channel primal magic. A Druid or Ranger can use such an object as a Spellcasting Focus.
+gear.yew-wand.name: 'Yew Wand'
+gear.yew-wand.description: |-
+  A Druidic Focus takes one of the forms in the Druidic Focuses table and is carved, tied with ribbon, or painted to channel primal magic. A Druid or Ranger can use such an object as a Spellcasting Focus.
+gear.amulet.name: 'Amulet'
+gear.amulet.description: |-
+  A Holy Symbol takes one of the forms in the Holy Symbol table and is bejeweled or painted to channel divine magic. A Cleric or Paladin can use a Holy Symbol as a Spellcasting Focus.
+
+  The table indicates whether a Holy Symbol needs to be held, worn, or borne on fabric (such as a tabard or banner) or a Shield.
+
+  A Holy Symbol in this form is worn or held.
+gear.emblem.name: 'Emblem'
+gear.emblem.description: |-
+  A Holy Symbol takes one of the forms in the Holy Symbol table and is bejeweled or painted to channel divine magic. A Cleric or Paladin can use a Holy Symbol as a Spellcasting Focus.
+
+  The table indicates whether a Holy Symbol needs to be held, worn, or borne on fabric (such as a tabard or banner) or a Shield.
+
+  A Holy Symbol in this form is borne on fabric or a Shield.
+gear.reliquary.name: 'Reliquary'
+gear.reliquary.description: |-
+  A Holy Symbol takes one of the forms in the Holy Symbol table and is bejeweled or painted to channel divine magic. A Cleric or Paladin can use a Holy Symbol as a Spellcasting Focus.
+
+  The table indicates whether a Holy Symbol needs to be held, worn, or borne on fabric (such as a tabard or banner) or a Shield.
+
+  A Holy Symbol in this form is held.
+gear.exotic-saddle.name: 'Exotic Saddle'
+gear.exotic-saddle.description: |-
+  A saddle comes with a bit, a bridle, reins, and any other equipment needed to use the saddle. An Exotic Saddle is required for riding an aquatic or a flying mount.
+gear.military-saddle.name: 'Military Saddle'
+gear.military-saddle.description: |-
+  A saddle comes with a bit, a bridle, reins, and any other equipment needed to use the saddle. A Military Saddle gives Advantage on any ability check you make to remain mounted.
+gear.riding-saddle.name: 'Riding Saddle'
+gear.riding-saddle.description: |-
+  A saddle comes with a bit, a bridle, reins, and any other equipment needed to use the saddle.
+gear.feed.name: 'Feed (per day)'
+gear.spellbook.name: 'Spellbook'
+gear.spellbook.description: |-
+  A wizard's spellbook is a Tiny object that weighs 3 pounds, contains 100 pages, and can be read only by its owner or someone casting Identify. It contains the level 1+ Wizard spells its owner knows.
+gear.burglars-pack.name: "Burglar's Pack"
+gear.burglars-pack.description: |-
+  A Burglar's Pack contains the following items: Backpack, Ball Bearings, Bell, 10 Candles, Crowbar, Hooded Lantern, 7 flasks of Oil, 5 days of Rations, Rope, Tinderbox, and Waterskin.
+gear.burglars-pack.actions.unpack.name: 'Unpack'
+gear.diplomats-pack.name: "Diplomat's Pack"
+gear.diplomats-pack.description: |-
+  A Diplomat's Pack contains the following items: Chest, Fine Clothes, Ink, 5 Ink Pens, Lamp, 2 Map or Scroll Cases, 4 flasks of Oil, 5 sheets of Paper, 5 sheets of Parchment, Perfume, and Tinderbox.
+gear.diplomats-pack.actions.unpack.name: 'Unpack'
+gear.dungeoneers-pack.name: "Dungeoneer's Pack"
+gear.dungeoneers-pack.description: |-
+  A Dungeoneer's Pack contains the following items: Backpack, Caltrops, Crowbar, 2 flasks of Oil, 10 days of Rations, Rope, Tinderbox, 10 Torches, and Waterskin.
+gear.dungeoneers-pack.actions.unpack.name: 'Unpack'
+gear.entertainers-pack.name: "Entertainer's Pack"
+gear.entertainers-pack.description: |-
+  An Entertainer's Pack contains the following items: Backpack, Bedroll, Bell, Bullseye Lantern, 3 Costumes, Mirror, 8 flasks of Oil, 9 days of Rations, Tinderbox, and Waterskin.
+gear.entertainers-pack.actions.unpack.name: 'Unpack'
+gear.explorers-pack.name: "Explorer's Pack"
+gear.explorers-pack.description: |-
+  An Explorer's Pack contains the following items: Backpack, Bedroll, 2 flasks of Oil, 10 days of Rations, Rope, Tinderbox, 10 Torches, and Waterskin.
+gear.explorers-pack.actions.unpack.name: 'Unpack'
+gear.priests-pack.name: "Priest's Pack"
+gear.priests-pack.description: |-
+  A Priest's Pack contains the following items: Backpack, Blanket, Holy Water, Lamp, 7 days of Rations, Robe, and Tinderbox.
+gear.priests-pack.actions.unpack.name: 'Unpack'
+gear.scholars-pack.name: "Scholar's Pack"
+gear.scholars-pack.description: |-
+  A Scholar's Pack contains the following items: Backpack, Book, Ink, Ink Pen, Lamp, 10 flasks of Oil, 10 sheets of Parchment, and Tinderbox.
+gear.scholars-pack.actions.unpack.name: 'Unpack'
+gear.staff.name: 'Staff'
+gear.staff.description: |-
+  An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus.
+
+  This Staff (5 GP, 4 lb.) is also a Quarterstaff.
+gear.wooden-staff.name: 'Wooden Staff'
+gear.wooden-staff.description: |-
+  A Druidic Focus takes one of the forms in the Druidic Focuses table and is carved, tied with ribbon, or painted to channel primal magic. A Druid or Ranger can use such an object as a Spellcasting Focus.
+
+  This Wooden Staff (5 GP, 4 lb.) is also a Quarterstaff.
+mounts.camel.name: 'Camel'
+mounts.elephant.name: 'Elephant'
+mounts.draft-horse.name: 'Draft Horse'
+mounts.riding-horse.name: 'Riding Horse'
+mounts.mastiff.name: 'Mastiff'
+mounts.mule.name: 'Mule'
+mounts.pony.name: 'Pony'
+mounts.warhorse.name: 'Warhorse'
+vehicles.carriage.name: 'Carriage'
+vehicles.cart.name: 'Cart'
+vehicles.chariot.name: 'Chariot'
+vehicles.sled.name: 'Sled'
+vehicles.wagon.name: 'Wagon'
+vehicles.airship.name: 'Airship'
+vehicles.galley.name: 'Galley'
+vehicles.keelboat.name: 'Keelboat'
+vehicles.longship.name: 'Longship'
+vehicles.rowboat.name: 'Rowboat'
+vehicles.sailing-ship.name: 'Sailing Ship'
+vehicles.warship.name: 'Warship'
+tools.alchemists-supplies.name: "Alchemist's Supplies"
+tools.alchemists-supplies.description: |-
+  **Ability:** Intelligence
+
+  **Utilize:** Identify a substance (DC 15), or start a fire (DC 15)
+
+  **Craft:** Acid, Alchemist's Fire, Component Pouch, Oil, Paper, Perfume
+tools.brewers-supplies.name: "Brewer's Supplies"
+tools.brewers-supplies.description: |-
+  **Ability:** Intelligence
+
+  **Utilize:** Detect poisoned drink (DC 15), or identify alcohol (DC 10)
+
+  **Craft:** Antitoxin
+tools.calligraphers-supplies.name: "Calligrapher's Supplies"
+tools.calligraphers-supplies.description: |-
+  **Ability:** Dexterity
+
+  **Utilize:** Write text with impressive flourishes that guard against forgery (DC 15)
+
+  **Craft:** Ink, Spell Scroll
+tools.carpenters-tools.name: "Carpenter's Tools"
+tools.carpenters-tools.description: |-
+  **Ability:** Strength
+
+  **Utilize:** Seal or pry open a door or container (DC 20)
+
+  **Craft:** Club, Greatclub, Quarterstaff, Barrel, Chest, Ladder, Pole, Portable Ram, Torch
+tools.cartographers-tools.name: "Cartographer's Tools"
+tools.cartographers-tools.description: |-
+  **Ability:** Wisdom
+
+  **Utilize:** Draft a map of a small area (DC 15)
+
+  **Craft:** Map
+tools.cobblers-tools.name: "Cobbler's Tools"
+tools.cobblers-tools.description: |-
+  **Ability:** Dexterity
+
+  **Utilize:** Modify footwear to give Advantage on the wearer's next Dexterity (Acrobatics) check (DC 10)
+
+  **Craft:** Climber's Kit
+tools.cooks-utensils.name: "Cook's Utensils"
+tools.cooks-utensils.description: |-
+  **Ability:** Wisdom
+
+  **Utilize:** Improve food's flavor (DC 10), or detect spoiled or poisoned food (DC 15)
+
+  **Craft:** Rations
+tools.glassblowers-tools.name: "Glassblower's Tools"
+tools.glassblowers-tools.description: |-
+  **Ability:** Intelligence
+
+  **Utilize:** Discern what a glass object held in the past 24 hours (DC 15)
+
+  **Craft:** Glass Bottle, Magnifying Glass, Spyglass, Vial
+tools.jewelers-tools.name: "Jeweler's Tools"
+tools.jewelers-tools.description: |-
+  **Ability:** Intelligence
+
+  **Utilize:** Discern a gem's value (DC 15)
+
+  **Craft:** Arcane Focus, Holy Symbol
+tools.leatherworkers-tools.name: "Leatherworker's Tools"
+tools.leatherworkers-tools.description: |-
+  **Ability:** Dexterity
+
+  **Utilize:** Add a design to a leather item (DC 10)
+
+  **Craft:** Sling, Whip, Hide Armor, Leather Armor, Studded Leather Armor, Backpack, Crossbow Bolt Case, Map or Scroll Case, Parchment, Pouch, Quiver, Waterskin
+tools.masons-tools.name: "Mason's Tools"
+tools.masons-tools.description: |-
+  **Ability:** Strength
+
+  **Utilize:** Chisel a symbol or hole in stone (DC 10)
+
+  **Craft:** Block and Tackle
+tools.painters-supplies.name: "Painter's Supplies"
+tools.painters-supplies.description: |-
+  **Ability:** Wisdom
+
+  **Utilize:** Paint a recognizable image of something you've seen (DC 10)
+
+  **Craft:** Druidic Focus, Holy Symbol
+tools.potters-tools.name: "Potter's Tools"
+tools.potters-tools.description: |-
+  **Ability:** Intelligence
+
+  **Utilize:** Discern what a ceramic object held in the past 24 hours (DC 15)
+
+  **Craft:** Jug, Lamp
+tools.smiths-tools.name: "Smith's Tools"
+tools.smiths-tools.description: |-
+  **Ability:** Strength
+
+  **Utilize:** Pry open a door or container (DC 20)
+
+  **Craft:** Any Melee weapon (except Club, Greatclub, Quarterstaff, and Whip), Medium armor (except Hide), Heavy armor, Ball Bearings, Bucket, Caltrops, Chain, Crowbar, Firearm Bullets, Grappling Hook, Iron Pot, Iron Spikes, Sling Bullets
+tools.tinkers-tools.name: "Tinker's Tools"
+tools.tinkers-tools.description: |-
+  **Ability:** Dexterity
+
+  **Utilize:** Assemble a Tiny item composed of scrap, which falls apart in 1 minute (DC 20)
+
+  **Craft:** Musket, Pistol, Bell, Bullseye Lantern, Flask, Hooded Lantern, Hunting Trap, Lock, Manacles, Mirror, Shovel, Signal Whistle, Tinderbox
+tools.weavers-tools.name: "Weaver's Tools"
+tools.weavers-tools.description: |-
+  **Ability:** Dexterity
+
+  **Utilize:** Mend a tear in clothing (DC 10), or sew a Tiny design (DC 10)
+
+  **Craft:** Padded Armor, Basket, Bedroll, Blanket, Fine Clothes, Net, Robe, Rope, Sack, String, Tent, Traveler's Clothes
+tools.woodcarvers-tools.name: "Woodcarver's Tools"
+tools.woodcarvers-tools.description: |-
+  **Ability:** Dexterity
+
+  **Utilize:** Carve a pattern in wood (DC 10)
+
+  **Craft:** Club, Greatclub, Quarterstaff, Ranged weapons (except Pistol, Musket, and Sling), Arcane Focus, Arrows, Bolts, Druidic Focus, Ink Pen, Needles
+tools.disguise-kit.name: 'Disguise Kit'
+tools.disguise-kit.description: |-
+  **Ability:** Charisma
+
+  **Utilize:** Apply makeup (DC 10)
+
+  **Craft:** Costume
+tools.forgery-kit.name: 'Forgery Kit'
+tools.forgery-kit.description: |-
+  **Ability:** Dexterity
+
+  **Utilize:** Mimic 10 or fewer words of someone else's handwriting (DC 15), or duplicate a wax seal (DC 20)
+tools.herbalism-kit.name: 'Herbalism Kit'
+tools.herbalism-kit.description: |-
+  **Ability:** Intelligence
+
+  **Utilize:** Identify a plant (DC 10)
+
+  **Craft:** Antitoxin, Candle, Healer's Kit, Potion of Healing
+tools.navigators-tools.name: "Navigator's Tools"
+tools.navigators-tools.description: |-
+  **Ability:** Wisdom
+
+  **Utilize:** Plot a course (DC 10), or determine position by stargazing (DC 15)
+tools.poisoners-kit.name: "Poisoner's Kit"
+tools.poisoners-kit.description: |-
+  **Ability:** Intelligence
+
+  **Utilize:** Detect a poisoned object (DC 10)
+
+  **Craft:** Basic Poison
+tools.thieves-tools.name: "Thieves' Tools"
+tools.thieves-tools.description: |-
+  **Ability:** Dexterity
+
+  **Utilize:** Pick a lock (DC 15), or disarm a trap (DC 15)
+tools.dice.name: 'Dice'
+tools.dice.description: |-
+  **Ability:** Wisdom
+
+  **Utilize:** Discern whether someone is cheating (DC 10), or win the game (DC 20)
+tools.dragonchess.name: 'Dragonchess'
+tools.dragonchess.description: |-
+  **Ability:** Wisdom
+
+  **Utilize:** Discern whether someone is cheating (DC 10), or win the game (DC 20)
+tools.playing-cards.name: 'Playing Cards'
+tools.playing-cards.description: |-
+  **Ability:** Wisdom
+
+  **Utilize:** Discern whether someone is cheating (DC 10), or win the game (DC 20)
+tools.three-dragon-ante.name: 'Three-Dragon Ante'
+tools.three-dragon-ante.description: |-
+  **Ability:** Wisdom
+
+  **Utilize:** Discern whether someone is cheating (DC 10), or win the game (DC 20)
+tools.bagpipes.name: 'Bagpipes'
+tools.bagpipes.description: |-
+  **Ability:** Charisma
+
+  **Utilize:** Play a known tune (DC 10), or improvise a song (DC 15)
+tools.drum.name: 'Drum'
+tools.drum.description: |-
+  **Ability:** Charisma
+
+  **Utilize:** Play a known tune (DC 10), or improvise a song (DC 15)
+tools.dulcimer.name: 'Dulcimer'
+tools.dulcimer.description: |-
+  **Ability:** Charisma
+
+  **Utilize:** Play a known tune (DC 10), or improvise a song (DC 15)
+tools.flute.name: 'Flute'
+tools.flute.description: |-
+  **Ability:** Charisma
+
+  **Utilize:** Play a known tune (DC 10), or improvise a song (DC 15)
+tools.horn.name: 'Horn'
+tools.horn.description: |-
+  **Ability:** Charisma
+
+  **Utilize:** Play a known tune (DC 10), or improvise a song (DC 15)
+tools.lute.name: 'Lute'
+tools.lute.description: |-
+  **Ability:** Charisma
+
+  **Utilize:** Play a known tune (DC 10), or improvise a song (DC 15)
+tools.lyre.name: 'Lyre'
+tools.lyre.description: |-
+  **Ability:** Charisma
+
+  **Utilize:** Play a known tune (DC 10), or improvise a song (DC 15)
+tools.pan-flute.name: 'Pan Flute'
+tools.pan-flute.description: |-
+  **Ability:** Charisma
+
+  **Utilize:** Play a known tune (DC 10), or improvise a song (DC 15)
+tools.shawm.name: 'Shawm'
+tools.shawm.description: |-
+  **Ability:** Charisma
+
+  **Utilize:** Play a known tune (DC 10), or improvise a song (DC 15)
+tools.viol.name: 'Viol'
+tools.viol.description: |-
+  **Ability:** Charisma
+
+  **Utilize:** Play a known tune (DC 10), or improvise a song (DC 15)
+trinkets.mummified-goblin-hand.name: 'Mummified Goblin Hand'
+trinkets.mummified-goblin-hand.description: 'A mummified goblin hand.'
+trinkets.moonlight-crystal.name: 'Moonlight Crystal'
+trinkets.moonlight-crystal.description: 'A crystal that faintly glows in moonlight.'
+trinkets.foreign-gold-coin.name: 'Foreign Gold Coin'
+trinkets.foreign-gold-coin.description: 'A gold coin minted in an unknown land.'
+trinkets.unreadable-diary.name: 'Unreadable Diary'
+trinkets.unreadable-diary.description: "A diary written in a language you don't know."
+trinkets.untarnished-brass-ring.name: 'Untarnished Brass Ring'
+trinkets.untarnished-brass-ring.description: 'A brass ring that never tarnishes.'
+trinkets.glass-chess-piece.name: 'Glass Chess Piece'
+trinkets.glass-chess-piece.description: 'An old chess piece made from glass.'
+trinkets.skull-knucklebone-dice.name: 'Skull Knucklebone Dice'
+trinkets.skull-knucklebone-dice.description: 'A pair of knucklebone dice, each with a skull symbol on the side that would normally show six pips.'
+trinkets.nightmare-idol.name: 'Nightmare Idol'
+trinkets.nightmare-idol.description: 'A small idol depicting a nightmarish creature that gives you unsettling dreams when you sleep near it.'
+trinkets.lock-of-hair.name: 'Lock of Hair'
+trinkets.lock-of-hair.description: "A lock of someone's hair."
+trinkets.deed-to-unknown-land.name: 'Deed to Unknown Land'
+trinkets.deed-to-unknown-land.description: 'The deed for a parcel of land in a realm unknown to you.'
+trinkets.block-of-unknown-material.name: 'Block of Unknown Material'
+trinkets.block-of-unknown-material.description: 'A 1-ounce block made from an unknown material.'
+trinkets.skewered-cloth-doll.name: 'Skewered Cloth Doll'
+trinkets.skewered-cloth-doll.description: 'A small cloth doll skewered with needles.'
+trinkets.beast-tooth.name: 'Beast Tooth'
+trinkets.beast-tooth.description: 'A tooth from an unknown beast.'
+trinkets.enormous-scale.name: 'Enormous Scale'
+trinkets.enormous-scale.description: 'An enormous scale, perhaps from a dragon.'
+trinkets.bright-green-feather.name: 'Bright-Green Feather'
+trinkets.bright-green-feather.description: 'A bright-green feather.'
+trinkets.divination-card.name: 'Divination Card'
+trinkets.divination-card.description: 'An old divination card bearing your likeness.'
+trinkets.smoke-filled-orb.name: 'Smoke-Filled Orb'
+trinkets.smoke-filled-orb.description: 'A glass orb filled with moving smoke.'
+trinkets.red-shelled-egg.name: 'Red-Shelled Egg'
+trinkets.red-shelled-egg.description: 'A 1-pound egg with a bright-red shell.'
+trinkets.bubble-pipe.name: 'Bubble Pipe'
+trinkets.bubble-pipe.description: 'A pipe that blows bubbles.'
+trinkets.pickled-flesh-jar.name: 'Jar of Pickled Flesh'
+trinkets.pickled-flesh-jar.description: 'A glass jar containing a bit of flesh floating in pickling fluid.'
+trinkets.gnomish-music-box.name: 'Gnomish Music Box'
+trinkets.gnomish-music-box.description: 'A gnome-crafted music box that plays a song you dimly remember from your childhood.'
+trinkets.smug-halfling-statuette.name: 'Smug Halfling Statuette'
+trinkets.smug-halfling-statuette.description: 'A wooden statuette of a smug halfling.'
+trinkets.rune-etched-brass-orb.name: 'Rune-Etched Brass Orb'
+trinkets.rune-etched-brass-orb.description: 'A brass orb etched with strange runes.'
+trinkets.multicolored-stone-disk.name: 'Multicolored Stone Disk'
+trinkets.multicolored-stone-disk.description: 'A multicolored stone disk.'
+trinkets.silver-raven-icon.name: 'Silver Raven Icon'
+trinkets.silver-raven-icon.description: 'A silver icon of a raven.'
+trinkets.bag-of-teeth.name: 'Bag of Teeth'
+trinkets.bag-of-teeth.description: 'A bag containing forty-seven teeth, one of which is rotten.'
+trinkets.warm-obsidian-shard.name: 'Warm Obsidian Shard'
+trinkets.warm-obsidian-shard.description: 'A shard of obsidian that always feels warm to the touch.'
+trinkets.dragon-talon-necklace.name: 'Dragon Talon Necklace'
+trinkets.dragon-talon-necklace.description: "A dragon's talon strung on a leather necklace."
+trinkets.old-socks.name: 'Old Socks'
+trinkets.old-socks.description: 'A pair of old socks.'
+trinkets.unmarkable-book.name: 'Unmarkable Book'
+trinkets.unmarkable-book.description: 'A blank book whose pages refuse to hold ink, chalk, graphite, or any other marking.'
+trinkets.silver-star-badge.name: 'Silver Star Badge'
+trinkets.silver-star-badge.description: 'A silver badge that is a five-pointed star.'
+trinkets.relatives-knife.name: "Relative's Knife"
+trinkets.relatives-knife.description: 'A knife that belonged to a relative.'
+trinkets.vial-of-nail-clippings.name: 'Vial of Nail Clippings'
+trinkets.vial-of-nail-clippings.description: 'A glass vial filled with nail clippings.'
+trinkets.sparking-metal-device.name: 'Sparking Metal Device'
+trinkets.sparking-metal-device.description: 'A rectangular metal device with two tiny metal cups on one end that throws sparks when wet.'
+trinkets.sequined-glove.name: 'Sequined Glove'
+trinkets.sequined-glove.description: 'A white, sequined glove sized for a human.'
+trinkets.hundred-pocket-vest.name: 'Hundred-Pocket Vest'
+trinkets.hundred-pocket-vest.description: 'A vest with one hundred tiny pockets.'
+trinkets.weightless-stone.name: 'Weightless Stone'
+trinkets.weightless-stone.description: 'A weightless stone.'
+trinkets.goblin-sketch.name: 'Goblin Sketch'
+trinkets.goblin-sketch.description: 'A sketch of a goblin.'
+trinkets.perfumed-empty-vial.name: 'Perfumed Empty Vial'
+trinkets.perfumed-empty-vial.description: 'An empty glass vial that smells of perfume.'
+trinkets.coal-lump-gemstone.name: 'Coal-Lump Gemstone'
+trinkets.coal-lump-gemstone.description: 'A gemstone that looks like a lump of coal when examined by anyone but you.'
+trinkets.banner-scrap.name: 'Banner Scrap'
+trinkets.banner-scrap.description: 'A scrap of cloth from an old banner.'
+trinkets.legionnaire-insignia.name: "Legionnaire's Insignia"
+trinkets.legionnaire-insignia.description: 'A rank insignia from a lost legionnaire.'
+trinkets.clapperless-silver-bell.name: 'Clapperless Silver Bell'
+trinkets.clapperless-silver-bell.description: 'A silver bell without a clapper.'
+trinkets.mechanical-canary.name: 'Mechanical Canary'
+trinkets.mechanical-canary.description: 'A mechanical canary inside a lamp.'
+trinkets.many-footed-miniature-chest.name: 'Many-Footed Miniature Chest'
+trinkets.many-footed-miniature-chest.description: 'A miniature chest carved to look like it has numerous feet on the bottom.'
+trinkets.bottled-sprite.name: 'Bottled Sprite'
+trinkets.bottled-sprite.description: 'A dead sprite inside a clear glass bottle.'
+trinkets.sealed-metal-can.name: 'Sealed Metal Can'
+trinkets.sealed-metal-can.description: 'A metal can that has no opening but sounds as if it is filled with liquid, sand, spiders, or broken glass (your choice).'
+trinkets.clockwork-goldfish.name: 'Clockwork Goldfish'
+trinkets.clockwork-goldfish.description: 'A glass orb filled with water, in which swims a clockwork goldfish.'
+trinkets.engraved-silver-spoon.name: 'Engraved Silver Spoon'
+trinkets.engraved-silver-spoon.description: 'A silver spoon with an M engraved on the handle.'
+trinkets.gold-wood-whistle.name: 'Gold-Wood Whistle'
+trinkets.gold-wood-whistle.description: 'A whistle made from gold-colored wood.'
+trinkets.dead-scarab-beetle.name: 'Dead Scarab Beetle'
+trinkets.dead-scarab-beetle.description: 'A dead scarab beetle the size of your hand.'
+trinkets.toy-soldiers.name: 'Toy Soldiers'
+trinkets.toy-soldiers.description: 'Two toy soldiers, one missing a head.'
+trinkets.box-of-buttons.name: 'Box of Buttons'
+trinkets.box-of-buttons.description: 'A small box filled with different-sized buttons.'
+trinkets.unlightable-candle.name: 'Unlightable Candle'
+trinkets.unlightable-candle.description: "A candle that can't be lit."
+trinkets.doorless-miniature-cage.name: 'Doorless Miniature Cage'
+trinkets.doorless-miniature-cage.description: 'A miniature cage with no door.'
+trinkets.old-key.name: 'Old Key'
+trinkets.old-key.description: 'An old key.'
+trinkets.indecipherable-treasure-map.name: 'Indecipherable Treasure Map'
+trinkets.indecipherable-treasure-map.description: 'An indecipherable treasure map.'
+trinkets.broken-sword-hilt.name: 'Broken Sword Hilt'
+trinkets.broken-sword-hilt.description: 'A hilt from a broken sword.'
+trinkets.rabbits-foot.name: "Rabbit's Foot"
+trinkets.rabbits-foot.description: "A rabbit's foot."
+trinkets.glass-eye.name: 'Glass Eye'
+trinkets.glass-eye.description: 'A glass eye.'
+trinkets.hideous-cameo.name: 'Hideous Cameo'
+trinkets.hideous-cameo.description: 'A cameo of a hideous person.'
+trinkets.coin-sized-silver-skull.name: 'Coin-Sized Silver Skull'
+trinkets.coin-sized-silver-skull.description: 'A silver skull the size of a coin.'
+trinkets.alabaster-mask.name: 'Alabaster Mask'
+trinkets.alabaster-mask.description: 'An alabaster mask.'
+trinkets.stinking-incense-cone.name: 'Stinking Incense Cone'
+trinkets.stinking-incense-cone.description: 'A cone of sticky black incense that stinks.'
+trinkets.pleasant-dreams-nightcap.name: 'Pleasant-Dreams Nightcap'
+trinkets.pleasant-dreams-nightcap.description: 'A nightcap that gives you pleasant dreams when you wear it.'
+trinkets.bone-caltrop.name: 'Bone Caltrop'
+trinkets.bone-caltrop.description: 'A single caltrop made from bone.'
+trinkets.lensless-gold-monocle.name: 'Lensless Gold Monocle'
+trinkets.lensless-gold-monocle.description: 'A gold monocle frame without the lens.'
+trinkets.multicolored-cube.name: 'Multicolored Cube'
+trinkets.multicolored-cube.description: 'A 1-inch cube, each side a different color.'
+trinkets.crystal-doorknob.name: 'Crystal Doorknob'
+trinkets.crystal-doorknob.description: 'A crystal doorknob.'
+trinkets.packet-of-pink-dust.name: 'Packet of Pink Dust'
+trinkets.packet-of-pink-dust.description: 'A packet filled with pink dust.'
+trinkets.song-fragment.name: 'Song Fragment'
+trinkets.song-fragment.description: 'A fragment of a beautiful song, written as musical notes on two pieces of parchment.'
+trinkets.teardrop-earring.name: 'Teardrop Earring'
+trinkets.teardrop-earring.description: 'A silver teardrop earring containing a real teardrop.'
+trinkets.painted-eggshell.name: 'Painted Eggshell'
+trinkets.painted-eggshell.description: 'An eggshell painted with scenes of misery in disturbing detail.'
+trinkets.sleepy-cat-fan.name: 'Sleepy Cat Fan'
+trinkets.sleepy-cat-fan.description: 'A fan that, when unfolded, shows a sleepy cat.'
+trinkets.bone-pipes.name: 'Bone Pipes'
+trinkets.bone-pipes.description: 'A set of bone pipes.'
+trinkets.pressed-four-leaf-clover.name: 'Pressed Four-Leaf Clover'
+trinkets.pressed-four-leaf-clover.description: 'A four-leaf clover pressed inside a book discussing manners and etiquette.'
+trinkets.contraption-drawing.name: 'Contraption Drawing'
+trinkets.contraption-drawing.description: 'A sheet of parchment upon which is drawn a mechanical contraption.'
+trinkets.ornate-scabbard.name: 'Ornate Scabbard'
+trinkets.ornate-scabbard.description: 'An ornate scabbard that fits no blade you have found.'
+trinkets.murder-party-invitation.name: 'Murder Party Invitation'
+trinkets.murder-party-invitation.description: 'An invitation to a party where a murder happened.'
+trinkets.rat-head-pentacle.name: 'Rat-Head Pentacle'
+trinkets.rat-head-pentacle.description: "A bronze pentacle with an etching of a rat's head in its center."
+trinkets.archmages-handkerchief.name: "Archmage's Handkerchief"
+trinkets.archmages-handkerchief.description: 'A purple handkerchief embroidered with the name of an archmage.'
+trinkets.half-a-floor-plan.name: 'Half a Floor Plan'
+trinkets.half-a-floor-plan.description: 'Half a floor plan for a temple, a castle, or another structure.'
+trinkets.folding-cap.name: 'Folding Cap'
+trinkets.folding-cap.description: 'A bit of folded cloth that, when unfolded, turns into a stylish cap.'
+trinkets.bank-deposit-receipt.name: 'Bank Deposit Receipt'
+trinkets.bank-deposit-receipt.description: 'A receipt of deposit at a bank in a far-off city.'
+trinkets.diary-missing-pages.name: 'Diary with Missing Pages'
+trinkets.diary-missing-pages.description: 'A diary with seven missing pages.'
+trinkets.dreams-snuffbox.name: 'Dreams Snuffbox'
+trinkets.dreams-snuffbox.description: 'An empty silver snuffbox bearing the inscription "dreams" on its lid.'
+trinkets.iron-holy-symbol.name: 'Iron Holy Symbol'
+trinkets.iron-holy-symbol.description: 'An iron holy symbol devoted to an unknown god.'
+trinkets.unfinished-hero-book.name: 'Unfinished Hero Book'
+trinkets.unfinished-hero-book.description: "A book about a legendary hero's rise and fall, with the last chapter missing."
+trinkets.vial-of-dragon-blood.name: 'Vial of Dragon Blood'
+trinkets.vial-of-dragon-blood.description: 'A vial of dragon blood.'
+trinkets.ancient-elven-arrow.name: 'Ancient Elven Arrow'
+trinkets.ancient-elven-arrow.description: 'An ancient arrow of elven design.'
+trinkets.unbending-needle.name: 'Unbending Needle'
+trinkets.unbending-needle.description: 'A needle that never bends.'
+trinkets.dwarven-brooch.name: 'Dwarven Brooch'
+trinkets.dwarven-brooch.description: 'An ornate brooch of dwarven design.'
+trinkets.empty-wine-bottle.name: 'Empty Wine Bottle'
+trinkets.empty-wine-bottle.description: 'An empty wine bottle bearing a pretty label that says, "The Wizard of Wines Winery, Red Dragon Crush, 331422-W".'
+trinkets.glazed-mosaic-tile.name: 'Glazed Mosaic Tile'
+trinkets.glazed-mosaic-tile.description: 'A mosaic tile with a multicolored, glazed surface.'
+trinkets.petrified-mouse.name: 'Petrified Mouse'
+trinkets.petrified-mouse.description: 'A petrified mouse.'
+trinkets.dragon-skull-pirate-flag.name: 'Dragon-Skull Pirate Flag'
+trinkets.dragon-skull-pirate-flag.description: "A black pirate flag adorned with a dragon's skull and crossbones."
+trinkets.shy-mechanical-critter.name: 'Shy Mechanical Critter'
+trinkets.shy-mechanical-critter.description: "A tiny mechanical crab or spider that moves about when it's not being observed."
+trinkets.griffon-grease.name: 'Griffon Grease'
+trinkets.griffon-grease.description: 'A glass jar containing lard with a label that reads, "Griffon Grease".'
+trinkets.two-headed-worm.name: 'Two-Headed Worm'
+trinkets.two-headed-worm.description: 'A wooden box with a ceramic bottom that holds a living worm with a head on each end of its body.'
+trinkets.urn-of-heros-ashes.name: "Urn of a Hero's Ashes"
+trinkets.urn-of-heros-ashes.description: 'A metal urn containing the ashes of a hero.'
