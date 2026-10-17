@@ -84,9 +84,9 @@ actions:
           spent: params.charges
           left: self.charges - params.charges
 
-  # Always available (a full item regains nothing), since `available` can't read fixed parameters.
   - id: regain-charges
     tags: [magic-item, rest]
+    available: self.charges < item.maxCharges
     results: [recharged]
     params:
       max: { type: integer }
