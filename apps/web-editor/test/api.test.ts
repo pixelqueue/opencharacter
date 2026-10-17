@@ -149,6 +149,7 @@ describe('the editor API', { timeout: 20_000 }, () => {
     expect(status).toBe(200);
     expect((body.packs as { id: string }[]).map((p) => p.id)).toEqual([
       '5e-srd-5.1',
+      '5e-srd-5.2',
       'fate-core',
       'fitd-crew',
       'fitd-scoundrel',

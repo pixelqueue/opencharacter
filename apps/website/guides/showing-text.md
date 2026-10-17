@@ -129,7 +129,8 @@ text.headline(sheet, character) ?? text.pack(character.packs[0].id); // with a f
 
 | Pack           | A finished character                                                             | While it's created         |
 | -------------- | -------------------------------------------------------------------------------- | -------------------------- |
-| 5E SRD         | "Level 3 Hill dwarf Wizard", "Hill dwarf Wizard 2 / Fighter 1", "Goblin, CR 1/4" | "Dwarf", then "Hill dwarf" |
+| 5E SRD 5.1     | "Level 3 Hill dwarf Wizard", "Hill dwarf Wizard 2 / Fighter 1", "Goblin, CR 1/4" | "Dwarf", then "Hill dwarf" |
+| 5E SRD 5.2     | "Level 3 Elf Wizard", "Elf Wizard 2 / Fighter 1", "Goblin Warrior, CR 1/4"       | "Elf"                      |
 | orc-2e         | "Level 2 Elf Rogue"                                                              | "Elf"                      |
 | FitD scoundrel | a table's own playbook: "Bruiser", "Bruiser of the Ravens" with the crew's name  | nothing without a playbook |
 | FitD crew      | "Tier 1", or "Tier 1 Shadows" with a table's own crew type                       | "Tier 0"                   |
