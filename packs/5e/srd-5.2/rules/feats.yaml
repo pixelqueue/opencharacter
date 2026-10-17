@@ -1,0 +1,55 @@
+tags:
+  - repeatable
+  - spell-recall
+
+fields:
+  # Every feat the character has, picked or granted: a feat that isn't repeatable is taken once.
+  feats.held: { type: set, of: feat }
+  # Magic Initiate: the level 1 spell's free cast, one per list, regained on a Long Rest.
+  initiate.clericUsed: { type: boolean, input: true, default: false }
+  initiate.druidUsed: { type: boolean, input: true, default: false }
+  initiate.wizardUsed: { type: boolean, input: true, default: false }
+  # Boon of Fate: Improve Fate used, regained on Initiative or a rest.
+  boons.fateUsed: { type: boolean, input: true, default: false }
+
+situational:
+  # Savage Attacker, once per turn: the weapon's damage dice rolled twice, the better kept.
+  - id: savageAttacker
+    type: boolean
+    default: false
+    rolls: [damage.weapon]
+    available: '@feats.savage-attacker in feats.held'
+    effects:
+      - target: { rolls: [damage.weapon] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.savageAttacker
+  # Grappler: an attack against a creature the character is grappling.
+  - id: grappledByYou
+    type: boolean
+    default: false
+    rolls: [attack]
+    available: '@feats.grappler in feats.held'
+    effects:
+      - target: { rolls: [attack] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.grappledByYou
+  # Boon of the Night Spirit: within Dim Light or Darkness (Shadowy Form).
+  - id: inShadows
+    type: boolean
+    default: false
+    incoming: { fields: [hp.current], tags: [damage] }
+    available: '@feats.boon-of-the-night-spirit in feats.held'
+
+display:
+  fields:
+    feats.held: { hidden: true }
+    initiate.clericUsed:
+      { groups: [spellcasting], priority: 3, showWhen: size(spells.initiateCleric) > 0 }
+    initiate.druidUsed:
+      { groups: [spellcasting], priority: 3, showWhen: size(spells.initiateDruid) > 0 }
+    initiate.wizardUsed:
+      { groups: [spellcasting], priority: 3, showWhen: size(spells.initiateWizard) > 0 }
+    boons.fateUsed:
+      { groups: [class-features], priority: 3, showWhen: '@feats.boon-of-fate in feats.held' }

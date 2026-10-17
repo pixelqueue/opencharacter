@@ -1,0 +1,34 @@
+id: traits.fiendish-legacy
+type: trait
+# The legacy's level 3 spell is a level 1 spell and its level 5 spell a level 2 one; `self` is the
+# Tiefling copy, which keeps the free casts.
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    stackKey: lineage-spell-1
+    when: >-
+      action.item.id in spells.species && action.item.level == 1 && level.total >= 3
+        && !self.lineageSpell1Used
+    value:
+      id: free-cast
+      flags: { slot: 1, castAbility: "'species'" }
+      changes:
+        - { type: setState, entry: self, key: lineageSpell1Used, value: true }
+  - target: { choices: [spell-cost] }
+    op: option
+    stackKey: lineage-spell-2
+    when: >-
+      action.item.id in spells.species && action.item.level == 2 && level.total >= 5
+        && !self.lineageSpell2Used
+    value:
+      id: free-cast-2
+      flags: { slot: 2, castAbility: "'species'" }
+      changes:
+        - { type: setState, entry: self, key: lineageSpell2Used, value: true }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.lineageSpell1Used || self.lineageSpell2Used
+    value:
+      changes:
+        - { type: setState, entry: self, key: lineageSpell1Used, value: false }
+        - { type: setState, entry: self, key: lineageSpell2Used, value: false }

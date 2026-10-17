@@ -1,0 +1,24 @@
+id: feats.grappler
+type: feat
+fields:
+  category: general
+prerequisites:
+  - id: level
+    when: 'level.total >= 4'
+  - id: ability
+    when: abilities.str.score >= 13 || abilities.dex.score >= 13
+effects:
+  - { target: feats.held, op: grant, value: { formula: item.id } }
+choices:
+  - id: ability
+    recommend: "abilities.dex.base > abilities.str.base && abilities.dex.base < 20 || abilities.str.base >= 20 ? 'dex' : 'str'"
+    from:
+      options:
+        - id: str
+          prerequisites: [{ id: max, when: abilities.str.base <= abilities.str.max }]
+          effects:
+            - { target: abilities.str.base, op: add, value: 1 }
+        - id: dex
+          prerequisites: [{ id: max, when: abilities.dex.base <= abilities.dex.max }]
+          effects:
+            - { target: abilities.dex.base, op: add, value: 1 }

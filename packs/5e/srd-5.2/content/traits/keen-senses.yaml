@@ -1,0 +1,13 @@
+id: traits.keen-senses
+type: trait
+choices:
+  - id: skill
+    unique: skills
+    recommend: >-
+      filterList(['skill.perception', 'skill.insight', 'skill.survival'],
+        !(x in proficiencies.skills) || x in choice.picks)[0]
+    from:
+      values: [skill.insight, skill.perception, skill.survival]
+      where: '!(value in proficiencies.skills) || value in choice.picks'
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }

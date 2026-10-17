@@ -1,0 +1,46 @@
+fields:
+  # Conditions the character has Advantage against: saves to avoid or end them (Dwarven
+  # Resilience, Fey Ancestry, Brave) and checks to end them (Powerful Build).
+  origins.conditionAdvantage: { type: set, of: condition }
+  # Set by the chosen lineage: the Draconic Ancestry's damage type, the Giant Ancestry's giant.
+  origins.draconicDamage: { type: string, formula: "''" }
+  origins.giantAncestry: { type: string, formula: "''" }
+  # The ability the background raised by 2, so its +1 recommends another.
+  origins.backgroundPlusTwo: { type: string, formula: "''" }
+  # A High Elf replaced Prestidigitation with another Wizard cantrip.
+  origins.cantripReplaced: { type: boolean, formula: false }
+
+situational:
+  # The condition a save avoids or ends, or a check ends: the player says which.
+  - id: avoidCondition
+    type: enum
+    values: [none, charmed, frightened, grappled, poisoned]
+    default: none
+    rolls: [save, check]
+    available: size(origins.conditionAdvantage) > 0
+    effects:
+      - target: { rolls: [save, check] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: >-
+          situational.avoidCondition != 'none'
+            && [@conditions.charmed, @conditions.frightened, @conditions.grappled,
+              @conditions.poisoned][indexOf(['charmed', 'frightened', 'grappled', 'poisoned'],
+              situational.avoidCondition)] in origins.conditionAdvantage
+  # Stone's Endurance: the Goliath reacts to the damage (its trait rolls the reduction).
+  - id: stonesEndurance
+    type: boolean
+    default: false
+    incoming: { fields: [hp.current], tags: [damage] }
+    available: >-
+      origins.giantAncestry == 'stone'
+        && countCopies(copy.type == 'species' && has(copy.state.giantAncestryUsed)
+          && copy.state.giantAncestryUsed < proficiency.bonus) > 0
+
+display:
+  fields:
+    origins.conditionAdvantage: { hidden: true }
+    origins.draconicDamage: { hidden: true }
+    origins.giantAncestry: { hidden: true }
+    origins.cantripReplaced: { hidden: true }
+    origins.backgroundPlusTwo: { hidden: true }

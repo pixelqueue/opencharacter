@@ -1,0 +1,55 @@
+id: backgrounds.criminal
+type: background
+effects:
+  - { target: proficiencies.skills, op: grant, value: { tag: skill.sleight-of-hand } }
+  - { target: proficiencies.skills, op: grant, value: { tag: skill.stealth } }
+  - { target: proficiencies.tools, op: grant, value: { item: tools.thieves-tools } }
+grants:
+  - item: feats.alert
+  - item: languages.common
+choices:
+  - id: ability-increase
+    recommend: "'two-and-one'"
+    from:
+      options:
+        - id: two-and-one
+          choices:
+            - id: plus-two
+              unique: criminal-increase
+              uniqueScope: owner
+              from: { values: [dex, con, int] }
+              recommend: "sortList(['dex', 'con', 'int'], -fieldOf('abilities.{ability}.base', x))[0]"
+              effects:
+                - target:
+                    {
+                      fields:
+                        { where: "item.id == '5e-srd-5.2:abilities.' + pick.value + '.base'" },
+                    }
+                  op: add
+                  value: 2
+                - { target: origins.backgroundPlusTwo, op: set, value: pick.value }
+            - id: plus-one
+              unique: criminal-increase
+              uniqueScope: owner
+              from: { values: [dex, con, int] }
+              recommend: >-
+                sortList(filterList(['dex', 'con', 'int'], x != origins.backgroundPlusTwo),
+                  -fieldOf('abilities.{ability}.base', x))[0]
+              effects:
+                - target:
+                    {
+                      fields:
+                        { where: "item.id == '5e-srd-5.2:abilities.' + pick.value + '.base'" },
+                    }
+                  op: add
+                  value: 1
+        - id: one-each
+          effects:
+            - { target: abilities.dex.base, op: add, value: 1 }
+            - { target: abilities.con.base, op: add, value: 1 }
+            - { target: abilities.int.base, op: add, value: 1 }
+  - id: languages
+    pick: 2
+    unique: languages
+    from: { type: language, where: '!item.rare' }
+    eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'

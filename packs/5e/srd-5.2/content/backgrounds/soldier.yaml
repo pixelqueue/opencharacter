@@ -1,0 +1,60 @@
+id: backgrounds.soldier
+type: background
+effects:
+  - { target: proficiencies.skills, op: grant, value: { tag: skill.athletics } }
+  - { target: proficiencies.skills, op: grant, value: { tag: skill.intimidation } }
+grants:
+  - item: feats.savage-attacker
+  - item: languages.common
+choices:
+  - id: ability-increase
+    recommend: "'two-and-one'"
+    from:
+      options:
+        - id: two-and-one
+          choices:
+            - id: plus-two
+              unique: soldier-increase
+              uniqueScope: owner
+              from: { values: [str, dex, con] }
+              recommend: "sortList(['str', 'dex', 'con'], -fieldOf('abilities.{ability}.base', x))[0]"
+              effects:
+                - target:
+                    {
+                      fields:
+                        { where: "item.id == '5e-srd-5.2:abilities.' + pick.value + '.base'" },
+                    }
+                  op: add
+                  value: 2
+                - { target: origins.backgroundPlusTwo, op: set, value: pick.value }
+            - id: plus-one
+              unique: soldier-increase
+              uniqueScope: owner
+              from: { values: [str, dex, con] }
+              recommend: >-
+                sortList(filterList(['str', 'dex', 'con'], x != origins.backgroundPlusTwo),
+                  -fieldOf('abilities.{ability}.base', x))[0]
+              effects:
+                - target:
+                    {
+                      fields:
+                        { where: "item.id == '5e-srd-5.2:abilities.' + pick.value + '.base'" },
+                    }
+                  op: add
+                  value: 1
+        - id: one-each
+          effects:
+            - { target: abilities.str.base, op: add, value: 1 }
+            - { target: abilities.dex.base, op: add, value: 1 }
+            - { target: abilities.con.base, op: add, value: 1 }
+  - id: gaming-set
+    from: { type: tool, where: "item.category == 'gaming-set'" }
+    activate: false
+    eligible: '!(item.id in proficiencies.tools) || item.id in choice.picks'
+    effects:
+      - { target: proficiencies.tools, op: grant, value: { formula: pick.id } }
+  - id: languages
+    pick: 2
+    unique: languages
+    from: { type: language, where: '!item.rare' }
+    eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'

@@ -1,0 +1,19 @@
+id: species.elf
+type: species
+fields:
+  speed: 30
+  size: medium
+state:
+  lineageSpell1Used: { type: boolean, default: false }
+  lineageSpell2Used: { type: boolean, default: false }
+effects:
+  - { target: creature.type, op: set, value: "'humanoid'" }
+grants:
+  - item: traits.darkvision
+  - item: traits.elven-lineage
+  - item: traits.fey-ancestry
+  - item: traits.keen-senses
+  - item: traits.trance
+choices:
+  - id: lineage
+    from: { type: lineage, where: 'item.species == @species.elf' }

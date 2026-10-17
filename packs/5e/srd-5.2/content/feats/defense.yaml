@@ -1,0 +1,10 @@
+id: feats.defense
+type: feat
+fields:
+  category: fighting-style
+prerequisites:
+  - id: fighting-style
+    when: features.fightingStyle
+effects:
+  - { target: feats.held, op: grant, value: { formula: item.id } }
+  - { target: combat.ac, op: add, value: 1, when: "'armor' in equipment.tags" }

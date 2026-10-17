@@ -1,0 +1,13 @@
+id: feats.archery
+type: feat
+fields:
+  category: fighting-style
+prerequisites:
+  - id: fighting-style
+    when: features.fightingStyle
+effects:
+  - { target: feats.held, op: grant, value: { formula: item.id } }
+  - target: { rolls: [attack.ranged] }
+    op: add
+    value: 2
+    when: has(roll.item.range) && roll.item.range == 'ranged'

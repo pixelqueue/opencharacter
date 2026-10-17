@@ -1,0 +1,83 @@
+id: feats.skilled
+type: feat
+repeatable: true
+tags: [repeatable]
+fields:
+  category: origin
+effects:
+  - { target: feats.held, op: grant, value: { formula: item.id } }
+choices:
+  - id: proficiencies
+    pick: 3
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.animal-handling,
+          skill.arcana,
+          skill.athletics,
+          skill.deception,
+          skill.history,
+          skill.insight,
+          skill.intimidation,
+          skill.investigation,
+          skill.medicine,
+          skill.nature,
+          skill.perception,
+          skill.performance,
+          skill.persuasion,
+          skill.religion,
+          skill.sleight-of-hand,
+          skill.stealth,
+          skill.survival,
+          '5e-srd-5.2:tools.alchemists-supplies',
+          '5e-srd-5.2:tools.bagpipes',
+          '5e-srd-5.2:tools.brewers-supplies',
+          '5e-srd-5.2:tools.calligraphers-supplies',
+          '5e-srd-5.2:tools.carpenters-tools',
+          '5e-srd-5.2:tools.cartographers-tools',
+          '5e-srd-5.2:tools.cobblers-tools',
+          '5e-srd-5.2:tools.cooks-utensils',
+          '5e-srd-5.2:tools.dice',
+          '5e-srd-5.2:tools.disguise-kit',
+          '5e-srd-5.2:tools.dragonchess',
+          '5e-srd-5.2:tools.drum',
+          '5e-srd-5.2:tools.dulcimer',
+          '5e-srd-5.2:tools.flute',
+          '5e-srd-5.2:tools.forgery-kit',
+          '5e-srd-5.2:tools.glassblowers-tools',
+          '5e-srd-5.2:tools.herbalism-kit',
+          '5e-srd-5.2:tools.horn',
+          '5e-srd-5.2:tools.jewelers-tools',
+          '5e-srd-5.2:tools.leatherworkers-tools',
+          '5e-srd-5.2:tools.lute',
+          '5e-srd-5.2:tools.lyre',
+          '5e-srd-5.2:tools.masons-tools',
+          '5e-srd-5.2:tools.navigators-tools',
+          '5e-srd-5.2:tools.painters-supplies',
+          '5e-srd-5.2:tools.pan-flute',
+          '5e-srd-5.2:tools.playing-cards',
+          '5e-srd-5.2:tools.poisoners-kit',
+          '5e-srd-5.2:tools.potters-tools',
+          '5e-srd-5.2:tools.shawm',
+          '5e-srd-5.2:tools.smiths-tools',
+          '5e-srd-5.2:tools.thieves-tools',
+          '5e-srd-5.2:tools.three-dragon-ante',
+          '5e-srd-5.2:tools.tinkers-tools',
+          '5e-srd-5.2:tools.viol',
+          '5e-srd-5.2:tools.weavers-tools',
+          '5e-srd-5.2:tools.woodcarvers-tools',
+        ]
+      where: >-
+        value in choice.picks || !(value in proficiencies.skills || value in proficiencies.tools)
+    effects:
+      - target: proficiencies.skills
+        op: grant
+        value: { formula: pick.value }
+        when: >-
+          indexOf(['skill.acrobatics', 'skill.animal-handling', 'skill.arcana', 'skill.athletics', 'skill.deception', 'skill.history', 'skill.insight', 'skill.intimidation', 'skill.investigation', 'skill.medicine', 'skill.nature', 'skill.perception', 'skill.performance', 'skill.persuasion', 'skill.religion', 'skill.sleight-of-hand', 'skill.stealth', 'skill.survival'], pick.value) >= 0
+      - target: proficiencies.tools
+        op: grant
+        value: { formula: pick.value }
+        when: >-
+          indexOf(['skill.acrobatics', 'skill.animal-handling', 'skill.arcana', 'skill.athletics', 'skill.deception', 'skill.history', 'skill.insight', 'skill.intimidation', 'skill.investigation', 'skill.medicine', 'skill.nature', 'skill.perception', 'skill.performance', 'skill.persuasion', 'skill.religion', 'skill.sleight-of-hand', 'skill.stealth', 'skill.survival'], pick.value) < 0

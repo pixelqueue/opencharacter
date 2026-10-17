@@ -1,0 +1,23 @@
+id: species.goliath
+type: species
+fields:
+  speed: 35
+  size: medium
+# Large Form changes the size, so the type's own size effect is off.
+suppress: [size]
+state:
+  giantAncestryUsed: { type: integer, default: 0, min: 0 }
+  largeFormUsed: { type: boolean, default: false }
+  largeFormActive: { type: boolean, default: false }
+effects:
+  - { target: creature.type, op: set, value: "'humanoid'" }
+  - target: creature.size
+    op: set
+    value: "self.largeFormActive ? 'large' : 'medium'"
+grants:
+  - item: traits.giant-ancestry
+  - item: traits.large-form
+  - item: traits.powerful-build
+choices:
+  - id: lineage
+    from: { type: lineage, where: 'item.species == @species.goliath' }

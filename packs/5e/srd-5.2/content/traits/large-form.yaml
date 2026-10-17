@@ -1,0 +1,42 @@
+id: traits.large-form
+type: trait
+# The Goliath copy keeps whether the form is on; the species sets its size from it.
+effects:
+  - target: { rolls: [check.str] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.largeFormActive
+  - { target: combat.speed, op: add, value: 10, when: self.largeFormActive }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.largeFormUsed || self.largeFormActive
+    value:
+      changes:
+        - { type: setState, entry: self, key: largeFormUsed, value: false }
+        - { type: setState, entry: self, key: largeFormActive, value: false }
+actions:
+  - id: large-form
+    tags: [feature]
+    available: level.total >= 5 && !self.largeFormUsed && !self.largeFormActive
+    results: [large]
+    steps:
+      - id: grow
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: largeFormActive, value: true }
+          - { type: setState, entry: self, key: largeFormUsed, value: true }
+      - id: result
+        kind: outcome
+        result: "'large'"
+  - id: end-large-form
+    tags: [feature]
+    available: self.largeFormActive
+    results: [ended]
+    steps:
+      - id: shrink
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: largeFormActive, value: false }
+      - id: result
+        kind: outcome
+        result: "'ended'"
