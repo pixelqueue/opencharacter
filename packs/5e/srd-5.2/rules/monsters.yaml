@@ -287,10 +287,12 @@ contentTypes:
       spellAbility: { type: enum, values: [str, dex, con, int, wis, cha] }
       spellDc: { type: integer }
       spellAttack: { type: integer }
-      # The spell this entry casts (a second one when it casts either), and the level it is cast
-      # at when not its lowest.
+      # The spell this entry casts (the others when it casts one of several), and the level the
+      # first is cast at when not its lowest.
       spell: { type: id, of: spell }
       spell2: { type: id, of: spell }
+      spell3: { type: id, of: spell }
+      spell4: { type: id, of: spell }
       spellLevel: { type: integer, min: 1, max: 9 }
     # `note`: a usage restriction the stat block prints after the name ("Bear or Hybrid Form
     # Only").
@@ -299,6 +301,8 @@ contentTypes:
     grants:
       - { item: { formula: "has(item.spell) ? item.spell : ''" } }
       - { item: { formula: "has(item.spell2) ? item.spell2 : ''" } }
+      - { item: { formula: "has(item.spell3) ? item.spell3 : ''" } }
+      - { item: { formula: "has(item.spell4) ? item.spell4 : ''" } }
     state:
       recharging: { type: boolean, default: false }
       used: { type: integer, default: 0, min: 0 }
@@ -381,6 +385,20 @@ contentTypes:
           value: { formula: item.spell2 },
           when: has(item.spell2),
         }
+      - {
+          id: spell3,
+          target: spells.monster,
+          op: grant,
+          value: { formula: item.spell3 },
+          when: has(item.spell3),
+        }
+      - {
+          id: spell4,
+          target: spells.monster,
+          op: grant,
+          value: { formula: item.spell4 },
+          when: has(item.spell4),
+        }
       - id: spell-at-will
         target: spells.monsterAtWill
         op: grant
@@ -400,18 +418,32 @@ contentTypes:
         op: grant
         value: { formula: item.spell2 }
         when: has(item.spell2)
+      - id: spell3-limited
+        target: spells.limited
+        op: grant
+        value: { formula: item.spell3 }
+        when: has(item.spell3)
+      - id: spell4-limited
+        target: spells.limited
+        op: grant
+        value: { formula: item.spell4 }
+        when: has(item.spell4)
       - id: spell-use
         target: { choices: [spell-cost] }
         op: option
         when: >-
           has(item.spell) && item.kind != 'legendary' && (action.item.id == item.spell
-              || (has(item.spell2) && action.item.id == item.spell2))
+              || (has(item.spell2) && action.item.id == item.spell2)
+              || (has(item.spell3) && action.item.id == item.spell3)
+              || (has(item.spell4) && action.item.id == item.spell4))
             && !self.recharging && (self.uses == 0 || self.used < self.uses)
-            && (!has(params.slot) || params.slot == (has(item.spellLevel) ? item.spellLevel : action.item.level))
+            && (!has(params.slot) || params.slot
+              == (has(item.spellLevel) && action.item.id == item.spell ? item.spellLevel : action.item.level))
         value:
           id: spell-use
           flags:
-            slot: 'has(item.spellLevel) ? item.spellLevel : action.item.level'
+            slot: >-
+              has(item.spellLevel) && action.item.id == item.spell ? item.spellLevel : action.item.level
             castAbility: "'monster'"
           changes:
             - {

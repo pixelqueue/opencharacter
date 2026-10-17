@@ -6,24 +6,5 @@ fields:
   perDay: 2
   spell: spells.cure-wounds
   spell2: spells.invisibility
-# Its other spells, on the same count as `spell` and `spell2`.
-grants:
-  - item: spells.lesser-restoration
-  - item: spells.remove-curse
-effects:
-  - { target: spells.monster, op: grant, value: { item: spells.lesser-restoration } }
-  - { target: spells.monster, op: grant, value: { item: spells.remove-curse } }
-  - { target: spells.limited, op: grant, value: { item: spells.lesser-restoration } }
-  - { target: spells.limited, op: grant, value: { item: spells.remove-curse } }
-  - target: { choices: [spell-cost] }
-    op: option
-    when: >-
-      action.item.id in [@spells.lesser-restoration, @spells.remove-curse] && self.used < self.uses
-        && (!has(params.slot) || params.slot == action.item.level)
-    value:
-      id: divine-aid
-      flags:
-        slot: action.item.level
-        castAbility: "'monster'"
-      changes:
-        - { type: adjustState, entry: self, key: used, by: 1 }
+  spell3: spells.lesser-restoration
+  spell4: spells.remove-curse

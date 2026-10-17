@@ -6,23 +6,6 @@ fields:
   recharge: 5
   spell: spells.darkness
   spell2: spells.faerie-fire
+  spell3: spells.web
   spellAbility: wis
   spellDc: 14
-# The type casts two spells per entry (`spell`, `spell2`); the third is granted and spent here the
-# same way.
-grants:
-  - { item: spells.web }
-effects:
-  - { target: spells.monster, op: grant, value: { formula: '@spells.web' } }
-  - { target: spells.limited, op: grant, value: { formula: '@spells.web' } }
-  - target: { choices: [spell-cost] }
-    op: option
-    when: >-
-      action.item.id == @spells.web && !self.recharging && (self.uses == 0 || self.used < self.uses)
-        && (!has(params.slot) || params.slot == action.item.level)
-    value:
-      id: spell-use
-      flags: { slot: action.item.level, castAbility: "'monster'" }
-      changes:
-        - { type: setState, entry: self, key: recharging, value: true, when: has(item.recharge) }
-        - { type: adjustState, entry: self, key: used, by: 1, when: self.uses > 0 }

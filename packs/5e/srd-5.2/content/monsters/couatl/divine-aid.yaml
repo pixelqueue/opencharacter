@@ -6,21 +6,4 @@ fields:
   perDay: 2
   spell: spells.bless
   spell2: spells.lesser-restoration
-# The type casts two spells per entry (`spell`, `spell2`); the third is granted and spent here the
-# same way.
-grants:
-  - { item: spells.sanctuary }
-effects:
-  - { target: spells.monster, op: grant, value: { formula: '@spells.sanctuary' } }
-  - { target: spells.limited, op: grant, value: { formula: '@spells.sanctuary' } }
-  - target: { choices: [spell-cost] }
-    op: option
-    when: >-
-      action.item.id == @spells.sanctuary && !self.recharging && (self.uses == 0 || self.used < self.uses)
-        && (!has(params.slot) || params.slot == action.item.level)
-    value:
-      id: spell-use
-      flags: { slot: action.item.level, castAbility: "'monster'" }
-      changes:
-        - { type: setState, entry: self, key: recharging, value: true, when: has(item.recharge) }
-        - { type: adjustState, entry: self, key: used, by: 1, when: self.uses > 0 }
+  spell3: spells.sanctuary

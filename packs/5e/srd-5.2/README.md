@@ -284,8 +284,7 @@ as text are listed below.
   pushes and pulls, Swallow beyond its conditions, wounds, curses and damage over time,
   escalations on a second failed save, healing equal to damage dealt, a lost Hit Point maximum,
   lycanthrope curses, vampire weaknesses and once-per-turn limits on legendary actions are text.
-  Gear quantities and language dialects aren't stored. An entry casting more than two spells
-  grants the rest and offers them on the cast's cost step. A size limit on a save effect keeps a larger
+  Gear quantities and language dialects aren't stored. A size limit on a save effect keeps a larger
   creature out of the whole effect, its damage included.
 - **Class features:** Empowered Strikes is text (a roll part's damage type can't change), and so
   is Improved Elemental Fury's range (an effect can't change a spell's fields).
