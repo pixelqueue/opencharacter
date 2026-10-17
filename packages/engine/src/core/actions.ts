@@ -676,9 +676,12 @@ function startFrame(
     if (!def && ruleset.rules.actions[id]) {
       def = ruleset.rules.actions[id];
       pack = ruleset.rules.actions[id]?.pack ?? '';
+      // Content on an entry is named by `entry` and `source`, as above; the entry's own item by
+      // `entry` alone.
       activation = sheet.activations.find((a) =>
         entry !== undefined
-          ? entryOf(a) === entry && ownsEntry(a)
+          ? entryOf(a) === entry &&
+            (source !== undefined ? !ownsEntry(a) && a.item?.qid === source : ownsEntry(a))
           : a.scope === 'holder' && !a.entry && a.item?.qid === source,
       );
     }
