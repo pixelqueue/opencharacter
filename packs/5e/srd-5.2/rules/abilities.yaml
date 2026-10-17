@@ -37,6 +37,8 @@ fields:
 
   # Paralyzed, Petrified, Stunned and Unconscious: Strength and Dexterity saves fail.
   saves.failStrDex: { type: boolean, formula: false }
+  # Saves against spells succeed (Greater Magic Resistance).
+  saves.spellsSucceed: { type: boolean, formula: false }
 
 actions:
   - id: saving-throw
@@ -46,8 +48,16 @@ actions:
       dc: { type: integer, optional: true }
       advantage: { type: boolean, optional: true }
       disadvantage: { type: boolean, optional: true }
+      # A save against a spell: Magic Resistance gives it Advantage.
+      spell: { type: boolean, default: false }
     results: [rolled, success, failure]
     steps:
+      - id: autoSucceed
+        kind: outcome
+        when: params.spell && saves.spellsSucceed
+        result: "'success'"
+        data:
+          total: 'has(params.dc) ? params.dc : 0'
       - id: autoFail
         kind: outcome
         when: "saves.failStrDex && params.ability in ['str', 'dex']"
@@ -63,7 +73,8 @@ actions:
           ability: params.ability
           field: "'saves.' + params.ability"
           dc: 'has(params.dc) ? params.dc : null'
-          advantage: 'has(params.advantage) && params.advantage'
+          advantage: >-
+            (has(params.advantage) && params.advantage) || (params.spell && saves.magicResistance)
           disadvantage: 'has(params.disadvantage) && params.disadvantage'
       - id: result
         kind: outcome

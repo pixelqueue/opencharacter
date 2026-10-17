@@ -4,7 +4,9 @@ fields:
   kind: trait
   order: 1
 effects:
-  # The GM picks it on a failed save against a spell or other magical effect.
+  - { target: saves.spellsSucceed, op: set, value: true }
+  - { target: combat.spellAttacksMiss, op: set, value: true }
+  # Other magical effects: the GM picks it on a failed save.
   - target: { choices: [failed-save] }
     op: option
     when: has(params.dc)

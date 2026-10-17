@@ -180,7 +180,10 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Monsters:** stat block numbers (to hit, damage, DC, AC, Initiative) are as printed, not
   recomputed; where a printed number doesn't follow from the scores (the Gray Ooze's Initiative
   score, a few skills), an effect makes up the difference. Mind Blank is assumed cast before
-  combat. Conditions a grapple brings (Restrained, Blinded) are applied with it and ended by the
+  combat. A spell's saving throw tells the saver it is against a spell, so Magic Resistance gives
+  Advantage on it and Greater Magic Resistance succeeds; a spell's attack roll against a creature
+  with Greater Magic Resistance misses without a roll. Other magical effects stay the saver's
+  choice (Magic Resistance's situational Advantage, the Rakshasa's option on a failed save). Conditions a grapple brings (Restrained, Blinded) are applied with it and ended by the
   app. A Multiattack's "replace one attack" replaces the last. A charge ("moved 20 feet straight
   toward") is its own action on the attack. A Priest Acolyte's spell save DC, which the SRD doesn't
   print, is 8 + Wisdom modifier + PB. The Hydra's heads are a parameter of its Multiattack. A size limit follows the stat block's

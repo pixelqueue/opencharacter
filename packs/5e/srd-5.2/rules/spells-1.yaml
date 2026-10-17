@@ -83,9 +83,10 @@ actions:
                 : size(participants.target) > 0 && has(participants.target[0].combat.ac)
                   ? participants.target[0].combat.ac
                 : has(params.targetAc) ? params.targetAc : -1
+              autoMiss: size(participants.target) > 0 && participants.target[0].combat.spellAttacksMiss
       - id: test
         kind: action
-        when: has(params.attack)
+        when: has(params.attack) && !flags.autoMiss
         use: d20-test
         participants:
           target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
@@ -98,6 +99,8 @@ actions:
         kind: branch
         when: has(params.attack)
         cases:
+          - when: flags.autoMiss
+            flags: { hit: false, critical: false }
           - when: steps.test.result == 'critical'
             flags:
               hit: true
@@ -159,6 +162,7 @@ actions:
         params:
           ability: params.save
           dc: flags.dc
+          spell: true
       - id: burn
         kind: changes
         each: target

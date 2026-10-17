@@ -352,9 +352,10 @@ actions:
                   ? participants.target[0].combat.ac
                 : has(params.targetAc) ? params.targetAc : -1
               vexed: false
+              autoMiss: size(participants.target) > 0 && participants.target[0].combat.spellAttacksMiss
       - id: test
         kind: action
-        when: has(item.attack)
+        when: has(item.attack) && !flags.autoMiss
         use: d20-test
         participants:
           target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
@@ -367,6 +368,8 @@ actions:
         kind: branch
         when: has(item.attack)
         cases:
+          - when: flags.autoMiss
+            flags: { hit: false, critical: false }
           - when: steps.test.result == 'critical'
             flags:
               hit: true
@@ -442,6 +445,7 @@ actions:
         params:
           ability: item.save
           dc: flags.dc
+          spell: true
           disadvantage: "flags.metamagic == 'heightened' && !has(steps.saves)"
       - id: burn
         kind: changes
