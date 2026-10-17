@@ -1,0 +1,292 @@
+contentTypes:
+  weapon:
+    carried: true
+    equippable: true
+    fields:
+      category: { type: enum, values: [simple, martial], required: true }
+      range: { type: enum, values: [melee, ranged], required: true }
+      damage: { type: dice, required: true }
+      damageType:
+        {
+          type: enum,
+          values:
+            [
+              acid,
+              bludgeoning,
+              cold,
+              fire,
+              force,
+              lightning,
+              necrotic,
+              piercing,
+              poison,
+              psychic,
+              radiant,
+              slashing,
+              thunder,
+            ],
+          required: true,
+        }
+      versatileDamage: { type: dice }
+      normalRange: { type: integer }
+      longRange: { type: integer }
+      ammunition: { type: enum, values: [arrow, bolt, firearm-bullet, sling-bullet, needle] }
+      mastery: { type: enum, values: [cleave, graze, nick, push, sap, slow, topple, vex] }
+      weight: { type: decimal } # pounds
+      cost: { type: decimal } # gold pieces
+    state:
+      wielding: { type: enum, values: [one-handed, two-handed], default: one-handed }
+      attuned: { type: boolean, default: false }
+      stowed: { type: boolean, default: false } # in an extradimensional container
+    actions:
+      - use: weapon-attack
+    effects:
+      - id: magic-attack
+        target: { rolls: [attack.melee, attack.ranged], from: self }
+        op: add
+        value: item.attackBonus
+        when: item.attackBonus != 0 && (!item.requiresAttunement || self.attuned)
+      - id: magic-damage
+        target: { rolls: [damage.weapon], from: self }
+        op: add
+        value: item.damageBonus
+        tags: [{ formula: "'damage.' + roll.item.damageType" }]
+        when: item.damageBonus != 0 && (!item.requiresAttunement || self.attuned)
+
+  armor:
+    carried: true
+    equippable: true
+    fields:
+      category: { type: enum, values: [light, medium, heavy, shield], required: true }
+      baseAc: { type: integer, required: true }
+      addDex: { type: boolean }
+      maxDex: { type: integer }
+      strength: { type: integer }
+      stealthDisadvantage: { type: boolean }
+      weight: { type: decimal } # pounds
+      cost: { type: decimal } # gold pieces
+    state:
+      attuned: { type: boolean, default: false }
+      stowed: { type: boolean, default: false }
+    # Every armor item has these effects; the Shield switches off the first three (`suppress`).
+    effects:
+      - id: base-ac
+        target: combat.ac
+        op: set
+        value: >-
+          item.baseAc + (has(item.addDex) && item.addDex
+            ? (has(item.maxDex) ? min(abilities.dex.mod, item.maxDex) : abilities.dex.mod)
+            : 0)
+        when: self.equipped
+      - id: wearing-armor
+        target: equipment.tags
+        op: grant
+        value: { tag: armor }
+        when: self.equipped
+      - id: armor-category
+        target: equipment.tags
+        op: grant
+        value: { formula: item.category }
+        when: self.equipped
+      - id: untrained
+        target: armor.untrained
+        op: set
+        value: true
+        when: self.equipped && !(item.category in proficiencies.armor)
+      - id: too-heavy
+        target: combat.speed
+        op: add
+        value: -10
+        when: >-
+          self.equipped && has(item.strength) && abilities.str.score < item.strength
+            && !combat.ignoreArmorStrength
+      - id: noisy
+        target: { rolls: [skill.stealth] }
+        op: rollModifier
+        value: { kind: disadvantage }
+        when: >-
+          self.equipped && has(item.stealthDisadvantage) && item.stealthDisadvantage
+      - id: magic-ac
+        target: combat.ac
+        op: add
+        value: item.acBonus
+        when: >-
+          self.equipped && item.acBonus != 0 && (!item.requiresAttunement || self.attuned)
+          && (item.category != 'shield' || 'shield' in proficiencies.armor)
+
+  class:
+    copies: { perItem: 1 }
+    fields:
+      hitDie: { type: dice, required: true }
+    state:
+      level: { type: integer, default: 1, min: 1, max: 20 }
+      startingClass: { type: boolean, default: false }
+      hitDiceSpent: { type: integer, default: 0, min: 0 }
+    effects:
+      - { target: classes.held, op: grant, value: { formula: item.id } }
+    actions:
+      - use: spend-hit-die
+
+  subclass:
+    copies: { max: 0 }
+    fields:
+      class: { type: id, of: class, required: true }
+
+  feature: {}
+
+  feat:
+    copies: { max: 0 }
+    fields:
+      category: { type: enum, values: [origin, general, fighting-style, epic-boon], required: true }
+
+  spell:
+    texts: [material, trigger]
+    # The slot the spell was cast with: 0 when unknown, read as the spell's own level.
+    state:
+      castSlot: { type: integer, default: 0, min: 0, max: 9 }
+      # The caster's spell save DC, for an effect the creature it's on keeps (Sanctuary).
+      castDc: { type: integer, default: 0, min: 0 }
+    fields:
+      level: { type: integer, required: true, min: 0, max: 9 }
+      school:
+        {
+          type: enum,
+          values:
+            [
+              abjuration,
+              conjuration,
+              divination,
+              enchantment,
+              evocation,
+              illusion,
+              necromancy,
+              transmutation,
+            ],
+          required: true,
+        }
+      classes: { type: set, of: class }
+      ritual: { type: boolean }
+      concentration: { type: boolean }
+      castingTime:
+        {
+          type: enum,
+          values:
+            [
+              action,
+              bonus-action,
+              reaction,
+              1-minute,
+              10-minutes,
+              1-hour,
+              8-hours,
+              12-hours,
+              24-hours,
+            ],
+        }
+      rangeKind: { type: enum, values: [self, touch, ranged, sight, unlimited, special] }
+      range: { type: integer } # feet
+      verbal: { type: boolean }
+      somatic: { type: boolean }
+      material: { type: boolean }
+      durationUnit:
+        { type: enum, values: [instantaneous, round, minute, hour, day, until-dispelled, special] }
+      durationAmount: { type: integer }
+      areaShape: { type: enum, values: [cone, cube, cylinder, emanation, line, sphere] }
+      areaSize: { type: integer } # feet
+      attack: { type: enum, values: [melee, ranged] }
+      save: { type: enum, values: [str, dex, con, int, wis, cha] }
+      saveEffect: { type: enum, values: [half, none] }
+      condition: { type: id, of: condition }
+      applied: { type: boolean }
+      maxHp: { type: integer }
+      upcastMaxHp: { type: integer }
+      tempHp: { type: integer }
+      upcastTempHp: { type: integer }
+      damageType:
+        &damage-type {
+          type: enum,
+          values:
+            [
+              acid,
+              bludgeoning,
+              cold,
+              fire,
+              force,
+              lightning,
+              necrotic,
+              piercing,
+              poison,
+              psychic,
+              radiant,
+              slashing,
+              thunder,
+            ],
+        }
+      damage: { type: dice }
+      damageBonus: { type: integer }
+      damageAddsMod: { type: boolean }
+      upcastDice: { type: integer }
+      upcastBonus: { type: integer }
+      upcastEvery: { type: integer }
+      cantripScaling: { type: boolean }
+      damage2Type: *damage-type
+      damage2: { type: dice }
+      upcast2Dice: { type: integer }
+      heal: { type: dice }
+      healBonus: { type: integer }
+      healAddsMod: { type: boolean }
+      upcastHealDice: { type: integer }
+      upcastHealBonus: { type: integer }
+
+  trait: {}
+
+  species:
+    copies: { max: 1 }
+    fields:
+      speed: { type: integer, required: true }
+      # `choice`: Small or Medium, chosen with the species (its `size` choice).
+      size: { type: enum, values: [small, medium, choice], required: true }
+    effects:
+      - { id: speed, target: combat.speed, op: set, value: item.speed }
+      - {
+          id: size,
+          target: creature.size,
+          op: set,
+          value: item.size,
+          when: "item.size != 'choice'",
+        }
+      - { id: species, target: creature.species, op: set, value: item.id }
+
+  # A species' lineage, legacy or ancestry (Elven Lineage, Draconic Ancestry, …), picked with it.
+  lineage:
+    copies: { max: 0 }
+    fields:
+      species: { type: id, of: species, required: true }
+      damageType: *damage-type
+
+  language:
+    fields:
+      rare: { type: boolean, default: false }
+    effects:
+      - target: proficiencies.languages
+        op: grant
+        value: { formula: item.id }
+
+  background:
+    copies: { max: 1 }
+
+fields:
+  armor.untrained: { type: boolean, formula: false }
+
+effects:
+  # Armor without training: Disadvantage on D20 Tests with Strength or Dexterity, and no spells.
+  - id: untrained-armor-tests
+    target: { rolls: [ability.str, ability.dex] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: armor.untrained
+  - id: untrained-armor-spells
+    target: spellcasting.blocked
+    op: set
+    value: true
+    when: armor.untrained

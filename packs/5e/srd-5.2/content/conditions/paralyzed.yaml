@@ -1,0 +1,9 @@
+id: conditions.paralyzed
+type: condition
+grants:
+  - { item: conditions.incapacitated, scope: applied }
+effects:
+  - { target: combat.speed, op: atMost, value: 0, scope: applied }
+  - { target: saves.failStrDex, op: set, value: true, scope: applied }
+  - { target: combat.attackersAdvantage, op: set, value: true, scope: applied }
+  - { target: conditions.autoCritMelee, op: set, value: true, scope: applied }

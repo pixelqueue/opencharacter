@@ -1,0 +1,60 @@
+# Conditions are content applied to a creature (its `applied` list). Exhaustion has levels, so it is
+# a field instead.
+contentTypes:
+  condition:
+    carried: false
+    state:
+      by:
+        {
+          type: enum,
+          values:
+            [
+              aberration,
+              beast,
+              celestial,
+              construct,
+              dragon,
+              elemental,
+              fey,
+              fiend,
+              giant,
+              humanoid,
+              monstrosity,
+              ooze,
+              plant,
+              undead,
+            ],
+        }
+      magical: { type: boolean, default: false }
+      # A grapple's escape DC.
+      escapeDc: { type: integer, default: 0, min: 0 }
+
+  # What a weapon's mastery property leaves on its target (Sap, Slow, Vex). Not conditions: they
+  # last until the attacker's next turn, which the app tracks.
+  combatEffect:
+    carried: false
+    state:
+      attacker: { type: string, default: '' }
+
+fields:
+  conditions.exhaustion: { type: integer, input: true, default: 0, min: 0, max: 6 }
+  conditions.immunities: { type: set, of: condition, input: true, default: [] }
+  # Exhaustion is a field, so it can't be in `conditions.immunities`.
+  conditions.exhaustionImmune: { type: boolean, input: true, default: false }
+  conditions.prone: { type: boolean, formula: false }
+  conditions.incapacitated: { type: boolean, formula: false }
+  # Paralyzed and Unconscious: a hit from within 5 feet, read as a melee attack, is a Critical Hit.
+  conditions.autoCritMelee: { type: boolean, formula: false }
+  creature.dead:
+    { type: boolean, formula: 'deathSaves.failures >= 3 || conditions.exhaustion >= 6' }
+
+immuneTo:
+  - id: listed
+    query: { type: condition, where: item.id in conditions.immunities }
+
+effects:
+  - id: exhaustion-immunity
+    target: conditions.exhaustion
+    op: atMost
+    value: 0
+    when: conditions.exhaustionImmune

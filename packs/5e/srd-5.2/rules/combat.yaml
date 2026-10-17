@@ -1,0 +1,833 @@
+viewFields:
+  target:
+    combat.ac: { type: integer }
+    combat.rangedAc: { type: integer }
+    creature.size: { type: enum, values: [tiny, small, medium, large, huge, gargantuan] }
+    creature.type:
+      type: enum
+      values:
+        [
+          aberration,
+          beast,
+          celestial,
+          construct,
+          dragon,
+          elemental,
+          fey,
+          fiend,
+          giant,
+          humanoid,
+          monstrosity,
+          ooze,
+          plant,
+          undead,
+        ]
+    conditions.prone: { type: boolean, default: false }
+    conditions.incapacitated: { type: boolean, default: false }
+    conditions.autoCritMelee: { type: boolean, default: false }
+    combat.attackersAdvantage: { type: boolean, default: false }
+    combat.attackersDisadvantage: { type: boolean, default: false }
+    combat.spellAttackersDisadvantage: { type: boolean, default: false }
+    combat.noCriticals: { type: boolean, default: false }
+    combat.elusive: { type: boolean, default: false }
+    protection.evilAndGood: { type: boolean, default: false }
+    sanctuary.dc: { type: integer, default: 0 }
+    mastery.vexedBy: { type: set, of: string, default: [] }
+
+fields:
+  # Armor, Unarmored Defense and Mage Armor `set` AC and compete; the rules recommend the highest.
+  combat.ac: { type: integer, formula: '10 + abilities.dex.mod' }
+  combat.rangedAc: { type: integer, formula: combat.ac }
+  combat.speed: { type: integer, input: true, default: 30, min: 0 }
+  combat.flySpeed: { type: integer, formula: 0, min: 0 }
+  combat.climbSpeed: { type: integer, formula: 0, min: 0 }
+  combat.swimSpeed: { type: integer, formula: 0, min: 0 }
+  combat.burrowSpeed: { type: integer, formula: 0, min: 0 }
+  combat.hover: { type: boolean, formula: false }
+  combat.longJump: { type: integer, formula: abilities.str.score, min: 0 }
+  combat.highJump: { type: integer, formula: '3 + abilities.str.mod', min: 0 }
+  combat.critRange: { type: integer, formula: 20, min: 2, max: 20 }
+  # Shown, not enforced: the app runs weapon-attack once per attack. Extra Attack from several
+  # classes doesn't add up.
+  combat.attacks: { type: integer, formula: 1, min: 1 }
+  # Two-Weapon Fighting: the Light property's extra attack adds the ability modifier.
+  combat.offHandModifier: { type: boolean, formula: false }
+  combat.ignoreArmorStrength: { type: boolean, formula: false }
+  # Bludgeoning, Piercing and Slashing damage this creature deals ignores Resistance.
+  combat.ignoreResistance: { type: boolean, formula: false }
+  combat.featherFall: { type: boolean, formula: false }
+  combat.hitOptions: { type: integer, formula: 0, min: 0 }
+  combat.attackersAdvantage: { type: boolean, formula: false }
+  combat.attackersDisadvantage: { type: boolean, formula: false }
+  combat.spellAttackersDisadvantage: { type: boolean, formula: false }
+  combat.noCriticals: { type: boolean, formula: false }
+  combat.elusive: { type: boolean, formula: false }
+  protection.evilAndGood: { type: boolean, formula: false }
+  sanctuary.dc: { type: integer, formula: 0, min: 0 }
+
+  # Weapons the character may attack with using Charisma (Pact of the Blade).
+  weapons.charismaAttack: { type: set, of: weapon }
+  # The kinds of weapons whose mastery property the character can use (Weapon Mastery).
+  mastery.weapons: { type: set, of: weapon }
+  # Who vexed this creature: each Vex entry on it names the attacker's character ID.
+  mastery.vexedBy:
+    type: set
+    of: string
+    formula: >-
+      mapList(filterList(character.applied,
+        x.active && x.source == @combat-effects.vexed && has(x.state.attacker)), x.state.attacker)
+
+  # A monk's Martial Arts: the die, and whether it applies (unarmored, no Shield).
+  martialArts.known: { type: boolean, formula: false }
+  martialArts.die: { type: dice, formula: 0 }
+  # The ability modifier in the DC of a Grapple or Shove.
+  unarmed.dcModifier: { type: integer, formula: abilities.str.mod }
+
+situational:
+  - id: advantage
+    type: boolean
+    default: false
+    rolls: [d20-test]
+    effects:
+      - target: { rolls: [d20-test] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.advantage
+  - id: disadvantage
+    type: boolean
+    default: false
+    rolls: [d20-test]
+    effects:
+      - target: { rolls: [d20-test] }
+        op: rollModifier
+        value: { kind: disadvantage }
+        when: situational.disadvantage
+  - id: bonus
+    type: integer
+    default: 0
+    rolls: [d20-test, damage]
+    effects:
+      - target: { rolls: [d20-test, damage] }
+        op: add
+        value: situational.bonus
+
+effects:
+  # Critical hits roll all of the attack's damage dice twice, including dice added by effects.
+  - id: critical-hit-dice
+    target: { rolls: [damage] }
+    op: rollModifier
+    value: { kind: multiplyDice, factor: 2 }
+    when: has(flags.critical) && flags.critical
+  - id: speed-exhaustion
+    target: combat.speed
+    op: add
+    value: -5 * conditions.exhaustion
+    when: conditions.exhaustion > 0
+  - id: heavy-weapon
+    target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: >-
+      has(roll.item) && has(roll.item.range) && 'property.heavy' in roll.item.tags
+        && ((roll.item.range == 'melee' && abilities.str.score < 13)
+          || (roll.item.range == 'ranged' && abilities.dex.score < 13))
+  # A target's conditions, as its sheet gives them. "Within 5 feet" of a Prone target is read as a
+  # melee attack. Without a target, the advantage and disadvantage choices remain.
+  - id: target-advantage
+    target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && participants.target[0].combat.attackersAdvantage
+  - id: target-disadvantage
+    target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && participants.target[0].combat.attackersDisadvantage
+  - id: target-spell-disadvantage
+    target: { rolls: [attack.spell] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && participants.target[0].combat.spellAttackersDisadvantage
+  - id: target-protected
+    target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && participants.target[0].protection.evilAndGood
+        && creature.type in ['aberration', 'celestial', 'elemental', 'fey', 'fiend', 'undead']
+  - id: target-prone-melee
+    target: { rolls: [attack.melee, attack.spell.melee] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && participants.target[0].conditions.prone
+  - id: target-prone-ranged
+    target: { rolls: [attack.ranged, attack.spell.ranged] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && participants.target[0].conditions.prone
+  - id: target-vexed
+    target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && character.id in participants.target[0].mastery.vexedBy
+  # Elusive removes advantage whatever gives it, the player's situational advantage included;
+  # disadvantage still applies.
+  - id: target-elusive
+    target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: noAdvantage }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && participants.target[0].combat.elusive && !participants.target[0].conditions.incapacitated
+
+actions:
+  - id: weapon-attack
+    tags: [attack]
+    available: >-
+      self.equipped && (!has(item.ammunition) || countCopies(copy.type == 'gear'
+        && has(copy.fields.ammunition) && copy.fields.ammunition == item.ammunition
+        && copy.quantity > 0) > 0)
+    params:
+      targetAc: { type: integer, optional: true }
+      thrown: { type: boolean, default: false }
+      longRange: { type: boolean, default: false }
+      offHand: { type: boolean, default: false }
+      cleave: { type: boolean, default: false }
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [hit, miss, retarget]
+    steps:
+      - id: sanctuary
+        kind: action
+        when: size(participants.target) > 0 && participants.target[0].sanctuary.dc > 0
+        use: saving-throw
+        params:
+          ability: "'wis'"
+          dc: participants.target[0].sanctuary.dc
+      - id: retarget
+        kind: outcome
+        when: has(steps.sanctuary) && steps.sanctuary.result == 'failure'
+        result: "'retarget'"
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              me: character.id
+              monk: >-
+                martialArts.known && item.range == 'melee'
+                  && (item.category == 'simple' || 'property.light' in item.tags)
+              dice: "self.wielding == 'two-handed' && has(item.versatileDamage) ? item.versatileDamage : item.damage"
+              crit: combat.critRange
+              range: "item.range == 'ranged' || params.thrown ? 'ranged' : 'melee'"
+              ac: >-
+                size(participants.target) > 0 && (item.range == 'ranged' || params.thrown)
+                    && has(participants.target[0].combat.rangedAc)
+                  ? participants.target[0].combat.rangedAc
+                : size(participants.target) > 0 && has(participants.target[0].combat.ac)
+                  ? participants.target[0].combat.ac
+                : has(params.targetAc) ? params.targetAc : -1
+              mastery: "item.id in mastery.weapons && has(item.mastery) ? item.mastery : 'none'"
+              masteryUsed: false
+              vexed: >-
+                size(participants.target) > 0
+                  && character.id in participants.target[0].mastery.vexedBy
+      - id: ability
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ability: >-
+                item.id in weapons.charismaAttack && abilities.cha.mod > abilities.str.mod
+                    && abilities.cha.mod > abilities.dex.mod ? 'cha'
+                  : item.range == 'ranged'
+                    || (('finesse' in item.tags || flags.monk) && abilities.dex.mod > abilities.str.mod)
+                    ? 'dex' : 'str'
+      - id: ammo
+        kind: choice
+        # The first stack of the weapon's kind with any left is recommended, so an automatic attack
+        # fires.
+        recommend: options[0]
+        tags: [ammunition]
+        when: has(item.ammunition)
+        options:
+          copies:
+            type: gear
+            where: >-
+              has(item.ammunition) && item.ammunition == action.item.ammunition
+                && self.quantity > 0
+        changes:
+          - { type: adjustQuantity, entry: picked, by: -1 }
+      - id: test
+        kind: action
+        use: d20-test
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+        tags: [attack, { formula: "'attack.' + flags.range" }]
+        params:
+          kind: "'attack'"
+          ability: flags.ability
+          proficiency: 'item.id in proficiencies.weapons ? 1 : 0'
+          bonus: 'has(steps.ammo.item) ? steps.ammo.item.attackBonus : 0'
+          dc: 'flags.ac >= 0 ? flags.ac : null'
+          crit: flags.crit
+          disadvantage: params.longRange
+      - id: hit
+        kind: branch
+        cases:
+          - when: steps.test.result == 'critical'
+            flags:
+              hit: true
+              critical: '!(size(participants.target) > 0 && participants.target[0].combat.noCriticals)'
+          - when: steps.test.result == 'hit'
+            flags:
+              hit: true
+              critical: >-
+                flags.range == 'melee' && size(participants.target) > 0
+                  && participants.target[0].conditions.autoCritMelee
+                  && !participants.target[0].combat.noCriticals
+          - when: steps.test.result == 'miss'
+            flags: { hit: false, critical: false }
+        else:
+          flags: { hit: false, critical: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options:
+                - id: hit
+                  flags: { hit: true }
+                - id: critical
+                  flags: { hit: true, critical: true }
+                - id: miss
+      - id: masteryUse
+        kind: choice
+        tags: [weapon-mastery]
+        when: "flags.mastery != 'none' && (flags.hit || flags.mastery == 'graze') && !params.cleave"
+        options:
+          - id: use
+            flags: { masteryUsed: true }
+          - id: skip
+        recommend: "'use'"
+      - id: onHit
+        kind: choice
+        tags: [weapon-hit]
+        when: combat.hitOptions > 0 && flags.hit
+        options: [{ id: none }]
+        recommend: "'none'"
+      - id: damage
+        kind: roll
+        when: flags.hit
+        tags: [damage.weapon]
+        parts:
+          - dice: >-
+              flags.monk && maxOf(martialArts.die) > maxOf(flags.dice) ? martialArts.die : flags.dice
+            tags: [{ formula: "'damage.' + item.damageType" }]
+          - field: "'abilities.' + flags.ability + '.mod'"
+            when: >-
+              !(params.offHand || params.cleave) || (params.offHand && combat.offHandModifier)
+                || fieldOf('abilities.{ability}.mod', flags.ability) < 0
+            tags: [{ formula: "'damage.' + item.damageType" }]
+          - value: steps.ammo.item.damageBonus
+            tags: [{ formula: "'damage.' + item.damageType" }]
+            when: has(steps.ammo.item) && steps.ammo.item.damageBonus != 0
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          # One adjust per damage type, so the target's resistances apply per type.
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags:
+              - damage
+              - attack
+              - weapon
+              - { formula: flags.range }
+              - formula: >-
+                  'magic' in item.tags || (has(steps.ammo.item) && 'magic' in steps.ammo.item.tags)
+                    ? 'magical' : 'nonmagical'
+              - formula: >-
+                  (combat.ignoreResistance && item.damageType in ['bludgeoning', 'piercing', 'slashing'])
+                    || (item.ignoresSlashingResistance && item.damageType == 'slashing'
+                      && (!item.requiresAttunement || self.attuned))
+                    ? ['ignores-resistance'] : []
+              - { formula: "flags.critical ? ['critical'] : []" }
+      - id: graze
+        kind: changes
+        when: >-
+          !flags.hit && flags.masteryUsed && flags.mastery == 'graze'
+            && fieldOf('abilities.{ability}.mod', flags.ability) > 0
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            by: -fieldOf('abilities.{ability}.mod', flags.ability)
+            tags:
+              - damage
+              - weapon
+              - graze
+              - { formula: "'damage.' + item.damageType" }
+      - id: toppleSave
+        kind: action
+        each: target
+        when: flags.hit && flags.masteryUsed && flags.mastery == 'topple'
+        as: participant
+        use: saving-throw
+        params:
+          ability: "'con'"
+          dc: 8 + fieldOf('abilities.{ability}.mod', flags.ability) + proficiency.bonus
+      - id: topple
+        kind: changes
+        each: target
+        when: has(steps.toppleSave) && steps.toppleSave.result == 'failure'
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.prone'"
+            state: { by: creature.type }
+      - id: riders
+        kind: changes
+        when: flags.hit && flags.masteryUsed
+        to: target
+        changes:
+          - type: applyEffect
+            when: flags.mastery == 'sap'
+            source: "'combat-effects.sapped'"
+          - type: applyEffect
+            when: flags.mastery == 'slow' && has(steps.damage)
+            source: "'combat-effects.slowed'"
+          - type: applyEffect
+            when: flags.mastery == 'vex' && has(steps.damage)
+            source: "'combat-effects.vexed'"
+            state: { attacker: flags.me }
+      - id: unvex
+        kind: changes
+        when: flags.vexed
+        to: target
+        changes:
+          - type: removeEffect
+            applied:
+              where: 'item.id == @combat-effects.vexed && self.attacker == flags.me'
+      - id: unsap
+        kind: changes
+        when: >-
+          countList(character.applied, x.active && x.source == @combat-effects.sapped) > 0
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @combat-effects.sapped' }
+      - id: result
+        kind: outcome
+        result: "flags.hit ? 'hit' : 'miss'"
+        data:
+          critical: flags.critical
+          attack: steps.test.data.total
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+          mastery: "flags.masteryUsed ? flags.mastery : 'none'"
+          push: "flags.hit && flags.masteryUsed && flags.mastery == 'push' ? 10 : 0"
+          # Cleave: the app may run this weapon's attack again against a second creature, with
+          # `cleave` set (no ability modifier to its damage).
+          cleave: "flags.hit && flags.masteryUsed && flags.mastery == 'cleave' && flags.range == 'melee'"
+
+  # The Damage option of an Unarmed Strike. Grapple and Shove are their own actions.
+  - id: unarmed-strike
+    tags: [attack]
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [hit, miss, retarget]
+    steps:
+      - id: sanctuary
+        kind: action
+        when: size(participants.target) > 0 && participants.target[0].sanctuary.dc > 0
+        use: saving-throw
+        params:
+          ability: "'wis'"
+          dc: participants.target[0].sanctuary.dc
+      - id: retarget
+        kind: outcome
+        when: has(steps.sanctuary) && steps.sanctuary.result == 'failure'
+        result: "'retarget'"
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              monk: martialArts.known
+              ability: "martialArts.known && abilities.dex.mod > abilities.str.mod ? 'dex' : 'str'"
+              crit: combat.critRange
+              me: character.id
+              vexed: >-
+                size(participants.target) > 0
+                  && character.id in participants.target[0].mastery.vexedBy
+              ac: >-
+                size(participants.target) > 0 && has(participants.target[0].combat.ac)
+                  ? participants.target[0].combat.ac
+                : has(params.targetAc) ? params.targetAc : -1
+      - id: test
+        kind: action
+        use: d20-test
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+        tags: [attack, attack.melee, unarmed]
+        params:
+          kind: "'attack'"
+          ability: flags.ability
+          proficiency: 1
+          dc: 'flags.ac >= 0 ? flags.ac : null'
+          crit: flags.crit
+      - id: hit
+        kind: branch
+        cases:
+          - when: steps.test.result == 'critical'
+            flags:
+              hit: true
+              critical: '!(size(participants.target) > 0 && participants.target[0].combat.noCriticals)'
+          - when: steps.test.result == 'hit'
+            flags:
+              hit: true
+              critical: >-
+                size(participants.target) > 0 && participants.target[0].conditions.autoCritMelee
+                  && !participants.target[0].combat.noCriticals
+          - when: steps.test.result == 'miss'
+            flags: { hit: false, critical: false }
+        else:
+          flags: { hit: false, critical: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options:
+                - id: hit
+                  flags: { hit: true }
+                - id: critical
+                  flags: { hit: true, critical: true }
+                - id: miss
+      - id: damage
+        kind: roll
+        when: flags.hit
+        tags: [damage.weapon, unarmed]
+        parts:
+          - dice: martialArts.die
+            when: flags.monk
+            tags: [damage.bludgeoning]
+          - value: 1
+            when: '!flags.monk'
+            tags: [damage.bludgeoning]
+          - field: "'abilities.' + flags.ability + '.mod'"
+            tags: [damage.bludgeoning]
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags:
+              [damage, attack, melee, unarmed, { formula: "flags.critical ? ['critical'] : []" }]
+      - id: unvex
+        kind: changes
+        when: flags.vexed
+        to: target
+        changes:
+          - type: removeEffect
+            applied:
+              where: 'item.id == @combat-effects.vexed && self.attacker == flags.me'
+      - id: unsap
+        kind: changes
+        when: >-
+          countList(character.applied, x.active && x.source == @combat-effects.sapped) > 0
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @combat-effects.sapped' }
+      - id: result
+        kind: outcome
+        result: "flags.hit ? 'hit' : 'miss'"
+        data:
+          critical: flags.critical
+          attack: steps.test.data.total
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+
+  # The Grapple and Shove options of an Unarmed Strike: the target saves with Strength or Dexterity,
+  # its choice (`resist-unarmed`, run on its sheet).
+  - id: grapple
+    tags: [attack]
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [grappled, escaped, too-large]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dc: 8 + unarmed.dcModifier + proficiency.bonus
+              tooLarge: >-
+                size(participants.target) > 0 && indexOf(['tiny', 'small', 'medium', 'large', 'huge',
+                  'gargantuan'], participants.target[0].creature.size) > indexOf(['tiny', 'small',
+                  'medium', 'large', 'huge', 'gargantuan'], creature.size) + 1
+      - id: tooLarge
+        kind: outcome
+        when: flags.tooLarge
+        result: "'too-large'"
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: resist-unarmed
+        params: { dc: flags.dc }
+      - id: hold
+        kind: changes
+        each: target
+        when: has(steps.save) && steps.save.result == 'failure'
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.grappled'"
+            state: { by: creature.type, escapeDc: flags.dc }
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.target) > 0 && countList(steps.save, x.result == 'failure') > 0
+            ? 'grappled' : 'escaped'
+        data:
+          dc: flags.dc
+
+  - id: shove
+    tags: [attack]
+    params:
+      prone: { type: boolean, default: true }
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [shoved, resisted, too-large]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dc: 8 + unarmed.dcModifier + proficiency.bonus
+              tooLarge: >-
+                size(participants.target) > 0 && indexOf(['tiny', 'small', 'medium', 'large', 'huge',
+                  'gargantuan'], participants.target[0].creature.size) > indexOf(['tiny', 'small',
+                  'medium', 'large', 'huge', 'gargantuan'], creature.size) + 1
+      - id: tooLarge
+        kind: outcome
+        when: flags.tooLarge
+        result: "'too-large'"
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: resist-unarmed
+        params: { dc: flags.dc }
+      - id: knock
+        kind: changes
+        each: target
+        when: params.prone && has(steps.save) && steps.save.result == 'failure'
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.prone'"
+            state: { by: creature.type }
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.target) > 0 && countList(steps.save, x.result == 'failure') > 0
+            ? 'shoved' : 'resisted'
+        data:
+          dc: flags.dc
+          push: 'params.prone ? 0 : 5'
+
+  # Run on the grappled or shoved creature's sheet: it saves with the better of Strength and
+  # Dexterity, or the one its player picks.
+  - id: resist-unarmed
+    available: false
+    params:
+      dc: { type: integer }
+    results: [success, failure]
+    steps:
+      - id: ability
+        kind: choice
+        options: [{ id: str }, { id: dex }]
+        recommend: "saves.dex > saves.str ? 'dex' : 'str'"
+      - id: save
+        kind: action
+        use: saving-throw
+        params: { ability: steps.ability.picked, dc: params.dc }
+      - id: result
+        kind: outcome
+        result: steps.save.result
+
+  - id: escape-grapple
+    tags: [check]
+    available: >-
+      countList(character.applied, x.active && x.source == @conditions.grappled) > 0
+    results: [escaped, held]
+    steps:
+      - id: skill
+        kind: choice
+        options: [{ id: athletics }, { id: acrobatics }]
+        recommend: "skills.acrobatics > skills.athletics ? 'acrobatics' : 'athletics'"
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dc: >-
+                maxList(filterList(character.applied,
+                  x.active && x.source == @conditions.grappled && has(x.state.escapeDc)),
+                  x.state.escapeDc)
+      - id: check
+        kind: action
+        use: skill-check
+        params: { skill: steps.skill.picked, dc: 'flags.dc > 0 ? flags.dc : null' }
+      - id: free
+        kind: changes
+        when: steps.check.result != 'failure'
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.grappled' }
+      - id: result
+        kind: outcome
+        result: "steps.check.result != 'failure' ? 'escaped' : 'held'"
+
+  - id: fall
+    tags: [damage]
+    params:
+      feet: { type: integer, min: 0 }
+      reduction: { type: integer, default: 0, min: 0 }
+    results: [fell, landed]
+    steps:
+      - id: floated
+        kind: outcome
+        when: combat.featherFall || params.feet < 10
+        result: "'landed'"
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: (min(20, floor(params.feet / 10)))d6
+            tags: [damage.bludgeoning]
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              taken: max(0, steps.damage.total - params.reduction)
+      - id: land
+        kind: changes
+        changes:
+          - type: adjust
+            when: flags.taken > 0
+            field: hp.current
+            by: -flags.taken
+            tags: [damage, damage.bludgeoning, falling]
+          - type: applyEffect
+            when: flags.taken > 0
+            source: "'conditions.prone'"
+      - id: result
+        kind: outcome
+        result: "flags.taken > 0 ? 'fell' : 'landed'"
+        data:
+          damage: flags.taken
+
+  - id: take-damage
+    tags: [hit-points]
+    params:
+      amount: { type: integer, min: 0 }
+      type:
+        { type: id, of: tag, members: { under: [damage], except: [damage.weapon, damage.spell] } }
+      magical: { type: boolean, optional: true }
+    results: [taken]
+    steps:
+      - id: deal
+        kind: changes
+        changes:
+          - type: adjust
+            when: params.amount > 0
+            field: hp.current
+            by: -params.amount
+            tags:
+              - damage
+              - { formula: params.type }
+              - {
+                  formula: "has(params.magical) ? [params.magical ? 'magical' : 'nonmagical'] : []",
+                }
+      - id: result
+        kind: outcome
+        result: "'taken'"
+        data:
+          amount: params.amount
+
+  - id: heal
+    tags: [hit-points]
+    params:
+      amount: { type: integer, min: 0 }
+    results: [healed]
+    steps:
+      - id: restore
+        kind: changes
+        changes:
+          - {
+              type: adjust,
+              when: params.amount > 0,
+              field: hp.current,
+              by: params.amount,
+              tags: [healing],
+            }
+          - type: set
+            when: params.amount > 0 && hp.current == 0
+            field: deathSaves.successes
+            value: 0
+          - type: set
+            when: params.amount > 0 && hp.current == 0
+            field: deathSaves.failures
+            value: 0
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          amount: params.amount
+
+  - id: gain-temporary-hit-points
+    tags: [hit-points]
+    params:
+      amount: { type: integer, min: 0 }
+    results: [gained, kept]
+    steps:
+      # Temporary Hit Points don't stack: the higher of the two counts.
+      - id: gain
+        kind: changes
+        when: params.amount > hp.temp
+        changes:
+          - { type: set, field: hp.temp, value: params.amount }
+      - id: result
+        kind: outcome
+        result: "params.amount > hp.temp ? 'gained' : 'kept'"
+        data:
+          temp: max(hp.temp, params.amount)

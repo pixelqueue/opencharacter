@@ -1,0 +1,72 @@
+families:
+  ability: [str, dex, con, int, wis, cha]
+
+fields:
+  # Each ability has three fields. `base` is the saved score plus every increase that stops at 20
+  # (a background's, an Ability Score Improvement's); going past `max` is the rules issue
+  # `out-of-limits`, reported rather than clamped. `score` is what everything reads; increases
+  # with a higher maximum (Epic Boons, Primal Champion) and items that set a score act here.
+  'abilities.{ability}.base':
+    type: integer
+    input: true
+    default: 10
+    min: 1
+    max: 30
+    limits: { max: 'abilities.{ability}.max' }
+    tags: [ability-base]
+  'abilities.{ability}.max': { type: integer, formula: 20 }
+  'abilities.{ability}.score':
+    { type: integer, formula: 'abilities.{ability}.base', min: 1, max: 30, tags: [ability] }
+  # `/` is decimal division here; floor() rounds toward negative infinity, so a score of 9 gives -1.
+  'abilities.{ability}.mod':
+    { type: integer, formula: 'floor((abilities.{ability}.score - 10) / 2)', tags: [ability-mod] }
+
+  proficiencies.saves:
+    {
+      type: set,
+      of: tag,
+      input: true,
+      default: [],
+      members: { under: [save], except: [save.death] },
+    }
+
+  'saves.{ability}':
+    type: integer
+    formula: "abilities.{ability}.mod + ('save.{ability}' in proficiencies.saves ? proficiency.bonus : 0)"
+    tags: [save]
+
+  # Paralyzed, Petrified, Stunned and Unconscious: Strength and Dexterity saves fail.
+  saves.failStrDex: { type: boolean, formula: false }
+
+actions:
+  - id: saving-throw
+    tags: [save]
+    params:
+      ability: { type: enum, values: [str, dex, con, int, wis, cha] }
+      dc: { type: integer, optional: true }
+      advantage: { type: boolean, optional: true }
+      disadvantage: { type: boolean, optional: true }
+    results: [rolled, success, failure]
+    steps:
+      - id: autoFail
+        kind: outcome
+        when: "saves.failStrDex && params.ability in ['str', 'dex']"
+        result: "'failure'"
+        data:
+          total: 0
+      - id: test
+        kind: action
+        use: d20-test
+        tags: [save, { formula: "'save.' + params.ability" }]
+        params:
+          kind: "'save'"
+          ability: params.ability
+          field: "'saves.' + params.ability"
+          dc: 'has(params.dc) ? params.dc : null'
+          advantage: 'has(params.advantage) && params.advantage'
+          disadvantage: 'has(params.disadvantage) && params.disadvantage'
+      - id: result
+        kind: outcome
+        result: steps.test.result
+        data:
+          total: steps.test.data.total

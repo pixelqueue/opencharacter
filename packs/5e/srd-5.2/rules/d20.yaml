@@ -1,0 +1,159 @@
+# Every D20 Test (ability check, saving throw, attack roll) rolls through `d20-test`, so Heroic
+# Inspiration, Exhaustion and the features that change a failed test act in one place. The caller
+# tags the nested action (`check.str`, `skill.stealth`, `save.dex`, `attack.melee`), and roll
+# effects match those tags. A test of a field (a saving throw, a skill) rolls the field, so its
+# always-on bonuses show on the sheet too.
+#
+# A failed test offers its `failed-<kind>` choice step: content adds options that set `retry`
+# (roll the d20 again), `addDie` and `addBonus` (added to the total), `asTwenty` (the d20 counts
+# as a 20) or `forceHit` (a missed attack hits).
+
+effects:
+  - id: exhaustion-d20
+    target: { rolls: [d20-test] }
+    op: add
+    value: -2 * conditions.exhaustion
+    when: conditions.exhaustion > 0
+  - id: test-advantage
+    target: { rolls: [d20-test] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: has(params.advantage) && params.advantage
+  - id: test-disadvantage
+    target: { rolls: [d20-test] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: has(params.disadvantage) && params.disadvantage
+
+actions:
+  - id: d20-test
+    available: false
+    params:
+      kind: { type: enum, values: [check, save, attack] }
+      ability: { type: enum, values: [str, dex, con, int, wis, cha, none], default: none }
+      field: { type: string, optional: true }
+      proficiency: { type: integer, default: 0, min: 0, max: 2 }
+      bonus: { type: integer, default: 0 }
+      dc: { type: integer, optional: true }
+      crit: { type: integer, default: 20 }
+      advantage: { type: boolean, default: false }
+      disadvantage: { type: boolean, default: false }
+    # An attack's target, so the attacker's rules can read its conditions.
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [rolled, success, failure, critical, hit, miss]
+    steps:
+      - id: defaults
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              inspired: false
+              retry: false
+              addDie: 0d4
+              addBonus: 0
+              asTwenty: false
+              forceHit: false
+      - id: roll
+        kind: roll
+        tags:
+          [d20-test, { formula: "params.ability != 'none' ? ['ability.' + params.ability] : []" }]
+        parts: &d20-parts
+          - dice: 1d20
+          - field: params.field
+            when: has(params.field)
+          - field: "'abilities.' + params.ability + '.mod'"
+            when: "!has(params.field) && params.ability != 'none'"
+          - value: proficiency.bonus
+            when: '!has(params.field) && params.proficiency >= 1'
+          - value: proficiency.bonus
+            when: '!has(params.field) && params.proficiency >= 2'
+          - value: params.bonus
+            when: params.bonus != 0
+      - id: heroicInspiration
+        kind: choice
+        tags: [heroic-inspiration]
+        when: heroicInspiration
+        options:
+          - id: keep
+          - id: reroll
+            flags: { inspired: true }
+            changes:
+              - { type: set, field: heroicInspiration, value: false }
+        recommend: "'keep'"
+      - id: inspiredRoll
+        kind: roll
+        when: flags.inspired
+        tags:
+          [d20-test, { formula: "params.ability != 'none' ? ['ability.' + params.ability] : []" }]
+        parts: *d20-parts
+      - id: first
+        kind: branch
+        cases:
+          - when: has(steps.inspiredRoll)
+            flags:
+              total: steps.inspiredRoll.total
+              natural: steps.inspiredRoll.kept[0]
+              unbounded: steps.inspiredRoll.unbounded
+          - when: true
+            flags:
+              total: steps.roll.total
+              natural: steps.roll.kept[0]
+              unbounded: steps.roll.unbounded
+      - id: failed
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              failed: >-
+                has(params.dc) && (params.kind == 'attack'
+                  ? flags.natural < params.crit && (flags.natural == 1 || flags.total < params.dc)
+                  : flags.total < params.dc)
+      - id: hook
+        kind: choice
+        tags: [{ formula: "'failed-' + params.kind" }]
+        when: flags.failed
+        options: [{ id: keep }]
+        recommend: "'keep'"
+      - id: retryRoll
+        kind: roll
+        when: flags.retry
+        tags:
+          [d20-test, { formula: "params.ability != 'none' ? ['ability.' + params.ability] : []" }]
+        parts: *d20-parts
+      - id: added
+        kind: roll
+        when: maxOf(flags.addDie) > 0
+        tags: [luck]
+        parts:
+          - dice: flags.addDie
+      - id: second
+        kind: branch
+        cases:
+          - when: has(steps.retryRoll)
+            flags:
+              total: steps.retryRoll.total
+              natural: steps.retryRoll.kept[0]
+              unbounded: steps.retryRoll.unbounded
+      - id: final
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              total: >-
+                (flags.asTwenty ? max(flags.total, flags.unbounded - flags.natural + 20) : flags.total)
+                  + flags.addBonus + (has(steps.added) ? steps.added.total : 0)
+              natural: 'flags.asTwenty ? 20 : flags.natural'
+      - id: result
+        kind: outcome
+        result: >-
+          params.kind == 'attack'
+            ? (flags.forceHit ? 'hit' : flags.natural >= params.crit ? 'critical'
+              : flags.natural == 1 ? 'miss' : !has(params.dc) ? 'rolled'
+              : flags.total >= params.dc ? 'hit' : 'miss')
+            : !has(params.dc) ? 'rolled' : flags.total >= params.dc ? 'success' : 'failure'
+        data:
+          total: flags.total
+          natural: flags.natural

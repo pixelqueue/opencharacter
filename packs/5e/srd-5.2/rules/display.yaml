@@ -1,0 +1,419 @@
+display:
+  groups:
+    - id: summary
+      priority: 0
+      visibility: primary
+    - id: abilities
+      priority: 0
+      members: { type: field, where: "'ability' in item.tags || 'ability-mod' in item.tags" }
+    - id: combat
+      priority: 1
+    - id: saves
+      priority: 1
+      members: { type: field, where: "'save' in item.tags" }
+    - id: skills
+      priority: 1
+      members: { type: field, where: "'skill' in item.tags" }
+    - id: proficiencies
+      priority: 2
+    - id: class-features
+      priority: 1
+    - id: spellcasting
+      priority: 1
+      showWhen: >-
+        spellcasting.casterLevel > 0 || pactSlots.max > 0
+          || countList(keysOf('caster'), size(fieldOf('spells.{caster}', x)) > 0) > 0
+    - id: coins
+      priority: 2
+    - id: attacks
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'attack' in item.tags" }
+    - id: dying
+      kind: actions
+      priority: 0
+      showWhen: hp.current == 0 && !sheet.monster
+      members: { type: action, where: 'item.id == @death-save' }
+    - id: casting
+      kind: actions
+      priority: 1
+      showWhen: >-
+        spellcasting.casterLevel > 0 || pactSlots.max > 0
+          || countList(keysOf('caster'), size(fieldOf('spells.{caster}', x)) > 0) > 0
+      members: { type: action, where: "'spell' in item.tags" }
+    - id: checks
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'check' in item.tags" }
+    - id: save-rolls
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'save' in item.tags && item.id != @death-save" }
+    - id: feature-actions
+      kind: actions
+      priority: 1
+      members:
+        type: action
+        where: >-
+          'healing' in item.tags || 'monster-effect' in item.tags || 'recharge' in item.tags
+          || 'feature' in item.tags
+    - id: item-actions
+      kind: actions
+      priority: 2
+      members:
+        type: action
+        where: "'magic-item' in item.tags || 'potion' in item.tags || 'item' in item.tags"
+    - id: hit-points
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'hit-points' in item.tags || 'damage' in item.tags" }
+    - id: rests
+      kind: actions
+      priority: 2
+      members: { type: action, where: "'rest' in item.tags" }
+    - id: advancement
+      kind: actions
+      priority: 3
+      visibility: background
+      members: { type: action, where: "'creation' in item.tags || 'level-up' in item.tags" }
+    - id: conditions
+      kind: content
+      priority: 0
+      members: { type: condition, from: applied }
+      sortBy: "has(self.by) ? self.by : ''"
+    - id: combat-effects
+      kind: content
+      priority: 0
+      members: { type: combatEffect, from: applied }
+    - id: effects-on-you
+      kind: content
+      priority: 1
+      members: { type: spell, from: applied }
+    - id: classes
+      kind: content
+      priority: 0
+      showWhen: '!sheet.monster || level.total > 0'
+      members: { type: class }
+    - id: species
+      kind: content
+      priority: 2
+      showWhen: "!sheet.monster || creature.species != ''"
+      members: { type: species }
+    - id: lineages
+      kind: content
+      priority: 2
+      showWhen: hasChoice('lineage')
+      members: { type: lineage }
+    - id: backgrounds
+      kind: content
+      priority: 2
+      showWhen: "!sheet.monster || countCopies(copy.type == 'background') > 0"
+      members: { type: background }
+    - id: subclasses
+      kind: content
+      priority: 1
+      showWhen: level.total > 0
+      members: { type: subclass }
+    - id: features
+      kind: content
+      priority: 1
+      members: { type: feature }
+    - id: traits
+      kind: content
+      priority: 2
+      members: { type: trait }
+    - id: feats
+      kind: content
+      priority: 2
+      members: { type: feat }
+    - id: spells
+      kind: content
+      priority: 1
+      showWhen: >-
+        spellcasting.casterLevel > 0 || pactSlots.max > 0
+          || countList(keysOf('caster'), size(fieldOf('spells.{caster}', x)) > 0) > 0
+      members: { type: spell }
+      sectionBy: item.level
+    - id: weapons
+      kind: content
+      priority: 1
+      members: { type: weapon }
+    - id: armor
+      kind: content
+      priority: 1
+      members: { type: armor }
+    - id: magic-items
+      kind: content
+      priority: 1
+      members: { type: magicItem }
+    - id: gear
+      kind: content
+      priority: 2
+      members: { type: gear }
+    - id: tools
+      kind: content
+      priority: 2
+      members: { type: tool }
+    - id: trinkets
+      kind: content
+      priority: 3
+      members: { type: trinket }
+    - id: mounts
+      kind: content
+      priority: 3
+      members: { type: mount }
+    - id: vehicles
+      kind: content
+      priority: 3
+      members: { type: vehicle }
+    - id: languages
+      kind: content
+      priority: 3
+      members: { type: language }
+  fields:
+    'abilities.{ability}.score':
+      {
+        shortLabel: 'fields.abilities.{ability}.short',
+        priority: 0,
+        rolls:
+          [
+            { action: ability-check, params: { ability: '{ability}' } },
+            { action: saving-throw, params: { ability: '{ability}' } },
+          ],
+        with: [{ field: 'abilities.{ability}.mod', as: modifier }],
+      }
+    'abilities.{ability}.mod':
+      {
+        format: signed,
+        rolls:
+          [
+            { action: ability-check, params: { ability: '{ability}' } },
+            { action: saving-throw, params: { ability: '{ability}' } },
+          ],
+      }
+    'abilities.{ability}.base':
+      {
+        groups: [abilities],
+        priority: 2,
+        input: { min: 1, max: 30, step: 1 },
+        visibility: background,
+      }
+    'abilities.{ability}.max': { groups: [abilities], priority: 3, visibility: background }
+    'saves.{ability}':
+      { format: signed, rolls: [{ action: saving-throw, params: { ability: '{ability}' } }] }
+    saves.failStrDex: { groups: [saves], priority: 2, showWhen: saves.failStrDex }
+    combat.ac: { groups: [combat, summary], priority: 0, shortLabel: fields.combat.ac.short }
+    hp.current:
+      {
+        groups: [combat, summary],
+        priority: 0,
+        with: [{ field: hp.max, as: max }],
+        rolls: [{ action: take-damage }, { action: heal }],
+      }
+    hp.max: { groups: [combat, summary], priority: 0 }
+    hp.temp: { groups: [combat], priority: 1 }
+    hp.base: { groups: [combat], priority: 3, visibility: background }
+    hp.perLevel: { hidden: true }
+    hp.bloodied: { groups: [combat], priority: 2, showWhen: hp.bloodied && hp.current > 0 }
+    heroicInspiration: { groups: [summary], priority: 1 }
+    combat.speed: { unit: ft, groups: [combat, summary], priority: 1 }
+    combat.flySpeed: { unit: ft, groups: [combat], priority: 1, showWhen: combat.flySpeed > 0 }
+    combat.rangedAc: { groups: [combat], priority: 2, showWhen: combat.rangedAc != combat.ac }
+    combat.climbSpeed: { unit: ft, groups: [combat], priority: 1, showWhen: combat.climbSpeed > 0 }
+    combat.swimSpeed: { unit: ft, groups: [combat], priority: 1, showWhen: combat.swimSpeed > 0 }
+    combat.burrowSpeed:
+      { unit: ft, groups: [combat], priority: 1, showWhen: combat.burrowSpeed > 0 }
+    combat.hover: { groups: [combat], priority: 2, showWhen: combat.hover }
+    combat.longJump: { unit: ft, groups: [combat], priority: 2 }
+    combat.highJump: { unit: ft, groups: [combat], priority: 2 }
+    combat.critRange: { groups: [combat], priority: 3 }
+    combat.attacks: { groups: [combat], priority: 2, showWhen: combat.attacks > 1 }
+    combat.offHandModifier: { hidden: true }
+    combat.ignoreArmorStrength: { hidden: true }
+    combat.ignoreResistance: { hidden: true }
+    combat.featherFall: { hidden: true }
+    combat.hitOptions: { hidden: true }
+    combat.attackersAdvantage:
+      { groups: [combat], priority: 2, showWhen: combat.attackersAdvantage }
+    combat.attackersDisadvantage:
+      { groups: [combat], priority: 2, showWhen: combat.attackersDisadvantage }
+    combat.spellAttackersDisadvantage:
+      { groups: [combat], priority: 3, showWhen: combat.spellAttackersDisadvantage }
+    combat.noCriticals: { groups: [combat], priority: 3, showWhen: combat.noCriticals }
+    combat.elusive: { groups: [combat], priority: 2, showWhen: combat.elusive }
+    protection.evilAndGood: { groups: [combat], priority: 2, showWhen: protection.evilAndGood }
+    sanctuary.dc: { groups: [combat], priority: 2, showWhen: sanctuary.dc > 0 }
+    mastery.weapons: { groups: [proficiencies], showWhen: size(mastery.weapons) > 0 }
+    mastery.vexedBy: { hidden: true }
+    weapons.charismaAttack: { hidden: true }
+    martialArts.known: { hidden: true }
+    martialArts.die:
+      { groups: [class-features], priority: 1, format: dice, showWhen: martialArts.known }
+    unarmed.dcModifier: { hidden: true }
+    proficiency.bonus: { groups: [combat, summary], priority: 1, format: signed }
+    level.total: { groups: [summary], priority: 0 }
+    challenge.rating:
+      { groups: [summary], priority: 2, format: fraction, showWhen: level.total == 0 }
+    proficiencies.weapons: { groups: [proficiencies] }
+    proficiencies.armor: { groups: [proficiencies] }
+    proficiencies.saves: { groups: [proficiencies] }
+    skills.acrobatics:
+      { format: signed, rolls: [{ action: skill-check, params: { skill: acrobatics } }] }
+    skills.animalHandling:
+      { format: signed, rolls: [{ action: skill-check, params: { skill: animal-handling } }] }
+    skills.arcana: { format: signed, rolls: [{ action: skill-check, params: { skill: arcana } }] }
+    skills.athletics:
+      { format: signed, rolls: [{ action: skill-check, params: { skill: athletics } }] }
+    skills.deception:
+      { format: signed, rolls: [{ action: skill-check, params: { skill: deception } }] }
+    skills.history: { format: signed, rolls: [{ action: skill-check, params: { skill: history } }] }
+    skills.insight: { format: signed, rolls: [{ action: skill-check, params: { skill: insight } }] }
+    skills.intimidation:
+      { format: signed, rolls: [{ action: skill-check, params: { skill: intimidation } }] }
+    skills.investigation:
+      { format: signed, rolls: [{ action: skill-check, params: { skill: investigation } }] }
+    skills.medicine:
+      { format: signed, rolls: [{ action: skill-check, params: { skill: medicine } }] }
+    skills.nature: { format: signed, rolls: [{ action: skill-check, params: { skill: nature } }] }
+    skills.perception:
+      { format: signed, rolls: [{ action: skill-check, params: { skill: perception } }] }
+    skills.performance:
+      { format: signed, rolls: [{ action: skill-check, params: { skill: performance } }] }
+    skills.persuasion:
+      { format: signed, rolls: [{ action: skill-check, params: { skill: persuasion } }] }
+    skills.religion:
+      { format: signed, rolls: [{ action: skill-check, params: { skill: religion } }] }
+    skills.sleightOfHand:
+      { format: signed, rolls: [{ action: skill-check, params: { skill: sleight-of-hand } }] }
+    skills.stealth: { format: signed, rolls: [{ action: skill-check, params: { skill: stealth } }] }
+    skills.survival:
+      { format: signed, rolls: [{ action: skill-check, params: { skill: survival } }] }
+    skills.unproficientBonus: { hidden: true }
+    senses.passivePerception: { groups: [summary], priority: 2 }
+    combat.initiative:
+      { groups: [combat, summary], priority: 1, format: signed, rolls: [{ action: initiative }] }
+    proficiencies.skills: { groups: [proficiencies] }
+    proficiencies.expertise: { groups: [proficiencies] }
+    proficiencies.tools: { groups: [proficiencies] }
+    proficiencies.languages: { groups: [proficiencies], visibility: background }
+    conditions.exhaustion:
+      { groups: [combat], priority: 2, input: { min: 0, max: 6, widget: dots } }
+    conditions.exhaustionImmune:
+      { groups: [combat], priority: 3, showWhen: conditions.exhaustionImmune }
+    conditions.immunities: { groups: [combat], priority: 3 }
+    conditions.prone: { hidden: true }
+    conditions.incapacitated: { hidden: true }
+    conditions.autoCritMelee: { hidden: true }
+    creature.dead: { groups: [combat, summary], priority: 0, showWhen: creature.dead }
+    deathSaves.successes:
+      {
+        groups: [combat],
+        priority: 2,
+        input: { min: 0, max: 3, widget: dots },
+        rolls: [{ action: death-save }],
+      }
+    deathSaves.failures:
+      {
+        groups: [combat],
+        priority: 2,
+        input: { min: 0, max: 3, widget: dots },
+        rolls: [{ action: death-save }],
+      }
+    hitDice.max: { groups: [combat], priority: 2, showWhen: hitDice.max > 0 }
+    hitDice.spent:
+      {
+        groups: [combat],
+        priority: 2,
+        showWhen: hitDice.max > 0,
+        with: [{ field: hitDice.max, as: max }],
+      }
+    rest.longRestHeals: { hidden: true }
+    deathSaves.twentyOn: { hidden: true }
+    damage.resistances: { groups: [combat], priority: 3 }
+    damage.immunities: { groups: [combat], priority: 3 }
+    damage.vulnerabilities: { groups: [combat], priority: 3 }
+    creature.size: { groups: [summary], priority: 2 }
+    creature.alignment: { groups: [summary], priority: 3 }
+    creature.type: { groups: [summary], priority: 2 }
+    creature.species: { hidden: true }
+    senses.darkvision: { unit: ft, groups: [summary], priority: 2, showWhen: senses.darkvision > 0 }
+    senses.blindsight: { unit: ft, groups: [summary], priority: 2, showWhen: senses.blindsight > 0 }
+    senses.tremorsense:
+      { unit: ft, groups: [summary], priority: 2, showWhen: senses.tremorsense > 0 }
+    senses.truesight: { unit: ft, groups: [summary], priority: 2, showWhen: senses.truesight > 0 }
+    carrying.weight:
+      {
+        unit: lb,
+        groups: [summary],
+        priority: 2,
+        visibility: secondary,
+        with: [{ field: carrying.capacity, as: max }],
+      }
+    carrying.capacity: { unit: lb, groups: [summary], priority: 2, visibility: secondary }
+    carrying.dragLiftPush: { unit: lb, groups: [summary], priority: 3, visibility: secondary }
+    carrying.sizeSteps: { hidden: true }
+    classes.held: { hidden: true }
+    sheet.monster: { hidden: true }
+    equipment.tags: { hidden: true }
+    armor.untrained: { groups: [combat], priority: 1, showWhen: armor.untrained }
+    xp.current:
+      {
+        groups: [summary],
+        priority: 1,
+        visibility: secondary,
+        with: [{ field: xp.nextLevel, as: max }],
+      }
+    xp.nextLevel:
+      { groups: [summary], priority: 2, visibility: secondary, showWhen: xp.nextLevel > 0 }
+    xp.levelUp: { hidden: true }
+    multiclass.qualified: { hidden: true }
+    coins.cp: { groups: [coins], priority: 2 }
+    coins.sp: { groups: [coins], priority: 2 }
+    coins.ep: { groups: [coins], priority: 2 }
+    coins.gp: { groups: [coins], priority: 1 }
+    coins.pp: { groups: [coins], priority: 2 }
+    'spellcasting.{caster}.dc':
+      { groups: [spellcasting], priority: 0, showWhen: 'spellcasting.{caster}.dc > 0' }
+    'spellcasting.{caster}.attack':
+      {
+        groups: [spellcasting],
+        priority: 0,
+        format: signed,
+        showWhen: 'spellcasting.{caster}.dc > 0',
+      }
+    'spellcasting.{caster}.mod': { hidden: true }
+    'spells.{caster}':
+      { groups: [spellcasting], priority: 1, showWhen: 'size(spells.{caster}) > 0' }
+    spells.wizardBook:
+      { groups: [spellcasting], priority: 1, showWhen: size(spells.wizardBook) > 0 }
+    spells.free: { hidden: true }
+    spells.limited: { hidden: true }
+    spells.atWill: { hidden: true }
+    spells.monsterAtWill: { hidden: true }
+    spellcasting.casterLevel: { hidden: true }
+    spellcasting.monster.level: { hidden: true }
+    spellcasting.blocked: { groups: [spellcasting], priority: 0, showWhen: spellcasting.blocked }
+    spellcasting.potentCantrip: { hidden: true }
+    sorcery.metamagic: { hidden: true }
+    'spellSlots.level{slot}.max':
+      { groups: [spellcasting], priority: 1, showWhen: 'spellSlots.level{slot}.max > 0' }
+    'spellSlots.level{slot}.used':
+      {
+        groups: [spellcasting],
+        priority: 0,
+        showWhen: 'spellSlots.level{slot}.max > 0',
+        input: { min: 0, widget: track },
+        with: [{ field: 'spellSlots.level{slot}.max', as: max }],
+      }
+    pactSlots.max: { groups: [spellcasting], priority: 1, showWhen: pactSlots.max > 0 }
+    pactSlots.level: { groups: [spellcasting], priority: 0, showWhen: pactSlots.max > 0 }
+    pactSlots.used:
+      {
+        groups: [spellcasting],
+        priority: 0,
+        showWhen: pactSlots.max > 0,
+        input: { min: 0, widget: track },
+        with: [{ field: pactSlots.max, as: max }],
+      }
+    concentration.active:
+      { groups: [spellcasting, combat], priority: 0, showWhen: concentration.active }

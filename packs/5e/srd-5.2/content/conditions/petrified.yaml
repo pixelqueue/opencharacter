@@ -1,0 +1,11 @@
+id: conditions.petrified
+type: condition
+grants:
+  - { item: conditions.incapacitated, scope: applied }
+effects:
+  - { target: combat.speed, op: atMost, value: 0, scope: applied }
+  - { target: saves.failStrDex, op: set, value: true, scope: applied }
+  - { target: combat.attackersAdvantage, op: set, value: true, scope: applied }
+  - { target: damage.resistances, op: grant, value: { tag: damage }, scope: applied }
+immuneTo:
+  - { id: poisoned, items: [conditions.poisoned], scope: applied }

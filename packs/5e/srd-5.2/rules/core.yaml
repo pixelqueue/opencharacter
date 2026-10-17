@@ -1,0 +1,169 @@
+settings:
+  rounding: floor
+  stacking:
+    default: addAll
+    keys:
+      source: highestOnly # Effects from the same source (two Blesses) don't stack.
+  rollModifiers:
+    advantage: cancel
+  roundIncoming: magnitude # Halved damage rounds down: 11 fire damage halved is 5.
+  competing:
+    recommend: highest
+
+fields:
+  level.total: { type: integer, formula: "sumCopies(copy.state.level, copy.type == 'class')" }
+
+  challenge.rating: { type: decimal, input: true, default: 0, min: 0, max: 30 }
+  proficiency.bonus:
+    type: integer
+    formula: >-
+      level.total > 0
+        ? 2 + floor((level.total - 1) / 4)
+        : 2 + floor((max(1, ceil(challenge.rating)) - 1) / 4)
+
+  # Hit points from hit dice, before Constitution, which is added per level so changes to it
+  # recalculate.
+  hp.base: { type: integer, input: true, default: 1, min: 1 }
+  hp.perLevel: { type: integer, formula: 0 }
+  hp.max:
+    type: integer
+    formula: 'max(1, hp.base + (abilities.con.mod + hp.perLevel) * level.total)'
+  hp.current: { type: integer, input: true, default: 1, min: 0, max: hp.max, absorbedBy: [hp.temp] }
+  hp.temp: { type: integer, input: true, default: 0, min: 0 }
+  hp.bloodied: { type: boolean, formula: 'hp.current <= floor(hp.max / 2)' }
+
+  heroicInspiration: { type: boolean, input: true, default: false }
+
+  proficiencies.weapons: { type: set, of: weapon, input: true, default: [] }
+  proficiencies.languages: { type: set, of: language, input: true, default: [] }
+  proficiencies.armor:
+    {
+      type: set,
+      of: tag,
+      input: true,
+      default: [],
+      members: { tags: [light, medium, heavy, shield] },
+    }
+
+  creature.size:
+    {
+      type: enum,
+      values: [tiny, small, medium, large, huge, gargantuan],
+      input: true,
+      default: medium,
+    }
+  creature.type:
+    {
+      type: enum,
+      values:
+        [
+          aberration,
+          beast,
+          celestial,
+          construct,
+          dragon,
+          elemental,
+          fey,
+          fiend,
+          giant,
+          humanoid,
+          monstrosity,
+          ooze,
+          plant,
+          undead,
+        ],
+      input: true,
+      default: humanoid,
+    }
+  creature.alignment:
+    {
+      type: enum,
+      values:
+        [
+          lawful-good,
+          neutral-good,
+          chaotic-good,
+          lawful-neutral,
+          neutral,
+          chaotic-neutral,
+          lawful-evil,
+          neutral-evil,
+          chaotic-evil,
+          unaligned,
+        ],
+      input: true,
+      default: unaligned,
+    }
+  creature.species: { type: string, formula: "''" }
+
+  senses.darkvision: { type: integer, formula: 0, min: 0 }
+  senses.blindsight: { type: integer, formula: 0, min: 0 }
+  senses.tremorsense: { type: integer, formula: 0, min: 0 }
+  senses.truesight: { type: integer, formula: 0, min: 0 }
+
+  # Size steps for carrying capacity only (Powerful Build counts one size larger).
+  carrying.sizeSteps: { type: integer, formula: 0 }
+  carrying.weight:
+    type: decimal
+    formula: >-
+      sumCopies(copy.fields.weight * copy.quantity, has(copy.fields.weight)
+        && !(has(copy.state.stowed) && copy.state.stowed))
+  carrying.capacity:
+    type: decimal
+    formula: >-
+      abilities.str.score * 15 * [0.5, 1, 2, 4, 8, 16][min(5, max(0,
+        (creature.size == 'tiny' ? 0 : creature.size == 'large' ? 2 : creature.size == 'huge' ? 3
+          : creature.size == 'gargantuan' ? 4 : 1) + carrying.sizeSteps))]
+  carrying.dragLiftPush: { type: decimal, formula: carrying.capacity * 2 }
+
+  classes.held: { type: set, of: class }
+  sheet.monster: { type: boolean, formula: "countCopies(copy.type == 'monster') > 0" }
+
+  equipment.tags: { type: set, of: tag, members: { tags: [armor, shield, light, medium, heavy] } }
+
+  # A set of damage tags per defense: monsters' are inputs from the stat block, a character's come
+  # from grants. Each applies once to an instance of damage, however many sources give it.
+  damage.resistances:
+    {
+      type: set,
+      of: tag,
+      input: true,
+      default: [],
+      members: { under: [damage], tags: [damage], except: [damage.weapon, damage.spell] },
+    }
+  damage.immunities:
+    {
+      type: set,
+      of: tag,
+      input: true,
+      default: [],
+      members: { under: [damage], tags: [damage], except: [damage.weapon, damage.spell] },
+    }
+  damage.vulnerabilities:
+    {
+      type: set,
+      of: tag,
+      input: true,
+      default: [],
+      members: { under: [damage], tags: [damage], except: [damage.weapon, damage.spell] },
+    }
+
+effects:
+  # Immunity first: a multiplier of 0 leaves nothing for the others to change.
+  - id: damage-immunity
+    target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: multiply
+    value: 0
+    when: countList(damage.immunities, x in incoming.tags) > 0
+  - id: damage-resistance
+    target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: multiply
+    value: 0.5
+    when: >-
+      countList(damage.resistances, x in incoming.tags) > 0
+        && !('ignores-resistance' in incoming.tags)
+  - id: damage-vulnerability
+    target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: multiply
+    value: 2
+    when: countList(damage.vulnerabilities, x in incoming.tags) > 0
