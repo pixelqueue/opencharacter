@@ -11,5 +11,26 @@ fields:
   somatic: false
   material: false
   durationUnit: instantaneous
+# A target with 150 Hit Points or fewer is Stunned; any other has its Speed at 0 (the spell applied,
+# until the start of the caster's next turn). Without its Hit Points in the view, the outcome is the
+# table's.
+effects:
+  - target: { steps: [spell.target] }
+    op: changes
+    when: action.item.id == item.id && has(participant.hp.current)
+    value:
+      changes:
+        - type: applyEffect
+          when: participant.hp.current <= 150
+          source: "'conditions.stunned'"
+          state: { by: creature.type, magical: true }
+        - type: applyEffect
+          when: participant.hp.current > 150
+          source: item.id
+  - target: combat.speed
+    op: atMost
+    value: 0
+    scope: applied
+    duration: { amount: 1, unit: round }
 actions:
   - use: cast-spell

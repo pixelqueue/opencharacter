@@ -1,0 +1,24 @@
+description: '5E 2024 Power Word Kill from a scroll: a target with 100 Hit Points or fewer dies'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: 5e-srd-5.2:cast-spell
+    entry: scroll
+    source: 5e-srd-5.2:spells.power-word-kill
+  participants:
+    target:
+      - id: ogre
+        values:
+          combat.ac: 11
+          hp.current: 59
+          creature.size: large
+          creature.type: giant
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+answers:
+  - option: 5e-srd-5.2:magic-items.spell-scroll-level-9#read

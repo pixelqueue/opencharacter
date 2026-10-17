@@ -505,6 +505,12 @@ actions:
             by: >-
               item.maxHp + max(0, flags.slot - item.level)
                 * (has(item.upcastMaxHp) ? item.upcastMaxHp : 0)
+      # Each target, for what a spell does to it beyond the shared steps.
+      - id: onTarget
+        kind: changes
+        each: target
+        to: target
+        tags: [spell.target]
       - id: heal
         kind: roll
         when: flags.healCount > 0 || flags.healFlat > 0

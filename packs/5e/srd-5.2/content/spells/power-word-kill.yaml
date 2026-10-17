@@ -11,5 +11,25 @@ fields:
   somatic: false
   material: false
   durationUnit: instantaneous
+  damageType: psychic
+  damage: 12d12
+# A target with 100 Hit Points or fewer dies; any other takes the damage. Without its Hit Points in
+# the view, the outcome is the table's.
+effects:
+  - target: { steps: [spell.target] }
+    op: changes
+    when: action.item.id == item.id && has(participant.hp.current)
+    value:
+      changes:
+        - { type: set, when: participant.hp.current <= 100, field: hp.current, value: 0 }
+        - type: set
+          when: participant.hp.current <= 100
+          field: deathSaves.failures
+          value: 3
+        - type: adjust
+          when: participant.hp.current > 100
+          field: hp.current
+          by: -max(0, steps.damage.total)
+          tags: [damage, damage.psychic, spell, magical]
 actions:
   - use: cast-spell

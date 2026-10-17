@@ -167,6 +167,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
     creature at a time.
   - Smite damage is rolled and reported, for the app to add to the hit; Divine Favor doesn't add
     to Unarmed Strikes.
+  - Power Word Kill and Power Word Stun read the target's current Hit Points from its view
+    (without them, the outcome is the table's); a killed creature drops to 0 Hit Points with three
+    failed Death Saving Throws.
   - Jump gives long and high jumps of at least 30 feet; Magic Weapon applies to every weapon
     until a weapon is named.
   - Telekinesis is cut off mid-sentence in the SRD 5.2.1; its text is finished with the SRD
@@ -265,8 +268,8 @@ as text are listed below.
   allies, pushes, teleports, areas, walls, Halfling Nimbleness), and other characters' sheets
   (summoned creatures, familiars, mounts and steeds, Wild Shape's beast, allies in an aura).
 - **Spells left as text, by kind:** detection and divination, illusions, summoning and creation,
-  movement and travel, wards and areas, utility, raising the dead, effects keyed to hit points the
-  caster can't see (Power Word Kill and Stun), and spells that remake a weapon or a form
+  movement and travel, wards and areas, utility, raising the dead, and spells that remake a weapon
+  or a form
   (Shillelagh, True Strike, Shapechange). Also text: extra targets and longer durations from
   higher slots, Enlarge/Reduce's size change, Chill Touch's no-regain, Beacon of Hope's maximum
   healing, Heroism's temporary hit points each turn.
