@@ -1,0 +1,10 @@
+id: feats.ancestry.deathly-constitution
+type: feat
+tags: [trait.borai]
+fields: { level: 5, category: ancestry, heritage: heritages.borai }
+effects:
+  - target: { rolls: [save.fortitude] }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: 'situational.againstDisease || situational.againstPoison'

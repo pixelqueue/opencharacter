@@ -1,0 +1,32 @@
+fields:
+  battleForm.active: { type: boolean, formula: false }
+  battleForm.formAttacks: { type: boolean, formula: false }
+  battleForm.acBase: { type: integer, formula: 0, min: 0 }
+  battleForm.attack: { type: integer, formula: 0 }
+  battleForm.damage: { type: integer, formula: 0 }
+  battleForm.diceMultiplier: { type: integer, formula: 1, min: 1 }
+  battleForm.extraDice: { type: integer, formula: 0, min: 0 }
+  battleForm.dex: { type: boolean, formula: false }
+  battleForm.speed: { type: integer, formula: 0, min: 0 }
+
+tags:
+  - battle-form
+  - part.form
+
+effects:
+  - target: speed.land
+    op: set
+    value: battleForm.speed
+    when: battleForm.active
+
+display:
+  fields:
+    battleForm.active: { hidden: true }
+    battleForm.formAttacks: { hidden: true }
+    battleForm.acBase: { hidden: true }
+    battleForm.attack: { hidden: true }
+    battleForm.damage: { hidden: true }
+    battleForm.diceMultiplier: { hidden: true }
+    battleForm.extraDice: { hidden: true }
+    battleForm.dex: { hidden: true }
+    battleForm.speed: { hidden: true }

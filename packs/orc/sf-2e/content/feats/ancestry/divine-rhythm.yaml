@@ -1,0 +1,10 @@
+id: feats.ancestry.divine-rhythm
+type: feat
+tags: [trait.pahtra]
+fields: { level: 9, category: ancestry, ancestry: ancestries.pahtra }
+prerequisites: [{ id: heritage, when: '@heritages.chosen-pahtra in heritages.held' }]
+effects:
+  - target: { fields: { where: "'skill.performance' in item.tags && 'skill' in item.tags" } }
+    op: add
+    value: 2
+    stackKey: status-bonus

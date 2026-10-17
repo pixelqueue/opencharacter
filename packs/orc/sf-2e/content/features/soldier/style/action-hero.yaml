@@ -1,0 +1,8 @@
+id: features.soldier.style.action-hero
+type: feature
+fields: { level: 1 }
+effects:
+  - target: { steps: [strike.hit] }
+    op: changes
+    when: "'trait.automatic' in action.item.tags && action.item.range > 0"
+    value: { changes: [{ type: applyEffect, source: "'conditions.suppressed'" }] }

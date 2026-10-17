@@ -1,0 +1,65 @@
+# Each multiclass archetype counts its feats held (for the dedication lock and resiliency).
+fields:
+  archetypes.envoy.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.envoy.envoy-dedication in feats.held
+        ? countList([@feats.archetype.envoy.envoy-dedication, @feats.archetype.envoy.basic-leadership, @feats.archetype.envoy.adaptive-talent, @feats.archetype.envoy.advanced-leadership, @feats.archetype.envoy.really-get-em, @feats.archetype.envoy.leaders-confidence],
+          x in feats.held) + archetypes.envoy.repeats : 0
+  archetypes.envoy.repeats: { type: integer, formula: 0 }
+  archetypes.mystic.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.mystic.mystic-dedication in feats.held
+        ? countList([@feats.archetype.mystic.mystic-dedication, @feats.archetype.mystic.vitality-network, @feats.archetype.mystic.basic-mystic-spellcasting, @feats.archetype.mystic.basic-mysticism, @feats.archetype.mystic.advanced-mysticism, @feats.archetype.mystic.basic-epiphany, @feats.archetype.mystic.expanded-connection, @feats.archetype.mystic.expert-mystic-spellcasting, @feats.archetype.mystic.master-mystic-spellcasting],
+          x in feats.held) + archetypes.mystic.repeats : 0
+  archetypes.mystic.repeats: { type: integer, formula: 0 }
+  archetypes.operative.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.operative.operative-dedication in feats.held
+        ? countList([@feats.archetype.operative.operative-dedication, @feats.archetype.operative.basic-gunner, @feats.archetype.operative.sharpshooter, @feats.archetype.operative.specialized-operative, @feats.archetype.operative.operative-resiliency, @feats.archetype.operative.advanced-gunner, @feats.archetype.operative.operative-exploit, @feats.archetype.operative.gun-expert, @feats.archetype.operative.master-spy],
+          x in feats.held) + archetypes.operative.repeats : 0
+  archetypes.operative.repeats: { type: integer, formula: 0 }
+  archetypes.solarian.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.solarian.solarian-dedication in feats.held
+        ? countList([@feats.archetype.solarian.solarian-dedication, @feats.archetype.solarian.basic-stellar-attunement, @feats.archetype.solarian.solar-weapon-customization, @feats.archetype.solarian.solarians-resiliency, @feats.archetype.solarian.advanced-stellar-attunement, @feats.archetype.solarian.solar-flare, @feats.archetype.solarian.solar-nimbus, @feats.archetype.solarian.solar-manifestation-expert],
+          x in feats.held) + archetypes.solarian.repeats : 0
+  archetypes.solarian.repeats: { type: integer, formula: 0 }
+  archetypes.soldier.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.soldier.soldier-dedication in feats.held
+        ? countList([@feats.archetype.soldier.soldier-dedication, @feats.archetype.soldier.basic-soldier-training, @feats.archetype.soldier.soldiers-resiliency, @feats.archetype.soldier.advanced-soldier-training, @feats.archetype.soldier.suppressing-fire, @feats.archetype.soldier.primary-target, @feats.archetype.soldier.soldiers-toughness],
+          x in feats.held) + archetypes.soldier.repeats : 0
+  archetypes.soldier.repeats: { type: integer, formula: 0 }
+  archetypes.witchwarper.feats:
+    type: integer
+    tags: [archetype-feats]
+    formula: >-
+      @feats.archetype.witchwarper.witchwarper-dedication in feats.held
+        ? countList([@feats.archetype.witchwarper.witchwarper-dedication, @feats.archetype.witchwarper.basic-distortion, @feats.archetype.witchwarper.basic-quantum-field, @feats.archetype.witchwarper.basic-warp-spell, @feats.archetype.witchwarper.basic-witchwarper-spellcasting, @feats.archetype.witchwarper.advanced-distortion, @feats.archetype.witchwarper.quantum-breadth, @feats.archetype.witchwarper.expert-witchwarper-spellcasting, @feats.archetype.witchwarper.master-witchwarper-spellcasting],
+          x in feats.held) + archetypes.witchwarper.repeats : 0
+  archetypes.witchwarper.repeats: { type: integer, formula: 0 }
+
+display:
+  fields:
+    archetypes.envoy.feats: { hidden: true }
+    archetypes.envoy.repeats: { hidden: true }
+    archetypes.mystic.feats: { hidden: true }
+    archetypes.mystic.repeats: { hidden: true }
+    archetypes.operative.feats: { hidden: true }
+    archetypes.operative.repeats: { hidden: true }
+    archetypes.solarian.feats: { hidden: true }
+    archetypes.solarian.repeats: { hidden: true }
+    archetypes.soldier.feats: { hidden: true }
+    archetypes.soldier.repeats: { hidden: true }
+    archetypes.witchwarper.feats: { hidden: true }
+    archetypes.witchwarper.repeats: { hidden: true }

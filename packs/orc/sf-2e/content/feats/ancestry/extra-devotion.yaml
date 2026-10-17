@@ -1,0 +1,23 @@
+id: feats.ancestry.extra-devotion
+type: feat
+tags: [trait.ysoki]
+fields: { level: 1, category: ancestry, ancestry: ancestries.ysoki }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.deception }
+    when: "!('skill.deception' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.thievery }
+    when: "!('skill.thievery' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.custom3 }
+    when: "!('skill.lore.custom3' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.lore.custom3.granted
+    op: add
+    value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'

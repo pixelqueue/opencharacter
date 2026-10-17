@@ -1,0 +1,12 @@
+id: feats.archetype.operative.operative-dedication
+type: feat
+tags: [trait.archetype, archetype-feat, trait.dedication, trait.multiclass]
+fields: { level: 2, category: class, archetype: archetypes.operative }
+prerequisites:
+  - { id: attribute, when: 'attributes.dex.mod >= 2' }
+  - { id: requirement, when: 'countCopies(copy.item == @classes.operative) == 0' }
+effects:
+  - { target: attacks.simpleGun.rank, op: atLeast, value: 1 }
+  - { target: attacks.martialGun.rank, op: atLeast, value: 1 }
+  - { target: classDc.operative.rank, op: atLeast, value: 1 }
+grants: [{ item: features.operative.sharpshooter }]

@@ -1,0 +1,56 @@
+id: features.envoy.envoy-directives
+type: feature
+fields: { level: 1 }
+effects:
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: attributes.cha.mod
+    stackKey: status-bonus
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: "'strike.lead-by-example' in roll.tags && attributes.cha.mod > 0"
+actions:
+  - id: get-em
+    tags: [class-action, directive]
+    params: { actions: { type: integer, optional: true, min: 1, max: 2 } }
+    participants: { target: { min: 1, max: 1 }, ally: {} }
+    results: { bands: degree }
+    steps:
+      - id: mark
+        kind: changes
+        changes:
+          - type: removeEffect
+            when: 'countList(character.applied, x.source == @effects.get-em) > 0'
+            applied: { where: 'item.id == @effects.get-em' }
+          - type: applyEffect
+            source: "'effects.get-em'"
+            state:
+              target: 'participants.target[0].id'
+              value: 'has(params.actions) && params.actions == 2 ? 1 + floor(level / 5) : 0'
+      - id: allies
+        kind: changes
+        each: ally
+        to: ally
+        changes:
+          - type: applyEffect
+            source: "'effects.get-em'"
+            state:
+              target: 'participants.target[0].id'
+              value: 'has(params.actions) && params.actions == 2 ? 1 + floor(level / 5) : 0'
+      - id: weapon
+        kind: choice
+        when: 'has(params.actions) && params.actions == 2'
+        recommend: 'options[0]'
+        options:
+          copies:
+            type: weapon
+            where: "(self.equipped || 'standard' in item.tags) && item.area == 'none' && (!('solar' in item.tags) || solarian.attunement != 'unattuned') && (!('attuned.photon' in item.tags) || solarian.attunement in ['photon', 'perfect']) && (!('attuned.graviton' in item.tags) || solarian.attunement == 'graviton') && (item.magazine == 0 || self.ammo >= item.expend)"
+      - id: strike
+        kind: action
+        when: has(steps.weapon)
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+        tags: [strike.lead-by-example]
+      - id: result
+        kind: outcome
+        result: "has(steps.strike) ? steps.strike.result : 'success'"

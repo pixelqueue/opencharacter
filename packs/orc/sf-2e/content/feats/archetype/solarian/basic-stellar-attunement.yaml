@@ -1,0 +1,12 @@
+id: feats.archetype.solarian.basic-stellar-attunement
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.solarian }
+prerequisites: [{ id: feat, when: '@feats.archetype.solarian.solarian-dedication in feats.held' }]
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: "item.category == 'class' && !('trait.archetype' in item.tags) && (has(item.class) && item.class == @classes.solarian || 'trait.solarian' in item.tags)"
+    eligible: item.level <= 2

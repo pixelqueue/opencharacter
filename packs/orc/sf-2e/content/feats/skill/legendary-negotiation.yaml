@@ -1,0 +1,38 @@
+id: feats.skill.legendary-negotiation
+type: feat
+fields: { level: 15, category: skill, skills: [skill.diplomacy] }
+
+prerequisites:
+  - id: legendary
+    when: skills.diplomacy.rank >= 4
+actions:
+  - id: legendary-negotiation
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.will.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags:
+          [
+            skill-action.legendary-negotiation,
+            skill-action.make-an-impression,
+            skill-action.request,
+          ]
+        situational: { penalty: 'situational.penalty + 5' }
+        params:
+          check: "'skills.diplomacy.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.will.dc)
+              ? participants.target[0].saves.will.dc : has(params.dc) ? params.dc : null
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }

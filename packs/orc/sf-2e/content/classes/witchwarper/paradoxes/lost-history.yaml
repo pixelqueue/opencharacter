@@ -1,0 +1,101 @@
+id: classes.witchwarper.paradoxes.lost-history
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: witchwarper.paradox, op: set, value: "'lost-history'" }
+  - { target: spellcasting.tradition, op: set, value: "'occult'" }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.society }
+    when: "!('skill.society' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.daze } }
+  - { target: spells.granted.cantrips, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.delete } }
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.delete } }
+  - { target: spells.granted.rank1, op: add, value: 1 }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.instant-virus }
+    when: 'level >= 3'
+  - target: spells.repertoire.rank2
+    op: grant
+    value: { item: spells.instant-virus }
+    when: 'level >= 3'
+  - { target: spells.granted.rank2, op: add, value: 1, when: 'level >= 3' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.entropy-strike }
+    when: 'level >= 5'
+  - target: spells.repertoire.rank3
+    op: grant
+    value: { item: spells.entropy-strike }
+    when: 'level >= 5'
+  - { target: spells.granted.rank3, op: add, value: 1, when: 'level >= 5' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.confusion }
+    when: 'level >= 7'
+  - target: spells.repertoire.rank4
+    op: grant
+    value: { item: spells.confusion }
+    when: 'level >= 7'
+  - { target: spells.granted.rank4, op: add, value: 1, when: 'level >= 7' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.synaptic-pulse }
+    when: 'level >= 9'
+  - target: spells.repertoire.rank5
+    op: grant
+    value: { item: spells.synaptic-pulse }
+    when: 'level >= 9'
+  - { target: spells.granted.rank5, op: add, value: 1, when: 'level >= 9' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.repulsion }
+    when: 'level >= 11'
+  - target: spells.repertoire.rank6
+    op: grant
+    value: { item: spells.repulsion }
+    when: 'level >= 11'
+  - { target: spells.granted.rank6, op: add, value: 1, when: 'level >= 11' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.warp-mind }
+    when: 'level >= 13'
+  - target: spells.repertoire.rank7
+    op: grant
+    value: { item: spells.warp-mind }
+    when: 'level >= 13'
+  - { target: spells.granted.rank7, op: add, value: 1, when: 'level >= 13' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.disappearance }
+    when: 'level >= 15'
+  - target: spells.repertoire.rank8
+    op: grant
+    value: { item: spells.disappearance }
+    when: 'level >= 15'
+  - { target: spells.granted.rank8, op: add, value: 1, when: 'level >= 15' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.phantasmagoria }
+    when: 'level >= 17'
+  - target: spells.repertoire.rank9
+    op: grant
+    value: { item: spells.phantasmagoria }
+    when: 'level >= 17'
+  - { target: spells.granted.rank9, op: add, value: 1, when: 'level >= 17' }
+  - { target: focus.points, op: add, value: 1 }
+grants:
+  - { item: spells.daze }
+  - { item: spells.delete }
+  - { item: spells.instant-virus, when: 'level >= 3' }
+  - { item: spells.entropy-strike, when: 'level >= 5' }
+  - { item: spells.confusion, when: 'level >= 7' }
+  - { item: spells.synaptic-pulse, when: 'level >= 9' }
+  - { item: spells.repulsion, when: 'level >= 11' }
+  - { item: spells.warp-mind, when: 'level >= 13' }
+  - { item: spells.disappearance, when: 'level >= 15' }
+  - { item: spells.phantasmagoria, when: 'level >= 17' }
+  - { item: spells.warp-presence }

@@ -1,0 +1,18 @@
+id: backgrounds.city-slicker
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.deception }
+    when: "!('skill.deception' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.custom1 }
+    when: "!('skill.lore.custom1' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.skill.face-in-the-crowd }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['dex', 'cha']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

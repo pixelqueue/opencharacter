@@ -1,0 +1,17 @@
+id: effects.get-em
+type: effect
+state: { target: { type: string, default: '' } }
+effects:
+  - target: { rolls: [attack] }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    scope: applied
+    when: 'size(participants.target) > 0 && participants.target[0].id == self.target'
+  - target: { rolls: [damage.strike] }
+    op: add
+    value: self.value
+    stackKey: status-bonus
+    scope: applied
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: "self.value > 0 && size(participants.target) > 0 && participants.target[0].id == self.target && !('strike.lead-by-example' in roll.tags)"

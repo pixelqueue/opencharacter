@@ -21,6 +21,7 @@ describe('pnpm validate', () => {
       'mork-borg-core',
       'mothership-1e',
       'orc-2e',
+      'orc-sf-2e',
     ]);
     expect(characters.length).toBeGreaterThanOrEqual(5);
     // A first run parses every pack file: seconds, more on a busy machine.

@@ -1,0 +1,12 @@
+id: augmentations.muscle-invigorator
+type: augmentation
+tags: [trait.apex]
+fields: { level: 17, kind: cybernetic, bulk: 0, price: 150000 }
+effects:
+  - target: skills.athletics.mod
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: self.equipped
+  - { target: attributes.str.mod, op: add, value: 1, when: 'self.equipped && self.apex' }
+  - { target: attributes.str.mod, op: atLeast, value: 4, when: 'self.equipped && self.apex' }

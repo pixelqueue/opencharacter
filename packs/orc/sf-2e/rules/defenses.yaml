@@ -1,0 +1,77 @@
+fields:
+  immunities.damage: { type: set, of: tag, members: { under: [damage] } }
+  perception.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  saves.fortitude.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  saves.reflex.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  saves.will.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  classDc.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  defenses.unarmored.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  defenses.light.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  defenses.medium.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  defenses.heavy.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  class.keyAttribute:
+    { type: enum, values: [none, str, dex, con, int, wis, cha], formula: "'none'" }
+  armor.category: { type: enum, values: [unarmored, light, medium, heavy], formula: "'unarmored'" }
+  armor.dexCap: { type: integer, formula: 99 }
+  shield.raised: { type: boolean, input: true, default: false }
+  shield.hardness: { type: integer, formula: 0 }
+  saves.fortitude.mod:
+    type: integer
+    tags: [check, save, save.fortitude, attr.con]
+    formula: >-
+      attributes.con.mod + (saves.fortitude.rank > 0 ? 2 * saves.fortitude.rank + proficiency.level : proficiency.untrained)
+  saves.fortitude.dc: { type: integer, formula: 10 + saves.fortitude.mod }
+  saves.reflex.mod:
+    type: integer
+    tags: [check, save, save.reflex, attr.dex]
+    formula: >-
+      attributes.dex.mod + (saves.reflex.rank > 0 ? 2 * saves.reflex.rank + proficiency.level : proficiency.untrained)
+  saves.reflex.dc: { type: integer, formula: 10 + saves.reflex.mod }
+  saves.will.mod:
+    type: integer
+    tags: [check, save, save.will, attr.wis]
+    formula: >-
+      attributes.wis.mod + (saves.will.rank > 0 ? 2 * saves.will.rank + proficiency.level : proficiency.untrained)
+  saves.will.dc: { type: integer, formula: 10 + saves.will.mod }
+  perception.mod:
+    type: integer
+    tags: [check, perception, attr.wis]
+    formula: >-
+      attributes.wis.mod + (perception.rank > 0 ? 2 * perception.rank + proficiency.level : proficiency.untrained)
+  perception.dc: { type: integer, formula: 10 + perception.mod }
+  defenses.ac: { type: integer, tags: [dc, ac, attr.dex], formula: defenses.acBase }
+  defenses.acBase:
+    type: integer
+    formula: >-
+      battleForm.acBase > 0 ? battleForm.acBase + level : 10 + min(attributes.dex.mod, armor.dexCap) + ((armor.category == 'light' ?
+      defenses.light.rank : armor.category == 'medium' ? defenses.medium.rank : armor.category
+      == 'heavy' ? defenses.heavy.rank : defenses.unarmored.rank) > 0 ? 2 * (armor.category ==
+      'light' ? defenses.light.rank : armor.category == 'medium' ? defenses.medium.rank :
+      armor.category == 'heavy' ? defenses.heavy.rank : defenses.unarmored.rank) + proficiency.level : proficiency.untrained)
+  # Tagged with the key attribute (a computed tag), so clumsy reaches a Dexterity fighter's class DC
+  # and enfeebled a Strength fighter's.
+  classDc.proficiency:
+    {
+      type: integer,
+      formula: 'classDc.rank > 0 ? 2 * classDc.rank + proficiency.level : proficiency.untrained',
+    }
+  classDc.value:
+    type: integer
+    tags:
+      - dc
+      - class-dc
+      - { formula: "class.keyAttribute == 'none' ? [] : ['attr.' + class.keyAttribute]" }
+    formula: >-
+      10 + classDc.proficiency + (class.keyAttribute == 'str' ? attributes.str.mod
+        : class.keyAttribute == 'dex' ? attributes.dex.mod
+        : class.keyAttribute == 'con' ? attributes.con.mod
+        : class.keyAttribute == 'int' ? attributes.int.mod
+        : class.keyAttribute == 'wis' ? attributes.wis.mod
+        : class.keyAttribute == 'cha' ? attributes.cha.mod : 0)
+
+effects:
+  - id: damage-immunity
+    target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: multiply
+    value: 0
+    when: incoming.amount < 0 && countList(incoming.tags, x in immunities.damage) > 0

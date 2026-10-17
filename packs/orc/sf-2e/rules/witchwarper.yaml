@@ -1,0 +1,20 @@
+fields:
+  witchwarper.paradox:
+    { type: enum, values: [none, analyst, anomaly, lost-history, precog], formula: "'none'" }
+  quantum.active: { type: boolean, input: true, default: false }
+  quantum.radius: { type: integer, formula: 20, min: 0 }
+  witchwarper.memorySkill: { type: string, input: true, default: '' }
+  witchwarper.otherLife: { type: string, input: true, default: '' }
+
+display:
+  fields:
+    witchwarper.paradox: { hidden: true }
+    quantum.active:
+      {
+        groups: [turn],
+        priority: 0,
+        showWhen: 'countCopies(copy.item == @classes.witchwarper) > 0',
+      }
+    witchwarper.memorySkill: { hidden: true }
+    witchwarper.otherLife: { hidden: true }
+    quantum.radius: { groups: [turn], priority: 1, showWhen: quantum.active }

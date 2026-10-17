@@ -1,0 +1,18 @@
+id: backgrounds.smuggler
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.stealth }
+    when: "!('skill.stealth' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.piracy }
+    when: "!('skill.lore.piracy' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.skill.experienced-smuggler }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['dex', 'wis']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

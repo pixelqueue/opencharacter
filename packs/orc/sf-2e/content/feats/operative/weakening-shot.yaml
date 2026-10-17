@@ -1,0 +1,42 @@
+id: feats.operative.weakening-shot
+type: feat
+tags: [trait.operative]
+fields: { level: 1, category: class, class: classes.operative }
+actions:
+  - id: weakening-shot
+    tags: [strike, feat-action]
+    available: "countCopies(copy.type == 'weapon' && (copy.equipped || 'standard' in copy.tags) && (has(copy.fields.range) && copy.fields.range > 0 && copy.fields.area == 'none' || operative.striker && copy.fields.range == 0 && ('trait.agile' in copy.tags || 'trait.finesse' in copy.tags)) && (!has(copy.fields.magazine) || copy.fields.magazine == 0 || has(copy.state.ammo) && copy.state.ammo >= copy.fields.expend) && (!('solar' in copy.tags) || solarian.attunement != 'unattuned') && (!('attuned.photon' in copy.tags) || solarian.attunement in ['photon', 'perfect']) && (!('attuned.graviton' in copy.tags) || solarian.attunement == 'graviton')) > 0"
+    participants: { target: { min: 1, max: 1 } }
+    results: { bands: degree }
+    steps:
+      - id: which
+        kind: choice
+        recommend: "'clumsy'"
+        options: [{ id: clumsy }, { id: enfeebled }]
+      - id: weapon
+        kind: choice
+        recommend: 'options[0]'
+        options:
+          copies:
+            type: weapon
+            where: "((self.equipped || 'standard' in item.tags) && item.range > 0 && item.area == 'none' || operative.striker && (self.equipped || 'standard' in item.tags) && item.range == 0 && ('trait.agile' in item.tags || 'trait.finesse' in item.tags)) && (!('solar' in item.tags) || solarian.attunement != 'unattuned') && (!('attuned.photon' in item.tags) || solarian.attunement in ['photon', 'perfect']) && (!('attuned.graviton' in item.tags) || solarian.attunement == 'graviton') && (item.magazine == 0 || self.ammo >= item.expend)"
+      - id: mark
+        kind: changes
+        changes: [{ type: set, field: operative.mark, value: 'participants.target[0].id' }]
+      - id: strike
+        kind: action
+        use: strike
+        entry: steps.weapon.picked
+        participants: { target: participants.target }
+      - id: rider
+        kind: changes
+        when: "steps.strike.result in ['success', 'critical-success']"
+        to: target
+        changes:
+          - type: applyEffect
+            source: "steps.which.picked == 'clumsy' ? 'conditions.clumsy' : 'conditions.enfeebled'"
+            state: { value: "steps.strike.result == 'critical-success' ? 2 : 1" }
+      - id: result
+        kind: outcome
+        result: steps.strike.result
+        data: { damage: steps.strike.data.damage }

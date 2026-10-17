@@ -1,0 +1,7 @@
+id: features.soldier.walking-armory
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: armor.strength, op: atLeast, value: attributes.con.mod }
+  - { target: bulk.encumbered, op: add, value: 'max(0, ceil(attributes.con.mod / 2))' }
+  - { target: bulk.max, op: add, value: 'max(0, attributes.con.mod)' }

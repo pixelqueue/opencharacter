@@ -1,0 +1,42 @@
+id: conditions.glitching
+type: condition
+# The flat check at the start of the turn is the entry's own action; its failure applies the item
+# penalty (`effects.glitched`) until the next check.
+actions:
+  - id: glitch-check
+    scope: applied
+    tags: [turn, condition]
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: flat-check
+        params: { dc: 5 + self.value }
+      - id: clear
+        kind: changes
+        changes:
+          - type: removeEffect
+            when: 'countList(character.applied, x.source == @effects.glitched) > 0'
+            applied: { where: 'item.id == @effects.glitched' }
+      - id: outcome
+        kind: changes
+        changes:
+          - type: adjustState
+            when: "steps.check.result == 'critical-success' && self.value > 1"
+            applied: { where: self.id == action.self.id }
+            key: value
+            by: -1
+          - type: removeEffect
+            when: "steps.check.result == 'critical-success' && self.value <= 1"
+            applied: { where: self.id == action.self.id }
+          - type: applyEffect
+            when: "steps.check.result in ['failure', 'critical-failure']"
+            source: "'effects.glitched'"
+            state: { value: self.value }
+          - type: applyEffect
+            when: steps.check.result == 'critical-failure'
+            source: "'conditions.stunned'"
+            state: { value: 1 }
+      - id: result
+        kind: outcome
+        result: steps.check.result

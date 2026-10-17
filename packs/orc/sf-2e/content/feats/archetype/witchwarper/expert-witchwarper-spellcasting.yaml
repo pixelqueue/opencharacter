@@ -1,0 +1,12 @@
+id: feats.archetype.witchwarper.expert-witchwarper-spellcasting
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 12, category: class, archetype: archetypes.witchwarper }
+prerequisites:
+  - id: feat
+    when: '@feats.archetype.witchwarper.basic-witchwarper-spellcasting in feats.held'
+  - id: master
+    when: "[skills.arcana.rank, skills.religion.rank, skills.occultism.rank, skills.nature.rank][indexOf(['arcane', 'divine', 'occult', 'primal'], spellcasting.archetype.witchwarper.tradition)] >= 3"
+effects:
+  - { target: spellcasting.archetype.witchwarper.benefits, op: atLeast, value: 2 }
+  - { target: spellcasting.archetype.witchwarper.rank, op: atLeast, value: 2 }

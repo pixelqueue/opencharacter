@@ -1,0 +1,9 @@
+id: heritages.scrapper-ysoki
+type: heritage
+fields: { ancestry: ancestries.ysoki }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.crafting }
+    when: "!('skill.crafting' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }

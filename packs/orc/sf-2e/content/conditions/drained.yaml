@@ -1,0 +1,13 @@
+id: conditions.drained
+type: condition
+# Hit Points and their maximum are lowered through `conditions.drainedOffset`.
+effects:
+  - target: { fields: { where: "'attr.con' in item.tags" } }
+    op: add
+    value: -max(0, self.value - conditions.drainedOffset)
+    stackKey: status-penalty
+    scope: applied
+  - target: hp.max
+    op: add
+    value: -level * max(0, self.value - conditions.drainedOffset)
+    scope: applied

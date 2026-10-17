@@ -1,0 +1,10 @@
+id: grades.weapon-tactical
+type: template
+tags: [grade]
+appliesTo: { type: weapon, where: "item.category != 'unarmed' && !('natural' in item.tags)" }
+fields:
+  potency: 1
+  dice: 1
+  upgradeSlots: prior.upgradeSlots + 0
+  level: 'max(prior.level, 2)'
+  price: '(has(prior.price) ? prior.price : 0) + 350'

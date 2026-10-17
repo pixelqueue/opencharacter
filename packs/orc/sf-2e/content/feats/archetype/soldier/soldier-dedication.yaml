@@ -1,0 +1,18 @@
+id: feats.archetype.soldier.soldier-dedication
+type: feat
+tags: [trait.archetype, archetype-feat, trait.dedication, trait.multiclass]
+fields: { level: 2, category: class, archetype: archetypes.soldier }
+prerequisites:
+  - { id: attribute, when: 'attributes.con.mod >= 2' }
+  - { id: requirement, when: 'countCopies(copy.item == @classes.soldier) == 0' }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.intimidation }
+    when: "!('skill.intimidation' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: classDc.soldier.rank, op: atLeast, value: 1 }
+  - { target: defenses.light.rank, op: atLeast, value: 1 }
+  - { target: defenses.medium.rank, op: atLeast, value: 1 }
+  - { target: bulk.max, op: add, value: 2 }
+  - { target: bulk.encumbered, op: add, value: 2 }

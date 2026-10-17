@@ -1,0 +1,8 @@
+id: feats.archetype.operative.operative-resiliency
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.operative }
+prerequisites:
+  - { id: feat, when: '@feats.archetype.operative.operative-dedication in feats.held' }
+  - { id: requirement, when: hp.class <= 6 }
+effects: [{ target: hp.max, op: add, value: '3 * archetypes.operative.feats' }]

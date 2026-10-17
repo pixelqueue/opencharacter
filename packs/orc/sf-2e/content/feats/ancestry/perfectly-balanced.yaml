@@ -1,0 +1,15 @@
+id: feats.ancestry.perfectly-balanced
+type: feat
+tags: [trait.kasatha]
+fields: { level: 13, category: ancestry, ancestry: ancestries.kasatha }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.cold] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, 5)'
+    when: incoming.amount < 0
+  - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, 5)'
+    when: incoming.amount < 0

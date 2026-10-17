@@ -1,0 +1,16 @@
+id: feats.ancestry.glorious-evolution
+type: feat
+tags: [trait.shirren]
+fields: { level: 17, category: ancestry, ancestry: ancestries.shirren }
+prerequisites: [{ id: heritage, when: '@heritages.castaway-shirren in heritages.held' }]
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.acid] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, max(1, floor(level / 2)))'
+    when: incoming.amount < 0
+  - target: { rolls: [save] }
+    op: add
+    value: 2
+    stackKey: status-bonus
+    when: situational.againstFear

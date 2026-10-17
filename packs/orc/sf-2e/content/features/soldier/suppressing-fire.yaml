@@ -1,0 +1,11 @@
+id: features.soldier.suppressing-fire
+type: feature
+fields: { level: 1 }
+effects:
+  - target: { steps: [area.target] }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          when: 'flags.outcome >= 2 || soldier.bombard && flags.outcome == 1'
+          source: "'conditions.suppressed'"

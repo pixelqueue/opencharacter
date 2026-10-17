@@ -1,0 +1,66 @@
+id: feats.archetype.mystic.mystic-dedication
+type: feat
+tags: [trait.archetype, archetype-feat, trait.dedication, trait.multiclass]
+fields: { level: 2, category: class, archetype: archetypes.mystic }
+prerequisites:
+  - { id: attribute, when: 'attributes.wis.mod >= 2' }
+  - { id: requirement, when: 'countCopies(copy.item == @classes.mystic) == 0' }
+effects:
+  - { target: spellcasting.archetype.mystic.kind, op: set, value: "'spontaneous'" }
+  - { target: spellcasting.archetype.mystic.rank, op: atLeast, value: 1 }
+  - { target: spellcasting.archetype.mystic.cantrips, op: set, value: 2 }
+  - { target: spellcasting.archetype.mystic.attribute, op: set, value: "'wis'" }
+  - { target: classDc.mystic.rank, op: atLeast, value: 1 }
+grants:
+  - { item: features.mystic.mystic-bond }
+  - { item: features.spellcasting.archetype-repertoire, state: { source: "'mystic'" } }
+  - { item: features.spellcasting.archetype-signature-spells, state: { source: "'mystic'" } }
+choices:
+  - id: connection
+    from:
+      options:
+        - id: akashic
+          effects:
+            - { target: mystic.connection, op: set, value: "'akashic'" }
+            - { target: spellcasting.archetype.mystic.tradition, op: set, value: "'occult'" }
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.occultism }
+              when: "!('skill.occultism' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: elemental
+          effects:
+            - { target: mystic.connection, op: set, value: "'elemental'" }
+            - { target: spellcasting.archetype.mystic.tradition, op: set, value: "'primal'" }
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.nature }
+              when: "!('skill.nature' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: healing
+          effects:
+            - { target: mystic.connection, op: set, value: "'healing'" }
+            - { target: spellcasting.archetype.mystic.tradition, op: set, value: "'divine'" }
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.medicine }
+              when: "!('skill.medicine' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: rhythm
+          effects:
+            - { target: mystic.connection, op: set, value: "'rhythm'" }
+            - { target: spellcasting.archetype.mystic.tradition, op: set, value: "'primal'" }
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.performance }
+              when: "!('skill.performance' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: shadow
+          effects:
+            - { target: mystic.connection, op: set, value: "'shadow'" }
+            - { target: spellcasting.archetype.mystic.tradition, op: set, value: "'divine'" }
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.stealth }
+              when: "!('skill.stealth' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }

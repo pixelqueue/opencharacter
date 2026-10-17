@@ -1,0 +1,486 @@
+# Detection states are flags of the creature, not of who observes it, so Hide, Sneak and Seek report
+# each observer's degree and change no condition.
+actions:
+  - id: hide
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      observer:
+        fields:
+          perception.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.hide]
+        params:
+          check: "'skills.stealth.mod'"
+          dc: >-
+            size(participants.observer) == 1 && has(participants.observer[0].perception.dc)
+              ? participants.observer[0].perception.dc : has(params.dc) ? params.dc : null
+      - id: dcs
+        kind: branch
+        each: observer
+        cases:
+          - when: true
+            flags:
+              dc: 'has(participant.perception.dc) ? participant.perception.dc : has(params.dc) ? params.dc : -1'
+      - id: against
+        kind: roll
+        each: observer
+        of: check/roll
+        bands: degree
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.observer) > 1
+            ? ['critical-failure', 'failure', 'success', 'critical-success'][minList(mapList(steps.against, indexOf(['critical-failure', 'failure', 'success', 'critical-success'], x.band)), x)]
+            : steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          degrees: >-
+            size(participants.observer) > 0
+              ? mapList(steps.against, x.band) : []
+
+  - id: sneak
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      observer:
+        fields:
+          perception.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.sneak]
+        params:
+          check: "'skills.stealth.mod'"
+          dc: >-
+            size(participants.observer) == 1 && has(participants.observer[0].perception.dc)
+              ? participants.observer[0].perception.dc : has(params.dc) ? params.dc : null
+      - id: dcs
+        kind: branch
+        each: observer
+        cases:
+          - when: true
+            flags:
+              dc: 'has(participant.perception.dc) ? participant.perception.dc : has(params.dc) ? params.dc : -1'
+      - id: against
+        kind: roll
+        each: observer
+        of: check/roll
+        bands: degree
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.observer) > 1
+            ? ['critical-failure', 'failure', 'success', 'critical-success'][minList(mapList(steps.against, indexOf(['critical-failure', 'failure', 'success', 'critical-success'], x.band)), x)]
+            : steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          degrees: >-
+            size(participants.observer) > 0
+              ? mapList(steps.against, x.band) : []
+          distance: >-
+            @feats.skill.swift-sneak in feats.held ? speed.land : 5 * floor(speed.land / 10)
+
+  - id: avoid-notice
+    tags: [exploration-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      observer:
+        fields:
+          perception.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.avoid-notice]
+        params:
+          check: "'skills.stealth.mod'"
+          dc: >-
+            size(participants.observer) == 1 && has(participants.observer[0].perception.dc)
+              ? participants.observer[0].perception.dc : has(params.dc) ? params.dc : null
+      - id: dcs
+        kind: branch
+        each: observer
+        cases:
+          - when: true
+            flags:
+              dc: 'has(participant.perception.dc) ? participant.perception.dc : has(params.dc) ? params.dc : -1'
+      - id: against
+        kind: roll
+        each: observer
+        of: check/roll
+        bands: degree
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.observer) > 1
+            ? ['critical-failure', 'failure', 'success', 'critical-success'][minList(mapList(steps.against, indexOf(['critical-failure', 'failure', 'success', 'critical-success'], x.band)), x)]
+            : steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          degrees: >-
+            size(participants.observer) > 0
+              ? mapList(steps.against, x.band) : []
+
+  - id: conceal-an-object
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      observer:
+        fields:
+          perception.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: smuggler
+        kind: outcome
+        when: >-
+          @feats.skill.experienced-smuggler in feats.held
+            && skills.stealth.rank >= 4
+        result: "'success'"
+        data: { total: 0, dc: 0, degrees: '[]' }
+      - id: using
+        kind: choice
+        recommend: >-
+          'stealth'
+        options:
+          - { id: stealth }
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.conceal-an-object]
+        params:
+          check: "'skills.' + steps.using.picked + '.mod'"
+          dc: >-
+            size(participants.observer) == 1 && has(participants.observer[0].perception.dc)
+              ? participants.observer[0].perception.dc : has(params.dc) ? params.dc : null
+      - id: dcs
+        kind: branch
+        each: observer
+        cases:
+          - when: true
+            flags:
+              dc: 'has(participant.perception.dc) ? participant.perception.dc : has(params.dc) ? params.dc : -1'
+      - id: against
+        kind: roll
+        each: observer
+        of: check/roll
+        bands: degree
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.observer) > 1
+            ? ['critical-failure', 'failure', 'success', 'critical-success'][minList(mapList(steps.against, indexOf(['critical-failure', 'failure', 'success', 'critical-success'], x.band)), x)]
+            : steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          degrees: >-
+            size(participants.observer) > 0
+              ? mapList(steps.against, x.band) : []
+
+  - id: seek
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      creature:
+        fields:
+          skills.stealth.mod: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.seek]
+        params:
+          check: "'perception.mod'"
+          dc: >-
+            size(participants.creature) == 1 && has(participants.creature[0].skills.stealth.mod)
+              ? 10 + participants.creature[0].skills.stealth.mod : has(params.dc) ? params.dc : null
+      - id: dcs
+        kind: branch
+        each: creature
+        cases:
+          - when: true
+            flags:
+              dc: 'has(participant.skills.stealth.mod) ? participant.skills.stealth.mod + 10 : has(params.dc) ? params.dc : -1'
+      - id: against
+        kind: roll
+        each: creature
+        of: check/roll
+        bands: degree
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.creature) > 1
+            ? ['critical-failure', 'failure', 'success', 'critical-success'][minList(mapList(steps.against, indexOf(['critical-failure', 'failure', 'success', 'critical-success'], x.band)), x)]
+            : steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          degrees: >-
+            size(participants.creature) > 0
+              ? mapList(steps.against, x.band) : []
+
+  - id: sense-motive
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          skills.deception.mod: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.sense-motive]
+        params:
+          check: "'perception.mod'"
+          dc: >-
+            has(params.dc) ? params.dc
+              : size(participants.target) > 0 && has(participants.target[0].skills.deception.mod)
+                ? 10 + participants.target[0].skills.deception.mod : null
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: subsist
+    tags: [exploration-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: using
+        kind: choice
+        recommend: "skills.survival.mod >= skills.society.mod ? 'survival' : 'society'"
+        options: [{ id: survival }, { id: society }]
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.subsist]
+        params:
+          check: "'skills.' + steps.using.picked + '.mod'"
+          dc: 'has(params.dc) ? params.dc : null'
+      - id: degree
+        kind: branch
+        cases:
+          - when: true
+            flags: { result: steps.check.result }
+      - id: hungry
+        kind: changes
+        when: flags.result == 'failure'
+        changes:
+          - { type: applyEffect, source: "'conditions.fatigued'" }
+      - id: result
+        kind: outcome
+        result: flags.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          fed: "flags.result == 'critical-success' ? 1 : 0"
+
+  - id: track
+    tags: [exploration-action]
+    available: >-
+      skills.survival.rank >= 1
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: using
+        kind: choice
+        recommend: "skills.survival.rank >= 1 ? 'survival' : skills.diplomacy.rank >= 1 ? 'diplomacy' : 'society'"
+        options:
+          - { id: survival, when: skills.survival.rank >= 1 }
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.track]
+        params:
+          {
+            check: "'skills.' + steps.using.picked + '.mod'",
+            dc: 'has(params.dc) ? params.dc : null',
+          }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: sense-direction
+    tags: [exploration-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              compass: >-
+                countCopies(copy.item == @gear.comm-unit) > 0
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.sense-direction]
+        situational: { penalty: 'situational.penalty + (flags.compass ? 0 : 2)' }
+        params: { check: "'skills.survival.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc, compass: flags.compass }
+
+  - id: cover-tracks
+    tags: [exploration-action]
+    available: skills.survival.rank >= 1
+    results: [covered]
+    steps:
+      - id: result
+        kind: outcome
+        result: "'covered'"
+        data: { dc: 10 + skills.survival.mod }
+
+  - id: palm-an-object
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      observer:
+        fields:
+          perception.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.palm-an-object]
+        params:
+          check: "'skills.thievery.mod'"
+          dc: >-
+            size(participants.observer) == 1 && has(participants.observer[0].perception.dc)
+              ? participants.observer[0].perception.dc : has(params.dc) ? params.dc : null
+      - id: dcs
+        kind: branch
+        each: observer
+        cases:
+          - when: true
+            flags:
+              dc: 'has(participant.perception.dc) ? participant.perception.dc : has(params.dc) ? params.dc : -1'
+      - id: against
+        kind: roll
+        each: observer
+        of: check/roll
+        bands: degree
+      - id: result
+        kind: outcome
+        result: >-
+          size(participants.observer) > 1
+            ? ['critical-failure', 'failure', 'success', 'critical-success'][minList(mapList(steps.against, indexOf(['critical-failure', 'failure', 'success', 'critical-success'], x.band)), x)]
+            : steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          degrees: >-
+            size(participants.observer) > 0
+              ? mapList(steps.against, x.band) : []
+
+  - id: steal
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          perception.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.steal]
+        params:
+          check: "'skills.thievery.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].perception.dc)
+              ? participants.target[0].perception.dc : has(params.dc) ? params.dc : null
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  # Computers disables technological devices; a scrapper ysoki may use Crafting.
+  - id: disable-a-device
+    tags: [skill-action]
+    available: >-
+      skills.thievery.rank >= 1 || skills.computers.rank >= 1
+        || (@heritages.scrapper-ysoki in heritages.held && skills.crafting.rank >= 1)
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: using
+        kind: choice
+        recommend: >-
+          skills.thievery.rank >= 1 && skills.thievery.mod >= skills.computers.mod ? 'thievery'
+            : skills.computers.rank >= 1 ? 'computers' : 'crafting'
+        options:
+          - { id: thievery, when: skills.thievery.rank >= 1 }
+          - { id: computers, when: skills.computers.rank >= 1 }
+          - id: crafting
+            when: '@heritages.scrapper-ysoki in heritages.held && skills.crafting.rank >= 1'
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.disable-a-device]
+        params:
+          {
+            check: "'skills.' + steps.using.picked + '.mod'",
+            dc: 'has(params.dc) ? params.dc : null',
+          }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          successes: "steps.check.result == 'critical-success' ? 2 : steps.check.result == 'success' ? 1 : 0"
+
+  - id: pick-a-lock
+    tags: [skill-action]
+    available: skills.thievery.rank >= 1
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.pick-a-lock]
+        params: { check: "'skills.thievery.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          successes: "steps.check.result == 'critical-success' ? 2 : steps.check.result == 'success' ? 1 : 0"
+          actions: '@feats.skill.quick-unlock in feats.held ? 1 : 2'

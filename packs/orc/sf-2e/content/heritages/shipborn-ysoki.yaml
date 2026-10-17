@@ -1,0 +1,16 @@
+id: heritages.shipborn-ysoki
+type: heritage
+fields: { ancestry: ancestries.ysoki }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.piloting }
+    when: "!('skill.piloting' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: { rolls: [skill-action.navigate, skill-action.plot-course], tally: successToCrit }
+    op: add
+    value: 1
+  - target: { rolls: [skill-action.tumble-through] }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus

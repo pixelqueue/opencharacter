@@ -1,0 +1,116 @@
+id: feats.archetype.envoy.envoy-dedication
+type: feat
+tags: [trait.archetype, archetype-feat, trait.dedication, trait.multiclass]
+fields: { level: 2, category: class, archetype: archetypes.envoy }
+prerequisites:
+  - { id: attribute, when: 'attributes.cha.mod >= 2' }
+  - { id: requirement, when: 'countCopies(copy.item == @classes.envoy) == 0' }
+effects: [{ target: classDc.envoy.rank, op: atLeast, value: 1 }]
+grants: [{ item: features.envoy.envoy-directives }]
+choices:
+  - id: skill
+    from:
+      values:
+        - skill.acrobatics
+        - skill.arcana
+        - skill.athletics
+        - skill.computers
+        - skill.crafting
+        - skill.deception
+        - skill.diplomacy
+        - skill.intimidation
+        - skill.medicine
+        - skill.nature
+        - skill.occultism
+        - skill.performance
+        - skill.piloting
+        - skill.religion
+        - skill.society
+        - skill.stealth
+        - skill.survival
+        - skill.thievery
+        - skill.lore.academia
+        - skill.lore.alcohol
+        - skill.lore.animal
+        - skill.lore.art
+        - skill.lore.augmentation
+        - skill.lore.business
+        - skill.lore.cooking
+        - skill.lore.corporate
+        - skill.lore.games
+        - skill.lore.genealogy
+        - skill.lore.history
+        - skill.lore.hyperspace
+        - skill.lore.infosphere
+        - skill.lore.labor
+        - skill.lore.legal
+        - skill.lore.life-science
+        - skill.lore.media
+        - skill.lore.mining
+        - skill.lore.physical-science
+        - skill.lore.piracy
+        - skill.lore.plant
+        - skill.lore.sports
+        - skill.lore.underworld
+        - skill.lore.vidgame
+        - skill.lore.warfare
+      where: "(!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks) && (value in ['skill.deception', 'skill.diplomacy', 'skill.intimidation'] || countList(['skill.deception', 'skill.diplomacy', 'skill.intimidation'], (x in skills.trained || x in skills.chosen) && !(x in choice.picks)) == 3)"
+    effects:
+      - target: skills.trained
+        op: grant
+        value: { formula: pick.value }
+        when: '!(pick.value in skills.chosen)'
+      - { target: skills.trainings, op: add, value: 1 }
+  - id: other
+    from:
+      values:
+        - skill.acrobatics
+        - skill.arcana
+        - skill.athletics
+        - skill.computers
+        - skill.crafting
+        - skill.deception
+        - skill.diplomacy
+        - skill.intimidation
+        - skill.medicine
+        - skill.nature
+        - skill.occultism
+        - skill.performance
+        - skill.piloting
+        - skill.religion
+        - skill.society
+        - skill.stealth
+        - skill.survival
+        - skill.thievery
+        - skill.lore.academia
+        - skill.lore.alcohol
+        - skill.lore.animal
+        - skill.lore.art
+        - skill.lore.augmentation
+        - skill.lore.business
+        - skill.lore.cooking
+        - skill.lore.corporate
+        - skill.lore.games
+        - skill.lore.genealogy
+        - skill.lore.history
+        - skill.lore.hyperspace
+        - skill.lore.infosphere
+        - skill.lore.labor
+        - skill.lore.legal
+        - skill.lore.life-science
+        - skill.lore.media
+        - skill.lore.mining
+        - skill.lore.physical-science
+        - skill.lore.piracy
+        - skill.lore.plant
+        - skill.lore.sports
+        - skill.lore.underworld
+        - skill.lore.vidgame
+        - skill.lore.warfare
+      where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
+    effects:
+      - target: skills.trained
+        op: grant
+        value: { formula: pick.value }
+        when: '!(pick.value in skills.chosen)'
+      - { target: skills.trainings, op: add, value: 1 }

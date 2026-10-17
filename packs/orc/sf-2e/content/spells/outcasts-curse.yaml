@@ -1,0 +1,25 @@
+id: spells.outcasts-curse
+type: spell
+tags:
+  - tradition.arcane
+  - tradition.divine
+  - tradition.occult
+  - trait.concentrate
+  - trait.curse
+  - trait.manipulate
+  - trait.mental
+  - trait.misfortune
+fields:
+  rank: 4
+  cast: two
+  range: 0
+  targets: 1
+  defense: will
+  basic: false
+  applyTo: target
+  applyAt: 1
+effects:
+  - target: { rolls: [skill.deception, skill.diplomacy, skill.intimidation, skill.performance] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied

@@ -1,0 +1,8 @@
+id: feats.general.untrained-improvisation
+type: feat
+fields: { level: 3, category: general }
+
+effects:
+  - target: { fields: { where: "'skill' in item.tags && 'untrained' in item.tags" } }
+    op: add
+    value: 'max(0, level >= 7 ? level : level >= 5 ? level - 1 : level - 2)'

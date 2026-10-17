@@ -1,0 +1,13 @@
+id: feats.operative.bloody-wounds
+type: feat
+tags: [trait.operative]
+fields: { level: 4, category: class, class: classes.operative }
+effects:
+  - target: { steps: [strike.hit.critical] }
+    op: changes
+    when: "(situational.markedTarget || (size(participants.target) > 0 && participants.target[0].id != '' && participants.target[0].id in [operative.mark, operative.mark2]))"
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.persistent-damage'"
+          state: { damage: 'dieOf(1d1, operative.aimDice)', damageType: "'bleed'" }

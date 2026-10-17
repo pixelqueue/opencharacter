@@ -1,0 +1,14 @@
+id: conditions.stupefied
+type: condition
+effects:
+  - target:
+      {
+        fields:
+          {
+            where: "'attr.int' in item.tags || 'attr.wis' in item.tags || 'attr.cha' in item.tags",
+          },
+      }
+    op: add
+    value: -self.value
+    stackKey: status-penalty
+    scope: applied

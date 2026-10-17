@@ -1,0 +1,38 @@
+# The vitality network is a pool of Hit Points the mystic spends (`vitality.spent`) to heal; it
+# refills at the start of each turn and in full on Refocus.
+fields:
+  mystic.connection:
+    { type: enum, values: [none, akashic, elemental, healing, rhythm, shadow], formula: "'none'" }
+  vitality.archetype: { type: boolean, formula: false }
+  vitality.max:
+    type: integer
+    min: 0
+    formula: >-
+      class.has.mystic ? 6 + 4 * level
+        : vitality.archetype ? 10 + 10 * ((level >= 10 ? 1 : 0) + (level >= 15 ? 1 : 0) + (level >= 20 ? 1 : 0)) : 0
+  vitality.spent: { type: integer, input: true, default: 0, min: 0, max: vitality.max }
+  vitality.transfer:
+    {
+      type: integer,
+      formula: 'class.has.mystic ? 10 * (1 + floor(level / 5)) : 10 + 5 * floor(level / 5)',
+    }
+  vitality.regain:
+    { type: integer, formula: 'spellcasting.rank >= 4 ? 8 : spellcasting.rank >= 3 ? 6 : 4' }
+
+tags:
+  - refocus
+  - vitality.transfer
+
+display:
+  fields:
+    mystic.connection: { hidden: true }
+    vitality.spent:
+      {
+        groups: [spellcasting],
+        priority: 0,
+        showWhen: vitality.max > 0,
+        with: [{ field: vitality.max, as: max }],
+      }
+    vitality.transfer: { groups: [spellcasting], priority: 2, showWhen: vitality.max > 0 }
+    vitality.regain: { hidden: true }
+    vitality.archetype: { hidden: true }

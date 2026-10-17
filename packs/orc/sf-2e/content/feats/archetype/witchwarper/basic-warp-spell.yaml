@@ -1,0 +1,23 @@
+id: feats.archetype.witchwarper.basic-warp-spell
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.witchwarper }
+prerequisites:
+  - { id: feat, when: '@feats.archetype.witchwarper.witchwarper-dedication in feats.held' }
+effects: [{ target: focus.points, op: atLeast, value: 1 }]
+choices:
+  - id: spell
+    from:
+      options:
+        - id: analyst
+          prerequisites: [{ id: paradox, when: "witchwarper.paradox == 'analyst'" }]
+          grants: [{ item: spells.warp-probability }]
+        - id: anomaly
+          prerequisites: [{ id: paradox, when: "witchwarper.paradox == 'anomaly'" }]
+          grants: [{ item: spells.warp-terrain }]
+        - id: lost-history
+          prerequisites: [{ id: paradox, when: "witchwarper.paradox == 'lost-history'" }]
+          grants: [{ item: spells.warp-presence }]
+        - id: precog
+          prerequisites: [{ id: paradox, when: "witchwarper.paradox == 'precog'" }]
+          grants: [{ item: spells.warp-time }]

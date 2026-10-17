@@ -1,0 +1,12 @@
+fields:
+  parry.active: { type: boolean, input: true, default: false }
+  assurance.skills: { type: set, of: tag, members: { under: [skill], except: [skill.lore] } }
+  senses.keenEyes: { type: boolean, formula: false }
+
+effects:
+  - id: dueling-parry
+    target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 2
+    stackKey: circumstance-bonus
+    when: parry.active

@@ -1,0 +1,35 @@
+# Aim stores the mark's participant ID (`operative.mark`, a second with Dual Aim), which the Strike's
+# roll effects compare with its target; a check or a Strike without a target uses `markedTarget`.
+fields:
+  operative.mark: { type: string, input: true, default: '' }
+  operative.mark2: { type: string, input: true, default: '' }
+  operative.aimDice: { type: integer, formula: 0, min: 0 }
+  operative.aimDie: { type: integer, formula: 4 }
+  operative.aimRange: { type: integer, formula: 1 }
+  operative.tacticalBarrage: { type: boolean, formula: false }
+  operative.striker: { type: boolean, formula: false }
+  operative.sniper: { type: boolean, formula: false }
+  operative.specSkill: { type: string, formula: "''" }
+
+situational:
+  - id: markedTarget
+    type: boolean
+    default: false
+    rolls: [strike, save]
+    available: operative.aimDice > 0
+
+tags:
+  - aim
+  - precision
+
+display:
+  fields:
+    operative.mark: { groups: [turn], priority: 1, showWhen: operative.aimDice > 0 }
+    operative.mark2: { groups: [turn], priority: 1, showWhen: "operative.mark2 != ''" }
+    operative.aimDice: { groups: [turn], priority: 2, showWhen: operative.aimDice > 0 }
+    operative.aimDie: { hidden: true }
+    operative.aimRange: { hidden: true }
+    operative.tacticalBarrage: { hidden: true }
+    operative.striker: { hidden: true }
+    operative.sniper: { hidden: true }
+    operative.specSkill: { hidden: true }

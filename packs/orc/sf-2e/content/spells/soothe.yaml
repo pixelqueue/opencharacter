@@ -1,0 +1,29 @@
+id: spells.soothe
+type: spell
+tags:
+  - tradition.occult
+  - trait.concentrate
+  - trait.emotion
+  - trait.healing
+  - trait.manipulate
+  - trait.mental
+fields:
+  rank: 1
+  cast: two
+  range: 30
+  targets: 1
+  duration: minutes
+  durationAmount: 1
+  applyTo: ally
+  healing: '1d10'
+  healingBonus: 4
+  heighten: 1
+  heightenHealingDice: 1
+  heightenHealingBonus: 4
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 2
+    stackKey: status-bonus
+    when: situational.againstMental
+    scope: applied

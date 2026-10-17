@@ -1,0 +1,17 @@
+id: consumables.infiltrator-serum
+type: consumable
+tags: [trait.consumable, trait.serum]
+fields: { category: serum, level: 2, price: 50, bulk: 0.1, lasting: true }
+effects:
+  - target: { rolls: [skill-action.sneak] }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'true'
+    scope: applied
+  - target: { rolls: [skill-action.disable-a-device] }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'true'
+    scope: applied

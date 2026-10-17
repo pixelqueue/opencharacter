@@ -1,0 +1,44 @@
+id: features.mystic.vitality-network
+type: feature
+fields: { level: 1 }
+effects:
+  - target: { steps: [turn.start] }
+    op: changes
+    when: 'vitality.spent > 0'
+    value:
+      changes:
+        - { type: adjust, field: vitality.spent, by: '-min(vitality.spent, vitality.regain)' }
+  - target: { steps: [refocus] }
+    op: changes
+    when: 'vitality.spent > 0'
+    value: { changes: [{ type: set, field: vitality.spent, value: 0 }] }
+actions:
+  - id: transfer-vitality
+    tags: [class-action, trait.concentrate, trait.healing]
+    available: 'vitality.max - vitality.spent > 0'
+    params: { amount: { type: integer, optional: true, min: 1 } }
+    participants:
+      ally: { max: 1, fields: { hp.current: { type: integer }, hp.max: { type: integer } } }
+    results: [transferred]
+    steps:
+      - id: amount
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              amount: 'max(1, min(vitality.transfer, vitality.max - vitality.spent, has(params.amount) ? params.amount : vitality.transfer, size(participants.ally) > 0 ? (has(participants.ally[0].hp.max) ? max(1, participants.ally[0].hp.max - participants.ally[0].hp.current) : vitality.transfer) : max(1, hp.max - hp.current)))'
+      - id: healAlly
+        kind: changes
+        each: ally
+        to: ally
+        tags: [vitality.transfer]
+        changes: [{ type: adjust, field: hp.current, by: flags.amount, tags: [healing] }]
+      - id: healSelf
+        kind: changes
+        when: size(participants.ally) == 0
+        tags: [vitality.transfer]
+        changes: [{ type: adjust, field: hp.current, by: flags.amount, tags: [healing] }]
+      - id: spend
+        kind: changes
+        changes: [{ type: adjust, field: vitality.spent, by: flags.amount }]
+      - { id: result, kind: outcome, result: "'transferred'", data: { amount: flags.amount } }

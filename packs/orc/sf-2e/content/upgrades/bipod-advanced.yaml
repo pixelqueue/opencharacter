@@ -1,0 +1,5 @@
+id: upgrades.bipod-advanced
+type: template
+tags: [upgrade.weapon, trait.tech]
+appliesTo: { type: weapon, where: "'trait.kickback' in item.tags" }
+fields: { level: 'max(prior.level, 2)', price: '(has(prior.price) ? prior.price : 0) + 450' }
