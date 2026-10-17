@@ -4,23 +4,15 @@ fields:
   kind: action
   order: 5
   recharge: 5
+  ownAction: true
 actions:
   - id: glare
     tags: [monster-effect]
     available: '!self.recharging'
-    params:
-      # The target's current Hit Points (the target view doesn't show them).
-      targetHp: { type: integer, optional: true }
     participants:
       target: { max: 1, fields: target }
     results: [used]
     steps:
-      - id: setup
-        kind: branch
-        cases:
-          - when: true
-            flags:
-              drop: has(params.targetHp) && params.targetHp <= 20
       - id: save
         kind: action
         each: target
@@ -29,6 +21,13 @@ actions:
         params:
           ability: "'wis'"
           dc: 11
+      - id: setup
+        kind: branch
+        each: target
+        cases:
+          - when: true
+            flags:
+              drop: has(participant.hp.current) && participant.hp.current <= 20
       - id: drop
         kind: changes
         each: target
@@ -40,14 +39,13 @@ actions:
             value: 0
       - id: damage
         kind: roll
-        when: '!flags.drop'
         tags: [damage]
         parts:
           - { dice: 3d8, tags: [damage.psychic] }
       - id: burn
         kind: changes
         each: target
-        when: has(steps.damage) && steps.save.result == 'failure'
+        when: steps.save.result == 'failure' && !flags.drop
         to: target
         changes:
           - type: adjust

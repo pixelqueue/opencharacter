@@ -278,6 +278,9 @@ contentTypes:
       perRest: { type: boolean }
       # The entry this one uses ("The aboleth makes one Tentacle attack").
       uses: { type: id, of: monsterAction }
+      # Its own action resolves it and spends the use, so the generic `use-monster-action` isn't
+      # offered.
+      ownAction: { type: boolean }
       legendaryResistance: { type: boolean }
       magicResistance: { type: boolean }
       # A Spellcasting entry: its ability and printed numbers; the monster lists the spells.
@@ -1017,6 +1020,7 @@ actions:
     available: >-
       !has(item.toHit) && !has(item.saveDc) && !has(item.damage) && !has(item.heal)
         && !has(item.uses) && !has(item.spell) && item.id != @monster-actions.innate-spell
+        && !(has(item.ownAction) && item.ownAction)
         && !(has(item.legendaryResistance) && item.legendaryResistance)
         && (self.uses > 0 || has(item.recharge) || item.kind == 'legendary')
         && !self.recharging && (self.uses == 0 || self.used < self.uses)
@@ -1146,4 +1150,5 @@ display:
         damage2: { format: dice }
         saveDamage: { format: dice }
         heal: { format: dice }
+        ownAction: { hidden: true }
       quantity: { hidden: true }
