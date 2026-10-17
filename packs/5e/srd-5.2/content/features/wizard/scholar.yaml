@@ -1,0 +1,23 @@
+id: features.wizard.scholar
+type: feature
+choices:
+  - id: expertise
+    from:
+      values:
+        [
+          skill.arcana,
+          skill.history,
+          skill.investigation,
+          skill.medicine,
+          skill.nature,
+          skill.religion,
+        ]
+      where: >-
+        (value in proficiencies.skills && !(value in proficiencies.expertise))
+          || value in choice.picks
+    # Nothing to pick without proficiency in one of the skills.
+    pick: >-
+      countList(['skill.arcana', 'skill.history', 'skill.investigation', 'skill.medicine',
+        'skill.nature', 'skill.religion'], x in proficiencies.skills) > 0 ? 1 : 0
+    effects:
+      - { target: proficiencies.expertise, op: grant, value: { formula: pick.value } }

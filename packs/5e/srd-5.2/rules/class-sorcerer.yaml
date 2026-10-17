@@ -1,0 +1,50 @@
+fields:
+  # Innate Sorcery's minute is running (the app ends it).
+  innateSorcery.active: { type: boolean, input: true, default: false }
+  sorcery.points: { type: integer, formula: 0 }
+  sorcery.left:
+    type: integer
+    formula: >-
+      sorcery.points - sumCopies(copy.state.sorceryPointsSpent,
+        copy.type == 'class' && has(copy.state.sorceryPointsSpent))
+  # Arcane Apotheosis: a Metamagic option costs nothing (once per turn, the app's).
+  sorcery.free: { type: boolean, formula: false }
+  # Extended Spell on the spell being concentrated on: Advantage on the saves to keep it.
+  sorcery.extendedConcentration: { type: boolean, input: true, default: false }
+  # Elemental Affinity's damage type.
+  sorcerer.affinity:
+    { type: enum, values: [none, acid, cold, fire, lightning, poison], formula: "'none'" }
+  dragonWings.known: { type: boolean, formula: false }
+  dragonWings.active: { type: boolean, input: true, default: false }
+
+contentTypes:
+  # Metamagic options, picked in the Metamagic feature.
+  metamagic:
+    copies: { max: 0 }
+
+effects:
+  - id: extended-concentration
+    target: { rolls: [concentration] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: sorcery.extendedConcentration
+
+followUps:
+  - id: extended-concentration-ends
+    becomes: '!concentration.active && sorcery.extendedConcentration'
+    required: true
+    changes:
+      - { type: set, field: sorcery.extendedConcentration, value: false }
+
+display:
+  fields:
+    sorcery.points: { groups: [class-features], priority: 1, showWhen: sorcery.points > 0 }
+    sorcery.left: { groups: [class-features], priority: 0, showWhen: sorcery.points > 0 }
+    sorcery.free: { hidden: true }
+    sorcery.extendedConcentration: { hidden: true }
+    innateSorcery.active:
+      { groups: [class-features], priority: 1, showWhen: '@classes.sorcerer in classes.held' }
+    sorcerer.affinity:
+      { groups: [class-features], priority: 1, showWhen: "sorcerer.affinity != 'none'" }
+    dragonWings.known: { hidden: true }
+    dragonWings.active: { groups: [class-features], priority: 1, showWhen: dragonWings.known }

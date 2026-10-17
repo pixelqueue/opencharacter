@@ -1,0 +1,17 @@
+id: features.monk.martial-arts
+type: feature
+effects:
+  - id: known
+    target: martialArts.known
+    op: set
+    value: true
+    when: "!('armor' in equipment.tags) && !('shield' in equipment.tags)"
+  - id: die
+    target: martialArts.die
+    op: set
+    value: 'self.level >= 17 ? 1d12 : self.level >= 11 ? 1d10 : self.level >= 5 ? 1d8 : 1d6'
+  - id: grapple-dc
+    target: unarmed.dcModifier
+    op: atLeast
+    value: abilities.dex.mod
+    when: martialArts.known

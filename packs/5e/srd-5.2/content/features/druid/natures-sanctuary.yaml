@@ -1,0 +1,17 @@
+id: features.druid.natures-sanctuary
+type: feature
+actions:
+  - id: natures-sanctuary
+    tags: [feature]
+    results: [created]
+    available: self.wildShapeSpent < wildShape.uses
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: wildShapeSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'created'"
+        data:
+          resistance: druid.land

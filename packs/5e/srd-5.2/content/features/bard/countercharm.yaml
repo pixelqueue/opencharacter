@@ -1,0 +1,15 @@
+id: features.bard.countercharm
+type: feature
+effects:
+  # The player picks it on a failed save against an effect that applies Charmed or Frightened.
+  - target: { choices: [failed-save] }
+    op: option
+    value:
+      id: countercharm
+      flags: { retry: true }
+  - target: { rolls: [d20-test] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: >-
+      has(flags.retry) && flags.retry && has(steps.hook)
+        && steps.hook.picked == '5e-srd-5.2:features.bard.countercharm#countercharm'

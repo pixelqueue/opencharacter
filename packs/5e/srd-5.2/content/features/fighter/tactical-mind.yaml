@@ -1,0 +1,13 @@
+id: features.fighter.tactical-mind
+type: feature
+# The option spends the use when it is picked, before the d10 is rolled: a check that still fails
+# leaves it spent (the app refunds it).
+effects:
+  - target: { choices: [failed-check] }
+    op: option
+    when: self.secondWindSpent < secondWind.uses
+    value:
+      id: tactical-mind
+      flags: { addDie: 1d10 }
+      changes:
+        - { type: adjustState, entry: self, key: secondWindSpent, by: 1 }

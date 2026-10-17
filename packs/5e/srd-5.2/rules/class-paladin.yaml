@@ -1,0 +1,34 @@
+fields:
+  paladin.layOnHands: { type: integer, formula: 0 }
+  paladin.channelDivinity: { type: integer, formula: 0 }
+  paladin.auraRange: { type: integer, formula: 0 }
+  paladin.sacredWeapon: { type: boolean, input: true, default: false }
+  paladin.holyNimbus: { type: boolean, input: true, default: false }
+
+situational:
+  # Holy Nimbus's Holy Ward: a save a Fiend or an Undead forces.
+  - id: holyWard
+    type: boolean
+    default: false
+    available: paladin.holyNimbus
+    rolls: [save]
+    effects:
+      - target: { rolls: [save] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.holyWard
+
+display:
+  fields:
+    paladin.layOnHands: { groups: [class-features], priority: 1, showWhen: paladin.layOnHands > 0 }
+    paladin.channelDivinity:
+      { groups: [class-features], priority: 1, showWhen: paladin.channelDivinity > 0 }
+    paladin.auraRange: { groups: [class-features], priority: 2, showWhen: paladin.auraRange > 0 }
+    paladin.sacredWeapon:
+      groups: [class-features]
+      priority: 2
+      showWhen: paladin.channelDivinity > 0
+    paladin.holyNimbus:
+      groups: [class-features]
+      priority: 2
+      showWhen: 'sumCopies(copy.state.level, copy.item == @classes.paladin) >= 20'

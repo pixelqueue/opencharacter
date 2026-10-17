@@ -1,0 +1,32 @@
+id: features.ranger.deft-explorer
+type: feature
+choices:
+  - id: expertise
+    from:
+      values: &skills
+        - skill.acrobatics
+        - skill.animal-handling
+        - skill.arcana
+        - skill.athletics
+        - skill.deception
+        - skill.history
+        - skill.insight
+        - skill.intimidation
+        - skill.investigation
+        - skill.medicine
+        - skill.nature
+        - skill.perception
+        - skill.performance
+        - skill.persuasion
+        - skill.religion
+        - skill.sleight-of-hand
+        - skill.stealth
+        - skill.survival
+      where: value in proficiencies.skills
+    eligible: '!(value in proficiencies.expertise) || value in choice.picks'
+    effects:
+      - { target: proficiencies.expertise, op: grant, value: { formula: pick.value } }
+  - id: languages
+    pick: 2
+    from: { type: language, where: "!('monster' in item.tags)" }
+    eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'

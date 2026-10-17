@@ -1,0 +1,20 @@
+id: invocations.pact-of-the-tome
+type: invocation
+# The Book of Shadows' spells, from any class's list, none already prepared.
+choices:
+  - id: cantrips
+    pick: 3
+    from: { type: spell, where: item.level == 0 }
+    eligible: >-
+      countList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x)) == 0
+        || item.id in choice.picks
+    effects:
+      - { target: spells.warlock, op: grant, value: { formula: pick.id } }
+  - id: rituals
+    pick: 2
+    from: { type: spell, where: item.level == 1 && has(item.ritual) && item.ritual }
+    eligible: >-
+      countList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x)) == 0
+        || item.id in choice.picks
+    effects:
+      - { target: spells.warlock, op: grant, value: { formula: pick.id } }

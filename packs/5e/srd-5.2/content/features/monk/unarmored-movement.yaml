@@ -1,0 +1,7 @@
+id: features.monk.unarmored-movement
+type: feature
+effects:
+  - target: combat.speed
+    op: add
+    value: 'self.level >= 18 ? 30 : self.level >= 14 ? 25 : self.level >= 10 ? 20 : self.level >= 6 ? 15 : 10'
+    when: "!('armor' in equipment.tags) && !('shield' in equipment.tags)"

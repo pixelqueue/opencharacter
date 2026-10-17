@@ -1,0 +1,17 @@
+id: metamagic.distant-spell
+type: metamagic
+effects:
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      (!has(action.item.rangeKind) || action.item.rangeKind in ['touch', 'ranged'])
+        && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: distant
+      flags: { metamagic: "'distant'" }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1

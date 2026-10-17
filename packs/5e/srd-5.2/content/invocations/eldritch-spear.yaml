@@ -1,0 +1,18 @@
+id: invocations.eldritch-spear
+type: invocation
+repeatable: true
+# The range (30 feet per Warlock level more) is the app's.
+prerequisites:
+  - id: level
+    when: self.level >= 2
+choices:
+  - id: cantrip
+    from:
+      {
+        type: spell,
+        where: 'item.level == 0 && has(item.damage) && has(item.range) && item.range >= 10',
+      }
+    eligible: item.id in spells.warlock
+    activate: false
+    unique: eldritch-spear
+    requiresOption: true

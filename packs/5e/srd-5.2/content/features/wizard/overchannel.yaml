@@ -1,0 +1,53 @@
+id: features.wizard.overchannel
+type: feature
+# Maximum damage is the `overchannel` situational choice on the cast's damage roll; this action
+# counts the use and deals the Necrotic damage of the second and later uses.
+effects:
+  - { target: wizard.overchannel, op: set, value: true }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.overchannelUses > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: overchannelUses, value: 0 }
+actions:
+  - id: overchannel
+    tags: [feature]
+    results: [overchanneled]
+    params:
+      slot: { type: integer, min: 1, max: 5 }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dice: 'self.overchannelUses == 0 ? 0 : params.slot * (self.overchannelUses + 1)'
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: overchannelUses, by: 1 }
+      - id: free
+        kind: outcome
+        when: flags.dice == 0
+        result: "'overchanneled'"
+        data:
+          damage: 0
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: (flags.dice)d12
+            tags: [damage.necrotic]
+      - id: hurt
+        kind: changes
+        changes:
+          - type: adjust
+            field: hp.current
+            by: -steps.damage.total
+            tags: [damage, damage.necrotic, ignores-resistance]
+      - id: result
+        kind: outcome
+        result: "'overchanneled'"
+        data:
+          damage: steps.damage.total

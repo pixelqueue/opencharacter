@@ -1,0 +1,18 @@
+id: metamagic.transmuted-spell
+type: metamagic
+effects:
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      has(action.item.damageType)
+        && action.item.damageType in ['acid', 'cold', 'fire', 'lightning', 'poison', 'thunder']
+        && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: transmuted
+      flags: { metamagic: "'transmuted'" }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1

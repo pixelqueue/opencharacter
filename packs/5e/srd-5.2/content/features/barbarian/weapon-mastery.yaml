@@ -1,0 +1,16 @@
+id: features.barbarian.weapon-mastery
+type: feature
+choices:
+  - id: weapons
+    pick: 'self.level >= 10 ? 4 : self.level >= 4 ? 3 : 2'
+    from:
+      type: weapon
+      where: "item.range == 'melee' && has(item.mastery) && !('magic' in item.tags)"
+    activate: false
+    eligible: '!(item.id in mastery.weapons) || item.id in choice.picks'
+    # The SRD's examples (Greataxes and Handaxes) first.
+    recommend: >-
+      countList([@weapons.greataxe, @weapons.handaxe, @weapons.javelin, @weapons.maul], !(x in choice.picks) && !(x in mastery.weapons)) > 0
+        ? filterList([@weapons.greataxe, @weapons.handaxe, @weapons.javelin, @weapons.maul], !(x in choice.picks) && !(x in mastery.weapons))[0] : ''
+    effects:
+      - { target: mastery.weapons, op: grant, value: { formula: pick.id } }

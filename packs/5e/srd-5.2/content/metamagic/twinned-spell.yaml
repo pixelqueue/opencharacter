@@ -1,0 +1,17 @@
+id: metamagic.twinned-spell
+type: metamagic
+effects:
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      action.item.level >= 1 && action.item.level <= 8
+        && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: twinned
+      flags: { metamagic: "'twinned'" }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1

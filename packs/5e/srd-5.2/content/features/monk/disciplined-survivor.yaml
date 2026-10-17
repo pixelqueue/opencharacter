@@ -1,0 +1,17 @@
+id: features.monk.disciplined-survivor
+type: feature
+effects:
+  - { target: proficiencies.saves, op: grant, value: { tag: save.str } }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.dex } }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.con } }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.int } }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.wis } }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.cha } }
+  - target: { choices: [failed-save] }
+    op: option
+    when: self.focusSpent + 1 <= focus.points
+    value:
+      id: reroll
+      flags: { retry: true }
+      changes:
+        - { type: adjustState, entry: self, key: focusSpent, by: 1 }

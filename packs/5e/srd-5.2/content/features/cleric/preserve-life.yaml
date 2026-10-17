@@ -1,0 +1,18 @@
+id: features.cleric.preserve-life
+type: feature
+actions:
+  # The app divides the pool among Bloodied creatures, each to at most half its Hit Point maximum.
+  - id: preserve-life
+    tags: [feature, healing]
+    results: [healing]
+    available: self.channelDivinitySpent < cleric.channelDivinity
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: channelDivinitySpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'healing'"
+        data:
+          pool: 5 * self.level

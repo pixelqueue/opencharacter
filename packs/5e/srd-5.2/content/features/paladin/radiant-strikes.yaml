@@ -1,0 +1,8 @@
+id: features.paladin.radiant-strikes
+type: feature
+effects:
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 1d8
+    tags: [damage.radiant]
+    when: "'unarmed' in roll.tags || (has(roll.item) && 'melee' in roll.item.tags)"

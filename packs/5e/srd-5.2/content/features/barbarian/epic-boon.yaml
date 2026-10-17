@@ -1,0 +1,9 @@
+id: features.barbarian.epic-boon
+type: feature
+choices:
+  - id: feat
+    from: { type: feat }
+    unique: feats
+    eligible: "!(item.id in feats.held) || item.id in choice.picks || 'repeatable' in item.tags"
+    requiresOption: true
+    recommend: '@feats.boon-of-irresistible-offense'

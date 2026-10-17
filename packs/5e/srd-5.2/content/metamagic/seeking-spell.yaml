@@ -1,0 +1,16 @@
+id: metamagic.seeking-spell
+type: metamagic
+# On a missed spell attack roll, alongside any option the cast used.
+effects:
+  - target: { choices: [failed-attack] }
+    op: option
+    when: has(action.item.school) && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: seeking
+      flags: { retry: true }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1

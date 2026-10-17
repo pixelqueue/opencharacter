@@ -1,0 +1,21 @@
+id: features.paladin.faithful-steed
+type: feature
+grants:
+  - item: spells.find-steed
+effects:
+  - { target: spells.paladin, op: grant, value: { item: spells.find-steed } }
+  - { target: spells.free, op: grant, value: { item: spells.find-steed } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: action.item.id == @spells.find-steed && !self.findSteedFreeUsed
+    value:
+      id: faithful-steed
+      flags: { slot: 2 }
+      changes:
+        - { type: setState, entry: self, key: findSteedFreeUsed, value: true }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.findSteedFreeUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: findSteedFreeUsed, value: false }

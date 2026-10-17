@@ -1,0 +1,111 @@
+id: features.druid.circle-of-the-land-spells
+type: feature
+# The land is chosen again after each Long Rest: the app changes the pick.
+choices:
+  - id: land
+    from:
+      options:
+        - id: arid
+          effects:
+            - { target: druid.land, op: set, value: "'arid'" }
+            - { target: druid.circleSpells, op: grant, value: { item: spells.blur } }
+            - { target: druid.circleSpells, op: grant, value: { item: spells.burning-hands } }
+            - { target: druid.circleSpells, op: grant, value: { item: spells.fire-bolt } }
+            - target: druid.circleSpells
+              op: grant
+              value: { item: spells.fireball }
+              when: self.level >= 5
+            - target: druid.circleSpells
+              op: grant
+              value: { item: spells.blight }
+              when: self.level >= 7
+            - target: druid.circleSpells
+              op: grant
+              value: { item: spells.wall-of-stone }
+              when: self.level >= 9
+          grants:
+            - { item: spells.blur, when: true }
+            - { item: spells.burning-hands, when: true }
+            - { item: spells.fire-bolt, when: true }
+            - { item: spells.fireball, when: self.level >= 5 }
+            - { item: spells.blight, when: self.level >= 7 }
+            - { item: spells.wall-of-stone, when: self.level >= 9 }
+        - id: polar
+          effects:
+            - { target: druid.land, op: set, value: "'polar'" }
+            - { target: druid.circleSpells, op: grant, value: { item: spells.fog-cloud } }
+            - { target: druid.circleSpells, op: grant, value: { item: spells.hold-person } }
+            - { target: druid.circleSpells, op: grant, value: { item: spells.ray-of-frost } }
+            - target: druid.circleSpells
+              op: grant
+              value: { item: spells.sleet-storm }
+              when: self.level >= 5
+            - target: druid.circleSpells
+              op: grant
+              value: { item: spells.ice-storm }
+              when: self.level >= 7
+            - target: druid.circleSpells
+              op: grant
+              value: { item: spells.cone-of-cold }
+              when: self.level >= 9
+          grants:
+            - { item: spells.fog-cloud, when: true }
+            - { item: spells.hold-person, when: true }
+            - { item: spells.ray-of-frost, when: true }
+            - { item: spells.sleet-storm, when: self.level >= 5 }
+            - { item: spells.ice-storm, when: self.level >= 7 }
+            - { item: spells.cone-of-cold, when: self.level >= 9 }
+        - id: temperate
+          effects:
+            - { target: druid.land, op: set, value: "'temperate'" }
+            - { target: druid.circleSpells, op: grant, value: { item: spells.misty-step } }
+            - { target: druid.circleSpells, op: grant, value: { item: spells.shocking-grasp } }
+            - { target: druid.circleSpells, op: grant, value: { item: spells.sleep } }
+            - target: druid.circleSpells
+              op: grant
+              value: { item: spells.lightning-bolt }
+              when: self.level >= 5
+            - target: druid.circleSpells
+              op: grant
+              value: { item: spells.freedom-of-movement }
+              when: self.level >= 7
+            - target: druid.circleSpells
+              op: grant
+              value: { item: spells.tree-stride }
+              when: self.level >= 9
+          grants:
+            - { item: spells.misty-step, when: true }
+            - { item: spells.shocking-grasp, when: true }
+            - { item: spells.sleep, when: true }
+            - { item: spells.lightning-bolt, when: self.level >= 5 }
+            - { item: spells.freedom-of-movement, when: self.level >= 7 }
+            - { item: spells.tree-stride, when: self.level >= 9 }
+        - id: tropical
+          effects:
+            - { target: druid.land, op: set, value: "'tropical'" }
+            - { target: druid.circleSpells, op: grant, value: { item: spells.acid-splash } }
+            - { target: druid.circleSpells, op: grant, value: { item: spells.ray-of-sickness } }
+            - { target: druid.circleSpells, op: grant, value: { item: spells.web } }
+            - target: druid.circleSpells
+              op: grant
+              value: { item: spells.stinking-cloud }
+              when: self.level >= 5
+            - target: druid.circleSpells
+              op: grant
+              value: { item: spells.polymorph }
+              when: self.level >= 7
+            - target: druid.circleSpells
+              op: grant
+              value: { item: spells.insect-plague }
+              when: self.level >= 9
+          grants:
+            - { item: spells.acid-splash, when: true }
+            - { item: spells.ray-of-sickness, when: true }
+            - { item: spells.web, when: true }
+            - { item: spells.stinking-cloud, when: self.level >= 5 }
+            - { item: spells.polymorph, when: self.level >= 7 }
+            - { item: spells.insect-plague, when: self.level >= 9 }
+effects:
+  - target: spells.druid
+    op: grant
+    value: { query: { type: spell, where: item.id in druid.circleSpells } }

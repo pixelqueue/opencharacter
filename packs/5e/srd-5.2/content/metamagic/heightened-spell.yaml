@@ -1,0 +1,17 @@
+id: metamagic.heightened-spell
+type: metamagic
+effects:
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      has(action.item.save)
+        && (sorcery.free || sorcery.left >= 2)
+    value:
+      id: heightened
+      flags: { metamagic: "'heightened'" }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 2

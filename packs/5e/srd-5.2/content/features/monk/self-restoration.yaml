@@ -1,0 +1,25 @@
+id: features.monk.self-restoration
+type: feature
+actions:
+  - id: self-restoration
+    tags: [feature]
+    results: [ended]
+    available: >-
+      countList(character.applied, x.active && x.source in [@conditions.charmed,
+        @conditions.frightened, @conditions.poisoned]) > 0
+    params:
+      condition:
+        type: id
+        of: condition
+        where: 'item.id in [@conditions.charmed, @conditions.frightened, @conditions.poisoned]'
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied:
+              where: item.id == params.condition
+              limit: 1
+      - id: result
+        kind: outcome
+        result: "'ended'"

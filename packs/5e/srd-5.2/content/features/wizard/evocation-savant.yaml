@@ -1,0 +1,25 @@
+id: features.wizard.evocation-savant
+type: feature
+choices:
+  - id: spells
+    pick: 2
+    unique: spellbook
+    from:
+      type: spell
+      where: >-
+        item.level >= 1 && item.level <= 2 && item.school == 'evocation'
+          && @classes.wizard in item.classes
+    effects:
+      - { target: spells.wizardBook, op: grant, value: { formula: pick.id } }
+  # Each new level of Wizard spell slots: Wizard levels 5, 7, 9, …, 17.
+  - id: new-level
+    slots: [5, 7, 9, 11, 13, 15, 17]
+    when: self.level >= slot
+    unique: spellbook
+    from:
+      type: spell
+      where: >-
+        item.level >= 1 && item.level <= ceil(slot / 2) && item.school == 'evocation'
+          && @classes.wizard in item.classes
+    effects:
+      - { target: spells.wizardBook, op: grant, value: { formula: pick.id } }

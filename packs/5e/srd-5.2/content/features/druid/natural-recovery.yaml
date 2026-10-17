@@ -1,0 +1,69 @@
+id: features.druid.natural-recovery
+type: feature
+effects:
+  - target: spells.free
+    op: grant
+    value: { query: { type: spell, where: item.id in druid.circleSpells && item.level >= 1 } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      !self.naturalRecoveryCast && action.item.id in druid.circleSpells && action.item.level >= 1
+    value:
+      id: natural-recovery
+      flags:
+        slot: action.item.level
+        castAbility: "'druid'"
+      changes:
+        - { type: setState, entry: self, key: naturalRecoveryCast, value: true }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.naturalRecoveryCast || self.naturalRecoverySlots
+    value:
+      changes:
+        - { type: setState, entry: self, key: naturalRecoveryCast, value: false }
+        - { type: setState, entry: self, key: naturalRecoverySlots, value: false }
+actions:
+  # After a Short Rest: expended slots of combined level up to half the druid level (round up),
+  # none of level 6+.
+  - id: natural-recovery
+    tags: [feature]
+    results: [recovered, too-many]
+    available: '!self.naturalRecoverySlots'
+    params:
+      level1: { type: integer, optional: true, min: 0 }
+      level2: { type: integer, optional: true, min: 0 }
+      level3: { type: integer, optional: true, min: 0 }
+      level4: { type: integer, optional: true, min: 0 }
+      level5: { type: integer, optional: true, min: 0 }
+    steps:
+      - id: count
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              l1: 'has(params.level1) ? min(params.level1, spellSlots.level1.used) : 0'
+              l2: 'has(params.level2) ? min(params.level2, spellSlots.level2.used) : 0'
+              l3: 'has(params.level3) ? min(params.level3, spellSlots.level3.used) : 0'
+              l4: 'has(params.level4) ? min(params.level4, spellSlots.level4.used) : 0'
+              l5: 'has(params.level5) ? min(params.level5, spellSlots.level5.used) : 0'
+      - id: tooMany
+        kind: outcome
+        when: >-
+          flags.l1 + 2 * flags.l2 + 3 * flags.l3 + 4 * flags.l4 + 5 * flags.l5 > ceil(self.level / 2)
+        result: "'too-many'"
+        data:
+          limit: ceil(self.level / 2)
+      - id: recover
+        kind: changes
+        changes:
+          - { type: adjust, field: spellSlots.level1.used, by: -flags.l1, when: flags.l1 > 0 }
+          - { type: adjust, field: spellSlots.level2.used, by: -flags.l2, when: flags.l2 > 0 }
+          - { type: adjust, field: spellSlots.level3.used, by: -flags.l3, when: flags.l3 > 0 }
+          - { type: adjust, field: spellSlots.level4.used, by: -flags.l4, when: flags.l4 > 0 }
+          - { type: adjust, field: spellSlots.level5.used, by: -flags.l5, when: flags.l5 > 0 }
+          - { type: setState, entry: self, key: naturalRecoverySlots, value: true }
+      - id: result
+        kind: outcome
+        result: "'recovered'"
+        data:
+          levels: flags.l1 + 2 * flags.l2 + 3 * flags.l3 + 4 * flags.l4 + 5 * flags.l5

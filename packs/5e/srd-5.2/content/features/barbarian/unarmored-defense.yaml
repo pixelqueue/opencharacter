@@ -1,0 +1,7 @@
+id: features.barbarian.unarmored-defense
+type: feature
+effects:
+  - target: combat.ac
+    op: set
+    value: 10 + abilities.dex.mod + abilities.con.mod
+    when: "!('armor' in equipment.tags)"

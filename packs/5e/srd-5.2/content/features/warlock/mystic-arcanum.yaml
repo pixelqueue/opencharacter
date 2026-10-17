@@ -1,0 +1,88 @@
+id: features.warlock.mystic-arcanum
+type: feature
+# An arcanum is cast only through this feature, at its own level; a slot casts it only when another
+# class has it prepared.
+effects:
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.arcanum6Used || self.arcanum7Used || self.arcanum8Used || self.arcanum9Used
+    value:
+      changes:
+        - { type: setState, entry: self, key: arcanum6Used, value: false }
+        - { type: setState, entry: self, key: arcanum7Used, value: false }
+        - { type: setState, entry: self, key: arcanum8Used, value: false }
+        - { type: setState, entry: self, key: arcanum9Used, value: false }
+choices:
+  - id: level-6
+    from: { type: spell, where: 'item.level == 6 && @classes.warlock in item.classes' }
+    effects:
+      - { target: spells.warlock, op: grant, value: { formula: pick.id } }
+      - { target: spells.free, op: grant, value: { formula: pick.id } }
+      - &limited
+        target: spells.limited
+        op: grant
+        value: { formula: pick.id }
+        when: >-
+          countList(filterList(keysOf('caster'), x != 'warlock'),
+            pick.id in fieldOf('spells.{caster}', x)) == 0
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.item.id == pick.id && !self.arcanum6Used
+            && (!has(params.slot) || params.slot == 6)
+        value:
+          id: arcanum
+          flags: { slot: 6, castAbility: "'warlock'" }
+          changes:
+            - { type: setState, entry: self, key: arcanum6Used, value: true }
+  - id: level-7
+    from: { type: spell, where: 'item.level == 7 && @classes.warlock in item.classes' }
+    when: self.level >= 13
+    effects:
+      - { target: spells.warlock, op: grant, value: { formula: pick.id } }
+      - { target: spells.free, op: grant, value: { formula: pick.id } }
+      - *limited
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.item.id == pick.id && !self.arcanum7Used
+            && (!has(params.slot) || params.slot == 7)
+        value:
+          id: arcanum
+          flags: { slot: 7, castAbility: "'warlock'" }
+          changes:
+            - { type: setState, entry: self, key: arcanum7Used, value: true }
+  - id: level-8
+    from: { type: spell, where: 'item.level == 8 && @classes.warlock in item.classes' }
+    when: self.level >= 15
+    effects:
+      - { target: spells.warlock, op: grant, value: { formula: pick.id } }
+      - { target: spells.free, op: grant, value: { formula: pick.id } }
+      - *limited
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.item.id == pick.id && !self.arcanum8Used
+            && (!has(params.slot) || params.slot == 8)
+        value:
+          id: arcanum
+          flags: { slot: 8, castAbility: "'warlock'" }
+          changes:
+            - { type: setState, entry: self, key: arcanum8Used, value: true }
+  - id: level-9
+    from: { type: spell, where: 'item.level == 9 && @classes.warlock in item.classes' }
+    when: self.level >= 17
+    effects:
+      - { target: spells.warlock, op: grant, value: { formula: pick.id } }
+      - { target: spells.free, op: grant, value: { formula: pick.id } }
+      - *limited
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.item.id == pick.id && !self.arcanum9Used
+            && (!has(params.slot) || params.slot == 9)
+        value:
+          id: arcanum
+          flags: { slot: 9, castAbility: "'warlock'" }
+          changes:
+            - { type: setState, entry: self, key: arcanum9Used, value: true }

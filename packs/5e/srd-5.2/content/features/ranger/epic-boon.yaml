@@ -1,0 +1,9 @@
+id: features.ranger.epic-boon
+type: feature
+choices:
+  - id: feat
+    unique: feats
+    eligible: "!(item.id in feats.held) || item.id in choice.picks || 'repeatable' in item.tags"
+    requiresOption: true
+    from: { type: feat }
+    recommend: '@feats.boon-of-dimensional-travel'

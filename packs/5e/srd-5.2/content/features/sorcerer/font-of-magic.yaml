@@ -1,0 +1,90 @@
+id: features.sorcerer.font-of-magic
+type: feature
+effects:
+  - { target: sorcery.points, op: set, value: self.level }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.sorceryPointsSpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: sorceryPointsSpent, value: 0 }
+actions:
+  # Points past the maximum are lost.
+  - id: convert-spell-slot
+    tags: [feature]
+    results: [no-slot, converted]
+    available: self.sorceryPointsSpent > 0
+    params:
+      slot: { type: integer, min: 1, max: 9 }
+      slotType: { type: enum, values: [slot, pact], default: slot }
+    steps:
+      - id: spend
+        kind: action
+        use: spend-spell-slot
+        params:
+          slot: params.slot
+          slotType: params.slotType
+      - id: noSlot
+        kind: outcome
+        when: steps.spend.result != 'spent'
+        result: "'no-slot'"
+        data:
+          slot: steps.spend.data.slot
+      - id: gain
+        kind: changes
+        changes:
+          - type: adjustState
+            entry: self
+            key: sorceryPointsSpent
+            by: -min(steps.spend.data.slot, self.sorceryPointsSpent)
+      - id: result
+        kind: outcome
+        result: "'converted'"
+        data:
+          gained: min(steps.spend.data.slot, self.sorceryPointsSpent)
+  # A created slot gives back an expended slot of its level, so it never passes the slot maximum;
+  # it vanishes on a Long Rest, which restores every slot anyway.
+  - id: create-spell-slot
+    tags: [feature]
+    results: [no-slot, not-enough, created]
+    available: sorcery.left >= 2
+    params:
+      slot: { type: integer, min: 1, max: 5 }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: self.level >= [2, 3, 5, 7, 9][params.slot - 1]
+            flags:
+              cost: '[2, 3, 5, 6, 7][params.slot - 1]'
+              spent: fieldOf('spellSlots.level{slot}.used', params.slot)
+        else:
+          flags: { cost: 0, spent: 0 }
+      - id: noSlot
+        kind: outcome
+        when: flags.cost == 0 || flags.spent == 0
+        result: "'no-slot'"
+        data:
+          slot: params.slot
+      - id: notEnough
+        kind: outcome
+        when: flags.cost > sorcery.left
+        result: "'not-enough'"
+        data:
+          left: sorcery.left
+      - id: create
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: sorceryPointsSpent, by: flags.cost }
+          - type: adjust
+            field:
+              {
+                formula: "'spellSlots.level' + ['1', '2', '3', '4', '5'][params.slot - 1] + '.used'",
+              }
+            by: -1
+      - id: result
+        kind: outcome
+        result: "'created'"
+        data:
+          slot: params.slot
+          cost: flags.cost

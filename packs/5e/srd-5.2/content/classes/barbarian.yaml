@@ -1,0 +1,66 @@
+id: classes.barbarian
+type: class
+fields:
+  hitDie: 1d12
+state:
+  rageSpent: { type: integer, default: 0, min: 0 }
+  relentlessRageSpent: { type: integer, default: 0, min: 0 }
+  persistentRageUsed: { type: boolean, default: false }
+  intimidatingPresenceUsed: { type: boolean, default: false }
+prerequisites:
+  - id: multiclass
+    when: (self.startingClass && self.level == level.total) || item.id in multiclass.qualified
+effects:
+  - target: proficiencies.weapons
+    op: grant
+    value: { query: { type: weapon, where: "item.category == 'simple'" } }
+    when: self.startingClass
+  - target: proficiencies.weapons
+    op: grant
+    value: { query: { type: weapon, where: "item.category == 'martial'" } }
+  - { target: proficiencies.armor, op: grant, value: { tag: shield } }
+  - { target: proficiencies.armor, op: grant, value: { tag: light }, when: self.startingClass }
+  - { target: proficiencies.armor, op: grant, value: { tag: medium }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.str }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.con }, when: self.startingClass }
+grants:
+  - { item: features.barbarian.rage, when: self.level >= 1 }
+  - { item: features.barbarian.unarmored-defense, when: self.level >= 1 }
+  - { item: features.barbarian.weapon-mastery, when: self.level >= 1 }
+  - { item: features.barbarian.danger-sense, when: self.level >= 2 }
+  - { item: features.barbarian.reckless-attack, when: self.level >= 2 }
+  - { item: features.barbarian.primal-knowledge, when: self.level >= 3 }
+  - { item: features.barbarian.ability-score-improvement, when: self.level >= 4 }
+  - { item: features.extra-attack, when: self.level >= 5 }
+  - { item: features.barbarian.fast-movement, when: self.level >= 5 }
+  - { item: features.barbarian.feral-instinct, when: self.level >= 7 }
+  - { item: features.barbarian.instinctive-pounce, when: self.level >= 7 }
+  - { item: features.barbarian.brutal-strike, when: self.level >= 9 }
+  - { item: features.barbarian.relentless-rage, when: self.level >= 11 }
+  - { item: features.barbarian.improved-brutal-strike, when: self.level >= 13 }
+  - { item: features.barbarian.persistent-rage, when: self.level >= 15 }
+  - { item: features.barbarian.improved-brutal-strike-2, when: self.level >= 17 }
+  - { item: features.barbarian.indomitable-might, when: self.level >= 18 }
+  - { item: features.barbarian.epic-boon, when: self.level >= 19 }
+  - { item: features.barbarian.primal-champion, when: self.level >= 20 }
+choices:
+  - id: skills
+    pick: 2
+    unique: skills
+    from:
+      values:
+        [
+          skill.animal-handling,
+          skill.athletics,
+          skill.intimidation,
+          skill.nature,
+          skill.perception,
+          skill.survival,
+        ]
+      where: '!(value in proficiencies.skills) || value in choice.picks'
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: subclass
+    from: { type: subclass, where: 'item.class == @classes.barbarian' }
+    when: self.level >= 3

@@ -1,0 +1,67 @@
+id: features.monk.monks-focus
+type: feature
+effects:
+  - { id: points, target: focus.points, op: set, value: self.level }
+  - { id: dc, target: focus.saveDc, op: set, value: 8 + abilities.wis.mod + proficiency.bonus }
+  - id: rest
+    target: { steps: [rest.short, rest.long] }
+    op: changes
+    when: self.focusSpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: focusSpent, value: 0 }
+# Each action spends the Focus Point; the Unarmed Strikes and the other actions are run by the app.
+# Heightened Focus (level 10): three strikes, and Patient Defense's Temporary Hit Points.
+actions:
+  - id: flurry-of-blows
+    tags: [feature]
+    results: [spent]
+    available: self.focusSpent + 1 <= focus.points
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: focusSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'spent'"
+        data:
+          strikes: 'self.level >= 10 ? 3 : 2'
+  - id: patient-defense
+    tags: [feature]
+    results: [spent]
+    available: self.focusSpent + 1 <= focus.points
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: focusSpent, by: 1 }
+      - id: temp
+        kind: roll
+        when: self.level >= 10
+        tags: [healing]
+        parts:
+          - dice: martialArts.die
+          - dice: martialArts.die
+      - id: gain
+        kind: action
+        when: self.level >= 10
+        use: gain-temporary-hit-points
+        params: { amount: steps.temp.total }
+      - id: result
+        kind: outcome
+        result: "'spent'"
+        data:
+          temp: 'has(steps.temp) ? steps.temp.total : 0'
+  - id: step-of-the-wind
+    tags: [feature]
+    results: [spent]
+    available: self.focusSpent + 1 <= focus.points
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: focusSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'spent'"

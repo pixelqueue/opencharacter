@@ -1,0 +1,24 @@
+id: features.druid.elemental-fury
+type: feature
+choices:
+  - id: option
+    from:
+      options:
+        - id: potent-spellcasting
+          effects:
+            - { target: druid.elementalFury, op: set, value: "'potent-spellcasting'" }
+        - id: primal-strike
+          effects:
+            - { target: druid.elementalFury, op: set, value: "'primal-strike'" }
+effects:
+  - target: druid.primalStrike
+    op: set
+    value: 'self.level >= 15 ? 2 : 1'
+    when: "druid.elementalFury == 'primal-strike'"
+  - target: { rolls: [damage.spell] }
+    op: add
+    value: abilities.wis.mod
+    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    when: >-
+      druid.elementalFury == 'potent-spellcasting' && roll.item.level == 0
+        && has(roll.item.damageType) && has(flags.cls) && flags.cls == 'druid'

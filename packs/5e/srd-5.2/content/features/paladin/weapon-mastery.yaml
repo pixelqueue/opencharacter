@@ -1,0 +1,15 @@
+id: features.paladin.weapon-mastery
+type: feature
+choices:
+  - id: weapons
+    pick: 2
+    from: { type: weapon, where: has(item.mastery) }
+    activate: false
+    eligible: >-
+      item.id in proficiencies.weapons
+        && (!(item.id in mastery.weapons) || item.id in choice.picks)
+    # The SRD's examples.
+    recommend: >-
+      !(@weapons.longsword in choice.picks) ? @weapons.longsword : @weapons.javelin
+    effects:
+      - { target: mastery.weapons, op: grant, value: { formula: pick.id } }

@@ -1,0 +1,25 @@
+id: features.warlock.fiendish-resilience
+type: feature
+# Chosen again after a Short or Long Rest.
+choices:
+  - id: damage-type
+    from:
+      values:
+        [
+          acid,
+          bludgeoning,
+          cold,
+          fire,
+          lightning,
+          necrotic,
+          piercing,
+          poison,
+          psychic,
+          radiant,
+          slashing,
+          thunder,
+        ]
+    effects:
+      - target: damage.resistances
+        op: grant
+        value: { formula: "'damage.' + pick.value" }

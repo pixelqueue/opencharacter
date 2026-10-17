@@ -1,0 +1,16 @@
+id: features.barbarian.persistent-rage
+type: feature
+effects:
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.persistentRageUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: persistentRageUsed, value: false }
+  - target: { steps: [initiative] }
+    op: changes
+    when: '!self.persistentRageUsed && self.rageSpent > 0'
+    value:
+      changes:
+        - { type: setState, entry: self, key: rageSpent, value: 0 }
+        - { type: setState, entry: self, key: persistentRageUsed, value: true }

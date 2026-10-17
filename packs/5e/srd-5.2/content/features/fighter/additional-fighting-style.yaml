@@ -1,0 +1,8 @@
+id: features.fighter.additional-fighting-style
+type: feature
+choices:
+  - id: style
+    from: { type: feat, where: "item.category == 'fighting-style'" }
+    unique: feats
+    eligible: "!(item.id in feats.held) || item.id in choice.picks || 'repeatable' in item.tags"
+    recommend: '@feats.defense'

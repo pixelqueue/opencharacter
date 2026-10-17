@@ -1,0 +1,11 @@
+id: features.rogue.reliable-talent
+type: feature
+# A skill check reads the skill's field (proficiency in its tag); a tool check passes proficiency.
+effects:
+  - target: { rolls: [check] }
+    op: rollModifier
+    value: { kind: minimumFace, value: 10 }
+    when: >-
+      'd20-test' in roll.tags
+        && (countList(proficiencies.skills, x in roll.tags) > 0
+          || (has(params.proficiency) && params.proficiency >= 1))

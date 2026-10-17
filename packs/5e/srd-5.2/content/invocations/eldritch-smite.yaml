@@ -1,0 +1,71 @@
+id: invocations.eldritch-smite
+type: invocation
+prerequisites:
+  - id: level
+    when: self.level >= 5
+  - id: pact
+    when: '@invocations.pact-of-the-blade in warlock.invocations'
+actions:
+  # Once per turn, after a hit with the pact weapon: a pact slot for 1d8 Force plus 1d8 per slot
+  # level, and Prone if the target is Huge or smaller.
+  - id: eldritch-smite
+    tags: [feature]
+    results: [no-slot, smite]
+    available: pactSlots.used < pactSlots.max
+    params:
+      critical: { type: boolean, default: false }
+      prone: { type: boolean, default: true }
+    participants:
+      target:
+        max: 1
+        fields: target
+    steps:
+      - id: spend
+        kind: action
+        use: spend-spell-slot
+        params:
+          slotType: "'pact'"
+      - id: noSlot
+        kind: outcome
+        when: steps.spend.result != 'spent'
+        result: "'no-slot'"
+        data:
+          slot: steps.spend.data.slot
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              critical: params.critical
+              dice: 1 + steps.spend.data.slot
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: (flags.dice)d8
+            tags: [damage.force]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, attack, magical, { formula: "flags.critical ? ['critical'] : []" }]
+      - id: knock
+        kind: changes
+        when: >-
+          params.prone && size(participants.target) > 0
+            && participants.target[0].creature.size != 'gargantuan'
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.prone'"
+            state: { by: creature.type }
+      - id: result
+        kind: outcome
+        result: "'smite'"
+        data:
+          slot: steps.spend.data.slot
+          damage: steps.damage.total

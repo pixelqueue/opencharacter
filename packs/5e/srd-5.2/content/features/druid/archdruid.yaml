@@ -1,0 +1,49 @@
+id: features.druid.archdruid
+type: feature
+effects:
+  - target: { steps: [initiative] }
+    op: changes
+    when: self.wildShapeSpent >= wildShape.uses && self.wildShapeSpent > 0
+    value:
+      changes:
+        - { type: adjustState, entry: self, key: wildShapeSpent, by: -1 }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.natureMagicianUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: natureMagicianUsed, value: false }
+actions:
+  # Nature Magician: each use of Wild Shape is 2 levels of one expended spell slot.
+  - id: nature-magician
+    tags: [feature]
+    results: [regained, no-slot]
+    available: '!self.natureMagicianUsed && self.wildShapeSpent < wildShape.uses'
+    params:
+      uses: { type: integer, min: 1, max: 4, default: 1 }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              slot: 2 * params.uses
+      - id: noSlot
+        kind: outcome
+        when: >-
+          params.uses > wildShape.uses - self.wildShapeSpent
+            || fieldOf('spellSlots.level{slot}.used', flags.slot) <= 0
+        result: "'no-slot'"
+      - id: convert
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: wildShapeSpent, by: params.uses }
+          - type: adjust
+            field: { formula: "'spellSlots.level' + string(flags.slot) + '.used'" }
+            by: -1
+          - { type: setState, entry: self, key: natureMagicianUsed, value: true }
+      - id: result
+        kind: outcome
+        result: "'regained'"
+        data:
+          slot: flags.slot

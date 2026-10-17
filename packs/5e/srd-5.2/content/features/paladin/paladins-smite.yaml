@@ -1,0 +1,21 @@
+id: features.paladin.paladins-smite
+type: feature
+grants:
+  - item: spells.divine-smite
+effects:
+  - { target: spells.paladin, op: grant, value: { item: spells.divine-smite } }
+  - { target: spells.free, op: grant, value: { item: spells.divine-smite } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: action.item.id == @spells.divine-smite && !self.divineSmiteFreeUsed
+    value:
+      id: paladins-smite
+      flags: { slot: 1 }
+      changes:
+        - { type: setState, entry: self, key: divineSmiteFreeUsed, value: true }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.divineSmiteFreeUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: divineSmiteFreeUsed, value: false }

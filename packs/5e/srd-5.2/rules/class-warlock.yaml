@@ -1,0 +1,45 @@
+fields:
+  warlock.invocations: { type: set, of: invocation }
+  # Pact of the Blade's bonded weapons (the weapon kinds picked).
+  warlock.pactWeapons: { type: set, of: weapon }
+  # Origin feats Lessons of the First Ones gave, each a different one.
+  warlock.lessons: { type: set, of: feat }
+
+contentTypes:
+  # Eldritch Invocations. An invocation with a `spell` casts it without a spell slot, at will, as
+  # a Warlock spell.
+  invocation:
+    copies: { max: 0 }
+    fields:
+      spell: { type: id, of: spell }
+    grants:
+      - item: { formula: "has(item.spell) ? item.spell : ''" }
+    effects:
+      - target: warlock.invocations
+        op: grant
+        value: { formula: item.id }
+      - target: spells.free
+        op: grant
+        value: { formula: item.spell }
+        when: has(item.spell)
+      # No slot unless a class has the spell prepared.
+      - target: spells.limited
+        op: grant
+        value: { formula: item.spell }
+        when: >-
+          has(item.spell)
+            && countList(keysOf('caster'), item.spell in fieldOf('spells.{caster}', x)) == 0
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          has(item.spell) && action.item.id == item.spell
+            && (!has(params.slot) || params.slot == action.item.level)
+        value:
+          id: at-will
+          flags: { slot: action.item.level, castAbility: "'warlock'" }
+
+display:
+  fields:
+    warlock.invocations: { hidden: true }
+    warlock.pactWeapons: { hidden: true }
+    warlock.lessons: { hidden: true }

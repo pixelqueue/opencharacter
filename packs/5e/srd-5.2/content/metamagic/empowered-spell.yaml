@@ -1,0 +1,27 @@
+id: metamagic.empowered-spell
+type: metamagic
+effects:
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      has(action.item.damage)
+        && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: empowered
+      flags: { metamagic: "'empowered'" }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1
+  # Rerolls, once, the lowest damage dice at or below half their faces, up to the Charisma modifier
+  # (at least one).
+  - target: { rolls: [damage.spell] }
+    op: rollModifier
+    value:
+      kind: reroll
+      below: 'floor(maxOf(dieOf(roll.item.damage)) / 2)'
+      once: true
+      count: max(1, abilities.cha.mod)
+    when: has(flags.metamagic) && flags.metamagic == 'empowered' && has(roll.item.damage)

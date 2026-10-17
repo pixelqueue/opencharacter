@@ -1,0 +1,64 @@
+id: classes.fighter
+type: class
+fields:
+  hitDie: 1d10
+state:
+  secondWindSpent: { type: integer, default: 0, min: 0 }
+  actionSurgeSpent: { type: integer, default: 0, min: 0 }
+  indomitableSpent: { type: integer, default: 0, min: 0 }
+prerequisites:
+  - id: multiclass
+    when: (self.startingClass && self.level == level.total) || item.id in multiclass.qualified
+effects:
+  - target: proficiencies.weapons
+    op: grant
+    value: { query: { type: weapon, where: "item.category == 'simple'" } }
+    when: self.startingClass
+  - target: proficiencies.weapons
+    op: grant
+    value: { query: { type: weapon, where: "item.category == 'martial'" } }
+  - { target: proficiencies.armor, op: grant, value: { tag: light } }
+  - { target: proficiencies.armor, op: grant, value: { tag: medium } }
+  - { target: proficiencies.armor, op: grant, value: { tag: shield } }
+  - { target: proficiencies.armor, op: grant, value: { tag: heavy }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.str }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.con }, when: self.startingClass }
+grants:
+  - { item: features.fighter.fighting-style, when: self.level >= 1 }
+  - { item: features.fighter.second-wind, when: self.level >= 1 }
+  - { item: features.fighter.weapon-mastery, when: self.level >= 1 }
+  - { item: features.fighter.action-surge, when: self.level >= 2 }
+  - { item: features.fighter.tactical-mind, when: self.level >= 2 }
+  - { item: features.fighter.ability-score-improvement, when: self.level >= 4 }
+  - { item: features.extra-attack, when: self.level >= 5 }
+  - { item: features.fighter.tactical-shift, when: self.level >= 5 }
+  - { item: features.fighter.indomitable, when: self.level >= 9 }
+  - { item: features.fighter.tactical-master, when: self.level >= 9 }
+  - { item: features.fighter.two-extra-attacks, when: self.level >= 11 }
+  - { item: features.fighter.studied-attacks, when: self.level >= 13 }
+  - { item: features.fighter.epic-boon, when: self.level >= 19 }
+  - { item: features.fighter.three-extra-attacks, when: self.level >= 20 }
+choices:
+  - id: skills
+    pick: 2
+    unique: skills
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.animal-handling,
+          skill.athletics,
+          skill.history,
+          skill.insight,
+          skill.intimidation,
+          skill.persuasion,
+          skill.perception,
+          skill.survival,
+        ]
+      where: '!(value in proficiencies.skills) || value in choice.picks'
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: subclass
+    from: { type: subclass, where: 'item.class == @classes.fighter' }
+    when: self.level >= 3

@@ -1,0 +1,17 @@
+id: metamagic.careful-spell
+type: metamagic
+effects:
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      has(action.item.save)
+        && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: careful
+      flags: { metamagic: "'careful'" }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1

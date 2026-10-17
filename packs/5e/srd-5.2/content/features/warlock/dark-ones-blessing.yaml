@@ -1,0 +1,19 @@
+id: features.warlock.dark-ones-blessing
+type: feature
+actions:
+  # When the warlock, or someone within 10 feet of the warlock, reduces an enemy to 0 Hit Points.
+  - id: dark-ones-blessing
+    tags: [feature]
+    results: [blessed]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - type: set
+            field: hp.temp
+            value: max(hp.temp, max(1, abilities.cha.mod + self.level))
+      - id: result
+        kind: outcome
+        result: "'blessed'"
+        data:
+          temp: max(1, abilities.cha.mod + self.level)

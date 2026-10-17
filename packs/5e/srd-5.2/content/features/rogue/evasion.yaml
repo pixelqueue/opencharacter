@@ -1,0 +1,9 @@
+id: features.rogue.evasion
+type: feature
+# Save spells tag their damage with the save, so this halves the change again on a failure and
+# removes it on a success. Damage that isn't tagged is the app's.
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [save.dex] } }
+    op: multiply
+    value: "'save-success' in incoming.tags ? 0 : 0.5"
+    when: "'save-half' in incoming.tags && !conditions.incapacitated"

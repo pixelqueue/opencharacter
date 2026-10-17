@@ -1,0 +1,40 @@
+id: features.bard.bardic-inspiration
+type: feature
+effects:
+  - target: bardicInspiration.die
+    op: set
+    value: 'self.level >= 15 ? 1d12 : self.level >= 10 ? 1d10 : self.level >= 5 ? 1d8 : 1d6'
+  - { target: bardicInspiration.uses, op: set, value: 'max(1, abilities.cha.mod)' }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.bardicInspirationSpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: bardicInspirationSpent, value: 0 }
+actions:
+  # The die goes to the target as applied content, which offers it on the target's failed D20 Tests.
+  - id: bardic-inspiration
+    tags: [feature]
+    results: [inspired]
+    available: self.bardicInspirationSpent < bardicInspiration.uses
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: bardicInspirationSpent, by: 1 }
+      - id: give
+        kind: changes
+        to: target
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @features.bard.inspiration-die' }
+          - type: applyEffect
+            source: "'features.bard.inspiration-die'"
+            state: { die: bardicInspiration.die }
+      - id: result
+        kind: outcome
+        result: "'inspired'"
+        data:
+          die: bardicInspiration.die

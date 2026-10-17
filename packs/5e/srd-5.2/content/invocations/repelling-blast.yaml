@@ -1,0 +1,14 @@
+id: invocations.repelling-blast
+type: invocation
+repeatable: true
+# The push is the app's.
+prerequisites:
+  - id: level
+    when: self.level >= 2
+choices:
+  - id: cantrip
+    from: { type: spell, where: 'item.level == 0 && has(item.damage) && has(item.attack)' }
+    eligible: item.id in spells.warlock
+    activate: false
+    unique: repelling-blast
+    requiresOption: true

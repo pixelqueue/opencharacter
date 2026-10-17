@@ -1,0 +1,53 @@
+id: features.barbarian.intimidating-presence
+type: feature
+effects:
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.intimidatingPresenceUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: intimidatingPresenceUsed, value: false }
+# Used again before a Long Rest, it expends a use of Rage.
+actions:
+  - id: intimidating-presence
+    tags: [feature]
+    results: [frightening]
+    available: '!self.intimidatingPresenceUsed || self.rageSpent < rage.uses'
+    participants:
+      target:
+        fields: target
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - {
+              type: adjustState,
+              entry: self,
+              key: rageSpent,
+              by: 1,
+              when: self.intimidatingPresenceUsed,
+            }
+          - { type: setState, entry: self, key: intimidatingPresenceUsed, value: true }
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params:
+          ability: "'wis'"
+          dc: 8 + abilities.str.mod + proficiency.bonus
+      - id: frighten
+        kind: changes
+        each: target
+        when: has(steps.save) && steps.save.result == 'failure'
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.frightened'"
+            state: { by: creature.type }
+      - id: result
+        kind: outcome
+        result: "'frightening'"
+        data:
+          dc: 8 + abilities.str.mod + proficiency.bonus
+          save: "'wis'"

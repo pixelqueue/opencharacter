@@ -1,0 +1,64 @@
+id: classes.paladin
+type: class
+fields:
+  hitDie: 1d10
+state:
+  layOnHandsSpent: { type: integer, default: 0, min: 0 }
+  channelDivinitySpent: { type: integer, default: 0, min: 0 }
+  divineSmiteFreeUsed: { type: boolean, default: false }
+  findSteedFreeUsed: { type: boolean, default: false }
+  holyNimbusUsed: { type: boolean, default: false }
+prerequisites:
+  - id: multiclass
+    when: (self.startingClass && self.level == level.total) || item.id in multiclass.qualified
+effects:
+  - target: proficiencies.weapons
+    op: grant
+    value: { query: { type: weapon, where: "item.category == 'simple'" } }
+    when: self.startingClass
+  - target: proficiencies.weapons
+    op: grant
+    value: { query: { type: weapon, where: "item.category == 'martial'" } }
+  - { target: proficiencies.armor, op: grant, value: { tag: light } }
+  - { target: proficiencies.armor, op: grant, value: { tag: medium } }
+  - { target: proficiencies.armor, op: grant, value: { tag: heavy }, when: self.startingClass }
+  - { target: proficiencies.armor, op: grant, value: { tag: shield } }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.wis }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.cha }, when: self.startingClass }
+grants:
+  - { item: features.paladin.lay-on-hands, when: self.level >= 1 }
+  - { item: features.paladin.spellcasting, when: self.level >= 1 }
+  - { item: features.paladin.weapon-mastery, when: self.level >= 1 }
+  - { item: features.paladin.fighting-style, when: self.level >= 2 }
+  - { item: features.paladin.paladins-smite, when: self.level >= 2 }
+  - { item: features.paladin.channel-divinity, when: self.level >= 3 }
+  - { item: features.paladin.ability-score-improvement, when: self.level >= 4 }
+  - { item: features.extra-attack, when: self.level >= 5 }
+  - { item: features.paladin.faithful-steed, when: self.level >= 5 }
+  - { item: features.paladin.aura-of-protection, when: self.level >= 6 }
+  - { item: features.paladin.abjure-foes, when: self.level >= 9 }
+  - { item: features.paladin.aura-of-courage, when: self.level >= 10 }
+  - { item: features.paladin.radiant-strikes, when: self.level >= 11 }
+  - { item: features.paladin.restoring-touch, when: self.level >= 14 }
+  - { item: features.paladin.aura-expansion, when: self.level >= 18 }
+  - { item: features.paladin.epic-boon, when: self.level >= 19 }
+choices:
+  - id: skills
+    pick: 2
+    unique: skills
+    from:
+      values:
+        - skill.athletics
+        - skill.insight
+        - skill.intimidation
+        - skill.medicine
+        - skill.persuasion
+        - skill.religion
+      where: '!(value in proficiencies.skills) || value in choice.picks'
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: subclass
+    from: { type: subclass, where: 'item.class == @classes.paladin' }
+    when: self.level >= 3
+    recommend: '@subclasses.oath-of-devotion'

@@ -1,0 +1,10 @@
+id: features.wizard.sculpt-spells
+type: feature
+# A spared creature makes no save and takes no damage: it succeeds and takes none even from a
+# half-damage spell.
+effects:
+  - target: { choices: [sculpt] }
+    op: option
+    when: >-
+      !has(steps.sculpt) || countList(steps.sculpt, x.picked != 'affect') < 1 + action.item.level
+    value: { id: spare }

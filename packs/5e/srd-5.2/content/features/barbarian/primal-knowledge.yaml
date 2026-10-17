@@ -1,0 +1,52 @@
+id: features.barbarian.primal-knowledge
+type: feature
+choices:
+  - id: skill
+    unique: skills
+    from:
+      values:
+        [
+          skill.animal-handling,
+          skill.athletics,
+          skill.intimidation,
+          skill.nature,
+          skill.perception,
+          skill.survival,
+        ]
+      where: '!(value in proficiencies.skills) || value in choice.picks'
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+# A check with one of the five skills made as a Strength check while raging: the skill's
+# proficiency and Expertise, Strength's modifier, and the roll is a Strength check (Rage's
+# Advantage).
+actions:
+  - id: primal-knowledge
+    tags: [check]
+    available: rage.active
+    params:
+      skill: { type: enum, values: [acrobatics, intimidation, perception, stealth, survival] }
+      dc: { type: integer, optional: true }
+    results: [rolled, success, failure]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              proficient: ('skill.' + params.skill) in proficiencies.skills
+              expert: ('skill.' + params.skill) in proficiencies.expertise
+      - id: test
+        kind: action
+        use: d20-test
+        tags: [check, check.str, { formula: "'skill.' + params.skill" }]
+        params:
+          kind: "'check'"
+          ability: "'str'"
+          proficiency: '(flags.proficient ? 1 : 0) + (flags.expert ? 1 : 0)'
+          bonus: 'flags.proficient ? 0 : skills.unproficientBonus'
+          dc: 'has(params.dc) ? params.dc : null'
+      - id: result
+        kind: outcome
+        result: steps.test.result
+        data:
+          total: steps.test.data.total

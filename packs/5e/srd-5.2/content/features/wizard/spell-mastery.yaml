@@ -1,0 +1,22 @@
+id: features.wizard.spell-mastery
+type: feature
+# At its own level without a slot, at will; a higher level spends a slot.
+choices:
+  - id: spell
+    slots: [1, 2]
+    from:
+      type: spell
+      where: >-
+        item.level == slot && @classes.wizard in item.classes
+          && (!has(item.castingTime) || item.castingTime == 'action')
+    eligible: item.id in spells.wizardBook
+    effects:
+      - { target: spells.wizard, op: grant, value: { formula: pick.id } }
+      - { target: spells.free, op: grant, value: { formula: pick.id } }
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          action.item.id == pick.id && (!has(params.slot) || params.slot == action.item.level)
+        value:
+          id: spell-mastery
+          flags: { slot: action.item.level }

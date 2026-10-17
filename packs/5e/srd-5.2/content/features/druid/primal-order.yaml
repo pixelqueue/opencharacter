@@ -1,0 +1,22 @@
+id: features.druid.primal-order
+type: feature
+choices:
+  - id: order
+    from:
+      options:
+        - id: magician
+          effects:
+            - { target: skills.arcana, op: add, value: 'max(1, abilities.wis.mod)' }
+            - { target: skills.nature, op: add, value: 'max(1, abilities.wis.mod)' }
+          choices:
+            - id: cantrip
+              from: { type: spell, where: 'item.level == 0 && @classes.druid in item.classes' }
+              eligible: '!(item.id in spells.druid) || item.id in choice.picks'
+              effects:
+                - { target: spells.druid, op: grant, value: { formula: pick.id } }
+        - id: warden
+          effects:
+            - target: proficiencies.weapons
+              op: grant
+              value: { query: { type: weapon, where: "item.category == 'martial'" } }
+            - { target: proficiencies.armor, op: grant, value: { tag: medium } }

@@ -1,0 +1,98 @@
+id: features.paladin.lay-on-hands
+type: feature
+effects:
+  - { target: paladin.layOnHands, op: set, value: 5 * self.level }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.layOnHandsSpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: layOnHandsSpent, value: 0 }
+actions:
+  - id: lay-on-hands
+    tags: [healing]
+    available: self.layOnHandsSpent < paladin.layOnHands
+    params:
+      amount: { type: integer, min: 0 }
+      poisoned: { type: boolean, default: false }
+      blinded: { type: boolean, default: false }
+      charmed: { type: boolean, default: false }
+      deafened: { type: boolean, default: false }
+      frightened: { type: boolean, default: false }
+      paralyzed: { type: boolean, default: false }
+      stunned: { type: boolean, default: false }
+    results: [not-known, not-enough, healed]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              left: paladin.layOnHands - self.layOnHandsSpent
+              restoring: >-
+                params.blinded || params.charmed || params.deafened || params.frightened
+                  || params.paralyzed || params.stunned
+              cures: >-
+                (params.poisoned ? 1 : 0) + (params.blinded ? 1 : 0) + (params.charmed ? 1 : 0)
+                  + (params.deafened ? 1 : 0) + (params.frightened ? 1 : 0)
+                  + (params.paralyzed ? 1 : 0) + (params.stunned ? 1 : 0)
+      - id: cost
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              cost: params.amount + 5 * flags.cures
+      # Every condition but Poisoned is Restoring Touch's, at Paladin level 14.
+      - id: notKnown
+        kind: outcome
+        when: flags.restoring && self.level < 14
+        result: "'not-known'"
+      - id: tooMuch
+        kind: outcome
+        when: flags.cost == 0 || flags.cost > flags.left
+        result: "'not-enough'"
+        data:
+          left: flags.left
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: layOnHandsSpent, by: flags.cost }
+      - id: heal
+        kind: changes
+        when: params.amount > 0
+        to: target
+        changes:
+          - { type: adjust, field: hp.current, by: params.amount, tags: [healing] }
+      - id: cure
+        kind: changes
+        when: flags.cures > 0
+        to: target
+        changes:
+          - type: removeEffect
+            when: params.poisoned
+            applied: { where: 'item.id == @conditions.poisoned' }
+          - type: removeEffect
+            when: params.blinded
+            applied: { where: 'item.id == @conditions.blinded' }
+          - type: removeEffect
+            when: params.charmed
+            applied: { where: 'item.id == @conditions.charmed' }
+          - type: removeEffect
+            when: params.deafened
+            applied: { where: 'item.id == @conditions.deafened' }
+          - type: removeEffect
+            when: params.frightened
+            applied: { where: 'item.id == @conditions.frightened' }
+          - type: removeEffect
+            when: params.paralyzed
+            applied: { where: 'item.id == @conditions.paralyzed' }
+          - type: removeEffect
+            when: params.stunned
+            applied: { where: 'item.id == @conditions.stunned' }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: params.amount
+          cured: flags.cures
+          left: flags.left - flags.cost

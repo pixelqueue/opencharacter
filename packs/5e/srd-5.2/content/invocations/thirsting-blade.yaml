@@ -1,0 +1,10 @@
+id: invocations.thirsting-blade
+type: invocation
+prerequisites:
+  - id: level
+    when: self.level >= 5
+  - id: pact
+    when: '@invocations.pact-of-the-blade in warlock.invocations'
+# With the pact weapon only; read as the Attack action's attacks (Extra Attack doesn't stack).
+effects:
+  - { target: combat.attacks, op: atLeast, value: 2 }

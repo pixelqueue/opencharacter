@@ -1,0 +1,34 @@
+id: features.bard.expertise
+type: feature
+choices:
+  - id: skills
+    slots: [2, 9]
+    pick: 2
+    when: self.level >= slot
+    from:
+      values:
+        - skill.acrobatics
+        - skill.animal-handling
+        - skill.arcana
+        - skill.athletics
+        - skill.deception
+        - skill.history
+        - skill.insight
+        - skill.intimidation
+        - skill.investigation
+        - skill.medicine
+        - skill.nature
+        - skill.perception
+        - skill.performance
+        - skill.persuasion
+        - skill.religion
+        - skill.sleight-of-hand
+        - skill.stealth
+        - skill.survival
+      where: value in proficiencies.skills
+    eligible: '!(value in proficiencies.expertise) || value in choice.picks'
+    recommend: >-
+      filterList(['skill.performance', 'skill.persuasion'], x in proficiencies.skills
+        && !(x in proficiencies.expertise) && !(x in choice.picks))[0]
+    effects:
+      - { target: proficiencies.expertise, op: grant, value: { formula: pick.value } }

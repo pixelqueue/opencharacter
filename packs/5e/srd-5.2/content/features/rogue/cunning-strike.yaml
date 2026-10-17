@@ -1,0 +1,86 @@
+id: features.rogue.cunning-strike
+type: feature
+# The dice an effect costs come off the Sneak Attack roll (the `cunningStrike` situational choice);
+# this action resolves the effect on the target after the damage.
+effects:
+  - { target: rogue.cunningStrikes, op: atLeast, value: 1 }
+actions:
+  - id: cunning-strike
+    tags: [feature]
+    params:
+      effect:
+        { type: enum, values: [poison, trip, withdraw, daze, knock-out, obscure, stealth-attack] }
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [not-known, no-kit, too-large, used]
+    steps:
+      - id: notKnown
+        kind: outcome
+        when: >-
+          (params.effect in ['daze', 'knock-out', 'obscure'] && !rogue.deviousStrikes)
+            || (params.effect == 'stealth-attack' && !rogue.stealthAttack)
+        result: "'not-known'"
+      - id: noKit
+        kind: outcome
+        when: >-
+          params.effect == 'poison' && countCopies(copy.item == @tools.poisoners-kit) == 0
+        result: "'no-kit'"
+      - id: tooLarge
+        kind: outcome
+        when: >-
+          params.effect == 'trip' && size(participants.target) > 0
+            && participants.target[0].creature.size in ['huge', 'gargantuan']
+        result: "'too-large'"
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dc: 8 + abilities.dex.mod + proficiency.bonus
+              save: >-
+                params.effect in ['poison', 'daze', 'knock-out'] ? 'con'
+                  : params.effect in ['trip', 'obscure'] ? 'dex' : 'none'
+              cost: >-
+                params.effect == 'knock-out' ? 6 : params.effect == 'obscure' ? 3
+                  : params.effect == 'daze' ? 2 : 1
+      - id: saves
+        kind: action
+        each: target
+        when: flags.save != 'none'
+        as: participant
+        use: saving-throw
+        params:
+          ability: flags.save
+          dc: flags.dc
+      - id: apply
+        kind: changes
+        each: target
+        when: has(steps.saves) && steps.saves.result == 'failure'
+        to: target
+        changes:
+          - type: applyEffect
+            when: params.effect == 'poison'
+            source: "'conditions.poisoned'"
+            state: { by: creature.type }
+          - type: applyEffect
+            when: params.effect == 'trip'
+            source: "'conditions.prone'"
+            state: { by: creature.type }
+          - type: applyEffect
+            when: params.effect == 'knock-out'
+            source: "'conditions.unconscious'"
+            state: { by: creature.type }
+          - type: applyEffect
+            when: params.effect == 'obscure'
+            source: "'conditions.blinded'"
+            state: { by: creature.type }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          cost: flags.cost
+          dc: flags.dc
+          failed: >-
+            has(steps.saves) && countList(steps.saves, x != null && x.result == 'failure') > 0

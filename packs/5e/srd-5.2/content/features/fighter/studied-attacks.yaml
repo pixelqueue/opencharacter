@@ -1,0 +1,13 @@
+id: features.fighter.studied-attacks
+type: feature
+# A Vex entry on the missed creature: the next attack against it has Advantage and clears it.
+effects:
+  - target: { choices: [failed-attack] }
+    op: option
+    value:
+      id: studied
+      to: target
+      changes:
+        - type: applyEffect
+          source: "'combat-effects.vexed'"
+          state: { attacker: character.id }

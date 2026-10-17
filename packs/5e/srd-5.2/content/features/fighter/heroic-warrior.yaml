@@ -1,0 +1,16 @@
+id: features.fighter.heroic-warrior
+type: feature
+# Run at the start of a turn in combat.
+actions:
+  - id: heroic-warrior
+    tags: [feature]
+    results: [inspired]
+    available: '!heroicInspiration'
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: set, field: heroicInspiration, value: true }
+      - id: result
+        kind: outcome
+        result: "'inspired'"
