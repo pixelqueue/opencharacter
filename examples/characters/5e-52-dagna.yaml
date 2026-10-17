@@ -1,0 +1,110 @@
+# Dagna Stonehelm: a dwarf acolyte, cleric 5 (Life Domain), made by the guided start at level 5.
+# Derived values the engine should compute (not saved):
+#   level 5, proficiency +3, HP max 38 (Dwarven Toughness +5), AC 14 (chain shirt 13 − 1 Dex,
+#   shield 2), Wisdom 19, spell save DC 15, slots 4/3/2, Poison resistance, Darkvision 120 ft.,
+#   and Disciple of Life adding 2 + the slot level to her healing spells.
+specVersion: 0.1.0
+id: 4a8d2e6f-0b3c-4d71-8e95-1c7f3a9b5d26
+packs:
+  - id: 5e-srd-5.2
+    version: 0.1.0
+features:
+  - id: class
+    item: 5e-srd-5.2:classes.cleric
+    state:
+      level: 5
+      startingClass: true
+    choices:
+      skills:
+        - option: skill.medicine
+        - option: skill.persuasion
+      5e-srd-5.2:features.cleric.spellcasting/cantrips:
+        - option: 5e-srd-5.2:spells.sacred-flame
+        - option: 5e-srd-5.2:spells.guidance
+        - option: 5e-srd-5.2:spells.spare-the-dying
+        - option: 5e-srd-5.2:spells.thaumaturgy
+      5e-srd-5.2:features.cleric.spellcasting/spells:
+        - option: 5e-srd-5.2:spells.cure-wounds
+        - option: 5e-srd-5.2:spells.healing-word
+        - option: 5e-srd-5.2:spells.bless
+        - option: 5e-srd-5.2:spells.guiding-bolt
+        - option: 5e-srd-5.2:spells.shield-of-faith
+        - option: 5e-srd-5.2:spells.spiritual-weapon
+        - option: 5e-srd-5.2:spells.prayer-of-healing
+        - option: 5e-srd-5.2:spells.spirit-guardians
+        - option: 5e-srd-5.2:spells.animate-dead
+      5e-srd-5.2:features.cleric.divine-order/order:
+        - option: protector
+      subclass:
+        - option: 5e-srd-5.2:subclasses.life-domain
+      5e-srd-5.2:features.cleric.ability-score-improvement/feat-4:
+        - option: 5e-srd-5.2:feats.ability-score-improvement
+          choices:
+            increase:
+              - option: plus-two
+                choices:
+                  ability:
+                    - option: wis
+  - id: background
+    item: 5e-srd-5.2:backgrounds.acolyte
+    choices:
+      ability-increase:
+        - option: two-and-one
+          choices:
+            plus-two:
+              - option: wis
+            plus-one:
+              - option: cha
+      languages:
+        - option: 5e-srd-5.2:languages.common-sign-language
+        - option: 5e-srd-5.2:languages.draconic
+      5e-srd-5.2:feats.magic-initiate/list:
+        - option: cleric
+          choices:
+            ability:
+              - option: wis
+            cantrips:
+              - option: 5e-srd-5.2:spells.sacred-flame
+              - option: 5e-srd-5.2:spells.guidance
+            spell:
+              - option: 5e-srd-5.2:spells.cure-wounds
+  - id: species
+    item: 5e-srd-5.2:species.dwarf
+values:
+  5e-srd-5.2:abilities.str.base: 14
+  5e-srd-5.2:abilities.dex.base: 8
+  5e-srd-5.2:abilities.con.base: 13
+  5e-srd-5.2:abilities.int.base: 10
+  5e-srd-5.2:abilities.wis.base: 15
+  5e-srd-5.2:abilities.cha.base: 12
+  5e-srd-5.2:coins.gp: 615
+  5e-srd-5.2:hp.base: 28
+  5e-srd-5.2:xp.current: 6500
+  5e-srd-5.2:hp.current: 38
+inventory:
+  - id: armor-chain-shirt-1
+    item: 5e-srd-5.2:armor.chain-shirt
+    equipped: true
+  - id: armor-shield-1
+    item: 5e-srd-5.2:armor.shield
+    equipped: true
+  - id: weapons-mace-1
+    item: 5e-srd-5.2:weapons.mace
+    equipped: true
+  - id: gear-priests-pack-1
+    item: 5e-srd-5.2:gear.priests-pack
+  - id: gear-amulet-1
+    item: 5e-srd-5.2:gear.amulet
+  - id: tools-calligraphers-supplies-1
+    item: 5e-srd-5.2:tools.calligraphers-supplies
+  - id: gear-book-1
+    item: 5e-srd-5.2:gear.book
+  - id: gear-parchment-1
+    item: 5e-srd-5.2:gear.parchment
+    quantity: 10
+  - id: gear-robe-1
+    item: 5e-srd-5.2:gear.robe
+  - id: gear-amulet-2
+    item: 5e-srd-5.2:gear.amulet
+  - id: trinkets-enormous-scale-1
+    item: 5e-srd-5.2:trinkets.enormous-scale
