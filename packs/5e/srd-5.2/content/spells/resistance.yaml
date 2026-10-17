@@ -13,48 +13,64 @@ fields:
   durationUnit: minute
   durationAmount: 1
   applied: true
-state:
-  damageType: { type: string, default: '' }
+  castOptions: [acid, bludgeoning, cold, fire, lightning, necrotic, piercing, poison, radiant, slashing, thunder]
 # Once per turn is the table's to track.
 effects:
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: acid }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: bludgeoning }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: cold }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: fire }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: lightning }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: necrotic }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: piercing }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: poison }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: radiant }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: slashing }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: thunder }
   - target: { incoming: { fields: [hp.current], tags: [damage] } }
     op: add
     value: 1d4
-    when: "self.damageType != '' && ('damage.' + self.damageType) in incoming.tags"
+    when: "self.option != '' && ('damage.' + self.option) in incoming.tags"
     scope: applied
     duration: { amount: 1, unit: minute, concentration: true }
   - target: { incoming: { fields: [hp.current], tags: [damage] } }
     op: atMost
     value: 0
-    when: "self.damageType != '' && ('damage.' + self.damageType) in incoming.tags"
+    when: "self.option != '' && ('damage.' + self.option) in incoming.tags"
     scope: applied
     duration: { amount: 1, unit: minute, concentration: true }
-# The damage type is chosen on the creature it protects.
 actions:
   - use: cast-spell
-  - id: choose-damage-type
-    scope: applied
-    tags: [spell]
-    results: [done]
-    steps:
-      - id: damageType
-        kind: choice
-        options:
-          - { id: acid }
-          - { id: bludgeoning }
-          - { id: cold }
-          - { id: fire }
-          - { id: lightning }
-          - { id: necrotic }
-          - { id: piercing }
-          - { id: poison }
-          - { id: radiant }
-          - { id: slashing }
-          - { id: thunder }
-      - id: set
-        kind: changes
-        changes:
-          - { type: setState, entry: self, key: damageType, value: steps.damageType.picked }
-      - id: result
-        kind: outcome
-        result: "'done'"

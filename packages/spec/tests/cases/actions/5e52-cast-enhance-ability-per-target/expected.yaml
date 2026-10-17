@@ -1,0 +1,48 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    slot: 3
+    spellcastingClass: wizard
+    dc: 15
+    save: ""
+    halfOnSave: false
+    damage: 0
+    healing: 0
+    concentration: true
+    critical: false
+    metamagic: none
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change:
+      type: adjust
+      field: 5e-srd-5.2:spellSlots.level3.used
+      by: 1
+  - to: self
+    step: concentrate
+    change:
+      type: set
+      field: 5e-srd-5.2:concentration.active
+      value: true
+  - to: target
+    character: fighter
+    step: applyOn[0]
+    change:
+      type: applyEffect
+      source: 5e-srd-5.2:spells.enhance-ability
+      state:
+        castSlot: 3
+        castDc: 15
+        option: str
+  - to: target
+    character: rogue
+    step: applyOn[1]
+    change:
+      type: applyEffect
+      source: 5e-srd-5.2:spells.enhance-ability
+      state:
+        castSlot: 3
+        castDc: 15
+        option: dex
+

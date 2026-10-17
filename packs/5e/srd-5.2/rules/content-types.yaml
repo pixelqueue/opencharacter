@@ -146,6 +146,8 @@ contentTypes:
       castSlot: { type: integer, default: 0, min: 0, max: 9 }
       # The caster's spell save DC, for an effect the creature it's on keeps (Sanctuary).
       castDc: { type: integer, default: 0, min: 0 }
+      # The option picked when it was cast (one of its `castOptions`).
+      option: { type: string, default: '' }
     fields:
       level: { type: integer, required: true, min: 0, max: 9 }
       school:
@@ -198,6 +200,9 @@ contentTypes:
       saveEffect: { type: enum, values: [half, none] }
       condition: { type: id, of: condition }
       applied: { type: boolean }
+      # The options the caster picks from when casting it (Hex's ability), offered by the spell's
+      # own `option` effects on the cast's `spell-option` step.
+      castOptions: { type: set, of: string }
       maxHp: { type: integer }
       upcastMaxHp: { type: integer }
       damageType:

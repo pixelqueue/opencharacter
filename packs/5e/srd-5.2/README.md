@@ -160,6 +160,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
   - Empowered Spell rerolls the lowest dice; Overchannel maximizes the spell's first damage die
     type.
 - **Spells:**
+  - A spell's option (Hex's ability, Fire Shield's warmth, a resistance's type) is picked at the
+    cast for each target, so Calm Emotions and an upcast Enhance Ability can differ per creature,
+    and is kept on the applied spell. Only Alter Self's can be replaced later.
   - Enlarge/Reduce: only an unwilling target saves.
   - Black Tentacles' 3d6 is on a failed save only; a spell whose area is a wall or a square has
     no area shape.
@@ -281,9 +284,6 @@ as text are listed below.
   (Shillelagh, True Strike, Shapechange). Also text: extra targets and longer durations from
   higher slots, Enlarge/Reduce's size change, Chill Touch's no-regain, Beacon of Hope's maximum
   healing, Heroism's temporary hit points each turn.
-- **Choices at cast time:** a spell's option (Hex's ability, Fire Shield's warmth, a resistance's
-  type) is state on the applied spell, set by an action on the affected creature, since a cast
-  can't pass extra state.
 - **Effects that end themselves:** an applied effect can't remove itself when it triggers (Death
   Ward, Oil, Basic Poison): the app removes it.
 - **Metamagic:** Careful, Distant, Quickened, Subtle, Transmuted and Twinned Spell are recorded in

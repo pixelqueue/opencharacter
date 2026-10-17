@@ -284,6 +284,19 @@ actions:
         when: sorcery.metamagic
         options: [{ id: none }]
         recommend: "'none'"
+      # The spell's option, picked for each target (Calm Emotions' "choose for each creature"), or
+      # for the caster when it has none.
+      - id: spellOption
+        kind: choice
+        each: target
+        tags: [spell-option]
+        when: has(item.castOptions)
+        options: [{ id: none, when: 'false' }]
+      - id: spellOptionSelf
+        kind: choice
+        tags: [spell-option]
+        when: has(item.castOptions) && size(participants.target) == 0
+        options: [{ id: none, when: 'false' }]
       - id: counts
         kind: branch
         cases:
@@ -487,7 +500,12 @@ actions:
         changes:
           - type: applyEffect
             source: item.id
-            state: { castSlot: flags.slot, castDc: flags.dc }
+            state:
+              castSlot: flags.slot
+              castDc: flags.dc
+              option: >-
+                has(steps.spellOption)
+                  ? filterList(item.castOptions, item.id + '#' + x == steps.spellOption.picked)[0] : ''
           - type: adjust
             when: has(item.maxHp)
             field: hp.current
@@ -502,7 +520,13 @@ actions:
         changes:
           - type: applyEffect
             source: item.id
-            state: { castSlot: flags.slot, castDc: flags.dc }
+            state:
+              castSlot: flags.slot
+              castDc: flags.dc
+              option: >-
+                has(steps.spellOptionSelf)
+                  ? filterList(item.castOptions, item.id + '#' + x == steps.spellOptionSelf.picked)[0]
+                  : ''
           - type: adjust
             when: has(item.maxHp)
             field: hp.current

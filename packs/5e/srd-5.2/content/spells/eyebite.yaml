@@ -15,33 +15,23 @@ fields:
   save: wis
   saveEffect: none
   applied: true
-state:
-  effect: { type: enum, values: [asleep, panicked, sickened], default: asleep }
+  castOptions: [asleep, panicked, sickened]
 actions:
   - use: cast-spell
-  # The chosen option is state on the applied spell; it starts as the first.
-  - id: choose
-    scope: applied
-    tags: [spell]
-    results: [chosen]
-    steps:
-      - id: option
-        kind: choice
-        options:
-          - id: asleep
-            changes:
-              - { type: setState, entry: self, key: effect, value: "'asleep'" }
-          - id: panicked
-            changes:
-              - { type: setState, entry: self, key: effect, value: "'panicked'" }
-          - id: sickened
-            changes:
-              - { type: setState, entry: self, key: effect, value: "'sickened'" }
-        recommend: self.effect
-      - id: result
-        kind: outcome
-        result: "'chosen'"
 grants:
-  - { item: conditions.unconscious, scope: applied, when: "self.effect == 'asleep'" }
-  - { item: conditions.frightened, scope: applied, when: "self.effect == 'panicked'" }
-  - { item: conditions.poisoned, scope: applied, when: "self.effect == 'sickened'" }
+  - { item: conditions.unconscious, scope: applied, when: "self.option == 'asleep'" }
+  - { item: conditions.frightened, scope: applied, when: "self.option == 'panicked'" }
+  - { item: conditions.poisoned, scope: applied, when: "self.option == 'sickened'" }
+effects:
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: asleep }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: panicked }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: sickened }

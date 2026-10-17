@@ -12,36 +12,30 @@ fields:
   durationUnit: minute
   durationAmount: 10
   applied: true
-state: { chill: { type: boolean, default: false } }
+  castOptions: [warm, chill]
 effects:
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: warm }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: chill }
   - target: damage.resistances
     op: grant
     value: { tag: damage.cold }
     scope: applied
-    when: '!self.chill'
+    when: "self.option == 'warm'"
     duration: { amount: 10, unit: minute }
   - target: damage.resistances
     op: grant
     value: { tag: damage.fire }
     scope: applied
-    when: self.chill
+    when: "self.option == 'chill'"
     duration: { amount: 10, unit: minute }
-# The warm shield unless `chill` is set (the `chill-shield` action, when you cast it).
 actions:
   - use: cast-spell
-  - id: chill-shield
-    scope: applied
-    tags: [spell]
-    available: '!self.chill'
-    results: [chill]
-    steps:
-      - id: set
-        kind: changes
-        changes:
-          - { type: setState, entry: self, key: chill, value: true }
-      - id: result
-        kind: outcome
-        result: "'chill'"
   - id: erupt
     tags: [spell]
     participants: { target: {} }
@@ -56,7 +50,7 @@ actions:
         tags: [damage.spell]
         parts:
           - dice: 2d8
-            tags: [{ formula: "self.chill ? 'damage.cold' : 'damage.fire'" }]
+            tags: [{ formula: "self.option == 'chill' ? 'damage.cold' : 'damage.fire'" }]
       - id: deal
         kind: changes
         to: target

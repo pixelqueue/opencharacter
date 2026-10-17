@@ -14,50 +14,69 @@ fields:
   durationUnit: hour
   durationAmount: 1
   applied: true
-state:
-  ability:
-    type: enum
-    values: [none, str, dex, con, int, wis, cha]
-    default: none
+  castOptions: [str, dex, con, int, wis, cha]
 effects:
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: str }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: dex }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: con }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: int }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: wis }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: cha }
   - target: { rolls: [check.str] }
     op: rollModifier
     value: { kind: disadvantage }
     scope: applied
-    when: self.ability == 'str'
+    when: self.option == 'str'
     duration: { amount: 1, unit: hour, concentration: true }
   - target: { rolls: [check.dex] }
     op: rollModifier
     value: { kind: disadvantage }
     scope: applied
-    when: self.ability == 'dex'
+    when: self.option == 'dex'
     duration: { amount: 1, unit: hour, concentration: true }
   - target: { rolls: [check.con] }
     op: rollModifier
     value: { kind: disadvantage }
     scope: applied
-    when: self.ability == 'con'
+    when: self.option == 'con'
     duration: { amount: 1, unit: hour, concentration: true }
   - target: { rolls: [check.int] }
     op: rollModifier
     value: { kind: disadvantage }
     scope: applied
-    when: self.ability == 'int'
+    when: self.option == 'int'
     duration: { amount: 1, unit: hour, concentration: true }
   - target: { rolls: [check.wis] }
     op: rollModifier
     value: { kind: disadvantage }
     scope: applied
-    when: self.ability == 'wis'
+    when: self.option == 'wis'
     duration: { amount: 1, unit: hour, concentration: true }
   - target: { rolls: [check.cha] }
     op: rollModifier
     value: { kind: disadvantage }
     scope: applied
-    when: self.ability == 'cha'
+    when: self.option == 'cha'
     duration: { amount: 1, unit: hour, concentration: true }
-# Applied to the target; the ability with Disadvantage is the `ability` the target's app sets with
-# `curse-ability`. The extra damage is `hex-damage`, run on a hit.
+# The extra damage is `hex-damage`, run on a hit.
 actions:
   - use: cast-spell
   - id: hex-damage
@@ -94,20 +113,3 @@ actions:
         kind: outcome
         result: "'damage'"
         data: { damage: steps.damage.total }
-  - id: curse-ability
-    scope: applied
-    tags: [spell]
-    params:
-      ability: { type: enum, values: [str, dex, con, int, wis, cha] }
-    results: [cursed]
-    steps:
-      - id: set
-        kind: changes
-        changes:
-          - type: setState
-            entry: self
-            key: ability
-            value: params.ability
-      - id: result
-        kind: outcome
-        result: "'cursed'"
