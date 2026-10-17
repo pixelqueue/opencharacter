@@ -1,0 +1,152 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - id: 5e-srd-5.2
+    version: 0.1.0
+features:
+  - id: class
+    item: 5e-srd-5.2:classes.wizard
+    state:
+      level: 7
+      startingClass: true
+    choices:
+      skills:
+        - option: skill.investigation
+        - option: skill.insight
+      5e-srd-5.2:features.wizard.spellcasting/cantrips:
+        - option: 5e-srd-5.2:spells.fire-bolt
+        - option: 5e-srd-5.2:spells.mage-hand
+        - option: 5e-srd-5.2:spells.light
+        - option: 5e-srd-5.2:spells.minor-illusion
+      5e-srd-5.2:features.wizard.spellcasting/spellbook-1:
+        - option: 5e-srd-5.2:spells.magic-missile
+        - option: 5e-srd-5.2:spells.shield
+        - option: 5e-srd-5.2:spells.mage-armor
+        - option: 5e-srd-5.2:spells.detect-magic
+        - option: 5e-srd-5.2:spells.sleep
+        - option: 5e-srd-5.2:spells.burning-hands
+      5e-srd-5.2:features.wizard.spellcasting/prepared:
+        - option: 5e-srd-5.2:spells.magic-missile
+        - option: 5e-srd-5.2:spells.shield
+        - option: 5e-srd-5.2:spells.mage-armor
+        - option: 5e-srd-5.2:spells.detect-magic
+        - option: 5e-srd-5.2:spells.sleep
+        - option: 5e-srd-5.2:spells.misty-step
+        - option: 5e-srd-5.2:spells.scorching-ray
+        - option: 5e-srd-5.2:spells.fireball
+        - option: 5e-srd-5.2:spells.counterspell
+        - option: 5e-srd-5.2:spells.burning-hands
+        - option: 5e-srd-5.2:spells.greater-invisibility
+      5e-srd-5.2:features.wizard.spellcasting/spellbook-2:
+        - option: 5e-srd-5.2:spells.thunderwave
+        - option: 5e-srd-5.2:spells.feather-fall
+      5e-srd-5.2:features.wizard.scholar/expertise:
+        - option: skill.arcana
+      subclass:
+        - option: 5e-srd-5.2:subclasses.evoker
+          choices:
+            5e-srd-5.2:features.wizard.evocation-savant/spells:
+              - option: 5e-srd-5.2:spells.scorching-ray
+              - option: 5e-srd-5.2:spells.acid-arrow
+            5e-srd-5.2:features.wizard.evocation-savant/new-level-5:
+              - option: 5e-srd-5.2:spells.fireball
+            5e-srd-5.2:features.wizard.evocation-savant/new-level-7:
+              - option: 5e-srd-5.2:spells.ice-storm
+      5e-srd-5.2:features.wizard.spellcasting/spellbook-3:
+        - option: 5e-srd-5.2:spells.misty-step
+        - option: 5e-srd-5.2:spells.invisibility
+      5e-srd-5.2:features.wizard.spellcasting/spellbook-4:
+        - option: 5e-srd-5.2:spells.web
+        - option: 5e-srd-5.2:spells.alarm
+      5e-srd-5.2:features.wizard.ability-score-improvement/feat-4:
+        - option: 5e-srd-5.2:feats.ability-score-improvement
+          choices:
+            increase:
+              - option: plus-two
+                choices:
+                  ability:
+                    - option: int
+      5e-srd-5.2:features.wizard.spellcasting/spellbook-5:
+        - option: 5e-srd-5.2:spells.counterspell
+        - option: 5e-srd-5.2:spells.fly
+      5e-srd-5.2:features.wizard.spellcasting/spellbook-6:
+        - option: 5e-srd-5.2:spells.lightning-bolt
+        - option: 5e-srd-5.2:spells.alter-self
+      5e-srd-5.2:features.wizard.spellcasting/spellbook-7:
+        - option: 5e-srd-5.2:spells.greater-invisibility
+        - option: 5e-srd-5.2:spells.animate-dead
+  - id: background
+    item: 5e-srd-5.2:backgrounds.sage
+    choices:
+      ability-increase:
+        - option: two-and-one
+          choices:
+            plus-two:
+              - option: int
+            plus-one:
+              - option: wis
+      languages:
+        - option: 5e-srd-5.2:languages.common-sign-language
+        - option: 5e-srd-5.2:languages.draconic
+      5e-srd-5.2:feats.magic-initiate/list:
+        - option: wizard
+          choices:
+            ability:
+              - option: int
+            cantrips:
+              - option: 5e-srd-5.2:spells.fire-bolt
+              - option: 5e-srd-5.2:spells.mage-hand
+            spell:
+              - option: 5e-srd-5.2:spells.magic-missile
+  - id: species
+    item: 5e-srd-5.2:species.elf
+    choices:
+      lineage:
+        - option: 5e-srd-5.2:lineages.high-elf
+          choices:
+            ability:
+              - option: int
+      5e-srd-5.2:traits.keen-senses/skill:
+        - option: skill.perception
+values:
+  5e-srd-5.2:abilities.str.base: 8
+  5e-srd-5.2:abilities.dex.base: 12
+  5e-srd-5.2:abilities.con.base: 13
+  5e-srd-5.2:abilities.int.base: 15
+  5e-srd-5.2:abilities.wis.base: 14
+  5e-srd-5.2:abilities.cha.base: 10
+  5e-srd-5.2:coins.gp: 713
+  5e-srd-5.2:hp.base: 30
+  5e-srd-5.2:xp.current: 23000
+  5e-srd-5.2:hp.current: 37
+  5e-srd-5.2:spellSlots.level3.used: 3
+inventory:
+  - id: weapons-dagger-1
+    item: 5e-srd-5.2:weapons.dagger
+    equipped: true
+    quantity: 2
+  - id: weapons-quarterstaff-1
+    item: 5e-srd-5.2:weapons.quarterstaff
+    templates:
+      - 5e-srd-5.2:gear.staff
+    equipped: true
+  - id: gear-robe-1
+    item: 5e-srd-5.2:gear.robe
+  - id: gear-spellbook-1
+    item: 5e-srd-5.2:gear.spellbook
+  - id: gear-scholars-pack-1
+    item: 5e-srd-5.2:gear.scholars-pack
+  - id: weapons-quarterstaff-2
+    item: 5e-srd-5.2:weapons.quarterstaff
+    equipped: true
+  - id: tools-calligraphers-supplies-1
+    item: 5e-srd-5.2:tools.calligraphers-supplies
+  - id: gear-book-1
+    item: 5e-srd-5.2:gear.book
+  - id: gear-parchment-1
+    item: 5e-srd-5.2:gear.parchment
+    quantity: 8
+  - id: gear-robe-2
+    item: 5e-srd-5.2:gear.robe
+  - id: trinkets-diary-missing-pages-1
+    item: 5e-srd-5.2:trinkets.diary-missing-pages

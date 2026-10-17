@@ -1,0 +1,37 @@
+status: finished
+outcome:
+  result: hit
+  data:
+    critical: false
+    attack: 24
+    damage: 9
+    mastery: sap
+    push: 0
+    cleave: false
+proposedChanges:
+  - to: self
+    step: test/heroicInspiration
+    change:
+      type: set
+      field: 5e-srd-5.2:heroicInspiration
+      value: false
+  - to: target
+    character: goblin
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -9
+      tags:
+        - damage
+        - attack
+        - weapon
+        - melee
+        - nonmagical
+        - damage.bludgeoning
+  - to: target
+    character: goblin
+    step: riders
+    change:
+      type: applyEffect
+      source: 5e-srd-5.2:combat-effects.sapped

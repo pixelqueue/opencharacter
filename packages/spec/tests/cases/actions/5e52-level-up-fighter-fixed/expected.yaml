@@ -1,0 +1,58 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: gain
+    change:
+      type: adjustState
+      key: level
+      copies:
+        type: 5e-srd-5.2:class
+        where: item.id == '5e-srd-5.2:classes.fighter'
+      limit: 1
+      by: 1
+  - to: self
+    step: hp
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.base
+      by: 6
+  - to: self
+    step: current
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: 7
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - 5e-srd-5.2:features.fighter.ability-score-improvement/feat-6
+      option: 5e-srd-5.2:feats.ability-score-improvement
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - 5e-srd-5.2:features.fighter.ability-score-improvement/feat-6
+          - 5e-srd-5.2:feats.ability-score-improvement
+          - increase
+      option: plus-two
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - 5e-srd-5.2:features.fighter.ability-score-improvement/feat-6
+          - 5e-srd-5.2:feats.ability-score-improvement
+          - increase
+          - plus-two
+          - ability
+      option: dex

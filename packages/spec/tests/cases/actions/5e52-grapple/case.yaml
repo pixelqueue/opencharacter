@@ -1,0 +1,24 @@
+description: '5E 2024 Grapple: the target saves against DC 8 + Str + PB, or is Grappled with that escape DC'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: 5e-srd-5.2:grapple
+  participants:
+    target:
+      - id: goblin
+        values:
+          combat.ac: 15
+          creature.size: small
+          creature.type: humanoid
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+answers:
+  - outcome:
+      result: failure
+      data:
+        total: 6

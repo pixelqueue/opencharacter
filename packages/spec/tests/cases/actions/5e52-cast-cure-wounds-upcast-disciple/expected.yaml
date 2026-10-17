@@ -1,0 +1,30 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    slot: 3
+    spellcastingClass: cleric
+    dc: 15
+    save: ''
+    halfOnSave: false
+    damage: 0
+    healing: 42
+    concentration: false
+    critical: false
+    metamagic: none
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change:
+      type: adjust
+      field: 5e-srd-5.2:spellSlots.level3.used
+      by: 1
+  - to: target
+    character: goblin
+    step: restore
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: 42
+      tags:
+        - healing

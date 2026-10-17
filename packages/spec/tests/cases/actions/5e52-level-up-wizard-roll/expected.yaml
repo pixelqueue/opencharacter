@@ -1,0 +1,85 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: gain
+    change:
+      type: adjustState
+      key: level
+      copies:
+        type: 5e-srd-5.2:class
+        where: item.id == '5e-srd-5.2:classes.wizard'
+      limit: 1
+      by: 1
+  - to: self
+    step: hp
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.base
+      by: 5
+  - to: self
+    step: current
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: 6
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - 5e-srd-5.2:features.wizard.spellcasting/spellbook-8
+      option: 5e-srd-5.2:spells.arcane-eye
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - 5e-srd-5.2:features.wizard.spellcasting/spellbook-8
+      option: 5e-srd-5.2:spells.arcane-lock
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - 5e-srd-5.2:features.wizard.spellcasting/prepared
+      option: 5e-srd-5.2:spells.acid-arrow
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - 5e-srd-5.2:features.wizard.ability-score-improvement/feat-8
+      option: 5e-srd-5.2:feats.ability-score-improvement
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - 5e-srd-5.2:features.wizard.ability-score-improvement/feat-8
+          - 5e-srd-5.2:feats.ability-score-improvement
+          - increase
+      option: plus-two
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - 5e-srd-5.2:features.wizard.ability-score-improvement/feat-8
+          - 5e-srd-5.2:feats.ability-score-improvement
+          - increase
+          - plus-two
+          - ability
+      option: wis

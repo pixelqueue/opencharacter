@@ -1,0 +1,25 @@
+ok: true
+followUps:
+  - id: damage-while-dying-1
+    kind: ephemeral
+    followUp: 5e-srd-5.2:damage-while-dying
+    to: self
+    required: true
+    changes:
+      - type: adjust
+        field: 5e-srd-5.2:deathSaves.failures
+        by: 2
+      - type: clearFollowUp
+        id: damage-while-dying-1
+    cause:
+      field: 5e-srd-5.2:hp.current
+      by: 0
+      requested: -4
+      taken: -4
+      reason: requested
+      clamped: true
+      tags:
+        - damage
+        - attack
+        - critical
+        - damage.slashing
