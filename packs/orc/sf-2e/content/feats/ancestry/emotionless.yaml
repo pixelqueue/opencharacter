@@ -1,0 +1,14 @@
+id: feats.ancestry.emotionless
+type: feat
+tags: [trait.android]
+fields: { level: 1, category: ancestry, ancestry: ancestries.android }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: situational.againstEmotion
+  - target: { rolls: [save], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.againstEmotion

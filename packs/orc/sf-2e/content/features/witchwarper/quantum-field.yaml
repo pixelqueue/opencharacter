@@ -1,0 +1,22 @@
+id: features.witchwarper.quantum-field
+type: feature
+fields: { level: 1 }
+actions:
+  - id: warp-reality
+    tags: [class-action, trait.concentrate]
+    available: '!quantum.active'
+    results: [warped]
+    steps:
+      - id: apply
+        kind: changes
+        changes: [{ type: set, field: quantum.active, value: true }]
+      - { id: result, kind: outcome, result: "'warped'", data: { radius: quantum.radius } }
+  - id: dismiss-quantum-field
+    tags: [class-action, trait.concentrate]
+    available: quantum.active
+    results: [dismissed]
+    steps:
+      - id: apply
+        kind: changes
+        changes: [{ type: set, field: quantum.active, value: false }]
+      - { id: result, kind: outcome, result: "'dismissed'" }

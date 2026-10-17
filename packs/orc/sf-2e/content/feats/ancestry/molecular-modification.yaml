@@ -1,0 +1,16 @@
+id: feats.ancestry.molecular-modification
+type: feat
+tags: [trait.barathu]
+fields: { level: 5, category: ancestry, ancestry: ancestries.barathu }
+choices:
+  - id: type
+    unique: molecular-modification
+    from:
+      values: [acid, bludgeoning, cold, electricity, fire, piercing, poison, slashing, sonic]
+    effects:
+      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: add
+        stackKey: resistance
+        value: 'min(-incoming.amount, max(1, floor(level / 2)))'
+        when: "incoming.amount < 0 && ('damage.' + pick.value) in incoming.tags"
+repeatable: true

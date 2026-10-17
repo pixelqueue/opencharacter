@@ -1,0 +1,39 @@
+id: backgrounds.disciple
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.custom1 }
+    when: "!('skill.lore.custom1' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants: [{ item: feats.skill.religious-talisman, waivePrerequisites: true }]
+choices:
+  - { id: boost, unique: background-boosts, from: { type: boost } }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }
+  - id: divine-skill
+    from:
+      values:
+        - skill.acrobatics
+        - skill.arcana
+        - skill.athletics
+        - skill.computers
+        - skill.crafting
+        - skill.deception
+        - skill.diplomacy
+        - skill.intimidation
+        - skill.medicine
+        - skill.nature
+        - skill.occultism
+        - skill.performance
+        - skill.piloting
+        - skill.religion
+        - skill.society
+        - skill.stealth
+        - skill.survival
+        - skill.thievery
+    effects:
+      - target: skills.trained
+        op: grant
+        value: { formula: pick.value }
+        when: '!(pick.value in skills.chosen)'
+      - { target: skills.trainings, op: add, value: 1 }

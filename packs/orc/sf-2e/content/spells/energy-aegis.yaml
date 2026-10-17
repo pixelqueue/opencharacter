@@ -1,0 +1,23 @@
+id: spells.energy-aegis
+type: spell
+tags:
+  - tradition.arcane
+  - tradition.divine
+  - tradition.occult
+  - tradition.primal
+  - trait.concentrate
+  - trait.manipulate
+fields:
+  rank: 7
+  cast: one-minute
+  range: 0
+  targets: 1
+  duration: until-daily-preparations
+  applyTo: ally
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, self.rank >= 9 ? 10 : 5)'
+    when: "incoming.amount < 0 && size(filterList(['damage.acid', 'damage.cold', 'damage.electricity', 'damage.fire', 'damage.force', 'damage.sonic', 'damage.vitality', 'damage.void'], x in incoming.tags)) > 0"
+    scope: applied

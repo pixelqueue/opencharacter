@@ -1,0 +1,8 @@
+id: feats.archetype.operative.master-spy
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 12, category: class, archetype: archetypes.operative }
+prerequisites:
+  - { id: feat, when: '@feats.archetype.operative.operative-dedication in feats.held' }
+  - { id: expert, when: 'perception.rank >= 2' }
+effects: [{ target: perception.rank, op: atLeast, value: 3 }]

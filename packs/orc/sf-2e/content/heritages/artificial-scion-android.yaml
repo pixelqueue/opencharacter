@@ -1,0 +1,10 @@
+id: heritages.artificial-scion-android
+type: heritage
+fields: { ancestry: ancestries.android }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.computers }
+    when: "!('skill.computers' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants: [{ item: feats.skill.phreaker, waivePrerequisites: true }]

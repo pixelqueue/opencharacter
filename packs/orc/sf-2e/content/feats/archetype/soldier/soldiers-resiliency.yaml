@@ -1,0 +1,8 @@
+id: feats.archetype.soldier.soldiers-resiliency
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.soldier }
+prerequisites:
+  - { id: feat, when: '@feats.archetype.soldier.soldier-dedication in feats.held' }
+  - { id: requirement, when: hp.class <= 8 }
+effects: [{ target: hp.max, op: add, value: '3 * archetypes.soldier.feats' }]

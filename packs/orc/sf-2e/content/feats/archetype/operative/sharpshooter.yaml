@@ -1,0 +1,7 @@
+id: feats.archetype.operative.sharpshooter
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.operative }
+prerequisites:
+  - { id: feat, when: '@feats.archetype.operative.operative-dedication in feats.held' }
+effects: [{ target: operative.aimDice, op: set, value: 'level >= 6 ? 2 : 1' }]

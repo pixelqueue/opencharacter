@@ -1,0 +1,25 @@
+id: feats.skill.automatic-knowledge
+type: feat
+fields:
+  {
+    level: 2,
+    category: skill,
+    skills:
+      [
+        skill.arcana,
+        skill.crafting,
+        skill.medicine,
+        skill.nature,
+        skill.occultism,
+        skill.religion,
+        skill.society,
+        skill.lore,
+      ],
+  }
+repeatable: true
+
+prerequisites:
+  - id: expert
+    when: "skills.arcana.rank >= 2 || skills.crafting.rank >= 2 || skills.medicine.rank >= 2 || skills.nature.rank >= 2 || skills.occultism.rank >= 2 || skills.religion.rank >= 2 || skills.society.rank >= 2 || maxFields(f.value, 'lore' in f.tags && 'skill-rank' in f.tags) >= 2"
+  - id: assurance
+    when: '@feats.skill.assurance in feats.held'

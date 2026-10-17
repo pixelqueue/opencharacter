@@ -1,0 +1,51 @@
+id: feats.skill.legendary-medic
+type: feat
+fields: { level: 15, category: skill, skills: [skill.medicine] }
+
+prerequisites:
+  - id: legendary
+    when: skills.medicine.rank >= 4
+actions:
+  - id: legendary-medic
+    tags: [exploration-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      patient: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: aim
+        kind: choice
+        recommend: "'blinded'"
+        options:
+          - { id: disease }
+          - { id: blinded }
+          - { id: deafened }
+          - { id: doomed }
+          - { id: drained }
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.legendary-medic]
+        params: { check: "'skills.medicine.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: cure
+        kind: changes
+        when: >-
+          size(participants.patient) > 0 && steps.aim.picked != 'disease'
+            && steps.check.result in ['success', 'critical-success']
+        to: patient
+        changes:
+          - type: removeEffect
+            applied: { where: "item.id == 'orc-sf-2e:conditions.' + steps.aim.picked" }
+      - id: cureSelf
+        kind: changes
+        when: >-
+          size(participants.patient) == 0 && steps.aim.picked != 'disease'
+            && steps.check.result in ['success', 'critical-success']
+        changes:
+          - type: removeEffect
+            applied: { where: "item.id == 'orc-sf-2e:conditions.' + steps.aim.picked" }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }

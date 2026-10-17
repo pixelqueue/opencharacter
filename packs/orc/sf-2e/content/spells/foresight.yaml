@@ -1,0 +1,18 @@
+id: spells.foresight
+type: spell
+tags:
+  - tradition.arcane
+  - tradition.divine
+  - tradition.occult
+  - trait.concentrate
+  - trait.manipulate
+  - trait.mental
+  - trait.prediction
+fields: { rank: 9, cast: two, range: 0, targets: 1, applyTo: ally }
+effects:
+  - target: { rolls: [perception] }
+    op: add
+    value: 2
+    stackKey: status-bonus
+    when: situational.initiative
+    scope: applied

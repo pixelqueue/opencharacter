@@ -1,0 +1,10 @@
+id: grades.armor-advanced
+type: template
+tags: [grade]
+appliesTo: { type: armor, where: "!('natural' in item.tags)" }
+fields:
+  potency: 1
+  upgradeSlots: prior.upgradeSlots + 1
+  level: 'max(prior.level, 8)'
+  price: '(has(prior.price) ? prior.price : 0) + 5000'
+  resilient: 1

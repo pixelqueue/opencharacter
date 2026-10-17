@@ -1,0 +1,46 @@
+# Grades and upgrades are templates on a weapon, armor or shield copy. Each is tagged with its kind,
+# and the rules grant the set of each kind every template with its tag, so a copy counts its own by
+# kind in `self.templates`: more upgrades than its upgrade slots, or two grades, add 1 to
+# `upgrades.invalid`, which a constraint reports.
+fields:
+  grades.all: { type: set, of: string }
+  upgrades.weapon: { type: set, of: string }
+  upgrades.armor: { type: set, of: string }
+  upgrades.invalid: { type: integer, formula: 0 }
+
+tags:
+  - grade
+  - upgrade.weapon
+  - upgrade.armor
+  - trait.fusion
+  - trait.hybrid
+  - trait.modification
+
+effects:
+  - target: grades.all
+    op: grant
+    value: { query: { type: template, where: "'grade' in item.tags" } }
+  - target: upgrades.weapon
+    op: grant
+    value: { query: { type: template, where: "'upgrade.weapon' in item.tags" } }
+  - target: upgrades.armor
+    op: grant
+    value: { query: { type: template, where: "'upgrade.armor' in item.tags" } }
+
+constraints:
+  - id: upgrade-limits
+    check: upgrades.invalid == 0
+    data: { items: upgrades.invalid }
+
+situational:
+  - { id: holyTarget, type: boolean, default: false, rolls: [strike] }
+  - { id: unholyTarget, type: boolean, default: false, rolls: [strike] }
+  - { id: undeadTarget, type: boolean, default: false, rolls: [strike] }
+
+# The sets are lookups (every template of the kind), not the character's own.
+display:
+  fields:
+    grades.all: { hidden: true }
+    upgrades.weapon: { hidden: true }
+    upgrades.armor: { hidden: true }
+    upgrades.invalid: { hidden: true }

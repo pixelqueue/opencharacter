@@ -1,0 +1,37 @@
+id: feats.mystic.new-epiphany
+type: feat
+tags: [trait.mystic]
+fields: { level: 6, category: class, class: classes.mystic }
+prerequisites:
+  - id: expert
+    when: "mystic.connection != 'akashic' && skills.occultism.rank >= 2 || mystic.connection != 'elemental' && skills.nature.rank >= 2 || mystic.connection != 'healing' && skills.medicine.rank >= 2 || mystic.connection != 'rhythm' && skills.performance.rank >= 2 || mystic.connection != 'shadow' && skills.stealth.rank >= 2"
+effects: [{ target: focus.points, op: add, value: 1 }]
+choices:
+  - id: spell
+    from:
+      options:
+        - id: akashic
+          prerequisites:
+            - id: connection
+              when: "mystic.connection != 'akashic' && skills.occultism.rank >= 2"
+          grants: [{ item: spells.akashic-fount }]
+        - id: elemental
+          prerequisites:
+            - id: connection
+              when: "mystic.connection != 'elemental' && skills.nature.rank >= 2"
+          grants: [{ item: spells.elemental-weapon }]
+        - id: healing
+          prerequisites:
+            - id: connection
+              when: "mystic.connection != 'healing' && skills.medicine.rank >= 2"
+          grants: [{ item: spells.infusion }]
+        - id: rhythm
+          prerequisites:
+            - id: connection
+              when: "mystic.connection != 'rhythm' && skills.performance.rank >= 2"
+          grants: [{ item: spells.anthem }]
+        - id: shadow
+          prerequisites:
+            - id: connection
+              when: "mystic.connection != 'shadow' && skills.stealth.rank >= 2"
+          grants: [{ item: spells.shadow-snap }]

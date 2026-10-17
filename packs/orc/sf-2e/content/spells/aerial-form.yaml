@@ -1,0 +1,47 @@
+id: spells.aerial-form
+type: spell
+tags: [tradition.arcane, tradition.primal, trait.concentrate, trait.manipulate, trait.polymorph]
+fields:
+  rank: 4
+  cast: two
+  duration: minutes
+  durationAmount: 1
+  applyTo: self
+  tempHp: 5
+  heighten: 1
+  heightenTempHp: 5
+effects:
+  - { target: battleForm.active, op: set, value: true, scope: applied }
+  - target: battleForm.acBase
+    op: set
+    value: 'self.rank >= 6 ? 21 : self.rank >= 5 ? 18 : 18'
+    scope: applied
+  - { target: battleForm.formAttacks, op: set, value: true, scope: applied }
+  - target: battleForm.attack
+    op: set
+    value: 'self.rank >= 6 ? 21 : self.rank >= 5 ? 18 : 16'
+    scope: applied
+  - target: battleForm.damage
+    op: set
+    value: 'self.rank >= 6 ? 4 : self.rank >= 5 ? 8 : 5'
+    scope: applied
+  - target: battleForm.diceMultiplier
+    op: set
+    value: 'self.rank >= 6 ? 2 : self.rank >= 5 ? 1 : 1'
+    scope: applied
+  - { target: battleForm.dex, op: set, value: true, scope: applied }
+  - target: speed.fly
+    op: add
+    value: 'self.rank >= 6 ? 15 : self.rank >= 5 ? 10 : 0'
+    stackKey: status-bonus
+    when: 'self.rank >= 5'
+    scope: applied
+  - target: skills.acrobatics.mod
+    op: atLeast
+    value: 'self.rank >= 6 ? 23 : self.rank >= 5 ? 20 : 16'
+    scope: applied
+grants:
+  - { item: forms.aerial-form.bat, scope: applied, when: "self.form == 'bat'" }
+  - { item: forms.aerial-form.bird, scope: applied, when: "self.form == 'bird'" }
+  - { item: forms.aerial-form.pterosaur, scope: applied, when: "self.form == 'pterosaur'" }
+  - { item: forms.aerial-form.wasp, scope: applied, when: "self.form == 'wasp'" }

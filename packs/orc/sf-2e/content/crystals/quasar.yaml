@@ -1,0 +1,7 @@
+id: crystals.quasar
+type: template
+tags: [crystal.orbital, trait.magical]
+appliesTo: { type: weapon, where: "'solar' in item.tags" }
+fields: { price: '(has(prior.price) ? prior.price : 0) + 30000', level: 'max(prior.level, 13)' }
+effects:
+  - { target: { rolls: [attack], from: self, tally: successToCritOn19 }, op: add, value: 1 }

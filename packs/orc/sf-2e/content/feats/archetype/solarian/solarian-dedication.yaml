@@ -1,0 +1,14 @@
+id: feats.archetype.solarian.solarian-dedication
+type: feat
+tags: [trait.archetype, archetype-feat, trait.dedication, trait.multiclass]
+fields: { level: 2, category: class, archetype: archetypes.solarian }
+prerequisites:
+  - { id: attribute, when: 'attributes.str.mod >= 2' }
+  - { id: requirement, when: 'countCopies(copy.item == @classes.solarian) == 0' }
+effects:
+  - { target: attacks.solar.rank, op: atLeast, value: 1 }
+  - { target: classDc.solarian.rank, op: atLeast, value: 1 }
+grants:
+  - { item: features.solarian.stellar-attunement }
+  - { item: features.solarian.re-forge-solar-weapon }
+  - { item: features.solarian.dedication-solar-weapon }

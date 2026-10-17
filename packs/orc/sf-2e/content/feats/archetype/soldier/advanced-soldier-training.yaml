@@ -1,0 +1,15 @@
+id: feats.archetype.soldier.advanced-soldier-training
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.soldier }
+prerequisites:
+  - { id: feat, when: '@feats.archetype.soldier.basic-soldier-training in feats.held' }
+effects: [{ target: archetypes.soldier.repeats, op: add, value: 1 }]
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: "item.category == 'class' && !('trait.archetype' in item.tags) && (has(item.class) && item.class == @classes.soldier || 'trait.soldier' in item.tags)"
+    eligible: item.level <= floor(level / 2)
+repeatable: true

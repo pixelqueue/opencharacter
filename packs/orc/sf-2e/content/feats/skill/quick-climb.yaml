@@ -1,0 +1,9 @@
+id: feats.skill.quick-climb
+type: feat
+fields: { level: 7, category: skill, skills: [skill.athletics] }
+
+prerequisites:
+  - id: master
+    when: 'skills.athletics.rank >= 3'
+effects:
+  - { target: speed.climb.base, op: atLeast, value: speed.land, when: 'skills.athletics.rank >= 4' }

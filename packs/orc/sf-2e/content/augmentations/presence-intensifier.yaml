@@ -1,0 +1,17 @@
+id: augmentations.presence-intensifier
+type: augmentation
+tags: [trait.apex]
+fields: { level: 17, kind: cybernetic, bulk: 0, price: 150000 }
+effects:
+  - target: skills.diplomacy.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: self.equipped
+  - target: skills.intimidation.mod
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: self.equipped
+  - { target: attributes.cha.mod, op: add, value: 1, when: 'self.equipped && self.apex' }
+  - { target: attributes.cha.mod, op: atLeast, value: 4, when: 'self.equipped && self.apex' }

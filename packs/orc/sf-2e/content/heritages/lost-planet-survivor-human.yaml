@@ -1,0 +1,10 @@
+id: heritages.lost-planet-survivor-human
+type: heritage
+fields: { ancestry: ancestries.human }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.custom2 }
+    when: "!('skill.lore.custom2' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: languages.extra, op: add, value: 1 }

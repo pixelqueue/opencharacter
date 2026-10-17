@@ -1,0 +1,30 @@
+id: conditions.sickened
+type: condition
+effects:
+  - target: { fields: { where: "'check' in item.tags || 'dc' in item.tags" } }
+    op: add
+    value: -self.value
+    stackKey: status-penalty
+    scope: applied
+actions:
+  - id: retch
+    scope: applied
+    tags: [condition]
+    params:
+      dc: { type: integer }
+    steps:
+      - id: save
+        kind: action
+        use: check
+        params: { check: "'saves.fortitude.mod'", dc: params.dc }
+      - id: lower
+        kind: changes
+        when: steps.save.result in ['success', 'critical-success']
+        changes:
+          - type: adjustState
+            applied: { where: self.id == action.self.id }
+            key: value
+            by: "steps.save.result == 'critical-success' ? -2 : -1"
+          - type: removeEffect
+            when: "self.value <= (steps.save.result == 'critical-success' ? 2 : 1)"
+            applied: { where: self.id == action.self.id }

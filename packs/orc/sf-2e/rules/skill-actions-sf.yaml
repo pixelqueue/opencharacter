@@ -1,0 +1,151 @@
+# Computers and Piloting actions: each rolls the skill's check tagged `skill-action.<id>` against the
+# GM's DC; what a degree does is the action's text.
+tags:
+  - skill-action.access-infosphere
+  - skill-action.hack
+  - skill-action.operate-device
+  - skill-action.navigate
+  - skill-action.plot-course
+  - skill-action.stunt
+
+actions:
+  - id: access-infosphere
+    tags: [exploration-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.access-infosphere]
+        params: { check: "'skills.computers.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: hack
+    tags: [exploration-action]
+    available: skills.computers.rank >= 1
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.hack]
+        params: { check: "'skills.computers.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: progress
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              {
+                successes: "steps.check.result == 'critical-success' ? 2 : steps.check.result == 'success' ? 1 : 0",
+              }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc, successes: flags.successes }
+
+  - id: operate-device
+    tags: [exploration-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.operate-device]
+        params: { check: "'skills.computers.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: navigate
+    tags: [exploration-action]
+    available: skills.piloting.rank >= 1
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.navigate]
+        params: { check: "'skills.piloting.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: plot-course
+    tags: [exploration-action]
+    available: skills.piloting.rank >= 1
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.plot-course]
+        params: { check: "'skills.piloting.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  # A stunt while Driving: its penalty applies to every Piloting check it calls for.
+  - id: stunt
+    tags: [skill-action]
+    available: skills.piloting.rank >= 1
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: stunt
+        kind: choice
+        recommend: "'back-off'"
+        options:
+          - { id: back-off, flags: { penalty: 1 } }
+          - { id: evade, flags: { penalty: 1 } }
+          - { id: flip-and-burn, flags: { penalty: 1 } }
+          - { id: barrel-roll, flags: { penalty: 2 } }
+          - { id: flyby, flags: { penalty: 2 } }
+          - { id: drift, flags: { penalty: 2 } }
+          - { id: turn-in-place, flags: { penalty: 2 } }
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.stunt]
+        situational: { penalty: 'situational.penalty + flags.penalty' }
+        params: { check: "'skills.piloting.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc, penalty: flags.penalty }
+
+  # Cover is the app's to judge: standard cover becomes greater (+4), otherwise standard (+2).
+  - id: take-cover
+    tags: [skill-action]
+    params:
+      standardCover: { type: boolean, optional: true }
+    results: [covered]
+    steps:
+      - id: cover
+        kind: changes
+        changes:
+          - type: removeEffect
+            when: 'countList(character.applied, x.source == @effects.taking-cover) > 0'
+            applied: { where: 'item.id == @effects.taking-cover' }
+          - type: applyEffect
+            source: "'effects.taking-cover'"
+            state: { value: 'has(params.standardCover) && params.standardCover ? 4 : 2' }
+      - id: result
+        kind: outcome
+        result: "'covered'"

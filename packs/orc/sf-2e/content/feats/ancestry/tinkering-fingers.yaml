@@ -1,0 +1,10 @@
+id: feats.ancestry.tinkering-fingers
+type: feat
+tags: [trait.ysoki]
+fields: { level: 1, category: ancestry, ancestry: ancestries.ysoki }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.crafting }
+    when: "!('skill.crafting' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }

@@ -1,0 +1,11 @@
+id: feats.ancestry.unliving-memories
+type: feat
+tags: [trait.borai]
+fields: { level: 5, category: ancestry, heritage: heritages.borai }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.religion }
+    when: "!('skill.religion' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants: [{ item: feats.skill.additional-lore, waivePrerequisites: true }]

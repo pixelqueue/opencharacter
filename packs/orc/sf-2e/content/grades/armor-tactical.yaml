@@ -1,0 +1,9 @@
+id: grades.armor-tactical
+type: template
+tags: [grade]
+appliesTo: { type: armor, where: "!('natural' in item.tags)" }
+fields:
+  potency: 1
+  upgradeSlots: prior.upgradeSlots + 0
+  level: 'max(prior.level, 5)'
+  price: '(has(prior.price) ? prior.price : 0) + 1600'

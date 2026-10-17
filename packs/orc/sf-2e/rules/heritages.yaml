@@ -1,0 +1,20 @@
+tags:
+  - sense.limited-telepathy
+  - sense.shortwave
+  - damage.precision
+
+fields:
+  # The highest swim Speed any source gives; bonuses to a Speed you have raise it.
+  speed.swim.base: { type: integer, formula: 0, min: 0 }
+  speed.swim: { type: integer, formula: speed.swim.base, min: 0, tags: [speed] }
+
+situational:
+  - { id: againstForcedMovement, type: boolean, default: false, rolls: [save] }
+  - { id: againstUndead, type: boolean, default: false, rolls: [save] }
+  - { id: naturalEnvironment, type: boolean, default: false, rolls: [skill] }
+  - { id: telepathicContact, type: boolean, default: false, rolls: [skill-action.sense-motive] }
+
+display:
+  fields:
+    speed.swim: { groups: [summary], priority: 2, unit: ft }
+    speed.swim.base: { hidden: true }

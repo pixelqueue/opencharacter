@@ -1,0 +1,13 @@
+id: feats.archetype.witchwarper.basic-distortion
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.witchwarper }
+prerequisites:
+  - { id: feat, when: '@feats.archetype.witchwarper.witchwarper-dedication in feats.held' }
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: "item.category == 'class' && !('trait.archetype' in item.tags) && (has(item.class) && item.class == @classes.witchwarper || 'trait.witchwarper' in item.tags)"
+    eligible: item.level <= 2

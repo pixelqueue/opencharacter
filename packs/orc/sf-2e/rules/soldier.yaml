@@ -1,0 +1,31 @@
+fields:
+  soldier.bombard: { type: boolean, formula: false }
+  soldier.armorStorm: { type: boolean, formula: false }
+  attacks.overwhelmingAssault: { type: boolean, formula: false }
+  attacks.autoFirePerTarget: { type: integer, formula: 2, min: 1 }
+
+situational:
+  - id: bySuppressed
+    type: boolean
+    default: false
+    incoming: { fields: [hp.current], tags: [damage] }
+    available: soldier.armorStorm
+  - id: suppressedTarget
+    type: boolean
+    default: false
+    rolls:
+      [
+        skill-action.disarm,
+        skill-action.grapple,
+        skill-action.reposition,
+        skill-action.shove,
+        skill-action.trip,
+      ]
+    available: soldier.armorStorm
+
+display:
+  fields:
+    soldier.bombard: { hidden: true }
+    soldier.armorStorm: { hidden: true }
+    attacks.overwhelmingAssault: { hidden: true }
+    attacks.autoFirePerTarget: { hidden: true }

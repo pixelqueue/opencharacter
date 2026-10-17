@@ -1,0 +1,19 @@
+id: effects.taking-cover
+type: effect
+effects:
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: self.value
+    stackKey: circumstance-bonus
+    scope: applied
+  - target: { rolls: [save.reflex] }
+    op: add
+    value: self.value
+    stackKey: circumstance-bonus
+    when: situational.againstArea
+    scope: applied
+  - target: { rolls: [skill-action.hide, skill-action.sneak] }
+    op: add
+    value: self.value
+    stackKey: circumstance-bonus
+    scope: applied

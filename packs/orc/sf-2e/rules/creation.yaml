@@ -1,0 +1,153 @@
+fields:
+  creation.needsClass: { type: boolean, formula: true }
+
+creation:
+  - { id: standard, action: create-character }
+  - { id: random, action: random-character, random: true }
+
+constraints:
+  - id: creation-ancestry-background-class
+    check: >-
+      !character.creating || (size(ancestry.held) > 0
+        && (countCopies(copy.type == 'class') > 0 || !creation.needsClass)
+        && countCopies(copy.type == 'background') > 0)
+
+actions:
+  - id: create-character
+    tags: [creation]
+    available: character.creating
+    steps:
+      - id: ancestry
+        kind: choice
+        options: { content: { type: ancestry } }
+        changes:
+          - type: addItem
+            entry: { id: ancestry, item: picked.id }
+      - id: heritage
+        kind: choice
+        options:
+          content:
+            type: heritage
+            where: item.versatile || item.ancestry == steps.ancestry.picked
+        changes:
+          - { type: choose, path: { entry: ancestry, choice: [heritage] }, option: picked.id }
+      - id: background
+        kind: choice
+        options: { content: { type: background } }
+        changes:
+          - type: addItem
+            entry: { id: background, item: picked.id }
+      - id: class
+        kind: choice
+        options: { content: { type: class } }
+        changes:
+          - type: addItem
+            entry: { id: class, item: picked.id }
+      - id: ancestryPicks
+        kind: choice
+        options: { pending: { entry: "'ancestry'" } }
+      - id: backgroundPicks
+        kind: choice
+        options: { pending: { entry: "'background'" } }
+      - id: classPicks
+        kind: choice
+        options: { pending: { entry: "'class'" } }
+      - id: picks
+        kind: choice
+        options: { pending: {} }
+      - id: finish
+        kind: changes
+        sheet: proposed
+        changes:
+          - { type: set, field: hp.current, value: hp.max }
+          - { type: finishCreation }
+
+  # The book has players choose, so the random start's odds are the pack's: each pick is drawn
+  # uniformly among the options eligible then, in the guided start's order. Boosts follow a priority
+  # instead: an ancestry takes its standard boosts, and every boost goes to the first offered of the
+  # class's key attribute, Constitution, Dexterity, Wisdom, Strength, Intelligence and Charisma. The
+  # ancestry's and background's boosts come before the key attribute pick, so the key is planned
+  # with the class: its own, else Strength or Dexterity on a d2.
+  - id: random-character
+    tags: [creation]
+    available: character.creating
+    steps:
+      - id: ancestry
+        kind: choice
+        options: { content: { type: ancestry } }
+        random: true
+        changes:
+          - type: addItem
+            entry: { id: ancestry, item: picked.id }
+      - id: heritage
+        kind: choice
+        options:
+          content:
+            type: heritage
+            where: item.versatile || item.ancestry == steps.ancestry.picked
+        random: true
+        changes:
+          - { type: choose, path: { entry: ancestry, choice: [heritage] }, option: picked.id }
+      - id: background
+        kind: choice
+        options: { content: { type: background } }
+        random: true
+        changes:
+          - type: addItem
+            entry: { id: background, item: picked.id }
+      - id: class
+        kind: choice
+        options: { content: { type: class } }
+        random: true
+        changes:
+          - type: addItem
+            entry: { id: class, item: picked.id }
+      - id: keyDie
+        kind: roll
+        sheet: proposed
+        when: class.keyAttribute == 'none'
+        parts: [{ dice: 1d2 }]
+      - id: plan
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              key: "class.keyAttribute != 'none' ? class.keyAttribute : ['str', 'dex'][steps.keyDie.total - 1]"
+              priority: >-
+                [@boosts.con, @boosts.dex,
+                  @boosts.wis, @boosts.str,
+                  @boosts.int, @boosts.cha]
+      - id: ancestryPicks
+        kind: choice
+        options: { pending: { entry: "'ancestry'" } }
+        random: &random >-
+          !('standard' in options) && !(choice.id == 'key-attribute' && flags.key in options)
+            && !(options[0] in flags.priority)
+        recommend: &pick >-
+          'standard' in options ? 'standard'
+            : choice.id == 'key-attribute' && flags.key in options ? flags.key
+            : (['orc-sf-2e:boosts.' + class.keyAttribute, 'orc-sf-2e:boosts.' + flags.key]
+                + flags.priority)[minList(options, indexOf(['orc-sf-2e:boosts.'
+                + class.keyAttribute, 'orc-sf-2e:boosts.' + flags.key] + flags.priority, x))]
+      - id: backgroundPicks
+        kind: choice
+        options: { pending: { entry: "'background'" } }
+        random: *random
+        recommend: *pick
+      - id: classPicks
+        kind: choice
+        options: { pending: { entry: "'class'" } }
+        random: *random
+        recommend: *pick
+      - id: picks
+        kind: choice
+        options: { pending: {} }
+        random: *random
+        recommend: *pick
+      - id: finish
+        kind: changes
+        sheet: proposed
+        changes:
+          - { type: set, field: hp.current, value: hp.max }
+          - { type: finishCreation }

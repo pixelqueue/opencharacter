@@ -1,0 +1,74 @@
+settings:
+  rounding: floor # orc-sf-2e rounds down unless a rule says otherwise.
+  roundIncoming: magnitude # Halved damage rounds down: 11 fire damage halved is 5.
+  # A bonus and a penalty of the same type both apply, so each type has a key per sign.
+  stacking:
+    default: addAll
+    keys:
+      circumstance-bonus: highestOnly
+      circumstance-penalty: lowestOnly
+      status-bonus: highestOnly
+      status-penalty: lowestOnly
+      item-bonus: highestOnly
+      item-penalty: lowestOnly
+      potency-bonus: highestOnly
+      # Only the highest resistance and the highest weakness that apply to a damage change count
+      # (damage is one change per type). A resistance is a positive add capped at the damage, a
+      # weakness a negative one.
+      resistance: highestOnly
+      weakness: lowestOnly
+  rollModifiers:
+    advantage: cancel
+  competing:
+    recommend: highest
+
+families:
+  attribute: [str, dex, con, int, wis, cha]
+
+fields:
+  level: { type: integer, input: true, default: 1, min: 1, max: 20 }
+  proficiency.level: { type: integer, formula: level }
+  proficiency.untrained: { type: integer, formula: 0 }
+
+  # A boost to an attribute already at +4 or more is a partial boost: two of them raise it by 1.
+  # Each boost pick adds 1 to its attribute's count and a flaw takes 1 off.
+  'attributes.{attribute}.boosts': { type: integer, formula: 0, tags: [attribute-boosts] }
+  'attributes.{attribute}.mod':
+    type: integer
+    tags: [attribute]
+    formula: >-
+      attributes.{attribute}.boosts <= 4 ? attributes.{attribute}.boosts : 4 + floor((attributes.{attribute}.boosts - 4) / 2)
+
+  hp.ancestry: { type: integer, formula: 0 }
+  hp.class: { type: integer, formula: 0 }
+  hp.max:
+    { type: integer, formula: 'max(1, hp.ancestry + (hp.class + attributes.con.mod) * level)' }
+  hp.current: { type: integer, input: true, default: 0, min: 0, max: hp.max, absorbedBy: [hp.temp] }
+  hp.temp: { type: integer, input: true, default: 0, min: 0 }
+
+  speed.land: { type: integer, formula: 0, min: 0, tags: [speed] }
+  creature.size:
+    { type: enum, values: [tiny, small, medium, large, huge, gargantuan], formula: "'medium'" }
+  senses: { type: set, of: tag, members: { under: [sense] } }
+  traits: { type: set, of: tag, members: { under: [trait] } }
+  languages: { type: set, of: language }
+  languages.extra: { type: integer, formula: 0 }
+
+  ancestry.held: { type: set, of: ancestry }
+
+  skills.maxRank: { type: integer, formula: 'level >= 15 ? 4 : level >= 7 ? 3 : 2' }
+
+contentTypes:
+  language:
+    effects:
+      - { target: languages, op: grant, value: { formula: item.id } }
+
+  # Each pick is one activation, so a boost picked twice in different choices counts twice.
+  boost:
+    fields:
+      attribute: { type: enum, values: [str, dex, con, int, wis, cha], required: true }
+
+choices:
+  - id: languages
+    pick: max(0, attributes.int.mod) + languages.extra
+    from: { type: language, where: "!('language.secret' in item.tags)" }

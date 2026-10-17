@@ -1,0 +1,53 @@
+id: features.soldier.style.erudite-warrior
+type: feature
+fields: { level: 1 }
+choices:
+  - id: skill
+    from: { values: [skill.diplomacy, skill.society] }
+    effects:
+      - target: skills.trained
+        op: grant
+        value: { formula: pick.value }
+        when: '!(pick.value in skills.chosen)'
+      - { target: skills.trainings, op: add, value: 1 }
+      - target: { fields: { where: "'skill-rank' in item.tags && pick.value in item.tags" } }
+        op: atLeast
+        value: 'level >= 17 ? 4 : level >= 13 ? 3 : level >= 7 ? 2 : 1'
+  - id: lore
+    from:
+      values:
+        - skill.lore.academia
+        - skill.lore.alcohol
+        - skill.lore.animal
+        - skill.lore.art
+        - skill.lore.augmentation
+        - skill.lore.business
+        - skill.lore.cooking
+        - skill.lore.corporate
+        - skill.lore.games
+        - skill.lore.genealogy
+        - skill.lore.history
+        - skill.lore.hyperspace
+        - skill.lore.infosphere
+        - skill.lore.labor
+        - skill.lore.legal
+        - skill.lore.life-science
+        - skill.lore.media
+        - skill.lore.mining
+        - skill.lore.physical-science
+        - skill.lore.piracy
+        - skill.lore.plant
+        - skill.lore.sports
+        - skill.lore.underworld
+        - skill.lore.vidgame
+        - skill.lore.warfare
+        - skill.lore.custom3
+    effects:
+      - target: skills.trained
+        op: grant
+        value: { formula: pick.value }
+        when: '!(pick.value in skills.chosen)'
+      - { target: skills.trainings, op: add, value: 1 }
+      - target: { fields: { where: "'skill-rank' in item.tags && pick.value in item.tags" } }
+        op: atLeast
+        value: 'level >= 17 ? 4 : level >= 13 ? 3 : level >= 7 ? 2 : 1'

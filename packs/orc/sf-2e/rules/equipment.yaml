@@ -1,0 +1,601 @@
+# Ten light items make 1 Bulk (decimals keep six places, so their sum is exact), and fractions are
+# dropped.
+fields:
+  bulk.carried:
+    type: integer
+    formula: >-
+      floor(sumCopies(copy.fields.bulk * copy.quantity, has(copy.fields.bulk)
+        && (!has(copy.state.container) || copy.state.container == ''))) + coins.bulk
+  bulk.encumbered: { type: integer, formula: 5 + attributes.str.mod }
+  bulk.max: { type: integer, formula: 10 + attributes.str.mod }
+  # The attribute armor's Strength requirement reads (the soldier's Walking Armory may use
+  # Constitution).
+  armor.strength: { type: integer, formula: attributes.str.mod }
+  armor.speedPenalty: { type: integer, formula: 0, min: 0 }
+  # Bulwark armor's modifier to Reflex saves against damaging effects; Armor Ace raises it and gives
+  # every armor the trait.
+  armor.bulwark: { type: integer, formula: 3 }
+  armor.allBulwark: { type: boolean, formula: false }
+  augmentations.limit: { type: integer, formula: 4, min: 0 }
+  augmentations.count:
+    type: integer
+    formula: >-
+      countCopies(copy.type == 'augmentation' && copy.equipped && !copy.fields.implantFree
+        && !('trait.apex' in copy.tags))
+
+constraints:
+  - id: bulk-limit
+    check: bulk.carried <= bulk.max
+    data: { carried: bulk.carried, limit: bulk.max }
+  - id: implant-limit
+    check: augmentations.count <= augmentations.limit
+    data: { implanted: augmentations.count, limit: augmentations.limit }
+  - id: one-apex
+    check: 'countCopies(has(copy.state.apex) && copy.state.apex) <= 1'
+
+effects:
+  - id: armor-speed
+    target: speed.land
+    op: add
+    value: -armor.speedPenalty
+    when: armor.speedPenalty > 0 && !battleForm.active
+
+contentTypes:
+  # Natural armor (tagged `natural`, a heritage's scales) is always worn.
+  armor:
+    carried: true
+    equippable: true
+    fields:
+      category: { type: enum, values: [unarmored, light, medium, heavy], required: true }
+      level: { type: integer, default: 0, min: 0, max: 30 }
+      acBonus: { type: integer, required: true }
+      dexCap: { type: integer, required: true }
+      checkPenalty: { type: integer, default: 0, min: 0 }
+      speedPenalty: { type: integer, default: 0, min: 0 }
+      strength: { type: integer }
+      group:
+        {
+          type: enum,
+          values: [cloth, leather, composite, chain, plate, skeletal, ceramic, polymer],
+        }
+      upgradeSlots: { type: integer, default: 1, min: 0, max: 4 }
+      bulk: { type: decimal, default: 0, min: 0 }
+      price: { type: decimal, min: 0 }
+    state:
+      used: { type: integer, default: 0, min: 0 }
+      container: { type: string, default: '' }
+    actions:
+      - use: sell
+      - use: store
+      - use: retrieve
+    effects:
+      - {
+          id: category,
+          target: armor.category,
+          op: set,
+          value: item.category,
+          when: (self.equipped || 'natural' in item.tags),
+        }
+      - {
+          id: dex-cap,
+          target: armor.dexCap,
+          op: atMost,
+          value: item.dexCap,
+          when: (self.equipped || 'natural' in item.tags),
+        }
+      - id: ac-bonus
+        target: { fields: { where: "'ac' in item.tags" } }
+        op: add
+        value: item.acBonus + item.potency
+        stackKey: item-bonus
+        when: (self.equipped || 'natural' in item.tags) && item.acBonus + item.potency > 0 && !battleForm.active
+      - id: upgrade-count
+        target: upgrades.invalid
+        op: add
+        value: 1
+        when: >-
+          countList(self.templates, x in upgrades.armor) > item.upgradeSlots
+            || countList(self.templates, x in grades.all) > 1
+      - id: resilient
+        target: { fields: { where: "'save' in item.tags" } }
+        op: add
+        value: item.resilient
+        stackKey: item-bonus
+        when: (self.equipped || 'natural' in item.tags) && item.resilient > 0
+      # Flexible armor spares Acrobatics and Athletics; noisy armor's penalty applies to Stealth
+      # even when the Strength is met.
+      - id: check-penalty
+        target:
+          fields:
+            where: >-
+              'skill' in item.tags && ('attr.str' in item.tags || 'attr.dex' in item.tags)
+                && !('skill.acrobatics' in item.tags || 'skill.athletics' in item.tags
+                  || 'skill.stealth' in item.tags)
+        op: add
+        value: -item.checkPenalty
+        when: >-
+          (self.equipped || 'natural' in item.tags) && item.checkPenalty > 0 && !battleForm.active
+            && !(has(item.strength) && armor.strength >= item.strength)
+      - id: check-penalty-flexible
+        target:
+          fields:
+            where: "'skill' in item.tags && ('skill.acrobatics' in item.tags || 'skill.athletics' in item.tags)"
+        op: add
+        value: -item.checkPenalty
+        when: >-
+          (self.equipped || 'natural' in item.tags) && item.checkPenalty > 0 && !('trait.flexible' in item.tags)
+            && !(has(item.strength) && armor.strength >= item.strength)
+      - id: check-penalty-noisy
+        target: { fields: { where: "'skill' in item.tags && 'skill.stealth' in item.tags" } }
+        op: add
+        value: -item.checkPenalty
+        when: >-
+          (self.equipped || 'natural' in item.tags) && item.checkPenalty > 0 && ('trait.noisy' in item.tags
+            || !(has(item.strength) && armor.strength >= item.strength))
+      - id: speed-penalty
+        target: armor.speedPenalty
+        op: add
+        value: 'max(0, item.speedPenalty - (has(item.strength) && armor.strength >= item.strength ? 5 : 0))'
+        when: (self.equipped || 'natural' in item.tags) && item.speedPenalty > 0
+
+  # Its `damage` state is the Hit Points it has lost: at or below the Broken Threshold it gives no
+  # bonus, at 0 it is destroyed.
+  shield:
+    carried: true
+    equippable: true
+    fields:
+      level: { type: integer, default: 0, min: 0, max: 30 }
+      acBonus: { type: integer, required: true }
+      hardness: { type: integer, required: true }
+      hp: { type: integer, required: true }
+      bt: { type: integer, required: true }
+      speedPenalty: { type: integer, default: 0, min: 0 }
+      bulk: { type: decimal, default: 0, min: 0 }
+      price: { type: decimal, min: 0 }
+    state:
+      damage: { type: integer, min: 0, max: item.hp, default: 0 }
+      used: { type: integer, default: 0, min: 0 }
+      container: { type: string, default: '' }
+    actions:
+      - use: sell
+      - use: store
+      - use: retrieve
+    effects:
+      - id: raised
+        target: { fields: { where: "'ac' in item.tags" } }
+        op: add
+        value: item.acBonus
+        stackKey: circumstance-bonus
+        when: (self.equipped || 'natural' in item.tags) && shield.raised && item.hp - self.damage > item.bt
+      - id: speed-penalty
+        target: speed.land
+        op: add
+        value: -item.speedPenalty
+        when: (self.equipped || 'natural' in item.tags) && item.speedPenalty > 0
+      - id: hardness
+        target: shield.hardness
+        op: atLeast
+        value: item.hardness
+        when: (self.equipped || 'natural' in item.tags) && self.damage < item.hp
+      - id: block
+        target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: add
+        value: min(item.hardness, -incoming.amount)
+        when: >-
+          situational.shieldBlock && (self.equipped || 'natural' in item.tags) && shield.raised && self.damage < item.hp
+            && incoming.amount < 0
+        then:
+          - type: adjustState
+            entry: self
+            key: damage
+            by: max(0, -incoming.amount - item.hardness)
+
+  # Held or worn gear is equipped: a toolkit's item bonus counts while you hold or wear it.
+  gear:
+    carried: true
+    equippable: true
+    fields:
+      level: { type: integer, default: 0, min: 0, max: 30 }
+      bulk: { type: decimal, default: 0, min: 0 }
+      price: { type: decimal, min: 0 }
+      hands: { type: integer, default: 0, min: 0, max: 2 }
+    state:
+      container: { type: string, default: '' }
+    actions:
+      - use: sell
+      - use: store
+      - use: retrieve
+
+  # Rounds are a stack (`quantity` is the rounds); a battery or chem tank is a copy holding its
+  # charges, which a reload swaps with the weapon's.
+  ammunition:
+    carried: true
+    fields:
+      kind: { type: enum, values: [rounds, charges, chems], required: true }
+      level: { type: integer, default: 0, min: 0, max: 30 }
+      charges: { type: integer, default: 0, min: 0 }
+      bulk: { type: decimal, default: 0, min: 0 }
+      price: { type: decimal, min: 0 }
+    state:
+      charges: { type: integer, default: item.charges, min: 0, max: item.charges }
+      container: { type: string, default: '' }
+    actions:
+      - use: recharge
+      - use: sell
+      - use: store
+      - use: retrieve
+
+  # Implanted is equipped. An apex augmentation raises its attribute while it is the one chosen
+  # (`apex`, set at daily preparations).
+  augmentation:
+    carried: true
+    equippable: true
+    texts: [activation]
+    fields:
+      level: { type: integer, required: true, min: 0, max: 30 }
+      kind: { type: enum, values: [biotech, cybernetic, magitech], default: cybernetic }
+      implantFree: { type: boolean, default: false }
+      price: { type: decimal, min: 0 }
+      bulk: { type: decimal, default: 0, min: 0 }
+      activation:
+        type: enum
+        values: [none, free, reaction, one, two, three, cast, one-minute, ten-minutes, one-hour]
+        default: none
+      frequency:
+        type: enum
+        values:
+          [none, once-per-round, once-per-minute, once-per-ten-minutes, once-per-hour, once-per-day]
+        default: none
+    state:
+      apex: { type: boolean, default: false }
+      used: { type: integer, default: 0, min: 0 }
+    actions:
+      - use: choose-apex
+      - use: sell
+
+  consumable:
+    carried: true
+    fields:
+      category:
+        type: enum
+        values: [grenade, medical, serum, spell-amp, spell-gem, ammunition, other]
+        required: true
+      level: { type: integer, required: true, min: 0, max: 30 }
+      bulk: { type: decimal, default: 0, min: 0 }
+      price: { type: decimal, min: 0 }
+      healing: { type: dice }
+      healingBonus: { type: integer, default: 0, min: 0 }
+      tempHp: { type: dice }
+      lasting: { type: boolean, default: false }
+      family: { type: id, of: consumable }
+      damage: { type: dice }
+      damageType:
+        type: enum
+        values:
+          [
+            none,
+            acid,
+            bludgeoning,
+            cold,
+            electricity,
+            fire,
+            mental,
+            piercing,
+            slashing,
+            sonic,
+            void,
+          ]
+        default: none
+      areaSize: { type: integer, default: 0, min: 0 }
+      persistent: { type: dice }
+      persistentType: { type: enum, values: [none, acid, bleed, electricity, fire], default: none }
+      itemBonus: { type: integer, default: 0, min: 0, max: 4 }
+      save: { type: enum, values: [reflex, fortitude, will], default: reflex }
+      basic: { type: boolean, default: true }
+      failCondition: { type: id, of: condition }
+      failValue: { type: integer, default: 1, min: 0 }
+      critCondition: { type: id, of: condition }
+      critValue: { type: integer, default: 1, min: 0 }
+      dc: { type: integer, min: 0 }
+      spellRank: { type: integer, min: 1, max: 10 }
+      spell: { type: id, of: spell }
+      activation:
+        type: enum
+        values: [none, free, reaction, one, two, three, cast, one-minute, ten-minutes, one-hour]
+        default: none
+    texts: [trigger, requirements]
+    state:
+      container: { type: string, default: '' }
+      copy: { type: string, default: '' }
+    actions:
+      - use: drink
+      - use: activate
+      - use: throw-grenade
+      - use: sell
+      - use: store
+      - use: retrieve
+    effects:
+      - target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          item.category == 'spell-gem' && action.self.id == self.id && self.quantity > 0
+            && countList(keysOf('tradition'), ('tradition.' + x) in action.item.tags && fieldOf('spellcasting.casts.{tradition}', x)) > 0
+        value:
+          id: spell-gem
+          flags: { itemPaid: true, rank: item.spellRank }
+          changes:
+            - { type: adjustQuantity, entry: self, by: -1 }
+
+situational:
+  - { id: againstPoison, type: boolean, default: false, rolls: [save] }
+  - { id: againstDisease, type: boolean, default: false, rolls: [save] }
+  - { id: againstRadiation, type: boolean, default: false, rolls: [save] }
+  # Bulwark armor: +3 in place of Dexterity on Reflex saves against damaging effects.
+  - id: damagingEffect
+    type: boolean
+    default: false
+    rolls: [save.reflex]
+    effects:
+      - target: { rolls: [save.reflex] }
+        op: add
+        value: armor.bulwark - attributes.dex.mod
+        when: >-
+          situational.damagingEffect && armor.bulwark > attributes.dex.mod && countCopies(copy.type == 'armor'
+            && copy.equipped && ('trait.bulwark' in copy.tags || armor.allBulwark)) > 0
+  - id: shieldBlock
+    type: boolean
+    default: false
+    incoming: { fields: [hp.current], tags: [damage] }
+    available: '@feats.general.shield-block in feats.held && shield.raised'
+
+actions:
+  - id: drink
+    tags: [consumable]
+    available: "self.quantity > 0 && item.category == 'serum'"
+    results: [drunk]
+    steps:
+      - id: heal
+        kind: roll
+        when: has(item.healing)
+        tags: [healing]
+        parts:
+          - dice: item.healing
+          - { value: item.healingBonus, when: item.healingBonus > 0 }
+      - id: temp
+        kind: roll
+        when: has(item.tempHp)
+        parts:
+          - dice: item.tempHp
+      - id: drink
+        kind: changes
+        tags: [consumable.use]
+        changes:
+          - type: adjust
+            field: hp.current
+            by: steps.heal.total
+            tags: [healing]
+            when: has(steps.heal)
+          - {
+              type: set,
+              field: hp.temp,
+              value: steps.temp.total,
+              when: 'has(steps.temp) && steps.temp.total > hp.temp',
+            }
+          - { type: adjustQuantity, entry: self, by: -1 }
+          - { type: applyEffect, source: item.id, when: item.lasting }
+      - id: result
+        kind: outcome
+        result: "'drunk'"
+        data:
+          healed: 'has(steps.heal) ? steps.heal.total : 0'
+
+  - id: activate
+    tags: [consumable]
+    params:
+      copy: { type: string, optional: true }
+    available: "self.quantity > 0 && item.category in ['medical', 'spell-amp', 'ammunition', 'other']"
+    participants:
+      patient: { max: 1 }
+    results: [activated]
+    steps:
+      - id: heal
+        kind: roll
+        when: has(item.healing)
+        tags: [healing]
+        parts:
+          - dice: item.healing
+          - { value: item.healingBonus, when: item.healingBonus > 0 }
+      - id: activate
+        kind: changes
+        tags: [consumable.use]
+        changes:
+          - type: adjust
+            field: hp.current
+            by: steps.heal.total
+            tags: [healing]
+            when: has(steps.heal) && size(participants.patient) == 0
+          - { type: adjustQuantity, entry: self, by: -1 }
+          - type: applyEffect
+            source: item.id
+            when: item.lasting && size(participants.patient) == 0
+            state: { copy: "has(params.copy) ? params.copy : ''" }
+      - id: treat
+        kind: changes
+        when: size(participants.patient) > 0
+        to: patient
+        changes:
+          - type: adjust
+            field: hp.current
+            by: steps.heal.total
+            tags: [healing]
+            when: has(steps.heal)
+          - { type: applyEffect, source: item.id, when: item.lasting }
+      - id: result
+        kind: outcome
+        result: "'activated'"
+        data:
+          healed: 'has(steps.heal) ? steps.heal.total : 0'
+
+  # A grenade is thrown with Area Fire as a single action: each creature in the burst attempts the
+  # grenade's save on its own sheet against the thrower's class DC.
+  - id: throw-grenade
+    tags: [consumable, area-attack, trait.attack]
+    available: "self.quantity > 0 && item.category == 'grenade'"
+    participants:
+      target: {}
+    results: [thrown]
+    steps:
+      - id: damage
+        kind: roll
+        when: has(item.damage)
+        tags: [damage, damage.area]
+        parts:
+          - dice: item.damage
+            tags: [{ formula: "'damage.' + item.damageType" }]
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: check
+        params:
+          check: "'saves.' + item.save + '.mod'"
+          dc: 'has(item.dc) ? item.dc : attacks.areaDc'
+      - id: degree
+        kind: branch
+        each: target
+        cases:
+          - when: true
+            flags:
+              outcome: >-
+                max(0, indexOf(['critical-success', 'success', 'failure', 'critical-failure'],
+                  steps.save.result))
+      - id: deal
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            when: has(steps.damage) && flags.outcome > 0
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: '-floor(max(0, part.total) * (item.basic ? [0, 0.5, 1, 2] : [0, 0, 1, 2])[flags.outcome])'
+            tags: [damage, area]
+          - type: applyEffect
+            when: has(item.persistent) && flags.outcome >= 2
+            source: "'conditions.persistent-damage'"
+            state: { damage: item.persistent, damageType: item.persistentType }
+          - type: applyEffect
+            when: has(item.failCondition) && flags.outcome == 2
+            source: item.failCondition
+            state: { value: item.failValue }
+          - type: applyEffect
+            when: flags.outcome == 3 && (has(item.critCondition) || has(item.failCondition))
+            source: 'has(item.critCondition) ? item.critCondition : item.failCondition'
+            state: { value: 'has(item.critCondition) ? item.critValue : item.failValue' }
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1 }
+          - { type: adjust, field: turn.attacks, by: 1, tags: [attack-count] }
+      - id: result
+        kind: outcome
+        result: "'thrown'"
+        data:
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+          dc: 'has(item.dc) ? item.dc : attacks.areaDc'
+
+  - id: recharge
+    tags: [inventory]
+    available: "item.kind == 'charges' && self.charges < item.charges"
+    results: [recharged]
+    steps:
+      - id: recharge
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: charges, value: item.charges }
+      - id: result
+        kind: outcome
+        result: "'recharged'"
+
+  - id: choose-apex
+    tags: [inventory]
+    available: "'trait.apex' in item.tags && self.equipped && !self.apex"
+    results: [chosen]
+    steps:
+      - id: choose
+        kind: changes
+        changes:
+          - type: setState
+            copies: { type: augmentation, where: self.apex }
+            when: 'countCopies(has(copy.state.apex) && copy.state.apex) > 0'
+            key: apex
+            value: false
+          - { type: setState, entry: self, key: apex, value: true }
+      - id: result
+        kind: outcome
+        result: "'chosen'"
+
+  - id: raise-shield
+    tags: [shield]
+    available: "!shield.raised && countCopies(copy.type == 'shield' && copy.equipped) > 0"
+    steps:
+      - id: raise
+        kind: changes
+        changes:
+          - { type: set, field: shield.raised, value: true }
+
+# `trait.versatile` alone; the other damage type is the weapon's `versatile` field.
+tags:
+  - trait.analog
+  - trait.tech
+  - trait.area
+  - trait.arc
+  - trait.automatic
+  - trait.boost
+  - trait.breakdown
+  - trait.caster
+  - trait.concealable
+  - trait.concussive
+  - trait.critical
+  - trait.free-hand
+  - trait.injection
+  - trait.kickback
+  - trait.modular
+  - trait.parry
+  - trait.powered
+  - trait.professional
+  - trait.ranged-shove
+  - trait.ranged-trip
+  - trait.razing
+  - trait.reach
+  - trait.recovery
+  - trait.thought
+  - trait.thrown
+  - trait.tracking
+  - trait.twin
+  - trait.unwieldy
+  - trait.versatile
+  - trait.aeon
+  - trait.bulwark
+  - trait.comfort
+  - trait.exposed
+  - trait.flexible
+  - trait.noisy
+  - trait.retractable
+  - trait.consumable
+  - trait.grenade
+  - trait.serum
+  - trait.nanite
+  - trait.apex
+  - trait.biotech
+  - trait.cybernetic
+  - trait.magitech
+  - trait.magical
+  - ammunition
+  - natural
+  - consumable
+  - consumable.use
+  - area-attack
+  - area.target
+  - area
+  - damage.area

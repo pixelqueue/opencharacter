@@ -1,0 +1,9 @@
+id: features.solarian.stellar-partition
+type: feature
+fields: { level: 9 }
+effects:
+  - { target: saves.will.rank, op: atLeast, value: 3 }
+  - target: { rolls: [save.will], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.againstMental

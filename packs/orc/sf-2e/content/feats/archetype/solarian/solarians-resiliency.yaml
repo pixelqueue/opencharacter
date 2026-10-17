@@ -1,0 +1,8 @@
+id: feats.archetype.solarian.solarians-resiliency
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.solarian }
+prerequisites:
+  - { id: feat, when: '@feats.archetype.solarian.solarian-dedication in feats.held' }
+  - { id: requirement, when: hp.class <= 8 }
+effects: [{ target: hp.max, op: add, value: '3 * archetypes.solarian.feats' }]

@@ -1,0 +1,52 @@
+# Situational choices for ancestry feats whose reaction adds a bonus to one roll, offered while the
+# character has the feat.
+fields:
+  ancestry.dc: { type: integer, formula: 'max(classDc.value, spellcasting.dc)' }
+  attacks.untrainedLevel: { type: boolean, formula: false }
+  senses.telepathyRange: { type: integer, formula: "'sense.limited-telepathy' in senses ? 30 : 0" }
+
+situational:
+  - id: naniteSurge
+    type: boolean
+    default: false
+    rolls: [skill]
+    available: '@feats.ancestry.nanite-surge in feats.held'
+    effects:
+      - target: { rolls: [skill] }
+        op: add
+        value: 2
+        stackKey: status-bonus
+        when: situational.naniteSurge
+  - id: protectiveSubroutine
+    type: boolean
+    default: false
+    rolls: [save]
+    available: '@feats.ancestry.protective-subroutine in feats.held'
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 2
+        stackKey: status-bonus
+        when: situational.protectiveSubroutine
+  - id: offensiveSubroutine
+    type: boolean
+    default: false
+    rolls: [attack]
+    available: '@feats.ancestry.offensive-subroutine in feats.held'
+    effects:
+      - target: { rolls: [attack] }
+        op: add
+        value: 1
+        stackKey: status-bonus
+        when: situational.offensiveSubroutine
+  - { id: againstSonic, type: boolean, default: false, rolls: [save] }
+
+tags:
+  - ancestry-trait-feat
+
+display:
+  fields:
+    ancestry.dc: { hidden: true }
+    attacks.untrainedLevel: { hidden: true }
+    senses.telepathyRange:
+      { groups: [summary], priority: 2, unit: ft, showWhen: senses.telepathyRange > 0 }
