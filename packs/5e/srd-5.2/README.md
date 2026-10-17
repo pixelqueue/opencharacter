@@ -183,7 +183,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
   combat. Conditions a grapple brings (Restrained, Blinded) are applied with it and ended by the
   app. A Multiattack's "replace one attack" replaces the last. A charge ("moved 20 feet straight
   toward") is its own action on the attack. A Priest Acolyte's spell save DC, which the SRD doesn't
-  print, is 8 + Wisdom modifier + PB. The Hydra's heads are a parameter of its Multiattack.
+  print, is 8 + Wisdom modifier + PB. The Hydra's heads are a parameter of its Multiattack. A size limit follows the stat block's
+  words: "one Large or smaller creature" keeps a larger one out of the whole effect, while "if the
+  target is Large or smaller" limits only the condition.
 
 ## What's modeled
 
@@ -284,8 +286,7 @@ as text are listed below.
   pushes and pulls, Swallow beyond its conditions, wounds, curses and damage over time,
   escalations on a second failed save, healing equal to damage dealt, a lost Hit Point maximum,
   lycanthrope curses, vampire weaknesses and once-per-turn limits on legendary actions are text.
-  Gear quantities and language dialects aren't stored. A size limit on a save effect keeps a larger
-  creature out of the whole effect, its damage included.
+  Gear quantities and language dialects aren't stored.
 - **Class features:** Empowered Strikes is text (a roll part's damage type can't change), and so
   is Improved Elemental Fury's range (an effect can't change a spell's fields).
 

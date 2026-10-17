@@ -265,6 +265,9 @@ contentTypes:
       conditionsInstead: { type: boolean }
       # Conditions reach only targets of this size or smaller.
       maxSize: { type: enum, values: [tiny, small, medium, large, huge, gargantuan] }
+      # A saving throw effect that targets only creatures of this size or smaller ("one Large or
+      # smaller creature"): a larger one is out of it.
+      maxTargetSize: { type: enum, values: [tiny, small, medium, large, huge, gargantuan] }
       # Hit points the monster regains.
       heal: { type: dice }
       areaShape: { type: enum, values: [cone, cube, cylinder, emanation, line, sphere] }
@@ -871,6 +874,12 @@ actions:
                   || indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
                     participant.creature.size)
                     <= indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'], item.maxSize)
+              targeted: >-
+                !has(item.maxTargetSize)
+                  || indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                    participant.creature.size)
+                    <= indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                      item.maxTargetSize)
       - id: damage
         kind: roll
         when: has(item.damage)
@@ -884,7 +893,7 @@ actions:
       - id: saves
         kind: action
         each: target
-        when: has(item.saveDc) && flags.sizeOk
+        when: has(item.saveDc) && flags.targeted
         as: participant
         use: saving-throw
         params:
@@ -893,7 +902,7 @@ actions:
       - id: burn
         kind: changes
         each: target
-        when: has(steps.damage) && flags.sizeOk
+        when: has(steps.damage) && flags.targeted
         to: target
         changes:
           - type: adjust
@@ -915,7 +924,7 @@ actions:
         kind: changes
         each: target
         when: >-
-          flags.sizeOk && size(item.conditions) > 0
+          flags.targeted && flags.sizeOk && size(item.conditions) > 0
             && (!has(item.saveDc) || steps.saves.result == 'failure')
         to: target
         changes:
