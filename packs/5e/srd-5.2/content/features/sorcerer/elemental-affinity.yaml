@@ -7,7 +7,8 @@ effects:
     tags: [{ formula: "'damage.' + sorcerer.affinity" }]
     when: >-
       sorcerer.affinity != 'none'
-        && ((has(roll.item.damageType) && roll.item.damageType == sorcerer.affinity)
+        && ((has(flags.damageType) ? flags.damageType == sorcerer.affinity
+            : has(roll.item.damageType) && roll.item.damageType == sorcerer.affinity)
           || (has(roll.item.damage2Type) && roll.item.damage2Type == sorcerer.affinity))
 choices:
   - id: damage-type

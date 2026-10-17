@@ -1,7 +1,7 @@
 id: invocations.pact-of-the-blade
 type: invocation
 # The weapon conjured or bonded, by kind: proficiency, and Charisma for its attack and damage rolls
-# (rules/class-warlock.yaml). Its Necrotic, Psychic or Radiant damage is the app's.
+# (rules/class-warlock.yaml), and Necrotic, Psychic or Radiant damage instead of its own.
 choices:
   - id: weapon
     from: { type: weapon, where: "item.range == 'melee'" }
@@ -10,3 +10,23 @@ choices:
       - { target: proficiencies.weapons, op: grant, value: { formula: pick.id } }
       - { target: warlock.pactWeapons, op: grant, value: { formula: pick.id } }
       - { target: weapons.charismaAttack, op: grant, value: { formula: pick.id } }
+      - { target: weapons.damageTypeChoice, op: grant, value: { formula: pick.id } }
+effects:
+  - target: { choices: [weapon-damage-type] }
+    op: option
+    when: action.item.id in warlock.pactWeapons
+    value:
+      id: necrotic
+      flags: { damageType: "'necrotic'" }
+  - target: { choices: [weapon-damage-type] }
+    op: option
+    when: action.item.id in warlock.pactWeapons
+    value:
+      id: psychic
+      flags: { damageType: "'psychic'" }
+  - target: { choices: [weapon-damage-type] }
+    op: option
+    when: action.item.id in warlock.pactWeapons
+    value:
+      id: radiant
+      flags: { damageType: "'radiant'" }

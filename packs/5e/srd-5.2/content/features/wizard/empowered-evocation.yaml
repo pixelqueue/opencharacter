@@ -4,7 +4,7 @@ effects:
   - target: { rolls: [damage.spell] }
     op: add
     value: abilities.int.mod
-    tags: [{ formula: "'damage.' + roll.item.damageType" }]
+    tags: [{ formula: "'damage.' + (has(flags.damageType) ? flags.damageType : roll.item.damageType)" }]
     when: >-
       has(flags.cls) && flags.cls == 'wizard' && has(roll.item.school)
         && roll.item.school == 'evocation' && has(roll.item.damageType)

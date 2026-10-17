@@ -31,7 +31,7 @@ effects:
     tags:
       [
         {
-          formula: "'unarmed' in roll.tags ? 'damage.bludgeoning' : 'damage.' + roll.item.damageType",
+          formula: "'damage.' + (has(flags.damageType) ? flags.damageType : 'unarmed' in roll.tags ? 'bludgeoning' : roll.item.damageType)",
         },
       ]
     when: >-

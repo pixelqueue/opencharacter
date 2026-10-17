@@ -17,7 +17,7 @@ effects:
     tags:
       [
         {
-          formula: "has(roll.item.damageType) ? 'damage.' + roll.item.damageType : 'damage.bludgeoning'",
+          formula: "'damage.' + (has(flags.damageType) ? flags.damageType : has(roll.item.damageType) ? roll.item.damageType : 'bludgeoning')",
         },
       ]
     scope: applied

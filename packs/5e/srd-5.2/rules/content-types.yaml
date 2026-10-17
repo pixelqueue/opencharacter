@@ -50,7 +50,7 @@ contentTypes:
         target: { rolls: [damage.weapon], from: self }
         op: add
         value: item.damageBonus
-        tags: [{ formula: "'damage.' + roll.item.damageType" }]
+        tags: [{ formula: "'damage.' + (has(flags.damageType) ? flags.damageType : roll.item.damageType)" }]
         when: item.damageBonus != 0 && (!item.requiresAttunement || self.attuned)
 
   armor:

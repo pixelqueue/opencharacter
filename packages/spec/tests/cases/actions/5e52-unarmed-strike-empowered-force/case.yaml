@@ -1,0 +1,26 @@
+description: '5E 2024 Empowered Strikes: a monk''s Unarmed Strike deals Force damage instead of Bludgeoning'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: 5e-srd-5.2:unarmed-strike
+  participants:
+    target:
+      - id: ghost
+        values:
+          combat.ac: 11
+          creature.size: medium
+          creature.type: undead
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+    rules:
+      - kind: choice
+        tags:
+          - unarmed-damage-type
+        then: pause
+answers:
+  - option: 5e-srd-5.2:features.monk.empowered-strikes#force

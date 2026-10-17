@@ -151,7 +151,10 @@ Where the SRD is unclear or silent, the pack reads it this way:
   - Wild Shape can be used again while shape-shifted; its Temporary Hit Points don't stack.
     Turn Undead applies Frightened and Incapacitated on a failed save.
   - Thirsting Blade and Devouring Blade raise the attacks per Attack action, not only with the
-    pact weapon. Pact of the Blade binds a weapon kind, which may attack with Charisma.
+    pact weapon. Pact of the Blade binds a weapon kind, which may attack with Charisma and deal Necrotic, Psychic
+    or Radiant damage (picked on the attack, as Empowered Strikes' Force is); damage a feature or
+    item adds in the weapon's type (Rage, Sneak Attack, a magic weapon's bonus) takes the picked
+    type.
   - A created spell slot (Font of Magic, Wild Resurgence, Nature Magician, Rod of Absorption)
     only refills an expended slot; Sorcery Points never pass their maximum.
   - Empowered Spell rerolls the lowest dice; Overchannel maximizes the spell's first damage die
@@ -290,8 +293,8 @@ as text are listed below.
   escalations on a second failed save, healing equal to damage dealt, a lost Hit Point maximum,
   lycanthrope curses, vampire weaknesses and once-per-turn limits on legendary actions are text.
   Gear quantities and language dialects aren't stored.
-- **Class features:** Empowered Strikes is text (a roll part's damage type can't change), and so
-  is Improved Elemental Fury's range (an effect can't change a spell's fields).
+- **Class features:** Improved Elemental Fury's range is text (an effect can't change a spell's
+  fields).
 
 ## Omitted
 

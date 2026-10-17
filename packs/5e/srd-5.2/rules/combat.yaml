@@ -71,6 +71,10 @@ fields:
 
   # Weapons the character may attack with using Charisma (Pact of the Blade).
   weapons.charismaAttack: { type: set, of: weapon }
+  # Weapons whose damage type the character may change on an attack (Pact of the Blade), and
+  # whether its Unarmed Strikes may (Empowered Strikes): content adds the types as options.
+  weapons.damageTypeChoice: { type: set, of: weapon }
+  unarmed.damageTypeChoice: { type: boolean, formula: false }
   # The kinds of weapons whose mastery property the character can use (Weapon Mastery).
   mastery.weapons: { type: set, of: weapon }
   # Who vexed this creature: each Vex entry on it names the attacker's character ID.
@@ -247,6 +251,7 @@ actions:
                   ? participants.target[0].combat.ac
                 : has(params.targetAc) ? params.targetAc : -1
               mastery: "item.id in mastery.weapons && has(item.mastery) ? item.mastery : 'none'"
+              damageType: item.damageType
               masteryUsed: false
               vexed: >-
                 size(participants.target) > 0
@@ -327,6 +332,14 @@ actions:
             flags: { masteryUsed: true }
           - id: skip
         recommend: "'use'"
+      - id: damageType
+        kind: choice
+        tags: [weapon-damage-type]
+        when: >-
+          item.id in weapons.damageTypeChoice
+            && (flags.hit || (flags.masteryUsed && flags.mastery == 'graze'))
+        options: [{ id: normal }]
+        recommend: "'normal'"
       - id: onHit
         kind: choice
         tags: [weapon-hit]
@@ -340,14 +353,14 @@ actions:
         parts:
           - dice: >-
               flags.monk && maxOf(martialArts.die) > maxOf(flags.dice) ? martialArts.die : flags.dice
-            tags: [{ formula: "'damage.' + item.damageType" }]
+            tags: [{ formula: "'damage.' + flags.damageType" }]
           - field: "'abilities.' + flags.ability + '.mod'"
             when: >-
               !(params.offHand || params.cleave) || (params.offHand && combat.offHandModifier)
                 || fieldOf('abilities.{ability}.mod', flags.ability) < 0
-            tags: [{ formula: "'damage.' + item.damageType" }]
+            tags: [{ formula: "'damage.' + flags.damageType" }]
           - value: steps.ammo.item.damageBonus
-            tags: [{ formula: "'damage.' + item.damageType" }]
+            tags: [{ formula: "'damage.' + flags.damageType" }]
             when: has(steps.ammo.item) && steps.ammo.item.damageBonus != 0
       - id: deal
         kind: changes
@@ -368,8 +381,8 @@ actions:
                   'magic' in item.tags || (has(steps.ammo.item) && 'magic' in steps.ammo.item.tags)
                     ? 'magical' : 'nonmagical'
               - formula: >-
-                  (combat.ignoreResistance && item.damageType in ['bludgeoning', 'piercing', 'slashing'])
-                    || (item.ignoresSlashingResistance && item.damageType == 'slashing'
+                  (combat.ignoreResistance && flags.damageType in ['bludgeoning', 'piercing', 'slashing'])
+                    || (item.ignoresSlashingResistance && flags.damageType == 'slashing'
                       && (!item.requiresAttunement || self.attuned))
                     ? ['ignores-resistance'] : []
               - { formula: "flags.critical ? ['critical'] : []" }
@@ -387,7 +400,7 @@ actions:
               - damage
               - weapon
               - graze
-              - { formula: "'damage.' + item.damageType" }
+              - { formula: "'damage.' + flags.damageType" }
       - id: toppleSave
         kind: action
         each: target
@@ -478,6 +491,7 @@ actions:
             flags:
               monk: martialArts.known
               ability: "martialArts.known && abilities.dex.mod > abilities.str.mod ? 'dex' : 'str'"
+              damageType: "'bludgeoning'"
               crit: combat.critRange
               me: character.id
               vexed: >-
@@ -525,6 +539,12 @@ actions:
                 - id: critical
                   flags: { hit: true, critical: true }
                 - id: miss
+      - id: damageType
+        kind: choice
+        tags: [unarmed-damage-type]
+        when: flags.hit && unarmed.damageTypeChoice
+        options: [{ id: normal }]
+        recommend: "'normal'"
       - id: damage
         kind: roll
         when: flags.hit
@@ -532,12 +552,12 @@ actions:
         parts:
           - dice: martialArts.die
             when: flags.monk
-            tags: [damage.bludgeoning]
+            tags: [{ formula: "'damage.' + flags.damageType" }]
           - value: 1
             when: '!flags.monk'
-            tags: [damage.bludgeoning]
+            tags: [{ formula: "'damage.' + flags.damageType" }]
           - field: "'abilities.' + flags.ability + '.mod'"
-            tags: [damage.bludgeoning]
+            tags: [{ formula: "'damage.' + flags.damageType" }]
       - id: deal
         kind: changes
         when: has(steps.damage)
