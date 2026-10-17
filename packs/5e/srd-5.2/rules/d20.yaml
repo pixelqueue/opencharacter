@@ -146,6 +146,16 @@ actions:
                 (flags.asTwenty ? max(flags.total, flags.unbounded - flags.natural + 20) : flags.total)
                   + flags.addBonus + (has(steps.added) ? steps.added.total : 0)
               natural: 'flags.asTwenty ? 20 : flags.natural'
+              passed: >-
+                has(params.dc) && (params.kind == 'attack'
+                  ? flags.forceHit || flags.natural >= params.crit
+                    || (flags.natural != 1 && flags.total >= params.dc)
+                  : flags.total >= params.dc)
+      # A failed test that an option turned into a success: options spent only then add here.
+      - id: turned
+        kind: changes
+        when: flags.failed && flags.passed
+        tags: [failed-test-turned]
       - id: result
         kind: outcome
         result: >-

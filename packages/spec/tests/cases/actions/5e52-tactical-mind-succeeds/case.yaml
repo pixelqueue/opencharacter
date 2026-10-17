@@ -1,0 +1,22 @@
+description: '5E 2024 Tactical Mind: a check the d10 doesn''t save leaves the Second Wind use unspent'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: 5e-srd-5.2:ability-check
+  params:
+    ability: str
+    dc: 15
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+    rules:
+      - kind: choice
+        tags:
+          - failed-check
+        then: pause
+answers:
+  - option: 5e-srd-5.2:features.fighter.tactical-mind#tactical-mind

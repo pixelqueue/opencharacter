@@ -1,12 +1,16 @@
 id: features.bard.peerless-skill
 type: feature
 effects:
-  # The use is spent when the die is added, even if the test still fails.
+  # The use is spent only when the die turns the failure into a success.
   - target: { choices: [failed-check, failed-attack] }
     op: option
     when: self.bardicInspirationSpent < bardicInspiration.uses
     value:
       id: peerless-skill
       flags: { addDie: bardicInspiration.die }
+  - target: { steps: [failed-test-turned] }
+    op: changes
+    when: has(steps.hook) && steps.hook.picked == item.id + '#peerless-skill'
+    value:
       changes:
         - { type: adjustState, entry: self, key: bardicInspirationSpent, by: 1 }

@@ -286,9 +286,7 @@ as text are listed below.
   also lists the generic "spend a use" action. A size limit on a save effect keeps a larger
   creature out of the whole effect, its damage included.
 - **Class features:** Empowered Strikes is text (a roll part's damage type can't change), and so
-  is Improved Elemental Fury's range (an effect can't change a spell's fields). Tactical Mind and
-  Peerless Skill spend their use when picked, even if the test still fails: a choice's changes
-  can't wait for the test's result.
+  is Improved Elemental Fury's range (an effect can't change a spell's fields).
 
 ## Omitted
 
