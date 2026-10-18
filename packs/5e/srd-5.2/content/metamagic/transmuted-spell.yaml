@@ -54,7 +54,8 @@ effects:
         && flags.damageType != 'lightning' && (sorcery.free || sorcery.left >= 1)
     value:
       id: to-lightning
-      flags: { transmuted: true, metamagicCount: flags.metamagicCount + 1, damageType: "'lightning'" }
+      flags:
+        { transmuted: true, metamagicCount: flags.metamagicCount + 1, damageType: "'lightning'" }
       changes:
         - type: adjustState
           when: '!sorcery.free'

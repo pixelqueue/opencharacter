@@ -15,5 +15,10 @@ choices:
       - target: { rolls: [damage.spell] }
         op: add
         value: abilities.cha.mod
-        tags: [{ formula: "'damage.' + (has(flags.damageType) ? flags.damageType : roll.item.damageType)" }]
+        tags:
+          [
+            {
+              formula: "'damage.' + (has(flags.damageType) ? flags.damageType : roll.item.damageType)",
+            },
+          ]
         when: roll.item.id == pick.id && has(roll.item.damageType)

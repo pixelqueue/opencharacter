@@ -17,7 +17,12 @@ situational:
       - target: { rolls: [damage.weapon] }
         op: add
         value: (rogue.sneakAttack - situational.cunningStrike)d6
-        tags: [{ formula: "'damage.' + (has(flags.damageType) ? flags.damageType : roll.item.damageType)" }]
+        tags:
+          [
+            {
+              formula: "'damage.' + (has(flags.damageType) ? flags.damageType : roll.item.damageType)",
+            },
+          ]
         when: >-
           situational.sneakAttack && rogue.sneakAttack > situational.cunningStrike
             && has(roll.item) && has(roll.item.damageType)

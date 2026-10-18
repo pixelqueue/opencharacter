@@ -18,7 +18,8 @@ effects:
   - target: { rolls: [damage.spell] }
     op: add
     value: abilities.wis.mod
-    tags: [{ formula: "'damage.' + (has(flags.damageType) ? flags.damageType : roll.item.damageType)" }]
+    tags:
+      [{ formula: "'damage.' + (has(flags.damageType) ? flags.damageType : roll.item.damageType)" }]
     when: >-
       cleric.blessedStrikes == 'potent-spellcasting' && roll.item.level == 0
         && has(roll.item.damageType) && has(flags.cls) && flags.cls == 'cleric'
