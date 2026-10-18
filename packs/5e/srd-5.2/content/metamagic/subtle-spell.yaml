@@ -4,10 +4,11 @@ effects:
   - target: { choices: [metamagic] }
     op: option
     when: >-
-      (sorcery.free || sorcery.left >= 1)
+      !flags.metamagicDone && !flags.subtle && flags.metamagicCount < sorcery.metamagicPerSpell
+        && (sorcery.free || sorcery.left >= 1)
     value:
       id: subtle
-      flags: { metamagic: "'subtle'" }
+      flags: { subtle: true, metamagicCount: flags.metamagicCount + 1 }
       changes:
         - type: adjustState
           when: '!sorcery.free'

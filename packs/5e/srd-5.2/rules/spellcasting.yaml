@@ -42,8 +42,10 @@ fields:
   # Rage, Wild Shape, armor without training: no spells.
   spellcasting.blocked: { type: boolean, formula: false }
   spellcasting.potentCantrip: { type: boolean, formula: false }
-  # Metamagic options are offered on a cast (the sorcerer's Metamagic feature).
+  # Metamagic options are offered on a cast (the sorcerer's Metamagic feature), this many on one
+  # spell besides Empowered Spell.
   sorcery.metamagic: { type: boolean, formula: false }
+  sorcery.metamagicPerSpell: { type: integer, formula: 1, min: 1 }
 
   spellSlots.level1.max:
     type: integer
@@ -147,7 +149,20 @@ actions:
                   && (copy.type == 'magicItem' || 'magic' in copy.tags)) > 0
               stored: countCopies(copy.id == self.id && copy.type == 'storedSpell') > 0
               castAbility: "'class'"
-              metamagic: "'none'"
+              # One flag per Metamagic option the cast uses; `metamagicCount` counts those that
+              # count toward the limit (Empowered Spell doesn't).
+              careful: false
+              distant: false
+              empowered: false
+              extended: false
+              heightened: false
+              quickened: false
+              subtle: false
+              transmuted: false
+              twinned: false
+              metamagicCount: 0
+              metamagicDone: false
+              spareCount: 0
               me: character.id
       - id: ordinary
         kind: branch
@@ -278,11 +293,25 @@ actions:
         result: "'no-slot'"
         data:
           slot: flags.slot
+      # The spell's damage type, which Transmuted Spell changes.
+      - id: damageType
+        kind: branch
+        when: has(item.damageType)
+        cases:
+          - when: true
+            flags: { damageType: item.damageType }
+      # Metamagic options, one pick each, up to `sorcery.metamagicPerSpell` of them plus Empowered
+      # Spell; `none` ends the step.
       - id: metamagic
         kind: choice
         tags: [metamagic]
         when: sorcery.metamagic
-        options: [{ id: none }]
+        sheet: proposed
+        repeat: { max: sorcery.metamagicPerSpell + 1 }
+        options:
+          - id: none
+            when: '!flags.metamagicDone'
+            flags: { metamagicDone: true }
         recommend: "'none'"
       # The spell's option, picked for each target (Calm Emotions' "choose for each creature"), or
       # for the caster when it has none.
@@ -302,9 +331,12 @@ actions:
         cases:
           - when: true
             flags:
+              # Twinned Spell raises the spell's effective level by one.
+              effectiveSlot: 'flags.twinned ? min(9, flags.slot + 1) : flags.slot'
               steps: >-
                 item.level == 0 ? (has(item.cantripScaling) && item.cantripScaling ? flags.tier - 1 : 0)
-                  : floor(max(0, flags.slot - item.level) / (has(item.upcastEvery) ? item.upcastEvery : 1))
+                  : floor(max(0, (flags.twinned ? min(9, flags.slot + 1) : flags.slot) - item.level)
+                    / (has(item.upcastEvery) ? item.upcastEvery : 1))
               damageCount: >-
                 has(item.damage)
                   ? (item.level == 0 ? countOf(item.damage) * (flags.steps + 1)
@@ -416,10 +448,10 @@ actions:
         parts:
           - dice: dieOf(item.damage, flags.damageCount)
             when: flags.damageCount > 0
-            tags: [{ formula: "'damage.' + item.damageType" }]
+            tags: [{ formula: "'damage.' + flags.damageType" }]
           - value: flags.damageFlat
             when: flags.damageFlat != 0
-            tags: [{ formula: "'damage.' + item.damageType" }]
+            tags: [{ formula: "'damage.' + flags.damageType" }]
           - dice: dieOf(item.damage2, flags.damage2Count)
             when: flags.damage2Count > 0
             tags: [{ formula: "'damage.' + item.damage2Type" }]
@@ -447,19 +479,33 @@ actions:
         when: has(item.save) && !has(item.attack) && item.school == 'evocation'
         options: [{ id: affect }]
         recommend: "'affect'"
+      # Careful Spell: up to the Charisma modifier (at least one) of the targets are spared.
+      - id: careful
+        kind: choice
+        each: target
+        when: >-
+          flags.careful && has(item.save) && !has(item.attack)
+            && (!has(steps.sculpt) || steps.sculpt.picked == 'affect')
+        options:
+          - id: affect
+          - id: spare
+            when: flags.spareCount < max(1, abilities.cha.mod)
+            flags: { spareCount: flags.spareCount + 1 }
+        recommend: "'affect'"
       - id: saves
         kind: action
         each: target
         when: >-
           has(item.save) && !has(item.attack)
             && (!has(steps.sculpt) || steps.sculpt.picked == 'affect')
+            && (!has(steps.careful) || steps.careful.picked == 'affect')
         as: participant
         use: saving-throw
         params:
           ability: item.save
           dc: flags.dc
           spell: true
-          disadvantage: "flags.metamagic == 'heightened' && !has(steps.saves)"
+          disadvantage: flags.heightened && !has(steps.saves)
       - id: burn
         kind: changes
         each: target
@@ -501,7 +547,7 @@ actions:
           - type: applyEffect
             source: item.id
             state:
-              castSlot: flags.slot
+              castSlot: flags.effectiveSlot
               castDc: flags.dc
               option: >-
                 has(steps.spellOption)
@@ -510,7 +556,7 @@ actions:
             when: has(item.maxHp)
             field: hp.current
             by: >-
-              item.maxHp + max(0, flags.slot - item.level)
+              item.maxHp + max(0, flags.effectiveSlot - item.level)
                 * (has(item.upcastMaxHp) ? item.upcastMaxHp : 0)
       - id: applySelf
         kind: changes
@@ -521,7 +567,7 @@ actions:
           - type: applyEffect
             source: item.id
             state:
-              castSlot: flags.slot
+              castSlot: flags.effectiveSlot
               castDc: flags.dc
               option: >-
                 has(steps.spellOptionSelf)
@@ -531,7 +577,7 @@ actions:
             when: has(item.maxHp)
             field: hp.current
             by: >-
-              item.maxHp + max(0, flags.slot - item.level)
+              item.maxHp + max(0, flags.effectiveSlot - item.level)
                 * (has(item.upcastMaxHp) ? item.upcastMaxHp : 0)
       # Each target, for what a spell does to it beyond the shared steps.
       - id: onTarget
@@ -577,7 +623,12 @@ actions:
           healing: 'has(steps.heal) ? max(0, steps.heal.total) : 0'
           concentration: has(item.concentration) && item.concentration
           critical: has(flags.critical) && flags.critical
-          metamagic: flags.metamagic
+          metamagic: >-
+            (flags.careful ? ['careful'] : []) + (flags.distant ? ['distant'] : [])
+              + (flags.empowered ? ['empowered'] : []) + (flags.extended ? ['extended'] : [])
+              + (flags.heightened ? ['heightened'] : []) + (flags.quickened ? ['quickened'] : [])
+              + (flags.subtle ? ['subtle'] : []) + (flags.transmuted ? ['transmuted'] : [])
+              + (flags.twinned ? ['twinned'] : [])
 
   # The Constitution save to keep Concentration: DC 10 or half the damage, at most 30.
   - id: concentration-check

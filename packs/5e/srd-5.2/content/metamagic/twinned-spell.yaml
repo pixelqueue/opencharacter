@@ -4,11 +4,12 @@ effects:
   - target: { choices: [metamagic] }
     op: option
     when: >-
-      action.item.level >= 1 && action.item.level <= 8
+      !flags.metamagicDone && !flags.twinned && flags.metamagicCount < sorcery.metamagicPerSpell
+        && has(action.item.upcastTargets) && action.item.upcastTargets && action.item.level <= 8
         && (sorcery.free || sorcery.left >= 1)
     value:
       id: twinned
-      flags: { metamagic: "'twinned'" }
+      flags: { twinned: true, metamagicCount: flags.metamagicCount + 1 }
       changes:
         - type: adjustState
           when: '!sorcery.free'

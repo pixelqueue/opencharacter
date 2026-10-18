@@ -4,11 +4,12 @@ effects:
   - target: { choices: [metamagic] }
     op: option
     when: >-
-      has(action.item.save)
+      !flags.metamagicDone && !flags.careful && flags.metamagicCount < sorcery.metamagicPerSpell
+        && has(action.item.save)
         && (sorcery.free || sorcery.left >= 1)
     value:
       id: careful
-      flags: { metamagic: "'careful'" }
+      flags: { careful: true, metamagicCount: flags.metamagicCount + 1 }
       changes:
         - type: adjustState
           when: '!sorcery.free'

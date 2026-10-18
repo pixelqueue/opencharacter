@@ -4,11 +4,12 @@ effects:
   - target: { choices: [metamagic] }
     op: option
     when: >-
-      (!has(action.item.rangeKind) || action.item.rangeKind in ['touch', 'ranged'])
+      !flags.metamagicDone && !flags.distant && flags.metamagicCount < sorcery.metamagicPerSpell
+        && (!has(action.item.rangeKind) || action.item.rangeKind in ['touch', 'ranged'])
         && (sorcery.free || sorcery.left >= 1)
     value:
       id: distant
-      flags: { metamagic: "'distant'" }
+      flags: { distant: true, metamagicCount: flags.metamagicCount + 1 }
       changes:
         - type: adjustState
           when: '!sorcery.free'

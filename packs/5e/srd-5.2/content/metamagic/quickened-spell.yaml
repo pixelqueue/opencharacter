@@ -4,11 +4,12 @@ effects:
   - target: { choices: [metamagic] }
     op: option
     when: >-
-      (!has(action.item.castingTime) || action.item.castingTime == 'action')
+      !flags.metamagicDone && !flags.quickened && flags.metamagicCount < sorcery.metamagicPerSpell
+        && (!has(action.item.castingTime) || action.item.castingTime == 'action')
         && (sorcery.free || sorcery.left >= 2)
     value:
       id: quickened
-      flags: { metamagic: "'quickened'" }
+      flags: { quickened: true, metamagicCount: flags.metamagicCount + 1 }
       changes:
         - type: adjustState
           when: '!sorcery.free'

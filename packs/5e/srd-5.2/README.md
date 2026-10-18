@@ -159,6 +159,12 @@ Where the SRD is unclear or silent, the pack reads it this way:
     only refills an expended slot; Sorcery Points never pass their maximum.
   - Empowered Spell rerolls the lowest dice; Overchannel maximizes the spell's first damage die
     type.
+  - A spell takes one Metamagic option, two with Sorcery Incarnate while Innate Sorcery is active,
+    and Empowered Spell besides. Careful Spell spares targets the sorcerer picks (up to the
+    Charisma modifier): they succeed and take no damage. Heightened Spell's Disadvantage goes to
+    the first target. Transmuted Spell changes the spell's first damage type. Twinned Spell raises
+    the effective level by one for a spell that targets more creatures from a higher slot; the
+    app passes the extra target.
 - **Spells:**
   - A spell's option (Hex's ability, Fire Shield's warmth, a resistance's type) is picked at the
     cast for each target, so Calm Emotions and an upcast Enhance Ability can differ per creature,
@@ -286,8 +292,8 @@ as text are listed below.
   healing, Heroism's temporary hit points each turn.
 - **Effects that end themselves:** an applied effect can't remove itself when it triggers (Death
   Ward, Oil, Basic Poison): the app removes it.
-- **Metamagic:** Careful, Distant, Quickened, Subtle, Transmuted and Twinned Spell are recorded in
-  the cast's `data.metamagic` for the app; one option per cast.
+- **Metamagic:** Distant, Quickened and Subtle Spell are recorded in the cast's `data.metamagic`
+  for the app.
 - **Monsters:** movement and sense traits, revival traits, reactions that change a roll (Parry),
   pushes and pulls, Swallow beyond its conditions, wounds, curses and damage over time,
   escalations on a second failed save, healing equal to damage dealt, a lost Hit Point maximum,

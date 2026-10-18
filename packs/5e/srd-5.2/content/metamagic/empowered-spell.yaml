@@ -4,11 +4,12 @@ effects:
   - target: { choices: [metamagic] }
     op: option
     when: >-
-      has(action.item.damage)
+      !flags.metamagicDone && !flags.empowered
+        && has(action.item.damage)
         && (sorcery.free || sorcery.left >= 1)
     value:
       id: empowered
-      flags: { metamagic: "'empowered'" }
+      flags: { empowered: true }
       changes:
         - type: adjustState
           when: '!sorcery.free'
@@ -24,4 +25,4 @@ effects:
       below: 'floor(maxOf(dieOf(roll.item.damage)) / 2)'
       once: true
       count: max(1, abilities.cha.mod)
-    when: has(flags.metamagic) && flags.metamagic == 'empowered' && has(roll.item.damage)
+    when: has(flags.empowered) && flags.empowered && has(roll.item.damage)

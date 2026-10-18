@@ -4,11 +4,12 @@ effects:
   - target: { choices: [metamagic] }
     op: option
     when: >-
-      (!has(action.item.durationUnit) || action.item.durationUnit in ['minute', 'hour', 'day'])
+      !flags.metamagicDone && !flags.extended && flags.metamagicCount < sorcery.metamagicPerSpell
+        && (!has(action.item.durationUnit) || action.item.durationUnit in ['minute', 'hour', 'day'])
         && (sorcery.free || sorcery.left >= 1)
     value:
       id: extended
-      flags: { metamagic: "'extended'" }
+      flags: { extended: true, metamagicCount: flags.metamagicCount + 1 }
       changes:
         - type: adjustState
           when: '!sorcery.free'

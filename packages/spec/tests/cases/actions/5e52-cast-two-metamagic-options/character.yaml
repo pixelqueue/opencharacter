@@ -1,0 +1,92 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - id: 5e-srd-5.2
+    version: 0.1.0
+features:
+  - id: class
+    item: 5e-srd-5.2:classes.sorcerer
+    state:
+      level: 7
+      startingClass: true
+    choices:
+      skills:
+        - option: skill.deception
+        - option: skill.religion
+      5e-srd-5.2:features.sorcerer.spellcasting/cantrips:
+        - option: 5e-srd-5.2:spells.ray-of-frost
+        - option: 5e-srd-5.2:spells.elementalism
+        - option: 5e-srd-5.2:spells.dancing-lights
+        - option: 5e-srd-5.2:spells.light
+        - option: 5e-srd-5.2:spells.sorcerous-burst
+      5e-srd-5.2:features.sorcerer.spellcasting/prepared:
+        - option: 5e-srd-5.2:spells.burning-hands
+        - option: 5e-srd-5.2:spells.ray-of-sickness
+        - option: 5e-srd-5.2:spells.expeditious-retreat
+        - option: 5e-srd-5.2:spells.magic-missile
+        - option: 5e-srd-5.2:spells.fog-cloud
+        - option: 5e-srd-5.2:spells.blindness-deafness
+        - option: 5e-srd-5.2:spells.shield
+        - option: 5e-srd-5.2:spells.vampiric-touch
+        - option: 5e-srd-5.2:spells.lightning-bolt
+        - option: 5e-srd-5.2:spells.misty-step
+        - option: 5e-srd-5.2:spells.stoneskin
+      5e-srd-5.2:features.sorcerer.metamagic/options:
+        - option: 5e-srd-5.2:metamagic.distant-spell
+        - option: 5e-srd-5.2:metamagic.transmuted-spell
+      subclass:
+        - option: 5e-srd-5.2:subclasses.draconic-sorcery
+          choices:
+            5e-srd-5.2:features.sorcerer.elemental-affinity/damage-type:
+              - option: cold
+      5e-srd-5.2:features.sorcerer.ability-score-improvement/feat-4:
+        - option: 5e-srd-5.2:feats.grappler
+          choices:
+            ability:
+              - option: str
+  - id: background
+    item: 5e-srd-5.2:backgrounds.sage
+    choices:
+      ability-increase:
+        - option: two-and-one
+          choices:
+            plus-two:
+              - option: con
+            plus-one:
+              - option: wis
+      languages:
+        - option: 5e-srd-5.2:languages.common-sign-language
+        - option: 5e-srd-5.2:languages.gnomish
+      5e-srd-5.2:feats.magic-initiate/list:
+        - option: wizard
+          choices:
+            ability:
+              - option: cha
+            cantrips:
+              - option: 5e-srd-5.2:spells.shocking-grasp
+              - option: 5e-srd-5.2:spells.dancing-lights
+            spell:
+              - option: 5e-srd-5.2:spells.alarm
+  - id: species
+    item: 5e-srd-5.2:species.elf
+    choices:
+      lineage:
+        - option: 5e-srd-5.2:lineages.wood-elf
+          choices:
+            ability:
+              - option: cha
+      5e-srd-5.2:traits.keen-senses/skill:
+        - option: skill.perception
+values:
+  5e-srd-5.2:abilities.str.base: 12
+  5e-srd-5.2:abilities.dex.base: 13
+  5e-srd-5.2:abilities.con.base: 13
+  5e-srd-5.2:abilities.int.base: 10
+  5e-srd-5.2:abilities.wis.base: 12
+  5e-srd-5.2:abilities.cha.base: 14
+  5e-srd-5.2:coins.gp: 700
+  5e-srd-5.2:hp.base: 30
+  5e-srd-5.2:xp.current: 23000
+  5e-srd-5.2:hp.current: 48
+  5e-srd-5.2:innateSorcery.active: true
+

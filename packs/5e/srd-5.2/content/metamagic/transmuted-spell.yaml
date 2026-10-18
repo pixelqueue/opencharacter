@@ -4,12 +4,87 @@ effects:
   - target: { choices: [metamagic] }
     op: option
     when: >-
-      has(action.item.damageType)
-        && action.item.damageType in ['acid', 'cold', 'fire', 'lightning', 'poison', 'thunder']
-        && (sorcery.free || sorcery.left >= 1)
+      !flags.metamagicDone && !flags.transmuted && flags.metamagicCount < sorcery.metamagicPerSpell
+        && has(flags.damageType) && flags.damageType in ['acid', 'cold', 'fire', 'lightning', 'poison', 'thunder']
+        && flags.damageType != 'acid' && (sorcery.free || sorcery.left >= 1)
     value:
-      id: transmuted
-      flags: { metamagic: "'transmuted'" }
+      id: to-acid
+      flags: { transmuted: true, metamagicCount: flags.metamagicCount + 1, damageType: "'acid'" }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      !flags.metamagicDone && !flags.transmuted && flags.metamagicCount < sorcery.metamagicPerSpell
+        && has(flags.damageType) && flags.damageType in ['acid', 'cold', 'fire', 'lightning', 'poison', 'thunder']
+        && flags.damageType != 'cold' && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: to-cold
+      flags: { transmuted: true, metamagicCount: flags.metamagicCount + 1, damageType: "'cold'" }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      !flags.metamagicDone && !flags.transmuted && flags.metamagicCount < sorcery.metamagicPerSpell
+        && has(flags.damageType) && flags.damageType in ['acid', 'cold', 'fire', 'lightning', 'poison', 'thunder']
+        && flags.damageType != 'fire' && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: to-fire
+      flags: { transmuted: true, metamagicCount: flags.metamagicCount + 1, damageType: "'fire'" }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      !flags.metamagicDone && !flags.transmuted && flags.metamagicCount < sorcery.metamagicPerSpell
+        && has(flags.damageType) && flags.damageType in ['acid', 'cold', 'fire', 'lightning', 'poison', 'thunder']
+        && flags.damageType != 'lightning' && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: to-lightning
+      flags: { transmuted: true, metamagicCount: flags.metamagicCount + 1, damageType: "'lightning'" }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      !flags.metamagicDone && !flags.transmuted && flags.metamagicCount < sorcery.metamagicPerSpell
+        && has(flags.damageType) && flags.damageType in ['acid', 'cold', 'fire', 'lightning', 'poison', 'thunder']
+        && flags.damageType != 'poison' && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: to-poison
+      flags: { transmuted: true, metamagicCount: flags.metamagicCount + 1, damageType: "'poison'" }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      !flags.metamagicDone && !flags.transmuted && flags.metamagicCount < sorcery.metamagicPerSpell
+        && has(flags.damageType) && flags.damageType in ['acid', 'cold', 'fire', 'lightning', 'poison', 'thunder']
+        && flags.damageType != 'thunder' && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: to-thunder
+      flags: { transmuted: true, metamagicCount: flags.metamagicCount + 1, damageType: "'thunder'" }
       changes:
         - type: adjustState
           when: '!sorcery.free'
