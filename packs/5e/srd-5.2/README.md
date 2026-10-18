@@ -150,11 +150,11 @@ Where the SRD is unclear or silent, the pack reads it this way:
     failed test into a 20 (a Critical Hit on an attack).
   - Wild Shape can be used again while shape-shifted; its Temporary Hit Points don't stack.
     Turn Undead applies Frightened and Incapacitated on a failed save.
-  - Thirsting Blade and Devouring Blade raise the attacks per Attack action, not only with the
-    pact weapon. Pact of the Blade binds a weapon kind, which may attack with Charisma and deal Necrotic, Psychic
-    or Radiant damage (picked on the attack, as Empowered Strikes' Force is); damage a feature or
-    item adds in the weapon's type (Rage, Sneak Attack, a magic weapon's bonus) takes the picked
-    type.
+  - Thirsting Blade and Devouring Blade raise the attacks per Attack action, not only with the pact
+    weapon. Pact of the Blade binds a weapon kind, which may attack with Charisma and deal Necrotic,
+    Psychic or Radiant damage (picked on the attack, as Empowered Strikes' Force is); damage a
+    feature or item adds in the weapon's type (Rage, Sneak Attack, a magic weapon's bonus) takes the
+    picked type.
   - A created spell slot (Font of Magic, Wild Resurgence, Nature Magician, Rod of Absorption)
     only refills an expended slot; Sorcery Points never pass their maximum.
   - Empowered Spell rerolls the lowest dice; Overchannel maximizes the spell's first damage die
@@ -194,14 +194,15 @@ Where the SRD is unclear or silent, the pack reads it this way:
   the mundane item. The dwarf requirement is the Dwarf species.
 - **Monsters:** stat block numbers (to hit, damage, DC, AC, Initiative) are as printed, not
   recomputed; where a printed number doesn't follow from the scores (the Gray Ooze's Initiative
-  score, a few skills), an effect makes up the difference. Mind Blank is assumed cast before
-  combat. A spell's saving throw tells the saver it is against a spell, so Magic Resistance gives
-  Advantage on it and Greater Magic Resistance succeeds; a spell's attack roll against a creature
-  with Greater Magic Resistance misses without a roll. Other magical effects stay the saver's
-  choice (Magic Resistance's situational Advantage, the Rakshasa's option on a failed save). Conditions a grapple brings (Restrained, Blinded) are applied with it and ended by the
-  app. A Multiattack's "replace one attack" replaces the last. A charge ("moved 20 feet straight
-  toward") is its own action on the attack. A Priest Acolyte's spell save DC, which the SRD doesn't
-  print, is 8 + Wisdom modifier + PB. The Hydra's heads are a parameter of its Multiattack. A size limit follows the stat block's
+  score, a few skills), an effect makes up the difference. Mind Blank is assumed cast before combat.
+  A spell's saving throw tells the saver it is against a spell, so Magic Resistance gives Advantage
+  on it and Greater Magic Resistance succeeds; a spell's attack roll against a creature with Greater
+  Magic Resistance misses without a roll. Other magical effects stay the saver's choice (Magic
+  Resistance's situational Advantage, the Rakshasa's option on a failed save). Conditions a grapple
+  brings (Restrained, Blinded) are applied with it and ended by the app. A Multiattack's "replace
+  one attack" replaces the last. A charge ("moved 20 feet straight toward") is its own action on the
+  attack. A Priest Acolyte's spell save DC, which the SRD doesn't print, is 8 + Wisdom modifier +
+  PB. The Hydra's heads are a parameter of its Multiattack. A size limit follows the stat block's
   words: "one Large or smaller creature" keeps a larger one out of the whole effect, while "if the
   target is Large or smaller" limits only the condition.
 
@@ -257,7 +258,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
   prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
   and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with
   upcasting and cantrip upgrades, Concentration (checks at DC 10 or half the damage, up to 30),
-  194 of the 339 spells with mechanics beyond spending the slot.
+  196 of the 339 spells with mechanics beyond spending the slot.
 - **Equipment:** 38 weapons with their properties and mastery, 13 armors, 37 tools, 96 pieces of
   gear (ammunition, spellcasting focuses, equipment packs that `unpack`, thrown flasks, the
   Healer's Kit, Antitoxin, Basic Poison), 8 mounts, 12 vehicles and 100 trinkets, with cost (GP)
@@ -277,7 +278,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
 
 ## Limitations
 
-Of the 339 spells, 145 do nothing on the sheet beyond spending the slot: what they do is their
+Of the 339 spells, 143 do nothing on the sheet beyond spending the slot: what they do is their
 text, for the app and the table. Of the 323 magic item files, 50 are text. Class features left
 as text are listed below.
 
@@ -289,12 +290,12 @@ as text are listed below.
   (summoned creatures, familiars, mounts and steeds, Wild Shape's beast, allies in an aura).
 - **Spells left as text, by kind:** detection and divination, illusions, summoning and creation,
   movement and travel, wards and areas, utility, raising the dead, and spells that remake a weapon
-  or a form
-  (Shillelagh, True Strike, Shapechange). Also text: extra targets and longer durations from
-  higher slots, Enlarge/Reduce's size change, Chill Touch's no-regain, Beacon of Hope's maximum
-  healing, Heroism's temporary hit points each turn.
+  or a form (Shillelagh, True Strike, Shapechange). Also text: extra targets and longer durations
+  from higher slots, Enlarge/Reduce's size change, Chill Touch's no-regain, Beacon of Hope's
+  maximum healing, Heroism's temporary hit points each turn, a second damage type for Transmuted
+  Spell.
 - **Effects that end themselves:** an applied effect can't remove itself when it triggers (Death
-  Ward, Oil, Basic Poison): the app removes it.
+  Ward, Oil): the app removes it.
 - **Metamagic:** Distant, Quickened and Subtle Spell are recorded in the cast's `data.metamagic`
   for the app.
 - **Monsters:** movement and sense traits, revival traits, reactions that change a roll (Parry),
@@ -304,6 +305,10 @@ as text are listed below.
   Gear quantities and language dialects aren't stored.
 - **Class features:** Improved Elemental Fury's range is text (an effect can't change a spell's
   fields).
+- **Open spec issues:** four of these wait on the format: an applied effect removing itself (Death
+  Ward, Oil), a Multiattack calling an action an entry defines inline, an effect changing a
+  spell's fields (Improved Elemental Fury's range), and a choice reading a sibling choice (a
+  background's +1 and +2, kept apart by a hidden field).
 
 ## Omitted
 
