@@ -11,8 +11,27 @@ fields:
   material: false
   durationUnit: minute
   durationAmount: 1
-  damageType: fire
-  damage: 1d6
-  upcastDice: 1
 actions:
   - use: cast-spell
+effects:
+  # Offered on a hit with a melee weapon or an Unarmed Strike: the attack casts it, and its damage
+  # joins the attack's (doubled on a Critical Hit).
+  - { target: combat.hitOptions, op: add, value: 1 }
+  - target: { choices: [weapon-hit, unarmed-hit] }
+    op: option
+    when: >-
+      ('unarmed-hit' in action.step.tags || (action.item.range == 'melee' && !params.thrown))
+        && (countList([1, 2, 3, 4, 5, 6, 7, 8, 9], x >= item.level
+            && fieldOf('spellSlots.level{slot}.max', x) - fieldOf('spellSlots.level{slot}.used', x) > 0) > 0
+          || (pactSlots.max - pactSlots.used > 0 && pactSlots.level >= item.level)
+          || item.id in spells.free)
+    value:
+      id: smite
+      flags: { smite: item.id, smiteLevel: item.level }
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: dieOf(1d6, 1 + max(0, steps.smiteCast.data.slot - item.level))
+    tags: [damage.fire]
+    when: >-
+      has(flags.smite) && flags.smite == item.id && has(steps.smiteCast)
+        && steps.smiteCast.result == 'cast'

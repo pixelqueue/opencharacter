@@ -177,8 +177,11 @@ Where the SRD is unclear or silent, the pack reads it this way:
     first.
   - Vampiric Touch heals half the damage rolled; Mass Heal gives out its 700 hit points one
     creature at a time.
-  - Smite damage is rolled and reported, for the app to add to the hit; Divine Favor doesn't add
-    to Unarmed Strikes.
+  - A smite is an option on a hit with a melee weapon or an Unarmed Strike: picking it casts the
+    spell (the slot level asked on the attack) and adds its damage to the attack's, doubled on a
+    Critical Hit. Hex's and Hunter's Mark's extra damage joins the caster's attack damage when the
+    target's view names the caster (`hex.cursedBy`, `huntersMark.markedBy`). Divine Favor doesn't
+    add to Unarmed Strikes.
   - Power Word Kill and Power Word Stun read the target's current Hit Points from its view
     (without them, the outcome is the table's); a killed creature drops to 0 Hit Points with three
     failed Death Saving Throws.

@@ -16,6 +16,15 @@ fields:
   applied: true
   castOptions: [str, dex, con, int, wis, cha]
 effects:
+  # The caster's attack rolls that hit the target it is on deal the extra damage (doubled on a
+  # Critical Hit).
+  - target: { rolls: [damage] }
+    op: add
+    value: 1d6
+    tags: [damage.necrotic]
+    when: >-
+      has(flags.hit) && flags.hit && has(participants.target) && size(participants.target) > 0
+        && character.id in participants.target[0].hex.cursedBy
   - target: { choices: [spell-option] }
     op: option
     when: action.item.id == item.id
@@ -76,40 +85,5 @@ effects:
     scope: applied
     when: self.option == 'cha'
     duration: { amount: 1, unit: hour, concentration: true }
-# The extra damage is `hex-damage`, run on a hit.
 actions:
   - use: cast-spell
-  - id: hex-damage
-    tags: [spell]
-    params: { critical: { type: boolean, optional: true } }
-    participants: { target: {} }
-    results: [damage]
-    steps:
-      - id: setup
-        kind: branch
-        cases:
-          - when: true
-            flags:
-              slot: item.level
-              critical: has(params.critical) && params.critical
-      - id: damage
-        kind: roll
-        tags: [damage.spell]
-        parts: [{ dice: 1d6, tags: [damage.necrotic] }]
-      - id: deal
-        kind: changes
-        to: target
-        changes:
-          - type: adjust
-            field: hp.current
-            split: { roll: damage, by: damage }
-            by: -max(0, part.total)
-            tags:
-              - damage
-              - spell
-              - magical
-              - { formula: "flags.critical ? ['critical'] : []" }
-      - id: result
-        kind: outcome
-        result: "'damage'"
-        data: { damage: steps.damage.total }

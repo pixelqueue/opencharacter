@@ -13,40 +13,17 @@ fields:
   material: false
   durationUnit: hour
   durationAmount: 1
+  applied: true
 # The extra die is the field `huntersMark.die` (1d6; the ranger's Foe Slayer makes it 1d10).
 actions:
   - use: cast-spell
-  - id: mark-damage
-    tags: [spell]
-    params: { critical: { type: boolean, optional: true } }
-    participants: { target: {} }
-    results: [damage]
-    steps:
-      - id: setup
-        kind: branch
-        cases:
-          - when: true
-            flags:
-              slot: item.level
-              critical: has(params.critical) && params.critical
-      - id: damage
-        kind: roll
-        tags: [damage.spell]
-        parts: [{ dice: huntersMark.die, tags: [damage.force] }]
-      - id: deal
-        kind: changes
-        to: target
-        changes:
-          - type: adjust
-            field: hp.current
-            split: { roll: damage, by: damage }
-            by: -max(0, part.total)
-            tags:
-              - damage
-              - spell
-              - magical
-              - { formula: "flags.critical ? ['critical'] : []" }
-      - id: result
-        kind: outcome
-        result: "'damage'"
-        data: { damage: steps.damage.total }
+effects:
+  # The caster's attack rolls that hit the target it is on deal the extra damage (doubled on a
+  # Critical Hit).
+  - target: { rolls: [damage] }
+    op: add
+    value: huntersMark.die
+    tags: [damage.force]
+    when: >-
+      has(flags.hit) && flags.hit && has(participants.target) && size(participants.target) > 0
+        && character.id in participants.target[0].huntersMark.markedBy

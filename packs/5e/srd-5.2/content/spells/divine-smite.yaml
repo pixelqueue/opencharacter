@@ -12,27 +12,28 @@ fields:
   durationUnit: instantaneous
 actions:
   - use: cast-spell
-  # Casting it spends the slot; `smite` deals the damage to the creature hit, doubled on a
-  # Critical Hit (the attack's dice and the spell's roll together).
-  - id: smite
-    tags: [spell]
-    params:
-      slot: { type: integer, optional: true, min: 1, max: 9 }
-      critical: { type: boolean, default: false }
-    participants:
-      target: { fields: target }
-    results: [done]
-    steps:
-      - id: effect
-        kind: action
-        use: spell-effect
-        participants: { target: participants.target }
-        params:
-          dice: "dieOf(1d8, 2 + max(0, (has(params.slot) ? params.slot : item.level) - item.level) + (size(participants.target) > 0 && participants.target[0].creature.type in ['fiend', 'undead'] ? 1 : 0))"
-          damageType: "'radiant'"
-          critical: params.critical
-      - id: result
-        kind: outcome
-        result: steps.effect.result
-        data:
-          damage: steps.effect.data.damage
+effects:
+  # Offered on a hit with a melee weapon or an Unarmed Strike: the attack casts it, and its damage
+  # joins the attack's (doubled on a Critical Hit).
+  - { target: combat.hitOptions, op: add, value: 1 }
+  - target: { choices: [weapon-hit, unarmed-hit] }
+    op: option
+    when: >-
+      ('unarmed-hit' in action.step.tags || (action.item.range == 'melee' && !params.thrown))
+        && (countList([1, 2, 3, 4, 5, 6, 7, 8, 9], x >= item.level
+            && fieldOf('spellSlots.level{slot}.max', x) - fieldOf('spellSlots.level{slot}.used', x) > 0) > 0
+          || (pactSlots.max - pactSlots.used > 0 && pactSlots.level >= item.level)
+          || item.id in spells.free)
+    value:
+      id: smite
+      flags: { smite: item.id, smiteLevel: item.level }
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: >-
+      dieOf(1d8, 2 + max(0, steps.smiteCast.data.slot - item.level)
+        + (size(participants.target) > 0 && participants.target[0].creature.type in ['fiend', 'undead']
+          ? 1 : 0))
+    tags: [damage.radiant]
+    when: >-
+      has(flags.smite) && flags.smite == item.id && has(steps.smiteCast)
+        && steps.smiteCast.result == 'cast'

@@ -549,6 +549,7 @@ actions:
             state:
               castSlot: flags.effectiveSlot
               castDc: flags.dc
+              caster: flags.me
               option: >-
                 has(steps.spellOption)
                   ? filterList(item.castOptions, item.id + '#' + x == steps.spellOption.picked)[0] : ''
@@ -569,6 +570,7 @@ actions:
             state:
               castSlot: flags.effectiveSlot
               castDc: flags.dc
+              caster: flags.me
               option: >-
                 has(steps.spellOptionSelf)
                   ? filterList(item.castOptions, item.id + '#' + x == steps.spellOptionSelf.picked)[0]
