@@ -1,0 +1,82 @@
+fields:
+  feats.held: { type: set, of: feat }
+  features.held: { type: set, of: feature }
+  heritages.held: { type: set, of: heritage }
+  heritage.size: { type: string, formula: "''" }
+  class.traits: { type: set, of: tag, members: { under: [trait] } }
+  classes.max: { type: integer, formula: 1, min: 1 }
+
+contentTypes:
+  ancestry:
+    copies: { max: 1 }
+    fields:
+      hp: { type: integer, required: true }
+      size: { type: enum, values: [tiny, small, medium, large], required: true }
+      speed: { type: integer, required: true, min: 0 }
+    effects:
+      - { target: hp.ancestry, op: add, value: item.hp }
+      - { target: speed.land, op: set, value: item.speed, when: '!battleForm.active' }
+      - { target: creature.size, op: set, value: "heritage.size != '' ? heritage.size : item.size" }
+      - { target: ancestry.held, op: grant, value: { formula: item.id } }
+
+  heritage:
+    fields:
+      ancestry: { type: id, of: ancestry }
+      versatile: { type: boolean, default: false }
+      size: { type: enum, values: [tiny, small, medium, large] }
+    effects:
+      - { target: heritages.held, op: grant, value: { formula: item.id } }
+      - { target: heritage.size, op: set, value: item.size, when: has(item.size) }
+
+  background:
+    copies: { max: 1 }
+
+  class:
+    copies: { max: classes.max }
+    fields:
+      hp: { type: integer, required: true }
+    effects:
+      - { target: hp.class, op: add, value: item.hp }
+
+  feature:
+    fields:
+      level: { type: integer, required: true, min: 1, max: 20 }
+    effects:
+      - { target: features.held, op: grant, value: { formula: item.id } }
+
+  feat:
+    fields:
+      level: { type: integer, required: true, min: 1, max: 20 }
+      category: { type: enum, values: [ancestry, class, general, skill], required: true }
+      ancestry: { type: id, of: ancestry }
+      heritage: { type: id, of: heritage }
+      class: { type: id, of: class }
+      skills: { type: set, of: tag, default: [] }
+      archetype: { type: id, of: archetype }
+    effects:
+      - { target: feats.held, op: grant, value: { formula: item.id } }
+      - target: archetypes.dedications
+        op: grant
+        value: { formula: item.id }
+        when: "'trait.dedication' in item.tags"
+
+choices:
+  - { id: free-boosts, pick: 4, from: { type: boost } }
+  - { id: boosts, slots: [5, 10, 15, 20], pick: 4, from: { type: boost }, when: level >= slot }
+  - id: ancestry-feat
+    slots: [1, 5, 9, 13, 17]
+    unique: feats
+    when: level >= slot
+    from: { type: feat, where: "item.category == 'ancestry'" }
+    eligible: >-
+      item.level <= slot && ((has(item.ancestry) && item.ancestry in ancestry.held)
+        || (has(item.heritage) && item.heritage in heritages.held)
+        || ('ancestry-trait-feat' in item.tags && countList(item.tags, x in traits) > 0))
+  - id: general-feat
+    slots: [3, 7, 11, 15, 19]
+    unique: feats
+    when: level >= slot
+    from:
+      type: feat
+      where: "item.category == 'general' || item.category == 'skill' && !has(item.archetype)"
+    eligible: item.level <= slot

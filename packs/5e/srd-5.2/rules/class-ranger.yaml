@@ -1,0 +1,57 @@
+fields:
+  ranger.favoredEnemy: { type: integer, formula: 0 }
+  ranger.tireless: { type: integer, formula: 0 }
+  ranger.naturesVeil: { type: integer, formula: 0 }
+  ranger.preciseHunter: { type: boolean, formula: false }
+  ranger.colossusSlayer: { type: boolean, formula: false }
+  ranger.superiorHuntersDefense: { type: boolean, formula: false }
+  huntersMark.die: { type: dice, formula: 1d6 }
+
+situational:
+  - id: preciseHunter
+    type: boolean
+    default: false
+    available: ranger.preciseHunter
+    rolls: [attack]
+    effects:
+      - target: { rolls: [attack] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.preciseHunter
+  - id: colossusSlayer
+    type: boolean
+    default: false
+    available: ranger.colossusSlayer
+    rolls: [damage.weapon]
+    effects:
+      - target: { rolls: [damage.weapon] }
+        op: add
+        value: 1d8
+        tags:
+          [
+            {
+              formula: "'damage.' + (has(flags.damageType) ? flags.damageType : roll.item.damageType)",
+            },
+          ]
+        when: situational.colossusSlayer && has(roll.item) && has(roll.item.damageType)
+  - id: superiorHuntersDefense
+    type: boolean
+    default: false
+    available: ranger.superiorHuntersDefense
+    incoming: { fields: [hp.current], tags: [damage] }
+    effects:
+      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: multiply
+        value: 0.5
+        when: countList(damage.resistances, x in incoming.tags) == 0
+
+display:
+  fields:
+    ranger.favoredEnemy:
+      { groups: [class-features], priority: 1, showWhen: ranger.favoredEnemy > 0 }
+    ranger.tireless: { groups: [class-features], priority: 2, showWhen: ranger.tireless > 0 }
+    ranger.naturesVeil: { groups: [class-features], priority: 2, showWhen: ranger.naturesVeil > 0 }
+    ranger.preciseHunter: { hidden: true }
+    ranger.colossusSlayer: { hidden: true }
+    ranger.superiorHuntersDefense: { hidden: true }
+    huntersMark.die: { groups: [class-features], priority: 2, showWhen: ranger.favoredEnemy > 0 }

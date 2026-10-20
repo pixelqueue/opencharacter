@@ -1,0 +1,77 @@
+id: monsters.drider.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 4
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: foreleg }, { id: poison-burst }]
+        recommend: "'foreleg'"
+      - id: foreleg1
+        kind: action
+        when: "steps.pick1.picked == 'foreleg'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.drider.foreleg)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: poisonBurst1
+        kind: action
+        when: "steps.pick1.picked == 'poison-burst'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.drider.poison-burst)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: foreleg }, { id: poison-burst }]
+        recommend: "'foreleg'"
+      - id: foreleg2
+        kind: action
+        when: "steps.pick2.picked == 'foreleg'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.drider.foreleg)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: poisonBurst2
+        kind: action
+        when: "steps.pick2.picked == 'poison-burst'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.drider.poison-burst)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pick3
+        kind: choice
+        options: [{ id: foreleg }, { id: poison-burst }]
+        recommend: "'foreleg'"
+      - id: foreleg3
+        kind: action
+        when: "steps.pick3.picked == 'foreleg'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.drider.foreleg)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: poisonBurst3
+        kind: action
+        when: "steps.pick3.picked == 'poison-burst'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.drider.poison-burst)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.foreleg1) && steps.foreleg1.result == 'hit' ? 1 : 0)
+              + (has(steps.poisonBurst1) && steps.poisonBurst1.result == 'hit' ? 1 : 0)
+              + (has(steps.foreleg2) && steps.foreleg2.result == 'hit' ? 1 : 0)
+              + (has(steps.poisonBurst2) && steps.poisonBurst2.result == 'hit' ? 1 : 0)
+              + (has(steps.foreleg3) && steps.foreleg3.result == 'hit' ? 1 : 0)
+              + (has(steps.poisonBurst3) && steps.poisonBurst3.result == 'hit' ? 1 : 0)

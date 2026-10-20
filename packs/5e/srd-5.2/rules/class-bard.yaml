@@ -1,0 +1,17 @@
+fields:
+  bardicInspiration.die: { type: dice, formula: 0 }
+  bardicInspiration.uses: { type: integer, formula: 0 }
+  bardicInspiration.left:
+    type: integer
+    formula: >-
+      max(0, bardicInspiration.uses - sumCopies(copy.state.bardicInspirationSpent,
+        copy.item == @classes.bard))
+
+display:
+  fields:
+    bardicInspiration.die:
+      { groups: [class-features], priority: 1, format: dice, showWhen: bardicInspiration.uses > 0 }
+    bardicInspiration.uses:
+      { groups: [class-features], priority: 1, showWhen: bardicInspiration.uses > 0 }
+    bardicInspiration.left:
+      { groups: [class-features], priority: 1, showWhen: bardicInspiration.uses > 0 }

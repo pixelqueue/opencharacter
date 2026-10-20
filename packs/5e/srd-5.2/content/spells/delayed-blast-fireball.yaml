@@ -1,0 +1,42 @@
+id: spells.delayed-blast-fireball
+type: spell
+fields:
+  level: 7
+  school: evocation
+  classes: [classes.sorcerer, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 150
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+  areaShape: sphere
+  areaSize: 20
+actions:
+  - use: cast-spell
+  - id: explode
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+      turns: { type: integer, default: 0, min: 0 }
+    participants:
+      target: { fields: target }
+    results: [save]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          save: "'dex'"
+          half: true
+          damageType: "'fire'"
+          dice: 'dieOf(1d6, 12 + params.turns + max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage

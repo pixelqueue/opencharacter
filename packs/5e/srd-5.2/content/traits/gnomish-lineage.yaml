@@ -1,0 +1,20 @@
+id: traits.gnomish-lineage
+type: trait
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    stackKey: speak-with-animals
+    when: >-
+      action.item.id == @spells.speak-with-animals && action.item.id in spells.species
+        && self.speakWithAnimalsUsed < proficiency.bonus
+    value:
+      id: free-cast
+      flags: { slot: 1, castAbility: "'species'" }
+      changes:
+        - { type: adjustState, entry: self, key: speakWithAnimalsUsed, by: 1 }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.speakWithAnimalsUsed > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: speakWithAnimalsUsed, value: 0 }

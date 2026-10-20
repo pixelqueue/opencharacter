@@ -1,0 +1,399 @@
+id: feats.skill.additional-lore
+type: feat
+fields: { level: 1, category: skill, skills: [skill.lore] }
+repeatable: true
+choices:
+  - id: lore
+    unique: additional-lore
+    from:
+      options:
+        - id: academia
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.academia }
+              when: "!('skill.lore.academia' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.academia.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: alcohol
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.alcohol }
+              when: "!('skill.lore.alcohol' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.alcohol.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: android
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.android }
+              when: "!('skill.lore.android' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.android.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: animal
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.animal }
+              when: "!('skill.lore.animal' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.animal.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: art
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.art }
+              when: "!('skill.lore.art' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.art.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: augmentation
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.augmentation }
+              when: "!('skill.lore.augmentation' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.augmentation.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: barathu
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.barathu }
+              when: "!('skill.lore.barathu' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.barathu.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: borai
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.borai }
+              when: "!('skill.lore.borai' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.borai.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: business
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.business }
+              when: "!('skill.lore.business' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.business.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: cooking
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.cooking }
+              when: "!('skill.lore.cooking' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.cooking.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: corporate
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.corporate }
+              when: "!('skill.lore.corporate' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.corporate.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: games
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.games }
+              when: "!('skill.lore.games' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.games.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: genealogy
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.genealogy }
+              when: "!('skill.lore.genealogy' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.genealogy.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: history
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.history }
+              when: "!('skill.lore.history' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.history.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: hyperspace
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.hyperspace }
+              when: "!('skill.lore.hyperspace' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.hyperspace.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: infosphere
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.infosphere }
+              when: "!('skill.lore.infosphere' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.infosphere.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: kasatha
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.kasatha }
+              when: "!('skill.lore.kasatha' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.kasatha.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: labor
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.labor }
+              when: "!('skill.lore.labor' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.labor.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: lashunta
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.lashunta }
+              when: "!('skill.lore.lashunta' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.lashunta.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: legal
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.legal }
+              when: "!('skill.lore.legal' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.legal.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: life-science
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.life-science }
+              when: "!('skill.lore.life-science' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.lifeScience.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: media
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.media }
+              when: "!('skill.lore.media' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.media.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: mining
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.mining }
+              when: "!('skill.lore.mining' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.mining.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: pahtra
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.pahtra }
+              when: "!('skill.lore.pahtra' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.pahtra.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: physical-science
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.physical-science }
+              when: "!('skill.lore.physical-science' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.physicalScience.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: piracy
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.piracy }
+              when: "!('skill.lore.piracy' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.piracy.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: plant
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.plant }
+              when: "!('skill.lore.plant' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.plant.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: prismeni
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.prismeni }
+              when: "!('skill.lore.prismeni' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.prismeni.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: shirren
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.shirren }
+              when: "!('skill.lore.shirren' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.shirren.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: skittermander
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.skittermander }
+              when: "!('skill.lore.skittermander' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.skittermander.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: sports
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.sports }
+              when: "!('skill.lore.sports' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.sports.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: underworld
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.underworld }
+              when: "!('skill.lore.underworld' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.underworld.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: vesk
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.vesk }
+              when: "!('skill.lore.vesk' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.vesk.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: vidgame
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.vidgame }
+              when: "!('skill.lore.vidgame' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.vidgame.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: warfare
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.warfare }
+              when: "!('skill.lore.warfare' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.warfare.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: ysoki
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.ysoki }
+              when: "!('skill.lore.ysoki' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.ysoki.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: custom1
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.custom1 }
+              when: "!('skill.lore.custom1' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.custom1.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: custom2
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.custom2 }
+              when: "!('skill.lore.custom2' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.custom2.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: custom3
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.custom3 }
+              when: "!('skill.lore.custom3' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.custom3.granted
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'

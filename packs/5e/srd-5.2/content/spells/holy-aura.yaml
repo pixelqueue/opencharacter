@@ -1,0 +1,30 @@
+id: spells.holy-aura
+type: spell
+fields:
+  level: 8
+  school: abjuration
+  classes: [classes.cleric]
+  concentration: true
+  castingTime: action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+  areaShape: emanation
+  areaSize: 30
+  applied: true
+effects:
+  - target: { rolls: [save] }
+    op: rollModifier
+    value: { kind: advantage }
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
+  - target: combat.attackersDisadvantage
+    op: set
+    value: true
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
+actions:
+  - use: cast-spell

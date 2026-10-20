@@ -1,0 +1,23 @@
+id: feats.skill.divine-guidance
+type: feat
+fields: { level: 15, category: skill, skills: [skill.religion] }
+
+prerequisites:
+  - id: legendary
+    when: skills.religion.rank >= 4
+actions:
+  - id: divine-guidance
+    tags: [exploration-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.divine-guidance]
+        params: { check: "'skills.religion.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }

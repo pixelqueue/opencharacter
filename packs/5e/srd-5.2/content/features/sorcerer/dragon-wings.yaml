@@ -1,0 +1,32 @@
+id: features.sorcerer.dragon-wings
+type: feature
+effects:
+  - { target: dragonWings.known, op: set, value: true }
+  - { target: combat.flySpeed, op: atLeast, value: 60, when: dragonWings.active }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.dragonWingsUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: dragonWingsUsed, value: false }
+actions:
+  - id: dragon-wings
+    tags: [feature]
+    results: [winged]
+    available: '!dragonWings.active && (!self.dragonWingsUsed || sorcery.left >= 3)'
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - type: adjustState
+            when: self.dragonWingsUsed
+            entry: self
+            key: sorceryPointsSpent
+            by: 3
+          - { type: setState, entry: self, key: dragonWingsUsed, value: true }
+          - { type: set, field: dragonWings.active, value: true }
+      - id: result
+        kind: outcome
+        result: "'winged'"
+        data:
+          hours: 1

@@ -1,0 +1,21 @@
+id: spells.shield
+type: spell
+tags:
+  - tradition.arcane
+  - tradition.divine
+  - tradition.occult
+  - trait.cantrip
+  - trait.concentrate
+  - trait.force
+fields: { rank: 1, cast: one, duration: until-next-turn, applyTo: self }
+effects:
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    scope: applied
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    value: 'min(5 + 5 * floor((self.rank - 1) / 2), -incoming.amount)'
+    when: 'situational.shieldSpellBlock && incoming.amount < 0'
+    scope: applied

@@ -1,0 +1,31 @@
+id: spells.goodberry
+type: spell
+fields:
+  level: 1
+  school: conjuration
+  classes: [classes.druid, classes.ranger]
+  castingTime: action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 24
+actions:
+  - use: cast-spell
+  - id: berry
+    tags: [spell, healing]
+    participants: { target: { max: 1 } }
+    results: [healed]
+    steps:
+      - id: heal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            by: 1
+            tags: [healing]
+      - id: result
+        kind: outcome
+        result: "'healed'"

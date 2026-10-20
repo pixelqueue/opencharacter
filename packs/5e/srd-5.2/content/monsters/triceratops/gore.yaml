@@ -1,0 +1,58 @@
+id: monsters.triceratops.gore
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+  attack: melee
+  toHit: 9
+  reach: 5
+  damage: 2d12 + 6
+  damageType: piercing
+actions:
+  - id: charge
+    tags: [attack]
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: gore
+        kind: action
+        use: monster-attack
+        entry: self.id
+        params:
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+        participants:
+          target: participants.target
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              critical: "steps.gore.result == 'hit' && steps.gore.data.critical"
+              sizeOk: >-
+                size(participants.target) == 0
+                  || indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                    participants.target[0].creature.size) <= 4
+      - id: extra
+        kind: roll
+        when: steps.gore.result == 'hit' && flags.sizeOk
+        tags: [damage.weapon]
+        parts: [{ dice: 2d8, tags: [damage.piercing] }]
+      - id: deal
+        kind: changes
+        when: has(steps.extra)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: extra, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, attack, melee, { formula: "flags.critical ? ['critical'] : []" }]
+          - { type: applyEffect, source: "'conditions.prone'", state: { by: creature.type } }
+      - id: result
+        kind: outcome
+        result: "steps.gore.result == 'hit' ? 'hit' : 'miss'"
+        data:
+          damage: 'steps.gore.data.damage + (has(steps.extra) ? steps.extra.total : 0)'

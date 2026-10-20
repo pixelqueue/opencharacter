@@ -1,0 +1,35 @@
+id: spells.hypnotic-pattern
+type: spell
+fields:
+  level: 3
+  school: illusion
+  classes:
+    - classes.bard
+    - classes.sorcerer
+    - classes.warlock
+    - classes.wizard
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 120
+  verbal: false
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+  areaShape: cube
+  areaSize: 30
+  save: wis
+  saveEffect: none
+  condition: conditions.charmed
+  applied: true
+effects:
+  - target: combat.speed
+    op: atMost
+    value: 0
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
+grants:
+  - { item: conditions.incapacitated, scope: applied }
+actions:
+  - use: cast-spell

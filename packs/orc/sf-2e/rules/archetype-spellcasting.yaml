@@ -1,0 +1,193 @@
+families:
+  archetypeSource: [mystic, witchwarper]
+  archetypeRank: [1, 2, 3, 4, 5, 6, 7, 8]
+  tradition: [arcane, divine, occult, primal]
+
+fields:
+  'spellcasting.archetype.{archetypeSource}.tradition':
+    { type: enum, values: [none, arcane, divine, occult, primal], formula: "'none'" }
+  'spellcasting.archetype.{archetypeSource}.kind':
+    { type: enum, values: [none, spontaneous], formula: "'none'" }
+  'spellcasting.archetype.{archetypeSource}.attribute':
+    { type: enum, values: [none, int, wis, cha], formula: "'none'" }
+  'spellcasting.archetype.{archetypeSource}.rank': { type: integer, formula: 0, min: 0, max: 4 }
+  'spellcasting.archetype.{archetypeSource}.proficiency':
+    type: integer
+    formula: >-
+      spellcasting.archetype.{archetypeSource}.rank > 0
+        ? 2 * spellcasting.archetype.{archetypeSource}.rank + proficiency.level : proficiency.untrained
+  'spellcasting.archetype.{archetypeSource}.attributeMod':
+    type: integer
+    formula: >-
+      spellcasting.archetype.{archetypeSource}.attribute == 'none' ? 0
+        : fieldOf('attributes.{attribute}.mod', spellcasting.archetype.{archetypeSource}.attribute)
+  'spellcasting.archetype.{archetypeSource}.attack':
+    type: integer
+    tags:
+      - check
+      - attack
+      - spell-attack
+      - formula: >-
+          spellcasting.archetype.{archetypeSource}.attribute == 'none' ? []
+            : ['attr.' + spellcasting.archetype.{archetypeSource}.attribute]
+    formula: >-
+      spellcasting.archetype.{archetypeSource}.attributeMod
+        + spellcasting.archetype.{archetypeSource}.proficiency
+  'spellcasting.archetype.{archetypeSource}.dc':
+    type: integer
+    tags:
+      - dc
+      - spell-dc
+      - formula: >-
+          spellcasting.archetype.{archetypeSource}.attribute == 'none' ? []
+            : ['attr.' + spellcasting.archetype.{archetypeSource}.attribute]
+    formula: >-
+      10 + spellcasting.archetype.{archetypeSource}.attributeMod
+        + spellcasting.archetype.{archetypeSource}.proficiency
+  'spellcasting.archetype.{archetypeSource}.cantrips': { type: integer, formula: 0, min: 0 }
+  'spellcasting.archetype.{archetypeSource}.benefits': { type: integer, formula: 0, min: 0, max: 3 }
+  'spellcasting.archetype.{archetypeSource}.breadth': { type: boolean, formula: false }
+  'spellcasting.archetype.{archetypeSource}.maxRank':
+    type: integer
+    formula: >-
+      spellcasting.archetype.{archetypeSource}.benefits >= 3 && level >= 20 ? 8
+        : spellcasting.archetype.{archetypeSource}.benefits >= 3 && level >= 18 ? 7
+        : spellcasting.archetype.{archetypeSource}.benefits >= 2 && level >= 16 ? 6
+        : spellcasting.archetype.{archetypeSource}.benefits >= 2 && level >= 14 ? 5
+        : spellcasting.archetype.{archetypeSource}.benefits >= 2 && level >= 12 ? 4
+        : spellcasting.archetype.{archetypeSource}.benefits >= 1 && level >= 8 ? 3
+        : spellcasting.archetype.{archetypeSource}.benefits >= 1 && level >= 6 ? 2
+        : spellcasting.archetype.{archetypeSource}.benefits >= 1 && level >= 4 ? 1 : 0
+  'spellcasting.archetype.{archetypeSource}.signatures':
+    type: integer
+    formula: >-
+      spellcasting.archetype.{archetypeSource}.kind != 'spontaneous' ? 0
+        : (spellcasting.archetype.{archetypeSource}.benefits >= 1 && level >= 6 ? 1 : 0)
+          + (spellcasting.archetype.{archetypeSource}.benefits >= 2 ? 1 : 0)
+          + (spellcasting.archetype.{archetypeSource}.benefits >= 3 ? 1 : 0)
+  'spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max':
+    type: integer
+    formula: >-
+      spellcasting.archetype.{archetypeSource}.maxRank < {archetypeRank} ? 0
+        : 1 + (spellcasting.archetype.{archetypeSource}.breadth
+          && {archetypeRank} <= spellcasting.archetype.{archetypeSource}.maxRank - 2 ? 1 : 0)
+  'spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used':
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 'spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max',
+    }
+  'spells.archetype.{archetypeSource}.repertoire': { type: set, of: spell }
+  'spells.archetype.{archetypeSource}.repertoire.rank{archetypeRank}': { type: set, of: spell }
+  'spells.archetype.{archetypeSource}.signature': { type: set, of: spell }
+  'spells.archetype.{archetypeSource}.spells': { type: set, of: spell }
+  spellcasting.archetype.any:
+    type: boolean
+    formula: >-
+      countList(keysOf('archetypeSource'),
+        fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x) != 'none') > 0
+  'spellcasting.casts.{tradition}':
+    type: boolean
+    formula: >-
+      spellcasting.tradition == '{tradition}' || countList(keysOf('archetypeSource'),
+        fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x) == '{tradition}') > 0
+  'spellcasting.maxRankFor.{tradition}':
+    type: integer
+    formula: >-
+      max(spellcasting.tradition == '{tradition}' ? spellcasting.maxRank : 0,
+        maxList(keysOf('archetypeSource'),
+          fieldOf('spellcasting.archetype.{archetypeSource}.tradition', x) == '{tradition}'
+            ? fieldOf('spellcasting.archetype.{archetypeSource}.maxRank', x) : 0))
+  spellcasting.maxRankAny:
+    type: integer
+    formula: >-
+      max(spellcasting.maxRank, maxList(keysOf('archetypeSource'),
+        fieldOf('spellcasting.archetype.{archetypeSource}.maxRank', x)))
+
+display:
+  groups:
+    - id: archetype-spellcasting
+      priority: 1
+      showWhen: spellcasting.archetype.any
+    - id: archetype-spell-slots
+      priority: 2
+      showWhen: >-
+        countList(keysOf('archetypeSource'),
+          fieldOf('spellcasting.archetype.{archetypeSource}.maxRank', x) > 0) > 0
+  fields:
+    'spellcasting.archetype.{archetypeSource}.tradition':
+      {
+        groups: [archetype-spellcasting],
+        priority: 0,
+        showWhen: "spellcasting.archetype.{archetypeSource}.tradition != 'none'",
+      }
+    'spellcasting.archetype.{archetypeSource}.kind':
+      {
+        groups: [archetype-spellcasting],
+        priority: 1,
+        showWhen: "spellcasting.archetype.{archetypeSource}.kind != 'none'",
+      }
+    'spellcasting.archetype.{archetypeSource}.attack':
+      {
+        groups: [archetype-spellcasting],
+        priority: 0,
+        format: signed,
+        showWhen: "spellcasting.archetype.{archetypeSource}.attribute != 'none'",
+        rolls:
+          [
+            {
+              action: spell-attack,
+              params: { field: 'spellcasting.archetype.{archetypeSource}.attack' },
+            },
+          ],
+      }
+    'spellcasting.archetype.{archetypeSource}.dc':
+      {
+        groups: [archetype-spellcasting],
+        priority: 0,
+        showWhen: "spellcasting.archetype.{archetypeSource}.attribute != 'none'",
+      }
+    'spellcasting.archetype.{archetypeSource}.rank':
+      {
+        groups: [archetype-spellcasting, proficiencies],
+        priority: 1,
+        format: { bands: rank },
+        showWhen: 'spellcasting.archetype.{archetypeSource}.rank > 0',
+      }
+    'spellcasting.archetype.{archetypeSource}.maxRank':
+      {
+        groups: [archetype-spell-slots],
+        priority: 1,
+        showWhen: 'spellcasting.archetype.{archetypeSource}.maxRank > 0',
+      }
+    'spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max':
+      {
+        groups: [archetype-spell-slots],
+        priority: 0,
+        showWhen: 'spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max > 0',
+      }
+    'spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used':
+      {
+        groups: [archetype-spell-slots],
+        priority: 0,
+        showWhen: "spellcasting.archetype.{archetypeSource}.kind == 'spontaneous' && spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max > 0",
+        with:
+          [{ field: 'spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.max', as: max }],
+      }
+    'spellcasting.archetype.{archetypeSource}.attribute': { hidden: true }
+    'spellcasting.archetype.{archetypeSource}.proficiency': { hidden: true }
+    'spellcasting.archetype.{archetypeSource}.attributeMod': { hidden: true }
+    'spellcasting.archetype.{archetypeSource}.cantrips': { hidden: true }
+    'spellcasting.archetype.{archetypeSource}.benefits': { hidden: true }
+    'spellcasting.archetype.{archetypeSource}.breadth': { hidden: true }
+    'spellcasting.archetype.{archetypeSource}.signatures': { hidden: true }
+    'spells.archetype.{archetypeSource}.repertoire': { hidden: true }
+    'spells.archetype.{archetypeSource}.signature': { hidden: true }
+    'spells.archetype.{archetypeSource}.spells': { hidden: true }
+    'spells.archetype.{archetypeSource}.repertoire.rank{archetypeRank}': { hidden: true }
+    spellcasting.archetype.any: { hidden: true }
+    'spellcasting.casts.{tradition}': { hidden: true }
+    'spellcasting.maxRankFor.{tradition}': { hidden: true }
+    spellcasting.maxRankAny: { hidden: true }

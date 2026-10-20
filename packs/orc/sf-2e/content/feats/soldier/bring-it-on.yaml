@@ -1,0 +1,13 @@
+id: feats.soldier.bring-it-on
+type: feat
+tags: [trait.soldier]
+fields: { level: 8, category: class, class: classes.soldier }
+actions:
+  - id: bring-it-on
+    tags: [class-action]
+    results: [braced]
+    steps:
+      - id: brace
+        kind: changes
+        changes: [{ type: applyEffect, source: "'effects.bring-it-on'" }]
+      - { id: result, kind: outcome, result: "'braced'" }

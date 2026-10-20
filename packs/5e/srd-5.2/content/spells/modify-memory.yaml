@@ -1,0 +1,23 @@
+id: spells.modify-memory
+type: spell
+fields:
+  level: 5
+  school: enchantment
+  classes: [classes.bard, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 30
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  save: wis
+  saveEffect: none
+  condition: conditions.charmed
+  applied: true
+grants:
+  - { item: conditions.incapacitated, scope: applied }
+actions:
+  - use: cast-spell

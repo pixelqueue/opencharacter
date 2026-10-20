@@ -1,0 +1,46 @@
+id: feats.solarian.supernova
+type: feat
+tags: [trait.attuned, trait.solarian]
+fields: { level: 4, category: class, class: classes.solarian }
+actions:
+  - id: supernova
+    tags: [class-action]
+    participants: { target: {} }
+    results: [used]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts: [{ dice: 'dieOf(1d8, 4 + max(0, level - 4))', tags: [damage.fire] }]
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: check
+        params: { check: "'saves.reflex.mod'", dc: classDc.solarian.value }
+      - id: degree
+        kind: branch
+        each: target
+        cases:
+          - when: true
+            flags:
+              outcome: "max(0, indexOf(['critical-success', 'success', 'failure', 'critical-failure'], steps.save.result))"
+      - id: deal
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            when: 'flags.outcome > 0'
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: '-floor(max(0, part.total) * [0, 0.5, 1, 2][flags.outcome])'
+            tags: [damage]
+          - { type: applyEffect, when: flags.outcome == 1, source: "'conditions.dazzled'" }
+          - { type: applyEffect, when: flags.outcome == 2, source: "'conditions.blinded'" }
+          - { type: applyEffect, when: flags.outcome == 3, source: "'conditions.blinded'" }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data: { damage: 'has(steps.damage) ? steps.damage.total : 0', dc: classDc.solarian.value }
+    available: "solarian.attunement in ['photon', 'perfect']"

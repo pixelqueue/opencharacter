@@ -1,0 +1,10 @@
+id: grades.armor-elite
+type: template
+tags: [grade]
+appliesTo: { type: armor, where: "!('natural' in item.tags)" }
+fields:
+  potency: 2
+  upgradeSlots: prior.upgradeSlots + 2
+  level: 'max(prior.level, 14)'
+  price: '(has(prior.price) ? prior.price : 0) + 45000'
+  resilient: 2

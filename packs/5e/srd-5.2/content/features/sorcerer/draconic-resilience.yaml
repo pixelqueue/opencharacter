@@ -1,0 +1,8 @@
+id: features.sorcerer.draconic-resilience
+type: feature
+effects:
+  - { target: hp.max, op: add, value: self.level }
+  - target: combat.ac
+    op: set
+    value: 10 + abilities.dex.mod + abilities.cha.mod
+    when: "!('armor' in equipment.tags)"

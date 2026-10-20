@@ -1,0 +1,12 @@
+id: features.fighter.studied-attacks
+type: feature
+effects:
+  - target: { choices: [failed-attack] }
+    op: option
+    value:
+      id: studied
+      to: target
+      changes:
+        - type: applyEffect
+          source: "'combat-effects.vexed'"
+          state: { attacker: character.id }

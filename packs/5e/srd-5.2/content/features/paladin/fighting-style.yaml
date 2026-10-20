@@ -1,0 +1,26 @@
+id: features.paladin.fighting-style
+type: feature
+effects:
+  - { target: features.fightingStyle, op: set, value: true }
+choices:
+  - id: style
+    from:
+      options:
+        - id: feat
+          choices:
+            - id: feat
+              unique: feats
+              eligible: "!(item.id in feats.held) || item.id in choice.picks || 'repeatable' in item.tags"
+              from: { type: feat, where: "item.category == 'fighting-style'" }
+        - id: blessed-warrior
+          choices:
+            - id: cantrips
+              pick: 2
+              from: { type: spell, where: 'item.level == 0 && @classes.cleric in item.classes' }
+              eligible: '!(item.id in spells.paladin) || item.id in choice.picks'
+              recommend: >-
+                !(@spells.guidance in choice.picks) ? @spells.guidance
+                  : !(@spells.sacred-flame in choice.picks) ? @spells.sacred-flame : ''
+              effects:
+                - { target: spells.paladin, op: grant, value: { formula: pick.id } }
+    recommend: "'blessed-warrior'"

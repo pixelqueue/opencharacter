@@ -1,0 +1,11 @@
+id: features.fighter.ability-score-improvement
+type: feature
+choices:
+  - id: feat
+    slots: [4, 6, 8, 12, 14, 16]
+    when: self.level >= slot
+    from: { type: feat }
+    unique: feats
+    eligible: "!(item.id in feats.held) || item.id in choice.picks || 'repeatable' in item.tags"
+    requiresOption: true
+    recommend: '@feats.ability-score-improvement'

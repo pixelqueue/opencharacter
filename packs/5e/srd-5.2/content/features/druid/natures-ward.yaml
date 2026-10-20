@@ -1,0 +1,12 @@
+id: features.druid.natures-ward
+type: feature
+immuneTo:
+  - { id: poisoned, items: [conditions.poisoned] }
+effects:
+  - target: damage.resistances
+    op: grant
+    value:
+      formula: >-
+        ['damage.fire', 'damage.cold', 'damage.lightning', 'damage.poison'][indexOf(['arid',
+          'polar', 'temperate', 'tropical'], druid.land)]
+    when: "druid.land != 'none'"

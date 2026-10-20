@@ -1,0 +1,53 @@
+id: monsters.goat.ram
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+  attack: melee
+  toHit: 2
+  reach: 5
+  damage: 1
+  damageType: bludgeoning
+actions:
+  - id: charge
+    tags: [attack]
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: ram
+        kind: action
+        use: monster-attack
+        entry: self.id
+        hold: true
+        participants:
+          target: participants.target
+      - id: pass
+        kind: changes
+        release: { steps: [ram], where: "!('damage' in change.tags)" }
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              critical: "steps.ram.result == 'hit' && steps.ram.data.critical"
+      - id: damage
+        kind: roll
+        when: steps.ram.result == 'hit'
+        tags: [damage.weapon]
+        parts: [{ dice: 1d4, tags: [damage.bludgeoning] }]
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, attack, melee, { formula: "flags.critical ? ['critical'] : []" }]
+      - id: result
+        kind: outcome
+        result: "steps.ram.result == 'hit' ? 'hit' : 'miss'"
+        data:
+          damage: 'has(steps.damage) ? steps.damage.total : 0'

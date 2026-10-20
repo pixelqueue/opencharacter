@@ -1,0 +1,9 @@
+id: invocations.devouring-blade
+type: invocation
+prerequisites:
+  - id: level
+    when: self.level >= 12
+  - id: invocation
+    when: '@invocations.thirsting-blade in warlock.invocations'
+effects:
+  - { target: combat.attacks, op: atLeast, value: 3 }

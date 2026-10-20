@@ -1,0 +1,22 @@
+id: feats.skill.dubious-knowledge
+type: feat
+fields:
+  {
+    level: 1,
+    category: skill,
+    skills:
+      [
+        skill.arcana,
+        skill.crafting,
+        skill.medicine,
+        skill.nature,
+        skill.occultism,
+        skill.religion,
+        skill.society,
+        skill.lore,
+      ],
+  }
+
+prerequisites:
+  - id: trained
+    when: "skills.arcana.rank >= 1 || skills.crafting.rank >= 1 || skills.medicine.rank >= 1 || skills.nature.rank >= 1 || skills.occultism.rank >= 1 || skills.religion.rank >= 1 || skills.society.rank >= 1 || maxFields(f.value, 'lore' in f.tags && 'skill-rank' in f.tags) >= 1"

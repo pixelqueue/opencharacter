@@ -1,0 +1,50 @@
+id: spells.greater-restoration
+type: spell
+fields:
+  level: 5
+  school: abjuration
+  classes:
+    - classes.bard
+    - classes.cleric
+    - classes.druid
+    - classes.paladin
+    - classes.ranger
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: instantaneous
+actions:
+  - use: cast-spell
+  - id: restore
+    tags: [spell]
+    participants: { target: { max: 1 } }
+    results: [ended]
+    steps:
+      - id: effect
+        kind: choice
+        options:
+          - id: exhaustion
+            changes:
+              - { type: adjust, field: conditions.exhaustion, by: -1 }
+            to: target
+          - id: charmed
+            changes:
+              - type: removeEffect
+                applied: { where: item.id == @conditions.charmed }
+            to: target
+          - id: petrified
+            changes:
+              - type: removeEffect
+                applied: { where: item.id == @conditions.petrified }
+            to: target
+          - id: hit-point-maximum
+            changes:
+              - type: removeEffect
+                applied: { where: item.id == @spells.harm }
+            to: target
+      - id: result
+        kind: outcome
+        result: "'ended'"
+        data: { effect: steps.effect.picked }

@@ -1,0 +1,20 @@
+id: features.monk.slow-fall
+type: feature
+effects:
+  - { target: slowFall.reduction, op: set, value: 5 * self.level }
+actions:
+  - id: slow-fall
+    tags: [damage]
+    results: [fell, landed]
+    params:
+      feet: { type: integer, min: 0 }
+    steps:
+      - id: fall
+        kind: action
+        use: fall
+        params: { feet: params.feet, reduction: slowFall.reduction }
+      - id: result
+        kind: outcome
+        result: steps.fall.result
+        data:
+          damage: steps.fall.data.damage

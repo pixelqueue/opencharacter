@@ -1,0 +1,42 @@
+id: spells.shining-smite
+type: spell
+fields:
+  level: 2
+  school: transmutation
+  classes: [classes.paladin]
+  concentration: true
+  castingTime: bonus-action
+  rangeKind: self
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - { target: combat.hitOptions, op: add, value: 1 }
+  - target: { choices: [weapon-hit, unarmed-hit] }
+    op: option
+    when: >-
+      ('unarmed-hit' in action.step.tags || (action.item.range == 'melee' && !params.thrown))
+        && (countList([1, 2, 3, 4, 5, 6, 7, 8, 9], x >= item.level
+            && fieldOf('spellSlots.level{slot}.max', x) - fieldOf('spellSlots.level{slot}.used', x) > 0) > 0
+          || (pactSlots.max - pactSlots.used > 0 && pactSlots.level >= item.level)
+          || item.id in spells.free)
+    value:
+      id: smite
+      flags: { smite: item.id, smiteLevel: item.level }
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: dieOf(1d6, 2 + max(0, steps.smiteCast.data.slot - item.level))
+    tags: [damage.radiant]
+    when: >-
+      has(flags.smite) && flags.smite == item.id && has(steps.smiteCast)
+        && steps.smiteCast.result == 'cast'
+  - target: combat.attackersAdvantage
+    op: set
+    value: true
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }

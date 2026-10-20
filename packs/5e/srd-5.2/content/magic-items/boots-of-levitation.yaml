@@ -1,0 +1,16 @@
+id: magic-items.boots-of-levitation
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  requiresAttunement: true
+  spells: [spells.levitate]
+grants:
+  - { item: spells.levitate, when: self.equipped && self.attuned }
+effects:
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.levitate },
+      when: self.equipped && self.attuned,
+    }

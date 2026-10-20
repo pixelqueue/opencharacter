@@ -1,0 +1,53 @@
+id: spells.mirror-image
+type: spell
+fields:
+  level: 2
+  school: illusion
+  classes:
+    - classes.bard
+    - classes.sorcerer
+    - classes.warlock
+    - classes.wizard
+  castingTime: action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  applied: true
+state: { destroyed: { type: integer, default: 0, min: 0, max: 3 } }
+actions:
+  - use: cast-spell
+  - id: duplicates
+    scope: applied
+    tags: [spell]
+    available: self.destroyed < 3
+    results: [duplicate, you]
+    steps:
+      - id: roll
+        kind: roll
+        parts: [{ dice: (3 - self.destroyed)d6 }]
+      - id: hit
+        kind: branch
+        cases:
+          - when: maxList(steps.roll.kept, x) >= 3
+            flags: { duplicate: true }
+        else: { flags: { duplicate: false } }
+      - id: destroy
+        kind: changes
+        when: flags.duplicate
+        changes:
+          - type: adjustState
+            entry: self
+            key: destroyed
+            by: 1
+            when: self.destroyed < 2
+          - type: removeEffect
+            applied: { where: item.id == @spells.mirror-image }
+            when: self.destroyed >= 2
+      - id: result
+        kind: outcome
+        result: "flags.duplicate ? 'duplicate' : 'you'"
+        data:
+          remaining: 'flags.duplicate ? 2 - self.destroyed : 3 - self.destroyed'

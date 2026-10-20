@@ -1,0 +1,36 @@
+id: spells.false-life
+type: spell
+fields:
+  level: 1
+  school: necromancy
+  classes: [classes.sorcerer, classes.wizard]
+  castingTime: action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: instantaneous
+actions:
+  - use: cast-spell
+  - id: temporary-hit-points
+    tags: [spell]
+    params: { slot: { type: integer, optional: true } }
+    results: [gained]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              slot: 'has(params.slot) ? max(item.level, min(9, params.slot)) : item.level'
+      - id: roll
+        kind: roll
+        parts: [{ dice: 2d4 }, { value: 4 + 5 * (flags.slot - item.level) }]
+      - id: gain
+        kind: action
+        use: gain-temporary-hit-points
+        params: { amount: steps.roll.total }
+      - id: result
+        kind: outcome
+        result: "'gained'"
+        data: { amount: steps.roll.total, slot: flags.slot }

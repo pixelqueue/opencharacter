@@ -1,0 +1,15 @@
+id: features.bard.magical-discoveries
+type: feature
+choices:
+  - id: spells
+    pick: 2
+    from:
+      type: spell
+      where: >-
+        @classes.cleric in item.classes || @classes.druid in item.classes
+          || @classes.wizard in item.classes
+    eligible: >-
+      item.level <= min(9, ceil(self.level / 2))
+        && (!(item.id in spells.bard) || item.id in choice.picks)
+    effects:
+      - { target: spells.bard, op: grant, value: { formula: pick.id } }

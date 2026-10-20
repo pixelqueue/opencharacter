@@ -1,0 +1,12 @@
+id: augmentations.hypernerves
+type: augmentation
+tags: [trait.apex]
+fields: { level: 17, kind: cybernetic, bulk: 0, price: 150000 }
+effects:
+  - target: skills.acrobatics.mod
+    op: add
+    value: 3
+    stackKey: item-bonus
+    when: self.equipped
+  - { target: attributes.dex.mod, op: add, value: 1, when: 'self.equipped && self.apex' }
+  - { target: attributes.dex.mod, op: atLeast, value: 4, when: 'self.equipped && self.apex' }

@@ -1,0 +1,87 @@
+tags:
+  - staff
+  - attunement.barbarian
+  - attunement.bard
+  - attunement.cleric
+  - attunement.druid
+  - attunement.fighter
+  - attunement.monk
+  - attunement.paladin
+  - attunement.ranger
+  - attunement.rogue
+  - attunement.sorcerer
+  - attunement.warlock
+  - attunement.wizard
+  - attunement.spellcaster
+
+contentTypes:
+  storedSpell:
+    carried: false
+    state:
+      slot: { type: integer, min: 1, max: 9, default: 1 }
+      dc: { type: integer, default: 0 }
+      attack: { type: integer, default: 0 }
+      mod: { type: integer, default: 0 }
+      storedIn: { type: string, default: '' }
+
+fields:
+  items.swornEnemy: { type: boolean, formula: false }
+  items.sphereControl: { type: boolean, formula: false }
+  items.climbAdvantage: { type: boolean, formula: false }
+
+display:
+  fields:
+    items.swornEnemy: { hidden: true }
+    items.sphereControl: { hidden: true }
+    items.climbAdvantage: { hidden: true }
+
+situational:
+  - id: swornEnemy
+    type: boolean
+    default: false
+    available: items.swornEnemy
+    rolls: [attack.ranged, damage.weapon]
+  - id: sphereControl
+    type: boolean
+    default: false
+    available: items.sphereControl
+    rolls: [skill.arcana]
+    effects:
+      - target: { rolls: [skill.arcana] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.sphereControl
+  - id: climb
+    type: boolean
+    default: false
+    available: items.climbAdvantage
+    rolls: [skill.athletics]
+    effects:
+      - target: { rolls: [skill.athletics] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.climb
+
+constraints:
+  - id: attunement-requirement
+    check: >-
+      countCopies(has(copy.state.attuned) && copy.state.attuned
+        && (('attunement.spellcaster' in copy.tags && !items.spellcaster)
+          || (('attunement.barbarian' in copy.tags || 'attunement.bard' in copy.tags
+              || 'attunement.cleric' in copy.tags || 'attunement.druid' in copy.tags
+              || 'attunement.fighter' in copy.tags || 'attunement.monk' in copy.tags
+              || 'attunement.paladin' in copy.tags || 'attunement.ranger' in copy.tags
+              || 'attunement.rogue' in copy.tags || 'attunement.sorcerer' in copy.tags
+              || 'attunement.warlock' in copy.tags || 'attunement.wizard' in copy.tags)
+            && !(('attunement.barbarian' in copy.tags && @classes.barbarian in classes.held)
+              || ('attunement.bard' in copy.tags && @classes.bard in classes.held)
+              || ('attunement.cleric' in copy.tags && @classes.cleric in classes.held)
+              || ('attunement.druid' in copy.tags && @classes.druid in classes.held)
+              || ('attunement.fighter' in copy.tags && @classes.fighter in classes.held)
+              || ('attunement.monk' in copy.tags && @classes.monk in classes.held)
+              || ('attunement.paladin' in copy.tags && @classes.paladin in classes.held)
+              || ('attunement.ranger' in copy.tags && @classes.ranger in classes.held)
+              || ('attunement.rogue' in copy.tags && @classes.rogue in classes.held)
+              || ('attunement.sorcerer' in copy.tags && @classes.sorcerer in classes.held)
+              || ('attunement.warlock' in copy.tags && @classes.warlock in classes.held)
+              || ('attunement.wizard' in copy.tags && @classes.wizard in classes.held))))) == 0

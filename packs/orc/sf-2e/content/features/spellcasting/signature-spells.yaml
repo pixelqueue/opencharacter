@@ -1,0 +1,17 @@
+id: features.spellcasting.signature-spells
+type: feature
+fields: { level: 1 }
+choices:
+  - id: signature
+    slots: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    when: level >= 2 * slot - 1
+    activate: false
+    from:
+      type: spell
+      where: >-
+        item.id in [spells.repertoire.rank1, spells.repertoire.rank2, spells.repertoire.rank3,
+          spells.repertoire.rank4, spells.repertoire.rank5, spells.repertoire.rank6,
+          spells.repertoire.rank7, spells.repertoire.rank8, spells.repertoire.rank9,
+          spells.repertoire.rank10][slot - 1]
+    effects:
+      - { target: spells.signature, op: grant, value: { formula: pick.id } }

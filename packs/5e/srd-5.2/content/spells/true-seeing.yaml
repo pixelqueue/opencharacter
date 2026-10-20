@@ -1,0 +1,22 @@
+id: spells.true-seeing
+type: spell
+fields:
+  level: 6
+  school: divination
+  classes: [classes.bard, classes.cleric, classes.sorcerer, classes.warlock, classes.wizard]
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: senses.truesight
+    op: atLeast
+    value: 120
+    scope: applied
+    duration: { amount: 1, unit: hour }

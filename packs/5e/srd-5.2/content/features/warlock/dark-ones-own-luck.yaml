@@ -1,0 +1,17 @@
+id: features.warlock.dark-ones-own-luck
+type: feature
+effects:
+  - target: { choices: [failed-check, failed-save] }
+    op: option
+    when: self.darkOnesOwnLuckUsed < max(1, abilities.cha.mod)
+    value:
+      id: luck
+      flags: { addDie: 1d10 }
+      changes:
+        - { type: adjustState, entry: self, key: darkOnesOwnLuckUsed, by: 1 }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.darkOnesOwnLuckUsed > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: darkOnesOwnLuckUsed, value: 0 }

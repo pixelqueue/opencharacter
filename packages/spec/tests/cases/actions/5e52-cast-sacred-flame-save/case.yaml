@@ -1,0 +1,26 @@
+description: "5E 2024 Sacred Flame at character level 5: 2d8 radiant, Dexterity save, the target's sheet saves"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: 5e-srd-5.2:cast-spell
+    entry: class
+    source: 5e-srd-5.2:spells.sacred-flame
+  participants:
+    target:
+      - id: goblin
+        values:
+          combat.ac: 15
+          creature.size: small
+          creature.type: humanoid
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+answers:
+  - outcome:
+      result: failure
+      data:
+        total: 9

@@ -1,0 +1,24 @@
+id: feats.mystic.greater-epiphany
+type: feat
+tags: [trait.mystic]
+fields: { level: 12, category: class, class: classes.mystic }
+effects: [{ target: focus.points, op: add, value: 1 }]
+choices:
+  - id: spell
+    from:
+      options:
+        - id: akashic
+          prerequisites: [{ id: connection, when: "mystic.connection == 'akashic'" }]
+          grants: [{ item: spells.data-drain }]
+        - id: elemental
+          prerequisites: [{ id: connection, when: "mystic.connection == 'elemental'" }]
+          grants: [{ item: spells.elemental-nova }]
+        - id: healing
+          prerequisites: [{ id: connection, when: "mystic.connection == 'healing'" }]
+          grants: [{ item: spells.vital-rebirth }]
+        - id: rhythm
+          prerequisites: [{ id: connection, when: "mystic.connection == 'rhythm'" }]
+          grants: [{ item: spells.remix }]
+        - id: shadow
+          prerequisites: [{ id: connection, when: "mystic.connection == 'shadow'" }]
+          grants: [{ item: spells.shadow-prison }]

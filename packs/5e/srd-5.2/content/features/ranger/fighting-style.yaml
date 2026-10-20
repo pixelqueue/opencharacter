@@ -1,0 +1,26 @@
+id: features.ranger.fighting-style
+type: feature
+effects:
+  - { target: features.fightingStyle, op: set, value: true }
+choices:
+  - id: style
+    from:
+      options:
+        - id: feat
+          choices:
+            - id: feat
+              unique: feats
+              eligible: "!(item.id in feats.held) || item.id in choice.picks || 'repeatable' in item.tags"
+              from: { type: feat, where: "item.category == 'fighting-style'" }
+        - id: druidic-warrior
+          choices:
+            - id: cantrips
+              pick: 2
+              from: { type: spell, where: 'item.level == 0 && @classes.druid in item.classes' }
+              eligible: '!(item.id in spells.ranger) || item.id in choice.picks'
+              recommend: >-
+                !(@spells.guidance in choice.picks) ? @spells.guidance
+                  : !(@spells.starry-wisp in choice.picks) ? @spells.starry-wisp : ''
+              effects:
+                - { target: spells.ranger, op: grant, value: { formula: pick.id } }
+    recommend: "'druidic-warrior'"

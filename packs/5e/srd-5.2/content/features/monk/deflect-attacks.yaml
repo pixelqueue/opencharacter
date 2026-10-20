@@ -1,0 +1,47 @@
+id: features.monk.deflect-attacks
+type: feature
+actions:
+  - id: deflect-attacks
+    tags: [feature]
+    results: [deflected, redirected]
+    params:
+      damage: { type: integer, min: 0 }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags: { redirect: false }
+      - id: reduce
+        kind: roll
+        parts:
+          - dice: 1d10
+          - field: "'abilities.dex.mod'"
+          - value: self.level
+      - id: redirect
+        kind: choice
+        when: steps.reduce.total >= params.damage && self.focusSpent + 1 <= focus.points
+        options:
+          - id: keep
+          - id: redirect
+            flags: { redirect: true }
+            changes:
+              - { type: adjustState, entry: self, key: focusSpent, by: 1 }
+        recommend: "'keep'"
+      - id: redirected
+        kind: roll
+        when: flags.redirect
+        tags: [damage]
+        parts:
+          - dice: martialArts.die
+          - dice: martialArts.die
+          - field: "'abilities.dex.mod'"
+      - id: result
+        kind: outcome
+        result: "flags.redirect ? 'redirected' : 'deflected'"
+        data:
+          reduced: steps.reduce.total
+          remaining: max(0, params.damage - steps.reduce.total)
+          redirectDamage: 'has(steps.redirected) ? steps.redirected.total : 0'
+          dc: focus.saveDc
+          save: "'dex'"

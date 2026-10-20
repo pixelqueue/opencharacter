@@ -1,0 +1,15 @@
+id: monsters.swarm-of-piranhas.bites
+type: monsterAction
+fields:
+  kind: action
+  order: 3
+  attack: melee
+  toHit: 5
+  reach: 5
+  damage: 2d4 + 3
+  damageType: piercing
+effects:
+  - target: { rolls: [damage.weapon], parts: [damage.piercing], from: self }
+    op: set
+    value: 1d4 + 3
+    when: hp.bloodied

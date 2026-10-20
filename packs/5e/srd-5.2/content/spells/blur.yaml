@@ -1,0 +1,23 @@
+id: spells.blur
+type: spell
+fields:
+  level: 2
+  school: illusion
+  classes: [classes.sorcerer, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: self
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: combat.attackersDisadvantage
+    op: set
+    value: true
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }

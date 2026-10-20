@@ -1,0 +1,23 @@
+id: feats.ancestry.pahtra-lore
+type: feat
+tags: [trait.pahtra]
+fields: { level: 1, category: ancestry, ancestry: ancestries.pahtra }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.acrobatics }
+    when: "!('skill.acrobatics' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.performance }
+    when: "!('skill.performance' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.pahtra }
+    when: "!('skill.lore.pahtra' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.lore.pahtra.granted
+    op: add
+    value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'

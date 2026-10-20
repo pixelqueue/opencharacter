@@ -1,0 +1,59 @@
+id: magic-items.talisman-of-pure-good
+type: magicItem
+tags: [attunement.cleric, attunement.paladin]
+fields:
+  category: wondrous-item
+  rarity: legendary
+  requiresAttunement: true
+  maxCharges: 7
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+effects:
+  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped && self.attuned }
+actions:
+  - use: use-charges
+  - id: fissure
+    tags: [magic-item]
+    available: self.equipped && self.attuned && self.charges > 0
+    results: [destroyed, survived]
+    participants:
+      target:
+        min: 1
+        max: 1
+        fields: target
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: charges, by: -1 }
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params:
+          ability: "'dex'"
+          dc: 20
+          disadvantage: >-
+            has(participant.creature.type) && participant.creature.type in ['fiend', 'undead']
+      - id: damage
+        kind: roll
+        when: steps.save[0].result == 'success'
+        tags: [damage]
+        parts:
+          - { dice: 4d6, tags: [damage.psychic] }
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, magical]
+      - id: result
+        kind: outcome
+        result: "has(steps.damage) ? 'survived' : 'destroyed'"
+        data:
+          damage: 'has(steps.damage) ? steps.damage.total : 0'

@@ -1,0 +1,11 @@
+id: feats.skill.terrain-expertise
+type: feat
+fields: { level: 1, category: skill, skills: [skill.survival] }
+repeatable: true
+
+prerequisites:
+  - id: trained
+    when: skills.survival.rank >= 1
+choices:
+  - id: terrain
+    from: { values: [aquatic, arctic, desert, forest, mountain, plains, sky, swamp, underground] }

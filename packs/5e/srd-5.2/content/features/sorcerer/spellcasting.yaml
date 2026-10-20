@@ -1,0 +1,29 @@
+id: features.sorcerer.spellcasting
+type: feature
+effects:
+  - { target: spellcasting.sorcerer.mod, op: set, value: abilities.cha.mod }
+  - { target: spellcasting.sorcerer.dc, op: set, value: 8 + proficiency.bonus + abilities.cha.mod }
+  - { target: spellcasting.sorcerer.attack, op: set, value: proficiency.bonus + abilities.cha.mod }
+  - { target: spellcasting.casterLevel, op: add, value: self.level }
+choices:
+  - id: cantrips
+    pick: 'self.level >= 10 ? 6 : self.level >= 4 ? 5 : 4'
+    from: { type: spell, where: 'item.level == 0 && @classes.sorcerer in item.classes' }
+    recommend: >-
+      size(filterList([@spells.light, @spells.prestidigitation, @spells.shocking-grasp,
+        @spells.sorcerous-burst], !(x in choice.picks))) > 0
+        ? filterList([@spells.light, @spells.prestidigitation, @spells.shocking-grasp,
+          @spells.sorcerous-burst], !(x in choice.picks))[0]
+        : ''
+    effects:
+      - { target: spells.sorcerer, op: grant, value: { formula: pick.id } }
+  - id: prepared
+    pick: '[2, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 16, 17, 17, 18, 18, 19, 20, 21, 22][self.level - 1]'
+    from: { type: spell, where: 'item.level >= 1 && @classes.sorcerer in item.classes' }
+    eligible: item.level <= min(9, ceil(self.level / 2))
+    recommend: >-
+      size(filterList([@spells.burning-hands, @spells.detect-magic], !(x in choice.picks))) > 0
+        ? filterList([@spells.burning-hands, @spells.detect-magic], !(x in choice.picks))[0]
+        : ''
+    effects:
+      - { target: spells.sorcerer, op: grant, value: { formula: pick.id } }

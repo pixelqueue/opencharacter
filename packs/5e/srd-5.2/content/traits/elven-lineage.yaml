@@ -1,0 +1,32 @@
+id: traits.elven-lineage
+type: trait
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    stackKey: lineage-spell-1
+    when: >-
+      action.item.id in spells.species && action.item.level == 1 && level.total >= 3
+        && !self.lineageSpell1Used
+    value:
+      id: free-cast
+      flags: { slot: 1, castAbility: "'species'" }
+      changes:
+        - { type: setState, entry: self, key: lineageSpell1Used, value: true }
+  - target: { choices: [spell-cost] }
+    op: option
+    stackKey: lineage-spell-2
+    when: >-
+      action.item.id in spells.species && action.item.level == 2 && level.total >= 5
+        && !self.lineageSpell2Used
+    value:
+      id: free-cast-2
+      flags: { slot: 2, castAbility: "'species'" }
+      changes:
+        - { type: setState, entry: self, key: lineageSpell2Used, value: true }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.lineageSpell1Used || self.lineageSpell2Used
+    value:
+      changes:
+        - { type: setState, entry: self, key: lineageSpell1Used, value: false }
+        - { type: setState, entry: self, key: lineageSpell2Used, value: false }

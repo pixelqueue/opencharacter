@@ -1,0 +1,27 @@
+id: gear.burglars-pack
+type: gear
+fields:
+  category: equipment-pack
+  cost: 16
+  weight: 42
+actions:
+  - id: unpack
+    tags: [item]
+    available: self.quantity > 0
+    steps:
+      - id: unpack
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'gear.backpack'" } }
+          - { type: addItem, entry: { item: "'gear.ball-bearings'" } }
+          - { type: addItem, entry: { item: "'gear.bell'" } }
+          - { type: addItem, entry: { item: "'gear.candle'", quantity: 10 } }
+          - { type: addItem, entry: { item: "'gear.crowbar'" } }
+          - { type: addItem, entry: { item: "'gear.hooded-lantern'" } }
+          - { type: addItem, entry: { item: "'gear.oil'", quantity: 7 } }
+          - { type: addItem, entry: { item: "'gear.rations'", quantity: 5 } }
+          - { type: addItem, entry: { item: "'gear.rope'" } }
+          - { type: addItem, entry: { item: "'gear.tinderbox'" } }
+          - { type: addItem, entry: { item: "'gear.waterskin'" } }
+          - { type: adjustQuantity, entry: self, by: -1, when: self.quantity > 1 }
+          - { type: removeItem, entry: self, when: self.quantity <= 1 }

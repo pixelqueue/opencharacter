@@ -1,0 +1,19 @@
+description: '5E 2024 Unarmed Strike: Str + proficiency to hit, 1 + Str bludgeoning damage'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: 5e-srd-5.2:unarmed-strike
+  participants:
+    target:
+      - id: goblin
+        values:
+          combat.ac: 15
+          creature.size: small
+          creature.type: humanoid
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto

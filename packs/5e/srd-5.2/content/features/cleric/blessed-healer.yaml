@@ -1,0 +1,11 @@
+id: features.cleric.blessed-healer
+type: feature
+effects:
+  - target: { steps: [spell.slot-spent] }
+    op: changes
+    when: >-
+      has(action.item.heal)
+        && countList(participants.target, x.id != character.id) > 0
+    value:
+      changes:
+        - { type: adjust, field: hp.current, by: 2 + flags.slot, tags: [healing] }

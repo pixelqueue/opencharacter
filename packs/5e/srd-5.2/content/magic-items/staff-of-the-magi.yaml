@@ -1,0 +1,138 @@
+id: magic-items.staff-of-the-magi
+type: template
+tags: [magic, staff, attunement.sorcerer, attunement.warlock, attunement.wizard]
+appliesTo: { type: weapon, where: 'item.id == @weapons.quarterstaff' }
+fields:
+  {
+    rarity: legendary,
+    requiresAttunement: true,
+    maxCharges: 50,
+    recharge: 4d6 + 2,
+    attackBonus: 2,
+    damageBonus: 2,
+  }
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.conjure-elemental, when: self.equipped && self.attuned }
+  - { item: spells.dispel-magic, when: self.equipped && self.attuned }
+  - { item: spells.fireball, when: self.equipped && self.attuned }
+  - { item: spells.flaming-sphere, when: self.equipped && self.attuned }
+  - { item: spells.ice-storm, when: self.equipped && self.attuned }
+  - { item: spells.invisibility, when: self.equipped && self.attuned }
+  - { item: spells.knock, when: self.equipped && self.attuned }
+  - { item: spells.lightning-bolt, when: self.equipped && self.attuned }
+  - { item: spells.passwall, when: self.equipped && self.attuned }
+  - { item: spells.plane-shift, when: self.equipped && self.attuned }
+  - { item: spells.telekinesis, when: self.equipped && self.attuned }
+  - { item: spells.wall-of-fire, when: self.equipped && self.attuned }
+  - { item: spells.web, when: self.equipped && self.attuned }
+  - { item: spells.arcane-lock, when: self.equipped && self.attuned }
+  - { item: spells.detect-magic, when: self.equipped && self.attuned }
+  - { item: spells.enlarge-reduce, when: self.equipped && self.attuned }
+  - { item: spells.light, when: self.equipped && self.attuned }
+  - { item: spells.mage-hand, when: self.equipped && self.attuned }
+  - { item: spells.protection-from-evil-and-good, when: self.equipped && self.attuned }
+effects:
+  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: items.spellSaveAdvantage, op: set, value: true, when: self.equipped && self.attuned }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.arcane-lock },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.detect-magic },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.enlarge-reduce },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.light },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.mage-hand },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.protection-from-evil-and-good },
+      when: self.equipped && self.attuned,
+    }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && self.attuned && action.item.id in [@spells.conjure-elemental, @spells.dispel-magic, @spells.fireball, @spells.flaming-sphere, @spells.ice-storm, @spells.invisibility, @spells.knock, @spells.lightning-bolt, @spells.passwall, @spells.plane-shift, @spells.telekinesis, @spells.wall-of-fire, @spells.web]
+        && self.charges >= [7, 3, 7, 2, 4, 2, 2, 7, 5, 7, 5, 4, 2][indexOf([@spells.conjure-elemental, @spells.dispel-magic, @spells.fireball, @spells.flaming-sphere, @spells.ice-storm, @spells.invisibility, @spells.knock, @spells.lightning-bolt, @spells.passwall, @spells.plane-shift, @spells.telekinesis, @spells.wall-of-fire, @spells.web], action.item.id)]
+    value:
+      id: charges
+      flags:
+        slot: '[5, 3, 7, 2, 4, 2, 2, 7, 5, 7, 5, 4, 2][indexOf([@spells.conjure-elemental, @spells.dispel-magic, @spells.fireball, @spells.flaming-sphere, @spells.ice-storm, @spells.invisibility, @spells.knock, @spells.lightning-bolt, @spells.passwall, @spells.plane-shift, @spells.telekinesis, @spells.wall-of-fire, @spells.web], action.item.id)]'
+      changes:
+        - type: adjustState
+          entry: self
+          key: charges
+          by: '-[7, 3, 7, 2, 4, 2, 2, 7, 5, 7, 5, 4, 2][indexOf([@spells.conjure-elemental, @spells.dispel-magic, @spells.fireball, @spells.flaming-sphere, @spells.ice-storm, @spells.invisibility, @spells.knock, @spells.lightning-bolt, @spells.passwall, @spells.plane-shift, @spells.telekinesis, @spells.wall-of-fire, @spells.web], action.item.id)]'
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }
+  - id: absorb-spell
+    tags: [magic-item]
+    available: self.equipped && self.attuned
+    params:
+      level: { type: integer, min: 1, max: 9, default: 1 }
+    results: [absorbed]
+    steps:
+      - id: absorb
+        kind: changes
+        changes:
+          - {
+              type: setState,
+              entry: self,
+              key: charges,
+              value: 'min(50, self.charges + params.level)',
+            }
+      - id: result
+        kind: outcome
+        result: "'absorbed'"
+        data:
+          explodes: self.charges + params.level > 50
+  - id: retributive-strike
+    tags: [magic-item]
+    available: self.equipped && self.attuned
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          dice: 6 * self.charges
+          damageType: "'force'"
+          save: "'dex'"
+          dc: 17
+        participants: { target: participants.target }
+      - id: break
+        kind: changes
+        changes:
+          - { type: removeItem, entry: self }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+        data:
+          selfDamage: 16 * self.charges

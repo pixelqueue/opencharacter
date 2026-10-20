@@ -1,0 +1,9 @@
+id: traits.versatile
+type: trait
+choices:
+  - id: feat
+    unique: feats
+    from: { type: feat, where: "item.category == 'origin'" }
+    eligible: >-
+      !(item.id in feats.held) || item.id in choice.picks || 'repeatable' in item.tags
+    recommend: '@feats.skilled'

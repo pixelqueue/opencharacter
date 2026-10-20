@@ -1,0 +1,40 @@
+id: features.warlock.fiend-spells
+type: feature
+grants:
+  - { item: spells.burning-hands, when: self.level >= 3 }
+  - { item: spells.command, when: self.level >= 3 }
+  - { item: spells.scorching-ray, when: self.level >= 3 }
+  - { item: spells.suggestion, when: self.level >= 3 }
+  - { item: spells.fireball, when: self.level >= 5 }
+  - { item: spells.stinking-cloud, when: self.level >= 5 }
+  - { item: spells.fire-shield, when: self.level >= 7 }
+  - { item: spells.wall-of-fire, when: self.level >= 7 }
+  - { item: spells.geas, when: self.level >= 9 }
+  - { item: spells.insect-plague, when: self.level >= 9 }
+effects:
+  - { target: spells.warlock, op: grant, value: { item: spells.burning-hands } }
+  - { target: spells.warlock, op: grant, value: { item: spells.command } }
+  - { target: spells.warlock, op: grant, value: { item: spells.scorching-ray } }
+  - { target: spells.warlock, op: grant, value: { item: spells.suggestion } }
+  - { target: spells.warlock, op: grant, value: { item: spells.fireball }, when: self.level >= 5 }
+  - target: spells.warlock
+    op: grant
+    value: { item: spells.stinking-cloud }
+    when: self.level >= 5
+  - {
+      target: spells.warlock,
+      op: grant,
+      value: { item: spells.fire-shield },
+      when: self.level >= 7,
+    }
+  - {
+      target: spells.warlock,
+      op: grant,
+      value: { item: spells.wall-of-fire },
+      when: self.level >= 7,
+    }
+  - { target: spells.warlock, op: grant, value: { item: spells.geas }, when: self.level >= 9 }
+  - target: spells.warlock
+    op: grant
+    value: { item: spells.insect-plague }
+    when: self.level >= 9

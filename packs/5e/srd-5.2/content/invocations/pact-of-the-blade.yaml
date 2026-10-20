@@ -1,0 +1,30 @@
+id: invocations.pact-of-the-blade
+type: invocation
+choices:
+  - id: weapon
+    from: { type: weapon, where: "item.range == 'melee'" }
+    activate: false
+    effects:
+      - { target: proficiencies.weapons, op: grant, value: { formula: pick.id } }
+      - { target: warlock.pactWeapons, op: grant, value: { formula: pick.id } }
+      - { target: weapons.charismaAttack, op: grant, value: { formula: pick.id } }
+      - { target: weapons.damageTypeChoice, op: grant, value: { formula: pick.id } }
+effects:
+  - target: { choices: [weapon-damage-type] }
+    op: option
+    when: action.item.id in warlock.pactWeapons
+    value:
+      id: necrotic
+      flags: { damageType: "'necrotic'" }
+  - target: { choices: [weapon-damage-type] }
+    op: option
+    when: action.item.id in warlock.pactWeapons
+    value:
+      id: psychic
+      flags: { damageType: "'psychic'" }
+  - target: { choices: [weapon-damage-type] }
+    op: option
+    when: action.item.id in warlock.pactWeapons
+    value:
+      id: radiant
+      flags: { damageType: "'radiant'" }

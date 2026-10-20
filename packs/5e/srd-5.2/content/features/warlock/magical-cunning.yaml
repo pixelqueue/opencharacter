@@ -1,0 +1,32 @@
+id: features.warlock.magical-cunning
+type: feature
+effects:
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.magicalCunningUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: magicalCunningUsed, value: false }
+actions:
+  - id: magical-cunning
+    tags: [feature]
+    results: [regained]
+    available: '!self.magicalCunningUsed && pactSlots.used > 0'
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              regained: >-
+                self.level >= 20 ? pactSlots.used : min(pactSlots.used, ceil(pactSlots.max / 2))
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: pactSlots.used, by: -flags.regained }
+          - { type: setState, entry: self, key: magicalCunningUsed, value: true }
+      - id: result
+        kind: outcome
+        result: "'regained'"
+        data:
+          slots: flags.regained

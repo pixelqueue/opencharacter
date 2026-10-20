@@ -1,0 +1,24 @@
+id: invocations.agonizing-blast
+type: invocation
+repeatable: true
+prerequisites:
+  - id: level
+    when: self.level >= 2
+choices:
+  - id: cantrip
+    from: { type: spell, where: 'item.level == 0 && has(item.damage)' }
+    eligible: item.id in spells.warlock
+    activate: false
+    unique: agonizing-blast
+    requiresOption: true
+    effects:
+      - target: { rolls: [damage.spell] }
+        op: add
+        value: abilities.cha.mod
+        tags:
+          [
+            {
+              formula: "'damage.' + (has(flags.damageType) ? flags.damageType : roll.item.damageType)",
+            },
+          ]
+        when: roll.item.id == pick.id && has(roll.item.damageType)

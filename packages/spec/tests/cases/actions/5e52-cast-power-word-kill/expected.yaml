@@ -1,0 +1,35 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    slot: 9
+    spellcastingClass: none
+    dc: 19
+    save: ''
+    halfOnSave: false
+    damage: 78
+    healing: 0
+    concentration: false
+    critical: false
+    metamagic: []
+proposedChanges:
+  - to: self
+    step: cost
+    change:
+      type: adjustQuantity
+      entry: scroll
+      by: -1
+  - to: target
+    character: ogre
+    step: onTarget[0]
+    change:
+      type: set
+      field: 5e-srd-5.2:hp.current
+      value: 0
+  - to: target
+    character: ogre
+    step: onTarget[0]
+    change:
+      type: set
+      field: 5e-srd-5.2:deathSaves.failures
+      value: 3

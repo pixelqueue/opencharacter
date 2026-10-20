@@ -1,0 +1,24 @@
+id: feats.general.armor-proficiency
+type: feat
+fields: { level: 1, category: general }
+repeatable: true
+
+choices:
+  - id: category
+    from:
+      options:
+        - id: light
+          effects:
+            - target: defenses.light.rank
+              op: atLeast
+              value: 'level >= 13 ? 2 : 1'
+        - id: medium
+          effects:
+            - target: defenses.medium.rank
+              op: atLeast
+              value: 'level >= 13 ? 2 : 1'
+        - id: heavy
+          effects:
+            - target: defenses.heavy.rank
+              op: atLeast
+              value: 'level >= 13 ? 2 : 1'

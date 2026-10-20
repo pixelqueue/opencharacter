@@ -1,0 +1,9 @@
+id: invocations.thirsting-blade
+type: invocation
+prerequisites:
+  - id: level
+    when: self.level >= 5
+  - id: pact
+    when: '@invocations.pact-of-the-blade in warlock.invocations'
+effects:
+  - { target: combat.attacks, op: atLeast, value: 2 }

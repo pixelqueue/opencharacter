@@ -1,0 +1,50 @@
+id: monsters.invisible-stalker.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 3
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: windSwipe1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.invisible-stalker.wind-swipe)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: windSwipe2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.invisible-stalker.wind-swipe)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pick3
+        kind: choice
+        options: [{ id: wind-swipe }, { id: vortex }]
+        recommend: "'wind-swipe'"
+      - id: windSwipe3
+        kind: action
+        when: "steps.pick3.picked == 'wind-swipe'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.invisible-stalker.wind-swipe)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: vortex
+        kind: action
+        when: "steps.pick3.picked == 'vortex'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.invisible-stalker.vortex)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.windSwipe1.result == 'hit' ? 1 : 0)
+              + (steps.windSwipe2.result == 'hit' ? 1 : 0)
+              + (has(steps.windSwipe3) && steps.windSwipe3.result == 'hit' ? 1 : 0)

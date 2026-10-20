@@ -1,0 +1,26 @@
+id: features.solarian.stellar-attunement
+type: feature
+fields: { level: 1 }
+actions:
+  - id: attune
+    tags: [class-action, trait.concentrate]
+    results: [attuned]
+    steps:
+      - id: aspect
+        kind: choice
+        recommend: "solarian.attunement == 'photon' ? 'graviton' : 'photon'"
+        options:
+          - id: photon
+            changes:
+              - type: set
+                field: solarian.attunement
+                value: "solarian.perfect ? 'perfect' : 'photon'"
+          - id: graviton
+            changes:
+              - type: set
+                field: solarian.attunement
+                value: "solarian.perfect ? 'perfect' : 'graviton'"
+      - id: result
+        kind: outcome
+        result: "'attuned'"
+        data: { attunement: solarian.attunement }

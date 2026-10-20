@@ -1,0 +1,86 @@
+id: lineages.high-elf
+type: lineage
+fields:
+  species: species.elf
+effects:
+  - target: spells.species
+    op: grant
+    value: { item: spells.prestidigitation }
+    when: '!origins.cantripReplaced'
+  - target: spells.species
+    op: grant
+    value: { item: spells.detect-magic }
+    when: level.total >= 3
+  - target: spells.free
+    op: grant
+    value: { item: spells.detect-magic }
+    when: level.total >= 3
+  - target: spells.species
+    op: grant
+    value: { item: spells.misty-step }
+    when: level.total >= 5
+  - target: spells.free
+    op: grant
+    value: { item: spells.misty-step }
+    when: level.total >= 5
+grants:
+  - item: spells.prestidigitation
+  - item: spells.detect-magic
+    when: "sumCopies(copy.state.level, copy.type == 'class') >= 3"
+  - item: spells.misty-step
+    when: "sumCopies(copy.state.level, copy.type == 'class') >= 5"
+choices:
+  - id: ability
+    recommend: >-
+      abilities.int.score >= abilities.wis.score && abilities.int.score >= abilities.cha.score
+        ? 'int' : abilities.wis.score >= abilities.cha.score ? 'wis' : 'cha'
+    from:
+      options:
+        - id: int
+          effects:
+            - { target: spellcasting.species.mod, op: set, value: abilities.int.mod }
+            - {
+                target: spellcasting.species.dc,
+                op: set,
+                value: 8 + proficiency.bonus + abilities.int.mod,
+              }
+            - {
+                target: spellcasting.species.attack,
+                op: set,
+                value: proficiency.bonus + abilities.int.mod,
+              }
+        - id: wis
+          effects:
+            - { target: spellcasting.species.mod, op: set, value: abilities.wis.mod }
+            - {
+                target: spellcasting.species.dc,
+                op: set,
+                value: 8 + proficiency.bonus + abilities.wis.mod,
+              }
+            - {
+                target: spellcasting.species.attack,
+                op: set,
+                value: proficiency.bonus + abilities.wis.mod,
+              }
+        - id: cha
+          effects:
+            - { target: spellcasting.species.mod, op: set, value: abilities.cha.mod }
+            - {
+                target: spellcasting.species.dc,
+                op: set,
+                value: 8 + proficiency.bonus + abilities.cha.mod,
+              }
+            - {
+                target: spellcasting.species.attack,
+                op: set,
+                value: proficiency.bonus + abilities.cha.mod,
+              }
+  - id: replacement
+    required: false
+    pick: { min: 0, max: 1 }
+    from:
+      type: spell
+      where: 'item.level == 0 && @classes.wizard in item.classes && item.id != @spells.prestidigitation'
+    effects:
+      - { target: spells.species, op: grant, value: { formula: pick.id } }
+      - { target: origins.cantripReplaced, op: set, value: true }

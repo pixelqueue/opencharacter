@@ -15,6 +15,7 @@ describe('pnpm validate', () => {
     expect(reporter.errors).toEqual([]);
     expect(packs).toEqual([
       '5e-srd-5.1',
+      '5e-srd-5.2',
       'awn-core',
       'cwn-srd',
       'fate-core',
@@ -24,6 +25,7 @@ describe('pnpm validate', () => {
       'mork-borg-core',
       'mothership-1e',
       'orc-2e',
+      'orc-sf-2e',
       'swn-revised',
       'wwn-srd',
     ]);

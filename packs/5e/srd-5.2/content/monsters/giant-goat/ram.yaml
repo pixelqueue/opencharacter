@@ -1,0 +1,54 @@
+id: monsters.giant-goat.ram
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+  attack: melee
+  toHit: 5
+  reach: 5
+  damage: 1d6 + 3
+  damageType: bludgeoning
+actions:
+  - id: charge
+    tags: [attack]
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: ram
+        kind: action
+        use: monster-attack
+        entry: self.id
+        participants:
+          target: participants.target
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              critical: "steps.ram.result == 'hit' && steps.ram.data.critical"
+              sizeOk: >-
+                size(participants.target) == 0
+                  || indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                    participants.target[0].creature.size) <= 3
+      - id: extra
+        kind: roll
+        when: steps.ram.result == 'hit' && flags.sizeOk
+        tags: [damage.weapon]
+        parts: [{ dice: 2d4, tags: [damage.bludgeoning] }]
+      - id: deal
+        kind: changes
+        when: has(steps.extra)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: extra, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, attack, melee, { formula: "flags.critical ? ['critical'] : []" }]
+          - { type: applyEffect, source: "'conditions.prone'", state: { by: creature.type } }
+      - id: result
+        kind: outcome
+        result: "steps.ram.result == 'hit' ? 'hit' : 'miss'"
+        data:
+          damage: 'steps.ram.data.damage + (has(steps.extra) ? steps.extra.total : 0)'

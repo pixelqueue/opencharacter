@@ -1,0 +1,10 @@
+id: grades.weapon-ultimate
+type: template
+tags: [grade]
+appliesTo: { type: weapon, where: "item.category != 'unarmed' && !('natural' in item.tags)" }
+fields:
+  potency: 3
+  dice: 3
+  upgradeSlots: prior.upgradeSlots + 2
+  level: 'max(prior.level, 16)'
+  price: '(has(prior.price) ? prior.price : 0) + 100000'

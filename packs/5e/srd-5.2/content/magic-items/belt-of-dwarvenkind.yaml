@@ -1,0 +1,26 @@
+id: magic-items.belt-of-dwarvenkind
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  requiresAttunement: true
+effects:
+  - target: abilities.con.score
+    op: add
+    value: 'min(2, max(0, 20 - abilities.con.base))'
+    when: self.equipped && self.attuned
+  - { target: items.dwarfFriend, op: set, value: true, when: self.equipped && self.attuned }
+  - target: senses.darkvision
+    op: atLeast
+    value: 60
+    when: self.equipped && self.attuned && creature.species != @species.dwarf
+  - target: damage.resistances
+    op: grant
+    value: { tag: damage.poison }
+    when: self.equipped && self.attuned && creature.species != @species.dwarf
+  - target: origins.conditionAdvantage
+    op: grant
+    value: { item: conditions.poisoned }
+    when: self.equipped && self.attuned && creature.species != @species.dwarf
+grants:
+  - { item: languages.dwarvish, when: self.equipped && self.attuned }

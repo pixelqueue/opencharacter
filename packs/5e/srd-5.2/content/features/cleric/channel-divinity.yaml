@@ -1,0 +1,140 @@
+id: features.cleric.channel-divinity
+type: feature
+effects:
+  - target: cleric.channelDivinity
+    op: set
+    value: 'self.level >= 18 ? 4 : self.level >= 6 ? 3 : 2'
+  - target: cleric.divineSpark
+    op: set
+    value: 'self.level >= 18 ? 4 : self.level >= 13 ? 3 : self.level >= 7 ? 2 : 1'
+  - target: { steps: [rest.short] }
+    op: changes
+    when: self.channelDivinitySpent > 0
+    value:
+      changes:
+        - { type: adjustState, entry: self, key: channelDivinitySpent, by: -1 }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.channelDivinitySpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: channelDivinitySpent, value: 0 }
+actions:
+  - id: divine-spark
+    tags: [feature]
+    results: [healed, damaged]
+    available: self.channelDivinitySpent < cleric.channelDivinity
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: mode
+        kind: choice
+        options: [{ id: heal }, { id: radiant }, { id: necrotic }]
+        recommend: "'heal'"
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: channelDivinitySpent, by: 1 }
+      - id: heal
+        kind: roll
+        when: steps.mode.picked == 'heal'
+        tags: [healing]
+        parts:
+          - dice: (cleric.divineSpark)d8
+          - value: abilities.wis.mod
+      - id: restore
+        kind: changes
+        when: has(steps.heal)
+        to: target
+        changes:
+          - { type: adjust, field: hp.current, by: 'max(0, steps.heal.total)', tags: [healing] }
+      - id: damage
+        kind: roll
+        when: steps.mode.picked != 'heal'
+        tags: [damage]
+        parts:
+          - dice: (cleric.divineSpark)d8
+            tags: [{ formula: "'damage.' + steps.mode.picked" }]
+          - value: abilities.wis.mod
+            tags: [{ formula: "'damage.' + steps.mode.picked" }]
+      - id: saves
+        kind: action
+        each: target
+        when: has(steps.damage)
+        as: participant
+        use: saving-throw
+        params:
+          ability: "'con'"
+          dc: spellcasting.cleric.dc
+      - id: burn
+        kind: changes
+        each: target
+        when: has(steps.saves)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: >-
+              steps.saves.result == 'success' ? -floor(max(0, part.total) / 2) : -max(0, part.total)
+            tags:
+              - damage
+              - magical
+              - save.con
+              - save-half
+              - { formula: "steps.saves.result == 'success' ? 'save-success' : 'save-failure'" }
+      - id: result
+        kind: outcome
+        result: "steps.mode.picked == 'heal' ? 'healed' : 'damaged'"
+        data:
+          amount: 'has(steps.heal) ? max(0, steps.heal.total) : max(0, steps.damage.total)'
+          dc: spellcasting.cleric.dc
+  - id: turn-undead
+    tags: [feature]
+    results: [turned]
+    available: self.channelDivinitySpent < cleric.channelDivinity
+    participants:
+      target: {}
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: channelDivinitySpent, by: 1 }
+      - id: sear
+        kind: roll
+        when: cleric.searUndead > 0
+        tags: [damage]
+        parts:
+          - dice: (cleric.searUndead)d8
+            tags: [damage.radiant]
+      - id: saves
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params:
+          ability: "'wis'"
+          dc: spellcasting.cleric.dc
+      - id: turn
+        kind: changes
+        each: target
+        when: steps.saves.result == 'failure'
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.frightened'"
+            state: { by: creature.type, magical: true }
+          - type: applyEffect
+            source: "'conditions.incapacitated'"
+            state: { by: creature.type, magical: true }
+          - type: adjust
+            when: has(steps.sear)
+            field: hp.current
+            by: -max(0, steps.sear.total)
+            tags: [damage, damage.radiant, magical, save.wis, save-failure]
+      - id: result
+        kind: outcome
+        result: "'turned'"
+        data:
+          dc: spellcasting.cleric.dc
+          sear: 'has(steps.sear) ? steps.sear.total : 0'

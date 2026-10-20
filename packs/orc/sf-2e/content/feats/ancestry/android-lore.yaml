@@ -1,0 +1,23 @@
+id: feats.ancestry.android-lore
+type: feat
+tags: [trait.android]
+fields: { level: 1, category: ancestry, ancestry: ancestries.android }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.crafting }
+    when: "!('skill.crafting' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.thievery }
+    when: "!('skill.thievery' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.android }
+    when: "!('skill.lore.android' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.lore.android.granted
+    op: add
+    value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'

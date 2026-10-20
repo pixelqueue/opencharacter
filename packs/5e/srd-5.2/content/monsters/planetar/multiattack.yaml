@@ -1,0 +1,61 @@
+id: monsters.planetar.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 4
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: mode
+        kind: choice
+        options:
+          - { id: radiant-sword }
+          - { id: holy-burst }
+        recommend: "'radiant-sword'"
+      - id: radiantSword1
+        kind: action
+        when: "steps.mode.picked == 'radiant-sword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.planetar.radiant-sword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: radiantSword2
+        kind: action
+        when: "steps.mode.picked == 'radiant-sword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.planetar.radiant-sword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: radiantSword3
+        kind: action
+        when: "steps.mode.picked == 'radiant-sword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.planetar.radiant-sword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: holyBurst1
+        kind: action
+        when: "steps.mode.picked == 'holy-burst'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.planetar.holy-burst)[0].id
+        participants:
+          target: participants.target
+      - id: holyBurst2
+        kind: action
+        when: "steps.mode.picked == 'holy-burst'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.planetar.holy-burst)[0].id
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.radiantSword1) && steps.radiantSword1.result == 'hit' ? 1 : 0)
+              + (has(steps.radiantSword2) && steps.radiantSword2.result == 'hit' ? 1 : 0)
+              + (has(steps.radiantSword3) && steps.radiantSword3.result == 'hit' ? 1 : 0)

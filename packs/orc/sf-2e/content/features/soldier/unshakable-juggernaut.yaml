@@ -1,0 +1,6 @@
+id: features.soldier.unshakable-juggernaut
+type: feature
+fields: { level: 15 }
+effects:
+  - { target: saves.fortitude.rank, op: atLeast, value: 4 }
+  - { target: { rolls: [save.fortitude], tally: critFailToFail }, op: add, value: 1 }

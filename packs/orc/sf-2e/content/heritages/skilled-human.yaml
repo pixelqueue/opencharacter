@@ -1,0 +1,35 @@
+id: heritages.skilled-human
+type: heritage
+fields: { ancestry: ancestries.human }
+choices:
+  - id: skill
+    from:
+      values:
+        - skill.acrobatics
+        - skill.arcana
+        - skill.athletics
+        - skill.computers
+        - skill.crafting
+        - skill.deception
+        - skill.diplomacy
+        - skill.intimidation
+        - skill.medicine
+        - skill.nature
+        - skill.occultism
+        - skill.performance
+        - skill.piloting
+        - skill.religion
+        - skill.society
+        - skill.stealth
+        - skill.survival
+        - skill.thievery
+    effects:
+      - target: skills.trained
+        op: grant
+        value: { formula: pick.value }
+        when: '!(pick.value in skills.chosen)'
+      - { target: skills.trainings, op: add, value: 1 }
+      - target: { fields: { where: "'skill-rank' in item.tags && pick.value in item.tags" } }
+        op: atLeast
+        value: 2
+        when: 'level >= 5'

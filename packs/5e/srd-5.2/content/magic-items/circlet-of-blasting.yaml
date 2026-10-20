@@ -1,0 +1,26 @@
+id: magic-items.circlet-of-blasting
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  spells: [spells.scorching-ray]
+  spellAttackBonus: 5
+state:
+  usedToday: { type: set, of: string, default: [] }
+grants:
+  - { item: spells.scorching-ray, when: self.equipped }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.scorching-ray && flags.slot == 2
+        && !('scorching-ray' in self.usedToday)
+    value:
+      id: daily
+      changes:
+        - {
+            type: setState,
+            entry: self,
+            key: usedToday,
+            value: "self.usedToday + ['scorching-ray']",
+          }

@@ -1,0 +1,73 @@
+id: classes.monk
+type: class
+fields:
+  hitDie: 1d8
+state:
+  focusSpent: { type: integer, default: 0, min: 0 }
+  uncannyMetabolismUsed: { type: boolean, default: false }
+  wholenessSpent: { type: integer, default: 0, min: 0 }
+prerequisites:
+  - id: multiclass
+    when: (self.startingClass && self.level == level.total) || item.id in multiclass.qualified
+effects:
+  - target: proficiencies.weapons
+    op: grant
+    value:
+      query:
+        type: weapon
+        where: "item.category == 'simple' || (item.category == 'martial' && 'property.light' in item.tags)"
+    when: self.startingClass
+  - { target: proficiencies.saves, op: grant, value: { tag: save.str }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.dex }, when: self.startingClass }
+grants:
+  - { item: features.monk.martial-arts, when: self.level >= 1 }
+  - { item: features.monk.unarmored-defense, when: self.level >= 1 }
+  - { item: features.monk.monks-focus, when: self.level >= 2 }
+  - { item: features.monk.unarmored-movement, when: self.level >= 2 }
+  - { item: features.monk.uncanny-metabolism, when: self.level >= 2 }
+  - { item: features.monk.deflect-attacks, when: self.level >= 3 }
+  - { item: features.monk.ability-score-improvement, when: self.level >= 4 }
+  - { item: features.monk.slow-fall, when: self.level >= 4 }
+  - { item: features.extra-attack, when: self.level >= 5 }
+  - { item: features.monk.stunning-strike, when: self.level >= 5 }
+  - { item: features.monk.empowered-strikes, when: self.level >= 6 }
+  - { item: features.monk.evasion, when: self.level >= 7 }
+  - { item: features.monk.acrobatic-movement, when: self.level >= 9 }
+  - { item: features.monk.heightened-focus, when: self.level >= 10 }
+  - { item: features.monk.self-restoration, when: self.level >= 10 }
+  - { item: features.monk.deflect-energy, when: self.level >= 13 }
+  - { item: features.monk.disciplined-survivor, when: self.level >= 14 }
+  - { item: features.monk.perfect-focus, when: self.level >= 15 }
+  - { item: features.monk.superior-defense, when: self.level >= 18 }
+  - { item: features.monk.epic-boon, when: self.level >= 19 }
+  - { item: features.monk.body-and-mind, when: self.level >= 20 }
+choices:
+  - id: skills
+    pick: 2
+    unique: skills
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.athletics,
+          skill.history,
+          skill.insight,
+          skill.religion,
+          skill.stealth,
+        ]
+      where: '!(value in proficiencies.skills) || value in choice.picks'
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: tool
+    from:
+      type: tool
+      where: "item.category == 'artisans-tools' || item.category == 'musical-instrument'"
+    activate: false
+    eligible: '!(item.id in proficiencies.tools) || item.id in choice.picks'
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.tools, op: grant, value: { formula: pick.id } }
+  - id: subclass
+    from: { type: subclass, where: 'item.class == @classes.monk' }
+    when: self.level >= 3

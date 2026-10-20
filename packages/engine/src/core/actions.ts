@@ -678,7 +678,8 @@ function startFrame(
       pack = ruleset.rules.actions[id]?.pack ?? '';
       activation = sheet.activations.find((a) =>
         entry !== undefined
-          ? entryOf(a) === entry && ownsEntry(a)
+          ? entryOf(a) === entry &&
+            (source !== undefined ? !ownsEntry(a) && a.item?.qid === source : ownsEntry(a))
           : a.scope === 'holder' && !a.entry && a.item?.qid === source,
       );
     }

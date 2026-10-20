@@ -1,0 +1,79 @@
+id: feats.ability-score-improvement
+type: feat
+repeatable: true
+tags: [repeatable]
+fields:
+  category: general
+prerequisites:
+  - id: level
+    when: 'level.total >= 4'
+effects:
+  - { target: feats.held, op: grant, value: { formula: item.id } }
+choices:
+  - id: increase
+    recommend: "'plus-two'"
+    from:
+      options:
+        - id: plus-two
+          choices:
+            - id: ability
+              recommend: >-
+                sortList(filterList(['str', 'dex', 'con', 'int', 'wis', 'cha'],
+                  fieldOf('abilities.{ability}.base', x) <= 18 || x in choice.picks),
+                  -fieldOf('abilities.{ability}.base', x))[0]
+              from:
+                options:
+                  - id: str
+                    prerequisites: [{ id: max, when: abilities.str.base <= abilities.str.max }]
+                    effects:
+                      - { target: abilities.str.base, op: add, value: 2 }
+                  - id: dex
+                    prerequisites: [{ id: max, when: abilities.dex.base <= abilities.dex.max }]
+                    effects:
+                      - { target: abilities.dex.base, op: add, value: 2 }
+                  - id: con
+                    prerequisites: [{ id: max, when: abilities.con.base <= abilities.con.max }]
+                    effects:
+                      - { target: abilities.con.base, op: add, value: 2 }
+                  - id: int
+                    prerequisites: [{ id: max, when: abilities.int.base <= abilities.int.max }]
+                    effects:
+                      - { target: abilities.int.base, op: add, value: 2 }
+                  - id: wis
+                    prerequisites: [{ id: max, when: abilities.wis.base <= abilities.wis.max }]
+                    effects:
+                      - { target: abilities.wis.base, op: add, value: 2 }
+                  - id: cha
+                    prerequisites: [{ id: max, when: abilities.cha.base <= abilities.cha.max }]
+                    effects:
+                      - { target: abilities.cha.base, op: add, value: 2 }
+        - id: plus-one
+          choices:
+            - id: abilities
+              pick: 2
+              from:
+                options:
+                  - id: str
+                    prerequisites: [{ id: max, when: abilities.str.base <= abilities.str.max }]
+                    effects:
+                      - { target: abilities.str.base, op: add, value: 1 }
+                  - id: dex
+                    prerequisites: [{ id: max, when: abilities.dex.base <= abilities.dex.max }]
+                    effects:
+                      - { target: abilities.dex.base, op: add, value: 1 }
+                  - id: con
+                    prerequisites: [{ id: max, when: abilities.con.base <= abilities.con.max }]
+                    effects:
+                      - { target: abilities.con.base, op: add, value: 1 }
+                  - id: int
+                    prerequisites: [{ id: max, when: abilities.int.base <= abilities.int.max }]
+                    effects:
+                      - { target: abilities.int.base, op: add, value: 1 }
+                  - id: wis
+                    prerequisites: [{ id: max, when: abilities.wis.base <= abilities.wis.max }]
+                    effects:
+                      - { target: abilities.wis.base, op: add, value: 1 }
+                  - id: cha
+                    prerequisites: [{ id: max, when: abilities.cha.base <= abilities.cha.max }]
+                    effects:
+                      - { target: abilities.cha.base, op: add, value: 1 }

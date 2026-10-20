@@ -1,0 +1,15 @@
+id: features.fighter.tactical-mind
+type: feature
+effects:
+  - target: { choices: [failed-check] }
+    op: option
+    when: self.secondWindSpent < secondWind.uses
+    value:
+      id: tactical-mind
+      flags: { addDie: 1d10 }
+  - target: { steps: [failed-test-turned] }
+    op: changes
+    when: has(steps.hook) && steps.hook.picked == item.id + '#tactical-mind'
+    value:
+      changes:
+        - { type: adjustState, entry: self, key: secondWindSpent, by: 1 }

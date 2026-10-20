@@ -1,0 +1,25 @@
+id: spells.aura-of-life
+type: spell
+fields:
+  level: 4
+  school: abjuration
+  classes: [classes.cleric, classes.paladin]
+  concentration: true
+  castingTime: action
+  rangeKind: self
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: minute
+  durationAmount: 10
+  areaShape: emanation
+  areaSize: 30
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: damage.resistances
+    op: grant
+    value: { tag: damage.necrotic }
+    scope: applied
+    duration: { amount: 10, unit: minute, concentration: true }

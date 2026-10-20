@@ -1,0 +1,11 @@
+id: features.druid.ability-score-improvement
+type: feature
+choices:
+  - id: feat
+    slots: [4, 8, 12, 16]
+    when: self.level >= slot
+    unique: feats
+    eligible: "!(item.id in feats.held) || item.id in choice.picks || 'repeatable' in item.tags"
+    requiresOption: true
+    from: { type: feat }
+    recommend: '@feats.ability-score-improvement'

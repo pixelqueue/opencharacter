@@ -1,0 +1,43 @@
+id: features.ranger.tireless
+type: feature
+effects:
+  - { target: ranger.tireless, op: set, value: 'max(1, abilities.wis.mod)' }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.tirelessSpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: tirelessSpent, value: 0 }
+  - target: { steps: [rest.short] }
+    op: changes
+    when: conditions.exhaustion > 0
+    value:
+      changes:
+        - { type: adjust, field: conditions.exhaustion, by: -1 }
+actions:
+  - id: tireless
+    tags: [feature]
+    available: self.tirelessSpent < ranger.tireless
+    results: [gained, kept]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [healing]
+        parts:
+          - dice: 1d8
+          - value: abilities.wis.mod
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: tirelessSpent, by: 1 }
+      - id: gain
+        kind: action
+        use: gain-temporary-hit-points
+        params:
+          amount: max(1, steps.roll.total)
+      - id: result
+        kind: outcome
+        result: steps.gain.result
+        data:
+          temp: max(hp.temp, steps.roll.total, 1)
+          left: ranger.tireless - self.tirelessSpent - 1

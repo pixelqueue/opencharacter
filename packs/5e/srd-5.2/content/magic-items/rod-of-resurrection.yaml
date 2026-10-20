@@ -1,0 +1,33 @@
+id: magic-items.rod-of-resurrection
+type: magicItem
+fields:
+  category: rod
+  rarity: legendary
+  requiresAttunement: true
+  maxCharges: 5
+  recharge: 1
+  spells: [spells.heal, spells.resurrection]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.heal, when: self.equipped && self.attuned }
+  - { item: spells.resurrection, when: self.equipped && self.attuned }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && true && action.item.id in [@spells.heal, @spells.resurrection]
+        && self.charges >= [1, 5][indexOf([@spells.heal, @spells.resurrection], action.item.id)]
+    value:
+      id: charges
+      flags:
+        slot: '[6, 7][indexOf([@spells.heal, @spells.resurrection], action.item.id)]'
+      changes:
+        - type: adjustState
+          entry: self
+          key: charges
+          by: '-[1, 5][indexOf([@spells.heal, @spells.resurrection], action.item.id)]'
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

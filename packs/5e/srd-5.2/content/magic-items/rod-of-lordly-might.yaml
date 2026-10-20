@@ -1,0 +1,95 @@
+id: magic-items.rod-of-lordly-might
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: 'item.id == @weapons.mace' }
+fields: { rarity: legendary, requiresAttunement: true, attackBonus: 3, damageBonus: 3 }
+state:
+  button: { type: integer, min: 0, max: 6, default: 0 }
+  usedToday: { type: set, of: string, default: [] }
+effects:
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: 2d6
+    tags: [damage.fire]
+    when: self.attuned && self.button == 1
+  - target: { rolls: [skill.athletics] }
+    op: add
+    value: 10
+    when: self.equipped && self.attuned && self.button == 5
+actions:
+  - id: drain-life
+    tags: [magic-item]
+    available: "self.equipped && self.attuned && !('drain' in self.usedToday)"
+    results: [drained, resisted]
+    participants:
+      target: { min: 1, max: 1 }
+    steps:
+      - id: daily
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['drain']" }
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params: { ability: "'con'", dc: 17 }
+      - id: damage
+        kind: roll
+        when: steps.save[0].result == 'failure'
+        tags: [damage]
+        parts:
+          - { dice: 4d6, tags: [damage.necrotic] }
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, magical]
+      - id: heal
+        kind: changes
+        when: has(steps.damage)
+        changes:
+          - type: adjust
+            field: hp.current
+            by: floor(max(0, steps.damage.total) / 2)
+            tags: [healing]
+      - id: result
+        kind: outcome
+        result: "has(steps.damage) ? 'drained' : 'resisted'"
+        data:
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+  - id: paralyze
+    tags: [magic-item]
+    available: "self.equipped && self.attuned && !('paralyze' in self.usedToday)"
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { daily: "'paralyze'", save: "'con'", dc: 17, condition: "'conditions.paralyzed'" }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+  - id: terrify
+    tags: [magic-item]
+    available: "self.equipped && self.attuned && !('terrify' in self.usedToday)"
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { daily: "'terrify'", save: "'wis'", dc: 17, condition: "'conditions.frightened'" }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result

@@ -1,0 +1,23 @@
+id: magic-items.demon-armor
+type: template
+tags: [magic]
+appliesTo: { type: armor, where: "item.category != 'shield'" }
+fields: { rarity: very-rare, requiresAttunement: true, acBonus: 1 }
+grants:
+  - { item: languages.abyssal, when: self.equipped && self.attuned }
+effects:
+  - target: { rolls: [attack.melee] }
+    op: add
+    value: 1
+    when: "self.equipped && self.attuned && 'unarmed' in roll.tags"
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 1d8
+    tags: [damage.slashing]
+    when: "self.equipped && self.attuned && 'unarmed' in roll.tags && !martialArts.known"
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 1
+    tags: [damage.slashing]
+    when: "self.equipped && self.attuned && 'unarmed' in roll.tags && martialArts.known"
+  - { target: items.demonCurse, op: set, value: true, when: self.equipped && self.attuned }

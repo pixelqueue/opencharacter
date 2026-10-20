@@ -1,0 +1,57 @@
+id: monsters.scout.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: shortsword }, { id: longbow }]
+        recommend: "'shortsword'"
+      - id: shortsword1
+        kind: action
+        when: "steps.pick1.picked == 'shortsword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.scout.shortsword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: longbow1
+        kind: action
+        when: "steps.pick1.picked == 'longbow'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.scout.longbow)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: shortsword }, { id: longbow }]
+        recommend: "'shortsword'"
+      - id: shortsword2
+        kind: action
+        when: "steps.pick2.picked == 'shortsword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.scout.shortsword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: longbow2
+        kind: action
+        when: "steps.pick2.picked == 'longbow'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.scout.longbow)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.shortsword1) && steps.shortsword1.result == 'hit' ? 1 : 0)
+              + (has(steps.longbow1) && steps.longbow1.result == 'hit' ? 1 : 0)
+              + (has(steps.shortsword2) && steps.shortsword2.result == 'hit' ? 1 : 0)
+              + (has(steps.longbow2) && steps.longbow2.result == 'hit' ? 1 : 0)

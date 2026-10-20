@@ -1,0 +1,44 @@
+id: monsters.half-dragon.claw
+type: monsterAction
+fields:
+  kind: action
+  order: 3
+  attack: melee
+  toHit: 7
+  reach: 10
+  damage: 1d4 + 4
+  damageType: slashing
+actions:
+  - id: draconic-damage
+    tags: [attack]
+    params:
+      damageType: { type: enum, values: [acid, cold, fire, lightning, poison], default: acid }
+      critical: { type: boolean, default: false }
+    participants:
+      target: { max: 1, fields: target }
+    results: [dealt]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              critical: params.critical
+      - id: damage
+        kind: roll
+        tags: [damage.weapon]
+        parts: [{ dice: 2d6, tags: [{ formula: "'damage.' + params.damageType" }] }]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, attack, melee, { formula: "flags.critical ? ['critical'] : []" }]
+      - id: result
+        kind: outcome
+        result: "'dealt'"
+        data:
+          damage: steps.damage.total

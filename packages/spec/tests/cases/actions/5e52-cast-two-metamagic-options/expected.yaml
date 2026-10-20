@@ -1,0 +1,44 @@
+status: finished
+outcome:
+  result: hit
+  data:
+    slot: 0
+    spellcastingClass: sorcerer
+    dc: 14
+    save: ''
+    halfOnSave: false
+    damage: 11
+    healing: 0
+    concentration: false
+    critical: false
+    metamagic:
+      - distant
+      - transmuted
+proposedChanges:
+  - to: self
+    step: metamagic
+    change:
+      type: adjustState
+      entry: class
+      key: sorceryPointsSpent
+      by: 1
+  - to: self
+    step: metamagic
+    change:
+      type: adjustState
+      entry: class
+      key: sorceryPointsSpent
+      by: 1
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -11
+      tags:
+        - damage
+        - attack
+        - spell
+        - magical
+        - ranged
+        - damage.fire

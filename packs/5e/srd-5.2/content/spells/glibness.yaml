@@ -1,0 +1,23 @@
+id: spells.glibness
+type: spell
+fields:
+  level: 8
+  school: enchantment
+  classes: [classes.bard, classes.warlock]
+  castingTime: action
+  rangeKind: self
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+effects:
+  - target: { choices: [failed-check] }
+    op: option
+    scope: applied
+    when: params.ability == 'cha' && flags.natural < 15
+    value: { id: fifteen, flags: { addBonus: 15 - flags.natural } }
+    duration: { amount: 1, unit: hour }
+actions:
+  - use: cast-spell

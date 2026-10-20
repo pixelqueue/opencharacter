@@ -1,0 +1,13 @@
+id: features.envoy.style.from-the-shadows
+type: feature
+fields: { level: 1 }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.stealth }
+    when: "!('skill.stealth' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - item: feats.skill.assurance
+    state: { skill: "'skill.stealth'" }
+    waivePrerequisites: true

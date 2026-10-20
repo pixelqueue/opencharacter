@@ -1,0 +1,23 @@
+id: feats.ancestry.lashunta-lore
+type: feat
+tags: [trait.lashunta]
+fields: { level: 1, category: ancestry, ancestry: ancestries.lashunta }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.occultism }
+    when: "!('skill.occultism' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.society }
+    when: "!('skill.society' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.lashunta }
+    when: "!('skill.lore.lashunta' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.lore.lashunta.granted
+    op: add
+    value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'

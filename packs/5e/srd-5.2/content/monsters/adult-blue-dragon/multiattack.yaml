@@ -1,0 +1,52 @@
+id: monsters.adult-blue-dragon.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: rend1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.adult-blue-dragon.rend)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: rend2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.adult-blue-dragon.rend)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pick3
+        kind: choice
+        options: [{ id: rend }, { id: shatter }]
+        recommend: "'rend'"
+      - id: rend3
+        kind: action
+        when: "steps.pick3.picked == 'rend'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.adult-blue-dragon.rend)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: shatter
+        kind: action
+        when: "steps.pick3.picked == 'shatter'"
+        use: cast-spell
+        source: "'spells.shatter'"
+        params:
+          slotType: "'none'"
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.rend1.result == 'hit' ? 1 : 0)
+              + (steps.rend2.result == 'hit' ? 1 : 0)
+              + (has(steps.rend3) && steps.rend3.result == 'hit' ? 1 : 0)

@@ -1,0 +1,37 @@
+id: magic-items.ring-of-x-ray-vision
+type: magicItem
+fields:
+  category: ring
+  rarity: rare
+  requiresAttunement: true
+state:
+  used: { type: boolean, default: false }
+effects:
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.used
+    value:
+      changes:
+        - { type: setState, entry: self, key: used, value: false }
+actions:
+  - id: x-ray
+    tags: [magic-item]
+    available: self.equipped && self.attuned
+    results: [seeing, exhausted]
+    steps:
+      - id: save
+        kind: action
+        when: self.used
+        use: saving-throw
+        params: { ability: "'con'", dc: 15 }
+      - id: use
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: used, value: true }
+          - type: adjust
+            when: has(steps.save) && steps.save.result == 'failure'
+            field: conditions.exhaustion
+            by: 1
+      - id: result
+        kind: outcome
+        result: "has(steps.save) && steps.save.result == 'failure' ? 'exhausted' : 'seeing'"

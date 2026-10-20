@@ -1,0 +1,13 @@
+id: features.barbarian.mindless-rage
+type: feature
+immuneTo:
+  - id: charmed-and-frightened
+    items: [conditions.charmed, conditions.frightened]
+    when: rage.active
+effects:
+  - target: { steps: [rage] }
+    op: changes
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id in [@conditions.charmed, @conditions.frightened]' }

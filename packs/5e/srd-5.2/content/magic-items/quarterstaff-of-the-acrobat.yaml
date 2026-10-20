@@ -1,0 +1,41 @@
+id: magic-items.quarterstaff-of-the-acrobat
+type: template
+tags: [magic, thrown]
+appliesTo: { type: weapon, where: 'item.id == @weapons.quarterstaff' }
+fields:
+  {
+    rarity: very-rare,
+    requiresAttunement: true,
+    attackBonus: 2,
+    damageBonus: 2,
+    normalRange: 30,
+    longRange: 120,
+  }
+state:
+  form: { type: enum, values: [quarterstaff, rod, pole], default: quarterstaff }
+  deflected: { type: boolean, default: false }
+effects:
+  - target: { rolls: [skill.acrobatics] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.equipped && self.attuned && self.form != 'rod'
+  - target: { steps: [rest.short, rest.long] }
+    op: changes
+    when: self.deflected
+    value:
+      changes:
+        - { type: setState, entry: self, key: deflected, value: false }
+actions:
+  - id: deflect
+    tags: [magic-item]
+    available: "self.equipped && self.attuned && self.form == 'quarterstaff' && !self.deflected"
+    results: [deflected]
+    steps:
+      - id: use
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: deflected, value: true }
+      - id: result
+        kind: outcome
+        result: "'deflected'"
+        data: { ac: combat.ac + 5 }

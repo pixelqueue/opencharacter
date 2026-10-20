@@ -1,0 +1,16 @@
+id: magic-items.carpet-of-flying
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+state:
+  size: { type: enum, values: [3x5, 4x6, 5x7, 6x9], default: 3x5 }
+  riding: { type: boolean, default: false }
+  overloaded: { type: boolean, default: false }
+effects:
+  - target: combat.flySpeed
+    op: atLeast
+    value: >-
+      floor((self.size == '3x5' ? 80 : self.size == '4x6' ? 60 : self.size == '5x7' ? 40 : 30)
+        / (self.overloaded ? 2 : 1))
+    when: self.riding

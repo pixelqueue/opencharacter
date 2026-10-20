@@ -1,0 +1,14 @@
+id: magic-items.ring-of-spell-storing
+type: magicItem
+fields:
+  category: ring
+  rarity: rare
+  requiresAttunement: true
+computed:
+  storedLevels:
+    type: integer
+    formula: sumCopies(copy.state.slot, copy.type == 'storedSpell' && copy.state.storedIn == self.id)
+prerequisites:
+  - id: capacity
+    when: >-
+      sumCopies(copy.state.slot, copy.type == 'storedSpell' && copy.state.storedIn == self.id) <= 5

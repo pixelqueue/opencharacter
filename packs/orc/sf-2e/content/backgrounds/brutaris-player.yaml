@@ -1,0 +1,18 @@
+id: backgrounds.brutaris-player
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.athletics }
+    when: "!('skill.athletics' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.sports }
+    when: "!('skill.lore.sports' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'con']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }
+  - { id: feat, from: { items: [feats.skill.quick-jump, feats.skill.titan-wrestler] } }

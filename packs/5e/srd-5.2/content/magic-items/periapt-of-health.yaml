@@ -1,0 +1,34 @@
+id: magic-items.periapt-of-health
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+state:
+  usedToday: { type: set, of: string, default: [] }
+effects:
+  - target: origins.conditionAdvantage
+    op: grant
+    value: { item: conditions.poisoned }
+    when: self.equipped && self.attuned
+actions:
+  - id: heal
+    tags: [healing]
+    available: "self.equipped && self.attuned && !('heal' in self.usedToday)"
+    results: [healed]
+    steps:
+      - id: heal
+        kind: roll
+        tags: [healing]
+        parts:
+          - dice: 2d4 + 2
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: steps.heal.total, tags: [healing] }
+          - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['heal']" }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: steps.heal.total

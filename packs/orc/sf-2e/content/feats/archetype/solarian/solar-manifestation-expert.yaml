@@ -1,0 +1,11 @@
+id: feats.archetype.solarian.solar-manifestation-expert
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 12, category: class, archetype: archetypes.solarian }
+prerequisites:
+  - { id: feat, when: '@feats.archetype.solarian.solarian-dedication in feats.held' }
+  - id: expert
+    when: 'attacks.simple.rank >= 2 || attacks.martial.rank >= 2 || attacks.advanced.rank >= 2 || attacks.unarmed.rank >= 2 || attacks.simpleGun.rank >= 2 || attacks.martialGun.rank >= 2 || attacks.advancedGun.rank >= 2 || attacks.solar.rank >= 2'
+effects:
+  - { target: attacks.solar.rank, op: atLeast, value: 2 }
+  - { target: classDc.solarian.rank, op: atLeast, value: 2 }

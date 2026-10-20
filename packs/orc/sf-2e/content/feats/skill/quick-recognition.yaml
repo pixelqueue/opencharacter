@@ -1,0 +1,14 @@
+id: feats.skill.quick-recognition
+type: feat
+fields:
+  {
+    level: 7,
+    category: skill,
+    skills: [skill.arcana, skill.nature, skill.occultism, skill.religion],
+  }
+
+prerequisites:
+  - id: master
+    when: 'skills.arcana.rank >= 3 || skills.nature.rank >= 3 || skills.occultism.rank >= 3 || skills.religion.rank >= 3'
+  - id: recognize-spell
+    when: '@feats.skill.recognize-spell in feats.held'

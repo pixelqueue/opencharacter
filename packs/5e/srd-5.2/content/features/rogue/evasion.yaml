@@ -1,0 +1,7 @@
+id: features.rogue.evasion
+type: feature
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [save.dex] } }
+    op: multiply
+    value: "'save-success' in incoming.tags ? 0 : 0.5"
+    when: "'save-half' in incoming.tags && !conditions.incapacitated"

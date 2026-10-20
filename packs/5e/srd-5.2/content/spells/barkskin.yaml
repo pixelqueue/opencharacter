@@ -1,0 +1,22 @@
+id: spells.barkskin
+type: spell
+fields:
+  level: 2
+  school: transmutation
+  classes: [classes.druid, classes.ranger]
+  castingTime: bonus-action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: combat.ac
+    op: atLeast
+    value: 17
+    scope: applied
+    duration: { amount: 1, unit: hour }

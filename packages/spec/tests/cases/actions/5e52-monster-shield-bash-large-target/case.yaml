@@ -1,0 +1,34 @@
+description: '5E 2024 Gladiator Shield Bash: a Large target that fails takes the damage, but only a Medium or smaller one falls Prone'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: 5e-srd-5.2:monster-effect
+    entry: monsters-gladiator-shield-bash-1
+  participants:
+    target:
+      - id: ogre
+        values:
+          combat.ac: 11
+          creature.size: large
+          creature.type: giant
+      - id: guard
+        values:
+          combat.ac: 16
+          creature.size: medium
+          creature.type: humanoid
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+answers:
+  - outcome:
+      result: failure
+      data:
+        total: 9
+  - outcome:
+      result: failure
+      data:
+        total: 11

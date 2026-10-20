@@ -1,0 +1,25 @@
+id: magic-items.plate-armor-of-etherealness
+type: template
+tags: [magic]
+appliesTo: { type: armor, where: 'item.id in [@armor.half-plate, @armor.plate]' }
+fields: { rarity: legendary, requiresAttunement: true }
+state:
+  usedToday: { type: set, of: string, default: [] }
+grants:
+  - { item: spells.etherealness, when: self.equipped && self.attuned }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.etherealness
+        && !('etherealness' in self.usedToday)
+    value:
+      id: daily
+      flags: { slot: 7 }
+      changes:
+        - {
+            type: setState,
+            entry: self,
+            key: usedToday,
+            value: "self.usedToday + ['etherealness']",
+          }

@@ -1,0 +1,14 @@
+id: invocations.lessons-of-the-first-ones
+type: invocation
+repeatable: true
+prerequisites:
+  - id: level
+    when: self.level >= 2
+choices:
+  - id: feat
+    from: { type: feat, where: "item.category == 'origin'" }
+    eligible: "!(item.id in feats.held) || item.id in choice.picks || 'repeatable' in item.tags"
+    unique: feats
+    requiresOption: true
+    effects:
+      - { target: warlock.lessons, op: grant, value: { formula: pick.id } }

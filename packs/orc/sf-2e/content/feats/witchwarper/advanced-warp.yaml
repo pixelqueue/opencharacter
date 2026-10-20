@@ -1,0 +1,21 @@
+id: feats.witchwarper.advanced-warp
+type: feat
+tags: [trait.witchwarper]
+fields: { level: 8, category: class, class: classes.witchwarper }
+effects: [{ target: focus.points, op: add, value: 1 }]
+choices:
+  - id: spell
+    from:
+      options:
+        - id: analyst
+          prerequisites: [{ id: paradox, when: "witchwarper.paradox == 'analyst'" }]
+          grants: [{ item: spells.alternate-outcome }]
+        - id: anomaly
+          prerequisites: [{ id: paradox, when: "witchwarper.paradox == 'anomaly'" }]
+          grants: [{ item: spells.warp-world }]
+        - id: lost-history
+          prerequisites: [{ id: paradox, when: "witchwarper.paradox == 'lost-history'" }]
+          grants: [{ item: spells.forget }]
+        - id: precog
+          prerequisites: [{ id: paradox, when: "witchwarper.paradox == 'precog'" }]
+          grants: [{ item: spells.accelerate }]

@@ -1,0 +1,33 @@
+id: magic-items.winged-boots
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+  maxCharges: 4
+  recharge: 1d4
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+effects:
+  - target: combat.flySpeed
+    op: atLeast
+    value: 30
+    scope: applied
+    duration: { amount: 1, unit: hour }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }
+  - id: fly
+    tags: [magic-item]
+    available: self.equipped && self.attuned && self.charges > 0
+    results: [flying]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: charges, by: -1 }
+          - { type: applyEffect, source: item.id }
+      - id: result
+        kind: outcome
+        result: "'flying'"

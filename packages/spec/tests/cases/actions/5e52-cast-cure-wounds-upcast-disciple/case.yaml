@@ -1,0 +1,23 @@
+description: '5E 2024 Cure Wounds from a level 3 slot: 6d8 + Wis 4, plus Disciple of Life 2 + 3'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: 5e-srd-5.2:cast-spell
+    entry: class
+    source: 5e-srd-5.2:spells.cure-wounds
+  params:
+    slot: 3
+  participants:
+    target:
+      - id: goblin
+        values:
+          combat.ac: 15
+          creature.size: small
+          creature.type: humanoid
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto

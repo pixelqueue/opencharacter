@@ -1,0 +1,28 @@
+id: features.cleric.improved-blessed-strikes
+type: feature
+actions:
+  - id: potent-spellcasting
+    tags: [feature]
+    results: [granted]
+    available: "cleric.blessedStrikes == 'potent-spellcasting'"
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: other
+        kind: action
+        each: target
+        as: participant
+        use: gain-temporary-hit-points
+        params:
+          amount: max(0, 2 * abilities.wis.mod)
+      - id: me
+        kind: action
+        when: size(participants.target) == 0
+        use: gain-temporary-hit-points
+        params:
+          amount: max(0, 2 * abilities.wis.mod)
+      - id: result
+        kind: outcome
+        result: "'granted'"
+        data:
+          temp: max(0, 2 * abilities.wis.mod)

@@ -1,0 +1,14 @@
+id: magic-items.broom-of-flying
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+state:
+  riding: { type: boolean, default: false }
+  heavy: { type: boolean, default: false }
+effects:
+  - target: combat.flySpeed
+    op: atLeast
+    value: 'self.heavy ? 30 : 50'
+    when: self.equipped && self.attuned && self.riding

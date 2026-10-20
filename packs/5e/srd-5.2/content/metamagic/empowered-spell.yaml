@@ -1,0 +1,26 @@
+id: metamagic.empowered-spell
+type: metamagic
+effects:
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      !flags.metamagicDone && !flags.empowered
+        && has(action.item.damage)
+        && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: empowered
+      flags: { empowered: true }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1
+  - target: { rolls: [damage.spell] }
+    op: rollModifier
+    value:
+      kind: reroll
+      below: 'floor(maxOf(dieOf(roll.item.damage)) / 2)'
+      once: true
+      count: max(1, abilities.cha.mod)
+    when: has(flags.empowered) && flags.empowered && has(roll.item.damage)

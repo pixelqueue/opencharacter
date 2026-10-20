@@ -1,0 +1,29 @@
+id: magic-items.giant-slayer
+type: template
+tags: [magic]
+appliesTo: { type: weapon }
+fields: { rarity: rare, attackBonus: 1, damageBonus: 1 }
+effects:
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: 2d6
+    tags: [{ formula: "'damage.' + item.damageType" }]
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && has(participants.target[0].creature.type)
+        && participants.target[0].creature.type == 'giant'
+actions:
+  - id: topple-giant
+    tags: [magic-item]
+    participants:
+      target: { max: 1, fields: target }
+    results: [used]
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { save: "'str'", dc: 15, condition: "'conditions.prone'" }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: "'used'"

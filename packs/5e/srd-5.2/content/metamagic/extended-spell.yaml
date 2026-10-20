@@ -1,0 +1,22 @@
+id: metamagic.extended-spell
+type: metamagic
+effects:
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      !flags.metamagicDone && !flags.extended && flags.metamagicCount < sorcery.metamagicPerSpell
+        && (!has(action.item.durationUnit) || action.item.durationUnit in ['minute', 'hour', 'day'])
+        && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: extended
+      flags: { extended: true, metamagicCount: flags.metamagicCount + 1 }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1
+        - type: set
+          when: has(action.item.concentration) && action.item.concentration
+          field: sorcery.extendedConcentration
+          value: true

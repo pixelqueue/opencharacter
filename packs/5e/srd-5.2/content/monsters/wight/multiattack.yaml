@@ -1,0 +1,64 @@
+id: monsters.wight.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: necrotic-sword }, { id: necrotic-bow }]
+        recommend: "'necrotic-sword'"
+      - id: necroticSword1
+        kind: action
+        when: "steps.pick1.picked == 'necrotic-sword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.wight.necrotic-sword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: necroticBow1
+        kind: action
+        when: "steps.pick1.picked == 'necrotic-bow'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.wight.necrotic-bow)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: necrotic-sword }, { id: necrotic-bow }, { id: life-drain }]
+        recommend: "'necrotic-sword'"
+      - id: necroticSword2
+        kind: action
+        when: "steps.pick2.picked == 'necrotic-sword'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.wight.necrotic-sword)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: necroticBow2
+        kind: action
+        when: "steps.pick2.picked == 'necrotic-bow'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.wight.necrotic-bow)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: lifeDrain2
+        kind: action
+        when: "steps.pick2.picked == 'life-drain'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.wight.life-drain)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.necroticSword1) && steps.necroticSword1.result == 'hit' ? 1 : 0)
+              + (has(steps.necroticBow1) && steps.necroticBow1.result == 'hit' ? 1 : 0)
+              + (has(steps.necroticSword2) && steps.necroticSword2.result == 'hit' ? 1 : 0)
+              + (has(steps.necroticBow2) && steps.necroticBow2.result == 'hit' ? 1 : 0)

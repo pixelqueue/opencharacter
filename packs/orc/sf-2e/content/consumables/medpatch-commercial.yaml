@@ -1,0 +1,12 @@
+id: consumables.medpatch-commercial
+type: consumable
+tags: [trait.consumable, trait.healing, trait.tech, healing]
+fields: { category: medical, level: 1, price: 30, bulk: 0.1, healing: '1d6', lasting: true }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    stackKey: item-bonus
+    when: 'situational.againstDisease || situational.againstPoison'
+    scope: applied
+    duration: { amount: 10, unit: minute }

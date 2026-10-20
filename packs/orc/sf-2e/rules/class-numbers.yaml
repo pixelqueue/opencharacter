@@ -1,0 +1,39 @@
+families:
+  class: [envoy, mystic, operative, solarian, soldier, witchwarper]
+
+fields:
+  'class.has.{class}': { type: boolean, formula: 'countCopies(copy.item == @classes.{class}) > 0' }
+  'classLevel.{class}':
+    type: integer
+    formula: >-
+      class.has.{class} ? level : archetypes.{class}.feats > 0 ? floor(level / 2) : 0
+  'classDc.{class}.rank':
+    { type: integer, formula: 'class.has.{class} ? classDc.rank : 0', min: 0, max: 4 }
+  classDc.envoy.archetypeMod: { type: integer, formula: attributes.cha.mod }
+  classDc.mystic.archetypeMod: { type: integer, formula: attributes.wis.mod }
+  classDc.operative.archetypeMod: { type: integer, formula: attributes.dex.mod }
+  classDc.solarian.archetypeMod:
+    { type: integer, formula: 'max(attributes.str.mod, attributes.dex.mod)' }
+  classDc.soldier.archetypeMod: { type: integer, formula: attributes.con.mod }
+  classDc.witchwarper.archetypeMod:
+    { type: integer, formula: 'max(attributes.int.mod, attributes.cha.mod)' }
+  'classDc.{class}.value':
+    type: integer
+    tags:
+      - dc
+      - class-dc
+      - formula: >-
+          class.has.{class} && class.keyAttribute != 'none' ? ['attr.' + class.keyAttribute] : []
+    formula: >-
+      class.has.{class} ? classDc.value
+        : 10 + (classDc.{class}.rank > 0 ? 2 * classDc.{class}.rank + proficiency.level
+          : proficiency.untrained) + classDc.{class}.archetypeMod
+
+display:
+  fields:
+    'classDc.{class}.value':
+      { groups: [summary], priority: 1, showWhen: '!class.has.{class} && classDc.{class}.rank > 0' }
+    'class.has.{class}': { hidden: true }
+    'classLevel.{class}': { hidden: true }
+    'classDc.{class}.rank': { hidden: true }
+    'classDc.{class}.archetypeMod': { hidden: true }

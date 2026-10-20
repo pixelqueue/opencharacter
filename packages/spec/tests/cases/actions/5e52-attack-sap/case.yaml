@@ -1,0 +1,20 @@
+description: '5E 2024 Sap: a flail hit leaves the target Sapped (Disadvantage on its next attack)'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: 5e-srd-5.2:weapon-attack
+    entry: weapons-flail-1
+  participants:
+    target:
+      - id: goblin
+        values:
+          combat.ac: 15
+          creature.size: small
+          creature.type: humanoid
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto

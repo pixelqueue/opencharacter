@@ -1,0 +1,17 @@
+id: features.rogue.stroke-of-luck
+type: feature
+effects:
+  - target: { choices: [failed-check, failed-save, failed-attack] }
+    op: option
+    when: '!self.strokeOfLuckUsed'
+    value:
+      id: stroke-of-luck
+      flags: { asTwenty: true }
+      changes:
+        - { type: setState, entry: self, key: strokeOfLuckUsed, value: true }
+  - target: { steps: [rest.short, rest.long] }
+    op: changes
+    when: self.strokeOfLuckUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: strokeOfLuckUsed, value: false }

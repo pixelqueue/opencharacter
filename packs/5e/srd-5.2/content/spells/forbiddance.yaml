@@ -1,0 +1,49 @@
+id: spells.forbiddance
+type: spell
+fields:
+  level: 6
+  school: abjuration
+  classes: [classes.cleric]
+  ritual: true
+  castingTime: 10-minutes
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: day
+  durationAmount: 1
+actions:
+  - use: cast-spell
+  - id: ward
+    tags: [spell]
+    params: { damageType: { type: enum, values: [radiant, necrotic] } }
+    participants: { target: {} }
+    results: [damage]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - { when: true, flags: { slot: item.level, critical: 'false' } }
+      - id: damage
+        kind: roll
+        tags: [damage.spell]
+        parts:
+          - dice: 5d10
+            tags: [{ formula: "'damage.' + params.damageType" }]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags:
+              - damage
+              - spell
+              - magical
+              - { formula: "flags.critical ? ['critical'] : []" }
+      - id: result
+        kind: outcome
+        result: "'damage'"
+        data: { damage: steps.damage.total }

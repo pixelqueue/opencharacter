@@ -1,0 +1,298 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: class
+    change:
+      type: addItem
+      entry:
+        id: class
+        item: 5e-srd-5.2:classes.barbarian
+        state:
+          level: 1
+          startingClass: true
+  - to: self
+    step: background
+    change:
+      type: addItem
+      entry:
+        id: background
+        item: 5e-srd-5.2:backgrounds.acolyte
+  - to: self
+    step: species
+    change:
+      type: addItem
+      entry:
+        id: species
+        item: 5e-srd-5.2:species.dragonborn
+  - to: self
+    step: scores/array
+    change:
+      type: set
+      field: 5e-srd-5.2:abilities.str.base
+      value: 15
+  - to: self
+    step: scores/array
+    change:
+      type: set
+      field: 5e-srd-5.2:abilities.dex.base
+      value: 13
+  - to: self
+    step: scores/array
+    change:
+      type: set
+      field: 5e-srd-5.2:abilities.con.base
+      value: 14
+  - to: self
+    step: scores/array
+    change:
+      type: set
+      field: 5e-srd-5.2:abilities.int.base
+      value: 10
+  - to: self
+    step: scores/array
+    change:
+      type: set
+      field: 5e-srd-5.2:abilities.wis.base
+      value: 12
+  - to: self
+    step: scores/array
+    change:
+      type: set
+      field: 5e-srd-5.2:abilities.cha.base
+      value: 8
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.animal-handling
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.athletics
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - 5e-srd-5.2:features.barbarian.weapon-mastery/weapons
+      option: 5e-srd-5.2:weapons.greataxe
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - 5e-srd-5.2:features.barbarian.weapon-mastery/weapons
+      option: 5e-srd-5.2:weapons.handaxe
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - ability-increase
+      option: two-and-one
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - ability-increase
+          - two-and-one
+          - plus-two
+      option: wis
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - ability-increase
+          - two-and-one
+          - plus-one
+      option: int
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - languages
+      option: 5e-srd-5.2:languages.common-sign-language
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - languages
+      option: 5e-srd-5.2:languages.draconic
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - 5e-srd-5.2:feats.magic-initiate/list
+      option: cleric
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - 5e-srd-5.2:feats.magic-initiate/list
+          - cleric
+          - ability
+      option: wis
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - 5e-srd-5.2:feats.magic-initiate/list
+          - cleric
+          - cantrips
+      option: 5e-srd-5.2:spells.guidance
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - 5e-srd-5.2:feats.magic-initiate/list
+          - cleric
+          - cantrips
+      option: 5e-srd-5.2:spells.light
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - 5e-srd-5.2:feats.magic-initiate/list
+          - cleric
+          - spell
+      option: 5e-srd-5.2:spells.bane
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: species
+        choice:
+          - lineage
+      option: 5e-srd-5.2:lineages.black-dragon
+  - to: self
+    step: equipment/byClass/barbarian
+    change:
+      type: addItem
+      entry:
+        id: weapons-greataxe-1
+        item: 5e-srd-5.2:weapons.greataxe
+        equipped: true
+  - to: self
+    step: equipment/byClass/barbarian
+    change:
+      type: addItem
+      entry:
+        id: weapons-handaxe-1
+        item: 5e-srd-5.2:weapons.handaxe
+        equipped: true
+        quantity: 4
+  - to: self
+    step: equipment/byClass/barbarian
+    change:
+      type: addItem
+      entry:
+        id: gear-explorers-pack-1
+        item: 5e-srd-5.2:gear.explorers-pack
+  - to: self
+    step: equipment/byClass/barbarian
+    change:
+      type: adjust
+      field: 5e-srd-5.2:coins.gp
+      by: 15
+  - to: self
+    step: equipment/byBackground/acolyte
+    change:
+      type: addItem
+      entry:
+        id: tools-calligraphers-supplies-1
+        item: 5e-srd-5.2:tools.calligraphers-supplies
+  - to: self
+    step: equipment/byBackground/acolyte
+    change:
+      type: addItem
+      entry:
+        id: gear-book-1
+        item: 5e-srd-5.2:gear.book
+  - to: self
+    step: equipment/byBackground/acolyte
+    change:
+      type: addItem
+      entry:
+        id: gear-parchment-1
+        item: 5e-srd-5.2:gear.parchment
+        quantity: 10
+  - to: self
+    step: equipment/byBackground/acolyte
+    change:
+      type: addItem
+      entry:
+        id: gear-robe-1
+        item: 5e-srd-5.2:gear.robe
+  - to: self
+    step: equipment/byBackground/acolyte
+    change:
+      type: adjust
+      field: 5e-srd-5.2:coins.gp
+      by: 8
+  - to: self
+    step: equipment/byBackground/acolyteHolySymbol
+    change:
+      type: addItem
+      entry:
+        id: gear-amulet-1
+        item: 5e-srd-5.2:gear.amulet
+  - to: self
+    step: hitDie
+    change:
+      type: set
+      field: 5e-srd-5.2:hp.base
+      value: 12
+  - to: self
+    step: finish
+    change:
+      type: set
+      field: 5e-srd-5.2:hp.current
+      value: 14
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

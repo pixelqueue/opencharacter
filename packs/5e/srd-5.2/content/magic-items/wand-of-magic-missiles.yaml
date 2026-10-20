@@ -1,0 +1,26 @@
+id: magic-items.wand-of-magic-missiles
+type: magicItem
+fields:
+  category: wand
+  rarity: uncommon
+  maxCharges: 7
+  recharge: 1d6 + 1
+  spells: [spells.magic-missile]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.magic-missile, when: self.equipped }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.magic-missile
+        && flags.slot >= 1 && flags.slot <= 3 && self.charges >= flags.slot - 0
+    value:
+      id: charges
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -(flags.slot - 0) }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

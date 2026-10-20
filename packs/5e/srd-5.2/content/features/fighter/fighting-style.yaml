@@ -1,0 +1,10 @@
+id: features.fighter.fighting-style
+type: feature
+effects:
+  - { target: features.fightingStyle, op: set, value: true }
+choices:
+  - id: style
+    from: { type: feat, where: "item.category == 'fighting-style'" }
+    unique: feats
+    eligible: "!(item.id in feats.held) || item.id in choice.picks || 'repeatable' in item.tags"
+    recommend: '@feats.defense'

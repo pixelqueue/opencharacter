@@ -1,0 +1,32 @@
+id: spells.irresistible-dance
+type: spell
+fields:
+  level: 6
+  school: enchantment
+  classes: [classes.bard, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 30
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  save: wis
+  saveEffect: none
+  condition: conditions.charmed
+  applied: true
+effects:
+  - target: { rolls: [save.dex, attack] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
+  - target: combat.attackersAdvantage
+    op: set
+    value: true
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
+actions:
+  - use: cast-spell

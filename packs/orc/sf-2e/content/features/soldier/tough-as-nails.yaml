@@ -1,0 +1,6 @@
+id: features.soldier.tough-as-nails
+type: feature
+fields: { level: 7 }
+effects:
+  - { target: saves.fortitude.rank, op: atLeast, value: 3 }
+  - { target: { rolls: [save.fortitude], tally: successToCrit }, op: add, value: 1 }

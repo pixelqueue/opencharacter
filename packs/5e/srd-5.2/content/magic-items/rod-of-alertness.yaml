@@ -1,0 +1,81 @@
+id: magic-items.rod-of-alertness
+type: magicItem
+fields:
+  category: rod
+  rarity: very-rare
+  requiresAttunement: true
+  spells:
+    [
+      spells.detect-evil-and-good,
+      spells.detect-magic,
+      spells.detect-poison-and-disease,
+      spells.see-invisibility,
+    ]
+state:
+  usedToday: { type: set, of: string, default: [] }
+grants:
+  - { item: spells.detect-evil-and-good, when: self.equipped && self.attuned }
+  - { item: spells.detect-magic, when: self.equipped && self.attuned }
+  - { item: spells.detect-poison-and-disease, when: self.equipped && self.attuned }
+  - { item: spells.see-invisibility, when: self.equipped && self.attuned }
+effects:
+  - target: { rolls: [skill.perception, initiative] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.equipped && self.attuned
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.detect-evil-and-good },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.detect-magic },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.detect-poison-and-disease },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.see-invisibility },
+      when: self.equipped && self.attuned,
+    }
+  - { target: combat.ac, op: add, value: 1, scope: applied, duration: { amount: 10, unit: minute } }
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 1
+    scope: applied
+    duration: { amount: 10, unit: minute }
+  - target: { rolls: [save.death] }
+    op: add
+    value: 1
+    scope: applied
+    duration: { amount: 10, unit: minute }
+actions:
+  - id: protective-aura
+    tags: [magic-item]
+    available: "self.equipped && self.attuned && !('aura' in self.usedToday)"
+    results: [planted]
+    participants:
+      ally: {}
+    steps:
+      - id: plant
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['aura']" }
+          - { type: applyEffect, source: item.id }
+      - id: allies
+        kind: changes
+        to: ally
+        changes:
+          - { type: applyEffect, source: item.id }
+      - id: result
+        kind: outcome
+        result: "'planted'"

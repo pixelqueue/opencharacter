@@ -1,0 +1,16 @@
+id: features.druid.wild-companion
+type: feature
+grants:
+  - { item: spells.find-familiar, when: true }
+effects:
+  - { target: spells.free, op: grant, value: { item: spells.find-familiar } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: action.item.id == @spells.find-familiar && self.wildShapeSpent < wildShape.uses
+    value:
+      id: wild-shape
+      flags:
+        slot: 1
+        castAbility: "'druid'"
+      changes:
+        - { type: adjustState, entry: self, key: wildShapeSpent, by: 1 }

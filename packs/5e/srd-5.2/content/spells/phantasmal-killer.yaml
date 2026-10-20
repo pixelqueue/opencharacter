@@ -1,0 +1,34 @@
+id: spells.phantasmal-killer
+type: spell
+fields:
+  level: 4
+  school: illusion
+  classes: [classes.bard, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 120
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  save: wis
+  saveEffect: half
+  applied: true
+  damageType: psychic
+  damage: 4d10
+  upcastDice: 1
+actions:
+  - use: cast-spell
+effects:
+  - target: { rolls: [check] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }

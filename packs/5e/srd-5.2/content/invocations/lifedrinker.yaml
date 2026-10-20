@@ -1,0 +1,45 @@
+id: invocations.lifedrinker
+type: invocation
+prerequisites:
+  - id: level
+    when: self.level >= 9
+  - id: pact
+    when: '@invocations.pact-of-the-blade in warlock.invocations'
+actions:
+  - id: lifedrinker
+    tags: [feature]
+    results: [drained]
+    params:
+      damageType: { type: enum, values: [necrotic, psychic, radiant], default: necrotic }
+      critical: { type: boolean, default: false }
+    participants:
+      target:
+        max: 1
+        fields: target
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              critical: params.critical
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: 1d6
+            tags: [{ formula: "'damage.' + params.damageType" }]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, attack, magical, { formula: "flags.critical ? ['critical'] : []" }]
+      - id: result
+        kind: outcome
+        result: "'drained'"
+        data:
+          damage: steps.damage.total

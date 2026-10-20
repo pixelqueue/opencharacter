@@ -1,0 +1,8 @@
+id: features.operative.master-gunner
+type: feature
+fields: { level: 5 }
+effects:
+  - { target: attacks.simpleGun.rank, op: atLeast, value: 3 }
+  - { target: attacks.martialGun.rank, op: atLeast, value: 3, when: '!operative.striker' }
+  - { target: attacks.agileMelee.rank, op: atLeast, value: 3, when: operative.striker }
+  - { target: attacks.advancedGun.rank, op: atLeast, value: 2 }

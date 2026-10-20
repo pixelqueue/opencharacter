@@ -1,0 +1,8 @@
+id: conditions.invisible
+type: condition
+effects:
+  - { target: combat.attackersDisadvantage, op: set, value: true, scope: applied }
+  - target: { rolls: [attack, initiative] }
+    op: rollModifier
+    value: { kind: advantage }
+    scope: applied

@@ -1,0 +1,45 @@
+id: spells.call-lightning
+type: spell
+fields:
+  level: 3
+  school: conjuration
+  classes: [classes.druid]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 120
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 10
+  save: dex
+  saveEffect: half
+  damageType: lightning
+  damage: 3d10
+  upcastDice: 1
+actions:
+  - use: cast-spell
+  - id: bolt
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+      storm: { type: boolean, default: false }
+    participants:
+      target: { fields: target }
+    results: [save]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          save: "'dex'"
+          half: true
+          damageType: "'lightning'"
+          dice: 'dieOf(1d10, 3 + max(0, (has(params.slot) ? params.slot : item.level) - item.level) + (params.storm ? 1 : 0))'
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage

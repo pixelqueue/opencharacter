@@ -1,0 +1,11 @@
+id: magic-items.ioun-stone-of-awareness
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  requiresAttunement: true
+effects:
+  - target: { rolls: [initiative, skill.perception] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.equipped && self.attuned

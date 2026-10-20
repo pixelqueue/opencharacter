@@ -1,0 +1,32 @@
+id: spells.warding-bond
+type: spell
+fields:
+  level: 2
+  school: abjuration
+  classes: [classes.cleric, classes.paladin]
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: combat.ac
+    op: add
+    value: 1
+    scope: applied
+    duration: { amount: 1, unit: hour }
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 1
+    scope: applied
+    duration: { amount: 1, unit: hour }
+  - target: damage.resistances
+    op: grant
+    value: { tag: damage }
+    scope: applied
+    duration: { amount: 1, unit: hour }

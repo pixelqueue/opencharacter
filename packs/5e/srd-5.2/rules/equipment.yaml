@@ -1,0 +1,156 @@
+contentTypes:
+  gear:
+    carried: true
+    fields:
+      category:
+        {
+          type: enum,
+          values:
+            [
+              adventuring-gear,
+              ammunition,
+              arcane-focus,
+              druidic-focus,
+              holy-symbol,
+              equipment-pack,
+              tack,
+            ],
+          required: true,
+        }
+      cost: { type: decimal }
+      weight: { type: decimal }
+      bundle: { type: integer, min: 1 }
+      ammunition: { type: enum, values: [arrow, bolt, firearm-bullet, sling-bullet, needle] }
+    state:
+      stowed: { type: boolean, default: false }
+
+  tool:
+    carried: true
+    actions:
+      - use: tool-check
+    fields:
+      category:
+        {
+          type: enum,
+          values: [artisans-tools, gaming-set, musical-instrument, other],
+          required: true,
+        }
+      ability: { type: enum, values: [str, dex, con, int, wis, cha], required: true }
+      cost: { type: decimal }
+      weight: { type: decimal }
+    state:
+      stowed: { type: boolean, default: false }
+
+  trinket:
+    carried: true
+
+  mount:
+    carried: true
+    fields:
+      cost: { type: decimal }
+      carryingCapacity: { type: integer }
+
+  vehicle:
+    carried: true
+    fields:
+      category: { type: enum, values: [drawn, waterborne, airborne], required: true }
+      cost: { type: decimal }
+      weight: { type: decimal }
+      speedMph: { type: decimal }
+      crew: { type: integer }
+      passengers: { type: integer }
+      cargoTons: { type: decimal }
+      ac: { type: integer }
+      hp: { type: integer }
+      damageThreshold: { type: integer }
+
+tags:
+  - arcane-focus
+  - druidic-focus
+  - mastery.cleave
+  - mastery.graze
+  - mastery.nick
+  - mastery.push
+  - mastery.sap
+  - mastery.slow
+  - mastery.topple
+  - mastery.vex
+
+actions:
+  - id: throw-item
+    tags: [attack, item]
+    available: self.quantity > 0
+    params:
+      damage: { type: dice, optional: true }
+      damageType: { type: enum, values: [acid, fire, radiant], optional: true }
+      fiendOrUndead: { type: boolean, default: false }
+      hugeSucceeds: { type: boolean, default: false }
+      applies: { type: string, optional: true }
+      appliesCondition: { type: boolean, default: false }
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [thrown]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dc: 8 + abilities.dex.mod + proficiency.bonus
+      - id: damage
+        kind: roll
+        when: has(params.damage) && has(params.damageType)
+        parts:
+          - dice: params.damage
+            tags: [{ formula: "'damage.' + params.damageType" }]
+      - id: saves
+        kind: action
+        each: target
+        when: >-
+          !(params.hugeSucceeds && has(participant.creature.size)
+            && participant.creature.size in ['huge', 'gargantuan'])
+        as: participant
+        use: saving-throw
+        params:
+          ability: "'dex'"
+          dc: flags.dc
+      - id: harm
+        kind: changes
+        each: target
+        when: >-
+          has(steps.damage) && has(steps.saves) && steps.saves.result == 'failure'
+            && (!params.fiendOrUndead
+              || (has(participant.creature.type) && participant.creature.type in ['fiend', 'undead']))
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, save.dex, save-failure, nonmagical]
+      - id: apply
+        kind: changes
+        each: target
+        when: has(params.applies) && has(steps.saves) && steps.saves.result == 'failure'
+        to: target
+        changes:
+          - type: applyEffect
+            when: params.appliesCondition
+            source: params.applies
+            state: { by: creature.type }
+          - type: applyEffect
+            when: '!params.appliesCondition'
+            source: params.applies
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1, when: self.quantity > 1 }
+          - { type: removeItem, entry: self, when: self.quantity <= 1 }
+      - id: result
+        kind: outcome
+        result: "'thrown'"
+        data:
+          dc: flags.dc
+          damage: 'has(steps.damage) ? steps.damage.total : 0'

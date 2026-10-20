@@ -1,0 +1,11 @@
+id: feats.archetype.operative.gun-expert
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 12, category: class, archetype: archetypes.operative }
+prerequisites:
+  - { id: feat, when: '@feats.archetype.operative.operative-dedication in feats.held' }
+  - id: expert
+    when: 'attacks.simple.rank >= 2 || attacks.martial.rank >= 2 || attacks.advanced.rank >= 2 || attacks.unarmed.rank >= 2 || attacks.simpleGun.rank >= 2 || attacks.martialGun.rank >= 2 || attacks.advancedGun.rank >= 2 || attacks.solar.rank >= 2'
+effects:
+  - { target: attacks.simpleGun.rank, op: atLeast, value: 2 }
+  - { target: attacks.martialGun.rank, op: atLeast, value: 2 }

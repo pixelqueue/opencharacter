@@ -1,0 +1,50 @@
+fields:
+  rogue.sneakAttack: { type: integer, formula: 0 }
+  rogue.cunningStrikes: { type: integer, formula: 0 }
+  rogue.deviousStrikes: { type: boolean, formula: false }
+  rogue.stealthAttack: { type: boolean, formula: false }
+  rogue.uncannyDodge: { type: boolean, formula: false }
+
+situational:
+  - id: sneakAttack
+    type: boolean
+    default: false
+    available: rogue.sneakAttack > 0
+    rolls: [damage.weapon]
+    effects:
+      - target: { rolls: [damage.weapon] }
+        op: add
+        value: (rogue.sneakAttack - situational.cunningStrike)d6
+        tags:
+          [
+            {
+              formula: "'damage.' + (has(flags.damageType) ? flags.damageType : roll.item.damageType)",
+            },
+          ]
+        when: >-
+          situational.sneakAttack && rogue.sneakAttack > situational.cunningStrike
+            && has(roll.item) && has(roll.item.damageType)
+            && (roll.item.range == 'ranged' || 'finesse' in roll.item.tags)
+  - id: cunningStrike
+    type: integer
+    default: 0
+    available: rogue.cunningStrikes > 0
+    rolls: [damage.weapon]
+  - id: uncannyDodge
+    type: boolean
+    default: false
+    available: rogue.uncannyDodge
+    incoming: { fields: [hp.current], tags: [attack] }
+    effects:
+      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: multiply
+        value: 0.5
+
+display:
+  fields:
+    rogue.sneakAttack: { groups: [class-features], priority: 1, showWhen: rogue.sneakAttack > 0 }
+    rogue.cunningStrikes:
+      { groups: [class-features], priority: 2, showWhen: rogue.cunningStrikes > 0 }
+    rogue.deviousStrikes: { hidden: true }
+    rogue.stealthAttack: { hidden: true }
+    rogue.uncannyDodge: { hidden: true }

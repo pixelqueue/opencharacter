@@ -1,0 +1,32 @@
+id: monsters.mummy-lord.necrotic-strike
+type: monsterAction
+fields:
+  kind: legendary
+  order: 12
+  uses: monsters.mummy-lord.rotting-fist
+actions:
+  - id: channel
+    tags: [attack, legendary]
+    available: >-
+      legendary.spent + item.legendaryCost <= legendary.actions && !conditions.incapacitated
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: attack
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.mummy-lord.channel-negative-energy)[0].id
+        params:
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+        participants:
+          target: participants.target
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: legendary.spent, by: item.legendaryCost }
+      - id: result
+        kind: outcome
+        result: "steps.attack.result == 'hit' ? 'hit' : 'miss'"

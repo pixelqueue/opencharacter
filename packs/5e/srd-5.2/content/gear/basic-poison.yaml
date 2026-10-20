@@ -1,0 +1,33 @@
+id: gear.basic-poison
+type: gear
+fields:
+  category: adventuring-gear
+  cost: 100
+effects:
+  - { target: combat.hitOptions, op: add, value: 1, scope: applied }
+  - target: { choices: [weapon-hit] }
+    op: option
+    scope: applied
+    when: "action.item.damageType in ['piercing', 'slashing']"
+    value:
+      id: poison
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @gear.basic-poison' }
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 1d4
+    tags: [damage.poison]
+    scope: applied
+    when: "has(steps.onHit) && steps.onHit.picked == '5e-srd-5.2:gear.basic-poison#poison'"
+actions:
+  - id: coat
+    tags: [item]
+    available: self.quantity > 0
+    steps:
+      - id: coat
+        kind: changes
+        changes:
+          - { type: applyEffect, source: "'gear.basic-poison'" }
+          - { type: adjustQuantity, entry: self, by: -1, when: self.quantity > 1 }
+          - { type: removeItem, entry: self, when: self.quantity <= 1 }

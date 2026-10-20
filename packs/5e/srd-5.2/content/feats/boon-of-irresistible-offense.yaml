@@ -1,0 +1,39 @@
+id: feats.boon-of-irresistible-offense
+type: feat
+fields:
+  category: epic-boon
+prerequisites:
+  - id: level
+    when: 'level.total >= 19'
+effects:
+  - { target: feats.held, op: grant, value: { formula: item.id } }
+  - { target: combat.ignoreResistance, op: set, value: true }
+choices:
+  - id: ability
+    recommend: >-
+      sortList(filterList(['str', 'dex'], fieldOf('abilities.{ability}.score', x) < 30 || x in choice.picks),
+        -fieldOf('abilities.{ability}.score', x))[0]
+    from:
+      options:
+        - id: str
+          effects:
+            - { target: abilities.str.score, op: add, value: 1 }
+            - target: { rolls: [damage.weapon, damage.spell] }
+              op: add
+              value: abilities.str.score
+              multiplied: false
+              tags:
+                - formula: >-
+                    'damage.' + (has(flags.damageType) ? flags.damageType : has(roll.item.damageType) ? roll.item.damageType : 'bludgeoning')
+              when: has(steps.test) && has(steps.test.data.natural) && steps.test.data.natural == 20
+        - id: dex
+          effects:
+            - { target: abilities.dex.score, op: add, value: 1 }
+            - target: { rolls: [damage.weapon, damage.spell] }
+              op: add
+              value: abilities.dex.score
+              multiplied: false
+              tags:
+                - formula: >-
+                    'damage.' + (has(flags.damageType) ? flags.damageType : has(roll.item.damageType) ? roll.item.damageType : 'bludgeoning')
+              when: has(steps.test) && has(steps.test.data.natural) && steps.test.data.natural == 20

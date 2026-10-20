@@ -1,0 +1,30 @@
+id: features.paladin.sacred-weapon
+type: feature
+effects:
+  - target: { rolls: [attack] }
+    op: add
+    value: max(1, abilities.cha.mod)
+    when: paladin.sacredWeapon && has(roll.item) && 'melee' in roll.item.tags
+  - target: { steps: [rest.long] }
+    op: changes
+    when: paladin.sacredWeapon
+    value:
+      changes:
+        - { type: set, field: paladin.sacredWeapon, value: false }
+actions:
+  - id: sacred-weapon
+    tags: [feature]
+    available: self.channelDivinitySpent < paladin.channelDivinity
+    results: [active]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: channelDivinitySpent, by: 1 }
+          - { type: set, field: paladin.sacredWeapon, value: true }
+      - id: result
+        kind: outcome
+        result: "'active'"
+        data:
+          bonus: max(1, abilities.cha.mod)
+          minutes: 10

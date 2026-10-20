@@ -1,0 +1,48 @@
+id: monsters.succubus.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: fiendishTouch1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.succubus.fiendish-touch)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: extra
+        kind: choice
+        options: [{ id: charm }, { id: draining-kiss }]
+        recommend: "'charm'"
+      - id: charm
+        kind: action
+        when: "steps.extra.picked == 'charm'"
+        use: cast-spell
+        source: "'spells.dominate-person'"
+        params:
+          slotType: "'none'"
+          slot: 8
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)]] : []
+      - id: drainingKiss
+        kind: action
+        when: "steps.extra.picked == 'draining-kiss'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.succubus.draining-kiss)[0].id
+        participants:
+          target: >-
+            size(participants.target) > 0
+              ? [participants.target[min(1, size(participants.target) - 1)]] : []
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: "steps.fiendishTouch1.result == 'hit' ? 1 : 0"

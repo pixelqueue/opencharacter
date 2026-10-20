@@ -1,0 +1,40 @@
+id: magic-items.pearl-of-power
+type: magicItem
+tags: [attunement.spellcaster]
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+state:
+  usedToday: { type: set, of: string, default: [] }
+actions:
+  - id: recover
+    tags: [magic-item]
+    available: "self.attuned && !('pearl' in self.usedToday)"
+    results: [recovered]
+    steps:
+      - id: slot
+        kind: choice
+        options:
+          - id: level-1
+            when: spellSlots.level1.used > 0
+            changes: [{ type: adjust, field: spellSlots.level1.used, by: -1 }]
+          - id: level-2
+            when: spellSlots.level2.used > 0
+            changes: [{ type: adjust, field: spellSlots.level2.used, by: -1 }]
+          - id: level-3
+            when: spellSlots.level3.used > 0
+            changes: [{ type: adjust, field: spellSlots.level3.used, by: -1 }]
+          - id: pact
+            when: pactSlots.used > 0 && pactSlots.level <= 3
+            changes: [{ type: adjust, field: pactSlots.used, by: -1 }]
+      - id: spend
+        kind: changes
+        when: has(steps.slot)
+        changes:
+          - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['pearl']" }
+      - id: result
+        kind: outcome
+        result: "'recovered'"
+        data:
+          slot: "has(steps.slot) ? steps.slot.picked : ''"

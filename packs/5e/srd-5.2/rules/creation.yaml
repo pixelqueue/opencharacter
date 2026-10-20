@@ -1,0 +1,197 @@
+creation:
+  - { id: standard, action: create-character }
+  - { id: random, action: create-character, params: { random: true }, random: true }
+
+fields:
+  coins.cp: { type: integer, input: true, default: 0, min: 0 }
+  coins.sp: { type: integer, input: true, default: 0, min: 0 }
+  coins.ep: { type: integer, input: true, default: 0, min: 0 }
+  coins.gp: { type: integer, input: true, default: 0, min: 0 }
+  coins.pp: { type: integer, input: true, default: 0, min: 0 }
+
+constraints:
+  - id: creation-species-and-class
+    check: >-
+      !character.creating || (creature.species != '' && level.total > 0)
+        || (sheet.monster && level.total == 0)
+
+actions:
+  - id: create-character
+    tags: [creation]
+    available: character.creating
+    params:
+      random: { type: boolean, default: false }
+      level: { type: integer, default: 1, min: 1, max: 20 }
+      trinket: { type: boolean, default: true }
+    steps:
+      - id: class
+        kind: choice
+        options: { content: { type: class } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { id: class, item: picked.id, state: { level: 1, startingClass: true } }
+      - id: priority
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              priority: >-
+                [
+                  ['str', 'con', 'dex', 'wis', 'int', 'cha'],
+                  ['cha', 'dex', 'int', 'con', 'wis', 'str'],
+                  ['wis', 'str', 'con', 'cha', 'int', 'dex'],
+                  ['wis', 'con', 'int', 'dex', 'cha', 'str'],
+                  ['str', 'dex', 'con', 'cha', 'wis', 'int'],
+                  ['dex', 'wis', 'con', 'str', 'int', 'cha'],
+                  ['str', 'cha', 'con', 'wis', 'dex', 'int'],
+                  ['dex', 'wis', 'con', 'str', 'cha', 'int'],
+                  ['dex', 'int', 'con', 'str', 'wis', 'cha'],
+                  ['cha', 'con', 'dex', 'wis', 'str', 'int'],
+                  ['cha', 'dex', 'con', 'int', 'wis', 'str'],
+                  ['int', 'wis', 'con', 'dex', 'cha', 'str']
+                ][max(0, indexOf([
+                  @classes.barbarian,
+                  @classes.bard,
+                  @classes.cleric,
+                  @classes.druid,
+                  @classes.fighter,
+                  @classes.monk,
+                  @classes.paladin,
+                  @classes.ranger,
+                  @classes.rogue,
+                  @classes.sorcerer,
+                  @classes.warlock,
+                  @classes.wizard
+                ], steps.class.picked))]
+      - id: background
+        kind: choice
+        options: { content: { type: background } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { id: background, item: picked.id }
+      - id: species
+        kind: choice
+        options: { content: { type: species } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { id: species, item: picked.id }
+      - id: method
+        kind: choice
+        when: '!params.random'
+        options: [{ id: standard-array }, { id: point-buy }, { id: roll }]
+        recommend: "'standard-array'"
+      - id: scores
+        kind: branch
+        cases:
+          - when: "params.random || steps.method.picked == 'roll'"
+            steps:
+              - { id: roll1, kind: roll, tags: [creation], parts: [{ dice: 4d6dl1 }] }
+              - { id: roll2, kind: roll, tags: [creation], parts: [{ dice: 4d6dl1 }] }
+              - { id: roll3, kind: roll, tags: [creation], parts: [{ dice: 4d6dl1 }] }
+              - { id: roll4, kind: roll, tags: [creation], parts: [{ dice: 4d6dl1 }] }
+              - { id: roll5, kind: roll, tags: [creation], parts: [{ dice: 4d6dl1 }] }
+              - { id: roll6, kind: roll, tags: [creation], parts: [{ dice: 4d6dl1 }] }
+              - id: sorted
+                kind: branch
+                cases:
+                  - when: true
+                    flags:
+                      sorted: >-
+                        sortList([steps.roll1.total, steps.roll2.total, steps.roll3.total,
+                          steps.roll4.total, steps.roll5.total, steps.roll6.total], -x)
+              - id: rolled
+                kind: allocate
+                fields: { type: field, where: "'ability-base' in item.tags" }
+                values:
+                  - steps.roll1.total
+                  - steps.roll2.total
+                  - steps.roll3.total
+                  - steps.roll4.total
+                  - steps.roll5.total
+                  - steps.roll6.total
+                recommend:
+                  'abilities.{ability}.base': flags.sorted[indexOf(flags.priority, '{ability}')]
+          - when: "steps.method.picked == 'point-buy'"
+            steps:
+              - id: eights
+                kind: changes
+                changes:
+                  - { type: set, field: abilities.str.base, value: 8 }
+                  - { type: set, field: abilities.dex.base, value: 8 }
+                  - { type: set, field: abilities.con.base, value: 8 }
+                  - { type: set, field: abilities.int.base, value: 8 }
+                  - { type: set, field: abilities.wis.base, value: 8 }
+                  - { type: set, field: abilities.cha.base, value: 8 }
+              - id: points
+                kind: allocate
+                sheet: proposed
+                fields: { type: field, where: "'ability-base' in item.tags" }
+                budget: 27
+                spend: upTo
+                limit: 7
+                cost: '[0, 1, 2, 3, 4, 5, 7, 9][amount]'
+                recommend:
+                  'abilities.{ability}.base': "[7, 6, 5, 4, 2, 0][indexOf(flags.priority, '{ability}')]"
+          - when: "steps.method.picked == 'standard-array'"
+            steps:
+              - id: array
+                kind: allocate
+                fields: { type: field, where: "'ability-base' in item.tags" }
+                values: [15, 14, 13, 12, 10, 8]
+                recommend:
+                  'abilities.{ability}.base': "[15, 14, 13, 12, 10, 8][indexOf(flags.priority, '{ability}')]"
+      - id: picks
+        kind: choice
+        options: { pending: {} }
+        random: "params.random && countList(options, x in ['str', 'dex', 'con', 'int', 'wis', 'cha']) == 0 && !(choice.id in ['ability-increase'])"
+      - id: equipment
+        kind: action
+        use: starting-equipment
+        params:
+          class: steps.class.picked
+          background: steps.background.picked
+          random: params.random
+      - id: trinket
+        kind: choice
+        when: params.trinket
+        options: { content: { type: trinket } }
+        random: true
+        changes:
+          - { type: addItem, entry: { item: picked.id } }
+      - id: hitDie
+        kind: changes
+        changes:
+          - { type: set, field: hp.base, value: maxOf(steps.class.item.hitDie) }
+      - id: gold
+        kind: roll
+        when: params.level >= 5
+        tags: [creation]
+        parts: [{ dice: 1d10 }]
+      - id: higher
+        kind: changes
+        when: params.level > 1
+        changes:
+          - type: set
+            field: xp.current
+            value: >-
+              [0, 0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 85000, 100000,
+                120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000][params.level]
+          - type: adjust
+            when: params.level >= 5
+            field: coins.gp
+            by: >-
+              params.level >= 17 ? 20000 + steps.gold.total * 250
+                : params.level >= 11 ? 5000 + steps.gold.total * 250
+                : 500 + steps.gold.total * 25
+      - id: finish
+        kind: changes
+        sheet: proposed
+        changes:
+          - { type: set, field: hp.current, value: hp.max }
+          - { type: finishCreation }

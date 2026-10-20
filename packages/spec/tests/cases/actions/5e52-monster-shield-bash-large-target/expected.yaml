@@ -1,0 +1,43 @@
+status: finished
+outcome:
+  result: used
+  data:
+    damage: 9
+    healing: 0
+    dc: 15
+    save: str
+proposedChanges:
+  - to: target
+    character: ogre
+    step: burn[0]
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -9
+      tags:
+        - damage
+        - save-negates
+        - save.str
+        - save-failure
+        - damage.bludgeoning
+  - to: target
+    character: guard
+    step: burn[1]
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -9
+      tags:
+        - damage
+        - save-negates
+        - save.str
+        - save-failure
+        - damage.bludgeoning
+  - to: target
+    character: guard
+    step: conditions[1]
+    change:
+      type: applyEffect
+      source: 5e-srd-5.2:conditions.prone
+      state:
+        by: humanoid

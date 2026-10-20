@@ -1,0 +1,57 @@
+id: monsters.druid.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: vine-staff }, { id: verdant-wisp }]
+        recommend: "'vine-staff'"
+      - id: vineStaff1
+        kind: action
+        when: "steps.pick1.picked == 'vine-staff'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.druid.vine-staff)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: verdantWisp1
+        kind: action
+        when: "steps.pick1.picked == 'verdant-wisp'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.druid.verdant-wisp)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: vine-staff }, { id: verdant-wisp }]
+        recommend: "'vine-staff'"
+      - id: vineStaff2
+        kind: action
+        when: "steps.pick2.picked == 'vine-staff'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.druid.vine-staff)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: verdantWisp2
+        kind: action
+        when: "steps.pick2.picked == 'verdant-wisp'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.druid.verdant-wisp)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.vineStaff1) && steps.vineStaff1.result == 'hit' ? 1 : 0)
+              + (has(steps.verdantWisp1) && steps.verdantWisp1.result == 'hit' ? 1 : 0)
+              + (has(steps.vineStaff2) && steps.vineStaff2.result == 'hit' ? 1 : 0)
+              + (has(steps.verdantWisp2) && steps.verdantWisp2.result == 'hit' ? 1 : 0)

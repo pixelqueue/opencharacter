@@ -1,0 +1,15 @@
+id: monsters.swarm-of-insects.bites
+type: monsterAction
+fields:
+  kind: action
+  order: 3
+  attack: melee
+  toHit: 3
+  reach: 5
+  damage: 2d4 + 1
+  damageType: poison
+effects:
+  - target: { rolls: [damage.weapon], parts: [damage.poison], from: self }
+    op: set
+    value: 1d4 + 1
+    when: hp.bloodied

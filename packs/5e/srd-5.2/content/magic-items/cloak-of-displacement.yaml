@@ -1,0 +1,19 @@
+id: magic-items.cloak-of-displacement
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  requiresAttunement: true
+state:
+  displaced: { type: boolean, default: true }
+effects:
+  - target: combat.attackersDisadvantage
+    op: set
+    value: true
+    when: self.equipped && self.attuned && self.displaced && combat.speed > 0
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    value: 0
+    when: self.equipped && self.attuned && self.displaced && incoming.amount < 0
+    then:
+      - { type: setState, entry: self, key: displaced, value: false }

@@ -1,0 +1,14 @@
+id: magic-items.manual-of-gainful-exercise
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+state:
+  read: { type: boolean, default: false }
+effects:
+  - target: abilities.str.score
+    op: add
+    value: min(2, max(0, 30 - abilities.str.base))
+    when: self.read
+actions:
+  - use: study-book

@@ -1,0 +1,16 @@
+id: magic-items.hat-of-disguise
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+  spells: [spells.disguise-self]
+grants:
+  - { item: spells.disguise-self, when: self.equipped && self.attuned }
+effects:
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.disguise-self },
+      when: self.equipped && self.attuned,
+    }

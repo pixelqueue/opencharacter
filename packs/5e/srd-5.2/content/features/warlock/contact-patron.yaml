@@ -1,0 +1,23 @@
+id: features.warlock.contact-patron
+type: feature
+grants:
+  - item: spells.contact-other-plane
+effects:
+  - { target: spells.warlock, op: grant, value: { item: spells.contact-other-plane } }
+  - { target: spells.free, op: grant, value: { item: spells.contact-other-plane } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id == @spells.contact-other-plane && !self.contactPatronUsed
+        && (!has(params.slot) || params.slot == action.item.level)
+    value:
+      id: free
+      flags: { slot: action.item.level, castAbility: "'warlock'" }
+      changes:
+        - { type: setState, entry: self, key: contactPatronUsed, value: true }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.contactPatronUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: contactPatronUsed, value: false }

@@ -1,0 +1,15 @@
+id: monsters.swarm-of-rats.bites
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+  attack: melee
+  toHit: 2
+  reach: 5
+  damage: 2d4
+  damageType: piercing
+effects:
+  - target: { rolls: [damage.weapon], parts: [damage.piercing], from: self }
+    op: set
+    value: 1d4
+    when: hp.bloodied

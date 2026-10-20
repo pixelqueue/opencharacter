@@ -1,0 +1,30 @@
+id: magic-items.wand-of-web
+type: magicItem
+tags: [attunement.spellcaster]
+fields:
+  category: wand
+  rarity: uncommon
+  requiresAttunement: true
+  maxCharges: 7
+  recharge: 1d6 + 1
+  saveDc: 13
+  spells: [spells.web]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.web, when: self.equipped && self.attuned }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && true && action.item.id == @spells.web
+        && self.charges >= 1
+    value:
+      id: charges
+      flags: { slot: 2 }
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

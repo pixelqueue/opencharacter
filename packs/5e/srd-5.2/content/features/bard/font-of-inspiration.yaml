@@ -1,0 +1,33 @@
+id: features.bard.font-of-inspiration
+type: feature
+effects:
+  - target: { steps: [rest.short] }
+    op: changes
+    when: self.bardicInspirationSpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: bardicInspirationSpent, value: 0 }
+actions:
+  - id: font-of-inspiration
+    tags: [feature]
+    results: [regained, no-slot]
+    available: self.bardicInspirationSpent > 0
+    params:
+      slot: { type: integer, min: 1, max: 9, default: 1 }
+    steps:
+      - id: pay
+        kind: action
+        use: spend-spell-slot
+        params:
+          slot: params.slot
+      - id: noSlot
+        kind: outcome
+        when: steps.pay.result == 'no-slot'
+        result: "'no-slot'"
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: bardicInspirationSpent, by: -1 }
+      - id: result
+        kind: outcome
+        result: "'regained'"

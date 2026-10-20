@@ -1,0 +1,45 @@
+id: features.paladin.holy-nimbus
+type: feature
+effects:
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.holyNimbusUsed || paladin.holyNimbus
+    value:
+      changes:
+        - {
+            type: setState,
+            entry: self,
+            key: holyNimbusUsed,
+            value: false,
+            when: self.holyNimbusUsed,
+          }
+        - { type: set, field: paladin.holyNimbus, value: false, when: paladin.holyNimbus }
+actions:
+  - id: holy-nimbus
+    tags: [feature]
+    available: >-
+      !paladin.holyNimbus
+        && (!self.holyNimbusUsed || spellSlots.level5.max > spellSlots.level5.used)
+    results: [active]
+    steps:
+      - id: cost
+        kind: choice
+        options:
+          - id: free
+            when: '!self.holyNimbusUsed'
+          - id: slot
+            when: self.holyNimbusUsed && spellSlots.level5.max > spellSlots.level5.used
+            changes:
+              - { type: adjust, field: spellSlots.level5.used, by: 1 }
+        recommend: options[0]
+      - id: shine
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: holyNimbusUsed, value: true }
+          - { type: set, field: paladin.holyNimbus, value: true }
+      - id: result
+        kind: outcome
+        result: "'active'"
+        data:
+          damage: abilities.cha.mod + proficiency.bonus
+          minutes: 10

@@ -1,0 +1,57 @@
+id: monsters.frost-giant.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: frost-axe }, { id: great-bow }]
+        recommend: "'frost-axe'"
+      - id: frostAxe1
+        kind: action
+        when: "steps.pick1.picked == 'frost-axe'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.frost-giant.frost-axe)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: greatBow1
+        kind: action
+        when: "steps.pick1.picked == 'great-bow'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.frost-giant.great-bow)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: frost-axe }, { id: great-bow }]
+        recommend: "'frost-axe'"
+      - id: frostAxe2
+        kind: action
+        when: "steps.pick2.picked == 'frost-axe'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.frost-giant.frost-axe)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: greatBow2
+        kind: action
+        when: "steps.pick2.picked == 'great-bow'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.frost-giant.great-bow)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.frostAxe1) && steps.frostAxe1.result == 'hit' ? 1 : 0)
+              + (has(steps.greatBow1) && steps.greatBow1.result == 'hit' ? 1 : 0)
+              + (has(steps.frostAxe2) && steps.frostAxe2.result == 'hit' ? 1 : 0)
+              + (has(steps.greatBow2) && steps.greatBow2.result == 'hit' ? 1 : 0)

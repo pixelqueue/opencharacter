@@ -1,0 +1,45 @@
+id: magic-items.thunderous-greatclub
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: 'item.id == @weapons.greatclub' }
+fields: { rarity: very-rare, requiresAttunement: true }
+state:
+  usedToday: { type: set, of: string, default: [] }
+effects:
+  - { target: abilities.str.score, op: atLeast, value: 20, when: self.attuned }
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: 1d8
+    tags: [damage.thunder]
+    when: self.attuned
+actions:
+  - id: clap-of-thunder
+    tags: [magic-item]
+    available: self.attuned
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { save: "'str'", dc: 15, condition: "'conditions.prone'" }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+  - id: earthquake
+    tags: [magic-item]
+    available: "self.attuned && !('earthquake' in self.usedToday)"
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { daily: "'earthquake'", save: "'dex'", dc: 20, condition: "'conditions.prone'" }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result

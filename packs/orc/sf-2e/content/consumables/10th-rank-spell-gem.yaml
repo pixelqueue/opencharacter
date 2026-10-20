@@ -1,0 +1,9 @@
+id: consumables.10th-rank-spell-gem
+type: consumable
+tags: [trait.consumable, trait.magical]
+fields: { category: spell-gem, level: 19, bulk: 0.1, spellRank: 1, price: 80000 }
+choices:
+  - id: spell
+    from:
+      type: spell
+      where: "item.rank <= 1 && !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)"

@@ -1,0 +1,9 @@
+id: features.monk.perfect-focus
+type: feature
+effects:
+  - target: { steps: [initiative] }
+    op: changes
+    when: focus.points - self.focusSpent < 4
+    value:
+      changes:
+        - { type: setState, entry: self, key: focusSpent, value: 'max(0, focus.points - 4)' }

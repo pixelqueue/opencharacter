@@ -1,0 +1,55 @@
+id: features.monk.quivering-palm
+type: feature
+actions:
+  - id: quivering-palm
+    tags: [feature]
+    results: [set]
+    available: self.focusSpent + 4 <= focus.points
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: focusSpent, by: 4 }
+      - id: result
+        kind: outcome
+        result: "'set'"
+        data:
+          days: self.level
+  - id: end-quivering-palm
+    tags: [feature]
+    results: [ended]
+    participants:
+      target:
+        max: 1
+        fields: target
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: 10d12
+            tags: [damage.force]
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params: { ability: "'con'", dc: focus.saveDc }
+      - id: deal
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            by: >-
+              -(has(steps.save) && steps.save.result == 'success'
+                ? floor(steps.damage.total / 2) : steps.damage.total)
+            tags: [damage, damage.force]
+      - id: result
+        kind: outcome
+        result: "'ended'"
+        data:
+          dc: focus.saveDc
+          save: "'con'"
+          damage: steps.damage.total

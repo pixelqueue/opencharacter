@@ -1,0 +1,31 @@
+id: invocations.gift-of-the-depths
+type: invocation
+prerequisites:
+  - id: level
+    when: self.level >= 5
+grants:
+  - item: spells.water-breathing
+effects:
+  - { target: combat.swimSpeed, op: atLeast, value: combat.speed }
+  - { target: spells.free, op: grant, value: { item: spells.water-breathing } }
+  - target: spells.limited
+    op: grant
+    value: { item: spells.water-breathing }
+    when: >-
+      countList(keysOf('caster'), @spells.water-breathing in fieldOf('spells.{caster}', x)) == 0
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id == @spells.water-breathing && !self.giftOfTheDepthsUsed
+        && (!has(params.slot) || params.slot == action.item.level)
+    value:
+      id: free
+      flags: { slot: action.item.level, castAbility: "'warlock'" }
+      changes:
+        - { type: setState, entry: self, key: giftOfTheDepthsUsed, value: true }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.giftOfTheDepthsUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: giftOfTheDepthsUsed, value: false }

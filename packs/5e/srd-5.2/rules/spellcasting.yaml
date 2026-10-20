@@ -1,0 +1,677 @@
+families:
+  slot: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  caster:
+    [
+      bard,
+      cleric,
+      druid,
+      paladin,
+      ranger,
+      sorcerer,
+      warlock,
+      wizard,
+      species,
+      initiateCleric,
+      initiateDruid,
+      initiateWizard,
+      monster,
+    ]
+
+fields:
+  'spellcasting.{caster}.dc': { type: integer, formula: 0 }
+  'spellcasting.{caster}.attack': { type: integer, formula: 0 }
+  'spellcasting.{caster}.mod': { type: integer, formula: 0 }
+  'spells.{caster}': { type: set, of: spell }
+  spells.wizardBook: { type: set, of: spell }
+  spells.free: { type: set, of: spell }
+  spells.limited: { type: set, of: spell }
+  spells.atWill: { type: set, of: spell }
+  spells.monsterAtWill: { type: set, of: spell }
+
+  spellcasting.casterLevel: { type: integer, formula: 0 }
+  spellcasting.monster.level: { type: integer, formula: 0, min: 0 }
+  spellcasting.blocked: { type: boolean, formula: false }
+  spellcasting.potentCantrip: { type: boolean, formula: false }
+  sorcery.metamagic: { type: boolean, formula: false }
+  sorcery.metamagicPerSpell: { type: integer, formula: 1, min: 1 }
+
+  spellSlots.level1.max:
+    type: integer
+    formula: >-
+      spellcasting.casterLevel == 0 ? 0 : spellcasting.casterLevel == 1 ? 2
+        : spellcasting.casterLevel == 2 ? 3 : 4
+  spellSlots.level2.max:
+    type: integer
+    formula: 'spellcasting.casterLevel < 3 ? 0 : spellcasting.casterLevel == 3 ? 2 : 3'
+  spellSlots.level3.max:
+    type: integer
+    formula: 'spellcasting.casterLevel < 5 ? 0 : spellcasting.casterLevel == 5 ? 2 : 3'
+  spellSlots.level4.max:
+    type: integer
+    formula: >-
+      spellcasting.casterLevel < 7 ? 0 : spellcasting.casterLevel == 7 ? 1
+        : spellcasting.casterLevel == 8 ? 2 : 3
+  spellSlots.level5.max:
+    type: integer
+    formula: >-
+      spellcasting.casterLevel < 9 ? 0 : spellcasting.casterLevel == 9 ? 1
+        : spellcasting.casterLevel < 18 ? 2 : 3
+  spellSlots.level6.max:
+    type: integer
+    formula: 'spellcasting.casterLevel < 11 ? 0 : spellcasting.casterLevel < 19 ? 1 : 2'
+  spellSlots.level7.max:
+    type: integer
+    formula: 'spellcasting.casterLevel < 13 ? 0 : spellcasting.casterLevel < 20 ? 1 : 2'
+  spellSlots.level8.max: { type: integer, formula: 'spellcasting.casterLevel < 15 ? 0 : 1' }
+  spellSlots.level9.max: { type: integer, formula: 'spellcasting.casterLevel < 17 ? 0 : 1' }
+
+  'spellSlots.level{slot}.used':
+    { type: integer, input: true, default: 0, min: 0, max: 'spellSlots.level{slot}.max' }
+
+  pactSlots.max: { type: integer, formula: 0 }
+  pactSlots.level: { type: integer, formula: 0 }
+  pactSlots.used: { type: integer, input: true, default: 0, min: 0, max: pactSlots.max }
+
+  concentration.active: { type: boolean, input: true, default: false }
+
+followUps:
+  - id: concentration
+    on: { field: hp.current, tags: [damage], once: true }
+    required: true
+    when: concentration.active && change.taken < 0
+    action: concentration-check
+    params:
+      damage: -change.taken
+  - id: incapacitated-concentration
+    becomes: conditions.incapacitated && concentration.active
+    required: true
+    changes:
+      - { type: set, field: concentration.active, value: false }
+
+actions:
+  - id: cast-spell
+    tags: [spell]
+    available: >-
+      !spellcasting.blocked
+        && (!(item.id in spells.wizardBook) || item.id in spells.wizard
+          || (has(item.ritual) && item.ritual) || item.id in spells.free
+          || countList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x)) > 0
+          || countCopies(copy.id == self.id && (copy.type == 'magicItem'
+            || copy.type == 'storedSpell' || 'magic' in copy.tags)) > 0)
+    params:
+      slot: { type: integer, optional: true }
+      slotType: { type: enum, values: [slot, pact, none], optional: true }
+      ritual: { type: boolean, optional: true }
+      targetAc: { type: integer, optional: true }
+    participants:
+      target:
+        fields: target
+    results: [no-slot, not-prepared, hit, miss, save, cast]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              cls: >-
+                countList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x)) > 0
+                  ? filterList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x))[0]
+                  : item.id in spells.wizardBook ? 'wizard' : 'none'
+              slotType: >-
+                item.level == 0 || (has(params.ritual) && params.ritual) ? 'none'
+                  : has(params.slotType) ? params.slotType
+                  : item.id in spells.monsterAtWill ? 'none' : 'auto'
+              tier: >-
+                max(level.total, spellcasting.monster.level) >= 17 ? 4
+                  : max(level.total, spellcasting.monster.level) >= 11 ? 3
+                  : max(level.total, spellcasting.monster.level) >= 5 ? 2 : 1
+              fromItem: >-
+                countCopies(copy.id == self.id
+                  && (copy.type == 'magicItem' || 'magic' in copy.tags)) > 0
+              stored: countCopies(copy.id == self.id && copy.type == 'storedSpell') > 0
+              castAbility: "'class'"
+              careful: false
+              distant: false
+              empowered: false
+              extended: false
+              heightened: false
+              quickened: false
+              subtle: false
+              transmuted: false
+              twinned: false
+              metamagicCount: 0
+              metamagicDone: false
+              spareCount: 0
+              me: character.id
+      - id: ordinary
+        kind: branch
+        when: flags.slotType == 'auto'
+        cases:
+          - when: true
+            flags:
+              ordinarySlot: 'has(params.slot) ? params.slot : item.level'
+      - id: fits
+        kind: branch
+        when: flags.slotType == 'auto'
+        cases:
+          - when: true
+            flags:
+              slotFits: >-
+                flags.ordinarySlot >= item.level && flags.ordinarySlot <= 9
+                  && ((flags.ordinarySlot >= 1 && flags.ordinarySlot <= 9 ? fieldOf('spellSlots.level{slot}.max', flags.ordinarySlot)
+                      - fieldOf('spellSlots.level{slot}.used', flags.ordinarySlot) : 0)) > 0
+              pactFits: >-
+                pactSlots.max - pactSlots.used > 0 && pactSlots.level >= item.level
+                  && (!has(params.slot) || params.slot == pactSlots.level)
+      - id: slotKind
+        kind: choice
+        when: flags.slotType == 'auto' && flags.slotFits && flags.pactFits
+        options: [{ id: slot }, { id: pact }]
+        recommend: "flags.cls == 'warlock' ? 'pact' : 'slot'"
+      - id: kind
+        kind: branch
+        when: flags.slotType == 'auto'
+        cases:
+          - when: true
+            flags:
+              slotType: >-
+                has(steps.slotKind) ? steps.slotKind.picked
+                  : flags.pactFits && !flags.slotFits ? 'pact' : 'slot'
+      - id: numbers
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              slot: >-
+                item.level == 0 ? 0 : flags.stored ? self.slot : has(params.slot) ? params.slot
+                  : flags.slotType == 'pact' ? pactSlots.level : item.level
+              dc: >-
+                flags.stored ? self.dc : flags.cls == 'none' ? 0 : fieldOf('spellcasting.{caster}.dc', flags.cls)
+              attackBonus: >-
+                flags.stored ? self.attack : flags.cls == 'none' ? 0 : fieldOf('spellcasting.{caster}.attack', flags.cls)
+              mod: >-
+                flags.stored ? self.mod : flags.cls == 'none' ? 0 : fieldOf('spellcasting.{caster}.mod', flags.cls)
+      - id: scaling
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              remaining: >-
+                flags.slotType == 'none' ? 1 : flags.slotType == 'pact' ? pactSlots.max - pactSlots.used
+                  : (flags.slot >= 1 && flags.slot <= 9 ? fieldOf('spellSlots.level{slot}.max', flags.slot)
+                    - fieldOf('spellSlots.level{slot}.used', flags.slot) : 0)
+      - id: notPrepared
+        kind: outcome
+        when: >-
+          flags.cls == 'wizard' && !(item.id in spells.wizard) && !flags.fromItem && !flags.stored
+            && !(has(params.ritual) && params.ritual && has(item.ritual) && item.ritual)
+        result: "'not-prepared'"
+      - id: cost
+        kind: choice
+        tags: [spell-cost]
+        when: >-
+          flags.fromItem || flags.stored
+            || (flags.slotType != 'none' && (item.id in spells.free || item.id in spells.limited))
+        options:
+          - id: slot
+            when: >-
+              !flags.fromItem && !flags.stored && !(item.id in spells.limited)
+                && flags.slot >= item.level
+                && flags.slot <= 9 && flags.remaining > 0
+                && (flags.slotType != 'pact' || flags.slot == pactSlots.level)
+          - id: at-will
+            when: flags.fromItem && item.id in spells.atWill
+        recommend: "flags.fromItem && item.id in spells.atWill ? 'at-will' : 'slot'"
+      - id: free
+        kind: branch
+        when: has(steps.cost) && steps.cost.picked != 'slot'
+        cases:
+          - when: true
+            flags: { slotType: "'none'" }
+      - id: ability
+        kind: branch
+        when: flags.castAbility != 'class'
+        cases:
+          - when: true
+            flags:
+              cls: flags.castAbility
+              dc: fieldOf('spellcasting.{caster}.dc', flags.castAbility)
+              attackBonus: fieldOf('spellcasting.{caster}.attack', flags.castAbility)
+              mod: fieldOf('spellcasting.{caster}.mod', flags.castAbility)
+      - id: itemNumbers
+        kind: branch
+        when: flags.fromItem && has(steps.cost)
+        cases:
+          - when: true
+            flags:
+              dc: >-
+                sumCopies(has(copy.fields.saveDc) ? copy.fields.saveDc : 0, copy.id == self.id) > 0
+                  ? sumCopies(has(copy.fields.saveDc) ? copy.fields.saveDc : 0, copy.id == self.id)
+                  : flags.cls != 'none' ? flags.dc
+                  : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.dc', x))
+              attackBonus: >-
+                sumCopies(has(copy.fields.spellAttackBonus) ? copy.fields.spellAttackBonus : 0, copy.id == self.id) > 0
+                  ? sumCopies(has(copy.fields.spellAttackBonus) ? copy.fields.spellAttackBonus : 0, copy.id == self.id)
+                  : flags.cls != 'none' ? flags.attackBonus
+                  : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.attack', x))
+              mod: >-
+                flags.cls != 'none' ? flags.mod
+                  : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.mod', x))
+      - id: noSlot
+        kind: outcome
+        when: >-
+          ((flags.fromItem || flags.stored) && !has(steps.cost))
+            || (flags.slotType != 'none'
+              && (flags.slot < item.level || flags.slot > 9 || flags.remaining <= 0
+                || (flags.slotType == 'pact' && flags.slot != pactSlots.level)
+                || item.id in spells.limited))
+        result: "'no-slot'"
+        data:
+          slot: flags.slot
+      - id: damageType
+        kind: branch
+        when: has(item.damageType)
+        cases:
+          - when: true
+            flags: { damageType: item.damageType }
+      - id: metamagic
+        kind: choice
+        tags: [metamagic]
+        when: sorcery.metamagic
+        sheet: proposed
+        repeat: { max: sorcery.metamagicPerSpell + 1 }
+        options:
+          - id: none
+            when: '!flags.metamagicDone'
+            flags: { metamagicDone: true }
+        recommend: "'none'"
+      - id: spellOption
+        kind: choice
+        each: target
+        tags: [spell-option]
+        when: has(item.castOptions)
+        options: [{ id: none, when: 'false' }]
+      - id: spellOptionSelf
+        kind: choice
+        tags: [spell-option]
+        when: has(item.castOptions) && size(participants.target) == 0
+        options: [{ id: none, when: 'false' }]
+      - id: counts
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              effectiveSlot: 'flags.twinned ? min(9, flags.slot + 1) : flags.slot'
+              steps: >-
+                item.level == 0 ? (has(item.cantripScaling) && item.cantripScaling ? flags.tier - 1 : 0)
+                  : floor(max(0, (flags.twinned ? min(9, flags.slot + 1) : flags.slot) - item.level)
+                    / (has(item.upcastEvery) ? item.upcastEvery : 1))
+              damageCount: >-
+                has(item.damage)
+                  ? (item.level == 0 ? countOf(item.damage) * (flags.steps + 1)
+                    : countOf(item.damage) + flags.steps * (has(item.upcastDice) ? item.upcastDice : 0))
+                  : 0
+              damageFlat: >-
+                (has(item.damageBonus) ? item.damageBonus : 0)
+                  + flags.steps * (has(item.upcastBonus) ? item.upcastBonus : 0)
+                  + (has(item.damageAddsMod) && item.damageAddsMod ? flags.mod : 0)
+              damage2Count: >-
+                has(item.damage2)
+                  ? countOf(item.damage2) + flags.steps * (has(item.upcast2Dice) ? item.upcast2Dice : 0)
+                  : 0
+              healCount: >-
+                has(item.heal)
+                  ? countOf(item.heal) + flags.steps * (has(item.upcastHealDice) ? item.upcastHealDice : 0)
+                  : 0
+              healFlat: >-
+                (has(item.healBonus) ? item.healBonus : 0)
+                  + flags.steps * (has(item.upcastHealBonus) ? item.upcastHealBonus : 0)
+                  + (has(item.healAddsMod) && item.healAddsMod ? flags.mod : 0)
+              halfOnSave: >-
+                (has(item.saveEffect) && item.saveEffect == 'half')
+                  || (item.level == 0 && has(item.save) && spellcasting.potentCantrip)
+      - id: spendPact
+        kind: changes
+        when: flags.slotType == 'pact'
+        tags: [spell.slot-spent]
+        changes:
+          - { type: adjust, field: pactSlots.used, by: 1 }
+      - id: spendSlot
+        kind: changes
+        when: flags.slotType == 'slot'
+        tags: [spell.slot-spent]
+        changes:
+          - type: adjust
+            field:
+              {
+                formula: "'spellSlots.level' + ['1', '2', '3', '4', '5', '6', '7', '8', '9'][flags.slot - 1] + '.used'",
+              }
+            by: 1
+      - id: concentrate
+        kind: changes
+        when: has(item.concentration) && item.concentration
+        changes:
+          - { type: set, field: concentration.active, value: true }
+      - id: target
+        kind: branch
+        when: has(item.attack)
+        cases:
+          - when: true
+            flags:
+              ac: >-
+                size(participants.target) > 0 && item.attack == 'ranged'
+                    && has(participants.target[0].combat.rangedAc)
+                  ? participants.target[0].combat.rangedAc
+                : size(participants.target) > 0 && has(participants.target[0].combat.ac)
+                  ? participants.target[0].combat.ac
+                : has(params.targetAc) ? params.targetAc : -1
+              vexed: false
+              autoMiss: size(participants.target) > 0 && participants.target[0].combat.spellAttacksMiss
+      - id: test
+        kind: action
+        when: has(item.attack) && !flags.autoMiss
+        use: d20-test
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+        tags: [attack, spell, { formula: "'attack.spell.' + item.attack" }]
+        params:
+          kind: "'attack'"
+          bonus: flags.attackBonus
+          dc: 'flags.ac >= 0 ? flags.ac : null'
+      - id: hit
+        kind: branch
+        when: has(item.attack)
+        cases:
+          - when: flags.autoMiss
+            flags: { hit: false, critical: false }
+          - when: steps.test.result == 'critical'
+            flags:
+              hit: true
+              critical: '!(size(participants.target) > 0 && participants.target[0].combat.noCriticals)'
+          - when: steps.test.result == 'hit'
+            flags:
+              hit: true
+              critical: >-
+                item.attack == 'melee' && size(participants.target) > 0
+                  && participants.target[0].conditions.autoCritMelee
+                  && !participants.target[0].combat.noCriticals
+          - when: steps.test.result == 'miss'
+            flags: { hit: false, critical: false }
+        else:
+          flags: { hit: false, critical: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options:
+                - id: hit
+                  flags: { hit: true }
+                - id: critical
+                  flags: { hit: true, critical: true }
+                - id: miss
+      - id: damage
+        kind: roll
+        when: >-
+          (flags.damageCount > 0 || flags.damageFlat != 0)
+            && (!has(item.attack) || flags.hit || (item.level == 0 && spellcasting.potentCantrip))
+        tags: [damage.spell]
+        parts:
+          - dice: dieOf(item.damage, flags.damageCount)
+            when: flags.damageCount > 0
+            tags: [{ formula: "'damage.' + flags.damageType" }]
+          - value: flags.damageFlat
+            when: flags.damageFlat != 0
+            tags: [{ formula: "'damage.' + flags.damageType" }]
+          - dice: dieOf(item.damage2, flags.damage2Count)
+            when: flags.damage2Count > 0
+            tags: [{ formula: "'damage.' + item.damage2Type" }]
+      - id: deal
+        kind: changes
+        when: has(steps.damage) && has(item.attack)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: 'flags.hit ? -max(0, part.total) : -floor(max(0, part.total) / 2)'
+            tags:
+              - damage
+              - attack
+              - spell
+              - magical
+              - { formula: item.attack }
+              - { formula: "flags.critical ? ['critical'] : []" }
+      - id: sculpt
+        kind: choice
+        each: target
+        tags: [sculpt]
+        when: has(item.save) && !has(item.attack) && item.school == 'evocation'
+        options: [{ id: affect }]
+        recommend: "'affect'"
+      - id: careful
+        kind: choice
+        each: target
+        when: >-
+          flags.careful && has(item.save) && !has(item.attack)
+            && (!has(steps.sculpt) || steps.sculpt.picked == 'affect')
+        options:
+          - id: affect
+          - id: spare
+            when: flags.spareCount < max(1, abilities.cha.mod)
+            flags: { spareCount: flags.spareCount + 1 }
+        recommend: "'affect'"
+      - id: saves
+        kind: action
+        each: target
+        when: >-
+          has(item.save) && !has(item.attack)
+            && (!has(steps.sculpt) || steps.sculpt.picked == 'affect')
+            && (!has(steps.careful) || steps.careful.picked == 'affect')
+        as: participant
+        use: saving-throw
+        params:
+          ability: item.save
+          dc: flags.dc
+          spell: true
+          disadvantage: flags.heightened && !has(steps.saves)
+      - id: burn
+        kind: changes
+        each: target
+        when: has(steps.damage) && has(steps.saves)
+        to: target
+        changes:
+          - type: adjust
+            when: steps.saves.result != 'success' || flags.halfOnSave
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: >-
+              steps.saves.result == 'success' ? -floor(max(0, part.total) / 2) : -max(0, part.total)
+            tags:
+              - damage
+              - spell
+              - magical
+              - { formula: "flags.halfOnSave ? 'save-half' : 'save-negates'" }
+              - { formula: "'save.' + item.save" }
+              - { formula: "steps.saves.result == 'success' ? 'save-success' : 'save-failure'" }
+      - id: condition
+        kind: changes
+        each: target
+        when: >-
+          has(item.condition) && !has(item.attack)
+            && (!has(item.save) || (has(steps.saves) && steps.saves.result == 'failure'))
+        to: target
+        changes:
+          - type: applyEffect
+            source: item.condition
+            state: { by: creature.type, magical: true }
+      - id: applyOn
+        kind: changes
+        each: target
+        when: >-
+          has(item.applied) && item.applied && !has(item.attack)
+            && (!has(item.save) || (has(steps.saves) && steps.saves.result == 'failure'))
+        to: target
+        changes:
+          - type: applyEffect
+            source: item.id
+            state:
+              castSlot: flags.effectiveSlot
+              castDc: flags.dc
+              caster: flags.me
+              option: >-
+                has(steps.spellOption)
+                  ? filterList(item.castOptions, item.id + '#' + x == steps.spellOption.picked)[0] : ''
+          - type: adjust
+            when: has(item.maxHp)
+            field: hp.current
+            by: >-
+              item.maxHp + max(0, flags.effectiveSlot - item.level)
+                * (has(item.upcastMaxHp) ? item.upcastMaxHp : 0)
+      - id: applySelf
+        kind: changes
+        when: >-
+          has(item.applied) && item.applied && !has(item.attack) && !has(item.save)
+            && size(participants.target) == 0
+        changes:
+          - type: applyEffect
+            source: item.id
+            state:
+              castSlot: flags.effectiveSlot
+              castDc: flags.dc
+              caster: flags.me
+              option: >-
+                has(steps.spellOptionSelf)
+                  ? filterList(item.castOptions, item.id + '#' + x == steps.spellOptionSelf.picked)[0]
+                  : ''
+          - type: adjust
+            when: has(item.maxHp)
+            field: hp.current
+            by: >-
+              item.maxHp + max(0, flags.effectiveSlot - item.level)
+                * (has(item.upcastMaxHp) ? item.upcastMaxHp : 0)
+      - id: onTarget
+        kind: changes
+        each: target
+        to: target
+        tags: [spell.target]
+      - id: heal
+        kind: roll
+        when: flags.healCount > 0 || flags.healFlat > 0
+        tags: [healing]
+        parts:
+          - dice: dieOf(item.heal, flags.healCount)
+            when: flags.healCount > 0
+          - value: flags.healFlat
+            when: flags.healFlat != 0
+      - id: restore
+        kind: changes
+        when: has(steps.heal)
+        to: target
+        changes:
+          - { type: adjust, field: hp.current, by: 'max(0, steps.heal.total)', tags: [healing] }
+      - id: unsap
+        kind: changes
+        when: >-
+          has(item.attack)
+            && countList(character.applied, x.active && x.source == @combat-effects.sapped) > 0
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @combat-effects.sapped' }
+      - id: result
+        kind: outcome
+        result: >-
+          has(item.attack) ? (flags.hit ? 'hit' : 'miss')
+            : has(item.save) ? 'save' : 'cast'
+        data:
+          slot: flags.slot
+          spellcastingClass: flags.cls
+          dc: flags.dc
+          save: "has(item.save) ? item.save : ''"
+          halfOnSave: flags.halfOnSave
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+          healing: 'has(steps.heal) ? max(0, steps.heal.total) : 0'
+          concentration: has(item.concentration) && item.concentration
+          critical: has(flags.critical) && flags.critical
+          metamagic: >-
+            (flags.careful ? ['careful'] : []) + (flags.distant ? ['distant'] : [])
+              + (flags.empowered ? ['empowered'] : []) + (flags.extended ? ['extended'] : [])
+              + (flags.heightened ? ['heightened'] : []) + (flags.quickened ? ['quickened'] : [])
+              + (flags.subtle ? ['subtle'] : []) + (flags.transmuted ? ['transmuted'] : [])
+              + (flags.twinned ? ['twinned'] : [])
+
+  - id: concentration-check
+    tags: [save]
+    params:
+      damage: { type: integer }
+    results: [success, failure]
+    steps:
+      - id: test
+        kind: action
+        use: d20-test
+        tags: [save, save.con, concentration]
+        params:
+          kind: "'save'"
+          ability: "'con'"
+          field: "'saves.con'"
+          dc: 'min(30, max(10, floor(params.damage / 2)))'
+      - id: lose
+        kind: changes
+        when: steps.test.result == 'failure'
+        changes:
+          - { type: set, field: concentration.active, value: false }
+      - id: result
+        kind: outcome
+        result: steps.test.result
+        data:
+          dc: min(30, max(10, floor(params.damage / 2)))
+          total: steps.test.data.total
+
+  - id: spend-spell-slot
+    results: [no-slot, spent]
+    available: false
+    params:
+      slot: { type: integer, optional: true }
+      slotType: { type: enum, values: [slot, pact], optional: true }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              pact: has(params.slotType) && params.slotType == 'pact'
+      - id: level
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              slot: 'flags.pact ? pactSlots.level : has(params.slot) ? params.slot : 0'
+      - id: left
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              remaining: >-
+                flags.pact ? pactSlots.max - pactSlots.used
+                  : (flags.slot >= 1 && flags.slot <= 9 ? fieldOf('spellSlots.level{slot}.max', flags.slot)
+                    - fieldOf('spellSlots.level{slot}.used', flags.slot) : 0)
+      - id: noSlot
+        kind: outcome
+        when: flags.remaining <= 0
+        result: "'no-slot'"
+        data:
+          slot: flags.slot
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: pactSlots.used, by: 1, when: flags.pact }
+          - type: adjust
+            when: '!flags.pact'
+            field:
+              {
+                formula: "'spellSlots.level' + ['1', '2', '3', '4', '5', '6', '7', '8', '9'][flags.slot - 1] + '.used'",
+              }
+            by: 1
+      - id: result
+        kind: outcome
+        result: "'spent'"
+        data:
+          slot: flags.slot

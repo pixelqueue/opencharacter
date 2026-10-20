@@ -1,0 +1,11 @@
+id: magic-items.ioun-stone-of-strength
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+effects:
+  - target: abilities.str.score
+    op: add
+    value: 'min(2, max(0, 20 - abilities.str.base))'
+    when: self.equipped && self.attuned

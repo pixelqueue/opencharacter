@@ -1,0 +1,38 @@
+id: spells.scorching-ray
+type: spell
+fields:
+  level: 2
+  school: evocation
+  classes: [classes.sorcerer, classes.wizard]
+  castingTime: action
+  rangeKind: ranged
+  range: 120
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: instantaneous
+actions:
+  - use: cast-spell
+  - id: ray
+    tags: [spell]
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          dice: 2d6
+          damageType: "'fire'"
+          attack: "'ranged'"
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage
+          critical: steps.effect.data.critical

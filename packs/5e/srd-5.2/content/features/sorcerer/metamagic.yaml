@@ -1,0 +1,8 @@
+id: features.sorcerer.metamagic
+type: feature
+effects:
+  - { target: sorcery.metamagic, op: set, value: sorcery.left > 0 || sorcery.free }
+choices:
+  - id: options
+    pick: 'self.level >= 17 ? 6 : self.level >= 10 ? 4 : 2'
+    from: { type: metamagic }

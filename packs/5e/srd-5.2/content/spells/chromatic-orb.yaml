@@ -1,0 +1,39 @@
+id: spells.chromatic-orb
+type: spell
+fields:
+  level: 1
+  school: evocation
+  classes: [classes.sorcerer, classes.wizard]
+  castingTime: action
+  rangeKind: ranged
+  range: 90
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: instantaneous
+actions:
+  - use: cast-spell
+  - id: orb
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+      targetAc: { type: integer, optional: true }
+      damageType: { type: enum, values: [acid, cold, fire, lightning, poison, thunder] }
+    participants:
+      target: { fields: target }
+    results: [hit, miss]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          attack: "'ranged'"
+          dice: 'dieOf(1d8, 3 + max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+          damageType: params.damageType
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage

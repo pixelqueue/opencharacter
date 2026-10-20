@@ -1,0 +1,10 @@
+id: grades.armor-paragon
+type: template
+tags: [grade]
+appliesTo: { type: armor, where: "!('natural' in item.tags)" }
+fields:
+  potency: 3
+  upgradeSlots: prior.upgradeSlots + 3
+  level: 'max(prior.level, 20)'
+  price: '(has(prior.price) ? prior.price : 0) + 700000'
+  resilient: 3

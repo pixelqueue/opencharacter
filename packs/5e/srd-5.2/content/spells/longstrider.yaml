@@ -1,0 +1,27 @@
+id: spells.longstrider
+type: spell
+fields:
+  level: 1
+  school: transmutation
+  classes:
+    - classes.bard
+    - classes.druid
+    - classes.ranger
+    - classes.wizard
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+  upcastTargets: true
+effects:
+  - target: combat.speed
+    op: add
+    value: 10
+    scope: applied
+    duration: { amount: 1, unit: hour }
+actions:
+  - use: cast-spell

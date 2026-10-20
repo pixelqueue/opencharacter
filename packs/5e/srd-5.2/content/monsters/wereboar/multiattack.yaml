@@ -1,0 +1,65 @@
+id: monsters.wereboar.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: javelin }, { id: tusk }]
+        recommend: "'javelin'"
+      - id: javelin1
+        kind: action
+        when: "steps.pick1.picked == 'javelin'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.wereboar.javelin)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: tusk1
+        kind: action
+        when: "steps.pick1.picked == 'tusk'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.wereboar.tusk)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: javelin }, { id: tusk }, { id: gore }]
+        recommend: "'javelin'"
+      - id: javelin2
+        kind: action
+        when: "steps.pick2.picked == 'javelin'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.wereboar.javelin)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: tusk2
+        kind: action
+        when: "steps.pick2.picked == 'tusk'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.wereboar.tusk)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: gore2
+        kind: action
+        when: "steps.pick2.picked == 'gore'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.wereboar.gore)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.javelin1) && steps.javelin1.result == 'hit' ? 1 : 0)
+              + (has(steps.tusk1) && steps.tusk1.result == 'hit' ? 1 : 0)
+              + (has(steps.javelin2) && steps.javelin2.result == 'hit' ? 1 : 0)
+              + (has(steps.tusk2) && steps.tusk2.result == 'hit' ? 1 : 0)
+              + (has(steps.gore2) && steps.gore2.result == 'hit' ? 1 : 0)

@@ -1,0 +1,24 @@
+id: ancestries.lashunta
+type: ancestry
+tags: [trait.lashunta, trait.humanoid]
+fields: { hp: 6, size: medium, speed: 25 }
+effects:
+  - { target: languages, op: grant, value: { item: languages.common } }
+  - { target: languages, op: grant, value: { item: languages.lashunta } }
+  - { target: senses, op: grant, value: { tag: sense.limited-telepathy } }
+  - { target: traits, op: grant, value: { tag: trait.lashunta } }
+  - { target: traits, op: grant, value: { tag: trait.humanoid } }
+choices:
+  - id: heritage
+    from: { type: heritage, where: 'item.versatile || item.ancestry == @ancestries.lashunta' }
+  - id: boosts
+    recommend: "'standard'"
+    from:
+      options:
+        - id: standard
+          effects: [{ target: attributes.cha.boosts, op: add, value: 1 }]
+          choices:
+            - id: free
+              from: { type: boost, where: "!(item.attribute in ['cha'])" }
+              eligible: "!(item.attribute == 'int' && @heritages.damaya-lashunta in heritages.held) && !(item.attribute == 'str' && @heritages.korasha-lashunta in heritages.held)"
+        - { id: alternate, choices: [{ id: free, pick: 2, from: { type: boost } }] }

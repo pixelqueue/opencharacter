@@ -1,0 +1,20 @@
+id: species.dragonborn
+type: species
+fields:
+  speed: 30
+  size: medium
+state:
+  breathWeaponUsed: { type: integer, default: 0, min: 0 }
+  flightUsed: { type: boolean, default: false }
+  flightActive: { type: boolean, default: false }
+effects:
+  - { target: creature.type, op: set, value: "'humanoid'" }
+grants:
+  - item: traits.draconic-ancestry
+  - item: traits.breath-weapon
+  - item: traits.damage-resistance
+  - item: traits.darkvision
+  - item: traits.draconic-flight
+choices:
+  - id: lineage
+    from: { type: lineage, where: 'item.species == @species.dragonborn' }

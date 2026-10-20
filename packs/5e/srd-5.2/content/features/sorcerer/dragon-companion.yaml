@@ -1,0 +1,20 @@
+id: features.sorcerer.dragon-companion
+type: feature
+effects:
+  - { target: spells.free, op: grant, value: { item: spells.summon-dragon } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id == @spells.summon-dragon && !self.dragonCompanionUsed
+        && (!has(params.slot) || params.slot == action.item.level)
+    value:
+      id: free
+      flags: { slot: action.item.level }
+      changes:
+        - { type: setState, entry: self, key: dragonCompanionUsed, value: true }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.dragonCompanionUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: dragonCompanionUsed, value: false }

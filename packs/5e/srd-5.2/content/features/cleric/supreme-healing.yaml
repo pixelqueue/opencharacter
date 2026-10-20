@@ -1,0 +1,9 @@
+id: features.cleric.supreme-healing
+type: feature
+effects:
+  - target: { rolls: [healing] }
+    op: rollModifier
+    value:
+      kind: minimumFace
+      value: 'has(roll.item.heal) ? maxOf(dieOf(roll.item.heal)) : 8'
+    when: roll.item.type == 'spell' || roll.item.id == @features.cleric.channel-divinity

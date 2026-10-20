@@ -1,0 +1,18 @@
+id: metamagic.quickened-spell
+type: metamagic
+effects:
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      !flags.metamagicDone && !flags.quickened && flags.metamagicCount < sorcery.metamagicPerSpell
+        && (!has(action.item.castingTime) || action.item.castingTime == 'action')
+        && (sorcery.free || sorcery.left >= 2)
+    value:
+      id: quickened
+      flags: { quickened: true, metamagicCount: flags.metamagicCount + 1 }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 2

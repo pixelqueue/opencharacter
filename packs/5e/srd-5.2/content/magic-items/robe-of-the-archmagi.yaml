@@ -1,0 +1,20 @@
+id: magic-items.robe-of-the-archmagi
+type: magicItem
+tags: [attunement.sorcerer, attunement.warlock, attunement.wizard]
+fields:
+  category: wondrous-item
+  rarity: legendary
+  requiresAttunement: true
+effects:
+  - target: combat.ac
+    op: set
+    value: 15 + abilities.dex.mod
+    when: "self.equipped && self.attuned && !('armor' in equipment.tags)"
+  - target:
+      fields:
+        where: >-
+          item.id in [@spellcasting.bard.dc, @spellcasting.bard.attack, @spellcasting.cleric.dc, @spellcasting.cleric.attack, @spellcasting.druid.dc, @spellcasting.druid.attack, @spellcasting.paladin.dc, @spellcasting.paladin.attack, @spellcasting.ranger.dc, @spellcasting.ranger.attack, @spellcasting.sorcerer.dc, @spellcasting.sorcerer.attack, @spellcasting.warlock.dc, @spellcasting.warlock.attack, @spellcasting.wizard.dc, @spellcasting.wizard.attack, @spellcasting.species.dc, @spellcasting.species.attack, @spellcasting.initiateCleric.dc, @spellcasting.initiateCleric.attack, @spellcasting.initiateDruid.dc, @spellcasting.initiateDruid.attack, @spellcasting.initiateWizard.dc, @spellcasting.initiateWizard.attack, @spellcasting.monster.dc, @spellcasting.monster.attack]
+    op: add
+    value: 2
+    when: self.equipped && self.attuned
+  - { target: items.magicSaveAdvantage, op: set, value: true, when: self.equipped && self.attuned }

@@ -1,0 +1,59 @@
+specVersion: 0.1.0
+id: example-orc-sf-kade
+packs:
+  - id: orc-sf-2e
+    version: 0.1.1
+values:
+  orc-sf-2e:hp.current: 24
+features:
+  - id: ancestry
+    item: orc-sf-2e:ancestries.vesk
+    choices:
+      heritage:
+        - option: orc-sf-2e:heritages.warblood-vesk
+          choices:
+            orc-sf-2e:feats.ancestry.brutal-anatomy/attack:
+              - option: orc-sf-2e:features.ancestry.vesk-claw
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-sf-2e:boosts.dex
+  - id: background
+    item: orc-sf-2e:backgrounds.trooper
+    choices:
+      boost:
+        - option: orc-sf-2e:boosts.con
+      free-boost:
+        - option: orc-sf-2e:boosts.str
+  - id: class
+    item: orc-sf-2e:classes.soldier
+    choices:
+      fighting-style:
+        - option: orc-sf-2e:features.soldier.style.bombard
+      skills:
+        - option: skill.survival
+        - option: skill.piloting
+        - option: skill.medicine
+      class-feat-1:
+        - option: orc-sf-2e:feats.soldier.pin-down
+inventory:
+  - id: scattergun
+    item: orc-sf-2e:weapons.scattergun
+    equipped: true
+  - id: armor
+    item: orc-sf-2e:armor.defiance-series
+    equipped: true
+  - id: rounds
+    item: orc-sf-2e:ammunition.projectile-ammo
+    quantity: 20
+choices:
+  free-boosts:
+    - option: orc-sf-2e:boosts.str
+    - option: orc-sf-2e:boosts.dex
+    - option: orc-sf-2e:boosts.con
+    - option: orc-sf-2e:boosts.wis
+  ancestry-feat-1:
+    - option: orc-sf-2e:feats.ancestry.vesk-weapon-familiarity
+  languages:
+    - option: orc-sf-2e:languages.kasatha

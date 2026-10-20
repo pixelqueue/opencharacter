@@ -1,0 +1,43 @@
+id: features.fighter.second-wind
+type: feature
+effects:
+  - id: uses
+    target: secondWind.uses
+    op: set
+    value: 'self.level >= 10 ? 4 : self.level >= 4 ? 3 : 2'
+  - id: short-rest
+    target: { steps: [rest.short] }
+    op: changes
+    when: self.secondWindSpent > 0
+    value:
+      changes:
+        - { type: adjustState, entry: self, key: secondWindSpent, by: -1 }
+  - id: long-rest
+    target: { steps: [rest.long] }
+    op: changes
+    when: self.secondWindSpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: secondWindSpent, value: 0 }
+actions:
+  - id: second-wind
+    tags: [healing]
+    results: [healed]
+    available: self.secondWindSpent < secondWind.uses
+    steps:
+      - id: heal
+        kind: roll
+        tags: [healing]
+        parts:
+          - dice: 1d10
+          - value: self.level
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: steps.heal.total, tags: [healing] }
+          - { type: adjustState, entry: self, key: secondWindSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: steps.heal.total

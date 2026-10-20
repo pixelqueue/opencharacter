@@ -1,0 +1,8 @@
+id: conditions.incapacitated
+type: condition
+effects:
+  - { target: conditions.incapacitated, op: set, value: true, scope: applied }
+  - target: { rolls: [initiative] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied

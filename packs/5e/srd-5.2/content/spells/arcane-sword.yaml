@@ -1,0 +1,44 @@
+id: spells.arcane-sword
+type: spell
+fields:
+  level: 7
+  school: evocation
+  classes: [classes.bard, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 90
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+  attack: melee
+  damageType: force
+  damage: 4d12
+  damageAddsMod: true
+actions:
+  - use: cast-spell
+  - id: strike
+    tags: [spell]
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { fields: target }
+    results: [hit, miss]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          attack: "'melee'"
+          dice: 4d12
+          damageType: "'force'"
+          addMod: true
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage

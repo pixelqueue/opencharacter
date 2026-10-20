@@ -1,0 +1,18 @@
+id: backgrounds.corporate-agent
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.society }
+    when: "!('skill.society' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.corporate }
+    when: "!('skill.lore.corporate' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.skill.management-material }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['int', 'cha']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

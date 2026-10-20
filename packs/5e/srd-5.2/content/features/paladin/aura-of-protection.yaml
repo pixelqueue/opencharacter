@@ -1,0 +1,8 @@
+id: features.paladin.aura-of-protection
+type: feature
+effects:
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: max(1, abilities.cha.mod)
+    when: '!conditions.incapacitated'
+  - { target: paladin.auraRange, op: atLeast, value: 10 }

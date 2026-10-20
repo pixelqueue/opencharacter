@@ -1,0 +1,77 @@
+id: monsters.spirit-naga.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: bite }, { id: necrotic-ray }]
+        recommend: "'bite'"
+      - id: bite1
+        kind: action
+        when: "steps.pick1.picked == 'bite'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.spirit-naga.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: necroticRay1
+        kind: action
+        when: "steps.pick1.picked == 'necrotic-ray'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.spirit-naga.necrotic-ray)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: bite }, { id: necrotic-ray }]
+        recommend: "'bite'"
+      - id: bite2
+        kind: action
+        when: "steps.pick2.picked == 'bite'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.spirit-naga.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: necroticRay2
+        kind: action
+        when: "steps.pick2.picked == 'necrotic-ray'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.spirit-naga.necrotic-ray)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pick3
+        kind: choice
+        options: [{ id: bite }, { id: necrotic-ray }]
+        recommend: "'bite'"
+      - id: bite3
+        kind: action
+        when: "steps.pick3.picked == 'bite'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.spirit-naga.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: necroticRay3
+        kind: action
+        when: "steps.pick3.picked == 'necrotic-ray'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.spirit-naga.necrotic-ray)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.bite1) && steps.bite1.result == 'hit' ? 1 : 0)
+              + (has(steps.necroticRay1) && steps.necroticRay1.result == 'hit' ? 1 : 0)
+              + (has(steps.bite2) && steps.bite2.result == 'hit' ? 1 : 0)
+              + (has(steps.necroticRay2) && steps.necroticRay2.result == 'hit' ? 1 : 0)
+              + (has(steps.bite3) && steps.bite3.result == 'hit' ? 1 : 0)
+              + (has(steps.necroticRay3) && steps.necroticRay3.result == 'hit' ? 1 : 0)

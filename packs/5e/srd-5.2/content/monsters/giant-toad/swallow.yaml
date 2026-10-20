@@ -1,0 +1,34 @@
+id: monsters.giant-toad.swallow
+type: monsterAction
+fields:
+  kind: action
+  order: 4
+  maxSize: medium
+actions:
+  - id: swallow
+    tags: [monster-effect]
+    participants:
+      target: { max: 1, fields: target }
+    results: [swallowed, too-big]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              sizeOk: >-
+                size(participants.target) == 0
+                  || indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                    participants.target[0].creature.size) <= 2
+      - id: swallow
+        kind: changes
+        when: flags.sizeOk && size(participants.target) > 0
+        to: target
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.grappled' }
+          - { type: applyEffect, source: "'conditions.blinded'", state: { by: creature.type } }
+          - { type: applyEffect, source: "'conditions.restrained'", state: { by: creature.type } }
+      - id: result
+        kind: outcome
+        result: "flags.sizeOk ? 'swallowed' : 'too-big'"

@@ -1,0 +1,57 @@
+status: finished
+outcome:
+  result: rested
+proposedChanges:
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.2:hp.current
+      value: 39
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.2:deathSaves.successes
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.2:deathSaves.failures
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: adjust
+      field: 5e-srd-5.2:conditions.exhaustion
+      by: -1
+  - to: self
+    step: rest
+    change:
+      type: setState
+      key: hitDiceSpent
+      copies:
+        type: 5e-srd-5.2:class
+        where: self.hitDiceSpent > 0
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: setState
+      entry: class
+      key: secondWindSpent
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: setState
+      entry: class
+      key: actionSurgeSpent
+      value: 0
+  - to: self
+    step: rest
+    change:
+      type: set
+      field: 5e-srd-5.2:heroicInspiration
+      value: true

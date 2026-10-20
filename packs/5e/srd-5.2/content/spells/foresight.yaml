@@ -1,0 +1,31 @@
+id: spells.foresight
+type: spell
+fields:
+  level: 9
+  school: divination
+  classes:
+    - classes.bard
+    - classes.druid
+    - classes.warlock
+    - classes.wizard
+  castingTime: 1-minute
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 8
+  applied: true
+effects:
+  - target: { rolls: [d20-test] }
+    op: rollModifier
+    value: { kind: advantage }
+    scope: applied
+    duration: { amount: 8, unit: hour }
+  - target: combat.attackersDisadvantage
+    op: set
+    value: true
+    scope: applied
+    duration: { amount: 8, unit: hour }
+actions:
+  - use: cast-spell

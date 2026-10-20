@@ -1,0 +1,18 @@
+id: backgrounds.cook
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.survival }
+    when: "!('skill.survival' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.cooking }
+    when: "!('skill.lore.cooking' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.skill.seasoned }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['con', 'int']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

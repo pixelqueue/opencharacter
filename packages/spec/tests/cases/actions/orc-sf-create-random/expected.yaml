@@ -1,0 +1,180 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: ancestry
+    change:
+      type: addItem
+      entry:
+        id: ancestry
+        item: orc-sf-2e:ancestries.human
+  - to: self
+    step: heritage
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - heritage
+      option: orc-sf-2e:heritages.borai
+  - to: self
+    step: background
+    change:
+      type: addItem
+      entry:
+        id: background
+        item: orc-sf-2e:backgrounds.comedian
+  - to: self
+    step: class
+    change:
+      type: addItem
+      entry:
+        id: class
+        item: orc-sf-2e:classes.soldier
+  - to: self
+    step: ancestryPicks
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - boosts
+      option: orc-sf-2e:boosts.con
+  - to: self
+    step: ancestryPicks
+    change:
+      type: choose
+      path:
+        entry: ancestry
+        choice:
+          - boosts
+      option: orc-sf-2e:boosts.dex
+  - to: self
+    step: backgroundPicks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - boost
+      option: orc-sf-2e:boosts.wis
+  - to: self
+    step: backgroundPicks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - free-boost
+      option: orc-sf-2e:boosts.con
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - fighting-style
+      option: orc-sf-2e:features.soldier.style.armor-storm
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.computers
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.diplomacy
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.acrobatics
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - class-feat-1
+      option: orc-sf-2e:feats.soldier.pin-down
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-sf-2e:boosts.con
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-sf-2e:boosts.dex
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-sf-2e:boosts.wis
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-sf-2e:boosts.str
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - ancestry-feat-1
+      option: orc-sf-2e:feats.ancestry.borai-lore
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - languages
+      option: orc-sf-2e:languages.kasatha
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - extra-training
+      option: skill.medicine
+  - to: self
+    step: finish
+    change:
+      type: set
+      field: orc-sf-2e:hp.current
+      value: 22
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

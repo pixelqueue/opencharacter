@@ -1,0 +1,77 @@
+id: monsters.djinni.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 4
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: storm-blade }, { id: storm-bolt }]
+        recommend: "'storm-blade'"
+      - id: stormBlade1
+        kind: action
+        when: "steps.pick1.picked == 'storm-blade'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.djinni.storm-blade)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: stormBolt1
+        kind: action
+        when: "steps.pick1.picked == 'storm-bolt'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.djinni.storm-bolt)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: storm-blade }, { id: storm-bolt }]
+        recommend: "'storm-blade'"
+      - id: stormBlade2
+        kind: action
+        when: "steps.pick2.picked == 'storm-blade'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.djinni.storm-blade)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: stormBolt2
+        kind: action
+        when: "steps.pick2.picked == 'storm-bolt'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.djinni.storm-bolt)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pick3
+        kind: choice
+        options: [{ id: storm-blade }, { id: storm-bolt }]
+        recommend: "'storm-blade'"
+      - id: stormBlade3
+        kind: action
+        when: "steps.pick3.picked == 'storm-blade'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.djinni.storm-blade)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: stormBolt3
+        kind: action
+        when: "steps.pick3.picked == 'storm-bolt'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.djinni.storm-bolt)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.stormBlade1) && steps.stormBlade1.result == 'hit' ? 1 : 0)
+              + (has(steps.stormBolt1) && steps.stormBolt1.result == 'hit' ? 1 : 0)
+              + (has(steps.stormBlade2) && steps.stormBlade2.result == 'hit' ? 1 : 0)
+              + (has(steps.stormBolt2) && steps.stormBolt2.result == 'hit' ? 1 : 0)
+              + (has(steps.stormBlade3) && steps.stormBlade3.result == 'hit' ? 1 : 0)
+              + (has(steps.stormBolt3) && steps.stormBolt3.result == 'hit' ? 1 : 0)

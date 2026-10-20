@@ -1,0 +1,22 @@
+description: '5E 2024 Vex: a target this attacker vexed gives Advantage, and the attack clears the mark'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: 5e-srd-5.2:weapon-attack
+    entry: weapons-flail-1
+  participants:
+    target:
+      - id: goblin
+        values:
+          combat.ac: 15
+          creature.size: small
+          creature.type: humanoid
+          mastery.vexedBy:
+            - test
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto

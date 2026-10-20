@@ -1,0 +1,19 @@
+id: features.ranger.spellcasting
+type: feature
+effects:
+  - { target: spellcasting.ranger.mod, op: set, value: abilities.wis.mod }
+  - { target: spellcasting.ranger.dc, op: set, value: 8 + proficiency.bonus + abilities.wis.mod }
+  - { target: spellcasting.ranger.attack, op: set, value: proficiency.bonus + abilities.wis.mod }
+  - { target: spellcasting.casterLevel, op: add, value: ceil(self.level / 2) }
+choices:
+  - id: spells
+    pick: '[2, 3, 4, 5, 6, 6, 7, 7, 9, 9, 10, 10, 11, 11, 12, 12, 14, 14, 15, 15][self.level - 1]'
+    from: { type: spell, where: 'item.level >= 1 && @classes.ranger in item.classes' }
+    eligible: >-
+      item.level <= min(5, ceil(self.level / 4))
+        && (!(item.id in spells.ranger) || item.id in choice.picks)
+    recommend: >-
+      !(@spells.cure-wounds in choice.picks) ? @spells.cure-wounds
+        : !(@spells.ensnaring-strike in choice.picks) ? @spells.ensnaring-strike : ''
+    effects:
+      - { target: spells.ranger, op: grant, value: { formula: pick.id } }

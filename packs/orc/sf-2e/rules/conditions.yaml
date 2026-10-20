@@ -1,0 +1,213 @@
+contentTypes:
+  condition:
+    state:
+      value: { type: integer, default: 1, min: 0 }
+      by: { type: string, default: '' }
+      damage: { type: dice, default: 1d6 }
+      damageType:
+        type: enum
+        values:
+          [
+            acid,
+            bleed,
+            bludgeoning,
+            cold,
+            electricity,
+            fire,
+            mental,
+            piercing,
+            poison,
+            slashing,
+            sonic,
+            spirit,
+            vitality,
+            void,
+          ]
+        default: fire
+    reapply: { state: { value: highest } }
+
+fields:
+  conditions.drainedOffset: { type: integer, formula: 0, min: 0 }
+  conditions.offGuard: { type: boolean, formula: false }
+  conditions.suppressed: { type: boolean, formula: false }
+  conditions.concealed: { type: boolean, formula: false }
+  conditions.hidden: { type: boolean, formula: false }
+  conditions.dazzled: { type: boolean, formula: false }
+  conditions.quickened: { type: boolean, formula: false }
+  conditions.encumbered: { type: boolean, formula: bulk.carried > bulk.encumbered }
+  conditions.frightened: { type: integer, formula: 0, min: 0 }
+  conditions.dying: { type: integer, formula: 0, min: 0 }
+  conditions.wounded: { type: integer, formula: 0, min: 0 }
+  conditions.doomed: { type: integer, formula: 0, min: 0 }
+  conditions.slowed: { type: integer, formula: 0, min: 0 }
+  conditions.stunned: { type: integer, formula: 0, min: 0 }
+  fear.reduction: { type: integer, formula: 0, min: 0 }
+  dying.base: { type: integer, formula: 4 }
+  dying.max: { type: integer, formula: dying.base - conditions.doomed }
+  dying.recoveryDc: { type: integer, formula: 10 + conditions.dying }
+  turn.actionsPerTurn:
+    type: integer
+    formula: >-
+      max(0, 3 + (conditions.quickened ? 1 : 0)
+        - max(conditions.slowed, min(conditions.stunned, 3 + (conditions.quickened ? 1 : 0))))
+
+constraints:
+  - id: alive
+    check: conditions.dying < dying.max
+    data: { dying: conditions.dying, max: dying.max }
+
+effects:
+  - id: encumbered-clumsy
+    target: { fields: { where: "'attr.dex' in item.tags" } }
+    op: add
+    value: -1
+    stackKey: status-penalty
+    when: conditions.encumbered
+  - { id: encumbered-speed, target: speed.land, op: add, value: -10, when: conditions.encumbered }
+
+followUps:
+  - id: knocked-out
+    becomes: hp.current == 0 && hp.max > 0
+    required: true
+    when: conditions.dying == 0
+    action: knocked-out
+  - id: hurt-while-dying
+    on: { field: hp.current, tags: [damage], once: true }
+    required: true
+    when: conditions.dying > 0 && change.taken < 0
+    changes:
+      - type: adjustState
+        applied: { where: 'item.id == @conditions.dying', limit: 1 }
+        key: value
+        by: 1
+  - id: revived
+    on: { field: hp.current }
+    required: true
+    when: conditions.dying > 0 && change.by > 0 && hp.current > 0
+    action: lose-dying
+
+actions:
+  - id: knocked-out
+    tags: [condition, dying]
+    params:
+      critical: { type: boolean, default: false }
+    steps:
+      - id: fall
+        kind: changes
+        changes:
+          - type: applyEffect
+            source: "'conditions.dying'"
+            state: { value: '(params.critical ? 2 : 1) + conditions.wounded' }
+          - { type: applyEffect, source: "'conditions.unconscious'" }
+
+  - id: lose-dying
+    tags: [condition, dying]
+    available: conditions.dying > 0
+    steps:
+      - id: recover
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.dying' }
+          - type: adjustState
+            when: conditions.wounded > 0
+            applied: { where: 'item.id == @conditions.wounded', limit: 1 }
+            key: value
+            by: 1
+          - type: applyEffect
+            when: conditions.wounded == 0
+            source: "'conditions.wounded'"
+            state: { value: 1 }
+          - type: removeEffect
+            when: hp.current > 0
+            applied: { where: 'item.id == @conditions.unconscious' }
+
+  - id: recovery-check
+    tags: [condition, dying]
+    available: conditions.dying > 0
+    results: [recovered, dying, dead]
+    steps:
+      - id: check
+        kind: action
+        use: flat-check
+        params: { dc: dying.recoveryDc }
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dying: >-
+                conditions.dying + (steps.check.result == 'critical-success' ? -2
+                  : steps.check.result == 'success' ? -1 : steps.check.result == 'failure' ? 1 : 2)
+      - id: recovered
+        kind: action
+        when: flags.dying <= 0
+        use: lose-dying
+      - id: update
+        kind: changes
+        when: flags.dying > 0
+        changes:
+          - type: setState
+            applied: { where: 'item.id == @conditions.dying', limit: 1 }
+            key: value
+            value: flags.dying
+      - id: result
+        kind: outcome
+        result: "flags.dying <= 0 ? 'recovered' : flags.dying >= dying.max ? 'dead' : 'dying'"
+        data: { dying: 'max(0, flags.dying)' }
+
+  - id: start-turn
+    tags: [turn]
+    results: [started]
+    steps:
+      - id: reset
+        kind: changes
+        changes:
+          - { type: set, field: turn.attacks, value: 0 }
+          - { type: set, field: turn.flourishes, value: 0 }
+          - { type: set, field: shield.raised, value: false }
+          - { type: set, field: parry.active, value: false }
+          - { type: set, field: parry.weapon, value: false }
+          - type: adjustState
+            when: conditions.stunned > 0
+            applied: { where: 'item.id == @conditions.stunned' }
+            key: value
+            by: '-min(conditions.stunned, 3 + (conditions.quickened ? 1 : 0))'
+          - type: removeEffect
+            when: 'conditions.stunned > 0 && conditions.stunned <= 3 + (conditions.quickened ? 1 : 0)'
+            applied: { where: 'item.id == @conditions.stunned' }
+      - id: content
+        kind: changes
+        tags: [turn.start]
+      - id: recovery
+        kind: action
+        when: conditions.dying > 0
+        use: recovery-check
+      - id: result
+        kind: outcome
+        result: "'started'"
+        data: { actions: turn.actionsPerTurn }
+
+  - id: end-turn
+    tags: [turn]
+    steps:
+      - id: fear
+        kind: changes
+        changes:
+          - type: adjustState
+            applied: { where: 'item.id == @conditions.frightened' }
+            key: value
+            by: -1
+          - type: removeEffect
+            applied:
+              where: 'item.id == @conditions.frightened && self.value <= fear.reduction'
+      - id: feint
+        kind: changes
+        when: feint.turns > 0
+        changes:
+          - { type: adjust, field: feint.turns, by: -1 }
+          - { type: set, field: feint.target, value: "''", when: feint.turns <= 1 }
+          - { type: set, field: feint.next, value: false, when: feint.turns <= 1 }
+      - id: content
+        kind: changes
+        tags: [turn.end]

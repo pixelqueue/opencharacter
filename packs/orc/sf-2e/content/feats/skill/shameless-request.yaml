@@ -1,0 +1,12 @@
+id: feats.skill.shameless-request
+type: feat
+fields: { level: 7, category: skill, skills: [skill.diplomacy] }
+
+prerequisites:
+  - id: master
+    when: skills.diplomacy.rank >= 3
+effects:
+  - target: { rolls: [skill-action.request], tally: critFailToFail }
+    op: add
+    value: 1
+    when: 'true'

@@ -29,6 +29,7 @@ describe('pnpm build:packs on the repository packs', () => {
     expect(reporter.errors).toEqual([]);
     expect(built.map((b) => b.id)).toEqual([
       '5e-srd-5.1',
+      '5e-srd-5.2',
       'awn-core',
       'cwn-srd',
       'fate-core',
@@ -38,6 +39,7 @@ describe('pnpm build:packs on the repository packs', () => {
       'mork-borg-core',
       'mothership-1e',
       'orc-2e',
+      'orc-sf-2e',
       'swn-revised',
       'wwn-srd',
     ]);
@@ -89,6 +91,9 @@ describe('pnpm build:packs on the repository packs', () => {
     for (const file of [
       '5e-tamsin.yaml',
       '5e-goblin.yaml',
+      '5e-52-brenna.yaml',
+      '5e-52-ithilwen.yaml',
+      '5e-52-dagna.yaml',
       'mothership-okafor.yaml',
       'godbound-tavian.yaml',
       'godbound-ysolde.yaml',
@@ -116,6 +121,8 @@ describe('pnpm build:packs on the repository packs', () => {
       'swn-revised-tamar.yaml',
       'awn-core-sable.yaml',
       'awn-core-hollis.yaml',
+      'orc-sf-kade.yaml',
+      'orc-sf-ilia.yaml',
     ]) {
       const character = parseYaml(readFileSync(join(root, 'examples', 'characters', file), 'utf8'));
       const sheet = (r: Ruleset) => computeSheet(r, character).values;

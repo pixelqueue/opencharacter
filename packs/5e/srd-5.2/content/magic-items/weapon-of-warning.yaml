@@ -1,0 +1,10 @@
+id: magic-items.weapon-of-warning
+type: template
+tags: [magic]
+appliesTo: { type: weapon }
+fields: { rarity: uncommon, requiresAttunement: true }
+effects:
+  - target: { rolls: [initiative] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.attuned

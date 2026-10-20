@@ -1,0 +1,589 @@
+actions:
+  - id: trip
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+      attack: { type: integer, optional: true, min: 1, max: 3 }
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.reflex.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags: { map: '5 * min(2, has(params.attack) ? params.attack - 1 : turn.attacks)' }
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.trip]
+        situational: { penalty: 'situational.penalty + flags.map' }
+        params:
+          check: "'skills.athletics.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.reflex.dc)
+              ? participants.target[0].saves.reflex.dc : has(params.dc) ? params.dc : null
+      - id: damage
+        kind: roll
+        when: steps.check.result == 'critical-success'
+        tags: [damage, damage.bludgeoning]
+        parts:
+          - { dice: 1d6, tags: [damage.bludgeoning] }
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.attacks, by: 1, tags: [attack-count] }
+      - id: topple
+        kind: changes
+        when: "steps.check.result in ['success', 'critical-success']"
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.prone'" }
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage]
+      - id: fall
+        kind: changes
+        when: steps.check.result == 'critical-failure'
+        changes:
+          - { type: applyEffect, source: "'conditions.prone'" }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          map: flags.map
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+
+  - id: shove
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+      attack: { type: integer, optional: true, min: 1, max: 3 }
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.fortitude.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags: { map: '5 * min(2, has(params.attack) ? params.attack - 1 : turn.attacks)' }
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.shove]
+        situational: { penalty: 'situational.penalty + flags.map' }
+        params:
+          check: "'skills.athletics.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.fortitude.dc)
+              ? participants.target[0].saves.fortitude.dc : has(params.dc) ? params.dc : null
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.attacks, by: 1, tags: [attack-count] }
+      - id: fall
+        kind: changes
+        when: steps.check.result == 'critical-failure'
+        changes:
+          - { type: applyEffect, source: "'conditions.prone'" }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          map: flags.map
+          distance: "steps.check.result == 'critical-success' ? 10 : steps.check.result == 'success' ? 5 : 0"
+
+  - id: grapple
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+      attack: { type: integer, optional: true, min: 1, max: 3 }
+      holding: { type: boolean, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.fortitude.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              map: '5 * min(2, has(params.attack) ? params.attack - 1 : turn.attacks)'
+              me: character.id
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.grapple]
+        situational: { penalty: 'situational.penalty + flags.map' }
+        params:
+          check: "'skills.athletics.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.fortitude.dc)
+              ? participants.target[0].saves.fortitude.dc : has(params.dc) ? params.dc : null
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.attacks, by: 1, tags: [attack-count] }
+      - id: hold
+        kind: changes
+        when: "steps.check.result in ['success', 'critical-success']"
+        to: target
+        changes:
+          - type: applyEffect
+            when: steps.check.result == 'success'
+            source: "'conditions.grabbed'"
+            state: { by: flags.me }
+          - type: applyEffect
+            when: steps.check.result == 'critical-success'
+            source: "'conditions.restrained'"
+            state: { by: flags.me }
+      - id: release
+        kind: changes
+        when: >-
+          has(params.holding) && params.holding
+            && steps.check.result in ['failure', 'critical-failure']
+        to: target
+        changes:
+          - type: removeEffect
+            applied:
+              where: >-
+                item.id in [@conditions.grabbed, @conditions.restrained] && self.by == flags.me
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc, map: flags.map }
+
+  - id: disarm
+    tags: [skill-action]
+    available: skills.athletics.rank >= 1
+    params:
+      dc: { type: integer, optional: true }
+      attack: { type: integer, optional: true, min: 1, max: 3 }
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.reflex.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags: { map: '5 * min(2, has(params.attack) ? params.attack - 1 : turn.attacks)' }
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.disarm]
+        situational: { penalty: 'situational.penalty + flags.map' }
+        params:
+          check: "'skills.athletics.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.reflex.dc)
+              ? participants.target[0].saves.reflex.dc : has(params.dc) ? params.dc : null
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.attacks, by: 1, tags: [attack-count] }
+      - id: stumble
+        kind: changes
+        when: steps.check.result == 'critical-failure'
+        changes:
+          - { type: applyEffect, source: "'conditions.off-guard'" }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc, map: flags.map }
+
+  - id: reposition
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+      attack: { type: integer, optional: true, min: 1, max: 3 }
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.fortitude.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags: { map: '5 * min(2, has(params.attack) ? params.attack - 1 : turn.attacks)' }
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.reposition]
+        situational: { penalty: 'situational.penalty + flags.map' }
+        params:
+          check: "'skills.athletics.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.fortitude.dc)
+              ? participants.target[0].saves.fortitude.dc : has(params.dc) ? params.dc : null
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.attacks, by: 1, tags: [attack-count] }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          map: flags.map
+          distance: "steps.check.result == 'critical-success' ? 10 : steps.check.result == 'success' ? 5 : 0"
+
+  - id: force-open
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+      attack: { type: integer, optional: true, min: 1, max: 3 }
+      crowbar: { type: boolean, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              map: '5 * min(2, has(params.attack) ? params.attack - 1 : turn.attacks)'
+              crowbar: has(params.crowbar) && params.crowbar
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.force-open]
+        situational: { penalty: 'situational.penalty + flags.map + (flags.crowbar ? 0 : 2)' }
+        params: { check: "'skills.athletics.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.attacks, by: 1, tags: [attack-count] }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          map: flags.map
+          crowbar: flags.crowbar
+
+  - id: climb
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.climb]
+        params: { check: "'skills.athletics.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: move
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              base: '5 + (speed.land >= 40 ? 5 * floor((speed.land - 20) / 20) : 0)'
+              quick: '@feats.skill.quick-climb in feats.held'
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          distance: >-
+            steps.check.result == 'critical-success'
+              ? (flags.quick ? min(speed.land, flags.base + 15) : flags.base + 5)
+              : steps.check.result == 'success'
+                ? (flags.quick ? min(speed.land, flags.base + 5) : flags.base) : 0
+
+  - id: swim
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.swim]
+        params: { check: "'skills.athletics.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: move
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              base: '10 + (speed.land >= 40 ? 5 * floor((speed.land - 20) / 20) : 0)'
+              quick: '@feats.skill.quick-swim in feats.held'
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          distance: >-
+            steps.check.result == 'critical-success'
+              ? (flags.quick ? min(speed.land, flags.base + 15) : flags.base + 5)
+              : steps.check.result == 'success'
+                ? (flags.quick ? min(speed.land, flags.base + 5) : flags.base) : 0
+
+  - id: high-jump
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.high-jump]
+        params: { check: "'skills.athletics.mod'", dc: 'has(params.dc) ? params.dc : 30' }
+      - id: fall
+        kind: changes
+        when: steps.check.result == 'critical-failure'
+        changes:
+          - { type: applyEffect, source: "'conditions.prone'" }
+      - id: jump
+        kind: branch
+        cases:
+          - when: >-
+              steps.check.result in ['success', 'critical-success']
+                && @feats.skill.cloud-jump in feats.held
+            flags:
+              vertical: 'min(speed.land, 5 * floor(steps.check.data.total / 5))'
+              horizontal: 'min(speed.land, 5 * floor(steps.check.data.total / 5))'
+          - when: steps.check.result == 'critical-success'
+            flags: { vertical: 8, horizontal: 10 }
+          - when: steps.check.result == 'success'
+            flags: { vertical: 5, horizontal: 5 }
+          - when: true
+            flags: { vertical: 0, horizontal: 0 }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          vertical: flags.vertical
+          horizontal: flags.horizontal
+          actions: '@feats.skill.quick-jump in feats.held ? 1 : 2'
+
+  - id: long-jump
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+      extraActions: { type: integer, optional: true, min: 0, max: 2 }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.long-jump]
+        params: { check: "'skills.athletics.mod'", dc: 'has(params.dc) ? params.dc : 15' }
+      - id: fall
+        kind: changes
+        when: steps.check.result == 'critical-failure'
+        changes:
+          - { type: applyEffect, source: "'conditions.prone'" }
+      - id: jump
+        kind: branch
+        cases:
+          - when: '@feats.skill.cloud-jump in feats.held'
+            flags:
+              distance: >-
+                min(speed.land * (1 + (has(params.extraActions) ? params.extraActions : 0)),
+                  15 * floor(steps.check.data.total / 5))
+          - when: true
+            flags: { distance: 'min(speed.land, 5 * floor(steps.check.data.total / 5))' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          distance: "steps.check.result in ['success', 'critical-success'] ? flags.distance : 0"
+          actions: '@feats.skill.quick-jump in feats.held ? 1 : 2'
+
+  - id: balance
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.balance]
+        params: { check: "'skills.acrobatics.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: tumble-through
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.reflex.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.tumble-through]
+        params:
+          check: "'skills.acrobatics.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.reflex.dc)
+              ? participants.target[0].saves.reflex.dc : has(params.dc) ? params.dc : null
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: squeeze
+    tags: [exploration-action]
+    available: skills.acrobatics.rank >= 1
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.squeeze]
+        params: { check: "'skills.acrobatics.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          feetPerMinute: "steps.check.result == 'critical-success' ? 10 : steps.check.result == 'success' ? 5 : 0"
+
+  - id: maneuver-in-flight
+    tags: [skill-action]
+    available: skills.acrobatics.rank >= 1 && speed.fly > 0
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.maneuver-in-flight]
+        params: { check: "'skills.acrobatics.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+
+  - id: escape
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+      attack: { type: integer, optional: true, min: 1, max: 3 }
+    participants:
+      grappler:
+        max: 1
+        fields:
+          skills.athletics.mod: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              map: '5 * min(2, has(params.attack) ? params.attack - 1 : turn.attacks)'
+              dc: >-
+                size(participants.grappler) > 0 && has(participants.grappler[0].skills.athletics.mod)
+                  ? 10 + participants.grappler[0].skills.athletics.mod : has(params.dc) ? params.dc : -1
+              from: "size(participants.grappler) > 0 ? participants.grappler[0].id : ''"
+              unarmed: >-
+                max(attacks.str.mod, attacks.dex.mod)
+                  + (attacks.unarmed.rank > 0 ? 2 * attacks.unarmed.rank + proficiency.level : proficiency.untrained)
+      - id: using
+        kind: choice
+        recommend: >-
+          flags.unarmed >= skills.athletics.mod && flags.unarmed >= skills.acrobatics.mod
+            ? 'unarmed' : skills.athletics.mod >= skills.acrobatics.mod ? 'athletics' : 'acrobatics'
+        options: [{ id: unarmed }, { id: athletics }, { id: acrobatics }]
+      - id: check
+        kind: action
+        when: steps.using.picked != 'unarmed'
+        use: check
+        tags: [skill-action.escape]
+        situational: { penalty: 'situational.penalty + flags.map' }
+        params:
+          check: "steps.using.picked == 'athletics' ? 'skills.athletics.mod' : 'skills.acrobatics.mod'"
+          dc: 'flags.dc >= 0 ? flags.dc : null'
+      - id: unarmed
+        kind: roll
+        when: steps.using.picked == 'unarmed'
+        tags:
+          - d20
+          - attack
+          - attack.melee
+          - skill-action.escape
+          - { formula: "attacks.dex.mod > attacks.str.mod ? 'attr.dex' : 'attr.str'" }
+        bands: degree
+        parts:
+          - dice: 1d20
+          - field: "attacks.dex.mod > attacks.str.mod ? 'attacks.dex.mod' : 'attacks.str.mod'"
+          - value: 'attacks.unarmed.rank > 0 ? 2 * attacks.unarmed.rank + proficiency.level : proficiency.untrained'
+          - { value: -flags.map, when: flags.map > 0, tags: [part.map] }
+      - id: degree
+        kind: branch
+        cases:
+          - when: has(steps.check)
+            flags: { result: steps.check.result, total: steps.check.data.total }
+          - when: true
+            flags: { result: steps.unarmed.band, total: steps.unarmed.total }
+      - id: count
+        kind: changes
+        changes:
+          - { type: adjust, field: turn.attacks, by: 1, tags: [attack-count] }
+      - id: free
+        kind: changes
+        when: "flags.result in ['success', 'critical-success']"
+        changes:
+          - type: removeEffect
+            applied:
+              where: >-
+                item.id in [@conditions.grabbed,
+                  @conditions.immobilized, @conditions.restrained]
+                  && (flags.from == '' || self.by == '' || self.by == flags.from)
+      - id: result
+        kind: outcome
+        result: flags.result
+        data: { total: flags.total, dc: flags.dc, map: flags.map }

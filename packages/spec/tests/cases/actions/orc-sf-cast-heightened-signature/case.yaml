@@ -1,0 +1,19 @@
+description: 'orc-sf-2e: a mystic casts heal, a 1st-rank signature spell from her connection,
+  heightened to 3rd rank with two actions on an ally: the vitality damage roll (3d8, for an undead
+  target) is made, and the ally regains 3d8 + 24 (2 + 2 + 2 + 24 = 30) Hit Points; a 3rd-rank slot
+  is spent'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/sf-2e
+input:
+  action:
+    id: orc-sf-2e:cast-spell
+    entry: class
+    source: orc-sf-2e:spells.heal
+  params:
+    rank: 3
+    actions: 2
+  participants:
+    ally:
+      - id: pal

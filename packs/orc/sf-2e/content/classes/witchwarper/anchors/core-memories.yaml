@@ -1,0 +1,257 @@
+id: classes.witchwarper.anchors.core-memories
+type: feature
+fields: { level: 1 }
+state: { used: { type: boolean, default: false } }
+effects:
+  - target: { steps: [turn.start] }
+    op: changes
+    when: self.used
+    value:
+      changes:
+        - type: setState
+          picks: { where: 'item.id == @classes.witchwarper.anchors.core-memories && self.used' }
+          key: used
+          value: false
+actions:
+  - id: anchoring-effect
+    tags: [class-action]
+    available: '!self.used && countList(character.applied, x.active && x.source == @conditions.stupefied) > 0'
+    results: [anchored]
+    steps:
+      - id: reduce
+        kind: changes
+        changes:
+          - type: adjustState
+            applied: { where: 'item.id == @conditions.stupefied' }
+            key: value
+            by: -1
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.stupefied && self.value <= 1' }
+          - { type: setState, pick: self, key: used, value: true }
+      - { id: result, kind: outcome, result: "'anchored'" }
+  - id: core-memory
+    tags: [class-action, exploration-action]
+    results: [chosen]
+    steps:
+      - id: skill
+        kind: choice
+        recommend: 'options[0]'
+        options:
+          - id: acrobatics
+            when: "'skill.acrobatics' in skills.trained || 'skill.acrobatics' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.acrobatics'" }
+          - id: arcana
+            when: "'skill.arcana' in skills.trained || 'skill.arcana' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.arcana'" }]
+          - id: athletics
+            when: "'skill.athletics' in skills.trained || 'skill.athletics' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.athletics'" }]
+          - id: computers
+            when: "'skill.computers' in skills.trained || 'skill.computers' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.computers'" }]
+          - id: crafting
+            when: "'skill.crafting' in skills.trained || 'skill.crafting' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.crafting'" }]
+          - id: deception
+            when: "'skill.deception' in skills.trained || 'skill.deception' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.deception'" }]
+          - id: diplomacy
+            when: "'skill.diplomacy' in skills.trained || 'skill.diplomacy' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.diplomacy'" }]
+          - id: intimidation
+            when: "'skill.intimidation' in skills.trained || 'skill.intimidation' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.intimidation'" }
+          - id: medicine
+            when: "'skill.medicine' in skills.trained || 'skill.medicine' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.medicine'" }]
+          - id: nature
+            when: "'skill.nature' in skills.trained || 'skill.nature' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.nature'" }]
+          - id: occultism
+            when: "'skill.occultism' in skills.trained || 'skill.occultism' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.occultism'" }]
+          - id: performance
+            when: "'skill.performance' in skills.trained || 'skill.performance' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.performance'" }
+          - id: piloting
+            when: "'skill.piloting' in skills.trained || 'skill.piloting' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.piloting'" }]
+          - id: religion
+            when: "'skill.religion' in skills.trained || 'skill.religion' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.religion'" }]
+          - id: society
+            when: "'skill.society' in skills.trained || 'skill.society' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.society'" }]
+          - id: stealth
+            when: "'skill.stealth' in skills.trained || 'skill.stealth' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.stealth'" }]
+          - id: survival
+            when: "'skill.survival' in skills.trained || 'skill.survival' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.survival'" }]
+          - id: thievery
+            when: "'skill.thievery' in skills.trained || 'skill.thievery' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.thievery'" }]
+          - id: lore-academia
+            when: "'skill.lore.academia' in skills.trained || 'skill.lore.academia' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.academia'" }
+          - id: lore-alcohol
+            when: "'skill.lore.alcohol' in skills.trained || 'skill.lore.alcohol' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.alcohol'" }
+          - id: lore-android
+            when: "'skill.lore.android' in skills.trained || 'skill.lore.android' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.android'" }
+          - id: lore-animal
+            when: "'skill.lore.animal' in skills.trained || 'skill.lore.animal' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.animal'" }
+          - id: lore-art
+            when: "'skill.lore.art' in skills.trained || 'skill.lore.art' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.lore.art'" }]
+          - id: lore-augmentation
+            when: "'skill.lore.augmentation' in skills.trained || 'skill.lore.augmentation' in skills.chosen"
+            changes:
+              - type: set
+                field: witchwarper.memorySkill
+                value: "'skill.lore.augmentation'"
+          - id: lore-barathu
+            when: "'skill.lore.barathu' in skills.trained || 'skill.lore.barathu' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.barathu'" }
+          - id: lore-borai
+            when: "'skill.lore.borai' in skills.trained || 'skill.lore.borai' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.borai'" }
+          - id: lore-business
+            when: "'skill.lore.business' in skills.trained || 'skill.lore.business' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.business'" }
+          - id: lore-cooking
+            when: "'skill.lore.cooking' in skills.trained || 'skill.lore.cooking' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.cooking'" }
+          - id: lore-corporate
+            when: "'skill.lore.corporate' in skills.trained || 'skill.lore.corporate' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.corporate'" }
+          - id: lore-games
+            when: "'skill.lore.games' in skills.trained || 'skill.lore.games' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.games'" }
+          - id: lore-genealogy
+            when: "'skill.lore.genealogy' in skills.trained || 'skill.lore.genealogy' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.genealogy'" }
+          - id: lore-history
+            when: "'skill.lore.history' in skills.trained || 'skill.lore.history' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.history'" }
+          - id: lore-hyperspace
+            when: "'skill.lore.hyperspace' in skills.trained || 'skill.lore.hyperspace' in skills.chosen"
+            changes:
+              - type: set
+                field: witchwarper.memorySkill
+                value: "'skill.lore.hyperspace'"
+          - id: lore-infosphere
+            when: "'skill.lore.infosphere' in skills.trained || 'skill.lore.infosphere' in skills.chosen"
+            changes:
+              - type: set
+                field: witchwarper.memorySkill
+                value: "'skill.lore.infosphere'"
+          - id: lore-kasatha
+            when: "'skill.lore.kasatha' in skills.trained || 'skill.lore.kasatha' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.kasatha'" }
+          - id: lore-labor
+            when: "'skill.lore.labor' in skills.trained || 'skill.lore.labor' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.labor'" }
+          - id: lore-lashunta
+            when: "'skill.lore.lashunta' in skills.trained || 'skill.lore.lashunta' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.lashunta'" }
+          - id: lore-legal
+            when: "'skill.lore.legal' in skills.trained || 'skill.lore.legal' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.legal'" }
+          - id: lore-life-science
+            when: "'skill.lore.life-science' in skills.trained || 'skill.lore.life-science' in skills.chosen"
+            changes:
+              - type: set
+                field: witchwarper.memorySkill
+                value: "'skill.lore.life-science'"
+          - id: lore-media
+            when: "'skill.lore.media' in skills.trained || 'skill.lore.media' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.media'" }
+          - id: lore-mining
+            when: "'skill.lore.mining' in skills.trained || 'skill.lore.mining' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.mining'" }
+          - id: lore-pahtra
+            when: "'skill.lore.pahtra' in skills.trained || 'skill.lore.pahtra' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.pahtra'" }
+          - id: lore-physical-science
+            when: "'skill.lore.physical-science' in skills.trained || 'skill.lore.physical-science' in skills.chosen"
+            changes:
+              - type: set
+                field: witchwarper.memorySkill
+                value: "'skill.lore.physical-science'"
+          - id: lore-piracy
+            when: "'skill.lore.piracy' in skills.trained || 'skill.lore.piracy' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.piracy'" }
+          - id: lore-plant
+            when: "'skill.lore.plant' in skills.trained || 'skill.lore.plant' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.plant'" }
+          - id: lore-prismeni
+            when: "'skill.lore.prismeni' in skills.trained || 'skill.lore.prismeni' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.prismeni'" }
+          - id: lore-shirren
+            when: "'skill.lore.shirren' in skills.trained || 'skill.lore.shirren' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.shirren'" }
+          - id: lore-skittermander
+            when: "'skill.lore.skittermander' in skills.trained || 'skill.lore.skittermander' in skills.chosen"
+            changes:
+              - type: set
+                field: witchwarper.memorySkill
+                value: "'skill.lore.skittermander'"
+          - id: lore-sports
+            when: "'skill.lore.sports' in skills.trained || 'skill.lore.sports' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.sports'" }
+          - id: lore-underworld
+            when: "'skill.lore.underworld' in skills.trained || 'skill.lore.underworld' in skills.chosen"
+            changes:
+              - type: set
+                field: witchwarper.memorySkill
+                value: "'skill.lore.underworld'"
+          - id: lore-vesk
+            when: "'skill.lore.vesk' in skills.trained || 'skill.lore.vesk' in skills.chosen"
+            changes: [{ type: set, field: witchwarper.memorySkill, value: "'skill.lore.vesk'" }]
+          - id: lore-vidgame
+            when: "'skill.lore.vidgame' in skills.trained || 'skill.lore.vidgame' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.vidgame'" }
+          - id: lore-warfare
+            when: "'skill.lore.warfare' in skills.trained || 'skill.lore.warfare' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.warfare'" }
+          - id: lore-ysoki
+            when: "'skill.lore.ysoki' in skills.trained || 'skill.lore.ysoki' in skills.chosen"
+            changes:
+              - { type: set, field: witchwarper.memorySkill, value: "'skill.lore.ysoki'" }
+      - { id: result, kind: outcome, result: "'chosen'" }
+grants:
+  - item: feats.skill.assurance
+    when: "witchwarper.memorySkill != ''"
+    state: { skill: witchwarper.memorySkill }

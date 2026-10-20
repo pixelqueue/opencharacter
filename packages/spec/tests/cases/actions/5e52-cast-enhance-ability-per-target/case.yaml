@@ -1,0 +1,31 @@
+description: '5E 2024 Enhance Ability from a level 3 slot: two targets, a different ability picked for each at the cast'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: 5e-srd-5.2:cast-spell
+    entry: class
+    source: 5e-srd-5.2:spells.enhance-ability
+  params:
+    slot: 3
+  participants:
+    target:
+      - id: fighter
+        values:
+          combat.ac: 18
+          creature.size: medium
+          creature.type: humanoid
+      - id: rogue
+        values:
+          combat.ac: 14
+          creature.size: small
+          creature.type: humanoid
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+answers:
+  - option: 5e-srd-5.2:spells.enhance-ability#str
+  - option: 5e-srd-5.2:spells.enhance-ability#dex

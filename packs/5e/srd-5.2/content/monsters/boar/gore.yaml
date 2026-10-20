@@ -1,0 +1,60 @@
+id: monsters.boar.gore
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+  attack: melee
+  toHit: 3
+  reach: 5
+  damage: 1d6 + 1
+  damageType: piercing
+actions:
+  - id: charge
+    tags: [attack]
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: gore
+        kind: action
+        use: monster-attack
+        entry: self.id
+        participants:
+          target: participants.target
+      - id: rider
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              rider: >-
+                steps.gore.result == 'hit' && size(participants.target) > 0
+                  && indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                    participants.target[0].creature.size) <= 2
+      - id: extra
+        kind: roll
+        when: flags.rider
+        tags: [damage]
+        parts:
+          - dice: 'steps.gore.data.critical ? 2d6 : 1d6'
+            tags: [damage.piercing]
+      - id: deal
+        kind: changes
+        when: has(steps.extra)
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: extra, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, attack, melee]
+      - id: prone
+        kind: changes
+        when: flags.rider
+        each: target
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.prone'", state: { by: creature.type } }
+      - id: result
+        kind: outcome
+        result: "steps.gore.result == 'hit' ? 'hit' : 'miss'"

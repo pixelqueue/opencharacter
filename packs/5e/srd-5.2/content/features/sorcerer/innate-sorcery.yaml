@@ -1,0 +1,42 @@
+id: features.sorcerer.innate-sorcery
+type: feature
+effects:
+  - { target: spellcasting.sorcerer.dc, op: add, value: 1, when: innateSorcery.active }
+  - target: { rolls: [attack.spell] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: innateSorcery.active && action.item.id in spells.sorcerer
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.innateSorceryUsed > 0 || innateSorcery.active
+    value:
+      changes:
+        - { type: setState, entry: self, key: innateSorceryUsed, value: 0 }
+        - { type: set, field: innateSorcery.active, value: false, when: innateSorcery.active }
+actions:
+  - id: innate-sorcery
+    tags: [feature]
+    results: [unleashed]
+    available: >-
+      !innateSorcery.active
+        && (self.innateSorceryUsed < 2 || (self.level >= 7 && sorcery.left >= 2))
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - type: adjustState
+            when: self.innateSorceryUsed < 2
+            entry: self
+            key: innateSorceryUsed
+            by: 1
+          - type: adjustState
+            when: self.innateSorceryUsed >= 2
+            entry: self
+            key: sorceryPointsSpent
+            by: 2
+          - { type: set, field: innateSorcery.active, value: true }
+      - id: result
+        kind: outcome
+        result: "'unleashed'"
+        data:
+          minutes: 1

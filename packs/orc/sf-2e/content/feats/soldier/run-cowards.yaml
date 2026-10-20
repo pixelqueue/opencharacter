@@ -1,0 +1,9 @@
+id: feats.soldier.run-cowards
+type: feat
+tags: [trait.soldier]
+fields: { level: 14, category: class, class: classes.soldier }
+effects:
+  - target: { steps: [area.target] }
+    op: changes
+    value:
+      changes: [{ type: applyEffect, when: flags.outcome == 3, source: "'conditions.fleeing'" }]

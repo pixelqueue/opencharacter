@@ -1,0 +1,62 @@
+{
+  "name": "@opencharacter/orc-sf-2e",
+  "version": "0.1.1",
+  "description": "Open Character Format pack: Second Edition science-fantasy rules (Player Core) under the ORC License.",
+  "keywords": [
+    "character-sheet",
+    "content-pack",
+    "ocf",
+    "open-character-format",
+    "orc",
+    "rpg",
+    "tabletop",
+    "ttrpg"
+  ],
+  "homepage": "https://opencharacterformat.org",
+  "bugs": {
+    "url": "https://github.com/pixelqueue/opencharacter/issues"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pixelqueue/opencharacter.git",
+    "directory": "packs/orc/sf-2e"
+  },
+  "files": [
+    "dist",
+    "pack.yaml",
+    "rules",
+    "content",
+    "i18n",
+    "upgrades",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/release.json"
+    },
+    "./release.json": "./dist/release.json",
+    "./i18n/*": {
+      "types": "./dist/i18n/*.d.ts",
+      "import": "./dist/i18n/*.js",
+      "default": "./dist/i18n/*.json"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepack": "node -e \"for(const f of ['dist/index.js','dist/release.json'])require('node:fs').existsSync(f)||(console.error('Missing '+f+': run pnpm build from the repo root first'),process.exit(1))\""
+  },
+  "devDependencies": {
+    "@opencharacter/engine": "workspace:*"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
