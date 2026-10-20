@@ -1,0 +1,371 @@
+creation:
+  - { id: guided, action: create-character }
+  - { id: random, action: create-character, params: { random: true }, random: true }
+
+actions:
+  - id: create-character
+    tags: [creation]
+    available: "character.creating && countCopies(copy.type == 'background') == 0"
+    params:
+      random: { type: boolean, default: false }
+    results: [created]
+    steps:
+      # Attributes: 3d6 in order, then one of them may become 14; or the array, in any order.
+      - id: method
+        kind: choice
+        when: '!params.random'
+        options: [{ id: roll }, { id: array }]
+        recommend: "'roll'"
+      - id: rolled
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              roll: "params.random || steps.method.picked == 'roll'"
+      - { id: str, kind: roll, tags: [creation], when: flags.roll, parts: [{ dice: 3d6 }] }
+      - { id: dex, kind: roll, tags: [creation], when: flags.roll, parts: [{ dice: 3d6 }] }
+      - { id: con, kind: roll, tags: [creation], when: flags.roll, parts: [{ dice: 3d6 }] }
+      - { id: int, kind: roll, tags: [creation], when: flags.roll, parts: [{ dice: 3d6 }] }
+      - { id: wis, kind: roll, tags: [creation], when: flags.roll, parts: [{ dice: 3d6 }] }
+      - { id: cha, kind: roll, tags: [creation], when: flags.roll, parts: [{ dice: 3d6 }] }
+      # The lowest roll is recommended for the 14, unless every roll is 14 or more.
+      - id: fourteen
+        kind: choice
+        when: flags.roll
+        options:
+          [
+            { id: str },
+            { id: dex },
+            { id: con },
+            { id: int },
+            { id: wis },
+            { id: cha },
+            { id: none },
+          ]
+        recommend: >-
+          minList([steps.str.total, steps.dex.total, steps.con.total, steps.int.total,
+            steps.wis.total, steps.cha.total], x) >= 14 ? 'none'
+            : ['str', 'dex', 'con', 'int', 'wis', 'cha'][indexOf([steps.str.total,
+              steps.dex.total, steps.con.total, steps.int.total, steps.wis.total,
+              steps.cha.total], minList([steps.str.total, steps.dex.total, steps.con.total,
+              steps.int.total, steps.wis.total, steps.cha.total], x))]
+      - id: scores
+        kind: changes
+        when: flags.roll
+        changes:
+          - type: set
+            field: attributes.str.score
+            value: "steps.fourteen.picked == 'str' ? 14 : steps.str.total"
+          - type: set
+            field: attributes.dex.score
+            value: "steps.fourteen.picked == 'dex' ? 14 : steps.dex.total"
+          - type: set
+            field: attributes.con.score
+            value: "steps.fourteen.picked == 'con' ? 14 : steps.con.total"
+          - type: set
+            field: attributes.int.score
+            value: "steps.fourteen.picked == 'int' ? 14 : steps.int.total"
+          - type: set
+            field: attributes.wis.score
+            value: "steps.fourteen.picked == 'wis' ? 14 : steps.wis.total"
+          - type: set
+            field: attributes.cha.score
+            value: "steps.fourteen.picked == 'cha' ? 14 : steps.cha.total"
+      - id: array
+        kind: allocate
+        when: '!flags.roll'
+        fields: { type: field, where: "'attribute' in item.tags" }
+        values: [14, 12, 11, 10, 9, 7]
+        recommend:
+          attributes.str.score: 14
+          attributes.dex.score: 12
+          attributes.con.score: 11
+          attributes.int.score: 10
+          attributes.wis.score: 9
+          attributes.cha.score: 7
+
+      # Background: the d20 table is the content's order, so a uniform draw is the book's roll.
+      - id: background
+        kind: choice
+        options: { content: { type: background } }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { id: background, item: picked.id }
+      - id: tables
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              # Any Combat recommends the combat skill of the better of Strength and Dexterity.
+              combat: "attributes.dex.mod > attributes.str.mod ? ['shoot', 'stab', 'punch'] : ['stab', 'shoot', 'punch']"
+              quick: >-
+                [steps.background.item.quickSkill1, steps.background.item.quickSkill2]
+              growth: >-
+                [steps.background.item.growth1, steps.background.item.growth2,
+                  steps.background.item.growth3, steps.background.item.growth4,
+                  steps.background.item.growth5, steps.background.item.growth6]
+              learning: >-
+                [steps.background.item.learning1, steps.background.item.learning2,
+                  steps.background.item.learning3, steps.background.item.learning4,
+                  steps.background.item.learning5, steps.background.item.learning6,
+                  steps.background.item.learning7, steps.background.item.learning8]
+      - id: prefer
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              prefer: >-
+                (flags.quick[0] == 'any-combat' ? flags.combat : [flags.quick[0]])
+                  + (flags.quick[1] == 'any-combat' ? flags.combat : [flags.quick[1]])
+      - id: free
+        kind: action
+        use: gain-benefit
+        params:
+          entry: steps.background.item.freeSkill
+          prefer: flags.combat
+          random: params.random
+      # Two picks (every Learning table offers Any Skill, so any skill), or three rolls divided
+      # between the Growth and Learning tables. The quick skills are the recommended picks.
+      - id: skillMethod
+        kind: choice
+        options: [{ id: pick }, { id: roll }]
+        recommend: "params.random ? 'roll' : 'pick'"
+      - id: pick1
+        kind: action
+        when: "steps.skillMethod.picked == 'pick'"
+        use: gain-skill
+        params: { prefer: flags.prefer, random: params.random }
+      - id: pick2
+        kind: action
+        when: "steps.skillMethod.picked == 'pick'"
+        use: gain-skill
+        params: { prefer: flags.prefer, random: params.random }
+      # The book's own example rolls once on Growth and twice on Learning.
+      - id: split
+        kind: choice
+        when: "steps.skillMethod.picked == 'roll'"
+        options: [{ id: growth0 }, { id: growth1 }, { id: growth2 }, { id: growth3 }]
+        recommend: "'growth1'"
+      - id: splitCount
+        kind: branch
+        when: has(steps.split)
+        cases:
+          - when: true
+            flags:
+              growthRolls: "indexOf(['growth0', 'growth1', 'growth2', 'growth3'], steps.split.picked)"
+      - id: roll1
+        kind: roll
+        tags: [creation]
+        when: has(steps.split)
+        parts: [{ dice: 'flags.growthRolls >= 1 ? 1d6 : 1d8' }]
+      - id: benefit1
+        kind: action
+        when: has(steps.split)
+        use: gain-benefit
+        params:
+          entry: >-
+            flags.growthRolls >= 1 ? flags.growth[steps.roll1.total - 1]
+              : flags.learning[steps.roll1.total - 1]
+          prefer: flags.prefer
+          random: params.random
+      - id: roll2
+        kind: roll
+        tags: [creation]
+        when: has(steps.split)
+        parts: [{ dice: 'flags.growthRolls >= 2 ? 1d6 : 1d8' }]
+      - id: benefit2
+        kind: action
+        when: has(steps.split)
+        use: gain-benefit
+        params:
+          entry: >-
+            flags.growthRolls >= 2 ? flags.growth[steps.roll2.total - 1]
+              : flags.learning[steps.roll2.total - 1]
+          prefer: flags.prefer
+          random: params.random
+      - id: roll3
+        kind: roll
+        tags: [creation]
+        when: has(steps.split)
+        parts: [{ dice: 'flags.growthRolls >= 3 ? 1d6 : 1d8' }]
+      - id: benefit3
+        kind: action
+        when: has(steps.split)
+        use: gain-benefit
+        params:
+          entry: >-
+            flags.growthRolls >= 3 ? flags.growth[steps.roll3.total - 1]
+              : flags.learning[steps.roll3.total - 1]
+          prefer: flags.prefer
+          random: params.random
+
+      # The underdog rule, once the growth rolls are in: recommended when it applies.
+      - id: underdog
+        kind: choice
+        sheet: proposed
+        when: attributes.baseTotal <= -1
+        options:
+          - id: underdog
+            changes: [{ type: set, field: edges.underdog, value: true }]
+          - { id: no }
+        recommend: "'underdog'"
+
+      # Two edges (Forged By Fire alone instead), and the underdog's bonus one.
+      - {
+          id: edge1,
+          kind: action,
+          sheet: proposed,
+          when: edges.count < edges.allowed,
+          use: gain-edge,
+          params: { random: params.random },
+        }
+      - {
+          id: edge2,
+          kind: action,
+          sheet: proposed,
+          when: edges.count < edges.allowed,
+          use: gain-edge,
+          params: { random: params.random },
+        }
+      - {
+          id: edge3,
+          kind: action,
+          sheet: proposed,
+          when: edges.count < edges.allowed,
+          use: gain-edge,
+          params: { random: params.random },
+        }
+      - {
+          id: mutations,
+          kind: action,
+          sheet: proposed,
+          when: mutations.mutant,
+          use: mutate,
+          params: { random: params.random },
+        }
+      # One focus, and one more for each Focused edge.
+      - {
+          id: focus1,
+          kind: action,
+          sheet: proposed,
+          when: foci.count < foci.allowed,
+          use: gain-focus,
+          params: { random: params.random },
+        }
+      - {
+          id: focus2,
+          kind: action,
+          sheet: proposed,
+          when: foci.count < foci.allowed,
+          use: gain-focus,
+          params: { random: params.random },
+        }
+      - {
+          id: focus3,
+          kind: action,
+          sheet: proposed,
+          when: foci.count < foci.allowed,
+          use: gain-focus,
+          params: { random: params.random },
+        }
+      - {
+          id: focus4,
+          kind: action,
+          sheet: proposed,
+          when: foci.count < foci.allowed,
+          use: gain-focus,
+          params: { random: params.random },
+        }
+      # Then the edges', foci's and mutations' own choices (the mutant's attribute penalty comes
+      # after the mutations).
+      - id: picks
+        kind: choice
+        options: { pending: {} }
+      # The free bonus skill.
+      - id: freeSkill
+        kind: action
+        use: gain-skill
+        params: { prefer: flags.prefer, random: params.random }
+      # Hit points: 1d6 plus the Constitution modifier (+2 more with Hard to Kill), at least 1.
+      - { id: hp, kind: roll, tags: [creation, hit-points], parts: [{ dice: 1d6 }] }
+      - id: hpSet
+        kind: changes
+        sheet: proposed
+        changes:
+          - { type: set, field: hp.max, value: 'max(1, steps.hp.total + hp.dieBonus)' }
+          - { type: set, field: hp.current, value: 'max(1, steps.hp.total + hp.dieBonus)' }
+      - id: equipment
+        kind: action
+        use: starting-equipment
+        params: { random: params.random }
+
+      - id: finish
+        kind: changes
+        sheet: proposed
+        changes:
+          - { type: finishCreation }
+      - id: result
+        kind: outcome
+        result: "'created'"
+
+  # One entry of a background's tables: a skill (`any-combat`, `any-skill` or a skill key), or
+  # an attribute bonus, which the highest attribute that can take it all is recommended.
+  - id: gain-benefit
+    params:
+      entry: { type: string }
+      prefer: { type: set, of: string, default: [] }
+      random: { type: boolean, default: false }
+    results: [gained]
+    steps:
+      - id: skill
+        kind: action
+        when: "!(params.entry in ['any-stat-1', 'physical2', 'mental2'])"
+        use: gain-skill
+        params:
+          skills: >-
+            params.entry == 'any-combat' ? ['punch', 'shoot', 'stab']
+              : params.entry == 'any-skill' ? [] : [params.entry]
+          prefer: params.prefer
+          random: params.random
+      - id: plan
+        kind: branch
+        sheet: proposed
+        when: "params.entry in ['any-stat-1', 'physical2', 'mental2']"
+        cases:
+          - when: true
+            flags:
+              allowed: >-
+                params.entry == 'physical2' ? ['str', 'dex', 'con']
+                  : params.entry == 'mental2' ? ['int', 'wis', 'cha']
+                  : ['str', 'dex', 'con', 'int', 'wis', 'cha']
+              budget: "params.entry == 'any-stat-1' ? 1 : 2"
+      - id: best
+        kind: branch
+        sheet: proposed
+        when: has(flags.allowed)
+        cases:
+          - when: true
+            flags:
+              best: >-
+                sortList(filterList(flags.allowed,
+                  fieldOf('attributes.{attribute}.score', x) <= 18 - flags.budget),
+                  -fieldOf('attributes.{attribute}.score', x))
+      # Every attribute is offered; those the entry doesn't cover take nothing.
+      - id: stat
+        kind: allocate
+        sheet: proposed
+        when: has(flags.allowed)
+        fields: { type: field, where: "'attribute' in item.tags" }
+        budget: flags.budget
+        spend: upTo
+        limit: >-
+          countList(flags.allowed, field.id == 'wn-apocalypse:attributes.' + x + '.score') > 0
+            ? 18 - field.value : 0
+        recommend:
+          'attributes.{attribute}.score': "size(flags.best) > 0 && flags.best[0] == '{attribute}' ? flags.budget : 0"
+      - id: result
+        kind: outcome
+        result: "'gained'"

@@ -1,0 +1,13 @@
+id: negative-mutations.memory-damage
+type: negative
+fields:
+  roll: 47
+effects:
+  - target: attributes.int.penalty
+    op: add
+    value: -1
+    when: '!self.light'
+  - target: skills.know.cap
+    op: atMost
+    value: -1
+    when: '!self.light'

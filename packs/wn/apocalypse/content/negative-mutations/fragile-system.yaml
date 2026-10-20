@@ -1,0 +1,13 @@
+id: negative-mutations.fragile-system
+type: negative
+fields:
+  roll: 33
+effects:
+  - target: strain.penalty
+    op: add
+    value: -2
+    when: '!self.light'
+  - target: { rolls: [save] }
+    op: add
+    value: -2
+    when: "!self.light && (situational.versus == 'poison' || situational.versus == 'disease')"

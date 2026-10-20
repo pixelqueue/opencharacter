@@ -1,0 +1,19 @@
+id: foci.armsmaster
+type: focus
+fields:
+  bonusSkill: [stab]
+effects:
+  - target: combat.armed.damage
+    op: add
+    value: max(0, skills.stab.level)
+  - target: combat.armed.shock
+    op: add
+    value: max(0, skills.stab.level)
+  - target: combat.armed.shockAnyAc
+    op: set
+    value: true
+    when: self.level >= 2
+  - target: combat.armed.hit
+    op: add
+    value: 1
+    when: self.level >= 2

@@ -1,0 +1,59 @@
+contentTypes:
+  # A background's skill tables. Each entry is a skill key, `any-combat` (Stab, Shoot or Punch),
+  # `any-skill`, or on the growth table an attribute bonus: `any-stat-1` (+1 to any attribute),
+  # `physical2` or `mental2` (+2 to physical or mental attributes, which may be split).
+  background:
+    copies: { max: 1 }
+    fields:
+      freeSkill:
+        {
+          type: enum,
+          values:
+            &entries [
+              administer,
+              connect,
+              drive,
+              exert,
+              fix,
+              heal,
+              know,
+              lead,
+              notice,
+              perform,
+              program,
+              punch,
+              shoot,
+              sneak,
+              stab,
+              survive,
+              talk,
+              trade,
+              work,
+              any-combat,
+              any-skill,
+              any-stat-1,
+              physical2,
+              mental2,
+            ],
+          required: true,
+        }
+      quickSkill1: { type: enum, values: *entries, required: true }
+      quickSkill2: { type: enum, values: *entries, required: true }
+      growth1: { type: enum, values: *entries, required: true }
+      growth2: { type: enum, values: *entries, required: true }
+      growth3: { type: enum, values: *entries, required: true }
+      growth4: { type: enum, values: *entries, required: true }
+      growth5: { type: enum, values: *entries, required: true }
+      growth6: { type: enum, values: *entries, required: true }
+      learning1: { type: enum, values: *entries, required: true }
+      learning2: { type: enum, values: *entries, required: true }
+      learning3: { type: enum, values: *entries, required: true }
+      learning4: { type: enum, values: *entries, required: true }
+      learning5: { type: enum, values: *entries, required: true }
+      learning6: { type: enum, values: *entries, required: true }
+      learning7: { type: enum, values: *entries, required: true }
+      learning8: { type: enum, values: *entries, required: true }
+
+constraints:
+  - id: creation-background
+    check: "!character.creating || countCopies(copy.type == 'background') > 0"

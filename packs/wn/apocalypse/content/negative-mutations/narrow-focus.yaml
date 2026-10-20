@@ -1,0 +1,13 @@
+id: negative-mutations.narrow-focus
+type: negative
+fields:
+  roll: 55
+effects:
+  - target: attributes.wis.penalty
+    op: add
+    value: -1
+    when: '!self.light'
+  - target: skills.notice.cap
+    op: atMost
+    value: -1
+    when: '!self.light'

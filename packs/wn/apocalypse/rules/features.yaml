@@ -1,0 +1,76 @@
+contentTypes:
+  # Edges. `bonusSkill` lists the skills one bonus pick may take (empty: none). The action that
+  # adds the edge applies it: a skill pick at creation, three skill points afterwards.
+  edge:
+    fields:
+      bonusSkill: { type: set, of: string, default: [] }
+    effects:
+      - { target: edges.held, op: grant, value: { formula: item.id } }
+
+  # Foci, one copy per focus, with the level taken (1 or 2). Its bonus skills come with level 1:
+  # `bonusSkill` and `bonusSkill2` each list what one pick may take.
+  focus:
+    fields:
+      maxLevel: { type: integer, default: 2, min: 1, max: 2 }
+      # Specialist: may be taken again for another skill.
+      multiple: { type: boolean, default: false }
+      bonusSkill: { type: set, of: string, default: [] }
+      bonusSkill2: { type: set, of: string, default: [] }
+    state:
+      level: { type: integer, default: 1, min: 1, max: item.maxLevel }
+    effects:
+      - { target: foci.held, op: grant, value: { formula: item.id } }
+
+fields:
+  edges.held: { type: set, of: edge }
+  foci.held: { type: set, of: focus }
+
+  # The underdog rule: a character whose attribute modifiers total -1 or less may take a bonus
+  # edge, and then can't buy attribute boosts.
+  edges.underdog: { type: boolean, input: true, default: false }
+  # The optional gifted survivors rule: a bonus edge at 3rd level.
+  variant.giftedSurvivors: { type: boolean, input: true, default: false }
+
+  # Two edges at 1st level and one at 5th; Forged By Fire takes the place of the first two and
+  # gives one at each of 2nd, 3rd and 4th instead.
+  edges.forgedByFire: { type: boolean, formula: '@edges.forged-by-fire in edges.held' }
+  edges.allowed:
+    type: integer
+    formula: >-
+      (edges.forgedByFire ? 1 + min(3, level - 1) : 2) + (level >= 5 ? 1 : 0)
+        + (edges.underdog ? 1 : 0) + (variant.giftedSurvivors && level >= 3 ? 1 : 0)
+  edges.count: { type: integer, formula: "countCopies(copy.type == 'edge')" }
+
+  # One focus level at 1st level, one more at 2nd, 5th, 7th and 10th; Focused adds one.
+  foci.bonus: { type: integer, formula: 0 }
+  foci.allowed:
+    type: integer
+    formula: >-
+      1 + (level >= 2 ? 1 : 0) + (level >= 5 ? 1 : 0) + (level >= 7 ? 1 : 0)
+        + (level >= 10 ? 1 : 0) + foci.bonus
+  foci.count: { type: integer, formula: "sumCopies(copy.state.level, copy.type == 'focus')" }
+
+constraints:
+  - id: edge-limit
+    check: edges.count <= edges.allowed
+  - id: focus-limit
+    check: foci.count <= foci.allowed
+  - id: underdog
+    check: '!character.creating || !edges.underdog || attributes.baseTotal <= -1'
+  # Each edge once, but Focused; each focus once, but Specialist.
+  - id: edge-once
+    check: >-
+      countCopies(copy.type == 'edge' && copy.item != @edges.focused) == size(edges.held)
+        - (@edges.focused in edges.held ? 1 : 0)
+  - id: focus-once
+    copies: { type: focus, where: '!item.multiple' }
+    check: countCopies(copy.item == item.id) == 1
+
+followUps:
+  # An edge or a focus level the character's level has earned and the sheet doesn't have.
+  - id: edge-due
+    while: '!character.creating && edges.count < edges.allowed'
+    action: gain-edge
+  - id: focus-due
+    while: '!character.creating && foci.count < foci.allowed'
+    action: gain-focus

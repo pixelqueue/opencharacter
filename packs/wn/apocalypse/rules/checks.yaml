@@ -1,0 +1,6 @@
+resultBands:
+  # A skill check succeeds at or over its difficulty; without one, the total is the result.
+  check:
+    - { id: success, when: 'has(params.difficulty) && roll.total >= params.difficulty' }
+    - { id: failure, when: has(params.difficulty) }
+    - { id: rolled, when: true }
