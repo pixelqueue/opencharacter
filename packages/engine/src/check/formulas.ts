@@ -27,6 +27,7 @@ import type {
   GrantValue,
   Immunity,
   InlineOption,
+  KeptTemplate,
   OptionValue,
   StepChanges,
   ProposedChange,
@@ -398,8 +399,12 @@ class FormulaChecker<L> {
         ['integer', 'decimal', 'boolean', 'dice'].includes(decl.type)
       )
         this.at('itemField', () =>
-          this.withRoots(template ? ['base', 'prior'] : [], () =>
-            this.formula(value, at, `${owner}.fields.${name}`, [fieldFormulaType(decl.type)]),
+          this.typed(template && item.params ? { params: paramsType(item.params) } : {}, () =>
+            this.withRoots(
+              template ? ['base', 'prior', ...(item.params ? ['params'] : [])] : [],
+              () =>
+                this.formula(value, at, `${owner}.fields.${name}`, [fieldFormulaType(decl.type)]),
+            ),
           ),
         );
     }
@@ -430,14 +435,44 @@ class FormulaChecker<L> {
     for (const immunity of item.immuneTo ?? []) this.immunity(immunity, at, owner);
     for (const query of item.standardCopies ?? [])
       this.standardQuery(query, at, `${owner} standardCopies`);
-    // Kept templates: the copies or content query reads only `item`; `when` is an activation
-    // condition.
-    for (const kept of item.keepsTemplates ?? []) {
-      this.standardQuery(keptQuery(kept), at, `${owner} keepsTemplates`);
-      this.activation(() => this.formula(kept.when, at, `${owner} keepsTemplates`, BOOL));
-    }
+    // Kept templates: the copies or content query reads only `item` (resolved at load) or is an
+    // activation condition with the candidate as `item`; `when` and `params` are activation
+    // formulas.
+    for (const kept of item.keepsTemplates ?? []) this.keptTemplate(kept, at, owner);
     for (const prerequisite of item.prerequisites ?? [])
       this.formula(prerequisite.when, at, `${owner} prerequisite ${prerequisite.id}`, BOOL);
+  }
+
+  private keptTemplate(kept: KeptTemplate, at: L, owner: string): void {
+    const where = `${owner} keepsTemplates`;
+    const query = keptQuery(kept);
+    if (isContentOnly(query.where)) this.standardQuery(query, at, where);
+    else this.activation(() => this.query(query, at, where));
+    this.activation(() => this.formula(kept.when, at, where, BOOL));
+    if (!kept.params) return;
+    const template = this.set.item(kept.template, this.scope)?.item;
+    const declared = template?.type === 'template' ? (template.params ?? {}) : undefined;
+    for (const [name, formula] of Object.entries(kept.params)) {
+      const decl = declared?.[name];
+      if (declared && !decl) {
+        this.problems.push({
+          at,
+          where: `${where} params ${name}`,
+          formula,
+          code: 'unknown-name',
+          message: `the template declares no param "${name}" (${Object.keys(declared).join(', ') || 'none'})`,
+        });
+        continue;
+      }
+      this.activation(() =>
+        this.formula(
+          formula,
+          at,
+          `${where} params ${name}`,
+          decl ? [fieldFormulaType(decl.type)] : ANY,
+        ),
+      );
+    }
   }
 
   /** A state key's `default`, `min` and `max` see only `item` and input fields. */

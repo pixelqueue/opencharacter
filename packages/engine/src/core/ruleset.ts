@@ -51,6 +51,8 @@ export interface LoadedItem extends ContentItem {
   hidden?: boolean;
   /** Packs whose formulas replaced top-level properties (overrides), by property name. */
   scopes?: Record<string, string>;
+  /** A kept template's `params` as its keeper gave them, as formula roots. */
+  bound?: Record<string, unknown>;
 }
 
 export interface LoadedContentType extends ContentTypeDef, FromPack {
