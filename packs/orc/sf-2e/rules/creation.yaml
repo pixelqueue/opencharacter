@@ -62,12 +62,6 @@ actions:
           - { type: set, field: hp.current, value: hp.max }
           - { type: finishCreation }
 
-  # The book has players choose, so the random start's odds are the pack's: each pick is drawn
-  # uniformly among the options eligible then, in the guided start's order. Boosts follow a priority
-  # instead: an ancestry takes its standard boosts, and every boost goes to the first offered of the
-  # class's key attribute, Constitution, Dexterity, Wisdom, Strength, Intelligence and Charisma. The
-  # ancestry's and background's boosts come before the key attribute pick, so the key is planned
-  # with the class: its own, else Strength or Dexterity on a d2.
   - id: random-character
     tags: [creation]
     available: character.creating

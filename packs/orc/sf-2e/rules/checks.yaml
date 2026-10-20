@@ -1,7 +1,3 @@
-# Content changes a check's degree through roll tallies: `successToCrit`, `critFailToFail`,
-# `failToCritFail`, `successToCritOn19` (a roll effect's `when` can't read the faces; the band can),
-# `degreeShift`, `naturalOneHolds`, and `degreeFloor` (2 makes any worse result a success). A roll
-# with no dice (Assurance) has no natural 20 or 1.
 rollTallies:
   [
     successToCrit,
@@ -61,8 +57,6 @@ situational:
         when: situational.misfortune
   - { id: againstFear, type: boolean, default: false, rolls: [save] }
   - { id: againstEmotion, type: boolean, default: false, rolls: [save] }
-  # The roll carries the check field's own typed effects, so only the best bonus and worst penalty
-  # of each type count; an untyped penalty always adds.
   - id: penalty
     type: integer
     default: 0

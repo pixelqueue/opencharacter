@@ -1,5 +1,3 @@
-# Ten light items make 1 Bulk (decimals keep six places, so their sum is exact), and fractions are
-# dropped.
 fields:
   bulk.carried:
     type: integer
@@ -8,12 +6,8 @@ fields:
         && (!has(copy.state.container) || copy.state.container == ''))) + coins.bulk
   bulk.encumbered: { type: integer, formula: 5 + attributes.str.mod }
   bulk.max: { type: integer, formula: 10 + attributes.str.mod }
-  # The attribute armor's Strength requirement reads (the soldier's Walking Armory may use
-  # Constitution).
   armor.strength: { type: integer, formula: attributes.str.mod }
   armor.speedPenalty: { type: integer, formula: 0, min: 0 }
-  # Bulwark armor's modifier to Reflex saves against damaging effects; Armor Ace raises it and gives
-  # every armor the trait.
   armor.bulwark: { type: integer, formula: 3 }
   armor.allBulwark: { type: boolean, formula: false }
   augmentations.limit: { type: integer, formula: 4, min: 0 }
@@ -41,7 +35,6 @@ effects:
     when: armor.speedPenalty > 0 && !battleForm.active
 
 contentTypes:
-  # Natural armor (tagged `natural`, a heritage's scales) is always worn.
   armor:
     carried: true
     equippable: true
@@ -102,8 +95,6 @@ contentTypes:
         value: item.resilient
         stackKey: item-bonus
         when: (self.equipped || 'natural' in item.tags) && item.resilient > 0
-      # Flexible armor spares Acrobatics and Athletics; noisy armor's penalty applies to Stealth
-      # even when the Strength is met.
       - id: check-penalty
         target:
           fields:
@@ -138,8 +129,6 @@ contentTypes:
         value: 'max(0, item.speedPenalty - (has(item.strength) && armor.strength >= item.strength ? 5 : 0))'
         when: (self.equipped || 'natural' in item.tags) && item.speedPenalty > 0
 
-  # Its `damage` state is the Hit Points it has lost: at or below the Broken Threshold it gives no
-  # bonus, at 0 it is destroyed.
   shield:
     carried: true
     equippable: true
@@ -190,7 +179,6 @@ contentTypes:
             key: damage
             by: max(0, -incoming.amount - item.hardness)
 
-  # Held or worn gear is equipped: a toolkit's item bonus counts while you hold or wear it.
   gear:
     carried: true
     equippable: true
@@ -206,8 +194,6 @@ contentTypes:
       - use: store
       - use: retrieve
 
-  # Rounds are a stack (`quantity` is the rounds); a battery or chem tank is a copy holding its
-  # charges, which a reload swaps with the weapon's.
   ammunition:
     carried: true
     fields:
@@ -225,8 +211,6 @@ contentTypes:
       - use: store
       - use: retrieve
 
-  # Implanted is equipped. An apex augmentation raises its attribute while it is the one chosen
-  # (`apex`, set at daily preparations).
   augmentation:
     carried: true
     equippable: true
@@ -330,7 +314,6 @@ situational:
   - { id: againstPoison, type: boolean, default: false, rolls: [save] }
   - { id: againstDisease, type: boolean, default: false, rolls: [save] }
   - { id: againstRadiation, type: boolean, default: false, rolls: [save] }
-  # Bulwark armor: +3 in place of Dexterity on Reflex saves against damaging effects.
   - id: damagingEffect
     type: boolean
     default: false
@@ -436,8 +419,6 @@ actions:
         data:
           healed: 'has(steps.heal) ? steps.heal.total : 0'
 
-  # A grenade is thrown with Area Fire as a single action: each creature in the burst attempts the
-  # grenade's save on its own sheet against the thrower's class DC.
   - id: throw-grenade
     tags: [consumable, area-attack, trait.attack]
     available: "self.quantity > 0 && item.category == 'grenade'"
@@ -544,7 +525,6 @@ actions:
         changes:
           - { type: set, field: shield.raised, value: true }
 
-# `trait.versatile` alone; the other damage type is the weapon's `versatile` field.
 tags:
   - trait.analog
   - trait.tech

@@ -1,6 +1,3 @@
-# The multiple attack penalty is `flags.map`: -5 per attack already made this turn (or `attack`), at
-# most -10, an untyped penalty added to the roll's `penalty` situational choice; the action counts
-# toward it.
 actions:
   - id: trip
     tags: [skill-action]
@@ -537,7 +534,6 @@ actions:
                   + (attacks.unarmed.rank > 0 ? 2 * attacks.unarmed.rank + proficiency.level : proficiency.untrained)
       - id: using
         kind: choice
-        # The best of the three, so an automatic run escapes with it.
         recommend: >-
           flags.unarmed >= skills.athletics.mod && flags.unarmed >= skills.acrobatics.mod
             ? 'unarmed' : skills.athletics.mod >= skills.acrobatics.mod ? 'athletics' : 'acrobatics'

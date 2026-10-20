@@ -1,6 +1,3 @@
-# Credits are the currency (150 to start); UPBs serve as currency too, and 1,000 of them are 1 Bulk.
-# A purchase takes credits first, then UPBs. `investiture.used` counts the items invested since the
-# daily preparations, and `invest` won't pass the limit.
 fields:
   money.credits: { type: decimal, input: true, default: 150, min: 0 }
   money.upbs: { type: integer, input: true, default: 0, min: 0 }
@@ -17,7 +14,6 @@ constraints:
   - id: investiture-limit
     check: investiture.count <= investiture.max
     data: { invested: investiture.count, limit: investiture.max }
-  # It holds no more than its capacity, however its contents got there.
   - id: container-capacity-held
     copies: { type: held, where: has(item.capacity) && item.capacity > 0 }
     check: >-
@@ -30,7 +26,6 @@ constraints:
         sumCopies(copy.fields.bulk * copy.quantity, has(copy.fields.bulk)
           && has(copy.state.container) && copy.state.container == self.id)
       capacity: item.capacity
-  # It holds no more than its capacity, however its contents got there.
   - id: container-capacity-worn
     copies: { type: worn, where: has(item.capacity) && item.capacity > 0 }
     check: >-
@@ -225,7 +220,6 @@ actions:
         kind: outcome
         result: "'invested'"
 
-  # It still counts toward today's limit.
   - id: divest
     tags: [inventory, invest]
     available: self.invested

@@ -1,7 +1,6 @@
 settings:
-  rounding: floor # orc-sf-2e rounds down unless a rule says otherwise.
-  roundIncoming: magnitude # Halved damage rounds down: 11 fire damage halved is 5.
-  # A bonus and a penalty of the same type both apply, so each type has a key per sign.
+  rounding: floor
+  roundIncoming: magnitude
   stacking:
     default: addAll
     keys:
@@ -12,9 +11,6 @@ settings:
       item-bonus: highestOnly
       item-penalty: lowestOnly
       potency-bonus: highestOnly
-      # Only the highest resistance and the highest weakness that apply to a damage change count
-      # (damage is one change per type). A resistance is a positive add capped at the damage, a
-      # weakness a negative one.
       resistance: highestOnly
       weakness: lowestOnly
   rollModifiers:
@@ -30,8 +26,6 @@ fields:
   proficiency.level: { type: integer, formula: level }
   proficiency.untrained: { type: integer, formula: 0 }
 
-  # A boost to an attribute already at +4 or more is a partial boost: two of them raise it by 1.
-  # Each boost pick adds 1 to its attribute's count and a flaw takes 1 off.
   'attributes.{attribute}.boosts': { type: integer, formula: 0, tags: [attribute-boosts] }
   'attributes.{attribute}.mod':
     type: integer
@@ -63,7 +57,6 @@ contentTypes:
     effects:
       - { target: languages, op: grant, value: { formula: item.id } }
 
-  # Each pick is one activation, so a boost picked twice in different choices counts twice.
   boost:
     fields:
       attribute: { type: enum, values: [str, dex, con, int, wis, cha], required: true }

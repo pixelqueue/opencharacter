@@ -1,5 +1,3 @@
-# Computers and Piloting actions: each rolls the skill's check tagged `skill-action.<id>` against the
-# GM's DC; what a degree does is the action's text.
 tags:
   - skill-action.access-infosphere
   - skill-action.hack
@@ -100,7 +98,6 @@ actions:
         result: steps.check.result
         data: { total: steps.check.data.total, dc: steps.check.data.dc }
 
-  # A stunt while Driving: its penalty applies to every Piloting check it calls for.
   - id: stunt
     tags: [skill-action]
     available: skills.piloting.rank >= 1
@@ -130,7 +127,6 @@ actions:
         result: steps.check.result
         data: { total: steps.check.data.total, dc: steps.check.data.dc, penalty: flags.penalty }
 
-  # Cover is the app's to judge: standard cover becomes greater (+4), otherwise standard (+2).
   - id: take-cover
     tags: [skill-action]
     params:

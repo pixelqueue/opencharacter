@@ -4,8 +4,6 @@ tags: [trait.fortune]
 fields: { level: 1, category: skill, skills: [skill] }
 repeatable: true
 
-# Content that grants Assurance for a skill it names passes it as the grant's `skill` state, and the
-# choice isn't asked.
 state:
   skill: { type: string, default: '' }
 effects:
@@ -43,10 +41,6 @@ choices:
     effects:
       - { target: assurance.skills, op: grant, value: { formula: pick.value } }
 
-# Assurance reads only the skill's rank field. A roll step with no dice isn't a checkpoint, and the
-# `degree` bands read its total against the DC with no natural 20 or 1; the step's only tag is
-# `assurance`, so no check effect applies. A skill without Assurance gets no result: the step is
-# skipped and the check fails.
 actions:
   - id: assurance
     tags: [check, assurance]

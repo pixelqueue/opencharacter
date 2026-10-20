@@ -51,8 +51,6 @@ contentTypes:
       ancestry: { type: id, of: ancestry }
       heritage: { type: id, of: heritage }
       class: { type: id, of: class }
-      # A skill feat's skills are those its prerequisites name; `skill.lore` stands for any Lore and
-      # `skill` for any skill.
       skills: { type: set, of: tag, default: [] }
       archetype: { type: id, of: archetype }
     effects:
@@ -62,8 +60,6 @@ contentTypes:
         value: { formula: item.id }
         when: "'trait.dedication' in item.tags"
 
-# A feat is taken once: every feat choice shares the exclusivity group `feats`. Each schedule is one
-# slotted choice keyed `<id>-<level>`.
 choices:
   - { id: free-boosts, pick: 4, from: { type: boost } }
   - { id: boosts, slots: [5, 10, 15, 20], pick: 4, from: { type: boost }, when: level >= slot }
@@ -71,15 +67,11 @@ choices:
     slots: [1, 5, 9, 13, 17]
     unique: feats
     when: level >= slot
-    # The query reads only the item (resolved once); the slot's level and the character's ancestry
-    # are the choice's `eligible`.
     from: { type: feat, where: "item.category == 'ancestry'" }
     eligible: >-
       item.level <= slot && ((has(item.ancestry) && item.ancestry in ancestry.held)
         || (has(item.heritage) && item.heritage in heritages.held)
         || ('ancestry-trait-feat' in item.tags && countList(item.tags, x in traits) > 0))
-  # A skill feat is a general feat too (it has the general trait); an archetype's feats with the
-  # skill trait aren't.
   - id: general-feat
     slots: [3, 7, 11, 15, 19]
     unique: feats

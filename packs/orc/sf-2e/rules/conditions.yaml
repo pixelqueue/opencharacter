@@ -2,8 +2,6 @@ contentTypes:
   condition:
     state:
       value: { type: integer, default: 1, min: 0 }
-      # Grapple sets it, so a release or an Escape from one creature ends only that creature's
-      # conditions.
       by: { type: string, default: '' }
       damage: { type: dice, default: 1d6 }
       damageType:
@@ -47,7 +45,6 @@ fields:
   dying.base: { type: integer, formula: 4 }
   dying.max: { type: integer, formula: dying.base - conditions.doomed }
   dying.recoveryDc: { type: integer, formula: 10 + conditions.dying }
-  # Stunned's lost actions count toward slowed's.
   turn.actionsPerTurn:
     type: integer
     formula: >-

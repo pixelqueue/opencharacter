@@ -1,9 +1,6 @@
 id: features.spellcasting.repertoire
 type: feature
 fields: { level: 1 }
-# A spell picked for a higher rank than its own is known heightened to that rank. Spells content
-# adds by itself (counted in `spells.granted.*`) take the place of picks; those it adds beside them
-# (`spells.bonusKnown`) aren't offered again.
 choices:
   - id: cantrips
     pick: max(0, spellcasting.cantrips - spells.granted.cantrips)

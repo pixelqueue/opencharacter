@@ -1,19 +1,11 @@
-# A ranged weapon with a magazine holds its ammunition in its `ammo` state: each Strike or area attack
-# spends the weapon's Expend, and `reload` refills it from a carried battery, chem tank or rounds.
-# Grades (tactical to paragon) are templates that set the tracking bonus, damage dice and upgrade
-# slots, as runes set potency and striking.
 fields:
   attacks.simple.rank: { type: integer, formula: 0, min: 0, max: 4 }
   attacks.martial.rank: { type: integer, formula: 0, min: 0, max: 4 }
   attacks.advanced.rank: { type: integer, formula: 0, min: 0, max: 4 }
   attacks.unarmed.rank: { type: integer, formula: 0, min: 0, max: 4 }
-  # Guns are ranged weapons with the analog or tech trait; a gun's rank is the better of its category's
-  # and its gun category's.
   attacks.simpleGun.rank: { type: integer, formula: 0, min: 0, max: 4 }
   attacks.martialGun.rank: { type: integer, formula: 0, min: 0, max: 4 }
   attacks.advancedGun.rank: { type: integer, formula: 0, min: 0, max: 4 }
-  # One-handed agile or finesse melee weapons and agile or finesse unarmed attacks (an operative
-  # striker's).
   attacks.agileMelee.rank: { type: integer, formula: 0, min: 0, max: 4 }
   attacks.familiar: { type: set, of: string }
   attacks.trainedWeapons: { type: set, of: weapon }
@@ -23,7 +15,6 @@ fields:
   attacks.int.mod: { type: integer, tags: [check, attack, attr.int], formula: attributes.int.mod }
   damage.str.mod: { type: integer, tags: [damage, attr.str], formula: attributes.str.mod }
   damage.mod: { type: integer, tags: [damage], formula: 0 }
-  # The DC of an area attack: the class DC plus the weapon's tracking bonus (each copy's `areaDc`).
   attacks.areaDc: { type: integer, formula: classDc.value }
   attacks.kickbackStrength: { type: integer, formula: 2 }
 
@@ -91,7 +82,6 @@ contentTypes:
         values:
           [acid, bludgeoning, cold, electricity, fire, mental, piercing, slashing, sonic, void]
         required: true
-      # The other damage types a modular weapon switches to (its `modular` state).
       modularTypes: { type: set, of: string, default: [] }
       hands: { type: integer, default: 1, min: 1, max: 2 }
       range: { type: integer, default: 0, min: 0 }
@@ -103,15 +93,12 @@ contentTypes:
       volley: { type: integer, min: 0 }
       reload: { type: integer, min: 0 }
       boost: { type: dice }
-      # A magazine of 0 is a weapon without ammunition.
       magazine: { type: integer, default: 0, min: 0 }
       ammoKind: { type: enum, values: [none, rounds, charges, chems], default: none }
       expend: { type: integer, default: 1, min: 0 }
       area: { type: enum, values: [none, burst, cone, line], default: none }
       areaSize: { type: integer, default: 0, min: 0 }
-      # A skill whose proficiency the weapon may use (the professional trait).
       professional: { type: string, default: '' }
-      # A ranged weapon that adds Strength to damage (a solar flare).
       strDamage: { type: boolean, default: false }
       upgradeSlots: { type: integer, default: 1, min: 0, max: 4 }
       bulk: { type: decimal, default: 0, min: 0 }
@@ -174,7 +161,6 @@ contentTypes:
             changes:
               - { type: set, field: parry.weapon, value: true }
     effects:
-      # A keyed roll effect, so it competes with any item bonus the attack field has.
       - id: tracking
         target: { rolls: [attack], from: self }
         op: add
@@ -215,8 +201,6 @@ contentTypes:
         tags: [{ formula: "'damage.' + flags.damageType" }]
         multiplied: false
         when: has(flags.crit) && flags.crit && has(item.fatal)
-      # A boosted weapon's next damaging attack adds a die of the boost's size per weapon die,
-      # rolled after doubling.
       - id: boost
         target: { rolls: [damage.strike], from: self }
         op: add
@@ -226,8 +210,6 @@ contentTypes:
         when: has(item.boost) && self.boosted
 
 effects:
-  # Every item of the roll is doubled, dice and flat, effects' bonuses included; deadly's, fatal's
-  # and boost's extra dice are added after doubling.
   - id: critical-double
     target: { rolls: [damage.strike] }
     op: rollModifier
@@ -419,8 +401,6 @@ actions:
         kind: outcome
         result: "'boosted'"
 
-  # Refills the magazine from a carried copy of the weapon's ammunition: a battery or chem tank gives
-  # its charges (the copy is spent), rounds are taken from the stack.
   - id: reload
     tags: [inventory]
     available: >-
@@ -456,9 +436,6 @@ actions:
         result: "'reloaded'"
         data: { ammo: 'self.ammo', actions: 'has(item.reload) ? item.reload : 1' }
 
-  # A reaction (Reactive Strike) neither counts toward the multiple attack penalty nor takes it.
-  # Feats that are Strikes are actions of their own that run the weapon's Strike and tag its rolls
-  # for their own roll effects.
   - id: strike
     tags: [strike]
     available: >-
@@ -535,7 +512,6 @@ actions:
           - when: true
             flags:
               ranged: item.range > 0 || flags.thrown
-              # Overwhelming Assault lowers the penalty against a suppressed target.
               map: >-
                 flags.reaction ? 0
                   : attacks.overwhelmingAssault && size(participants.target) > 0 && participants.target[0].conditions.suppressed
@@ -606,7 +582,6 @@ actions:
                 : maxOf(item.damage) == minOf(item.damage) || item.ownDice ? item.damage
                 : dieOf(item.damage, item.dice)
             tags: [part.weapon-die, { formula: "'damage.' + flags.damageType" }]
-          # Strength for melee and thrown weapons, none for other ranged weapons.
           - value: >-
               flags.formUsed ? battleForm.damage + item.formDamage
                 : item.range > 0 && !('trait.thrown' in item.tags) && !item.strDamage ? self.damageOther
@@ -618,7 +593,6 @@ actions:
           - value: 'item.potency >= 3 ? 2 : 1'
             when: "'trait.backstabber' in item.tags && flags.offGuard"
             tags: [{ formula: "'damage.' + flags.damageType" }]
-      # Tagged `attack-count`, so a feat that holds the Strike's changes can drop it.
       - id: count
         kind: changes
         when: '!flags.reaction'
@@ -675,9 +649,6 @@ actions:
           flatCheck: "!has(steps.flat) || steps.flat.result in ['success', 'critical-success']"
           damage: 'has(steps.damage) ? steps.damage.total : 0'
 
-  # Area Fire and Auto-Fire roll the weapon's damage once; each creature in the area attempts a basic
-  # Reflex save on its own sheet against the area DC (class DC + tracking). A primary target the
-  # player hit first (the soldier's Primary Target) turns its success into a failure.
   - id: area-fire
     tags: [strike, area-attack, trait.attack]
     available: >-

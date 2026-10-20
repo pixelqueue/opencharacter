@@ -1,4 +1,3 @@
-# A spontaneous repertoire is picks, one choice per rank, so a spell is known at a rank.
 tags:
   - spell
   - spell-attack
@@ -72,9 +71,6 @@ fields:
       type: integer,
       formula: 'spellcasting.rank > 0 ? 2 * spellcasting.rank + proficiency.level : proficiency.untrained',
     }
-  # Each is tagged with the spellcasting attribute (a computed tag), so typed bonuses and penalties
-  # to that attribute's checks and DCs reach them. A DC isn't 10 + the attack modifier: a bonus to
-  # attack rolls doesn't raise it.
   spellcasting.attributeMod:
     type: integer
     formula: >-
@@ -355,7 +351,6 @@ contentTypes:
       applyAt: { type: integer, default: 2, min: 1, max: 3 }
       stabilizes: { type: boolean, default: false }
       copyTemplates: { type: set, of: string }
-    # An applied spell's `outcome` is the target's: 1 success, 2 failure, 3 critical failure.
     state:
       rank: { type: integer, default: item.rank, min: 1, max: 10 }
       source: { type: string, default: '' }
@@ -659,8 +654,6 @@ actions:
                 item.healingBonus + flags.steps * item.heightenHealingBonus
                   + (flags.actions == 2 ? item.twoActionHealing * (flags.steps + 1) : 0)
               tempHp: 'item.tempHp + flags.steps * item.heightenTempHp'
-              # Every spell attack of one cast takes the multiple attack penalty the cast starts at;
-              # they count toward it only after all of them.
               attackNumber: 'min(3, turn.attacks + 1)'
       - id: attack
         kind: action
@@ -762,9 +755,6 @@ actions:
           check: "'saves.' + item.defense + '.mod'"
           dc: flags.dc
           spellRank: flags.rank
-      # Each target's outcome, a flag per target: 3 a critical failure (an attack's critical hit), 2
-      # a failure (a hit), 1 a success, 0 a critical success (a miss); 2 for a spell with no
-      # defense. Outside the per-target steps, `flags.outcome` is the list.
       - id: degree
         kind: branch
         each: target

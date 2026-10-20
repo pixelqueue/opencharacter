@@ -1,7 +1,3 @@
-# A skill's proficiency rank is derived: 1 when trained, plus the increases spent on it. Content
-# that trains a skill grants its tag into `skills.trained` and adds 1 to `skills.trainings`; the
-# player's training choices grant into `skills.chosen`. A Lore of the player's choice (a planet, a
-# settlement, a deity) is one of three, named by the subject the player writes.
 families:
   skill:
     [
@@ -2380,8 +2376,6 @@ fields:
       attributes.int.mod + (skills.lore.custom3.rank > 0 ? 2 * skills.lore.custom3.rank + proficiency.level : proficiency.untrained)
     nameFrom: skills.lore.custom3.subject
 
-# A skill content trains twice, or content trains a skill the player already trained, frees a
-# training in another skill of the player's choice, one not trained yet.
 choices:
   - id: extra-training
     unique: skill-training
@@ -2448,7 +2442,6 @@ choices:
     effects:
       - { target: skills.chosen, op: grant, value: { formula: pick.value } }
 
-# A skill trained by a skill increase counts as a training the player chose.
 effects:
   - {
       target: skills.chosen,

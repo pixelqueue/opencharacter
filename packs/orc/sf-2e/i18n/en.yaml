@@ -46,7 +46,6 @@ bands.degree.critical-success.name: Critical success
 bands.degree.failure.name: Failure
 bands.degree.rolled.name: Rolled
 bands.degree.success.name: Success
-# How a degree reads: its `roll.value` tests are the degree, not the DC.
 bands.degree.critical-success.condition: 'Meet the DC by 10 or more'
 bands.degree.success.condition: 'Meet the DC'
 bands.degree.failure.condition: 'Miss the DC'
@@ -331,11 +330,6 @@ types.weapon.computed.specialization.name: Weapon specialization
 types.weapon.name: Weapon
 types.weapon.state.wielding.name: Held in
 
-# Content blocks: each type's header line, filled from the item's fields (with the type's defaults),
-# and the names of the enum values they show. Traits are the item's tags (traditions and roll tags
-# among them). A spell's header names a cantrip or a focus spell by its tag (`tag_trait_cantrip`); a
-# rune (a template) has its own block (i18n/en/equipment.yaml). Apps show the block, then the
-# description.
 types.spell.block: >-
   **{name}** — *{tag_trait_cantrip, select, true {Cantrip} other {{tag_trait_focus, select, true {Focus} other {Spell}}}} {rank}*{has_tags, select, true { · {tags_name}} other {}} · {cast_name}{has_texts_trigger, select, true { · Trigger {texts_trigger}} other {}}{has_texts_requirements, select, true { · Requirements {texts_requirements}} other {}}{has_range, select, true { · Range {range, select, 0 {touch} other {{range} feet}}} other {}}{has_areaSize, select, true { · Area {areaSize}-foot {area, select, burst {burst} cone {cone} emanation {emanation} line {line} square {square} cube {cube} wall {wall} other {area}}} other {}}{has_targets, select, true { · {targets, plural, one {1 target} other {# targets}}} other {}}{has_defense, select, true { · Defense {basic, select, true {basic } other {}}{defense_name}} other {}}{has_duration, select, true { · {sustained, select, true {Sustained up to } other {}}{duration, select, rounds {{durationAmount, plural, one {# round} other {# rounds}}} minutes {{durationAmount, plural, one {# minute} other {# minutes}}} hours {{durationAmount, plural, one {# hour} other {# hours}}} days {{durationAmount, plural, one {# day} other {# days}}} other {{duration_name}}}} other {}}
 types.spell.fields.cast.values.free.name: 'Free action'
@@ -409,7 +403,6 @@ types.gear.block: >-
   **{name}** — *Gear*{has_tags, select, true { · {tags_name}} other {}}{bulk, plural, =0 {} other { · Bulk {bulk_name}}}{has_price, select, true { · {price} gp} other {}}
 types.consumable.block: >-
   **{name}** — *{category_name} {level}*{has_tags, select, true { · {tags_name}} other {}}{has_healing, select, true { · Restores {healing} HP} other {}}{bulk, plural, =0 {} other { · Bulk {bulk_name}}}{has_price, select, true { · {price} gp} other {}}
-# Light Bulk (0.1) reads L: any field value may have a name.
 types.weapon.fields.bulk.values.0.1.name: 'L'
 types.armor.fields.bulk.values.0.1.name: 'L'
 types.shield.fields.bulk.values.0.1.name: 'L'
@@ -419,7 +412,6 @@ types.consumable.fields.bulk.values.0.1.name: 'L'
 units.ft.name: feet
 units.ft.short: ft
 
-# Tag names: every declared tag, parents included
 tags.ac.name: 'Armor Class'
 tags.assurance.name: 'Assurance'
 tags.attack.name: 'Attack'
