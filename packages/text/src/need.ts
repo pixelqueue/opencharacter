@@ -77,6 +77,7 @@ export function describeNeed(
       out.title = text.stepName(needs);
       out.dice = text.dice(
         needs.items?.some((i) => i.kind === 'dice') ? needs.items : (needs.dice ?? []),
+        needs.repeat,
       );
       if (needs.summary?.bandSet) out.targets = text.rollTargets(needs.summary);
       break;
