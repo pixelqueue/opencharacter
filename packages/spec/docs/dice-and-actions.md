@@ -160,6 +160,22 @@ proposed change may also have a `when` condition. A rolled starting weapon:
 The returned change is an ordinary `addItem`. A literal `item` is checked at build time; a
 computed one when the action runs.
 
+A later step finds the new copies through `steps.<id>.added`: the instance IDs a changes or
+choice step's `addItem`s gave the actor's new copies, in order, the ones the engine picked
+included. So an action can ask the new copy's own choices, set its state or pick in it, with no
+naming scheme. A focus gained twice gets two copies; each run asks only its own:
+
+```yaml
+- id: focus
+  kind: choice
+  options: { content: { type: focus } }
+  changes:
+    - { type: addItem, entry: { item: picked.id } }
+- id: picks
+  kind: choice
+  options: { pending: { entry: 'steps.focus.added[0]' } }
+```
+
 A pick's `option` in `choices` may be `{ formula }`, evaluated by the action (with
 `x` under `forEach`) to a string or number; the tree's keys stay literal. applyChanges checks an
 added copy's picks as it would a `choose` of each (`unknown-choice`, `invalid-option`). 5E's
@@ -467,15 +483,15 @@ before. The changes name the actor's own fields, as `to: target` changes do.
 
 ### Steps
 
-| Kind       | Does                                                                                                                                                                                                              | Result                                |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| `roll`     | Rolls `parts` (one roll item each); roll effects matching the step's `tags` add items, modify dice or bound the total; an optional `bands` set classifies it; with `of`, classifies an earlier roll again (below) | `steps.<id>.total`, `.dice`, `.band`  |
-| `choice`   | Offers `options` from one source (below); `recommend` or `prefer` names the rules' pick; `repeat` picks more than once                                                                                            | `steps.<id>.picked`, `.item`, `.self` |
-| `allocate` | Spends a budget across fields, or hands out a list of values, one per field ([below](#allocate-steps))                                                                                                            | `steps.<id>.amounts`                  |
-| `branch`   | Runs the first case whose `when` is true (else `else`), sets its `flags` and runs its `steps`                                                                                                                     | `flags.<name>`                        |
-| `changes`  | Proposes changes for the app to apply, `to: self` (default), `to: target`, `to: <role>` or `to: { link: <slot> }`; `release` proposes held ones; content adds to a tagged one (below)                             | —                                     |
-| `action`   | Runs another action (`use`, `params`, and `source`, `participants` and `tags` below), e.g. a panic check after a failed save; with `as: participant`, hands it off                                                | `steps.<id>.result`, `.data`          |
-| `outcome`  | Ends the action with `result` and `data`                                                                                                                                                                          | —                                     |
+| Kind       | Does                                                                                                                                                                                                              | Result                                          |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `roll`     | Rolls `parts` (one roll item each); roll effects matching the step's `tags` add items, modify dice or bound the total; an optional `bands` set classifies it; with `of`, classifies an earlier roll again (below) | `steps.<id>.total`, `.dice`, `.band`            |
+| `choice`   | Offers `options` from one source (below); `recommend` or `prefer` names the rules' pick; `repeat` picks more than once                                                                                            | `steps.<id>.picked`, `.item`, `.self`, `.added` |
+| `allocate` | Spends a budget across fields, or hands out a list of values, one per field ([below](#allocate-steps))                                                                                                            | `steps.<id>.amounts`                            |
+| `branch`   | Runs the first case whose `when` is true (else `else`), sets its `flags` and runs its `steps`                                                                                                                     | `flags.<name>`                                  |
+| `changes`  | Proposes changes for the app to apply, `to: self` (default), `to: target`, `to: <role>` or `to: { link: <slot> }`; `release` proposes held ones; content adds to a tagged one (below)                             | `steps.<id>.added`                              |
+| `action`   | Runs another action (`use`, `params`, and `source`, `participants` and `tags` below), e.g. a panic check after a failed save; with `as: participant`, hands it off                                                | `steps.<id>.result`, `.data`                    |
+| `outcome`  | Ends the action with `result` and `data`                                                                                                                                                                          | —                                               |
 
 Every step may have `when`; a step whose `when` is false is skipped. Roll, choice, changes,
 action and branch steps may have `each: <role>` ([Participants](#participants)).
