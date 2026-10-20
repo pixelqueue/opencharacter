@@ -1,6 +1,6 @@
-# A 1st-level Warrior with a soldier's background: rolled attributes with Strength raised to 14,
-# the quick skills, Armsmaster as the Warrior's combat Focus and Die Hard as the free one,
-# pieced armor and a large shield, and a short sword.
+# A 1st-level Warrior with a barbarian's background: rolled attributes with Strength raised to 14,
+# two Learning picks, Armsmaster as the Warrior's combat Focus and Die Hard as the free one, and
+# 140 silver spent on pieced armor, a large shield, a short sword and a dagger.
 specVersion: 0.1.0
 id: example-wn-fantasy-brannoc
 packs:
@@ -12,8 +12,8 @@ values:
   wn-fantasy:attributes.int.score: 8
   wn-fantasy:attributes.wis.score: 10
   wn-fantasy:attributes.cha.score: 7
-  # Soldier: Stab-0 free, Exert-0 and Survive-0 quick; Armsmaster's Stab makes it Stab-1;
-  # Notice-0 is the free pick.
+  # Barbarian: Survive-0 free, Any Combat (Stab-0) and Exert-0 from Learning; Armsmaster's Stab
+  # makes it Stab-1; Notice-0 is the free pick.
   wn-fantasy:skills.stab: 1
   wn-fantasy:skills.exert: 0
   wn-fantasy:skills.survive: 0
@@ -21,10 +21,12 @@ values:
   # 1d6 + 2 + Constitution +1.
   wn-fantasy:hp.rolled: 7
   wn-fantasy:hp.current: 9
-  wn-fantasy:coins.silver: 12
+  # 140 silver less 126 silver 6 copper of gear.
+  wn-fantasy:coins.silver: 13
+  wn-fantasy:coins.copper: 4
 features:
   - id: background
-    item: wn-fantasy:backgrounds.soldier
+    item: wn-fantasy:backgrounds.barbarian
   - id: class
     item: wn-fantasy:classes.warrior
   - id: focus-1

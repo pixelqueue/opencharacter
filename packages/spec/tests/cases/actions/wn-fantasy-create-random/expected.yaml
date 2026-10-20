@@ -7,42 +7,42 @@ proposedChanges:
     change:
       type: set
       field: wn-fantasy:attributes.str.score
-      value: 14
+      value: 11
   - to: self
     step: rolled/scores
     change:
       type: set
       field: wn-fantasy:attributes.dex.score
-      value: 15
+      value: 8
   - to: self
     step: rolled/scores
     change:
       type: set
       field: wn-fantasy:attributes.con.score
-      value: 6
+      value: 12
   - to: self
     step: rolled/scores
     change:
       type: set
       field: wn-fantasy:attributes.int.score
-      value: 10
+      value: 7
   - to: self
     step: rolled/scores
     change:
       type: set
       field: wn-fantasy:attributes.wis.score
-      value: 13
+      value: 10
   - to: self
     step: rolled/scores
     change:
       type: set
       field: wn-fantasy:attributes.cha.score
-      value: 9
+      value: 11
   - to: self
     step: rolled/fourteen
     change:
       type: set
-      field: wn-fantasy:attributes.con.score
+      field: wn-fantasy:attributes.int.score
       value: 14
   - to: self
     step: background
@@ -50,30 +50,36 @@ proposedChanges:
       type: addItem
       entry:
         id: background
-        item: wn-fantasy:backgrounds.slave
+        item: wn-fantasy:backgrounds.artisan
   - to: self
     step: freeSkill/skill/raise
     change:
       type: adjust
-      field: wn-fantasy:skills.sneak
+      field: wn-fantasy:skills.craft
       by: 1
   - to: self
     step: rolls/rolled1/skill/raise
     change:
       type: adjust
-      field: wn-fantasy:skills.convince
+      field: wn-fantasy:skills.exert
       by: 1
   - to: self
     step: rolls/rolled2/skill/raise
     change:
       type: adjust
-      field: wn-fantasy:skills.administer
+      field: wn-fantasy:skills.trade
       by: 1
   - to: self
-    step: rolls/rolled3/skill/raise
+    step: rolls/rolled3/attribute/two
     change:
       type: adjust
-      field: wn-fantasy:skills.work
+      field: wn-fantasy:attributes.str.score
+      by: 1
+  - to: self
+    step: rolls/rolled3/attribute/two
+    change:
+      type: adjust
+      field: wn-fantasy:attributes.dex.score
       by: 1
   - to: self
     step: class
@@ -87,23 +93,23 @@ proposedChanges:
     change:
       type: addItem
       entry:
-        id: foci-armsmaster-1
-        item: wn-fantasy:foci.armsmaster
+        id: foci-alert-1
+        item: wn-fantasy:foci.alert
         state:
           level: 1
   - to: self
     step: warriorFocus/bonusSkill/raise
     change:
       type: adjust
-      field: wn-fantasy:skills.stab
+      field: wn-fantasy:skills.notice
       by: 1
   - to: self
     step: freeFocus/take
     change:
       type: addItem
       entry:
-        id: foci-developed-attribute-1
-        item: wn-fantasy:foci.developed-attribute
+        id: foci-specialist-1
+        item: wn-fantasy:foci.specialist
         state:
           level: 1
   - to: self
@@ -111,22 +117,28 @@ proposedChanges:
     change:
       type: choose
       path:
-        entry: foci-developed-attribute-1
+        entry: foci-specialist-1
         choice:
-          - attribute
-      option: int
+          - skill
+      option: convince
+  - to: self
+    step: freeFocus/bonusSkill/raise
+    change:
+      type: adjust
+      field: wn-fantasy:skills.convince
+      by: 1
   - to: self
     step: freePick/raise
     change:
       type: adjust
-      field: wn-fantasy:skills.connect
+      field: wn-fantasy:skills.convince
       by: 1
   - to: self
     step: hp
     change:
       type: set
       field: wn-fantasy:hp.rolled
-      value: 5
+      value: 4
   - to: self
     step: equipment
     change:
@@ -216,7 +228,7 @@ proposedChanges:
     change:
       type: set
       field: wn-fantasy:hp.current
-      value: 5
+      value: 4
   - to: self
     step: finish
     change:

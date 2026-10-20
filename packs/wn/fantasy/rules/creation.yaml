@@ -72,26 +72,12 @@ actions:
                   attributes.wis.score: 9
                   attributes.cha.score: 7
 
-      # Background: a d20 on the background table for the random start.
-      - {
-          id: backgroundRoll,
-          kind: roll,
-          when: params.random,
-          tags: [creation],
-          parts: [{ dice: 1d20 }],
-        }
+      # Background: the SRD's two, drawn evenly for the random start.
       - id: background
         kind: choice
+        random: params.random
         options: { content: { type: background } }
-        recommend: >-
-          has(steps.backgroundRoll)
-            ? [@backgrounds.artisan, @backgrounds.barbarian, @backgrounds.carter,
-              @backgrounds.courtesan, @backgrounds.criminal, @backgrounds.hunter,
-              @backgrounds.laborer, @backgrounds.merchant, @backgrounds.noble, @backgrounds.nomad,
-              @backgrounds.peasant, @backgrounds.performer, @backgrounds.physician,
-              @backgrounds.priest, @backgrounds.sailor, @backgrounds.scholar, @backgrounds.slave,
-              @backgrounds.soldier, @backgrounds.thug, @backgrounds.wanderer][steps.backgroundRoll.total - 1]
-            : options[0]
+        recommend: options[0]
         changes:
           - type: addItem
             entry: { id: background, item: picked.id }
@@ -114,26 +100,13 @@ actions:
         use: background-entry
         params: { entry: steps.background.item.freeSkill, random: params.random }
 
-      # The background's skills: its quick skills, two picks from Learning, or three rolls split
-      # between Growth and Learning (the random start rolls).
+      # The background's skills: two picks from Learning, or three rolls split between Growth and
+      # Learning (the random start rolls).
       - id: skills
         kind: choice
         when: '!params.random'
-        options: [{ id: quick }, { id: pick }, { id: roll }]
-        recommend: "'quick'"
-      - id: quick
-        kind: branch
-        cases:
-          - when: "!params.random && steps.skills.picked == 'quick'"
-            steps:
-              - id: quick1
-                kind: action
-                use: background-entry
-                params: { entry: steps.background.item.quick1 }
-              - id: quick2
-                kind: action
-                use: background-entry
-                params: { entry: steps.background.item.quick2 }
+        options: [{ id: pick }, { id: roll-tables }]
+        recommend: "'pick'"
       - id: learn
         kind: branch
         cases:
@@ -165,7 +138,7 @@ actions:
       - id: rolls
         kind: branch
         cases:
-          - when: "params.random || steps.skills.picked == 'roll'"
+          - when: "params.random || steps.skills.picked == 'roll-tables'"
             steps:
               - id: table1
                 kind: choice

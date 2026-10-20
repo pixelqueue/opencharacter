@@ -58,8 +58,8 @@ computeSheet(ruleset, made.character).values['wn-fantasy:saves.physical']?.value
 - **Skills:** the 21 skills, -1 (untrained) to 4. `skill-check` rolls 2d6 (kept highest two, so
   a Specialist's or a Gifted Chirurgeon's extra dice drop the lowest) plus the skill and an
   attribute modifier against a difficulty. No new character has a skill above level-1.
-- **Backgrounds:** twenty, each with its free skill, quick skills and Growth and Learning tables.
-  The SRD gives two (Artisan, Barbarian); the other eighteen follow the free edition's tables.
+- **Backgrounds:** the SRD's two, Artisan and Barbarian, each with its free skill and Growth and
+  Learning tables. A table's own backgrounds are homebrew content of the same type.
 - **Classes:** Warrior (Killing Blow), Expert (Quick Learner's extra skill point), Mage (High
   Mage, Elementalist, Necromancer or Invoker), and the Adventurer with two partial classes:
   partial Warrior, Expert or Mage, or the partial-only Accursed, Bard, Beastmaster, Blood Priest,
@@ -87,9 +87,9 @@ computeSheet(ruleset, made.character).values['wn-fantasy:saves.physical']?.value
 - **Gear:** the SRD's weapons, armor, adventuring gear, gear bundles and beasts, with
   encumbrance in Readied and Stowed items, bundles, worn clothing, coins and movement.
 - **Creation:** two starts running `create-character`, in the book's order.
-  - `random`: attributes, the background (d20), and three rolls split between Growth and
-    Learning are rolled; the class, partial classes, Foci, arts, spells and equipment package
-    are drawn evenly among the options open, so an automatic run finishes.
+  - `random`: attributes and three rolls split between Growth and Learning are rolled; the
+    background, class, partial classes, Foci, arts, spells and equipment package are drawn
+    evenly among the options open, so an automatic run finishes.
   - `guided`: the player picks, each pick recommended.
 
 ## Left to the app or the table
@@ -103,6 +103,5 @@ computeSheet(ruleset, made.character).values['wn-fantasy:saves.physical']?.value
 
 ## Sources
 
-The Worlds Without Number SRD v1.0 (CC0). The eighteen backgrounds the SRD leaves out and the
-starting equipment packages follow the free edition of Worlds Without Number, as mechanics
-only.
+The Worlds Without Number SRD v1.0 (CC0). The starting equipment packages follow the free
+edition of Worlds Without Number, as mechanics only.
