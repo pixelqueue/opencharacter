@@ -13,9 +13,13 @@ fields:
   effort.day: { type: integer, input: true, default: 0, min: 0 }
   # Effort gained by torching, which lasts for the scene.
   effort.torched: { type: integer, input: true, default: 0, min: 0 }
+  # Effort Committed for as long as a technique lasts, held on that technique's copy.
+  effort.active:
+    type: integer
+    formula: "sumCopies(copy.state.committed, copy.type == 'technique' && has(copy.state.committed))"
   effort.available:
     type: integer
-    formula: effort.max + effort.torched - effort.scene - effort.day
+    formula: effort.max + effort.torched - effort.scene - effort.day - effort.active
     limits: { min: 0 }
 
 contentTypes:
@@ -29,6 +33,12 @@ contentTypes:
       level: { type: integer, required: true, min: 0, max: 4 }
       # The discipline's core technique: every psychic with the skill has it.
       core: { type: boolean, default: false }
+    state:
+      # Effort Committed to keep the technique going, until it is released.
+      committed: { type: integer, default: 0, min: 0 }
+    actions:
+      - use: sustain-technique
+      - use: release-technique
 
 constraints:
   # Only psychics have psychic skills, and a restricted psychic only their one discipline.
@@ -38,3 +48,29 @@ constraints:
         || sumFields(f.value >= 0 && (psionics.access == 'none'
           || f.id != 'swn-revised:skills.' + psionics.discipline + '.level') ? 1 : 0,
           'skill.psychic' in f.tags) == 0
+
+actions:
+  # Commit a point of Effort for as long as the technique lasts: it stays Committed on the
+  # technique until the psychic releases it, ending the power.
+  - id: sustain-technique
+    tags: [psionics]
+    available: effort.available > 0 && has(self.committed)
+    results: [committed]
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: committed, by: 1 }
+      - { id: result, kind: outcome, result: "'committed'" }
+
+  # Reclaim the Effort a technique holds, ending it.
+  - id: release-technique
+    tags: [psionics]
+    available: has(self.committed) && self.committed > 0
+    results: [released]
+    steps:
+      - id: release
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: committed, value: 0 }
+      - { id: result, kind: outcome, result: "'released'" }

@@ -89,7 +89,10 @@ display:
       quantity: { hidden: true }
       state:
         level: { priority: 0 }
-    technique: { quantity: { hidden: true } }
+    technique:
+      quantity: { hidden: true }
+      state:
+        committed: { priority: 0, showWhen: self.committed > 0 }
     cyberware: { quantity: { hidden: true } }
     weapon:
       state:
@@ -153,6 +156,7 @@ display:
     effort.max: { groups: [psionics], priority: 1 }
     effort.scene: { groups: [psionics], priority: 1 }
     effort.day: { groups: [psionics], priority: 1 }
+    effort.active: { groups: [psionics], priority: 1, showWhen: effort.active > 0 }
     effort.torched: { groups: [psionics], priority: 2 }
     psionics.access: { groups: [psionics], priority: 1 }
     psionics.discipline: { groups: [psionics], priority: 1, showWhen: "psionics.discipline != ''" }

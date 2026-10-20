@@ -102,7 +102,9 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
 - **Psionics:** the six disciplines, their core techniques (held while the skill is level-0 or
   better) and 63 techniques, each needing its skill level. Effort is 1 + the highest psychic
   skill + the better of Wisdom and Constitution modifiers (at least 1); `commit-effort` commits
-  it for the scene or the day, and `torch` rolls the torching table for a free point.
+  it for the scene or the day, `sustain-technique` commits a point to a technique for as long as
+  it lasts (held on the technique's copy until `release-technique` reclaims it), and `torch`
+  rolls the torching table for a free point.
 - **Advancement:** the experience table (a `level-up` follow-up to 10th level; later levels are
   the GM's call). `level-up` rolls the hit dice, grants three skill points (one psychic for a
   psychic, plus the Expert's), and a focus level at 2nd, 5th, 7th and 10th. `raise-skill`,
