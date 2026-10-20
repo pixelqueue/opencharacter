@@ -692,8 +692,8 @@ function startFrame(
   const ownerSource: Source = activation?.item
     ? { type: 'item', id: activation.item.qid, ...(entry !== undefined ? { entry } : {}) }
     : { type: 'rules', id };
-  const own = activation ? sheet.actionRoots(activation) : undefined;
-  const base: Record<string, unknown> = own ? { item: own.item, self: own.self } : {};
+  const own = activation ? sheet.actionRoots(activation) : sheet.rulesRoots();
+  const base: Record<string, unknown> = ownerRoots(own);
   const given = nested.situational ?? ctx.state.situational;
   const situational = situationalRoot(ctx, pack, given);
   const frame: Frame = {
@@ -1063,16 +1063,29 @@ function activationKey(a: Activation): string {
 }
 
 function onSheet(ctx: Ctx, frame: Frame): Frame {
-  if (frame.sheet === ctx.sheet || !frame.activation) return frame;
+  if (frame.sheet === ctx.sheet) return frame;
+  // A rules action reads the rules' picks, which may have changed.
+  if (!frame.activation)
+    return { ...frame, roots: { ...frame.roots, ...ownerRoots(ctx.sheet.rulesRoots()) } };
   const key = activationKey(frame.activation);
   const found = ctx.sheet.activations.find((a) => activationKey(a) === key);
   const roots = { ...frame.roots };
   delete roots.item;
   delete roots.self;
-  const own = found ? ctx.sheet.actionRoots(found) : undefined;
-  if (own?.item !== undefined) roots.item = own.item;
-  if (own?.self !== undefined) roots.self = own.self;
-  return { ...frame, sheet: ctx.sheet, roots };
+  delete roots[f.OWNER_PICKS];
+  return {
+    ...frame,
+    sheet: ctx.sheet,
+    roots: { ...roots, ...(found ? ownerRoots(ctx.sheet.actionRoots(found)) : {}) },
+  };
+}
+
+/** The roots an action takes from its owner: `item`, `self` and the picks `picksOf` reads. */
+function ownerRoots(own: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const key of ['item', 'self', f.OWNER_PICKS])
+    if (own[key] !== undefined) out[key] = own[key];
+  return out;
 }
 
 /** Its result is the list of per-participant results, null where `when` skipped one. */
