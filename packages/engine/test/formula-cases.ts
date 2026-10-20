@@ -23,6 +23,8 @@ export interface FormulaCase {
   roots?: Record<string, unknown> | string[];
   rootTypes?: Record<string, unknown>;
   character?: false | { copies?: CaseCopy[]; choices?: string[] };
+  /** The formula's owner's choices and their picks; giving it binds `picksOf`. */
+  picks?: Record<string, (string | number)[]>;
   value?: unknown;
   valueType?: string;
   expect?: string;
@@ -129,7 +131,7 @@ export function evalContext(c: FormulaCase): f.EvalContext {
   const character = characterQueries(c);
   return {
     field: (id) => (Object.hasOwn(fields, id) ? fieldValue(fields[id] as FieldSpec) : undefined),
-    roots,
+    roots: c.picks ? { ...roots, [f.OWNER_PICKS]: c.picks } : roots,
     ...(character ? { character } : {}),
   };
 }
@@ -146,6 +148,7 @@ export function checkContext(c: FormulaCase): f.CheckContext {
     ),
     character: c.character !== false,
     ...(c.character && c.character.choices ? { choices: true } : {}),
+    ...(c.picks ? { picks: true } : {}),
   };
 }
 

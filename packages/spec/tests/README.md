@@ -82,6 +82,8 @@ cases:
 - A copy in `character.copies` gives its `type`; missing keys take defaults: `equipped` false,
   `quantity` 1, `tags` and `templates` `[]`, `state` and `fields` `{}`, and an `id` and `item`
   of the runner's choosing. Copies are in order (inventory first, as engines list them).
+- `picks` binds `picksOf`: the formula's owner's choices by key, each a list of its picks
+  (`picks: { plus-two: [str], languages: [] }`). Without it, `picksOf` is unbound.
 - The case's `fields` are also the ruleset's fields that `countFields`, `sumFields`,
   `maxFields` and `minFields` go over, in the order given; `f.id` is the key, `f.type` the
   `type` and `f.tags` the `tags` (default `[]`).

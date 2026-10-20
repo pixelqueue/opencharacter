@@ -1,0 +1,63 @@
+description: "picksOf: the saved picks of a choice of the formula's owner"
+specVersion: 0.1.0
+cases:
+  # `picks` is the owner's choices and their picks; giving it binds `picksOf`.
+  - name: a sibling choice's picks
+    evaluate: picksOf('plus-two')
+    picks: { plus-two: [str], plus-one: [] }
+    value: [str]
+    valueType: list
+  - name: a choice with no picks
+    evaluate: picksOf('plus-one')
+    picks: { plus-two: [str], plus-one: [] }
+    value: []
+    valueType: list
+  - name: counting picks
+    evaluate: max(1, size(picksOf('powers')) - 1)
+    picks: { powers: [claws, flight, venom] }
+    value: 2
+    valueType: int
+  - name: leaving out another choice's pick
+    evaluate: filterList(['str', 'dex', 'con'], !(x in picksOf('plus-two')))
+    picks: { plus-two: [dex] }
+    value: [str, con]
+    valueType: list
+  - name: number values
+    evaluate: picksOf('rank')
+    picks: { rank: [2, 3] }
+    value: [2, 3]
+    valueType: list
+  - name: a slot by its key
+    evaluate: picksOf('class-feat-2')
+    picks: { class-feat-1: [a], class-feat-2: [b] }
+    value: [b]
+    valueType: list
+  - name: a choice the owner doesn't have
+    evaluate: picksOf('plus-three')
+    picks: { plus-two: [str] }
+    error: no-such-key
+  - name: not bound without an owner
+    evaluate: picksOf('plus-two')
+    error: unknown-function
+  - name: the argument is a string literal
+    evaluate: picksOf(1)
+    picks: { plus-two: [str] }
+    error: type-mismatch
+  - name: one argument
+    evaluate: picksOf('a', 'b')
+    picks: { a: [], b: [] }
+    error: wrong-arity
+  # Checking.
+  - name: a list
+    check: size(picksOf('powers'))
+    picks: { powers: [] }
+    expect: int
+    type: int
+  - name: not bound elsewhere
+    check: picksOf('powers')
+    error: unknown-function
+  - name: checking a computed argument
+    check: picksOf(name)
+    roots: [name]
+    picks: { powers: [] }
+    error: type-mismatch

@@ -44,6 +44,8 @@ export interface CheckContext {
   character: boolean;
   /** Whether `hasChoice` is bound (display hints' `showWhen`). */
   choices?: boolean;
+  /** Whether `picksOf` is bound: the formula has an owner whose choices it can read. */
+  picks?: boolean;
   /** Inside an aggregate's argument, where no aggregate is bound again. */
   inAggregate?: boolean;
   /** Whether an ID literal names content or a field the pack sees; unbound, any ID passes. */
@@ -384,6 +386,14 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
       arity(1);
       wants(types()[0] as FType, (t) => t === 'string', 'a string');
       return 'bool';
+    case 'picksOf': {
+      if (!ctx.picks)
+        return fail('unknown-function', 'picksOf() is bound only where the formula has an owner');
+      arity(1);
+      if (args[0]?.type !== 'string')
+        return mismatch('picksOf() takes a choice ID, a string literal');
+      return { list: 'dyn' };
+    }
     case 'indexOf':
       arity(2);
       wants(types()[0] as FType, (t) => isList(t), 'a list');

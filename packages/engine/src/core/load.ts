@@ -1174,6 +1174,7 @@ const CHARACTER_FUNCTIONS = new Set([
   'countEquipped',
   'countState',
   'sumState',
+  'picksOf',
 ]);
 
 /** Whether a query condition reads only `item`, so it can be resolved at load time. */
