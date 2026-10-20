@@ -10,7 +10,6 @@ state:
 effects:
   - { target: combat.ac, op: add, value: 1, when: self.attuned }
   - { target: items.spellSaveAdvantage, op: set, value: true, when: self.attuned }
-  # Preservation: a failed save against a Necromancy spell or an Undead's harmful effect.
   - target: { choices: [failed-save] }
     op: option
     when: self.attuned && self.charges > 0 && has(params.dc)

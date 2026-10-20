@@ -1,7 +1,5 @@
 families:
   slot: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-  # Each source of spells with its own spellcasting ability: the classes, species traits, the three
-  # lists of Magic Initiate, and monsters. The first that has a spell casts it.
   caster:
     [
       bard,
@@ -23,27 +21,17 @@ fields:
   'spellcasting.{caster}.dc': { type: integer, formula: 0 }
   'spellcasting.{caster}.attack': { type: integer, formula: 0 }
   'spellcasting.{caster}.mod': { type: integer, formula: 0 }
-  # The spells each source has prepared (or knows: cantrips, a species' spells).
   'spells.{caster}': { type: set, of: spell }
-  # A wizard's spellbook: a spell only in the book is cast only as a Ritual.
   spells.wizardBook: { type: set, of: spell }
-  # Spells some feature lets the character cast without a slot (its option on the `spell-cost`
-  # step says how often), and spells that can't use a slot at all.
   spells.free: { type: set, of: spell }
   spells.limited: { type: set, of: spell }
-  # Spells an item casts at will.
   spells.atWill: { type: set, of: spell }
   spells.monsterAtWill: { type: set, of: spell }
 
-  # Levels in the Spellcasting classes: a full caster's levels, half a Paladin's or Ranger's
-  # (round up). Pact Magic is separate.
   spellcasting.casterLevel: { type: integer, formula: 0 }
   spellcasting.monster.level: { type: integer, formula: 0, min: 0 }
-  # Rage, Wild Shape, armor without training: no spells.
   spellcasting.blocked: { type: boolean, formula: false }
   spellcasting.potentCantrip: { type: boolean, formula: false }
-  # Metamagic options are offered on a cast (the sorcerer's Metamagic feature), this many on one
-  # spell besides Empowered Spell.
   sorcery.metamagic: { type: boolean, formula: false }
   sorcery.metamagicPerSpell: { type: integer, formula: 1, min: 1 }
 
@@ -87,9 +75,6 @@ fields:
   concentration.active: { type: boolean, input: true, default: false }
 
 followUps:
-  # One per batch, so one per attack or spell when the app applies each as its own batch. The damage
-  # is what the creature took, after resistance and before temporary hit points, summed over the
-  # types.
   - id: concentration
     on: { field: hp.current, tags: [damage], once: true }
     required: true
@@ -104,10 +89,6 @@ followUps:
       - { type: set, field: concentration.active, value: false }
 
 actions:
-  # Without `slotType`, a spell slot is spent when one of that level is left and a pact slot when
-  # only a pact slot can pay; when both can, the `slotKind` step asks, recommending the pact slot
-  # for a warlock spell. An attack spell rolls one attack against the first target, and its damage
-  # goes to each target, so apps pass one target per attack.
   - id: cast-spell
     tags: [spell]
     available: >-
@@ -149,8 +130,6 @@ actions:
                   && (copy.type == 'magicItem' || 'magic' in copy.tags)) > 0
               stored: countCopies(copy.id == self.id && copy.type == 'storedSpell') > 0
               castAbility: "'class'"
-              # One flag per Metamagic option the cast uses; `metamagicCount` counts those that
-              # count toward the limit (Empowered Spell doesn't).
               careful: false
               distant: false
               empowered: false
@@ -227,7 +206,6 @@ actions:
           flags.cls == 'wizard' && !(item.id in spells.wizard) && !flags.fromItem && !flags.stored
             && !(has(params.ritual) && params.ritual && has(item.ritual) && item.ritual)
         result: "'not-prepared'"
-      # A free cast is an option content adds here, with `slot` and `castAbility` flags of its own.
       - id: cost
         kind: choice
         tags: [spell-cost]
@@ -250,7 +228,6 @@ actions:
         cases:
           - when: true
             flags: { slotType: "'none'" }
-      # A free cast with its own ability (a species trait's or a feat's): its caster's numbers.
       - id: ability
         kind: branch
         when: flags.castAbility != 'class'
@@ -261,8 +238,6 @@ actions:
               dc: fieldOf('spellcasting.{caster}.dc', flags.castAbility)
               attackBonus: fieldOf('spellcasting.{caster}.attack', flags.castAbility)
               mod: fieldOf('spellcasting.{caster}.mod', flags.castAbility)
-      # A staff's weapon `attackBonus` isn't a spell attack bonus: its spell attacks are the
-      # caster's, plus its own `attack.spell` effect.
       - id: itemNumbers
         kind: branch
         when: flags.fromItem && has(steps.cost)
@@ -293,15 +268,12 @@ actions:
         result: "'no-slot'"
         data:
           slot: flags.slot
-      # The spell's damage type, which Transmuted Spell changes.
       - id: damageType
         kind: branch
         when: has(item.damageType)
         cases:
           - when: true
             flags: { damageType: item.damageType }
-      # Metamagic options, one pick each, up to `sorcery.metamagicPerSpell` of them plus Empowered
-      # Spell; `none` ends the step.
       - id: metamagic
         kind: choice
         tags: [metamagic]
@@ -313,8 +285,6 @@ actions:
             when: '!flags.metamagicDone'
             flags: { metamagicDone: true }
         recommend: "'none'"
-      # The spell's option, picked for each target (Calm Emotions' "choose for each creature"), or
-      # for the caster when it has none.
       - id: spellOption
         kind: choice
         each: target
@@ -331,7 +301,6 @@ actions:
         cases:
           - when: true
             flags:
-              # Twinned Spell raises the spell's effective level by one.
               effectiveSlot: 'flags.twinned ? min(9, flags.slot + 1) : flags.slot'
               steps: >-
                 item.level == 0 ? (has(item.cantripScaling) && item.cantripScaling ? flags.tier - 1 : 0)
@@ -460,7 +429,6 @@ actions:
         when: has(steps.damage) && has(item.attack)
         to: target
         changes:
-          # A missed cantrip deals half its damage with Potent Cantrip.
           - type: adjust
             field: hp.current
             split: { roll: damage, by: damage }
@@ -479,7 +447,6 @@ actions:
         when: has(item.save) && !has(item.attack) && item.school == 'evocation'
         options: [{ id: affect }]
         recommend: "'affect'"
-      # Careful Spell: up to the Charisma modifier (at least one) of the targets are spared.
       - id: careful
         kind: choice
         each: target
@@ -581,7 +548,6 @@ actions:
             by: >-
               item.maxHp + max(0, flags.effectiveSlot - item.level)
                 * (has(item.upcastMaxHp) ? item.upcastMaxHp : 0)
-      # Each target, for what a spell does to it beyond the shared steps.
       - id: onTarget
         kind: changes
         each: target
@@ -632,7 +598,6 @@ actions:
               + (flags.subtle ? ['subtle'] : []) + (flags.transmuted ? ['transmuted'] : [])
               + (flags.twinned ? ['twinned'] : [])
 
-  # The Constitution save to keep Concentration: DC 10 or half the damage, at most 30.
   - id: concentration-check
     tags: [save]
     params:
@@ -660,7 +625,6 @@ actions:
           dc: min(30, max(10, floor(params.damage / 2)))
           total: steps.test.data.total
 
-  # Never offered on its own: an action step runs a rules action without checking `available`.
   - id: spend-spell-slot
     results: [no-slot, spent]
     available: false

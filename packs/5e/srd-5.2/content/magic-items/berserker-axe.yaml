@@ -6,7 +6,6 @@ appliesTo:
 fields: { rarity: rare, requiresAttunement: true, attackBonus: 1, damageBonus: 1 }
 effects:
   - { target: hp.max, op: add, value: level.total, when: self.attuned }
-  # The curse: Disadvantage on attack rolls with other weapons.
   - target: { rolls: [attack.melee, attack.ranged] }
     op: rollModifier
     value: { kind: disadvantage }

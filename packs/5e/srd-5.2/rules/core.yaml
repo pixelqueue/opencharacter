@@ -3,10 +3,10 @@ settings:
   stacking:
     default: addAll
     keys:
-      source: highestOnly # Effects from the same source (two Blesses) don't stack.
+      source: highestOnly
   rollModifiers:
     advantage: cancel
-  roundIncoming: magnitude # Halved damage rounds down: 11 fire damage halved is 5.
+  roundIncoming: magnitude
   competing:
     recommend: highest
 
@@ -21,8 +21,6 @@ fields:
         ? 2 + floor((level.total - 1) / 4)
         : 2 + floor((max(1, ceil(challenge.rating)) - 1) / 4)
 
-  # Hit points from hit dice, before Constitution, which is added per level so changes to it
-  # recalculate.
   hp.base: { type: integer, input: true, default: 1, min: 1 }
   hp.perLevel: { type: integer, formula: 0 }
   hp.max:
@@ -101,7 +99,6 @@ fields:
   senses.tremorsense: { type: integer, formula: 0, min: 0 }
   senses.truesight: { type: integer, formula: 0, min: 0 }
 
-  # Size steps for carrying capacity only (Powerful Build counts one size larger).
   carrying.sizeSteps: { type: integer, formula: 0 }
   carrying.weight:
     type: decimal
@@ -121,8 +118,6 @@ fields:
 
   equipment.tags: { type: set, of: tag, members: { tags: [armor, shield, light, medium, heavy] } }
 
-  # A set of damage tags per defense: monsters' are inputs from the stat block, a character's come
-  # from grants. Each applies once to an instance of damage, however many sources give it.
   damage.resistances:
     {
       type: set,
@@ -149,7 +144,6 @@ fields:
     }
 
 effects:
-  # Immunity first: a multiplier of 0 leaves nothing for the others to change.
   - id: damage-immunity
     target: { incoming: { fields: [hp.current], tags: [damage] } }
     op: multiply

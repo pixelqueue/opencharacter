@@ -6,7 +6,6 @@ choices:
     from: { type: weapon, where: "has(item.mastery) && !('magic' in item.tags)" }
     activate: false
     eligible: '!(item.id in mastery.weapons) || item.id in choice.picks'
-    # The starting weapons first.
     recommend: >-
       countList([@weapons.greatsword, @weapons.flail, @weapons.javelin, @weapons.longsword, @weapons.longbow, @weapons.shortsword], !(x in choice.picks) && !(x in mastery.weapons)) > 0
         ? filterList([@weapons.greatsword, @weapons.flail, @weapons.javelin, @weapons.longsword, @weapons.longbow, @weapons.shortsword], !(x in choice.picks) && !(x in mastery.weapons))[0] : ''

@@ -1,7 +1,4 @@
 actions:
-  # A spell's effect after the cast (a bolt called down again, a sword's later attack, a breath):
-  # spells run it from their own actions. The caster's numbers are those of the source that has
-  # the spell prepared, else the best; `dc` overrides (a breath the target exhales).
   - id: spell-effect
     available: false
     params:
@@ -33,10 +30,8 @@ actions:
       save: { type: enum, values: [str, dex, con, int, wis, cha], optional: true }
       dc: { type: integer, optional: true }
       half: { type: boolean, default: false }
-      # Half the damage without a save (an arrow's splash on a miss).
       halve: { type: boolean, default: false }
       condition: { type: id, of: condition, optional: true }
-      # The condition is a grapple whose escape DC is the spell save DC.
       escape: { type: boolean, default: false }
       heal: { type: dice, optional: true }
       healAddsMod: { type: boolean, default: false }

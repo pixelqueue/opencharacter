@@ -62,7 +62,6 @@ effects:
       changes:
         - { type: setState, entry: self, key: rageSpent, value: 0, when: self.rageSpent > 0 }
         - { type: set, field: rage.active, value: false, when: rage.active }
-# Before Persistent Rage, the Incapacitated condition ends the Rage.
 followUps:
   - id: incapacitated
     becomes: conditions.incapacitated && rage.active

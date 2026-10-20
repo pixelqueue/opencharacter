@@ -1,8 +1,3 @@
-# A monster's stat block numbers (AC, Initiative, to hit, damage, DC) are its fields as printed,
-# not recomputed. A monster is a character with no class: `create-monster` copies the stat block's
-# inputs onto the sheet and adds each trait and action as a copy of its own, so per-day uses and
-# recharges are state on that copy.
-
 tags:
   - monster-effect
   - legendary
@@ -10,11 +5,9 @@ tags:
 contentTypes:
   monster:
     carried: false
-    # `legendary`: the Legendary Actions section's opening paragraph.
     texts: [legendary]
     fields:
       size: { type: enum, values: [tiny, small, medium, large, huge, gargantuan], required: true }
-      # "Medium or Small": the second size, offered at creation.
       sizeAlt: { type: enum, values: [tiny, small, medium, large, huge, gargantuan] }
       creatureType:
         type: enum
@@ -36,7 +29,6 @@ contentTypes:
             plant,
             undead,
           ]
-      # The descriptive tag in parentheses after the type; a class tag counts for Attunement.
       typeTag:
         type: enum
         values:
@@ -55,7 +47,6 @@ contentTypes:
             titan,
             wizard,
           ]
-      # A swarm's members' size ("Medium Swarm of Tiny Beasts").
       swarmOf: { type: enum, values: [tiny, small, medium, large, huge, gargantuan] }
       alignment:
         type: enum
@@ -74,7 +65,6 @@ contentTypes:
             unaligned,
           ]
       ac: { type: integer, required: true }
-      # The Initiative modifier; the score in parentheses is 10 plus it.
       initiative: { type: integer, required: true }
       hp: { type: integer, required: true, min: 1 }
       hitDice: { type: dice, required: true }
@@ -97,22 +87,17 @@ contentTypes:
       damageImmunities: *damage-defense
       conditionImmunities: { type: set, of: condition, default: [] }
       exhaustionImmune: { type: boolean }
-      # Gear: items the monster carries, added to its inventory (unequipped: the printed AC and
-      # attacks already count them) when `create-monster` runs with `gear`.
       gearWeapons: { type: set, of: weapon, default: [] }
       gearArmor: { type: set, of: armor, default: [] }
       gearItems: { type: set, of: gear, default: [] }
       gearTools: { type: set, of: tool, default: [] }
       darkvision: { type: integer, min: 0 }
-      # "Darkvision 120 ft. (unimpeded by magical Darkness)".
       darkvisionMagical: { type: boolean }
       blindsight: { type: integer, min: 0 }
       tremorsense: { type: integer, min: 0 }
       truesight: { type: integer, min: 0 }
       languages: { type: set, of: language, default: [] }
-      # Languages it understands but can't speak.
       understands: { type: set, of: language, default: [] }
-      # "Common plus two other languages": the GM picks them.
       otherLanguages: { type: integer, min: 1 }
       otherLanguagesUnderstood: { type: boolean }
       allLanguages: { type: boolean }
@@ -123,9 +108,7 @@ contentTypes:
       xpLair: { type: integer, min: 0 }
       legendaryActions: { type: integer, min: 1 }
       legendaryActionsLair: { type: integer, min: 1 }
-      # The stat block's traits and actions, in order: each becomes a copy at creation.
       entries: { type: set, of: monsterAction, default: [] }
-      # Spells its Spellcasting entry casts: at will, and so many times a day each.
       spellsAtWill: { type: set, of: spell, default: [] }
       spellsPerDay1: { type: set, of: spell, default: [] }
       spellsPerDay2: { type: set, of: spell, default: [] }
@@ -211,25 +194,18 @@ contentTypes:
       - { id: wis-max, target: abilities.wis.max, op: atLeast, value: 30 }
       - { id: cha-max, target: abilities.cha.max, op: atLeast, value: 30 }
 
-  # One trait, action, bonus action, reaction or legendary action of a stat block. What it does
-  # is read from its fields by the type's actions: an attack roll (`toHit`), a saving throw
-  # effect (`save`), damage or healing without either, or another entry it uses (`uses`). A
-  # Multiattack is an action of its own on the item.
   monsterAction:
     carried: false
     fields:
       kind:
         { type: enum, values: [trait, action, bonus-action, reaction, legendary], default: action }
-      # Its place in the stat block, for display.
       order: { type: integer, min: 0, default: 0 }
       legendaryCost: { type: integer, min: 1, default: 1 }
-      # An attack roll: melee, or ranged. A melee attack with a range is "Melee or Ranged".
       attack: { type: enum, values: [melee, ranged] }
       toHit: { type: integer }
       reach: { type: integer, min: 0 }
       normalRange: { type: integer, min: 0 }
       longRange: { type: integer, min: 0 }
-      # The damage on a hit, on a failed save, or dealt outright.
       damage: { type: dice }
       damageType: &damage-type
         type: enum
@@ -251,56 +227,37 @@ contentTypes:
           ]
       damage2: { type: dice }
       damage2Type: *damage-type
-      # A saving throw: the effect's own, or, on an attack, the one a hit calls for.
       save: { type: enum, values: [str, dex, con, int, wis, cha] }
       saveDc: { type: integer }
       saveEffect: { type: enum, values: [half, none], default: none }
-      # An attack's save: its damage on a failure.
       saveDamage: { type: dice }
       saveDamageType: *damage-type
-      # Conditions a hit gives (or a failed save, when there is one).
       conditions: { type: set, of: condition, default: [] }
       escapeDc: { type: integer }
-      # A hit gives the conditions instead of dealing damage, if the attacker chooses.
       conditionsInstead: { type: boolean }
-      # Conditions reach only targets of this size or smaller.
       maxSize: { type: enum, values: [tiny, small, medium, large, huge, gargantuan] }
-      # A saving throw effect that targets only creatures of this size or smaller ("one Large or
-      # smaller creature"): a larger one is out of it.
       maxTargetSize: { type: enum, values: [tiny, small, medium, large, huge, gargantuan] }
-      # Hit points the monster regains.
       heal: { type: dice }
       areaShape: { type: enum, values: [cone, cube, cylinder, emanation, line, sphere] }
       areaSize: { type: integer, min: 0 }
       areaWidth: { type: integer, min: 0 }
-      # Limited usage: "(Recharge 5–6)" is 5, "(2/Day)" a perDay of 2, "(Recharge after a Short
-      # or Long Rest)" perRest.
       recharge: { type: integer, min: 2, max: 6 }
       perDay: { type: integer, min: 1 }
       perDayLair: { type: integer, min: 1 }
       perRest: { type: boolean }
-      # The entry this one uses ("The aboleth makes one Tentacle attack").
       uses: { type: id, of: monsterAction }
-      # Its own action resolves it and spends the use, so the generic `use-monster-action` isn't
-      # offered.
       ownAction: { type: boolean }
       legendaryResistance: { type: boolean }
       magicResistance: { type: boolean }
-      # A Spellcasting entry: its ability and printed numbers; the monster lists the spells.
       spellAbility: { type: enum, values: [str, dex, con, int, wis, cha] }
       spellDc: { type: integer }
       spellAttack: { type: integer }
-      # The spell this entry casts (the others when it casts one of several), and the level the
-      # first is cast at when not its lowest.
       spell: { type: id, of: spell }
       spell2: { type: id, of: spell }
       spell3: { type: id, of: spell }
       spell4: { type: id, of: spell }
       spellLevel: { type: integer, min: 1, max: 9 }
-    # `note`: a usage restriction the stat block prints after the name ("Bear or Hybrid Form
-    # Only").
     texts: [note]
-    # The spell an entry casts is active through it, so its cast-spell is offered.
     grants:
       - { item: { formula: "has(item.spell) ? item.spell : ''" } }
       - { item: { formula: "has(item.spell2) ? item.spell2 : ''" } }
@@ -309,7 +266,6 @@ contentTypes:
     state:
       recharging: { type: boolean, default: false }
       used: { type: integer, default: 0, min: 0 }
-      # Uses before a rest: 0 is unlimited. A copy may set its own (an innate spell's).
       uses:
         type: integer
         min: 0
@@ -372,8 +328,6 @@ contentTypes:
         op: set
         value: item.spellAttack
         when: has(item.spellAbility) && has(item.spellAttack)
-      # An entry that casts a spell ("The mage casts Misty Step"), or a spell its Spellcasting
-      # lists at a higher level ("Lightning Bolt (level 7 version)").
       - {
           id: spell,
           target: spells.monster,
@@ -466,7 +420,6 @@ contentTypes:
       - use: recharge
 
 fields:
-  # 10 plus the Initiative modifier: a monster's Initiative when it isn't rolled.
   initiative.score: { type: integer, formula: 10 + combat.initiative }
   challenge.xp:
     type: integer
@@ -477,12 +430,9 @@ fields:
           13000, 15000, 18000, 20000, 22000, 25000, 33000, 41000, 50000, 62000, 75000, 90000,
           105000, 120000, 135000, 155000][min(29, floor(challenge.rating) - 1)]
   senses.telepathy: { type: integer, formula: 0, min: 0 }
-  # Advantage on saves against spells (given on a spell's save) and other magical effects (selected
-  # on the save).
   saves.magicResistance: { type: boolean, formula: false }
   spellcasting.monster.ability:
     { type: enum, values: [none, str, dex, con, int, wis, cha], formula: "'none'" }
-  # In its lair: the stat block's lair numbers (XP, Legendary Action and Resistance uses).
   legendary.inLair: { type: boolean, input: true, default: false }
   legendary.hasLair: { type: boolean, formula: false }
   legendary.actions: { type: integer, formula: 0, min: 0 }
@@ -504,8 +454,6 @@ creation:
   - { id: monster, action: create-monster }
 
 actions:
-  # Monsters aren't made at random: the stat block is the monster. Hit points are its average
-  # or its Hit Dice rolled.
   - id: create-monster
     tags: [creation]
     available: character.creating
@@ -654,9 +602,6 @@ actions:
         data:
           hp: flags.hp
 
-  # An attack roll with the printed bonus, through the D20 Test (ability `none`), so Exhaustion,
-  # Heroic Inspiration and the failed-attack options apply. A hit deals the damage, calls for the
-  # hit's save, and gives its conditions (to targets no larger than `maxSize`).
   - id: monster-attack
     tags: [attack]
     available: >-
@@ -741,7 +686,6 @@ actions:
                 - id: critical
                   flags: { hit: true, critical: true }
                 - id: miss
-      # "Can give it the Grappled condition instead of dealing damage".
       - id: rider
         kind: choice
         when: flags.hit && flags.sizeOk && has(item.conditionsInstead) && item.conditionsInstead
@@ -771,7 +715,6 @@ actions:
               - attack
               - { formula: flags.range }
               - { formula: "flags.critical ? ['critical'] : []" }
-      # Rolled once, not doubled by a Critical Hit (the roll isn't a `damage` roll).
       - id: saves
         kind: action
         when: flags.hit && has(item.saveDc)
@@ -848,9 +791,6 @@ actions:
           dc: 'has(item.saveDc) ? item.saveDc : 0'
           save: "has(item.save) ? item.save : ''"
 
-  # A saving throw effect, or damage, conditions or healing without an attack roll. The damage is
-  # rolled once; each target saves. A failure takes it all and the conditions; a success half
-  # (`saveEffect: half`) or none.
   - id: monster-effect
     tags: [monster-effect]
     available: >-
@@ -966,8 +906,6 @@ actions:
           dc: 'has(item.saveDc) ? item.saveDc : 0'
           save: "has(item.save) ? item.save : ''"
 
-  # An entry that uses another ("makes one Tentacle attack", "uses Consume Memories"): that
-  # entry's attack or effect, with its own limits, then this one's healing and legendary cost.
   - id: use-entry
     tags: [monster-effect]
     available: >-
@@ -1021,8 +959,6 @@ actions:
           result: "has(steps.attack) ? steps.attack.result : has(steps.effect) ? steps.effect.result : ''"
           healing: 'has(steps.heal) ? max(0, steps.heal.total) : 0'
 
-  # A Legendary Action that casts a spell ("uses Spellcasting to cast Fear"): the cast, without a
-  # slot, at the entry's level, then the use.
   - id: legendary-spell
     tags: [legendary, spell]
     available: >-
@@ -1056,7 +992,6 @@ actions:
         data:
           result: steps.cast.result
 
-  # A limited or legendary entry whose effect is its text: spends the use.
   - id: use-monster-action
     tags: [monster-effect]
     available: >-
@@ -1085,7 +1020,6 @@ actions:
         data:
           left: 'self.uses > 0 ? self.uses - self.used - 1 : 0'
 
-  # At the start of each of the monster's turns.
   - id: recharge
     tags: [recharge]
     available: has(item.recharge) && self.recharging
@@ -1104,7 +1038,6 @@ actions:
         kind: outcome
         result: "steps.roll.total >= item.recharge ? 'recharged' : 'spent'"
 
-  # At the start of each of the monster's turns.
   - id: legendary-reset
     tags: [legendary]
     available: legendary.spent > 0

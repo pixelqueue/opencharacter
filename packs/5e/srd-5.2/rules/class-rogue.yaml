@@ -1,13 +1,11 @@
 fields:
   rogue.sneakAttack: { type: integer, formula: 0 }
-  # How many Cunning Strike effects one Sneak Attack can add.
   rogue.cunningStrikes: { type: integer, formula: 0 }
   rogue.deviousStrikes: { type: boolean, formula: false }
   rogue.stealthAttack: { type: boolean, formula: false }
   rogue.uncannyDodge: { type: boolean, formula: false }
 
 situational:
-  # Advantage, or an ally beside the target, and once per turn, are the app's.
   - id: sneakAttack
     type: boolean
     default: false
@@ -27,7 +25,6 @@ situational:
           situational.sneakAttack && rogue.sneakAttack > situational.cunningStrike
             && has(roll.item) && has(roll.item.damageType)
             && (roll.item.range == 'ranged' || 'finesse' in roll.item.tags)
-  # Sneak Attack dice forgone for Cunning Strike effects (the `cunning-strike` action resolves them).
   - id: cunningStrike
     type: integer
     default: 0

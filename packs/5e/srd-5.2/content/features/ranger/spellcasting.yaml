@@ -9,7 +9,6 @@ choices:
   - id: spells
     pick: '[2, 3, 4, 5, 6, 6, 7, 7, 9, 9, 10, 10, 11, 11, 12, 12, 14, 14, 15, 15][self.level - 1]'
     from: { type: spell, where: 'item.level >= 1 && @classes.ranger in item.classes' }
-    # Only spells of a level the Ranger table gives slots for.
     eligible: >-
       item.level <= min(5, ceil(self.level / 4))
         && (!(item.id in spells.ranger) || item.id in choice.picks)

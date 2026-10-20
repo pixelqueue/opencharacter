@@ -1,13 +1,9 @@
 fields:
   warlock.invocations: { type: set, of: invocation }
-  # Pact of the Blade's bonded weapons (the weapon kinds picked).
   warlock.pactWeapons: { type: set, of: weapon }
-  # Origin feats Lessons of the First Ones gave, each a different one.
   warlock.lessons: { type: set, of: feat }
 
 contentTypes:
-  # Eldritch Invocations. An invocation with a `spell` casts it without a spell slot, at will, as
-  # a Warlock spell.
   invocation:
     copies: { max: 0 }
     fields:
@@ -22,7 +18,6 @@ contentTypes:
         op: grant
         value: { formula: item.spell }
         when: has(item.spell)
-      # No slot unless a class has the spell prepared.
       - target: spells.limited
         op: grant
         value: { formula: item.spell }

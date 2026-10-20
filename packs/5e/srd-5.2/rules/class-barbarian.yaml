@@ -6,13 +6,9 @@ fields:
   rage.uses: { type: integer, formula: 0 }
   rage.damage: { type: integer, formula: 0 }
   barbarian.recklessAttack: { type: boolean, formula: false }
-  # Brutal Strike's extra d10s.
   barbarian.brutalStrike: { type: integer, formula: 0 }
   barbarian.frenzy: { type: boolean, formula: false }
 
-# Reckless Attack, Brutal Strike and Frenzy are picked per attack; the Advantage that attack rolls
-# against the barbarian gain is the app's. An attack roll is the nested d20-test's, so it reads the
-# ability from its params; the damage roll reads weapon-attack's flags.
 situational:
   - id: recklessAttack
     type: boolean

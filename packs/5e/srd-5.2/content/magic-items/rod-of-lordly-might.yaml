@@ -7,13 +7,11 @@ state:
   button: { type: integer, min: 0, max: 6, default: 0 }
   usedToday: { type: set, of: string, default: [] }
 effects:
-  # Button 1: the fiery blade's extra Fire damage.
   - target: { rolls: [damage.weapon], from: self }
     op: add
     value: 2d6
     tags: [damage.fire]
     when: self.attuned && self.button == 1
-  # Button 5: the battering ram.
   - target: { rolls: [skill.athletics] }
     op: add
     value: 10

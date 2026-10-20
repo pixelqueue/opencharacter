@@ -11,7 +11,6 @@ fields:
   somatic: false
   material: false
   durationUnit: instantaneous
-# Casting it spends the slot; `restore` is the healing, on the target.
 actions:
   - use: cast-spell
   - id: restore
@@ -24,7 +23,6 @@ actions:
         kind: changes
         to: target
         changes:
-          # All its Hit Points: more than any maximum, which clamps it.
           - { type: adjust, field: hp.current, by: 1000000, tags: [healing] }
           - type: removeEffect
             applied:

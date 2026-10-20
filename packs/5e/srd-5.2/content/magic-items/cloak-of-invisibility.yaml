@@ -9,7 +9,6 @@ fields:
 state:
   charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
 actions:
-  # Pulling the hood up: Invisible for 1 hour, until the hood is down or the cloak is off.
   - id: hood
     tags: [magic-item]
     available: self.equipped && self.attuned && self.charges > 0

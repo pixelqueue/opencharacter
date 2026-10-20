@@ -3,17 +3,13 @@ tags:
   - spell-recall
 
 fields:
-  # Every feat the character has, picked or granted: a feat that isn't repeatable is taken once.
   feats.held: { type: set, of: feat }
-  # Magic Initiate: the level 1 spell's free cast, one per list, regained on a Long Rest.
   initiate.clericUsed: { type: boolean, input: true, default: false }
   initiate.druidUsed: { type: boolean, input: true, default: false }
   initiate.wizardUsed: { type: boolean, input: true, default: false }
-  # Boon of Fate: Improve Fate used, regained on Initiative or a rest.
   boons.fateUsed: { type: boolean, input: true, default: false }
 
 situational:
-  # Savage Attacker, once per turn: the weapon's damage dice rolled twice, the better kept.
   - id: savageAttacker
     type: boolean
     default: false
@@ -24,7 +20,6 @@ situational:
         op: rollModifier
         value: { kind: advantage }
         when: situational.savageAttacker
-  # Grappler: an attack against a creature the character is grappling.
   - id: grappledByYou
     type: boolean
     default: false
@@ -35,7 +30,6 @@ situational:
         op: rollModifier
         value: { kind: advantage }
         when: situational.grappledByYou
-  # Boon of the Night Spirit: within Dim Light or Darkness (Shadowy Form).
   - id: inShadows
     type: boolean
     default: false

@@ -3,7 +3,6 @@ type: magicItem
 fields:
   category: wondrous-item
   rarity: rare
-  # Its beads: 1d6 + 3 when found, never regained.
   maxCharges: 9
   saveDc: 15
   spells: [spells.fireball]
@@ -12,7 +11,6 @@ state:
 grants:
   - { item: spells.fireball, when: self.equipped }
 effects:
-  # Each bead after the first adds 1d6, as a level higher, to 12d6.
   - target: { choices: [spell-cost] }
     op: option
     when: >-

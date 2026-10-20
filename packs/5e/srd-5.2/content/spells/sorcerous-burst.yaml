@@ -11,7 +11,6 @@ fields:
   somatic: true
   material: false
   durationUnit: instantaneous
-# Casting it rolls nothing: the attack, with its damage type, is `burst`.
 actions:
   - use: cast-spell
   - id: burst
@@ -49,7 +48,6 @@ actions:
         data:
           damage: steps.effect.data.damage
           critical: steps.effect.data.critical
-# A d8 that rolls 8 rolls another (the cap of the spellcasting modifier's worth is the table's).
 effects:
   - target: { rolls: [damage.spell] }
     op: rollModifier

@@ -16,9 +16,6 @@ choices:
       where: '!(value in proficiencies.skills) || value in choice.picks'
     effects:
       - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
-# A check with one of the five skills made as a Strength check while raging: the skill's
-# proficiency and Expertise, Strength's modifier, and the roll is a Strength check (Rage's
-# Advantage).
 actions:
   - id: primal-knowledge
     tags: [check]

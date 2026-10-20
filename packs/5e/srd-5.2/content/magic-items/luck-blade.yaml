@@ -8,7 +8,6 @@ appliesTo:
   }
 fields:
   { rarity: legendary, requiresAttunement: true, attackBonus: 1, damageBonus: 1, maxCharges: 3 }
-# Wish charges: 1d3 when found, never regained.
 state:
   charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
   usedToday: { type: set, of: string, default: [] }
@@ -19,7 +18,6 @@ effects:
     op: add
     value: 1
     when: self.attuned
-  # Luck: reroll a failed D20 Test, once per dawn.
   - target: { choices: [failed-check, failed-save, failed-attack] }
     op: option
     when: "self.attuned && !conditions.incapacitated && !('luck' in self.usedToday)"

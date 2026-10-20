@@ -1,5 +1,3 @@
-# Magic weapons, armor and shields are templates on the mundane item, so the copy keeps its base
-# item and its proficiencies.
 templateFields:
   rarity: { type: enum, values: [common, uncommon, rare, very-rare, legendary, artifact] }
   requiresAttunement: { type: boolean, default: false }
@@ -8,9 +6,7 @@ templateFields:
   attackBonus: { type: integer, default: 0 }
   damageBonus: { type: integer, default: 0 }
   acBonus: { type: integer, default: 0 }
-  # A spell the item casts uses this save DC (the Trident of Fish Command's 15).
   saveDc: { type: integer }
-  # This weapon's Slashing damage ignores Resistance (the Vorpal Sword).
   ignoresSlashingResistance: { type: boolean, default: false }
 
 contentTypes:
@@ -31,15 +27,14 @@ contentTypes:
           required: true,
         }
       requiresAttunement: { type: boolean }
-      cost: { type: decimal } # gold pieces, where the SRD gives one
-      weight: { type: decimal } # pounds, where the SRD gives one
+      cost: { type: decimal }
+      weight: { type: decimal }
       maxCharges: { type: integer, min: 1 }
       recharge: { type: dice }
       spells: { type: set, of: spell }
       saveDc: { type: integer }
       spellAttackBonus: { type: integer }
       attackBonus: { type: integer }
-      # A potion's or oil's healing, Temporary Hit Points, and what it applies.
       healing: { type: dice }
       tempHp: { type: integer }
       lasting: { type: boolean }
@@ -51,7 +46,6 @@ contentTypes:
       stowed: { type: boolean, default: false }
 
 fields:
-  # How many magic items a creature can be attuned to at once (Use Magic Device raises it).
   attunement.max: { type: integer, formula: 3 }
 
 display:

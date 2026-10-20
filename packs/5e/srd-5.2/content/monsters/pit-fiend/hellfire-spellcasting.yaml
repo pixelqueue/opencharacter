@@ -7,7 +7,6 @@ fields:
   recharge: 4
   spellAbility: cha
   spellDc: 21
-# Its three spells are cast only through this action.
 grants:
   - item: spells.fireball
   - item: spells.hold-monster
@@ -20,7 +19,6 @@ effects:
   - { target: spells.limited, op: grant, value: { item: spells.hold-monster } }
   - { target: spells.limited, op: grant, value: { item: spells.wall-of-fire } }
 actions:
-  # Fireball (level 5) twice; the second can be Hold Monster (level 7) or Wall of Fire.
   - id: hellfire
     tags: [spell]
     available: '!self.recharging'

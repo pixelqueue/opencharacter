@@ -1,9 +1,6 @@
-# Each rest proposes its changes in a step tagged `rest.short` or `rest.long`; a feature that
-# recharges on a rest adds its own changes there (a `changes` effect on that step).
 fields:
   deathSaves.successes: { type: integer, input: true, default: 0, min: 0, max: 3 }
   deathSaves.failures: { type: integer, input: true, default: 0, min: 0, max: 3 }
-  # The lowest d20 that counts as rolling a 20 on a Death Saving Throw (Defy Death: 18).
   deathSaves.twentyOn: { type: integer, formula: 20, min: 2, max: 20 }
   rest.longRestHeals: { type: boolean, formula: true }
   hitDice.max: { type: integer, formula: level.total }
@@ -12,9 +9,6 @@ fields:
     formula: "sumCopies(copy.state.hitDiceSpent, copy.type == 'class')"
 
 followUps:
-  # Only damage that reached hit points already at 0 counts, so temporary hit points that absorb it
-  # all, or damage resisted to nothing, don't. One per batch, so one per hit however many damage
-  # types it deals; a Critical Hit counts twice.
   - id: damage-while-dying
     on: { field: hp.current, tags: [damage], once: true }
     required: true
@@ -29,7 +23,6 @@ followUps:
 actions:
   - id: death-save
     tags: [save]
-    # Monsters die at 0 hit points, so they never make one.
     available: >-
       !sheet.monster && hp.current == 0 && deathSaves.successes < 3 && deathSaves.failures < 3
     results: [revived, stable, success, failure, dead]

@@ -16,8 +16,6 @@ fields:
 actions:
   - use: cast-spell
 effects:
-  # Offered on a hit with a melee weapon or an Unarmed Strike: the attack casts it, and its damage
-  # joins the attack's (doubled on a Critical Hit).
   - { target: combat.hitOptions, op: add, value: 1 }
   - target: { choices: [weapon-hit, unarmed-hit] }
     op: option

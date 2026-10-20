@@ -16,11 +16,6 @@ constraints:
         || (sheet.monster && level.total == 0)
 
 actions:
-  # The SRD's steps: a class, the origin (a background, a species and two languages, the languages
-  # picked with the background), the ability scores, then what each brings and the starting
-  # equipment. Every step recommends a pick (the class's Standard Array by Class row for the
-  # scores), so an automatic run finishes; the random start draws instead. A higher starting level
-  # starts with that level's experience, and the level-up offers take the character there.
   - id: create-character
     tags: [creation]
     available: character.creating
@@ -37,8 +32,6 @@ actions:
         changes:
           - type: addItem
             entry: { id: class, item: picked.id, state: { level: 1, startingClass: true } }
-      # The class's ability priority, from the Standard Array by Class table: highest score first.
-      # A class this pack doesn't know takes the barbarian's (the first).
       - id: priority
         kind: branch
         cases:
@@ -143,7 +136,6 @@ actions:
                 spend: upTo
                 limit: 7
                 cost: '[0, 1, 2, 3, 4, 5, 7, 9][amount]'
-                # The Standard Array's spread costs exactly 27 points.
                 recommend:
                   'abilities.{ability}.base': "[7, 6, 5, 4, 2, 0][indexOf(flags.priority, '{ability}')]"
           - when: "steps.method.picked == 'standard-array'"
@@ -154,14 +146,10 @@ actions:
                 values: [15, 14, 13, 12, 10, 8]
                 recommend:
                   'abilities.{ability}.base': "[15, 14, 13, 12, 10, 8][indexOf(flags.priority, '{ability}')]"
-      # What the class, background and species bring, one pick at a time, each recommending its
-      # own pick (a background's ability increases go to its highest scores, which the class's
-      # priority set); the random start draws every other pick.
       - id: picks
         kind: choice
         options: { pending: {} }
         random: "params.random && countList(options, x in ['str', 'dex', 'con', 'int', 'wis', 'cha']) == 0 && !(choice.id in ['ability-increase'])"
-      # After the picks, so "if proficient" sees them.
       - id: equipment
         kind: action
         use: starting-equipment
@@ -180,8 +168,6 @@ actions:
         kind: changes
         changes:
           - { type: set, field: hp.base, value: maxOf(steps.class.item.hitDie) }
-      # Starting at a higher level: that level's experience, so the level-up offers follow, and the
-      # extra gold of the Starting Equipment at Higher Levels table.
       - id: gold
         kind: roll
         when: params.level >= 5

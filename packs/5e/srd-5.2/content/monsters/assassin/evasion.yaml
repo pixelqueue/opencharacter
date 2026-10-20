@@ -3,8 +3,6 @@ type: monsterAction
 fields:
   kind: trait
   order: 1
-# Effects that allow a Dexterity save for half damage tag their damage with the save, so this
-# removes it on a success and halves it again on a failure.
 effects:
   - target: { incoming: { fields: [hp.current], tags: [save.dex] } }
     op: multiply

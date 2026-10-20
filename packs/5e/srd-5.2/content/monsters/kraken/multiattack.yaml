@@ -22,7 +22,6 @@ actions:
         entry: filterList(character.features, x.item == @monsters.kraken.tentacle)[0].id
         participants:
           target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
-      # Fling and Swallow take a creature the kraken has Grappled: the first target.
       - id: extra
         kind: choice
         options: [{ id: fling }, { id: lightning-strike }, { id: swallow }]

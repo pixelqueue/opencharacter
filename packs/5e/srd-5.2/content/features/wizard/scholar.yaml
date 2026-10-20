@@ -15,7 +15,6 @@ choices:
       where: >-
         (value in proficiencies.skills && !(value in proficiencies.expertise))
           || value in choice.picks
-    # Nothing to pick without proficiency in one of the skills.
     pick: >-
       countList(['skill.arcana', 'skill.history', 'skill.investigation', 'skill.medicine',
         'skill.nature', 'skill.religion'], x in proficiencies.skills) > 0 ? 1 : 0

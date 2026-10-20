@@ -1,5 +1,3 @@
-# Cost (gold pieces) and weight (pounds) are per unit; a copy's `quantity` counts units. `bundle` is
-# how many units the SRD's price buys (arrows come 20 for 1 GP).
 contentTypes:
   gear:
     carried: true
@@ -19,8 +17,8 @@ contentTypes:
             ],
           required: true,
         }
-      cost: { type: decimal } # gold pieces, per unit
-      weight: { type: decimal } # pounds, per unit
+      cost: { type: decimal }
+      weight: { type: decimal }
       bundle: { type: integer, min: 1 }
       ammunition: { type: enum, values: [arrow, bolt, firearm-bullet, sling-bullet, needle] }
     state:
@@ -37,7 +35,6 @@ contentTypes:
           values: [artisans-tools, gaming-set, musical-instrument, other],
           required: true,
         }
-      # The ability a check with the tool uses.
       ability: { type: enum, values: [str, dex, con, int, wis, cha], required: true }
       cost: { type: decimal }
       weight: { type: decimal }
@@ -70,7 +67,6 @@ contentTypes:
 tags:
   - arcane-focus
   - druidic-focus
-  # A weapon's mastery property as a tag too, for its text; the `mastery` field drives the rules.
   - mastery.cleave
   - mastery.graze
   - mastery.nick
@@ -81,8 +77,6 @@ tags:
   - mastery.vex
 
 actions:
-  # Acid, Alchemist's Fire, Holy Water, a Net or Oil thrown in place of one attack: each target makes
-  # a Dexterity save against 8 + Dex modifier + Proficiency Bonus. One is used up.
   - id: throw-item
     tags: [attack, item]
     available: self.quantity > 0
@@ -91,7 +85,6 @@ actions:
       damageType: { type: enum, values: [acid, fire, radiant], optional: true }
       fiendOrUndead: { type: boolean, default: false }
       hugeSucceeds: { type: boolean, default: false }
-      # Content applied to a target that fails.
       applies: { type: string, optional: true }
       appliesCondition: { type: boolean, default: false }
     participants:

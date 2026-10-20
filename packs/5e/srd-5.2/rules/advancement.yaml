@@ -7,7 +7,6 @@ fields:
         : [0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 85000, 100000, 120000,
           140000, 165000, 195000, 225000, 265000, 305000, 355000][level.total]
   xp.levelUp: { type: boolean, formula: 'xp.nextLevel > 0 && xp.current >= xp.nextLevel' }
-  # The classes whose primary ability the character has at 13 or higher.
   multiclass.qualified: { type: set, of: class }
 
 effects:
@@ -77,7 +76,6 @@ actions:
         cases:
           - when: true
             flags: { maxBefore: hp.max }
-      # A new class needs its primary ability at 13, and so does every class the character has.
       - id: class
         kind: choice
         options:
@@ -108,8 +106,6 @@ actions:
         when: "steps.hitPoints.picked == 'roll'"
         tags: [level-up]
         parts: [{ dice: steps.class.item.hitDie }]
-      # The hit die before Constitution, which hp.max adds per level; a roll that Constitution
-      # would take below 1 still gains 1.
       - id: hp
         kind: changes
         changes:
@@ -118,8 +114,6 @@ actions:
             by: >-
               steps.hitPoints.picked == 'roll' ? max(steps.hitDie.total, 1 - abilities.con.mod)
                 : floor(maxOf(steps.class.item.hitDie) / 2) + 1
-      # Current hit points rise by what the maximum gains: the hit die, Constitution and per-level
-      # bonuses (Dwarven Toughness). Read on the proposed sheet, so the new maximum holds them.
       - id: current
         kind: changes
         sheet: proposed

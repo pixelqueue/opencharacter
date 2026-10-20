@@ -3,7 +3,6 @@ type: template
 tags: [magic]
 appliesTo: { type: gear, where: "item.category == 'ammunition'" }
 fields: { rarity: very-rare }
-# One template covers every creature type, so the type is the copy's state.
 state:
   slays:
     type: enum
@@ -26,7 +25,6 @@ state:
         undead,
       ]
 actions:
-  # Run after the ammunition damages a creature of its type.
   - id: slay
     tags: [magic-item]
     participants:

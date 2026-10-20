@@ -5,11 +5,9 @@ fields:
   ranger.preciseHunter: { type: boolean, formula: false }
   ranger.colossusSlayer: { type: boolean, formula: false }
   ranger.superiorHuntersDefense: { type: boolean, formula: false }
-  # The die of Hunter's Mark's extra damage (Foe Slayer makes it a d10).
   huntersMark.die: { type: dice, formula: 1d6 }
 
 situational:
-  # Precise Hunter: an attack against the creature marked by your Hunter's Mark.
   - id: preciseHunter
     type: boolean
     default: false
@@ -20,7 +18,6 @@ situational:
         op: rollModifier
         value: { kind: advantage }
         when: situational.preciseHunter
-  # The target is missing any of its Hit Points; once per turn is the app's.
   - id: colossusSlayer
     type: boolean
     default: false
@@ -37,7 +34,6 @@ situational:
             },
           ]
         when: situational.colossusSlayer && has(roll.item) && has(roll.item.damageType)
-  # Resistance to the damage, unless the character already has it.
   - id: superiorHuntersDefense
     type: boolean
     default: false

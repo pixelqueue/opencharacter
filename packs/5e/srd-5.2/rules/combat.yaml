@@ -39,7 +39,6 @@ viewFields:
     huntersMark.markedBy: { type: set, of: string, default: [] }
 
 fields:
-  # Armor, Unarmored Defense and Mage Armor `set` AC and compete; the rules recommend the highest.
   combat.ac: { type: integer, formula: '10 + abilities.dex.mod' }
   combat.rangedAc: { type: integer, formula: combat.ac }
   combat.speed: { type: integer, input: true, default: 30, min: 0 }
@@ -51,35 +50,25 @@ fields:
   combat.longJump: { type: integer, formula: abilities.str.score, min: 0 }
   combat.highJump: { type: integer, formula: '3 + abilities.str.mod', min: 0 }
   combat.critRange: { type: integer, formula: 20, min: 2, max: 20 }
-  # Shown, not enforced: the app runs weapon-attack once per attack. Extra Attack from several
-  # classes doesn't add up.
   combat.attacks: { type: integer, formula: 1, min: 1 }
-  # Two-Weapon Fighting: the Light property's extra attack adds the ability modifier.
   combat.offHandModifier: { type: boolean, formula: false }
   combat.ignoreArmorStrength: { type: boolean, formula: false }
-  # Bludgeoning, Piercing and Slashing damage this creature deals ignores Resistance.
   combat.ignoreResistance: { type: boolean, formula: false }
   combat.featherFall: { type: boolean, formula: false }
   combat.hitOptions: { type: integer, formula: 0, min: 0 }
   combat.attackersAdvantage: { type: boolean, formula: false }
   combat.attackersDisadvantage: { type: boolean, formula: false }
   combat.spellAttackersDisadvantage: { type: boolean, formula: false }
-  # Spell attack rolls against this creature miss (Greater Magic Resistance).
   combat.spellAttacksMiss: { type: boolean, formula: false }
   combat.noCriticals: { type: boolean, formula: false }
   combat.elusive: { type: boolean, formula: false }
   protection.evilAndGood: { type: boolean, formula: false }
   sanctuary.dc: { type: integer, formula: 0, min: 0 }
 
-  # Weapons the character may attack with using Charisma (Pact of the Blade).
   weapons.charismaAttack: { type: set, of: weapon }
-  # Weapons whose damage type the character may change on an attack (Pact of the Blade), and
-  # whether its Unarmed Strikes may (Empowered Strikes): content adds the types as options.
   weapons.damageTypeChoice: { type: set, of: weapon }
   unarmed.damageTypeChoice: { type: boolean, formula: false }
-  # The kinds of weapons whose mastery property the character can use (Weapon Mastery).
   mastery.weapons: { type: set, of: weapon }
-  # Who vexed this creature: each Vex entry on it names the attacker's character ID.
   mastery.vexedBy:
     type: set
     of: string
@@ -87,10 +76,8 @@ fields:
       mapList(filterList(character.applied,
         x.active && x.source == @combat-effects.vexed && has(x.state.attacker)), x.state.attacker)
 
-  # A monk's Martial Arts: the die, and whether it applies (unarmored, no Shield).
   martialArts.known: { type: boolean, formula: false }
   martialArts.die: { type: dice, formula: 0 }
-  # The ability modifier in the DC of a Grapple or Shove.
   unarmed.dcModifier: { type: integer, formula: abilities.str.mod }
 
 situational:
@@ -122,7 +109,6 @@ situational:
         value: situational.bonus
 
 effects:
-  # Critical hits roll all of the attack's damage dice twice, including dice added by effects.
   - id: critical-hit-dice
     target: { rolls: [damage] }
     op: rollModifier
@@ -141,8 +127,6 @@ effects:
       has(roll.item) && has(roll.item.range) && 'property.heavy' in roll.item.tags
         && ((roll.item.range == 'melee' && abilities.str.score < 13)
           || (roll.item.range == 'ranged' && abilities.dex.score < 13))
-  # A target's conditions, as its sheet gives them. "Within 5 feet" of a Prone target is read as a
-  # melee attack. Without a target, the advantage and disadvantage choices remain.
   - id: target-advantage
     target: { rolls: [attack] }
     op: rollModifier
@@ -193,8 +177,6 @@ effects:
     when: >-
       has(participants.target) && size(participants.target) > 0
         && character.id in participants.target[0].mastery.vexedBy
-  # Elusive removes advantage whatever gives it, the player's situational advantage included;
-  # disadvantage still applies.
   - id: target-elusive
     target: { rolls: [attack] }
     op: rollModifier
@@ -274,8 +256,6 @@ actions:
                     ? 'dex' : 'str'
       - id: ammo
         kind: choice
-        # The first stack of the weapon's kind with any left is recommended, so an automatic attack
-        # fires.
         recommend: options[0]
         tags: [ammunition]
         when: has(item.ammunition)
@@ -351,8 +331,6 @@ actions:
         when: combat.hitOptions > 0 && flags.hit
         options: [{ id: none }]
         recommend: "'none'"
-      # A spell cast on the hit (a smite, picked above): its slot level, then the cast, whose roll
-      # effect adds its damage to the attack's.
       - id: smiteSlot
         kind: choice
         when: flags.smite != ''
@@ -433,7 +411,6 @@ actions:
         when: has(steps.damage)
         to: target
         changes:
-          # One adjust per damage type, so the target's resistances apply per type.
           - type: adjust
             field: hp.current
             split: { roll: damage, by: damage }
@@ -524,11 +501,8 @@ actions:
           damage: 'has(steps.damage) ? steps.damage.total : 0'
           mastery: "flags.masteryUsed ? flags.mastery : 'none'"
           push: "flags.hit && flags.masteryUsed && flags.mastery == 'push' ? 10 : 0"
-          # Cleave: the app may run this weapon's attack again against a second creature, with
-          # `cleave` set (no ability modifier to its damage).
           cleave: "flags.hit && flags.masteryUsed && flags.mastery == 'cleave' && flags.range == 'melee'"
 
-  # The Damage option of an Unarmed Strike. Grapple and Shove are their own actions.
   - id: unarmed-strike
     tags: [attack]
     params:
@@ -620,8 +594,6 @@ actions:
         when: combat.hitOptions > 0 && flags.hit
         options: [{ id: none }]
         recommend: "'none'"
-      # A spell cast on the hit (a smite, picked above): its slot level, then the cast, whose roll
-      # effect adds its damage to the attack's.
       - id: smiteSlot
         kind: choice
         when: flags.smite != ''
@@ -728,8 +700,6 @@ actions:
           attack: steps.test.data.total
           damage: 'has(steps.damage) ? steps.damage.total : 0'
 
-  # The Grapple and Shove options of an Unarmed Strike: the target saves with Strength or Dexterity,
-  # its choice (`resist-unarmed`, run on its sheet).
   - id: grapple
     tags: [attack]
     participants:
@@ -823,8 +793,6 @@ actions:
           dc: flags.dc
           push: 'params.prone ? 0 : 5'
 
-  # Run on the grappled or shoved creature's sheet: it saves with the better of Strength and
-  # Dexterity, or the one its player picks.
   - id: resist-unarmed
     available: false
     params:
@@ -982,7 +950,6 @@ actions:
       amount: { type: integer, min: 0 }
     results: [gained, kept]
     steps:
-      # Temporary Hit Points don't stack: the higher of the two counts.
       - id: gain
         kind: changes
         when: params.amount > hp.temp

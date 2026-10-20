@@ -9,7 +9,6 @@ fields:
   saveDc: 18
   spells:
     [spells.cure-wounds, spells.daylight, spells.death-ward, spells.detect-magic, spells.scrying]
-# `controlled` after a successful save on peering into it; Charmed by it otherwise.
 state:
   controlled: { type: boolean, default: false }
   charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
@@ -24,7 +23,6 @@ effects:
     op: grant
     value: { item: spells.detect-magic }
     when: self.attuned && self.controlled
-  # Cure Wounds is the level 9 version.
   - target: { choices: [spell-cost] }
     op: option
     when: >-

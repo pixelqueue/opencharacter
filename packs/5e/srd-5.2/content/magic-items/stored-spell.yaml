@@ -10,7 +10,6 @@ effects:
       action.self.id == self.id
         && countCopies(copy.id == self.storedIn && copy.equipped
           && has(copy.state.attuned) && copy.state.attuned) > 0
-    # The spell type's own `dc` state shadows the stored copy's in the cast, so the numbers come here.
     value:
       id: release
       flags: { dc: self.dc, attackBonus: self.attack, mod: self.mod }

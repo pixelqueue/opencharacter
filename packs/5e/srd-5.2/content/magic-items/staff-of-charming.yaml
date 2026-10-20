@@ -21,7 +21,6 @@ grants:
   - { item: spells.command, when: self.equipped && self.attuned }
   - { item: spells.comprehend-languages, when: self.equipped && self.attuned }
 effects:
-  # Resist Enchantment: a failed save against an Enchantment spell that targets only you.
   - target: { choices: [failed-save] }
     op: option
     when: "self.equipped && self.attuned && !('resist' in self.usedToday)"

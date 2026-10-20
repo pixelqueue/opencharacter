@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { loadRuleset, startAction } from '../src/index.ts';
 
-// An action step runs the used action with the same entry and source: from an inline action of
-// content granted on a copy, a rules action no content uses sees that content as `item`.
 const loaded = loadRuleset([
   {
     manifest: {

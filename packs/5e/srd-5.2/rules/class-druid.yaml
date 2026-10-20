@@ -15,12 +15,10 @@ fields:
     { type: enum, values: [none, potent-spellcasting, primal-strike], formula: "'none'" }
   druid.primalStrike: { type: integer, formula: 0 }
   druid.land: { type: enum, values: [none, arid, polar, temperate, tropical], formula: "'none'" }
-  # The Circle of the Land spells prepared for the current land.
   druid.circleSpells: { type: set, of: spell }
   druid.landsAid: { type: integer, formula: 0 }
 
 situational:
-  # Once on each of the druid's turns, on a hit with a weapon (or a Beast form's attack).
   - id: primalStrike
     type: enum
     values: [none, cold, fire, lightning, thunder]

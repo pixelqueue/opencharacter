@@ -14,12 +14,9 @@ fields:
   durationUnit: hour
   durationAmount: 1
   applied: true
-# The extra die is the field `huntersMark.die` (1d6; the ranger's Foe Slayer makes it 1d10).
 actions:
   - use: cast-spell
 effects:
-  # The caster's attack rolls that hit the target it is on deal the extra damage (doubled on a
-  # Critical Hit).
   - target: { rolls: [damage] }
     op: add
     value: huntersMark.die

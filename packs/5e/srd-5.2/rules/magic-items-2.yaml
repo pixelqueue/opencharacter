@@ -15,7 +15,6 @@ tags:
   - attunement.spellcaster
 
 contentTypes:
-  # A spell cast into a Ring of Spell Storing: the caster's slot level and numbers travel with it.
   storedSpell:
     carried: false
     state:
@@ -25,7 +24,6 @@ contentTypes:
       mod: { type: integer, default: 0 }
       storedIn: { type: string, default: '' }
 
-# Flags items set so the player's situational choices are offered.
 fields:
   items.swornEnemy: { type: boolean, formula: false }
   items.sphereControl: { type: boolean, formula: false }
@@ -38,13 +36,11 @@ display:
     items.climbAdvantage: { hidden: true }
 
 situational:
-  # The Oathbow's sworn enemy is the target; the bow's own effects read it.
   - id: swornEnemy
     type: boolean
     default: false
     available: items.swornEnemy
     rolls: [attack.ranged, damage.weapon]
-  # An Intelligence (Arcana) check to control a Sphere of Annihilation.
   - id: sphereControl
     type: boolean
     default: false
@@ -55,7 +51,6 @@ situational:
         op: rollModifier
         value: { kind: advantage }
         when: situational.sphereControl
-  # A Strength (Athletics) check to climb.
   - id: climb
     type: boolean
     default: false
@@ -68,8 +63,6 @@ situational:
         when: situational.climb
 
 constraints:
-  # A class prerequisite needs a level in the class; "a spellcaster" needs a spell from the
-  # character's own traits or features (`items.spellcaster`).
   - id: attunement-requirement
     check: >-
       countCopies(has(copy.state.attuned) && copy.state.attuned

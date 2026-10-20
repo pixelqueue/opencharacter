@@ -17,7 +17,6 @@ choices:
         : ''
     effects:
       - { target: spells.wizard, op: grant, value: { formula: pick.id } }
-  # Six spells at level 1, then two each level, of a level the wizard has slots for at that level.
   - id: spellbook
     slots: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     pick: 'slot == 1 ? 6 : 2'
@@ -38,7 +37,6 @@ choices:
         : ''
     effects:
       - { target: spells.wizardBook, op: grant, value: { formula: pick.id } }
-  # Spells found and copied in (the time and gold are the app's).
   - id: copied
     pick: { min: 0 }
     required: false

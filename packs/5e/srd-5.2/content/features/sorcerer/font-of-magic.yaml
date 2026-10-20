@@ -9,7 +9,6 @@ effects:
       changes:
         - { type: setState, entry: self, key: sorceryPointsSpent, value: 0 }
 actions:
-  # Points past the maximum are lost.
   - id: convert-spell-slot
     tags: [feature]
     results: [no-slot, converted]
@@ -42,8 +41,6 @@ actions:
         result: "'converted'"
         data:
           gained: min(steps.spend.data.slot, self.sorceryPointsSpent)
-  # A created slot gives back an expended slot of its level, so it never passes the slot maximum;
-  # it vanishes on a Long Rest, which restores every slot anyway.
   - id: create-spell-slot
     tags: [feature]
     results: [no-slot, not-enough, created]

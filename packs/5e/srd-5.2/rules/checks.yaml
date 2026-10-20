@@ -5,7 +5,6 @@ fields:
     { type: set, of: tag, input: true, default: [], members: { under: [skill] } }
   proficiencies.tools: { type: set, of: tool, input: true, default: [] }
 
-  # What a check with a skill adds without proficiency in it (Jack of All Trades).
   skills.unproficientBonus: { type: integer, formula: 0 }
   skills.acrobatics:
     type: integer
@@ -164,8 +163,6 @@ actions:
         data:
           total: steps.test.data.total
 
-  # The roll is tagged with both the ability (check.dex) and the skill (skill.stealth), so armor's
-  # Stealth disadvantage and ability-wide effects both apply.
   - id: skill-check
     tags: [check]
     params:
@@ -234,9 +231,6 @@ actions:
         data:
           total: steps.test.data.total
 
-  # A tool picked for a proficiency isn't carried (`activate: false`), so only a carried tool offers
-  # the check. Proficiency with the tool adds the bonus; proficiency in the skill the check also
-  # uses gives Advantage.
   - id: tool-check
     tags: [check]
     params:
@@ -305,7 +299,6 @@ actions:
           kind: "'check'"
           ability: "'dex'"
           field: "'combat.initiative'"
-      # Features that recharge or start when Initiative is rolled add their changes here.
       - id: rolled
         kind: changes
         tags: [initiative]

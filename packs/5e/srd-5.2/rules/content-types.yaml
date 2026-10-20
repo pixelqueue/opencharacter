@@ -32,12 +32,12 @@ contentTypes:
       longRange: { type: integer }
       ammunition: { type: enum, values: [arrow, bolt, firearm-bullet, sling-bullet, needle] }
       mastery: { type: enum, values: [cleave, graze, nick, push, sap, slow, topple, vex] }
-      weight: { type: decimal } # pounds
-      cost: { type: decimal } # gold pieces
+      weight: { type: decimal }
+      cost: { type: decimal }
     state:
       wielding: { type: enum, values: [one-handed, two-handed], default: one-handed }
       attuned: { type: boolean, default: false }
-      stowed: { type: boolean, default: false } # in an extradimensional container
+      stowed: { type: boolean, default: false }
     actions:
       - use: weapon-attack
     effects:
@@ -68,12 +68,11 @@ contentTypes:
       maxDex: { type: integer }
       strength: { type: integer }
       stealthDisadvantage: { type: boolean }
-      weight: { type: decimal } # pounds
-      cost: { type: decimal } # gold pieces
+      weight: { type: decimal }
+      cost: { type: decimal }
     state:
       attuned: { type: boolean, default: false }
       stowed: { type: boolean, default: false }
-    # Every armor item has these effects; the Shield switches off the first three (`suppress`).
     effects:
       - id: base-ac
         target: combat.ac
@@ -146,14 +145,10 @@ contentTypes:
 
   spell:
     texts: [material, trigger]
-    # The slot the spell was cast with: 0 when unknown, read as the spell's own level.
     state:
       castSlot: { type: integer, default: 0, min: 0, max: 9 }
-      # The caster's spell save DC, for an effect the creature it's on keeps (Sanctuary).
       castDc: { type: integer, default: 0, min: 0 }
-      # The option picked when it was cast (one of its `castOptions`).
       option: { type: string, default: '' }
-      # The caster's character ID (Hex's and Hunter's Mark's extra damage).
       caster: { type: string, default: '' }
     fields:
       level: { type: integer, required: true, min: 0, max: 9 }
@@ -193,7 +188,7 @@ contentTypes:
             ],
         }
       rangeKind: { type: enum, values: [self, touch, ranged, sight, unlimited, special] }
-      range: { type: integer } # feet
+      range: { type: integer }
       verbal: { type: boolean }
       somatic: { type: boolean }
       material: { type: boolean }
@@ -201,16 +196,13 @@ contentTypes:
         { type: enum, values: [instantaneous, round, minute, hour, day, until-dispelled, special] }
       durationAmount: { type: integer }
       areaShape: { type: enum, values: [cone, cube, cylinder, emanation, line, sphere] }
-      areaSize: { type: integer } # feet
+      areaSize: { type: integer }
       attack: { type: enum, values: [melee, ranged] }
       save: { type: enum, values: [str, dex, con, int, wis, cha] }
       saveEffect: { type: enum, values: [half, none] }
       condition: { type: id, of: condition }
       applied: { type: boolean }
-      # The options the caster picks from when casting it (Hex's ability), offered by the spell's
-      # own `option` effects on the cast's `spell-option` step.
       castOptions: { type: set, of: string }
-      # A higher slot targets more creatures (Twinned Spell's spells).
       upcastTargets: { type: boolean }
       maxHp: { type: integer }
       upcastMaxHp: { type: integer }
@@ -256,7 +248,6 @@ contentTypes:
     copies: { max: 1 }
     fields:
       speed: { type: integer, required: true }
-      # `choice`: Small or Medium, chosen with the species (its `size` choice).
       size: { type: enum, values: [small, medium, choice], required: true }
     effects:
       - { id: speed, target: combat.speed, op: set, value: item.speed }
@@ -269,7 +260,6 @@ contentTypes:
         }
       - { id: species, target: creature.species, op: set, value: item.id }
 
-  # A species' lineage, legacy or ancestry (Elven Lineage, Draconic Ancestry, …), picked with it.
   lineage:
     copies: { max: 0 }
     fields:
@@ -291,7 +281,6 @@ fields:
   armor.untrained: { type: boolean, formula: false }
 
 effects:
-  # Armor without training: Disadvantage on D20 Tests with Strength or Dexterity, and no spells.
   - id: untrained-armor-tests
     target: { rolls: [ability.str, ability.dex] }
     op: rollModifier

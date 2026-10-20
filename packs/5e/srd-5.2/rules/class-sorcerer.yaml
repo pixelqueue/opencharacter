@@ -1,5 +1,4 @@
 fields:
-  # Innate Sorcery's minute is running (the app ends it).
   innateSorcery.active: { type: boolean, input: true, default: false }
   sorcery.points: { type: integer, formula: 0 }
   sorcery.left:
@@ -7,18 +6,14 @@ fields:
     formula: >-
       sorcery.points - sumCopies(copy.state.sorceryPointsSpent,
         copy.type == 'class' && has(copy.state.sorceryPointsSpent))
-  # Arcane Apotheosis: a Metamagic option costs nothing (once per turn, the app's).
   sorcery.free: { type: boolean, formula: false }
-  # Extended Spell on the spell being concentrated on: Advantage on the saves to keep it.
   sorcery.extendedConcentration: { type: boolean, input: true, default: false }
-  # Elemental Affinity's damage type.
   sorcerer.affinity:
     { type: enum, values: [none, acid, cold, fire, lightning, poison], formula: "'none'" }
   dragonWings.known: { type: boolean, formula: false }
   dragonWings.active: { type: boolean, input: true, default: false }
 
 contentTypes:
-  # Metamagic options, picked in the Metamagic feature.
   metamagic:
     copies: { max: 0 }
 
