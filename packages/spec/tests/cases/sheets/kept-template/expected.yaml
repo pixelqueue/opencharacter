@@ -12,6 +12,12 @@ values:
           id: test-kept-templates:templates.iron
           entry: test-kept-templates-weapons-fist
   test-kept-templates:heavy.count: { value: 1 }
+templated:
+  - entry: test-kept-templates-weapons-fist
+    item: test-kept-templates:weapons.fist
+    templates: [test-kept-templates:templates.iron]
+    tags: [standard, unarmed, heavy]
+    fields: { damage: 1d6, bonus: 2 }
 copies:
   test-kept-templates-weapons-fist: { bonus: 2, heavy: true, light: false, templates: 1 }
 activations:

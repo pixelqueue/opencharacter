@@ -854,17 +854,21 @@ export class PackChecker {
       if (!template) this.report.error(file, `keepsTemplates: unknown item "${kept.template}"`);
       else if (template.item.type !== 'template')
         this.report.error(file, `keepsTemplates: "${kept.template}" is not a template`);
-      this.query(kept.copies, file, `${owner}.keepsTemplates`);
+      const query = kept.copies ?? kept.content;
+      if (query) this.query(query, file, `${owner}.keepsTemplates`);
     }
     for (const name of item.keepsFields ?? []) {
       const types = (item.keepsTemplates ?? []).map(
-        (k) => this.ruleset.contentType(k.copies.type, this.scope)?.def,
+        (k) => this.ruleset.contentType((k.copies ?? k.content)?.type ?? '', this.scope)?.def,
       );
       const known =
         this.ruleset.templateFields(this.scope).has(name) ||
         (types.length > 0 && types.every((t) => t?.fields?.[name] !== undefined));
       if (!known)
-        this.report.error(file, `keepsFields: "${name}" is not an item field of the kept copies`);
+        this.report.error(
+          file,
+          `keepsFields: "${name}" is not an item field of the kept copies or content`,
+        );
     }
     for (const prerequisite of item.prerequisites ?? [])
       this.requiredKeys.add(`${owner}.prerequisites.${prerequisite.id}`);

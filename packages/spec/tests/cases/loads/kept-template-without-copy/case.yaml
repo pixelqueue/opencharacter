@@ -1,0 +1,29 @@
+description: 'A template kept on content without a copy may give only fields and tags: one with state or effects is template-without-copy'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        fields:
+          bonus: { type: integer, formula: 0 }
+        contentTypes:
+          spell:
+            fields:
+              range: { type: integer }
+          feature: {}
+      content:
+        - { id: spells.bolt, type: spell, fields: { range: 120 } }
+        - id: templates.far
+          type: template
+          appliesTo: { type: spell }
+          fields: { range: 'prior.range + 300' }
+          state:
+            charged: { type: boolean, default: false }
+          effects:
+            - { target: bonus, op: add, value: 1 }
+        - id: features.keeper
+          type: feature
+          keepsTemplates:
+            - { template: templates.far, content: { type: spell } }
