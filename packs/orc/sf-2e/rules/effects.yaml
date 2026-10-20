@@ -1,0 +1,33 @@
+contentTypes:
+  effect:
+    state:
+      value: { type: integer, default: 0, min: 0 }
+
+tags:
+  - class-action
+  - stance
+  - feat-action
+  - trait.backswing
+  - trait.backstabber
+  - trait.bravado
+  - trait.finisher
+  - trait.incapacitation
+  - trait.monk
+  - trait.venomous
+
+display:
+  groups:
+    - id: effects
+      kind: content
+      priority: 0
+      members: { type: effect, from: applied }
+    - id: class-actions
+      kind: actions
+      priority: 0
+      members:
+        type: action
+        where: >-
+          'class-action' in item.tags || 'stance' in item.tags || 'feat-action' in item.tags
+            || 'hunt-prey' in item.tags
+  types:
+    effect: { quantity: { hidden: true } }

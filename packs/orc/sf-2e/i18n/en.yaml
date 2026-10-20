@@ -1,0 +1,518 @@
+pack.name: Second Edition science-fantasy rules (ORC)
+
+actions.check.description: 'Roll a d20 plus a skill, Lore, Perception or saving throw modifier against a DC. Beat the DC by 10 for a critical success, miss it by 10 for a critical failure; a natural 20 raises the result one step and a natural 1 lowers it.'
+actions.check.name: Check
+actions.check.params.check.name: Modifier
+actions.check.params.dc.name: DC
+actions.check.params.dc.description: 'The Difficulty Class to meet or beat, set by the GM or the effect.'
+actions.create-character.name: Build a character
+actions.create-character.steps.ancestry.prompt: Choose an ancestry
+actions.create-character.steps.background.prompt: Choose a background
+actions.create-character.steps.class.prompt: Choose a class
+actions.create-character.steps.heritage.prompt: Choose a heritage
+actions.random-character.name: Build a random character
+actions.random-character.steps.ancestry.prompt: Choose an ancestry
+actions.random-character.steps.background.prompt: Choose a background
+actions.random-character.steps.class.prompt: Choose a class
+actions.random-character.steps.keyDie.name: Roll for Strength or Dexterity as the key attribute
+actions.random-character.steps.heritage.prompt: Choose a heritage
+actions.end-turn.name: End of turn
+actions.flat-check.name: Flat check
+actions.flat-check.params.dc.name: DC
+actions.flat-check.params.dc.description: 'The number the d20 must reach.'
+actions.knocked-out.name: Knocked out
+actions.knocked-out.params.critical.name: By a critical hit or critically failed save
+actions.level-up.name: Level up
+actions.level-up.steps.increase.prompt: 'Skill increase: raise one skill by a rank (expert at most, master from 7th level, legendary from 15th)'
+actions.lose-dying.name: No longer dying
+actions.raise-shield.name: Raise a Shield
+actions.recovery-check.name: Recovery check
+actions.recovery-check.results.dead.name: Dead
+actions.recovery-check.results.dying.name: Still dying
+actions.recovery-check.results.recovered.name: Recovered
+actions.start-turn.name: Start of turn
+actions.start-turn.results.started.name: Turn started
+actions.strike.description: 'Attack with a weapon or unarmed attack. Each attack after the first in a turn takes the multiple attack penalty (–5, then –10; –4 and –8 with an agile weapon).'
+actions.strike.name: Strike
+actions.strike.params.ac.name: "Target's AC"
+actions.strike.params.attack.name: 'Attack this turn (1st, 2nd, 3rd)'
+actions.strike.params.attack.description: 'For the multiple attack penalty: 1 for the first attack this turn.'
+actions.strike.params.reaction.name: As a reaction (no multiple attack penalty)
+actions.strike.params.thrown.name: Thrown
+actions.strike.participants.target.name: Target
+
+bands.degree.critical-failure.name: Critical failure
+bands.degree.critical-success.name: Critical success
+bands.degree.failure.name: Failure
+bands.degree.rolled.name: Rolled
+bands.degree.success.name: Success
+bands.degree.critical-success.condition: 'Meet the DC by 10 or more'
+bands.degree.success.condition: 'Meet the DC'
+bands.degree.failure.condition: 'Miss the DC'
+bands.degree.critical-failure.condition: 'Miss the DC by 10 or more'
+bands.rank.expert.name: Expert
+bands.rank.legendary.name: Legendary
+bands.rank.master.name: Master
+bands.rank.trained.name: Trained
+bands.rank.untrained.name: Untrained
+
+boosts.cha.name: Charisma
+boosts.con.name: Constitution
+boosts.dex.name: Dexterity
+boosts.int.name: Intelligence
+boosts.str.name: Strength
+boosts.wis.name: Wisdom
+
+conditions.blinded.description: "You can't see. Perception checks that need sight critically fail; with vision as your only precise sense, –4 status penalty to Perception. Overrides dazzled."
+conditions.blinded.name: Blinded
+conditions.clumsy.description: 'Status penalty equal to the value to Dexterity-based rolls and DCs, including AC, Reflex saves and ranged attack rolls.'
+conditions.clumsy.name: Clumsy
+conditions.concealed.description: "You're hard to see: a creature targeting you must succeed at a DC 5 flat check."
+conditions.concealed.name: Concealed
+conditions.confused.description: "You're off-guard, you don't treat anyone as an ally, and you can't Delay, Ready or use reactions; you attack randomly."
+conditions.confused.name: Confused
+conditions.controlled.description: Another creature decides your actions.
+conditions.controlled.name: Controlled
+conditions.dazzled.description: 'Everything is concealed to you: targeting anything needs a DC 5 flat check.'
+conditions.dazzled.name: Dazzled
+conditions.deafened.description: "You can't hear: auditory Perception checks critically fail, and –2 status penalty to Perception checks."
+conditions.deafened.name: Deafened
+conditions.doomed.description: "You die at a lower dying value: 4 less your doomed value. It drops by 1 after a full night's rest."
+conditions.doomed.name: Doomed
+conditions.drained.description: 'Status penalty equal to the value to Constitution-based rolls and DCs (Fortitude), and you lose Hit Points equal to your level times the value, as does your maximum.'
+conditions.drained.name: Drained
+conditions.dying.description: "You're unconscious and near death. At the start of your turn, make a recovery check (a flat check, DC 10 + the value). You die at dying 4 (less doomed)."
+conditions.dying.name: Dying
+conditions.encumbered.description: "You're carrying too much: clumsy 1 and a –10-foot penalty to all your Speeds."
+conditions.encumbered.name: Encumbered
+conditions.enfeebled.description: 'Status penalty equal to the value to Strength-based rolls and DCs: Strength-based attack and damage rolls and Athletics checks.'
+conditions.enfeebled.name: Enfeebled
+conditions.fascinated.description: "–2 status penalty to Perception and skill checks, and you can't use concentrate actions unrelated to the subject."
+conditions.fascinated.name: Fascinated
+conditions.fatigued.description: "–1 status penalty to AC and saving throws, and you can't use exploration activities while traveling."
+conditions.fatigued.name: Fatigued
+conditions.fleeing.description: You must spend your actions trying to escape.
+conditions.fleeing.name: Fleeing
+conditions.frightened.description: Status penalty equal to the value to all your checks and DCs. It drops by 1 at the end of each of your turns.
+conditions.frightened.name: Frightened
+conditions.grabbed.description: "You're held in place: off-guard and immobilized."
+conditions.grabbed.name: Grabbed
+conditions.hidden.description: "A creature knows where you are but can't see you: it must succeed at a DC 11 flat check to target you."
+conditions.hidden.name: Hidden
+conditions.immobilized.description: "You can't use any action with the move trait."
+conditions.immobilized.name: Immobilized
+conditions.invisible.description: "You can't be seen: you're undetected to everyone (hidden once found)."
+conditions.invisible.name: Invisible
+conditions.off-guard.description: –2 circumstance penalty to AC.
+conditions.off-guard.name: Off-Guard
+conditions.paralyzed.description: "You can't act: off-guard, and you can only Recall Knowledge and use mental actions."
+conditions.paralyzed.name: Paralyzed
+conditions.persistent-damage.actions.take-persistent-damage.name: Take persistent damage
+conditions.persistent-damage.description: 'You take the damage at the end of each of your turns, then attempt a DC 15 flat check to end it.'
+conditions.persistent-damage.name: Persistent Damage
+conditions.petrified.description: "You've been turned to stone and can't act or sense anything."
+conditions.petrified.name: Petrified
+conditions.prone.description: "You're lying on the ground: off-guard and –2 circumstance penalty to attack rolls."
+conditions.prone.name: Prone
+conditions.quickened.description: 'You gain 1 extra action at the start of each turn, usable only as the effect that quickened you allows.'
+conditions.quickened.name: Quickened
+conditions.restrained.description: "You're tied up or pinned: off-guard and immobilized, and you can't use attack or manipulate actions except to escape."
+conditions.restrained.name: Restrained
+conditions.sickened.actions.retch.name: Retch
+conditions.sickened.actions.retch.params.dc.name: DC
+conditions.sickened.description: "Status penalty equal to the value to all checks and DCs, and you can't willingly ingest anything. Retch to try to lower it."
+conditions.sickened.name: Sickened
+conditions.slowed.description: You regain that many fewer actions at the start of each turn.
+conditions.slowed.name: Slowed
+conditions.stunned.description: 'You lose that many actions at the start of your turn, and the value drops by the actions lost.'
+conditions.stunned.name: Stunned
+conditions.stupefied.description: 'Status penalty equal to the value to Intelligence-, Wisdom- and Charisma-based checks and DCs, including Will saves and Perception.'
+conditions.stupefied.name: Stupefied
+conditions.unconscious.description: "You can't act: –4 status penalty to AC, Perception and Reflex saves, and you're blinded and off-guard."
+conditions.unconscious.name: Unconscious
+conditions.wounded.description: 'Whenever you gain the dying condition, its value rises by your wounded value.'
+conditions.wounded.name: Wounded
+
+constraints.alive: 'Dying has reached its maximum: the character is dead.'
+constraints.bulk-limit: More Bulk than the character can carry.
+constraints.creation-ancestry-background-class: 'A new character needs an ancestry, a background and a class.'
+constraints.one-flourish: Only one action with the flourish trait each turn.
+
+creation.standard.description: 'Choose an ancestry and heritage, a background and a class, then the attribute boosts, feats, languages and skills they bring.'
+creation.standard.name: Build a character
+creation.random.description: 'A random class, ancestry, heritage and background, with every boost, skill, feat and language they bring picked for you.'
+creation.random.name: A random character
+
+fields.attacks.advanced.rank.name: Advanced weapons
+fields.attacks.martial.rank.name: Martial weapons
+fields.attacks.simple.rank.name: Simple weapons
+fields.attacks.unarmed.rank.name: Unarmed attacks
+fields.attributes.cha.mod.name: Charisma
+fields.attributes.cha.mod.short: CHA
+fields.attributes.con.mod.name: Constitution
+fields.attributes.con.mod.short: CON
+fields.attributes.dex.mod.name: Dexterity
+fields.attributes.dex.mod.short: DEX
+fields.attributes.int.mod.name: Intelligence
+fields.attributes.int.mod.short: INT
+fields.attributes.str.mod.name: Strength
+fields.attributes.str.mod.short: STR
+fields.attributes.wis.mod.name: Wisdom
+fields.attributes.wis.mod.short: WIS
+fields.bulk.carried.name: Bulk carried
+fields.bulk.encumbered.name: Encumbered above
+fields.bulk.max.name: Maximum Bulk
+fields.classDc.rank.name: Class DC proficiency
+fields.classDc.value.name: Class DC
+fields.creature.size.name: Size
+fields.defenses.ac.name: Armor Class
+fields.defenses.heavy.rank.name: Heavy armor
+fields.defenses.light.rank.name: Light armor
+fields.defenses.medium.rank.name: Medium armor
+fields.defenses.unarmored.rank.name: Unarmored defense
+fields.hp.current.name: Hit Points
+fields.hp.max.name: Maximum Hit Points
+fields.hp.temp.name: Temporary Hit Points
+fields.languages.name: Languages
+fields.level.name: Level
+fields.parry.active.name: Dueling Parry
+fields.perception.dc.name: Perception DC
+fields.perception.mod.name: Perception
+fields.perception.rank.name: Perception proficiency
+fields.saves.fortitude.dc.name: Fortitude DC
+fields.saves.fortitude.mod.name: Fortitude
+fields.saves.fortitude.rank.name: Fortitude proficiency
+fields.saves.reflex.dc.name: Reflex DC
+fields.saves.reflex.mod.name: Reflex
+fields.saves.reflex.rank.name: Reflex proficiency
+fields.saves.will.dc.name: Will DC
+fields.saves.will.mod.name: Will
+fields.saves.will.rank.name: Will proficiency
+fields.senses.name: Senses
+fields.shield.raised.name: Shield raised
+fields.speed.land.name: Speed
+fields.traits.name: Traits
+fields.turn.actionsPerTurn.name: Actions this turn
+fields.turn.attacks.name: Attacks this turn
+fields.turn.flourishes.name: Flourishes this turn
+fields.weapons.specialization.name: Weapon specialization
+fields.xp.current.name: Experience points
+
+followUps.knocked-out.description: 'Reduced to 0 Hit Points: dying 1 (2 from a critical hit) plus the wounded value, and unconscious.'
+followUps.knocked-out.name: Knocked out
+followUps.level-up.name: Level up
+followUps.revived.name: No longer dying
+
+groups.advancement.label: Creation and advancement
+groups.ancestry.label: Ancestry
+groups.armor.label: Armor
+groups.attributes.label: Attributes
+groups.background.label: Background
+groups.bulk.label: Bulk
+groups.checks.label: Checks
+groups.class-features.label: Class features
+groups.class.label: Class
+groups.condition-actions.label: Conditions
+groups.conditions.label: Conditions
+groups.defenses.label: Defenses
+groups.feats.label: Feats
+groups.feats.sections.ancestry.name: Ancestry feats
+groups.feats.sections.class.name: Class feats
+groups.feats.sections.general.name: General feats
+groups.feats.sections.skill.name: Skill feats
+groups.gear.label: Gear
+groups.heritage.label: Heritage
+groups.consumables.label: Consumables
+groups.rituals.label: Rituals
+groups.boost-picks.label: Attribute boosts picked
+groups.language-picks.label: Languages picked
+groups.proficiencies.label: Proficiencies
+groups.reactions.label: Reactions and shields
+groups.saves.label: Saving throws and Perception
+groups.shields.label: Shields
+groups.skill-increases.label: Skill increases
+groups.skill-ranks.label: Skill proficiency
+groups.skills.label: Skills
+groups.strikes.label: Strikes
+groups.summary.label: Character
+groups.turn-actions.label: Turns
+groups.turn.label: This turn
+groups.weapons.label: Weapons
+
+rules.choices.ancestry-feat.prompt: Ancestry feat (level {slot})
+rules.choices.boosts.prompt: Attribute boosts at level {slot}
+rules.choices.extra-training.prompt: 'A skill trained twice: train another skill instead'
+rules.choices.free-boosts.prompt: 'Four free attribute boosts, each to a different attribute'
+rules.choices.general-feat.prompt: General feat (level {slot})
+rules.choices.languages.prompt: Additional languages
+
+situational.againstEmotion.name: Against an emotion effect
+situational.againstFear.name: Against a fear effect
+situational.circumstanceBonus.name: Circumstance bonus
+situational.circumstancePenalty.name: Circumstance penalty
+situational.fortune.name: 'Fortune (roll twice, take the higher)'
+situational.initiative.name: Rolling initiative
+situational.itemBonus.name: Item bonus
+situational.misfortune.name: 'Misfortune (roll twice, take the lower)'
+situational.offGuardTarget.name: Target off-guard to this attack (flanked)
+situational.penalty.name: Untyped penalty
+situational.shieldBlock.name: Shield Block
+situational.statusBonus.name: Status bonus
+situational.statusPenalty.name: Status penalty
+situational.sweep.name: 'Sweep: attacked a different target this turn'
+tags.trait.agile.description: The multiple attack penalty with this weapon is –4 on the second attack and –8 on later ones.
+tags.trait.agile.name: Agile
+tags.trait.deadly.description: 'On a critical hit, add a weapon damage die of the listed size, not doubled.'
+tags.trait.deadly.name: Deadly
+tags.trait.disarm.description: You can use this weapon to Disarm with Athletics.
+tags.trait.disarm.name: Disarm
+tags.trait.fatal.description: 'On a critical hit, the weapon damage die becomes the listed size, and you add one more die of that size.'
+tags.trait.fatal.name: Fatal
+tags.trait.finesse.description: You can use Dexterity instead of Strength on attack rolls with this melee weapon.
+tags.trait.finesse.name: Finesse
+tags.trait.flourish.description: You can use only one action with this trait per turn.
+tags.trait.flourish.name: Flourish
+tags.trait.forceful.description: 'A circumstance bonus to damage of +1 per weapon die on your second attack this turn, +2 per die on later attacks.'
+tags.trait.forceful.name: Forceful
+tags.trait.fortune.description: Roll twice and take the better result; only one fortune effect applies to a roll.
+tags.trait.fortune.name: Fortune
+tags.trait.manipulate.name: Manipulate
+tags.trait.nonlethal.description: Attacks with it are nonlethal and knock creatures out rather than kill them.
+tags.trait.nonlethal.name: Nonlethal
+tags.trait.open.description: Usable only if it is your first action with the attack or open trait this turn.
+tags.trait.open.name: Open
+tags.trait.press.description: Usable only while you have a multiple attack penalty.
+tags.trait.press.name: Press
+tags.trait.reaction.name: Reaction
+tags.trait.reload.description: Actions it takes to reload.
+tags.trait.reload.name: Reload
+tags.trait.shove.description: You can use this weapon to Shove with Athletics.
+tags.trait.shove.name: Shove
+tags.trait.stance.description: A combat stance that lasts until you leave it; only one at a time.
+tags.trait.stance.name: Stance
+tags.trait.sweep.description: A +1 circumstance bonus to attack rolls with it if you already attempted to attack a different target this turn.
+tags.trait.sweep.name: Sweep
+tags.trait.two-hand.description: 'Wielded in two hands, the weapon damage die becomes the listed size.'
+tags.trait.two-hand.name: Two-hand
+tags.trait.volley.description: A –2 penalty to attack rolls against targets within the listed distance.
+tags.trait.volley.name: Volley
+
+tallies.successToCrit.name: Success becomes a critical success
+tallies.degreeShift.name: Degrees better
+tallies.naturalOneHolds.name: A natural 1 doesn't lower the degree
+
+types.ancestry.name: Ancestry
+types.ancestry.copies: A character has only one ancestry.
+types.armor.name: Armor
+types.background.name: Background
+types.background.copies: A character has only one background.
+types.boost.name: Attribute boost
+types.class.name: Class
+types.class.copies: A character has only one class.
+types.condition.name: Condition
+types.condition.state.damage.name: Damage
+types.condition.state.damageType.name: Damage type
+types.condition.state.value.name: Value
+types.feat.name: Feat
+types.feature.name: Class feature
+types.gear.name: Gear
+types.heritage.name: Heritage
+types.language.name: Language
+types.shield.name: Shield
+types.shield.state.damage.name: Hit Points lost
+types.weapon.computed.attackDex.name: Attack (Dexterity)
+types.weapon.computed.attackStr.name: Attack (Strength)
+types.weapon.computed.damageOther.name: Damage bonus (ranged)
+types.weapon.computed.damageStr.name: Damage bonus (Strength)
+types.weapon.computed.proficiency.name: Proficiency bonus
+types.weapon.computed.rank.name: Proficiency
+types.weapon.computed.specialization.name: Weapon specialization
+types.weapon.name: Weapon
+types.weapon.state.wielding.name: Held in
+
+types.spell.block: >-
+  **{name}** — *{tag_trait_cantrip, select, true {Cantrip} other {{tag_trait_focus, select, true {Focus} other {Spell}}}} {rank}*{has_tags, select, true { · {tags_name}} other {}} · {cast_name}{has_texts_trigger, select, true { · Trigger {texts_trigger}} other {}}{has_texts_requirements, select, true { · Requirements {texts_requirements}} other {}}{has_range, select, true { · Range {range, select, 0 {touch} other {{range} feet}}} other {}}{has_areaSize, select, true { · Area {areaSize}-foot {area, select, burst {burst} cone {cone} emanation {emanation} line {line} square {square} cube {cube} wall {wall} other {area}}} other {}}{has_targets, select, true { · {targets, plural, one {1 target} other {# targets}}} other {}}{has_defense, select, true { · Defense {basic, select, true {basic } other {}}{defense_name}} other {}}{has_duration, select, true { · {sustained, select, true {Sustained up to } other {}}{duration, select, rounds {{durationAmount, plural, one {# round} other {# rounds}}} minutes {{durationAmount, plural, one {# minute} other {# minutes}}} hours {{durationAmount, plural, one {# hour} other {# hours}}} days {{durationAmount, plural, one {# day} other {# days}}} other {{duration_name}}}} other {}}
+types.spell.fields.cast.values.free.name: 'Free action'
+types.spell.fields.cast.values.reaction.name: 'Reaction'
+types.spell.fields.cast.values.one.name: '1 action'
+types.spell.fields.cast.values.two.name: '2 actions'
+types.spell.fields.cast.values.three.name: '3 actions'
+types.spell.fields.cast.values.one-to-two.name: '1 to 2 actions'
+types.spell.fields.cast.values.one-to-three.name: '1 to 3 actions'
+types.spell.fields.cast.values.two-to-three.name: '2 to 3 actions'
+types.spell.fields.cast.values.one-minute.name: '1 minute'
+types.spell.fields.cast.values.ten-minutes.name: '10 minutes'
+types.spell.fields.cast.values.one-hour.name: '1 hour'
+types.spell.fields.defense.values.ac.name: 'AC'
+types.spell.fields.defense.values.fortitude.name: 'Fortitude'
+types.spell.fields.defense.values.reflex.name: 'Reflex'
+types.spell.fields.defense.values.will.name: 'Will'
+types.spell.fields.duration.values.rounds.name: 'Rounds'
+types.spell.fields.duration.values.minutes.name: 'Minutes'
+types.spell.fields.duration.values.hours.name: 'Hours'
+types.spell.fields.duration.values.days.name: 'Days'
+types.spell.fields.duration.values.until-next-turn.name: 'Until the start of your next turn'
+types.spell.fields.duration.values.until-end-of-turn.name: 'Until the end of your turn'
+types.spell.fields.duration.values.until-daily-preparations.name: 'Until your next daily preparations'
+types.spell.fields.duration.values.unlimited.name: 'Unlimited'
+types.spell.fields.duration.values.sustained.name: 'Sustained'
+types.spell.fields.duration.values.varies.name: 'Varies'
+types.feat.block: >-
+  **{name}** — *{category_name} feat {level}*{has_tags, select, true { · {tags_name}} other {}}{has_ancestry, select, true { · {ancestry_name}} other {}}{has_heritage, select, true { · {heritage_name}} other {}}{has_class, select, true { · {class_name}} other {}}
+types.feat.fields.category.values.ancestry.name: 'Ancestry'
+types.feat.fields.category.values.class.name: 'Class'
+types.feat.fields.category.values.general.name: 'General'
+types.feat.fields.category.values.skill.name: 'Skill'
+types.feature.block: >-
+  **{name}** — *Class feature {level}*{has_tags, select, true { · {tags_name}} other {}}
+types.weapon.block: >-
+  **{name}** — *{category_name} {range, plural, =0 {melee} other {ranged}} weapon* · {damage} {damageType_name} · Group {group_name}{range, plural, =0 {} other { · Range {range} feet}}{hands, plural, =2 { · Two hands} other {}}{has_tags, select, true { · {tags_name}} other {}}{bulk, plural, =0 {} other { · Bulk {bulk_name}}}{has_price, select, true { · {price} gp} other {}}
+types.weapon.fields.category.values.unarmed.name: 'Unarmed'
+types.weapon.fields.category.values.simple.name: 'Simple'
+types.weapon.fields.category.values.martial.name: 'Martial'
+types.weapon.fields.category.values.advanced.name: 'Advanced'
+types.weapon.fields.group.values.axe.name: 'Axe'
+types.weapon.fields.group.values.brawling.name: 'Brawling'
+types.weapon.fields.group.values.club.name: 'Club'
+types.weapon.fields.group.values.crossbow.name: 'Crossbow'
+types.weapon.fields.group.values.dart.name: 'Dart'
+types.weapon.fields.group.values.flail.name: 'Flail'
+types.weapon.fields.group.values.hammer.name: 'Hammer'
+types.weapon.fields.group.values.knife.name: 'Knife'
+types.weapon.fields.group.values.polearm.name: 'Polearm'
+types.weapon.fields.group.values.shield.name: 'Shield'
+types.weapon.fields.group.values.spear.name: 'Spear'
+types.weapon.fields.group.values.sword.name: 'Sword'
+types.weapon.fields.damageType.values.bludgeoning.name: 'bludgeoning'
+types.weapon.fields.damageType.values.piercing.name: 'piercing'
+types.weapon.fields.damageType.values.slashing.name: 'slashing'
+types.armor.block: >-
+  **{name}** — *{category, select, unarmored {Unarmored defense} other {{category_name} armor}}* · AC +{acBonus} · Dex cap +{dexCap}{has_strength, select, true { · Strength +{strength}} other {}}{checkPenalty, plural, =0 {} other { · Check penalty –{checkPenalty}}}{speedPenalty, plural, =0 {} other { · Speed –{speedPenalty} feet}}{has_group, select, true { · Group {group_name}} other {}}{has_tags, select, true { · {tags_name}} other {}}{bulk, plural, =0 {} other { · Bulk {bulk_name}}}{has_price, select, true { · {price} gp} other {}}
+types.armor.fields.category.values.unarmored.name: 'Unarmored'
+types.armor.fields.category.values.light.name: 'Light'
+types.armor.fields.category.values.medium.name: 'Medium'
+types.armor.fields.category.values.heavy.name: 'Heavy'
+types.armor.fields.group.values.cloth.name: 'Cloth'
+types.armor.fields.group.values.leather.name: 'Leather'
+types.armor.fields.group.values.composite.name: 'Composite'
+types.armor.fields.group.values.chain.name: 'Chain'
+types.armor.fields.group.values.plate.name: 'Plate'
+types.shield.block: >-
+  **{name}** — *Shield* · AC +{acBonus} · Hardness {hardness} · HP {hp} (BT {bt}){speedPenalty, plural, =0 {} other { · Speed –{speedPenalty} feet}}{has_tags, select, true { · {tags_name}} other {}}{bulk, plural, =0 {} other { · Bulk {bulk_name}}}{has_price, select, true { · {price} gp} other {}}
+types.gear.block: >-
+  **{name}** — *Gear*{has_tags, select, true { · {tags_name}} other {}}{bulk, plural, =0 {} other { · Bulk {bulk_name}}}{has_price, select, true { · {price} gp} other {}}
+types.consumable.block: >-
+  **{name}** — *{category_name} {level}*{has_tags, select, true { · {tags_name}} other {}}{has_healing, select, true { · Restores {healing} HP} other {}}{bulk, plural, =0 {} other { · Bulk {bulk_name}}}{has_price, select, true { · {price} gp} other {}}
+types.weapon.fields.bulk.values.0.1.name: 'L'
+types.armor.fields.bulk.values.0.1.name: 'L'
+types.shield.fields.bulk.values.0.1.name: 'L'
+types.gear.fields.bulk.values.0.1.name: 'L'
+types.consumable.fields.bulk.values.0.1.name: 'L'
+
+units.ft.name: feet
+units.ft.short: ft
+
+tags.ac.name: 'Armor Class'
+tags.assurance.name: 'Assurance'
+tags.attack.name: 'Attack'
+tags.attack-count.name: 'Attack count'
+tags.attack.melee.name: 'Melee attack'
+tags.attack.ranged.name: 'Ranged attack'
+tags.attr.name: 'Attribute'
+tags.attr.cha.name: 'Charisma'
+tags.attr.con.name: 'Constitution'
+tags.attr.dex.name: 'Dexterity'
+tags.attr.int.name: 'Intelligence'
+tags.attr.str.name: 'Strength'
+tags.attr.wis.name: 'Wisdom'
+tags.attribute.name: 'Attribute'
+tags.attribute-boosts.name: 'Attribute boosts'
+tags.check.name: 'Check'
+tags.class-action.name: 'Class action'
+tags.feat-action.name: 'Feat action'
+tags.class-dc.name: 'Class DC'
+tags.condition.name: 'Condition'
+tags.creation.name: 'Creation'
+tags.d20.name: 'd20 roll'
+tags.damage.name: 'Damage'
+tags.damage.acid.name: 'Acid damage'
+tags.damage.bleed.name: 'Bleed damage'
+tags.damage.bludgeoning.name: 'Bludgeoning damage'
+tags.damage.cold.name: 'Cold damage'
+tags.damage.critical.name: 'Critical damage'
+tags.damage.electricity.name: 'Electricity damage'
+tags.damage.fire.name: 'Fire damage'
+tags.damage.mental.name: 'Mental damage'
+tags.damage.piercing.name: 'Piercing damage'
+tags.damage.poison.name: 'Poison damage'
+tags.damage.slashing.name: 'Slashing damage'
+tags.damage.sonic.name: 'Sonic damage'
+tags.damage.spell.name: 'Spell damage'
+tags.damage.spirit.name: 'Spirit damage'
+tags.damage.strike.name: 'Strike damage'
+tags.damage.vitality.name: 'Vitality damage'
+tags.damage.void.name: 'Void damage'
+tags.dc.name: 'DC'
+tags.dying.name: 'Dying'
+tags.flat-check.name: 'Flat check'
+tags.group.name: 'Weapon group'
+tags.group.axe.name: 'Axe group'
+tags.group.brawling.name: 'Brawling group'
+tags.group.club.name: 'Club group'
+tags.group.crossbow.name: 'Crossbow group'
+tags.group.dart.name: 'Dart group'
+tags.group.flail.name: 'Flail group'
+tags.group.hammer.name: 'Hammer group'
+tags.group.knife.name: 'Knife group'
+tags.group.polearm.name: 'Polearm group'
+tags.group.shield.name: 'Shield group'
+tags.group.spear.name: 'Spear group'
+tags.group.sword.name: 'Sword group'
+tags.level-up.name: 'Level up'
+tags.lore.name: 'Lore'
+tags.perception.name: 'Perception'
+tags.persistent-damage.name: 'Persistent damage'
+tags.reaction.name: 'Reaction'
+tags.rest.name: 'Rest'
+tags.save.name: 'Saving throw'
+tags.save.fortitude.name: 'Fortitude'
+tags.save.reflex.name: 'Reflex'
+tags.save.will.name: 'Will'
+tags.sense.name: 'Sense'
+tags.sense.darkvision.name: 'Darkvision'
+tags.sense.low-light-vision.name: 'Low-light vision'
+tags.sense.scent.name: 'Scent'
+tags.shield.name: 'Shield'
+tags.skill.name: 'Skill'
+tags.skill-increase.name: 'Skill increase'
+tags.skill-training.name: 'Skill training'
+tags.skill-rank.name: 'Skill rank'
+tags.untrained.name: 'Untrained'
+tags.skill.lore.name: 'Lore'
+tags.spell.name: 'Spell'
+tags.spell.caster.name: 'Spell, for its caster'
+tags.spell.paid.name: 'Spell, once paid for'
+tags.spell.target.name: 'Spell, for each target'
+tags.spell-attack.name: 'Spell attack'
+tags.spell-cost.name: 'Spell cost'
+tags.spell-dc.name: 'Spell DC'
+tags.stance.name: 'Stance'
+tags.standard.name: 'Standard'
+tags.part.name: 'Roll part'
+tags.part.attribute.name: 'Attack attribute'
+tags.part.map.name: 'Multiple attack penalty'
+tags.part.weapon-die.name: 'Weapon damage die'
+tags.strike.name: 'Strike'
+tags.strike.hit.name: 'Strike hit'
+tags.strike.hit.critical.name: 'Strike critical hit'
+tags.strike.double-slice.name: 'Double Slice'
+tags.strike.vicious-swing.name: 'Vicious Swing'
+tags.tradition.name: 'Tradition'
+tags.trait.name: 'Trait'
+tags.trait.human.name: 'Human'
+tags.trait.humanoid.name: 'Humanoid'
+tags.turn.name: 'Turn'
+tags.turn.end.name: 'End of turn'
+tags.turn.start.name: 'Start of turn'
+tags.unarmed.name: 'Unarmed'
+tags.trait.spellshape.name: Spellshape

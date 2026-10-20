@@ -1,0 +1,142 @@
+tags:
+  - trait.archetype
+  - trait.dedication
+  - trait.multiclass
+  - archetype-feat
+  - archetype-feats
+  - archetype-extra.at2
+  - archetype-extra.at4
+  - archetype-extra.at6
+  - archetype-extra.at8
+  - archetype-extra.at10
+  - archetype-extra.at12
+  - archetype-extra.at14
+  - archetype-extra.at16
+  - archetype-extra.at18
+  - archetype-extra.at20
+
+contentTypes:
+  archetype:
+    copies: { max: 0 }
+    fields:
+      dedication: { type: id, of: feat, required: true }
+      multiclass: { type: id, of: class }
+
+fields:
+  archetypes.dedications: { type: set, of: feat }
+  archetypes.open:
+    type: integer
+    formula: "sumFields(f.value > 0 && f.value < 3 ? 1 : 0, 'archetype-feats' in f.tags)"
+  archetypes.openAllowance: { type: integer, formula: 0, min: 0 }
+  archetypes.extra.level2: { type: set, of: feat, tags: [archetype-extra.at2] }
+  archetypes.extra.level4: { type: set, of: feat, tags: [archetype-extra.at2, archetype-extra.at4] }
+  archetypes.extra.level6:
+    type: set
+    of: feat
+    tags: [archetype-extra.at2, archetype-extra.at4, archetype-extra.at6]
+  archetypes.extra.level8:
+    type: set
+    of: feat
+    tags: [archetype-extra.at2, archetype-extra.at4, archetype-extra.at6, archetype-extra.at8]
+  archetypes.extra.level10:
+    type: set
+    of: feat
+    tags:
+      [
+        archetype-extra.at2,
+        archetype-extra.at4,
+        archetype-extra.at6,
+        archetype-extra.at8,
+        archetype-extra.at10,
+      ]
+  archetypes.extra.level12:
+    type: set
+    of: feat
+    tags:
+      [
+        archetype-extra.at2,
+        archetype-extra.at4,
+        archetype-extra.at6,
+        archetype-extra.at8,
+        archetype-extra.at10,
+        archetype-extra.at12,
+      ]
+  archetypes.extra.level14:
+    type: set
+    of: feat
+    tags:
+      [
+        archetype-extra.at2,
+        archetype-extra.at4,
+        archetype-extra.at6,
+        archetype-extra.at8,
+        archetype-extra.at10,
+        archetype-extra.at12,
+        archetype-extra.at14,
+      ]
+  archetypes.extra.level16:
+    type: set
+    of: feat
+    tags:
+      [
+        archetype-extra.at2,
+        archetype-extra.at4,
+        archetype-extra.at6,
+        archetype-extra.at8,
+        archetype-extra.at10,
+        archetype-extra.at12,
+        archetype-extra.at14,
+        archetype-extra.at16,
+      ]
+  archetypes.extra.level18:
+    type: set
+    of: feat
+    tags:
+      [
+        archetype-extra.at2,
+        archetype-extra.at4,
+        archetype-extra.at6,
+        archetype-extra.at8,
+        archetype-extra.at10,
+        archetype-extra.at12,
+        archetype-extra.at14,
+        archetype-extra.at16,
+        archetype-extra.at18,
+      ]
+  archetypes.extra.level20:
+    type: set
+    of: feat
+    tags:
+      [
+        archetype-extra.at2,
+        archetype-extra.at4,
+        archetype-extra.at6,
+        archetype-extra.at8,
+        archetype-extra.at10,
+        archetype-extra.at12,
+        archetype-extra.at14,
+        archetype-extra.at16,
+        archetype-extra.at18,
+        archetype-extra.at20,
+      ]
+
+constraints:
+  - id: dedication-lock
+    check: archetypes.open <= 1 + archetypes.openAllowance
+    data: { open: archetypes.open }
+
+display:
+  fields:
+    archetypes.open: { hidden: true }
+    archetypes.openAllowance: { hidden: true }
+    archetypes.dedications: { hidden: true }
+    archetypes.extra.level2: { hidden: true }
+    archetypes.extra.level4: { hidden: true }
+    archetypes.extra.level6: { hidden: true }
+    archetypes.extra.level8: { hidden: true }
+    archetypes.extra.level10: { hidden: true }
+    archetypes.extra.level12: { hidden: true }
+    archetypes.extra.level14: { hidden: true }
+    archetypes.extra.level16: { hidden: true }
+    archetypes.extra.level18: { hidden: true }
+    archetypes.extra.level20: { hidden: true }

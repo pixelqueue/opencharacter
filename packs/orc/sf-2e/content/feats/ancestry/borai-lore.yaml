@@ -1,0 +1,23 @@
+id: feats.ancestry.borai-lore
+type: feat
+tags: [trait.borai]
+fields: { level: 1, category: ancestry, heritage: heritages.borai }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.intimidation }
+    when: "!('skill.intimidation' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.religion }
+    when: "!('skill.religion' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.borai }
+    when: "!('skill.lore.borai' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.lore.borai.granted
+    op: add
+    value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'

@@ -1,0 +1,16 @@
+id: spells.indestructibility
+type: spell
+tags:
+  - tradition.arcane
+  - tradition.divine
+  - tradition.occult
+  - tradition.primal
+  - trait.concentrate
+  - trait.manipulate
+fields: { rank: 10, cast: two, duration: until-next-turn, applyTo: self }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: multiply
+    value: 0
+    when: incoming.amount < 0
+    scope: applied

@@ -1,0 +1,14 @@
+id: feats.archetype.operative.advanced-gunner
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.operative }
+prerequisites: [{ id: feat, when: '@feats.archetype.operative.basic-gunner in feats.held' }]
+effects: [{ target: archetypes.operative.repeats, op: add, value: 1 }]
+choices:
+  - id: feat
+    unique: feats
+    from:
+      type: feat
+      where: "item.category == 'class' && !('trait.archetype' in item.tags) && (has(item.class) && item.class == @classes.operative || 'trait.operative' in item.tags)"
+    eligible: item.level <= floor(level / 2)
+repeatable: true

@@ -1,0 +1,14 @@
+id: conditions.suppressed
+type: condition
+effects:
+  - { target: conditions.suppressed, op: set, value: true, scope: applied }
+  - target: { rolls: [attack] }
+    op: add
+    value: -1
+    stackKey: circumstance-penalty
+    scope: applied
+  - target: { fields: { where: "'speed' in item.tags" } }
+    op: add
+    value: -10
+    stackKey: status-penalty
+    scope: applied

@@ -1,0 +1,16 @@
+id: feats.skill.experienced-smuggler
+type: feat
+fields: { level: 1, category: skill, skills: [skill.stealth] }
+
+prerequisites:
+  - id: trained
+    when: 'skills.stealth.rank >= 1'
+effects:
+  - target: { rolls: [skill-action.conceal-an-object] }
+    op: rollModifier
+    value: { kind: minimumFace, value: 10 }
+    when: skills.stealth.rank < 3
+  - target: { rolls: [skill-action.conceal-an-object] }
+    op: rollModifier
+    value: { kind: minimumFace, value: 15 }
+    when: skills.stealth.rank >= 3

@@ -1,0 +1,21 @@
+id: feats.witchwarper.greater-warp
+type: feat
+tags: [trait.witchwarper]
+fields: { level: 12, category: class, class: classes.witchwarper }
+effects: [{ target: focus.points, op: add, value: 1 }]
+choices:
+  - id: spell
+    from:
+      options:
+        - id: analyst
+          prerequisites: [{ id: paradox, when: "witchwarper.paradox == 'analyst'" }]
+          grants: [{ item: spells.quantum-analysis }]
+        - id: anomaly
+          prerequisites: [{ id: paradox, when: "witchwarper.paradox == 'anomaly'" }]
+          grants: [{ item: spells.parallel-forms }]
+        - id: lost-history
+          prerequisites: [{ id: paradox, when: "witchwarper.paradox == 'lost-history'" }]
+          grants: [{ item: spells.reality-wipe }]
+        - id: precog
+          prerequisites: [{ id: paradox, when: "witchwarper.paradox == 'precog'" }]
+          grants: [{ item: spells.time-loop }]

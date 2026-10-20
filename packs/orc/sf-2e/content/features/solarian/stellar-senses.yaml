@@ -1,0 +1,10 @@
+id: features.solarian.stellar-senses
+type: feature
+fields: { level: 7 }
+effects:
+  - { target: perception.rank, op: atLeast, value: 3 }
+  - target: { rolls: [perception] }
+    op: add
+    value: '@feats.general.incredible-initiative in feats.held ? 3 : 2'
+    stackKey: circumstance-bonus
+    when: situational.initiative

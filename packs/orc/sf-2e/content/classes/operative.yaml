@@ -1,0 +1,206 @@
+id: classes.operative
+type: class
+tags: [trait.operative]
+fields: { hp: 8 }
+effects:
+  - { target: class.traits, op: grant, value: { tag: trait.operative } }
+  - { target: attributes.dex.boosts, op: add, value: 1 }
+  - { target: class.keyAttribute, op: set, value: "'dex'" }
+  - { target: perception.rank, op: atLeast, value: 2 }
+  - { target: saves.fortitude.rank, op: atLeast, value: 1 }
+  - { target: saves.reflex.rank, op: atLeast, value: 2 }
+  - { target: saves.will.rank, op: atLeast, value: 2 }
+  - { target: attacks.simple.rank, op: atLeast, value: 1 }
+  - { target: attacks.martial.rank, op: atLeast, value: 1 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 1 }
+  - { target: attacks.simpleGun.rank, op: atLeast, value: 2 }
+  - { target: attacks.advancedGun.rank, op: atLeast, value: 1 }
+  - { target: defenses.unarmored.rank, op: atLeast, value: 1 }
+  - { target: defenses.light.rank, op: atLeast, value: 1 }
+  - { target: classDc.rank, op: atLeast, value: 1 }
+  - { target: attacks.martialGun.rank, op: atLeast, value: 2, when: '!operative.striker' }
+  - { target: attacks.agileMelee.rank, op: atLeast, value: 2, when: operative.striker }
+grants:
+  - { item: features.operative.sharpshooter }
+  - { item: features.operative.focused, when: 'level >= 3' }
+  - { item: features.operative.master-gunner, when: 'level >= 5' }
+  - { item: features.operative.urban-operator, when: 'level >= 5' }
+  - { item: features.operative.operatives-edge, when: 'level >= 7' }
+  - { item: features.operative.reflex-mastery, when: 'level >= 7' }
+  - { item: features.operative.weapon-specialization, when: 'level >= 7' }
+  - { item: features.operative.operative-resilience, when: 'level >= 9' }
+  - { item: features.operative.on-the-move, when: 'level >= 11' }
+  - { item: features.operative.operative-expertise, when: 'level >= 11' }
+  - { item: features.operative.legendary-gunner, when: 'level >= 13' }
+  - { item: features.operative.light-armor-expertise, when: 'level >= 13' }
+  - { item: features.operative.critical-aim, when: 'level >= 15' }
+  - { item: features.operative.greater-weapon-specialization, when: 'level >= 15' }
+  - { item: features.operative.resolve, when: 'level >= 17' }
+  - { item: features.operative.tactical-barrage, when: 'level >= 17' }
+  - { item: features.operative.galaxy-renowned, when: 'level >= 19' }
+  - { item: features.operative.incredible-senses, when: 'level >= 19' }
+  - { item: features.operative.light-armor-mastery, when: 'level >= 19' }
+choices:
+  - id: specialization
+    from:
+      options:
+        - id: ghost
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.deception }
+              when: "!('skill.deception' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: operative.specSkill, op: set, value: "'skill.deception'" }
+          grants:
+            - { item: features.operative.exploit.ghost }
+            - { item: features.operative.enhanced-exploit.ghost, when: 'level >= 9' }
+          choices:
+            - id: skill-feat
+              unique: feats
+              requiresOption: true
+              from: { type: feat, where: "item.category == 'skill' && item.level <= 1" }
+              eligible: "'skill.deception' in item.skills"
+        - id: infiltrator
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.computers }
+              when: "!('skill.computers' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: operative.specSkill, op: set, value: "'skill.computers'" }
+          grants:
+            - { item: features.operative.exploit.infiltrator }
+            - { item: features.operative.enhanced-exploit.infiltrator, when: 'level >= 9' }
+          choices:
+            - id: skill-feat
+              unique: feats
+              requiresOption: true
+              from: { type: feat, where: "item.category == 'skill' && item.level <= 1" }
+              eligible: "'skill.computers' in item.skills"
+        - id: skirmisher
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.acrobatics }
+              when: "!('skill.acrobatics' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: operative.specSkill, op: set, value: "'skill.acrobatics'" }
+          grants:
+            - { item: features.operative.exploit.skirmisher }
+            - { item: features.operative.enhanced-exploit.skirmisher, when: 'level >= 9' }
+          choices:
+            - id: skill-feat
+              unique: feats
+              requiresOption: true
+              from: { type: feat, where: "item.category == 'skill' && item.level <= 1" }
+              eligible: "'skill.acrobatics' in item.skills"
+        - id: sniper
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.stealth }
+              when: "!('skill.stealth' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: operative.specSkill, op: set, value: "'skill.stealth'" }
+          grants:
+            - { item: features.operative.exploit.sniper }
+            - { item: features.operative.enhanced-exploit.sniper, when: 'level >= 9' }
+          choices:
+            - id: skill-feat
+              unique: feats
+              requiresOption: true
+              from: { type: feat, where: "item.category == 'skill' && item.level <= 1" }
+              eligible: "'skill.stealth' in item.skills"
+            - id: bonus-feat
+              unique: feats
+              from:
+                items: [feats.operative.keep-them-in-your-sights, feats.operative.scope-sight]
+        - id: striker
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.athletics }
+              when: "!('skill.athletics' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: operative.specSkill, op: set, value: "'skill.athletics'" }
+          grants:
+            - { item: features.operative.exploit.striker }
+            - { item: features.operative.enhanced-exploit.striker, when: 'level >= 9' }
+          choices:
+            - id: skill-feat
+              unique: feats
+              requiresOption: true
+              from: { type: feat, where: "item.category == 'skill' && item.level <= 1" }
+              eligible: "'skill.athletics' in item.skills"
+  - id: specialized-skill-set
+    slots: [3, 7, 15]
+    unique: feats
+    when: 'level >= slot'
+    required: false
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: 'item.level <= slot && operative.specSkill in item.skills'
+  - id: skills
+    unique: skill-training
+    pick: '3 + max(0, attributes.int.mod)'
+    from:
+      values:
+        - skill.acrobatics
+        - skill.arcana
+        - skill.athletics
+        - skill.computers
+        - skill.crafting
+        - skill.deception
+        - skill.diplomacy
+        - skill.intimidation
+        - skill.medicine
+        - skill.nature
+        - skill.occultism
+        - skill.performance
+        - skill.piloting
+        - skill.religion
+        - skill.society
+        - skill.stealth
+        - skill.survival
+        - skill.thievery
+        - skill.lore.academia
+        - skill.lore.alcohol
+        - skill.lore.animal
+        - skill.lore.art
+        - skill.lore.augmentation
+        - skill.lore.business
+        - skill.lore.cooking
+        - skill.lore.corporate
+        - skill.lore.games
+        - skill.lore.genealogy
+        - skill.lore.history
+        - skill.lore.hyperspace
+        - skill.lore.infosphere
+        - skill.lore.labor
+        - skill.lore.legal
+        - skill.lore.life-science
+        - skill.lore.media
+        - skill.lore.mining
+        - skill.lore.physical-science
+        - skill.lore.piracy
+        - skill.lore.plant
+        - skill.lore.sports
+        - skill.lore.underworld
+        - skill.lore.vidgame
+        - skill.lore.warfare
+      where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
+    effects: [{ target: skills.chosen, op: grant, value: { formula: pick.value } }]
+  - id: class-feat
+    slots: [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: 'level >= slot'
+    from:
+      type: feat
+      where: "item.category == 'class' && (has(item.class) && item.class == @classes.operative || 'trait.operative' in item.tags) || 'archetype-feat' in item.tags"
+    eligible: "(item.category == 'class' && has(item.class) && item.class == @classes.operative || 'trait.operative' in item.tags) && !('trait.archetype' in item.tags) && item.level <= slot || 'trait.archetype' in item.tags && item.level <= slot && (!('trait.dedication' in item.tags) || archetypes.open == 0 || item.id in choice.picks || countList(choice.picks, x in archetypes.dedications) > 0 || archetypes.openAllowance > 0) || slot >= 2 && item.id in [archetypes.extra.level2, archetypes.extra.level4, archetypes.extra.level6, archetypes.extra.level8, archetypes.extra.level10, archetypes.extra.level12, archetypes.extra.level14, archetypes.extra.level16, archetypes.extra.level18, archetypes.extra.level20][floor(slot / 2) - 1]"
+  - id: skill-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: 'level >= slot'
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= slot

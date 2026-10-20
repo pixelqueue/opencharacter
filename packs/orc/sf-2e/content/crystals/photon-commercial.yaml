@@ -1,0 +1,11 @@
+id: crystals.photon-commercial
+type: template
+tags: [crystal.orbital, trait.magical]
+appliesTo: { type: weapon, where: "'solar' in item.tags" }
+fields: { price: '(has(prior.price) ? prior.price : 0) + 3600', level: 'max(prior.level, 7)' }
+effects:
+  - target: { rolls: [damage.strike], from: self }
+    op: add
+    value: 'dieOf(1d6, 1)'
+    tags: [{ formula: "'damage.' + 'fire'" }]
+    when: "solarian.attunement in ['photon', 'perfect']"

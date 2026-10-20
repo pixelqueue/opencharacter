@@ -1,0 +1,160 @@
+id: feats.mystic.xenodruid-bond
+type: feat
+tags: [trait.mystic]
+fields: { level: 1, category: class, class: classes.mystic }
+prerequisites: [{ id: requirement, when: "spellcasting.tradition == 'primal'" }]
+choices:
+  - id: order
+    from:
+      options:
+        - id: animal
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.animal }
+              when: "!('skill.lore.animal' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: spells.repertoire, op: grant, value: { item: spells.pest-form } }
+            - { target: spells.repertoire.rank1, op: grant, value: { item: spells.pest-form } }
+            - { target: spells.bonusKnown, op: grant, value: { item: spells.pest-form } }
+            - { target: spells.signature, op: grant, value: { item: spells.pest-form } }
+            - target: spells.repertoire
+              op: grant
+              value: { item: spells.animal-form }
+              when: 'level >= 3'
+            - target: spells.repertoire.rank2
+              op: grant
+              value: { item: spells.animal-form }
+              when: 'level >= 3'
+            - target: spells.bonusKnown
+              op: grant
+              value: { item: spells.animal-form }
+              when: 'level >= 3'
+            - target: spells.signature
+              op: grant
+              value: { item: spells.animal-form }
+              when: 'level >= 3'
+            - target: spells.repertoire
+              op: grant
+              value: { item: spells.carcinization }
+              when: 'level >= 9'
+            - target: spells.repertoire.rank5
+              op: grant
+              value: { item: spells.carcinization }
+              when: 'level >= 9'
+            - target: spells.bonusKnown
+              op: grant
+              value: { item: spells.carcinization }
+              when: 'level >= 9'
+            - target: spells.signature
+              op: grant
+              value: { item: spells.carcinization }
+              when: 'level >= 9'
+          grants:
+            - { item: spells.pest-form }
+            - { item: spells.animal-form, when: 'level >= 3' }
+            - { item: spells.carcinization, when: 'level >= 9' }
+        - id: plant
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.plant }
+              when: "!('skill.lore.plant' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: spells.repertoire
+              op: grant
+              value: { item: spells.summon-plant-or-fungus }
+            - target: spells.repertoire.rank1
+              op: grant
+              value: { item: spells.summon-plant-or-fungus }
+            - target: spells.bonusKnown
+              op: grant
+              value: { item: spells.summon-plant-or-fungus }
+            - target: spells.signature
+              op: grant
+              value: { item: spells.summon-plant-or-fungus }
+            - target: spells.repertoire
+              op: grant
+              value: { item: spells.verdant-code }
+              when: 'level >= 3'
+            - target: spells.repertoire.rank2
+              op: grant
+              value: { item: spells.verdant-code }
+              when: 'level >= 3'
+            - target: spells.bonusKnown
+              op: grant
+              value: { item: spells.verdant-code }
+              when: 'level >= 3'
+            - target: spells.signature
+              op: grant
+              value: { item: spells.verdant-code }
+              when: 'level >= 3'
+            - target: spells.repertoire
+              op: grant
+              value: { item: spells.plant-form }
+              when: 'level >= 9'
+            - target: spells.repertoire.rank5
+              op: grant
+              value: { item: spells.plant-form }
+              when: 'level >= 9'
+            - target: spells.bonusKnown
+              op: grant
+              value: { item: spells.plant-form }
+              when: 'level >= 9'
+            - target: spells.signature
+              op: grant
+              value: { item: spells.plant-form }
+              when: 'level >= 9'
+          grants:
+            - { item: spells.summon-plant-or-fungus }
+            - { item: spells.verdant-code, when: 'level >= 3' }
+            - { item: spells.plant-form, when: 'level >= 9' }
+        - id: viral
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.genealogy }
+              when: "!('skill.lore.genealogy' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: spells.repertoire, op: grant, value: { item: spells.detect-poison } }
+            - target: spells.repertoire.rank1
+              op: grant
+              value: { item: spells.detect-poison }
+            - { target: spells.bonusKnown, op: grant, value: { item: spells.detect-poison } }
+            - { target: spells.signature, op: grant, value: { item: spells.detect-poison } }
+            - target: spells.repertoire
+              op: grant
+              value: { item: spells.instant-virus }
+              when: 'level >= 3'
+            - target: spells.repertoire.rank2
+              op: grant
+              value: { item: spells.instant-virus }
+              when: 'level >= 3'
+            - target: spells.bonusKnown
+              op: grant
+              value: { item: spells.instant-virus }
+              when: 'level >= 3'
+            - target: spells.signature
+              op: grant
+              value: { item: spells.instant-virus }
+              when: 'level >= 3'
+            - target: spells.repertoire
+              op: grant
+              value: { item: spells.toxic-cloud }
+              when: 'level >= 9'
+            - target: spells.repertoire.rank5
+              op: grant
+              value: { item: spells.toxic-cloud }
+              when: 'level >= 9'
+            - target: spells.bonusKnown
+              op: grant
+              value: { item: spells.toxic-cloud }
+              when: 'level >= 9'
+            - target: spells.signature
+              op: grant
+              value: { item: spells.toxic-cloud }
+              when: 'level >= 9'
+          grants:
+            - { item: spells.detect-poison }
+            - { item: spells.instant-virus, when: 'level >= 3' }
+            - { item: spells.toxic-cloud, when: 'level >= 9' }

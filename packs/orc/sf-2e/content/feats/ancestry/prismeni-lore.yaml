@@ -1,0 +1,23 @@
+id: feats.ancestry.prismeni-lore
+type: feat
+tags: [trait.prismeni]
+fields: { level: 1, category: ancestry, heritage: heritages.prismeni }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.piloting }
+    when: "!('skill.piloting' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.stealth }
+    when: "!('skill.stealth' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.prismeni }
+    when: "!('skill.lore.prismeni' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.lore.prismeni.granted
+    op: add
+    value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'

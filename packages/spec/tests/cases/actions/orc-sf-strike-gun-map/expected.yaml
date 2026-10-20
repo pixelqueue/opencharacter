@@ -1,0 +1,35 @@
+status: finished
+outcome:
+  result: success
+  data:
+    attack: 18
+    dc: 18
+    map: 5
+    flatCheck: true
+    damage: 4
+proposedChanges:
+  - to: self
+    step: count
+    change:
+      type: adjust
+      field: orc-sf-2e:turn.attacks
+      by: 1
+      tags:
+        - attack-count
+  - to: self
+    step: spend
+    change:
+      type: adjustState
+      entry: pistol
+      key: ammo
+      by: -2
+  - to: target
+    character: drone
+    step: deal
+    change:
+      type: adjust
+      field: orc-sf-2e:hp.current
+      by: -4
+      tags:
+        - damage
+        - damage.fire

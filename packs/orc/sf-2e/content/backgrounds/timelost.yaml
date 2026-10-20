@@ -1,0 +1,16 @@
+id: backgrounds.timelost
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.society }
+    when: "!('skill.society' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.history }
+    when: "!('skill.lore.history' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.skill.dubious-knowledge }]
+choices:
+  - { id: boost, unique: background-boosts, from: { type: boost } }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

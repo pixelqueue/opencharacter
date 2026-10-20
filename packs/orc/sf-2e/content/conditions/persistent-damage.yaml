@@ -1,0 +1,33 @@
+id: conditions.persistent-damage
+type: condition
+reapply:
+  match: [damageType]
+  state: { damage: highest }
+actions:
+  - id: take-persistent-damage
+    scope: applied
+    tags: [turn, persistent-damage]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage, { formula: "'damage.' + self.damageType" }]
+        parts:
+          - dice: self.damage
+            tags: [{ formula: "'damage.' + self.damageType" }]
+      - id: take
+        kind: changes
+        changes:
+          - type: adjust
+            field: hp.current
+            by: -max(0, steps.damage.total)
+            tags: [damage, { formula: "'damage.' + self.damageType" }]
+      - id: end
+        kind: action
+        use: flat-check
+        params: { dc: 15 }
+      - id: ended
+        kind: changes
+        when: steps.end.result in ['success', 'critical-success']
+        changes:
+          - type: removeEffect
+            applied: { where: self.id == action.self.id }

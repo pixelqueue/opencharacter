@@ -1,0 +1,67 @@
+settings:
+  rounding: floor
+  roundIncoming: magnitude
+  stacking:
+    default: addAll
+    keys:
+      circumstance-bonus: highestOnly
+      circumstance-penalty: lowestOnly
+      status-bonus: highestOnly
+      status-penalty: lowestOnly
+      item-bonus: highestOnly
+      item-penalty: lowestOnly
+      potency-bonus: highestOnly
+      resistance: highestOnly
+      weakness: lowestOnly
+  rollModifiers:
+    advantage: cancel
+  competing:
+    recommend: highest
+
+families:
+  attribute: [str, dex, con, int, wis, cha]
+
+fields:
+  level: { type: integer, input: true, default: 1, min: 1, max: 20 }
+  proficiency.level: { type: integer, formula: level }
+  proficiency.untrained: { type: integer, formula: 0 }
+
+  'attributes.{attribute}.boosts': { type: integer, formula: 0, tags: [attribute-boosts] }
+  'attributes.{attribute}.mod':
+    type: integer
+    tags: [attribute]
+    formula: >-
+      attributes.{attribute}.boosts <= 4 ? attributes.{attribute}.boosts : 4 + floor((attributes.{attribute}.boosts - 4) / 2)
+
+  hp.ancestry: { type: integer, formula: 0 }
+  hp.class: { type: integer, formula: 0 }
+  hp.max:
+    { type: integer, formula: 'max(1, hp.ancestry + (hp.class + attributes.con.mod) * level)' }
+  hp.current: { type: integer, input: true, default: 0, min: 0, max: hp.max, absorbedBy: [hp.temp] }
+  hp.temp: { type: integer, input: true, default: 0, min: 0 }
+
+  speed.land: { type: integer, formula: 0, min: 0, tags: [speed] }
+  creature.size:
+    { type: enum, values: [tiny, small, medium, large, huge, gargantuan], formula: "'medium'" }
+  senses: { type: set, of: tag, members: { under: [sense] } }
+  traits: { type: set, of: tag, members: { under: [trait] } }
+  languages: { type: set, of: language }
+  languages.extra: { type: integer, formula: 0 }
+
+  ancestry.held: { type: set, of: ancestry }
+
+  skills.maxRank: { type: integer, formula: 'level >= 15 ? 4 : level >= 7 ? 3 : 2' }
+
+contentTypes:
+  language:
+    effects:
+      - { target: languages, op: grant, value: { formula: item.id } }
+
+  boost:
+    fields:
+      attribute: { type: enum, values: [str, dex, con, int, wis, cha], required: true }
+
+choices:
+  - id: languages
+    pick: max(0, attributes.int.mod) + languages.extra
+    from: { type: language, where: "!('language.secret' in item.tags)" }

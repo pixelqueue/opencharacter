@@ -1,0 +1,326 @@
+actions:
+  - id: treat-wounds
+    tags: [exploration-action]
+    available: >-
+      skills.medicine.rank >= 1
+    params:
+      hour: { type: boolean, optional: true }
+    participants:
+      patient:
+        max: 8
+        fields:
+          healing.treatBonus: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: using
+        kind: choice
+        recommend: >-
+          'medicine'
+        options:
+          - { id: medicine, when: skills.medicine.rank >= 1 }
+      - id: tier
+        kind: choice
+        recommend: "'trained'"
+        options:
+          - { id: trained, flags: { dc: 15, bonus: 0, rank: 1 } }
+          - id: expert
+            when: "(steps.using.picked == 'nature' ? skills.nature.rank : skills.medicine.rank) >= 2"
+            flags: { dc: 20, bonus: 10, rank: 2 }
+          - id: master
+            when: "(steps.using.picked == 'nature' ? skills.nature.rank : skills.medicine.rank) >= 3"
+            flags: { dc: 30, bonus: 30, rank: 3 }
+          - id: legendary
+            when: "(steps.using.picked == 'nature' ? skills.nature.rank : skills.medicine.rank) >= 4"
+            flags: { dc: 40, bonus: 50, rank: 4 }
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.treat-wounds]
+        situational: {}
+        params: { check: "'skills.' + steps.using.picked + '.mod'", dc: flags.dc }
+      - id: heal
+        kind: roll
+        each: patient
+        when: "steps.check.result in ['success', 'critical-success']"
+        tags: [healing]
+        parts:
+          - dice: "steps.check.result == 'critical-success' ? 4d8 : 2d8"
+          - value: flags.bonus
+      - id: healSelf
+        kind: roll
+        when: "size(participants.patient) == 0 && steps.check.result in ['success', 'critical-success']"
+        tags: [healing]
+        parts:
+          - dice: "steps.check.result == 'critical-success' ? 4d8 : 2d8"
+          - value: flags.bonus
+      - id: hurt
+        kind: roll
+        each: patient
+        when: steps.check.result == 'critical-failure'
+        tags: [damage]
+        parts:
+          - dice: 1d8
+      - id: hurtSelf
+        kind: roll
+        when: size(participants.patient) == 0 && steps.check.result == 'critical-failure'
+        tags: [damage]
+        parts:
+          - dice: 1d8
+      - id: mend
+        kind: changes
+        each: patient
+        when: has(steps.heal) && steps.heal != null
+        to: patient
+        changes:
+          - type: adjust
+            field: hp.current
+            by: >-
+              steps.heal.total * (has(params.hour) && params.hour ? 2 : 1)
+                + (has(participant.healing.treatBonus) ? participant.healing.treatBonus : 0)
+            tags: [healing]
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.wounded' }
+      - id: mendSelf
+        kind: changes
+        when: has(steps.healSelf)
+        changes:
+          - type: adjust
+            field: hp.current
+            by: 'steps.healSelf.total * (has(params.hour) && params.hour ? 2 : 1) + healing.treatBonus'
+            tags: [healing]
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.wounded' }
+      - id: harm
+        kind: changes
+        each: patient
+        when: has(steps.hurt) && steps.hurt != null
+        to: patient
+        changes:
+          - { type: adjust, field: hp.current, by: -steps.hurt.total, tags: [damage] }
+      - id: harmSelf
+        kind: changes
+        when: has(steps.hurtSelf)
+        changes:
+          - { type: adjust, field: hp.current, by: -steps.hurtSelf.total, tags: [damage] }
+      - id: unusual
+        kind: choice
+        when: >-
+          @feats.skill.unusual-treatment in feats.held && flags.dc >= 20
+            && size(participants.patient) <= 1 && steps.check.result in ['success', 'critical-success']
+        recommend: "'none'"
+        options:
+          - { id: none }
+          - { id: clumsy, flags: { condition: '@conditions.clumsy' } }
+          - { id: enfeebled, flags: { condition: '@conditions.enfeebled' } }
+          - { id: stupefied, flags: { condition: '@conditions.stupefied' } }
+          - id: drained
+            when: flags.dc >= 30 && skills.medicine.rank >= 3
+            flags: { condition: '@conditions.drained' }
+      - id: ease
+        kind: changes
+        when: has(steps.unusual) && steps.unusual.picked != 'none' && size(participants.patient) == 1
+        to: patient
+        changes:
+          - type: adjustState
+            applied: { where: item.id == flags.condition }
+            key: value
+            by: '-(skills.medicine.rank >= 4 ? 2 : 1)'
+          - type: removeEffect
+            applied: { where: item.id == flags.condition && self.value <= 0 }
+      - id: easeSelf
+        kind: changes
+        when: has(steps.unusual) && steps.unusual.picked != 'none' && size(participants.patient) == 0
+        changes:
+          - type: adjustState
+            applied: { where: item.id == flags.condition }
+            key: value
+            by: '-(skills.medicine.rank >= 4 ? 2 : 1)'
+          - type: removeEffect
+            applied: { where: item.id == flags.condition && self.value <= 0 }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: flags.dc
+          healing: >-
+            has(steps.healSelf) ? steps.healSelf.total * (has(params.hour) && params.hour ? 2 : 1)
+              : has(steps.heal) ? sumList(steps.heal, x == null ? 0 : x.total) * (has(params.hour) && params.hour ? 2 : 1)
+              : 0
+
+  - id: treat-poison
+    tags: [skill-action]
+    available: skills.medicine.rank >= 1
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      patient: { max: 1 }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.treat-poison]
+        params: { check: "'skills.medicine.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              robust: '@feats.skill.robust-recovery in feats.held'
+              bonus: >-
+                steps.check.result == 'critical-success' ? 4
+                  : steps.check.result == 'success'
+                    ? (@feats.skill.robust-recovery in feats.held ? 4 : 2)
+                  : steps.check.result == 'critical-failure' ? -2 : 0
+      - id: treat
+        kind: changes
+        when: flags.bonus != 0 && size(participants.patient) > 0
+        to: patient
+        changes:
+          - type: applyEffect
+            source: "'effects.treated-poison'"
+            state: { bonus: flags.bonus, robust: flags.robust }
+      - id: treatSelf
+        kind: changes
+        when: flags.bonus != 0 && size(participants.patient) == 0
+        changes:
+          - type: applyEffect
+            source: "'effects.treated-poison'"
+            state: { bonus: flags.bonus, robust: flags.robust }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc, bonus: flags.bonus }
+
+  - id: treat-disease
+    tags: [exploration-action]
+    available: skills.medicine.rank >= 1
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      patient: { max: 8 }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.treat-disease]
+        params: { check: "'skills.medicine.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              robust: '@feats.skill.robust-recovery in feats.held'
+              bonus: >-
+                steps.check.result == 'critical-success' ? 4
+                  : steps.check.result == 'success'
+                    ? (@feats.skill.robust-recovery in feats.held ? 4 : 2)
+                  : steps.check.result == 'critical-failure' ? -2 : 0
+      - id: treat
+        kind: changes
+        when: flags.bonus != 0 && size(participants.patient) > 0
+        to: patient
+        changes:
+          - type: applyEffect
+            source: "'effects.treated-disease'"
+            state: { bonus: flags.bonus, robust: flags.robust }
+      - id: treatSelf
+        kind: changes
+        when: flags.bonus != 0 && size(participants.patient) == 0
+        changes:
+          - type: applyEffect
+            source: "'effects.treated-disease'"
+            state: { bonus: flags.bonus, robust: flags.robust }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc, bonus: flags.bonus }
+
+  - id: administer-first-aid
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      patient:
+        max: 1
+        fields:
+          dying.recoveryDc: { type: integer }
+          conditions.wounded: { type: integer, default: 0 }
+    results: { bands: degree }
+    steps:
+      - id: aim
+        kind: choice
+        recommend: "'stabilize'"
+        options:
+          - { id: stabilize }
+          - { id: bleeding }
+          - id: frightened
+            when: '@feats.skill.advanced-first-aid in feats.held'
+          - id: sickened
+            when: '@feats.skill.advanced-first-aid in feats.held'
+      - id: setup
+        kind: branch
+        cases:
+          - when: >-
+              steps.aim.picked == 'stabilize' && size(participants.patient) > 0
+                && has(participants.patient[0].dying.recoveryDc)
+            flags: { dc: '5 + participants.patient[0].dying.recoveryDc' }
+          - when: true
+            flags: { dc: 'has(params.dc) ? params.dc : -1' }
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.administer-first-aid]
+        params: { check: "'skills.medicine.mod'", dc: 'flags.dc >= 0 ? flags.dc : null' }
+      - id: stabilized
+        kind: changes
+        when: >-
+          size(participants.patient) > 0 && steps.aim.picked == 'stabilize'
+            && steps.check.result in ['success', 'critical-success']
+        to: patient
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.dying' }
+          - type: adjustState
+            when: size(participants.patient) > 0 && participants.patient[0].conditions.wounded > 0
+            applied: { where: 'item.id == @conditions.wounded', limit: 1 }
+            key: value
+            by: 1
+          - type: applyEffect
+            when: size(participants.patient) > 0 && participants.patient[0].conditions.wounded == 0
+            source: "'conditions.wounded'"
+            state: { value: 1 }
+      - id: worsened
+        kind: changes
+        when: >-
+          size(participants.patient) > 0 && steps.aim.picked == 'stabilize'
+            && steps.check.result == 'critical-failure'
+        to: patient
+        changes:
+          - type: adjustState
+            applied: { where: 'item.id == @conditions.dying', limit: 1 }
+            key: value
+            by: 1
+      - id: calmed
+        kind: changes
+        when: >-
+          size(participants.patient) > 0 && steps.aim.picked in ['frightened', 'sickened']
+            && steps.check.result in ['success', 'critical-success']
+        to: patient
+        changes:
+          - type: adjustState
+            when: steps.check.result == 'success'
+            applied: { where: "item.id == 'orc-sf-2e:conditions.' + steps.aim.picked" }
+            key: value
+            by: -2
+          - type: removeEffect
+            applied:
+              where: >-
+                item.id == 'orc-sf-2e:conditions.' + steps.aim.picked
+                  && (steps.check.result == 'critical-success' || self.value <= 0)
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }

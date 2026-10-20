@@ -1,0 +1,7 @@
+id: upgrades.active-camouflage-tactical
+type: template
+tags: [upgrade.armor, trait.tech]
+appliesTo: { type: armor }
+fields: { level: 'max(prior.level, 9)', price: '(has(prior.price) ? prior.price : 0) + 6500' }
+effects:
+  - { target: skills.stealth.mod, op: add, value: 2, stackKey: item-bonus, when: self.equipped }

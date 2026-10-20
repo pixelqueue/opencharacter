@@ -1,0 +1,12 @@
+id: heritages.damaya-lashunta
+type: heritage
+fields: { ancestry: ancestries.lashunta }
+effects:
+  - { target: attributes.int.boosts, op: add, value: 1 }
+  - { target: attributes.con.boosts, op: add, value: -1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.diplomacy }
+    when: "!('skill.diplomacy' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants: [{ item: feats.skill.additional-lore, waivePrerequisites: true }]

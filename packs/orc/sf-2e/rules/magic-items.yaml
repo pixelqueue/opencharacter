@@ -1,0 +1,151 @@
+contentTypes:
+  worn:
+    carried: true
+    equippable: true
+    texts: [activation]
+    fields:
+      level: { type: integer, required: true, min: 0, max: 30 }
+      price: { type: decimal, min: 0 }
+      bulk: { type: decimal, default: 0, min: 0 }
+      usage:
+        type: enum
+        values:
+          [
+            worn,
+            amulet,
+            anklets,
+            armbands,
+            backpack,
+            belt,
+            bracelet,
+            bracers,
+            circlet,
+            cloak,
+            collar,
+            eyepiece,
+            garment,
+            gloves,
+            headwear,
+            horseshoes,
+            barding,
+            mask,
+            necklace,
+            ring,
+            shoes,
+          ]
+        default: worn
+      activation:
+        type: enum
+        values: [none, free, reaction, one, two, three, cast, one-minute, ten-minutes, one-hour]
+        default: none
+      frequency:
+        type: enum
+        values:
+          [none, once-per-round, once-per-minute, once-per-ten-minutes, once-per-hour, once-per-day]
+        default: none
+      capacity: { type: decimal, min: 0 }
+      capacityItems: { type: integer, min: 1 }
+    state:
+      invested: { type: boolean, default: false }
+      apex: { type: boolean, default: false }
+      used: { type: integer, default: 0, min: 0 }
+      container: { type: string, default: '' }
+    actions:
+      - use: invest
+      - use: divest
+      - use: sell
+      - use: store
+      - use: retrieve
+
+  held:
+    carried: true
+    equippable: true
+    texts: [activation]
+    fields:
+      level: { type: integer, required: true, min: 0, max: 30 }
+      price: { type: decimal, min: 0 }
+      bulk: { type: decimal, default: 0, min: 0 }
+      hands: { type: integer, default: 1, min: 0, max: 2 }
+      activation:
+        type: enum
+        values: [none, free, reaction, one, two, three, cast, one-minute, ten-minutes, one-hour]
+        default: none
+      frequency:
+        type: enum
+        values:
+          [none, once-per-round, once-per-minute, once-per-ten-minutes, once-per-hour, once-per-day]
+        default: none
+      capacity: { type: decimal, min: 0 }
+      capacityItems: { type: integer, min: 1 }
+    state:
+      invested: { type: boolean, default: false }
+      used: { type: integer, default: 0, min: 0 }
+      container: { type: string, default: '' }
+    actions:
+      - use: invest
+      - use: divest
+      - use: sell
+      - use: store
+      - use: retrieve
+
+situational:
+  - { id: usingSight, type: boolean, default: false, rolls: [perception] }
+
+display:
+  groups:
+    - id: worn-items
+      kind: content
+      priority: 1
+      members: { type: worn }
+      sortBy: item.level
+    - id: held-items
+      kind: content
+      priority: 1
+      members: { type: held }
+      sortBy: item.level
+  types:
+    worn:
+      state:
+        invested: { priority: 0 }
+        used: { priority: 1 }
+        apex: { hidden: true }
+        container: { hidden: true }
+      quantity: { hidden: true }
+    held:
+      state:
+        invested: { priority: 0, showWhen: "'trait.invested' in item.tags" }
+        used: { priority: 1 }
+        container: { hidden: true }
+
+tags:
+  - activation
+  - trait.arcane
+  - trait.unique
+  - trait.scroll
+  - trait.precious
+  - material
+  - material.abysium
+  - material.adamantine
+  - material.cold-iron
+  - material.djezet
+  - material.dull-yellow-ore
+  - material.noqual
+  - material.orichalcum
+  - material.shimmerstone
+  - material.siccatite
+  - material.silver
+  - trait.expandable
+  - trait.kobold
+  - trait.mechanical
+  - trait.oil
+  - trait.snare
+  - trait.talisman
+  - trait.trap
+  - trait.staff
+  - trait.wand
+  - trait.focused
+  - trait.companion
+  - trait.cursed
+  - trait.intelligent
+  - trait.artifact
+  - trait.structure

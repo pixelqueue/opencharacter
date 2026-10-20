@@ -1,0 +1,18 @@
+id: backgrounds.space-pirate
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.intimidation }
+    when: "!('skill.intimidation' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.piracy }
+    when: "!('skill.lore.piracy' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.skill.group-coercion }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'dex']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

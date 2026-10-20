@@ -1,0 +1,18 @@
+id: backgrounds.spacefarer
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.piloting }
+    when: "!('skill.piloting' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.hyperspace }
+    when: "!('skill.lore.hyperspace' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.skill.express-driver }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['dex', 'con']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

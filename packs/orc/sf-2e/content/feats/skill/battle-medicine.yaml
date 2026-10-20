@@ -1,0 +1,83 @@
+id: feats.skill.battle-medicine
+type: feat
+tags: [trait.healing, trait.manipulate]
+fields: { level: 1, category: skill, skills: [skill.medicine] }
+
+prerequisites:
+  - id: trained
+    when: 'skills.medicine.rank >= 1'
+actions:
+  - id: battle-medicine
+    tags: [skill-action]
+    participants:
+      patient:
+        max: 1
+        fields:
+          healing.treatBonus: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: tier
+        kind: choice
+        recommend: "'trained'"
+        options:
+          - { id: trained, flags: { dc: 15, bonus: 0 } }
+          - { id: expert, when: skills.medicine.rank >= 2, flags: { dc: 20, bonus: 10 } }
+          - { id: master, when: skills.medicine.rank >= 3, flags: { dc: 30, bonus: 30 } }
+          - { id: legendary, when: skills.medicine.rank >= 4, flags: { dc: 40, bonus: 50 } }
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.battle-medicine]
+        params: { check: "'skills.medicine.mod'", dc: flags.dc }
+      - id: heal
+        kind: roll
+        when: "steps.check.result in ['success', 'critical-success']"
+        tags: [healing]
+        parts:
+          - dice: "steps.check.result == 'critical-success' ? 4d8 : 2d8"
+          - value: flags.bonus
+      - id: hurt
+        kind: roll
+        when: steps.check.result == 'critical-failure'
+        tags: [damage]
+        parts:
+          - dice: 1d8
+      - id: mend
+        kind: changes
+        when: has(steps.heal) && size(participants.patient) > 0
+        to: patient
+        changes:
+          - type: adjust
+            field: hp.current
+            by: >-
+              steps.heal.total + (has(participants.patient[0].healing.treatBonus)
+                ? participants.patient[0].healing.treatBonus : 0)
+            tags: [healing]
+      - id: mendSelf
+        kind: changes
+        when: has(steps.heal) && size(participants.patient) == 0
+        changes:
+          - {
+              type: adjust,
+              field: hp.current,
+              by: steps.heal.total + healing.treatBonus,
+              tags: [healing],
+            }
+      - id: harm
+        kind: changes
+        when: has(steps.hurt) && size(participants.patient) > 0
+        to: patient
+        changes:
+          - { type: adjust, field: hp.current, by: -steps.hurt.total, tags: [damage] }
+      - id: harmSelf
+        kind: changes
+        when: has(steps.hurt) && size(participants.patient) == 0
+        changes:
+          - { type: adjust, field: hp.current, by: -steps.hurt.total, tags: [damage] }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: flags.dc
+          healing: 'has(steps.heal) ? steps.heal.total : 0'

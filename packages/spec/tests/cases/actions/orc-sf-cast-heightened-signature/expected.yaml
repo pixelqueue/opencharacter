@@ -1,0 +1,28 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 3
+    mode: spontaneous
+    dc: 21
+    defense: ''
+    basic: false
+    damage: 16
+    healing: 30
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: orc-sf-2e:spellSlots.rank3.used
+      by: 1
+  - to: ally
+    character: pal
+    step: restore[0]
+    change:
+      type: adjust
+      field: orc-sf-2e:hp.current
+      by: 30
+      tags:
+        - healing
+        - spell

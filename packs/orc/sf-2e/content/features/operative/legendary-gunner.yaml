@@ -1,0 +1,11 @@
+id: features.operative.legendary-gunner
+type: feature
+fields: { level: 13 }
+effects:
+  - { target: attacks.simpleGun.rank, op: atLeast, value: 4 }
+  - { target: attacks.martialGun.rank, op: atLeast, value: 4, when: '!operative.striker' }
+  - { target: attacks.agileMelee.rank, op: atLeast, value: 4, when: operative.striker }
+  - { target: attacks.advancedGun.rank, op: atLeast, value: 3 }
+  - { target: attacks.simple.rank, op: atLeast, value: 2 }
+  - { target: attacks.martial.rank, op: atLeast, value: 2 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 2 }

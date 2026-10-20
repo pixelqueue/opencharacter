@@ -1,0 +1,18 @@
+id: backgrounds.doctor
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.medicine }
+    when: "!('skill.medicine' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.life-science }
+    when: "!('skill.lore.life-science' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.skill.battle-medicine }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['dex', 'int']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

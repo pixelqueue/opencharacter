@@ -1,0 +1,31 @@
+id: backgrounds.gene-splicer
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.crafting }
+    when: "!('skill.crafting' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants: [{ item: feats.skill.serum-crafting }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'int']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }
+  - id: lore
+    from:
+      options:
+        - id: augmentation
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.augmentation }
+              when: "!('skill.lore.augmentation' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: life-science
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.lore.life-science }
+              when: "!('skill.lore.life-science' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }

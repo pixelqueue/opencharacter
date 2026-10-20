@@ -1,0 +1,25 @@
+id: effects.treated-disease
+type: effect
+state:
+  bonus: { type: integer, default: 2 }
+  robust: { type: boolean, default: false }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 'self.bonus == 2 && @feats.skill.robust-recovery in feats.held ? 4 : self.bonus'
+    stackKey: circumstance-bonus
+    when: situational.againstDisease && self.bonus > 0
+    scope: applied
+  - target: { rolls: [save] }
+    op: add
+    value: self.bonus
+    stackKey: circumstance-penalty
+    when: situational.againstDisease && self.bonus < 0
+    scope: applied
+  - target: { rolls: [save], tally: successToCrit }
+    op: add
+    value: 1
+    when: >-
+      situational.againstDisease && self.bonus > 0
+        && (self.robust || @feats.skill.robust-recovery in feats.held)
+    scope: applied

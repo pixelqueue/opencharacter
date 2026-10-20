@@ -1,0 +1,9 @@
+id: heritages.dreamer-barathu
+type: heritage
+fields: { ancestry: ancestries.barathu }
+choices:
+  - id: cantrip
+    from:
+      type: spell
+      where: "'trait.cantrip' in item.tags && !('trait.focus' in item.tags) && 'tradition.occult' in item.tags && !('trait.uncommon' in item.tags)"
+    effects: [{ target: spells.innate, op: grant, value: { formula: pick.id } }]

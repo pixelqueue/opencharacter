@@ -1,0 +1,18 @@
+id: backgrounds.tech-support
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.computers }
+    when: "!('skill.computers' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.business }
+    when: "!('skill.lore.business' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.skill.quick-install, waivePrerequisites: true }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['con', 'int']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

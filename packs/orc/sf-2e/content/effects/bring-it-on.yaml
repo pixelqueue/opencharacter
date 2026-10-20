@@ -1,0 +1,14 @@
+id: effects.bring-it-on
+type: effect
+effects:
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: -2
+    stackKey: circumstance-penalty
+    scope: applied
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    stackKey: resistance
+    scope: applied
+    value: 'min(-incoming.amount, max(1, floor(level / 2)) * (soldier.armorStorm && situational.bySuppressed ? 2 : 1))'
+    when: incoming.amount < 0

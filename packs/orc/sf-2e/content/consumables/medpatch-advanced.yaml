@@ -1,0 +1,19 @@
+id: consumables.medpatch-advanced
+type: consumable
+tags: [trait.consumable, trait.healing, trait.tech, healing]
+fields:
+  category: medical
+  level: 9
+  price: 1500
+  bulk: 0.1
+  healing: '5d6'
+  lasting: true
+  healingBonus: 12
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 2
+    stackKey: item-bonus
+    when: 'situational.againstDisease || situational.againstPoison'
+    scope: applied
+    duration: { amount: 10, unit: minute }

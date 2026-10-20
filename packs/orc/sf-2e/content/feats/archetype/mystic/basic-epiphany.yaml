@@ -1,0 +1,25 @@
+id: feats.archetype.mystic.basic-epiphany
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 6, category: class, archetype: archetypes.mystic }
+prerequisites: [{ id: feat, when: '@feats.archetype.mystic.mystic-dedication in feats.held' }]
+effects: [{ target: focus.points, op: atLeast, value: 1 }]
+choices:
+  - id: spell
+    from:
+      options:
+        - id: akashic
+          prerequisites: [{ id: connection, when: "mystic.connection == 'akashic'" }]
+          grants: [{ item: spells.akashic-fount }]
+        - id: elemental
+          prerequisites: [{ id: connection, when: "mystic.connection == 'elemental'" }]
+          grants: [{ item: spells.elemental-weapon }]
+        - id: healing
+          prerequisites: [{ id: connection, when: "mystic.connection == 'healing'" }]
+          grants: [{ item: spells.infusion }]
+        - id: rhythm
+          prerequisites: [{ id: connection, when: "mystic.connection == 'rhythm'" }]
+          grants: [{ item: spells.anthem }]
+        - id: shadow
+          prerequisites: [{ id: connection, when: "mystic.connection == 'shadow'" }]
+          grants: [{ item: spells.shadow-snap }]

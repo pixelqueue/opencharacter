@@ -1,0 +1,23 @@
+id: heritages.renewed-android
+type: heritage
+fields: { ancestry: ancestries.android }
+grants: [{ item: feats.skill.dubious-knowledge, waivePrerequisites: true }]
+choices:
+  - id: skill
+    from:
+      values:
+        - skill.arcana
+        - skill.computers
+        - skill.crafting
+        - skill.medicine
+        - skill.nature
+        - skill.occultism
+        - skill.piloting
+        - skill.religion
+        - skill.society
+    effects:
+      - target: skills.trained
+        op: grant
+        value: { formula: pick.value }
+        when: '!(pick.value in skills.chosen)'
+      - { target: skills.trainings, op: add, value: 1 }

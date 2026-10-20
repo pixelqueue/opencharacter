@@ -1,0 +1,18 @@
+id: backgrounds.cleaner
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.deception }
+    when: "!('skill.deception' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.underworld }
+    when: "!('skill.lore.underworld' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.skill.without-a-trace }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['dex', 'cha']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

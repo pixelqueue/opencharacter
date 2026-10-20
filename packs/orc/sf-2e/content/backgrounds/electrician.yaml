@@ -1,0 +1,18 @@
+id: backgrounds.electrician
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.crafting }
+    when: "!('skill.crafting' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.physical-science }
+    when: "!('skill.lore.physical-science' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.skill.electrical-engineer }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['con', 'int']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

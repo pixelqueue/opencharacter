@@ -1,0 +1,172 @@
+rollTallies:
+  [
+    successToCrit,
+    critFailToFail,
+    successToCritOn19,
+    degreeShift,
+    naturalOneHolds,
+    degreeFloor,
+    failToCritFail,
+  ]
+
+resultBands:
+  degree:
+    value: >-
+      max(0, min(3, (roll.total >= flags.dc + 10 ? 3 : roll.total >= flags.dc ? 2
+        : roll.total > flags.dc - 10 ? 1 : 0)
+        + (size(roll.kept) == 0 ? 0 : roll.kept[0] == 20 ? 1
+          : roll.kept[0] == 1 && roll.tallies.naturalOneHolds == 0 ? -1 : 0)
+        + roll.tallies.degreeShift), min(3, roll.tallies.degreeFloor))
+    bands:
+      - { id: rolled, when: flags.dc < 0 }
+      - id: critical-success
+        when: >-
+          roll.value == 3 || (roll.value == 2 && (roll.tallies.successToCrit > 0
+            || (roll.tallies.successToCritOn19 > 0 && size(roll.kept) > 0 && roll.kept[0] == 19)))
+      - { id: success, when: roll.value == 2 }
+      - id: failure
+        when: >-
+          (roll.value == 1 && roll.tallies.failToCritFail == 0)
+            || (roll.value == 0 && roll.tallies.critFailToFail > 0)
+      - { id: critical-failure, when: true }
+  rank:
+    - { id: legendary, when: roll.total >= 4 }
+    - { id: master, when: roll.total == 3 }
+    - { id: expert, when: roll.total == 2 }
+    - { id: trained, when: roll.total == 1 }
+    - { id: untrained, when: true }
+
+situational:
+  - id: fortune
+    type: boolean
+    default: false
+    rolls: [d20]
+    effects:
+      - target: { rolls: [d20] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.fortune
+  - id: misfortune
+    type: boolean
+    default: false
+    rolls: [d20]
+    effects:
+      - target: { rolls: [d20] }
+        op: rollModifier
+        value: { kind: disadvantage }
+        when: situational.misfortune
+  - { id: againstFear, type: boolean, default: false, rolls: [save] }
+  - { id: againstEmotion, type: boolean, default: false, rolls: [save] }
+  - id: penalty
+    type: integer
+    default: 0
+    rolls: [check, attack]
+    effects:
+      - { target: { rolls: [check, attack] }, op: add, value: -situational.penalty }
+  - id: circumstanceBonus
+    type: integer
+    default: 0
+    rolls: [check, attack]
+    effects:
+      - target: { rolls: [check, attack] }
+        op: add
+        value: situational.circumstanceBonus
+        stackKey: circumstance-bonus
+        when: situational.circumstanceBonus > 0
+  - id: circumstancePenalty
+    type: integer
+    default: 0
+    rolls: [check, attack]
+    effects:
+      - target: { rolls: [check, attack] }
+        op: add
+        value: -situational.circumstancePenalty
+        stackKey: circumstance-penalty
+        when: situational.circumstancePenalty > 0
+  - id: statusBonus
+    type: integer
+    default: 0
+    rolls: [check, attack]
+    effects:
+      - target: { rolls: [check, attack] }
+        op: add
+        value: situational.statusBonus
+        stackKey: status-bonus
+        when: situational.statusBonus > 0
+  - id: statusPenalty
+    type: integer
+    default: 0
+    rolls: [check, attack]
+    effects:
+      - target: { rolls: [check, attack] }
+        op: add
+        value: -situational.statusPenalty
+        stackKey: status-penalty
+        when: situational.statusPenalty > 0
+  - id: itemBonus
+    type: integer
+    default: 0
+    rolls: [check, attack]
+    effects:
+      - target: { rolls: [check, attack] }
+        op: add
+        value: situational.itemBonus
+        stackKey: item-bonus
+        when: situational.itemBonus > 0
+  - { id: initiative, type: boolean, default: false, rolls: [perception] }
+
+actions:
+  - id: check
+    tags: [check]
+    params:
+      check: { type: id, of: field, where: "'check' in item.tags && !('attack' in item.tags)" }
+      dc: { type: integer, optional: true }
+      spellRank: { type: integer, optional: true, min: 0, max: 10 }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags: { dc: 'has(params.dc) ? params.dc : -1' }
+      - id: roll
+        kind: roll
+        tags: [d20, { formula: params.check.tags }]
+        bands: degree
+        parts:
+          - dice: 1d20
+          - field: params.check.id
+      - id: after
+        kind: changes
+        tags: [check.after]
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          total: steps.roll.total
+          dc: flags.dc
+          natural: steps.roll.kept[0]
+
+  - id: flat-check
+    tags: [flat-check]
+    params:
+      dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags: { dc: params.dc }
+      - id: roll
+        kind: roll
+        tags: [d20, flat-check]
+        bands: degree
+        parts:
+          - dice: 1d20
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          total: steps.roll.total
+          dc: flags.dc

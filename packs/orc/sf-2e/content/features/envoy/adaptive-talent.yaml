@@ -1,0 +1,10 @@
+id: features.envoy.adaptive-talent
+type: feature
+fields: { level: 3 }
+choices:
+  - id: feats
+    unique: feats
+    pick: 'level >= 15 ? 3 : level >= 9 ? 2 : 1'
+    required: false
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= level

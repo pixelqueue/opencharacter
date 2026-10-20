@@ -1,0 +1,17 @@
+description: "orc-sf-2e: Transfer Vitality moves up to 20 Hit Points (5th level) from the mystic's
+  vitality network to a bonded ally, no more than it is missing (12), and the network spends them"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/sf-2e
+input:
+  action:
+    id: orc-sf-2e:features.mystic.vitality-network#transfer-vitality
+    entry: class
+    source: orc-sf-2e:features.mystic.vitality-network
+  participants:
+    ally:
+      - id: pal
+        values:
+          orc-sf-2e:hp.current: 18
+          orc-sf-2e:hp.max: 30

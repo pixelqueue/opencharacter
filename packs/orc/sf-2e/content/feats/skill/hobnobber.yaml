@@ -1,0 +1,12 @@
+id: feats.skill.hobnobber
+type: feat
+fields: { level: 1, category: skill, skills: [skill.diplomacy] }
+
+prerequisites:
+  - id: trained
+    when: 'skills.diplomacy.rank >= 1'
+effects:
+  - target: { rolls: [skill-action.gather-information], tally: critFailToFail }
+    op: add
+    value: 1
+    when: "'skill.diplomacy' in roll.tags && skills.diplomacy.rank >= 3"

@@ -1,0 +1,101 @@
+id: classes.mystic.connections.healing
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: mystic.connection, op: set, value: "'healing'" }
+  - { target: spellcasting.tradition, op: set, value: "'divine'" }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.medicine }
+    when: "!('skill.medicine' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.stabilize } }
+  - { target: spells.granted.cantrips, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.heal } }
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.heal } }
+  - { target: spells.granted.rank1, op: add, value: 1 }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.false-vitality }
+    when: 'level >= 3'
+  - target: spells.repertoire.rank2
+    op: grant
+    value: { item: spells.false-vitality }
+    when: 'level >= 3'
+  - { target: spells.granted.rank2, op: add, value: 1, when: 'level >= 3' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.entropy-strike }
+    when: 'level >= 5'
+  - target: spells.repertoire.rank3
+    op: grant
+    value: { item: spells.entropy-strike }
+    when: 'level >= 5'
+  - { target: spells.granted.rank3, op: add, value: 1, when: 'level >= 5' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.genetic-regeneration }
+    when: 'level >= 7'
+  - target: spells.repertoire.rank4
+    op: grant
+    value: { item: spells.genetic-regeneration }
+    when: 'level >= 7'
+  - { target: spells.granted.rank4, op: add, value: 1, when: 'level >= 7' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.breath-of-life }
+    when: 'level >= 9'
+  - target: spells.repertoire.rank5
+    op: grant
+    value: { item: spells.breath-of-life }
+    when: 'level >= 9'
+  - { target: spells.granted.rank5, op: add, value: 1, when: 'level >= 9' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.vampiric-exsanguination }
+    when: 'level >= 11'
+  - target: spells.repertoire.rank6
+    op: grant
+    value: { item: spells.vampiric-exsanguination }
+    when: 'level >= 11'
+  - { target: spells.granted.rank6, op: add, value: 1, when: 'level >= 11' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.execute }
+    when: 'level >= 13'
+  - target: spells.repertoire.rank7
+    op: grant
+    value: { item: spells.execute }
+    when: 'level >= 13'
+  - { target: spells.granted.rank7, op: add, value: 1, when: 'level >= 13' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.moment-of-renewal }
+    when: 'level >= 15'
+  - target: spells.repertoire.rank8
+    op: grant
+    value: { item: spells.moment-of-renewal }
+    when: 'level >= 15'
+  - { target: spells.granted.rank8, op: add, value: 1, when: 'level >= 15' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.massacre }
+    when: 'level >= 17'
+  - target: spells.repertoire.rank9
+    op: grant
+    value: { item: spells.massacre }
+    when: 'level >= 17'
+  - { target: spells.granted.rank9, op: add, value: 1, when: 'level >= 17' }
+  - { target: focus.points, op: add, value: 1 }
+grants:
+  - { item: spells.stabilize }
+  - { item: spells.heal }
+  - { item: spells.false-vitality, when: 'level >= 3' }
+  - { item: spells.entropy-strike, when: 'level >= 5' }
+  - { item: spells.genetic-regeneration, when: 'level >= 7' }
+  - { item: spells.breath-of-life, when: 'level >= 9' }
+  - { item: spells.vampiric-exsanguination, when: 'level >= 11' }
+  - { item: spells.execute, when: 'level >= 13' }
+  - { item: spells.moment-of-renewal, when: 'level >= 15' }
+  - { item: spells.massacre, when: 'level >= 17' }
+  - { item: spells.infusion }

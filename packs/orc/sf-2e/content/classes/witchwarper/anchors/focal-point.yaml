@@ -1,0 +1,31 @@
+id: classes.witchwarper.anchors.focal-point
+type: feature
+fields: { level: 1 }
+state: { used: { type: boolean, default: false } }
+effects:
+  - target: { steps: [turn.start] }
+    op: changes
+    when: self.used
+    value:
+      changes:
+        - type: setState
+          picks: { where: 'item.id == @classes.witchwarper.anchors.focal-point && self.used' }
+          key: used
+          value: false
+actions:
+  - id: anchoring-effect
+    tags: [class-action]
+    available: '!self.used && countList(character.applied, x.active && x.source == @conditions.clumsy) > 0'
+    results: [anchored]
+    steps:
+      - id: reduce
+        kind: changes
+        changes:
+          - type: adjustState
+            applied: { where: 'item.id == @conditions.clumsy' }
+            key: value
+            by: -1
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.clumsy && self.value <= 1' }
+          - { type: setState, pick: self, key: used, value: true }
+      - { id: result, kind: outcome, result: "'anchored'" }

@@ -1,0 +1,79 @@
+id: feats.archetype.witchwarper.witchwarper-dedication
+type: feat
+tags: [trait.archetype, archetype-feat, trait.dedication, trait.multiclass]
+fields: { level: 2, category: class, archetype: archetypes.witchwarper }
+prerequisites:
+  - { id: attribute, when: 'attributes.int.mod >= 2 || attributes.cha.mod >= 2' }
+  - { id: requirement, when: 'countCopies(copy.item == @classes.witchwarper) == 0' }
+effects:
+  - { target: spellcasting.archetype.witchwarper.kind, op: set, value: "'spontaneous'" }
+  - { target: spellcasting.archetype.witchwarper.rank, op: atLeast, value: 1 }
+  - { target: spellcasting.archetype.witchwarper.cantrips, op: set, value: 2 }
+  - { target: classDc.witchwarper.rank, op: atLeast, value: 1 }
+  - { target: quantum.radius, op: set, value: 10 }
+grants:
+  - { item: features.witchwarper.quantum-field }
+  - { item: features.spellcasting.archetype-repertoire, state: { source: "'witchwarper'" } }
+  - item: features.spellcasting.archetype-signature-spells
+    state: { source: "'witchwarper'" }
+choices:
+  - id: paradox
+    from:
+      options:
+        - id: analyst
+          effects:
+            - { target: witchwarper.paradox, op: set, value: "'analyst'" }
+            - target: spellcasting.archetype.witchwarper.tradition
+              op: set
+              value: "'arcane'"
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.computers }
+              when: "!('skill.computers' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: anomaly
+          effects:
+            - { target: witchwarper.paradox, op: set, value: "'anomaly'" }
+            - target: spellcasting.archetype.witchwarper.tradition
+              op: set
+              value: "'arcane'"
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.deception }
+              when: "!('skill.deception' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: lost-history
+          effects:
+            - { target: witchwarper.paradox, op: set, value: "'lost-history'" }
+            - target: spellcasting.archetype.witchwarper.tradition
+              op: set
+              value: "'occult'"
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.society }
+              when: "!('skill.society' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+        - id: precog
+          effects:
+            - { target: witchwarper.paradox, op: set, value: "'precog'" }
+            - target: spellcasting.archetype.witchwarper.tradition
+              op: set
+              value: "'occult'"
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.piloting }
+              when: "!('skill.piloting' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+  - id: attribute
+    from:
+      options:
+        - id: int
+          effects:
+            - target: spellcasting.archetype.witchwarper.attribute
+              op: set
+              value: "'int'"
+        - id: cha
+          effects:
+            - target: spellcasting.archetype.witchwarper.attribute
+              op: set
+              value: "'cha'"

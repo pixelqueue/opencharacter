@@ -1,0 +1,9 @@
+id: features.envoy.improvised-mastery
+type: feature
+fields: { level: 5 }
+effects:
+  - target: { rolls: [skill] }
+    op: add
+    stackKey: improvised-mastery
+    value: "(level >= 15 ? 8 : 6) + level - ('rank.legendary' in roll.tags ? 8 + level : 'rank.master' in roll.tags ? 6 + level : 'rank.expert' in roll.tags ? 4 + level : 'rank.trained' in roll.tags ? 2 + level : 0)"
+    when: "situational.improvisedMastery && !('rank.legendary' in roll.tags) && (level >= 15 || !('rank.master' in roll.tags))"

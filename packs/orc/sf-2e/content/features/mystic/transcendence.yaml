@@ -1,0 +1,11 @@
+id: features.mystic.transcendence
+type: feature
+fields: { level: 19 }
+choices:
+  - id: spell
+    from:
+      type: spell
+      where: "item.rank == 10 && !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags) && !('trait.uncommon' in item.tags) && !('trait.rare' in item.tags) && ('tradition.' + spellcasting.tradition) in item.tags && (!(item.id in spells.repertoire.rank10) || item.id in choice.picks)"
+    effects:
+      - { target: spells.repertoire, op: grant, value: { formula: pick.id } }
+      - { target: spells.repertoire.rank10, op: grant, value: { formula: pick.id } }

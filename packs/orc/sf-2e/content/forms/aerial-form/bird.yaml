@@ -1,0 +1,10 @@
+id: forms.aerial-form.bird
+type: effect
+standardCopies:
+  - {
+      type: weapon,
+      where: 'item.id == @weapons.forms.aerial-form.bird-beak || item.id == @weapons.forms.aerial-form.bird-talon',
+    }
+effects:
+  - { target: battleForm.speed, op: set, value: 10, scope: applied }
+  - { target: speed.fly, op: atLeast, value: 50, scope: applied }

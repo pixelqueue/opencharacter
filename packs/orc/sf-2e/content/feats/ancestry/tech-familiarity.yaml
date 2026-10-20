@@ -1,0 +1,15 @@
+id: feats.ancestry.tech-familiarity
+type: feat
+tags: [trait.prismeni]
+fields: { level: 1, category: ancestry, heritage: heritages.prismeni }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.computers }
+    when: "!('skill.computers' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.crafting }
+    when: "!('skill.crafting' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }

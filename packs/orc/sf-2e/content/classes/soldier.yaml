@@ -1,0 +1,116 @@
+id: classes.soldier
+type: class
+tags: [trait.soldier]
+fields: { hp: 10 }
+effects:
+  - { target: class.traits, op: grant, value: { tag: trait.soldier } }
+  - { target: attributes.con.boosts, op: add, value: 1 }
+  - { target: class.keyAttribute, op: set, value: "'con'" }
+  - { target: perception.rank, op: atLeast, value: 1 }
+  - { target: saves.fortitude.rank, op: atLeast, value: 2 }
+  - { target: saves.reflex.rank, op: atLeast, value: 1 }
+  - { target: saves.will.rank, op: atLeast, value: 2 }
+  - { target: attacks.simple.rank, op: atLeast, value: 1 }
+  - { target: attacks.martial.rank, op: atLeast, value: 1 }
+  - { target: attacks.unarmed.rank, op: atLeast, value: 1 }
+  - { target: defenses.unarmored.rank, op: atLeast, value: 1 }
+  - { target: defenses.light.rank, op: atLeast, value: 1 }
+  - { target: defenses.medium.rank, op: atLeast, value: 1 }
+  - { target: defenses.heavy.rank, op: atLeast, value: 1 }
+  - { target: classDc.rank, op: atLeast, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.intimidation }
+    when: "!('skill.intimidation' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants:
+  - { item: features.soldier.suppressing-fire }
+  - { item: features.soldier.primary-target }
+  - { item: features.soldier.walking-armory }
+  - { item: features.soldier.fearsome-bulwark, when: 'level >= 3' }
+  - { item: features.soldier.reflex-expertise, when: 'level >= 3' }
+  - { item: features.soldier.perception-expertise, when: 'level >= 5' }
+  - { item: features.soldier.soldier-weapon-expertise, when: 'level >= 5' }
+  - { item: features.soldier.armor-expertise, when: 'level >= 7' }
+  - { item: features.soldier.soldier-expertise, when: 'level >= 7' }
+  - { item: features.soldier.tough-as-nails, when: 'level >= 7' }
+  - { item: features.soldier.weapon-specialization, when: 'level >= 7' }
+  - { item: features.soldier.soldiers-resolution, when: 'level >= 11' }
+  - { item: features.soldier.armor-mastery, when: 'level >= 13' }
+  - { item: features.soldier.soldier-weapon-mastery, when: 'level >= 15' }
+  - { item: features.soldier.unshakable-juggernaut, when: 'level >= 15' }
+  - { item: features.soldier.legendary-armor, when: 'level >= 17' }
+  - { item: features.soldier.legendary-soldier, when: 'level >= 19' }
+choices:
+  - id: fighting-style
+    from:
+      items:
+        - features.soldier.style.action-hero
+        - features.soldier.style.armor-storm
+        - features.soldier.style.bombard
+        - features.soldier.style.close-quarters
+        - features.soldier.style.erudite-warrior
+  - id: skills
+    unique: skill-training
+    pick: '3 + max(0, attributes.int.mod)'
+    from:
+      values:
+        - skill.acrobatics
+        - skill.arcana
+        - skill.athletics
+        - skill.computers
+        - skill.crafting
+        - skill.deception
+        - skill.diplomacy
+        - skill.intimidation
+        - skill.medicine
+        - skill.nature
+        - skill.occultism
+        - skill.performance
+        - skill.piloting
+        - skill.religion
+        - skill.society
+        - skill.stealth
+        - skill.survival
+        - skill.thievery
+        - skill.lore.academia
+        - skill.lore.alcohol
+        - skill.lore.animal
+        - skill.lore.art
+        - skill.lore.augmentation
+        - skill.lore.business
+        - skill.lore.cooking
+        - skill.lore.corporate
+        - skill.lore.games
+        - skill.lore.genealogy
+        - skill.lore.history
+        - skill.lore.hyperspace
+        - skill.lore.infosphere
+        - skill.lore.labor
+        - skill.lore.legal
+        - skill.lore.life-science
+        - skill.lore.media
+        - skill.lore.mining
+        - skill.lore.physical-science
+        - skill.lore.piracy
+        - skill.lore.plant
+        - skill.lore.sports
+        - skill.lore.underworld
+        - skill.lore.vidgame
+        - skill.lore.warfare
+      where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
+    effects: [{ target: skills.chosen, op: grant, value: { formula: pick.value } }]
+  - id: class-feat
+    slots: [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: 'level >= slot'
+    from:
+      type: feat
+      where: "item.category == 'class' && (has(item.class) && item.class == @classes.soldier || 'trait.soldier' in item.tags) || 'archetype-feat' in item.tags"
+    eligible: "(item.category == 'class' && has(item.class) && item.class == @classes.soldier || 'trait.soldier' in item.tags) && !('trait.archetype' in item.tags) && item.level <= slot || 'trait.archetype' in item.tags && item.level <= slot && (!('trait.dedication' in item.tags) || archetypes.open == 0 || item.id in choice.picks || countList(choice.picks, x in archetypes.dedications) > 0 || archetypes.openAllowance > 0) || slot >= 2 && item.id in [archetypes.extra.level2, archetypes.extra.level4, archetypes.extra.level6, archetypes.extra.level8, archetypes.extra.level10, archetypes.extra.level12, archetypes.extra.level14, archetypes.extra.level16, archetypes.extra.level18, archetypes.extra.level20][floor(slot / 2) - 1]"
+  - id: skill-feat
+    slots: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+    unique: feats
+    when: 'level >= slot'
+    from: { type: feat, where: "item.category == 'skill'" }
+    eligible: item.level <= slot

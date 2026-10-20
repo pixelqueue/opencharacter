@@ -1,0 +1,60 @@
+id: feats.skill.scare-to-death
+type: feat
+fields: { level: 15, category: skill, skills: [skill.intimidation] }
+
+prerequisites:
+  - id: legendary
+    when: skills.intimidation.rank >= 4
+actions:
+  - id: scare-to-death
+    tags: [skill-action]
+    params:
+      dc: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          saves.will.dc: { type: integer }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.scare-to-death]
+        params:
+          check: "'skills.intimidation.mod'"
+          dc: >-
+            size(participants.target) > 0 && has(participants.target[0].saves.will.dc)
+              ? participants.target[0].saves.will.dc : has(params.dc) ? params.dc : null
+      - id: save
+        kind: action
+        each: target
+        when: steps.check.result == 'critical-success'
+        as: participant
+        use: check
+        params:
+          check: '@saves.fortitude.mod'
+          dc: 10 + skills.intimidation.mod
+      - id: frighten
+        kind: changes
+        each: target
+        when: >-
+          steps.check.result in ['success', 'critical-success', 'failure']
+            && !(has(steps.save) && steps.save != null && steps.save.result == 'critical-failure')
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.frightened'"
+            state: { value: "steps.check.result == 'failure' ? 1 : 2" }
+          - type: applyEffect
+            when: steps.check.result == 'critical-success'
+            source: "'conditions.fleeing'"
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          killed: >-
+            has(steps.save) && size(steps.save) > 0 && steps.save[0] != null
+              && steps.save[0].result == 'critical-failure'
