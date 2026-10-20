@@ -1,0 +1,49 @@
+specVersion: 0.1.0
+id: example-wn-cyber-nix
+packs:
+  - { id: wn-cyber, version: 0.1.0 }
+values:
+  wn-cyber:attributes.str.base: 8
+  wn-cyber:attributes.dex.base: 12
+  wn-cyber:attributes.con.base: 10
+  wn-cyber:attributes.int.base: 16
+  wn-cyber:attributes.wis.base: 11
+  wn-cyber:attributes.cha.base: 9
+  # Coder: Program free; rolls of Learning Program (level-1), Growth +2 Mental (Int 14 to 16)
+  # and Learning Know. Hacker's and Expert Programmer's Program, already level-1, became Fix and
+  # Notice; Educated's bonus skill is Talk and the free skill Sneak.
+  wn-cyber:skills.program.base: 1
+  wn-cyber:skills.know.base: 0
+  wn-cyber:skills.fix.base: 0
+  wn-cyber:skills.notice.base: 0
+  wn-cyber:skills.talk.base: 0
+  wn-cyber:skills.sneak.base: 0
+  wn-cyber:hp.rolled: 4
+  wn-cyber:hp.current: 4
+  wn-cyber:money: 300
+  wn-cyber:goal: Find out who sold her old crew to corp security.
+choices:
+  background:
+    - option: wn-cyber:backgrounds.coder
+  edge-1:
+    - option: wn-cyber:edges.hacker
+  edge-2:
+    - option: wn-cyber:edges.educated
+features:
+  - { id: programmer, item: wn-cyber:foci.expert-programmer }
+  - { id: jack, item: wn-cyber:cyberware.cranial-jack }
+  - id: fence
+    item: wn-cyber:contacts.contact
+    state: { label: Jun, bond: friend, about: Runs a repair stall and buys hot chips. }
+inventory:
+  - { id: deck, item: wn-cyber:cyberdecks.scrap-deck, equipped: true }
+  - { id: pistol, item: wn-cyber:weapons.light-pistol, equipped: true }
+  - { id: coat, item: wn-cyber:armor.reinforced-clothing, equipped: true }
+  - { id: stun, item: wn-cyber:programs.verbs.stun, state: { source: edge } }
+  - { id: glitch, item: wn-cyber:programs.verbs.glitch, state: { source: edge } }
+  - { id: unlock, item: wn-cyber:programs.verbs.unlock, state: { source: edge } }
+  - { id: sense, item: wn-cyber:programs.verbs.sense, state: { source: edge } }
+  - { id: avatar, item: wn-cyber:programs.subjects.avatar, state: { source: edge } }
+  - { id: camera, item: wn-cyber:programs.subjects.camera, state: { source: edge } }
+  - { id: cyber, item: wn-cyber:programs.subjects.cyber, state: { source: edge } }
+  - { id: door, item: wn-cyber:programs.subjects.door, state: { source: edge } }

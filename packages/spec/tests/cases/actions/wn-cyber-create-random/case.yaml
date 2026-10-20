@@ -1,0 +1,18 @@
+description: 'wn-cyber: the random start rolls 3d6 in order and makes the lowest score (the first of
+  four 7s) 14, draws the background, rolls its tables (+2 Mental, +1 Any Stat, Administer again
+  for level-1), draws two Edges (Prodigy, with its attribute, and Focused, whose Focus comes at
+  once) and a Focus, rolls hit points and draws the free skill, the Contacts and the free item, so
+  an automatic run finishes'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/wn/cyber
+input:
+  action:
+    id: wn-cyber:create-character
+  params:
+    random: true
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
