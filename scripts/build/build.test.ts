@@ -29,17 +29,17 @@ describe('pnpm build:packs on the repository packs', () => {
     expect(reporter.errors).toEqual([]);
     expect(built.map((b) => b.id)).toEqual([
       '5e-srd-5.1',
-      'divine-heroes-core',
+      'awn-core',
+      'cwn-srd',
       'fate-core',
       'fitd-crew',
       'fitd-scoundrel',
+      'godbound-core',
       'mork-borg-core',
       'mothership-1e',
       'orc-2e',
-      'wn-apocalypse',
-      'wn-cyber',
-      'wn-fantasy',
-      'wn-scifi',
+      'swn-revised',
+      'wwn-srd',
     ]);
   });
 
@@ -90,8 +90,8 @@ describe('pnpm build:packs on the repository packs', () => {
       '5e-tamsin.yaml',
       '5e-goblin.yaml',
       'mothership-okafor.yaml',
-      'divine-heroes-tavian.yaml',
-      'divine-heroes-ysolde.yaml',
+      'godbound-tavian.yaml',
+      'godbound-ysolde.yaml',
       'fitd-vex.yaml',
       'fitd-crew-ravens.yaml',
       'fate-mara.yaml',
@@ -108,14 +108,14 @@ describe('pnpm build:packs on the repository packs', () => {
       'orc-cassia.yaml',
       'orc-aldric.yaml',
       'orc-fenn.yaml',
-      'wn-cyber-vex.yaml',
-      'wn-cyber-nix.yaml',
-      'wn-fantasy-brannoc.yaml',
-      'wn-fantasy-ysolde.yaml',
-      'wn-scifi-ines.yaml',
-      'wn-scifi-tamar.yaml',
-      'wn-apocalypse-sable.yaml',
-      'wn-apocalypse-hollis.yaml',
+      'cwn-srd-vex.yaml',
+      'cwn-srd-nix.yaml',
+      'wwn-srd-brannoc.yaml',
+      'wwn-srd-ysolde.yaml',
+      'swn-revised-ines.yaml',
+      'swn-revised-tamar.yaml',
+      'awn-core-sable.yaml',
+      'awn-core-hollis.yaml',
     ]) {
       const character = parseYaml(readFileSync(join(root, 'examples', 'characters', file), 'utf8'));
       const sheet = (r: Ruleset) => computeSheet(r, character).values;

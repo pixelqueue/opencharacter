@@ -1,0 +1,19 @@
+id: edges.hardened-genetics
+type: edge
+prerequisites:
+  - { id: not-mutant, when: '!mutations.mutant' }
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 4
+    when: "situational.versus == 'radiation'"
+choices:
+  - id: attribute
+    from: { values: [str, dex, con, int, wis, cha] }
+    recommend: >-
+      sortList(['str', 'dex', 'con', 'int', 'wis', 'cha'],
+        -fieldOf('attributes.{attribute}.score', x))[0]
+    effects:
+      - target: { fields: { where: "item.id == 'awn-core:attributes.' + pick.value + '.boost'" } }
+        op: add
+        value: 1

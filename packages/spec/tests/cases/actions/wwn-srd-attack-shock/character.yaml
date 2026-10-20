@@ -1,0 +1,45 @@
+# A 1st-level Warrior with a barbarian's background: rolled attributes with Strength raised to 14,
+# two Learning picks, Armsmaster as the Warrior's combat Focus and Die Hard as the free one, and
+# 140 silver spent on pieced armor, a large shield, a short sword and a dagger.
+specVersion: 0.1.0
+id: example-wwn-srd-brannoc
+packs:
+  - { id: wwn-srd, version: 0.1.0 }
+values:
+  wwn-srd:attributes.str.score: 14
+  wwn-srd:attributes.dex.score: 11
+  wwn-srd:attributes.con.score: 15
+  wwn-srd:attributes.int.score: 8
+  wwn-srd:attributes.wis.score: 10
+  wwn-srd:attributes.cha.score: 7
+  # Barbarian: Survive-0 free, Any Combat (Stab-0) and Exert-0 from Learning; Armsmaster's Stab
+  # makes it Stab-1; Notice-0 is the free pick.
+  wwn-srd:skills.stab: 1
+  wwn-srd:skills.exert: 0
+  wwn-srd:skills.survive: 0
+  wwn-srd:skills.notice: 0
+  # 1d6 + 2 + Constitution +1.
+  wwn-srd:hp.rolled: 7
+  wwn-srd:hp.current: 9
+  # 140 silver less 126 silver 6 copper of gear.
+  wwn-srd:coins.silver: 13
+  wwn-srd:coins.copper: 4
+features:
+  - id: background
+    item: wwn-srd:backgrounds.barbarian
+  - id: class
+    item: wwn-srd:classes.warrior
+  - id: focus-1
+    item: wwn-srd:foci.armsmaster
+    state: { level: 1 }
+  - id: focus-2
+    item: wwn-srd:foci.die-hard
+    state: { level: 1 }
+inventory:
+  - { id: armor, item: wwn-srd:armor.pieced-armor, equipped: true }
+  - { id: shield, item: wwn-srd:armor.large-shield, equipped: true }
+  - { id: sword, item: wwn-srd:weapons.short-sword, equipped: true }
+  - { id: dagger, item: wwn-srd:weapons.dagger, equipped: true }
+  - { id: backpack, item: wwn-srd:gear.backpack, equipped: true }
+  - { id: tinder-box, item: wwn-srd:gear.tinder-box }
+  - { id: torches, item: wwn-srd:gear.torch, quantity: 3 }

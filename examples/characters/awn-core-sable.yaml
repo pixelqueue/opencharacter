@@ -1,0 +1,83 @@
+# A 1st-level savage mutant from the random start: Prodigy makes Dexterity 18 (+3), the Mutant
+# edge's two points went on two rolled mutations and its -1 on Wisdom, and the wasteland
+# warrior kit came with a big club and three table rolls.
+specVersion: 0.1.0
+id: example-awn-core-sable
+packs:
+  - { id: awn-core, version: 0.1.0 }
+values:
+  awn-core:attributes.str.score: 8
+  awn-core:attributes.dex.score: 17
+  awn-core:attributes.con.score: 18
+  awn-core:attributes.int.score: 14
+  awn-core:attributes.wis.score: 7
+  awn-core:attributes.cha.score: 9
+  awn-core:skills.survive.level: 1
+  awn-core:skills.sneak.level: 0
+  awn-core:stigma.part: torso
+  awn-core:stigma.part2: none
+  awn-core:stigma.nature: mineral
+  awn-core:stigma.detail: stony
+  awn-core:mutations.stigmaConcealed: false
+  awn-core:skills.drive.level: 0
+  awn-core:skills.notice.level: 0
+  awn-core:hp.max: 7
+  awn-core:hp.current: 7
+features:
+  - id: background
+    item: awn-core:backgrounds.savage
+  - id: edges-prodigy-1
+    item: awn-core:edges.prodigy
+    choices:
+      attribute:
+        - option: dex
+  - id: edges-mutant-1
+    item: awn-core:edges.mutant
+    choices:
+      penalty:
+        - option: wis
+  - id: mutations-hybrid-arboreal-aptitude-1
+    item: awn-core:mutations.hybrid.arboreal-aptitude
+    state:
+      origin: random
+  - id: mutations-sense-night-vision-1
+    item: awn-core:mutations.sense.night-vision
+    state:
+      origin: random
+  - id: foci-road-warrior-1
+    item: awn-core:foci.road-warrior
+inventory:
+  - id: weapons-big-club-1
+    item: awn-core:weapons.big-club
+    equipped: true
+    state:
+      shots: 0
+  - id: weapons-knife-1
+    item: awn-core:weapons.knife
+    state:
+      shots: 0
+  - id: gear-backpack-1
+    item: awn-core:gear.backpack
+    equipped: true
+  - id: gear-sleeping-bag-1
+    item: awn-core:gear.sleeping-bag
+  - id: gear-tinderbox-1
+    item: awn-core:gear.tinderbox
+  - id: gear-torch-1
+    item: awn-core:gear.torch
+    quantity: 3
+  - id: gear-clothes-1
+    item: awn-core:gear.clothes
+    equipped: true
+  - id: gear-ration-1
+    item: awn-core:gear.ration
+    quantity: 4
+  - id: armor-scrap-mail-1
+    item: awn-core:armor.scrap-mail
+  - id: gear-lantern-1
+    item: awn-core:gear.lantern
+  - id: gear-oil-flask-1
+    item: awn-core:gear.oil-flask
+    quantity: 2
+  - id: gear-perpetual-lighter-1
+    item: awn-core:gear.perpetual-lighter

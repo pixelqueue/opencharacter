@@ -1,0 +1,19 @@
+description: 'cwn-srd: an advanced knife (1d6, Shock 2/AC 15, Trauma Die 1d8/x3) with Strength
+  +1 and Stab-1 hits Melee AC 13 on 15 + 2; its damage, 4 + 1 + 1 for Armsmaster + 1 for Killing
+  Blow, beats its Shock of 5, and the Trauma Die, 6 + 1 for Killing Blow, makes a Traumatic Hit
+  on Trauma Target 7: 7 x 3 = 21'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/cwn/srd
+input:
+  action:
+    id: cwn-srd:attack
+    entry: knife
+  participants:
+    target:
+      - id: guard
+        values:
+          cwn-srd:ac.ranged: 16
+          cwn-srd:ac.melee: 13
+          cwn-srd:trauma.target: 7

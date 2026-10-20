@@ -1,0 +1,68 @@
+# A fourth-level theurge of Sorcery, Knowledge and Deception. Knowledge raises Intelligence to 18,
+# Deception Charisma to 16, and Excellence of the Word Wisdom to 18. She is an adept of the Gate
+# and the Way with seven invocations, knows a low magic tradition through a Fact, holds the gifts
+# of Apotheosis her level has brought, and has a gift point saved.
+specVersion: 0.1.0
+id: example-godbound-ysolde
+packs:
+  - { id: godbound-core, version: 0.1.0 }
+values:
+  godbound-core:attributes.str.base: 10
+  godbound-core:attributes.dex.base: 13
+  godbound-core:attributes.con.base: 13
+  godbound-core:attributes.wis.base: 14
+  godbound-core:attributes.int.base: 16
+  godbound-core:attributes.cha.base: 8
+  godbound-core:facts.origin: Daughter of a wealthy merchant house
+  godbound-core:facts.career: Scholar of ancient ruins
+  godbound-core:facts.relationship: Trained in the arts of the mind by an old academician
+  godbound-core:facts.level2: Survived the drowned library
+  godbound-core:facts.level3: Owed a favor by the harbor guild
+  godbound-core:facts.level4: Knows the secret ways of the old palace
+  godbound-core:level: 4
+  godbound-core:xp.current: 14
+  godbound-core:dominion.spent: 10
+  godbound-core:dominion.current: 3
+  godbound-core:wealth.current: 2
+  godbound-core:hp.current: 17
+  godbound-core:effort.scene: 1
+  godbound-core:influence.committed: 1
+  godbound-core:lowMagic.spontaneous: 1
+  godbound-core:lowMagic.strain: 1
+features:
+  - { id: sorcery, item: godbound-core:words.sorcery }
+  - id: knowledge
+    item: godbound-core:words.knowledge
+    choices:
+      attribute: [{ option: int }]
+  - id: deception
+    item: godbound-core:words.deception
+    choices:
+      attribute: [{ option: cha }]
+  - id: gate
+    item: godbound-core:gifts.sorcery.adept-of-the-gate
+    choices:
+      invocations:
+        - { option: godbound-core:invocations.beacon-of-celestial-purity }
+        - { option: godbound-core:invocations.kiss-of-the-crane }
+        - { option: godbound-core:invocations.seal-of-regnal-dominion }
+        - { option: godbound-core:invocations.trumpet-of-far-utterance }
+  - id: way
+    item: godbound-core:gifts.sorcery.adept-of-the-way
+    choices:
+      invocations:
+        - { option: godbound-core:invocations.far-distant-lance }
+        - { option: godbound-core:invocations.sunder-the-greater-spell }
+        - { option: godbound-core:invocations.path-to-the-bright-sanctum }
+  - { id: eye, item: godbound-core:gifts.sorcery.subtle-eye-of-knowing }
+  - { id: lies, item: godbound-core:gifts.deception.deceivers-unblinking-eye }
+  - { id: grace, item: godbound-core:gifts.deception.liars-flawless-grace }
+  - { id: shadows, item: godbound-core:gifts.deception.shadow-play }
+  - { id: course, item: godbound-core:gifts.knowledge.best-course }
+  - id: excellence
+    item: godbound-core:gifts.universal.excellence-of-the-word
+    choices:
+      attribute: [{ option: wis }]
+  - { id: influence, item: godbound-core:gifts.universal.influence-of-the-word }
+  - { id: effort, item: godbound-core:gifts.universal.effort-of-the-word }
+  - { id: academy, item: godbound-core:traditions.academy-of-thought }

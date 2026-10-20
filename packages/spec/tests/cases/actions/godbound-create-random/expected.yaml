@@ -1,0 +1,141 @@
+status: finished
+outcome:
+  result: created
+proposedChanges:
+  - to: self
+    step: attributes
+    change:
+      type: set
+      field: godbound-core:attributes.str.base
+      value: 10
+  - to: self
+    step: attributes
+    change:
+      type: set
+      field: godbound-core:attributes.dex.base
+      value: 14
+  - to: self
+    step: attributes
+    change:
+      type: set
+      field: godbound-core:attributes.con.base
+      value: 10
+  - to: self
+    step: attributes
+    change:
+      type: set
+      field: godbound-core:attributes.wis.base
+      value: 8
+  - to: self
+    step: attributes
+    change:
+      type: set
+      field: godbound-core:attributes.int.base
+      value: 11
+  - to: self
+    step: attributes
+    change:
+      type: set
+      field: godbound-core:attributes.cha.base
+      value: 13
+  - to: self
+    step: words
+    change:
+      type: addItem
+      entry:
+        id: words-artifice-1
+        item: godbound-core:words.artifice
+  - to: self
+    step: words
+    change:
+      type: addItem
+      entry:
+        id: words-sun-1
+        item: godbound-core:words.sun
+  - to: self
+    step: words
+    change:
+      type: addItem
+      entry:
+        id: words-luck-1
+        item: godbound-core:words.luck
+  - to: self
+    step: gifts
+    change:
+      type: addItem
+      entry:
+        id: gifts-universal-divine-wrath-1
+        item: godbound-core:gifts.universal.divine-wrath
+  - to: self
+    step: gifts
+    change:
+      type: addItem
+      entry:
+        id: gifts-universal-influence-of-the-word-1
+        item: godbound-core:gifts.universal.influence-of-the-word
+  - to: self
+    step: gifts
+    change:
+      type: addItem
+      entry:
+        id: gifts-artifice-perpetual-perfection-1
+        item: godbound-core:gifts.artifice.perpetual-perfection
+  - to: self
+    step: gifts
+    change:
+      type: addItem
+      entry:
+        id: gifts-sun-purging-noonday-blaze-1
+        item: godbound-core:gifts.sun.purging-noonday-blaze
+  - to: self
+    step: armor
+    change:
+      type: addItem
+      entry:
+        id: armor-heavy-1
+        item: godbound-core:armor.heavy
+        equipped: true
+  - to: self
+    step: shield
+    change:
+      type: addItem
+      entry:
+        id: shields-shield-1
+        item: godbound-core:shields.shield
+        equipped: true
+  - to: self
+    step: weapon
+    change:
+      type: addItem
+      entry:
+        id: weapons-paired-1
+        item: godbound-core:weapons.paired
+        equipped: true
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: armor-heavy-1
+        choice:
+          - penalized
+      option: spirit
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: armor-heavy-1
+        choice:
+          - penalized
+      option: evasion
+  - to: self
+    step: finish
+    change:
+      type: set
+      field: godbound-core:hp.current
+      value: 8
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

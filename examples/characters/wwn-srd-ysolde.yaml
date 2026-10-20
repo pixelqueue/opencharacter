@@ -1,0 +1,79 @@
+# A 3rd-level Adventurer, partial Expert and partial High Mage, from an artisan's background: the
+# attribute array, three High Mage arts, six first-level spells with three prepared and one cast
+# today, a Focus at second level, and skill points spent as she advanced.
+specVersion: 0.1.0
+id: example-wwn-srd-ysolde
+packs:
+  - { id: wwn-srd, version: 0.1.0 }
+values:
+  wwn-srd:level: 3
+  wwn-srd:xp.current: 7
+  wwn-srd:attributes.str.score: 9
+  wwn-srd:attributes.dex.score: 11
+  wwn-srd:attributes.con.score: 10
+  wwn-srd:attributes.int.score: 14
+  wwn-srd:attributes.wis.score: 12
+  wwn-srd:attributes.cha.score: 7
+  wwn-srd:skills.know: 1
+  wwn-srd:skills.heal: 0
+  wwn-srd:skills.craft: 0
+  wwn-srd:skills.magic: 1
+  wwn-srd:skills.notice: 1
+  wwn-srd:skills.sneak: 0
+  wwn-srd:skills.stab: 0
+  wwn-srd:skillPoints.unspent: 1
+  wwn-srd:hp.rolled: 10
+  wwn-srd:hp.current: 8
+  wwn-srd:spells.castsUsed: 1
+  wwn-srd:effort.highmage.day: 1
+  wwn-srd:coins.silver: 65
+features:
+  - id: background
+    item: wwn-srd:backgrounds.artisan
+  - id: class
+    item: wwn-srd:classes.adventurer
+    choices:
+      first:
+        - option: wwn-srd:partials.expert
+      second:
+        - option: wwn-srd:partials.mage
+          choices:
+            tradition:
+              - option: high-mage
+  - id: focus-1
+    item: wwn-srd:foci.specialist
+    state: { level: 1 }
+    choices:
+      skill:
+        - option: know
+  - id: focus-2
+    item: wwn-srd:foci.alert
+    state: { level: 1 }
+  - id: focus-3
+    item: wwn-srd:foci.armored-magic
+    state: { level: 1 }
+  - { id: art-1, item: wwn-srd:arts.high-mage.counter-magic }
+  - { id: art-2, item: wwn-srd:arts.high-mage.sense-magic }
+  - { id: art-3, item: wwn-srd:arts.high-mage.empowered-sorcery }
+  - id: spell-1
+    item: wwn-srd:spells.high.coruscating-coffin
+    state: { prepared: true }
+  - id: spell-2
+    item: wwn-srd:spells.high.wind-of-the-final-repose
+    state: { prepared: true }
+  - id: spell-3
+    item: wwn-srd:spells.high.phantasmal-mimesis
+    state: { prepared: true }
+  - { id: spell-4, item: wwn-srd:spells.high.wardpact-invocation }
+  - { id: spell-5, item: wwn-srd:spells.high.velocitous-imbuement }
+  - { id: spell-6, item: wwn-srd:spells.high.apprehending-the-arcane-form }
+inventory:
+  - { id: coat, item: wwn-srd:armor.buff-coat, equipped: true }
+  - { id: staff, item: wwn-srd:weapons.staff, equipped: true }
+  - { id: dagger, item: wwn-srd:weapons.dagger, equipped: true }
+  - { id: backpack, item: wwn-srd:gear.backpack, equipped: true }
+  - { id: lantern, item: wwn-srd:gear.lantern }
+  - { id: oil, item: wwn-srd:gear.oil, quantity: 2 }
+  - { id: writing-kit, item: wwn-srd:gear.writing-kit }
+  - { id: rations, item: wwn-srd:gear.rations }
+  - { id: waterskin, item: wwn-srd:gear.waterskin }

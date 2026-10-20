@@ -1,0 +1,49 @@
+specVersion: 0.1.0
+id: example-cwn-srd-nix
+packs:
+  - { id: cwn-srd, version: 0.1.0 }
+values:
+  cwn-srd:attributes.str.base: 8
+  cwn-srd:attributes.dex.base: 12
+  cwn-srd:attributes.con.base: 10
+  cwn-srd:attributes.int.base: 16
+  cwn-srd:attributes.wis.base: 11
+  cwn-srd:attributes.cha.base: 9
+  # Coder: Program free; rolls of Learning Program (level-1), Growth +2 Mental (Int 14 to 16)
+  # and Learning Know. Hacker's and Expert Programmer's Program, already level-1, became Fix and
+  # Notice; Educated's bonus skill is Talk and the free skill Sneak.
+  cwn-srd:skills.program.base: 1
+  cwn-srd:skills.know.base: 0
+  cwn-srd:skills.fix.base: 0
+  cwn-srd:skills.notice.base: 0
+  cwn-srd:skills.talk.base: 0
+  cwn-srd:skills.sneak.base: 0
+  cwn-srd:hp.rolled: 4
+  cwn-srd:hp.current: 4
+  cwn-srd:money: 300
+  cwn-srd:goal: Find out who sold her old crew to corp security.
+choices:
+  background:
+    - option: cwn-srd:backgrounds.coder
+  edge-1:
+    - option: cwn-srd:edges.hacker
+  edge-2:
+    - option: cwn-srd:edges.educated
+features:
+  - { id: programmer, item: cwn-srd:foci.expert-programmer }
+  - { id: jack, item: cwn-srd:cyberware.cranial-jack }
+  - id: fence
+    item: cwn-srd:contacts.contact
+    state: { label: Jun, bond: friend, about: Runs a repair stall and buys hot chips. }
+inventory:
+  - { id: deck, item: cwn-srd:cyberdecks.scrap-deck, equipped: true }
+  - { id: pistol, item: cwn-srd:weapons.light-pistol, equipped: true }
+  - { id: coat, item: cwn-srd:armor.reinforced-clothing, equipped: true }
+  - { id: stun, item: cwn-srd:programs.verbs.stun, state: { source: edge } }
+  - { id: glitch, item: cwn-srd:programs.verbs.glitch, state: { source: edge } }
+  - { id: unlock, item: cwn-srd:programs.verbs.unlock, state: { source: edge } }
+  - { id: sense, item: cwn-srd:programs.verbs.sense, state: { source: edge } }
+  - { id: avatar, item: cwn-srd:programs.subjects.avatar, state: { source: edge } }
+  - { id: camera, item: cwn-srd:programs.subjects.camera, state: { source: edge } }
+  - { id: cyber, item: cwn-srd:programs.subjects.cyber, state: { source: edge } }
+  - { id: door, item: cwn-srd:programs.subjects.door, state: { source: edge } }

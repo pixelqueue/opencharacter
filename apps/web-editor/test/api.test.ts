@@ -149,17 +149,17 @@ describe('the editor API', { timeout: 20_000 }, () => {
     expect(status).toBe(200);
     expect((body.packs as { id: string }[]).map((p) => p.id)).toEqual([
       '5e-srd-5.1',
-      'divine-heroes-core',
+      'awn-core',
+      'cwn-srd',
       'fate-core',
       'fitd-crew',
       'fitd-scoundrel',
+      'godbound-core',
       'mork-borg-core',
       'mothership-1e',
       'orc-2e',
-      'wn-apocalypse',
-      'wn-cyber',
-      'wn-fantasy',
-      'wn-scifi',
+      'swn-revised',
+      'wwn-srd',
     ]);
   });
 

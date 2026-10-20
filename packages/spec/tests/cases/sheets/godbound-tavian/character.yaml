@@ -1,0 +1,32 @@
+# A first-level hero of the Sword, Fire and Endurance: the array (Endurance raises Constitution to
+# 16), six gift points (Effort of the Word, Steel Without End, Body of Iron Will, Firestorm and the
+# greater Fear No Steel, held with a point of Effort), a sword and three Facts.
+specVersion: 0.1.0
+id: example-godbound-tavian
+packs:
+  - { id: godbound-core, version: 0.1.0 }
+values:
+  godbound-core:attributes.str.base: 16
+  godbound-core:attributes.dex.base: 13
+  godbound-core:attributes.con.base: 14
+  godbound-core:attributes.wis.base: 10
+  godbound-core:attributes.int.base: 8
+  godbound-core:attributes.cha.base: 13
+  godbound-core:facts.origin: Born to a family of border herders
+  godbound-core:facts.career: Veteran of a mercenary company
+  godbound-core:facts.relationship: Sworn brother of the company's old captain
+  godbound-core:goal: Break the warlord who burned his village
+  godbound-core:hp.current: 7
+features:
+  - { id: sword, item: godbound-core:words.sword }
+  - { id: fire, item: godbound-core:words.fire }
+  - { id: endurance, item: godbound-core:words.endurance }
+  - { id: effort, item: godbound-core:gifts.universal.effort-of-the-word }
+  - { id: blade, item: godbound-core:gifts.sword.steel-without-end }
+  - { id: body, item: godbound-core:gifts.endurance.body-of-iron-will }
+  - { id: firestorm, item: godbound-core:gifts.fire.firestorm }
+  - id: steel
+    item: godbound-core:gifts.endurance.fear-no-steel
+    state: { committed: 1 }
+inventory:
+  - { id: longsword, item: godbound-core:weapons.medium, equipped: true }
