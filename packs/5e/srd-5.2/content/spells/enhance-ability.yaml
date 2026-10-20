@@ -1,0 +1,71 @@
+id: spells.enhance-ability
+type: spell
+fields:
+  level: 2
+  school: transmutation
+  classes:
+    [classes.bard, classes.cleric, classes.druid, classes.ranger, classes.sorcerer, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+  castOptions: [str, dex, int, wis, cha]
+  upcastTargets: true
+actions:
+  - use: cast-spell
+effects:
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: str }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: dex }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: int }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: wis }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: cha }
+  - target: { rolls: [check.str] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.option == 'str'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.dex] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.option == 'dex'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.int] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.option == 'int'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.wis] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.option == 'wis'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.cha] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.option == 'cha'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }

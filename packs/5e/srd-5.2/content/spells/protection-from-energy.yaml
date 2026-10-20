@@ -1,0 +1,45 @@
+id: spells.protection-from-energy
+type: spell
+fields:
+  level: 3
+  school: abjuration
+  classes: [classes.cleric, classes.druid, classes.ranger, classes.sorcerer, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+  castOptions: [acid, cold, fire, lightning, thunder]
+effects:
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: acid }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: cold }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: fire }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: lightning }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: thunder }
+  - target: damage.resistances
+    op: grant
+    value: { formula: "'damage.' + self.option" }
+    when: "self.option != ''"
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+actions:
+  - use: cast-spell

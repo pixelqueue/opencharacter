@@ -1,0 +1,76 @@
+id: magic-items.staff-of-power
+type: template
+tags: [magic, staff, attunement.sorcerer, attunement.warlock, attunement.wizard]
+appliesTo: { type: weapon, where: 'item.id == @weapons.quarterstaff' }
+fields:
+  {
+    rarity: very-rare,
+    requiresAttunement: true,
+    maxCharges: 20,
+    recharge: 2d8 + 4,
+    attackBonus: 2,
+    damageBonus: 2,
+  }
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.cone-of-cold, when: self.equipped && self.attuned }
+  - { item: spells.fireball, when: self.equipped && self.attuned }
+  - { item: spells.globe-of-invulnerability, when: self.equipped && self.attuned }
+  - { item: spells.hold-monster, when: self.equipped && self.attuned }
+  - { item: spells.levitate, when: self.equipped && self.attuned }
+  - { item: spells.lightning-bolt, when: self.equipped && self.attuned }
+  - { item: spells.magic-missile, when: self.equipped && self.attuned }
+  - { item: spells.ray-of-enfeeblement, when: self.equipped && self.attuned }
+  - { item: spells.wall-of-force, when: self.equipped && self.attuned }
+effects:
+  - { target: combat.ac, op: add, value: 2, when: self.equipped && self.attuned }
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 2
+    when: self.equipped && self.attuned
+  - { target: { rolls: [save.death] }, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped && self.attuned }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && self.attuned && action.item.id in [@spells.cone-of-cold, @spells.fireball, @spells.globe-of-invulnerability, @spells.hold-monster, @spells.levitate, @spells.lightning-bolt, @spells.magic-missile, @spells.ray-of-enfeeblement, @spells.wall-of-force]
+        && self.charges >= [5, 5, 6, 5, 2, 5, 1, 1, 5][indexOf([@spells.cone-of-cold, @spells.fireball, @spells.globe-of-invulnerability, @spells.hold-monster, @spells.levitate, @spells.lightning-bolt, @spells.magic-missile, @spells.ray-of-enfeeblement, @spells.wall-of-force], action.item.id)]
+    value:
+      id: charges
+      flags:
+        slot: '[5, 5, 6, 5, 2, 5, 1, 2, 5][indexOf([@spells.cone-of-cold, @spells.fireball, @spells.globe-of-invulnerability, @spells.hold-monster, @spells.levitate, @spells.lightning-bolt, @spells.magic-missile, @spells.ray-of-enfeeblement, @spells.wall-of-force], action.item.id)]'
+      changes:
+        - type: adjustState
+          entry: self
+          key: charges
+          by: '-[5, 5, 6, 5, 2, 5, 1, 1, 5][indexOf([@spells.cone-of-cold, @spells.fireball, @spells.globe-of-invulnerability, @spells.hold-monster, @spells.levitate, @spells.lightning-bolt, @spells.magic-missile, @spells.ray-of-enfeeblement, @spells.wall-of-force], action.item.id)]'
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }
+  - id: retributive-strike
+    tags: [magic-item]
+    available: self.equipped && self.attuned
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          dice: 4 * self.charges
+          damageType: "'force'"
+          save: "'dex'"
+          dc: 17
+        participants: { target: participants.target }
+      - id: break
+        kind: changes
+        changes:
+          - { type: removeItem, entry: self }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+        data:
+          selfDamage: 16 * self.charges

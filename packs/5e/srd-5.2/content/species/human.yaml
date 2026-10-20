@@ -1,0 +1,22 @@
+id: species.human
+type: species
+fields:
+  speed: 30
+  size: choice
+effects:
+  - { target: creature.type, op: set, value: "'humanoid'" }
+grants:
+  - item: traits.resourceful
+  - item: traits.skillful
+  - item: traits.versatile
+choices:
+  - id: size
+    recommend: "'medium'"
+    from:
+      options:
+        - id: medium
+          effects:
+            - { target: creature.size, op: set, value: "'medium'" }
+        - id: small
+          effects:
+            - { target: creature.size, op: set, value: "'small'" }

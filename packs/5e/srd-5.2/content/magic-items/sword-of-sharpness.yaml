@@ -1,0 +1,15 @@
+id: magic-items.sword-of-sharpness
+type: template
+tags: [magic]
+appliesTo:
+  {
+    type: weapon,
+    where: 'item.id in [@weapons.glaive, @weapons.greatsword, @weapons.longsword, @weapons.scimitar]',
+  }
+fields: { rarity: very-rare, requiresAttunement: true }
+effects:
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: 14
+    tags: [damage.slashing]
+    when: self.attuned && has(steps.test) && steps.test.data.natural == 20

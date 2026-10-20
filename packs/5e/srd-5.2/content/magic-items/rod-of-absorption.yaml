@@ -1,0 +1,71 @@
+id: magic-items.rod-of-absorption
+type: magicItem
+fields:
+  category: rod
+  rarity: very-rare
+  requiresAttunement: true
+state:
+  absorbedLevels: { type: integer, min: 0, max: 50, default: 0 }
+  storedLevels: { type: integer, min: 0, max: 50, default: 0 }
+actions:
+  - id: absorb-spell
+    tags: [magic-item]
+    available: self.equipped && self.attuned && self.absorbedLevels < 50
+    params:
+      level: { type: integer, min: 1, max: 9, default: 1 }
+    results: [absorbed, full]
+    steps:
+      - id: full
+        kind: outcome
+        when: self.absorbedLevels + params.level > 50
+        result: "'full'"
+      - id: absorb
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: absorbedLevels, by: params.level }
+          - { type: adjustState, entry: self, key: storedLevels, by: params.level }
+      - id: result
+        kind: outcome
+        result: "'absorbed'"
+  - id: convert-energy
+    tags: [magic-item]
+    available: self.equipped && self.attuned && self.storedLevels > 0
+    results: [converted]
+    steps:
+      - id: slot
+        kind: choice
+        options:
+          - id: level-1
+            when: self.storedLevels >= 1 && spellSlots.level1.used > 0
+            changes: [{ type: adjust, field: spellSlots.level1.used, by: -1 }]
+          - id: level-2
+            when: self.storedLevels >= 2 && spellSlots.level2.used > 0
+            changes: [{ type: adjust, field: spellSlots.level2.used, by: -1 }]
+          - id: level-3
+            when: self.storedLevels >= 3 && spellSlots.level3.used > 0
+            changes: [{ type: adjust, field: spellSlots.level3.used, by: -1 }]
+          - id: level-4
+            when: self.storedLevels >= 4 && spellSlots.level4.used > 0
+            changes: [{ type: adjust, field: spellSlots.level4.used, by: -1 }]
+          - id: level-5
+            when: self.storedLevels >= 5 && spellSlots.level5.used > 0
+            changes: [{ type: adjust, field: spellSlots.level5.used, by: -1 }]
+          - id: pact
+            when: >-
+              pactSlots.used > 0 && pactSlots.level <= 5 && self.storedLevels >= pactSlots.level
+            changes: [{ type: adjust, field: pactSlots.used, by: -1 }]
+      - id: spend
+        kind: changes
+        when: has(steps.slot)
+        changes:
+          - type: adjustState
+            entry: self
+            key: storedLevels
+            by: >-
+              -(steps.slot.picked == 'pact' ? pactSlots.level
+                : indexOf(['level-1', 'level-2', 'level-3', 'level-4', 'level-5'], steps.slot.picked) + 1)
+      - id: result
+        kind: outcome
+        result: "'converted'"
+        data:
+          slot: "has(steps.slot) ? steps.slot.picked : ''"

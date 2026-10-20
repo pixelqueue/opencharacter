@@ -1,0 +1,33 @@
+id: features.paladin.channel-divinity
+type: feature
+effects:
+  - { target: paladin.channelDivinity, op: set, value: 'self.level >= 11 ? 3 : 2' }
+  - target: { steps: [rest.short] }
+    op: changes
+    when: self.channelDivinitySpent > 0
+    value:
+      changes:
+        - { type: adjustState, entry: self, key: channelDivinitySpent, by: -1 }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.channelDivinitySpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: channelDivinitySpent, value: 0 }
+actions:
+  - id: divine-sense
+    tags: [feature]
+    available: self.channelDivinitySpent < paladin.channelDivinity
+    results: [sensing]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: channelDivinitySpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'sensing'"
+        data:
+          range: 60
+          minutes: 10
+          left: paladin.channelDivinity - self.channelDivinitySpent - 1

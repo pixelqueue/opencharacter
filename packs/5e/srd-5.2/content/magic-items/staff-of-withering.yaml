@@ -1,0 +1,44 @@
+id: magic-items.staff-of-withering
+type: template
+tags: [magic, staff]
+appliesTo: { type: weapon, where: 'item.id == @weapons.quarterstaff' }
+fields: { rarity: rare, requiresAttunement: true, maxCharges: 3, recharge: 1d3 }
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+effects:
+  - target: combat.hitOptions
+    op: add
+    value: 1
+    when: self.equipped && self.attuned && self.charges > 0
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: action.self.id == self.id && self.attuned && self.charges >= 1
+    value:
+      id: wither
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -1 }
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: 2d10
+    tags: [damage.necrotic]
+    when: >-
+      has(steps.onHit) && steps.onHit.picked == '5e-srd-5.2:magic-items.staff-of-withering#wither'
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }
+  - id: withering
+    tags: [magic-item]
+    available: self.attuned
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { save: "'con'", dc: 15 }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result

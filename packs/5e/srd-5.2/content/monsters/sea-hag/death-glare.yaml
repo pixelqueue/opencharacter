@@ -1,0 +1,62 @@
+id: monsters.sea-hag.death-glare
+type: monsterAction
+fields:
+  kind: action
+  order: 5
+  recharge: 5
+  ownAction: true
+actions:
+  - id: glare
+    tags: [monster-effect]
+    available: '!self.recharging'
+    participants:
+      target: { max: 1, fields: target }
+    results: [used]
+    steps:
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params:
+          ability: "'wis'"
+          dc: 11
+      - id: setup
+        kind: branch
+        each: target
+        cases:
+          - when: true
+            flags:
+              drop: has(participant.hp.current) && participant.hp.current <= 20
+      - id: drop
+        kind: changes
+        each: target
+        when: steps.save.result == 'failure' && flags.drop
+        to: target
+        changes:
+          - type: set
+            field: hp.current
+            value: 0
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - { dice: 3d8, tags: [damage.psychic] }
+      - id: burn
+        kind: changes
+        each: target
+        when: steps.save.result == 'failure' && !flags.drop
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, save-negates, save.wis, save-failure]
+      - id: spend
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: recharging, value: true }
+      - id: result
+        kind: outcome
+        result: "'used'"

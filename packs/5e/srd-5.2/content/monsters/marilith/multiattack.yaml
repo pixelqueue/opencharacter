@@ -1,0 +1,65 @@
+id: monsters.marilith.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 4
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 6, fields: target }
+    results: [done]
+    steps:
+      - id: pactBlade1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.marilith.pact-blade)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pactBlade2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.marilith.pact-blade)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pactBlade3
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.marilith.pact-blade)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: pactBlade4
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.marilith.pact-blade)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(3, size(participants.target) - 1)]] : []'
+      - id: pactBlade5
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.marilith.pact-blade)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(4, size(participants.target) - 1)]] : []'
+      - id: pactBlade6
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.marilith.pact-blade)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(5, size(participants.target) - 1)]] : []'
+      - id: constrict
+        kind: action
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.marilith.constrict)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.pactBlade1.result == 'hit' ? 1 : 0)
+              + (steps.pactBlade2.result == 'hit' ? 1 : 0)
+              + (steps.pactBlade3.result == 'hit' ? 1 : 0)
+              + (steps.pactBlade4.result == 'hit' ? 1 : 0)
+              + (steps.pactBlade5.result == 'hit' ? 1 : 0)
+              + (steps.pactBlade6.result == 'hit' ? 1 : 0)

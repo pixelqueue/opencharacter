@@ -1,0 +1,24 @@
+id: spells.spider-climb
+type: spell
+fields:
+  level: 2
+  school: transmutation
+  classes: [classes.sorcerer, classes.warlock, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+  upcastTargets: true
+actions:
+  - use: cast-spell
+effects:
+  - target: combat.climbSpeed
+    op: atLeast
+    value: combat.speed
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }

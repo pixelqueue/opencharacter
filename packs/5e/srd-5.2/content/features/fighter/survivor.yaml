@@ -1,0 +1,22 @@
+id: features.fighter.survivor
+type: feature
+effects:
+  - { target: deathSaves.twentyOn, op: atMost, value: 18 }
+  - target: { rolls: [save.death] }
+    op: rollModifier
+    value: { kind: advantage }
+actions:
+  - id: heroic-rally
+    tags: [healing]
+    results: [healed]
+    available: hp.current > 0 && hp.bloodied
+    steps:
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: 5 + abilities.con.mod, tags: [healing] }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: 5 + abilities.con.mod

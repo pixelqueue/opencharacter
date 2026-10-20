@@ -1,0 +1,40 @@
+id: features.sorcerer.draconic-spells
+type: feature
+grants:
+  - { item: spells.alter-self, when: self.level >= 3 }
+  - { item: spells.chromatic-orb, when: self.level >= 3 }
+  - { item: spells.command, when: self.level >= 3 }
+  - { item: spells.dragons-breath, when: self.level >= 3 }
+  - { item: spells.fear, when: self.level >= 5 }
+  - { item: spells.fly, when: self.level >= 5 }
+  - { item: spells.arcane-eye, when: self.level >= 7 }
+  - { item: spells.charm-monster, when: self.level >= 7 }
+  - { item: spells.legend-lore, when: self.level >= 9 }
+  - { item: spells.summon-dragon, when: self.level >= 9 }
+effects:
+  - { target: spells.sorcerer, op: grant, value: { item: spells.alter-self } }
+  - { target: spells.sorcerer, op: grant, value: { item: spells.chromatic-orb } }
+  - { target: spells.sorcerer, op: grant, value: { item: spells.command } }
+  - { target: spells.sorcerer, op: grant, value: { item: spells.dragons-breath } }
+  - { target: spells.sorcerer, op: grant, value: { item: spells.fear }, when: self.level >= 5 }
+  - { target: spells.sorcerer, op: grant, value: { item: spells.fly }, when: self.level >= 5 }
+  - {
+      target: spells.sorcerer,
+      op: grant,
+      value: { item: spells.arcane-eye },
+      when: self.level >= 7,
+    }
+  - target: spells.sorcerer
+    op: grant
+    value: { item: spells.charm-monster }
+    when: self.level >= 7
+  - {
+      target: spells.sorcerer,
+      op: grant,
+      value: { item: spells.legend-lore },
+      when: self.level >= 9,
+    }
+  - target: spells.sorcerer
+    op: grant
+    value: { item: spells.summon-dragon }
+    when: self.level >= 9

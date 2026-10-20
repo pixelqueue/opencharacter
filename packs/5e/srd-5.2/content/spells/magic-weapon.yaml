@@ -1,0 +1,50 @@
+id: spells.magic-weapon
+type: spell
+fields:
+  level: 2
+  school: transmutation
+  classes:
+    - classes.paladin
+    - classes.ranger
+    - classes.sorcerer
+    - classes.wizard
+  castingTime: bonus-action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+state: { weapon: { type: string, default: '' } }
+effects:
+  - target: { rolls: [attack.melee, attack.ranged] }
+    op: add
+    value: 'self.castSlot >= 6 ? 3 : self.castSlot >= 3 ? 2 : 1'
+    scope: applied
+    when: "!('unarmed' in roll.tags) && (self.weapon == '' || action.self.id == self.weapon)"
+    duration: { amount: 1, unit: hour }
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 'self.castSlot >= 6 ? 3 : self.castSlot >= 3 ? 2 : 1'
+    scope: applied
+    when: "!('unarmed' in roll.tags) && (self.weapon == '' || action.self.id == self.weapon)"
+    duration: { amount: 1, unit: hour }
+actions:
+  - use: cast-spell
+  - id: touched-weapon
+    scope: applied
+    tags: [spell]
+    params: { weapon: { type: string } }
+    results: [set]
+    steps:
+      - id: set
+        kind: changes
+        changes:
+          - type: setState
+            entry: self
+            key: weapon
+            value: params.weapon
+      - id: result
+        kind: outcome
+        result: "'set'"

@@ -1,0 +1,16 @@
+id: feats.great-weapon-fighting
+type: feat
+fields:
+  category: fighting-style
+prerequisites:
+  - id: fighting-style
+    when: features.fightingStyle
+effects:
+  - { target: feats.held, op: grant, value: { formula: item.id } }
+  - target: { rolls: [damage.weapon] }
+    op: rollModifier
+    value: { kind: minimumFace, value: 3 }
+    when: >-
+      has(roll.item.range) && roll.item.range == 'melee'
+        && ('two-handed' in roll.item.tags
+          || ('versatile' in roll.item.tags && roll.self.wielding == 'two-handed'))

@@ -1,0 +1,16 @@
+id: magic-items.ring-of-jumping
+type: magicItem
+fields:
+  category: ring
+  rarity: uncommon
+  requiresAttunement: true
+  spells: [spells.jump]
+grants:
+  - { item: spells.jump, when: self.equipped && self.attuned }
+effects:
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.jump },
+      when: self.equipped && self.attuned,
+    }

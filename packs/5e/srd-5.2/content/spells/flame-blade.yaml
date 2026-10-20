@@ -1,0 +1,109 @@
+id: spells.flame-blade
+type: spell
+fields:
+  level: 2
+  school: evocation
+  classes: [classes.druid, classes.sorcerer]
+  concentration: true
+  castingTime: bonus-action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 10
+actions:
+  - use: cast-spell
+  - id: strike
+    tags: [spell, attack]
+    params:
+      slot: { type: integer, optional: true }
+      targetAc: { type: integer, optional: true }
+    participants: { target: { max: 1, fields: target } }
+    results: [hit, miss]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              cls: "countList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x)) > 0 ? filterList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x))[0] : 'none'"
+              slot: 'has(params.slot) ? max(item.level, min(9, params.slot)) : item.level'
+      - id: numbers
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dc: "flags.cls != 'none' ? fieldOf('spellcasting.{caster}.dc', flags.cls) : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.dc', x))"
+              attackBonus: "flags.cls != 'none' ? fieldOf('spellcasting.{caster}.attack', flags.cls) : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.attack', x))"
+              mod: "flags.cls != 'none' ? fieldOf('spellcasting.{caster}.mod', flags.cls) : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.mod', x))"
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ac: 'size(participants.target) > 0 && has(participants.target[0].combat.ac) ? participants.target[0].combat.ac : has(params.targetAc) ? params.targetAc : -1'
+      - id: test
+        kind: action
+        use: d20-test
+        tags: [attack, spell, attack.spell.melee]
+        params:
+          kind: "'attack'"
+          bonus: flags.attackBonus
+          dc: 'flags.ac >= 0 ? flags.ac : null'
+      - id: hit
+        kind: branch
+        cases:
+          - when: steps.test.result == 'critical'
+            flags:
+              hit: true
+              critical: '!(size(participants.target) > 0 && participants.target[0].combat.noCriticals)'
+          - when: steps.test.result == 'hit'
+            flags:
+              hit: true
+              critical: size(participants.target) > 0 && participants.target[0].conditions.autoCritMelee && !participants.target[0].combat.noCriticals
+          - when: steps.test.result == 'miss'
+            flags: { hit: false, critical: false }
+        else:
+          flags: { hit: false, critical: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options:
+                - { id: hit, flags: { hit: true } }
+                - { id: critical, flags: { hit: true, critical: true } }
+                - { id: miss }
+      - id: damage
+        kind: roll
+        when: flags.hit
+        tags: [damage.spell]
+        parts:
+          - dice: (3 + 1 * (flags.slot - item.level))d6
+            tags: [damage.fire]
+          - value: flags.mod
+            when: flags.mod != 0
+            tags: [damage.fire]
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags:
+              - damage
+              - attack
+              - spell
+              - magical
+              - melee
+              - { formula: "flags.critical ? ['critical'] : []" }
+      - id: result
+        kind: outcome
+        result: "flags.hit ? 'hit' : 'miss'"
+        data:
+          slot: flags.slot
+          attack: steps.test.data.total
+          critical: flags.critical
+          damage: 'has(steps.damage) ? steps.damage.total : 0'

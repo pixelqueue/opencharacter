@@ -1,0 +1,61 @@
+id: spells.conjure-celestial
+type: spell
+fields:
+  level: 7
+  school: conjuration
+  classes: [classes.cleric]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 90
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 10
+  areaShape: cylinder
+  areaSize: 10
+actions:
+  - use: cast-spell
+  - id: healing-light
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+    participants:
+      target: { fields: target }
+    results: [done]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          heal: 'dieOf(1d12, 4 + max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+          healAddsMod: true
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          healing: steps.effect.data.healing
+  - id: searing-light
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+    participants:
+      target: { fields: target }
+    results: [save]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          save: "'dex'"
+          half: true
+          dice: 'dieOf(1d12, 6 + max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+          damageType: "'radiant'"
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage

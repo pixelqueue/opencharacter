@@ -1,0 +1,21 @@
+id: magic-items.ioun-stone-of-regeneration
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: legendary
+  requiresAttunement: true
+actions:
+  - id: regenerate
+    tags: [healing, magic-item]
+    available: self.equipped && self.attuned && hp.current >= 1
+    results: [healed]
+    steps:
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: 15, tags: [healing] }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: 15

@@ -1,0 +1,24 @@
+id: magic-items.crystal-ball-of-mind-reading
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: legendary
+  requiresAttunement: true
+  spells: [spells.scrying, spells.detect-thoughts]
+  saveDc: 17
+grants:
+  - { item: spells.scrying, when: self.equipped && self.attuned }
+  - { item: spells.detect-thoughts, when: self.equipped && self.attuned }
+effects:
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.scrying },
+      when: self.equipped && self.attuned,
+    }
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.detect-thoughts },
+      when: self.equipped && self.attuned,
+    }

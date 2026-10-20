@@ -1,0 +1,71 @@
+id: spells.fire-shield
+type: spell
+fields:
+  level: 4
+  school: evocation
+  classes: [classes.druid, classes.sorcerer, classes.wizard]
+  castingTime: action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 10
+  applied: true
+  castOptions: [warm, chill]
+effects:
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: warm }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: chill }
+  - target: damage.resistances
+    op: grant
+    value: { tag: damage.cold }
+    scope: applied
+    when: "self.option == 'warm'"
+    duration: { amount: 10, unit: minute }
+  - target: damage.resistances
+    op: grant
+    value: { tag: damage.fire }
+    scope: applied
+    when: "self.option == 'chill'"
+    duration: { amount: 10, unit: minute }
+actions:
+  - use: cast-spell
+  - id: erupt
+    tags: [spell]
+    participants: { target: {} }
+    results: [damage]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - { when: true, flags: { slot: item.level, critical: 'false' } }
+      - id: damage
+        kind: roll
+        tags: [damage.spell]
+        parts:
+          - dice: 2d8
+            tags: [{ formula: "self.option == 'chill' ? 'damage.cold' : 'damage.fire'" }]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags:
+              - damage
+              - spell
+              - magical
+              - { formula: "flags.critical ? ['critical'] : []" }
+      - id: result
+        kind: outcome
+        result: "'damage'"
+        data: { damage: steps.damage.total }
+    scope: applied

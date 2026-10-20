@@ -1,0 +1,23 @@
+id: gear.priests-pack
+type: gear
+fields:
+  category: equipment-pack
+  cost: 33
+  weight: 29
+actions:
+  - id: unpack
+    tags: [item]
+    available: self.quantity > 0
+    steps:
+      - id: unpack
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'gear.backpack'" } }
+          - { type: addItem, entry: { item: "'gear.blanket'" } }
+          - { type: addItem, entry: { item: "'gear.holy-water'" } }
+          - { type: addItem, entry: { item: "'gear.lamp'" } }
+          - { type: addItem, entry: { item: "'gear.rations'", quantity: 7 } }
+          - { type: addItem, entry: { item: "'gear.robe'" } }
+          - { type: addItem, entry: { item: "'gear.tinderbox'" } }
+          - { type: adjustQuantity, entry: self, by: -1, when: self.quantity > 1 }
+          - { type: removeItem, entry: self, when: self.quantity <= 1 }

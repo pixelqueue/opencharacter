@@ -29,6 +29,7 @@ describe('pnpm build:packs on the repository packs', () => {
     expect(reporter.errors).toEqual([]);
     expect(built.map((b) => b.id)).toEqual([
       '5e-srd-5.1',
+      '5e-srd-5.2',
       'fate-core',
       'fitd-crew',
       'fitd-scoundrel',
@@ -85,6 +86,9 @@ describe('pnpm build:packs on the repository packs', () => {
     for (const file of [
       '5e-tamsin.yaml',
       '5e-goblin.yaml',
+      '5e-52-brenna.yaml',
+      '5e-52-ithilwen.yaml',
+      '5e-52-dagna.yaml',
       'mothership-okafor.yaml',
       'fitd-vex.yaml',
       'fitd-crew-ravens.yaml',

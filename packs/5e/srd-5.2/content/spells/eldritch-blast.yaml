@@ -1,0 +1,41 @@
+id: spells.eldritch-blast
+type: spell
+fields:
+  level: 0
+  school: evocation
+  classes: [classes.warlock]
+  castingTime: action
+  rangeKind: ranged
+  range: 120
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: instantaneous
+  attack: ranged
+  damageType: force
+  damage: 1d10
+actions:
+  - use: cast-spell
+  - id: beam
+    tags: [spell]
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { fields: target }
+    results: [hit, miss]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          attack: "'ranged'"
+          dice: 1d10
+          damageType: "'force'"
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage
+          critical: steps.effect.data.critical

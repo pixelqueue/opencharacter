@@ -1,0 +1,97 @@
+id: spells.arcane-hand
+type: spell
+fields:
+  level: 5
+  school: evocation
+  classes: [classes.sorcerer, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 120
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+actions:
+  - use: cast-spell
+  - id: clenched-fist
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { fields: target }
+    results: [hit, miss]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          attack: "'melee'"
+          dice: 'dieOf(1d8, 5 + 2 * max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+          damageType: "'force'"
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage
+  - id: forceful-hand
+    tags: [spell]
+    participants:
+      target: { fields: target }
+    results: [save]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          save: "'str'"
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage
+  - id: grasping-hand
+    tags: [spell]
+    participants:
+      target: { fields: target }
+    results: [save]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          save: "'dex'"
+          condition: "'conditions.grappled'"
+          escape: true
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage
+  - id: crush
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+    participants:
+      target: { fields: target }
+    results: [done]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          dice: 'dieOf(1d6, 4 + 2 * max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+          damageType: "'bludgeoning'"
+          addMod: true
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage

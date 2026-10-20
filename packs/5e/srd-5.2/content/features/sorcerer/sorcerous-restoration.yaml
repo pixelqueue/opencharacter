@@ -1,0 +1,19 @@
+id: features.sorcerer.sorcerous-restoration
+type: feature
+effects:
+  - target: { steps: [rest.short] }
+    op: changes
+    when: '!self.sorcerousRestorationUsed && self.sorceryPointsSpent > 0'
+    value:
+      changes:
+        - type: adjustState
+          entry: self
+          key: sorceryPointsSpent
+          by: -min(self.sorceryPointsSpent, floor(self.level / 2))
+        - { type: setState, entry: self, key: sorcerousRestorationUsed, value: true }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.sorcerousRestorationUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: sorcerousRestorationUsed, value: false }

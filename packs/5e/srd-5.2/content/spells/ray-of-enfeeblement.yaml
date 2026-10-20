@@ -1,0 +1,31 @@
+id: spells.ray-of-enfeeblement
+type: spell
+fields:
+  level: 2
+  school: necromancy
+  classes: [classes.warlock, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  save: con
+  saveEffect: none
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: { rolls: [ability.str] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
+  - target: { rolls: [damage] }
+    op: add
+    value: -1d8
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }

@@ -1,0 +1,32 @@
+id: magic-items.cloak-of-the-bat
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  requiresAttunement: true
+  spells: [spells.polymorph]
+state:
+  flying: { type: boolean, default: false }
+  usedToday: { type: set, of: string, default: [] }
+grants:
+  - { item: spells.polymorph, when: self.equipped && self.attuned }
+effects:
+  - target: { rolls: [skill.stealth] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.equipped && self.attuned
+  - {
+      target: combat.flySpeed,
+      op: atLeast,
+      value: 40,
+      when: self.equipped && self.attuned && self.flying,
+    }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.polymorph && flags.slot == 4
+        && !('polymorph' in self.usedToday)
+    value:
+      id: daily
+      changes:
+        - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['polymorph']" }

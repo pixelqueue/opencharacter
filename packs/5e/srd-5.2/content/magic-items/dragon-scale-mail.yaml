@@ -1,0 +1,25 @@
+id: magic-items.dragon-scale-mail
+type: template
+tags: [magic]
+appliesTo: { type: armor, where: 'item.id in [@armor.scale-mail]' }
+fields: { rarity: very-rare, requiresAttunement: true, acBonus: 1 }
+state:
+  usedToday: { type: set, of: string, default: [] }
+effects:
+  - { target: items.breathAdvantage, op: set, value: true, when: self.equipped && self.attuned }
+choices:
+  - id: dragon
+    from:
+      values: [black, blue, brass, bronze, copper, gold, green, red, silver, white]
+    effects:
+      - target: damage.resistances
+        op: grant
+        value:
+          formula: >-
+            'damage.' + ['acid', 'lightning', 'fire', 'lightning', 'acid', 'fire', 'poison', 'fire',
+              'cold', 'cold'][indexOf(['black', 'blue', 'brass', 'bronze', 'copper', 'gold', 'green',
+              'red', 'silver', 'white'], pick.value)]
+        when: self.equipped && self.attuned
+actions:
+  - use: item-power
+    params: { daily: "'sense-dragon'" }

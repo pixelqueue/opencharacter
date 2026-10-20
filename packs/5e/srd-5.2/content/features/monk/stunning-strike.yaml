@@ -1,0 +1,37 @@
+id: features.monk.stunning-strike
+type: feature
+actions:
+  - id: stunning-strike
+    tags: [feature]
+    results: [stunning]
+    available: self.focusSpent + 1 <= focus.points
+    participants:
+      target:
+        max: 1
+        fields: target
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: focusSpent, by: 1 }
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params: { ability: "'con'", dc: focus.saveDc }
+      - id: stun
+        kind: changes
+        each: target
+        when: has(steps.save) && steps.save.result == 'failure'
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.stunned'"
+            state: { by: creature.type }
+      - id: result
+        kind: outcome
+        result: "'stunning'"
+        data:
+          dc: focus.saveDc
+          save: "'con'"

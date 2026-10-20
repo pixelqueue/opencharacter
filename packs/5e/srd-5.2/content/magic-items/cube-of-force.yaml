@@ -1,0 +1,55 @@
+id: magic-items.cube-of-force
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  requiresAttunement: true
+  maxCharges: 10
+  recharge: 1d6
+  saveDc: 17
+  spells:
+    [
+      spells.mage-armor,
+      spells.shield,
+      spells.tiny-hut,
+      spells.private-sanctum,
+      spells.resilient-sphere,
+      spells.wall-of-force,
+    ]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.mage-armor, when: self.equipped && self.attuned }
+  - { item: spells.shield, when: self.equipped && self.attuned }
+  - { item: spells.tiny-hut, when: self.equipped && self.attuned }
+  - { item: spells.private-sanctum, when: self.equipped && self.attuned }
+  - { item: spells.resilient-sphere, when: self.equipped && self.attuned }
+  - { item: spells.wall-of-force, when: self.equipped && self.attuned }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id
+        && ((action.item.id == @spells.mage-armor && flags.slot == 1 && self.charges >= 1)
+        || (action.item.id == @spells.shield && flags.slot == 1 && self.charges >= 1)
+        || (action.item.id == @spells.tiny-hut && flags.slot == 3 && self.charges >= 3)
+        || (action.item.id == @spells.private-sanctum && flags.slot == 4 && self.charges >= 4)
+        || (action.item.id == @spells.resilient-sphere && flags.slot == 4 && self.charges >= 4)
+        || (action.item.id == @spells.wall-of-force && flags.slot == 5 && self.charges >= 5))
+    value:
+      id: charges
+      changes:
+        - type: adjustState
+          entry: self
+          key: charges
+          by: >-
+            -(action.item.id == @spells.mage-armor ? 1
+            : action.item.id == @spells.shield ? 1
+            : action.item.id == @spells.tiny-hut ? 3
+            : action.item.id == @spells.private-sanctum ? 4
+            : action.item.id == @spells.resilient-sphere ? 4
+            : 5)
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

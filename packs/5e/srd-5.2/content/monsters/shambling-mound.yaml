@@ -1,0 +1,33 @@
+id: monsters.shambling-mound
+type: monster
+fields:
+  size: large
+  creatureType: plant
+  alignment: unaligned
+  ac: 15
+  initiative: -1
+  hp: 110
+  hitDice: 13d10 + 39
+  speed: 30
+  swimSpeed: 20
+  str: 18
+  dex: 8
+  con: 16
+  int: 5
+  wis: 10
+  cha: 5
+  skills: [skill.stealth]
+  damageResistances: [damage.cold, damage.fire]
+  damageImmunities: [damage.lightning]
+  conditionImmunities: [conditions.deafened]
+  exhaustionImmune: true
+  blindsight: 60
+  cr: 5
+  xp: 1800
+  entries:
+    - monsters.shambling-mound.lightning-absorption
+    - monsters.shambling-mound.multiattack
+    - monsters.shambling-mound.charged-tendril
+    - monsters.shambling-mound.engulf
+effects:
+  - { target: skills.stealth, op: add, value: 1 }

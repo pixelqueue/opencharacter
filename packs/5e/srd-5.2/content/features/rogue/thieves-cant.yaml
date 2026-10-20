@@ -1,0 +1,10 @@
+id: features.rogue.thieves-cant
+type: feature
+grants:
+  - item: languages.thieves-cant
+choices:
+  - id: language
+    from: { type: language, where: "!('monster' in item.tags)" }
+    eligible: >-
+      item.id != @languages.thieves-cant
+        && (!(item.id in proficiencies.languages) || item.id in choice.picks)

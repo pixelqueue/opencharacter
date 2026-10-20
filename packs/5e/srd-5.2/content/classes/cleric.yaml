@@ -1,0 +1,46 @@
+id: classes.cleric
+type: class
+fields:
+  hitDie: 1d8
+state:
+  channelDivinitySpent: { type: integer, default: 0, min: 0 }
+  divineInterventionUsed: { type: boolean, default: false }
+  divineInterventionRests: { type: integer, default: 0, min: 0 }
+  wishRestsToRoll: { type: boolean, default: false }
+prerequisites:
+  - id: multiclass
+    when: (self.startingClass && self.level == level.total) || item.id in multiclass.qualified
+effects:
+  - { target: proficiencies.armor, op: grant, value: { tag: light } }
+  - { target: proficiencies.armor, op: grant, value: { tag: medium } }
+  - { target: proficiencies.armor, op: grant, value: { tag: shield } }
+  - target: proficiencies.weapons
+    op: grant
+    value: { query: { type: weapon, where: "item.category == 'simple'" } }
+    when: self.startingClass
+  - { target: proficiencies.saves, op: grant, value: { tag: save.wis }, when: self.startingClass }
+  - { target: proficiencies.saves, op: grant, value: { tag: save.cha }, when: self.startingClass }
+grants:
+  - { item: features.cleric.spellcasting, when: self.level >= 1 }
+  - { item: features.cleric.divine-order, when: self.level >= 1 }
+  - { item: features.cleric.channel-divinity, when: self.level >= 2 }
+  - { item: features.cleric.ability-score-improvement, when: self.level >= 4 }
+  - { item: features.cleric.sear-undead, when: self.level >= 5 }
+  - { item: features.cleric.blessed-strikes, when: self.level >= 7 }
+  - { item: features.cleric.divine-intervention, when: self.level >= 10 }
+  - { item: features.cleric.improved-blessed-strikes, when: self.level >= 14 }
+  - { item: features.cleric.epic-boon, when: self.level >= 19 }
+  - { item: features.cleric.greater-divine-intervention, when: self.level >= 20 }
+choices:
+  - id: skills
+    pick: 2
+    unique: skills
+    from:
+      values: [skill.history, skill.insight, skill.medicine, skill.persuasion, skill.religion]
+      where: '!(value in proficiencies.skills) || value in choice.picks'
+    when: self.startingClass
+    effects:
+      - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+  - id: subclass
+    from: { type: subclass, where: 'item.class == @classes.cleric' }
+    when: self.level >= 3

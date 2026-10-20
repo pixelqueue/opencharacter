@@ -1,0 +1,41 @@
+id: features.cleric.greater-divine-intervention
+type: feature
+grants:
+  - { item: spells.wish, when: true }
+effects:
+  - { target: spells.limited, op: grant, value: { item: spells.wish } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: '!self.divineInterventionUsed && action.item.id == @spells.wish'
+    value:
+      id: wish
+      flags:
+        slot: 9
+        castAbility: "'cleric'"
+      changes:
+        - { type: setState, entry: self, key: divineInterventionUsed, value: true }
+        - { type: setState, entry: self, key: wishRestsToRoll, value: true }
+followUps:
+  - id: wish-rests
+    while: self.wishRestsToRoll
+    action: wish-rests
+actions:
+  - id: wish-rests
+    tags: [feature]
+    results: [rolled]
+    available: self.wishRestsToRoll
+    steps:
+      - id: rests
+        kind: roll
+        parts:
+          - dice: 2d4
+      - id: record
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: divineInterventionRests, value: steps.rests.total }
+          - { type: setState, entry: self, key: wishRestsToRoll, value: false }
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          rests: steps.rests.total

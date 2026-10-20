@@ -1,0 +1,47 @@
+status: finished
+outcome:
+  result: hit
+  data:
+    critical: true
+    attack: 26
+    damage: 31
+    mastery: none
+    push: 0
+    cleave: false
+proposedChanges:
+  - to: self
+    step: smiteCast/spendSlot
+    change:
+      type: adjust
+      field: 5e-srd-5.2:spellSlots.level1.used
+      by: 1
+  - to: target
+    character: zombie
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -10
+      tags:
+        - damage
+        - attack
+        - weapon
+        - melee
+        - nonmagical
+        - critical
+        - damage.bludgeoning
+  - to: target
+    character: zombie
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -21
+      tags:
+        - damage
+        - attack
+        - weapon
+        - melee
+        - nonmagical
+        - critical
+        - damage.radiant

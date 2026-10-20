@@ -1,0 +1,75 @@
+id: lineages.drow
+type: lineage
+fields:
+  species: species.elf
+effects:
+  - { target: senses.darkvision, op: atLeast, value: 120 }
+  - { target: spells.species, op: grant, value: { item: spells.dancing-lights } }
+  - target: spells.species
+    op: grant
+    value: { item: spells.faerie-fire }
+    when: level.total >= 3
+  - target: spells.free
+    op: grant
+    value: { item: spells.faerie-fire }
+    when: level.total >= 3
+  - target: spells.species
+    op: grant
+    value: { item: spells.darkness }
+    when: level.total >= 5
+  - target: spells.free
+    op: grant
+    value: { item: spells.darkness }
+    when: level.total >= 5
+grants:
+  - item: spells.dancing-lights
+  - item: spells.faerie-fire
+    when: "sumCopies(copy.state.level, copy.type == 'class') >= 3"
+  - item: spells.darkness
+    when: "sumCopies(copy.state.level, copy.type == 'class') >= 5"
+choices:
+  - id: ability
+    recommend: >-
+      abilities.int.score >= abilities.wis.score && abilities.int.score >= abilities.cha.score
+        ? 'int' : abilities.wis.score >= abilities.cha.score ? 'wis' : 'cha'
+    from:
+      options:
+        - id: int
+          effects:
+            - { target: spellcasting.species.mod, op: set, value: abilities.int.mod }
+            - {
+                target: spellcasting.species.dc,
+                op: set,
+                value: 8 + proficiency.bonus + abilities.int.mod,
+              }
+            - {
+                target: spellcasting.species.attack,
+                op: set,
+                value: proficiency.bonus + abilities.int.mod,
+              }
+        - id: wis
+          effects:
+            - { target: spellcasting.species.mod, op: set, value: abilities.wis.mod }
+            - {
+                target: spellcasting.species.dc,
+                op: set,
+                value: 8 + proficiency.bonus + abilities.wis.mod,
+              }
+            - {
+                target: spellcasting.species.attack,
+                op: set,
+                value: proficiency.bonus + abilities.wis.mod,
+              }
+        - id: cha
+          effects:
+            - { target: spellcasting.species.mod, op: set, value: abilities.cha.mod }
+            - {
+                target: spellcasting.species.dc,
+                op: set,
+                value: 8 + proficiency.bonus + abilities.cha.mod,
+              }
+            - {
+                target: spellcasting.species.attack,
+                op: set,
+                value: proficiency.bonus + abilities.cha.mod,
+              }

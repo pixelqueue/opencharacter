@@ -1,0 +1,40 @@
+id: features.monk.open-hand-technique
+type: feature
+actions:
+  - id: open-hand-technique
+    tags: [feature]
+    results: [addle, push, topple]
+    params:
+      technique: { type: enum, values: [addle, push, topple] }
+    participants:
+      target:
+        max: 1
+        fields: target
+    steps:
+      - id: save
+        kind: action
+        each: target
+        as: participant
+        when: params.technique != 'addle'
+        use: saving-throw
+        params:
+          ability: "params.technique == 'push' ? 'str' : 'dex'"
+          dc: focus.saveDc
+      - id: topple
+        kind: changes
+        each: target
+        when: >-
+          params.technique == 'topple' && has(steps.save) && steps.save.result == 'failure'
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.prone'"
+            state: { by: creature.type }
+      - id: result
+        kind: outcome
+        result: params.technique
+        data:
+          dc: focus.saveDc
+          push: >-
+            params.technique == 'push' && size(participants.target) > 0
+              && countList(steps.save, x.result == 'failure') > 0 ? 15 : 0

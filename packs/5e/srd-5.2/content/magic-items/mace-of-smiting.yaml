@@ -1,0 +1,27 @@
+id: magic-items.mace-of-smiting
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: 'item.id == @weapons.mace' }
+fields: { rarity: rare, attackBonus: 1, damageBonus: 1 }
+effects:
+  - target: { rolls: [attack], from: self }
+    op: add
+    value: 2
+    when: >-
+      has(participants.target) && size(participants.target) > 0 && has(participants.target[0].creature.type)
+        && participants.target[0].creature.type == 'construct'
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: 2
+    tags:
+      [{ formula: "'damage.' + (has(flags.damageType) ? flags.damageType : roll.item.damageType)" }]
+    when: >-
+      has(participants.target) && size(participants.target) > 0 && has(participants.target[0].creature.type)
+        && participants.target[0].creature.type == 'construct'
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: >-
+      has(participants.target) && size(participants.target) > 0 && has(participants.target[0].creature.type)
+        && participants.target[0].creature.type == 'construct' ? 14 : 7
+    tags: [damage.bludgeoning]
+    when: has(steps.test) && steps.test.data.natural == 20

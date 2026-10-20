@@ -1,0 +1,67 @@
+id: spells.enlarge-reduce
+type: spell
+fields:
+  level: 2
+  school: transmutation
+  classes: [classes.bard, classes.druid, classes.sorcerer, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 30
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+  save: con
+  saveEffect: none
+  applied: true
+  castOptions: [enlarge, reduce]
+actions:
+  - use: cast-spell
+effects:
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: enlarge }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: reduce }
+  - target: { rolls: [check.str, save.str] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.option == 'enlarge'
+    scope: applied
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 1d4
+    tags:
+      [
+        {
+          formula: "'damage.' + (has(flags.damageType) ? flags.damageType : has(roll.item.damageType) ? roll.item.damageType : 'bludgeoning')",
+        },
+      ]
+    when: self.option == 'enlarge'
+    scope: applied
+  - target: { rolls: [check.str, save.str] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: self.option == 'reduce'
+    scope: applied
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: -1d4
+    tags:
+      [
+        {
+          formula: "'damage.' + (has(flags.damageType) ? flags.damageType : has(roll.item.damageType) ? roll.item.damageType : 'bludgeoning')",
+        },
+      ]
+    when: self.option == 'reduce'
+    scope: applied
+  - target: { rolls: [damage.weapon] }
+    op: atLeast
+    value: 1
+    when: self.option == 'reduce'
+    scope: applied

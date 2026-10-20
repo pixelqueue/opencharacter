@@ -1,0 +1,25 @@
+description: '5E 2024 Sorcery Incarnate: with Innate Sorcery active, Ray of Frost takes two Metamagic options, Transmuted (to Fire) and Distant'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: 5e-srd-5.2:cast-spell
+    entry: class
+    source: 5e-srd-5.2:spells.ray-of-frost
+  params:
+    targetAc: 13
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+    rules:
+      - kind: choice
+        tags:
+          - metamagic
+        then: pause
+answers:
+  - option: 5e-srd-5.2:metamagic.transmuted-spell#to-fire
+  - option: 5e-srd-5.2:metamagic.distant-spell#distant
+  - option: '#done'

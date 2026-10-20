@@ -1,0 +1,93 @@
+id: features.monk.superior-defense
+type: feature
+effects:
+  - id: acid
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.acid }
+    when: superiorDefense.active
+  - id: bludgeoning
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.bludgeoning }
+    when: superiorDefense.active
+  - id: cold
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.cold }
+    when: superiorDefense.active
+  - id: fire
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.fire }
+    when: superiorDefense.active
+  - id: lightning
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.lightning }
+    when: superiorDefense.active
+  - id: necrotic
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.necrotic }
+    when: superiorDefense.active
+  - id: piercing
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.piercing }
+    when: superiorDefense.active
+  - id: poison
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.poison }
+    when: superiorDefense.active
+  - id: psychic
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.psychic }
+    when: superiorDefense.active
+  - id: radiant
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.radiant }
+    when: superiorDefense.active
+  - id: slashing
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.slashing }
+    when: superiorDefense.active
+  - id: thunder
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.thunder }
+    when: superiorDefense.active
+followUps:
+  - id: incapacitated
+    becomes: conditions.incapacitated && superiorDefense.active
+    action: end-superior-defense
+actions:
+  - id: superior-defense
+    tags: [feature]
+    results: [bolstered]
+    available: '!superiorDefense.active && self.focusSpent + 3 <= focus.points'
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: focusSpent, by: 3 }
+          - { type: set, field: superiorDefense.active, value: true }
+      - id: result
+        kind: outcome
+        result: "'bolstered'"
+  - id: end-superior-defense
+    tags: [feature]
+    results: [ended]
+    available: superiorDefense.active
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - { type: set, field: superiorDefense.active, value: false }
+      - id: result
+        kind: outcome
+        result: "'ended'"

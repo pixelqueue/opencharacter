@@ -1,0 +1,30 @@
+id: magic-items.potion-of-animal-friendship
+type: magicItem
+fields:
+  category: potion
+  rarity: uncommon
+  lasting: true
+  saveDc: 13
+  spells: [spells.animal-friendship]
+actions:
+  - use: drink-potion
+  - id: animal-friendship
+    scope: applied
+    tags: [magic-item, spell]
+    results: [used, no-charges, used-today]
+    participants:
+      target: {}
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { save: "'wis'", dc: 13, condition: "'conditions.charmed'" }
+        participants: { target: participants.target }
+      - id: done
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @magic-items.potion-of-animal-friendship' }
+      - id: result
+        kind: outcome
+        result: steps.power.result

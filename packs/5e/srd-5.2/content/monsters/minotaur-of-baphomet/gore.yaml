@@ -1,0 +1,67 @@
+id: monsters.minotaur-of-baphomet.gore
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+  recharge: 5
+  attack: melee
+  toHit: 6
+  reach: 5
+  damage: 4d6 + 4
+  damageType: piercing
+actions:
+  - id: charge
+    tags: [attack]
+    available: '!self.recharging && (self.uses == 0 || self.used < self.uses)'
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: attack
+        kind: action
+        use: monster-attack
+        entry: self.id
+        params:
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+        participants:
+          target: participants.target
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              hit: steps.attack.result == 'hit'
+              critical: steps.attack.data.critical
+              sizeOk: >-
+                size(participants.target) == 0
+                  || indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                    participants.target[0].creature.size) <= 3
+      - id: extra
+        kind: roll
+        when: flags.hit && flags.sizeOk
+        tags: [damage]
+        parts:
+          - { dice: 3d6, tags: [damage.piercing] }
+      - id: deal
+        kind: changes
+        when: has(steps.extra)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: extra, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, attack, melee, { formula: "flags.critical ? ['critical'] : []" }]
+      - id: prone
+        kind: changes
+        when: flags.hit && flags.sizeOk
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.prone'", state: { by: creature.type } }
+      - id: result
+        kind: outcome
+        result: "flags.hit ? 'hit' : 'miss'"
+        data:
+          damage: 'has(steps.extra) ? steps.extra.total : 0'

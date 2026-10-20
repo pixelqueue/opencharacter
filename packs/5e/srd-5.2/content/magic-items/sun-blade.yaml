@@ -1,0 +1,14 @@
+id: magic-items.sun-blade
+type: template
+tags: [magic, finesse]
+appliesTo: { type: weapon, where: 'item.id == @weapons.longsword' }
+fields:
+  { damageType: radiant, rarity: rare, requiresAttunement: true, attackBonus: 2, damageBonus: 2 }
+effects:
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: 1d8
+    tags: [damage.radiant]
+    when: >-
+      self.attuned && has(participants.target) && size(participants.target) > 0 && has(participants.target[0].creature.type)
+        && participants.target[0].creature.type == 'undead'

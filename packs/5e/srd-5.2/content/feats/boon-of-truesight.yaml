@@ -1,0 +1,35 @@
+id: feats.boon-of-truesight
+type: feat
+fields:
+  category: epic-boon
+prerequisites:
+  - id: level
+    when: 'level.total >= 19'
+effects:
+  - { target: feats.held, op: grant, value: { formula: item.id } }
+  - { target: senses.truesight, op: atLeast, value: 60 }
+choices:
+  - id: ability
+    recommend: >-
+      sortList(filterList(['str', 'dex', 'con', 'int', 'wis', 'cha'], fieldOf('abilities.{ability}.score', x) < 30 || x in choice.picks),
+        -fieldOf('abilities.{ability}.score', x))[0]
+    from:
+      options:
+        - id: str
+          effects:
+            - { target: abilities.str.score, op: add, value: 1 }
+        - id: dex
+          effects:
+            - { target: abilities.dex.score, op: add, value: 1 }
+        - id: con
+          effects:
+            - { target: abilities.con.score, op: add, value: 1 }
+        - id: int
+          effects:
+            - { target: abilities.int.score, op: add, value: 1 }
+        - id: wis
+          effects:
+            - { target: abilities.wis.score, op: add, value: 1 }
+        - id: cha
+          effects:
+            - { target: abilities.cha.score, op: add, value: 1 }

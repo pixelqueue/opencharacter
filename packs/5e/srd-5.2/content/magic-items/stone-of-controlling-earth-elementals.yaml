@@ -1,0 +1,21 @@
+id: magic-items.stone-of-controlling-earth-elementals
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  weight: 5
+state:
+  usedToday: { type: set, of: string, default: [] }
+actions:
+  - id: summon-elemental
+    tags: [magic-item]
+    available: "!('summon' in self.usedToday)"
+    results: [used, no-charges, used-today]
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { daily: "'summon'" }
+      - id: result
+        kind: outcome
+        result: steps.power.result

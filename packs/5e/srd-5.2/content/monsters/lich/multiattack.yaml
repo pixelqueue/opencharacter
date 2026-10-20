@@ -1,0 +1,77 @@
+id: monsters.lich.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 3
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: eldritch-burst }, { id: paralyzing-touch }]
+        recommend: "'eldritch-burst'"
+      - id: eldritchBurst1
+        kind: action
+        when: "steps.pick1.picked == 'eldritch-burst'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.lich.eldritch-burst)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: paralyzingTouch1
+        kind: action
+        when: "steps.pick1.picked == 'paralyzing-touch'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.lich.paralyzing-touch)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: eldritch-burst }, { id: paralyzing-touch }]
+        recommend: "'eldritch-burst'"
+      - id: eldritchBurst2
+        kind: action
+        when: "steps.pick2.picked == 'eldritch-burst'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.lich.eldritch-burst)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: paralyzingTouch2
+        kind: action
+        when: "steps.pick2.picked == 'paralyzing-touch'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.lich.paralyzing-touch)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pick3
+        kind: choice
+        options: [{ id: eldritch-burst }, { id: paralyzing-touch }]
+        recommend: "'eldritch-burst'"
+      - id: eldritchBurst3
+        kind: action
+        when: "steps.pick3.picked == 'eldritch-burst'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.lich.eldritch-burst)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: paralyzingTouch3
+        kind: action
+        when: "steps.pick3.picked == 'paralyzing-touch'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.lich.paralyzing-touch)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.eldritchBurst1) && steps.eldritchBurst1.result == 'hit' ? 1 : 0)
+              + (has(steps.paralyzingTouch1) && steps.paralyzingTouch1.result == 'hit' ? 1 : 0)
+              + (has(steps.eldritchBurst2) && steps.eldritchBurst2.result == 'hit' ? 1 : 0)
+              + (has(steps.paralyzingTouch2) && steps.paralyzingTouch2.result == 'hit' ? 1 : 0)
+              + (has(steps.eldritchBurst3) && steps.eldritchBurst3.result == 'hit' ? 1 : 0)
+              + (has(steps.paralyzingTouch3) && steps.paralyzingTouch3.result == 'hit' ? 1 : 0)

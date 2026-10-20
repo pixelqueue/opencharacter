@@ -1,0 +1,43 @@
+id: monsters.glabrezu.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 3
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pincer1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.glabrezu.pincer)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pincer2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.glabrezu.pincer)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: extra
+        kind: choice
+        options: [{ id: pummel }, { id: spellcasting }]
+        recommend: "'pummel'"
+      - id: pummel
+        kind: action
+        when: "steps.extra.picked == 'pummel'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.glabrezu.pummel)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.pincer1.result == 'hit' ? 1 : 0)
+              + (steps.pincer2.result == 'hit' ? 1 : 0)
+          spellcasting: "steps.extra.picked == 'spellcasting'"

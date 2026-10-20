@@ -1,0 +1,55 @@
+id: spells.sorcerous-burst
+type: spell
+fields:
+  level: 0
+  school: evocation
+  classes: [classes.sorcerer]
+  castingTime: action
+  rangeKind: ranged
+  range: 120
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: instantaneous
+actions:
+  - use: cast-spell
+  - id: burst
+    tags: [spell]
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: damageType
+        kind: choice
+        options:
+          - { id: acid }
+          - { id: cold }
+          - { id: fire }
+          - { id: lightning }
+          - { id: poison }
+          - { id: psychic }
+          - { id: thunder }
+      - id: effect
+        kind: action
+        use: spell-effect
+        tags: [sorcerous-burst]
+        participants: { target: participants.target }
+        params:
+          dice: >-
+            dieOf(1d8, (max(level.total, spellcasting.monster.level) >= 17 ? 4 : max(level.total, spellcasting.monster.level) >= 11 ? 3 : max(level.total, spellcasting.monster.level) >= 5 ? 2 : 1))
+          damageType: steps.damageType.picked
+          attack: "'ranged'"
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage
+          critical: steps.effect.data.critical
+effects:
+  - target: { rolls: [damage.spell] }
+    op: rollModifier
+    value: { kind: explode, at: 8 }
+    when: "'sorcerous-burst' in roll.tags"

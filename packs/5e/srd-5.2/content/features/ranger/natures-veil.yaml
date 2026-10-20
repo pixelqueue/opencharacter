@@ -1,0 +1,28 @@
+id: features.ranger.natures-veil
+type: feature
+effects:
+  - { target: ranger.naturesVeil, op: set, value: 'max(1, abilities.wis.mod)' }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.naturesVeilSpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: naturesVeilSpent, value: 0 }
+actions:
+  - id: natures-veil
+    tags: [feature]
+    available: self.naturesVeilSpent < ranger.naturesVeil
+    results: [invisible]
+    steps:
+      - id: hide
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: naturesVeilSpent, by: 1 }
+          - type: applyEffect
+            source: "'conditions.invisible'"
+            state: { by: creature.type, magical: true }
+      - id: result
+        kind: outcome
+        result: "'invisible'"
+        data:
+          left: ranger.naturesVeil - self.naturesVeilSpent - 1

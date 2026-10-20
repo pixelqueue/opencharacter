@@ -1,0 +1,37 @@
+id: spells.calm-emotions
+type: spell
+fields:
+  level: 2
+  school: enchantment
+  classes: [classes.bard, classes.cleric]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  areaShape: sphere
+  areaSize: 20
+  save: cha
+  saveEffect: none
+  applied: true
+  castOptions: [immunity, indifference]
+actions:
+  - use: cast-spell
+immuneTo:
+  - id: charmed-and-frightened
+    items: [conditions.charmed, conditions.frightened]
+    scope: applied
+    when: self.option == 'immunity'
+effects:
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: immunity }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: indifference }

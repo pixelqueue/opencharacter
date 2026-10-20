@@ -1,0 +1,1129 @@
+tags:
+  - monster-effect
+  - legendary
+
+contentTypes:
+  monster:
+    carried: false
+    texts: [legendary]
+    fields:
+      size: { type: enum, values: [tiny, small, medium, large, huge, gargantuan], required: true }
+      sizeAlt: { type: enum, values: [tiny, small, medium, large, huge, gargantuan] }
+      creatureType:
+        type: enum
+        required: true
+        values:
+          [
+            aberration,
+            beast,
+            celestial,
+            construct,
+            dragon,
+            elemental,
+            fey,
+            fiend,
+            giant,
+            humanoid,
+            monstrosity,
+            ooze,
+            plant,
+            undead,
+          ]
+      typeTag:
+        type: enum
+        values:
+          [
+            angel,
+            chromatic,
+            cleric,
+            demon,
+            devil,
+            dinosaur,
+            druid,
+            genie,
+            goblinoid,
+            lycanthrope,
+            metallic,
+            titan,
+            wizard,
+          ]
+      swarmOf: { type: enum, values: [tiny, small, medium, large, huge, gargantuan] }
+      alignment:
+        type: enum
+        required: true
+        values:
+          [
+            lawful-good,
+            neutral-good,
+            chaotic-good,
+            lawful-neutral,
+            neutral,
+            chaotic-neutral,
+            lawful-evil,
+            neutral-evil,
+            chaotic-evil,
+            unaligned,
+          ]
+      ac: { type: integer, required: true }
+      initiative: { type: integer, required: true }
+      hp: { type: integer, required: true, min: 1 }
+      hitDice: { type: dice, required: true }
+      speed: { type: integer, required: true, min: 0 }
+      flySpeed: { type: integer, min: 0 }
+      climbSpeed: { type: integer, min: 0 }
+      swimSpeed: { type: integer, min: 0 }
+      burrowSpeed: { type: integer, min: 0 }
+      hover: { type: boolean }
+      '{ability}': { type: integer, required: true, min: 1, max: 30 }
+      saves: { type: set, of: tag, default: [], members: { under: [save], except: [save.death] } }
+      skills: { type: set, of: tag, default: [], members: { under: [skill] } }
+      expertise: { type: set, of: tag, default: [], members: { under: [skill] } }
+      damageResistances: &damage-defense
+        type: set
+        of: tag
+        default: []
+        members: { under: [damage], tags: [damage], except: [damage.weapon, damage.spell] }
+      damageVulnerabilities: *damage-defense
+      damageImmunities: *damage-defense
+      conditionImmunities: { type: set, of: condition, default: [] }
+      exhaustionImmune: { type: boolean }
+      gearWeapons: { type: set, of: weapon, default: [] }
+      gearArmor: { type: set, of: armor, default: [] }
+      gearItems: { type: set, of: gear, default: [] }
+      gearTools: { type: set, of: tool, default: [] }
+      darkvision: { type: integer, min: 0 }
+      darkvisionMagical: { type: boolean }
+      blindsight: { type: integer, min: 0 }
+      tremorsense: { type: integer, min: 0 }
+      truesight: { type: integer, min: 0 }
+      languages: { type: set, of: language, default: [] }
+      understands: { type: set, of: language, default: [] }
+      otherLanguages: { type: integer, min: 1 }
+      otherLanguagesUnderstood: { type: boolean }
+      allLanguages: { type: boolean }
+      understandsCommands: { type: boolean }
+      telepathy: { type: integer, min: 0 }
+      cr: { type: decimal, required: true, min: 0, max: 30 }
+      xp: { type: integer, required: true, min: 0 }
+      xpLair: { type: integer, min: 0 }
+      legendaryActions: { type: integer, min: 1 }
+      legendaryActionsLair: { type: integer, min: 1 }
+      entries: { type: set, of: monsterAction, default: [] }
+      spellsAtWill: { type: set, of: spell, default: [] }
+      spellsPerDay1: { type: set, of: spell, default: [] }
+      spellsPerDay2: { type: set, of: spell, default: [] }
+      spellsPerDay3: { type: set, of: spell, default: [] }
+    effects:
+      - { id: ac, target: combat.ac, op: set, value: item.ac }
+      - {
+          id: initiative,
+          target: combat.initiative,
+          op: add,
+          value: item.initiative - abilities.dex.mod,
+        }
+      - {
+          id: fly,
+          target: combat.flySpeed,
+          op: atLeast,
+          value: item.flySpeed,
+          when: has(item.flySpeed),
+        }
+      - id: climb
+        target: combat.climbSpeed
+        op: atLeast
+        value: item.climbSpeed
+        when: has(item.climbSpeed)
+      - id: swim
+        target: combat.swimSpeed
+        op: atLeast
+        value: item.swimSpeed
+        when: has(item.swimSpeed)
+      - id: burrow
+        target: combat.burrowSpeed
+        op: atLeast
+        value: item.burrowSpeed
+        when: has(item.burrowSpeed)
+      - {
+          id: hover,
+          target: combat.hover,
+          op: set,
+          value: true,
+          when: has(item.hover) && item.hover,
+        }
+      - id: darkvision
+        target: senses.darkvision
+        op: atLeast
+        value: item.darkvision
+        when: has(item.darkvision)
+      - id: blindsight
+        target: senses.blindsight
+        op: atLeast
+        value: item.blindsight
+        when: has(item.blindsight)
+      - id: tremorsense
+        target: senses.tremorsense
+        op: atLeast
+        value: item.tremorsense
+        when: has(item.tremorsense)
+      - id: truesight
+        target: senses.truesight
+        op: atLeast
+        value: item.truesight
+        when: has(item.truesight)
+      - id: telepathy
+        target: senses.telepathy
+        op: atLeast
+        value: item.telepathy
+        when: has(item.telepathy)
+      - id: xp
+        target: challenge.xp
+        op: set
+        value: 'legendary.inLair && has(item.xpLair) ? item.xpLair : item.xp'
+      - { id: lair, target: legendary.hasLair, op: set, value: true, when: has(item.xpLair) }
+      - id: legendary
+        target: legendary.actions
+        op: set
+        value: >-
+          legendary.inLair && has(item.legendaryActionsLair)
+            ? item.legendaryActionsLair : item.legendaryActions
+        when: has(item.legendaryActions)
+      - { id: str-max, target: abilities.str.max, op: atLeast, value: 30 }
+      - { id: dex-max, target: abilities.dex.max, op: atLeast, value: 30 }
+      - { id: con-max, target: abilities.con.max, op: atLeast, value: 30 }
+      - { id: int-max, target: abilities.int.max, op: atLeast, value: 30 }
+      - { id: wis-max, target: abilities.wis.max, op: atLeast, value: 30 }
+      - { id: cha-max, target: abilities.cha.max, op: atLeast, value: 30 }
+
+  monsterAction:
+    carried: false
+    fields:
+      kind:
+        { type: enum, values: [trait, action, bonus-action, reaction, legendary], default: action }
+      order: { type: integer, min: 0, default: 0 }
+      legendaryCost: { type: integer, min: 1, default: 1 }
+      attack: { type: enum, values: [melee, ranged] }
+      toHit: { type: integer }
+      reach: { type: integer, min: 0 }
+      normalRange: { type: integer, min: 0 }
+      longRange: { type: integer, min: 0 }
+      damage: { type: dice }
+      damageType: &damage-type
+        type: enum
+        values:
+          [
+            acid,
+            bludgeoning,
+            cold,
+            fire,
+            force,
+            lightning,
+            necrotic,
+            piercing,
+            poison,
+            psychic,
+            radiant,
+            slashing,
+            thunder,
+          ]
+      damage2: { type: dice }
+      damage2Type: *damage-type
+      save: { type: enum, values: [str, dex, con, int, wis, cha] }
+      saveDc: { type: integer }
+      saveEffect: { type: enum, values: [half, none], default: none }
+      saveDamage: { type: dice }
+      saveDamageType: *damage-type
+      conditions: { type: set, of: condition, default: [] }
+      escapeDc: { type: integer }
+      conditionsInstead: { type: boolean }
+      maxSize: { type: enum, values: [tiny, small, medium, large, huge, gargantuan] }
+      maxTargetSize: { type: enum, values: [tiny, small, medium, large, huge, gargantuan] }
+      heal: { type: dice }
+      areaShape: { type: enum, values: [cone, cube, cylinder, emanation, line, sphere] }
+      areaSize: { type: integer, min: 0 }
+      areaWidth: { type: integer, min: 0 }
+      recharge: { type: integer, min: 2, max: 6 }
+      perDay: { type: integer, min: 1 }
+      perDayLair: { type: integer, min: 1 }
+      perRest: { type: boolean }
+      uses: { type: id, of: monsterAction }
+      ownAction: { type: boolean }
+      legendaryResistance: { type: boolean }
+      magicResistance: { type: boolean }
+      spellAbility: { type: enum, values: [str, dex, con, int, wis, cha] }
+      spellDc: { type: integer }
+      spellAttack: { type: integer }
+      spell: { type: id, of: spell }
+      spell2: { type: id, of: spell }
+      spell3: { type: id, of: spell }
+      spell4: { type: id, of: spell }
+      spellLevel: { type: integer, min: 1, max: 9 }
+    texts: [note]
+    grants:
+      - { item: { formula: "has(item.spell) ? item.spell : ''" } }
+      - { item: { formula: "has(item.spell2) ? item.spell2 : ''" } }
+      - { item: { formula: "has(item.spell3) ? item.spell3 : ''" } }
+      - { item: { formula: "has(item.spell4) ? item.spell4 : ''" } }
+    state:
+      recharging: { type: boolean, default: false }
+      used: { type: integer, default: 0, min: 0 }
+      uses:
+        type: integer
+        min: 0
+        default: 'has(item.perDay) ? item.perDay : has(item.perRest) && item.perRest ? 1 : 0'
+    effects:
+      - id: long-rest
+        target: { steps: [rest.long] }
+        op: changes
+        when: self.used > 0 || self.recharging
+        value:
+          changes:
+            - { type: setState, entry: self, key: used, value: 0, when: self.used > 0 }
+            - { type: setState, entry: self, key: recharging, value: false, when: self.recharging }
+      - id: short-rest
+        target: { steps: [rest.short] }
+        op: changes
+        when: self.recharging || (has(item.perRest) && item.perRest && self.used > 0)
+        value:
+          changes:
+            - { type: setState, entry: self, key: recharging, value: false, when: self.recharging }
+            - type: setState
+              when: has(item.perRest) && item.perRest && self.used > 0
+              entry: self
+              key: used
+              value: 0
+      - id: legendary-resistance
+        target: { choices: [failed-save] }
+        op: option
+        stackKey: legendary-resistance
+        when: >-
+          has(item.legendaryResistance) && item.legendaryResistance && has(params.dc)
+            && self.used < (legendary.inLair && has(item.perDayLair) ? item.perDayLair : self.uses)
+        value:
+          id: legendary-resistance
+          flags: { addBonus: 'params.dc - flags.total' }
+          changes:
+            - { type: adjustState, entry: self, key: used, by: 1 }
+      - id: magic-resistance
+        target: saves.magicResistance
+        op: set
+        value: true
+        when: has(item.magicResistance) && item.magicResistance
+      - id: spell-ability
+        target: spellcasting.monster.ability
+        op: set
+        value: item.spellAbility
+        when: has(item.spellAbility)
+      - id: spell-mod
+        target: spellcasting.monster.mod
+        op: set
+        value: "has(item.spellAbility) ? fieldOf('abilities.{ability}.mod', item.spellAbility) : 0"
+        when: has(item.spellAbility)
+      - id: spell-dc
+        target: spellcasting.monster.dc
+        op: set
+        value: item.spellDc
+        when: has(item.spellAbility) && has(item.spellDc)
+      - id: spell-attack
+        target: spellcasting.monster.attack
+        op: set
+        value: item.spellAttack
+        when: has(item.spellAbility) && has(item.spellAttack)
+      - {
+          id: spell,
+          target: spells.monster,
+          op: grant,
+          value: { formula: item.spell },
+          when: has(item.spell),
+        }
+      - {
+          id: spell2,
+          target: spells.monster,
+          op: grant,
+          value: { formula: item.spell2 },
+          when: has(item.spell2),
+        }
+      - {
+          id: spell3,
+          target: spells.monster,
+          op: grant,
+          value: { formula: item.spell3 },
+          when: has(item.spell3),
+        }
+      - {
+          id: spell4,
+          target: spells.monster,
+          op: grant,
+          value: { formula: item.spell4 },
+          when: has(item.spell4),
+        }
+      - id: spell-at-will
+        target: spells.monsterAtWill
+        op: grant
+        value: { formula: item.spell }
+        when: >-
+          has(item.spell) && self.uses == 0 && !has(item.recharge) && !has(item.spellLevel)
+            && item.kind != 'legendary'
+      - id: spell-limited
+        target: spells.limited
+        op: grant
+        value: { formula: item.spell }
+        when: >-
+          has(item.spell)
+            && (self.uses > 0 || has(item.recharge) || has(item.spellLevel) || item.kind == 'legendary')
+      - id: spell2-limited
+        target: spells.limited
+        op: grant
+        value: { formula: item.spell2 }
+        when: has(item.spell2)
+      - id: spell3-limited
+        target: spells.limited
+        op: grant
+        value: { formula: item.spell3 }
+        when: has(item.spell3)
+      - id: spell4-limited
+        target: spells.limited
+        op: grant
+        value: { formula: item.spell4 }
+        when: has(item.spell4)
+      - id: spell-use
+        target: { choices: [spell-cost] }
+        op: option
+        when: >-
+          has(item.spell) && item.kind != 'legendary' && (action.item.id == item.spell
+              || (has(item.spell2) && action.item.id == item.spell2)
+              || (has(item.spell3) && action.item.id == item.spell3)
+              || (has(item.spell4) && action.item.id == item.spell4))
+            && !self.recharging && (self.uses == 0 || self.used < self.uses)
+            && (!has(params.slot) || params.slot
+              == (has(item.spellLevel) && action.item.id == item.spell ? item.spellLevel : action.item.level))
+        value:
+          id: spell-use
+          flags:
+            slot: >-
+              has(item.spellLevel) && action.item.id == item.spell ? item.spellLevel : action.item.level
+            castAbility: "'monster'"
+          changes:
+            - {
+                type: setState,
+                entry: self,
+                key: recharging,
+                value: true,
+                when: has(item.recharge),
+              }
+            - { type: adjustState, entry: self, key: used, by: 1, when: self.uses > 0 }
+    actions:
+      - use: monster-attack
+      - use: monster-effect
+      - use: use-entry
+      - use: use-monster-action
+      - use: legendary-spell
+      - use: recharge
+
+fields:
+  initiative.score: { type: integer, formula: 10 + combat.initiative }
+  challenge.xp:
+    type: integer
+    formula: >-
+      challenge.rating == 0 ? 10 : challenge.rating <= 0.125 ? 25 : challenge.rating <= 0.25 ? 50
+        : challenge.rating <= 0.5 ? 100
+        : [200, 450, 700, 1100, 1800, 2300, 2900, 3900, 5000, 5900, 7200, 8400, 10000, 11500,
+          13000, 15000, 18000, 20000, 22000, 25000, 33000, 41000, 50000, 62000, 75000, 90000,
+          105000, 120000, 135000, 155000][min(29, floor(challenge.rating) - 1)]
+  senses.telepathy: { type: integer, formula: 0, min: 0 }
+  saves.magicResistance: { type: boolean, formula: false }
+  spellcasting.monster.ability:
+    { type: enum, values: [none, str, dex, con, int, wis, cha], formula: "'none'" }
+  legendary.inLair: { type: boolean, input: true, default: false }
+  legendary.hasLair: { type: boolean, formula: false }
+  legendary.actions: { type: integer, formula: 0, min: 0 }
+  legendary.spent: { type: integer, input: true, default: 0, min: 0 }
+
+situational:
+  - id: magicEffect
+    type: boolean
+    default: false
+    rolls: [save]
+    available: saves.magicResistance
+    effects:
+      - target: { rolls: [save] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.magicEffect
+
+creation:
+  - { id: monster, action: create-monster }
+
+actions:
+  - id: create-monster
+    tags: [creation]
+    available: character.creating
+    params:
+      monster: { type: id, of: monster, optional: true }
+      gear: { type: boolean, default: false }
+    results: [created]
+    steps:
+      - id: monster
+        kind: choice
+        options:
+          content:
+            type: monster
+            where: '!has(params.monster) || item.id == params.monster'
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { id: monster, item: picked.id }
+      - id: size
+        kind: choice
+        when: has(steps.monster.item.sizeAlt)
+        options:
+          - { id: first, flags: { size: steps.monster.item.size } }
+          - { id: second, flags: { size: steps.monster.item.sizeAlt } }
+        recommend: "'first'"
+      - id: hp
+        kind: choice
+        options: [{ id: average }, { id: roll }]
+        recommend: "'average'"
+      - id: roll
+        kind: roll
+        when: "steps.hp.picked == 'roll'"
+        tags: [creation]
+        parts: [{ dice: steps.monster.item.hitDice }]
+      - id: numbers
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              hp: "steps.hp.picked == 'roll' ? max(1, steps.roll.total) : steps.monster.item.hp"
+              size: 'has(steps.size) ? flags.size : steps.monster.item.size'
+      - id: stats
+        kind: changes
+        changes:
+          - { type: set, field: abilities.str.base, value: steps.monster.item.str }
+          - { type: set, field: abilities.dex.base, value: steps.monster.item.dex }
+          - { type: set, field: abilities.con.base, value: steps.monster.item.con }
+          - { type: set, field: abilities.int.base, value: steps.monster.item.int }
+          - { type: set, field: abilities.wis.base, value: steps.monster.item.wis }
+          - { type: set, field: abilities.cha.base, value: steps.monster.item.cha }
+          - { type: set, field: challenge.rating, value: steps.monster.item.cr }
+          - { type: set, field: creature.size, value: flags.size }
+          - { type: set, field: creature.type, value: steps.monster.item.creatureType }
+          - { type: set, field: creature.alignment, value: steps.monster.item.alignment }
+          - { type: set, field: combat.speed, value: steps.monster.item.speed }
+          - { type: set, field: hp.base, value: flags.hp }
+          - { type: set, field: hp.current, value: flags.hp }
+          - type: set
+            field: proficiencies.saves
+            value: steps.monster.item.saves
+            when: size(steps.monster.item.saves) > 0
+          - type: set
+            field: proficiencies.skills
+            value: steps.monster.item.skills
+            when: size(steps.monster.item.skills) > 0
+          - type: set
+            field: proficiencies.expertise
+            value: steps.monster.item.expertise
+            when: size(steps.monster.item.expertise) > 0
+          - type: set
+            field: proficiencies.languages
+            value: steps.monster.item.languages
+            when: size(steps.monster.item.languages) > 0
+          - type: set
+            field: conditions.immunities
+            value: steps.monster.item.conditionImmunities
+            when: size(steps.monster.item.conditionImmunities) > 0
+          - type: set
+            field: conditions.exhaustionImmune
+            value: true
+            when: has(steps.monster.item.exhaustionImmune) && steps.monster.item.exhaustionImmune
+          - type: set
+            field: damage.resistances
+            value: steps.monster.item.damageResistances
+            when: size(steps.monster.item.damageResistances) > 0
+          - type: set
+            field: damage.immunities
+            value: steps.monster.item.damageImmunities
+            when: size(steps.monster.item.damageImmunities) > 0
+          - type: set
+            field: damage.vulnerabilities
+            value: steps.monster.item.damageVulnerabilities
+            when: size(steps.monster.item.damageVulnerabilities) > 0
+      - id: entries
+        kind: changes
+        changes:
+          - type: addItem
+            forEach: steps.monster.item.entries
+            entry: { item: x }
+          - type: addItem
+            forEach: steps.monster.item.spellsAtWill
+            entry:
+              item: "'monster-actions.innate-spell'"
+              choices: { spell: [{ option: { formula: x } }] }
+          - type: addItem
+            forEach: steps.monster.item.spellsPerDay1
+            entry:
+              item: "'monster-actions.innate-spell'"
+              state: { uses: 1 }
+              choices: { spell: [{ option: { formula: x } }] }
+          - type: addItem
+            forEach: steps.monster.item.spellsPerDay2
+            entry:
+              item: "'monster-actions.innate-spell'"
+              state: { uses: 2 }
+              choices: { spell: [{ option: { formula: x } }] }
+          - type: addItem
+            forEach: steps.monster.item.spellsPerDay3
+            entry:
+              item: "'monster-actions.innate-spell'"
+              state: { uses: 3 }
+              choices: { spell: [{ option: { formula: x } }] }
+      - id: gear
+        kind: changes
+        when: params.gear
+        changes:
+          - {
+              type: addItem,
+              forEach: steps.monster.item.gearWeapons,
+              entry: { item: x, equipped: false },
+            }
+          - {
+              type: addItem,
+              forEach: steps.monster.item.gearArmor,
+              entry: { item: x, equipped: false },
+            }
+          - { type: addItem, forEach: steps.monster.item.gearItems, entry: { item: x } }
+          - { type: addItem, forEach: steps.monster.item.gearTools, entry: { item: x } }
+      - id: finish
+        kind: changes
+        changes:
+          - { type: finishCreation }
+      - id: result
+        kind: outcome
+        result: "'created'"
+        data:
+          hp: flags.hp
+
+  - id: monster-attack
+    tags: [attack]
+    available: >-
+      has(item.toHit) && !self.recharging && (self.uses == 0 || self.used < self.uses)
+        && (item.kind != 'legendary' || (legendary.spent + item.legendaryCost <= legendary.actions
+          && !conditions.incapacitated))
+    params:
+      targetAc: { type: integer, optional: true }
+      ranged: { type: boolean, default: false }
+      longRange: { type: boolean, default: false }
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [hit, miss, retarget]
+    steps:
+      - id: sanctuary
+        kind: action
+        when: size(participants.target) > 0 && participants.target[0].sanctuary.dc > 0
+        use: saving-throw
+        params:
+          ability: "'wis'"
+          dc: participants.target[0].sanctuary.dc
+      - id: retarget
+        kind: outcome
+        when: has(steps.sanctuary) && steps.sanctuary.result == 'failure'
+        result: "'retarget'"
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              range: "item.attack == 'ranged' || (params.ranged && has(item.normalRange)) ? 'ranged' : 'melee'"
+              ac: >-
+                size(participants.target) > 0
+                    && (item.attack == 'ranged' || (params.ranged && has(item.normalRange)))
+                    && has(participants.target[0].combat.rangedAc)
+                  ? participants.target[0].combat.rangedAc
+                : size(participants.target) > 0 && has(participants.target[0].combat.ac)
+                  ? participants.target[0].combat.ac
+                : has(params.targetAc) ? params.targetAc : -1
+              sizeOk: >-
+                !has(item.maxSize) || size(participants.target) == 0
+                  || indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                    participants.target[0].creature.size)
+                    <= indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'], item.maxSize)
+      - id: test
+        kind: action
+        use: d20-test
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+        tags: [attack, { formula: "'attack.' + flags.range" }]
+        params:
+          kind: "'attack'"
+          bonus: item.toHit
+          dc: 'flags.ac >= 0 ? flags.ac : null'
+          crit: combat.critRange
+      - id: hit
+        kind: branch
+        cases:
+          - when: steps.test.result == 'critical'
+            flags:
+              hit: true
+              critical: '!(size(participants.target) > 0 && participants.target[0].combat.noCriticals)'
+          - when: steps.test.result == 'hit'
+            flags:
+              hit: true
+              critical: >-
+                flags.range == 'melee' && size(participants.target) > 0
+                  && participants.target[0].conditions.autoCritMelee
+                  && !participants.target[0].combat.noCriticals
+          - when: steps.test.result == 'miss'
+            flags: { hit: false, critical: false }
+        else:
+          flags: { hit: false, critical: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options:
+                - id: hit
+                  flags: { hit: true }
+                - id: critical
+                  flags: { hit: true, critical: true }
+                - id: miss
+      - id: rider
+        kind: choice
+        when: flags.hit && flags.sizeOk && has(item.conditionsInstead) && item.conditionsInstead
+        options: [{ id: damage }, { id: conditions }]
+        recommend: "'conditions'"
+      - id: damage
+        kind: roll
+        when: flags.hit && has(item.damage) && (!has(steps.rider) || steps.rider.picked == 'damage')
+        tags: [damage.weapon]
+        parts:
+          - dice: item.damage
+            tags: [{ formula: "'damage.' + item.damageType" }]
+          - dice: 'has(item.damage2) ? item.damage2 : 0'
+            when: has(item.damage2)
+            tags: [{ formula: "'damage.' + item.damage2Type" }]
+      - id: deal
+        kind: changes
+        when: has(steps.damage)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags:
+              - damage
+              - attack
+              - { formula: flags.range }
+              - { formula: "flags.critical ? ['critical'] : []" }
+      - id: saves
+        kind: action
+        when: flags.hit && has(item.saveDc)
+        each: target
+        as: participant
+        use: saving-throw
+        params:
+          ability: item.save
+          dc: item.saveDc
+      - id: riderDamage
+        kind: roll
+        when: has(steps.saves) && has(item.saveDamage)
+        parts:
+          - dice: item.saveDamage
+            tags: [{ formula: "'damage.' + item.saveDamageType" }]
+      - id: riderDeal
+        kind: changes
+        when: has(steps.riderDamage)
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            when: steps.saves.result != 'success' || item.saveEffect == 'half'
+            field: hp.current
+            split: { roll: riderDamage, by: damage }
+            by: >-
+              steps.saves.result == 'success' ? -floor(max(0, part.total) / 2) : -max(0, part.total)
+            tags:
+              - damage
+              - { formula: "item.saveEffect == 'half' ? 'save-half' : 'save-negates'" }
+              - { formula: "'save.' + item.save" }
+              - { formula: "steps.saves.result == 'success' ? 'save-success' : 'save-failure'" }
+      - id: conditions
+        kind: changes
+        each: target
+        when: >-
+          flags.hit && flags.sizeOk && size(item.conditions) > 0
+            && (!has(steps.rider) || steps.rider.picked == 'conditions')
+            && (!has(item.saveDc) || (has(steps.saves) && steps.saves.result == 'failure'))
+        to: target
+        changes:
+          - type: applyEffect
+            forEach: item.conditions
+            when: '!has(item.escapeDc) || x != @conditions.grappled'
+            source: x
+            state: { by: creature.type }
+          - type: applyEffect
+            when: has(item.escapeDc) && @conditions.grappled in item.conditions
+            source: "'conditions.grappled'"
+            state: { by: creature.type, escapeDc: item.escapeDc }
+      - id: unsap
+        kind: changes
+        when: >-
+          countList(character.applied, x.active && x.source == @combat-effects.sapped) > 0
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @combat-effects.sapped' }
+      - id: spend
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: recharging, value: true, when: has(item.recharge) }
+          - { type: adjustState, entry: self, key: used, by: 1, when: self.uses > 0 }
+          - type: adjust
+            when: item.kind == 'legendary'
+            field: legendary.spent
+            by: item.legendaryCost
+      - id: result
+        kind: outcome
+        result: "flags.hit ? 'hit' : 'miss'"
+        data:
+          critical: flags.critical
+          attack: steps.test.data.total
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+          dc: 'has(item.saveDc) ? item.saveDc : 0'
+          save: "has(item.save) ? item.save : ''"
+
+  - id: monster-effect
+    tags: [monster-effect]
+    available: >-
+      !has(item.toHit) && !has(item.uses)
+        && (has(item.saveDc) || has(item.damage) || has(item.heal))
+        && !self.recharging && (self.uses == 0 || self.used < self.uses)
+        && (item.kind != 'legendary' || (legendary.spent + item.legendaryCost <= legendary.actions
+          && !conditions.incapacitated))
+    participants:
+      target:
+        fields: target
+    results: [used]
+    steps:
+      - id: setup
+        kind: branch
+        each: target
+        cases:
+          - when: true
+            flags:
+              sizeOk: >-
+                !has(item.maxSize)
+                  || indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                    participant.creature.size)
+                    <= indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'], item.maxSize)
+              targeted: >-
+                !has(item.maxTargetSize)
+                  || indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                    participant.creature.size)
+                    <= indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                      item.maxTargetSize)
+      - id: damage
+        kind: roll
+        when: has(item.damage)
+        tags: [damage]
+        parts:
+          - dice: item.damage
+            tags: [{ formula: "'damage.' + item.damageType" }]
+          - dice: 'has(item.damage2) ? item.damage2 : 0'
+            when: has(item.damage2)
+            tags: [{ formula: "'damage.' + item.damage2Type" }]
+      - id: saves
+        kind: action
+        each: target
+        when: has(item.saveDc) && flags.targeted
+        as: participant
+        use: saving-throw
+        params:
+          ability: item.save
+          dc: item.saveDc
+      - id: burn
+        kind: changes
+        each: target
+        when: has(steps.damage) && flags.targeted
+        to: target
+        changes:
+          - type: adjust
+            when: >-
+              !has(item.saveDc) || steps.saves.result != 'success' || item.saveEffect == 'half'
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: >-
+              has(item.saveDc) && steps.saves.result == 'success'
+                ? -floor(max(0, part.total) / 2) : -max(0, part.total)
+            tags:
+              - damage
+              - formula: >-
+                  has(item.saveDc)
+                    ? [item.saveEffect == 'half' ? 'save-half' : 'save-negates', 'save.' + item.save,
+                      steps.saves.result == 'success' ? 'save-success' : 'save-failure']
+                    : []
+      - id: conditions
+        kind: changes
+        each: target
+        when: >-
+          flags.targeted && flags.sizeOk && size(item.conditions) > 0
+            && (!has(item.saveDc) || steps.saves.result == 'failure')
+        to: target
+        changes:
+          - type: applyEffect
+            forEach: item.conditions
+            when: '!has(item.escapeDc) || x != @conditions.grappled'
+            source: x
+            state: { by: creature.type }
+          - type: applyEffect
+            when: has(item.escapeDc) && @conditions.grappled in item.conditions
+            source: "'conditions.grappled'"
+            state: { by: creature.type, escapeDc: item.escapeDc }
+      - id: heal
+        kind: roll
+        when: has(item.heal)
+        tags: [healing]
+        parts: [{ dice: item.heal }]
+      - id: restore
+        kind: changes
+        when: has(steps.heal)
+        changes:
+          - { type: adjust, field: hp.current, by: 'max(0, steps.heal.total)', tags: [healing] }
+      - id: spend
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: recharging, value: true, when: has(item.recharge) }
+          - { type: adjustState, entry: self, key: used, by: 1, when: self.uses > 0 }
+          - type: adjust
+            when: item.kind == 'legendary'
+            field: legendary.spent
+            by: item.legendaryCost
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+          healing: 'has(steps.heal) ? max(0, steps.heal.total) : 0'
+          dc: 'has(item.saveDc) ? item.saveDc : 0'
+          save: "has(item.save) ? item.save : ''"
+
+  - id: use-entry
+    tags: [monster-effect]
+    available: >-
+      has(item.uses) && !self.recharging && (self.uses == 0 || self.used < self.uses)
+        && (item.kind != 'legendary' || (legendary.spent + item.legendaryCost <= legendary.actions
+          && !conditions.incapacitated))
+        && countCopies(copy.item == item.uses && !copy.state.recharging
+          && (copy.state.uses == 0 || copy.state.used < copy.state.uses)) > 0
+    participants:
+      target:
+        fields: target
+    results: [used]
+    steps:
+      - id: attack
+        kind: action
+        when: countCopies(copy.item == item.uses && has(copy.fields.toHit)) > 0
+        use: monster-attack
+        entry: filterList(character.features, x.item == item.uses)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: effect
+        kind: action
+        when: countCopies(copy.item == item.uses && !has(copy.fields.toHit)) > 0
+        use: monster-effect
+        entry: filterList(character.features, x.item == item.uses)[0].id
+        participants:
+          target: participants.target
+      - id: heal
+        kind: roll
+        when: has(item.heal)
+        tags: [healing]
+        parts: [{ dice: item.heal }]
+      - id: restore
+        kind: changes
+        when: has(steps.heal)
+        changes:
+          - { type: adjust, field: hp.current, by: 'max(0, steps.heal.total)', tags: [healing] }
+      - id: spend
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: recharging, value: true, when: has(item.recharge) }
+          - { type: adjustState, entry: self, key: used, by: 1, when: self.uses > 0 }
+          - type: adjust
+            when: item.kind == 'legendary'
+            field: legendary.spent
+            by: item.legendaryCost
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          result: "has(steps.attack) ? steps.attack.result : has(steps.effect) ? steps.effect.result : ''"
+          healing: 'has(steps.heal) ? max(0, steps.heal.total) : 0'
+
+  - id: legendary-spell
+    tags: [legendary, spell]
+    available: >-
+      has(item.spell) && item.kind == 'legendary'
+        && legendary.spent + item.legendaryCost <= legendary.actions && !conditions.incapacitated
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target:
+        fields: target
+    results: [cast]
+    steps:
+      - id: cast
+        kind: action
+        use: cast-spell
+        source: item.spell
+        entry: self.id
+        params:
+          slotType: "'none'"
+          slot: 'has(item.spellLevel) ? item.spellLevel : null'
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+        participants:
+          target: participants.target
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: legendary.spent, by: item.legendaryCost }
+      - id: result
+        kind: outcome
+        result: "'cast'"
+        data:
+          result: steps.cast.result
+
+  - id: use-monster-action
+    tags: [monster-effect]
+    available: >-
+      !has(item.toHit) && !has(item.saveDc) && !has(item.damage) && !has(item.heal)
+        && !has(item.uses) && !has(item.spell) && item.id != @monster-actions.innate-spell
+        && !(has(item.ownAction) && item.ownAction)
+        && !(has(item.legendaryResistance) && item.legendaryResistance)
+        && (self.uses > 0 || has(item.recharge) || item.kind == 'legendary')
+        && !self.recharging && (self.uses == 0 || self.used < self.uses)
+        && (item.kind != 'legendary' || (legendary.spent + item.legendaryCost <= legendary.actions
+          && !conditions.incapacitated))
+    results: [used]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: recharging, value: true, when: has(item.recharge) }
+          - { type: adjustState, entry: self, key: used, by: 1, when: self.uses > 0 }
+          - type: adjust
+            when: item.kind == 'legendary'
+            field: legendary.spent
+            by: item.legendaryCost
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          left: 'self.uses > 0 ? self.uses - self.used - 1 : 0'
+
+  - id: recharge
+    tags: [recharge]
+    available: has(item.recharge) && self.recharging
+    results: [recharged, spent]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [recharge]
+        parts: [{ dice: 1d6 }]
+      - id: ready
+        kind: changes
+        when: steps.roll.total >= item.recharge
+        changes:
+          - { type: setState, entry: self, key: recharging, value: false }
+      - id: result
+        kind: outcome
+        result: "steps.roll.total >= item.recharge ? 'recharged' : 'spent'"
+
+  - id: legendary-reset
+    tags: [legendary]
+    available: legendary.spent > 0
+    results: [reset]
+    steps:
+      - id: reset
+        kind: changes
+        changes:
+          - { type: set, field: legendary.spent, value: 0 }
+      - id: result
+        kind: outcome
+        result: "'reset'"
+
+display:
+  groups:
+    - id: stat-block
+      kind: content
+      priority: 0
+      showWhen: sheet.monster
+      members: { type: monster }
+    - id: monster-actions
+      kind: content
+      priority: 0
+      showWhen: sheet.monster
+      members: { type: monsterAction }
+      sectionBy: >-
+        item.id == @monster-actions.innate-spell ? 5 : item.kind == 'trait' ? 0 : item.kind == 'action' ? 1 : item.kind == 'bonus-action' ? 2
+          : item.kind == 'reaction' ? 3 : 4
+      sortBy: item.order
+    - id: legendary-actions
+      kind: actions
+      priority: 1
+      showWhen: legendary.actions > 0
+      members: { type: action, where: "'legendary' in item.tags" }
+  fields:
+    initiative.score: { groups: [combat], priority: 1, showWhen: sheet.monster }
+    challenge.xp: { groups: [summary], priority: 2, showWhen: sheet.monster }
+    senses.telepathy: { unit: ft, groups: [summary], priority: 2, showWhen: senses.telepathy > 0 }
+    saves.magicResistance: { groups: [saves], priority: 2, showWhen: saves.magicResistance }
+    spellcasting.monster.ability:
+      { groups: [spellcasting], priority: 0, showWhen: "spellcasting.monster.ability != 'none'" }
+    legendary.inLair: { groups: [combat], priority: 1, showWhen: legendary.hasLair }
+    legendary.hasLair: { hidden: true }
+    legendary.actions: { groups: [combat], priority: 1, showWhen: legendary.actions > 0 }
+    legendary.spent:
+      {
+        groups: [combat],
+        priority: 1,
+        showWhen: legendary.actions > 0,
+        input: { min: 0, widget: track },
+        with: [{ field: legendary.actions, as: max }],
+      }
+  types:
+    monster:
+      fields:
+        hitDice: { format: dice }
+        speed: { unit: ft }
+        flySpeed: { unit: ft }
+        climbSpeed: { unit: ft }
+        swimSpeed: { unit: ft }
+        burrowSpeed: { unit: ft }
+        darkvision: { unit: ft }
+        blindsight: { unit: ft }
+        tremorsense: { unit: ft }
+        truesight: { unit: ft }
+        telepathy: { unit: ft }
+        entries: { hidden: true }
+      quantity: { hidden: true }
+    monsterAction:
+      state:
+        recharging: { priority: 0, showWhen: has(item.recharge) }
+        used:
+          priority: 0
+          showWhen: self.uses > 0
+          input: { min: 0, widget: track }
+          with: [{ key: uses, as: max }]
+        uses: { priority: 1, visibility: background, showWhen: self.uses > 0 }
+      fields:
+        reach: { unit: ft }
+        normalRange: { unit: ft }
+        longRange: { unit: ft }
+        areaSize: { unit: ft }
+        areaWidth: { unit: ft }
+        damage: { format: dice }
+        damage2: { format: dice }
+        saveDamage: { format: dice }
+        heal: { format: dice }
+        ownAction: { hidden: true }
+      quantity: { hidden: true }

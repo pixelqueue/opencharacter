@@ -1,0 +1,10 @@
+id: monsters.flesh-golem.lightning-absorption
+type: monsterAction
+fields:
+  kind: trait
+  order: 4
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.lightning] } }
+    op: atLeast
+    value: -incoming.amount
+    when: incoming.amount < 0

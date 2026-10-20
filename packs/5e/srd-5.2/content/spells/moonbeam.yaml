@@ -1,0 +1,81 @@
+id: spells.moonbeam
+type: spell
+fields:
+  level: 2
+  school: evocation
+  classes: [classes.druid]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 120
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+  areaShape: cylinder
+  areaSize: 5
+  save: con
+  saveEffect: half
+  damageType: radiant
+  damage: 2d10
+  upcastDice: 1
+actions:
+  - use: cast-spell
+  - id: beam
+    tags: [spell]
+    params: { slot: { type: integer, optional: true } }
+    participants: { target: { fields: target } }
+    results: [save]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              cls: "countList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x)) > 0 ? filterList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x))[0] : 'none'"
+              slot: 'has(params.slot) ? max(item.level, min(9, params.slot)) : item.level'
+      - id: numbers
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dc: "flags.cls != 'none' ? fieldOf('spellcasting.{caster}.dc', flags.cls) : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.dc', x))"
+              attackBonus: "flags.cls != 'none' ? fieldOf('spellcasting.{caster}.attack', flags.cls) : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.attack', x))"
+              mod: "flags.cls != 'none' ? fieldOf('spellcasting.{caster}.mod', flags.cls) : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.mod', x))"
+      - id: damage
+        kind: roll
+        tags: [damage.spell]
+        parts:
+          - dice: (2 + 1 * (flags.slot - item.level))d10
+            tags: [damage.radiant]
+      - id: saves
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params: { ability: "'con'", dc: flags.dc, spell: true }
+      - id: burn
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: "steps.saves.result == 'success' ? -floor(max(0, part.total) / 2) : -max(0, part.total)"
+            tags:
+              - damage
+              - spell
+              - magical
+              - save-half
+              - save.con
+              - formula: "steps.saves.result == 'success' ? 'save-success' : 'save-failure'"
+      - id: result
+        kind: outcome
+        result: "'save'"
+        data:
+          slot: flags.slot
+          dc: flags.dc
+          save: "'con'"
+          damage: steps.damage.total

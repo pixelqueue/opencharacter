@@ -1,0 +1,12 @@
+id: magic-items.cloak-of-protection
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  - { target: combat.ac, op: add, value: 1, when: self.equipped && self.attuned }
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 1
+    when: self.equipped && self.attuned

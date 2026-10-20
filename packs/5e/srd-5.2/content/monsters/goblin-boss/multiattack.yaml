@@ -1,0 +1,57 @@
+id: monsters.goblin-boss.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: scimitar }, { id: shortbow }]
+        recommend: "'scimitar'"
+      - id: scimitar1
+        kind: action
+        when: "steps.pick1.picked == 'scimitar'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.goblin-boss.scimitar)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: shortbow1
+        kind: action
+        when: "steps.pick1.picked == 'shortbow'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.goblin-boss.shortbow)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: scimitar }, { id: shortbow }]
+        recommend: "'scimitar'"
+      - id: scimitar2
+        kind: action
+        when: "steps.pick2.picked == 'scimitar'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.goblin-boss.scimitar)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: shortbow2
+        kind: action
+        when: "steps.pick2.picked == 'shortbow'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.goblin-boss.shortbow)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.scimitar1) && steps.scimitar1.result == 'hit' ? 1 : 0)
+              + (has(steps.shortbow1) && steps.shortbow1.result == 'hit' ? 1 : 0)
+              + (has(steps.scimitar2) && steps.scimitar2.result == 'hit' ? 1 : 0)
+              + (has(steps.shortbow2) && steps.shortbow2.result == 'hit' ? 1 : 0)

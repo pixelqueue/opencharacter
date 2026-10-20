@@ -1,0 +1,38 @@
+status: finished
+outcome:
+  result: hit
+  data:
+    critical: false
+    attack: 23
+    damage: 10
+    mastery: sap
+    push: 0
+    cleave: false
+proposedChanges:
+  - to: target
+    character: goblin
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -10
+      tags:
+        - damage
+        - attack
+        - weapon
+        - melee
+        - nonmagical
+        - damage.bludgeoning
+  - to: target
+    character: goblin
+    step: riders
+    change:
+      type: applyEffect
+      source: 5e-srd-5.2:combat-effects.sapped
+  - to: target
+    character: goblin
+    step: unvex
+    change:
+      type: removeEffect
+      applied:
+        where: item.id == '5e-srd-5.2:combat-effects.vexed' && self.attacker == 'test'

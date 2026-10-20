@@ -1,0 +1,26 @@
+id: spells.hunters-mark
+type: spell
+fields:
+  level: 1
+  school: divination
+  classes: [classes.ranger]
+  concentration: true
+  castingTime: bonus-action
+  rangeKind: ranged
+  range: 90
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: huntersMark.die
+    tags: [damage.force]
+    when: >-
+      has(flags.hit) && flags.hit && has(participants.target) && size(participants.target) > 0
+        && character.id in participants.target[0].huntersMark.markedBy

@@ -1,0 +1,24 @@
+id: spells.beacon-of-hope
+type: spell
+fields:
+  level: 3
+  school: abjuration
+  classes: [classes.cleric]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 30
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: { rolls: [save.wis, save.death] }
+    op: rollModifier
+    value: { kind: advantage }
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }

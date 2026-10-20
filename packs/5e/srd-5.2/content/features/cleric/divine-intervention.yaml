@@ -1,0 +1,37 @@
+id: features.cleric.divine-intervention
+type: feature
+effects:
+  - target: spells.free
+    op: grant
+    value:
+      query:
+        type: spell
+        where: >-
+          @classes.cleric in item.classes && item.level >= 1 && item.level <= 5
+            && !(has(item.castingTime) && item.castingTime == 'reaction')
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      !self.divineInterventionUsed && @classes.cleric in action.item.classes
+        && action.item.level >= 1 && action.item.level <= 5
+        && !(has(action.item.castingTime) && action.item.castingTime == 'reaction')
+    value:
+      id: divine-intervention
+      flags:
+        slot: action.item.level
+        castAbility: "'cleric'"
+      changes:
+        - { type: setState, entry: self, key: divineInterventionUsed, value: true }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.divineInterventionUsed && self.divineInterventionRests <= 1 && !self.wishRestsToRoll
+    value:
+      changes:
+        - { type: setState, entry: self, key: divineInterventionUsed, value: false }
+        - { type: setState, entry: self, key: divineInterventionRests, value: 0 }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.divineInterventionRests > 1
+    value:
+      changes:
+        - { type: adjustState, entry: self, key: divineInterventionRests, by: -1 }

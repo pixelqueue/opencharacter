@@ -1,0 +1,12 @@
+fields:
+  focus.points: { type: integer, formula: 0 }
+  focus.saveDc: { type: integer, formula: 0 }
+  slowFall.reduction: { type: integer, formula: 0 }
+  superiorDefense.active: { type: boolean, input: true, default: false }
+
+display:
+  fields:
+    focus.points: { groups: [class-features], priority: 1, showWhen: focus.points > 0 }
+    focus.saveDc: { groups: [class-features], priority: 1, showWhen: focus.points > 0 }
+    slowFall.reduction: { groups: [class-features], priority: 2, showWhen: slowFall.reduction > 0 }
+    superiorDefense.active: { groups: [class-features], priority: 1, showWhen: focus.points >= 18 }

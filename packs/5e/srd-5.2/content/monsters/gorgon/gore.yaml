@@ -1,0 +1,37 @@
+id: monsters.gorgon.gore
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+  attack: melee
+  toHit: 8
+  reach: 5
+  damage: 2d12 + 5
+  damageType: piercing
+actions:
+  - id: charge
+    tags: [attack]
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: gore
+        kind: action
+        use: monster-attack
+        entry: self.id
+        participants:
+          target: participants.target
+      - id: prone
+        kind: changes
+        when: >-
+          steps.gore.result == 'hit' && (size(participants.target) == 0
+            || indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+              participants.target[0].creature.size) <= 3)
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.prone'", state: { by: creature.type } }
+      - id: result
+        kind: outcome
+        result: "steps.gore.result == 'hit' ? 'hit' : 'miss'"
+        data:
+          damage: steps.gore.data.damage

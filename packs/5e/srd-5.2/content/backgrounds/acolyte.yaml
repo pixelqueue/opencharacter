@@ -1,0 +1,56 @@
+id: backgrounds.acolyte
+type: background
+effects:
+  - { target: proficiencies.skills, op: grant, value: { tag: skill.insight } }
+  - { target: proficiencies.skills, op: grant, value: { tag: skill.religion } }
+  - { target: proficiencies.tools, op: grant, value: { item: tools.calligraphers-supplies } }
+grants:
+  - item: feats.magic-initiate
+    state: { list: "'cleric'" }
+  - item: languages.common
+choices:
+  - id: ability-increase
+    recommend: "'two-and-one'"
+    from:
+      options:
+        - id: two-and-one
+          choices:
+            - id: plus-two
+              unique: acolyte-increase
+              uniqueScope: owner
+              from: { values: [int, wis, cha] }
+              recommend: "sortList(['int', 'wis', 'cha'], -fieldOf('abilities.{ability}.base', x))[0]"
+              effects:
+                - target:
+                    {
+                      fields:
+                        { where: "item.id == '5e-srd-5.2:abilities.' + pick.value + '.base'" },
+                    }
+                  op: add
+                  value: 2
+                - { target: origins.backgroundPlusTwo, op: set, value: pick.value }
+            - id: plus-one
+              unique: acolyte-increase
+              uniqueScope: owner
+              from: { values: [int, wis, cha] }
+              recommend: >-
+                sortList(filterList(['int', 'wis', 'cha'], x != origins.backgroundPlusTwo),
+                  -fieldOf('abilities.{ability}.base', x))[0]
+              effects:
+                - target:
+                    {
+                      fields:
+                        { where: "item.id == '5e-srd-5.2:abilities.' + pick.value + '.base'" },
+                    }
+                  op: add
+                  value: 1
+        - id: one-each
+          effects:
+            - { target: abilities.int.base, op: add, value: 1 }
+            - { target: abilities.wis.base, op: add, value: 1 }
+            - { target: abilities.cha.base, op: add, value: 1 }
+  - id: languages
+    pick: 2
+    unique: languages
+    from: { type: language, where: '!item.rare' }
+    eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'

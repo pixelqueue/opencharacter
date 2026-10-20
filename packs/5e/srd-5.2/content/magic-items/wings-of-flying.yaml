@@ -1,0 +1,40 @@
+id: magic-items.wings-of-flying
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  requiresAttunement: true
+effects:
+  - target: combat.flySpeed
+    op: atLeast
+    value: 60
+    scope: applied
+    duration: { amount: 1, unit: hour }
+actions:
+  - id: spread-wings
+    tags: [magic-item]
+    available: >-
+      self.equipped && self.attuned
+        && countList(character.applied, x.source == @magic-items.wings-of-flying) == 0
+    results: [flying]
+    steps:
+      - id: apply
+        kind: changes
+        changes:
+          - { type: applyEffect, source: item.id }
+      - id: result
+        kind: outcome
+        result: "'flying'"
+  - id: fold-wings
+    tags: [magic-item]
+    available: countList(character.applied, x.source == @magic-items.wings-of-flying) > 0
+    results: [landed]
+    steps:
+      - id: remove
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @magic-items.wings-of-flying' }
+      - id: result
+        kind: outcome
+        result: "'landed'"

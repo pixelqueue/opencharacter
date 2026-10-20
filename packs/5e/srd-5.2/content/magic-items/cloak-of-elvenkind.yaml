@@ -1,0 +1,11 @@
+id: magic-items.cloak-of-elvenkind
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  - target: { rolls: [skill.stealth] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.equipped && self.attuned

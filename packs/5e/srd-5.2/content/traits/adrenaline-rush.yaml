@@ -1,0 +1,28 @@
+id: traits.adrenaline-rush
+type: trait
+effects:
+  - target: { steps: [rest.short, rest.long] }
+    op: changes
+    when: self.adrenalineRushUsed > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: adrenalineRushUsed, value: 0 }
+actions:
+  - id: adrenaline-rush
+    tags: [feature]
+    available: self.adrenalineRushUsed < proficiency.bonus
+    results: [dashed]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: adrenalineRushUsed, by: 1 }
+      - id: rush
+        kind: action
+        use: gain-temporary-hit-points
+        params: { amount: proficiency.bonus }
+      - id: result
+        kind: outcome
+        result: "'dashed'"
+        data:
+          temp: max(hp.temp, proficiency.bonus)

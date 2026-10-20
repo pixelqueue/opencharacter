@@ -1,0 +1,9 @@
+id: conditions.restrained
+type: condition
+effects:
+  - { target: combat.speed, op: atMost, value: 0, scope: applied }
+  - { target: combat.attackersAdvantage, op: set, value: true, scope: applied }
+  - target: { rolls: [attack, save.dex] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied

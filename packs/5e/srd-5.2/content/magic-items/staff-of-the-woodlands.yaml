@@ -1,0 +1,56 @@
+id: magic-items.staff-of-the-woodlands
+type: template
+tags: [magic, staff, attunement.druid]
+appliesTo: { type: weapon, where: 'item.id == @weapons.quarterstaff' }
+fields:
+  {
+    rarity: rare,
+    requiresAttunement: true,
+    maxCharges: 6,
+    recharge: 1d6,
+    attackBonus: 2,
+    damageBonus: 2,
+  }
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.animal-friendship, when: self.equipped && self.attuned }
+  - { item: spells.awaken, when: self.equipped && self.attuned }
+  - { item: spells.barkskin, when: self.equipped && self.attuned }
+  - { item: spells.locate-animals-or-plants, when: self.equipped && self.attuned }
+  - { item: spells.pass-without-trace, when: self.equipped && self.attuned }
+  - { item: spells.speak-with-animals, when: self.equipped && self.attuned }
+  - { item: spells.speak-with-plants, when: self.equipped && self.attuned }
+  - { item: spells.wall-of-thorns, when: self.equipped && self.attuned }
+effects:
+  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped && self.attuned }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && self.attuned && action.item.id in [@spells.animal-friendship, @spells.awaken, @spells.barkskin, @spells.locate-animals-or-plants, @spells.pass-without-trace, @spells.speak-with-animals, @spells.speak-with-plants, @spells.wall-of-thorns]
+        && self.charges >= [1, 5, 2, 2, 2, 1, 3, 6][indexOf([@spells.animal-friendship, @spells.awaken, @spells.barkskin, @spells.locate-animals-or-plants, @spells.pass-without-trace, @spells.speak-with-animals, @spells.speak-with-plants, @spells.wall-of-thorns], action.item.id)]
+    value:
+      id: charges
+      flags:
+        slot: '[1, 5, 2, 2, 2, 1, 3, 6][indexOf([@spells.animal-friendship, @spells.awaken, @spells.barkskin, @spells.locate-animals-or-plants, @spells.pass-without-trace, @spells.speak-with-animals, @spells.speak-with-plants, @spells.wall-of-thorns], action.item.id)]'
+      changes:
+        - type: adjustState
+          entry: self
+          key: charges
+          by: '-[1, 5, 2, 2, 2, 1, 3, 6][indexOf([@spells.animal-friendship, @spells.awaken, @spells.barkskin, @spells.locate-animals-or-plants, @spells.pass-without-trace, @spells.speak-with-animals, @spells.speak-with-plants, @spells.wall-of-thorns], action.item.id)]'
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }
+  - id: tree-form
+    tags: [magic-item]
+    available: self.equipped && self.attuned && self.charges > 0
+    results: [used, no-charges, used-today]
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params: { charges: 1 }
+      - id: result
+        kind: outcome
+        result: steps.power.result

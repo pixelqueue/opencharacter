@@ -1,0 +1,10 @@
+id: feats.two-weapon-fighting
+type: feat
+fields:
+  category: fighting-style
+prerequisites:
+  - id: fighting-style
+    when: features.fightingStyle
+effects:
+  - { target: feats.held, op: grant, value: { formula: item.id } }
+  - { target: combat.offHandModifier, op: set, value: true }

@@ -1,0 +1,31 @@
+id: features.monk.wholeness-of-body
+type: feature
+effects:
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.wholenessSpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: wholenessSpent, value: 0 }
+actions:
+  - id: wholeness-of-body
+    tags: [healing]
+    results: [healed]
+    available: self.wholenessSpent < max(1, abilities.wis.mod)
+    steps:
+      - id: heal
+        kind: roll
+        tags: [healing]
+        parts:
+          - dice: martialArts.die
+          - field: "'abilities.wis.mod'"
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: 'max(1, steps.heal.total)', tags: [healing] }
+          - { type: adjustState, entry: self, key: wholenessSpent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: max(1, steps.heal.total)

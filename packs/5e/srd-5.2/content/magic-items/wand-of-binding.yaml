@@ -1,0 +1,34 @@
+id: magic-items.wand-of-binding
+type: magicItem
+fields:
+  category: wand
+  rarity: rare
+  requiresAttunement: true
+  maxCharges: 7
+  recharge: 1d6 + 1
+  saveDc: 17
+  spells: [spells.hold-monster, spells.hold-person]
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.hold-monster, when: self.equipped && self.attuned }
+  - { item: spells.hold-person, when: self.equipped && self.attuned }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && true && action.item.id in [@spells.hold-monster, @spells.hold-person]
+        && self.charges >= [5, 2][indexOf([@spells.hold-monster, @spells.hold-person], action.item.id)]
+    value:
+      id: charges
+      flags:
+        slot: '[5, 2][indexOf([@spells.hold-monster, @spells.hold-person], action.item.id)]'
+      changes:
+        - type: adjustState
+          entry: self
+          key: charges
+          by: '-[5, 2][indexOf([@spells.hold-monster, @spells.hold-person], action.item.id)]'
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

@@ -1,0 +1,11 @@
+id: magic-items.ioun-stone-of-insight
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+effects:
+  - target: abilities.wis.score
+    op: add
+    value: 'min(2, max(0, 20 - abilities.wis.base))'
+    when: self.equipped && self.attuned

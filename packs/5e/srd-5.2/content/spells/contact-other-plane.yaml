@@ -1,0 +1,45 @@
+id: spells.contact-other-plane
+type: spell
+fields:
+  level: 5
+  school: divination
+  classes: [classes.warlock, classes.wizard]
+  ritual: true
+  castingTime: 1-minute
+  rangeKind: self
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+actions:
+  - use: cast-spell
+  - id: contact
+    tags: [spell]
+    results: [success, failure]
+    steps:
+      - id: save
+        kind: action
+        use: saving-throw
+        params: { ability: "'int'", dc: 15 }
+      - id: damage
+        kind: roll
+        when: steps.save.result == 'failure'
+        tags: [damage.spell]
+        parts:
+          - { dice: 6d6, tags: [damage.psychic] }
+      - id: harm
+        kind: changes
+        when: has(steps.damage)
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, spell, magical]
+          - { type: applyEffect, source: "'conditions.incapacitated'", state: { magical: true } }
+      - id: result
+        kind: outcome
+        result: steps.save.result
+        data:
+          damage: 'has(steps.damage) ? steps.damage.total : 0'

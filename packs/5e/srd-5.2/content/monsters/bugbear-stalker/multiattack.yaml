@@ -1,0 +1,57 @@
+id: monsters.bugbear-stalker.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: javelin }, { id: morningstar }]
+        recommend: "'javelin'"
+      - id: javelin1
+        kind: action
+        when: "steps.pick1.picked == 'javelin'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.bugbear-stalker.javelin)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: morningstar1
+        kind: action
+        when: "steps.pick1.picked == 'morningstar'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.bugbear-stalker.morningstar)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: javelin }, { id: morningstar }]
+        recommend: "'javelin'"
+      - id: javelin2
+        kind: action
+        when: "steps.pick2.picked == 'javelin'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.bugbear-stalker.javelin)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: morningstar2
+        kind: action
+        when: "steps.pick2.picked == 'morningstar'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.bugbear-stalker.morningstar)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.javelin1) && steps.javelin1.result == 'hit' ? 1 : 0)
+              + (has(steps.morningstar1) && steps.morningstar1.result == 'hit' ? 1 : 0)
+              + (has(steps.javelin2) && steps.javelin2.result == 'hit' ? 1 : 0)
+              + (has(steps.morningstar2) && steps.morningstar2.result == 'hit' ? 1 : 0)

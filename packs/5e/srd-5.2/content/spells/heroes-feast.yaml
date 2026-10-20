@@ -1,0 +1,63 @@
+id: spells.heroes-feast
+type: spell
+fields:
+  level: 6
+  school: conjuration
+  classes: [classes.bard, classes.cleric, classes.druid]
+  castingTime: 10-minutes
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: instantaneous
+  applied: true
+state: { hitPoints: { type: integer, default: 0, min: 0 } }
+effects:
+  - target: damage.resistances
+    op: grant
+    value: { tag: damage.poison }
+    scope: applied
+    duration: { amount: 24, unit: hour }
+  - target: conditions.immunities
+    op: grant
+    value: { item: conditions.frightened }
+    scope: applied
+    duration: { amount: 24, unit: hour }
+  - target: conditions.immunities
+    op: grant
+    value: { item: conditions.poisoned }
+    scope: applied
+    duration: { amount: 24, unit: hour }
+  - target: hp.max
+    op: add
+    value: self.hitPoints
+    scope: applied
+    when: self.hitPoints > 0
+    duration: { amount: 24, unit: hour }
+actions:
+  - use: cast-spell
+  - id: vigor
+    scope: applied
+    tags: [spell]
+    available: self.hitPoints == 0
+    results: [gained]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [healing]
+        parts: [{ dice: 2d10 }]
+      - id: gain
+        kind: changes
+        changes:
+          - type: setState
+            entry: self
+            key: hitPoints
+            value: steps.roll.total
+          - type: adjust
+            field: hp.current
+            by: steps.roll.total
+            tags: [healing]
+      - id: result
+        kind: outcome
+        result: "'gained'"
+        data: { amount: steps.roll.total }

@@ -1,0 +1,11 @@
+id: magic-items.wind-fan
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  saveDc: 13
+  spells: [spells.gust-of-wind]
+grants:
+  - { item: spells.gust-of-wind, when: self.equipped }
+effects:
+  - { target: spells.atWill, op: grant, value: { item: spells.gust-of-wind }, when: self.equipped }

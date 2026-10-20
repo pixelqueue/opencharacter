@@ -1,0 +1,39 @@
+id: spells.produce-flame
+type: spell
+fields:
+  level: 0
+  school: conjuration
+  classes: [classes.druid]
+  castingTime: bonus-action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 10
+actions:
+  - use: cast-spell
+  - id: hurl
+    tags: [spell]
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          dice: >-
+            dieOf(1d8, (max(level.total, spellcasting.monster.level) >= 17 ? 4 : max(level.total, spellcasting.monster.level) >= 11 ? 3 : max(level.total, spellcasting.monster.level) >= 5 ? 2 : 1))
+          damageType: "'fire'"
+          attack: "'ranged'"
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage
+          critical: steps.effect.data.critical

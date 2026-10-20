@@ -1,0 +1,27 @@
+id: species.tiefling
+type: species
+fields:
+  speed: 30
+  size: choice
+state:
+  lineageSpell1Used: { type: boolean, default: false }
+  lineageSpell2Used: { type: boolean, default: false }
+effects:
+  - { target: creature.type, op: set, value: "'humanoid'" }
+grants:
+  - item: traits.darkvision
+  - item: traits.fiendish-legacy
+  - item: traits.otherworldly-presence
+choices:
+  - id: lineage
+    from: { type: lineage, where: 'item.species == @species.tiefling' }
+  - id: size
+    recommend: "'medium'"
+    from:
+      options:
+        - id: medium
+          effects:
+            - { target: creature.size, op: set, value: "'medium'" }
+        - id: small
+          effects:
+            - { target: creature.size, op: set, value: "'small'" }

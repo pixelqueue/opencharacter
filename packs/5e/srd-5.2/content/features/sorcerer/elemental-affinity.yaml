@@ -1,0 +1,20 @@
+id: features.sorcerer.elemental-affinity
+type: feature
+effects:
+  - target: { rolls: [damage.spell] }
+    op: add
+    value: abilities.cha.mod
+    tags: [{ formula: "'damage.' + sorcerer.affinity" }]
+    when: >-
+      sorcerer.affinity != 'none'
+        && ((has(flags.damageType) ? flags.damageType == sorcerer.affinity
+            : has(roll.item.damageType) && roll.item.damageType == sorcerer.affinity)
+          || (has(roll.item.damage2Type) && roll.item.damage2Type == sorcerer.affinity))
+choices:
+  - id: damage-type
+    from: { values: [acid, cold, fire, lightning, poison] }
+    effects:
+      - { target: sorcerer.affinity, op: set, value: pick.value }
+      - target: damage.resistances
+        op: grant
+        value: { formula: "'damage.' + pick.value" }

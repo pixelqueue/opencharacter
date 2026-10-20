@@ -1,0 +1,49 @@
+id: features.druid.wild-resurgence
+type: feature
+effects:
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.wildResurgenceUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: wildResurgenceUsed, value: false }
+actions:
+  - id: wild-resurgence
+    tags: [feature]
+    results: [regained, no-slot]
+    available: self.wildShapeSpent >= wildShape.uses && self.wildShapeSpent > 0
+    params:
+      slot: { type: integer, min: 1, max: 9, default: 1 }
+    steps:
+      - id: pay
+        kind: action
+        use: spend-spell-slot
+        params:
+          slot: params.slot
+      - id: noSlot
+        kind: outcome
+        when: steps.pay.result == 'no-slot'
+        result: "'no-slot'"
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: wildShapeSpent, by: -1 }
+      - id: result
+        kind: outcome
+        result: "'regained'"
+  - id: wild-resurgence-slot
+    tags: [feature]
+    results: [regained]
+    available: >-
+      !self.wildResurgenceUsed && self.wildShapeSpent < wildShape.uses
+        && spellSlots.level1.used > 0
+    steps:
+      - id: convert
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: wildShapeSpent, by: 1 }
+          - { type: adjust, field: spellSlots.level1.used, by: -1 }
+          - { type: setState, entry: self, key: wildResurgenceUsed, value: true }
+      - id: result
+        kind: outcome
+        result: "'regained'"

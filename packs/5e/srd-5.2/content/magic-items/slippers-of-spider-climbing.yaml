@@ -1,0 +1,13 @@
+id: magic-items.slippers-of-spider-climbing
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  - {
+      target: combat.climbSpeed,
+      op: atLeast,
+      value: combat.speed,
+      when: self.equipped && self.attuned,
+    }

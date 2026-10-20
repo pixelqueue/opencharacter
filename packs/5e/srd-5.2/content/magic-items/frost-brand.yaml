@@ -1,0 +1,21 @@
+id: magic-items.frost-brand
+type: template
+tags: [magic]
+appliesTo:
+  {
+    type: weapon,
+    where: 'item.id in [@weapons.glaive, @weapons.greatsword, @weapons.longsword, @weapons.rapier, @weapons.scimitar, @weapons.shortsword]',
+  }
+fields: { rarity: very-rare, requiresAttunement: true }
+effects:
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: 1d6
+    tags: [damage.cold]
+    when: self.attuned
+  - {
+      target: damage.resistances,
+      op: grant,
+      value: { tag: damage.fire },
+      when: self.equipped && self.attuned,
+    }

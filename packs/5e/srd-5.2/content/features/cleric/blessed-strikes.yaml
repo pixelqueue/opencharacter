@@ -1,0 +1,25 @@
+id: features.cleric.blessed-strikes
+type: feature
+choices:
+  - id: option
+    from:
+      options:
+        - id: divine-strike
+          effects:
+            - { target: cleric.blessedStrikes, op: set, value: "'divine-strike'" }
+        - id: potent-spellcasting
+          effects:
+            - { target: cleric.blessedStrikes, op: set, value: "'potent-spellcasting'" }
+effects:
+  - target: cleric.divineStrike
+    op: set
+    value: 'self.level >= 14 ? 2 : 1'
+    when: "cleric.blessedStrikes == 'divine-strike'"
+  - target: { rolls: [damage.spell] }
+    op: add
+    value: abilities.wis.mod
+    tags:
+      [{ formula: "'damage.' + (has(flags.damageType) ? flags.damageType : roll.item.damageType)" }]
+    when: >-
+      cleric.blessedStrikes == 'potent-spellcasting' && roll.item.level == 0
+        && has(roll.item.damageType) && has(flags.cls) && flags.cls == 'cleric'

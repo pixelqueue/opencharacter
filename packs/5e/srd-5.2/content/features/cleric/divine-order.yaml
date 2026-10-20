@@ -1,0 +1,22 @@
+id: features.cleric.divine-order
+type: feature
+choices:
+  - id: order
+    from:
+      options:
+        - id: protector
+          effects:
+            - target: proficiencies.weapons
+              op: grant
+              value: { query: { type: weapon, where: "item.category == 'martial'" } }
+            - { target: proficiencies.armor, op: grant, value: { tag: heavy } }
+        - id: thaumaturge
+          effects:
+            - { target: skills.arcana, op: add, value: 'max(1, abilities.wis.mod)' }
+            - { target: skills.religion, op: add, value: 'max(1, abilities.wis.mod)' }
+          choices:
+            - id: cantrip
+              from: { type: spell, where: 'item.level == 0 && @classes.cleric in item.classes' }
+              eligible: '!(item.id in spells.cleric) || item.id in choice.picks'
+              effects:
+                - { target: spells.cleric, op: grant, value: { formula: pick.id } }

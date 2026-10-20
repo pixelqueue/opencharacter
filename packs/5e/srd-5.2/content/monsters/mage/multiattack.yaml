@@ -1,0 +1,38 @@
+id: monsters.mage.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: arcaneBurst1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.mage.arcane-burst)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: arcaneBurst2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.mage.arcane-burst)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: arcaneBurst3
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.mage.arcane-burst)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.arcaneBurst1.result == 'hit' ? 1 : 0)
+              + (steps.arcaneBurst2.result == 'hit' ? 1 : 0)
+              + (steps.arcaneBurst3.result == 'hit' ? 1 : 0)

@@ -1,0 +1,14 @@
+id: magic-items.armor-of-resistance
+type: template
+tags: [magic]
+appliesTo: { type: armor, where: "item.category != 'shield'" }
+fields: { rarity: rare, requiresAttunement: true }
+choices:
+  - id: damage-type
+    from:
+      values: [acid, cold, fire, force, lightning, necrotic, poison, psychic, radiant, thunder]
+    effects:
+      - target: damage.resistances
+        op: grant
+        value: { formula: "'damage.' + pick.value" }
+        when: self.equipped && self.attuned

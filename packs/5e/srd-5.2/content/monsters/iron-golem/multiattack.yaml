@@ -1,0 +1,57 @@
+id: monsters.iron-golem.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 4
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: bladed-arm }, { id: fiery-bolt }]
+        recommend: "'bladed-arm'"
+      - id: bladedArm1
+        kind: action
+        when: "steps.pick1.picked == 'bladed-arm'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.iron-golem.bladed-arm)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: fieryBolt1
+        kind: action
+        when: "steps.pick1.picked == 'fiery-bolt'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.iron-golem.fiery-bolt)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: bladed-arm }, { id: fiery-bolt }]
+        recommend: "'bladed-arm'"
+      - id: bladedArm2
+        kind: action
+        when: "steps.pick2.picked == 'bladed-arm'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.iron-golem.bladed-arm)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: fieryBolt2
+        kind: action
+        when: "steps.pick2.picked == 'fiery-bolt'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.iron-golem.fiery-bolt)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.bladedArm1) && steps.bladedArm1.result == 'hit' ? 1 : 0)
+              + (has(steps.fieryBolt1) && steps.fieryBolt1.result == 'hit' ? 1 : 0)
+              + (has(steps.bladedArm2) && steps.bladedArm2.result == 'hit' ? 1 : 0)
+              + (has(steps.fieryBolt2) && steps.fieryBolt2.result == 'hit' ? 1 : 0)

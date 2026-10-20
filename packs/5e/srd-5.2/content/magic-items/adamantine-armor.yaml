@@ -1,0 +1,7 @@
+id: magic-items.adamantine-armor
+type: template
+tags: [magic]
+appliesTo: { type: armor, where: "item.category in ['medium', 'heavy'] && item.id != @armor.hide" }
+fields: { rarity: uncommon }
+effects:
+  - { target: combat.noCriticals, op: set, value: true, when: self.equipped }

@@ -1,0 +1,97 @@
+id: features.barbarian.rage
+type: feature
+effects:
+  - id: uses
+    target: rage.uses
+    op: set
+    value: 'self.level >= 17 ? 6 : self.level >= 12 ? 5 : self.level >= 6 ? 4 : self.level >= 3 ? 3 : 2'
+  - id: damage-bonus
+    target: rage.damage
+    op: set
+    value: 'self.level >= 16 ? 4 : self.level >= 9 ? 3 : 2'
+  - id: bludgeoning
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.bludgeoning }
+    when: rage.active && !('heavy' in equipment.tags)
+  - id: piercing
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.piercing }
+    when: rage.active && !('heavy' in equipment.tags)
+  - id: slashing
+    target: damage.resistances
+    op: grant
+    value: { tag: damage.slashing }
+    when: rage.active && !('heavy' in equipment.tags)
+  - id: damage
+    target: { rolls: [damage.weapon] }
+    op: add
+    value: rage.damage
+    tags:
+      [
+        {
+          formula: "'damage.' + (has(flags.damageType) ? flags.damageType : 'unarmed' in roll.tags ? 'bludgeoning' : roll.item.damageType)",
+        },
+      ]
+    when: >-
+      rage.active && !('heavy' in equipment.tags) && has(flags.ability) && flags.ability == 'str'
+  - id: strength
+    target: { rolls: [check.str, save.str] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: rage.active && !('heavy' in equipment.tags)
+  - id: no-spells
+    target: spellcasting.blocked
+    op: set
+    value: true
+    when: rage.active
+  - id: short-rest
+    target: { steps: [rest.short] }
+    op: changes
+    when: self.rageSpent > 0 || rage.active
+    value:
+      changes:
+        - { type: adjustState, entry: self, key: rageSpent, by: -1, when: self.rageSpent > 0 }
+        - { type: set, field: rage.active, value: false, when: rage.active }
+  - id: long-rest
+    target: { steps: [rest.long] }
+    op: changes
+    when: self.rageSpent > 0 || rage.active
+    value:
+      changes:
+        - { type: setState, entry: self, key: rageSpent, value: 0, when: self.rageSpent > 0 }
+        - { type: set, field: rage.active, value: false, when: rage.active }
+followUps:
+  - id: incapacitated
+    becomes: conditions.incapacitated && rage.active
+    when: self.level < 15
+    action: end-rage
+actions:
+  - id: rage
+    tags: [feature]
+    results: [raging]
+    available: "!rage.active && self.rageSpent < rage.uses && !('heavy' in equipment.tags)"
+    steps:
+      - id: start
+        kind: changes
+        tags: [rage]
+        changes:
+          - { type: set, field: rage.active, value: true }
+          - { type: adjustState, entry: self, key: rageSpent, by: 1 }
+          - { type: set, field: concentration.active, value: false, when: concentration.active }
+      - id: result
+        kind: outcome
+        result: "'raging'"
+  - id: end-rage
+    tags: [feature]
+    results: [ended]
+    available: rage.active
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - { type: set, field: rage.active, value: false }
+      - id: result
+        kind: outcome
+        result: "'ended'"

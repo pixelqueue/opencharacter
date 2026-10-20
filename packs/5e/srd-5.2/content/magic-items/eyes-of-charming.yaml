@@ -1,0 +1,28 @@
+id: magic-items.eyes-of-charming
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+  maxCharges: 3
+  recharge: 3
+  spells: [spells.charm-person]
+  saveDc: 13
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+grants:
+  - { item: spells.charm-person, when: self.equipped && self.attuned }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.charm-person
+        && flags.slot >= 1 && self.charges >= flags.slot
+    value:
+      id: charges
+      changes:
+        - { type: adjustState, entry: self, key: charges, by: -flags.slot }
+actions:
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

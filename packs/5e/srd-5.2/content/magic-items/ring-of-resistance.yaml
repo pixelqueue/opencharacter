@@ -1,0 +1,28 @@
+id: magic-items.ring-of-resistance
+type: magicItem
+fields:
+  category: ring
+  rarity: rare
+choices:
+  - id: damage-type
+    from:
+      {
+        values:
+          [
+            damage.acid,
+            damage.cold,
+            damage.fire,
+            damage.force,
+            damage.lightning,
+            damage.necrotic,
+            damage.poison,
+            damage.psychic,
+            damage.radiant,
+            damage.thunder,
+          ],
+      }
+    effects:
+      - target: damage.resistances
+        op: grant
+        value: { formula: pick.value }
+        when: self.equipped

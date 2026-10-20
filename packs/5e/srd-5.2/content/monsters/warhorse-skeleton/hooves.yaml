@@ -1,0 +1,48 @@
+id: monsters.warhorse-skeleton.hooves
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+  attack: melee
+  toHit: 6
+  reach: 5
+  damage: 1d6 + 4
+  damageType: bludgeoning
+actions:
+  - id: charge
+    tags: [attack]
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss]
+    steps:
+      - id: hooves
+        kind: action
+        use: monster-attack
+        entry: self.id
+        params:
+          targetAc: 'has(params.targetAc) ? params.targetAc : null'
+        participants:
+          target: participants.target
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              critical: "steps.hooves.result == 'hit' && steps.hooves.data.critical"
+              sizeOk: >-
+                size(participants.target) == 0
+                  || indexOf(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'],
+                    participants.target[0].creature.size) <= 3
+      - id: prone
+        kind: changes
+        when: steps.hooves.result == 'hit' && flags.sizeOk
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.prone'", state: { by: creature.type } }
+      - id: result
+        kind: outcome
+        result: "steps.hooves.result == 'hit' ? 'hit' : 'miss'"
+        data:
+          damage: steps.hooves.data.damage

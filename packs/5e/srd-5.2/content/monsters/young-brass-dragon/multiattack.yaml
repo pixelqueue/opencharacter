@@ -1,0 +1,51 @@
+id: monsters.young-brass-dragon.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 1
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: rend1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.young-brass-dragon.rend)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: rend }, { id: sleep-breath }]
+        recommend: "'rend'"
+      - id: rend2
+        kind: action
+        when: "steps.pick2.picked == 'rend'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.young-brass-dragon.rend)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: rend3
+        kind: action
+        when: "steps.pick2.picked == 'rend'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.young-brass-dragon.rend)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: sleepBreath
+        kind: action
+        when: "steps.pick2.picked == 'sleep-breath'"
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.young-brass-dragon.sleep-breath)[0].id
+        participants:
+          target: participants.target
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.rend1.result == 'hit' ? 1 : 0)
+              + (has(steps.rend2) && steps.rend2.result == 'hit' ? 1 : 0)
+              + (has(steps.rend3) && steps.rend3.result == 'hit' ? 1 : 0)

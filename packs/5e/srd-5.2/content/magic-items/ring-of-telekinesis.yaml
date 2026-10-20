@@ -1,0 +1,16 @@
+id: magic-items.ring-of-telekinesis
+type: magicItem
+fields:
+  category: ring
+  rarity: very-rare
+  requiresAttunement: true
+  spells: [spells.telekinesis]
+grants:
+  - { item: spells.telekinesis, when: self.equipped && self.attuned }
+effects:
+  - {
+      target: spells.atWill,
+      op: grant,
+      value: { item: spells.telekinesis },
+      when: self.equipped && self.attuned,
+    }

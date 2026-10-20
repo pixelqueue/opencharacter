@@ -1,0 +1,15 @@
+id: magic-items.periapt-of-wound-closure
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  - target: { rolls: [save.death] }
+    op: atLeast
+    value: 10
+    when: self.equipped && self.attuned
+  - target: { incoming: { fields: [hp.current], tags: [healing.hit-die] } }
+    op: multiply
+    value: 2
+    when: self.equipped && self.attuned

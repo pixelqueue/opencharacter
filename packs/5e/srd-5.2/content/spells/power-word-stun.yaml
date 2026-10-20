@@ -1,0 +1,33 @@
+id: spells.power-word-stun
+type: spell
+fields:
+  level: 8
+  school: enchantment
+  classes: [classes.bard, classes.sorcerer, classes.warlock, classes.wizard]
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: instantaneous
+effects:
+  - target: { steps: [spell.target] }
+    op: changes
+    when: action.item.id == item.id && has(participant.hp.current)
+    value:
+      changes:
+        - type: applyEffect
+          when: participant.hp.current <= 150
+          source: "'conditions.stunned'"
+          state: { by: creature.type, magical: true }
+        - type: applyEffect
+          when: participant.hp.current > 150
+          source: item.id
+  - target: combat.speed
+    op: atMost
+    value: 0
+    scope: applied
+    duration: { amount: 1, unit: round }
+actions:
+  - use: cast-spell

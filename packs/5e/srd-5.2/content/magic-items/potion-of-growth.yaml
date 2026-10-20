@@ -1,0 +1,33 @@
+id: magic-items.potion-of-growth
+type: magicItem
+fields:
+  category: potion
+  rarity: uncommon
+  lasting: true
+  spells: [spells.enlarge-reduce]
+effects:
+  - {
+      target: carrying.sizeSteps,
+      op: add,
+      value: 1,
+      scope: applied,
+      duration: { amount: 10, unit: minute },
+    }
+  - target: { rolls: [check.str, save.str] }
+    op: rollModifier
+    value: { kind: advantage }
+    scope: applied
+    duration: { amount: 10, unit: minute }
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 1d4
+    tags:
+      [
+        {
+          formula: "'damage.' + (has(flags.damageType) ? flags.damageType : has(roll.item.damageType) ? roll.item.damageType : 'bludgeoning')",
+        },
+      ]
+    scope: applied
+    duration: { amount: 10, unit: minute }
+actions:
+  - use: drink-potion

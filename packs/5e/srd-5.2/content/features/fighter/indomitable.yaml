@@ -1,0 +1,25 @@
+id: features.fighter.indomitable
+type: feature
+effects:
+  - {
+      id: uses,
+      target: indomitable.uses,
+      op: set,
+      value: 'self.level >= 17 ? 3 : self.level >= 13 ? 2 : 1',
+    }
+  - id: reroll
+    target: { choices: [failed-save] }
+    op: option
+    when: self.indomitableSpent < indomitable.uses
+    value:
+      id: indomitable
+      flags: { retry: true, addBonus: self.level }
+      changes:
+        - { type: adjustState, entry: self, key: indomitableSpent, by: 1 }
+  - id: long-rest
+    target: { steps: [rest.long] }
+    op: changes
+    when: self.indomitableSpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: indomitableSpent, value: 0 }

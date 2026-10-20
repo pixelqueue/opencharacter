@@ -1,0 +1,11 @@
+id: magic-items.ioun-stone-of-intellect
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+effects:
+  - target: abilities.int.score
+    op: add
+    value: 'min(2, max(0, 20 - abilities.int.base))'
+    when: self.equipped && self.attuned

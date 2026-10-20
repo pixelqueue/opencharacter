@@ -1,0 +1,43 @@
+id: magic-items.hat-of-many-spells
+type: magicItem
+tags: [attunement.wizard]
+fields:
+  category: wondrous-item
+  rarity: very-rare
+  requiresAttunement: true
+state:
+  unknownSpellUsed: { type: boolean, default: false }
+effects:
+  - target: { steps: [rest.short, rest.long] }
+    op: changes
+    when: self.unknownSpellUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: unknownSpellUsed, value: false }
+actions:
+  - id: unknown-spell
+    tags: [magic-item]
+    available: self.attuned && !self.unknownSpellUsed
+    params:
+      level: { type: integer, default: 1 }
+    results: [cast, random-effect]
+    steps:
+      - id: check
+        kind: action
+        use: skill-check
+        params: { skill: "'arcana'", dc: 10 + params.level }
+      - id: used
+        kind: changes
+        when: steps.check.result == 'success'
+        changes:
+          - { type: setState, entry: self, key: unknownSpellUsed, value: true }
+      - id: effect
+        kind: roll
+        when: steps.check.result != 'success'
+        parts:
+          - dice: 1d100
+      - id: result
+        kind: outcome
+        result: "steps.check.result == 'success' ? 'cast' : 'random-effect'"
+        data:
+          effect: 'has(steps.effect) ? steps.effect.total : 0'

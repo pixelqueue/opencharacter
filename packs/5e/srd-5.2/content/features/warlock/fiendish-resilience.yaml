@@ -1,0 +1,24 @@
+id: features.warlock.fiendish-resilience
+type: feature
+choices:
+  - id: damage-type
+    from:
+      values:
+        [
+          acid,
+          bludgeoning,
+          cold,
+          fire,
+          lightning,
+          necrotic,
+          piercing,
+          poison,
+          psychic,
+          radiant,
+          slashing,
+          thunder,
+        ]
+    effects:
+      - target: damage.resistances
+        op: grant
+        value: { formula: "'damage.' + pick.value" }

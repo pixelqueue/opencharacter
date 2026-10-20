@@ -1,0 +1,31 @@
+id: spells.heal
+type: spell
+fields:
+  level: 6
+  school: abjuration
+  classes: [classes.cleric, classes.druid]
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: instantaneous
+  healBonus: 70
+  upcastHealBonus: 10
+effects:
+  - target:
+      steps: [spell.slot-spent]
+    op: changes
+    value:
+      to: target
+      changes:
+        - type: removeEffect
+          applied: { where: item.id == @conditions.blinded }
+        - type: removeEffect
+          applied: { where: item.id == @conditions.deafened }
+        - type: removeEffect
+          applied: { where: item.id == @conditions.poisoned }
+    when: action.item.id == item.id
+actions:
+  - use: cast-spell

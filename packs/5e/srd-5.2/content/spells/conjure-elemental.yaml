@@ -1,0 +1,62 @@
+id: spells.conjure-elemental
+type: spell
+fields:
+  level: 5
+  school: conjuration
+  classes: [classes.druid, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 10
+actions:
+  - use: cast-spell
+  - id: engulf
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+      damageType: { type: enum, values: [lightning, thunder, fire, cold] }
+    participants:
+      target: { fields: target }
+    results: [save]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          save: "'dex'"
+          dice: 'dieOf(1d8, 8 + max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+          damageType: params.damageType
+          condition: "'conditions.restrained'"
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage
+  - id: hold
+    tags: [spell]
+    params:
+      slot: { type: integer, optional: true, min: 1, max: 9 }
+      damageType: { type: enum, values: [lightning, thunder, fire, cold] }
+    participants:
+      target: { fields: target }
+    results: [save]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          save: "'dex'"
+          dice: 'dieOf(1d8, 4 + max(0, (has(params.slot) ? params.slot : item.level) - item.level))'
+          damageType: params.damageType
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage

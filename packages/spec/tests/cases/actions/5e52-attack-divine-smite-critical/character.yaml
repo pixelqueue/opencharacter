@@ -1,0 +1,91 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - id: 5e-srd-5.2
+    version: 0.1.0
+features:
+  - id: class
+    item: 5e-srd-5.2:classes.paladin
+    state:
+      level: 5
+      startingClass: true
+    choices:
+      skills:
+        - option: skill.insight
+        - option: skill.intimidation
+      5e-srd-5.2:features.paladin.spellcasting/spells:
+        - option: 5e-srd-5.2:spells.detect-evil-and-good
+        - option: 5e-srd-5.2:spells.searing-smite
+        - option: 5e-srd-5.2:spells.bless
+        - option: 5e-srd-5.2:spells.heroism
+        - option: 5e-srd-5.2:spells.command
+        - option: 5e-srd-5.2:spells.prayer-of-healing
+      5e-srd-5.2:features.paladin.weapon-mastery/weapons:
+        - option: 5e-srd-5.2:weapons.trident
+        - option: 5e-srd-5.2:weapons.spear
+      5e-srd-5.2:features.paladin.fighting-style/style:
+        - option: feat
+          choices:
+            feat:
+              - option: 5e-srd-5.2:feats.great-weapon-fighting
+      subclass:
+        - option: 5e-srd-5.2:subclasses.oath-of-devotion
+      5e-srd-5.2:features.paladin.ability-score-improvement/feat-4:
+        - option: 5e-srd-5.2:feats.savage-attacker
+  - id: background
+    item: 5e-srd-5.2:backgrounds.sage
+    choices:
+      ability-increase:
+        - option: two-and-one
+          choices:
+            plus-two:
+              - option: con
+            plus-one:
+              - option: wis
+      languages:
+        - option: 5e-srd-5.2:languages.common-sign-language
+        - option: 5e-srd-5.2:languages.draconic
+      5e-srd-5.2:feats.magic-initiate/list:
+        - option: wizard
+          choices:
+            ability:
+              - option: wis
+            cantrips:
+              - option: 5e-srd-5.2:spells.elementalism
+              - option: 5e-srd-5.2:spells.mage-hand
+            spell:
+              - option: 5e-srd-5.2:spells.magic-missile
+  - id: species
+    item: 5e-srd-5.2:species.tiefling
+    choices:
+      lineage:
+        - option: 5e-srd-5.2:lineages.infernal
+          choices:
+            ability:
+              - option: wis
+      size:
+        - option: medium
+values:
+  5e-srd-5.2:abilities.str.base: 17
+  5e-srd-5.2:abilities.dex.base: 10
+  5e-srd-5.2:abilities.con.base: 16
+  5e-srd-5.2:abilities.int.base: 9
+  5e-srd-5.2:abilities.wis.base: 15
+  5e-srd-5.2:abilities.cha.base: 16
+  5e-srd-5.2:coins.gp: 683
+  5e-srd-5.2:hp.base: 34
+  5e-srd-5.2:xp.current: 6500
+  5e-srd-5.2:hp.current: 54
+inventory:
+  - id: weapons-quarterstaff-1
+    item: 5e-srd-5.2:weapons.quarterstaff
+    equipped: true
+  - id: tools-calligraphers-supplies-1
+    item: 5e-srd-5.2:tools.calligraphers-supplies
+  - id: gear-book-1
+    item: 5e-srd-5.2:gear.book
+  - id: gear-parchment-1
+    item: 5e-srd-5.2:gear.parchment
+    quantity: 8
+  - id: gear-robe-1
+    item: 5e-srd-5.2:gear.robe

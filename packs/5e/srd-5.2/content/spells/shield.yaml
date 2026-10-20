@@ -1,0 +1,22 @@
+id: spells.shield
+type: spell
+fields:
+  level: 1
+  school: abjuration
+  classes: [classes.sorcerer, classes.wizard]
+  castingTime: reaction
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: round
+  durationAmount: 1
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: combat.ac
+    op: add
+    value: 5
+    scope: applied
+    duration: { amount: 1, unit: round }

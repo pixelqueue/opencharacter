@@ -1,0 +1,46 @@
+id: features.paladin.abjure-foes
+type: feature
+actions:
+  - id: abjure-foes
+    tags: [feature]
+    available: self.channelDivinitySpent < paladin.channelDivinity
+    participants:
+      target:
+        fields: target
+    results: [too-many, used]
+    steps:
+      - id: tooMany
+        kind: outcome
+        when: size(participants.target) > max(1, abilities.cha.mod)
+        result: "'too-many'"
+        data:
+          targets: max(1, abilities.cha.mod)
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: channelDivinitySpent, by: 1 }
+      - id: saves
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params:
+          ability: "'wis'"
+          dc: spellcasting.paladin.dc
+      - id: frighten
+        kind: changes
+        each: target
+        when: has(steps.saves) && steps.saves.result == 'failure'
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.frightened'"
+            state: { by: creature.type, magical: true }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          dc: spellcasting.paladin.dc
+          targets: max(1, abilities.cha.mod)
+          range: 60
+          minutes: 1

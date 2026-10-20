@@ -1,0 +1,10 @@
+id: monsters.clay-golem.acid-absorption
+type: monsterAction
+fields:
+  kind: trait
+  order: 1
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.acid] } }
+    op: atLeast
+    value: -incoming.amount
+    when: incoming.amount < 0

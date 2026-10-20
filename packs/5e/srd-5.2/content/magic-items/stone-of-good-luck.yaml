@@ -1,0 +1,20 @@
+id: magic-items.stone-of-good-luck
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  - target: { fields: { where: "'skill' in item.tags || item.id == @combat.initiative" } }
+    op: add
+    value: 1
+    when: self.attuned
+  - target: { rolls: [check] }
+    op: add
+    value: 1
+    when: self.attuned && !has(params.field)
+  - target: { fields: { where: "'save' in item.tags" } }
+    op: add
+    value: 1
+    when: self.attuned
+  - { target: { rolls: [save.death] }, op: add, value: 1, when: self.attuned }

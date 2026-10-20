@@ -1,0 +1,9 @@
+id: magic-items.rope-of-climbing
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+state:
+  knotted: { type: boolean, default: false }
+effects:
+  - { target: items.climbAdvantage, op: set, value: true, when: self.equipped && self.knotted }

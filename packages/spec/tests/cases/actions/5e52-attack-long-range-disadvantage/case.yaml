@@ -1,0 +1,22 @@
+description: '5E 2024 attack beyond normal range: Disadvantage keeps the lower d20'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: 5e-srd-5.2:weapon-attack
+    entry: weapons-shortbow-1
+  params:
+    longRange: true
+  participants:
+    target:
+      - id: goblin
+        values:
+          combat.ac: 15
+          creature.size: small
+          creature.type: humanoid
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto

@@ -1,0 +1,16 @@
+id: species.gnome
+type: species
+fields:
+  speed: 30
+  size: small
+state:
+  speakWithAnimalsUsed: { type: integer, default: 0, min: 0 }
+effects:
+  - { target: creature.type, op: set, value: "'humanoid'" }
+grants:
+  - item: traits.darkvision
+  - item: traits.gnomish-cunning
+  - item: traits.gnomish-lineage
+choices:
+  - id: lineage
+    from: { type: lineage, where: 'item.species == @species.gnome' }

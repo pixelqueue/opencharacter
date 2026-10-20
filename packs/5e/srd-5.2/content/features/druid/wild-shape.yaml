@@ -1,0 +1,73 @@
+id: features.druid.wild-shape
+type: feature
+effects:
+  - target: wildShape.uses
+    op: set
+    value: 'self.level >= 17 ? 4 : self.level >= 6 ? 3 : 2'
+  - target: wildShape.forms
+    op: set
+    value: 'self.level >= 8 ? 8 : self.level >= 4 ? 6 : 4'
+  - target: wildShape.maxCr
+    op: set
+    value: 'self.level >= 8 ? 1 : self.level >= 4 ? 0.5 : 0.25'
+  - { target: wildShape.flying, op: set, value: self.level >= 8 }
+  - { target: wildShape.hours, op: set, value: floor(self.level / 2) }
+  - {
+      target: spellcasting.blocked,
+      op: set,
+      value: true,
+      when: wildShape.active && !wildShape.beastSpells,
+    }
+  - target: { steps: [rest.short] }
+    op: changes
+    when: self.wildShapeSpent > 0
+    value:
+      changes:
+        - { type: adjustState, entry: self, key: wildShapeSpent, by: -1 }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.wildShapeSpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: wildShapeSpent, value: 0 }
+actions:
+  - id: wild-shape
+    tags: [feature]
+    results: [transformed]
+    available: self.wildShapeSpent < wildShape.uses
+    steps:
+      - id: transform
+        kind: changes
+        changes:
+          - { type: set, field: wildShape.active, value: true }
+          - { type: adjustState, entry: self, key: wildShapeSpent, by: 1 }
+      - id: vigor
+        kind: action
+        use: gain-temporary-hit-points
+        params:
+          amount: self.level
+      - id: result
+        kind: outcome
+        result: "'transformed'"
+        data:
+          maxCr: wildShape.maxCr
+          hours: wildShape.hours
+          flying: wildShape.flying
+  - id: revert
+    tags: [feature]
+    results: [reverted]
+    available: wildShape.active
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - { type: set, field: wildShape.active, value: false }
+      - id: result
+        kind: outcome
+        result: "'reverted'"
+followUps:
+  - id: incapacitated
+    becomes: conditions.incapacitated && wildShape.active
+    required: true
+    changes:
+      - { type: set, field: wildShape.active, value: false }

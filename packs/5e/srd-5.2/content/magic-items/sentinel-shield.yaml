@@ -1,0 +1,10 @@
+id: magic-items.sentinel-shield
+type: template
+tags: [magic]
+appliesTo: { type: armor, where: "item.category == 'shield'" }
+fields: { rarity: uncommon }
+effects:
+  - target: { rolls: [initiative, skill.perception] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.equipped

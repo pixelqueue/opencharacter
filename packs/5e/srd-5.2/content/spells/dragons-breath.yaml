@@ -1,0 +1,65 @@
+id: spells.dragons-breath
+type: spell
+fields:
+  level: 2
+  school: transmutation
+  classes: [classes.sorcerer, classes.wizard]
+  concentration: true
+  castingTime: bonus-action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+  applied: true
+  castOptions: [acid, cold, fire, lightning, poison]
+  areaShape: cone
+  areaSize: 15
+actions:
+  - use: cast-spell
+  - id: exhale
+    scope: applied
+    tags: [spell]
+    params:
+      dc: { type: integer }
+    participants:
+      target: { fields: target }
+    results: [save]
+    steps:
+      - id: effect
+        kind: action
+        use: spell-effect
+        participants: { target: participants.target }
+        params:
+          save: "'dex'"
+          half: true
+          dc: params.dc
+          damageType: self.option
+          dice: dieOf(1d6, 3 + max(0, self.castSlot - item.level))
+      - id: result
+        kind: outcome
+        result: steps.effect.result
+        data:
+          damage: steps.effect.data.damage
+effects:
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: acid }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: cold }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: fire }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: lightning }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: poison }

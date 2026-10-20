@@ -1,0 +1,57 @@
+id: monsters.half-dragon.dragons-breath
+type: monsterAction
+fields:
+  ownAction: true
+  kind: action
+  order: 4
+  recharge: 5
+  saveEffect: half
+  areaShape: cone
+  areaSize: 30
+actions:
+  - id: breath
+    tags: [monster-effect]
+    available: '!self.recharging'
+    params:
+      damageType: { type: enum, values: [acid, cold, fire, lightning, poison], default: acid }
+    participants:
+      target:
+        fields: target
+    results: [used]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts: [{ dice: 8d6, tags: [{ formula: "'damage.' + params.damageType" }] }]
+      - id: saves
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params:
+          ability: "'dex'"
+          dc: 14
+      - id: burn
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: >-
+              steps.saves.result == 'success' ? -floor(max(0, part.total) / 2) : -max(0, part.total)
+            tags:
+              - damage
+              - save-half
+              - save.dex
+              - { formula: "steps.saves.result == 'success' ? 'save-success' : 'save-failure'" }
+      - id: spend
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: recharging, value: true }
+      - id: result
+        kind: outcome
+        result: "'used'"
+        data:
+          damage: steps.damage.total

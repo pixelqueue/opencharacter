@@ -1,0 +1,20 @@
+id: magic-items.sending-stones
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  spells: [spells.sending]
+state:
+  usedToday: { type: set, of: string, default: [] }
+grants:
+  - { item: spells.sending, when: self.equipped }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.sending && !('sending' in self.usedToday)
+    value:
+      id: daily
+      flags: { slot: 3 }
+      changes:
+        - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['sending']" }

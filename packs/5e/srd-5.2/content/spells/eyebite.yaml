@@ -1,0 +1,37 @@
+id: spells.eyebite
+type: spell
+fields:
+  level: 6
+  school: necromancy
+  classes: [classes.bard, classes.sorcerer, classes.warlock, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: self
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  save: wis
+  saveEffect: none
+  applied: true
+  castOptions: [asleep, panicked, sickened]
+actions:
+  - use: cast-spell
+grants:
+  - { item: conditions.unconscious, scope: applied, when: "self.option == 'asleep'" }
+  - { item: conditions.frightened, scope: applied, when: "self.option == 'panicked'" }
+  - { item: conditions.poisoned, scope: applied, when: "self.option == 'sickened'" }
+effects:
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: asleep }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: panicked }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: sickened }

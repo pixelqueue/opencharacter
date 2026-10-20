@@ -1,0 +1,14 @@
+id: features.bard.inspiration-die
+type: feature
+state:
+  die: { type: dice, default: 1d6 }
+effects:
+  - target: { choices: [failed-check, failed-save, failed-attack] }
+    op: option
+    scope: applied
+    value:
+      id: use
+      flags: { addDie: self.die }
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @features.bard.inspiration-die' }

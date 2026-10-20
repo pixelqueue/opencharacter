@@ -1,0 +1,11 @@
+id: magic-items.spellguard-shield
+type: template
+tags: [magic]
+appliesTo: { type: armor, where: "item.category == 'shield'" }
+fields: { rarity: very-rare, requiresAttunement: true }
+effects:
+  - { target: items.magicSaveAdvantage, op: set, value: true, when: self.equipped && self.attuned }
+  - target: combat.spellAttackersDisadvantage
+    op: set
+    value: true
+    when: self.equipped && self.attuned

@@ -1,0 +1,34 @@
+id: magic-items.sword-of-life-stealing
+type: template
+tags: [magic]
+appliesTo:
+  {
+    type: weapon,
+    where: 'item.id in [@weapons.glaive, @weapons.greatsword, @weapons.longsword, @weapons.rapier, @weapons.scimitar, @weapons.shortsword]',
+  }
+fields: { rarity: rare, requiresAttunement: true }
+effects:
+  - target: { rolls: [damage.weapon], from: self }
+    op: add
+    value: 15
+    tags: [damage.necrotic]
+    when: >-
+      self.attuned && has(steps.test) && steps.test.data.natural == 20
+        && !(has(participants.target) && size(participants.target) > 0 && has(participants.target[0].creature.type)
+        && participants.target[0].creature.type in ['construct', 'undead'])
+actions:
+  - id: life-stealing
+    tags: [magic-item]
+    available: self.attuned
+    params:
+      taken: { type: integer, default: 15, min: 0, max: 15 }
+    results: [stolen]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: set, field: hp.temp, value: 'max(hp.temp, params.taken)' }
+      - id: result
+        kind: outcome
+        result: "'stolen'"
+        data: { tempHp: params.taken }

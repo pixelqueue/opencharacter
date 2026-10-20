@@ -1,0 +1,30 @@
+id: traits.relentless-endurance
+type: trait
+followUps:
+  - id: relentless-endurance
+    becomes: hp.current == 0 && !creature.dead
+    when: >-
+      countCopies(copy.type == 'species' && has(copy.state.relentlessEnduranceUsed)
+        && !copy.state.relentlessEnduranceUsed) > 0
+    action: relentless-endurance
+effects:
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.relentlessEnduranceUsed
+    value:
+      changes:
+        - { type: setState, entry: self, key: relentlessEnduranceUsed, value: false }
+actions:
+  - id: relentless-endurance
+    tags: [feature]
+    available: hp.current == 0 && !creature.dead && !self.relentlessEnduranceUsed
+    results: [endured]
+    steps:
+      - id: endure
+        kind: changes
+        changes:
+          - { type: set, field: hp.current, value: 1 }
+          - { type: setState, entry: self, key: relentlessEnduranceUsed, value: true }
+      - id: result
+        kind: outcome
+        result: "'endured'"

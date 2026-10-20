@@ -1,0 +1,20 @@
+fields:
+  wizard.overchannel: { type: boolean, formula: false }
+
+situational:
+  - id: overchannel
+    type: boolean
+    default: false
+    rolls: [damage.spell]
+    available: wizard.overchannel
+    effects:
+      - target: { rolls: [damage.spell] }
+        op: rollModifier
+        value: { kind: minimumFace, value: 'maxOf(dieOf(roll.item.damage))' }
+        when: >-
+          has(flags.cls) && flags.cls == 'wizard' && flags.slot >= 1 && flags.slot <= 5
+            && has(roll.item.damage)
+
+display:
+  fields:
+    wizard.overchannel: { hidden: true }

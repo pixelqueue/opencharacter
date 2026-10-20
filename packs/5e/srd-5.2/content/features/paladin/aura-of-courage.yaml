@@ -1,0 +1,9 @@
+id: features.paladin.aura-of-courage
+type: feature
+immuneTo:
+  - id: frightened
+    items: [conditions.frightened]
+    when: >-
+      countList(character.applied, x.active && x.source in [@conditions.incapacitated,
+        @conditions.paralyzed, @conditions.petrified, @conditions.stunned,
+        @conditions.unconscious]) == 0

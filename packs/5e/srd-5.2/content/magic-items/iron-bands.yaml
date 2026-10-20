@@ -1,0 +1,75 @@
+id: magic-items.iron-bands
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  weight: 1
+state:
+  usedToday: { type: set, of: string, default: [] }
+actions:
+  - id: bind
+    tags: [attack, magic-item]
+    available: "self.quantity > 0 && !('bind' in self.usedToday)"
+    params:
+      targetAc: { type: integer, optional: true }
+    participants:
+      target: { max: 1, fields: target }
+    results: [hit, miss, too-large]
+    steps:
+      - id: tooLarge
+        kind: outcome
+        when: >-
+          size(participants.target) > 0 && has(participants.target[0].creature.size)
+            && participants.target[0].creature.size == 'gargantuan'
+        result: "'too-large'"
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ac: >-
+                size(participants.target) > 0 && has(participants.target[0].combat.rangedAc)
+                  ? participants.target[0].combat.rangedAc
+                  : has(params.targetAc) ? params.targetAc : -1
+      - id: use
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['bind']" }
+      - id: test
+        kind: action
+        use: d20-test
+        tags: [attack, attack.ranged]
+        params:
+          kind: "'attack'"
+          ability: "'dex'"
+          proficiency: 1
+          dc: 'flags.ac >= 0 ? flags.ac : null'
+      - id: hit
+        kind: branch
+        cases:
+          - when: steps.test.result in ['hit', 'critical']
+            flags: { hit: true }
+          - when: steps.test.result == 'miss'
+            flags: { hit: false }
+        else:
+          flags: { hit: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options:
+                - id: hit
+                  flags: { hit: true }
+                - id: miss
+      - id: bound
+        kind: changes
+        when: flags.hit
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.restrained'"
+            state: { by: creature.type, magical: true }
+      - id: result
+        kind: outcome
+        result: "flags.hit ? 'hit' : 'miss'"
+        data:
+          attack: steps.test.data.total

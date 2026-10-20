@@ -1,0 +1,38 @@
+id: spells.slow
+type: spell
+fields:
+  level: 3
+  school: transmutation
+  classes: [classes.bard, classes.sorcerer, classes.wizard]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 120
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: minute
+  durationAmount: 1
+  areaShape: cube
+  areaSize: 40
+  save: wis
+  saveEffect: none
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: combat.ac
+    op: add
+    value: -2
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
+  - target: combat.speed
+    op: multiply
+    value: 0.5
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
+  - target: saves.dex
+    op: add
+    value: -2
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }

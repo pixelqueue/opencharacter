@@ -1,0 +1,43 @@
+id: magic-items.gem-of-brightness
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  maxCharges: 50
+  saveDc: 15
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - id: beam
+    tags: [magic-item]
+    available: self.charges >= 1
+    participants:
+      target: { max: 1, fields: target }
+    results: [used, no-charges, used-today]
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          { charges: 1, save: "'con'", dc: 15, half: false, condition: "'conditions.blinded'" }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+  - id: flare
+    tags: [magic-item]
+    available: self.charges >= 5
+    participants:
+      target: { fields: target }
+    results: [used, no-charges, used-today]
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          { charges: 5, save: "'con'", dc: 15, half: false, condition: "'conditions.blinded'" }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+  - use: use-charges

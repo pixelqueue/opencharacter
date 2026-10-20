@@ -1,0 +1,53 @@
+id: magic-items.hammer-of-thunderbolts
+type: template
+tags: [magic]
+appliesTo: { type: weapon, where: 'item.id in [@weapons.maul, @weapons.warhammer]' }
+fields:
+  {
+    rarity: legendary,
+    requiresAttunement: true,
+    maxCharges: 5,
+    recharge: 1d4 + 1,
+    attackBonus: 1,
+    damageBonus: 1,
+  }
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+effects:
+  - target: abilities.str.score
+    op: atLeast
+    value: >-
+      min(30, 4 + maxCopies(
+          copy.item == @magic-items.belt-of-hill-giant-strength ? 21
+          : copy.item == @magic-items.belt-of-frost-giant-strength ? 23
+          : copy.item == @magic-items.belt-of-stone-giant-strength ? 23
+          : copy.item == @magic-items.belt-of-fire-giant-strength ? 25
+          : copy.item == @magic-items.belt-of-cloud-giant-strength ? 27
+          : copy.item == @magic-items.belt-of-storm-giant-strength ? 29
+          : copy.item == @magic-items.gauntlets-of-ogre-power ? 19 : 0,
+        copy.equipped && has(copy.state.attuned) && copy.state.attuned))
+    when: >-
+      self.attuned && countCopies(copy.equipped && has(copy.state.attuned) && copy.state.attuned
+        && (copy.item == @magic-items.gauntlets-of-ogre-power
+          || copy.item in [@magic-items.belt-of-hill-giant-strength, @magic-items.belt-of-frost-giant-strength, @magic-items.belt-of-stone-giant-strength,
+            @magic-items.belt-of-fire-giant-strength, @magic-items.belt-of-cloud-giant-strength, @magic-items.belt-of-storm-giant-strength])) > 0
+actions:
+  - id: thunderclap
+    tags: [magic-item]
+    available: self.attuned && self.charges >= 1
+    participants:
+      target: { fields: target }
+    results: [used, no-charges, used-today]
+    steps:
+      - id: power
+        kind: action
+        use: item-power
+        params:
+          { charges: 1, save: "'con'", dc: 17, half: false, condition: "'conditions.stunned'" }
+        participants: { target: participants.target }
+      - id: result
+        kind: outcome
+        result: steps.power.result
+  - use: use-charges
+  - use: regain-charges
+    params: { max: item.maxCharges, dice: item.recharge }

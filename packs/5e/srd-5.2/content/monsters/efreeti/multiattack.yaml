@@ -1,0 +1,77 @@
+id: monsters.efreeti.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 4
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 3, fields: target }
+    results: [done]
+    steps:
+      - id: pick1
+        kind: choice
+        options: [{ id: heated-blade }, { id: hurl-flame }]
+        recommend: "'heated-blade'"
+      - id: heatedBlade1
+        kind: action
+        when: "steps.pick1.picked == 'heated-blade'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.efreeti.heated-blade)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: hurlFlame1
+        kind: action
+        when: "steps.pick1.picked == 'hurl-flame'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.efreeti.hurl-flame)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pick2
+        kind: choice
+        options: [{ id: heated-blade }, { id: hurl-flame }]
+        recommend: "'heated-blade'"
+      - id: heatedBlade2
+        kind: action
+        when: "steps.pick2.picked == 'heated-blade'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.efreeti.heated-blade)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: hurlFlame2
+        kind: action
+        when: "steps.pick2.picked == 'hurl-flame'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.efreeti.hurl-flame)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: pick3
+        kind: choice
+        options: [{ id: heated-blade }, { id: hurl-flame }]
+        recommend: "'heated-blade'"
+      - id: heatedBlade3
+        kind: action
+        when: "steps.pick3.picked == 'heated-blade'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.efreeti.heated-blade)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: hurlFlame3
+        kind: action
+        when: "steps.pick3.picked == 'hurl-flame'"
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.efreeti.hurl-flame)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (has(steps.heatedBlade1) && steps.heatedBlade1.result == 'hit' ? 1 : 0)
+              + (has(steps.hurlFlame1) && steps.hurlFlame1.result == 'hit' ? 1 : 0)
+              + (has(steps.heatedBlade2) && steps.heatedBlade2.result == 'hit' ? 1 : 0)
+              + (has(steps.hurlFlame2) && steps.hurlFlame2.result == 'hit' ? 1 : 0)
+              + (has(steps.heatedBlade3) && steps.heatedBlade3.result == 'hit' ? 1 : 0)
+              + (has(steps.hurlFlame3) && steps.hurlFlame3.result == 'hit' ? 1 : 0)

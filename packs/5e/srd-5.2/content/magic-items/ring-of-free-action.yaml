@@ -1,0 +1,13 @@
+id: magic-items.ring-of-free-action
+type: magicItem
+fields:
+  category: ring
+  rarity: rare
+  requiresAttunement: true
+immuneTo:
+  - id: magical-paralysis-and-restraint
+    when: self.equipped && self.attuned
+    query:
+      type: condition
+      where: >-
+        item.id in [@conditions.paralyzed, @conditions.restrained] && has(entry.magical) && entry.magical

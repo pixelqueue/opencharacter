@@ -1,0 +1,27 @@
+id: monster-actions.innate-spell
+type: monsterAction
+fields:
+  kind: trait
+choices:
+  - id: spell
+    from: { type: spell }
+    effects:
+      - { target: spells.monster, op: grant, value: { formula: pick.id } }
+      - {
+          target: spells.monsterAtWill,
+          op: grant,
+          value: { formula: pick.id },
+          when: self.uses == 0,
+        }
+      - { target: spells.limited, op: grant, value: { formula: pick.id }, when: self.uses > 0 }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      self.uses > 0 && self.used < self.uses && action.self.id == self.id
+        && (!has(params.slot) || params.slot == action.item.level)
+    value:
+      id: per-day
+      flags: { slot: action.item.level, castAbility: "'monster'" }
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

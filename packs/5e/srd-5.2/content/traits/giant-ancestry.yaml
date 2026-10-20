@@ -1,0 +1,178 @@
+id: traits.giant-ancestry
+type: trait
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    value: 1d12 + abilities.con.mod
+    when: situational.stonesEndurance && incoming.amount < 0
+    then:
+      - { type: adjustState, entry: self, key: giantAncestryUsed, by: 1 }
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: atMost
+    value: 0
+    when: situational.stonesEndurance && incoming.amount < 0
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.giantAncestryUsed > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: giantAncestryUsed, value: 0 }
+actions:
+  - id: clouds-jaunt
+    tags: [feature]
+    available: origins.giantAncestry == 'cloud' && self.giantAncestryUsed < proficiency.bonus
+    results: [teleported]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: giantAncestryUsed, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'teleported'"
+        data:
+          distance: 30
+  - id: fires-burn
+    tags: [feature]
+    available: origins.giantAncestry == 'fire' && self.giantAncestryUsed < proficiency.bonus
+    params:
+      critical: { type: boolean, default: false }
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [burned]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags: { critical: params.critical }
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: 1d10
+            tags: [damage.fire]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, magical]
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: giantAncestryUsed, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'burned'"
+        data:
+          damage: steps.damage.total
+  - id: frosts-chill
+    tags: [feature]
+    available: origins.giantAncestry == 'frost' && self.giantAncestryUsed < proficiency.bonus
+    params:
+      critical: { type: boolean, default: false }
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [chilled]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags: { critical: params.critical }
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: 1d6
+            tags: [damage.cold]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, magical]
+          - type: applyEffect
+            source: "'combat-effects.slowed'"
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: giantAncestryUsed, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'chilled'"
+        data:
+          damage: steps.damage.total
+  - id: hills-tumble
+    tags: [feature]
+    available: origins.giantAncestry == 'hill' && self.giantAncestryUsed < proficiency.bonus
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [toppled, too-large]
+    steps:
+      - id: tooLarge
+        kind: outcome
+        when: >-
+          size(participants.target) > 0
+            && participants.target[0].creature.size in ['huge', 'gargantuan']
+        result: "'too-large'"
+      - id: topple
+        kind: changes
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.prone'"
+            state: { by: creature.type, magical: true }
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: giantAncestryUsed, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'toppled'"
+  - id: storms-thunder
+    tags: [feature]
+    available: origins.giantAncestry == 'storm' && self.giantAncestryUsed < proficiency.bonus
+    participants:
+      target:
+        max: 1
+        fields: target
+    results: [thundered]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: 1d8
+            tags: [damage.thunder]
+      - id: deal
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, magical]
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: giantAncestryUsed, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'thundered'"
+        data:
+          damage: steps.damage.total

@@ -1,0 +1,33 @@
+id: spells.blindness-deafness
+type: spell
+fields:
+  level: 2
+  school: transmutation
+  classes: [classes.bard, classes.cleric, classes.sorcerer, classes.wizard]
+  castingTime: action
+  rangeKind: ranged
+  range: 120
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  save: con
+  saveEffect: none
+  applied: true
+  castOptions: [blinded, deafened]
+  upcastTargets: true
+actions:
+  - use: cast-spell
+grants:
+  - { item: conditions.blinded, scope: applied, when: "self.option == 'blinded'" }
+  - { item: conditions.deafened, scope: applied, when: "self.option == 'deafened'" }
+effects:
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: blinded }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: deafened }

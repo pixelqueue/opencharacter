@@ -1,0 +1,17 @@
+id: metamagic.subtle-spell
+type: metamagic
+effects:
+  - target: { choices: [metamagic] }
+    op: option
+    when: >-
+      !flags.metamagicDone && !flags.subtle && flags.metamagicCount < sorcery.metamagicPerSpell
+        && (sorcery.free || sorcery.left >= 1)
+    value:
+      id: subtle
+      flags: { subtle: true, metamagicCount: flags.metamagicCount + 1 }
+      changes:
+        - type: adjustState
+          when: '!sorcery.free'
+          entry: self
+          key: sorceryPointsSpent
+          by: 1

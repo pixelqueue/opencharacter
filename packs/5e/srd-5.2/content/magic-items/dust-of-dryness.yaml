@@ -1,0 +1,13 @@
+id: magic-items.dust-of-dryness
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  maxCharges: 10
+  saveDc: 13
+state:
+  charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+actions:
+  - use: item-power
+    params: { charges: 1, dice: 10d6, damageType: "'necrotic'", save: "'con'", dc: 13 }
+  - use: use-charges

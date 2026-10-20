@@ -1,0 +1,45 @@
+id: monsters.roper.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 2
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 4, fields: target }
+    results: [done]
+    steps:
+      - id: tentacle1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.roper.tentacle)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: tentacle2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.roper.tentacle)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: bite3
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.roper.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(2, size(participants.target) - 1)]] : []'
+      - id: bite4
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.roper.bite)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(3, size(participants.target) - 1)]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.tentacle1.result == 'hit' ? 1 : 0)
+              + (steps.tentacle2.result == 'hit' ? 1 : 0)
+              + (steps.bite3.result == 'hit' ? 1 : 0)
+              + (steps.bite4.result == 'hit' ? 1 : 0)

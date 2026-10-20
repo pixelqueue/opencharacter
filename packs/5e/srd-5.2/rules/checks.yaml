@@ -1,0 +1,309 @@
+fields:
+  proficiencies.skills:
+    { type: set, of: tag, input: true, default: [], members: { under: [skill] } }
+  proficiencies.expertise:
+    { type: set, of: tag, input: true, default: [], members: { under: [skill] } }
+  proficiencies.tools: { type: set, of: tool, input: true, default: [] }
+
+  skills.unproficientBonus: { type: integer, formula: 0 }
+  skills.acrobatics:
+    type: integer
+    tags: [skill, skill.acrobatics]
+    formula: >-
+      abilities.dex.mod
+        + ('skill.acrobatics' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.acrobatics' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.animalHandling:
+    type: integer
+    tags: [skill, skill.animal-handling]
+    formula: >-
+      abilities.wis.mod
+        + ('skill.animal-handling' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.animal-handling' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.arcana:
+    type: integer
+    tags: [skill, skill.arcana]
+    formula: >-
+      abilities.int.mod
+        + ('skill.arcana' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.arcana' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.athletics:
+    type: integer
+    tags: [skill, skill.athletics]
+    formula: >-
+      abilities.str.mod
+        + ('skill.athletics' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.athletics' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.deception:
+    type: integer
+    tags: [skill, skill.deception]
+    formula: >-
+      abilities.cha.mod
+        + ('skill.deception' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.deception' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.history:
+    type: integer
+    tags: [skill, skill.history]
+    formula: >-
+      abilities.int.mod
+        + ('skill.history' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.history' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.insight:
+    type: integer
+    tags: [skill, skill.insight]
+    formula: >-
+      abilities.wis.mod
+        + ('skill.insight' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.insight' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.intimidation:
+    type: integer
+    tags: [skill, skill.intimidation]
+    formula: >-
+      abilities.cha.mod
+        + ('skill.intimidation' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.intimidation' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.investigation:
+    type: integer
+    tags: [skill, skill.investigation]
+    formula: >-
+      abilities.int.mod
+        + ('skill.investigation' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.investigation' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.medicine:
+    type: integer
+    tags: [skill, skill.medicine]
+    formula: >-
+      abilities.wis.mod
+        + ('skill.medicine' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.medicine' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.nature:
+    type: integer
+    tags: [skill, skill.nature]
+    formula: >-
+      abilities.int.mod
+        + ('skill.nature' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.nature' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.perception:
+    type: integer
+    tags: [skill, skill.perception]
+    formula: >-
+      abilities.wis.mod
+        + ('skill.perception' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.perception' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.performance:
+    type: integer
+    tags: [skill, skill.performance]
+    formula: >-
+      abilities.cha.mod
+        + ('skill.performance' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.performance' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.persuasion:
+    type: integer
+    tags: [skill, skill.persuasion]
+    formula: >-
+      abilities.cha.mod
+        + ('skill.persuasion' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.persuasion' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.religion:
+    type: integer
+    tags: [skill, skill.religion]
+    formula: >-
+      abilities.int.mod
+        + ('skill.religion' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.religion' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.sleightOfHand:
+    type: integer
+    tags: [skill, skill.sleight-of-hand]
+    formula: >-
+      abilities.dex.mod
+        + ('skill.sleight-of-hand' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.sleight-of-hand' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.stealth:
+    type: integer
+    tags: [skill, skill.stealth]
+    formula: >-
+      abilities.dex.mod
+        + ('skill.stealth' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.stealth' in proficiencies.expertise ? proficiency.bonus : 0)
+  skills.survival:
+    type: integer
+    tags: [skill, skill.survival]
+    formula: >-
+      abilities.wis.mod
+        + ('skill.survival' in proficiencies.skills ? proficiency.bonus : skills.unproficientBonus)
+        + ('skill.survival' in proficiencies.expertise ? proficiency.bonus : 0)
+
+  senses.passivePerception: { type: integer, formula: 10 + skills.perception }
+
+  combat.initiative: { type: integer, formula: abilities.dex.mod }
+
+actions:
+  - id: ability-check
+    tags: [check]
+    params:
+      ability: { type: enum, values: [str, dex, con, int, wis, cha] }
+      dc: { type: integer, optional: true }
+      advantage: { type: boolean, optional: true }
+      disadvantage: { type: boolean, optional: true }
+    results: [rolled, success, failure]
+    steps:
+      - id: test
+        kind: action
+        use: d20-test
+        tags: [check, { formula: "'check.' + params.ability" }]
+        params:
+          kind: "'check'"
+          ability: params.ability
+          dc: 'has(params.dc) ? params.dc : null'
+          advantage: 'has(params.advantage) && params.advantage'
+          disadvantage: 'has(params.disadvantage) && params.disadvantage'
+      - id: result
+        kind: outcome
+        result: steps.test.result
+        data:
+          total: steps.test.data.total
+
+  - id: skill-check
+    tags: [check]
+    params:
+      skill:
+        type: enum
+        values:
+          [
+            acrobatics,
+            animal-handling,
+            arcana,
+            athletics,
+            deception,
+            history,
+            insight,
+            intimidation,
+            investigation,
+            medicine,
+            nature,
+            perception,
+            performance,
+            persuasion,
+            religion,
+            sleight-of-hand,
+            stealth,
+            survival,
+          ]
+      dc: { type: integer, optional: true }
+      advantage: { type: boolean, optional: true }
+      disadvantage: { type: boolean, optional: true }
+    results: [rolled, success, failure]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ability: >-
+                params.skill == 'athletics' ? 'str'
+                  : params.skill in ['acrobatics', 'sleight-of-hand', 'stealth'] ? 'dex'
+                  : params.skill in ['arcana', 'history', 'investigation', 'nature', 'religion'] ? 'int'
+                  : params.skill in ['animal-handling', 'insight', 'medicine', 'perception', 'survival'] ? 'wis'
+                  : 'cha'
+              field: >-
+                'skills.' + ['acrobatics', 'animalHandling', 'arcana', 'athletics', 'deception',
+                  'history', 'insight', 'intimidation', 'investigation', 'medicine', 'nature',
+                  'perception', 'performance', 'persuasion', 'religion', 'sleightOfHand', 'stealth',
+                  'survival'][indexOf(['acrobatics', 'animal-handling', 'arcana', 'athletics',
+                  'deception', 'history', 'insight', 'intimidation', 'investigation', 'medicine',
+                  'nature', 'perception', 'performance', 'persuasion', 'religion', 'sleight-of-hand',
+                  'stealth', 'survival'], params.skill)]
+      - id: test
+        kind: action
+        use: d20-test
+        tags:
+          [check, { formula: "'check.' + flags.ability" }, { formula: "'skill.' + params.skill" }]
+        params:
+          kind: "'check'"
+          ability: flags.ability
+          field: flags.field
+          dc: 'has(params.dc) ? params.dc : null'
+          advantage: 'has(params.advantage) && params.advantage'
+          disadvantage: 'has(params.disadvantage) && params.disadvantage'
+      - id: result
+        kind: outcome
+        result: steps.test.result
+        data:
+          total: steps.test.data.total
+
+  - id: tool-check
+    tags: [check]
+    params:
+      ability: { type: enum, values: [str, dex, con, int, wis, cha], optional: true }
+      skill:
+        type: enum
+        optional: true
+        values:
+          [
+            acrobatics,
+            animal-handling,
+            arcana,
+            athletics,
+            deception,
+            history,
+            insight,
+            intimidation,
+            investigation,
+            medicine,
+            nature,
+            perception,
+            performance,
+            persuasion,
+            religion,
+            sleight-of-hand,
+            stealth,
+            survival,
+          ]
+      dc: { type: integer, optional: true }
+    results: [rolled, success, failure]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ability: 'has(params.ability) ? params.ability : item.ability'
+              skilled: >-
+                item.id in proficiencies.tools && has(params.skill)
+                  && ('skill.' + params.skill) in proficiencies.skills
+      - id: test
+        kind: action
+        use: d20-test
+        tags: [check, { formula: "'check.' + flags.ability" }, tool]
+        params:
+          kind: "'check'"
+          ability: flags.ability
+          proficiency: 'item.id in proficiencies.tools ? 1 : 0'
+          dc: 'has(params.dc) ? params.dc : null'
+          advantage: flags.skilled
+      - id: result
+        kind: outcome
+        result: steps.test.result
+        data:
+          total: steps.test.data.total
+
+  - id: initiative
+    tags: [check]
+    results: [rolled]
+    steps:
+      - id: test
+        kind: action
+        use: d20-test
+        tags: [check, check.dex, initiative]
+        params:
+          kind: "'check'"
+          ability: "'dex'"
+          field: "'combat.initiative'"
+      - id: rolled
+        kind: changes
+        tags: [initiative]
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          total: steps.test.data.total

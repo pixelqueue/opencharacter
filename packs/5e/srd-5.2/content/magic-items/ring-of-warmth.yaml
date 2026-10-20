@@ -1,0 +1,15 @@
+id: magic-items.ring-of-warmth
+type: magicItem
+fields:
+  category: ring
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.cold] } }
+    op: add
+    value: 2d8
+    when: self.equipped && self.attuned && incoming.amount < 0
+  - target: { incoming: { fields: [hp.current], tags: [damage.cold] } }
+    op: atMost
+    value: 0
+    when: self.equipped && self.attuned && incoming.amount < 0

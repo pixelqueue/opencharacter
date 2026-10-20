@@ -1,0 +1,218 @@
+actions:
+  - id: spell-effect
+    available: false
+    params:
+      dice: { type: dice, optional: true }
+      damageType:
+        type: enum
+        optional: true
+        values:
+          [
+            acid,
+            bludgeoning,
+            cold,
+            fire,
+            force,
+            lightning,
+            necrotic,
+            piercing,
+            poison,
+            psychic,
+            radiant,
+            slashing,
+            thunder,
+          ]
+      bonus: { type: integer, default: 0 }
+      addMod: { type: boolean, default: false }
+      attack: { type: enum, values: [melee, ranged], optional: true }
+      targetAc: { type: integer, optional: true }
+      critical: { type: boolean, default: false }
+      save: { type: enum, values: [str, dex, con, int, wis, cha], optional: true }
+      dc: { type: integer, optional: true }
+      half: { type: boolean, default: false }
+      halve: { type: boolean, default: false }
+      condition: { type: id, of: condition, optional: true }
+      escape: { type: boolean, default: false }
+      heal: { type: dice, optional: true }
+      healAddsMod: { type: boolean, default: false }
+    participants:
+      target:
+        fields: target
+    results: [hit, miss, save, done]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              cls: >-
+                countList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x)) > 0
+                  ? filterList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x))[0]
+                  : 'none'
+              critical: params.critical
+      - id: numbers
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dc: >-
+                has(params.dc) ? params.dc
+                  : flags.cls != 'none' ? fieldOf('spellcasting.{caster}.dc', flags.cls)
+                  : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.dc', x))
+              attackBonus: >-
+                flags.cls != 'none' ? fieldOf('spellcasting.{caster}.attack', flags.cls)
+                  : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.attack', x))
+              mod: >-
+                flags.cls != 'none' ? fieldOf('spellcasting.{caster}.mod', flags.cls)
+                  : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.mod', x))
+      - id: target
+        kind: branch
+        when: has(params.attack)
+        cases:
+          - when: true
+            flags:
+              ac: >-
+                size(participants.target) > 0 && params.attack == 'ranged'
+                    && has(participants.target[0].combat.rangedAc)
+                  ? participants.target[0].combat.rangedAc
+                : size(participants.target) > 0 && has(participants.target[0].combat.ac)
+                  ? participants.target[0].combat.ac
+                : has(params.targetAc) ? params.targetAc : -1
+              autoMiss: size(participants.target) > 0 && participants.target[0].combat.spellAttacksMiss
+      - id: test
+        kind: action
+        when: has(params.attack) && !flags.autoMiss
+        use: d20-test
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+        tags: [attack, spell, { formula: "'attack.spell.' + params.attack" }]
+        params:
+          kind: "'attack'"
+          bonus: flags.attackBonus
+          dc: 'flags.ac >= 0 ? flags.ac : null'
+      - id: hit
+        kind: branch
+        when: has(params.attack)
+        cases:
+          - when: flags.autoMiss
+            flags: { hit: false, critical: false }
+          - when: steps.test.result == 'critical'
+            flags:
+              hit: true
+              critical: '!(size(participants.target) > 0 && participants.target[0].combat.noCriticals)'
+          - when: steps.test.result == 'hit'
+            flags:
+              hit: true
+              critical: >-
+                params.attack == 'melee' && size(participants.target) > 0
+                  && participants.target[0].conditions.autoCritMelee
+                  && !participants.target[0].combat.noCriticals
+          - when: steps.test.result == 'miss'
+            flags: { hit: false, critical: false }
+        else:
+          flags: { hit: false, critical: false }
+          steps:
+            - id: confirm
+              kind: choice
+              options:
+                - id: hit
+                  flags: { hit: true }
+                - id: critical
+                  flags: { hit: true, critical: true }
+                - id: miss
+      - id: damage
+        kind: roll
+        when: >-
+          (has(params.dice) || params.bonus != 0 || params.addMod)
+            && (!has(params.attack) || flags.hit)
+        tags: [damage.spell]
+        parts:
+          - dice: params.dice
+            when: has(params.dice)
+            tags: [{ formula: "'damage.' + params.damageType" }]
+          - value: 'params.bonus + (params.addMod ? flags.mod : 0)'
+            when: params.bonus != 0 || params.addMod
+            tags: [{ formula: "'damage.' + params.damageType" }]
+      - id: deal
+        kind: changes
+        when: has(steps.damage) && !has(params.save)
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: '-(params.halve ? floor(max(0, part.total) / 2) : max(0, part.total))'
+            tags:
+              - damage
+              - spell
+              - magical
+              - { formula: "has(params.attack) ? ['attack', params.attack] : []" }
+              - { formula: "flags.critical ? ['critical'] : []" }
+      - id: saves
+        kind: action
+        each: target
+        when: has(params.save) && (!has(params.attack) || flags.hit)
+        as: participant
+        use: saving-throw
+        params:
+          ability: params.save
+          dc: flags.dc
+          spell: true
+      - id: burn
+        kind: changes
+        each: target
+        when: has(steps.damage) && has(steps.saves)
+        to: target
+        changes:
+          - type: adjust
+            when: steps.saves.result != 'success' || params.half
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: >-
+              steps.saves.result == 'success' ? -floor(max(0, part.total) / 2) : -max(0, part.total)
+            tags:
+              - damage
+              - spell
+              - magical
+              - { formula: "params.half ? 'save-half' : 'save-negates'" }
+              - { formula: "'save.' + params.save" }
+              - { formula: "steps.saves.result == 'success' ? 'save-success' : 'save-failure'" }
+      - id: condition
+        kind: changes
+        each: target
+        when: >-
+          has(params.condition) && (!has(params.attack) || flags.hit)
+            && (!has(params.save) || (has(steps.saves) && steps.saves.result == 'failure'))
+        to: target
+        changes:
+          - type: applyEffect
+            when: '!params.escape'
+            source: params.condition
+            state: { by: creature.type, magical: true }
+          - type: applyEffect
+            when: params.escape
+            source: params.condition
+            state: { by: creature.type, magical: true, escapeDc: flags.dc }
+      - id: heal
+        kind: roll
+        when: has(params.heal)
+        tags: [healing]
+        parts:
+          - dice: params.heal
+          - value: flags.mod
+            when: params.healAddsMod
+      - id: restore
+        kind: changes
+        when: has(steps.heal)
+        to: target
+        changes:
+          - { type: adjust, field: hp.current, by: 'max(0, steps.heal.total)', tags: [healing] }
+      - id: result
+        kind: outcome
+        result: >-
+          has(params.attack) ? (flags.hit ? 'hit' : 'miss') : has(params.save) ? 'save' : 'done'
+        data:
+          dc: flags.dc
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+          healing: 'has(steps.heal) ? max(0, steps.heal.total) : 0'
+          critical: flags.critical

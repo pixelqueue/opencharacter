@@ -1,0 +1,34 @@
+id: magic-items.potion-of-resistance
+type: magicItem
+fields:
+  category: potion
+  rarity: uncommon
+state:
+  damageType:
+    {
+      type: enum,
+      values: [acid, cold, fire, force, lightning, necrotic, poison, psychic, radiant, thunder],
+      default: acid,
+    }
+effects:
+  - target: damage.resistances
+    op: grant
+    value: { formula: "'damage.' + self.damageType" }
+    scope: applied
+    duration: { amount: 1, unit: hour }
+actions:
+  - id: drink
+    tags: [potion]
+    available: self.quantity > 0
+    results: [drunk]
+    steps:
+      - id: drink
+        kind: changes
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1 }
+          - { type: applyEffect, source: item.id, state: { damageType: self.damageType } }
+      - id: result
+        kind: outcome
+        result: "'drunk'"
+        data:
+          damageType: self.damageType

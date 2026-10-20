@@ -1,0 +1,12 @@
+id: features.bard.superior-inspiration
+type: feature
+effects:
+  - target: { steps: [initiative] }
+    op: changes
+    when: self.bardicInspirationSpent > max(0, bardicInspiration.uses - 2)
+    value:
+      changes:
+        - type: setState
+          entry: self
+          key: bardicInspirationSpent
+          value: max(0, bardicInspiration.uses - 2)

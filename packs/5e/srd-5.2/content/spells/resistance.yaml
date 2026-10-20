@@ -1,0 +1,88 @@
+id: spells.resistance
+type: spell
+fields:
+  level: 0
+  school: abjuration
+  classes: [classes.cleric, classes.druid]
+  concentration: true
+  castingTime: action
+  rangeKind: touch
+  verbal: true
+  somatic: true
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  applied: true
+  castOptions:
+    [
+      acid,
+      bludgeoning,
+      cold,
+      fire,
+      lightning,
+      necrotic,
+      piercing,
+      poison,
+      radiant,
+      slashing,
+      thunder,
+    ]
+effects:
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: acid }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: bludgeoning }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: cold }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: fire }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: lightning }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: necrotic }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: piercing }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: poison }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: radiant }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: slashing }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: thunder }
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    value: 1d4
+    when: "self.option != '' && ('damage.' + self.option) in incoming.tags"
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: atMost
+    value: 0
+    when: "self.option != '' && ('damage.' + self.option) in incoming.tags"
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
+actions:
+  - use: cast-spell

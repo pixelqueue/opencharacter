@@ -1,0 +1,28 @@
+id: spells.faerie-fire
+type: spell
+fields:
+  level: 1
+  school: evocation
+  classes: [classes.bard, classes.druid]
+  concentration: true
+  castingTime: action
+  rangeKind: ranged
+  range: 60
+  verbal: true
+  somatic: false
+  material: false
+  durationUnit: minute
+  durationAmount: 1
+  areaShape: cube
+  areaSize: 20
+  save: dex
+  saveEffect: none
+  applied: true
+actions:
+  - use: cast-spell
+effects:
+  - target: combat.attackersAdvantage
+    op: set
+    value: true
+    scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }

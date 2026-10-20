@@ -1,0 +1,75 @@
+families:
+  ability: [str, dex, con, int, wis, cha]
+
+fields:
+  'abilities.{ability}.base':
+    type: integer
+    input: true
+    default: 10
+    min: 1
+    max: 30
+    limits: { max: 'abilities.{ability}.max' }
+    tags: [ability-base]
+  'abilities.{ability}.max': { type: integer, formula: 20 }
+  'abilities.{ability}.score':
+    { type: integer, formula: 'abilities.{ability}.base', min: 1, max: 30, tags: [ability] }
+  'abilities.{ability}.mod':
+    { type: integer, formula: 'floor((abilities.{ability}.score - 10) / 2)', tags: [ability-mod] }
+
+  proficiencies.saves:
+    {
+      type: set,
+      of: tag,
+      input: true,
+      default: [],
+      members: { under: [save], except: [save.death] },
+    }
+
+  'saves.{ability}':
+    type: integer
+    formula: "abilities.{ability}.mod + ('save.{ability}' in proficiencies.saves ? proficiency.bonus : 0)"
+    tags: [save]
+
+  saves.failStrDex: { type: boolean, formula: false }
+  saves.spellsSucceed: { type: boolean, formula: false }
+
+actions:
+  - id: saving-throw
+    tags: [save]
+    params:
+      ability: { type: enum, values: [str, dex, con, int, wis, cha] }
+      dc: { type: integer, optional: true }
+      advantage: { type: boolean, optional: true }
+      disadvantage: { type: boolean, optional: true }
+      spell: { type: boolean, default: false }
+    results: [rolled, success, failure]
+    steps:
+      - id: autoSucceed
+        kind: outcome
+        when: params.spell && saves.spellsSucceed
+        result: "'success'"
+        data:
+          total: 'has(params.dc) ? params.dc : 0'
+      - id: autoFail
+        kind: outcome
+        when: "saves.failStrDex && params.ability in ['str', 'dex']"
+        result: "'failure'"
+        data:
+          total: 0
+      - id: test
+        kind: action
+        use: d20-test
+        tags: [save, { formula: "'save.' + params.ability" }]
+        params:
+          kind: "'save'"
+          ability: params.ability
+          field: "'saves.' + params.ability"
+          dc: 'has(params.dc) ? params.dc : null'
+          advantage: >-
+            (has(params.advantage) && params.advantage) || (params.spell && saves.magicResistance)
+          disadvantage: 'has(params.disadvantage) && params.disadvantage'
+      - id: result
+        kind: outcome
+        result: steps.test.result
+        data:
+          total: steps.test.data.total

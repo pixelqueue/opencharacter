@@ -80,6 +80,7 @@ much of OCF your app needs.
 | Pack                                      | Game                                       | License        |
 | ----------------------------------------- | ------------------------------------------ | -------------- |
 | [`5e-srd-5.1`](packs/5e/srd-5.1/)         | 5E System Reference Document 5.1           | CC-BY-4.0      |
+| [`5e-srd-5.2`](packs/5e/srd-5.2/)         | 5E System Reference Document 5.2           | CC-BY-4.0      |
 | [`orc-2e`](packs/orc/2e/)                 | Second Edition fantasy rules (ORC)         | ORC License    |
 | [`orc-sf-2e`](packs/orc/sf-2e/)           | Second Edition science-fantasy rules (ORC) | ORC License    |
 | [`mothership-1e`](packs/mothership/1e/)   | Mothership 1e                              | Mechanics only |
@@ -118,8 +119,8 @@ Packs, fixes and engine ports are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.m
 ## License
 
 Code, spec, schemas and tests are [Apache 2.0](LICENSE). Original packs are [CC0](packs/LICENSE);
-packs from licensed material keep that license and its credit line: `5e-srd-5.1` CC-BY-4.0,
-`fate-core` CC-BY-3.0, and `orc-2e` and `orc-sf-2e` the ORC License, each with its notices. `mothership-1e`, `mork-borg-core` and the Forged in the Dark packs are unofficial,
+packs from licensed material keep that license and its credit line: `5e-srd-5.1` and `5e-srd-5.2`
+CC-BY-4.0, `fate-core` CC-BY-3.0, and `orc-2e` and `orc-sf-2e` the ORC License, each with its notices. `mothership-1e`, `mork-borg-core` and the Forged in the Dark packs are unofficial,
 mechanics-only models whose own work is CC0; the Forged in the Dark packs keep the SRD's CC-BY credit line and
 the MÖRK BORG pack the notices of its third-party license. Every package has a `LICENSE` file
 with its terms, credit and notices.

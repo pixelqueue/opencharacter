@@ -1,0 +1,37 @@
+id: monsters.chuul.multiattack
+type: monsterAction
+fields:
+  kind: action
+  order: 3
+actions:
+  - id: multiattack
+    tags: [attack]
+    participants:
+      target: { max: 2, fields: target }
+    results: [done]
+    steps:
+      - id: pincer1
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.chuul.pincer)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: pincer2
+        kind: action
+        use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.chuul.pincer)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[min(1, size(participants.target) - 1)]] : []'
+      - id: paralyzingTentacles
+        kind: action
+        use: monster-effect
+        entry: filterList(character.features, x.item == @monsters.chuul.paralyzing-tentacles)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: done
+        kind: outcome
+        result: "'done'"
+        data:
+          hits: >-
+            (steps.pincer1.result == 'hit' ? 1 : 0)
+              + (steps.pincer2.result == 'hit' ? 1 : 0)

@@ -1,0 +1,39 @@
+id: magic-items.potion-of-poison
+type: magicItem
+fields:
+  category: potion
+  rarity: uncommon
+actions:
+  - id: drink
+    tags: [potion]
+    available: self.quantity > 0
+    results: [poisoned, resisted]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - { dice: 4d6, tags: [damage.poison] }
+      - id: drink
+        kind: changes
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: -max(0, part.total)
+            tags: [damage, magical]
+          - { type: adjustQuantity, entry: self, by: -1 }
+      - id: save
+        kind: action
+        use: saving-throw
+        params: { ability: "'con'", dc: 13 }
+      - id: poison
+        kind: changes
+        when: steps.save.result == 'failure'
+        changes:
+          - { type: applyEffect, source: "'conditions.poisoned'", state: { magical: true } }
+      - id: result
+        kind: outcome
+        result: "steps.save.result == 'success' ? 'resisted' : 'poisoned'"
+        data:
+          damage: steps.damage.total

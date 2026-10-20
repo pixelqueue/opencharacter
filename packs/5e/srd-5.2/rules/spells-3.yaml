@@ -1,0 +1,21 @@
+tags:
+  - sorcerous-burst
+
+fields:
+  hex.cursedBy:
+    type: set
+    of: string
+    formula: >-
+      mapList(filterList(character.applied, x.active && x.source == @spells.hex
+        && has(x.state.caster) && x.state.caster != ''), x.state.caster)
+  huntersMark.markedBy:
+    type: set
+    of: string
+    formula: >-
+      mapList(filterList(character.applied, x.active && x.source == @spells.hunters-mark
+        && has(x.state.caster) && x.state.caster != ''), x.state.caster)
+
+display:
+  fields:
+    hex.cursedBy: { hidden: true }
+    huntersMark.markedBy: { hidden: true }

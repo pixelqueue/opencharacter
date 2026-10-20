@@ -1,0 +1,25 @@
+id: features.ranger.favored-enemy
+type: feature
+grants:
+  - item: spells.hunters-mark
+effects:
+  - target: ranger.favoredEnemy
+    op: set
+    value: '[2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6][self.level - 1]'
+  - { target: spells.ranger, op: grant, value: { item: spells.hunters-mark } }
+  - { target: spells.free, op: grant, value: { item: spells.hunters-mark } }
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.item.id == @spells.hunters-mark && self.favoredEnemySpent < ranger.favoredEnemy
+    value:
+      id: favored-enemy
+      flags: { slot: 1 }
+      changes:
+        - { type: adjustState, entry: self, key: favoredEnemySpent, by: 1 }
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.favoredEnemySpent > 0
+    value:
+      changes:
+        - { type: setState, entry: self, key: favoredEnemySpent, value: 0 }

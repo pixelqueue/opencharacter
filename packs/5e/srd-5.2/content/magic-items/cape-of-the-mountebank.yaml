@@ -1,0 +1,25 @@
+id: magic-items.cape-of-the-mountebank
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: rare
+  spells: [spells.dimension-door]
+state:
+  usedToday: { type: set, of: string, default: [] }
+grants:
+  - { item: spells.dimension-door, when: self.equipped }
+effects:
+  - target: { choices: [spell-cost] }
+    op: option
+    when: >-
+      action.self.id == self.id && action.item.id == @spells.dimension-door && flags.slot == 4
+        && !('dimension-door' in self.usedToday)
+    value:
+      id: daily
+      changes:
+        - {
+            type: setState,
+            entry: self,
+            key: usedToday,
+            value: "self.usedToday + ['dimension-door']",
+          }

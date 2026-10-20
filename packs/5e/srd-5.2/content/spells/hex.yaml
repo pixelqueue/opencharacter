@@ -1,0 +1,87 @@
+id: spells.hex
+type: spell
+fields:
+  level: 1
+  school: enchantment
+  classes: [classes.warlock]
+  concentration: true
+  castingTime: bonus-action
+  rangeKind: ranged
+  range: 90
+  verbal: true
+  somatic: true
+  material: true
+  durationUnit: hour
+  durationAmount: 1
+  applied: true
+  castOptions: [str, dex, con, int, wis, cha]
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: 1d6
+    tags: [damage.necrotic]
+    when: >-
+      has(flags.hit) && flags.hit && has(participants.target) && size(participants.target) > 0
+        && character.id in participants.target[0].hex.cursedBy
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: str }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: dex }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: con }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: int }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: wis }
+  - target: { choices: [spell-option] }
+    op: option
+    when: action.item.id == item.id
+    value: { id: cha }
+  - target: { rolls: [check.str] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    when: self.option == 'str'
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.dex] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    when: self.option == 'dex'
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.con] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    when: self.option == 'con'
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.int] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    when: self.option == 'int'
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.wis] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    when: self.option == 'wis'
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.cha] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    when: self.option == 'cha'
+    duration: { amount: 1, unit: hour, concentration: true }
+actions:
+  - use: cast-spell

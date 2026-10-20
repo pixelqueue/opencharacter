@@ -1,0 +1,14 @@
+id: features.ranger.weapon-mastery
+type: feature
+choices:
+  - id: weapons
+    pick: 2
+    from: { type: weapon, where: has(item.mastery) }
+    activate: false
+    eligible: >-
+      item.id in proficiencies.weapons
+        && (!(item.id in mastery.weapons) || item.id in choice.picks)
+    recommend: >-
+      !(@weapons.longbow in choice.picks) ? @weapons.longbow : @weapons.shortsword
+    effects:
+      - { target: mastery.weapons, op: grant, value: { formula: pick.id } }

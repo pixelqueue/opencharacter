@@ -1,0 +1,67 @@
+id: features.druid.lands-aid
+type: feature
+effects:
+  - target: druid.landsAid
+    op: set
+    value: 'self.level >= 14 ? 4 : self.level >= 10 ? 3 : 2'
+actions:
+  - id: lands-aid
+    tags: [feature]
+    results: [aided]
+    available: self.wildShapeSpent < wildShape.uses
+    participants:
+      target: {}
+      healed: { max: 1 }
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: wildShapeSpent, by: 1 }
+      - id: damage
+        kind: roll
+        tags: [damage]
+        parts:
+          - dice: (druid.landsAid)d6
+            tags: [damage.necrotic]
+      - id: saves
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params:
+          ability: "'con'"
+          dc: spellcasting.druid.dc
+      - id: burn
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            by: >-
+              steps.saves.result == 'success' ? -floor(max(0, steps.damage.total) / 2)
+                : -max(0, steps.damage.total)
+            tags:
+              - damage
+              - damage.necrotic
+              - magical
+              - save.con
+              - save-half
+              - { formula: "steps.saves.result == 'success' ? 'save-success' : 'save-failure'" }
+      - id: heal
+        kind: roll
+        tags: [healing]
+        parts:
+          - dice: (druid.landsAid)d6
+      - id: restore
+        kind: changes
+        to: healed
+        changes:
+          - { type: adjust, field: hp.current, by: 'max(0, steps.heal.total)', tags: [healing] }
+      - id: result
+        kind: outcome
+        result: "'aided'"
+        data:
+          damage: steps.damage.total
+          healing: steps.heal.total
+          dc: spellcasting.druid.dc

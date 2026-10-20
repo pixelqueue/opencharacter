@@ -1,0 +1,13 @@
+id: magic-items.boots-of-the-winterlands
+type: magicItem
+fields:
+  category: wondrous-item
+  rarity: uncommon
+  requiresAttunement: true
+effects:
+  - {
+      target: damage.resistances,
+      op: grant,
+      value: { tag: damage.cold },
+      when: self.equipped && self.attuned,
+    }

@@ -1,0 +1,23 @@
+id: magic-items.potion-of-climbing
+type: magicItem
+fields:
+  category: potion
+  rarity: common
+  lasting: true
+effects:
+  - {
+      target: combat.climbSpeed,
+      op: atLeast,
+      value: combat.speed,
+      scope: applied,
+      duration: { amount: 1, unit: hour },
+    }
+  - {
+      target: items.climbAdvantage,
+      op: set,
+      value: true,
+      scope: applied,
+      duration: { amount: 1, unit: hour },
+    }
+actions:
+  - use: drink-potion
