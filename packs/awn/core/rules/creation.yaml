@@ -306,6 +306,94 @@ actions:
         kind: action
         use: starting-equipment
         params: { random: params.random }
+      # A start may bring more than the survivor can haul. Readied items past the push limit are
+      # stowed, then Stowed ones past it left behind (gear, then weapons, then armor, the heaviest
+      # first), so play starts within the limits.
+      - id: stowGear
+        kind: choice
+        sheet: proposed
+        when: encumbrance.overload > 2
+        repeat: { max: 20 }
+        options:
+          copies:
+            type: gear
+            where: >-
+              self.equipped && has(item.enc) && item.enc > 0
+                && !(has(item.wornFree) && item.wornFree)
+                && encumbrance.readied > encumbrance.readied.max + 4
+        prefer: item.enc
+        changes:
+          - { type: equip, entry: picked, equipped: false }
+      - id: stowWeapon
+        kind: choice
+        sheet: proposed
+        when: encumbrance.overload > 2
+        repeat: { max: 20 }
+        options:
+          copies:
+            type: weapon
+            where: >-
+              self.equipped && item.enc > 0
+                && encumbrance.readied > encumbrance.readied.max + 4
+        prefer: item.enc
+        changes:
+          - { type: equip, entry: picked, equipped: false }
+      - id: stowArmor
+        kind: choice
+        sheet: proposed
+        when: encumbrance.overload > 2
+        repeat: { max: 20 }
+        options:
+          copies:
+            type: armor
+            where: >-
+              self.equipped && item.enc > 0
+                && encumbrance.readied > encumbrance.readied.max + 4
+        prefer: item.enc
+        changes:
+          - { type: equip, entry: picked, equipped: false }
+      - id: dropGear
+        kind: choice
+        sheet: proposed
+        when: encumbrance.overload > 2
+        repeat: { max: 20 }
+        options:
+          copies:
+            type: gear
+            where: >-
+              !self.equipped && has(item.enc) && item.enc > 0
+                && encumbrance.stowed > encumbrance.stowed.max + 8
+        prefer: item.enc
+        changes:
+          - { type: removeItem, entry: picked }
+      - id: dropWeapon
+        kind: choice
+        sheet: proposed
+        when: encumbrance.overload > 2
+        repeat: { max: 20 }
+        options:
+          copies:
+            type: weapon
+            where: >-
+              !self.equipped && item.enc > 0
+                && encumbrance.stowed > encumbrance.stowed.max + 8
+        prefer: item.enc
+        changes:
+          - { type: removeItem, entry: picked }
+      - id: dropArmor
+        kind: choice
+        sheet: proposed
+        when: encumbrance.overload > 2
+        repeat: { max: 20 }
+        options:
+          copies:
+            type: armor
+            where: >-
+              !self.equipped && item.enc > 0
+                && encumbrance.stowed > encumbrance.stowed.max + 8
+        prefer: item.enc
+        changes:
+          - { type: removeItem, entry: picked }
 
       - id: finish
         kind: changes

@@ -81,7 +81,9 @@ const run = startAction(ruleset, blank, {
 - **Gear:** armor, ranged, melee, high-tech and portable heavy weapons, survival gear, drugs and
   stims. Each weapon shows its hit bonus, damage bonus and Shock; `attack` rolls it.
 - **Encumbrance:** Readied (equipped) and Stowed loads against Strength, small items bundled
-  three to one when stowed, and the slower moves of pushing past the limits.
+  three to one when stowed, and the slower moves of pushing past the limits. A start that brings
+  more than its Strength can haul stows Readied items, then leaves Stowed ones behind, heaviest
+  first, until it is within the limits.
 - **System strain and stress:** maximums with the edges, foci and mutations that change them.
 
 ## Rule readings

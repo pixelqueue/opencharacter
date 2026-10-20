@@ -125,8 +125,8 @@ fields:
         ceil((encumbrance.stowed - encumbrance.stowed.max) / 4))
 
 constraints:
-  # Not checked while creating: a starting kit rolled for a weak survivor may be more than
-  # they can haul, which the player sorts out once play starts.
+  # Not checked while creating; before it finishes, the creation action stows or leaves behind
+  # what a start brings past the limits.
   - id: encumbrance-limit
     check: 'character.creating || encumbrance.overload <= 2'
   - id: one-armor
