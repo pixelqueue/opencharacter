@@ -364,105 +364,87 @@ actions:
         changes:
           - { type: set, field: hp.rolled, value: 'max(1, steps.hitPoints.total)' }
 
-      # Equipment: one of the packages, or 3d6 x 10 silver to spend. The random start draws a
-      # package.
-      - id: equipment
+      # Starting gear: 3d6 x 10 silver, spent at list price on a weapon, armor and gear (the
+      # SRD's other choice, a package, is the GM's to provide). A copper price is paid in
+      # silver, the change in copper. The random start draws each purchase among those it can
+      # afford; spellcasters and the Vowed skip armor, which hinders their magic.
+      - { id: silverRoll, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
+      - id: purse
+        kind: changes
+        changes:
+          - { type: adjust, field: coins.silver, by: steps.silverRoll.total * 10 }
+      - id: weapon
         kind: choice
         sheet: proposed
         random: params.random
+        repeat: { max: 1 }
         options:
-          - id: peasant
-            changes:
-              - { type: addItem, entry: { item: "'armor.war-shirt'", equipped: true } }
-              - { type: addItem, entry: { item: "'armor.large-shield'", equipped: true } }
-              - { type: addItem, entry: { item: "'weapons.light-spear'", equipped: true } }
-              - { type: addItem, entry: { item: "'weapons.dagger'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.backpack'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.rations'" } }
-              - { type: addItem, entry: { item: "'gear.mule'" } }
-              - { type: addItem, entry: { item: "'gear.cart'" } }
-              - { type: addItem, entry: { item: "'gear.tinder-box'" } }
-              - { type: addItem, entry: { item: "'gear.torch'", quantity: 3 } }
-          - id: archer
-            changes:
-              - { type: addItem, entry: { item: "'armor.buff-coat'", equipped: true } }
-              - { type: addItem, entry: { item: "'weapons.large-bow'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.arrows'", equipped: true } }
-              - { type: addItem, entry: { item: "'weapons.dagger'", equipped: true } }
-              - { type: addItem, entry: { item: "'weapons.hand-axe'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.backpack'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.cooking-utensils'" } }
-              - { type: addItem, entry: { item: "'gear.rations'" } }
-              - { type: addItem, entry: { item: "'gear.waterskin'" } }
-              - { type: addItem, entry: { item: "'gear.tinder-box'" } }
-              - { type: addItem, entry: { item: "'gear.torch'", quantity: 3 } }
-              - { type: adjust, field: coins.silver, by: 20 }
-          - id: warrior
-            changes:
-              - { type: addItem, entry: { item: "'armor.pieced-armor'", equipped: true } }
-              - { type: addItem, entry: { item: "'armor.large-shield'", equipped: true } }
-              - { type: addItem, entry: { item: "'weapons.short-sword'", equipped: true } }
-              - { type: addItem, entry: { item: "'weapons.dagger'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.backpack'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.tinder-box'" } }
-              - { type: addItem, entry: { item: "'gear.torch'", quantity: 3 } }
-          - id: rogue
-            changes:
-              - { type: addItem, entry: { item: "'armor.buff-coat'", equipped: true } }
-              - { type: addItem, entry: { item: "'armor.small-shield'", equipped: true } }
-              - { type: addItem, entry: { item: "'weapons.short-sword'", equipped: true } }
-              - type: addItem
-                entry: { item: "'weapons.throwing-blade'", equipped: true, quantity: 5 }
-              - { type: addItem, entry: { item: "'gear.backpack'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.rations'" } }
-              - { type: addItem, entry: { item: "'gear.waterskin'" } }
-              - { type: addItem, entry: { item: "'gear.tinder-box'" } }
-              - { type: addItem, entry: { item: "'gear.torch'", quantity: 3 } }
-              - { type: addItem, entry: { item: "'gear.grappling-hook'" } }
-              - { type: addItem, entry: { item: "'gear.rope'" } }
-          - id: gentry
-            changes:
-              - { type: addItem, entry: { item: "'armor.buff-coat'", equipped: true } }
-              - { type: addItem, entry: { item: "'armor.small-shield'", equipped: true } }
-              - { type: addItem, entry: { item: "'weapons.short-sword'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.backpack'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.rations'" } }
-              - { type: addItem, entry: { item: "'gear.waterskin'" } }
-              - { type: addItem, entry: { item: "'gear.fine-clothes'" } }
-              - { type: addItem, entry: { item: "'gear.writing-kit'" } }
-              - { type: addItem, entry: { item: "'gear.paper'", quantity: 2 } }
-              - { type: adjust, field: coins.silver, by: 20 }
-          - id: scholar
-            changes:
-              - type: addItem
-                entry: { item: "'weapons.dagger'", equipped: true, quantity: 2 }
-              - { type: addItem, entry: { item: "'weapons.staff'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.backpack'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.lantern'" } }
-              - { type: addItem, entry: { item: "'gear.tinder-box'" } }
-              - { type: addItem, entry: { item: "'gear.oil'", quantity: 2 } }
-              - { type: addItem, entry: { item: "'gear.writing-kit'" } }
-              - { type: addItem, entry: { item: "'gear.paper'", quantity: 2 } }
-              - { type: addItem, entry: { item: "'gear.rations'" } }
-              - { type: addItem, entry: { item: "'gear.waterskin'" } }
-              - { type: addItem, entry: { item: "'gear.healers-pouch'" } }
-              - { type: adjust, field: coins.silver, by: 80 }
-          - { id: silver, when: '!params.random' }
+          content:
+            type: weapon
+            where: >-
+              !(item.id in [@weapons.unarmed, @weapons.large-shield-bash,
+                @weapons.small-shield-bash])
+                && (item.costUnit == 'cp' ? ceil(item.cost / 10) : item.cost) <= coins.silver
         recommend: >-
-          spells.mode != 'none' || class.mage > 0 ? 'scholar'
-            : class.warrior > 0 ? 'warrior'
-            : class.expert > 0 ? 'rogue'
-            : 'peasant'
-      - id: silverRoll
-        kind: roll
-        when: "steps.equipment.picked == 'silver'"
-        tags: [creation]
-        parts: [{ dice: 3d6 }]
-      - id: purse
-        kind: changes
-        when: has(steps.silverRoll)
+          filterList([spells.mode != 'none' || tradition.vowed.tier > 0 ? @weapons.staff
+              : class.warrior > 0 || class.expert > 0 ? @weapons.short-sword
+              : @weapons.light-spear, options[0]], x in options)[0]
         changes:
-          - { type: adjust, field: coins.silver, by: steps.silverRoll.total * 10 }
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+          - &pay
+            type: adjust
+            field: coins.silver
+            by: "-(picked.item.costUnit == 'cp' ? ceil(picked.item.cost / 10) : picked.item.cost)"
+          - &change
+            type: adjust
+            field: coins.copper
+            when: "picked.item.costUnit == 'cp'"
+            by: ceil(picked.item.cost / 10) * 10 - picked.item.cost
+      - id: armorBuy
+        kind: choice
+        sheet: proposed
+        options: [{ id: buy-armor }, { id: no-armor }]
+        recommend: "spells.mode != 'none' || tradition.vowed.tier > 0 ? 'no-armor' : 'buy-armor'"
+      # Body armor and a shield, one of each.
+      - id: armor
+        kind: choice
+        sheet: proposed
+        when: "steps.armorBuy.picked == 'buy-armor'"
+        random: params.random
+        repeat: { max: 2 }
+        options:
+          content:
+            type: armor
+            where: >-
+              (item.category == 'shield' ? !armor.shield : armor.wornEnc < 0)
+                && (item.costUnit == 'cp' ? ceil(item.cost / 10) : item.cost) <= coins.silver
+        recommend: >-
+          filterList([@armor.linothorax, @armor.large-shield, @armor.war-shirt, options[0]],
+            x in options)[0]
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+          - *pay
+          - *change
+      # Up to six pieces of gear, one of each.
+      - id: gear
+        kind: choice
+        sheet: proposed
+        random: params.random
+        repeat: { max: 6 }
+        options:
+          content:
+            type: gear
+            where: >-
+              picks == 0
+                && (item.costUnit == 'cp' ? ceil(item.cost / 10) : item.cost) <= coins.silver
+        recommend: >-
+          filterList([@gear.backpack, @gear.rations, @gear.waterskin, @gear.tinder-box,
+            @gear.torch, @gear.rope, options[0]], x in options)[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id, equipped: 'picked.id == @gear.backpack' }
+          - *pay
+          - *change
 
       - id: finish
         kind: changes

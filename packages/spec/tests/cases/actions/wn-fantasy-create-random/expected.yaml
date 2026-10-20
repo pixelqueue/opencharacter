@@ -7,13 +7,13 @@ proposedChanges:
     change:
       type: set
       field: wn-fantasy:attributes.str.score
-      value: 11
+      value: 10
   - to: self
     step: rolled/scores
     change:
       type: set
       field: wn-fantasy:attributes.dex.score
-      value: 8
+      value: 6
   - to: self
     step: rolled/scores
     change:
@@ -25,24 +25,24 @@ proposedChanges:
     change:
       type: set
       field: wn-fantasy:attributes.int.score
-      value: 7
-  - to: self
-    step: rolled/scores
-    change:
-      type: set
-      field: wn-fantasy:attributes.wis.score
       value: 10
   - to: self
     step: rolled/scores
     change:
       type: set
+      field: wn-fantasy:attributes.wis.score
+      value: 8
+  - to: self
+    step: rolled/scores
+    change:
+      type: set
       field: wn-fantasy:attributes.cha.score
-      value: 11
+      value: 12
   - to: self
     step: rolled/fourteen
     change:
       type: set
-      field: wn-fantasy:attributes.int.score
+      field: wn-fantasy:attributes.dex.score
       value: 14
   - to: self
     step: background
@@ -58,28 +58,22 @@ proposedChanges:
       field: wn-fantasy:skills.craft
       by: 1
   - to: self
-    step: rolls/rolled1/skill/raise
+    step: rolls/rolled1/attribute/two
     change:
       type: adjust
-      field: wn-fantasy:skills.exert
-      by: 1
+      field: wn-fantasy:attributes.str.score
+      by: 2
   - to: self
     step: rolls/rolled2/skill/raise
     change:
       type: adjust
-      field: wn-fantasy:skills.trade
+      field: wn-fantasy:skills.know
       by: 1
   - to: self
-    step: rolls/rolled3/attribute/two
+    step: rolls/rolled3/skill/raise
     change:
       type: adjust
-      field: wn-fantasy:attributes.str.score
-      by: 1
-  - to: self
-    step: rolls/rolled3/attribute/two
-    change:
-      type: adjust
-      field: wn-fantasy:attributes.dex.score
+      field: wn-fantasy:skills.craft
       by: 1
   - to: self
     step: class
@@ -93,39 +87,33 @@ proposedChanges:
     change:
       type: addItem
       entry:
-        id: foci-alert-1
-        item: wn-fantasy:foci.alert
+        id: foci-xenoblooded-1
+        item: wn-fantasy:foci.xenoblooded
         state:
           level: 1
   - to: self
-    step: warriorFocus/bonusSkill/raise
+    step: warriorFocus/focusChoices
     change:
-      type: adjust
-      field: wn-fantasy:skills.notice
-      by: 1
+      type: choose
+      path:
+        entry: foci-xenoblooded-1
+        choice:
+          - heritage
+      option: heavy
   - to: self
     step: freeFocus/take
     change:
       type: addItem
       entry:
-        id: foci-specialist-1
-        item: wn-fantasy:foci.specialist
+        id: foci-shocking-assault-1
+        item: wn-fantasy:foci.shocking-assault
         state:
           level: 1
-  - to: self
-    step: freeFocus/focusChoices
-    change:
-      type: choose
-      path:
-        entry: foci-specialist-1
-        choice:
-          - skill
-      option: convince
   - to: self
     step: freeFocus/bonusSkill/raise
     change:
       type: adjust
-      field: wn-fantasy:skills.convince
+      field: wn-fantasy:skills.punch
       by: 1
   - to: self
     step: freePick/raise
@@ -138,17 +126,43 @@ proposedChanges:
     change:
       type: set
       field: wn-fantasy:hp.rolled
-      value: 4
+      value: 7
   - to: self
-    step: equipment
+    step: purse
+    change:
+      type: adjust
+      field: wn-fantasy:coins.silver
+      by: 120
+  - to: self
+    step: weapon
     change:
       type: addItem
       entry:
-        id: armor-buff-coat-1
-        item: wn-fantasy:armor.buff-coat
+        id: weapons-war-hammer-1
+        item: wn-fantasy:weapons.war-hammer
         equipped: true
   - to: self
-    step: equipment
+    step: weapon
+    change:
+      type: adjust
+      field: wn-fantasy:coins.silver
+      by: -30
+  - to: self
+    step: armor
+    change:
+      type: addItem
+      entry:
+        id: armor-linothorax-1
+        item: wn-fantasy:armor.linothorax
+        equipped: true
+  - to: self
+    step: armor
+    change:
+      type: adjust
+      field: wn-fantasy:coins.silver
+      by: -20
+  - to: self
+    step: armor
     change:
       type: addItem
       entry:
@@ -156,24 +170,89 @@ proposedChanges:
         item: wn-fantasy:armor.small-shield
         equipped: true
   - to: self
-    step: equipment
+    step: armor
+    change:
+      type: adjust
+      field: wn-fantasy:coins.silver
+      by: -20
+  - to: self
+    step: gear
     change:
       type: addItem
       entry:
-        id: weapons-short-sword-1
-        item: wn-fantasy:weapons.short-sword
-        equipped: true
+        id: gear-rations-1
+        item: wn-fantasy:gear.rations
+        equipped: false
   - to: self
-    step: equipment
+    step: gear
+    change:
+      type: adjust
+      field: wn-fantasy:coins.silver
+      by: -5
+  - to: self
+    step: gear
     change:
       type: addItem
       entry:
-        id: weapons-throwing-blade-1
-        item: wn-fantasy:weapons.throwing-blade
-        equipped: true
-        quantity: 5
+        id: gear-working-dog-1
+        item: wn-fantasy:gear.working-dog
+        equipped: false
   - to: self
-    step: equipment
+    step: gear
+    change:
+      type: adjust
+      field: wn-fantasy:coins.silver
+      by: -20
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry:
+        id: gear-torch-1
+        item: wn-fantasy:gear.torch
+        equipped: false
+  - to: self
+    step: gear
+    change:
+      type: adjust
+      field: wn-fantasy:coins.silver
+      by: -1
+  - to: self
+    step: gear
+    change:
+      type: adjust
+      field: wn-fantasy:coins.copper
+      by: 8
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry:
+        id: gear-grappling-hook-1
+        item: wn-fantasy:gear.grappling-hook
+        equipped: false
+  - to: self
+    step: gear
+    change:
+      type: adjust
+      field: wn-fantasy:coins.silver
+      by: -5
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry:
+        id: gear-iron-spikes-1
+        item: wn-fantasy:gear.iron-spikes
+        equipped: false
+  - to: self
+    step: gear
+    change:
+      type: adjust
+      field: wn-fantasy:coins.silver
+      by: -1
+  - to: self
+    step: gear
     change:
       type: addItem
       entry:
@@ -181,54 +260,17 @@ proposedChanges:
         item: wn-fantasy:gear.backpack
         equipped: true
   - to: self
-    step: equipment
+    step: gear
     change:
-      type: addItem
-      entry:
-        id: gear-rations-1
-        item: wn-fantasy:gear.rations
-  - to: self
-    step: equipment
-    change:
-      type: addItem
-      entry:
-        id: gear-waterskin-1
-        item: wn-fantasy:gear.waterskin
-  - to: self
-    step: equipment
-    change:
-      type: addItem
-      entry:
-        id: gear-tinder-box-1
-        item: wn-fantasy:gear.tinder-box
-  - to: self
-    step: equipment
-    change:
-      type: addItem
-      entry:
-        id: gear-torch-1
-        item: wn-fantasy:gear.torch
-        quantity: 3
-  - to: self
-    step: equipment
-    change:
-      type: addItem
-      entry:
-        id: gear-grappling-hook-1
-        item: wn-fantasy:gear.grappling-hook
-  - to: self
-    step: equipment
-    change:
-      type: addItem
-      entry:
-        id: gear-rope-1
-        item: wn-fantasy:gear.rope
+      type: adjust
+      field: wn-fantasy:coins.silver
+      by: -2
   - to: self
     step: finish
     change:
       type: set
       field: wn-fantasy:hp.current
-      value: 4
+      value: 7
   - to: self
     step: finish
     change:

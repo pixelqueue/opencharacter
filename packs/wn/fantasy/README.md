@@ -29,7 +29,7 @@ const loaded = loadRuleset([fantasy]);
 if (!loaded.ok) throw new Error(loaded.errors.map((e) => e.code).join(', '));
 const { ruleset } = loaded;
 
-// A random character: attributes, background and its skills rolled, every other pick drawn.
+// A random character: attributes, skills and silver rolled, every other pick drawn.
 const blank = {
   specVersion: '0.1.0',
   id: 'new',
@@ -85,11 +85,14 @@ computeSheet(ruleset, made.character).values['wn-fantasy:saves.physical']?.value
   a Focus at 2, 5, 7 and 10 with three skill points toward its skill, arts and spells), and
   `improve` to spend skill points on skills and attribute boosts at their level minimums.
 - **Gear:** the SRD's weapons, armor, adventuring gear, gear bundles and beasts, with
-  encumbrance in Readied and Stowed items, bundles, worn clothing, coins and movement.
+  encumbrance in Readied and Stowed items, bundles, worn clothing, coins and movement. A new
+  character rolls 3d6 x 10 silver and buys a weapon, armor and up to six pieces of gear at list
+  price.
 - **Creation:** two starts running `create-character`, in the book's order.
-  - `random`: attributes and three rolls split between Growth and Learning are rolled; the
-    background, class, partial classes, Foci, arts, spells and equipment package are drawn
-    evenly among the options open, so an automatic run finishes.
+  - `random`: attributes, three rolls split between Growth and Learning, and silver are rolled;
+    the background, class, partial classes, Foci, arts, spells and purchases are drawn evenly
+    among the options open (spellcasters and the Vowed buy no armor), so an automatic run
+    finishes.
   - `guided`: the player picks, each pick recommended.
 
 ## Left to the app or the table
@@ -100,8 +103,8 @@ computeSheet(ruleset, made.character).values['wn-fantasy:saves.physical']?.value
   form bonus and form arts), a Beastmaster's companion's sheet, a Wise's art progression by
   level, and the GM-defined Foci (Special Origin, Unique Gift).
 - **Languages, goals and ties.**
+- **Starting packages.** The SRD's other start, a package of gear, is the GM's to provide.
 
 ## Sources
 
-The Worlds Without Number SRD v1.0 (CC0). The starting equipment packages follow the free
-edition of Worlds Without Number, as mechanics only.
+The Worlds Without Number SRD v1.0 (CC0), and nothing else.
