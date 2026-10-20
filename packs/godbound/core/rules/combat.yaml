@@ -113,6 +113,11 @@ actions:
           - dice: 1d20
           - value: params.modifier
             when: params.modifier != 0
+      - id: luck
+        kind: changes
+        when: situational.luckReserve
+        changes:
+          - { type: set, field: luck.reserve, value: 0 }
       - id: result
         kind: outcome
         result: steps.roll.band
@@ -148,6 +153,11 @@ actions:
         cases:
           - when: true
             flags: { result: steps.roll.band }
+      - id: luck
+        kind: changes
+        when: situational.luckReserve
+        changes:
+          - { type: set, field: luck.reserve, value: 0 }
       - id: effort
         kind: choice
         tags: [failed-save]
@@ -222,6 +232,11 @@ actions:
             when: params.modifier != 0
           - value: item.hitModifier
             when: has(item.hitModifier)
+      - id: luck
+        kind: changes
+        when: situational.luckReserve
+        changes:
+          - { type: set, field: luck.reserve, value: 0 }
       - id: damage
         kind: roll
         when: "steps.hit.band != 'miss'"

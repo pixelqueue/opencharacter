@@ -1,0 +1,12 @@
+description:
+  "godbound-core: the Word of Luck's reserve roll replaces a save's d20: an 18 kept in reserve
+  makes the Hardiness save without rolling, and the reserve is spent"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/godbound/core
+input:
+  action: { id: godbound-core:saving-throw }
+  params: { save: hardiness }
+  situational:
+    godbound-core:luckReserve: true

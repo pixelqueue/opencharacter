@@ -88,8 +88,9 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
 - **Words:** all 25 Words of the Free Edition, each with its gifts, and Apotheosis.
   - Attribute raises are effects (16, or 18 if the score is already 16 or more); where a Word
     offers two attributes, a choice on the Word picks one.
-  - Fire's flame is a weapon; Luck's daily d20 is kept in `luck.reserve`; Sorcery negates low
-    magic for a scene's Effort.
+  - Fire's flame is a weapon; Luck's daily d20 is kept in `luck.reserve`, and the `luckReserve`
+    situational choice puts it in place of a check's, save's or attack's d20 (emptying the
+    reserve); Sorcery negates low magic for a scene's Effort.
   - Apotheosis is every hero's (a standard copy) and grants its gifts by level, unless the hero
     is a free divinity (`apotheosis.free`), who gains Dominion each month instead.
 - **Gifts:** each gift's Word, degree, activation (Constant, On Turn, Action, Instant), Smite,

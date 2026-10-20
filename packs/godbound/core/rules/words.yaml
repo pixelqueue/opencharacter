@@ -104,6 +104,20 @@ contentTypes:
       - use: gift-blast
       - use: gift-heal
 
+# The Word of Luck's reserve roll, used in place of a d20 roll: the check, save or attack takes
+# the stored face, and the action empties the reserve.
+situational:
+  - id: luckReserve
+    type: boolean
+    default: false
+    rolls: [check, save, attack]
+    available: luck.reserve > 0
+    effects:
+      - target: { rolls: [check, save, attack] }
+        op: rollModifier
+        value: { kind: setFaces, faces: [luck.reserve] }
+        when: situational.luckReserve
+
 actions:
   # Uses a gift that commits Effort: while it lasts (held on the gift until released), for the
   # scene, or for the day.
