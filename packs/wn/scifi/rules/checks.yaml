@@ -1,0 +1,160 @@
+fields:
+  henchmen.max: { type: integer, formula: 0 }
+  # The discipline Psychic Training's skill points go to.
+  psionics.training: { type: string, formula: "''" }
+
+situational:
+  - id: burst
+    type: boolean
+    default: false
+    rolls: [attack]
+  - id: hacking
+    type: boolean
+    default: false
+    rolls: [check.program]
+  - id: negotiation
+    type: boolean
+    default: false
+    rolls: [check]
+  - id: executionShot
+    type: boolean
+    default: false
+    rolls: [check.shoot]
+  - id: telepathy
+    type: boolean
+    default: false
+    rolls: [save.mental]
+
+resultBands:
+  check:
+    - { id: success, when: 'flags.difficulty >= 0 && roll.total >= flags.difficulty' }
+    - { id: failure, when: 'flags.difficulty >= 0' }
+    - { id: rolled, when: true }
+  # A natural 1 always fails and a natural 20 always succeeds.
+  save:
+    - {
+        id: success,
+        when: 'roll.faces[0] == 20 || (roll.faces[0] != 1 && roll.total >= flags.target)',
+      }
+    - { id: failure, when: true }
+  attack:
+    - { id: hit, when: 'flags.ac >= 0 && roll.total >= flags.ac' }
+    - { id: miss, when: 'flags.ac >= 0' }
+    - { id: rolled, when: true }
+
+actions:
+  # 2d6 + skill + attribute modifier; unskilled is -1. Some foci roll more dice and keep two.
+  - id: skill-check
+    tags: [check]
+    params:
+      skill:
+        type: enum
+        required: true
+        values:
+          &skills [
+            administer,
+            connect,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            pilot,
+            program,
+            punch,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            talk,
+            trade,
+            work,
+            biopsionics,
+            metapsionics,
+            precognition,
+            telekinesis,
+            telepathy,
+            teleportation,
+          ]
+      attribute: { type: enum, required: true, values: [str, dex, con, int, wis, cha] }
+      difficulty: { type: integer, optional: true, min: 0 }
+    results: { bands: check }
+    steps:
+      - id: start
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              difficulty: 'has(params.difficulty) ? params.difficulty : -1'
+              reroll: false
+      - id: check
+        kind: roll
+        tags: &checkTags
+          - check
+          - formula: >-
+              ['check.' + params.skill]
+                + (params.skill in ['connect', 'lead', 'perform', 'talk'] ? ['check.social'] : [])
+        bands: check
+        parts: &checkParts
+          - dice: "(fieldOf('skills.{skill}.dice', params.skill))d6kh2"
+          - value: "fieldOf('skills.{skill}.level', params.skill)"
+          - value: "fieldOf('attributes.{attr}.mod', params.attribute)"
+      - id: retry
+        kind: choice
+        tags: [failed-check]
+        when: "steps.check.band == 'failure'"
+        options: [{ id: accept }]
+        recommend: "'accept'"
+      - id: reroll
+        kind: roll
+        when: flags.reroll
+        tags: *checkTags
+        bands: check
+        parts: *checkParts
+      - id: result
+        kind: outcome
+        result: >-
+          has(steps.reroll) && steps.reroll.band == 'success' ? 'success' : steps.check.band
+        data:
+          total: 'has(steps.reroll) ? max(steps.check.total, steps.reroll.total) : steps.check.total'
+
+  - id: saving-throw
+    tags: [save]
+    params:
+      save: { type: enum, required: true, values: [physical, evasion, mental] }
+      modifier: { type: integer, default: 0 }
+    results: { bands: save }
+    steps:
+      - id: start
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              target: >-
+                params.save == 'physical' ? saves.physical
+                  : params.save == 'evasion' ? saves.evasion : saves.mental
+      - id: save
+        kind: roll
+        tags: [save, { formula: "'save.' + params.save" }]
+        bands: save
+        parts:
+          - dice: 1d20
+          - value: params.modifier
+      - { id: result, kind: outcome, result: steps.save.band }
+
+  - id: initiative
+    tags: [initiative]
+    results: [rolled]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [initiative]
+        parts:
+          - dice: 1d8
+          - value: attributes.dex.mod
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data: { total: steps.roll.total }

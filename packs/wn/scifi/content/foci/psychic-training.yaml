@@ -1,0 +1,18 @@
+id: foci.psychic-training
+type: focus
+fields:
+  kind: psychic
+  skill: chosen
+prerequisites:
+  - id: psychic
+    when: "psionics.access != 'none'"
+effects:
+  - { target: effort.bonus, op: add, value: 1 }
+choices:
+  - id: discipline
+    from:
+      { values: [biopsionics, metapsionics, precognition, telekinesis, telepathy, teleportation] }
+    eligible: "psionics.access == 'unrestricted' || value == psionics.discipline"
+    recommend: "psionics.access == 'restricted' ? psionics.discipline : 'biopsionics'"
+    effects:
+      - { target: psionics.training, op: set, value: pick.value }

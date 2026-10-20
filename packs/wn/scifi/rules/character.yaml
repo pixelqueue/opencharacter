@@ -1,0 +1,114 @@
+families:
+  growthRow: [1, 2, 3, 4, 5, 6]
+  learningRow: [1, 2, 3, 4, 5, 6, 7, 8]
+
+fields:
+  # Set by the class and its partial classes.
+  psionics.access: { type: enum, values: [none, restricted, unrestricted], formula: "'none'" }
+  # A restricted psychic's one discipline, picked with the Partial Psychic option.
+  psionics.discipline: { type: string, formula: "''" }
+  # Extra focus levels a new character picks: non-combat (Expert) and combat (Warrior).
+  class.focus.noncombat: { type: integer, formula: 0 }
+  class.focus.combat: { type: integer, formula: 0 }
+  # Extra skill points each level for non-combat, non-psychic skills (Expert).
+  class.expertPoints: { type: integer, formula: 0 }
+  # Spent for the scene: the Expert's reroll and the Warrior's luck.
+  scene.expertReroll: { type: boolean, input: true, default: false }
+  scene.warriorLuck: { type: boolean, input: true, default: false }
+
+contentTypes:
+  class:
+    copies: { max: 1 }
+  # Picked, two of them, by the Adventurer.
+  partialClass:
+    copies: { max: 0 }
+  background:
+    copies: { max: 1 }
+    fields:
+      freeSkill:
+        type: enum
+        required: true
+        values:
+          &entries [
+            administer,
+            connect,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            pilot,
+            program,
+            punch,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            talk,
+            trade,
+            work,
+            any-combat,
+            any-skill,
+            stab-or-shoot,
+            shoot-or-trade,
+            any-stat,
+            physical,
+            mental,
+          ]
+      # The quick skills besides the free one.
+      quick1: { type: enum, required: true, values: *entries }
+      quick2: { type: enum, required: true, values: *entries }
+      'growth{growthRow}': { type: enum, required: true, values: *entries }
+      'learning{learningRow}': { type: enum, required: true, values: *entries }
+  focus:
+    fields:
+      kind: { type: enum, values: [combat, noncombat, psychic, special], required: true }
+      # The bonus skill its first level gives; `chosen` is the skill the focus's own choice names.
+      skill:
+        type: enum
+        default: none
+        values:
+          [
+            administer,
+            connect,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            pilot,
+            program,
+            punch,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            talk,
+            trade,
+            work,
+            any-combat,
+            punch-or-stab,
+            chosen,
+            none,
+          ]
+      maxLevel: { type: integer, default: 2, min: 1 }
+      # Taken more than once, each time for something else.
+      repeatable: { type: boolean, default: false }
+    state:
+      level: { type: integer, default: 1, min: 1, max: item.maxLevel }
+
+constraints:
+  - id: creation-class-background
+    check: >-
+      !character.creating || (countCopies(copy.type == 'class') > 0
+        && countCopies(copy.type == 'background') > 0)
+  - id: creation-skill-cap
+    check: "!character.creating || maxFields(f.value, 'skill' in f.tags) <= 1"
+    data: { limit: 1 }
+  - id: focus-once
+    copies: { type: focus, where: '!item.repeatable' }
+    check: countCopies(copy.item == item.id) <= 1

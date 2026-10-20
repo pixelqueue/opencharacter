@@ -1,0 +1,11 @@
+id: foci.unarmed-combatant
+type: focus
+fields:
+  kind: combat
+  skill: punch
+keepsTemplates:
+  - template: templates.trained-unarmed
+    copies: { type: weapon, where: "'unarmed' in item.tags" }
+effects:
+  - { target: miss.punch, op: set, value: 1d6, when: self.level >= 2 }
+  - { target: combat.punchAdvanced, op: set, value: true, when: self.level >= 2 }

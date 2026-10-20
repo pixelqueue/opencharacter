@@ -1,0 +1,40 @@
+fields:
+  effort.bonus: { type: integer, formula: 0 }
+  # A wild talent's Effort, for a character who isn't a psychic.
+  effort.wild: { type: integer, formula: 0 }
+  effort.max:
+    type: integer
+    formula: >-
+      psionics.access == 'none' ? effort.wild
+        : max(1, 1 + maxFields(f.value, 'skill.psychic' in f.tags)
+          + max(attributes.wis.mod, attributes.con.mod)) + effort.bonus
+  # Effort Committed until the end of the scene, and until the next night's rest.
+  effort.scene: { type: integer, input: true, default: 0, min: 0 }
+  effort.day: { type: integer, input: true, default: 0, min: 0 }
+  # Effort gained by torching, which lasts for the scene.
+  effort.torched: { type: integer, input: true, default: 0, min: 0 }
+  effort.available:
+    type: integer
+    formula: effort.max + effort.torched - effort.scene - effort.day
+    limits: { min: 0 }
+
+contentTypes:
+  technique:
+    copies: { perItem: 1 }
+    fields:
+      discipline:
+        type: enum
+        required: true
+        values: [biopsionics, metapsionics, precognition, telekinesis, telepathy, teleportation]
+      level: { type: integer, required: true, min: 0, max: 4 }
+      # The discipline's core technique: every psychic with the skill has it.
+      core: { type: boolean, default: false }
+
+constraints:
+  # Only psychics have psychic skills, and a restricted psychic only their one discipline.
+  - id: psychic-skills
+    check: >-
+      psionics.access == 'unrestricted'
+        || sumFields(f.value >= 0 && (psionics.access == 'none'
+          || f.id != 'wn-scifi:skills.' + psionics.discipline + '.level') ? 1 : 0,
+          'skill.psychic' in f.tags) == 0

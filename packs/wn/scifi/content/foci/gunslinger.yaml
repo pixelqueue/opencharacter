@@ -1,0 +1,8 @@
+id: foci.gunslinger
+type: focus
+fields:
+  kind: combat
+  skill: shoot
+effects:
+  - { target: damage.ranged, op: add, value: 'max(0, skills.shoot.level)' }
+  - { target: miss.ranged, op: set, value: 1d4, when: self.level >= 2 }

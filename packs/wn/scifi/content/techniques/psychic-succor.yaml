@@ -1,0 +1,39 @@
+id: techniques.psychic-succor
+type: technique
+fields:
+  discipline: biopsionics
+  level: 0
+  core: true
+actions:
+  # Heals by Biopsionics level (level-0 only stabilizes) and adds System Strain to the target:
+  # two points if they were mortally wounded. The Effort is the app's to Commit.
+  - id: succor
+    tags: [psionics]
+    params:
+      mortallyWounded: { type: boolean, default: false }
+    participants:
+      target: { max: 1 }
+    results: [healed]
+    steps:
+      - id: heal
+        kind: roll
+        when: skills.biopsionics.level >= 1
+        tags: [healing]
+        parts:
+          - dice: >-
+              skills.biopsionics.level >= 4 ? 3d6 + 8 : skills.biopsionics.level == 3 ? 2d6 + 6
+                : skills.biopsionics.level == 2 ? 2d6 + 2 : 1d6 + 1
+      - id: apply
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            when: has(steps.heal)
+            field: hp.current
+            by: steps.heal.total
+            tags: [healing]
+          - { type: adjust, field: strain.current, by: 'params.mortallyWounded ? 2 : 1' }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data: { healed: 'has(steps.heal) ? steps.heal.total : 0' }

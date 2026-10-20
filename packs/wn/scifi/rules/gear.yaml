@@ -1,0 +1,176 @@
+fields:
+  # Armor Class: the best armor worn (or an innate AC), a shield, and Dexterity.
+  ac.innate: { type: integer, formula: 0 }
+  ac.armor:
+    type: integer
+    formula: >-
+      max(10, ac.innate, maxCopies(copy.fields.ac, copy.type == 'armor' && copy.equipped
+        && !copy.fields.shield))
+  ac.shield:
+    type: integer
+    formula: "maxCopies(copy.fields.ac, copy.type == 'armor' && copy.equipped && copy.fields.shield)"
+  ac.value:
+    type: integer
+    tags: [ac]
+    formula: >-
+      (ac.shield > 0 ? (ac.armor >= ac.shield ? ac.armor + 1 : ac.shield) : ac.armor)
+        + attributes.dex.mod
+  # Against firearms and advanced melee weapons, primitive armor and shields count as AC 10.
+  ac.advanced:
+    type: integer
+    tags: [ac]
+    formula: >-
+      max(10, ac.innate, maxCopies(copy.fields.ac, copy.type == 'armor' && copy.equipped
+        && !copy.fields.shield && copy.fields.category != 'primitive'))
+        + (maxCopies(copy.fields.ac, copy.type == 'armor' && copy.equipped && copy.fields.shield
+          && copy.fields.category != 'primitive') > 0 ? 1 : 0)
+        + attributes.dex.mod
+
+  # Damage bonuses from foci: the Stab skill to melee and thrown weapons (Armsman), the Shoot skill
+  # to ranged ones (Gunslinger).
+  damage.melee: { type: integer, formula: 0 }
+  damage.ranged: { type: integer, formula: 0 }
+  shock.bonus: { type: integer, formula: 0 }
+  # Melee Shock that treats every target as AC 10 (Shocking Assault, Close Combatant).
+  shock.anyAc: { type: boolean, formula: false }
+  # Unmodified damage on a miss (Armsman, Gunslinger, Unarmed Combatant).
+  miss.melee: { type: dice, formula: 0 }
+  miss.ranged: { type: dice, formula: 0 }
+  miss.punch: { type: dice, formula: 0 }
+  # Primitive melee weapons and fists that count as advanced (Armsman, Unarmed Combatant).
+  combat.meleeAdvanced: { type: boolean, formula: false }
+  combat.punchAdvanced: { type: boolean, formula: false }
+
+  # Encumbrance: Readied (equipped) items up to half Strength, Stowed items up to Strength.
+  encumbrance.strength: { type: integer, formula: attributes.str.score }
+  encumbrance.readied:
+    type: integer
+    formula: >-
+      sumCopies(copy.fields.enc * ceil(copy.quantity / copy.fields.bundle), has(copy.fields.enc)
+        && copy.equipped && !copy.state.stored)
+  encumbrance.stowed:
+    type: integer
+    formula: >-
+      sumCopies(copy.fields.enc * ceil(copy.quantity / copy.fields.bundle), has(copy.fields.enc)
+        && !copy.equipped && !copy.state.stored)
+  encumbrance.readiedLimit: { type: integer, formula: floor(encumbrance.strength / 2) }
+  encumbrance.stowedLimit: { type: integer, formula: encumbrance.strength }
+  # 0 unencumbered, 1 lightly (2 more Readied or 4 more Stowed), 2 heavily (as much again),
+  # 3 more than that.
+  encumbrance.level:
+    type: integer
+    limits: { max: 2 }
+    formula: >-
+      max(encumbrance.readied <= encumbrance.readiedLimit ? 0
+          : encumbrance.readied <= encumbrance.readiedLimit + 2 ? 1
+          : encumbrance.readied <= encumbrance.readiedLimit + 4 ? 2 : 3,
+        encumbrance.stowed <= encumbrance.stowedLimit ? 0
+          : encumbrance.stowed <= encumbrance.stowedLimit + 4 ? 1
+          : encumbrance.stowed <= encumbrance.stowedLimit + 8 ? 2 : 3)
+  movement: { type: integer, formula: '[10, 7, 5, 0][encumbrance.level]' }
+
+  # System Strain: permanent from cyberware, the rest temporary. It may not pass Constitution.
+  strain.permanent:
+    type: integer
+    formula: "sumCopies(copy.fields.strain, copy.type == 'cyberware' && has(copy.fields.strain))"
+  strain.current: { type: integer, input: true, default: 0, min: 0 }
+  strain.total:
+    type: integer
+    formula: strain.permanent + strain.current
+    limits: { max: strain.max }
+  strain.max: { type: integer, formula: attributes.con.score }
+
+standardCopies:
+  - { type: weapon, where: "'unarmed' in item.tags" }
+
+contentTypes:
+  weapon:
+    carried: true
+    equippable: true
+    fields:
+      damage: { type: dice, required: true }
+      skill: { type: enum, values: [punch, shoot, stab], required: true }
+      attribute: { type: enum, values: [str, dex, str-dex] }
+      range: { type: integer, min: 0 }
+      maxRange: { type: integer, min: 0 }
+      magazine: { type: integer, min: 1 }
+      ammo: { type: enum, values: [rounds, cell-a, cell-b, missile] }
+      shock: { type: integer, min: 0 }
+      shockAc: { type: integer, min: 0 }
+      burst: { type: boolean, default: false }
+      suppress: { type: boolean, default: false }
+      # Energy weapons: +1 to hit.
+      energy: { type: boolean, default: false }
+      # Firearms and TL4 melee weapons ignore primitive armor.
+      advanced: { type: boolean, default: false }
+      heavy: { type: boolean, default: false }
+      thrown: { type: boolean, default: false }
+      nonlethal: { type: boolean, default: false }
+      # Always rolls against this AC (a grenade).
+      fixedAc: { type: integer }
+      reloadActions: { type: integer, default: 1, min: 1 }
+      cost: { type: integer, min: 0 }
+      enc: { type: integer, min: 0 }
+      bundle: { type: integer, default: 1, min: 1 }
+      techLevel: { type: integer, min: 0, max: 6 }
+    state:
+      stored: { type: boolean, default: false }
+    actions:
+      - use: attack
+      - use: reload
+
+  armor:
+    carried: true
+    equippable: true
+    fields:
+      ac: { type: integer, required: true, min: 10 }
+      category: { type: enum, values: [primitive, street, combat, powered], required: true }
+      shield: { type: boolean, default: false }
+      # Strength counted higher for encumbrance while worn.
+      strength: { type: integer, default: 0, min: 0 }
+      cost: { type: integer, min: 0 }
+      enc: { type: integer, min: 0 }
+      bundle: { type: integer, default: 1, min: 1 }
+      techLevel: { type: integer, min: 0, max: 6 }
+    state:
+      stored: { type: boolean, default: false }
+    effects:
+      - target: encumbrance.strength
+        op: add
+        value: item.strength
+        when: self.equipped && item.strength > 0
+
+  gear:
+    carried: true
+    equippable: true
+    fields:
+      category:
+        type: enum
+        required: true
+        values: [ammo-power, communications, computing, field, pharmaceutical, tools-medical]
+      # What a weapon reloads with.
+      kind: { type: enum, values: [rounds, cell-a, cell-b, missile] }
+      # A drug: the Heal skill needed to apply it, the System Strain it adds and what it heals.
+      healSkill: { type: integer, min: 0 }
+      strain: { type: integer, default: 0, min: 0 }
+      heal: { type: dice }
+      healAddsSkill: { type: boolean, default: false }
+      cost: { type: integer, min: 0 }
+      enc: { type: integer, min: 0 }
+      # How many make one item of encumbrance when packed together.
+      bundle: { type: integer, default: 1, min: 1 }
+      techLevel: { type: integer, min: 0, max: 6 }
+    state:
+      stored: { type: boolean, default: false }
+    actions:
+      - use: use-drug
+
+  cyberware:
+    fields:
+      strain: { type: integer, required: true, min: 0 }
+      # System Strain each time it is triggered.
+      activationStrain: { type: integer, default: 0, min: 0 }
+      cost: { type: integer, min: 0 }
+      techLevel: { type: integer, min: 0, max: 6 }
+    actions:
+      - use: trigger-cyberware
