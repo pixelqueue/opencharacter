@@ -520,7 +520,9 @@ roll.
   - **`entry`**. Evaluated to a string, an instance ID (`type-mismatch`
     otherwise). The step takes the listing of `computeSheet`'s `actions`, for the character on
     the step's sheet, with the action `use` (as above) and that `entry`, and with that `source`
-    when the step gives one too (with neither, the listing has no `source`); it runs as
+    when the step gives one too (with neither, the listing has no `source`). Without `source`,
+    a `use` that names no rules action is `<item>#<use>`, `<item>` the entry's own item (the
+    copy's, or an applied entry's source): an action that item or its type defines. It runs as
     `startAction` would run that listing: that copy is `self` and its item `item`. No such
     listing (no such copy, the copy doesn't list the action, or its `available` is false) is
     `unknown-action` (data: `action`, `entry`, and `source` when given). Not on a handoff: its

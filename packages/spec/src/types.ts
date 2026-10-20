@@ -238,11 +238,11 @@ export type ActionStep = {
   sheet?: StepSheet;
   /** Run the step once per participant of this declared role, in input order, with `participant` bound and `when` evaluated per participant. With none, the step doesn't run. Its result is a list in participant order (null where `when` skipped one); inside a later `each` step over the same role, it is the current participant's. Log paths gain the index (`saves[1]`). */
   each?: Name;
-  /** The action to run: a rules action, or with `source` one the content's type or the content itself defines (its local action ID, when no rules action has that ID). */
+  /** The action to run: a rules action, or with `source` one the content's type or the content itself defines, or with `entry` and no `source` one the copy's item or its type defines (its local action ID, when no rules action has that ID). */
   use: Ref;
   /** A formula giving a content ID, qualified against the action's pack. The step runs `use` as `computeSheet` lists it for this character with that `source`: with that content as `item` and the listing's `entry` as `self`. With no such listing (the action not available included) the action fails with `unknown-action` (data: `action`, `source`). */
   source?: Formula;
-  /** A formula giving an instance ID, such as a choice step's `steps.weapon.picked`. The step runs `use` as `computeSheet` lists it, on the step's sheet, with that `entry` (and that `source`, when given too): that copy is `self` and its item `item`. With no such listing (no such copy, the copy doesn't list the action, or its `available` is false) the action fails with `unknown-action` (data: `action`, `entry`, and `source` when given). Not with `as`. */
+  /** A formula giving an instance ID, such as a choice step's `steps.weapon.picked`. The step runs `use` as `computeSheet` lists it, on the step's sheet, with that `entry` (and that `source`, when given too): that copy is `self` and its item `item`. Without `source`, a local `use` names the copy's item's own action (`<item>#<use>`). With no such listing (no such copy, the copy doesn't list the action, or its `available` is false) the action fails with `unknown-action` (data: `action`, `entry`, and `source` when given). Not with `as`. */
   entry?: Formula;
   /** Keep what the nested action proposes instead of proposing it: every change it and the actions it runs propose is resolved as usual and held under the step, in order (with `each`, every run's, in run order). The nested action's own steps see them; the parent's later steps don't until a changes step's `release` names the step. Held changes never released are dropped. Not with `as`. */
   hold?: boolean;
