@@ -716,6 +716,13 @@ A choice step's `options` come from one source:
   Each option is a qualified content ID, named by the item's name.
 - **The character's copies**, `{ copies: { type, where? } }`: inventory then features.
   Each option is an instance ID, named by the copy's item name.
+- **Values**, `{ values, where? }`: plain values, strings or numbers, as a value choice's
+  ([content.md](content.md#value-choices)). `values` is a list written out, or `{ formula }`
+  giving a list, evaluated before each pick with the action's roots, so it can read `item`,
+  `self` and earlier steps. Each value is offered once, in the list's order; its option ID is
+  the value as a string. A formula that fails is an error, as any action formula is. Each value
+  is named `<actionKey>.options.<value>.name` when the pack has it; otherwise the app names it (a
+  content ID by its item's name, a field ID by the field's).
 - **Pending choices**, `{ pending: { entry? } }`: the choices still pending on
   the [proposed character](#steps), in `pending`'s order (each item's own choices before
   those of what it grants, each followed by those of what it picked),
@@ -727,7 +734,26 @@ A choice step's `options` come from one source:
 
 In a query source's `where`, `item` (and for copies `self`) is the candidate, `picks` is how
 many times the step has already picked it, and the action's own item and copy are `action.item`
-and `action.self`. A written option's `when` sees `picks` too.
+and `action.self`. A value source's `where` sees the candidate as `value`, and `picks`; `item`
+and `self` stay the action's own. A written option's `when` sees `picks` too.
+
+A modular weapon's damage type comes from the copy's list, and a skill from the character's:
+
+```yaml
+- id: type
+  kind: choice # actions.modular.steps.type.prompt
+  options: { values: { formula: '[item.damageType] + item.modularTypes' } }
+  changes:
+    - type: setState
+      entry: self
+      key: modular
+      value: "picked.value == item.damageType ? '' : picked.value"
+- id: skill
+  kind: choice
+  options: { values: { formula: skills.trained } } # named by each skill field's name
+  recommend: options[0]
+  changes: [{ type: set, field: witchwarper.memorySkill, value: picked.value }]
+```
 
 **Options that set flags**. A written option, or one content adds, may set the
 action's flags when picked, as a branch case does. They are set before the option's changes, so
@@ -753,14 +779,14 @@ default in an early branch:
       - { type: setState, entry: self, key: hellishRebukeUsed, value: true }
 ```
 
-| Property    | Meaning                                                                                                                       |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `tags`      | The step's tags: content adds options to it, and policy rules match it, by tag                                                |
-| `recommend` | A formula giving the recommended option ID; it may read `options`, the source's offered IDs, so a roll can pick one           |
-| `prefer`    | Content and copies: a number per candidate; without `recommend`, the highest is recommended; with neither, nothing is (0100)  |
-| `random`    | A condition: while it holds, each pick's recommendation is drawn uniformly with a die as large as the options (0108)          |
-| `repeat`    | `{ max, min? }`: pick up to `max` times; after `min` picks the reserved `#done` is offered last and ends the step             |
-| `changes`   | Proposed after every pick, `to: self`; `picked` is `{ id }` (plus `item`, and `self` for copies); `entry: picked` is the copy |
+| Property    | Meaning                                                                                                                                           |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tags`      | The step's tags: content adds options to it, and policy rules match it, by tag                                                                    |
+| `recommend` | A formula giving the recommended option ID; it may read `options`, the source's offered IDs, so a roll can pick one                               |
+| `prefer`    | Content, copies or values: a number per candidate; without `recommend`, the highest is recommended; with neither, nothing is (0100)               |
+| `random`    | A condition: while it holds, each pick's recommendation is drawn uniformly with a die as large as the options (0108)                              |
+| `repeat`    | `{ max, min? }`: pick up to `max` times; after `min` picks the reserved `#done` is offered last and ends the step                                 |
+| `changes`   | Proposed after every pick, `to: self`; `picked` is `{ id }` (plus `item`, and `self` for copies; `value` for values); `entry: picked` is the copy |
 
 Over pending choices `recommend` also sees `choice` (`{ path, owner, id }`, the choice asked), and
 without it the choice's own recommendation applies; `picked` is `{ id, path }`, and the result
@@ -808,7 +834,8 @@ effects:
 
 `steps.<id>.picked` is the option ID, or with `repeat` the list of picks (`#done` left out).
 Over content or copies without `repeat`, `steps.<id>.item` is the picked item and, for copies,
-`steps.<id>.self` the picked copy. A step with nothing to offer is skipped. 5E's long rest
+`steps.<id>.self` the picked copy; over values, `steps.<id>.value` is the picked value (a
+number stays a number). A step with nothing to offer is skipped. 5E's long rest
 regains spent hit dice up to half the total level, one die per pick, from the classes the player
 chooses:
 

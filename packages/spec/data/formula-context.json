@@ -29,11 +29,11 @@
     },
     {
       "id": "value",
-      "description": "In a value choice's `where and `eligible``: the candidate value, a string or number, typed by the choice's list."
+      "description": "In a value choice's `where` and `eligible`, and a choice step's `where` and `prefer` over values: the candidate value, a string or number, typed by the list."
     },
     {
       "id": "steps",
-      "description": "In an action: results of earlier steps: roll steps `steps.<id>.total`, `.faces`, `.kept`, `.empty` (the part's `ifEmpty` dice were rolled), `.band` and `.bandSet` (the band set's qualified ID), `.bandValue` (the band set's `value`, when it has one), `.tallies.<name>` (each declared roll tally, 0 when nothing added to it), `.bounds` (each `atLeast` or `atMost` roll effect that changed the total, `{ source, op, value }`) and `.unbounded` (the total before them); choice steps `.picked` (the option ID, or with `repeat` the list of picked IDs; over pending choices the list of picked IDs, with `.paths` their choice paths), and over content or copies without `repeat` `.item` (the picked content's item view) and, over copies, `.self` (the picked copy); action steps `.result` (the nested action's outcome). Use `has(steps.<id>)` for a step that may not have run. An `each` step's result is the list of per-participant results in participant order (null where its `when` skipped one); inside a later `each` step over the same role it is the current participant's result, absent when skipped, and inside the step's own run for participant `i` the list of runs `0` to `i - 1` (absent in the first run). A handoff's result is `.result` and `.data` from the app's answer. In a formula a proposed change passes on (`copies.where`, `applied.where`, a per-copy or per-entry `by` or `value`), the action replaces each path with its value as a literal."
+      "description": "In an action: results of earlier steps: roll steps `steps.<id>.total`, `.faces`, `.kept`, `.empty` (the part's `ifEmpty` dice were rolled), `.band` and `.bandSet` (the band set's qualified ID), `.bandValue` (the band set's `value`, when it has one), `.tallies.<name>` (each declared roll tally, 0 when nothing added to it), `.bounds` (each `atLeast` or `atMost` roll effect that changed the total, `{ source, op, value }`) and `.unbounded` (the total before them); choice steps `.picked` (the option ID, or with `repeat` the list of picked IDs; over pending choices the list of picked IDs, with `.paths` their choice paths), and over content or copies without `repeat` `.item` (the picked content's item view) and, over copies, `.self` (the picked copy), and over values without `repeat` `.value` (the picked value); action steps `.result` (the nested action's outcome). Use `has(steps.<id>)` for a step that may not have run. An `each` step's result is the list of per-participant results in participant order (null where its `when` skipped one); inside a later `each` step over the same role it is the current participant's result, absent when skipped, and inside the step's own run for participant `i` the list of runs `0` to `i - 1` (absent in the first run). A handoff's result is `.result` and `.data` from the app's answer. In a formula a proposed change passes on (`copies.where`, `applied.where`, a per-copy or per-entry `by` or `value`), the action replaces each path with its value as a literal."
     },
     {
       "id": "flags",
@@ -57,11 +57,11 @@
     },
     {
       "id": "picks",
-      "description": "In a choice step's candidate formulas (a written option's `when`; `where` and `prefer` over content or copies; an `option` effect's `when`): how many times this step has already picked the candidate, an int."
+      "description": "In a choice step's candidate formulas (a written option's `when`; `where` and `prefer` over content, copies or values; an `option` effect's `when`): how many times this step has already picked the candidate, an int."
     },
     {
       "id": "picked",
-      "description": "In a choice step's `changes` and its options' `changes` and `flags`: the pick they follow: `picked.id` (the option ID), plus `picked.item` (the item view) over content and copies, and `picked.self` (the copy) over copies. Over pending choices, `picked.id` and `picked.path`, the choice path."
+      "description": "In a choice step's `changes` and its options' `changes` and `flags`: the pick they follow: `picked.id` (the option ID), plus `picked.item` (the item view) over content and copies, and `picked.self` (the copy) over copies, and `picked.value` (the value itself, `picked.id` its string form) over values. Over pending choices, `picked.id` and `picked.path`, the choice path."
     },
     {
       "id": "options",

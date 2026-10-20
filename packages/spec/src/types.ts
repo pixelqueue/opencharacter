@@ -88,7 +88,7 @@ export type RollPart = {
   multiplied?: false;
 };
 
-/** A choice checkpoint (hit or miss, use a reaction, push the roll, which class regains a hit die). Its options come from one source: a written list, the ruleset's content of a type (`{ content }`), the character's copies of a type (`{ copies }`), or the choices pending on the proposed sheet (`{ pending }`). Active content adds options to a step with `tags` through `option` effects; an added option's ID is `<content id>#<option id>`. Result: `steps.<id>.picked`, the option ID (with `repeat`, the list of picked IDs); for content and copies without `repeat`, also `steps.<id>.item` (and `.self` for copies). */
+/** A choice checkpoint (hit or miss, use a reaction, push the roll, which class regains a hit die). Its options come from one source: a written list, the ruleset's content of a type (`{ content }`), the character's copies of a type (`{ copies }`), a list of values (`{ values }`), or the choices pending on the proposed sheet (`{ pending }`). Active content adds options to a step with `tags` through `option` effects; an added option's ID is `<content id>#<option id>`. Result: `steps.<id>.picked`, the option ID (with `repeat`, the list of picked IDs); for content and copies without `repeat`, also `steps.<id>.item` (and `.self` for copies); for values without `repeat`, `steps.<id>.value`. */
 export type ChoiceStep = {
   /** Step ID, unique within the action. Identifier-safe because formulas read results as `steps.<id>`. */
   id: Name;
@@ -99,7 +99,7 @@ export type ChoiceStep = {
   each?: Name;
   /** Tags of the step; entries may be formulas. `option` effects aimed at `{ choices: [<tag>] }` add options to a step carrying a matching tag, and policy rules match it by tag. The step's evaluated tags are `action.step.tags`. */
   tags?: TagList;
-  /** Where the options come from: exactly one source. A written list offers the options whose `when` holds (option ID: the written `id`; name: `<actionKey>.options.<id>.name`). `{ content }` offers the ruleset's content of a type, in content order (option ID: the qualified content ID; name: the item's name). `{ copies }` offers the character's copies of a type, inventory then features (option ID: the instance ID; name: the copy's item name). `{ pending }` asks the choices still pending on the proposed sheet, one pick at a time (option ID: the option as `listOptions` names it; name: the choice's own text). On a step with `tags`, matching `option` effects add options after these. */
+  /** Where the options come from: exactly one source. A written list offers the options whose `when` holds (option ID: the written `id`; name: `<actionKey>.options.<id>.name`). `{ content }` offers the ruleset's content of a type, in content order (option ID: the qualified content ID; name: the item's name). `{ copies }` offers the character's copies of a type, inventory then features (option ID: the instance ID; name: the copy's item name). `{ values }` offers plain values, written out or from a list formula (option ID: the value as a string; name: `<actionKey>.options.<value>.name` when the pack has it, else the app names it). `{ pending }` asks the choices still pending on the proposed sheet, one pick at a time (option ID: the option as `listOptions` names it; name: the choice's own text). On a step with `tags`, matching `option` effects add options after these. */
   options:
     | {
         id: Slug;
@@ -119,6 +119,16 @@ export type ChoiceStep = {
         copies: ChoiceQuery;
       }
     | {
+        /** The values to pick from: a list written out, or a formula giving a list of strings or numbers, evaluated with the action's roots before each pick (so it may read earlier steps, `item` and `self`). Each value is offered once, in the list's order, as its string form (option ID); a formula that fails is an error, as any action formula is, and an element that isn't a string or number is `type-mismatch`. */
+        values:
+          | (string | number)[]
+          | {
+              formula: Formula;
+            };
+        /** A condition over each candidate, bound as `value`, with `picks` how many times this step has picked it. `item` and `self` stay the action's own. */
+        where?: Condition;
+      }
+    | {
         /** The choices still pending on the proposed sheet, in `computeSheet`'s `pending` order. Each pick answers the first of them with an eligible option not picked yet, offering those options as `listOptions` gives them, then `#done`; it proposes the `choose` for it, then the step's `changes`. The step reads the proposed sheet before each pick and goes on until nothing more can be picked or `#done` is picked. Result: `steps.<id>.picked`, the picked option IDs in order, and `steps.<id>.paths`, their choice paths. */
         pending: {
           /** String formula giving an instance ID: only choices whose path starts at that copy are asked. Without it, every pending choice is, rules-level ones included. */
@@ -132,13 +142,13 @@ export type ChoiceStep = {
     /** Integer formula: the picks needed before `#done` is offered (default 0). Evaluated once, before the first pick. */
     min?: Formula;
   };
-  /** Formula naming the recommended option ID; it may read `options`, the list of IDs the step's own source offers (`#done` and added options left out). Under an automatic policy the engine takes it. `#done` and added options are never recommended. Without it, a `content` or `copies` step recommends the candidate with the highest `prefer`; with neither, no option is recommended, so an automatic run pauses there. Over pending choices, it also sees `choice`, the choice being asked (`{ path, owner, id }`); without it, the option `listOptions` marks recommended is. */
+  /** Formula naming the recommended option ID; it may read `options`, the list of IDs the step's own source offers (`#done` and added options left out). Under an automatic policy the engine takes it. `#done` and added options are never recommended. Without it, a `content`, `copies` or `values` step recommends the candidate with the highest `prefer`; with neither, no option is recommended, so an automatic run pauses there. Over pending choices, it also sees `choice`, the choice being asked (`{ path, owner, id }`); without it, the option `listOptions` marks recommended is. */
   recommend?: Formula;
   /** Boolean formula, evaluated before each pick with `options` (and, over pending choices, `choice`) bound as for `recommend`: when it holds, the engine draws one die with as many sides as the source's offered options (added options and `#done` left out; over pending choices, the asked choice's eligible options) and recommends option face − 1 instead of `recommend` and `prefer`. With one option nothing is drawn. The draw is a dice checkpoint at the step's path, following the dice policy for the step's tags: a pause is `needs.kind: dice` with one die and `draw`. A creation action says `random: params.random`. */
   random?: Formula;
-  /** `content` and `copies` only: a number formula per candidate, with `item` (and `self`) the candidate's and `picks` how many times this step has picked it. Without `recommend`, the candidate with the highest value is recommended, ties going to the earlier one. */
+  /** `content`, `copies` and `values` only: a number formula per candidate, with `item` (and `self`) the candidate's, or `value` the candidate value, and `picks` how many times this step has picked it. Without `recommend`, the candidate with the highest value is recommended, ties going to the earlier one. */
   prefer?: Formula;
-  /** Changes proposed after every pick, after the picked option's own `changes`, resolved like a `changes` step's at this step's path, always `to: self`. `entry: picked` names the picked copy (`copies` only). Their formulas see `picked`: `{ id }`, plus `item` for content and copies and `self` for copies; `item` and `self` stay the action's own. Over pending choices, `picked` is `{ id, path }`, the option and the choice path, and the `choose` comes first. */
+  /** Changes proposed after every pick, after the picked option's own `changes`, resolved like a `changes` step's at this step's path, always `to: self`. `entry: picked` names the picked copy (`copies` only). Their formulas see `picked`: `{ id }`, plus `item` for content and copies, `self` for copies and `value` (the value itself) for values; `item` and `self` stay the action's own. Over pending choices, `picked` is `{ id, path }`, the option and the choice path, and the `choose` comes first. */
   changes?: ProposedChange[];
   /** The question ("Did the attack hit?"). Default key: `<actionKey>.steps.<id>.prompt`. */
   prompt?: I18nKey;
