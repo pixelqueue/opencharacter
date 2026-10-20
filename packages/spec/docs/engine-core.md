@@ -141,6 +141,11 @@ or item and the rules actions they `use`) and in its follow-ups, `self` also has
 on the copy sees the copy's computed values there too, since its `self` is that copy. A roll
 effect's `roll.self` doesn't have them.
 
+The copy's picks aren't on `self`: a formula reads its owner's choices with
+[`picksOf`](formulas.md#picks-of-the-owners-choices), a copy's item reading the entry's bare
+keys, a template or granted content its prefixed ones, picked content those nested under its
+pick. A rules action the copy uses reads the copy's.
+
 ### Items and `item`
 
 The item a copy holds, as `item`, is the base item merged with the copy's templates:
@@ -277,7 +282,7 @@ keys by their type, with their `default` when unsaved.
 immunity's `when` and query `where`. They are
 evaluated before any field is computed, so they may read only `self`, `item`, `character` (its
 `applied` list included, which is raw), `entry` in an immunity's query, the character functions,
-and the raw values of **input fields** (saved value, or default). Effects
+the owner's saved picks (`picksOf`), and the raw values of **input fields** (saved value, or default). Effects
 are not applied to those values. A condition that reads a derived field is rejected by the build
 (`type-mismatch`). **PROVISIONAL.** This keeps activation free of loops: a class grants features
 by `self.level`, never by a computed field.
@@ -600,8 +605,8 @@ later declaration replacing an earlier one with the same name in its place.
 
 - A formula resolves names in the pack that declared it (an override's in the overriding pack)
   and sees `item` and `self` as the copy's effects do, every field (fields never read computed
-  values, so they are all computed first), `character`, `links` and the character functions.
-  `self` has the copy's computed values declared before this one, each as
+  values, so they are all computed first), `character`, `links` and the character functions,
+  `picksOf` reading the copy's item's choices. `self` has the copy's computed values declared before this one, each as
   worked out; one that failed is absent. A replacement keeps the replaced name's place, so the
   values after it read the replacement, and it reads only what comes before the name.
 - An `integer` value must be an int, a `decimal` value a number (an int becomes a decimal), a

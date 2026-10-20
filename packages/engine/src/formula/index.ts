@@ -19,7 +19,7 @@ export type { FieldView } from './aggregates.ts';
 export { aggregateOver } from './aggregates.ts';
 export type { FormulaError, FormulaErrorCode, Result } from './errors.ts';
 export type { CharacterQueries, EvalContext } from './evaluate.ts';
-export { keptFields, valuesEqual } from './evaluate.ts';
+export { keptFields, OWNER_PICKS, valuesEqual } from './evaluate.ts';
 export { longDecimals, RESERVED } from './lexer.ts';
 export { children, treeDepth } from './parser.ts';
 export type { FaceSource, RolledFace, RolledTerm, RollResult } from './roll.ts';

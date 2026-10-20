@@ -884,11 +884,12 @@ export class Sheet {
 
   private activate(): void {
     const rulesTree = this.character.choices ?? {};
+    const rulesChoices = Object.values(this.ruleset.rules.choices) as Choice[];
     const rules: Activation = {
       kind: 'rules',
       scope: 'holder',
       pack: '',
-      roots: {},
+      roots: { [f.OWNER_PICKS]: ownerPicks(rulesChoices, rulesTree, '') },
       source: { type: 'rules' },
       sourceId: 'rules',
       tree: rulesTree,
@@ -901,7 +902,7 @@ export class Sheet {
       this.instance(
         effect,
         pack,
-        {},
+        rules.roots,
         { type: 'rules', id: `${pack}:rules` },
         `${pack}:rules`,
         String(e.id ?? index),
@@ -1273,6 +1274,12 @@ export class Sheet {
       this.errors.push({ code: 'safety-limit-exceeded', data: { limit: 'maxChoiceDepth' } });
       return;
     }
+    // Its formulas read its own choices' picks with `picksOf`.
+    const declared = activation.item?.choices ?? activation.inline?.choices ?? [];
+    activation.roots = {
+      ...activation.roots,
+      [f.OWNER_PICKS]: ownerPicks(declared, activation.tree, activation.keyPrefix ?? ''),
+    };
     this.activations.push(activation);
     this.childOf(this.walking.at(-1), activation);
     this.walking.push(activation);
@@ -2648,6 +2655,7 @@ export class Sheet {
         const value = this.evaluate(decl.formula, pack, {
           item: a.roots.item,
           self: { ...(a.roots.self as Record<string, unknown>), ...earlier },
+          [f.OWNER_PICKS]: a.roots[f.OWNER_PICKS],
         });
         const typed = computedValue(decl.type, value);
         if (typed) out[name] = typed;
@@ -2766,6 +2774,11 @@ export class Sheet {
     return out;
   }
 
+  /** The rules' roots: `picksOf` reads the rules' own choices there. */
+  rulesRoots(): Record<string, unknown> {
+    return (this.activations[0] as Activation).roots;
+  }
+
   /** A holder activation's roots, with `self` also holding its copy's computed values. */
   actionRoots(a: Activation): Record<string, unknown> {
     const self = a.roots.self as Record<string, unknown> | undefined;
@@ -2871,6 +2884,19 @@ export function roundNumber(x: number, mode: 'floor' | 'ceil' | 'round' | 'trunc
 }
 
 export { diceText, isContentOnly, localPart };
+
+/** An owner's saved picks by choice key (a slot's `<id>-<slot>`), as `picksOf` reads them. */
+function ownerPicks(
+  choices: readonly Choice[],
+  tree: ChoiceTree,
+  prefix: string,
+): Record<string, (string | number)[]> {
+  const out: Record<string, (string | number)[]> = {};
+  for (const declared of choices)
+    for (const { choice } of expandSlots(declared))
+      out[choice.id] = (tree[`${prefix}${choice.id}`] ?? []).map((p) => p.option);
+  return out;
+}
 
 function pickRoots(roots: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};

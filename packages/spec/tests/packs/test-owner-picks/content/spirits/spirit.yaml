@@ -1,0 +1,15 @@
+# A spirit's powers are picks of its own choice. Its computed effort, its effect and the summon
+# action its type uses count them; its weakness must be a power it lacks.
+id: spirits.spirit
+type: spirit
+computed:
+  effort: { type: integer, formula: "max(1, size(picksOf('powers')) - 1)" }
+effects:
+  - { target: powerCount, op: add, value: "size(picksOf('powers'))" }
+choices:
+  - id: powers
+    pick: { min: 1, max: 3 }
+    from: { values: [claws, flight, venom] }
+  - id: weakness
+    from: { values: [claws, flight, venom, iron] }
+    eligible: "!(value in picksOf('powers'))"

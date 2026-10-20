@@ -373,7 +373,7 @@ function declarations(ruleset: Ruleset, sheet: Sheet): Declared[] {
   const out: Declared[] = [];
   for (const def of ruleset.rules.followUps) {
     const id = `${def.pack}:${def.id}`;
-    out.push({ def, pack: def.pack, id, roots: {}, key: id, sheet, offerId: id });
+    out.push({ def, pack: def.pack, id, roots: sheet.rulesRoots(), key: id, sheet, offerId: id });
   }
   for (const a of sheet.activations) {
     if (a.scope !== 'holder' || !a.item) continue;

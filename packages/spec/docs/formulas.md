@@ -411,13 +411,15 @@ define functions.
 | `mapList`                             | (list, value) → list                        | Macro: `value` for each element, in order                                                                                                                                                                                                                                                                                                                                             |
 | `sortList`                            | (list<T>, key?) → list<T>                   | Macro: the elements in ascending order of `key` (number or string; the element itself without one), equal keys in list order (0114)                                                                                                                                                                                                                                                   |
 | `hasChoice`                           | (string type) → bool                        | Whether the character has a choice of the content type, made or pending. Bound only in display hints' `showWhen`; [below](#choices-in-display-hints)                                                                                                                                                                                                                                  |
+| `picksOf`                             | (string choice) → list                      | The saved picks of a choice of the formula's owner: content IDs or values, in saved order. The ID is a string literal. Bound where a formula has an owner; [below](#picks-of-the-owners-choices)                                                                                                                                                                                      |
 | `countEquipped`                       | (string type) → int                         | **Deprecated:** `countCopies(copy.type == type && copy.equipped)`. The character's equipped copies of a content type                                                                                                                                                                                                                                                                  |
 | `countState`                          | (string key) → int                          | **Deprecated:** `countCopies(has(copy.state.<key>) && copy.state.<key>)`. The copies whose per-copy state `key` is `true`                                                                                                                                                                                                                                                             |
 | `sumState`                            | (string type, string key) → int             | **Deprecated:** `sumCopies(copy.state.<key>, copy.type == type && has(copy.state.<key>))`. Sum of an integer state key over the copies of a type                                                                                                                                                                                                                                      |
 
 The copy and field functions and the deprecated three read the character, so they are only
 bound where a character is: everywhere except queries resolved at load time, item fields, and
-state defaults and bounds. Elsewhere they are `unknown-function`. The list functions and
+state defaults and bounds. Elsewhere they are `unknown-function`. `picksOf` reads the character
+too, and is bound in fewer places ([below](#picks-of-the-owners-choices)). The list functions and
 `indexOf` read only their arguments, so they are bound everywhere.
 
 ### Choices in display hints
@@ -444,6 +446,54 @@ included, without naming the items that bring it:
   the pack sees is `unknown-reference` at load.
 - **Apps** evaluating `showWhen` bind it from `sheet.choices`, resolving the argument in the
   hint's pack scope as they resolve field names.
+
+### Picks of the owner's choices
+
+`picksOf(choice)` is the list of a choice's saved picks: content IDs (qualified) or values, in
+saved order, `[]` when it has none. The choice is one of the **formula's owner**: the content or
+rules that declare the formula, as activated on the character. So a choice reads a sibling's
+picks, and a copy's values and actions read its own:
+
+```yaml
+# A background's +1 recommends the best ability the +2 hasn't taken (5E). The two choices are
+# siblings in the inline option `two-and-one`, which owns them.
+- id: plus-one
+  unique: increase
+  uniqueScope: owner
+  from: { values: [int, wis, cha] }
+  recommend: >-
+    sortList(filterList(['int', 'wis', 'cha'], !(x in picksOf('plus-two'))),
+      -fieldOf('abilities.{ability}.base', x))[0]
+# A spirit's summoning commits Effort for its powers less one, at least 1 (CWN).
+computed:
+  effort: { type: integer, formula: "max(1, size(picksOf('powers')) - 1)" }
+```
+
+- **The owner** is the activation the formula runs in: a copy's item (its own choices, bare
+  keys), a template or granted content on it (its choices, kept under prefixed keys), picked
+  content or an inline option (the choices nested under the pick), or the rules. A choice's formulas see the choices of the choice's owner, its siblings and
+  itself (`picksOf` of its own ID is `choice.picks`). A content type's formulas run for each item,
+  and a rules action a copy uses (`use`) for that copy, so they see that item's choices; a rules
+  action run with no copy, and the rules' effects, follow-ups and choices, see the rules-level
+  choices. Content a choice picks doesn't see the choices of the content that picked it.
+- **The ID** is a string literal (`type-mismatch` otherwise): a choice ID, or a slot's key
+  (`class-feat-2`). Choice IDs have hyphens, which a dotted name can't, so the picks are a
+  function rather than a root. Where the owner is known at load (an item's, a template's or an
+  inline option's formulas), a literal that names none of its choices is `unknown-reference`;
+  elsewhere a name the owner lacks is `no-such-key` when evaluated.
+- **Saved picks.** It reads the character file's picks as saved, whether or not the choice
+  applies (`when`) and whether or not they are eligible (the issues report those). Picks are
+  input, not calculated, so reading them adds no dependency and can't loop: two choices may
+  each read the other. A `recommend` sees its sibling's picks, not its recommendation, so the
+  choice answered first decides. A step over pending choices builds the proposed sheet again
+  before each pick, so a later choice sees an earlier one's pick.
+- **Where:** in content formulas (effects, roll and option effects included; grants;
+  prerequisites; a choice's `when`, `pick`, query `where`, `eligible`, `recommend`, `values` and
+  `effects`; computed values; actions; follow-ups) and in the rules' choices, effects, follow-ups
+  and actions. A query `where` that calls it reads the character, so it isn't resolved at load.
+  Field formulas, constraints, display hints, situational choices, result bands, queries
+  resolved at load, item fields, and state defaults and bounds have no owner: there it is
+  `unknown-function`.
 
 The deprecated functions keep working in this spec version. Each is the `countCopies` or
 `sumCopies` call shown, which official packs use instead. A later major version may remove them.
