@@ -18,6 +18,7 @@ import type {
   InlineOption,
   Literal,
   OptionValue,
+  PresetTree,
   ProposedChange,
   Query,
   Role,
@@ -1084,18 +1085,76 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     }
   }
 
-  const grantState = (grants: readonly Grant[] | undefined, owner: string) => {
+  // A grant's preset picks name choices the granted content declares (slot keys for a slotted
+  // choice), and literal options it offers; nested presets those of the literal option.
+  const presetChoices = (
+    tree: PresetTree,
+    choices: readonly Choice[] | undefined,
+    pack: string,
+    at: Record<string, unknown>,
+  ): void => {
+    const byKey = new Map<string, Choice>();
+    for (const choice of choices ?? [])
+      for (const key of choice.slots?.map((n) => `${choice.id}-${n}`) ?? [choice.id])
+        byKey.set(key, choice);
+    for (const [key, picks] of Object.entries(tree)) {
+      const choice = byKey.get(key);
+      if (!choice) {
+        err('unknown-reference', { kind: 'choice', id: key, ...at });
+        continue;
+      }
+      for (const pick of picks) {
+        if (typeof pick.option === 'object') continue;
+        const from = choice.from;
+        let nested: readonly Choice[] | undefined;
+        if ('options' in from) {
+          const inline = from.options.find((o) => o.id === pick.option);
+          if (!inline) err('unknown-reference', { kind: 'option', id: pick.option, ...at });
+          nested = inline?.choices;
+        } else if ('values' in from) {
+          if (Array.isArray(from.values) && !from.values.includes(pick.option))
+            err('unknown-reference', { kind: 'option', id: pick.option, ...at });
+        } else {
+          const qid = resolveContent(ruleset, String(pick.option), pack);
+          if (!qid) err('unknown-reference', { kind: 'content', id: pick.option, ...at });
+          nested = qid ? ruleset.content[qid]?.choices : undefined;
+        }
+        if (pick.choices) presetChoices(pick.choices, nested, pack, at);
+      }
+    }
+  };
+  const grantChecks = (grants: readonly Grant[] | undefined, owner: string, pack: string) => {
     for (const grant of grants ?? []) {
-      if (!grant.state || typeof grant.item !== 'string') continue;
+      if (grant.choices && grant.scope === 'applied')
+        err('unknown-reference', { kind: 'choice', item: owner, scope: 'applied' });
+      if (typeof grant.item !== 'string') continue;
       const granted = ruleset.content[grant.item];
       if (!granted) continue;
+      if (grant.choices && grant.scope !== 'applied')
+        presetChoices(grant.choices, granted.choices, pack, { item: owner, granted: granted.qid });
+      if (!grant.state) continue;
       const declared = { ...ruleset.contentTypes[granted.type]?.state, ...granted.state };
       for (const key of Object.keys(grant.state))
         if (!declared[key]) err('unknown-state-key', { item: owner, granted: granted.qid, key });
     }
   };
-  for (const item of Object.values(ruleset.content)) grantState(item.grants, item.qid);
-  for (const [name, type] of Object.entries(ruleset.contentTypes)) grantState(type.grants, name);
+  const optionGrants = (choices: readonly Choice[] | undefined, owner: string, pack: string) => {
+    for (const choice of choices ?? []) {
+      if (!('options' in choice.from)) continue;
+      for (const option of choice.from.options) {
+        grantChecks(option.grants, owner, pack);
+        optionGrants(option.choices, owner, pack);
+      }
+    }
+  };
+  for (const item of Object.values(ruleset.content)) {
+    grantChecks(item.grants, item.qid, item.scopes?.grants ?? item.pack);
+    optionGrants(item.choices, item.qid, item.scopes?.choices ?? item.pack);
+  }
+  for (const [name, type] of Object.entries(ruleset.contentTypes))
+    grantChecks(type.grants, name, type.pack);
+  for (const choice of Object.values(ruleset.rules.choices))
+    optionGrants([choice as Choice], `${choice.pack}:rules`, choice.pack);
 
   // Qualified once every pack's situational choices are loaded.
   const situationalId = (ref: string, pack: string): string | undefined => {

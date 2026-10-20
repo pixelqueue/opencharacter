@@ -143,6 +143,26 @@ function trees(c: CharacterDoc): { tree: ChoiceTree; owner: string | null }[] {
   return out;
 }
 
+/** Every node that may keep granted content's state: the copies and every pick. */
+function grantNodes(c: CharacterDoc): { grants?: Entry['grants'] }[] {
+  const picks = trees(c).flatMap(({ tree }) => Object.values(tree).flat());
+  return [...allEntries(c), ...picks];
+}
+
+/** Moves (or, without `to`, drops) the saved state of granted content `from`. */
+function renameGrant(c: CharacterDoc, from: string, to?: string): boolean {
+  let changed = false;
+  for (const node of grantNodes(c)) {
+    const saved = node.grants?.[from];
+    if (!node.grants || !saved) continue;
+    if (to !== undefined) node.grants[to] = saved;
+    delete node.grants[from];
+    if (Object.keys(node.grants).length === 0) delete node.grants;
+    changed = true;
+  }
+  return changed;
+}
+
 function renameKey(tree: ChoiceTree, from: string, to: string): boolean {
   if (!(from in tree)) return false;
   tree[to] = tree[from] as Pick[];
@@ -196,6 +216,7 @@ function applyStep(
           }
         }
       }
+      changed = renameGrant(c, a, b) || changed;
       return mapSetValues(c, (v) => (v === a ? b : v)) || changed;
     }
     case 'removeContent': {
@@ -230,6 +251,7 @@ function applyStep(
           }
         }
       }
+      changed = renameGrant(c, id) || changed;
       return mapSetValues(c, (v) => (v === id ? undefined : v)) || changed;
     }
     case 'renameField': {

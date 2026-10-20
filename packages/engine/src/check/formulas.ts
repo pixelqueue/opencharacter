@@ -24,6 +24,7 @@ import type {
   FieldDef,
   Formula,
   Grant,
+  PresetTree,
   GrantValue,
   Immunity,
   InlineOption,
@@ -725,6 +726,18 @@ class FormulaChecker<L> {
         this.formula(grant.item.formula, at, `${where} item`, ['string']);
       for (const [key, value] of Object.entries(grant.state ?? {}))
         this.formula(value, at, `${where} state ${key}`, ANY);
+      const presets = (tree: PresetTree | undefined) => {
+        for (const [choice, picks] of Object.entries(tree ?? {}))
+          for (const pick of picks) {
+            if (typeof pick.option === 'object')
+              this.formula(pick.option.formula, at, `${where} choices ${choice}`, [
+                'string',
+                'decimal',
+              ]);
+            presets(pick.choices);
+          }
+      };
+      presets(grant.choices);
     });
   }
 
@@ -1014,7 +1027,8 @@ class FormulaChecker<L> {
             const perCopy = (fm: Formula | undefined) =>
               (change.copies !== undefined ||
                 change.applied !== undefined ||
-                change.picks !== undefined) &&
+                change.picks !== undefined ||
+                change.grants !== undefined) &&
               fm !== undefined &&
               readsCopy(fm);
             const value: Expect = change.type === 'setQuantity' ? ['int'] : ANY;
@@ -1033,8 +1047,8 @@ class FormulaChecker<L> {
                   ),
               );
             }
-            if (change.applied || change.picks) {
-              const query = (change.applied ?? change.picks)?.where as Formula;
+            if (change.applied || change.picks || change.grants) {
+              const query = (change.applied ?? change.picks ?? change.grants)?.where as Formula;
               this.typed({ item: 'dyn', self: entryType(undefined), batch: BATCH }, () =>
                 this.at('content', () =>
                   this.onlyRoots(['batch'], () => {
@@ -1172,7 +1186,7 @@ class FormulaChecker<L> {
       );
     }
     this.appliedContent(change, at, where, [...PASSED_ROOTS, ...this.inEach()]);
-    const applied = change.applied ?? change.picks;
+    const applied = change.applied ?? change.picks ?? change.grants;
     if (applied) {
       this.typed({ item: 'dyn', self: entryType(undefined), batch: BATCH }, () =>
         this.at('content', () =>

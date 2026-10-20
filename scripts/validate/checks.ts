@@ -1077,6 +1077,18 @@ export class PackChecker {
         this.report.error(file, `${prefix}grants unknown item "${grant.item}"`);
         continue;
       }
+      if (grant.choices && grant.scope === 'applied')
+        this.report.error(
+          file,
+          `${prefix}grant of "${grant.item}" presets choices, but is applied`,
+        );
+      const choices = new Map((granted.item.choices ?? []).flatMap(slotKeys));
+      for (const key of Object.keys(grant.choices ?? {}))
+        if (!choices.has(key))
+          this.report.error(
+            file,
+            `${prefix}grant of "${grant.item}" presets choice "${key}", which it doesn't declare`,
+          );
       if (!grant.state) continue;
       const typeName = this.ruleset.typeOf(granted);
       const type = typeName
@@ -2236,6 +2248,7 @@ export class CharacterChecker {
           if (!decl) error(`${where}: unknown state key "${key}"`);
           else this.literal(value, decl, file, `${where}.state.${key}`);
         }
+        this.grantStore(entry.grants, file, where);
         this.tree(entry.choices ?? {}, this.choicesOf(owners), file, where);
       }
     }
@@ -2336,6 +2349,7 @@ export class CharacterChecker {
       for (const pick of picks) {
         const nested = this.option(choice, pick.option, file, path);
         if (nested) this.tree(pick.choices ?? {}, nested, file, `${path}[${pick.option}]`);
+        this.grantStore(pick.grants, file, `${path}[${pick.option}]`);
         if (pick.state) {
           const hit =
             typeof pick.option === 'string' ? this.ruleset.content.get(pick.option) : undefined;
@@ -2355,8 +2369,32 @@ export class CharacterChecker {
     }
   }
 
+  /** Granted content's saved state: each key a content item, each state key one it declares. */
+  private grantStore(
+    grants: Record<string, { state?: Record<string, Literal> }> | undefined,
+    file: string,
+    where: string,
+  ): void {
+    for (const [ref, saved] of Object.entries(grants ?? {})) {
+      const at = `${where}.grants.${ref}`;
+      const hit = this.content(ref, file, at);
+      if (!hit) continue;
+      const typeName = this.ruleset.typeOf(hit);
+      const typeDef = typeName
+        ? this.ruleset.contentType(typeName, this.ruleset.scope(hit.pack))?.def
+        : undefined;
+      const decls = { ...typeDef?.state, ...hit.item.state };
+      for (const [key, value] of Object.entries(saved.state ?? {})) {
+        const decl = decls[key];
+        if (!decl) this.report.error(file, `${at}: unknown state key "${key}"`);
+        else this.literal(value, decl, file, `${at}.state.${key}`);
+      }
+    }
+  }
+
   private option(
     choice: Choice,
+
     option: string | number,
     file: string,
     where: string,

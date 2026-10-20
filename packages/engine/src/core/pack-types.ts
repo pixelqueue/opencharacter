@@ -202,7 +202,15 @@ export interface Grant {
   waivePrerequisites?: boolean;
   /** Values the granted content sees as `self.<key>`, each an activation formula. */
   state?: Record<string, Formula>;
+  /** Holder grants: picks made for the granted content's choices. */
+  choices?: PresetTree;
 }
+
+/** A grant's preset picks, keyed by bare choice IDs; an option is a literal or `{ formula }`. */
+export type PresetTree = Record<
+  string,
+  { option: string | number | { formula: Formula }; choices?: PresetTree }[]
+>;
 
 export interface KeptTemplate {
   template: string;
@@ -351,6 +359,8 @@ export interface ProposedChange {
   applied?: { where: Formula; limit?: number };
   picks?: { where: Formula; limit?: number };
   pick?: 'self';
+  grant?: 'self';
+  grants?: { where: Formula; limit?: number };
   id?: string;
   source?: Formula;
   active?: Formula;
