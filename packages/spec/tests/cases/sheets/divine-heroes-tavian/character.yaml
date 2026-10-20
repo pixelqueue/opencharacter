@@ -1,0 +1,32 @@
+# A first-level hero of the Sword, Fire and Endurance: the array (Endurance raises Constitution to
+# 16), six gift points (Effort of the Word, Steel Without End, Body of Iron Will, Firestorm and the
+# greater Fear No Steel, held with a point of Effort), a sword and three Facts.
+specVersion: 0.1.0
+id: example-divine-heroes-tavian
+packs:
+  - { id: divine-heroes-core, version: 0.1.0 }
+values:
+  divine-heroes-core:attributes.str.base: 16
+  divine-heroes-core:attributes.dex.base: 13
+  divine-heroes-core:attributes.con.base: 14
+  divine-heroes-core:attributes.wis.base: 10
+  divine-heroes-core:attributes.int.base: 8
+  divine-heroes-core:attributes.cha.base: 13
+  divine-heroes-core:facts.origin: Born to a family of border herders
+  divine-heroes-core:facts.career: Veteran of a mercenary company
+  divine-heroes-core:facts.relationship: Sworn brother of the company's old captain
+  divine-heroes-core:goal: Break the warlord who burned his village
+  divine-heroes-core:hp.current: 7
+features:
+  - { id: sword, item: divine-heroes-core:words.sword }
+  - { id: fire, item: divine-heroes-core:words.fire }
+  - { id: endurance, item: divine-heroes-core:words.endurance }
+  - { id: effort, item: divine-heroes-core:gifts.universal.effort-of-the-word }
+  - { id: blade, item: divine-heroes-core:gifts.sword.steel-without-end }
+  - { id: body, item: divine-heroes-core:gifts.endurance.body-of-iron-will }
+  - { id: firestorm, item: divine-heroes-core:gifts.fire.firestorm }
+  - id: steel
+    item: divine-heroes-core:gifts.endurance.fear-no-steel
+    state: { committed: 1 }
+inventory:
+  - { id: longsword, item: divine-heroes-core:weapons.medium, equipped: true }
