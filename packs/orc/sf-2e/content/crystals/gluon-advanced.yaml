@@ -1,0 +1,13 @@
+id: crystals.gluon-advanced
+type: template
+tags: [crystal.orbital, trait.magical]
+appliesTo: { type: weapon, where: "'solar' in item.tags" }
+fields: { price: '(has(prior.price) ? prior.price : 0) + 18900', level: 'max(prior.level, 12)' }
+effects:
+  - target: { steps: [strike.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.persistent-damage'"
+          state: { damage: '1d8', damageType: "'bleed'" }

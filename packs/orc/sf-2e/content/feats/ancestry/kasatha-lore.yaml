@@ -1,0 +1,23 @@
+id: feats.ancestry.kasatha-lore
+type: feat
+tags: [trait.kasatha]
+fields: { level: 1, category: ancestry, ancestry: ancestries.kasatha }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.diplomacy }
+    when: "!('skill.diplomacy' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.society }
+    when: "!('skill.society' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.kasatha }
+    when: "!('skill.lore.kasatha' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.lore.kasatha.granted
+    op: add
+    value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'

@@ -1,0 +1,101 @@
+tags:
+  - ritual
+
+contentTypes:
+  ritual:
+    texts: [cost, secondaryChecks, requirements]
+    fields:
+      rank: { type: integer, required: true, min: 1, max: 10 }
+      cast:
+        {
+          type: enum,
+          values: [one-hour, four-hours, one-day, three-days, seven-days],
+          required: true,
+        }
+      primaryChecks: { type: set, of: tag, default: [] }
+      primaryRank: { type: integer, default: 1, min: 1, max: 4 }
+      secondaryCasters: { type: integer, default: 0, min: 0 }
+      range: { type: integer, min: 0 }
+      area: { type: enum, values: [burst, cone, emanation, line, square, cube, wall, other] }
+      areaSize: { type: integer, min: 0 }
+      targets: { type: integer, min: 1 }
+      duration:
+        type: enum
+        values: [rounds, minutes, hours, days, until-daily-preparations, unlimited, varies]
+      durationAmount: { type: integer, min: 1 }
+    actions:
+      - use: perform-ritual
+
+actions:
+  - id: perform-ritual
+    tags: [ritual]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags && 'check' in item.tags" }
+      rank: { type: integer, optional: true, min: 1, max: 10 }
+      dc: { type: integer, optional: true }
+      secondaryCriticalSuccesses: { type: integer, optional: true, min: 0 }
+      secondaryFailures: { type: integer, optional: true, min: 0 }
+      secondaryCriticalFailures: { type: integer, optional: true, min: 0 }
+    results:
+      [rank-too-high, wrong-skill, untrained, critical-success, success, failure, critical-failure]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              rank: 'has(params.rank) ? params.rank : item.rank'
+              criticals: 'has(params.secondaryCriticalSuccesses) ? params.secondaryCriticalSuccesses : 0'
+              failures: 'has(params.secondaryFailures) ? params.secondaryFailures : 0'
+              fumbles: 'has(params.secondaryCriticalFailures) ? params.secondaryCriticalFailures : 0'
+              skillRank: >-
+                'rank.legendary' in params.skill.tags ? 4 : 'rank.master' in params.skill.tags ? 3
+                  : 'rank.expert' in params.skill.tags ? 2 : 'rank.trained' in params.skill.tags ? 1 : 0
+              allowed: size(filterList(item.primaryChecks, x in params.skill.tags)) > 0
+      - id: numbers
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dc: >-
+                has(params.dc) ? params.dc : [14, 15, 16, 18, 19, 20, 22, 23, 24, 26, 27, 28, 30,
+                  31, 32, 34, 35, 36, 38, 39, 40][min(20, 2 * flags.rank)] + 5
+              modifier: '(flags.criticals > 0 ? 2 : 0) - (flags.failures + flags.fumbles > 0 ? 4 : 0)'
+      - id: rankTooHigh
+        kind: outcome
+        when: flags.rank < item.rank || flags.rank > max(1, ceil(level / 2))
+        result: "'rank-too-high'"
+        data: { rank: flags.rank, max: 'max(1, ceil(level / 2))' }
+      - id: wrongSkill
+        kind: outcome
+        when: '!flags.allowed'
+        result: "'wrong-skill'"
+      - id: untrained
+        kind: outcome
+        when: flags.skillRank < item.primaryRank
+        result: "'untrained'"
+        data: { needs: item.primaryRank }
+      - id: check
+        kind: roll
+        tags: [d20, ritual]
+        bands: degree
+        parts:
+          - dice: 1d20
+          - field: params.skill.id
+          - { value: flags.modifier, when: flags.modifier != 0 }
+      - id: degree
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              outcome: >-
+                ['critical-failure', 'failure', 'success', 'critical-success'][max(0,
+                  indexOf(['critical-failure', 'failure', 'success', 'critical-success'],
+                    steps.check.band) - (flags.fumbles > 0 ? 1 : 0))]
+      - id: result
+        kind: outcome
+        result: flags.outcome
+        data:
+          rank: flags.rank
+          total: steps.check.total
+          dc: flags.dc

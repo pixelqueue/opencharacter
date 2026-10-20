@@ -1,0 +1,10 @@
+id: heritages.manufacturer-barathu
+type: heritage
+fields: { ancestry: ancestries.barathu }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.crafting }
+    when: "!('skill.crafting' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants: [{ item: feats.skill.serum-crafting, waivePrerequisites: true }]

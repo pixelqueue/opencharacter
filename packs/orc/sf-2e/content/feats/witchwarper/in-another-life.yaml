@@ -1,0 +1,19 @@
+id: feats.witchwarper.in-another-life
+type: feat
+tags: [trait.witchwarper]
+fields: { level: 12, category: class, class: classes.witchwarper }
+grants: [{ item: { formula: witchwarper.otherLife }, when: "witchwarper.otherLife != ''" }]
+actions:
+  - id: another-life
+    tags: [feat-action, exploration-action]
+    results: [chosen]
+    steps:
+      - id: feat
+        kind: choice
+        recommend: 'options[0]'
+        options:
+          content:
+            type: feat
+            where: "item.category == 'ancestry' && item.level <= level && !(item.id in feats.held) && has(item.ancestry) && item.ancestry in ancestry.held"
+        changes: [{ type: set, field: witchwarper.otherLife, value: picked.id }]
+      - { id: result, kind: outcome, result: "'chosen'" }

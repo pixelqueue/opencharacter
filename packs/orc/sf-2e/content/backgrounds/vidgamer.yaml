@@ -1,0 +1,18 @@
+id: backgrounds.vidgamer
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.computers }
+    when: "!('skill.computers' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.vidgame }
+    when: "!('skill.lore.vidgame' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.skill.hologram-skeptic }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['dex', 'int']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

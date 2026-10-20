@@ -1,0 +1,9 @@
+id: feats.skill.legendary-thief
+type: feat
+fields: { level: 15, category: skill, skills: [skill.thievery] }
+
+prerequisites:
+  - id: legendary
+    when: skills.thievery.rank >= 4
+  - id: pickpocket
+    when: '@feats.skill.pickpocket in feats.held'

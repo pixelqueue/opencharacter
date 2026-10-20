@@ -1,0 +1,10 @@
+id: heritages.early-stage-barathu
+type: heritage
+fields: { ancestry: ancestries.barathu, size: small }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.precision] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, max(1, floor(level / 2)))'
+    when: incoming.amount < 0
+grants: [{ item: feats.skill.quick-squeeze, waivePrerequisites: true }]

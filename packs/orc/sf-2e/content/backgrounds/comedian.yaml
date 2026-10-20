@@ -1,0 +1,18 @@
+id: backgrounds.comedian
+type: background
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.performance }
+    when: "!('skill.performance' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.media }
+    when: "!('skill.lore.media' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.skill.just-kidding }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['wis', 'cha']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

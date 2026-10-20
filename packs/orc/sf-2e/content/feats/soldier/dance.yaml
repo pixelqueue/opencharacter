@@ -1,0 +1,13 @@
+id: feats.soldier.dance
+type: feat
+tags: [trait.soldier, trait.suppressed]
+fields: { level: 10, category: class, class: classes.soldier }
+prerequisites: [{ id: requirement, when: '@features.soldier.suppressing-fire in features.held' }]
+effects:
+  - target: { steps: [area.target] }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          when: 'flags.outcome >= 2 || soldier.bombard && flags.outcome == 1'
+          source: "'conditions.off-guard'"

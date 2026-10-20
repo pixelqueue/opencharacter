@@ -1,0 +1,19 @@
+id: backgrounds.cyberborn
+type: background
+tags: [trait.uncommon]
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.crafting }
+    when: "!('skill.crafting' in skills.chosen)"
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.augmentation }
+    when: "!('skill.lore.augmentation' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 2 }
+grants: [{ item: feats.general.augmented-body }]
+choices:
+  - id: boost
+    unique: background-boosts
+    from: { type: boost, where: "item.attribute in ['str', 'con']" }
+  - { id: free-boost, unique: background-boosts, from: { type: boost } }

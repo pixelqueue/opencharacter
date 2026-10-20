@@ -1,0 +1,9 @@
+id: spells.true-target
+type: spell
+tags: [tradition.arcane, tradition.occult, trait.concentrate, trait.fortune, trait.manipulate]
+fields: { rank: 7, cast: one, range: 60, targets: 4, duration: until-next-turn, applyTo: ally }
+effects:
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: advantage }
+    scope: applied

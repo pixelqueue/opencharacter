@@ -18,7 +18,7 @@ import all, { packs } from '@opencharacter/packs';
 import en from '@opencharacter/packs/i18n/en';
 
 const loaded = loadRuleset([packs['5e-srd-5.1']]);
-console.log(all.length, en['5e-srd-5.1']['spells.fireball.name']); // 8 'Fireball'
+console.log(all.length, en['5e-srd-5.1']['spells.fireball.name']); // 9 'Fireball'
 ```
 
 - `default`: every pack's release, as an array.
@@ -40,6 +40,7 @@ text, under the same licenses:
 | `5e-srd-5.2`     | CC-BY-4.0                                                        | `credit` (the SRD 5.2.1 attribution)                         |
 | `fate-core`      | CC-BY-3.0                                                        | `credit` (Evil Hat's attribution)                            |
 | `orc-2e`         | ORC License                                                      | `credit`; `orc`, `reserved-material`, `expressly-designated` |
+| `orc-sf-2e`      | ORC License                                                      | `credit`; `orc`, `reserved-material`, `expressly-designated` |
 | `fitd-scoundrel` | mechanics-only (own work CC0 1.0; SRD material CC-BY-3.0)        | `credit` (the SRD's attribution)                             |
 | `fitd-crew`      | mechanics-only (own work CC0 1.0; SRD material CC-BY-3.0)        | `credit` (the SRD's attribution)                             |
 | `mork-borg-core` | mechanics-only (own work CC0 1.0), MÖRK BORG Third Party License | `credit`; `not-affiliated`                                   |

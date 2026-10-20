@@ -1,0 +1,7 @@
+id: materials.noqual-weapon-standard-grade
+type: template
+tags: [trait.precious, material.noqual, trait.rare]
+appliesTo: { type: weapon }
+fields:
+  price: '(has(prior.price) ? prior.price : 0) + 16000 + 1600 * max(1, floor(base.bulk))'
+  level: 'max(prior.level, 12)'

@@ -1,0 +1,77 @@
+id: features.solarian.re-forge-solar-weapon
+type: feature
+fields: { level: 1 }
+actions:
+  - id: re-forge-solar-weapon
+    tags: [class-action, exploration-action]
+    results: [re-forged]
+    steps:
+      - id: weapon
+        kind: choice
+        recommend: 'options[0]'
+        options: { copies: { type: weapon, where: "'solar-weapon' in item.tags" } }
+      - id: group
+        kind: choice
+        recommend: "'sword'"
+        options:
+          - { id: axe }
+          - { id: brawling }
+          - { id: club }
+          - { id: flail }
+          - { id: hammer }
+          - { id: knife }
+          - { id: pick }
+          - { id: polearm }
+          - { id: spear }
+          - { id: sword }
+      - id: type
+        kind: choice
+        recommend: "'slashing'"
+        options: [{ id: bludgeoning }, { id: piercing }, { id: slashing }]
+      - id: traits
+        kind: choice
+        repeat: { max: 2, min: 0 }
+        recommend: "'#done'"
+        options:
+          - id: disarm
+            when: "picks == 0 && !('disarm' in ['agile', 'twin']) || ('disarm' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
+          - id: free-hand
+            when: "picks == 0 && !('free-hand' in ['agile', 'twin']) || ('free-hand' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
+          - id: grapple
+            when: "picks == 0 && !('grapple' in ['agile', 'twin']) || ('grapple' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
+          - id: nonlethal
+            when: "picks == 0 && !('nonlethal' in ['agile', 'twin']) || ('nonlethal' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
+          - id: parry
+            when: "picks == 0 && !('parry' in ['agile', 'twin']) || ('parry' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
+          - id: shove
+            when: "picks == 0 && !('shove' in ['agile', 'twin']) || ('shove' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
+          - id: sweep
+            when: "picks == 0 && !('sweep' in ['agile', 'twin']) || ('sweep' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
+          - id: trip
+            when: "picks == 0 && !('trip' in ['agile', 'twin']) || ('trip' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
+          - id: versatile
+            when: "picks == 0 && !('versatile' in ['agile', 'twin']) || ('versatile' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
+          - { id: reach, when: 'true' }
+          - { id: two-hand, when: 'true' }
+          - id: agile
+            when: "picks == 0 && !('agile' in ['agile', 'twin']) || ('agile' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
+          - id: twin
+            when: "picks == 0 && !('twin' in ['agile', 'twin']) || ('twin' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
+      - id: apply
+        kind: changes
+        changes:
+          - type: removeTemplate
+            forEach: 'filterList(steps.weapon.self.templates, x in solarian.forms)'
+            entry: { formula: steps.weapon.picked }
+            template: x
+          - type: applyTemplate
+            entry: { formula: steps.weapon.picked }
+            template: "'templates.solar.group-' + steps.group.picked"
+          - type: applyTemplate
+            entry: { formula: steps.weapon.picked }
+            template: "'templates.solar.type-' + steps.type.picked"
+          - type: applyTemplate
+            forEach: steps.traits.picked
+            entry: { formula: steps.weapon.picked }
+            template: "'templates.solar.trait-' + x"
+      - { id: result, kind: outcome, result: "'re-forged'" }

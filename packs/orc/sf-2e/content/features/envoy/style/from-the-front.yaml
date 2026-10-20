@@ -1,0 +1,12 @@
+id: features.envoy.style.from-the-front
+type: feature
+fields: { level: 1 }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.athletics }
+    when: "!('skill.athletics' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: defenses.medium.rank, op: atLeast, value: 1 }
+  - { target: defenses.medium.rank, op: atLeast, value: 2, when: 'level >= 13' }
+  - { target: defenses.medium.rank, op: atLeast, value: 3, when: 'level >= 19' }

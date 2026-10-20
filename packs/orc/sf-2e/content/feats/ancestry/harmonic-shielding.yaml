@@ -1,0 +1,15 @@
+id: feats.ancestry.harmonic-shielding
+type: feat
+tags: [trait.pahtra]
+fields: { level: 9, category: ancestry, ancestry: ancestries.pahtra }
+prerequisites: [{ id: feat, when: '@feats.ancestry.harmonic-sensitivity in feats.held' }]
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.sonic] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, max(1, floor(level / 2)))'
+    when: incoming.amount < 0
+  - target: { rolls: [save], tally: successToCrit }
+    op: add
+    value: 1
+    when: situational.againstSonic

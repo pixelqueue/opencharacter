@@ -1,0 +1,9 @@
+id: feats.skill.legendary-performer
+type: feat
+fields: { level: 15, category: skill, skills: [skill.performance] }
+
+prerequisites:
+  - id: legendary
+    when: skills.performance.rank >= 4
+  - id: virtuosic-performer
+    when: '@feats.skill.virtuosic-performer in feats.held'

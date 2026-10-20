@@ -1,0 +1,101 @@
+id: classes.witchwarper.paradoxes.precog
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: witchwarper.paradox, op: set, value: "'precog'" }
+  - { target: spellcasting.tradition, op: set, value: "'occult'" }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.piloting }
+    when: "!('skill.piloting' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.injury-echo } }
+  - { target: spells.granted.cantrips, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.fleet-step } }
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.fleet-step } }
+  - { target: spells.granted.rank1, op: add, value: 1 }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.temporal-bullets }
+    when: 'level >= 3'
+  - target: spells.repertoire.rank2
+    op: grant
+    value: { item: spells.temporal-bullets }
+    when: 'level >= 3'
+  - { target: spells.granted.rank2, op: add, value: 1, when: 'level >= 3' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.times-edge }
+    when: 'level >= 5'
+  - target: spells.repertoire.rank3
+    op: grant
+    value: { item: spells.times-edge }
+    when: 'level >= 5'
+  - { target: spells.granted.rank3, op: add, value: 1, when: 'level >= 5' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.weight-of-ages }
+    when: 'level >= 7'
+  - target: spells.repertoire.rank4
+    op: grant
+    value: { item: spells.weight-of-ages }
+    when: 'level >= 7'
+  - { target: spells.granted.rank4, op: add, value: 1, when: 'level >= 7' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.chrono-push }
+    when: 'level >= 9'
+  - target: spells.repertoire.rank5
+    op: grant
+    value: { item: spells.chrono-push }
+    when: 'level >= 9'
+  - { target: spells.granted.rank5, op: add, value: 1, when: 'level >= 9' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.phantasmal-calamity }
+    when: 'level >= 11'
+  - target: spells.repertoire.rank6
+    op: grant
+    value: { item: spells.phantasmal-calamity }
+    when: 'level >= 11'
+  - { target: spells.granted.rank6, op: add, value: 1, when: 'level >= 11' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.true-target }
+    when: 'level >= 13'
+  - target: spells.repertoire.rank7
+    op: grant
+    value: { item: spells.true-target }
+    when: 'level >= 13'
+  - { target: spells.granted.rank7, op: add, value: 1, when: 'level >= 13' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.moment-of-renewal }
+    when: 'level >= 15'
+  - target: spells.repertoire.rank8
+    op: grant
+    value: { item: spells.moment-of-renewal }
+    when: 'level >= 15'
+  - { target: spells.granted.rank8, op: add, value: 1, when: 'level >= 15' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.foresight }
+    when: 'level >= 17'
+  - target: spells.repertoire.rank9
+    op: grant
+    value: { item: spells.foresight }
+    when: 'level >= 17'
+  - { target: spells.granted.rank9, op: add, value: 1, when: 'level >= 17' }
+  - { target: focus.points, op: add, value: 1 }
+grants:
+  - { item: spells.injury-echo }
+  - { item: spells.fleet-step }
+  - { item: spells.temporal-bullets, when: 'level >= 3' }
+  - { item: spells.times-edge, when: 'level >= 5' }
+  - { item: spells.weight-of-ages, when: 'level >= 7' }
+  - { item: spells.chrono-push, when: 'level >= 9' }
+  - { item: spells.phantasmal-calamity, when: 'level >= 11' }
+  - { item: spells.true-target, when: 'level >= 13' }
+  - { item: spells.moment-of-renewal, when: 'level >= 15' }
+  - { item: spells.foresight, when: 'level >= 17' }
+  - { item: spells.warp-time }

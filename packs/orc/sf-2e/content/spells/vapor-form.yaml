@@ -1,0 +1,26 @@
+id: spells.vapor-form
+type: spell
+tags:
+  - tradition.arcane
+  - tradition.occult
+  - tradition.primal
+  - trait.air
+  - trait.concentrate
+  - trait.manipulate
+  - trait.polymorph
+fields:
+  rank: 4
+  cast: two
+  range: 0
+  targets: 1
+  duration: minutes
+  durationAmount: 5
+  applyTo: ally
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, 8)'
+    when: "incoming.amount < 0 && ('damage.bludgeoning' in incoming.tags || 'damage.piercing' in incoming.tags || 'damage.slashing' in incoming.tags)"
+    scope: applied
+  - { target: speed.fly, op: atLeast, value: 10, scope: applied }

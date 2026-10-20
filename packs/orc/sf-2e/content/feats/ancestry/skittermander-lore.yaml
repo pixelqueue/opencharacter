@@ -1,0 +1,24 @@
+id: feats.ancestry.skittermander-lore
+type: feat
+tags: [trait.skittermander]
+fields: { level: 1, category: ancestry, ancestry: ancestries.skittermander }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.diplomacy }
+    when: "!('skill.diplomacy' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.society }
+    when: "!('skill.society' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.lore.skittermander }
+    when: "!('skill.lore.skittermander' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - target: skills.lore.skittermander.granted
+    op: add
+    value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+  - { target: languages, op: grant, value: { item: languages.skittermander } }

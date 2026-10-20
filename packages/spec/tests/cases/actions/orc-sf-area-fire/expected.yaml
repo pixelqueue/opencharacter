@@ -1,0 +1,47 @@
+status: finished
+outcome:
+  result: fired
+  data:
+    damage: 6
+    dc: 17
+    expend: 1
+proposedChanges:
+  - to: target
+    character: raider
+    step: deal[0]
+    change:
+      type: adjust
+      field: orc-sf-2e:hp.current
+      by: -6
+      tags:
+        - damage
+        - area
+        - damage.piercing
+  - to: target
+    character: raider
+    step: onTarget[0]
+    change:
+      type: applyEffect
+      source: orc-sf-2e:conditions.suppressed
+  - to: self
+    step: spend
+    change:
+      type: adjustState
+      entry: scattergun
+      key: ammo
+      by: -1
+  - to: self
+    step: spend
+    change:
+      type: setState
+      entry: scattergun
+      key: struck
+      value: true
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: orc-sf-2e:turn.attacks
+      by: 1
+      tags:
+        - attack-count

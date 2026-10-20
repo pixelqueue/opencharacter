@@ -1,0 +1,10 @@
+id: features.envoy.style.guns-blazing
+type: feature
+fields: { level: 1 }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.acrobatics }
+    when: "!('skill.acrobatics' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants: [{ item: feats.general.incredible-initiative, waivePrerequisites: true }]

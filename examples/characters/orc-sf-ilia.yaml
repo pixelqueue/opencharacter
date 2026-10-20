@@ -1,0 +1,88 @@
+specVersion: 0.1.0
+id: example-orc-sf-ilia
+packs:
+  - { id: orc-sf-2e, version: 0.1.0 }
+values:
+  orc-sf-2e:level: 5
+  orc-sf-2e:hp.current: 56
+features:
+  - id: ancestry
+    item: orc-sf-2e:ancestries.lashunta
+    choices:
+      heritage:
+        - option: orc-sf-2e:heritages.unbound-lashunta
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-sf-2e:boosts.wis
+  - id: background
+    item: orc-sf-2e:backgrounds.street-rat
+    choices:
+      boost:
+        - option: orc-sf-2e:boosts.wis
+      free-boost:
+        - option: orc-sf-2e:boosts.con
+  - id: class
+    item: orc-sf-2e:classes.mystic
+    choices:
+      connection:
+        - option: orc-sf-2e:classes.mystic.connections.healing
+      skills:
+        - option: skill.diplomacy
+        - option: skill.religion
+        - option: skill.stealth
+        - option: skill.computers
+      orc-sf-2e:features.spellcasting.repertoire/cantrips:
+        - option: orc-sf-2e:spells.divine-lance
+        - option: orc-sf-2e:spells.guidance
+        - option: orc-sf-2e:spells.shield
+        - option: orc-sf-2e:spells.light
+      orc-sf-2e:features.spellcasting.repertoire/spells-1:
+        - option: orc-sf-2e:spells.mystic-armor
+        - option: orc-sf-2e:spells.spirit-link
+        - option: orc-sf-2e:spells.enhance-body
+      orc-sf-2e:features.spellcasting.repertoire/spells-2:
+        - option: orc-sf-2e:spells.clear-mind
+        - option: orc-sf-2e:spells.cleanse-affliction
+        - option: orc-sf-2e:spells.see-the-unseen
+      orc-sf-2e:features.spellcasting.repertoire/spells-3:
+        - option: orc-sf-2e:spells.life-seal
+        - option: orc-sf-2e:spells.fiery-wings
+      orc-sf-2e:features.spellcasting.signature-spells/signature-1:
+        - option: orc-sf-2e:spells.heal
+      orc-sf-2e:features.spellcasting.signature-spells/signature-2:
+        - option: orc-sf-2e:spells.cleanse-affliction
+      orc-sf-2e:features.spellcasting.signature-spells/signature-3:
+        - option: orc-sf-2e:spells.entropy-strike
+      class-feat-2:
+        - option: orc-sf-2e:feats.mystic.spot-healing
+      skill-feat-2:
+        - option: orc-sf-2e:feats.skill.battle-medicine
+      class-feat-4:
+        - option: orc-sf-2e:feats.mystic.reach-spell
+      skill-feat-4:
+        - option: orc-sf-2e:feats.skill.group-impression
+inventory:
+  - { id: armor, item: orc-sf-2e:armor.second-skin, equipped: true }
+  - { id: pistol, item: orc-sf-2e:weapons.laser-pistol, equipped: true }
+  - { id: battery, item: orc-sf-2e:ammunition.battery-commercial }
+choices:
+  free-boosts:
+    - option: orc-sf-2e:boosts.dex
+    - option: orc-sf-2e:boosts.con
+    - option: orc-sf-2e:boosts.wis
+    - option: orc-sf-2e:boosts.cha
+  ancestry-feat-1:
+    - option: orc-sf-2e:feats.ancestry.center-thoughts
+  general-feat-3:
+    - option: orc-sf-2e:feats.general.toughness
+  boosts-5:
+    - option: orc-sf-2e:boosts.wis
+    - option: orc-sf-2e:boosts.con
+    - option: orc-sf-2e:boosts.dex
+    - option: orc-sf-2e:boosts.int
+  ancestry-feat-5:
+    - option: orc-sf-2e:feats.ancestry.telepathic-conduit
+  languages:
+    - option: orc-sf-2e:languages.ysoki

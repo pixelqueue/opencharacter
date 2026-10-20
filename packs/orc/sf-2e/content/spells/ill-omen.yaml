@@ -1,0 +1,18 @@
+id: spells.ill-omen
+type: spell
+tags: [tradition.occult, trait.concentrate, trait.curse, trait.manipulate, trait.misfortune]
+fields:
+  rank: 1
+  cast: two
+  range: 30
+  targets: 1
+  defense: will
+  basic: false
+  duration: rounds
+  durationAmount: 1
+  applyTo: target
+effects:
+  - target: { rolls: [attack, skill] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied

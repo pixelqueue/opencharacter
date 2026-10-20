@@ -1,0 +1,9 @@
+id: consumables.advanced-glow-up-spell-amp
+type: consumable
+tags: [trait.consumable, trait.magical]
+fields: { category: spell-amp, level: 9, bulk: 0.1, spellRank: 1, price: 1100 }
+choices:
+  - id: spell
+    from:
+      type: spell
+      where: "item.rank <= 1 && !('trait.cantrip' in item.tags) && !('trait.focus' in item.tags)"

@@ -1,0 +1,504 @@
+tags:
+  - exploration-action
+  - skill-action.administer-first-aid
+  - skill-action.aid
+  - skill-action.avoid-notice
+  - skill-action.balance
+  - skill-action.battle-medicine
+  - skill-action.climb
+  - skill-action.coerce
+  - skill-action.command-an-animal
+  - skill-action.conceal-an-object
+  - skill-action.cover-tracks
+  - skill-action.craft
+  - skill-action.create-a-diversion
+  - skill-action.create-forgery
+  - skill-action.decipher-writing
+  - skill-action.demoralize
+  - skill-action.disable-a-device
+  - skill-action.disarm
+  - skill-action.earn-income
+  - skill-action.escape
+  - skill-action.feint
+  - skill-action.force-open
+  - skill-action.gather-information
+  - skill-action.grapple
+  - skill-action.hide
+  - skill-action.high-jump
+  - skill-action.identify-magic
+  - skill-action.impersonate
+  - skill-action.learn-a-spell
+  - skill-action.lie
+  - skill-action.long-jump
+  - skill-action.make-an-impression
+  - skill-action.palm-an-object
+  - skill-action.perform
+  - skill-action.pick-a-lock
+  - skill-action.recall-knowledge
+  - skill-action.repair
+  - skill-action.reposition
+  - skill-action.request
+  - skill-action.seek
+  - skill-action.sense-direction
+  - skill-action.sense-motive
+  - skill-action.shove
+  - skill-action.sneak
+  - skill-action.squeeze
+  - skill-action.maneuver-in-flight
+  - skill-action.borrow-an-arcane-spell
+  - skill-action.steal
+  - skill-action.subsist
+  - skill-action.swim
+  - skill-action.track
+  - skill-action.treat-disease
+  - skill-action.treat-poison
+  - skill-action.treat-wounds
+  - skill-action.trip
+  - skill-action.tumble-through
+  - skill-action.scare-to-death
+  - skill-action.bon-mot
+  - skill-action.dirty-trick
+  - skill-action.disturbing-knowledge
+  - skill-action.evangelize
+  - skill-action.legendary-negotiation
+  - skill-action.legendary-medic
+  - skill-action.divine-guidance
+
+fields:
+  feint.target: { type: string, input: true, default: '' }
+  feint.next: { type: boolean, input: true, default: false }
+  feint.turns: { type: integer, input: true, default: 0, min: 0 }
+
+situational:
+  - id: noSharedLanguage
+    type: boolean
+    default: false
+    rolls: [skill-action.demoralize, skill-action.scare-to-death]
+    effects:
+      - target: { rolls: [skill-action.demoralize, skill-action.scare-to-death] }
+        op: add
+        value: -4
+        stackKey: circumstance-penalty
+        when: >-
+          situational.noSharedLanguage
+            && !('skill-action.demoralize' in roll.tags
+              && @feats.skill.intimidating-glare in feats.held)
+            && !(situational.menacing
+              && @feats.skill.intimidating-prowess in feats.held)
+  - id: menacing
+    type: boolean
+    default: false
+    rolls: [skill-action.demoralize, skill-action.coerce]
+    available: '@feats.skill.intimidating-prowess in feats.held'
+    effects:
+      - target: { rolls: [skill-action.demoralize, skill-action.coerce] }
+        op: add
+        value: 'attributes.str.mod >= 5 && skills.intimidation.rank >= 3 ? 2 : 1'
+        stackKey: circumstance-bonus
+        when: situational.menacing
+  - id: cover
+    type: enum
+    values: [none, standard, greater]
+    default: none
+    rolls: [skill-action.hide, skill-action.sneak]
+    effects:
+      - target: { rolls: [skill-action.hide, skill-action.sneak] }
+        op: add
+        value: "situational.cover == 'greater' ? 4 : 2"
+        stackKey: circumstance-bonus
+        when: situational.cover != 'none'
+  - id: closelyGuarded
+    type: boolean
+    default: false
+    rolls: [skill-action.palm-an-object, skill-action.steal]
+    effects:
+      - target: { rolls: [skill-action.palm-an-object, skill-action.steal] }
+        op: add
+        value: -5
+        when: >-
+          situational.closelyGuarded && !(@feats.skill.pickpocket in feats.held)
+  - id: onGuard
+    type: boolean
+    default: false
+    rolls: [skill-action.steal]
+    available: '@feats.skill.pickpocket in feats.held && skills.thievery.rank >= 3'
+    effects:
+      - target: { rolls: [skill-action.steal] }
+        op: add
+        value: -5
+        when: situational.onGuard
+  - id: afterExploring
+    type: boolean
+    default: false
+    rolls: [skill-action.subsist]
+    effects:
+      - {
+          target: { rolls: [skill-action.subsist] },
+          op: add,
+          value: -5,
+          when: situational.afterExploring,
+        }
+  - id: trackingFullSpeed
+    type: boolean
+    default: false
+    rolls: [skill-action.track]
+    available: '@feats.skill.experienced-tracker in feats.held'
+    effects:
+      - target: { rolls: [skill-action.track] }
+        op: add
+        value: -5
+        when: situational.trackingFullSpeed && skills.survival.rank < 3
+  - id: helpfulAnimal
+    type: boolean
+    default: false
+    rolls: [skill-action.command-an-animal]
+    effects:
+      - target: { rolls: [skill-action.command-an-animal], tally: degreeShift }
+        op: add
+        value: 1
+        when: situational.helpfulAnimal
+  - id: oddity
+    type: boolean
+    default: false
+    rolls: [skill-action.identify-magic, skill-action.recall-knowledge]
+    available: '@feats.skill.oddity-identification in feats.held'
+    effects:
+      - target: { rolls: [skill.occultism] }
+        op: add
+        value: 2
+        stackKey: circumstance-bonus
+        when: situational.oddity
+  - id: ownFaith
+    type: boolean
+    default: false
+    rolls: [skill-action.recall-knowledge]
+    available: '@feats.skill.student-of-the-canon in feats.held'
+    effects:
+      - target: { rolls: [skill.religion], tally: degreeShift }
+        op: add
+        value: 1
+        when: situational.ownFaith
+  - id: fullTime
+    type: boolean
+    default: false
+    rolls: [skill-action.decipher-writing]
+    available: '@feats.skill.legendary-codebreaker in feats.held'
+    effects:
+      - target: { rolls: [skill.society], tally: successToCrit }
+        op: add
+        value: 1
+        when: situational.fullTime
+
+display:
+  groups:
+    - id: skill-actions
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'skill-action' in item.tags" }
+    - id: exploration-actions
+      kind: actions
+      priority: 2
+      members: { type: action, where: "'exploration-action' in item.tags || 'ritual' in item.tags" }
+  fields:
+    feint.target: { hidden: true }
+    feint.next: { hidden: true }
+    feint.turns: { hidden: true }
+
+actions:
+  - id: recall-knowledge
+    tags: [skill-action]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags && 'check' in item.tags" }
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.recall-knowledge]
+        params: { check: params.skill, dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: aid
+    tags: [skill-action, reaction]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags && 'check' in item.tags" }
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.aid]
+        params: { check: params.skill, dc: 'has(params.dc) ? params.dc : 15' }
+      - id: rank
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              rank: >-
+                'rank.legendary' in params.skill.tags ? 4 : 'rank.master' in params.skill.tags ? 3
+                  : 'rank.expert' in params.skill.tags ? 2 : 'rank.trained' in params.skill.tags ? 1 : 0
+      - id: degree
+        kind: branch
+        cases:
+          - when: true
+            flags: { result: steps.check.result }
+      - id: result
+        kind: outcome
+        result: flags.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          bonus: >-
+            flags.result == 'critical-success' ? (flags.rank >= 4 ? 4 : flags.rank >= 3 ? 3 : 2)
+              : flags.result == 'success' ? 1 : flags.result == 'critical-failure' ? -1 : 0
+
+  - id: identify-magic
+    tags: [exploration-action]
+    available: >-
+      skills.arcana.rank >= 1 || skills.nature.rank >= 1 || skills.occultism.rank >= 1
+        || skills.religion.rank >= 1
+    params:
+      skill:
+        type: id
+        of: field
+        where: >-
+          item.id in [@skills.arcana.mod, @skills.nature.mod,
+            @skills.occultism.mod, @skills.religion.mod,
+            @skills.crafting.mod]
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.identify-magic]
+        params: { check: params.skill, dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: learn-a-spell
+    tags: [exploration-action]
+    available: spellcasting.tradition != 'none'
+    params:
+      skill:
+        type: id
+        of: field
+        where: >-
+          item.id in [@skills.arcana.mod, @skills.nature.mod,
+            @skills.occultism.mod, @skills.religion.mod]
+      rank: { type: integer, min: 0, max: 10 }
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: table
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              price: '[2, 2, 6, 16, 36, 70, 140, 300, 650, 1500, 7000][params.rank]'
+              dc: >-
+                has(params.dc) ? params.dc : [15, 15, 18, 20, 23, 26, 28, 31, 34, 36, 41][params.rank]
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.learn-a-spell]
+        params: { check: params.skill, dc: flags.dc }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: flags.dc
+          price: flags.price
+          spent: >-
+            steps.check.result == 'success' ? flags.price
+              : steps.check.result == 'failure' ? 0 : flags.price / 2
+          learned: "steps.check.result in ['success', 'critical-success']"
+
+  - id: decipher-writing
+    tags: [exploration-action]
+    available: >-
+      skills.arcana.rank >= 1 || skills.occultism.rank >= 1 || skills.religion.rank >= 1
+        || skills.society.rank >= 1
+    params:
+      skill:
+        type: id
+        of: field
+        where: >-
+          item.id in [@skills.arcana.mod, @skills.occultism.mod,
+            @skills.religion.mod, @skills.society.mod]
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.decipher-writing]
+        params: { check: params.skill, dc: 'has(params.dc) ? params.dc : null' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }
+
+  - id: earn-income
+    tags: [exploration-action]
+    available: >-
+      skills.crafting.rank >= 1 || skills.performance.rank >= 1
+        || maxFields(f.value, 'lore' in f.tags && 'skill-rank' in f.tags) >= 1
+        || (@feats.skill.bargain-hunter in feats.held && skills.diplomacy.rank >= 1)
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags && 'check' in item.tags" }
+      taskLevel: { type: integer, min: 0, max: 20 }
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: table
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dc: >-
+                has(params.dc) ? params.dc : [14, 15, 16, 18, 19, 20, 22, 23, 24, 26, 27, 28, 30,
+                  31, 32, 34, 35, 36, 38, 39, 40][params.taskLevel]
+              rank: >-
+                'rank.legendary' in params.skill.tags ? 4 : 'rank.master' in params.skill.tags ? 3
+                  : 'rank.expert' in params.skill.tags ? 2 : 'rank.trained' in params.skill.tags ? 1 : 0
+              lore: "'lore' in params.skill.tags"
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.earn-income]
+        params: { check: params.skill, dc: flags.dc }
+      - id: pay
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              row: "min(21, params.taskLevel + (steps.check.result == 'critical-success' ? 1 : 0))"
+              failed: >-
+                [1, 1, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 40, 60,
+                  80][params.taskLevel]
+              rawFailure: >-
+                steps.check.data.total < flags.dc && steps.check.data.total > flags.dc - 10
+                  && steps.check.data.natural != 1
+      - id: income
+        kind: branch
+        cases:
+          - when: "steps.check.result in ['success', 'critical-success']"
+            flags:
+              income: >-
+                [[1, 2, 3, 5, 7, 9, 15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 130, 150, 200, 300,
+                  400, 500],
+                 [1, 2, 3, 5, 8, 10, 20, 25, 30, 40, 50, 60, 80, 100, 150, 200, 250, 300, 450, 600,
+                  750, 900],
+                 [1, 2, 3, 5, 8, 10, 20, 25, 30, 40, 60, 80, 100, 150, 200, 280, 360, 450, 700, 1000,
+                  1500, 1750],
+                 [1, 2, 3, 5, 8, 10, 20, 25, 30, 40, 60, 80, 100, 150, 200, 280, 400, 550, 900, 1300,
+                  2000, 3000]][max(1, min(4, flags.rank)) - 1][flags.row]
+          - when: steps.check.result == 'failure'
+            flags:
+              income: >-
+                flags.failed * (flags.lore && flags.rank >= 2 && flags.rawFailure
+                  && @feats.skill.experienced-professional in feats.held ? 2 : 1)
+          - when: true
+            flags: { income: 0 }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: flags.dc
+          income: flags.income
+
+  - id: craft
+    tags: [exploration-action]
+    available: skills.crafting.rank >= 1
+    params:
+      itemLevel: { type: integer, min: 0, max: 25 }
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.craft]
+        params: { check: "'skills.crafting.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: pay
+        kind: branch
+        cases:
+          - when: "steps.check.result in ['success', 'critical-success']"
+            flags:
+              perDay: >-
+                [[1, 2, 3, 5, 7, 9, 15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 130, 150, 200, 300,
+                  400, 500],
+                 [1, 2, 3, 5, 8, 10, 20, 25, 30, 40, 50, 60, 80, 100, 150, 200, 250, 300, 450, 600,
+                  750, 900],
+                 [1, 2, 3, 5, 8, 10, 20, 25, 30, 40, 60, 80, 100, 150, 200, 280, 360, 450, 700, 1000,
+                  1500, 1750],
+                 [1, 2, 3, 5, 8, 10, 20, 25, 30, 40, 60, 80, 100, 150, 200, 280, 400, 550, 900, 1300,
+                  2000, 3000]][max(1, min(4, skills.crafting.rank)) - 1][
+                  min(21, level + (steps.check.result == 'critical-success' ? 1 : 0))]
+          - when: true
+            flags: { perDay: 0 }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          perDay: flags.perDay
+          ruined: "steps.check.result == 'critical-failure' ? 10 : 0"
+          allowed: >-
+            params.itemLevel <= level && (params.itemLevel < 9 || skills.crafting.rank >= 3)
+              && (params.itemLevel < 17 || skills.crafting.rank >= 4)
+
+  - id: repair
+    tags: [exploration-action]
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.repair]
+        params: { check: "'skills.crafting.mod'", dc: 'has(params.dc) ? params.dc : null' }
+      - id: damage
+        kind: roll
+        when: steps.check.result == 'critical-failure'
+        parts:
+          - dice: 2d6
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data:
+          total: steps.check.data.total
+          dc: steps.check.data.dc
+          restored: >-
+            steps.check.result == 'critical-success' ? 10 + 10 * skills.crafting.rank
+              : steps.check.result == 'success' ? 5 + 5 * skills.crafting.rank : 0
+          damage: 'has(steps.damage) ? steps.damage.total : 0'
+
+  - id: create-forgery
+    tags: [exploration-action]
+    available: skills.society.rank >= 1
+    params:
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: check
+        kind: action
+        use: check
+        tags: [skill-action.create-forgery]
+        params: { check: "'skills.society.mod'", dc: 'has(params.dc) ? params.dc : 20' }
+      - id: result
+        kind: outcome
+        result: steps.check.result
+        data: { total: steps.check.data.total, dc: steps.check.data.dc }

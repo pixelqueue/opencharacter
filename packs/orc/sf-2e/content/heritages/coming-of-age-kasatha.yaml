@@ -1,0 +1,10 @@
+id: heritages.coming-of-age-kasatha
+type: heritage
+fields: { ancestry: ancestries.kasatha }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.society }
+    when: "!('skill.society' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants: [{ item: feats.skill.streetwise, waivePrerequisites: true }]

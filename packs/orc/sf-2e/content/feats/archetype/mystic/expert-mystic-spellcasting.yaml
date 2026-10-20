@@ -1,0 +1,11 @@
+id: feats.archetype.mystic.expert-mystic-spellcasting
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 12, category: class, archetype: archetypes.mystic }
+prerequisites:
+  - { id: feat, when: '@feats.archetype.mystic.basic-mystic-spellcasting in feats.held' }
+  - id: master
+    when: "mystic.connection == 'akashic' && skills.occultism.rank >= 3 || mystic.connection == 'elemental' && skills.nature.rank >= 3 || mystic.connection == 'healing' && skills.medicine.rank >= 3 || mystic.connection == 'rhythm' && skills.performance.rank >= 3 || mystic.connection == 'shadow' && skills.stealth.rank >= 3"
+effects:
+  - { target: spellcasting.archetype.mystic.benefits, op: atLeast, value: 2 }
+  - { target: spellcasting.archetype.mystic.rank, op: atLeast, value: 2 }

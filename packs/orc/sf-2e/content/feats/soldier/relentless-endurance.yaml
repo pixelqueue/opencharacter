@@ -1,0 +1,22 @@
+id: feats.soldier.relentless-endurance
+type: feat
+tags: [trait.soldier]
+fields: { level: 2, category: class, class: classes.soldier }
+actions:
+  - id: relentless-endurance
+    tags: [reaction, class-action]
+    results: [gained]
+    steps:
+      - id: temp
+        kind: roll
+        parts:
+          - { dice: 'dieOf(1d8, 1 + floor(max(0, level - 2) / 4))' }
+          - { value: '4 * (1 + floor(max(0, level - 2) / 4))' }
+      - id: gain
+        kind: changes
+        changes:
+          - type: set
+            when: 'steps.temp.total > hp.temp'
+            field: hp.temp
+            value: steps.temp.total
+      - { id: result, kind: outcome, result: "'gained'", data: { tempHp: steps.temp.total } }

@@ -1,0 +1,69 @@
+id: feats.skill.assurance
+type: feat
+tags: [trait.fortune]
+fields: { level: 1, category: skill, skills: [skill] }
+repeatable: true
+
+state:
+  skill: { type: string, default: '' }
+effects:
+  - {
+      target: assurance.skills,
+      op: grant,
+      value: { formula: self.skill },
+      when: "has(self.skill) && self.skill != ''",
+    }
+choices:
+  - id: skill
+    when: "!has(self.skill) || self.skill == ''"
+    from:
+      values:
+        [
+          skill.acrobatics,
+          skill.arcana,
+          skill.athletics,
+          skill.computers,
+          skill.crafting,
+          skill.deception,
+          skill.diplomacy,
+          skill.intimidation,
+          skill.medicine,
+          skill.nature,
+          skill.occultism,
+          skill.performance,
+          skill.piloting,
+          skill.religion,
+          skill.society,
+          skill.stealth,
+          skill.survival,
+          skill.thievery,
+        ]
+    effects:
+      - { target: assurance.skills, op: grant, value: { formula: pick.value } }
+
+actions:
+  - id: assurance
+    tags: [check, assurance]
+    params:
+      skill: { type: id, of: field, where: "'skill-rank' in item.tags" }
+      dc: { type: integer, optional: true }
+    results: { bands: degree }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags: { dc: 'has(params.dc) ? params.dc : -1' }
+      - id: fixed
+        kind: roll
+        when: countList(params.skill.tags, x in assurance.skills) > 0
+        tags: [assurance]
+        bands: degree
+        parts:
+          - value: '10 + (params.skill.value > 0 ? 2 * params.skill.value + proficiency.level : proficiency.untrained)'
+      - id: result
+        kind: outcome
+        result: "has(steps.fixed) ? steps.fixed.band : 'failure'"
+        data:
+          total: 'has(steps.fixed) ? steps.fixed.total : 0'
+          dc: flags.dc

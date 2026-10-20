@@ -156,6 +156,7 @@ describe('the editor API', { timeout: 20_000 }, () => {
       'mork-borg-core',
       'mothership-1e',
       'orc-2e',
+      'orc-sf-2e',
     ]);
   });
 

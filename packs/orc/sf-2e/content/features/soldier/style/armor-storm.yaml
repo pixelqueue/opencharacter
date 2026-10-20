@@ -1,0 +1,21 @@
+id: features.soldier.style.armor-storm
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: soldier.armorStorm, op: set, value: true }
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, max(1, floor(level / 2)))'
+    when: 'incoming.amount < 0 && situational.bySuppressed'
+  - target:
+      rolls:
+        - skill-action.disarm
+        - skill-action.grapple
+        - skill-action.reposition
+        - skill-action.shove
+        - skill-action.trip
+    op: add
+    value: 1
+    stackKey: status-bonus
+    when: situational.suppressedTarget

@@ -1,0 +1,12 @@
+id: features.soldier.fearsome-bulwark
+type: feature
+fields: { level: 3 }
+effects:
+  - target: { rolls: [skill-action.coerce, skill-action.demoralize] }
+    op: add
+    value: attributes.con.mod - attributes.cha.mod
+    when: 'attributes.con.mod > attributes.cha.mod'
+  - target: { rolls: [skill-action.reposition, skill-action.shove] }
+    op: add
+    value: attributes.con.mod - attributes.str.mod
+    when: 'attributes.con.mod > attributes.str.mod'

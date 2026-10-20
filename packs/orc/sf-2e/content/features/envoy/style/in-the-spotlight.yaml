@@ -1,0 +1,10 @@
+id: features.envoy.style.in-the-spotlight
+type: feature
+fields: { level: 1 }
+effects:
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.performance }
+    when: "!('skill.performance' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+grants: [{ item: feats.skill.impressive-performance, waivePrerequisites: true }]

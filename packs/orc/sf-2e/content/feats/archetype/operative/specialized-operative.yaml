@@ -1,0 +1,80 @@
+id: feats.archetype.operative.specialized-operative
+type: feat
+tags: [trait.archetype, archetype-feat]
+fields: { level: 4, category: class, archetype: archetypes.operative }
+prerequisites:
+  - { id: feat, when: '@feats.archetype.operative.operative-dedication in feats.held' }
+choices:
+  - id: specialization
+    from:
+      options:
+        - id: ghost
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.deception }
+              when: "!('skill.deception' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: operative.specSkill, op: set, value: "'skill.deception'" }
+          choices:
+            - id: skill-feat
+              unique: feats
+              requiresOption: true
+              from: { type: feat, where: "item.category == 'skill' && item.level <= 1" }
+              eligible: "'skill.deception' in item.skills"
+        - id: infiltrator
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.computers }
+              when: "!('skill.computers' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: operative.specSkill, op: set, value: "'skill.computers'" }
+          choices:
+            - id: skill-feat
+              unique: feats
+              requiresOption: true
+              from: { type: feat, where: "item.category == 'skill' && item.level <= 1" }
+              eligible: "'skill.computers' in item.skills"
+        - id: skirmisher
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.acrobatics }
+              when: "!('skill.acrobatics' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: operative.specSkill, op: set, value: "'skill.acrobatics'" }
+          choices:
+            - id: skill-feat
+              unique: feats
+              requiresOption: true
+              from: { type: feat, where: "item.category == 'skill' && item.level <= 1" }
+              eligible: "'skill.acrobatics' in item.skills"
+        - id: sniper
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.stealth }
+              when: "!('skill.stealth' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: operative.specSkill, op: set, value: "'skill.stealth'" }
+          choices:
+            - id: skill-feat
+              unique: feats
+              requiresOption: true
+              from: { type: feat, where: "item.category == 'skill' && item.level <= 1" }
+              eligible: "'skill.stealth' in item.skills"
+        - id: striker
+          effects:
+            - target: skills.trained
+              op: grant
+              value: { tag: skill.athletics }
+              when: "!('skill.athletics' in skills.chosen)"
+            - { target: skills.trainings, op: add, value: 1 }
+            - { target: operative.specSkill, op: set, value: "'skill.athletics'" }
+          choices:
+            - id: skill-feat
+              unique: feats
+              requiresOption: true
+              from: { type: feat, where: "item.category == 'skill' && item.level <= 1" }
+              eligible: "'skill.athletics' in item.skills"

@@ -1,0 +1,30 @@
+id: spells.calm
+type: spell
+tags:
+  - tradition.divine
+  - tradition.occult
+  - trait.concentrate
+  - trait.emotion
+  - trait.incapacitation
+  - trait.manipulate
+  - trait.mental
+fields:
+  rank: 2
+  cast: two
+  range: 120
+  area: burst
+  areaSize: 10
+  defense: will
+  basic: false
+  sustained: true
+  duration: minutes
+  durationAmount: 1
+  applyTo: target
+  applyAt: 1
+effects:
+  - target: { fields: { where: "'attack' in item.tags" } }
+    op: add
+    value: -1
+    stackKey: status-penalty
+    when: self.outcome == 1
+    scope: applied

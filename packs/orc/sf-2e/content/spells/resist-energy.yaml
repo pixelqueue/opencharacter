@@ -1,0 +1,26 @@
+id: spells.resist-energy
+type: spell
+tags:
+  - tradition.arcane
+  - tradition.divine
+  - tradition.occult
+  - tradition.primal
+  - trait.concentrate
+  - trait.manipulate
+fields:
+  rank: 2
+  cast: two
+  range: 0
+  targets: 1
+  duration: minutes
+  durationAmount: 10
+  applyTo: ally
+  damageTypeChoice: true
+  damageType: fire
+effects:
+  - target: { incoming: { fields: [hp.current] } }
+    op: add
+    stackKey: resistance
+    value: 'min(-incoming.amount, self.rank >= 7 ? 15 : self.rank >= 4 ? 10 : 5)'
+    when: "incoming.amount < 0 && ('damage.' + self.damageType) in incoming.tags"
+    scope: applied

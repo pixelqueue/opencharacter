@@ -1,0 +1,101 @@
+id: classes.witchwarper.paradoxes.analyst
+type: feature
+fields: { level: 1 }
+effects:
+  - { target: witchwarper.paradox, op: set, value: "'analyst'" }
+  - { target: spellcasting.tradition, op: set, value: "'arcane'" }
+  - target: skills.trained
+    op: grant
+    value: { tag: skill.computers }
+    when: "!('skill.computers' in skills.chosen)"
+  - { target: skills.trainings, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.analyze-target } }
+  - { target: spells.granted.cantrips, op: add, value: 1 }
+  - { target: spells.repertoire, op: grant, value: { item: spells.sure-strike } }
+  - { target: spells.repertoire.rank1, op: grant, value: { item: spells.sure-strike } }
+  - { target: spells.granted.rank1, op: add, value: 1 }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.sift-the-sphere }
+    when: 'level >= 3'
+  - target: spells.repertoire.rank2
+    op: grant
+    value: { item: spells.sift-the-sphere }
+    when: 'level >= 3'
+  - { target: spells.granted.rank2, op: add, value: 1, when: 'level >= 3' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.hypercognition }
+    when: 'level >= 5'
+  - target: spells.repertoire.rank3
+    op: grant
+    value: { item: spells.hypercognition }
+    when: 'level >= 5'
+  - { target: spells.granted.rank3, op: add, value: 1, when: 'level >= 5' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.translocate }
+    when: 'level >= 7'
+  - target: spells.repertoire.rank4
+    op: grant
+    value: { item: spells.translocate }
+    when: 'level >= 7'
+  - { target: spells.granted.rank4, op: add, value: 1, when: 'level >= 7' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.subjective-reality }
+    when: 'level >= 9'
+  - target: spells.repertoire.rank5
+    op: grant
+    value: { item: spells.subjective-reality }
+    when: 'level >= 9'
+  - { target: spells.granted.rank5, op: add, value: 1, when: 'level >= 9' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.truesight }
+    when: 'level >= 11'
+  - target: spells.repertoire.rank6
+    op: grant
+    value: { item: spells.truesight }
+    when: 'level >= 11'
+  - { target: spells.granted.rank6, op: add, value: 1, when: 'level >= 11' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.retrocognition }
+    when: 'level >= 13'
+  - target: spells.repertoire.rank7
+    op: grant
+    value: { item: spells.retrocognition }
+    when: 'level >= 13'
+  - { target: spells.granted.rank7, op: add, value: 1, when: 'level >= 13' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.disappearance }
+    when: 'level >= 15'
+  - target: spells.repertoire.rank8
+    op: grant
+    value: { item: spells.disappearance }
+    when: 'level >= 15'
+  - { target: spells.granted.rank8, op: add, value: 1, when: 'level >= 15' }
+  - target: spells.repertoire
+    op: grant
+    value: { item: spells.foresight }
+    when: 'level >= 17'
+  - target: spells.repertoire.rank9
+    op: grant
+    value: { item: spells.foresight }
+    when: 'level >= 17'
+  - { target: spells.granted.rank9, op: add, value: 1, when: 'level >= 17' }
+  - { target: focus.points, op: add, value: 1 }
+grants:
+  - { item: spells.analyze-target }
+  - { item: spells.sure-strike }
+  - { item: spells.sift-the-sphere, when: 'level >= 3' }
+  - { item: spells.hypercognition, when: 'level >= 5' }
+  - { item: spells.translocate, when: 'level >= 7' }
+  - { item: spells.subjective-reality, when: 'level >= 9' }
+  - { item: spells.truesight, when: 'level >= 11' }
+  - { item: spells.retrocognition, when: 'level >= 13' }
+  - { item: spells.disappearance, when: 'level >= 15' }
+  - { item: spells.foresight, when: 'level >= 17' }
+  - { item: spells.warp-probability }

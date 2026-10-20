@@ -1,0 +1,36 @@
+fields:
+  solarian.attunement:
+    { type: enum, values: [unattuned, photon, graviton, perfect], input: true, default: unattuned }
+  solarian.perfect: { type: boolean, formula: false }
+  solarian.rampart: { type: boolean, formula: false }
+  attacks.solar.rank: { type: integer, formula: 0, min: 0, max: 4 }
+  solarian.forms: { type: set, of: string }
+  crystals.orbital: { type: set, of: string }
+
+effects:
+  - target: solarian.forms
+    op: grant
+    value: { query: { type: template, where: "'solar-form' in item.tags" } }
+  - target: crystals.orbital
+    op: grant
+    value: { query: { type: template, where: "'crystal.orbital' in item.tags" } }
+
+tags:
+  - solar
+  - solar-flare
+  - solar-flare-dedication
+  - solar-weapon
+  - solar-form
+  - attuned.photon
+  - attuned.graviton
+  - crystal.core
+  - crystal.orbital
+
+display:
+  fields:
+    solarian.attunement:
+      { groups: [turn], priority: 0, showWhen: 'countCopies(copy.item == @classes.solarian) > 0' }
+    solarian.perfect: { hidden: true }
+    solarian.rampart: { hidden: true }
+    solarian.forms: { hidden: true }
+    crystals.orbital: { hidden: true }
