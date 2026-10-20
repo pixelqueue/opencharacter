@@ -1,0 +1,49 @@
+status: finished
+outcome:
+  result: advanced
+proposedChanges:
+  - to: self
+    step: level
+    change:
+      type: set
+      field: wn-scifi:level
+      value: 2
+  - to: self
+    step: hitPoints
+    change:
+      type: set
+      field: wn-scifi:hp.rolled
+      value: 8
+  - to: self
+    step: hitPoints
+    change:
+      type: adjust
+      field: wn-scifi:hp.current
+      by: 3
+      tags:
+        - healing
+  - to: self
+    step: focus/focus
+    change:
+      type: addItem
+      entry:
+        id: focus-level-2
+        item: wn-scifi:foci.alert
+  - to: self
+    step: focus/points/spend
+    change:
+      type: set
+      field: wn-scifi:skills.notice.level
+      value: 1
+  - to: self
+    step: points
+    change:
+      type: adjust
+      field: wn-scifi:skillPoints.general
+      by: 2
+  - to: self
+    step: points
+    change:
+      type: adjust
+      field: wn-scifi:skillPoints.psychic
+      by: 1
