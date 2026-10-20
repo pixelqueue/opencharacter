@@ -988,7 +988,7 @@ export type ContentItem = {
   standardCopies?: Query[];
   /** Item fields the templates this item keeps (`keepsTemplates`) leave as they are, on the copies it keeps them on: a specific magic weapon's Price, which already counts the runes it comes with. A template the player applies later changes them as usual. */
   keepsFields?: Name[];
-  /** Templates this item keeps on the character's copies while it is active: each copy of `copies.type` whose base item matches `copies.where` (which reads only `item`, resolved by loadRuleset) has the template applied after its saved ones, unless the template's `appliesTo` doesn't match. Nothing is saved. */
+  /** Templates this item keeps while it is active: on the character's copies (`copies`), each copy of `copies.type` whose base item matches `copies.where` has the template applied after its saved ones; on content picked or granted to the character (`content`), each item of `content.type` matching `content.where` has the template's fields and tags merged into its `item`. Both queries read only `item` and are resolved by loadRuleset; a template whose `appliesTo` doesn't match isn't kept. Nothing is saved. */
   keepsTemplates?: KeptTemplate[];
   /** Conditions for having this item. Failing ones are rules issues (`prerequisite-not-met`), never blocking unless strict mode is on. */
   prerequisites?: Prerequisite[];
@@ -1024,10 +1024,12 @@ export type Prerequisite = {
 };
 
 export type KeptTemplate = {
-  /** The template kept on the copies. */
+  /** The template kept on the copies or the content. */
   template: Ref;
   /** The copies it is kept on: a content type and a condition over the copy's base item (`item` only). */
-  copies: Query;
+  copies?: Query;
+  /** The content without a copy of its own it is kept on: every holder activation of content picked or granted to the character whose item is of the type and matches the condition (`item` only). The template may give only fields and tags (`template-without-copy` otherwise). */
+  content?: Query;
   /** An activation condition: while it holds, the template is kept. */
   when?: Condition;
   /** `holder` (default): while the item is held. `applied`: while it is the source of an active, unblocked `applied` entry, on that character's copies. */
@@ -1830,6 +1832,14 @@ export type ComputeSheetOutput = {
   copies?: Record<string, Record<string, Literal>>;
   /** Copies named by their state, by instance ID: for each copy whose item or content type has `nameFrom`, the value of that state key when it is a non-empty string. Apps show it as the copy's name in place of the item's (a choice's copy options included). */
   copyNames?: Record<string, string>;
+  /** Every item the character has with templates, as merged, so an app shows the item as the rules read it: each copy with a saved or kept template, in instance order (`entry` its instance ID), then each piece of content without a copy (picked or granted) that content keeps templates on, in activation order, once per item (no `entry`). `templates` lists the templates in the order they apply, `tags` and `fields` are the merged item's (`item.tags` and each item field as `item` reads it; a dice field as canonical dice text). */
+  templated?: {
+    entry?: InstanceId;
+    item: QualifiedId;
+    templates: QualifiedId[];
+    tags: string[];
+    fields: Record<string, Literal>;
+  }[];
   /** The character's standard copies, in instance order: each copy the rules or an active item give every character, by its instance ID (`entry`) and item, and whether the file saves it (`saved`). Unsaved copies are at their defaults and appear in `inventory` or `features` like any other. */
   standardCopies?: {
     entry: InstanceId;
@@ -2679,6 +2689,7 @@ export type ErrorCode =
   | 'formula-error'
   | 'unknown-tally'
   | 'then-without-copy'
+  | 'template-without-copy'
   | 'link-field-mismatch'
   | 'invalid-create-offer'
   | 'invalid-family'

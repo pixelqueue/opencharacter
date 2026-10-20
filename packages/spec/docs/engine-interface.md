@@ -66,6 +66,10 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
 - `issues` lists rules issues.
 - `copies` maps each copy's instance ID to its computed values (`{ <name>: value }`), for copies that have any.
 - `copyNames` maps each copy's instance ID to its name from its state (`nameFrom`), for copies that have one; apps show it in place of the item's name.
+- `templated` lists every item the character has with templates, as merged: each copy with a
+  saved or kept template (`entry`), then each picked or granted item that content keeps
+  templates on, as `{ entry?, item, templates, tags, fields }`, so an app shows the item as the
+  rules read it ([engine-core.md](engine-core.md#merged-items)).
 - `standardCopies` lists the character's standard copies, as
   `{ entry, item, saved }`: the rules' first, then those of active items, so an app can show the
   unsaved ones without running the queries. Each is also a copy in `inventory` or `features`.

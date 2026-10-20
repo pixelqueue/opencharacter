@@ -133,7 +133,7 @@
       "uniqueItems": true
     },
     "keepsTemplates": {
-      "description": "Templates this item keeps on the character's copies while it is active: each copy of `copies.type` whose base item matches `copies.where` (which reads only `item`, resolved by loadRuleset) has the template applied after its saved ones, unless the template's `appliesTo` doesn't match. Nothing is saved.",
+      "description": "Templates this item keeps while it is active: on the character's copies (`copies`), each copy of `copies.type` whose base item matches `copies.where` has the template applied after its saved ones; on content picked or granted to the character (`content`), each item of `content.type` matching `content.where` has the template's fields and tags merged into its `item`. Both queries read only `item` and are resolved by loadRuleset; a template whose `appliesTo` doesn't match isn't kept. Nothing is saved.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/keptTemplate"
@@ -313,14 +313,19 @@
     },
     "keptTemplate": {
       "type": "object",
-      "required": ["template", "copies"],
+      "required": ["template"],
+      "oneOf": [{ "required": ["copies"] }, { "required": ["content"] }],
       "properties": {
         "template": {
-          "description": "The template kept on the copies.",
+          "description": "The template kept on the copies or the content.",
           "$ref": "common.schema.json#/$defs/ref"
         },
         "copies": {
           "description": "The copies it is kept on: a content type and a condition over the copy's base item (`item` only).",
+          "$ref": "query.schema.json"
+        },
+        "content": {
+          "description": "The content without a copy of its own it is kept on: every holder activation of content picked or granted to the character whose item is of the type and matches the condition (`item` only). The template may give only fields and tags (`template-without-copy` otherwise).",
           "$ref": "query.schema.json"
         },
         "when": {

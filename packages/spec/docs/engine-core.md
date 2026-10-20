@@ -168,6 +168,11 @@ values also see `prior`, the item as merged before it. A template's `removeTags`
 take tags away in template order before its `tags` are added. The templates are
 the copy's saved ones, then those content keeps on it ([content.md](content.md#kept-templates)).
 
+Content picked or granted, which has no copy, is merged the same way with the templates content
+keeps on its item ([content.md](content.md#on-content-without-a-copy)): its `item` in its own
+effects, grants, choices, actions and follow-ups is that merged item. Without such templates it
+is the base item.
+
 ### `character`
 
 `character.creating` is the file's `creating`, false when absent.
@@ -221,7 +226,8 @@ The rules and content items may declare `standardCopies` ([content.md](content.m
   there yet; activate again, until a round adds none (at most `maxChoiceDepth` rounds). A copy
   added in a round stays for that computation. The templates content keeps on copies
   are found in the same rounds: each round also adds, for every active
-  `keepsTemplates` entry whose `when` holds, its template on each matching copy that hasn't it.
+  `keepsTemplates` entry whose `when` holds, its template on each matching copy that hasn't it,
+  or with `content`, on each matching item picked or granted that hasn't it.
   The rounds end when a round adds neither a copy nor a kept template.
 - **Instance ID:** the item's qualified ID with the colon and dots as hyphens.
 - **Saved or not.** An entry with a standard copy's ID and item is that copy, saved, in its
@@ -612,6 +618,22 @@ an engine may compute them on demand, with the same result.
 ([content.md](content.md#per-copy-state)) to the value of that state key, when it is a
 non-empty string (not only spaces); an item's `nameFrom` replaces its type's. Copies without one
 are left out.
+
+### Merged items
+
+`templated` lists every item the character has with templates, as the rules read it, so an app
+shows a Longsword +1's bonus or a cantrip's longer range without merging templates itself. Each
+is `{ entry?, item, templates, tags, fields }`:
+
+- First each copy with a saved or kept template, in instance order, with `entry` its instance
+  ID; then each item picked or granted that content keeps templates on
+  ([content.md](content.md#on-content-without-a-copy)), in activation order, once per item,
+  with no `entry`. Content without templates isn't listed: its item is the ruleset's.
+- `item` is the base item's qualified ID and `templates` the templates in the order they apply
+  (saved, then kept).
+- `tags` is the merged `item.tags`, and `fields` each item field as the merged `item` reads it
+  ([Items and `item`](#items-and-item)): a template's `null` leaves the field out, a default
+  fills in, and a dice field is its canonical dice text.
 
 ### The activation list
 

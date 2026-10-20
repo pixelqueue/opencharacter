@@ -125,6 +125,45 @@
             "minLength": 1
           }
         },
+        "templated": {
+          "description": "Every item the character has with templates, as merged, so an app shows the item as the rules read it: each copy with a saved or kept template, in instance order (`entry` its instance ID), then each piece of content without a copy (picked or granted) that content keeps templates on, in activation order, once per item (no `entry`). `templates` lists the templates in the order they apply, `tags` and `fields` are the merged item's (`item.tags` and each item field as `item` reads it; a dice field as canonical dice text).",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["item", "templates", "tags", "fields"],
+            "properties": {
+              "entry": {
+                "$ref": "../common.schema.json#/$defs/instanceId"
+              },
+              "item": {
+                "$ref": "../common.schema.json#/$defs/qualifiedId"
+              },
+              "templates": {
+                "type": "array",
+                "items": {
+                  "$ref": "../common.schema.json#/$defs/qualifiedId"
+                },
+                "minItems": 1
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "fields": {
+                "type": "object",
+                "propertyNames": {
+                  "$ref": "../common.schema.json#/$defs/name"
+                },
+                "additionalProperties": {
+                  "$ref": "../common.schema.json#/$defs/literal"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
         "standardCopies": {
           "description": "The character's standard copies, in instance order: each copy the rules or an active item give every character, by its instance ID (`entry`) and item, and whether the file saves it (`saved`). Unsaved copies are at their defaults and appear in `inventory` or `features` like any other.",
           "type": "array",

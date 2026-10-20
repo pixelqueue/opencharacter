@@ -95,7 +95,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Strict mode:** an applyChanges option that turns rules issues into a runtime error.
 - **Tag:** a dotted label on content, fields or rolls (`damage.fire`); matches itself and every tag below it.
 - **Tag vocabulary:** the tags a pack declares in its rules' `tags`; every tag the pack uses must be declared there or by a dependency.
-- **Template:** content applied on top of a character's copy of an item during play (+1 weapon, Flame Tongue).
+- **Template:** content applied on top of a character's copy of an item during play (+1 weapon, Flame Tongue). Content may also keep one on copies, or on picked or granted content's item (a feature lengthening a spell's range), while it is active.
 - **Template field:** an item field every template may set, declared once in the rules (`templateFields`): a magic weapon's rarity, attunement and bonuses. A copy's `item` merges its templates' values over the base item's.
 - **Test suite:** plain-data cases (inputs, die faces, expected outputs) every engine runs to prove conformance.
 - **Upgrade script:** data shipped with a pack version that moves saved characters from the previous version's state shape.
