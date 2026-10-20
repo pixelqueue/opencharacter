@@ -86,6 +86,7 @@ much of OCF your app needs.
 | [`fitd-crew`](packs/fitd/crew/)           | Forged in the Dark crew (SRD)      | Mechanics only |
 | [`mork-borg-core`](packs/mork-borg/core/) | MÖRK BORG                          | Mechanics only |
 | [`fate-core`](packs/fate/core/)           | Fate Core                          | CC-BY-3.0      |
+| [`wn-scifi`](packs/wn/scifi/)             | Science fiction rules              | By permission  |
 
 Each pack is its own npm package (`@opencharacter/<pack>`), and
 [`@opencharacter/packs`](packages/packs/) bundles them all. Mechanics-only packs model games that
@@ -120,5 +121,7 @@ Code, spec, schemas and tests are [Apache 2.0](LICENSE). Original packs are [CC0
 packs from licensed material keep that license and its credit line: `5e-srd-5.1` CC-BY-4.0,
 `fate-core` CC-BY-3.0 and `orc-2e` the ORC License, each with its notices. `mothership-1e`, `mork-borg-core` and the Forged in the Dark packs are unofficial,
 mechanics-only models whose own work is CC0; the Forged in the Dark packs keep the SRD's CC-BY credit line and
-the MÖRK BORG pack the notices of its third-party license. Every package has a `LICENSE` file
+the MÖRK BORG pack the notices of its third-party license. `wn-scifi` carries text from the
+free edition of _Stars Without Number: Revised Edition_ by the author's permission, with its
+credit and notices. Every package has a `LICENSE` file
 with its terms, credit and notices.

@@ -43,6 +43,7 @@ text, under the same licenses:
 | `fitd-crew`      | mechanics-only (own work CC0 1.0; SRD material CC-BY-3.0)        | `credit` (the SRD's attribution)                             |
 | `mork-borg-core` | mechanics-only (own work CC0 1.0), MÖRK BORG Third Party License | `credit`; `not-affiliated`                                   |
 | `mothership-1e`  | mechanics-only (own work CC0 1.0)                                | none                                                         |
+| `wn-scifi`       | free edition text by the author's permission (own work CC0 1.0)  | `credit`; `permission`, `not-affiliated`                     |
 
 **How credits and notices reach users:** each pack's `credit` and `notices` are in its release's
 manifest, and `loadRuleset` lists them in the ruleset's `packs`. An app that uses a pack's content
