@@ -71,7 +71,9 @@ const run = startAction(ruleset, blank, {
 - **Mutations:** mutation points from Mutant, Mutation Acceleration and up to three rolled
   negative mutations (d100, with Lightly Touched); the stigma (concealable for a point, and the
   suggestion tables); positive mutations rolled (d6 + d10), rolled two in a category, or picked.
-  Negative mutations' attribute penalties, forbidden skills and barred sensory mutations apply.
+  Negative mutations' attribute penalties, forbidden skills and barred sensory mutations apply;
+  Slow Development's favorite skill is a choice on it, and every other skill's `cap` is one
+  below the level's usual maximum (at least level-0).
 - **Hit points, attack bonus and saves:** by level, with Hard to Kill, On Target and the
   mutations that change them. `level-up` rerolls hit points (the roll if better, else +1).
 - **Advancement:** experience on the fast or slow table, `level-up`, `improve-skill` and

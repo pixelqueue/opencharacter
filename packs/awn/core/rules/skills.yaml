@@ -5,8 +5,9 @@ fields:
   # Skill points spent toward the next level, kept as credit (a focus's bonus skill after
   # creation counts as three points).
   'skills.{skill}.credit': { type: integer, input: true, default: 0, min: 0 }
-  # The highest level the character may have; a negative mutation that forbids the skill sets -1.
-  'skills.{skill}.cap': { type: integer, formula: 4 }
+  # The highest level the character may have; a negative mutation that forbids the skill sets -1,
+  # and Slow Development lowers every skill but the favorite.
+  'skills.{skill}.cap': { type: integer, formula: 4, tags: [skill-cap] }
 
   # Unspent skill points from advancement.
   skills.points: { type: integer, input: true, default: 0, min: 0 }

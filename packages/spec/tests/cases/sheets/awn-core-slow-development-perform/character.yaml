@@ -1,0 +1,79 @@
+# The example courtesan (Hollis) as a Mutant with Slow Development, Perform the favorite skill.
+specVersion: 0.1.0
+id: example-awn-core-hollis
+packs:
+  - { id: awn-core, version: 0.1.0 }
+values:
+  awn-core:attributes.str.score: 16
+  awn-core:attributes.dex.score: 10
+  awn-core:attributes.con.score: 14
+  awn-core:attributes.int.score: 14
+  awn-core:attributes.wis.score: 14
+  awn-core:attributes.cha.score: 12
+  awn-core:skills.talk.level: 2
+  awn-core:skills.perform.level: 1
+  awn-core:skills.sneak.level: 0
+  awn-core:skills.punch.level: 1
+  awn-core:skills.trade.level: 0
+  awn-core:hp.max: 23
+  awn-core:hp.current: 23
+  awn-core:level: 4
+  awn-core:skills.points: 4
+  awn-core:xp.current: 14
+  awn-core:skills.drive.level: 1
+  awn-core:skills.drive.credit: 0
+features:
+  - id: negative-mutations-slow-development-1
+    item: awn-core:negative-mutations.slow-development
+    choices:
+      favorite:
+        - option: perform
+  - id: background
+    item: awn-core:backgrounds.courtesan
+  - id: edges-mutant-1
+    item: awn-core:edges.mutant
+    choices:
+      penalty:
+        - option: cha
+  - id: edges-faceless-1
+    item: awn-core:edges.faceless
+  - id: foci-unarmed-combatant-1
+    item: awn-core:foci.unarmed-combatant
+  - id: foci-road-warrior-1
+    item: awn-core:foci.road-warrior
+inventory:
+  - id: weapons-primitive-bow-1
+    item: awn-core:weapons.primitive-bow
+    equipped: true
+    state:
+      shots: 1
+  - id: gear-arrows-1
+    item: awn-core:gear.arrows
+  - id: weapons-knife-1
+    item: awn-core:weapons.knife
+    state:
+      shots: 0
+  - id: gear-backpack-1
+    item: awn-core:gear.backpack
+    equipped: true
+  - id: gear-sleeping-bag-1
+    item: awn-core:gear.sleeping-bag
+  - id: gear-tinderbox-1
+    item: awn-core:gear.tinderbox
+  - id: gear-torch-1
+    item: awn-core:gear.torch
+    quantity: 3
+  - id: gear-clothes-1
+    item: awn-core:gear.clothes
+    equipped: true
+  - id: gear-ration-1
+    item: awn-core:gear.ration
+    quantity: 3
+  - id: weapons-shotgun-1
+    item: awn-core:weapons.shotgun
+    state:
+      shots: 1
+  - id: gear-first-aid-kit-1
+    item: awn-core:gear.first-aid-kit
+  - id: gear-perpetual-lighter-1
+    item: awn-core:gear.perpetual-lighter

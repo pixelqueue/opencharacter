@@ -2,3 +2,41 @@ id: negative-mutations.slow-development
 type: negative
 fields:
   roll: 71
+choices:
+  # The favorite skill keeps the usual maximum for the level (level-1 to 2nd, level-2 from 3rd,
+  # level-3 from 6th, level-4 from 9th); every other skill's is one lower, at least level-0.
+  - id: favorite
+    from:
+      values:
+        [
+          administer,
+          connect,
+          drive,
+          exert,
+          fix,
+          heal,
+          know,
+          lead,
+          notice,
+          perform,
+          program,
+          punch,
+          shoot,
+          sneak,
+          stab,
+          survive,
+          talk,
+          trade,
+          work,
+        ]
+    recommend: >-
+      sortList(['administer', 'connect', 'drive', 'exert', 'fix', 'heal', 'know', 'lead', 'notice',
+        'perform', 'program', 'punch', 'shoot', 'sneak', 'stab', 'survive', 'talk', 'trade',
+        'work'], -fieldOf('skills.{skill}.level', x))[0]
+    effects:
+      - target:
+          fields:
+            where: "'skill-cap' in item.tags && item.id != 'awn-core:skills.' + pick.value + '.cap'"
+        op: atMost
+        value: 'max(0, (level >= 9 ? 4 : level >= 6 ? 3 : level >= 3 ? 2 : 1) - 1)'
+        when: '!self.light'
