@@ -38,8 +38,9 @@ player, and how it all looks.
   owns.
 - **Never write a game's math.** Load a pack, call `computeSheet`, and every value on the sheet
   comes back with a breakdown of where it came from.
-- **One integration, every game.** A growing list of games, from 5E and orc-2e to
-  Forged in the Dark, Fate, MÖRK BORG and Mothership, all run through the same engine calls.
+- **One integration, every game.** A growing list of games, from 5E and Second Edition fantasy and
+  science-fantasy to Forged in the Dark, Fate, MÖRK BORG and Mothership, all run through the same
+  engine calls.
 - **Homebrew is a pack, not a fork.** A homebrew weapon or class loads beside the official
   packs, and queries pick it up without anyone editing the originals.
 - **The sheet can't disagree with the rules.** A character file holds only the player's
