@@ -15,6 +15,7 @@ describe('pnpm validate', () => {
     expect(reporter.errors).toEqual([]);
     expect(packs).toEqual([
       '5e-srd-5.1',
+      'divine-heroes-core',
       'fate-core',
       'fitd-crew',
       'fitd-scoundrel',

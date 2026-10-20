@@ -29,6 +29,7 @@ describe('pnpm build:packs on the repository packs', () => {
     expect(reporter.errors).toEqual([]);
     expect(built.map((b) => b.id)).toEqual([
       '5e-srd-5.1',
+      'divine-heroes-core',
       'fate-core',
       'fitd-crew',
       'fitd-scoundrel',
@@ -85,6 +86,8 @@ describe('pnpm build:packs on the repository packs', () => {
       '5e-tamsin.yaml',
       '5e-goblin.yaml',
       'mothership-okafor.yaml',
+      'divine-heroes-tavian.yaml',
+      'divine-heroes-ysolde.yaml',
       'fitd-vex.yaml',
       'fitd-crew-ravens.yaml',
       'fate-mara.yaml',
