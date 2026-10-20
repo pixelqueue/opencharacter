@@ -17,6 +17,7 @@
     "build:ts": "pnpm --filter @opencharacter/spec --filter @opencharacter/engine --filter @opencharacter/text run build",
     "build:packs": "tsx --conditions=@opencharacter/source scripts/build/cli.ts",
     "release:check": "tsx --conditions=@opencharacter/source scripts/release/check-cli.ts",
+    "release:setup": "tsx --conditions=@opencharacter/source scripts/release/npm-setup-cli.ts",
     "version-packages": "changeset version && tsx --conditions=@opencharacter/source scripts/release/sync-cli.ts",
     "release": "pnpm check && pnpm build && pnpm release:check",
     "editor": "pnpm --filter @opencharacter/web-editor dev",
