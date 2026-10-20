@@ -1,0 +1,36 @@
+id: foci.specialist
+type: focus
+tags:
+  - repeatable
+fields:
+  bonusSkill: noncombat
+choices:
+  - id: skill
+    from:
+      values:
+        - administer
+        - connect
+        - drive
+        - exert
+        - fix
+        - heal
+        - know
+        - lead
+        - notice
+        - perform
+        - program
+        - sneak
+        - survive
+        - talk
+        - trade
+        - work
+    effects:
+      - target:
+          rolls:
+            - skill-check
+        op: rollModifier
+        value:
+          kind: poolDice
+          count: 'self.level >= 2 ? 2 : 1'
+        when: "('skill.' + pick.value) in roll.tags"
+        stackKey: skill-dice

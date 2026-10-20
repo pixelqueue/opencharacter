@@ -1,0 +1,435 @@
+creation:
+  - { id: guided, action: create-character }
+  - { id: random, action: create-character, params: { random: true }, random: true }
+
+actions:
+  # Character creation in the book's order: attributes, background and its skills, two Edges,
+  # a Focus, the Underdog Rule, hit points, the free skill, Contacts and starting gear. The
+  # random start rolls the attributes in order and the background's skills, as the book does, and
+  # draws every pick the book leaves to the player.
+  - id: create-character
+    tags: [creation]
+    available: character.creating
+    params:
+      random: { type: boolean, default: false }
+    results: [created]
+    steps:
+      # Attributes: 3d6 in order, one of them may become 14; or the array 14, 12, 11, 10, 9, 7.
+      - id: method
+        kind: choice
+        options: [{ id: roll }, { id: array }]
+        recommend: "'roll'"
+      - id: str
+        kind: roll
+        tags: [creation]
+        when: steps.method.picked == 'roll'
+        parts: [{ dice: 3d6 }]
+      - id: dex
+        kind: roll
+        tags: [creation]
+        when: steps.method.picked == 'roll'
+        parts: [{ dice: 3d6 }]
+      - id: con
+        kind: roll
+        tags: [creation]
+        when: steps.method.picked == 'roll'
+        parts: [{ dice: 3d6 }]
+      - id: int
+        kind: roll
+        tags: [creation]
+        when: steps.method.picked == 'roll'
+        parts: [{ dice: 3d6 }]
+      - id: wis
+        kind: roll
+        tags: [creation]
+        when: steps.method.picked == 'roll'
+        parts: [{ dice: 3d6 }]
+      - id: cha
+        kind: roll
+        tags: [creation]
+        when: steps.method.picked == 'roll'
+        parts: [{ dice: 3d6 }]
+      - id: rolled
+        kind: branch
+        when: steps.method.picked == 'roll'
+        cases:
+          - when: true
+            flags:
+              totals: >-
+                [steps.str.total, steps.dex.total, steps.con.total, steps.int.total,
+                  steps.wis.total, steps.cha.total]
+      # The recommendation: the lowest score, if it is under 14.
+      - id: substitute
+        kind: choice
+        when: steps.method.picked == 'roll'
+        options:
+          - { id: none }
+          - { id: str, when: steps.str.total < 14 }
+          - { id: dex, when: steps.dex.total < 14 }
+          - { id: con, when: steps.con.total < 14 }
+          - { id: int, when: steps.int.total < 14 }
+          - { id: wis, when: steps.wis.total < 14 }
+          - { id: cha, when: steps.cha.total < 14 }
+        recommend: >-
+          minList(flags.totals, x) >= 14 ? 'none'
+            : ['str', 'dex', 'con', 'int', 'wis', 'cha'][
+              indexOf(flags.totals, minList(flags.totals, x))]
+      - id: scores
+        kind: changes
+        when: steps.method.picked == 'roll'
+        changes:
+          - type: set
+            field: attributes.str.base
+            value: "steps.substitute.picked == 'str' ? 14 : steps.str.total"
+          - type: set
+            field: attributes.dex.base
+            value: "steps.substitute.picked == 'dex' ? 14 : steps.dex.total"
+          - type: set
+            field: attributes.con.base
+            value: "steps.substitute.picked == 'con' ? 14 : steps.con.total"
+          - type: set
+            field: attributes.int.base
+            value: "steps.substitute.picked == 'int' ? 14 : steps.int.total"
+          - type: set
+            field: attributes.wis.base
+            value: "steps.substitute.picked == 'wis' ? 14 : steps.wis.total"
+          - type: set
+            field: attributes.cha.base
+            value: "steps.substitute.picked == 'cha' ? 14 : steps.cha.total"
+      - id: array
+        kind: allocate
+        when: steps.method.picked == 'array'
+        fields: { type: field, where: "'attribute-base' in item.tags" }
+        values: [14, 12, 11, 10, 9, 7]
+        random: params.random
+        recommend:
+          attributes.str.base: 10
+          attributes.dex.base: 14
+          attributes.con.base: 12
+          attributes.int.base: 11
+          attributes.wis.base: 9
+          attributes.cha.base: 7
+
+      # Background: its free skill, then three rolls on its tables or two picks from Learning.
+      - id: background
+        kind: choice
+        options: { content: { type: background } }
+        recommend: options[0]
+        random: params.random
+        changes:
+          - { type: choose, path: { choice: [background] }, option: picked.id }
+      - id: freeSkill
+        kind: action
+        use: gain-skill
+        params: { code: steps.background.item.freeSkill, random: params.random }
+      - id: tables
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              growth: >-
+                [steps.background.item.growth1, steps.background.item.growth2,
+                  steps.background.item.growth3, steps.background.item.growth4,
+                  steps.background.item.growth5, steps.background.item.growth6]
+              learning: >-
+                [steps.background.item.learning1, steps.background.item.learning2,
+                  steps.background.item.learning3, steps.background.item.learning4,
+                  steps.background.item.learning5, steps.background.item.learning6,
+                  steps.background.item.learning7, steps.background.item.learning8]
+      - id: skillMethod
+        kind: choice
+        options: [{ id: roll }, { id: pick }]
+        recommend: "params.random ? 'roll' : 'pick'"
+      - id: table1
+        kind: choice
+        when: steps.skillMethod.picked == 'roll'
+        options: [{ id: growth }, { id: learning }]
+        recommend: "'learning'"
+        random: params.random
+      - id: roll1
+        kind: roll
+        tags: [creation]
+        when: steps.skillMethod.picked == 'roll'
+        parts: [{ dice: "steps.table1.picked == 'growth' ? 1d6 : 1d8" }]
+      - id: entry1
+        kind: branch
+        when: steps.skillMethod.picked == 'roll'
+        cases:
+          - when: true
+            flags:
+              entry: >-
+                steps.table1.picked == 'growth' ? flags.growth[steps.roll1.total - 1]
+                  : flags.learning[steps.roll1.total - 1]
+      - id: skill1
+        kind: action
+        when: "steps.skillMethod.picked == 'roll' && !(flags.entry in ['any-stat-1', 'physical-2', 'mental-2'])"
+        use: gain-skill
+        params: { code: flags.entry, random: params.random }
+      - id: stat1
+        kind: action
+        when: "steps.skillMethod.picked == 'roll' && flags.entry in ['any-stat-1', 'physical-2', 'mental-2']"
+        use: gain-attribute
+        params: { code: flags.entry, random: params.random }
+      - id: table2
+        kind: choice
+        when: steps.skillMethod.picked == 'roll'
+        options: [{ id: growth }, { id: learning }]
+        recommend: "'learning'"
+        random: params.random
+      - id: roll2
+        kind: roll
+        tags: [creation]
+        when: steps.skillMethod.picked == 'roll'
+        parts: [{ dice: "steps.table2.picked == 'growth' ? 1d6 : 1d8" }]
+      - id: entry2
+        kind: branch
+        when: steps.skillMethod.picked == 'roll'
+        cases:
+          - when: true
+            flags:
+              entry: >-
+                steps.table2.picked == 'growth' ? flags.growth[steps.roll2.total - 1]
+                  : flags.learning[steps.roll2.total - 1]
+      - id: skill2
+        kind: action
+        when: "steps.skillMethod.picked == 'roll' && !(flags.entry in ['any-stat-1', 'physical-2', 'mental-2'])"
+        use: gain-skill
+        params: { code: flags.entry, random: params.random }
+      - id: stat2
+        kind: action
+        when: "steps.skillMethod.picked == 'roll' && flags.entry in ['any-stat-1', 'physical-2', 'mental-2']"
+        use: gain-attribute
+        params: { code: flags.entry, random: params.random }
+      - id: table3
+        kind: choice
+        when: steps.skillMethod.picked == 'roll'
+        options: [{ id: growth }, { id: learning }]
+        recommend: "'learning'"
+        random: params.random
+      - id: roll3
+        kind: roll
+        tags: [creation]
+        when: steps.skillMethod.picked == 'roll'
+        parts: [{ dice: "steps.table3.picked == 'growth' ? 1d6 : 1d8" }]
+      - id: entry3
+        kind: branch
+        when: steps.skillMethod.picked == 'roll'
+        cases:
+          - when: true
+            flags:
+              entry: >-
+                steps.table3.picked == 'growth' ? flags.growth[steps.roll3.total - 1]
+                  : flags.learning[steps.roll3.total - 1]
+      - id: skill3
+        kind: action
+        when: "steps.skillMethod.picked == 'roll' && !(flags.entry in ['any-stat-1', 'physical-2', 'mental-2'])"
+        use: gain-skill
+        params: { code: flags.entry, random: params.random }
+      - id: stat3
+        kind: action
+        when: "steps.skillMethod.picked == 'roll' && flags.entry in ['any-stat-1', 'physical-2', 'mental-2']"
+        use: gain-attribute
+        params: { code: flags.entry, random: params.random }
+      - id: pick1
+        kind: choice
+        when: steps.skillMethod.picked == 'pick'
+        options:
+          - { id: administer, when: "'administer' in flags.learning" }
+          - { id: connect, when: "'connect' in flags.learning" }
+          - { id: drive, when: "'drive' in flags.learning" }
+          - { id: exert, when: "'exert' in flags.learning" }
+          - { id: fix, when: "'fix' in flags.learning" }
+          - { id: heal, when: "'heal' in flags.learning" }
+          - { id: know, when: "'know' in flags.learning" }
+          - { id: lead, when: "'lead' in flags.learning" }
+          - { id: notice, when: "'notice' in flags.learning" }
+          - { id: perform, when: "'perform' in flags.learning" }
+          - { id: program, when: "'program' in flags.learning" }
+          - { id: punch, when: "'punch' in flags.learning" }
+          - { id: shoot, when: "'shoot' in flags.learning" }
+          - { id: sneak, when: "'sneak' in flags.learning" }
+          - { id: stab, when: "'stab' in flags.learning" }
+          - { id: survive, when: "'survive' in flags.learning" }
+          - { id: talk, when: "'talk' in flags.learning" }
+          - { id: trade, when: "'trade' in flags.learning" }
+          - { id: work, when: "'work' in flags.learning" }
+          - { id: combat, when: "'combat' in flags.learning" }
+        recommend: filterList(flags.learning, x != 'any')[0]
+        random: params.random
+      - id: learned1
+        kind: action
+        when: steps.skillMethod.picked == 'pick'
+        use: gain-skill
+        params: { code: steps.pick1.picked, random: params.random }
+      - id: pick2
+        kind: choice
+        when: steps.skillMethod.picked == 'pick'
+        options:
+          - { id: administer, when: "'administer' in flags.learning" }
+          - { id: connect, when: "'connect' in flags.learning" }
+          - { id: drive, when: "'drive' in flags.learning" }
+          - { id: exert, when: "'exert' in flags.learning" }
+          - { id: fix, when: "'fix' in flags.learning" }
+          - { id: heal, when: "'heal' in flags.learning" }
+          - { id: know, when: "'know' in flags.learning" }
+          - { id: lead, when: "'lead' in flags.learning" }
+          - { id: notice, when: "'notice' in flags.learning" }
+          - { id: perform, when: "'perform' in flags.learning" }
+          - { id: program, when: "'program' in flags.learning" }
+          - { id: punch, when: "'punch' in flags.learning" }
+          - { id: shoot, when: "'shoot' in flags.learning" }
+          - { id: sneak, when: "'sneak' in flags.learning" }
+          - { id: stab, when: "'stab' in flags.learning" }
+          - { id: survive, when: "'survive' in flags.learning" }
+          - { id: talk, when: "'talk' in flags.learning" }
+          - { id: trade, when: "'trade' in flags.learning" }
+          - { id: work, when: "'work' in flags.learning" }
+          - { id: combat, when: "'combat' in flags.learning" }
+        recommend: filterList(flags.learning, x != 'any')[1]
+        random: params.random
+      - id: learned2
+        kind: action
+        when: steps.skillMethod.picked == 'pick'
+        use: gain-skill
+        params: { code: steps.pick2.picked, random: params.random }
+
+      # Two Edges and a Focus (more with Focused).
+      - id: edge1
+        kind: action
+        use: gain-edge
+        params: { choice: "'edge-1'", random: params.random }
+      - id: edge2
+        kind: action
+        use: gain-edge
+        params: { choice: "'edge-2'", random: params.random }
+      - id: focus
+        kind: action
+        use: gain-focus
+        params: { random: params.random }
+
+      # The Underdog Rule: a modifier total of -1 or less earns a bonus, non-magical Edge.
+      - id: modifiers
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags: { underdog: 'attributes.modTotal <= -1 && !(@edges.prodigy in edges.taken)' }
+      - id: underdog
+        kind: choice
+        when: flags.underdog
+        options: [{ id: take }, { id: decline }]
+        recommend: "'take'"
+        changes:
+          - { type: set, when: "picked.id == 'take'", field: underdog, value: true }
+      - id: underdogEdge
+        kind: action
+        when: has(steps.underdog) && steps.underdog.picked == 'take'
+        use: gain-edge
+        params: { choice: "'underdog-edge'", random: params.random }
+
+      # Hit points: 1d6 plus the Constitution modifier (and Hard to Kill's +2), at least 1.
+      - id: hp
+        kind: roll
+        tags: [creation, hit-points]
+        sheet: proposed
+        parts:
+          - dice: 1d6
+          - field: "'attributes.con.mod'"
+          - field: "'hp.dieBonus'"
+      - id: hpMax
+        kind: changes
+        changes:
+          - { type: set, field: hp.rolled, value: 'max(1, steps.hp.total)' }
+
+      # The free skill: any skill but a magical one.
+      - id: freePick
+        kind: action
+        use: gain-skill
+        params: { code: "'any'", random: params.random }
+
+      # Contacts: two Acquaintances or one Friend.
+      - id: contacts
+        kind: choice
+        options: [{ id: acquaintances }, { id: friend }]
+        recommend: "'acquaintances'"
+        random: params.random
+        changes:
+          - type: addItem
+            when: "picked.id == 'acquaintances'"
+            entry: { item: "'contacts.contact'", state: { bond: "'acquaintance'" } }
+          - type: addItem
+            when: "picked.id == 'acquaintances'"
+            entry: { item: "'contacts.contact'", state: { bond: "'acquaintance'" } }
+          - type: addItem
+            when: "picked.id == 'friend'"
+            entry: { item: "'contacts.contact'", state: { bond: "'friend'" } }
+
+      # Gear: $500 to spend, one item of up to $1,000 and a month of middle-class life.
+      - id: freeItemKind
+        kind: choice
+        options: [{ id: weapon }, { id: armor }, { id: gear }, { id: cyberdeck }, { id: drone }]
+        recommend: "'weapon'"
+        random: params.random
+      - id: freeWeapon
+        kind: choice
+        when: steps.freeItemKind.picked == 'weapon'
+        options:
+          content: { type: weapon, where: "item.cost <= 1000 && !('restricted' in item.tags)" }
+        recommend: options[0]
+        random: params.random
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: freeArmor
+        kind: choice
+        when: steps.freeItemKind.picked == 'armor'
+        options:
+          content: { type: armor, where: "item.cost <= 1000 && !('restricted' in item.tags)" }
+        recommend: options[0]
+        random: params.random
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: freeGear
+        kind: choice
+        when: steps.freeItemKind.picked == 'gear'
+        options:
+          content: { type: gear, where: "item.cost <= 1000 && !('restricted' in item.tags)" }
+        recommend: options[0]
+        random: params.random
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: freeCyberdeck
+        kind: choice
+        when: steps.freeItemKind.picked == 'cyberdeck'
+        options:
+          content: { type: cyberdeck, where: "item.cost <= 1000 && !('restricted' in item.tags)" }
+        recommend: options[0]
+        random: params.random
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: freeDrone
+        kind: choice
+        when: steps.freeItemKind.picked == 'drone'
+        options:
+          content: { type: drone, where: "item.cost <= 1000 && !('restricted' in item.tags)" }
+        recommend: options[0]
+        random: params.random
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: gear
+        kind: changes
+        changes:
+          - { type: set, field: money, value: 500 }
+          - { type: set, field: lifestyle, value: "'middle'" }
+
+      - id: finish
+        kind: changes
+        sheet: proposed
+        changes:
+          - { type: set, field: hp.current, value: hp.max }
+          - { type: finishCreation }
+      - { id: done, kind: outcome, result: "'created'" }

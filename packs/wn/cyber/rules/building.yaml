@@ -1,0 +1,457 @@
+# The building blocks creation and advancement share: gaining a skill, an attribute bonus, an
+# Edge and a Focus. Each takes `random`, which draws its picks instead of recommending them.
+actions:
+  # A skill pick. During creation the skill goes up one level: the first time to level-0, the
+  # second to level-1, and a third time the player picks any other skill not already level-1.
+  # During advancement (a Focus's or Edge's bonus skill) it is three skill points toward the
+  # skill, which may raise it past the level the character could normally buy; what doesn't buy a
+  # level stays as credit toward it. On a skill already at level-4 the points go to the pool.
+  - id: gain-skill
+    tags: [building]
+    params:
+      code:
+        type: enum
+        values:
+          [
+            administer,
+            connect,
+            drive,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            program,
+            punch,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            talk,
+            trade,
+            work,
+            cast,
+            summon,
+            combat,
+            any,
+            punch-stab,
+            noncombat,
+          ]
+      random: { type: boolean, default: false }
+    results: [raised, points]
+    steps:
+      - id: start
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              points: '!character.creating'
+              candidates: >-
+                filterList(keysOf('skill'),
+                  (params.code == x
+                    || (params.code == 'combat' && x in ['punch', 'shoot', 'stab'])
+                    || (params.code == 'punch-stab' && x in ['punch', 'stab'])
+                    || (params.code == 'noncombat'
+                      && !(x in ['punch', 'shoot', 'stab', 'cast', 'summon']))
+                    || (params.code == 'any' && !(x in ['cast', 'summon'])))
+                  && (!character.creating || fieldOf('skills.{skill}.base', x) < 1))
+      # Every skill the pick could name is level-1 already: any other non-magical skill.
+      - id: fallback
+        kind: branch
+        sheet: proposed
+        when: size(flags.candidates) == 0
+        cases:
+          - when: true
+            flags:
+              candidates: >-
+                filterList(keysOf('skill'),
+                  !(x in ['cast', 'summon']) && fieldOf('skills.{skill}.base', x) < 1)
+      - id: skill
+        kind: choice
+        tags: [skill-pick]
+        options:
+          - { id: administer, when: "'administer' in flags.candidates" }
+          - { id: connect, when: "'connect' in flags.candidates" }
+          - { id: drive, when: "'drive' in flags.candidates" }
+          - { id: exert, when: "'exert' in flags.candidates" }
+          - { id: fix, when: "'fix' in flags.candidates" }
+          - { id: heal, when: "'heal' in flags.candidates" }
+          - { id: know, when: "'know' in flags.candidates" }
+          - { id: lead, when: "'lead' in flags.candidates" }
+          - { id: notice, when: "'notice' in flags.candidates" }
+          - { id: perform, when: "'perform' in flags.candidates" }
+          - { id: program, when: "'program' in flags.candidates" }
+          - { id: punch, when: "'punch' in flags.candidates" }
+          - { id: shoot, when: "'shoot' in flags.candidates" }
+          - { id: sneak, when: "'sneak' in flags.candidates" }
+          - { id: stab, when: "'stab' in flags.candidates" }
+          - { id: survive, when: "'survive' in flags.candidates" }
+          - { id: talk, when: "'talk' in flags.candidates" }
+          - { id: trade, when: "'trade' in flags.candidates" }
+          - { id: work, when: "'work' in flags.candidates" }
+          - { id: cast, when: "'cast' in flags.candidates" }
+          - { id: summon, when: "'summon' in flags.candidates" }
+        when: size(flags.candidates) > 1
+        random: params.random
+        recommend: flags.candidates[0]
+      # A single candidate needs no question.
+      - id: picked
+        kind: branch
+        cases:
+          - when: true
+            flags: { skill: 'has(steps.skill) ? steps.skill.picked : flags.candidates[0]' }
+      - id: raise
+        kind: changes
+        when: '!flags.points'
+        changes:
+          - type: adjust
+            field: { formula: "'skills.' + flags.skill + '.base'" }
+            by: 1
+      # Three points (and any credit) buy levels in order: level-0 costs 1, level-1 2, and so on.
+      - id: pool
+        kind: branch
+        sheet: proposed
+        when: flags.points
+        cases:
+          - when: true
+            flags:
+              level: fieldOf('skills.{skill}.base', flags.skill)
+              pool: 3 + fieldOf('skills.{skill}.credit', flags.skill)
+      - id: buy1
+        kind: branch
+        when: flags.points && flags.level < 4 && flags.pool >= flags.level + 2
+        cases:
+          - when: true
+            flags: { pool: flags.pool - flags.level - 2, level: flags.level + 1 }
+      - id: buy2
+        kind: branch
+        when: flags.points && flags.level < 4 && flags.pool >= flags.level + 2
+        cases:
+          - when: true
+            flags: { pool: flags.pool - flags.level - 2, level: flags.level + 1 }
+      - id: buy3
+        kind: branch
+        when: flags.points && flags.level < 4 && flags.pool >= flags.level + 2
+        cases:
+          - when: true
+            flags: { pool: flags.pool - flags.level - 2, level: flags.level + 1 }
+      - id: spend
+        kind: changes
+        when: flags.points
+        changes:
+          - type: set
+            field: { formula: "'skills.' + flags.skill + '.base'" }
+            value: flags.level
+          - type: set
+            field: { formula: "'skills.' + flags.skill + '.credit'" }
+            value: 'flags.level >= 4 ? 0 : flags.pool'
+          - type: adjust
+            when: flags.level >= 4 && flags.pool > 0
+            field: skillPoints.unspent
+            by: flags.pool
+      - id: done
+        kind: outcome
+        result: "flags.points ? 'points' : 'raised'"
+        data: { skill: flags.skill }
+
+  # An attribute bonus from a background's Growth table: +1 to any attribute, or +2 to physical
+  # or mental attributes, split between two of them as the player likes. No score passes 18.
+  - id: gain-attribute
+    tags: [building]
+    params:
+      code: { type: enum, values: [any-stat-1, physical-2, mental-2] }
+      random: { type: boolean, default: false }
+    steps:
+      - id: start
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              amount: "params.code == 'any-stat-1' ? 1 : 2"
+              group: >-
+                params.code == 'physical-2' ? ['str', 'dex', 'con']
+                  : params.code == 'mental-2' ? ['int', 'wis', 'cha']
+                  : ['str', 'dex', 'con', 'int', 'wis', 'cha']
+      # The recommendation: all of it to the highest score it fits under 18.
+      - id: best
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              best: >-
+                sortList(filterList(flags.group,
+                  fieldOf('attributes.{attribute}.base', x) <= 18 - flags.amount),
+                  -fieldOf('attributes.{attribute}.base', x))
+      - id: boost
+        kind: allocate
+        sheet: proposed
+        fields:
+          type: field
+          where: >-
+            'attribute-base' in item.tags
+              && countList(flags.group, ('attr.' + x) in item.tags) > 0
+        budget: flags.amount
+        spend: upTo
+        limit: 18 - field.value
+        random: params.random
+        recommend:
+          'attributes.{attribute}.base': >-
+            size(flags.best) > 0 && flags.best[0] == '{attribute}' ? flags.amount : 0
+
+  # A new Focus at level 1, or a Focus the character has raised to level 2, with its bonus skill
+  # and the gear it brings.
+  - id: gain-focus
+    tags: [building, advancement]
+    params:
+      random: { type: boolean, default: false }
+    results: [gained]
+    steps:
+      # A new Focus, or the second level of one the character has: asked only when there is one
+      # to raise.
+      - id: mode
+        kind: choice
+        sheet: proposed
+        when: "countCopies(copy.type == 'focus' && copy.state.level < copy.fields.maxLevel) > 0"
+        options: [{ id: new }, { id: raise }]
+        recommend: "'new'"
+        random: params.random
+      - id: picked
+        kind: branch
+        cases:
+          - when: true
+            flags: { mode: "has(steps.mode) ? steps.mode.picked : 'new'" }
+      - id: focus
+        kind: choice
+        when: flags.mode == 'new'
+        tags: [focus-pick]
+        sheet: proposed
+        options:
+          content:
+            type: focus
+            where: >-
+              ('repeatable' in item.tags || countCopies(copy.item == item.id) == 0)
+                && !('brings-cyber' in item.tags
+                  && (magic.graced || countCopies(copy.item == @foci.all-natural) > 0))
+                && !(item.id == @foci.all-natural && (underdog || magic.mage || magic.summoner
+                  || magic.graced || countCopies(copy.type == 'cyberware' && copy.fields.strain > 0) > 0))
+        recommend: options[0]
+        random: params.random
+      - id: raised
+        kind: choice
+        when: flags.mode == 'raise'
+        sheet: proposed
+        options:
+          copies: { type: focus, where: self.level < item.maxLevel }
+        recommend: options[0]
+        random: params.random
+        changes:
+          - { type: setState, entry: picked, key: level, value: 2 }
+      # The Specialist's skill, which is its bonus skill too.
+      - id: specialty
+        kind: choice
+        when: has(steps.focus) && has(steps.focus.item.bonusSkill) && steps.focus.item.bonusSkill == 'noncombat'
+        options:
+          - { id: administer }
+          - { id: connect }
+          - { id: drive }
+          - { id: exert }
+          - { id: fix }
+          - { id: heal }
+          - { id: know }
+          - { id: lead }
+          - { id: notice }
+          - { id: perform }
+          - { id: program }
+          - { id: sneak }
+          - { id: survive }
+          - { id: talk }
+          - { id: trade }
+          - { id: work }
+        recommend: options[0]
+        random: params.random
+      # All Natural's first attribute pick.
+      - id: attribute
+        kind: choice
+        when: has(steps.focus) && 'asks-attribute' in steps.focus.item.tags
+        options: [{ id: str }, { id: dex }, { id: con }, { id: int }, { id: wis }, { id: cha }]
+        recommend: options[0]
+        random: params.random
+      - id: add
+        kind: changes
+        when: has(steps.focus)
+        changes:
+          - type: addItem
+            when: '!has(steps.specialty) && !has(steps.attribute)'
+            entry: { item: steps.focus.picked }
+          - type: addItem
+            when: has(steps.specialty)
+            entry:
+              item: steps.focus.picked
+              choices: { skill: [{ option: { formula: steps.specialty.picked } }] }
+          - type: addItem
+            when: has(steps.attribute)
+            entry:
+              item: steps.focus.picked
+              choices: { attribute-1: [{ option: { formula: steps.attribute.picked } }] }
+          - type: addItem
+            forEach: steps.focus.item.startingItems
+            entry: { item: x }
+      - id: cyber
+        kind: changes
+        sheet: proposed
+        when: >-
+          has(steps.focus) && size(steps.focus.item.startingCyber) > 0
+            && strain.total + steps.focus.item.startingCyberStrain <= strain.max && !magic.graced
+        changes:
+          - type: addItem
+            forEach: steps.focus.item.startingCyber
+            entry: { item: x }
+      - id: bonus
+        kind: action
+        when: has(steps.focus) && has(steps.focus.item.bonusSkill)
+        use: gain-skill
+        params:
+          code: "steps.focus.item.bonusSkill == 'noncombat' ? steps.specialty.picked : steps.focus.item.bonusSkill"
+          random: params.random
+      - id: bonus2
+        kind: action
+        when: has(steps.focus) && has(steps.focus.item.bonusSkill2)
+        use: gain-skill
+        params: { code: steps.focus.item.bonusSkill2, random: params.random }
+      - id: levelTwo
+        kind: action
+        when: has(steps.raised) && has(steps.raised.item.levelTwoSkill)
+        use: gain-skill
+        params: { code: steps.raised.item.levelTwoSkill, random: params.random }
+      - id: gear
+        kind: action
+        when: has(steps.focus) && has(steps.focus.item.gearBudget)
+        use: acquire-focus-gear
+        params: { kind: steps.focus.item.gearBudget, random: params.random }
+      - { id: done, kind: outcome, result: "'gained'" }
+
+  # An Edge in one of the rules' Edge choices, with its bonus skill and what it brings.
+  - id: gain-edge
+    tags: [building]
+    params:
+      choice: { type: enum, values: [edge-1, edge-2, edge-5, underdog-edge] }
+      random: { type: boolean, default: false }
+    results: [gained]
+    steps:
+      - id: edge
+        kind: choice
+        tags: [edge-pick]
+        sheet: proposed
+        options:
+          content:
+            type: edge
+            where: >-
+              ('repeatable' in item.tags || !(item.id in edges.taken))
+                && (!item.magic || (campaign.magic && params.choice != 'underdog-edge'
+                  && params.choice != 'edge-5'))
+                && !('not-underdog' in item.tags && (underdog || params.choice == 'underdog-edge'))
+                && !('brings-cyber' in item.tags
+                  && (magic.graced || countCopies(copy.item == @foci.all-natural) > 0))
+        recommend: options[0]
+        random: params.random
+        changes:
+          - { type: choose, path: { choice: '[params.choice]' }, option: picked.id }
+      - id: attribute
+        kind: choice
+        when: steps.edge.item.asksAttribute
+        options: [{ id: str }, { id: dex }, { id: int }, { id: wis }, { id: cha }]
+        recommend: options[0]
+        random: params.random
+        changes:
+          - type: choose
+            path: { choice: "[params.choice, steps.edge.picked, 'attribute']" }
+            option: picked.id
+      - id: bonus
+        kind: action
+        when: has(steps.edge.item.bonusSkill)
+        use: gain-skill
+        params: { code: steps.edge.item.bonusSkill, random: params.random }
+      # Educated's bonus skill point per level counts from 1st level when it is taken later.
+      - id: retro
+        kind: changes
+        sheet: proposed
+        when: "!character.creating && 'retroactive-points' in steps.edge.item.tags"
+        changes:
+          - { type: adjust, field: skillPoints.unspent, by: level - 1 }
+      - id: items
+        kind: changes
+        when: size(steps.edge.item.startingItems) > 0 || steps.edge.item.friendContacts > 0
+        changes:
+          - type: addItem
+            forEach: steps.edge.item.startingItems
+            entry: { item: x }
+          - type: addItem
+            when: steps.edge.item.friendContacts > 0
+            entry: { item: "'contacts.contact'", state: { bond: "'friend'" } }
+      - id: cyber
+        kind: changes
+        sheet: proposed
+        when: >-
+          size(steps.edge.item.startingCyber) > 0
+            && strain.total + steps.edge.item.startingCyberStrain <= strain.max && !magic.graced
+        changes:
+          - type: addItem
+            forEach: steps.edge.item.startingCyber
+            entry: { item: x }
+      - id: programs
+        kind: choice
+        when: steps.edge.item.programElements > 0
+        sheet: proposed
+        options:
+          content: { type: program, where: picks == 0 }
+        repeat: { max: steps.edge.item.programElements, min: steps.edge.item.programElements }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { source: "'edge'" } }
+      - id: wired
+        kind: action
+        when: steps.edge.item.cyberBudget > 0
+        use: acquire-wired-cyber
+        params: { random: params.random }
+      - id: spells
+        kind: choice
+        when: steps.edge.item.spells > 0
+        sheet: proposed
+        options:
+          content: { type: spell, where: picks == 0 }
+        repeat: { max: steps.edge.item.spells, min: steps.edge.item.spells }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      # Graced: the first level's art points.
+      - id: arts
+        kind: choice
+        when: steps.edge.item.buysArts
+        sheet: proposed
+        options:
+          content:
+            type: art
+            where: >-
+              item.cost <= arts.points - arts.spent && countCopies(copy.item == item.id) == 0
+                && !('alacrity' in item.tags && countCopies('alacrity' in copy.tags) > 0)
+        repeat: { max: 4 }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: focus
+        kind: action
+        when: steps.edge.item.extraFocus
+        use: gain-focus
+        params: { random: params.random }
+      - { id: done, kind: outcome, result: "'gained'" }

@@ -1,0 +1,8 @@
+id: drone-mods.additional-hardpoint
+type: template
+appliesTo:
+  type: drone
+fields:
+  hardpoints: 'prior.hardpoints + 1'
+  enc: 'has(prior.enc) ? prior.enc + 1 : 0'
+  cost: 'prior.cost + floor(base.cost * 0.5)'

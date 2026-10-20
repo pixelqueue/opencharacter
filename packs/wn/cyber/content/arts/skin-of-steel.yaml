@@ -1,0 +1,14 @@
+id: arts.skin-of-steel
+type: art
+fields:
+  cost: 2
+effects:
+  - target: ac.ranged.base
+    op: set
+    value: '15 + ceil(level / 2)'
+  - target: ac.melee.base
+    op: set
+    value: '15 + ceil(level / 2)'
+  - target: trauma.target
+    op: add
+    value: 'level >= 5 ? 2 : 1'

@@ -1,0 +1,9 @@
+id: drone-mods.stripped-fittings
+type: template
+appliesTo:
+  type: drone
+  where: "'portable' in item.tags"
+fields:
+  fittings: 'max(0, prior.fittings - 1)'
+  enc: 'has(prior.enc) ? max(1, prior.enc - 1) : 0'
+  cost: 'prior.cost + floor(base.cost * 0.1)'

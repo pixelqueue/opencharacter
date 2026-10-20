@@ -1,0 +1,38 @@
+contentTypes:
+  # Drones. Portable ones (tagged `portable`) have Encumbrance; fittings and mods are templates
+  # that add to the copy's fields.
+  drone:
+    carried: true
+    equippable: true
+    fields:
+      cost: { type: integer, default: 0, min: 0 }
+      enc: { type: integer, min: 0 }
+      ac: { type: integer, required: true }
+      traumaTarget: { type: integer, required: true }
+      hp: { type: integer, required: true, min: 1 }
+      fittings: { type: integer, default: 0, min: 0 }
+      fittingsUsed: { type: integer, default: 0, min: 0 }
+      move: { type: integer, required: true, min: 0 }
+      moveKind: { type: enum, values: [ground, fly, swim], required: true }
+      hardpoints: { type: integer, default: 0, min: 0 }
+    state:
+      hp: { type: integer, default: item.hp, min: 0, max: item.hp }
+      # Bought with a Drone Pilot's gear budget.
+      focusGear: { type: boolean, default: false }
+
+fields:
+  # A pilot's attack bonus with a drone's guns: their attack bonus, Int or Dex, and the better of
+  # Drive or Program.
+  drones.attackBonus:
+    type: integer
+    formula: >-
+      combat.attackBonus + max(attributes.int.mod, attributes.dex.mod)
+        + max(skills.drive.level, skills.program.level)
+  # Drones a pilot can command at once: one with a control board, one plus Drive with a Remote
+  # Control Unit.
+  drones.commandable: { type: integer, formula: '1' }
+
+constraints:
+  - id: drone-fittings
+    copies: { type: drone }
+    check: item.fittingsUsed <= item.fittings

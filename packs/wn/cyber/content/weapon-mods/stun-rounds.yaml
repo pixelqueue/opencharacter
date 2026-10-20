@@ -1,0 +1,13 @@
+id: weapon-mods.stun-rounds
+type: template
+appliesTo:
+  type: weapon
+  where: "'firearm' in item.tags"
+tags:
+  - nonlethal
+fields:
+  rangeNormal: 'floor(prior.rangeNormal / 2)'
+  rangeLong: 'floor(prior.rangeLong / 2)'
+  damageBonus: prior.damageBonus - 2
+  traumaDie: null
+  traumaRating: null

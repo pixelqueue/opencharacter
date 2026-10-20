@@ -1,0 +1,8 @@
+id: drone-fittings.cargo-space
+type: template
+appliesTo:
+  type: drone
+fields:
+  enc: 'has(prior.enc) ? prior.enc + 1 : 0'
+  fittingsUsed: 'prior.fittingsUsed + 1'
+  cost: 'prior.cost + floor(base.cost * 0.2)'

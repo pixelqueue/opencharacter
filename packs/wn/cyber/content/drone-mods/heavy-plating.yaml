@@ -1,0 +1,9 @@
+id: drone-mods.heavy-plating
+type: template
+appliesTo:
+  type: drone
+fields:
+  ac: 'prior.ac + 2'
+  move: 'max(0, prior.move - 5)'
+  enc: 'has(prior.enc) ? prior.enc + 1 : 0'
+  cost: 'prior.cost + floor(base.cost * 0.25)'

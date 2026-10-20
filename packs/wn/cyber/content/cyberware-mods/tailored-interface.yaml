@@ -1,0 +1,8 @@
+id: cyberware-mods.tailored-interface
+type: template
+appliesTo:
+  type: cyberware
+  where: 'item.strain >= 2'
+fields:
+  strain: 'prior.strain >= 2 ? prior.strain - 1 : prior.strain'
+  cost: 'prior.cost + floor(base.cost * 0.3)'

@@ -1,0 +1,14 @@
+id: cyberware.active-sense-processor
+type: cyberware
+fields:
+  cost: 50000
+  category: sensory
+  concealment: medical
+  strain: 1
+effects:
+  - target:
+      rolls:
+        - skill.notice
+    op: add
+    value: 1
+    when: "'attr.wis' in roll.tags && attributes.wis.mod < 2"

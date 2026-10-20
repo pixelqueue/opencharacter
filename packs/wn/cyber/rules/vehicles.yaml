@@ -1,0 +1,30 @@
+contentTypes:
+  # Vehicles. Fittings and mods are templates that add to the copy's fields; fittings use Power
+  # and Mass, and the vehicle must have enough of both.
+  vehicle:
+    carried: true
+    fields:
+      cost: { type: integer, default: 0, min: 0 }
+      speed: { type: integer, required: true }
+      # Armor rating, subtracted from damage. Vehicles tagged `armored` are immune to weapons
+      # short of heavy ones or those that can make Traumatic Hits on vehicles.
+      armor: { type: integer, default: 0, min: 0 }
+      traumaTarget: { type: integer, required: true }
+      ac: { type: integer, required: true }
+      hp: { type: integer, required: true, min: 1 }
+      crew: { type: integer, required: true, min: 1 }
+      power: { type: integer, required: true, min: 0 }
+      mass: { type: integer, required: true, min: 0 }
+      powerUsed: { type: integer, default: 0, min: 0 }
+      massUsed: { type: integer, default: 0, min: 0 }
+      size: { type: enum, values: [small, medium, large], required: true }
+      hardpoints: { type: integer, default: 0, min: 0 }
+    state:
+      hp: { type: integer, default: item.hp, min: 0, max: item.hp }
+      # Bought with an Ace Driver's or Roamer's gear budget.
+      focusGear: { type: boolean, default: false }
+
+constraints:
+  - id: vehicle-power-mass
+    copies: { type: vehicle }
+    check: item.powerUsed <= item.power && item.massUsed <= item.mass

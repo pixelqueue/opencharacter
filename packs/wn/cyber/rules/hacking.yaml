@@ -1,0 +1,131 @@
+contentTypes:
+  # Cyberdecks. The best deck the character carries is the one they hack with.
+  cyberdeck:
+    carried: true
+    equippable: true
+    fields:
+      cost: { type: integer, default: 0, min: 0 }
+      enc: { type: integer, min: 0 }
+      bonusAccess: { type: integer, default: 0 }
+      memory: { type: integer, default: 0, min: 0 }
+      shielding: { type: integer, default: 0, min: 0 }
+      cpu: { type: integer, default: 0, min: 0 }
+    state:
+      # Shielding spent absorbing Stun and Kill damage; it regenerates after fifteen minutes.
+      shieldingUsed: { type: integer, default: 0, min: 0 }
+    effects:
+      - { id: access, target: hacking.deck.bonusAccess, op: set, value: item.bonusAccess }
+      - { id: memory, target: hacking.memory.max, op: set, value: item.memory }
+      - { id: cpu, target: hacking.cpu, op: set, value: item.cpu }
+      - { id: shielding, target: hacking.shielding.max, op: set, value: item.shielding }
+      - id: shield
+        target: { incoming: { fields: [hp.current], tags: [damage.cyberspace] } }
+        op: add
+        value: min(item.shielding - self.shieldingUsed, -incoming.amount)
+        when: >-
+          self.equipped && item.shielding > self.shieldingUsed && incoming.amount < 0
+        then:
+          - type: adjustState
+            entry: self
+            key: shieldingUsed
+            by: min(item.shielding - self.shieldingUsed, -incoming.amount)
+
+  # Program elements in deck Memory: Verbs (what to do) and Subjects (what to do it to).
+  program:
+    carried: true
+    fields:
+      cost: { type: integer, default: 0, min: 0 }
+      kind: { type: enum, values: [verb, subject], required: true }
+      # A Verb's valid Subject types, the Access it costs and its skill check modifier.
+      targets: { type: set, of: string, default: [] }
+      accessCost: { type: integer, default: 1, min: 0 }
+      checkMod: { type: integer, default: 0 }
+      # A Subject's type.
+      subjectType: { type: enum, values: [avatar, data, device, cyber, program] }
+    state:
+      # Bought on the street, written and maintained by the hacker, or one of the Hacker Edge's
+      # eight free elements.
+      source: { type: enum, values: [bought, written, edge], default: bought }
+    actions:
+      - use: run-program
+
+fields:
+  hacking.deck.bonusAccess: { type: integer, formula: '0' }
+  hacking.memory.max: { type: integer, formula: '0' }
+  hacking.cpu: { type: integer, formula: '0' }
+  hacking.shielding.max: { type: integer, formula: '0' }
+  hacking.shielding.current:
+    type: integer
+    formula: >-
+      maxCopies(copy.fields.shielding - copy.state.shieldingUsed,
+        copy.type == 'cyberdeck' && copy.equipped)
+  # Access: Intelligence modifier, Program skill and the deck's bonus. It refreshes once a day.
+  hacking.access.max:
+    type: integer
+    formula: max(0, attributes.int.mod + skills.program.level + hacking.deck.bonusAccess)
+  hacking.access.spent: { type: integer, input: true, default: 0, min: 0 }
+  hacking.access.current:
+    { type: integer, formula: 'max(0, hacking.access.max - hacking.access.spent)' }
+  # Memory: one unit per program element (half with Expert Programmer 2) and per datafile.
+  hacking.datafiles: { type: integer, input: true, default: 0, min: 0 }
+  hacking.memory.perElement: { type: decimal, formula: '1' }
+  hacking.memory.used:
+    type: integer
+    formula: "ceil(countCopies(copy.type == 'program') * hacking.memory.perElement) + hacking.datafiles"
+    limits: { max: hacking.memory.max }
+  # Verbs and Subjects a hacker can write and keep current: two per level of Program skill.
+  hacking.programming.max:
+    type: integer
+    formula: 'skills.program.level >= 1 ? 2 * skills.program.level : 0'
+  hacking.programming.used:
+    type: integer
+    formula: "countCopies(copy.type == 'program' && copy.state.source == 'written')"
+    limits: { max: hacking.programming.max }
+
+actions:
+  # Run a program: this Verb with a Subject in Memory. Pay the Verb's Access and roll Int/Program
+  # against the security difficulty; a failure loses the Access.
+  - id: run-program
+    tags: [hacking]
+    available: >-
+      item.kind == 'verb' && hacking.cpu > 0 && hacking.access.current >= item.accessCost
+    params:
+      difficulty: { type: integer, optional: true }
+      wireless: { type: boolean, default: false }
+      crown: { type: boolean, default: false }
+      modifier: { type: integer, optional: true }
+    results: [success, failure, rolled]
+    steps:
+      - id: subject
+        kind: choice
+        options:
+          copies:
+            type: program
+            where: item.kind == 'subject' && item.subjectType in action.item.targets
+        recommend: options[0]
+      - id: start
+        kind: branch
+        cases:
+          - when: true
+            flags: { dc: 'has(params.difficulty) ? params.difficulty : -1' }
+      - id: check
+        kind: roll
+        tags: [hacking, skill-check, skill.program, attr.int]
+        bands: check
+        parts:
+          - { dice: 2d6kh2, tags: [skill-dice] }
+          - field: "'attributes.int.mod'"
+          - field: "'skills.program.level'"
+          - { value: item.checkMod, when: item.checkMod != 0 }
+          - { value: -2, when: params.wireless }
+          - { value: -1, when: params.crown }
+          - { value: params.modifier, when: has(params.modifier) }
+      - id: pay
+        kind: changes
+        when: item.accessCost > 0
+        changes:
+          - { type: adjust, field: hacking.access.spent, by: item.accessCost }
+      - id: result
+        kind: outcome
+        result: "flags.dc < 0 ? 'rolled' : steps.check.band"
+        data: { total: steps.check.total }

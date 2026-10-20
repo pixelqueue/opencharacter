@@ -1,0 +1,417 @@
+display:
+  groups:
+    - id: summary
+      priority: 0
+      visibility: primary
+    - id: attributes
+      priority: 0
+      members: { type: field, where: "'attribute' in item.tags" }
+    - id: skills
+      priority: 0
+      members: { type: field, where: "'skill' in item.tags" }
+    - id: saves
+      priority: 1
+      members: { type: field, where: "'save' in item.tags" }
+    - id: combat
+      priority: 1
+    - id: strain
+      priority: 1
+    - id: hacking
+      priority: 2
+      showWhen: skills.program.base >= 0 || hacking.memory.max > 0 || hacking.cpu > 0
+    - id: magic
+      priority: 2
+      showWhen: magic.mage || magic.summoner || magic.graced
+    - id: alienation
+      priority: 2
+      showWhen: campaign.alienation
+    - id: possessions
+      priority: 2
+    - id: advancement
+      priority: 3
+    - id: training
+      priority: 3
+      visibility: background
+    - id: campaign
+      priority: 4
+      visibility: background
+
+    - id: checks
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'check' in item.tags || 'save' in item.tags" }
+    - id: attacks
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'attack' in item.tags || 'reload' in item.tags" }
+    - id: combat-actions
+      kind: actions
+      priority: 1
+      members:
+        type: action
+        where: >-
+          'initiative' in item.tags || 'healing' in item.tags || 'injury' in item.tags
+            || 'drug' in item.tags || 'cyber' in item.tags
+    - id: hacking-actions
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'hacking' in item.tags" }
+    - id: magic-actions
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'magic' in item.tags" }
+    - id: rests
+      kind: actions
+      priority: 2
+      members: { type: action, where: "'rest' in item.tags" }
+    - id: advancement-actions
+      kind: actions
+      priority: 3
+      visibility: background
+      members: { type: action, where: "'advancement' in item.tags" }
+    - id: creation
+      kind: actions
+      priority: 3
+      visibility: background
+      members: { type: action, where: "'creation' in item.tags || 'building' in item.tags" }
+
+    - id: background
+      kind: content
+      priority: 0
+      showWhen: hasChoice('background')
+      members: { type: background }
+    - id: edges
+      kind: content
+      priority: 0
+      showWhen: hasChoice('edge')
+      members: { type: edge }
+    - id: foci
+      kind: content
+      priority: 0
+      members: { type: focus }
+    - id: contacts
+      kind: content
+      priority: 1
+      members: { type: contact }
+      sortBy: "self.bond == 'friend' ? 0 : 1"
+    - id: weapons
+      kind: content
+      priority: 1
+      members: { type: weapon }
+    - id: armor
+      kind: content
+      priority: 1
+      members: { type: armor }
+    - id: cyberware
+      kind: content
+      priority: 1
+      members: { type: cyberware }
+      sectionBy: item.category
+    - id: skillplugs
+      kind: content
+      priority: 2
+      members: { type: skillplug }
+    - id: gear
+      kind: content
+      priority: 2
+      members: { type: gear }
+    - id: drugs
+      kind: content
+      priority: 2
+      members: { type: drug }
+    - id: cyberdecks
+      kind: content
+      priority: 2
+      members: { type: cyberdeck }
+    - id: programs
+      kind: content
+      priority: 2
+      members: { type: program }
+      sectionBy: item.kind
+    - id: drones
+      kind: content
+      priority: 2
+      members: { type: drone }
+    - id: vehicles
+      kind: content
+      priority: 2
+      members: { type: vehicle }
+    - id: spells
+      kind: content
+      priority: 2
+      showWhen: magic.mage
+      members: { type: spell }
+      sortBy: 'self.prepared ? 0 : 1'
+    - id: arts
+      kind: content
+      priority: 2
+      showWhen: magic.graced
+      members: { type: art }
+    - id: spirits
+      kind: content
+      priority: 2
+      showWhen: magic.summoner
+      members: { type: spirit }
+    - id: syndromes
+      kind: content
+      priority: 2
+      showWhen: campaign.alienation
+      members: { type: syndrome }
+
+  fields:
+    # Summary
+    level: { groups: [summary, advancement], priority: 0 }
+    hp.current:
+      groups: [summary]
+      priority: 1
+      input: { widget: number }
+      with: [{ field: hp.max, as: max }]
+    strain.total: { groups: [summary, strain], priority: 2, with: [{ field: strain.max, as: max }] }
+    ac.ranged: { groups: [summary, combat], priority: 3 }
+    ac.melee: { groups: [summary, combat], priority: 4 }
+    combat.attackBonus: { groups: [summary, combat], priority: 5, format: signed }
+    trauma.target: { groups: [summary, combat], priority: 6 }
+    soak.current:
+      groups: [summary, combat]
+      priority: 7
+      showWhen: soak.max > 0
+      with: [{ field: soak.max, as: max }]
+
+    # Attributes: the score with its modifier.
+    'attributes.{attribute}.score':
+      priority: 0
+      with: [{ field: 'attributes.{attribute}.mod', as: modifier }]
+    'attributes.{attribute}.mod': { format: signed, visibility: background }
+    'attributes.{attribute}.base': { groups: [training], priority: 0 }
+    'attributes.{attribute}.scoreMod': { hidden: true }
+    'attributes.{attribute}.modBonus': { hidden: true }
+    'attributes.{attribute}.modCap': { hidden: true }
+    attributes.modTotal: { groups: [training], priority: 1, format: signed }
+
+    # Skills: the level checks use; the trained level and banked points are kept out of play.
+    'skills.{skill}.level':
+      format: { bands: skill-level }
+      rolls: [{ action: skill-check, params: { skill: 'skills.{skill}.level' } }]
+      showWhen: "!('{skill}' in ['cast', 'summon']) || campaign.magic || skills.{skill}.base >= 0"
+    'skills.{skill}.base':
+      groups: [training]
+      priority: 2
+      format: { bands: skill-level }
+      showWhen: "!('{skill}' in ['cast', 'summon']) || campaign.magic || skills.{skill}.base >= 0"
+    'skills.{skill}.credit':
+      { groups: [training], priority: 3, showWhen: 'skills.{skill}.credit > 0' }
+    skills.work.profession: { groups: [skills], priority: 99 }
+
+    # Saves
+    'saves.{save}':
+      rolls: [{ action: saving-throw, params: { save: '{save}' } }]
+
+    # Combat
+    combat.initiative:
+      { groups: [combat], priority: 7, format: signed, rolls: [{ action: initiative }] }
+    combat.damageBonus:
+      { groups: [combat], priority: 8, format: signed, showWhen: combat.damageBonus != 0 }
+    combat.traumaBonus:
+      { groups: [combat], priority: 9, format: signed, showWhen: combat.traumaBonus != 0 }
+    combat.move: { groups: [combat], priority: 10, unit: m }
+    ac.ranged.base: { groups: [combat], priority: 11, visibility: background }
+    ac.melee.base: { groups: [combat], priority: 12, visibility: background }
+    soak.max: { groups: [combat], priority: 13, visibility: background }
+    armor.heavy: { groups: [combat], priority: 14, showWhen: armor.heavy > 0 }
+    hp.max: { groups: [combat], priority: 15, visibility: background }
+    hp.rolled: { groups: [combat], priority: 16, visibility: background }
+    hp.frail: { groups: [combat], priority: 17 }
+    hp.dieBonus: { groups: [training], priority: 4, showWhen: hp.dieBonus != 0 }
+    combat.shockAc: { hidden: true }
+    combat.shockBonus: { hidden: true }
+    combat.meleeSkillDamage: { hidden: true }
+    combat.rangedSkillDamage: { hidden: true }
+    combat.meleeHitBonus: { hidden: true }
+    drones.attackBonus:
+      groups: [combat]
+      priority: 18
+      format: signed
+      showWhen: "countCopies(copy.type == 'drone') > 0"
+    drones.commandable:
+      groups: [combat]
+      priority: 19
+      showWhen: "countCopies(copy.type == 'drone') > 0"
+
+    # System Strain
+    strain.temporary: { groups: [strain], priority: 3 }
+    strain.permanent: { groups: [strain], priority: 4 }
+    strain.max: { groups: [strain], priority: 5, visibility: background }
+    strain.cyber: { groups: [strain], priority: 6, visibility: background }
+    strain.cyberIgnored: { groups: [strain], priority: 7, showWhen: strain.cyberIgnored > 0 }
+    strain.maintenanceRelief: { groups: [strain], priority: 8, visibility: background }
+    strain.otherPermanent: { groups: [strain], priority: 9, visibility: background }
+    strain.constitution: { hidden: true }
+    lifestyle.strain: { hidden: true }
+    cyber.eyes: { hidden: true }
+    cyber.ears: { hidden: true }
+    cyber.plugJack: { hidden: true }
+    cyber.plugWiring: { hidden: true }
+    cyber.wiredBudget: { groups: [training], priority: 10, showWhen: cyber.wiredBudget > 0 }
+    cyber.wiredUsed: { groups: [training], priority: 11, showWhen: cyber.wiredBudget > 0 }
+
+    # Alienation
+    alienation.total:
+      { groups: [alienation], priority: 0, with: [{ field: alienation.max, as: max }] }
+    alienation.current: { groups: [alienation], priority: 1 }
+    alienation.permanent: { groups: [alienation], priority: 2 }
+    alienation.max: { groups: [alienation], priority: 3, visibility: background }
+
+    # Hacking
+    hacking.access.current:
+      groups: [hacking]
+      priority: 0
+      with: [{ field: hacking.access.max, as: max }]
+    hacking.access.spent: { groups: [hacking], priority: 1, visibility: background }
+    hacking.cpu: { groups: [hacking], priority: 2 }
+    hacking.memory.used:
+      { groups: [hacking], priority: 3, with: [{ field: hacking.memory.max, as: max }] }
+    hacking.shielding.current:
+      groups: [hacking]
+      priority: 4
+      with: [{ field: hacking.shielding.max, as: max }]
+    hacking.datafiles: { groups: [hacking], priority: 5 }
+    hacking.programming.used:
+      groups: [hacking]
+      priority: 6
+      showWhen: hacking.programming.max > 0
+      with: [{ field: hacking.programming.max, as: max }]
+    hacking.deck.bonusAccess: { groups: [hacking], priority: 7, visibility: background }
+    hacking.memory.perElement: { hidden: true }
+
+    # Magic
+    effort.mage.current:
+      groups: [magic]
+      priority: 0
+      showWhen: magic.mage
+      with: [{ field: effort.mage.max, as: max }]
+    effort.mage.scene: { groups: [magic], priority: 1, showWhen: magic.mage }
+    effort.mage.day: { groups: [magic], priority: 2, showWhen: magic.mage }
+    spells.prepared:
+      groups: [magic]
+      priority: 3
+      showWhen: magic.mage
+      with: [{ field: spells.preparedMax, as: max }]
+    effort.summoner.current:
+      groups: [magic]
+      priority: 4
+      showWhen: magic.summoner
+      with: [{ field: effort.summoner.max, as: max }]
+    effort.summoner.scene: { groups: [magic], priority: 5, showWhen: magic.summoner }
+    effort.summoner.day: { groups: [magic], priority: 6, showWhen: magic.summoner }
+    arts.spent:
+      groups: [magic]
+      priority: 7
+      showWhen: magic.graced
+      with: [{ field: arts.points, as: max }]
+    magic.cyberPenalty: { groups: [magic], priority: 8, showWhen: magic.cyberPenalty > 0 }
+    magic.mage: { hidden: true }
+    magic.summoner: { hidden: true }
+    magic.graced: { hidden: true }
+
+    # Possessions
+    money: { groups: [summary, possessions], priority: 8 }
+    lifestyle: { groups: [possessions], priority: 1 }
+    enc.readied:
+      groups: [possessions]
+      priority: 2
+      with: [{ field: enc.readiedMax, as: max }]
+    enc.stowed:
+      groups: [possessions]
+      priority: 3
+      with: [{ field: enc.stowedMax, as: max }]
+    enc.overload: { groups: [possessions], priority: 4, showWhen: enc.overload > 0 }
+    budget.vehicle:
+      groups: [possessions]
+      priority: 5
+      showWhen: budget.vehicle > 0
+      with: [{ field: budget.vehicleUsed, as: detail }]
+    budget.drone:
+      groups: [possessions]
+      priority: 6
+      showWhen: budget.drone > 0
+      with: [{ field: budget.droneUsed, as: detail }]
+    maintenance.used:
+      groups: [possessions]
+      priority: 7
+      showWhen: maintenance.max > 0 || maintenance.used > 0
+      with: [{ field: maintenance.max, as: max }]
+    maintenance.multiplier: { hidden: true }
+    maintenance.fixBonus: { hidden: true }
+    languages.extra: { groups: [possessions], priority: 8 }
+    languages.known: { groups: [possessions], priority: 9 }
+    goal: { groups: [possessions], priority: 10 }
+
+    # Advancement
+    xp.current: { groups: [advancement], priority: 1, with: [{ field: xp.next, as: max }] }
+    xp.track: { groups: [advancement], priority: 2, visibility: background }
+    skillPoints.unspent: { groups: [advancement], priority: 3 }
+    foci.taken: { groups: [advancement], priority: 4, with: [{ field: foci.allowed, as: max }] }
+    advancement.attributeBoosts: { groups: [advancement], priority: 5, visibility: background }
+    underdog: { groups: [advancement], priority: 6, visibility: background }
+    skillPoints.perLevel: { groups: [training], priority: 5 }
+    edges.taken: { hidden: true }
+
+    # Campaign options
+    campaign.magic: { groups: [campaign], priority: 0 }
+    campaign.alienation: { groups: [campaign], priority: 1 }
+
+  types:
+    background: { quantity: { hidden: true } }
+    focus:
+      quantity: { hidden: true }
+      state:
+        level: { priority: 0, input: { widget: dots } }
+    contact:
+      quantity: { hidden: true }
+      state:
+        bond: { priority: 0 }
+        about: { priority: 1 }
+    weapon:
+      state:
+        loaded: { priority: 0, showWhen: has(item.magazine) }
+      fields:
+        damage: { format: dice }
+        traumaDie: { format: dice }
+        rangeNormal: { unit: m }
+        rangeLong: { unit: m }
+    armor:
+      state:
+        soakUsed: { priority: 0, showWhen: self.soakUsed > 0 }
+    cyberware:
+      quantity: { hidden: true }
+      state:
+        damaged: { priority: 0 }
+        wired: { priority: 1, visibility: background }
+    cyberdeck:
+      state:
+        shieldingUsed: { priority: 0, showWhen: self.shieldingUsed > 0 }
+    program:
+      quantity: { hidden: true }
+      state:
+        source: { priority: 0, visibility: background }
+    drone:
+      state:
+        hp: { priority: 0 }
+        focusGear: { priority: 1, visibility: background }
+      fields:
+        move: { unit: m }
+    vehicle:
+      state:
+        hp: { priority: 0 }
+        focusGear: { priority: 1, visibility: background }
+    spell:
+      quantity: { hidden: true }
+      state:
+        prepared: { priority: 0 }
+    art: { quantity: { hidden: true } }
+    spirit:
+      quantity: { hidden: true }
+      state:
+        form: { priority: 0 }
+        ritual: { priority: 1 }
+    syndrome: { quantity: { hidden: true } }

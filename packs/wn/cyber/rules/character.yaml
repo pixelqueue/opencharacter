@@ -1,0 +1,100 @@
+families:
+  save: [physical, evasion, mental, luck]
+
+fields:
+  # Optional rules the campaign uses. Magic opens the magical Edges and skills; alienation tracks
+  # the psychological cost of cyber.
+  campaign.magic: { type: boolean, input: true, default: false }
+  campaign.alienation: { type: boolean, input: true, default: false }
+
+  # Experience levels run from 1 to 10. The table is the fast or the slow one.
+  level: { type: integer, input: true, default: 1, min: 1, max: 10 }
+  xp.current: { type: integer, input: true, default: 0, min: 0 }
+  xp.track: { type: enum, values: [fast, slow], input: true, default: fast }
+  # The experience total the next level needs (0 at 10th level).
+  xp.next:
+    type: integer
+    formula: >-
+      level >= 10 ? 0
+        : (xp.track == 'fast' ? [0, 3, 6, 12, 18, 27, 39, 54, 72, 93]
+          : [0, 6, 15, 24, 36, 51, 69, 87, 105, 139])[level]
+
+  # Hit points: the rolled maximum is saved; the maximum is what effects make of it.
+  hp.rolled: { type: integer, input: true, default: 1, min: 1 }
+  hp.max: { type: integer, formula: hp.rolled, min: 1 }
+  hp.current: { type: integer, input: true, default: 0, min: 0, max: hp.max }
+  # Frail: stabilized from mortal injury. Another drop to zero kills; no natural healing.
+  hp.frail: { type: boolean, input: true, default: false }
+
+  # Saving throws: roll 1d20 equal or over the target. 16 minus level and the better modifier.
+  saves.physical:
+    type: integer
+    tags: [save, save.physical]
+    formula: 16 - level - max(attributes.str.mod, attributes.con.mod)
+  saves.evasion:
+    type: integer
+    tags: [save, save.evasion]
+    formula: 16 - level - max(attributes.dex.mod, attributes.int.mod)
+  saves.mental:
+    type: integer
+    tags: [save, save.mental]
+    formula: 16 - level - max(attributes.wis.mod, attributes.cha.mod)
+  saves.luck: { type: integer, tags: [save, save.luck], formula: 16 - level }
+
+  # Combat basics.
+  combat.attackBonus: { type: integer, formula: floor(level / 2) }
+  # Added to every hit point damage roll and to Shock (Killing Blow).
+  combat.damageBonus: { type: integer, formula: '0' }
+  # Added to every Trauma Die the character rolls.
+  combat.traumaBonus: { type: integer, formula: '0' }
+  combat.initiative: { type: integer, formula: attributes.dex.mod }
+  combat.move: { type: integer, formula: '10' }
+  trauma.target: { type: integer, formula: '6' }
+  # Armor Class before Dexterity: 10 unarmored, or what armor or dermal plating sets.
+  ac.ranged.base: { type: integer, formula: '10' }
+  ac.melee.base: { type: integer, formula: '10' }
+  ac.ranged: { type: integer, formula: ac.ranged.base + attributes.dex.mod }
+  ac.melee: { type: integer, formula: ac.melee.base + attributes.dex.mod }
+
+  # Money and lifestyle. Lifestyle moves the System Strain maximum.
+  money: { type: integer, input: true, default: 0, min: 0 }
+  lifestyle:
+    type: enum
+    values: [squatter, slum, middle, fine, luxury]
+    input: true
+    default: middle
+  lifestyle.strain:
+    type: integer
+    formula: "[-2, -1, 0, 1, 2][indexOf(['squatter', 'slum', 'middle', 'fine', 'luxury'], lifestyle)]"
+
+  # Starting languages beyond the city's lingua franca and a native tongue: one for Know or
+  # Connect at level-0, two at level-1 or better, each.
+  languages.extra:
+    type: integer
+    formula: >-
+      (skills.know.level >= 1 ? 2 : skills.know.level >= 0 ? 1 : 0)
+        + (skills.connect.level >= 1 ? 2 : skills.connect.level >= 0 ? 1 : 0)
+  languages.known: { type: string, input: true, default: '' }
+
+  # Character advancement.
+  skillPoints.unspent: { type: integer, input: true, default: 0, min: 0 }
+  # Skill points spent on attribute boosts: at most five, ever.
+  advancement.attributeBoosts: { type: integer, input: true, default: 0, min: 0, max: 5 }
+  # The Underdog Rule: a bonus Edge for a modifier total of -1 or less. It forbids buying
+  # attribute boosts later.
+  underdog: { type: boolean, input: true, default: false }
+
+  # Notes the player writes: a name is the app's; the goal is part of the sheet.
+  goal: { type: string, input: true, default: '' }
+
+constraints:
+  # The Underdog Rule's modifier total holds at the end of creation; later gains don't matter.
+  - id: underdog-modifiers
+    check: '!character.creating || !underdog || attributes.modTotal <= -1'
+  - id: underdog-boosts
+    check: '!underdog || advancement.attributeBoosts == 0'
+
+followUps:
+  - id: level-up
+    while: '!character.creating && level < 10 && xp.current >= xp.next'
+    action: level-up
