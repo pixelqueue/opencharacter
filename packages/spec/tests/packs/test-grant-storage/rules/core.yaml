@@ -1,0 +1,36 @@
+# Skills a feat makes sure of, lores known, and the Effort a character's gifts hold committed.
+fields:
+  skills.assured: { type: set, of: string }
+  lores.known: { type: set, of: string }
+  effort.held: { type: integer, formula: 0 }
+  favored.skill: { type: string, input: true, default: stealth }
+
+contentTypes:
+  feat: {}
+  background: {}
+  path: {}
+  class:
+    state:
+      level: { type: integer, default: 1, min: 1 }
+  artifact: { carried: true, equippable: true }
+  # A gift's Effort stays committed while it lasts.
+  gift:
+    state:
+      committed: { type: integer, default: 0, min: 0, max: 3 }
+    effects:
+      - { target: effort.held, op: add, value: self.committed }
+    actions:
+      - id: invoke
+        steps:
+          - id: commit
+            kind: changes
+            to: self
+            changes: [{ type: adjustState, grant: self, key: committed, by: 1 }]
+          - { id: done, kind: outcome }
+      - id: release
+        steps:
+          - id: free
+            kind: changes
+            to: self
+            changes: [{ type: setState, grant: self, key: committed, value: 0 }]
+          - { id: done, kind: outcome }

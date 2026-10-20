@@ -1,0 +1,30 @@
+description: "A grant's preset `choices` must name choices the granted content declares and literal options it offers, and only a holder grant presets: an unknown choice, an unknown inline option and a preset on an applied grant are each `unknown-reference`"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          feat: {}
+          condition: {}
+      content:
+        - id: feats.lore
+          type: feat
+          choices:
+            - id: lore
+              from: { options: [{ id: piloting }] }
+        - id: feats.granter
+          type: feat
+          grants:
+            - { item: feats.lore, choices: { topic: [{ option: piloting }] } }
+            - { item: feats.lore, choices: { lore: [{ option: farming }] } }
+        - id: conditions.dazed
+          type: condition
+          grants:
+            - { item: feats.lore, scope: applied, choices: { lore: [{ option: piloting }] } }
