@@ -29,7 +29,7 @@ const { ruleset } = loaded;
 const blank = {
   specVersion: '0.1.0',
   id: 'new-character',
-  packs: [{ id: '5e-srd-5.2', version: '0.1.0' }],
+  packs: [{ id: '5e-srd-5.2', version: '0.1.1' }],
   creating: true,
 };
 const created = startAction(ruleset, blank, {
