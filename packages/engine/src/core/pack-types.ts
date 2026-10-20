@@ -88,6 +88,7 @@ export interface RollModifier {
   at?: Formula;
   steps?: Formula;
   faces?: Formula[];
+  of?: 'die' | 'roll';
 }
 
 export type EffectTarget =

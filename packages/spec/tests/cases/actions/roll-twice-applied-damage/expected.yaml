@@ -1,0 +1,17 @@
+# 2d8 + 1d4: 8 + 7 + 4 = 19, then 1 + 2 + 1 = 4.
+status: finished
+outcome:
+  data: { total: 4 }
+log:
+  - step: roll
+    action: 'test-roll-twice:damage'
+    kind: dice
+    by: engine
+    faces: [8, 7, 4, 1, 2, 1]
+    total: 4
+    items:
+      - { kind: dice, count: 2, sides: 8, value: 3 }
+      - { kind: dice, count: 1, sides: 4, value: 1 }
+    rolls:
+      - { total: 19, kept: false }
+      - { total: 4, kept: true }

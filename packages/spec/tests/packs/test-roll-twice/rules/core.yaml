@@ -1,0 +1,73 @@
+settings:
+  rollModifiers: { advantage: net }
+
+tags: [check, damage]
+
+fields:
+  # Checks rolled twice, the worse kept (weak) or the better (steady).
+  weak: { type: boolean, input: true, default: false }
+  steady: { type: boolean, input: true, default: false }
+  # Advantage of one extra die on checks.
+  lucky: { type: boolean, input: true, default: false }
+  # The check's first d6, given (0 for none).
+  fixed: { type: integer, input: true, default: 0 }
+
+contentTypes:
+  curse:
+    carried: false
+
+effects:
+  - target: { rolls: [check] }
+    op: rollModifier
+    value: { kind: disadvantage, of: roll }
+    when: weak
+  - target: { rolls: [check] }
+    op: rollModifier
+    value: { kind: advantage, of: roll }
+    when: steady
+  - target: { rolls: [check] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: lucky
+  - target: { rolls: [check] }
+    op: rollModifier
+    value: { kind: setFaces, faces: [fixed] }
+    when: fixed != 0
+
+resultBands:
+  check:
+    # Double six on the kept roll.
+    - { id: boxcars, when: 'roll.kept[0] == 6 && roll.kept[1] == 6' }
+    - { id: success, when: roll.total >= 8 }
+    - { id: failure, when: true }
+
+actions:
+  # 2d6 + 1: how many rolls were made, and which was kept.
+  - id: check
+    results: { bands: check }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [check]
+        bands: check
+        parts: [{ dice: 2d6 }, { value: 1 }]
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          total: steps.roll.total
+          rolls: 'has(steps.roll.rolls) ? size(steps.roll.rolls) : 1'
+          kept: 'has(steps.roll.rolls) ? indexOf(mapList(steps.roll.rolls, x.kept), true) : 0'
+  # A roll-under d20: lower is better.
+  - id: under
+    steps:
+      - { id: roll, kind: roll, tags: [check], better: low, parts: [{ dice: 1d20 }] }
+      - { id: result, kind: outcome, data: { total: steps.roll.total } }
+  # 2d8 + 1d4 damage.
+  - id: damage
+    steps:
+      - id: roll
+        kind: roll
+        tags: [damage]
+        parts: [{ dice: 2d8 }, { dice: 1d4 }]
+      - { id: result, kind: outcome, data: { total: steps.roll.total } }
