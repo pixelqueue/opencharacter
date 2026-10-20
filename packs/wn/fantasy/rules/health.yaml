@@ -1,0 +1,176 @@
+fields:
+  # The rolled maximum: each level's hit dice plus the per-die bonus and Constitution modifier.
+  hp.rolled: { type: integer, input: true, default: 1, min: 1 }
+  # Die Hard adds 2 a level on top.
+  hp.max: { type: integer, formula: hp.rolled, min: 1 }
+  hp.current: { type: integer, input: true, default: 1, min: 0, max: hp.max }
+
+  strain.max: { type: integer, formula: attributes.con.score }
+  strain.current: { type: integer, input: true, default: 0, min: 0, max: strain.max }
+
+  conditions.frail: { type: boolean, input: true, default: false }
+  conditions.mortallyWounded: { type: boolean, input: true, default: false }
+
+followUps:
+  # At zero hit points a hero is mortally wounded (or dies, if Frail).
+  - id: downed
+    becomes: hp.current == 0 && !conditions.mortallyWounded
+    required: true
+    action: fall
+
+actions:
+  - id: fall
+    tags: [health]
+    available: hp.current == 0 && !conditions.mortallyWounded
+    results: [mortally-wounded, dead]
+    steps:
+      - id: down
+        kind: changes
+        when: '!conditions.frail'
+        changes:
+          - { type: set, field: conditions.mortallyWounded, value: true }
+      - id: result
+        kind: outcome
+        result: "conditions.frail ? 'dead' : 'mortally-wounded'"
+
+  # Stabilized: back with 1 hit point after ten minutes, and Frail.
+  - id: stabilize
+    tags: [health]
+    available: conditions.mortallyWounded
+    results: [stabilized]
+    steps:
+      - id: stable
+        kind: changes
+        changes:
+          - { type: set, field: conditions.mortallyWounded, value: false }
+          - { type: set, field: conditions.frail, value: true }
+          - { type: set, field: hp.current, value: 1 }
+      - id: result
+        kind: outcome
+        result: "'stabilized'"
+
+  - id: take-damage
+    tags: [health]
+    params:
+      amount: { type: integer, min: 0 }
+    results: [taken]
+    steps:
+      - id: deal
+        kind: changes
+        changes:
+          - {
+              type: adjust,
+              when: params.amount > 0,
+              field: hp.current,
+              by: -params.amount,
+              tags: [damage],
+            }
+      - id: result
+        kind: outcome
+        result: "'taken'"
+
+  # Magical healing also ends Mortally Wounded and Frail; strain is the healer's to add.
+  - id: heal
+    tags: [health]
+    params:
+      amount: { type: integer, min: 0 }
+      magical: { type: boolean, default: false }
+      strain: { type: integer, default: 0, min: 0 }
+    results: [healed, too-strained]
+    steps:
+      - id: strained
+        kind: outcome
+        when: params.strain > 0 && strain.current + params.strain > strain.max
+        result: "'too-strained'"
+      - id: restore
+        kind: changes
+        changes:
+          - {
+              type: adjust,
+              when: params.amount > 0,
+              field: hp.current,
+              by: params.amount,
+              tags: [healing],
+            }
+          - { type: adjust, when: params.strain > 0, field: strain.current, by: params.strain }
+          - { type: set, when: params.magical, field: conditions.mortallyWounded, value: false }
+          - { type: set, when: params.magical, field: conditions.frail, value: false }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+
+  # First aid: 1d6 plus the healer's Heal skill (-1 without it), 1 System Strain each time.
+  - id: first-aid
+    tags: [health]
+    available: strain.current < strain.max && hp.current < hp.max
+    params:
+      healerSkill: { type: integer, default: -1, min: -1, max: 4 }
+    results: [healed]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [healing]
+        parts:
+          - dice: 1d6
+          - value: params.healerSkill
+      - id: restore
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: 'max(0, steps.roll.total)', tags: [healing] }
+          - { type: adjust, field: strain.current, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          healed: max(0, steps.roll.total)
+
+  # A good night's rest: level in hit points and one System Strain back unless Frail; spells
+  # and Effort committed for the day or the scene return.
+  - id: rest
+    tags: [rest]
+    results: [rested]
+    steps:
+      - id: recover
+        kind: changes
+        changes:
+          - {
+              type: adjust,
+              when: '!conditions.frail',
+              field: hp.current,
+              by: level,
+              tags: [healing],
+            }
+          - {
+              type: adjust,
+              when: '!conditions.frail && strain.current > 0',
+              field: strain.current,
+              by: -1,
+            }
+          - { type: set, field: spells.castsUsed, value: 0 }
+          - { type: set, field: spells.pointsUsed, value: 0 }
+          - type: set
+            forEach: keysOf('effortTrad')
+            field: { formula: "'effort.' + x + '.day'" }
+            value: 0
+          - type: set
+            forEach: keysOf('effortTrad')
+            field: { formula: "'effort.' + x + '.scene'" }
+            value: 0
+      - id: result
+        kind: outcome
+        result: "'rested'"
+
+  - id: end-scene
+    tags: [rest]
+    results: [ended]
+    steps:
+      - id: reclaim
+        kind: changes
+        changes:
+          - type: set
+            forEach: keysOf('effortTrad')
+            field: { formula: "'effort.' + x + '.scene'" }
+            value: 0
+      - id: result
+        kind: outcome
+        result: "'ended'"

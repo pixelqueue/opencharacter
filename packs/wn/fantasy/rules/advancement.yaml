@@ -1,0 +1,292 @@
+fields:
+  xp.current: { type: integer, input: true, default: 0, min: 0 }
+  # The book's two paces: fast or slow leveling.
+  xp.pace: { type: enum, values: [fast, slow], input: true, default: fast }
+  xp.nextLevel:
+    type: integer
+    formula: >-
+      level >= 10 ? 0
+        : xp.pace == 'fast' ? [3, 6, 12, 18, 27, 39, 54, 72, 93][level - 1]
+        : [6, 15, 24, 36, 51, 69, 87, 105, 139][level - 1]
+  xp.levelUp: { type: boolean, formula: 'xp.nextLevel > 0 && xp.current >= xp.nextLevel' }
+
+followUps:
+  - id: level-up
+    while: '!character.creating && xp.levelUp'
+    action: level-up
+
+actions:
+  # A new level: hit dice rolled again (at least one more than before), three skill points (four
+  # for an Expert), a Focus at levels 2, 5, 7 and 10, the arts the tradition grants, and new
+  # spells. Saves and attack bonus follow the level.
+  - id: level-up
+    tags: [advancement]
+    available: '!character.creating && level < 10'
+    params:
+      random: { type: boolean, default: false }
+    results: [advanced]
+    steps:
+      - id: before
+        kind: branch
+        cases:
+          - when: true
+            flags: { oldMax: hp.max, oldRolled: hp.rolled }
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: level, by: 1 }
+          - { type: adjust, field: skillPoints.unspent, by: 3 }
+          - { type: adjust, when: class.expert > 0, field: skillPoints.expert, by: 1 }
+      # Each die adds the class's bonus and the Constitution modifier.
+      - id: hitDice
+        kind: roll
+        sheet: proposed
+        tags: [advancement]
+        parts:
+          # No die gives less than 1.
+          - dice: >-
+              hp.dieBonus + attributes.con.mod >= 0 ? (level)d6
+                : hp.dieBonus + attributes.con.mod == -1 ? (level)d6min2
+                : hp.dieBonus + attributes.con.mod == -2 ? (level)d6min3
+                : (level)d6min4
+          - value: level * (hp.dieBonus + attributes.con.mod)
+      - id: hp
+        kind: changes
+        changes:
+          - type: set
+            field: hp.rolled
+            value: max(steps.hitDice.total, flags.oldRolled + 1)
+      # A Focus gained now puts three skill points toward its bonus skill.
+      - id: focus
+        kind: action
+        sheet: proposed
+        when: level in [2, 5, 7, 10]
+        use: pick-focus
+        params:
+          kind: "'any'"
+          random: params.random
+          points: 3
+      - id: arts
+        kind: action
+        use: pick-arts
+        params: { random: params.random }
+      # New spells: two for a High Mage, one for another caster. Two partial casting traditions
+      # pick one of them to learn from.
+      - id: spellTradition
+        kind: choice
+        sheet: proposed
+        random: params.random
+        options:
+          - { id: highmage, when: tradition.highmage.tier > 0 }
+          - { id: elementalist, when: tradition.elementalist.tier > 0 }
+          - { id: necromancer, when: tradition.necromancer.tier > 0 }
+          - { id: invoker, when: tradition.invoker.tier > 0 }
+        recommend: options[0]
+      - id: newSpells
+        kind: choice
+        sheet: proposed
+        when: has(steps.spellTradition)
+        random: params.random
+        repeat:
+          max: >-
+            steps.spellTradition.picked == 'highmage'
+              || (steps.spellTradition.picked == 'invoker' && tradition.invoker.tier == 2) ? 2 : 1
+          min: >-
+            steps.spellTradition.picked == 'highmage'
+              || (steps.spellTradition.picked == 'invoker' && tradition.invoker.tier == 2) ? 2 : 1
+        options:
+          content:
+            type: spell
+            where: >-
+              item.level <= spells.maxLevel && countCopies(copy.item == item.id) == 0
+                && (item.list == 'high'
+                  || (item.list == 'elementalist' && (steps.spellTradition.picked == 'elementalist'
+                    || (steps.spellTradition.picked == 'invoker' && invoker.education == 'elementalist')))
+                  || (item.list == 'necromancer' && (steps.spellTradition.picked == 'necromancer'
+                    || (steps.spellTradition.picked == 'invoker' && invoker.education == 'necromancer'))))
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      # Current hit points rise with the maximum (Die Hard taken now included).
+      - id: current
+        kind: changes
+        sheet: proposed
+        changes:
+          - type: adjust
+            when: hp.max > flags.oldMax
+            field: hp.current
+            by: hp.max - flags.oldMax
+      - id: result
+        kind: outcome
+        result: "'advanced'"
+
+  # Spend skill points: a skill's next level costs one more than that level (less any credit),
+  # needing character level 3, 6 and 9 for levels 2, 3 and 4; an attribute boost costs one
+  # more than the boosts before it, five at most, needing levels 2, 2, 3, 6 and 9. An Expert's
+  # extra points go to non-combat skills and attributes only, and are spent first there.
+  - id: improve
+    tags: [advancement]
+    available: '!character.creating && skillPoints.unspent + skillPoints.expert > 0'
+    results: [improved]
+    steps:
+      - id: pick
+        kind: choice
+        options:
+          - id: administer
+            when: >-
+              skills.administer < 4 && level >= [1, 1, 3, 6, 9][skills.administer + 1]
+                && skills.administer + 2 - skillCredit.administer <= skillPoints.unspent + skillPoints.expert
+          - id: connect
+            when: >-
+              skills.connect < 4 && level >= [1, 1, 3, 6, 9][skills.connect + 1]
+                && skills.connect + 2 - skillCredit.connect <= skillPoints.unspent + skillPoints.expert
+          - id: convince
+            when: >-
+              skills.convince < 4 && level >= [1, 1, 3, 6, 9][skills.convince + 1]
+                && skills.convince + 2 - skillCredit.convince <= skillPoints.unspent + skillPoints.expert
+          - id: craft
+            when: >-
+              skills.craft < 4 && level >= [1, 1, 3, 6, 9][skills.craft + 1]
+                && skills.craft + 2 - skillCredit.craft <= skillPoints.unspent + skillPoints.expert
+          - id: exert
+            when: >-
+              skills.exert < 4 && level >= [1, 1, 3, 6, 9][skills.exert + 1]
+                && skills.exert + 2 - skillCredit.exert <= skillPoints.unspent + skillPoints.expert
+          - id: heal
+            when: >-
+              skills.heal < 4 && level >= [1, 1, 3, 6, 9][skills.heal + 1]
+                && skills.heal + 2 - skillCredit.heal <= skillPoints.unspent + skillPoints.expert
+          - id: know
+            when: >-
+              skills.know < 4 && level >= [1, 1, 3, 6, 9][skills.know + 1]
+                && skills.know + 2 - skillCredit.know <= skillPoints.unspent + skillPoints.expert
+          - id: lead
+            when: >-
+              skills.lead < 4 && level >= [1, 1, 3, 6, 9][skills.lead + 1]
+                && skills.lead + 2 - skillCredit.lead <= skillPoints.unspent + skillPoints.expert
+          - id: magic
+            when: >-
+              skills.magic < 4 && level >= [1, 1, 3, 6, 9][skills.magic + 1]
+                && skills.magic + 2 - skillCredit.magic <= skillPoints.unspent + skillPoints.expert
+          - id: notice
+            when: >-
+              skills.notice < 4 && level >= [1, 1, 3, 6, 9][skills.notice + 1]
+                && skills.notice + 2 - skillCredit.notice <= skillPoints.unspent + skillPoints.expert
+          - id: perform
+            when: >-
+              skills.perform < 4 && level >= [1, 1, 3, 6, 9][skills.perform + 1]
+                && skills.perform + 2 - skillCredit.perform <= skillPoints.unspent + skillPoints.expert
+          - id: pray
+            when: >-
+              skills.pray < 4 && level >= [1, 1, 3, 6, 9][skills.pray + 1]
+                && skills.pray + 2 - skillCredit.pray <= skillPoints.unspent + skillPoints.expert
+          - id: punch
+            when: >-
+              skills.punch < 4 && level >= [1, 1, 3, 6, 9][skills.punch + 1]
+                && skills.punch + 2 - skillCredit.punch <= skillPoints.unspent
+          - id: ride
+            when: >-
+              skills.ride < 4 && level >= [1, 1, 3, 6, 9][skills.ride + 1]
+                && skills.ride + 2 - skillCredit.ride <= skillPoints.unspent + skillPoints.expert
+          - id: sail
+            when: >-
+              skills.sail < 4 && level >= [1, 1, 3, 6, 9][skills.sail + 1]
+                && skills.sail + 2 - skillCredit.sail <= skillPoints.unspent + skillPoints.expert
+          - id: shoot
+            when: >-
+              skills.shoot < 4 && level >= [1, 1, 3, 6, 9][skills.shoot + 1]
+                && skills.shoot + 2 - skillCredit.shoot <= skillPoints.unspent
+          - id: sneak
+            when: >-
+              skills.sneak < 4 && level >= [1, 1, 3, 6, 9][skills.sneak + 1]
+                && skills.sneak + 2 - skillCredit.sneak <= skillPoints.unspent + skillPoints.expert
+          - id: stab
+            when: >-
+              skills.stab < 4 && level >= [1, 1, 3, 6, 9][skills.stab + 1]
+                && skills.stab + 2 - skillCredit.stab <= skillPoints.unspent
+          - id: survive
+            when: >-
+              skills.survive < 4 && level >= [1, 1, 3, 6, 9][skills.survive + 1]
+                && skills.survive + 2 - skillCredit.survive <= skillPoints.unspent + skillPoints.expert
+          - id: trade
+            when: >-
+              skills.trade < 4 && level >= [1, 1, 3, 6, 9][skills.trade + 1]
+                && skills.trade + 2 - skillCredit.trade <= skillPoints.unspent + skillPoints.expert
+          - id: work
+            when: >-
+              skills.work < 4 && level >= [1, 1, 3, 6, 9][skills.work + 1]
+                && skills.work + 2 - skillCredit.work <= skillPoints.unspent + skillPoints.expert
+          - id: str
+            when: >-
+              attributes.boosts < 5 && attributes.str.score < 18
+                && level >= [1, 1, 3, 6, 9][attributes.boosts]
+                && attributes.boosts + 1 <= skillPoints.unspent + skillPoints.expert
+          - id: dex
+            when: >-
+              attributes.boosts < 5 && attributes.dex.score < 18
+                && level >= [1, 1, 3, 6, 9][attributes.boosts]
+                && attributes.boosts + 1 <= skillPoints.unspent + skillPoints.expert
+          - id: con
+            when: >-
+              attributes.boosts < 5 && attributes.con.score < 18
+                && level >= [1, 1, 3, 6, 9][attributes.boosts]
+                && attributes.boosts + 1 <= skillPoints.unspent + skillPoints.expert
+          - id: int
+            when: >-
+              attributes.boosts < 5 && attributes.int.score < 18
+                && level >= [1, 1, 3, 6, 9][attributes.boosts]
+                && attributes.boosts + 1 <= skillPoints.unspent + skillPoints.expert
+          - id: wis
+            when: >-
+              attributes.boosts < 5 && attributes.wis.score < 18
+                && level >= [1, 1, 3, 6, 9][attributes.boosts]
+                && attributes.boosts + 1 <= skillPoints.unspent + skillPoints.expert
+          - id: cha
+            when: >-
+              attributes.boosts < 5 && attributes.cha.score < 18
+                && level >= [1, 1, 3, 6, 9][attributes.boosts]
+                && attributes.boosts + 1 <= skillPoints.unspent + skillPoints.expert
+        recommend: options[0]
+      - id: cost
+        kind: branch
+        cases:
+          - when: "steps.pick.picked in keysOf('attr')"
+            flags:
+              attribute: true
+              cost: attributes.boosts + 1
+              expert: min(skillPoints.expert, attributes.boosts + 1)
+          - when: true
+            flags:
+              attribute: false
+              cost: >-
+                fieldOf('skills.{skill}', steps.pick.picked) + 2
+                  - fieldOf('skillCredit.{skill}', steps.pick.picked)
+              expert: >-
+                steps.pick.picked in ['punch', 'shoot', 'stab'] ? 0
+                  : min(skillPoints.expert, fieldOf('skills.{skill}', steps.pick.picked) + 2
+                    - fieldOf('skillCredit.{skill}', steps.pick.picked))
+      - id: pay
+        kind: changes
+        changes:
+          - type: adjust
+            when: flags.attribute
+            field: { formula: "'attributes.' + steps.pick.picked + '.score'" }
+            by: 1
+          - { type: adjust, when: flags.attribute, field: attributes.boosts, by: 1 }
+          - type: adjust
+            when: '!flags.attribute'
+            field: { formula: "'skills.' + steps.pick.picked" }
+            by: 1
+          - type: set
+            when: '!flags.attribute'
+            field: { formula: "'skillCredit.' + steps.pick.picked" }
+            value: 0
+          - { type: adjust, when: flags.expert > 0, field: skillPoints.expert, by: -flags.expert }
+          - type: adjust
+            when: flags.cost - flags.expert > 0
+            field: skillPoints.unspent
+            by: -(flags.cost - flags.expert)
+      - id: result
+        kind: outcome
+        result: "'improved'"

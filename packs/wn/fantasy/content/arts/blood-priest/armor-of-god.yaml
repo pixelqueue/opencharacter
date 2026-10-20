@@ -1,0 +1,11 @@
+id: arts.blood-priest.armor-of-god
+type: art
+fields:
+  tradition: bloodpriest
+  effort: ongoing
+effects:
+  # While the Effort stays committed; not with armor.
+  - target: ac.innate
+    op: atLeast
+    value: 15 + floor(level / 2)
+    when: has(self.active) && self.active && armor.wornEnc < 0

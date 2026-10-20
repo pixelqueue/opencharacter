@@ -1,0 +1,45 @@
+fields:
+  coins.copper: { type: integer, input: true, default: 0, min: 0 }
+  coins.silver: { type: integer, input: true, default: 0, min: 0 }
+  coins.gold: { type: integer, input: true, default: 0, min: 0 }
+
+  # Encumbrance in items: Readied (equipped) and Stowed (carried, not equipped). Bundled goods
+  # count `bundle` to an item; clothing and the like count nothing while worn; every 100 coins
+  # is a Stowed item.
+  enc.readied:
+    type: integer
+    formula: >-
+      sumCopies(ceil(copy.quantity / copy.fields.bundle) * copy.fields.enc,
+        has(copy.fields.enc) && copy.equipped && !copy.fields.wornFree)
+  enc.stowed:
+    type: integer
+    formula: >-
+      sumCopies(ceil(copy.quantity / copy.fields.bundle) * copy.fields.enc,
+        has(copy.fields.enc) && !copy.equipped)
+        + floor((coins.copper + coins.silver + coins.gold) / 100)
+  enc.readiedLimit: { type: integer, formula: floor(attributes.str.score / 2) }
+  enc.stowedLimit: { type: integer, formula: attributes.str.score }
+  # Past the limits by up to 2 Readied or 4 Stowed items: 20 feet; by up to 4 or 8: 15 feet.
+  enc.over:
+    type: integer
+    formula: >-
+      max(enc.readied - enc.readiedLimit <= 0 ? 0 : enc.readied - enc.readiedLimit <= 2 ? 1
+          : enc.readied - enc.readiedLimit <= 4 ? 2 : 3,
+        enc.stowed - enc.stowedLimit <= 0 ? 0 : enc.stowed - enc.stowedLimit <= 4 ? 1
+          : enc.stowed - enc.stowedLimit <= 8 ? 2 : 3)
+  move.feet: { type: integer, formula: '[30, 20, 15, 0][enc.over]' }
+
+contentTypes:
+  gear:
+    carried: true
+    equippable: true
+    fields:
+      cost: { type: integer, min: 0 }
+      costUnit: { type: enum, values: [cp, sp], default: sp }
+      enc: { type: integer, default: 0, min: 0 }
+      bundle: { type: integer, default: 1, min: 1 }
+      wornFree: { type: boolean, default: false }
+
+constraints:
+  - id: encumbrance
+    check: enc.over < 3

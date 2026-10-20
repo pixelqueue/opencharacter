@@ -1,0 +1,11 @@
+id: arts.vowed.unarmored-defense
+type: art
+tags: [granted]
+fields:
+  tradition: vowed
+effects:
+  # Without armor or a shield.
+  - target: ac.innate
+    op: atLeast
+    value: 13 + floor(level / 2)
+    when: armor.wornEnc < 0 && !armor.shield

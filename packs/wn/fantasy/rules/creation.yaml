@@ -1,0 +1,502 @@
+creation:
+  - { id: guided, action: create-character }
+  - { id: random, action: create-character, params: { random: true }, random: true }
+
+actions:
+  # Both starts, in the book's order: attributes, background and its skills, class, Foci, the
+  # free skill, the tradition's skill, arts and spells, hit points, then equipment. The random
+  # start rolls where the book has a table (attributes, background, Growth and Learning) and
+  # draws evenly among the options where it doesn't.
+  - id: create-character
+    tags: [creation]
+    available: "character.creating && countCopies(copy.type == 'class') == 0"
+    params:
+      random: { type: boolean, default: false }
+    results: [created]
+    steps:
+      # Attributes: 3d6 in order with one raised to 14, or the array placed freely.
+      - id: method
+        kind: choice
+        when: '!params.random'
+        options: [{ id: roll }, { id: array }]
+        recommend: "'roll'"
+      - id: rolled
+        kind: branch
+        cases:
+          - when: "params.random || steps.method.picked == 'roll'"
+            steps:
+              - { id: str, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
+              - { id: dex, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
+              - { id: con, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
+              - { id: int, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
+              - { id: wis, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
+              - { id: cha, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
+              - id: scores
+                kind: changes
+                changes:
+                  - { type: set, field: attributes.str.score, value: steps.str.total }
+                  - { type: set, field: attributes.dex.score, value: steps.dex.total }
+                  - { type: set, field: attributes.con.score, value: steps.con.total }
+                  - { type: set, field: attributes.int.score, value: steps.int.total }
+                  - { type: set, field: attributes.wis.score, value: steps.wis.total }
+                  - { type: set, field: attributes.cha.score, value: steps.cha.total }
+              # One rolled score becomes 14; the lowest is recommended.
+              - id: fourteen
+                kind: choice
+                sheet: proposed
+                options:
+                  - { id: str, when: attributes.str.score < 14 }
+                  - { id: dex, when: attributes.dex.score < 14 }
+                  - { id: con, when: attributes.con.score < 14 }
+                  - { id: int, when: attributes.int.score < 14 }
+                  - { id: wis, when: attributes.wis.score < 14 }
+                  - { id: cha, when: attributes.cha.score < 14 }
+                recommend: "sortList(options, fieldOf('attributes.{attr}.score', x))[0]"
+                changes:
+                  - {
+                      type: set,
+                      field: { formula: "'attributes.' + picked.id + '.score'" },
+                      value: 14,
+                    }
+          - when: "steps.method.picked == 'array'"
+            steps:
+              - id: array
+                kind: allocate
+                fields: { type: field, where: "'attribute' in item.tags" }
+                values: [14, 12, 11, 10, 9, 7]
+                recommend:
+                  attributes.str.score: 14
+                  attributes.dex.score: 12
+                  attributes.con.score: 11
+                  attributes.int.score: 10
+                  attributes.wis.score: 9
+                  attributes.cha.score: 7
+
+      # Background: a d20 on the background table for the random start.
+      - {
+          id: backgroundRoll,
+          kind: roll,
+          when: params.random,
+          tags: [creation],
+          parts: [{ dice: 1d20 }],
+        }
+      - id: background
+        kind: choice
+        options: { content: { type: background } }
+        recommend: >-
+          has(steps.backgroundRoll)
+            ? [@backgrounds.artisan, @backgrounds.barbarian, @backgrounds.carter,
+              @backgrounds.courtesan, @backgrounds.criminal, @backgrounds.hunter,
+              @backgrounds.laborer, @backgrounds.merchant, @backgrounds.noble, @backgrounds.nomad,
+              @backgrounds.peasant, @backgrounds.performer, @backgrounds.physician,
+              @backgrounds.priest, @backgrounds.sailor, @backgrounds.scholar, @backgrounds.slave,
+              @backgrounds.soldier, @backgrounds.thug, @backgrounds.wanderer][steps.backgroundRoll.total - 1]
+            : options[0]
+        changes:
+          - type: addItem
+            entry: { id: background, item: picked.id }
+      - id: tables
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              growth: >-
+                [steps.background.item.growth1, steps.background.item.growth2,
+                  steps.background.item.growth3, steps.background.item.growth4,
+                  steps.background.item.growth5, steps.background.item.growth6]
+              learning: >-
+                [steps.background.item.learning1, steps.background.item.learning2,
+                  steps.background.item.learning3, steps.background.item.learning4,
+                  steps.background.item.learning5, steps.background.item.learning6,
+                  steps.background.item.learning7, steps.background.item.learning8]
+      - id: freeSkill
+        kind: action
+        use: background-entry
+        params: { entry: steps.background.item.freeSkill, random: params.random }
+
+      # The background's skills: its quick skills, two picks from Learning, or three rolls split
+      # between Growth and Learning (the random start rolls).
+      - id: skills
+        kind: choice
+        when: '!params.random'
+        options: [{ id: quick }, { id: pick }, { id: roll }]
+        recommend: "'quick'"
+      - id: quick
+        kind: branch
+        cases:
+          - when: "!params.random && steps.skills.picked == 'quick'"
+            steps:
+              - id: quick1
+                kind: action
+                use: background-entry
+                params: { entry: steps.background.item.quick1 }
+              - id: quick2
+                kind: action
+                use: background-entry
+                params: { entry: steps.background.item.quick2 }
+      - id: learn
+        kind: branch
+        cases:
+          - when: "!params.random && steps.skills.picked == 'pick'"
+            steps:
+              - id: learning
+                kind: choice
+                repeat: { max: 2, min: 2 }
+                options:
+                  - { id: l1, when: "flags.learning[0] != 'any'" }
+                  - { id: l2, when: "flags.learning[1] != 'any'" }
+                  - { id: l3, when: "flags.learning[2] != 'any'" }
+                  - { id: l4, when: "flags.learning[3] != 'any'" }
+                  - { id: l5, when: "flags.learning[4] != 'any'" }
+                  - { id: l6, when: "flags.learning[5] != 'any'" }
+                  - { id: l7, when: "flags.learning[6] != 'any'" }
+                  - { id: l8, when: "flags.learning[7] != 'any'" }
+                recommend: options[0]
+              - id: learned1
+                kind: action
+                use: background-entry
+                params:
+                  entry: "flags.learning[indexOf(['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8'], steps.learning.picked[0])]"
+              - id: learned2
+                kind: action
+                use: background-entry
+                params:
+                  entry: "flags.learning[indexOf(['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8'], steps.learning.picked[1])]"
+      - id: rolls
+        kind: branch
+        cases:
+          - when: "params.random || steps.skills.picked == 'roll'"
+            steps:
+              - id: table1
+                kind: choice
+                random: params.random
+                options: [{ id: growth }, { id: learning }]
+                recommend: "'learning'"
+              - id: die1
+                kind: roll
+                tags: [creation]
+                parts: [{ dice: "steps.table1.picked == 'growth' ? 1d6 : 1d8" }]
+              - id: rolled1
+                kind: action
+                use: background-entry
+                params:
+                  entry: >-
+                    steps.table1.picked == 'growth' ? flags.growth[steps.die1.total - 1]
+                      : flags.learning[steps.die1.total - 1]
+                  random: params.random
+              - id: table2
+                kind: choice
+                random: params.random
+                options: [{ id: growth }, { id: learning }]
+                recommend: "'learning'"
+              - id: die2
+                kind: roll
+                tags: [creation]
+                parts: [{ dice: "steps.table2.picked == 'growth' ? 1d6 : 1d8" }]
+              - id: rolled2
+                kind: action
+                use: background-entry
+                params:
+                  entry: >-
+                    steps.table2.picked == 'growth' ? flags.growth[steps.die2.total - 1]
+                      : flags.learning[steps.die2.total - 1]
+                  random: params.random
+              - id: table3
+                kind: choice
+                random: params.random
+                options: [{ id: growth }, { id: learning }]
+                recommend: "'learning'"
+              - id: die3
+                kind: roll
+                tags: [creation]
+                parts: [{ dice: "steps.table3.picked == 'growth' ? 1d6 : 1d8" }]
+              - id: rolled3
+                kind: action
+                use: background-entry
+                params:
+                  entry: >-
+                    steps.table3.picked == 'growth' ? flags.growth[steps.die3.total - 1]
+                      : flags.learning[steps.die3.total - 1]
+                  random: params.random
+
+      # Class, then what it asks: a Mage's tradition, an Adventurer's two partial classes and a
+      # partial Mage's tradition, a Vowed's skill.
+      - id: class
+        kind: choice
+        random: params.random
+        options: { content: { type: class } }
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { id: class, item: picked.id }
+      - id: classChoices
+        kind: choice
+        random: params.random
+        options: { pending: { entry: "'class'" } }
+        recommend: options[0]
+
+      # Foci: one combat Focus with any Warrior, one non-combat Focus with any Expert, and one of
+      # any kind. Picking a Focus again takes its second level.
+      - id: warriorFocus
+        kind: action
+        sheet: proposed
+        when: class.warrior > 0
+        use: pick-focus
+        params: { kind: "'combat'", random: params.random }
+      - id: expertFocus
+        kind: action
+        sheet: proposed
+        when: class.expert > 0
+        use: pick-focus
+        params: { kind: "'noncombat'", random: params.random }
+      - id: freeFocus
+        kind: action
+        use: pick-focus
+        params: { kind: "'any'", random: params.random }
+
+      # One skill of the player's choice.
+      - id: freePick
+        kind: action
+        use: gain-skill
+        params: { skill: "'any'", random: params.random }
+
+      # Each tradition's bonus skill: Magic for most Mages, the class's own skill for the rest.
+      - id: highmageSkill
+        kind: action
+        sheet: proposed
+        when: tradition.highmage.tier > 0
+        use: gain-skill
+        params: { skill: "'magic'", random: params.random }
+      - id: elementalistSkill
+        kind: action
+        sheet: proposed
+        when: tradition.elementalist.tier > 0
+        use: gain-skill
+        params: { skill: "'magic'", random: params.random }
+      - id: necromancerSkill
+        kind: action
+        sheet: proposed
+        when: tradition.necromancer.tier > 0
+        use: gain-skill
+        params: { skill: "'magic'", random: params.random }
+      - id: invokerSkill
+        kind: action
+        sheet: proposed
+        when: tradition.invoker.tier > 0
+        use: gain-skill
+        params: { skill: "'magic'", random: params.random }
+      - id: healerSkill
+        kind: action
+        sheet: proposed
+        when: tradition.healer.tier > 0
+        use: gain-skill
+        params: { skill: "'heal'", random: params.random }
+      - id: vowedSkill
+        kind: action
+        sheet: proposed
+        when: tradition.vowed.tier > 0 && vowed.skill != ''
+        use: gain-skill
+        params: { skill: vowed.skill, random: params.random }
+      - id: accursedSkill
+        kind: action
+        sheet: proposed
+        when: tradition.accursed.tier > 0
+        use: gain-skill
+        params: { skill: "'magic'", random: params.random }
+      - id: bardSkill
+        kind: action
+        sheet: proposed
+        when: tradition.bard.tier > 0
+        use: gain-skill
+        params: { skill: "'perform'", random: params.random }
+      - id: beastmasterSkill
+        kind: action
+        sheet: proposed
+        when: tradition.beastmaster.tier > 0
+        use: gain-skill
+        params: { skill: "'survive'", random: params.random }
+      - id: bloodpriestSkill
+        kind: action
+        sheet: proposed
+        when: tradition.bloodpriest.tier > 0
+        use: gain-skill
+        params: { skill: "'pray'", random: params.random }
+      - id: duelistSkill
+        kind: action
+        sheet: proposed
+        when: tradition.duelist.tier > 0
+        use: gain-skill
+        params: { skill: "'stab'", random: params.random }
+      - id: mageslayerSkill
+        kind: action
+        sheet: proposed
+        when: tradition.mageslayer.tier > 0
+        use: gain-skill
+        params: { skill: "'magic'", random: params.random }
+      - id: skinshifterSkill
+        kind: action
+        sheet: proposed
+        when: tradition.skinshifter.tier > 0
+        use: gain-skill
+        params: { skill: "'survive'", random: params.random }
+      - id: thoughtnobleSkill
+        kind: action
+        sheet: proposed
+        when: tradition.thoughtnoble.tier > 0
+        use: gain-skill
+        params: { skill: "'notice'", random: params.random }
+      - id: wiseSkill
+        kind: action
+        sheet: proposed
+        when: tradition.wise.tier > 0 && wise.skill != ''
+        use: gain-skill
+        params: { skill: wise.skill, random: params.random }
+
+      # The arts each tradition lets a new mage pick, and the first-level spells they know.
+      - id: arts
+        kind: action
+        use: pick-arts
+        params: { random: params.random }
+      - id: spells
+        kind: choice
+        sheet: proposed
+        when: spells.starting > 0
+        random: params.random
+        repeat: { max: spells.starting, min: spells.starting }
+        options:
+          content:
+            type: spell
+            where: >-
+              item.level == 1 && countCopies(copy.item == item.id) == 0
+                && (item.list == 'high' || (item.list == 'elementalist'
+                  && (tradition.elementalist.tier > 0 || invoker.education == 'elementalist'))
+                  || (item.list == 'necromancer' && (tradition.necromancer.tier > 0
+                    || invoker.education == 'necromancer')))
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { prepared: spells.prepared < spells.preparedMax } }
+
+      # Hit points: 1d6 plus the class's bonus and Constitution, at least 1.
+      - id: hitPoints
+        kind: roll
+        sheet: proposed
+        tags: [creation]
+        parts:
+          - dice: 1d6
+          - field: "'hp.dieBonus'"
+          - field: "'attributes.con.mod'"
+      - id: hp
+        kind: changes
+        changes:
+          - { type: set, field: hp.rolled, value: 'max(1, steps.hitPoints.total)' }
+
+      # Equipment: one of the packages, or 3d6 x 10 silver to spend. The random start draws a
+      # package.
+      - id: equipment
+        kind: choice
+        sheet: proposed
+        random: params.random
+        options:
+          - id: peasant
+            changes:
+              - { type: addItem, entry: { item: "'armor.war-shirt'", equipped: true } }
+              - { type: addItem, entry: { item: "'armor.large-shield'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.light-spear'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.dagger'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.backpack'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.rations'" } }
+              - { type: addItem, entry: { item: "'gear.mule'" } }
+              - { type: addItem, entry: { item: "'gear.cart'" } }
+              - { type: addItem, entry: { item: "'gear.tinder-box'" } }
+              - { type: addItem, entry: { item: "'gear.torch'", quantity: 3 } }
+          - id: archer
+            changes:
+              - { type: addItem, entry: { item: "'armor.buff-coat'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.large-bow'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.arrows'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.dagger'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.hand-axe'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.backpack'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.cooking-utensils'" } }
+              - { type: addItem, entry: { item: "'gear.rations'" } }
+              - { type: addItem, entry: { item: "'gear.waterskin'" } }
+              - { type: addItem, entry: { item: "'gear.tinder-box'" } }
+              - { type: addItem, entry: { item: "'gear.torch'", quantity: 3 } }
+              - { type: adjust, field: coins.silver, by: 20 }
+          - id: warrior
+            changes:
+              - { type: addItem, entry: { item: "'armor.pieced-armor'", equipped: true } }
+              - { type: addItem, entry: { item: "'armor.large-shield'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.short-sword'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.dagger'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.backpack'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.tinder-box'" } }
+              - { type: addItem, entry: { item: "'gear.torch'", quantity: 3 } }
+          - id: rogue
+            changes:
+              - { type: addItem, entry: { item: "'armor.buff-coat'", equipped: true } }
+              - { type: addItem, entry: { item: "'armor.small-shield'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.short-sword'", equipped: true } }
+              - type: addItem
+                entry: { item: "'weapons.throwing-blade'", equipped: true, quantity: 5 }
+              - { type: addItem, entry: { item: "'gear.backpack'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.rations'" } }
+              - { type: addItem, entry: { item: "'gear.waterskin'" } }
+              - { type: addItem, entry: { item: "'gear.tinder-box'" } }
+              - { type: addItem, entry: { item: "'gear.torch'", quantity: 3 } }
+              - { type: addItem, entry: { item: "'gear.grappling-hook'" } }
+              - { type: addItem, entry: { item: "'gear.rope'" } }
+          - id: gentry
+            changes:
+              - { type: addItem, entry: { item: "'armor.buff-coat'", equipped: true } }
+              - { type: addItem, entry: { item: "'armor.small-shield'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.short-sword'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.backpack'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.rations'" } }
+              - { type: addItem, entry: { item: "'gear.waterskin'" } }
+              - { type: addItem, entry: { item: "'gear.fine-clothes'" } }
+              - { type: addItem, entry: { item: "'gear.writing-kit'" } }
+              - { type: addItem, entry: { item: "'gear.paper'", quantity: 2 } }
+              - { type: adjust, field: coins.silver, by: 20 }
+          - id: scholar
+            changes:
+              - type: addItem
+                entry: { item: "'weapons.dagger'", equipped: true, quantity: 2 }
+              - { type: addItem, entry: { item: "'weapons.staff'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.backpack'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.lantern'" } }
+              - { type: addItem, entry: { item: "'gear.tinder-box'" } }
+              - { type: addItem, entry: { item: "'gear.oil'", quantity: 2 } }
+              - { type: addItem, entry: { item: "'gear.writing-kit'" } }
+              - { type: addItem, entry: { item: "'gear.paper'", quantity: 2 } }
+              - { type: addItem, entry: { item: "'gear.rations'" } }
+              - { type: addItem, entry: { item: "'gear.waterskin'" } }
+              - { type: addItem, entry: { item: "'gear.healers-pouch'" } }
+              - { type: adjust, field: coins.silver, by: 80 }
+          - { id: silver, when: '!params.random' }
+        recommend: >-
+          spells.mode != 'none' || class.mage > 0 ? 'scholar'
+            : class.warrior > 0 ? 'warrior'
+            : class.expert > 0 ? 'rogue'
+            : 'peasant'
+      - id: silverRoll
+        kind: roll
+        when: "steps.equipment.picked == 'silver'"
+        tags: [creation]
+        parts: [{ dice: 3d6 }]
+      - id: purse
+        kind: changes
+        when: has(steps.silverRoll)
+        changes:
+          - { type: adjust, field: coins.silver, by: steps.silverRoll.total * 10 }
+
+      - id: finish
+        kind: changes
+        sheet: proposed
+        changes:
+          - { type: set, field: hp.current, value: hp.max }
+          - { type: finishCreation }
+      - id: result
+        kind: outcome
+        result: "'created'"

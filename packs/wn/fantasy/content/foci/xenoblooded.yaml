@@ -1,0 +1,22 @@
+id: foci.xenoblooded
+type: focus
+tags: [combat, noncombat]
+fields:
+  maxLevel: 1
+choices:
+  - id: heritage
+    from:
+      options:
+        - { id: heat }
+        - { id: water }
+        - id: heavy
+          effects:
+            - { target: attributes.str.modBonus, op: add, value: 1 }
+            - { target: attributes.str.modCap, op: atLeast, value: 3 }
+            - { target: attributes.dex.modBonus, op: add, value: -1 }
+        - id: light
+          effects:
+            - { target: attributes.dex.modBonus, op: add, value: 1 }
+            - { target: attributes.dex.modCap, op: atLeast, value: 3 }
+            - { target: attributes.str.modBonus, op: add, value: -1 }
+        - { id: radiation }

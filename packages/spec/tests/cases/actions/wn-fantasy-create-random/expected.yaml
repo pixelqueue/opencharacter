@@ -1,0 +1,223 @@
+status: finished
+outcome:
+  result: created
+proposedChanges:
+  - to: self
+    step: rolled/scores
+    change:
+      type: set
+      field: wn-fantasy:attributes.str.score
+      value: 14
+  - to: self
+    step: rolled/scores
+    change:
+      type: set
+      field: wn-fantasy:attributes.dex.score
+      value: 15
+  - to: self
+    step: rolled/scores
+    change:
+      type: set
+      field: wn-fantasy:attributes.con.score
+      value: 6
+  - to: self
+    step: rolled/scores
+    change:
+      type: set
+      field: wn-fantasy:attributes.int.score
+      value: 10
+  - to: self
+    step: rolled/scores
+    change:
+      type: set
+      field: wn-fantasy:attributes.wis.score
+      value: 13
+  - to: self
+    step: rolled/scores
+    change:
+      type: set
+      field: wn-fantasy:attributes.cha.score
+      value: 9
+  - to: self
+    step: rolled/fourteen
+    change:
+      type: set
+      field: wn-fantasy:attributes.con.score
+      value: 14
+  - to: self
+    step: background
+    change:
+      type: addItem
+      entry:
+        id: background
+        item: wn-fantasy:backgrounds.slave
+  - to: self
+    step: freeSkill/skill/raise
+    change:
+      type: adjust
+      field: wn-fantasy:skills.sneak
+      by: 1
+  - to: self
+    step: rolls/rolled1/skill/raise
+    change:
+      type: adjust
+      field: wn-fantasy:skills.convince
+      by: 1
+  - to: self
+    step: rolls/rolled2/skill/raise
+    change:
+      type: adjust
+      field: wn-fantasy:skills.administer
+      by: 1
+  - to: self
+    step: rolls/rolled3/skill/raise
+    change:
+      type: adjust
+      field: wn-fantasy:skills.work
+      by: 1
+  - to: self
+    step: class
+    change:
+      type: addItem
+      entry:
+        id: class
+        item: wn-fantasy:classes.warrior
+  - to: self
+    step: warriorFocus/take
+    change:
+      type: addItem
+      entry:
+        id: foci-armsmaster-1
+        item: wn-fantasy:foci.armsmaster
+        state:
+          level: 1
+  - to: self
+    step: warriorFocus/bonusSkill/raise
+    change:
+      type: adjust
+      field: wn-fantasy:skills.stab
+      by: 1
+  - to: self
+    step: freeFocus/take
+    change:
+      type: addItem
+      entry:
+        id: foci-developed-attribute-1
+        item: wn-fantasy:foci.developed-attribute
+        state:
+          level: 1
+  - to: self
+    step: freeFocus/focusChoices
+    change:
+      type: choose
+      path:
+        entry: foci-developed-attribute-1
+        choice:
+          - attribute
+      option: int
+  - to: self
+    step: freePick/raise
+    change:
+      type: adjust
+      field: wn-fantasy:skills.connect
+      by: 1
+  - to: self
+    step: hp
+    change:
+      type: set
+      field: wn-fantasy:hp.rolled
+      value: 5
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry:
+        id: armor-buff-coat-1
+        item: wn-fantasy:armor.buff-coat
+        equipped: true
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry:
+        id: armor-small-shield-1
+        item: wn-fantasy:armor.small-shield
+        equipped: true
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry:
+        id: weapons-short-sword-1
+        item: wn-fantasy:weapons.short-sword
+        equipped: true
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry:
+        id: weapons-throwing-blade-1
+        item: wn-fantasy:weapons.throwing-blade
+        equipped: true
+        quantity: 5
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry:
+        id: gear-backpack-1
+        item: wn-fantasy:gear.backpack
+        equipped: true
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry:
+        id: gear-rations-1
+        item: wn-fantasy:gear.rations
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry:
+        id: gear-waterskin-1
+        item: wn-fantasy:gear.waterskin
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry:
+        id: gear-tinder-box-1
+        item: wn-fantasy:gear.tinder-box
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry:
+        id: gear-torch-1
+        item: wn-fantasy:gear.torch
+        quantity: 3
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry:
+        id: gear-grappling-hook-1
+        item: wn-fantasy:gear.grappling-hook
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry:
+        id: gear-rope-1
+        item: wn-fantasy:gear.rope
+  - to: self
+    step: finish
+    change:
+      type: set
+      field: wn-fantasy:hp.current
+      value: 5
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

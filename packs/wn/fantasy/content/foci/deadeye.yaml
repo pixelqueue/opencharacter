@@ -1,0 +1,11 @@
+id: foci.deadeye
+type: focus
+tags: [combat]
+fields:
+  bonusSkill: shoot
+effects:
+  # Shoot added to ranged damage (not with Armsmaster's on thrown weapons).
+  - target: { rolls: [damage.ranged, damage.thrown] }
+    op: add
+    value: max(0, skills.shoot)
+    stackKey: skill-damage

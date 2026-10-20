@@ -1,0 +1,57 @@
+contentTypes:
+  focus:
+    fields:
+      maxLevel: { type: integer, default: 2, min: 1 }
+      # The skill gained with the Focus's first level: a skill, `any` (any but Magic), `combat`
+      # (Stab, Shoot or Punch), `punch-stab`, `perform-sneak`, `specialist` (any but Magic and
+      # the combat skills) or `none`.
+      bonusSkill:
+        type: enum
+        values:
+          [
+            none,
+            any,
+            combat,
+            punch-stab,
+            perform-sneak,
+            specialist,
+            administer,
+            connect,
+            convince,
+            craft,
+            exert,
+            heal,
+            know,
+            lead,
+            magic,
+            notice,
+            perform,
+            pray,
+            punch,
+            ride,
+            sail,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            trade,
+            work,
+          ]
+        default: none
+      # Taken more than once for different skills or attributes.
+      repeatable: { type: boolean, default: false }
+      # Who may take it: anyone, Mages, non-Mages, Experts, a hero with an attribute modifier of
+      # -1 or less, or Invokers.
+      requires:
+        {
+          type: enum,
+          values: [none, mage, non-mage, expert, low-attribute, invoker],
+          default: none,
+        }
+    state:
+      level: { type: integer, default: 1, min: 1, max: item.maxLevel }
+
+constraints:
+  - id: focus-once
+    copies: { type: focus, where: '!item.repeatable' }
+    check: "countCopies(copy.type == 'focus' && copy.item == item.id) <= 1"

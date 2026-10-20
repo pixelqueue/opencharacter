@@ -1,0 +1,38 @@
+id: foci.specialist
+type: focus
+tags: [noncombat]
+fields:
+  bonusSkill: specialist
+  repeatable: true
+choices:
+  # The skill, which is also the Focus's bonus skill.
+  - id: skill
+    from:
+      values:
+        [
+          administer,
+          connect,
+          convince,
+          craft,
+          exert,
+          heal,
+          know,
+          lead,
+          notice,
+          perform,
+          pray,
+          ride,
+          sail,
+          sneak,
+          survive,
+          trade,
+          work,
+        ]
+    recommend: "'notice'"
+    effects:
+      # Checks with the skill: 3d6 (4d6 at level 2), the highest two kept.
+      - target: { rolls: [check] }
+        op: rollModifier
+        value: { kind: poolDice, count: self.level }
+        stackKey: skill-dice
+        when: "('skill.' + pick.value) in roll.tags"

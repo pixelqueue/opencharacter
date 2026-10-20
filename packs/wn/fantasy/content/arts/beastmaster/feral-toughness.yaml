@@ -1,0 +1,8 @@
+id: arts.beastmaster.feral-toughness
+type: art
+fields:
+  tradition: beastmaster
+effects:
+  # Not with armor; the companion's hit dice add to maximum hit points.
+  - { target: ac.innate, op: atLeast, value: 13 + ceil(level / 2), when: armor.wornEnc < 0 }
+  - { target: hp.max, op: add, value: companion.hitDice }

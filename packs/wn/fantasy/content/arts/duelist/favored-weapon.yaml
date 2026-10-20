@@ -1,0 +1,13 @@
+id: arts.duelist.favored-weapon
+type: art
+tags: [granted]
+fields:
+  tradition: duelist
+choices:
+  # The type of melee weapon.
+  - id: weapon
+    from: { type: weapon, where: "item.skill == 'stab' && !('unarmed' in item.tags)" }
+    activate: false
+    recommend: '@weapons.long-sword'
+    effects:
+      - { target: duelist.favored, op: grant, value: { formula: pick.id } }
