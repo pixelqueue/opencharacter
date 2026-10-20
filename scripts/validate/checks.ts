@@ -162,6 +162,16 @@ export class PackChecker {
     return false;
   }
 
+  /** Whether any loaded content type or item defines an inline action with this local ID. */
+  private anyDefines(use: string): boolean {
+    const defines = (def: { actions?: ActionOrUse[] }) =>
+      (def.actions ?? []).some((a) => !('use' in a) && a.id === use);
+    for (const { item } of this.ruleset.content.values()) if (defines(item)) return true;
+    for (const rules of this.ruleset.rules.values())
+      for (const { def } of rules.contentTypes.values()) if (defines(def)) return true;
+    return false;
+  }
+
   private tag(tag: string, file: string, where: string): void {
     if (!this.tags.has(tag))
       this.report.error(file, `${where}: unknown-tag: "${tag}" is not declared in rules \`tags\``);
@@ -1643,7 +1653,8 @@ export class PackChecker {
           step.kind === 'action' &&
           step.use &&
           !this.ruleset.action(step.use, this.scope) &&
-          !this.sourceDefines(step.source, step.use)
+          !this.sourceDefines(step.source, step.use) &&
+          !(step.source === undefined && step.entry !== undefined && this.anyDefines(step.use))
         ) {
           this.report.error(file, `${where}: unknown action "${step.use}"`);
         }
