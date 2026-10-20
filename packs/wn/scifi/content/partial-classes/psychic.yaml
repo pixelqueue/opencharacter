@@ -1,0 +1,18 @@
+id: partial-classes.psychic
+type: partialClass
+effects:
+  - { target: psionics.access, op: set, value: "'restricted'" }
+choices:
+  - id: discipline
+    from:
+      { values: [biopsionics, metapsionics, precognition, telekinesis, telepathy, teleportation] }
+    recommend: "'biopsionics'"
+    effects:
+      - { target: psionics.discipline, op: set, value: pick.value }
+grants:
+  - { item: techniques.psychic-succor, when: skills.biopsionics.level >= 0 }
+  - { item: techniques.psychic-refinement, when: skills.metapsionics.level >= 0 }
+  - { item: techniques.oracle, when: skills.precognition.level >= 0 }
+  - { item: techniques.telekinetic-manipulation, when: skills.telekinesis.level >= 0 }
+  - { item: techniques.telepathic-contact, when: skills.telepathy.level >= 0 }
+  - { item: techniques.personal-apportation, when: skills.teleportation.level >= 0 }

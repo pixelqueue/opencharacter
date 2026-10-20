@@ -88,6 +88,7 @@ much of OCF your app needs.
 | [`fate-core`](packs/fate/core/)           | Fate Core                          | CC-BY-3.0      |
 | [`wn-cyber`](packs/wn/cyber/)             | Cyberpunk rules (CC0 SRD)          | CC0-1.0        |
 | [`wn-fantasy`](packs/wn/fantasy/)         | Fantasy rules (CC0 SRD)            | CC0-1.0        |
+| [`wn-scifi`](packs/wn/scifi/)             | Science fiction rules              | By permission  |
 
 Each pack is its own npm package (`@opencharacter/<pack>`), and
 [`@opencharacter/packs`](packages/packs/) bundles them all. Mechanics-only packs model games that
@@ -124,6 +125,9 @@ packs from licensed material keep that license and its credit line: `5e-srd-5.1`
 mechanics-only models whose own work is CC0; the Forged in the Dark packs keep the SRD's CC-BY credit line and
 the MÖRK BORG pack the notices of its third-party license. `wn-cyber` is CC0, as its source is, with a
 not-affiliated notice. Every package has a `LICENSE` file
+the MÖRK BORG pack the notices of its third-party license. `wn-scifi` carries text from the
+free edition of _Stars Without Number: Revised Edition_ by the author's permission, with its
+credit and notices. Every package has a `LICENSE` file
 with its terms, credit and notices.
 the MÖRK BORG pack the notices of its third-party license. Every package has a `LICENSE` file
 with its terms, credit and notices. `wn-fantasy` is built from the CC0 Worlds Without Number

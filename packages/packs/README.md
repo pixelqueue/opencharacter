@@ -45,6 +45,7 @@ text, under the same licenses:
 | `mothership-1e`  | mechanics-only (own work CC0 1.0)                                | none                                                         |
 | `wn-cyber`       | CC0-1.0                                                          | `not-affiliated`                                             |
 | `wn-fantasy`     | CC0-1.0 (the Worlds Without Number SRD)                          | `not-affiliated`                                             |
+| `wn-scifi`       | free edition text by the author's permission (own work CC0 1.0)  | `credit`; `permission`, `not-affiliated`                     |
 
 **How credits and notices reach users:** each pack's `credit` and `notices` are in its release's
 manifest, and `loadRuleset` lists them in the ruleset's `packs`. An app that uses a pack's content

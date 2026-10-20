@@ -1,0 +1,111 @@
+settings:
+  rounding: floor
+  rollModifiers:
+    advantage: cancel
+
+families:
+  attr: [str, dex, con, int, wis, cha]
+  # Every skill, for fieldOf; the fields are declared by the three families below.
+  skill:
+    [
+      administer,
+      connect,
+      exert,
+      fix,
+      heal,
+      know,
+      lead,
+      notice,
+      perform,
+      pilot,
+      program,
+      punch,
+      shoot,
+      sneak,
+      stab,
+      survive,
+      talk,
+      trade,
+      work,
+      biopsionics,
+      metapsionics,
+      precognition,
+      telekinesis,
+      telepathy,
+      teleportation,
+    ]
+  general:
+    [
+      administer,
+      connect,
+      exert,
+      fix,
+      heal,
+      know,
+      lead,
+      notice,
+      perform,
+      pilot,
+      program,
+      sneak,
+      survive,
+      talk,
+      trade,
+      work,
+    ]
+  combat: [punch, shoot, stab]
+  psychic: [biopsionics, metapsionics, precognition, telekinesis, telepathy, teleportation]
+
+fields:
+  'attributes.{attr}.score':
+    { type: integer, input: true, default: 10, min: 0, max: 18, tags: [attribute] }
+  'attributes.{attr}.mod':
+    type: integer
+    tags: [attr-mod]
+    formula: >-
+      attributes.{attr}.score <= 3 ? -2 : attributes.{attr}.score <= 7 ? -1
+        : attributes.{attr}.score <= 13 ? 0 : attributes.{attr}.score <= 17 ? 1 : 2
+
+  level: { type: integer, input: true, default: 1, min: 1, max: 20 }
+  xp.current: { type: integer, input: true, default: 0, min: 0 }
+  # The total the next level needs: the table to 10th level, then 24 more for each level.
+  xp.next:
+    type: integer
+    formula: 'level >= 10 ? 93 + 24 * (level - 9) : [0, 3, 6, 12, 18, 27, 39, 54, 72, 93][level]'
+
+  # Unskilled is -1: a skill check adds it as the penalty, an attack swaps it for -2.
+  'skills.{general}.level':
+    { type: integer, input: true, default: -1, min: -1, max: 4, tags: [skill, skill.general] }
+  'skills.{combat}.level':
+    { type: integer, input: true, default: -1, min: -1, max: 4, tags: [skill, skill.combat] }
+  'skills.{psychic}.level':
+    { type: integer, input: true, default: -1, min: -1, max: 4, tags: [skill, skill.psychic] }
+  # How many d6 a check in the skill rolls, keeping the best two.
+  'skills.{general}.dice': { type: integer, formula: 2, min: 2 }
+  'skills.{combat}.dice': { type: integer, formula: 2, min: 2 }
+  'skills.{psychic}.dice': { type: integer, formula: 2, min: 2 }
+
+  saves.physical:
+    type: integer
+    tags: [save]
+    formula: 16 - level - max(attributes.str.mod, attributes.con.mod)
+  saves.evasion:
+    type: integer
+    tags: [save]
+    formula: 16 - level - max(attributes.dex.mod, attributes.int.mod)
+  saves.mental:
+    type: integer
+    tags: [save]
+    formula: 16 - level - max(attributes.wis.mod, attributes.cha.mod)
+
+  # The rolled part of maximum hit points, Constitution included; the per-level bonuses
+  # (Warrior, Partial Warrior, Die Hard) are added on top, so a bonus taken later counts for
+  # every level.
+  hp.rolled: { type: integer, input: true, default: 1, min: 1 }
+  hp.perLevel: { type: integer, formula: 0 }
+  hp.max: { type: integer, formula: hp.rolled + hp.perLevel * level, min: 1 }
+  hp.current: { type: integer, input: true, default: 1, min: 0, max: hp.max }
+
+  combat.attackBonus: { type: integer, formula: floor(level / 2) }
+
+  credits.current: { type: integer, input: true, default: 0, min: 0 }

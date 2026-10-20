@@ -1,0 +1,450 @@
+constraints:
+  - id: creation-focus
+    check: "!character.creating || countCopies(copy.type == 'focus') > 0"
+
+actions:
+  # The full procedure.
+  - id: create-character
+    tags: [creation]
+    available: character.creating && countCopies(copy.type == 'class') == 0
+    results: [created]
+    steps:
+      - id: method
+        kind: choice
+        options: [{ id: roll }, { id: array }]
+        recommend: "'roll'"
+      - id: scores
+        kind: branch
+        cases:
+          - when: "steps.method.picked == 'roll'"
+            steps:
+              - { id: str, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
+              - { id: dex, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
+              - { id: con, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
+              - { id: int, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
+              - { id: wis, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
+              - { id: cha, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
+              - id: rolled
+                kind: changes
+                changes:
+                  - { type: set, field: attributes.str.score, value: steps.str.total }
+                  - { type: set, field: attributes.dex.score, value: steps.dex.total }
+                  - { type: set, field: attributes.con.score, value: steps.con.total }
+                  - { type: set, field: attributes.int.score, value: steps.int.total }
+                  - { type: set, field: attributes.wis.score, value: steps.wis.total }
+                  - { type: set, field: attributes.cha.score, value: steps.cha.total }
+              # A rolled character may set one attribute to 14: the lowest, by default.
+              - id: fourteen
+                kind: choice
+                options:
+                  - { id: str }
+                  - { id: dex }
+                  - { id: con }
+                  - { id: int }
+                  - { id: wis }
+                  - { id: cha }
+                  - { id: none }
+                recommend: >-
+                  minList([steps.str.total, steps.dex.total, steps.con.total, steps.int.total,
+                    steps.wis.total, steps.cha.total], x) >= 14 ? 'none'
+                    : ['str', 'dex', 'con', 'int', 'wis', 'cha'][indexOf([steps.str.total,
+                      steps.dex.total, steps.con.total, steps.int.total, steps.wis.total,
+                      steps.cha.total], minList([steps.str.total, steps.dex.total,
+                      steps.con.total, steps.int.total, steps.wis.total, steps.cha.total], x))]
+                changes:
+                  - type: set
+                    when: "picked.id != 'none'"
+                    field: { formula: "'attributes.' + picked.id + '.score'" }
+                    value: 14
+          - when: true
+            steps:
+              - id: array
+                kind: allocate
+                fields: { type: field, where: "'attribute' in item.tags" }
+                values: [14, 12, 11, 10, 9, 7]
+                recommend:
+                  attributes.str.score: 11
+                  attributes.dex.score: 14
+                  attributes.con.score: 12
+                  attributes.int.score: 10
+                  attributes.wis.score: 9
+                  attributes.cha.score: 7
+      - id: background
+        kind: choice
+        options: { content: { type: background } }
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { id: background, item: picked.id }
+      - id: free
+        kind: action
+        use: gain-skill
+        params: { entry: steps.background.item.freeSkill }
+      - id: skills
+        kind: choice
+        options: [{ id: quick }, { id: pick }, { id: rolls }]
+        recommend: "'quick'"
+      - id: tables
+        kind: branch
+        cases:
+          - when: "steps.skills.picked == 'quick'"
+            steps:
+              - id: quick1
+                kind: action
+                use: gain-skill
+                params: { entry: steps.background.item.quick1 }
+              - id: quick2
+                kind: action
+                use: gain-skill
+                params: { entry: steps.background.item.quick2 }
+          # Two picks from the Learning table, Any Skill excepted.
+          - when: "steps.skills.picked == 'pick'"
+            flags:
+              learning: >-
+                [steps.background.item.learning1, steps.background.item.learning2,
+                  steps.background.item.learning3, steps.background.item.learning4,
+                  steps.background.item.learning5, steps.background.item.learning6,
+                  steps.background.item.learning7, steps.background.item.learning8]
+            steps:
+              - id: learn1
+                kind: choice
+                recommend: options[0]
+                options: &learning
+                  - { id: administer, when: "'administer' in flags.learning" }
+                  - { id: connect, when: "'connect' in flags.learning" }
+                  - { id: exert, when: "'exert' in flags.learning" }
+                  - { id: fix, when: "'fix' in flags.learning" }
+                  - { id: heal, when: "'heal' in flags.learning" }
+                  - { id: know, when: "'know' in flags.learning" }
+                  - { id: lead, when: "'lead' in flags.learning" }
+                  - { id: notice, when: "'notice' in flags.learning" }
+                  - { id: perform, when: "'perform' in flags.learning" }
+                  - { id: pilot, when: "'pilot' in flags.learning" }
+                  - { id: program, when: "'program' in flags.learning" }
+                  - { id: punch, when: "'punch' in flags.learning" }
+                  - { id: shoot, when: "'shoot' in flags.learning" }
+                  - { id: sneak, when: "'sneak' in flags.learning" }
+                  - { id: stab, when: "'stab' in flags.learning" }
+                  - { id: survive, when: "'survive' in flags.learning" }
+                  - { id: talk, when: "'talk' in flags.learning" }
+                  - { id: trade, when: "'trade' in flags.learning" }
+                  - { id: work, when: "'work' in flags.learning" }
+                  - { id: any-combat, when: "'any-combat' in flags.learning" }
+                  - { id: stab-or-shoot, when: "'stab-or-shoot' in flags.learning" }
+              - { id: gain1, kind: action, use: gain-skill, params: { entry: steps.learn1.picked } }
+              - id: learn2
+                kind: choice
+                recommend: options[0]
+                options: *learning
+              - { id: gain2, kind: action, use: gain-skill, params: { entry: steps.learn2.picked } }
+          # Three rolls, each on the Growth table (d6) or the Learning table (d8).
+          - when: true
+            flags:
+              growth: >-
+                [steps.background.item.growth1, steps.background.item.growth2,
+                  steps.background.item.growth3, steps.background.item.growth4,
+                  steps.background.item.growth5, steps.background.item.growth6]
+              learning: >-
+                [steps.background.item.learning1, steps.background.item.learning2,
+                  steps.background.item.learning3, steps.background.item.learning4,
+                  steps.background.item.learning5, steps.background.item.learning6,
+                  steps.background.item.learning7, steps.background.item.learning8]
+            steps:
+              - id: table1
+                kind: choice
+                options: [{ id: growth }, { id: learning }]
+                recommend: "'learning'"
+              - id: roll1
+                kind: roll
+                tags: [creation]
+                parts: [{ dice: "steps.table1.picked == 'growth' ? 1d6 : 1d8" }]
+              - id: rolled1
+                kind: action
+                use: gain-skill
+                params:
+                  entry: >-
+                    steps.table1.picked == 'growth' ? flags.growth[steps.roll1.total - 1]
+                      : flags.learning[steps.roll1.total - 1]
+              - id: table2
+                kind: choice
+                options: [{ id: growth }, { id: learning }]
+                recommend: "'learning'"
+              - id: roll2
+                kind: roll
+                tags: [creation]
+                parts: [{ dice: "steps.table2.picked == 'growth' ? 1d6 : 1d8" }]
+              - id: rolled2
+                kind: action
+                use: gain-skill
+                params:
+                  entry: >-
+                    steps.table2.picked == 'growth' ? flags.growth[steps.roll2.total - 1]
+                      : flags.learning[steps.roll2.total - 1]
+              - id: table3
+                kind: choice
+                options: [{ id: growth }, { id: learning }]
+                recommend: "'learning'"
+              - id: roll3
+                kind: roll
+                tags: [creation]
+                parts: [{ dice: "steps.table3.picked == 'growth' ? 1d6 : 1d8" }]
+              - id: rolled3
+                kind: action
+                use: gain-skill
+                params:
+                  entry: >-
+                    steps.table3.picked == 'growth' ? flags.growth[steps.roll3.total - 1]
+                      : flags.learning[steps.roll3.total - 1]
+      - id: class
+        kind: choice
+        options: { content: { type: class } }
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { id: class, item: picked.id }
+      - id: classPicks
+        kind: choice
+        options: { pending: { entry: "'class'" } }
+      # A Psychic picks two psychic skills (the same twice is level-1); a Partial Psychic has
+      # their discipline at level-0.
+      - id: psychic1
+        kind: action
+        sheet: proposed
+        when: "psionics.access == 'unrestricted'"
+        use: gain-skill
+        params: { entry: "'any-psychic'" }
+      - id: psychic2
+        kind: action
+        sheet: proposed
+        when: "psionics.access == 'unrestricted'"
+        use: gain-skill
+        params: { entry: "'any-psychic'" }
+      - id: partialPsychic
+        kind: action
+        sheet: proposed
+        when: "psionics.access == 'restricted' && psionics.discipline != ''"
+        use: gain-skill
+        params: { entry: psionics.discipline }
+      # One focus level of any kind, then the Expert's non-combat and the Warrior's combat one.
+      - id: focus1
+        kind: action
+        use: gain-focus
+        params: { copy: "'focus-1'" }
+      - id: focus2
+        kind: action
+        sheet: proposed
+        when: class.focus.noncombat > 0
+        use: gain-focus
+        params: { kind: "'noncombat'", copy: "'focus-2'" }
+      - id: focus3
+        kind: action
+        sheet: proposed
+        when: class.focus.combat > 0
+        use: gain-focus
+        params: { kind: "'combat'", copy: "'focus-3'" }
+      # One more non-psychic skill: a hobby or a natural talent.
+      - id: hobby
+        kind: action
+        use: gain-skill
+        params: { entry: "'any-skill'" }
+      - id: hp
+        kind: roll
+        tags: [creation]
+        parts: [{ dice: 1d6 }]
+      - id: gear
+        kind: action
+        use: starting-gear
+      - id: hitPoints
+        kind: changes
+        sheet: proposed
+        changes:
+          - { type: set, field: hp.rolled, value: 'max(1, steps.hp.total + attributes.con.mod)' }
+      - id: finish
+        kind: changes
+        sheet: proposed
+        changes:
+          - { type: set, field: hp.current, value: hp.max }
+          - { type: finishCreation }
+      - { id: result, kind: outcome, result: "'created'" }
+
+  # The quick tables: class and style (d8), background (d20), two psychic disciplines (d6) for
+  # a psychic, foci (d6 on the style's row) and a bonus skill (d20). With `random`, every table
+  # is rolled; otherwise each is a pick.
+  - id: quick-character
+    tags: [creation]
+    available: character.creating && countCopies(copy.type == 'class') == 0
+    params:
+      random: { type: boolean, default: false }
+    results: [created]
+    steps:
+      - id: style
+        kind: choice
+        random: params.random
+        recommend: options[0]
+        options:
+          - id: expert-smart
+            flags: { style: 0, class: "'classes.expert'", scores: '[10, 12, 11, 14, 7, 9]' }
+          - id: expert-smooth
+            flags: { style: 1, class: "'classes.expert'", scores: '[7, 9, 10, 12, 11, 14]' }
+          - id: expert-nimble
+            flags: { style: 2, class: "'classes.expert'", scores: '[10, 14, 12, 11, 9, 7]' }
+          - id: warrior-melee
+            flags: { style: 3, class: "'classes.warrior'", scores: '[14, 9, 12, 7, 10, 11]' }
+          - id: warrior-ranged
+            flags: { style: 4, class: "'classes.warrior'", scores: '[9, 14, 12, 10, 7, 11]' }
+          - id: warrior-leader
+            flags: { style: 5, class: "'classes.warrior'", scores: '[7, 10, 9, 11, 12, 14]' }
+          - id: psychic-seer
+            flags: { style: 6, class: "'classes.psychic'", scores: '[9, 11, 12, 10, 14, 7]' }
+          - id: psychic-adept
+            flags: { style: 7, class: "'classes.psychic'", scores: '[12, 10, 14, 9, 11, 7]' }
+      - id: setup
+        kind: changes
+        changes:
+          - type: addItem
+            entry: { id: class, item: flags.class }
+          - { type: set, field: attributes.str.score, value: 'flags.scores[0]' }
+          - { type: set, field: attributes.dex.score, value: 'flags.scores[1]' }
+          - { type: set, field: attributes.con.score, value: 'flags.scores[2]' }
+          - { type: set, field: attributes.int.score, value: 'flags.scores[3]' }
+          - { type: set, field: attributes.wis.score, value: 'flags.scores[4]' }
+          - { type: set, field: attributes.cha.score, value: 'flags.scores[5]' }
+      - id: background
+        kind: choice
+        random: params.random
+        recommend: options[0]
+        options: { content: { type: background } }
+        changes:
+          - type: addItem
+            entry: { id: background, item: picked.id }
+      - id: free
+        kind: action
+        use: gain-skill
+        params: { entry: steps.background.item.freeSkill, random: params.random }
+      - id: quick1
+        kind: action
+        use: gain-skill
+        params: { entry: steps.background.item.quick1, random: params.random }
+      - id: quick2
+        kind: action
+        use: gain-skill
+        params: { entry: steps.background.item.quick2, random: params.random }
+      - id: psychic1
+        kind: action
+        when: flags.style >= 6
+        use: gain-skill
+        params: { entry: "'any-psychic'", random: params.random }
+      - id: psychic2
+        kind: action
+        when: flags.style >= 6
+        use: gain-skill
+        params: { entry: "'any-psychic'", random: params.random }
+      - id: focusRoll
+        kind: choice
+        random: params.random
+        recommend: options[0]
+        options:
+          - { id: row1, flags: { row: 0 } }
+          - { id: row2, flags: { row: 1 } }
+          - { id: row3, flags: { row: 2 } }
+          - { id: row4, flags: { row: 3 } }
+          - { id: row5, flags: { row: 4 } }
+          - { id: row6, flags: { row: 5 } }
+      # Each entry: the focus, the bonus skill it gives, and a Specialist's skill.
+      - id: foci
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              foci: >-
+                [[[['specialist', 'fix', 'fix'], ['die-hard', 'none', '']], [['hacker', 'program', ''], ['tinker', 'fix', '']], [['specialist', 'know', 'know'], ['healer', 'heal', '']], [['specialist', 'fix', 'fix'], ['tinker', 'fix', '']], [['healer', 'heal', ''], ['ironhide', 'none', '']], [['specialist', 'fix', 'fix'], ['hacker', 'program', '']]], [[['diplomat', 'talk', ''], ['connected', 'connect', '']], [['specialist', 'talk', 'talk'], ['die-hard', 'none', '']], [['diplomat', 'talk', ''], ['alert', 'notice', '']], [['specialist', 'lead', 'lead'], ['authority', 'lead', '']], [['healer', 'heal', ''], ['specialist', 'talk', 'talk']], [['specialist', 'notice', 'notice'], ['specialist', 'talk', 'talk']]], [[['specialist', 'pilot', 'pilot'], ['starfarer', 'pilot', '']], [['healer', 'heal', ''], ['die-hard', 'none', '']], [['tinker', 'fix', ''], ['gunslinger', 'shoot', '']], [['specialist', 'sneak', 'sneak'], ['assassin', 'sneak', '']], [['specialist', 'sneak', 'sneak'], ['specialist', 'exert', 'exert']], [['specialist', 'perform', 'perform'], ['specialist', 'sneak', 'sneak']]], [[['savage-fray', 'stab', ''], ['shocking-assault', 'punch-or-stab', '']], [['assassin', 'sneak', ''], ['specialist', 'sneak', 'sneak']], [['armsman', 'stab', ''], ['close-combatant', 'any-combat', '']], [['close-combatant', 'any-combat', ''], ['savage-fray', 'stab', '']], [['ironhide', 'none', ''], ['die-hard', 'none', '']], [['unarmed-combatant', 'punch', ''], ['close-combatant', 'any-combat', '']]], [[['gunslinger', 'shoot', ''], ['close-combatant', 'any-combat', '']], [['sniper', 'shoot', ''], ['specialist', 'sneak', 'sneak']], [['assassin', 'sneak', ''], ['specialist', 'sneak', 'sneak']], [['ironhide', 'none', ''], ['die-hard', 'none', '']], [['gunslinger', 'shoot', ''], ['tinker', 'fix', '']], [['close-combatant', 'any-combat', ''], ['alert', 'notice', '']]], [[['gunslinger', 'shoot', ''], ['authority', 'lead', '']], [['ironhide', 'none', ''], ['connected', 'connect', '']], [['armsman', 'stab', ''], ['specialist', 'lead', 'lead']], [['gunslinger', 'shoot', ''], ['specialist', 'talk', 'talk']], [['assassin', 'sneak', ''], ['die-hard', 'none', '']], [['close-combatant', 'any-combat', ''], ['henchkeeper', 'lead', '']]], [[['alert', 'notice', '']], [['healer', 'heal', '']], [['specialist', 'notice', 'notice']], [['psychic-training', 'any-psychic', '']], [['savage-fray', 'stab', '']], [['hacker', 'program', '']]], [[['armsman', 'stab', '']], [['ironhide', 'none', '']], [['die-hard', 'none', '']], [['psychic-training', 'any-psychic', '']], [['healer', 'heal', '']], [['unarmed-combatant', 'punch', '']]]][flags.style][flags.row]
+      - id: focus1
+        kind: changes
+        changes:
+          - type: addItem
+            entry: { id: focus-1, item: "'foci.' + flags.foci[0][0]" }
+      - id: focusSkill1
+        kind: action
+        use: gain-skill
+        params:
+          entry: "flags.foci[0][0] == 'specialist' ? flags.foci[0][2] : flags.foci[0][1]"
+          random: params.random
+      - id: focusPicks1
+        kind: choice
+        options: { pending: { entry: "'focus-1'" } }
+        recommend: >-
+          choice.id == 'skill' ? flags.foci[0][2]
+            : choice.id == 'discipline' && has(steps.focusSkill1.data)
+              && steps.focusSkill1.data.skill in options ? steps.focusSkill1.data.skill
+            : options[0]
+      - id: focus2
+        kind: changes
+        when: size(flags.foci) > 1
+        changes:
+          - type: addItem
+            entry: { id: focus-2, item: "'foci.' + flags.foci[1][0]" }
+      - id: focusSkill2
+        kind: action
+        when: size(flags.foci) > 1
+        use: gain-skill
+        params:
+          entry: "flags.foci[1][0] == 'specialist' ? flags.foci[1][2] : flags.foci[1][1]"
+          random: params.random
+      - id: focusPicks2
+        kind: choice
+        when: size(flags.foci) > 1
+        options: { pending: { entry: "'focus-2'" } }
+        recommend: >-
+          choice.id == 'skill' ? flags.foci[1][2]
+            : choice.id == 'discipline' && has(steps.focusSkill2.data)
+              && steps.focusSkill2.data.skill in options ? steps.focusSkill2.data.skill
+            : options[0]
+      - id: bonus
+        kind: choice
+        random: params.random
+        recommend: options[0]
+        options:
+          - { id: administer }
+          - { id: connect }
+          - { id: exert }
+          - { id: fix }
+          - { id: heal }
+          - { id: know }
+          - { id: lead }
+          - { id: notice }
+          - { id: perform }
+          - { id: pilot }
+          - { id: program }
+          - { id: punch }
+          - { id: shoot }
+          - { id: sneak }
+          - { id: stab }
+          - { id: survive }
+          - { id: talk }
+          - { id: trade }
+          - { id: work }
+          - { id: raise-zero }
+      - id: bonusSkill
+        kind: action
+        use: gain-skill
+        params: { entry: steps.bonus.picked, random: params.random }
+      - id: hp
+        kind: roll
+        tags: [creation]
+        parts: [{ dice: 1d6 }]
+      - id: gear
+        kind: action
+        use: starting-gear
+        params: { random: params.random }
+      - id: hitPoints
+        kind: changes
+        sheet: proposed
+        changes:
+          - { type: set, field: hp.rolled, value: 'max(1, steps.hp.total + attributes.con.mod)' }
+      - id: finish
+        kind: changes
+        sheet: proposed
+        changes:
+          - { type: set, field: hp.current, value: hp.max }
+          - { type: finishCreation }
+      - { id: result, kind: outcome, result: "'created'" }

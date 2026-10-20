@@ -1,0 +1,7 @@
+id: partial-classes.warrior
+type: partialClass
+effects:
+  - { target: class.focus.combat, op: add, value: 1 }
+  - { target: hp.perLevel, op: add, value: 2 }
+  # +1 at first level and another at fifth.
+  - { target: combat.attackBonus, op: add, value: 'level >= 5 ? 2 : 1' }

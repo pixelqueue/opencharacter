@@ -157,6 +157,7 @@ describe('the editor API', { timeout: 20_000 }, () => {
       'orc-2e',
       'wn-cyber',
       'wn-fantasy',
+      'wn-scifi',
     ]);
   });
 

@@ -1,0 +1,20 @@
+id: foci.wild-psychic-talent
+type: focus
+fields:
+  kind: psychic
+  skill: none
+prerequisites:
+  - id: not-psychic
+    when: "psionics.access == 'none'"
+effects:
+  - { target: effort.wild, op: atLeast, value: self.level }
+choices:
+  - id: power
+    from: { type: technique, where: item.level <= 1 }
+    waivePrerequisites: true
+    recommend: '@techniques.telekinetic-manipulation'
+  - id: second
+    when: self.level >= 2
+    from: { type: technique, where: item.level <= 1 }
+    waivePrerequisites: true
+    recommend: '@techniques.telekinetic-armory'

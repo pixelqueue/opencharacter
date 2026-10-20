@@ -1,0 +1,10 @@
+id: foci.hacker
+type: focus
+fields:
+  kind: noncombat
+  skill: program
+effects:
+  - target: { rolls: [check.program] }
+    op: rollModifier
+    value: { kind: poolDice, count: 1 }
+    when: situational.hacking && skills.program.dice < 3

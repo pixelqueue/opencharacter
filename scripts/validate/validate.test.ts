@@ -23,6 +23,7 @@ describe('pnpm validate', () => {
       'orc-2e',
       'wn-cyber',
       'wn-fantasy',
+      'wn-scifi',
     ]);
     expect(characters.length).toBeGreaterThanOrEqual(5);
     // A first run parses every pack file: seconds, more on a busy machine.

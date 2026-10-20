@@ -37,6 +37,7 @@ describe('pnpm build:packs on the repository packs', () => {
       'orc-2e',
       'wn-cyber',
       'wn-fantasy',
+      'wn-scifi',
     ]);
   });
 
@@ -107,6 +108,8 @@ describe('pnpm build:packs on the repository packs', () => {
       'wn-cyber-nix.yaml',
       'wn-fantasy-brannoc.yaml',
       'wn-fantasy-ysolde.yaml',
+      'wn-scifi-ines.yaml',
+      'wn-scifi-tamar.yaml',
     ]) {
       const character = parseYaml(readFileSync(join(root, 'examples', 'characters', file), 'utf8'));
       const sheet = (r: Ruleset) => computeSheet(r, character).values;
