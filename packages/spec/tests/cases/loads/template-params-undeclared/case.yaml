@@ -1,0 +1,18 @@
+description: "A template's item fields read `params` only when it declares params: reading one it doesn't declare is unknown-name"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        contentTypes:
+          spell:
+            fields:
+              range: { type: integer, default: 0 }
+      content:
+        - { id: spells.bolt, type: spell }
+        - id: templates.far
+          type: template
+          appliesTo: { type: spell }
+          fields: { range: 'prior.range + params.feet' }

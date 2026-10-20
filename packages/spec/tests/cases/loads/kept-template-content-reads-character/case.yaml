@@ -1,4 +1,4 @@
-description: "A kept template's content query reads only the item, as its copies query does: reading a field is unknown-name"
+description: "A kept template's content query reads the item and the keeper, as its copies query does: reading a derived field is unknown-name"
 specVersion: 0.1.0
 call: loadRuleset
 packs:
@@ -7,7 +7,7 @@ packs:
         { id: test-pack, version: 1.0.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
       rules:
         fields:
-          level: { type: integer, input: true, default: 1 }
+          level: { type: integer, formula: 1 }
         contentTypes:
           spell: {}
           feature: {}

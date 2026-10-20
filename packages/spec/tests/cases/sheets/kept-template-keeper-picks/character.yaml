@@ -1,0 +1,21 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - { id: test-kept-templates, version: 0.1.0 }
+features:
+  - id: casting
+    item: test-kept-templates:features.casting
+    choices:
+      cantrips:
+        - { option: test-kept-templates:spells.bolt }
+        - { option: test-kept-templates:spells.touch }
+  - id: spear-bolt
+    item: test-kept-templates:features.spear
+    state: { rank: 2 }
+    choices:
+      cantrip: [{ option: test-kept-templates:spells.bolt }]
+  - id: spear-touch
+    item: test-kept-templates:features.spear
+    state: { rank: 3 }
+    choices:
+      cantrip: [{ option: test-kept-templates:spells.touch }]

@@ -1,0 +1,25 @@
+description: "A kept template's params name the template's declared params: one it doesn't declare is unknown-name"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        contentTypes:
+          spell:
+            fields:
+              range: { type: integer, default: 0 }
+          feature: {}
+      content:
+        - { id: spells.bolt, type: spell }
+        - id: templates.far
+          type: template
+          appliesTo: { type: spell }
+          params:
+            feet: { type: integer, default: 0 }
+          fields: { range: 'prior.range + params.feet' }
+        - id: features.keeper
+          type: feature
+          keepsTemplates:
+            - { template: templates.far, content: { type: spell }, params: { yards: 10 } }
