@@ -2471,7 +2471,8 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     repeat?.min !== undefined ? integer(evaluate(ctx, frame, repeat.min), 'repeat.min') : 0;
   const counts = new Map<string, number>();
   const picks: string[] = [];
-  if (repeat) setResult(frame, step.id, { picked: [] });
+  const first = ctx.proposed.length;
+  if (repeat) setResult(frame, step.id, { picked: [], added: [] });
   for (let index = 0; picks.length < max; index++) {
     // Each pick proposes its changes at once, so the proposed sheet is read afresh per pick.
     if (index > 0 && readsProposed(step)) {
@@ -2522,17 +2523,15 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     const candidate = candidates.find((c) => c.id === pick) as Candidate;
     picks.push(pick);
     counts.set(pick, (counts.get(pick) ?? 0) + 1);
-    setResult(
-      frame,
-      step.id,
-      repeat
-        ? { picked: [...picks] }
-        : {
-            picked: pick,
-            ...(candidate.item !== undefined ? { item: candidate.item } : {}),
-            ...(candidate.self !== undefined ? { self: candidate.self } : {}),
-          },
-    );
+    const result: Record<string, unknown> = repeat
+      ? { picked: [...picks] }
+      : {
+          picked: pick,
+          ...(candidate.item !== undefined ? { item: candidate.item } : {}),
+          ...(candidate.self !== undefined ? { self: candidate.self } : {}),
+        };
+    result.added = addedIds(ctx, first, path);
+    setResult(frame, step.id, result);
     const picked = {
       id: pick,
       ...(candidate.item !== undefined ? { item: candidate.item } : {}),
@@ -2570,6 +2569,7 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
       );
     if (step.changes)
       proposeChanges(ctx, frame, step, path, 'self', step.changes, { picked }, entries);
+    result.added = addedIds(ctx, first, path);
   }
 }
 
@@ -2620,7 +2620,8 @@ function pendingStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     source.entry === undefined ? undefined : String(f.toData(evaluate(ctx, frame, source.entry)));
   const picks: string[] = [];
   const paths: ChoicePath[] = [];
-  setResult(frame, step.id, { picked: [], paths: [] });
+  const first = ctx.proposed.length;
+  setResult(frame, step.id, { picked: [], paths: [], added: [] });
   for (let index = 0; ; index++) {
     if (index > 0) {
       if (++ctx.stepsRun > MAX_STEPS)
@@ -2692,7 +2693,8 @@ function pendingStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     const option = asked.options.find((o) => o.id === pick)?.option as string | number;
     picks.push(pick);
     paths.push(choice.path);
-    setResult(frame, step.id, { picked: [...picks], paths: [...paths] });
+    const result = { picked: [...picks], paths: [...paths], added: addedIds(ctx, first, path) };
+    setResult(frame, step.id, result);
     ctx.proposed.push({
       to: 'self',
       step: path,
@@ -2702,6 +2704,7 @@ function pendingStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
       proposeChanges(ctx, frame, step, path, 'self', step.changes, {
         picked: { id: pick, path: choice.path },
       });
+    result.added = addedIds(ctx, first, path);
   }
 }
 
@@ -2935,9 +2938,20 @@ function randomAmounts(
 }
 
 function changesStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
+  const first = ctx.proposed.length;
   if (step.release) release(ctx, frame, step.release);
   if (step.changes) proposeChanges(ctx, frame, step, path, step.to ?? 'self', step.changes);
   if (step.tags !== undefined || frame.added.length > 0) addedChanges(ctx, frame, step, path);
+  setResult(frame, step.id, { added: addedIds(ctx, first, path) });
+}
+
+/** The instance IDs of the copies the step's own `addItem`s add to the actor, in order. */
+function addedIds(ctx: Ctx, first: number, path: string): string[] {
+  return ctx.proposed
+    .slice(first)
+    .flatMap((p) =>
+      p.to === 'self' && p.step === path && p.change.type === 'addItem' ? [p.change.entry.id] : [],
+    );
 }
 
 /** Each proposes its changes after the step's own, with the content as `item` and `self`. */
