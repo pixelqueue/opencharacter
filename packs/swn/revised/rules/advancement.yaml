@@ -5,6 +5,8 @@ fields:
   skillPoints.expert: { type: integer, input: true, default: 0, min: 0 }
   skillPoints.psychic: { type: integer, input: true, default: 0, min: 0 }
   skillPoints.training: { type: integer, input: true, default: 0, min: 0 }
+  # A focus's bonus skill points that didn't buy a level, saved toward that skill only.
+  'skills.{skill}.credit': { type: integer, input: true, default: 0, min: 0, max: 4 }
   # Attribute boosts bought with skill points, at most five.
   attributes.boosts: { type: integer, input: true, default: 0, min: 0, max: 5 }
 
@@ -85,8 +87,10 @@ actions:
             by: 'flags.trained ? 1 : flags.next - 1'
       - { id: result, kind: outcome, result: "'advanced'" }
 
-  # A focus's bonus skill taken on advancement: three skill points toward it, enough for
-  # level-1 from nothing or one level more from level-1. What is left is saved.
+  # A focus's bonus skill taken on advancement: three skill points toward it, with any credit
+  # already saved toward it, buying levels in order (level-0 costs 1, level-1 2 and so on). What
+  # doesn't buy a level is saved as credit toward the skill; on a skill at level-4 it goes to the
+  # general pool.
   - id: focus-skill-points
     tags: [level-up]
     params:
@@ -181,20 +185,56 @@ actions:
             flags:
               skill: 'size(flags.open) == 1 ? flags.open[0] : steps.choose.picked'
               from: "fieldOf('skills.{skill}.level', size(flags.open) == 1 ? flags.open[0] : steps.choose.picked)"
+              pool: >-
+                3 + fieldOf('skills.{skill}.credit',
+                  size(flags.open) == 1 ? flags.open[0] : steps.choose.picked)
+      - id: level
+        kind: branch
+        cases:
+          - when: true
+            flags: { level: flags.from, had: flags.pool - 3 }
+      - id: buy1
+        kind: branch
+        when: flags.level < 4 && flags.pool >= flags.level + 2
+        cases:
+          - when: true
+            flags: { pool: flags.pool - flags.level - 2, level: flags.level + 1 }
+      - id: buy2
+        kind: branch
+        when: flags.level < 4 && flags.pool >= flags.level + 2
+        cases:
+          - when: true
+            flags: { pool: flags.pool - flags.level - 2, level: flags.level + 1 }
+      - id: buy3
+        kind: branch
+        when: flags.level < 4 && flags.pool >= flags.level + 2
+        cases:
+          - when: true
+            flags: { pool: flags.pool - flags.level - 2, level: flags.level + 1 }
       - id: spend
         kind: changes
         changes:
           - type: set
-            when: flags.from <= 1
+            when: flags.level != flags.from
             field: { formula: "'skills.' + flags.skill + '.level'" }
-            value: 'flags.from == 1 ? 2 : 1'
+            value: flags.level
+          - type: set
+            when: '(flags.level >= 4 ? 0 : flags.pool) != flags.had'
+            field: { formula: "'skills.' + flags.skill + '.credit'" }
+            value: 'flags.level >= 4 ? 0 : flags.pool'
           - type: adjust
-            when: flags.from == 0 || flags.from >= 2
+            when: flags.level >= 4 && flags.pool > 0
             field: skillPoints.general
-            by: 'flags.from == 0 ? 1 : 3'
+            by: flags.pool
+      # A free technique for each new psychic skill level from level-1 up.
       - id: technique
         kind: action
-        when: flags.skill in keysOf('psychic') && flags.from <= 1
+        when: flags.skill in keysOf('psychic') && flags.level >= 1 && flags.level > flags.from
+        use: pick-technique
+        params: { discipline: flags.skill, random: params.random }
+      - id: technique2
+        kind: action
+        when: flags.skill in keysOf('psychic') && flags.level >= 2 && flags.level - flags.from >= 2
         use: pick-technique
         params: { discipline: flags.skill, random: params.random }
       - { id: result, kind: outcome, result: "'spent'", data: { skill: flags.skill } }
@@ -271,16 +311,24 @@ actions:
           - when: true
             flags:
               from: "fieldOf('skills.{skill}.level', params.skill)"
+              credit: "fieldOf('skills.{skill}.credit', params.skill)"
               psychic: params.skill in keysOf('psychic')
               general: params.skill in keysOf('general')
+      # Credit saved toward the skill pays first.
       - id: cost
         kind: branch
         cases:
           - when: true
             flags:
-              cost: flags.from + 2
+              fromCredit: min(flags.from + 2, flags.credit)
+              cost: flags.from + 2 - min(flags.from + 2, flags.credit)
+      - id: training
+        kind: branch
+        cases:
+          - when: true
+            flags:
               training: >-
-                params.skill == psionics.training ? min(flags.from + 2, skillPoints.training) : 0
+                params.skill == psionics.training ? min(flags.cost, skillPoints.training) : 0
       - id: pools
         kind: branch
         cases:
@@ -302,6 +350,10 @@ actions:
         kind: changes
         when: flags.allowed && flags.fromGeneral <= skillPoints.general
         changes:
+          - type: adjust
+            when: flags.fromCredit > 0
+            field: { formula: "'skills.' + params.skill + '.credit'" }
+            by: -flags.fromCredit
           - {
               type: adjust,
               field: skillPoints.training,

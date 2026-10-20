@@ -107,6 +107,8 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
   the GM's call). `level-up` rolls the hit dice, grants three skill points (one psychic for a
   psychic, plus the Expert's), and a focus level at 2nd, 5th, 7th and 10th. `raise-skill`,
   `learn-technique` and `boost-attribute` spend the points at the book's costs and level limits.
+  A focus's bonus skill taken on advancement is three points toward that skill; what doesn't buy
+  a level is saved as the skill's `credit`, which `raise-skill` spends first.
 - **Combat:** attack bonus, `attack` (d20 + attack bonus + combat skill, −2 untrained, +
   modifier, +1 for energy weapons, +2 for burst fire) against the target's AC, damage, Shock on
   a miss, ammunition and `reload`; Armor Class from the best armor, a shield and Dexterity.
