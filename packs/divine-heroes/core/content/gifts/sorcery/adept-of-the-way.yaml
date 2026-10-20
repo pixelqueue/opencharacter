@@ -1,0 +1,25 @@
+id: gifts.sorcery.adept-of-the-way
+type: gift
+fields:
+  word: words.sorcery
+  degree: greater
+  activation: constant
+  requires: gifts.sorcery.adept-of-the-gate
+prerequisites:
+  - id: adept
+    when: countCopies(copy.item == @gifts.sorcery.adept-of-the-gate) > 0
+  - id: word
+    when: '@words.sorcery in words.bound'
+choices:
+  - id: invocations
+    pick: 3
+    from:
+      type: invocation
+      where: item.tier == 'way'
+    recommend: filterList([@invocations.curse-of-the-blighted-strand,
+      @invocations.deafening-word-of-truth, @invocations.delaying-the-coming-of-dawn,
+      @invocations.far-distant-lance, @invocations.glyph-of-crowned-impunity,
+      @invocations.mirrored-wheel-of-the-seasons, @invocations.path-to-the-bright-sanctum,
+      @invocations.shutting-the-dark-way, @invocations.sign-of-avulsive-banishment,
+      @invocations.sunder-the-greater-spell, @invocations.tumulus-of-sanctified-night], !(x in
+      choice.picks))[0]

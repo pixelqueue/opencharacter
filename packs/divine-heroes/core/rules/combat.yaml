@@ -1,0 +1,390 @@
+families:
+  save: [hardiness, evasion, spirit]
+
+fields:
+  hp.max:
+    type: integer
+    formula: '8 + attributes.con.mod + (level - 1) * (4 + ceil(attributes.con.mod / 2))'
+    min: 1
+  hp.current: { type: integer, input: true, default: 8, min: 0, max: hp.max }
+
+  attack.bonus: { type: integer, formula: level }
+
+  # Armor class: the lower, the better. Gifts lower the natural AC; worn armor and a shield give
+  # their own; the better of the two counts, Dexterity applies, and nothing is worse than 9.
+  ac.natural: { type: integer, formula: 9 }
+  ac.armor: { type: integer, formula: 9 }
+  ac.shield: { type: integer, formula: 0 }
+  ac.value:
+    type: integer
+    formula: 'min(9, min(ac.natural, ac.armor + ac.shield) - attributes.dex.mod)'
+  # A miracle that gives natural AC 3 for the scene.
+  miracle.armor: { type: boolean, input: true, default: false }
+
+  saves.hardiness.base:
+    type: integer
+    formula: '16 - level - max(attributes.str.mod, attributes.con.mod)'
+  saves.evasion.base:
+    type: integer
+    formula: '16 - level - max(attributes.dex.mod, attributes.int.mod)'
+  saves.spirit.base:
+    type: integer
+    formula: '16 - level - max(attributes.wis.mod, attributes.cha.mod)'
+  # Medium and heavy armor make one or two saves 4 harder.
+  'saves.{save}.penalty': { type: integer, formula: 0, tags: [save-penalty, 'save.{save}'] }
+  'saves.{save}.value':
+    type: integer
+    formula: 'saves.{save}.base + saves.{save}.penalty'
+    tags: [save, 'save.{save}']
+
+  fray.die: { type: dice, formula: 1d8 }
+  # Gifts that make melee or ranged damage dice at least a d10 or d12 (the die's sides), add to
+  # melee damage, or always roll the most.
+  damage.melee.floor: { type: integer, formula: 0 }
+  damage.melee.twoHandedFloor: { type: integer, formula: 0 }
+  damage.melee.bonus: { type: integer, formula: 0 }
+  damage.ranged.floor: { type: integer, formula: 0 }
+  damage.melee.maximize: { type: integer, formula: 0 }
+  damage.ranged.maximize: { type: integer, formula: 0 }
+  fray.maximize: { type: integer, formula: 0 }
+
+  fury.active: { type: boolean, input: true, default: false }
+  fury.spent: { type: boolean, input: true, default: false }
+
+effects:
+  - id: miracle-armor
+    target: ac.natural
+    op: atMost
+    value: 3
+    when: miracle.armor
+
+situational:
+  - id: fact
+    type: boolean
+    default: false
+    rolls: [check]
+    effects:
+      - target: { rolls: [check] }
+        op: add
+        value: 4
+
+# A d20 roll against a target number: a natural 20 always succeeds and a natural 1 always fails.
+resultBands:
+  d20:
+    value: 'roll.kept[0] == 20 || (roll.kept[0] != 1 && roll.total >= flags.target) ? 1 : 0'
+    bands:
+      - { id: success, when: roll.value == 1 }
+      - { id: failure, when: true }
+  # To hit: d20 + attack bonus + modifier + the target's AC reaches 20. Without a target's AC the
+  # roll is only reported.
+  attack:
+    value: >-
+      roll.kept[0] == 20 ? 2 : roll.kept[0] == 1 ? 0 : !flags.known ? 1
+        : roll.total + flags.ac >= 20 ? 2 : 0
+    bands:
+      - { id: hit, when: roll.value == 2 }
+      - { id: rolled, when: roll.value == 1 }
+      - { id: miss, when: true }
+
+followUps:
+  - id: divine-fury
+    becomes: hp.current == 0 && !fury.spent && !fury.active
+    action: divine-fury
+
+actions:
+  - id: attribute-check
+    tags: [check]
+    params:
+      attribute: { type: enum, values: [str, dex, con, wis, int, cha] }
+      modifier: { type: integer, default: 0 }
+    results: { bands: d20 }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              target: "fieldOf('attributes.{attribute}.check', params.attribute)"
+      - id: roll
+        kind: roll
+        tags: [check, { formula: "'check.' + params.attribute" }]
+        bands: d20
+        parts:
+          - dice: 1d20
+          - value: params.modifier
+            when: params.modifier != 0
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          roll: steps.roll.total
+          target: flags.target
+
+  # A failed save can be made a success by committing Effort for the day.
+  - id: saving-throw
+    tags: [save]
+    params:
+      save: { type: enum, values: [hardiness, evasion, spirit] }
+      modifier: { type: integer, default: 0 }
+    results: { bands: d20 }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              target: "fieldOf('saves.{save}.value', params.save)"
+              result: "'failure'"
+      - id: roll
+        kind: roll
+        tags: [save, { formula: "'save.' + params.save" }]
+        bands: d20
+        parts:
+          - dice: 1d20
+          - value: params.modifier
+            when: params.modifier != 0
+      - id: rolled
+        kind: branch
+        cases:
+          - when: true
+            flags: { result: steps.roll.band }
+      - id: effort
+        kind: choice
+        tags: [failed-save]
+        when: "flags.result == 'failure' && effort.free > 0"
+        options:
+          - id: commit
+            flags: { result: "'success'" }
+            changes:
+              - { type: adjust, field: effort.day, by: 1 }
+          - id: accept
+        recommend: "'accept'"
+      - id: result
+        kind: outcome
+        result: flags.result
+        data:
+          roll: steps.roll.total
+          target: flags.target
+
+  # A weapon's, a gift's or a Word's attack. The damage roll is read on the damage chart, each die
+  # apart, with the attribute modifier added to the die it helps most; `straight` reads the total.
+  - id: attack
+    tags: [attack]
+    available: >-
+      has(item.damage) && (item.type != 'weapon' || self.equipped || item.id == @weapons.unarmed)
+        && (item.type != 'gift' || item.commit != 'active' || self.committed > 0)
+    params:
+      attribute: { type: enum, values: [str, dex, con, wis, int, cha], optional: true }
+      targetAc: { type: integer, optional: true }
+      modifier: { type: integer, default: 0 }
+      maximize: { type: boolean, default: false }
+      straight: { type: boolean, default: false }
+    results: { bands: attack }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              known: has(params.targetAc)
+              ac: 'has(params.targetAc) ? params.targetAc : 0'
+              ranged: has(item.ranged) && item.ranged
+              base: item.damage
+              mod: >-
+                has(params.attribute) ? fieldOf('attributes.{attribute}.mod', params.attribute)
+                  : !has(item.attribute) ? maxFields(f.value, 'attribute-mod' in f.tags)
+                  : item.attribute == 'str' ? attributes.str.mod
+                  : item.attribute == 'dex' ? attributes.dex.mod
+                  : max(attributes.str.mod, attributes.dex.mod)
+              floor: >-
+                has(item.ranged) && item.ranged ? damage.ranged.floor
+                  : max(damage.melee.floor,
+                    has(item.twoHanded) && item.twoHanded ? damage.melee.twoHandedFloor : 0)
+      - id: dice
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              die: 'flags.floor > maxOf(flags.base) ? (flags.floor >= 12 ? 1d12 : 1d10) : flags.base'
+              bonus: 'flags.ranged ? 0 : damage.melee.bonus'
+              maximize: >-
+                params.maximize
+                  || (flags.ranged ? damage.ranged.maximize > 0 : damage.melee.maximize > 0)
+      - id: hit
+        kind: roll
+        tags: [{ formula: "flags.ranged ? 'attack.ranged' : 'attack.melee'" }]
+        bands: attack
+        parts:
+          - dice: 1d20
+          - field: "'attack.bonus'"
+          - value: flags.mod
+          - value: params.modifier
+            when: params.modifier != 0
+          - value: item.hitModifier
+            when: has(item.hitModifier)
+      - id: damage
+        kind: roll
+        when: "steps.hit.band != 'miss'"
+        tags: [{ formula: "flags.ranged ? 'damage.ranged' : 'damage.melee'" }]
+        parts:
+          - dice: flags.die
+          - value: flags.mod
+          - value: flags.bonus
+            when: flags.bonus != 0
+      - id: faces
+        kind: branch
+        cases:
+          - when: has(steps.damage)
+            flags:
+              faces: >-
+                flags.maximize ? mapList(steps.damage.kept, maxOf(dieOf(flags.die)))
+                  : steps.damage.kept
+              add: steps.damage.total - sumList(steps.damage.kept, x)
+      - id: total
+        kind: branch
+        cases:
+          - when: has(steps.damage) && params.straight
+            flags:
+              damage: 'sumList(flags.faces, x) + flags.add'
+          - when: has(steps.damage)
+            flags:
+              damage: >-
+                sumList(flags.faces, x <= 1 ? 0 : x <= 5 ? 1 : x <= 9 ? 2 : 4)
+                  + maxList(flags.faces,
+                    (x + flags.add <= 1 ? 0 : x + flags.add <= 5 ? 1 : x + flags.add <= 9 ? 2 : 4)
+                      - (x <= 1 ? 0 : x <= 5 ? 1 : x <= 9 ? 2 : 4))
+          - when: true
+            flags:
+              damage: 0
+      - id: result
+        kind: outcome
+        result: steps.hit.band
+        data:
+          hit: steps.hit.total
+          damage: flags.damage
+
+  # The Fray die: each round, against one lesser foe, read on the damage chart.
+  - id: fray
+    tags: [fray]
+    params:
+      straight: { type: boolean, default: false }
+    results: [rolled]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [fray]
+        parts:
+          - dice: fray.die
+      - id: faces
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              faces: >-
+                fray.maximize > 0 ? mapList(steps.roll.kept, maxOf(dieOf(fray.die)))
+                  : steps.roll.kept
+      - id: total
+        kind: branch
+        cases:
+          - when: params.straight
+            flags:
+              damage: 'sumList(flags.faces, x)'
+          - when: true
+            flags:
+              damage: 'sumList(flags.faces, x <= 1 ? 0 : x <= 5 ? 1 : x <= 9 ? 2 : 4)'
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          damage: flags.damage
+
+  - id: take-damage
+    tags: [health]
+    params:
+      amount: { type: integer, min: 0 }
+    results: [taken]
+    steps:
+      - id: deal
+        kind: changes
+        changes:
+          - type: adjust
+            when: params.amount > 0
+            field: hp.current
+            by: -params.amount
+            tags: [damage]
+      - id: result
+        kind: outcome
+        result: "'taken'"
+        data:
+          amount: params.amount
+
+  # Magical healing of hit points costs the one healed a day's Effort.
+  - id: heal
+    tags: [health]
+    params:
+      amount: { type: integer, min: 0 }
+      magical: { type: boolean, default: false }
+    results: [healed]
+    steps:
+      - id: restore
+        kind: changes
+        changes:
+          - type: adjust
+            when: params.amount > 0
+            field: hp.current
+            by: params.amount
+            tags: [healing]
+          - type: adjust
+            when: params.magical
+            field: effort.day
+            by: 1
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          amount: params.amount
+
+  # A full day of rest restores every hit point.
+  - id: rest
+    tags: [health, rest]
+    results: [rested]
+    steps:
+      - id: restore
+        kind: changes
+        changes:
+          - { type: set, field: hp.current, value: hp.max }
+      - id: result
+        kind: outcome
+        result: "'rested'"
+
+  # At zero hit points, once a level: half the hit points back and bonus Effort equal to the level
+  # for as many rounds as the level.
+  - id: divine-fury
+    tags: [health, fury]
+    available: hp.current == 0 && !fury.spent && !fury.active
+    results: [raging]
+    steps:
+      - id: rage
+        kind: changes
+        changes:
+          - { type: set, field: hp.current, value: ceil(hp.max / 2) }
+          - { type: set, field: fury.active, value: true }
+          - { type: set, field: fury.spent, value: true }
+      - id: result
+        kind: outcome
+        result: "'raging'"
+        data:
+          rounds: level
+
+  - id: end-fury
+    tags: [health, fury]
+    available: fury.active
+    results: [ended]
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - { type: set, field: fury.active, value: false }
+      - id: result
+        kind: outcome
+        result: "'ended'"

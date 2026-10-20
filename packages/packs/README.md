@@ -47,6 +47,16 @@ text, under the same licenses:
 | `wn-fantasy`     | CC0-1.0 (the Worlds Without Number SRD)                          | `not-affiliated`                                             |
 | `wn-scifi`       | free edition text by the author's permission (own work CC0 1.0)  | `credit`; `permission`, `not-affiliated`                     |
 | `wn-apocalypse`  | free-edition text with the author's permission                   | `credit`; `permission`, `not-affiliated`                     |
+| Pack                 | License                                                                | Credit and notices                                           |
+| -------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `5e-srd-5.1`         | CC-BY-4.0                                                              | `credit` (the SRD 5.1 attribution)                           |
+| `fate-core`          | CC-BY-3.0                                                              | `credit` (Evil Hat's attribution)                            |
+| `orc-2e`             | ORC License                                                            | `credit`; `orc`, `reserved-material`, `expressly-designated` |
+| `fitd-scoundrel`     | mechanics-only (own work CC0 1.0; SRD material CC-BY-3.0)              | `credit` (the SRD's attribution)                             |
+| `fitd-crew`          | mechanics-only (own work CC0 1.0; SRD material CC-BY-3.0)              | `credit` (the SRD's attribution)                             |
+| `mork-borg-core`     | mechanics-only (own work CC0 1.0), MÖRK BORG Third Party License       | `credit`; `not-affiliated`                                   |
+| `mothership-1e`      | mechanics-only (own work CC0 1.0)                                      | none                                                         |
+| `divine-heroes-core` | Free Edition text used with the author's permission (own work CC0 1.0) | `credit`; `permission`, `not-affiliated`                     |
 
 **How credits and notices reach users:** each pack's `credit` and `notices` are in its release's
 manifest, and `loadRuleset` lists them in the ruleset's `packs`. An app that uses a pack's content

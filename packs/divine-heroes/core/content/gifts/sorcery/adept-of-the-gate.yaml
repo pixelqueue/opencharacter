@@ -1,0 +1,19 @@
+id: gifts.sorcery.adept-of-the-gate
+type: gift
+fields:
+  word: words.sorcery
+  degree: lesser
+  activation: constant
+choices:
+  - id: invocations
+    pick: 4
+    from:
+      type: invocation
+      where: item.tier == 'gate'
+    recommend: filterList([@invocations.barred-gates-of-forbiddance,
+      @invocations.beacon-of-celestial-purity, @invocations.bright-gods-canticle,
+      @invocations.excision-of-days, @invocations.kiss-of-the-crane,
+      @invocations.open-the-night-road, @invocations.pore-of-hell, @invocations.ranks-of-pale-bone,
+      @invocations.seal-of-regnal-dominion, @invocations.sunder-the-lesser-spell,
+      @invocations.tireless-iron-cavalcade, @invocations.trumpet-of-far-utterance], !(x in
+      choice.picks))[0]

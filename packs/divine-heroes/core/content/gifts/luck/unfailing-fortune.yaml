@@ -1,0 +1,24 @@
+id: gifts.luck.unfailing-fortune
+type: gift
+fields:
+  word: words.luck
+  degree: greater
+  activation: constant
+prerequisites:
+  - id: word
+    when: '@words.luck in words.bound'
+effects:
+  - target:
+      rolls:
+        - check
+        - save
+        - attack
+        - damage
+        - fray
+        - healing
+        - luck
+    op: rollModifier
+    value:
+      kind: reroll
+      below: 1
+      once: true

@@ -1,0 +1,164 @@
+fields:
+  # Effort committed for the scene or for the day, from gifts, miracles and saves; Effort a gift
+  # holds while it lasts is that gift's copy's `committed`.
+  effort.scene: { type: integer, input: true, default: 0, min: 0 }
+  effort.day: { type: integer, input: true, default: 0, min: 0 }
+  effort.active:
+    type: integer
+    formula: "sumCopies(copy.state.committed, copy.type == 'gift' && has(copy.state.committed))"
+  effort.max:
+    type: integer
+    formula: '2 + (level - 1) + (fury.active ? level : 0)'
+  effort.committed: { type: integer, formula: effort.scene + effort.day + effort.active }
+  effort.free: { type: integer, formula: effort.max - effort.committed }
+
+constraints:
+  - id: effort-limit
+    check: effort.committed <= effort.max
+
+actions:
+  # Commits Effort for the scene or the day: a miracle, an extra use of a gift, a defense.
+  - id: commit-effort
+    tags: [effort]
+    available: effort.free > 0
+    params:
+      duration: { type: enum, values: [scene, day], default: day }
+      amount: { type: integer, default: 1, min: 1 }
+    results: [committed]
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - type: adjust
+            when: "params.duration == 'scene'"
+            field: effort.scene
+            by: params.amount
+          - type: adjust
+            when: "params.duration == 'day'"
+            field: effort.day
+            by: params.amount
+      - id: result
+        kind: outcome
+        result: "'committed'"
+        data:
+          amount: params.amount
+
+  # A miracle: one Effort for the day, two to mimic a gift that already commits for the day.
+  # Hurting one target is a smite of 1d8 per level; several targets, 1d6 per two levels.
+  - id: miracle
+    tags: [effort, miracle]
+    available: effort.free > 0
+    params:
+      kind:
+        type: enum
+        values: [effect, mimic-day-gift, armor, hurt-one, hurt-several]
+        default: effect
+      straight: { type: boolean, default: false }
+    results: [invoked]
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - type: adjust
+            field: effort.day
+            by: "params.kind == 'mimic-day-gift' ? 2 : 1"
+          - type: set
+            when: "params.kind == 'armor'"
+            field: miracle.armor
+            value: true
+      - id: damage
+        kind: roll
+        when: "params.kind == 'hurt-one' || params.kind == 'hurt-several'"
+        tags: [damage, damage.miracle]
+        parts:
+          - dice: "params.kind == 'hurt-one' ? (min(level, 10))d8 : (min(ceil(level / 2), 10))d6"
+      - id: total
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              damage: >-
+                !has(steps.damage) ? 0
+                  : params.straight ? steps.damage.total
+                  : sumList(steps.damage.kept, x <= 1 ? 0 : x <= 5 ? 1 : x <= 9 ? 2 : 4)
+      - id: result
+        kind: outcome
+        result: "'invoked'"
+        data:
+          damage: flags.damage
+
+  - id: end-scene
+    tags: [effort, rest]
+    results: [ended]
+    steps:
+      - id: reset
+        kind: changes
+        changes:
+          - { type: set, field: effort.scene, value: 0 }
+          - { type: set, field: miracle.armor, value: false }
+      - id: result
+        kind: outcome
+        result: "'ended'"
+
+  # Each morning: Effort committed for the day or scene returns, and so does Effort held by
+  # gifts unless the hero keeps them going. Artifacts recover their Effort too.
+  - id: new-day
+    tags: [effort, rest]
+    params:
+      keepActive: { type: boolean, default: false }
+    results: [dawn]
+    steps:
+      - id: reset
+        kind: changes
+        changes:
+          - { type: set, field: effort.scene, value: 0 }
+          - { type: set, field: effort.day, value: 0 }
+          - { type: set, field: miracle.armor, value: false }
+          - { type: set, field: luck.reserve, value: 0 }
+          - { type: set, field: luck.rolled, value: false }
+          - type: setState
+            when: '!params.keepActive'
+            copies: { type: gift, where: self.committed > 0 }
+            key: committed
+            value: 0
+          - type: setState
+            copies: { type: artifact, where: self.spent > 0 }
+            key: spent
+            value: 0
+          - type: setState
+            copies: { type: artifact, where: self.bonded }
+            key: bonded
+            value: false
+      - id: result
+        kind: outcome
+        result: "'dawn'"
+
+  - id: commit-influence
+    tags: [influence]
+    available: influence.free > 0
+    params:
+      amount: { type: integer, default: 1, min: 1 }
+    results: [committed]
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - { type: adjust, field: influence.committed, by: params.amount }
+      - id: result
+        kind: outcome
+        result: "'committed'"
+
+  - id: reclaim-influence
+    tags: [influence]
+    available: influence.committed > 0
+    params:
+      amount: { type: integer, default: 1, min: 1 }
+    results: [reclaimed]
+    steps:
+      - id: reclaim
+        kind: changes
+        changes:
+          - { type: adjust, field: influence.committed, by: -params.amount }
+      - id: result
+        kind: outcome
+        result: "'reclaimed'"

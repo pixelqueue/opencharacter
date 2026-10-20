@@ -1,0 +1,272 @@
+fields:
+  words.bound: { type: set, of: word }
+  words.count:
+    { type: integer, formula: "countCopies(copy.type == 'word' && copy.fields.bindable)" }
+
+  # Gift points: six at first level and two more each level. A lesser gift of a bound Word costs
+  # one, a greater gift two, a lesser gift of another Word two; a universal gift one (Effort of the
+  # Word two after the first); each Word past the first three costs three. A gift bought at the
+  # higher price costs one once its Word is bound.
+  gifts.points.total: { type: integer, formula: 6 + 2 * (level - 1) }
+  gifts.effortOfTheWord:
+    type: integer
+    formula: 'countCopies(copy.item == @gifts.universal.effort-of-the-word)'
+  gifts.influenceOfTheWord:
+    type: integer
+    formula: 'countCopies(copy.item == @gifts.universal.influence-of-the-word)'
+  gifts.points.spent:
+    type: integer
+    formula: >-
+      sumCopies(
+        !has(copy.fields.word) ? 1
+          : copy.fields.word in words.bound ? (copy.fields.degree == 'greater' ? 2 : 1)
+          : 2,
+        copy.type == 'gift' && !has(copy.fields.apotheosisLevel))
+        + max(0, gifts.effortOfTheWord - 1)
+        + 3 * max(0, words.count - 3)
+  gifts.points.free: { type: integer, formula: gifts.points.total - gifts.points.spent }
+
+  luck.reserve: { type: integer, input: true, default: 0, min: 0, max: 20 }
+  luck.rolled: { type: boolean, input: true, default: false }
+
+# The Word of Apotheosis: every character's, granting its gifts by level unless the character is
+# a free divinity.
+standardCopies:
+  - { type: word, where: 'item.id == @words.apotheosis' }
+
+constraints:
+  - id: creation-words
+    check: '!character.creating || words.count >= 3'
+  - id: gift-points
+    check: gifts.points.spent <= gifts.points.total
+  - id: effort-of-the-word
+    check: gifts.effortOfTheWord <= max(1, words.count)
+  - id: influence-of-the-word
+    check: gifts.influenceOfTheWord <= max(1, words.count)
+  # A gift is learned once unless it says it can be taken again.
+  - id: gift-once
+    copies: { type: gift, where: '!item.repeatable' }
+    check: countCopies(copy.item == item.id) <= 1
+
+contentTypes:
+  word:
+    carried: false
+    copies: { perItem: 1 }
+    fields:
+      bindable: { type: boolean, default: true }
+      # A Word that is itself a weapon (Fire).
+      damage: { type: dice }
+      ranged: { type: boolean }
+      range: { type: integer, min: 0 }
+    effects:
+      - id: bound
+        target: words.bound
+        op: grant
+        value: { formula: item.id }
+        when: item.bindable
+    actions:
+      - use: attack
+
+  gift:
+    carried: false
+    fields:
+      word: { type: id, of: word }
+      degree: { type: enum, values: [lesser, greater] }
+      activation: { type: enum, values: [constant, on-turn, action, instant], required: true }
+      smite: { type: boolean, default: false }
+      # How long Effort stays committed when the gift is used: while it lasts, to the end of the
+      # scene, or for the day.
+      commit: { type: enum, values: [none, active, scene, day], default: none }
+      repeatable: { type: boolean, default: false }
+      requires: { type: id, of: gift }
+      apotheosisLevel: { type: integer, min: 1, max: 10 }
+      # A gift that is a weapon.
+      damage: { type: dice }
+      ranged: { type: boolean }
+      range: { type: integer, min: 0 }
+      attribute: { type: enum, values: [str, dex, str-or-dex] }
+      twoHanded: { type: boolean }
+      hitModifier: { type: integer }
+      # A gift that deals damage without an attack roll, read on the damage chart unless straight.
+      blast: { type: dice }
+      blastMob: { type: dice }
+      blastStraight: { type: boolean, default: false }
+      halvedBy: { type: enum, values: [hardiness, evasion, spirit] }
+      # A gift that heals; `day` when the one healed must commit Effort for the day.
+      healing: { type: dice }
+      healingCost: { type: enum, values: [none, day], default: none }
+    state:
+      committed: { type: integer, default: 0, min: 0 }
+    actions:
+      - use: invoke-gift
+      - use: release-gift
+      - use: attack
+      - use: gift-blast
+      - use: gift-heal
+
+actions:
+  # Uses a gift that commits Effort: while it lasts (held on the gift until released), for the
+  # scene, or for the day.
+  - id: invoke-gift
+    tags: [gift, effort]
+    available: >-
+      item.commit != 'none' && !has(item.blast) && !has(item.healing) && effort.free > 0
+        && (item.commit != 'active' || self.committed == 0)
+    results: [invoked]
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - type: adjustState
+            when: "item.commit == 'active'"
+            entry: self
+            key: committed
+            by: 1
+          - type: adjust
+            when: "item.commit == 'scene'"
+            field: effort.scene
+            by: 1
+          - type: adjust
+            when: "item.commit == 'day'"
+            field: effort.day
+            by: 1
+      - id: result
+        kind: outcome
+        result: "'invoked'"
+
+  - id: release-gift
+    tags: [gift, effort]
+    available: "item.commit == 'active' && self.committed > 0"
+    results: [released]
+    steps:
+      - id: release
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: committed, value: 0 }
+      - id: result
+        kind: outcome
+        result: "'released'"
+
+  - id: gift-blast
+    tags: [gift, damage]
+    available: "has(item.blast) && (item.commit == 'none' || effort.free > 0)"
+    params:
+      mob: { type: boolean, default: false }
+      straight: { type: boolean, default: false }
+    results: [rolled]
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - type: adjust
+            when: "item.commit == 'scene'"
+            field: effort.scene
+            by: 1
+          - type: adjust
+            when: "item.commit == 'day' || item.commit == 'active'"
+            field: effort.day
+            by: 1
+      - id: roll
+        kind: roll
+        tags: [damage, damage.gift]
+        parts:
+          - dice: 'params.mob && has(item.blastMob) ? item.blastMob : item.blast'
+      - id: total
+        kind: branch
+        cases:
+          - when: params.straight || params.mob || item.blastStraight
+            flags:
+              damage: steps.roll.total
+          - when: true
+            flags:
+              damage: 'sumList(steps.roll.kept, x <= 1 ? 0 : x <= 5 ? 1 : x <= 9 ? 2 : 4)'
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          damage: flags.damage
+
+  - id: gift-heal
+    tags: [gift, healing]
+    available: "has(item.healing) && (item.commit == 'none' || effort.free > 0)"
+    params:
+      onSelf: { type: boolean, default: true }
+    results: [healed]
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - type: adjust
+            when: "item.commit == 'scene'"
+            field: effort.scene
+            by: 1
+          - type: adjust
+            when: "item.commit == 'day' || item.commit == 'active'"
+            field: effort.day
+            by: 1
+      - id: roll
+        kind: roll
+        tags: [healing]
+        parts:
+          - dice: item.healing
+      - id: self
+        kind: changes
+        when: params.onSelf
+        changes:
+          - { type: adjust, field: hp.current, by: steps.roll.total, tags: [healing] }
+          - type: adjust
+            when: "item.healingCost == 'day'"
+            field: effort.day
+            by: 1
+      - id: other
+        kind: changes
+        when: '!params.onSelf'
+        to: target
+        changes:
+          - { type: adjust, field: hp.current, by: steps.roll.total, tags: [healing] }
+          - type: adjust
+            when: "item.healingCost == 'day'"
+            field: effort.day
+            by: 1
+      - id: result
+        kind: outcome
+        result: "'healed'"
+        data:
+          amount: steps.roll.total
+
+  # The Word of Luck: a d20 kept in reserve each day, to replace one d20 roll.
+  - id: luck-reserve
+    tags: [luck]
+    available: '!luck.rolled'
+    results: [rolled]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [luck]
+        parts:
+          - dice: 1d20
+      - id: keep
+        kind: changes
+        changes:
+          - { type: set, field: luck.reserve, value: steps.roll.total }
+          - { type: set, field: luck.rolled, value: true }
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          roll: steps.roll.total
+
+  - id: spend-luck
+    tags: [luck]
+    available: luck.reserve > 0
+    results: [spent]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: set, field: luck.reserve, value: 0 }
+      - id: result
+        kind: outcome
+        result: "'spent'"
+        data:
+          roll: luck.reserve

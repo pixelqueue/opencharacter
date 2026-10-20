@@ -1,0 +1,15 @@
+id: words.knowledge
+type: word
+choices:
+  - id: attribute
+    from:
+      values:
+        - int
+        - wis
+    recommend: "attributes.int.base <= attributes.wis.base ? 'int' : 'wis'"
+    effects:
+      - target:
+          fields:
+            where: "'attribute' in item.tags && 'attr.' + pick.value in item.tags"
+        op: atLeast
+        value: "fieldOf('attributes.{attribute}.base', pick.value) >= 16 ? 18 : 16"

@@ -1,0 +1,16 @@
+id: gifts.artifice.hammerhand
+type: gift
+fields:
+  word: words.artifice
+  degree: lesser
+  activation: on-turn
+  commit: active
+effects:
+  - target: damage.melee.floor
+    op: atLeast
+    value: 10
+    when: self.committed > 0
+  - target: damage.ranged.floor
+    op: atLeast
+    value: 10
+    when: self.committed > 0

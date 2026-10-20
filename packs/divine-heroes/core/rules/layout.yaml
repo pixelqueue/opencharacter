@@ -1,0 +1,210 @@
+display:
+  groups:
+    - id: attributes
+      priority: 0
+      members: { type: field, where: "'attribute' in item.tags" }
+    - id: saves
+      priority: 0
+      members: { type: field, where: "'save' in item.tags" }
+    - id: combat
+      priority: 0
+    - id: effort
+      priority: 0
+    - id: facts
+      priority: 1
+    - id: advancement
+      priority: 1
+    - id: resources
+      priority: 1
+    - id: low-magic
+      priority: 2
+      showWhen: hasChoice('tradition') || lowMagic.spontaneous > 0 || lowMagic.prepared > 0
+    - id: words
+      kind: content
+      priority: 0
+      members: { type: word }
+    - id: gifts
+      kind: content
+      priority: 0
+      members: { type: gift }
+      sectionBy: >-
+        has(item.apotheosisLevel) ? 3 : !has(item.word) ? 2 : item.degree == 'greater' ? 1 : 0
+    - id: invocations
+      kind: content
+      priority: 1
+      members: { type: invocation }
+      sectionBy: "indexOf(['gate', 'way', 'throne'], item.tier)"
+    - id: traditions
+      kind: content
+      priority: 2
+      members: { type: tradition }
+    - id: weapons
+      kind: content
+      priority: 1
+      members: { type: weapon }
+    - id: armor
+      kind: content
+      priority: 1
+      members: { type: armor }
+    - id: shields
+      kind: content
+      priority: 1
+      members: { type: shield }
+    - id: artifacts
+      kind: content
+      priority: 1
+      members: { type: artifact }
+    - id: attacks
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'attack' in item.tags || 'fray' in item.tags" }
+    - id: rolls
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'check' in item.tags || 'save' in item.tags" }
+    - id: powers
+      kind: actions
+      priority: 1
+      members:
+        type: action
+        where: >-
+          'gift' in item.tags || 'miracle' in item.tags || 'effort' in item.tags
+            || 'theurgy' in item.tags || 'low-magic' in item.tags || 'artifact' in item.tags
+            || 'luck' in item.tags || 'influence' in item.tags
+    - id: health-actions
+      kind: actions
+      priority: 1
+      members:
+        type: action
+        where: "'health' in item.tags || 'rest' in item.tags || 'fury' in item.tags"
+    - id: creation
+      kind: actions
+      priority: 3
+      visibility: background
+      members: { type: action, where: "'creation' in item.tags || 'level' in item.tags" }
+
+  fields:
+    'attributes.{attribute}.score':
+      with:
+        - { field: 'attributes.{attribute}.mod', as: modifier }
+        - { field: 'attributes.{attribute}.check', as: detail }
+      rolls: [{ action: attribute-check, params: { attribute: '{attribute}' } }]
+    'attributes.{attribute}.base': { groups: [attributes], priority: 2, visibility: background }
+    'attributes.{attribute}.mod': { format: signed }
+    'saves.{save}.value':
+      with: [{ field: 'saves.{save}.penalty', as: detail }]
+      rolls: [{ action: saving-throw, params: { save: '{save}' } }]
+    saves.hardiness.base: { hidden: true }
+    saves.evasion.base: { hidden: true }
+    saves.spirit.base: { hidden: true }
+
+    hp.current:
+      groups: [combat]
+      priority: 0
+      visibility: primary
+      with: [{ field: hp.max, as: max }]
+      rolls: [{ action: take-damage }, { action: heal }]
+    hp.max: { groups: [combat], priority: 1, visibility: background }
+    ac.value: { groups: [combat], priority: 0, visibility: primary }
+    ac.natural: { groups: [combat], priority: 2, visibility: background }
+    ac.armor: { groups: [combat], priority: 2, visibility: background }
+    ac.shield: { groups: [combat], priority: 2, visibility: background }
+    miracle.armor:
+      { groups: [combat], priority: 2, input: { widget: checkbox }, showWhen: miracle.armor }
+    attack.bonus: { groups: [combat], priority: 0, format: signed }
+    fray.die: { groups: [combat], priority: 0, format: dice, rolls: [{ action: fray }] }
+    fury.active: { groups: [combat], priority: 1, input: { widget: checkbox } }
+    fury.spent: { groups: [combat], priority: 2, input: { widget: checkbox } }
+    damage.melee.floor: { hidden: true }
+    damage.melee.twoHandedFloor: { hidden: true }
+    damage.melee.bonus: { hidden: true }
+    damage.ranged.floor: { hidden: true }
+    damage.melee.maximize: { hidden: true }
+    damage.ranged.maximize: { hidden: true }
+    fray.maximize: { hidden: true }
+
+    effort.free:
+      groups: [effort]
+      priority: 0
+      visibility: primary
+      with: [{ field: effort.max, as: max }]
+    effort.max: { groups: [effort], priority: 1 }
+    effort.committed: { groups: [effort], priority: 1 }
+    effort.active: { groups: [effort], priority: 2 }
+    effort.scene: { groups: [effort], priority: 2 }
+    effort.day: { groups: [effort], priority: 2 }
+    influence.free:
+      groups: [effort]
+      priority: 0
+      with: [{ field: influence.max, as: max }]
+    influence.max: { groups: [effort], priority: 1 }
+    influence.committed: { groups: [effort], priority: 2 }
+    luck.reserve: { groups: [effort], priority: 2, showWhen: luck.reserve > 0 || luck.rolled }
+    luck.rolled: { hidden: true }
+
+    facts.origin: { groups: [facts], priority: 0, input: { widget: text } }
+    facts.career: { groups: [facts], priority: 0, input: { widget: text } }
+    facts.relationship: { groups: [facts], priority: 0, input: { widget: text } }
+    'facts.level{factLevel}':
+      groups: [facts]
+      priority: 1
+      input: { widget: text }
+      showWhen: 'level >= {factLevel}'
+    goal: { groups: [facts], priority: 2, input: { widget: text } }
+
+    level: { groups: [advancement], priority: 0, visibility: primary }
+    xp.current: { groups: [advancement], priority: 0, with: [{ field: xp.next, as: detail }] }
+    xp.next: { groups: [advancement], priority: 1 }
+    dominion.spent:
+      groups: [advancement]
+      priority: 0
+      with: [{ field: dominion.next, as: detail }]
+    dominion.next: { groups: [advancement], priority: 1 }
+    gifts.points.free:
+      groups: [advancement]
+      priority: 0
+      with: [{ field: gifts.points.total, as: max }]
+    gifts.points.total: { groups: [advancement], priority: 1 }
+    gifts.points.spent: { groups: [advancement], priority: 1 }
+    gifts.effortOfTheWord: { hidden: true }
+    gifts.influenceOfTheWord: { hidden: true }
+    words.bound: { hidden: true }
+    words.count: { hidden: true }
+    apotheosis.free: { groups: [advancement], priority: 2, input: { widget: checkbox } }
+
+    dominion.current: { groups: [resources], priority: 0 }
+    dominion.monthly: { groups: [resources], priority: 1, showWhen: dominion.monthly > 0 }
+    wealth.current: { groups: [resources], priority: 0 }
+
+    lowMagic.spontaneous:
+      groups: [low-magic]
+      priority: 0
+      with: [{ field: lowMagic.spontaneousMax, as: max }]
+    lowMagic.spontaneousMax: { groups: [low-magic], priority: 1 }
+    lowMagic.prepared:
+      groups: [low-magic]
+      priority: 0
+      with: [{ field: lowMagic.preparedMax, as: max }]
+    lowMagic.preparedMax: { groups: [low-magic], priority: 1 }
+    lowMagic.strain: { groups: [low-magic], priority: 1, showWhen: lowMagic.strain > 0 }
+
+  types:
+    word: { quantity: { hidden: true } }
+    gift:
+      quantity: { hidden: true }
+      state:
+        committed: { priority: 0, showWhen: "item.commit == 'active'" }
+      fields:
+        damage: { format: dice }
+        blast: { format: dice }
+        blastMob: { format: dice }
+        healing: { format: dice }
+    invocation: { quantity: { hidden: true } }
+    tradition: { quantity: { hidden: true } }
+    weapon:
+      fields:
+        damage: { format: dice }
+    artifact:
+      state:
+        spent: { priority: 0 }
+        bonded: { priority: 0 }

@@ -1,0 +1,24 @@
+id: gifts.sorcery.adept-of-the-throne
+type: gift
+fields:
+  word: words.sorcery
+  degree: greater
+  activation: constant
+  requires: gifts.sorcery.adept-of-the-way
+prerequisites:
+  - id: adept
+    when: countCopies(copy.item == @gifts.sorcery.adept-of-the-way) > 0
+  - id: word
+    when: '@words.sorcery in words.bound'
+choices:
+  - id: invocations
+    pick: 2
+    from:
+      type: invocation
+      where: item.tier == 'throne'
+    recommend: filterList([@invocations.hearts-desire, @invocations.auspice-of-the-divine-king,
+      @invocations.directed-convulsion-of-law, @invocations.gifts-of-spring-and-winter,
+      @invocations.grinding-teeth-of-god, @invocations.legion-of-marching-clay,
+      @invocations.palace-of-the-sorcerer-prince, @invocations.pierce-the-veil-of-night,
+      @invocations.summon-the-black-iron-servitor, @invocations.sunder-every-sorcery], !(x in
+      choice.picks))[0]

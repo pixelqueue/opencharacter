@@ -1,0 +1,44 @@
+standardCopies:
+  - { type: weapon, where: 'item.id == @weapons.unarmed' }
+
+contentTypes:
+  weapon:
+    carried: true
+    equippable: true
+    fields:
+      damage: { type: dice, required: true }
+      # `str-or-dex`: the better of the two.
+      attribute: { type: enum, values: [str, dex, str-or-dex], required: true }
+      ranged: { type: boolean, default: false }
+      twoHanded: { type: boolean, default: false }
+      # Maximum range, in yards.
+      range: { type: integer, min: 0 }
+    actions:
+      - use: attack
+
+  armor:
+    carried: true
+    equippable: true
+    fields:
+      weight: { type: enum, values: [light, medium, heavy], required: true }
+      ac: { type: integer, required: true }
+      # How many saves the armor makes 4 harder: chosen on the suit, once.
+      penalties: { type: integer, default: 0, min: 0, max: 2 }
+    effects:
+      - id: armor-class
+        target: ac.armor
+        op: atMost
+        value: item.ac
+        when: self.equipped
+
+  shield:
+    carried: true
+    equippable: true
+    fields:
+      bonus: { type: integer, default: 1, min: 0 }
+    effects:
+      - id: shield
+        target: ac.shield
+        op: add
+        value: -item.bonus
+        when: self.equipped

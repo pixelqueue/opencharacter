@@ -1,0 +1,15 @@
+id: gifts.bow.inexorable-shaft
+type: gift
+fields:
+  word: words.bow
+  degree: greater
+  activation: on-turn
+  commit: active
+prerequisites:
+  - id: word
+    when: '@words.bow in words.bound'
+effects:
+  - target: damage.ranged.maximize
+    op: atLeast
+    value: 1
+    when: self.committed > 0

@@ -1,0 +1,68 @@
+# A fourth-level theurge of Sorcery, Knowledge and Deception. Knowledge raises Intelligence to 18,
+# Deception Charisma to 16, and Excellence of the Word Wisdom to 18. She is an adept of the Gate
+# and the Way with seven invocations, knows a low magic tradition through a Fact, holds the gifts
+# of Apotheosis her level has brought, and has a gift point saved.
+specVersion: 0.1.0
+id: example-divine-heroes-ysolde
+packs:
+  - { id: divine-heroes-core, version: 0.1.0 }
+values:
+  divine-heroes-core:attributes.str.base: 10
+  divine-heroes-core:attributes.dex.base: 13
+  divine-heroes-core:attributes.con.base: 13
+  divine-heroes-core:attributes.wis.base: 14
+  divine-heroes-core:attributes.int.base: 16
+  divine-heroes-core:attributes.cha.base: 8
+  divine-heroes-core:facts.origin: Daughter of a wealthy merchant house
+  divine-heroes-core:facts.career: Scholar of ancient ruins
+  divine-heroes-core:facts.relationship: Trained in the arts of the mind by an old academician
+  divine-heroes-core:facts.level2: Survived the drowned library
+  divine-heroes-core:facts.level3: Owed a favor by the harbor guild
+  divine-heroes-core:facts.level4: Knows the secret ways of the old palace
+  divine-heroes-core:level: 4
+  divine-heroes-core:xp.current: 14
+  divine-heroes-core:dominion.spent: 10
+  divine-heroes-core:dominion.current: 3
+  divine-heroes-core:wealth.current: 2
+  divine-heroes-core:hp.current: 17
+  divine-heroes-core:effort.scene: 1
+  divine-heroes-core:influence.committed: 1
+  divine-heroes-core:lowMagic.spontaneous: 1
+  divine-heroes-core:lowMagic.strain: 1
+features:
+  - { id: sorcery, item: divine-heroes-core:words.sorcery }
+  - id: knowledge
+    item: divine-heroes-core:words.knowledge
+    choices:
+      attribute: [{ option: int }]
+  - id: deception
+    item: divine-heroes-core:words.deception
+    choices:
+      attribute: [{ option: cha }]
+  - id: gate
+    item: divine-heroes-core:gifts.sorcery.adept-of-the-gate
+    choices:
+      invocations:
+        - { option: divine-heroes-core:invocations.beacon-of-celestial-purity }
+        - { option: divine-heroes-core:invocations.kiss-of-the-crane }
+        - { option: divine-heroes-core:invocations.seal-of-regnal-dominion }
+        - { option: divine-heroes-core:invocations.trumpet-of-far-utterance }
+  - id: way
+    item: divine-heroes-core:gifts.sorcery.adept-of-the-way
+    choices:
+      invocations:
+        - { option: divine-heroes-core:invocations.far-distant-lance }
+        - { option: divine-heroes-core:invocations.sunder-the-greater-spell }
+        - { option: divine-heroes-core:invocations.path-to-the-bright-sanctum }
+  - { id: eye, item: divine-heroes-core:gifts.sorcery.subtle-eye-of-knowing }
+  - { id: lies, item: divine-heroes-core:gifts.deception.deceivers-unblinking-eye }
+  - { id: grace, item: divine-heroes-core:gifts.deception.liars-flawless-grace }
+  - { id: shadows, item: divine-heroes-core:gifts.deception.shadow-play }
+  - { id: course, item: divine-heroes-core:gifts.knowledge.best-course }
+  - id: excellence
+    item: divine-heroes-core:gifts.universal.excellence-of-the-word
+    choices:
+      attribute: [{ option: wis }]
+  - { id: influence, item: divine-heroes-core:gifts.universal.influence-of-the-word }
+  - { id: effort, item: divine-heroes-core:gifts.universal.effort-of-the-word }
+  - { id: academy, item: divine-heroes-core:traditions.academy-of-thought }

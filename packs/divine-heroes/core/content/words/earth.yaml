@@ -1,0 +1,15 @@
+id: words.earth
+type: word
+choices:
+  - id: attribute
+    from:
+      values:
+        - str
+        - con
+    recommend: "attributes.str.base <= attributes.con.base ? 'str' : 'con'"
+    effects:
+      - target:
+          fields:
+            where: "'attribute' in item.tags && 'attr.' + pick.value in item.tags"
+        op: atLeast
+        value: "fieldOf('attributes.{attribute}.base', pick.value) >= 16 ? 18 : 16"
