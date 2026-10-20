@@ -1470,7 +1470,9 @@ export type Answer =
 
 /** When the engine continues by itself and when it pauses. Rules are checked in order; the first matching rule decides; unmatched checkpoints use the defaults. */
 export type ActionPolicy = {
+  /** Roll steps. Default `auto`. */
   dice?: 'auto' | 'pause';
+  /** Choice steps. Default `auto`. */
   choices?: 'auto' | 'pause';
   /** Allocation steps. Default `auto`. */
   allocations?: 'auto' | 'pause';
