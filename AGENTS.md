@@ -26,7 +26,7 @@ The documentation website (https://opencharacterformat.org/) is built from these
 | `apps/website/`          | Documentation website (Astro Starlight, GitHub Pages): guides, glossary, and the spec synced in; private, never published                                              |
 | `packs/<game>/<pack>/`   | One pack (ID `<game>-<pack>`, version from 0.1.0): `pack.yaml`, `rules/`, `content/`, `i18n/`, `upgrades/`. A game folder holds that game's editions and content packs |
 | `examples/characters/`   | Example character files                                                                                                                                                |
-| `scripts/`               | `validate`, `build:packs`, `release:check` and `types`                                                                                                                 |
+| `scripts/`               | `validate`, `build:packs`, `release:check`, `release:setup` and `types`                                                                                                |
 
 ## Commands
 
@@ -45,7 +45,8 @@ The documentation website (https://opencharacterformat.org/) is built from these
 | `pnpm build`            | Build every published package: `build:ts` (spec, engine and text to `dist/` with tsc), then `build:packs`          |
 | `pnpm build:packs`      | Validate, then build every pack's release (`dist/`), the `@opencharacter/packs` bundle and the spec's text modules |
 | `pnpm release:check`    | Compare each pack with its last published release (git tags): published versions unchanged, shape changes covered  |
-| `pnpm version-packages` | `changeset version`, then sync `pack.yaml` versions                                                                |
+| `pnpm release:setup`    | Before a new package's first release: create it on npm and print the trust steps (see versioning)                  |
+| `pnpm version-packages` | `changeset version`, then sync `pack.yaml` versions and every pin of a bumped pack's old version                   |
 | `pnpm release`          | Every check, `pnpm build` and the release check. Publishing happens only in CI (`release.yml`)                     |
 | `pnpm check`            | Lint, typecheck, test and validate. CI also runs `build:packs`, `release:check` and `build:website`                |
 
