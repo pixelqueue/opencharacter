@@ -105,8 +105,8 @@ actions:
           - { type: adjust, when: has(steps.heal), field: hp.current, by: steps.heal.total }
 
   # Buy vehicles or drones with a Focus's gear budget: the dearest one the budget buys is
-  # recommended. A random run keeps buying while the budget lasts; otherwise run it again for more
-  # (a repeated pick can't recommend stopping).
+  # recommended. More are offered while the budget lasts, the dearest that still fits recommended,
+  # so an automatic run spends the budget; a player stops with `#done`.
   - id: acquire-focus-gear
     tags: [building]
     available: budget.vehicle > budget.vehicleUsed || budget.drone > budget.droneUsed
@@ -130,7 +130,7 @@ actions:
             entry: { item: picked.id, state: { focusGear: true } }
       - id: vehicles
         kind: choice
-        when: params.kind == 'vehicle' && params.random
+        when: params.kind == 'vehicle'
         sheet: proposed
         options:
           content:
@@ -138,7 +138,7 @@ actions:
             where: >-
               item.cost <= budget.vehicle - budget.vehicleUsed && !('restricted' in item.tags)
         repeat: { max: 5 }
-        recommend: options[0]
+        prefer: item.cost
         random: params.random
         changes:
           - type: addItem
@@ -160,7 +160,7 @@ actions:
             entry: { item: picked.id, state: { focusGear: true } }
       - id: drones
         kind: choice
-        when: params.kind == 'drone' && params.random
+        when: params.kind == 'drone'
         sheet: proposed
         options:
           content:
@@ -169,7 +169,7 @@ actions:
               item.cost <= budget.drone - budget.droneUsed && !('restricted' in item.tags)
                 && (!has(item.enc) || enc.stowed + item.enc <= enc.stowedMax)
         repeat: { max: 5 }
-        recommend: options[0]
+        prefer: item.cost
         random: params.random
         changes:
           - type: addItem

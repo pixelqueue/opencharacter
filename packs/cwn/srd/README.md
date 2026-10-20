@@ -121,7 +121,8 @@ the player's choices and other characters.
   14), and the background's skills rolled, each roll's table drawn. Everything else is drawn
   among the eligible options.
 - **Guided recommendations:** the first eligible option, so an automatic run finishes; the
-  recommended Focus gear is the dearest vehicle or drone the budget buys.
+  recommended Focus gear is the dearest vehicle or drone the budget buys, then the dearest that
+  still fits, until the budget is spent.
 - **Physical skills** for skillplugs: Drive, Exert, Perform, Punch, Shoot, Sneak and Stab.
 - **Pushing encumbrance:** up to two Readied and four Stowed past the limits is Move 7 m, twice
   that is Move 5 m, and more is past the limits.
