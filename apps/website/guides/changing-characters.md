@@ -141,8 +141,9 @@ it took (`by`), and a `reason` (`absorbed`, `requested`, `overflow`, `reset`), w
 and `clamped` where they apply; the `requested` entry also has `taken`, the amount after
 resistances and before temporary hit points. Use it for the combat log: "Tamsin takes 5 fire
 damage (resisted)".
-When an effect also changes its own copy (Mothership armor breaking), that change follows as
-`{ entry, key, value, source }`: "The vest breaks".
+When an effect also changes its own entry (Mothership armor breaking), that change follows as
+`{ entry, key, value, source }`: "The vest breaks". When it ends its applied entry (oil that
+burns away), it follows as `{ entry, removed: true, source }`: "The oil burns away".
 
 Use `set` for values the player types in, and `adjust` for anything that happens in play. Only
 `adjust` goes through effects, absorbing fields and overflow.

@@ -176,7 +176,7 @@
               }
             },
             "adjustments": {
-              "description": "What adjust changes actually did after incoming-change effects, absorption, overflow and clamping: one entry per field touched, in order. A change aimed at copies by query adds `{ copies }`: the instance IDs it matched, in order (empty when none matched); one aimed at applied entries by query adds `{ applied }` the same way, and an `applyEffect` merged into an existing entry (`reapply`) adds `{ applied: [<that entry's ID>] }`. An incoming-change effect's `then` adds `{ entry, key, value, source }` per state change it made.",
+              "description": "What adjust changes actually did after incoming-change effects, absorption, overflow and clamping: one entry per field touched, in order. A change aimed at copies by query adds `{ copies }`: the instance IDs it matched, in order (empty when none matched); one aimed at applied entries by query adds `{ applied }` the same way, and an `applyEffect` merged into an existing entry (`reapply`) adds `{ applied: [<that entry's ID>] }`. An incoming-change effect's `then` adds `{ entry, key, value, source }` per state change it made to its own entry, and `{ entry, removed: true, source }` when it removed its applied entry.",
               "type": "array",
               "items": {
                 "anyOf": [
@@ -238,7 +238,7 @@
                     "additionalProperties": false
                   },
                   {
-                    "description": "A state change an incoming-change effect's `then` made to its own copy, after the adjust's own entries.",
+                    "description": "A state change an incoming-change effect's `then` made to its own entry (a copy or an applied entry), after the adjust's own entries.",
                     "type": "object",
                     "required": ["entry", "key", "value", "source"],
                     "properties": {
@@ -250,6 +250,23 @@
                       },
                       "value": {
                         "description": "The state key's new value."
+                      },
+                      "source": {
+                        "$ref": "../common.schema.json#/$defs/source"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "description": "An applied entry an incoming-change effect's `then` removed (`removeEffect`), after the adjust's own entries.",
+                    "type": "object",
+                    "required": ["entry", "removed", "source"],
+                    "properties": {
+                      "entry": {
+                        "$ref": "../common.schema.json#/$defs/instanceId"
+                      },
+                      "removed": {
+                        "const": true
                       },
                       "source": {
                         "$ref": "../common.schema.json#/$defs/source"
