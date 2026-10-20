@@ -34,8 +34,8 @@ math: it loads packs, asks the engine, and draws the answers.
 
 - **Take it anywhere.** Packs, homebrew and characters move between every app that implements
   OCF: export from one, import into another.
-- **One integration, every game.** The 5E SRD, ORC Second Edition fantasy, Forged in the Dark, Fate, MÖRK BORG,
-  Mothership and a growing list run through the same engine calls.
+- **One integration, every game.** The 5E SRD, ORC Second Edition fantasy and science-fantasy, Forged in
+  the Dark, Fate, MÖRK BORG, Mothership and a growing list run through the same engine calls.
 - **The sheet can't disagree with the rules.** A character file holds only the player's choices;
   every value is computed, with a breakdown of where it came from.
 - **Your dice, your UI.** The engine says what to roll and pauses while your app animates the
