@@ -35,6 +35,7 @@ describe('pnpm build:packs on the repository packs', () => {
       'mork-borg-core',
       'mothership-1e',
       'orc-2e',
+      'wn-fantasy',
     ]);
   });
 
@@ -101,6 +102,8 @@ describe('pnpm build:packs on the repository packs', () => {
       'orc-cassia.yaml',
       'orc-aldric.yaml',
       'orc-fenn.yaml',
+      'wn-fantasy-brannoc.yaml',
+      'wn-fantasy-ysolde.yaml',
     ]) {
       const character = parseYaml(readFileSync(join(root, 'examples', 'characters', file), 'utf8'));
       const sheet = (r: Ruleset) => computeSheet(r, character).values;
