@@ -179,55 +179,11 @@ actions:
           use: roll-negative-mutation,
           params: { random: params.random },
         }
-      # Levels in a skill a negative mutation forbids go to other skills, a pick per level.
-      - id: forbidden
-        kind: branch
-        sheet: proposed
-        cases:
-          - when: true
-            flags:
-              lost: >-
-                sumList(keysOf('skill'),
-                  max(0, fieldOf('skills.{skill}.level', x) - fieldOf('skills.{skill}.cap', x)))
-              barred: >-
-                filterList(keysOf('skill'),
-                  fieldOf('skills.{skill}.level', x) > fieldOf('skills.{skill}.cap', x))
-      - id: unlearn
-        kind: changes
-        when: flags.lost > 0
-        changes:
-          - type: set
-            forEach: flags.barred
-            field: { formula: "'skills.' + x + '.level'" }
-            value: -1
-      - {
-          id: relearn1,
-          kind: action,
-          when: flags.lost >= 1,
-          use: gain-skill,
-          params: { random: params.random },
-        }
-      - {
-          id: relearn2,
-          kind: action,
-          when: flags.lost >= 2,
-          use: gain-skill,
-          params: { random: params.random },
-        }
-      - {
-          id: relearn3,
-          kind: action,
-          when: flags.lost >= 3,
-          use: gain-skill,
-          params: { random: params.random },
-        }
-      - {
-          id: relearn4,
-          kind: action,
-          when: flags.lost >= 4,
-          use: gain-skill,
-          params: { random: params.random },
-        }
+      # Levels in a skill a negative mutation forbids go to other skills.
+      - id: barred
+        kind: action
+        use: reassign-barred-skills
+        params: { random: params.random }
       - id: stigma
         kind: action
         use: roll-stigma
@@ -690,3 +646,62 @@ actions:
       - id: result
         kind: outcome
         result: "'rolled'"
+
+  # Levels past a skill's cap (a skill a negative mutation forbids, or Slow Development's lower
+  # maximum) go to other skills, a pick per level: the skill drops to its cap.
+  - id: reassign-barred-skills
+    tags: [creation]
+    params:
+      random: { type: boolean, default: false }
+    results: [reassigned]
+    steps:
+      - id: forbidden
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              lost: >-
+                sumList(keysOf('skill'),
+                  max(0, fieldOf('skills.{skill}.level', x) - fieldOf('skills.{skill}.cap', x)))
+              barred: >-
+                filterList(keysOf('skill'),
+                  fieldOf('skills.{skill}.level', x) > fieldOf('skills.{skill}.cap', x))
+      - id: unlearn
+        kind: changes
+        sheet: proposed
+        when: flags.lost > 0
+        changes:
+          - type: set
+            forEach: flags.barred
+            field: { formula: "'skills.' + x + '.level'" }
+            value: "max(-1, fieldOf('skills.{skill}.cap', x))"
+      - {
+          id: relearn1,
+          kind: action,
+          when: flags.lost >= 1,
+          use: gain-skill,
+          params: { random: params.random },
+        }
+      - {
+          id: relearn2,
+          kind: action,
+          when: flags.lost >= 2,
+          use: gain-skill,
+          params: { random: params.random },
+        }
+      - {
+          id: relearn3,
+          kind: action,
+          when: flags.lost >= 3,
+          use: gain-skill,
+          params: { random: params.random },
+        }
+      - {
+          id: relearn4,
+          kind: action,
+          when: flags.lost >= 4,
+          use: gain-skill,
+          params: { random: params.random },
+        }
+      - { id: result, kind: outcome, result: "'reassigned'" }

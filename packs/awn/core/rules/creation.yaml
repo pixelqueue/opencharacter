@@ -284,6 +284,11 @@ actions:
       - id: picks
         kind: choice
         options: { pending: {} }
+      # A pick may lower a skill's cap (Slow Development's favorite skill).
+      - id: barred
+        kind: action
+        use: reassign-barred-skills
+        params: { random: params.random }
       # The free bonus skill.
       - id: freeSkill
         kind: action
