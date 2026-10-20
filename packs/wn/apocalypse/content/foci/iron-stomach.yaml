@@ -1,0 +1,13 @@
+id: foci.iron-stomach
+type: focus
+fields:
+  bonusSkill: [survive]
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 2
+    when: "situational.versus == 'poison' || situational.versus == 'disease'"
+  - target: strain.bonus
+    op: add
+    value: 2
+    when: self.level >= 2

@@ -1,0 +1,69 @@
+families:
+  attribute: [str, dex, con, int, wis, cha]
+  skill:
+    [
+      administer,
+      connect,
+      drive,
+      exert,
+      fix,
+      heal,
+      know,
+      lead,
+      notice,
+      perform,
+      program,
+      punch,
+      shoot,
+      sneak,
+      stab,
+      survive,
+      talk,
+      trade,
+      work,
+    ]
+
+settings:
+  rounding: floor
+
+fields:
+  level: { type: integer, input: true, default: 1, min: 1, max: 10 }
+
+  # The six attributes, 3 to 18. The modifier is the table's (3: -2, 4-7: -1, 8-13: 0, 14-17: +1,
+  # 18: +2), then bonuses that stop at +2, uncapped bonuses and penalties, never below -2.
+  'attributes.{attribute}.score':
+    {
+      type: integer,
+      input: true,
+      default: 10,
+      min: 3,
+      max: 18,
+      tags: [attribute, 'attribute.{attribute}'],
+    }
+  'attributes.{attribute}.base':
+    type: integer
+    formula: >-
+      attributes.{attribute}.score <= 3 ? -2 : attributes.{attribute}.score <= 7 ? -1
+        : attributes.{attribute}.score <= 13 ? 0 : attributes.{attribute}.score <= 17 ? 1 : 2
+  # "+1, to a maximum of +2" bonuses (edges, foci, mutations) add here.
+  'attributes.{attribute}.boost': { type: integer, formula: 0 }
+  # Bonuses with no stated cap.
+  'attributes.{attribute}.bonus': { type: integer, formula: 0 }
+  # Penalties (negative mutations, the mutant's own); they stop at -2.
+  'attributes.{attribute}.penalty': { type: integer, formula: 0 }
+  'attributes.{attribute}.mod':
+    type: integer
+    tags: [attribute-mod, 'attribute-mod.{attribute}']
+    formula: >-
+      max(-2, (attributes.{attribute}.boost > 0
+        ? max(attributes.{attribute}.base,
+            min(2, attributes.{attribute}.base + attributes.{attribute}.boost))
+        : attributes.{attribute}.base)
+        + attributes.{attribute}.bonus + attributes.{attribute}.penalty)
+
+  # The underdog rule: the table's modifiers before any edge or mutation.
+  attributes.baseTotal:
+    type: integer
+    formula: >-
+      attributes.str.base + attributes.dex.base + attributes.con.base + attributes.int.base
+        + attributes.wis.base + attributes.cha.base

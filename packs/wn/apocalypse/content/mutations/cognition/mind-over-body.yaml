@@ -1,0 +1,12 @@
+id: mutations.cognition.mind-over-body
+type: mutation
+fields:
+  category: cognition
+  roll: 8
+effects:
+  - target: hp.attributeMod
+    op: atLeast
+    value: 'max(attributes.int.mod, attributes.wis.mod)'
+  - target: saves.physicalMod
+    op: atLeast
+    value: 'max(attributes.int.mod, attributes.wis.mod)'

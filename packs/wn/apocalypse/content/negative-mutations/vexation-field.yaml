@@ -1,0 +1,17 @@
+id: negative-mutations.vexation-field
+type: negative
+fields:
+  roll: 75
+effects:
+  - target: attributes.cha.penalty
+    op: add
+    value: -1
+    when: '!self.light'
+  - target: skills.lead.cap
+    op: atMost
+    value: -1
+    when: '!self.light'
+  - target: skills.connect.cap
+    op: atMost
+    value: -1
+    when: '!self.light'

@@ -158,6 +158,7 @@ describe('the editor API', { timeout: 20_000 }, () => {
       'wn-cyber',
       'wn-fantasy',
       'wn-scifi',
+      'wn-apocalypse',
     ]);
   });
 

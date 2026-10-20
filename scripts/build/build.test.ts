@@ -38,6 +38,7 @@ describe('pnpm build:packs on the repository packs', () => {
       'wn-cyber',
       'wn-fantasy',
       'wn-scifi',
+      'wn-apocalypse',
     ]);
   });
 
@@ -110,6 +111,8 @@ describe('pnpm build:packs on the repository packs', () => {
       'wn-fantasy-ysolde.yaml',
       'wn-scifi-ines.yaml',
       'wn-scifi-tamar.yaml',
+      'wn-apocalypse-sable.yaml',
+      'wn-apocalypse-hollis.yaml',
     ]) {
       const character = parseYaml(readFileSync(join(root, 'examples', 'characters', file), 'utf8'));
       const sheet = (r: Ruleset) => computeSheet(r, character).values;

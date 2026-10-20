@@ -89,6 +89,16 @@ much of OCF your app needs.
 | [`wn-cyber`](packs/wn/cyber/)             | Cyberpunk rules (CC0 SRD)          | CC0-1.0        |
 | [`wn-fantasy`](packs/wn/fantasy/)         | Fantasy rules (CC0 SRD)            | CC0-1.0        |
 | [`wn-scifi`](packs/wn/scifi/)             | Science fiction rules              | By permission  |
+| Pack                                      | Game                                | License        |
+| ----------------------------------------- | ----------------------------------- | -------------- |
+| [`5e-srd-5.1`](packs/5e/srd-5.1/)         | 5E System Reference Document 5.1    | CC-BY-4.0      |
+| [`orc-2e`](packs/orc/2e/)                 | Second Edition fantasy rules (ORC)  | ORC License    |
+| [`mothership-1e`](packs/mothership/1e/)   | Mothership 1e                       | Mechanics only |
+| [`fitd-scoundrel`](packs/fitd/scoundrel/) | Forged in the Dark scoundrel (SRD)  | Mechanics only |
+| [`fitd-crew`](packs/fitd/crew/)           | Forged in the Dark crew (SRD)       | Mechanics only |
+| [`mork-borg-core`](packs/mork-borg/core/) | MÖRK BORG                           | Mechanics only |
+| [`fate-core`](packs/fate/core/)           | Fate Core                           | CC-BY-3.0      |
+| [`wn-apocalypse`](packs/wn/apocalypse/)   | Ashes Without Number (free edition) | By permission  |
 
 Each pack is its own npm package (`@opencharacter/<pack>`), and
 [`@opencharacter/packs`](packages/packs/) bundles them all. Mechanics-only packs model games that
@@ -121,7 +131,8 @@ Packs, fixes and engine ports are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.m
 
 Code, spec, schemas and tests are [Apache 2.0](LICENSE). Original packs are [CC0](packs/LICENSE);
 packs from licensed material keep that license and its credit line: `5e-srd-5.1` CC-BY-4.0,
-`fate-core` CC-BY-3.0 and `orc-2e` the ORC License, each with its notices. `mothership-1e`, `mork-borg-core` and the Forged in the Dark packs are unofficial,
+`fate-core` CC-BY-3.0 and `orc-2e` the ORC License, each with its notices; `wn-apocalypse` carries
+Ashes Without Number's free-edition text with the author's permission, and its credit and notices. `mothership-1e`, `mork-borg-core` and the Forged in the Dark packs are unofficial,
 mechanics-only models whose own work is CC0; the Forged in the Dark packs keep the SRD's CC-BY credit line and
 the MÖRK BORG pack the notices of its third-party license. `wn-cyber` is CC0, as its source is, with a
 not-affiliated notice. Every package has a `LICENSE` file

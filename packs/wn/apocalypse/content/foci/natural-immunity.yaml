@@ -1,0 +1,14 @@
+id: foci.natural-immunity
+type: focus
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 4
+    when: "situational.versus == 'disease'"
+  - target: strain.bonus
+    op: add
+    value: 'self.level >= 2 ? 4 : 2'
+  - target: strain.bonusCap
+    op: atLeast
+    value: 22
+    when: self.level >= 2

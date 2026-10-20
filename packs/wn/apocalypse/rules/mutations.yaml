@@ -1,0 +1,692 @@
+contentTypes:
+  # Positive mutations: their category and their d10 roll within it (the d6 picks the category).
+  # `origin` is how it was bought: one point rolled, three for a pair rolled in one category,
+  # three chosen, or free (a negative mutation's compensation, the Unstable Mutant focus).
+  mutation:
+    fields:
+      category:
+        {
+          type: enum,
+          values: [structure, sense, hybrid, cognition, pseudo-psychic, exotic],
+          required: true,
+        }
+      roll: { type: integer, required: true, min: 1, max: 10 }
+      bonusSkill: { type: set, of: string, default: [] }
+    state:
+      origin: { type: enum, values: [random, category, chosen, free, unstable], default: chosen }
+
+  # Negative mutations, by the low end of their d100 range. A lightly touched one has no effect.
+  negative:
+    fields:
+      roll: { type: integer, required: true, min: 1, max: 100 }
+    state:
+      light: { type: boolean, default: false }
+
+fields:
+  mutations.mutant: { type: boolean, formula: '@edges.mutant in edges.held' }
+  mutations.negatives: { type: integer, formula: "countCopies(copy.type == 'negative')" }
+  # Mutation points: 2 for Mutant, 2 for Mutation Acceleration, 2 per negative mutation.
+  mutations.points.total:
+    type: integer
+    formula: >-
+      (mutations.mutant ? 2 : 0) + (@edges.mutation-acceleration in edges.held ? 2 : 0)
+        + 2 * mutations.negatives
+  # A stigma that normal clothing hides costs a point.
+  mutations.stigmaConcealed: { type: boolean, input: true, default: false }
+  mutations.points.spent:
+    type: integer
+    formula: >-
+      countCopies(copy.type == 'mutation' && copy.state.origin == 'random')
+        + 3 * countCopies(copy.type == 'mutation' && copy.state.origin == 'chosen')
+        + 3 * ceil(countCopies(copy.type == 'mutation' && copy.state.origin == 'category') / 2)
+        + (mutations.stigmaConcealed ? 1 : 0)
+  mutations.points.left: { type: integer, formula: mutations.points.total - mutations.points.spent }
+  # Negative mutations that bar sensory mutations improving sight or hearing.
+  mutations.noVision: { type: boolean, formula: false }
+  mutations.noHearing: { type: boolean, formula: false }
+  # A negative mutation that bars armor heavier than 1 encumbrance.
+  mutations.sensitiveSkin: { type: boolean, formula: false }
+
+  # The stigma, from the suggestion tables: a body part (a second one when the first roll says
+  # so), the nature of the change, and a detail.
+  stigma.part:
+    { type: enum, input: true, default: none, values: [none, head, arms, legs, torso, senses] }
+  stigma.part2:
+    { type: enum, input: true, default: none, values: [none, head, arms, legs, torso, senses] }
+  stigma.nature:
+    type: enum
+    input: true
+    default: none
+    values: [none, appearance, animal, size, plant, amorphous, mineral]
+  stigma.detail:
+    type: enum
+    input: true
+    default: none
+    values:
+      [
+        none,
+        chitinous,
+        feathered,
+        fibrous,
+        finned,
+        furred,
+        glassy,
+        metallic,
+        plated,
+        scabrous,
+        scaled,
+        slimy,
+        stony,
+        bright-hue,
+        chromed,
+        gemlike,
+        gradient-hue,
+        iridescent,
+        luminescent,
+        neon,
+        opalescent,
+        patchy,
+        strobing,
+        transparent,
+        whorled,
+        beetle,
+        bird,
+        bovine,
+        canine,
+        equine,
+        feline,
+        fish,
+        lizard,
+        mollusk,
+        snake,
+        spider,
+        turtle,
+        bark,
+        flowers,
+        fragrance,
+        fronds,
+        fungal,
+        gnarled,
+        insects,
+        leaves,
+        moss,
+        pollen,
+        sap,
+        vegetative,
+      ]
+
+constraints:
+  - id: sensitive-skin
+    check: "!mutations.sensitiveSkin || countCopies(copy.type == 'armor' && copy.equipped && copy.fields.enc > 1) == 0"
+  - id: mutation-points
+    check: mutations.points.spent <= mutations.points.total
+  - id: negative-mutation-limit
+    check: mutations.negatives <= 3
+  # Only a mutant has mutations.
+  - id: mutant-only
+    check: "mutations.mutant || countCopies(copy.type == 'mutation' || copy.type == 'negative') == 0"
+  - id: mutation-once
+    copies: { type: mutation }
+    check: countCopies(copy.item == item.id) == 1
+  - id: negative-mutation-once
+    copies: { type: negative }
+    check: countCopies(copy.item == item.id) == 1
+
+actions:
+  # Becoming a mutant: negative mutations first (rolled), the stigma, then spending the points.
+  # The random start rolls a d4 for 0-3 negative mutations and spends every point on single
+  # random rolls; the guided one recommends no negative mutation and the same rolls.
+  - id: mutate
+    tags: [creation]
+    params:
+      random: { type: boolean, default: false }
+    results: [mutated]
+    steps:
+      - {
+          id: negativesRoll,
+          kind: roll,
+          tags: [creation],
+          when: params.random,
+          parts: [{ dice: 1d4 }],
+        }
+      - id: negatives
+        kind: choice
+        options: [{ id: none }, { id: one }, { id: two }, { id: three }]
+        recommend: 'params.random ? options[steps.negativesRoll.total - 1] : options[0]'
+      - id: count
+        kind: branch
+        cases:
+          - when: true
+            flags: { negatives: "indexOf(['none', 'one', 'two', 'three'], steps.negatives.picked)" }
+      - {
+          id: negative1,
+          kind: action,
+          when: flags.negatives >= 1,
+          use: roll-negative-mutation,
+          params: { random: params.random },
+        }
+      - {
+          id: negative2,
+          kind: action,
+          when: flags.negatives >= 2,
+          use: roll-negative-mutation,
+          params: { random: params.random },
+        }
+      - {
+          id: negative3,
+          kind: action,
+          when: flags.negatives >= 3,
+          use: roll-negative-mutation,
+          params: { random: params.random },
+        }
+      # Levels in a skill a negative mutation forbids go to other skills, a pick per level.
+      - id: forbidden
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              lost: >-
+                sumList(keysOf('skill'),
+                  max(0, fieldOf('skills.{skill}.level', x) - fieldOf('skills.{skill}.cap', x)))
+              barred: >-
+                filterList(keysOf('skill'),
+                  fieldOf('skills.{skill}.level', x) > fieldOf('skills.{skill}.cap', x))
+      - id: unlearn
+        kind: changes
+        when: flags.lost > 0
+        changes:
+          - type: set
+            forEach: flags.barred
+            field: { formula: "'skills.' + x + '.level'" }
+            value: -1
+      - {
+          id: relearn1,
+          kind: action,
+          when: flags.lost >= 1,
+          use: gain-skill,
+          params: { random: params.random },
+        }
+      - {
+          id: relearn2,
+          kind: action,
+          when: flags.lost >= 2,
+          use: gain-skill,
+          params: { random: params.random },
+        }
+      - {
+          id: relearn3,
+          kind: action,
+          when: flags.lost >= 3,
+          use: gain-skill,
+          params: { random: params.random },
+        }
+      - {
+          id: relearn4,
+          kind: action,
+          when: flags.lost >= 4,
+          use: gain-skill,
+          params: { random: params.random },
+        }
+      - id: stigma
+        kind: action
+        use: roll-stigma
+      - id: concealed
+        kind: choice
+        options: [{ id: visible }, { id: concealed }]
+        recommend: "'visible'"
+        changes:
+          - { type: set, field: mutations.stigmaConcealed, value: "picked.id == 'concealed'" }
+      - {
+          id: buy1,
+          kind: action,
+          sheet: proposed,
+          when: mutations.points.left >= 1,
+          use: buy-mutation,
+          params: { random: params.random },
+        }
+      - {
+          id: buy2,
+          kind: action,
+          sheet: proposed,
+          when: mutations.points.left >= 1,
+          use: buy-mutation,
+          params: { random: params.random },
+        }
+      - {
+          id: buy3,
+          kind: action,
+          sheet: proposed,
+          when: mutations.points.left >= 1,
+          use: buy-mutation,
+          params: { random: params.random },
+        }
+      - {
+          id: buy4,
+          kind: action,
+          sheet: proposed,
+          when: mutations.points.left >= 1,
+          use: buy-mutation,
+          params: { random: params.random },
+        }
+      - {
+          id: buy5,
+          kind: action,
+          sheet: proposed,
+          when: mutations.points.left >= 1,
+          use: buy-mutation,
+          params: { random: params.random },
+        }
+      - {
+          id: buy6,
+          kind: action,
+          sheet: proposed,
+          when: mutations.points.left >= 1,
+          use: buy-mutation,
+          params: { random: params.random },
+        }
+      - {
+          id: buy7,
+          kind: action,
+          sheet: proposed,
+          when: mutations.points.left >= 1,
+          use: buy-mutation,
+          params: { random: params.random },
+        }
+      - {
+          id: buy8,
+          kind: action,
+          sheet: proposed,
+          when: mutations.points.left >= 1,
+          use: buy-mutation,
+          params: { random: params.random },
+        }
+      - {
+          id: buy9,
+          kind: action,
+          sheet: proposed,
+          when: mutations.points.left >= 1,
+          use: buy-mutation,
+          params: { random: params.random },
+        }
+      - {
+          id: buy10,
+          kind: action,
+          sheet: proposed,
+          when: mutations.points.left >= 1,
+          use: buy-mutation,
+          params: { random: params.random },
+        }
+      - id: result
+        kind: outcome
+        result: "'mutated'"
+
+  # The stigma suggestions: a d6 body part (on a 6, two parts), a d6 nature, and a d12 detail
+  # from the column that matches the nature (texture for size, amorphous and mineral changes).
+  - id: roll-stigma
+    tags: [creation]
+    results: [rolled]
+    steps:
+      - { id: part, kind: roll, tags: [creation], parts: [{ dice: 1d6 }] }
+      - {
+          id: extra1,
+          kind: roll,
+          tags: [creation],
+          when: steps.part.total == 6,
+          parts: [{ dice: 1d5 }],
+        }
+      - {
+          id: extra2,
+          kind: roll,
+          tags: [creation],
+          when: steps.part.total == 6,
+          parts: [{ dice: 1d5 }],
+        }
+      - { id: nature, kind: roll, tags: [creation], parts: [{ dice: 1d6 }] }
+      - { id: detail, kind: roll, tags: [creation], parts: [{ dice: 1d12 }] }
+      - id: save
+        kind: changes
+        changes:
+          - type: set
+            field: stigma.part
+            value: >-
+              ['head', 'arms', 'legs', 'torso', 'senses'][(steps.part.total == 6
+                ? steps.extra1.total : steps.part.total) - 1]
+          - type: set
+            field: stigma.part2
+            value: >-
+              steps.part.total == 6 && steps.extra2.total != steps.extra1.total
+                ? ['head', 'arms', 'legs', 'torso', 'senses'][steps.extra2.total - 1] : 'none'
+          - type: set
+            field: stigma.nature
+            value: "['appearance', 'animal', 'size', 'plant', 'amorphous', 'mineral'][steps.nature.total - 1]"
+          - type: set
+            field: stigma.detail
+            value: >-
+              (steps.nature.total == 1
+                ? ['bright-hue', 'chromed', 'gemlike', 'gradient-hue', 'iridescent', 'luminescent',
+                  'neon', 'opalescent', 'patchy', 'strobing', 'transparent', 'whorled']
+                : steps.nature.total == 2
+                ? ['beetle', 'bird', 'bovine', 'canine', 'equine', 'feline', 'fish', 'lizard',
+                  'mollusk', 'snake', 'spider', 'turtle']
+                : steps.nature.total == 4
+                ? ['bark', 'flowers', 'fragrance', 'fronds', 'fungal', 'gnarled', 'insects',
+                  'leaves', 'moss', 'pollen', 'sap', 'vegetative']
+                : ['chitinous', 'feathered', 'fibrous', 'finned', 'furred', 'glassy', 'metallic',
+                  'plated', 'scabrous', 'scaled', 'slimy', 'stony'])[steps.detail.total - 1]
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+
+  # One negative mutation on the d100 table. 91-00 rolls another that has no effect. A repeat
+  # (or a second lightly touched result) is rolled again, twice; after that a uniform draw among
+  # the ones left stands in for rolling until something new comes up.
+  - id: roll-negative-mutation
+    tags: [creation]
+    params:
+      random: { type: boolean, default: false }
+    results: [rolled]
+    steps:
+      - id: ids
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              table: >-
+                [@negative-mutations.animalistic-mentality, @negative-mutations.anosmia,
+                  @negative-mutations.awkward-mouth, @negative-mutations.bestial-hunger,
+                  @negative-mutations.bleeder, @negative-mutations.blindness,
+                  @negative-mutations.chronic-seizures, @negative-mutations.clumsy-paws,
+                  @negative-mutations.constant-secretions, @negative-mutations.deafness,
+                  @negative-mutations.deficient-polycephaly, @negative-mutations.distorted-speech,
+                  @negative-mutations.distracted-mind, @negative-mutations.energy-sink,
+                  @negative-mutations.feeble-joints, @negative-mutations.feral-mind,
+                  @negative-mutations.fragile-system, @negative-mutations.glowbug,
+                  @negative-mutations.hemovore, @negative-mutations.insensate-flesh,
+                  @negative-mutations.light-sensitivity, @negative-mutations.loose-limbs,
+                  @negative-mutations.low-resistances, @negative-mutations.memory-damage,
+                  @negative-mutations.miasmic-stench, @negative-mutations.misshapen,
+                  @negative-mutations.musclebound, @negative-mutations.narrow-focus,
+                  @negative-mutations.overtaxed-physique, @negative-mutations.place-blindness,
+                  @negative-mutations.poor-eyesight, @negative-mutations.primitive-cognition,
+                  @negative-mutations.sensitive-skin, @negative-mutations.short-lifespan,
+                  @negative-mutations.sleep-dependence, @negative-mutations.slow-development,
+                  @negative-mutations.spindly, @negative-mutations.vexation-field,
+                  @negative-mutations.voracious, @negative-mutations.weak-heart,
+                  @negative-mutations.attribute-deficiency]
+              held: >-
+                mapList(filterList(character.features, x.type == 'negative'), x.item)
+              lowest: >-
+                minList(['str', 'dex', 'con', 'int', 'wis', 'cha'],
+                  fieldOf('attributes.{attribute}.score', x))
+      # Attribute Deficiency is rolled again when the lowest attribute is already at -2.
+      - id: deficiency
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              deficiency: >-
+                countList(['str', 'dex', 'con', 'int', 'wis', 'cha'],
+                  fieldOf('attributes.{attribute}.score', x) == flags.lowest
+                  && fieldOf('attributes.{attribute}.mod', x) > -2) > 0
+      - { id: roll1, kind: roll, tags: [creation], parts: [{ dice: 1d100 }] }
+      - id: first
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              light: steps.roll1.total >= 91
+              id1: >-
+                steps.roll1.total >= 91 ? ''
+                  : flags.table[steps.roll1.total <= 80 ? floor((steps.roll1.total - 1) / 2) : 40]
+      - id: firstValid
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ok1: >-
+                flags.id1 != '' && !(flags.id1 in flags.held)
+                  && (flags.id1 != @negative-mutations.attribute-deficiency || flags.deficiency)
+      - { id: roll2, kind: roll, tags: [creation], when: '!flags.ok1', parts: [{ dice: 1d100 }] }
+      - id: second
+        kind: branch
+        when: '!flags.ok1'
+        cases:
+          - when: true
+            flags:
+              id2: >-
+                steps.roll2.total >= 91 ? ''
+                  : flags.table[steps.roll2.total <= 80 ? floor((steps.roll2.total - 1) / 2) : 40]
+      - id: secondValid
+        kind: branch
+        when: '!flags.ok1'
+        cases:
+          - when: true
+            flags:
+              ok2: >-
+                flags.id2 != '' && !(flags.id2 in flags.held)
+                  && (flags.id2 != @negative-mutations.attribute-deficiency || flags.deficiency)
+      - id: roll3
+        kind: roll
+        tags: [creation]
+        when: '!flags.ok1 && !flags.ok2'
+        parts: [{ dice: 1d100 }]
+      - id: third
+        kind: branch
+        when: '!flags.ok1 && !flags.ok2'
+        cases:
+          - when: true
+            flags:
+              id3: >-
+                steps.roll3.total >= 91 ? ''
+                  : flags.table[steps.roll3.total <= 80 ? floor((steps.roll3.total - 1) / 2) : 40]
+      - id: rolled
+        kind: branch
+        cases:
+          - when: flags.ok1
+            flags: { id: flags.id1 }
+          - when: has(flags.ok2) && flags.ok2
+            flags: { id: flags.id2 }
+          - when: >-
+              has(flags.id3) && flags.id3 != '' && !(flags.id3 in flags.held)
+                && (flags.id3 != @negative-mutations.attribute-deficiency || flags.deficiency)
+            flags: { id: flags.id3 }
+          - when: true
+            flags: { id: "''" }
+      - id: add
+        kind: changes
+        when: "flags.id != ''"
+        changes:
+          - type: addItem
+            entry: { item: flags.id, state: { light: flags.light } }
+      - id: fallback
+        kind: choice
+        sheet: proposed
+        when: "flags.id == ''"
+        options:
+          content:
+            type: negative
+            where: >-
+              countCopies(copy.item == item.id) == 0
+                && (item.id != @negative-mutations.attribute-deficiency || flags.deficiency)
+        random: true
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { light: flags.light } }
+      - id: added
+        kind: branch
+        cases:
+          - when: true
+            flags: { added: "flags.id != '' ? flags.id : steps.fallback.picked" }
+      # What some negative mutations bring: Crushing Jaws for Awkward Mouth, and a free sensory
+      # mutation that isn't sight for Blindness.
+      - id: jaws
+        kind: changes
+        sheet: proposed
+        when: >-
+          !flags.light && flags.added == @negative-mutations.awkward-mouth
+            && countCopies(copy.item == @mutations.hybrid.crushing-jaws) == 0
+        changes:
+          - type: addItem
+            entry: { item: "'mutations.hybrid.crushing-jaws'", state: { origin: "'free'" } }
+      - id: sense
+        kind: choice
+        sheet: proposed
+        when: '!flags.light && flags.added == @negative-mutations.blindness'
+        options:
+          content:
+            type: mutation
+            where: >-
+              item.category == 'sense' && !('vision' in item.tags)
+                && countCopies(copy.item == item.id) == 0
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { origin: "'free'" } }
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+
+  # Spending mutation points: one to roll a positive mutation, three to roll two in a category,
+  # three to choose one.
+  - id: buy-mutation
+    tags: [creation]
+    params:
+      random: { type: boolean, default: false }
+    results: [bought]
+    steps:
+      - id: how
+        kind: choice
+        sheet: proposed
+        options:
+          - { id: random }
+          - { id: category, when: mutations.points.left >= 3 }
+          - { id: chosen, when: mutations.points.left >= 3 }
+        recommend: "'random'"
+      - id: rolled
+        kind: action
+        when: "steps.how.picked == 'random'"
+        use: roll-mutation
+        params: { origin: "'random'", random: params.random }
+      - id: category
+        kind: choice
+        when: "steps.how.picked == 'category'"
+        options:
+          - { id: structure }
+          - { id: sense }
+          - { id: hybrid }
+          - { id: cognition }
+          - { id: pseudo-psychic }
+          - { id: exotic }
+        random: params.random
+        recommend: options[0]
+      - id: pair1
+        kind: action
+        when: "steps.how.picked == 'category'"
+        use: roll-mutation
+        params: { origin: "'category'", category: steps.category.picked, random: params.random }
+      - id: pair2
+        kind: action
+        sheet: proposed
+        when: "steps.how.picked == 'category'"
+        use: roll-mutation
+        params: { origin: "'category'", category: steps.category.picked, random: params.random }
+      - id: chosen
+        kind: choice
+        sheet: proposed
+        when: "steps.how.picked == 'chosen'"
+        options:
+          content:
+            type: mutation
+            where: >-
+              countCopies(copy.item == item.id) == 0
+                && !(mutations.noVision && 'vision' in item.tags)
+                && !(mutations.noHearing && 'hearing' in item.tags)
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { origin: "'chosen'" } }
+      - id: chosenSkill
+        kind: action
+        when: has(steps.chosen) && size(steps.chosen.item.bonusSkill) > 0
+        use: bonus-skill
+        params: { skills: steps.chosen.item.bonusSkill, random: params.random }
+      - id: result
+        kind: outcome
+        result: "'bought'"
+
+  # One positive mutation rolled: a d6 for the category (unless one is given) and a d10 within
+  # it. A result the character can't take (held already, or barred by a negative mutation) is
+  # rolled again; a uniform draw among those it can take stands in for rolling until one fits.
+  - id: roll-mutation
+    tags: [creation]
+    params:
+      origin: { type: enum, values: [random, category, chosen, free, unstable], default: random }
+      category: { type: string, optional: true }
+      random: { type: boolean, default: false }
+    results: [rolled]
+    steps:
+      - {
+          id: categoryRoll,
+          kind: roll,
+          tags: [creation],
+          when: '!has(params.category)',
+          parts: [{ dice: 1d6 }],
+        }
+      - id: which
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              category: >-
+                has(params.category) ? params.category
+                  : ['structure', 'sense', 'hybrid', 'cognition', 'pseudo-psychic',
+                    'exotic'][steps.categoryRoll.total - 1]
+      - { id: roll, kind: roll, tags: [creation], parts: [{ dice: 1d10 }] }
+      - id: exact
+        kind: choice
+        sheet: proposed
+        options:
+          content:
+            type: mutation
+            where: >-
+              item.category == flags.category && item.roll == steps.roll.total
+                && countCopies(copy.item == item.id) == 0
+                && !(mutations.noVision && 'vision' in item.tags)
+                && !(mutations.noHearing && 'hearing' in item.tags)
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { origin: params.origin } }
+      - id: fallback
+        kind: choice
+        sheet: proposed
+        when: '!has(steps.exact)'
+        options:
+          content:
+            type: mutation
+            where: >-
+              (!has(params.category) || item.category == params.category)
+                && countCopies(copy.item == item.id) == 0
+                && !(mutations.noVision && 'vision' in item.tags)
+                && !(mutations.noHearing && 'hearing' in item.tags)
+        random: true
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { origin: params.origin } }
+      - id: skill
+        kind: action
+        when: >-
+          (has(steps.exact) && size(steps.exact.item.bonusSkill) > 0)
+            || (has(steps.fallback) && size(steps.fallback.item.bonusSkill) > 0)
+        use: bonus-skill
+        params:
+          skills: 'has(steps.exact) ? steps.exact.item.bonusSkill : steps.fallback.item.bonusSkill'
+          random: params.random
+      - id: result
+        kind: outcome
+        result: "'rolled'"

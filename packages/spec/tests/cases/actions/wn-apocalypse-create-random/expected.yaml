@@ -1,0 +1,276 @@
+status: finished
+outcome:
+  result: created
+proposedChanges:
+  - to: self
+    step: scores
+    change:
+      type: set
+      field: wn-apocalypse:attributes.str.score
+      value: 8
+  - to: self
+    step: scores
+    change:
+      type: set
+      field: wn-apocalypse:attributes.dex.score
+      value: 16
+  - to: self
+    step: scores
+    change:
+      type: set
+      field: wn-apocalypse:attributes.con.score
+      value: 18
+  - to: self
+    step: scores
+    change:
+      type: set
+      field: wn-apocalypse:attributes.int.score
+      value: 14
+  - to: self
+    step: scores
+    change:
+      type: set
+      field: wn-apocalypse:attributes.wis.score
+      value: 7
+  - to: self
+    step: scores
+    change:
+      type: set
+      field: wn-apocalypse:attributes.cha.score
+      value: 9
+  - to: self
+    step: background
+    change:
+      type: addItem
+      entry:
+        id: background
+        item: wn-apocalypse:backgrounds.savage
+  - to: self
+    step: free/skill/skill
+    change:
+      type: adjust
+      field: wn-apocalypse:skills.survive.level
+      by: 1
+  - to: self
+    step: benefit1/stat
+    change:
+      type: adjust
+      field: wn-apocalypse:attributes.dex.score
+      by: 1
+  - to: self
+    step: benefit2/skill/skill
+    change:
+      type: adjust
+      field: wn-apocalypse:skills.survive.level
+      by: 1
+  - to: self
+    step: benefit3/skill/skill
+    change:
+      type: adjust
+      field: wn-apocalypse:skills.sneak.level
+      by: 1
+  - to: self
+    step: edge1/edge
+    change:
+      type: addItem
+      entry:
+        id: edges-prodigy-1
+        item: wn-apocalypse:edges.prodigy
+  - to: self
+    step: edge2/edge
+    change:
+      type: addItem
+      entry:
+        id: edges-mutant-1
+        item: wn-apocalypse:edges.mutant
+  - to: self
+    step: mutations/stigma/save
+    change:
+      type: set
+      field: wn-apocalypse:stigma.part
+      value: torso
+  - to: self
+    step: mutations/stigma/save
+    change:
+      type: set
+      field: wn-apocalypse:stigma.part2
+      value: none
+  - to: self
+    step: mutations/stigma/save
+    change:
+      type: set
+      field: wn-apocalypse:stigma.nature
+      value: mineral
+  - to: self
+    step: mutations/stigma/save
+    change:
+      type: set
+      field: wn-apocalypse:stigma.detail
+      value: stony
+  - to: self
+    step: mutations/concealed
+    change:
+      type: set
+      field: wn-apocalypse:mutations.stigmaConcealed
+      value: false
+  - to: self
+    step: mutations/buy1/rolled/exact
+    change:
+      type: addItem
+      entry:
+        id: mutations-hybrid-arboreal-aptitude-1
+        item: wn-apocalypse:mutations.hybrid.arboreal-aptitude
+        state:
+          origin: random
+  - to: self
+    step: mutations/buy2/rolled/exact
+    change:
+      type: addItem
+      entry:
+        id: mutations-sense-night-vision-1
+        item: wn-apocalypse:mutations.sense.night-vision
+        state:
+          origin: random
+  - to: self
+    step: focus1/add
+    change:
+      type: addItem
+      entry:
+        id: foci-road-warrior-1
+        item: wn-apocalypse:foci.road-warrior
+  - to: self
+    step: focus1/skill1/pick/skill
+    change:
+      type: adjust
+      field: wn-apocalypse:skills.drive.level
+      by: 1
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: edges-prodigy-1
+        choice:
+          - attribute
+      option: dex
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: edges-mutant-1
+        choice:
+          - penalty
+      option: wis
+  - to: self
+    step: freeSkill/skill
+    change:
+      type: adjust
+      field: wn-apocalypse:skills.notice.level
+      by: 1
+  - to: self
+    step: hpSet
+    change:
+      type: set
+      field: wn-apocalypse:hp.max
+      value: 7
+  - to: self
+    step: hpSet
+    change:
+      type: set
+      field: wn-apocalypse:hp.current
+      value: 7
+  - to: self
+    step: equipment/weapon
+    change:
+      type: addItem
+      entry:
+        id: weapons-big-club-1
+        item: wn-apocalypse:weapons.big-club
+        equipped: true
+  - to: self
+    step: equipment/warriorKit
+    change:
+      type: addItem
+      entry:
+        id: weapons-knife-1
+        item: wn-apocalypse:weapons.knife
+  - to: self
+    step: equipment/warriorKit
+    change:
+      type: addItem
+      entry:
+        id: gear-backpack-1
+        item: wn-apocalypse:gear.backpack
+        equipped: true
+  - to: self
+    step: equipment/warriorKit
+    change:
+      type: addItem
+      entry:
+        id: gear-sleeping-bag-1
+        item: wn-apocalypse:gear.sleeping-bag
+  - to: self
+    step: equipment/warriorKit
+    change:
+      type: addItem
+      entry:
+        id: gear-tinderbox-1
+        item: wn-apocalypse:gear.tinderbox
+  - to: self
+    step: equipment/warriorKit
+    change:
+      type: addItem
+      entry:
+        id: gear-torch-1
+        item: wn-apocalypse:gear.torch
+        quantity: 3
+  - to: self
+    step: equipment/warriorKit
+    change:
+      type: addItem
+      entry:
+        id: gear-clothes-1
+        item: wn-apocalypse:gear.clothes
+        equipped: true
+  - to: self
+    step: equipment/warriorKit
+    change:
+      type: addItem
+      entry:
+        id: gear-ration-1
+        item: wn-apocalypse:gear.ration
+        quantity: 4
+  - to: self
+    step: equipment/entry1/add
+    change:
+      type: addItem
+      entry:
+        id: armor-scrap-mail-1
+        item: wn-apocalypse:armor.scrap-mail
+  - to: self
+    step: equipment/entry2/add
+    change:
+      type: addItem
+      entry:
+        id: gear-lantern-1
+        item: wn-apocalypse:gear.lantern
+  - to: self
+    step: equipment/entry2/add
+    change:
+      type: addItem
+      entry:
+        id: gear-oil-flask-1
+        item: wn-apocalypse:gear.oil-flask
+        quantity: 2
+  - to: self
+    step: equipment/entry3/add
+    change:
+      type: addItem
+      entry:
+        id: gear-perpetual-lighter-1
+        item: wn-apocalypse:gear.perpetual-lighter
+  - to: self
+    step: finish
+    change:
+      type: finishCreation
