@@ -87,6 +87,10 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   resolved, structured `tests` and the running action's flags. An app previews a roll by
   starting the action with `dice: 'pause'` and reading `needs.summary`
   ([engine-actions.md](engine-actions.md#the-roll-summary)).
+- A roll made more than once (advantage or disadvantage `of: roll`) pauses with `needs.repeat`
+  (`{ times, keep }`) and `dice` for every roll in turn; its log entry lists every roll as
+  `rolls`, the kept one marked, whose items are the entry's `items`
+  ([engine-actions.md](engine-actions.md#rolling)).
 - Each of a finished result's `proposedChanges` is `{ to, character?, step, change }`: `step` is
   the path of the `changes` step that proposed it. `to` is `self`, `target`, a role of the action
   or `{ link }` (a qualified slot ID). A change for a link carries the linked character's ID as

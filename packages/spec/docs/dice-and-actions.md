@@ -907,6 +907,15 @@ the proposed sheet shows), and 5E's point buy and standard array:
 `rollModifier` effects ([data](../data/roll-modifiers.json)) change how a roll is made:
 
 - **`advantage` / `disadvantage`:** roll one extra die for the roll's main dice item (its first dice part) and keep the better or worse ones. "Better" follows the step's `better`: `high` (the default) or `low` (roll-under games).
+
+  With `of: roll`, the whole roll is made again instead, every dice item, and the better or worse total is kept: "roll twice and keep the worse" on a 2d6 check compares two 2d6 totals, where an extra die would roll 3d6 and keep two. On a roll of one die and flat items the two agree. The kept roll's faces are the roll's `faces` and `kept`, so a band reading a natural reads the kept roll; the step's result and log entry list every roll as `rolls` ([engine-actions.md](engine-actions.md#rolling)). Sources count and combine as any advantage and disadvantage do, below; when one counted source of the kind that applies says `of: roll`, every extra is a whole roll. Ashes Without Number's Weak Heart, on its Exert checks:
+
+  ```yaml
+  - target: { rolls: [skill.exert] }
+    op: rollModifier
+    value: { kind: disadvantage, of: roll }
+  ```
+
 - **`noAdvantage` / `noDisadvantage`**: once the advantage and disadvantage sources are counted, set the count of that kind to 0, before `settings.rollModifiers.advantage` combines them. The player's situational advantage is a source like any other, so it is removed too. 5E's Elusive: no attack roll against the rogue has advantage, and disadvantage still applies.
 - **`reroll`** (`below`, `once`, `count`), **`minimumFace`** (`value`), **`explode`** (`at`).
   `reroll`'s optional `count` (an integer formula) rerolls at most that many of the
@@ -983,7 +992,8 @@ A `rollModifier` of kind `poolDice` adds `count` dice to a dice part of the roll
 - **`stack`:** every source adds a die; both kinds together is an error in the pack.
 
 Advantage keeps the better dice per the roll step's `better`. That doesn't change how sources
-net out. The action log records every source, including cancelled ones. A `noAdvantage` or
+net out. With `of: roll`, the extras are whole rolls: under `net` or `stack`, two extras make
+the roll three times and keep the best total. The action log records every source, including cancelled ones. A `noAdvantage` or
 `noDisadvantage` modifier removes its kind before they combine (above): with `cancel`, advantage
 and disadvantage plus `noAdvantage` is disadvantage.
 

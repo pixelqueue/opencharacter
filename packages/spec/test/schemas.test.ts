@@ -82,7 +82,7 @@ describe('fixed sets match the schemas', () => {
   it('every dice modifier has standard English text', () => {
     const en = parse(readFileSync(join(paths.i18n, 'en.yaml'), 'utf8')) as Record<string, string>;
     for (const id of fixedSetIds('dice-modifiers')) expect(en).toHaveProperty([`dice.${id}`]);
-    for (const key of ['dice', 'fate', 'modified', 'plus', 'minus', 'negative'])
+    for (const key of ['dice', 'fate', 'modified', 'plus', 'minus', 'negative', 'repeat'])
       expect(en).toHaveProperty([`dice.${key}`]);
   });
 });
