@@ -1,0 +1,15 @@
+id: foci.traditional-education
+type: focus
+tags: [noncombat]
+fields:
+  maxLevel: 1
+  requires: invoker
+prerequisites:
+  - { id: invoker, when: tradition.invoker.tier > 0 }
+choices:
+  # The specialist tradition whose spells and first-level arts the Invoker gains.
+  - id: tradition
+    from: { values: [highmage, elementalist, necromancer] }
+    recommend: "'elementalist'"
+    effects:
+      - { target: invoker.education, op: set, value: pick.value }

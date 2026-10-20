@@ -1,0 +1,10 @@
+id: foci.alert
+type: focus
+tags: [combat, noncombat]
+fields:
+  bonusSkill: notice
+effects:
+  # Initiative rolled individually: twice, the better kept.
+  - target: { rolls: [initiative] }
+    op: rollModifier
+    value: { kind: advantage }

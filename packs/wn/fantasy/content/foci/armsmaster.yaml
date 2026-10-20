@@ -1,0 +1,20 @@
+id: foci.armsmaster
+type: focus
+tags: [combat]
+fields:
+  bonusSkill: stab
+effects:
+  # Stab added to melee and thrown damage and Shock (not with Deadeye's on thrown weapons).
+  - target: { rolls: [damage.melee, damage.thrown] }
+    op: add
+    value: max(0, skills.stab)
+    stackKey: skill-damage
+  - target: { rolls: [shock.melee] }
+    op: add
+    value: max(0, skills.stab)
+    stackKey: skill-damage
+  - target: { rolls: [attack.melee, attack.thrown] }
+    op: add
+    value: 1
+    when: self.level >= 2
+  - { target: shock.ignoresAc, op: set, value: true, when: self.level >= 2 }

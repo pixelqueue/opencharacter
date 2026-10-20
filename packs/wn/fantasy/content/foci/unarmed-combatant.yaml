@@ -1,0 +1,16 @@
+id: foci.unarmed-combatant
+type: focus
+tags: [combat]
+fields:
+  bonusSkill: punch
+effects:
+  # The unarmed die grows with Punch; Punch-1 or better adds Shock. Not for the Vowed, whose
+  # Unarmed Might replaces it.
+  - target: unarmed.die
+    op: set
+    value: '[1d6, 1d8, 1d10, 1d12, 1d12 + 1][max(0, skills.punch)]'
+    when: tradition.vowed.tier == 0
+  - target: unarmed.shock
+    op: set
+    value: skills.punch
+    when: tradition.vowed.tier == 0 && skills.punch >= 1

@@ -1,0 +1,241 @@
+fields:
+  # Martial Style: Punch attacks hit no worse than an Expert of the same level.
+  attack.punchBase: { type: integer, formula: attack.base }
+
+  # Body armor worn (the best of it) and a shield carried.
+  armor.wornAc:
+    type: integer
+    formula: "maxCopies(copy.fields.ac, copy.type == 'armor' && copy.equipped && copy.fields.category != 'shield')"
+  # The Encumbrance of the body armor worn, -1 with none.
+  armor.wornEnc:
+    type: integer
+    formula: >-
+      countCopies(copy.type == 'armor' && copy.equipped && copy.fields.category != 'shield') > 0
+        ? maxCopies(copy.fields.enc, copy.type == 'armor' && copy.equipped
+          && copy.fields.category != 'shield')
+        : -1
+  armor.wornHeavy:
+    type: boolean
+    formula: >-
+      countCopies(copy.type == 'armor' && copy.equipped
+        && copy.fields.category in ['medium', 'heavy']) > 0
+  armor.shield:
+    type: boolean
+    formula: "countCopies(copy.type == 'armor' && copy.equipped && copy.fields.category == 'shield') > 0"
+  armor.shieldAc:
+    type: integer
+    formula: "maxCopies(copy.fields.ac, copy.type == 'armor' && copy.equipped && copy.fields.category == 'shield')"
+
+  # Natural defenses that don't stack with armor (Impervious Defense, Unarmored Defense, Cold
+  # Flesh) raise this.
+  ac.innate: { type: integer, formula: 10 }
+  ac.base: { type: integer, formula: 'max(10, armor.wornAc, ac.innate)' }
+  # A shield sets AC to its own, or adds 1 to armor as good or better.
+  ac.withShield:
+    type: integer
+    formula: '!armor.shield ? ac.base : ac.base >= armor.shieldAc ? ac.base + 1 : armor.shieldAc'
+  # Bonuses that can't raise AC above 18 (Pavis of Elements).
+  ac.cappedBonus: { type: integer, formula: 0 }
+  ac.value:
+    type: integer
+    formula: >-
+      ac.withShield + attributes.dex.mod
+        + max(0, min(ac.cappedBonus, 18 - ac.withShield - attributes.dex.mod))
+
+  # Shock bonuses beyond the attribute modifier and Killing Blow (Shocking Assault).
+  shock.bonus: { type: integer, formula: 0 }
+  # Melee weapon Shock, and unarmed Shock, that treats every target as AC 10.
+  shock.ignoresAc: { type: boolean, formula: false }
+  shock.unarmedIgnoresAc: { type: boolean, formula: false }
+
+  # A Duelist's favored weapons and their hit bonus: the Duelist's table, or the level with a
+  # partial Warrior.
+  duelist.favored: { type: set, of: weapon }
+  attack.favoredBase:
+    type: integer
+    formula: >-
+      tradition.duelist.tier == 0 ? attack.base
+        : max(attack.base, class.warrior > 0 ? level : [1, 1, 2, 2, 3, 3, 4, 4, 5, 5][level - 1])
+
+  # Unarmed attacks: the die and Shock that Unarmed Combatant or Unarmed Might give.
+  unarmed.die: { type: dice, formula: 1d2 }
+  unarmed.shock: { type: integer, formula: 0 }
+  unarmed.shockAc: { type: integer, formula: 15 }
+
+contentTypes:
+  weapon:
+    carried: true
+    equippable: true
+    fields:
+      damage: { type: dice, required: true }
+      shock: { type: integer, default: 0, min: 0 }
+      shockAc: { type: integer, default: 0, min: 0 }
+      attribute: { type: enum, values: [str, dex, str-dex], required: true }
+      skill: { type: enum, values: [stab, shoot, punch], required: true }
+      rangeShort: { type: integer, min: 0 }
+      rangeLong: { type: integer, min: 0 }
+      cost: { type: integer, min: 0 }
+      costUnit: { type: enum, values: [cp, sp], default: sp }
+      enc: { type: integer, default: 1, min: 0 }
+      bundle: { type: integer, default: 1, min: 1 }
+      wornFree: { type: boolean, default: false }
+    actions:
+      - use: attack
+
+  armor:
+    carried: true
+    equippable: true
+    fields:
+      ac: { type: integer, required: true, min: 10 }
+      category: { type: enum, values: [light, medium, heavy, shield], required: true }
+      cost: { type: integer, min: 0 }
+      costUnit: { type: enum, values: [cp, sp], default: sp }
+      enc: { type: integer, default: 1, min: 0 }
+      bundle: { type: integer, default: 1, min: 1 }
+      wornFree: { type: boolean, default: false }
+    effects:
+      # Medium armor's Encumbrance is a penalty to Sneak; heavy armor's to Sneak and Exert.
+      - id: sneak-penalty
+        target: { rolls: [skill.sneak] }
+        op: add
+        value: -item.enc
+        when: "self.equipped && item.category in ['medium', 'heavy'] && item.enc > 0"
+      - id: exert-penalty
+        target: { rolls: [skill.exert] }
+        op: add
+        value: -item.enc
+        when: "self.equipped && item.category == 'heavy' && item.enc > 0"
+
+standardCopies:
+  - { type: weapon, where: "'unarmed' in item.tags" }
+
+resultBands:
+  attack:
+    - { id: hit, when: 'roll.kept[0] == 20' }
+    - { id: miss, when: 'roll.kept[0] == 1' }
+    - { id: rolled, when: flags.ac < 0 }
+    - { id: hit, when: roll.total >= flags.ac }
+    - { id: miss, when: true }
+
+actions:
+  - id: initiative
+    tags: [combat]
+    results: [rolled]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [initiative]
+        parts:
+          - dice: 1d8
+          - field: "'attributes.dex.mod'"
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data:
+          total: steps.roll.total
+
+  # A hit roll of 1d20 plus attack bonus, skill (-2 without it) and the weapon's attribute; on a
+  # hit, damage; on a melee miss, Shock against a target whose AC is no better than the weapon's.
+  - id: attack
+    tags: [attack]
+    available: self.equipped || 'unarmed' in item.tags
+    params:
+      targetAc: { type: integer, optional: true }
+      thrown: { type: boolean, default: false }
+    results: [hit, miss]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              mode: >-
+                params.thrown ? 'thrown' : item.skill == 'shoot' ? 'ranged'
+                  : item.skill == 'punch' ? 'unarmed' : 'melee'
+              skill: >-
+                params.thrown ? max(skills.stab, skills.shoot)
+                  : fieldOf('skills.{skill}', item.skill)
+              attribute: >-
+                item.attribute == 'str-dex'
+                  ? (attributes.str.mod >= attributes.dex.mod ? 'str' : 'dex') : item.attribute
+              ac: 'has(params.targetAc) ? params.targetAc : -1'
+              dice: "'unarmed' in item.tags ? unarmed.die : item.damage"
+              shock: "'unarmed' in item.tags ? unarmed.shock : item.shock"
+              shockAc: "'unarmed' in item.tags ? unarmed.shockAc : item.shockAc"
+      - id: hitRoll
+        kind: roll
+        tags: [attack, { formula: "'attack.' + flags.mode" }]
+        bands: attack
+        parts:
+          - dice: 1d20
+          - field: >-
+              item.skill == 'punch' ? 'attack.punchBase'
+                : !params.thrown && item.id in duelist.favored ? 'attack.favoredBase'
+                : 'attack.base'
+          - value: 'flags.skill >= 0 ? flags.skill : -2'
+          - field: "'attributes.' + flags.attribute + '.mod'"
+      - id: confirm
+        kind: choice
+        when: steps.hitRoll.band == 'rolled'
+        options: [{ id: hit }, { id: miss }]
+      - id: outcome
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              hit: >-
+                steps.hitRoll.band == 'hit'
+                  || (has(steps.confirm) && steps.confirm.picked == 'hit')
+      # What Shock would do; a hit never does less. Thrown and ranged attacks do no Shock.
+      - id: shock
+        kind: roll
+        when: "flags.shock > 0 && flags.mode in ['melee', 'unarmed']"
+        tags: [shock, { formula: "'shock.' + flags.mode" }]
+        parts:
+          - value: flags.shock
+          - field: "'attributes.' + flags.attribute + '.mod'"
+          - field: "'damage.killingBlow'"
+          - field: "'shock.bonus'"
+      - id: shockApplies
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              shockDamage: >-
+                has(steps.shock) && flags.ac >= 0
+                  && (flags.ac <= flags.shockAc
+                    || (flags.mode == 'melee' && shock.ignoresAc)
+                    || (flags.mode == 'unarmed' && shock.unarmedIgnoresAc))
+                  ? max(0, steps.shock.total) : 0
+      - id: damage
+        kind: roll
+        when: flags.hit
+        tags: [damage, { formula: "'damage.' + flags.mode" }]
+        parts:
+          - dice: flags.dice
+            tags: [weapon-die]
+          - field: "'attributes.' + flags.attribute + '.mod'"
+          - value: max(0, skills.punch)
+            when: flags.mode == 'unarmed'
+          - field: "'damage.killingBlow'"
+      - id: totals
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              dealt: >-
+                flags.hit ? max(has(steps.damage) ? steps.damage.total : 0,
+                    flags.ac < 0 && has(steps.shock) ? steps.shock.total : flags.shockDamage, 0)
+                  : flags.shockDamage
+      - id: deal
+        kind: changes
+        when: flags.dealt > 0
+        to: target
+        changes:
+          - { type: adjust, field: hp.current, by: -flags.dealt, tags: [damage] }
+      - id: result
+        kind: outcome
+        result: "flags.hit ? 'hit' : 'miss'"
+        data:
+          total: steps.hitRoll.total
+          damage: flags.dealt

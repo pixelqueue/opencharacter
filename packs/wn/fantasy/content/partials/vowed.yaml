@@ -1,0 +1,40 @@
+id: partials.vowed
+type: partial
+tags: [mage-class]
+effects:
+  - { target: class.mage, op: add, value: 1 }
+  - { target: tradition.vowed.tier, op: add, value: 1 }
+grants:
+  - { item: arts.vowed.martial-style }
+  - { item: arts.vowed.unarmed-might }
+  - { item: arts.vowed.unarmored-defense }
+choices:
+  # The non-combat skill the order teaches, which also fuels Effort.
+  - id: skill
+    from:
+      {
+        values:
+          [
+            administer,
+            connect,
+            convince,
+            craft,
+            exert,
+            heal,
+            know,
+            lead,
+            magic,
+            notice,
+            perform,
+            pray,
+            ride,
+            sail,
+            sneak,
+            survive,
+            trade,
+            work,
+          ],
+      }
+    recommend: "'exert'"
+    effects:
+      - { target: vowed.skill, op: set, value: pick.value }

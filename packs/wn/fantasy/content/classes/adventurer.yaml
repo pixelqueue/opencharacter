@@ -1,0 +1,16 @@
+id: classes.adventurer
+type: class
+# No Mage class pairs with the Mageslayer.
+choices:
+  - id: first
+    unique: partials
+    from: { type: partial }
+    eligible: >-
+      !(item.id == @partials.mageslayer && class.mage > 0)
+        && !('mage-class' in item.tags && tradition.mageslayer.tier > 0)
+  - id: second
+    unique: partials
+    from: { type: partial }
+    eligible: >-
+      !(item.id == @partials.mageslayer && class.mage > 0)
+        && !('mage-class' in item.tags && tradition.mageslayer.tier > 0)

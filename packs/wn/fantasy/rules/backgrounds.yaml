@@ -1,0 +1,61 @@
+families:
+  backgroundEntry:
+    [
+      freeSkill,
+      quick1,
+      quick2,
+      growth1,
+      growth2,
+      growth3,
+      growth4,
+      growth5,
+      growth6,
+      learning1,
+      learning2,
+      learning3,
+      learning4,
+      learning5,
+      learning6,
+      learning7,
+      learning8,
+    ]
+
+contentTypes:
+  # A background's free skill, quick skills, and Growth (d6) and Learning (d8) tables. Each
+  # entry is a skill, `any` (any skill), `combat` (Stab, Shoot or Punch), or attribute points:
+  # `any-stat` (+1 to any), `physical` or `mental` (+2 to one or +1 to two of them).
+  background:
+    copies: { max: 1 }
+    fields:
+      '{backgroundEntry}':
+        type: enum
+        values:
+          [
+            administer,
+            connect,
+            convince,
+            craft,
+            exert,
+            heal,
+            know,
+            lead,
+            magic,
+            notice,
+            perform,
+            pray,
+            punch,
+            ride,
+            sail,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            trade,
+            work,
+            any,
+            combat,
+            any-stat,
+            physical,
+            mental,
+          ]
+        required: true

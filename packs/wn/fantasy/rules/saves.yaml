@@ -1,0 +1,62 @@
+fields:
+  # 15 at first level, one lower each level after, less the better of two attribute modifiers.
+  saves.physical:
+    type: integer
+    tags: [save, save.physical]
+    formula: 16 - level - max(attributes.str.mod, attributes.con.mod)
+  saves.evasion:
+    type: integer
+    tags: [save, save.evasion]
+    formula: 16 - level - max(attributes.dex.mod, attributes.int.mod)
+  saves.mental:
+    type: integer
+    tags: [save, save.mental]
+    formula: 16 - level - max(attributes.wis.mod, attributes.cha.mod)
+  saves.luck:
+    type: integer
+    tags: [save, save.luck]
+    formula: 16 - level
+
+situational:
+  # Nullifier: +2 on a save against magic, for the hero and allies within twenty feet.
+  - id: nullified
+    type: boolean
+    default: false
+    rolls: [save]
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 2
+
+resultBands:
+  save:
+    - { id: success, when: roll.total >= flags.target }
+    - { id: failure, when: true }
+
+actions:
+  # A d20 that meets or beats the save succeeds.
+  - id: saving-throw
+    tags: [save]
+    params:
+      save: { type: id, of: field, where: "'save' in item.tags" }
+      modifier: { type: integer, default: 0 }
+    results: { bands: save }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags: { target: params.save.value }
+      - id: save
+        kind: roll
+        tags: [{ formula: params.save.tags }]
+        bands: save
+        parts:
+          - dice: 1d20
+          - value: params.modifier
+            when: params.modifier != 0
+      - id: result
+        kind: outcome
+        result: steps.save.band
+        data:
+          total: steps.save.total

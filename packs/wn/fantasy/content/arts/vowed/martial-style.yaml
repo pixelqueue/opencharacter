@@ -1,0 +1,9 @@
+id: arts.vowed.martial-style
+type: art
+tags: [granted]
+fields:
+  tradition: vowed
+effects:
+  # A hit die no worse than 1d6, and Punch attacks hit no worse than an Expert's.
+  - { target: hp.dieBonus, op: atLeast, value: 0 }
+  - { target: attack.punchBase, op: atLeast, value: floor(level / 2) }

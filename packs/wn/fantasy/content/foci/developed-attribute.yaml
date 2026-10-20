@@ -1,0 +1,23 @@
+id: foci.developed-attribute
+type: focus
+tags: [combat, noncombat]
+fields:
+  maxLevel: 1
+  repeatable: true
+  requires: non-mage
+choices:
+  - id: attribute
+    from: { values: [str, dex, con, int, wis, cha] }
+    recommend: "sortList(['str', 'dex', 'con', 'int', 'wis', 'cha'], -fieldOf('attributes.{attr}.score', x))[0]"
+    effects:
+      # +1 to the modifier, up to +3.
+      - target:
+          { fields: { where: "'mod-bonus' in item.tags && ('attr.' + pick.value) in item.tags" } }
+        op: add
+        value: 1
+      - target:
+          { fields: { where: "'mod-cap' in item.tags && ('attr.' + pick.value) in item.tags" } }
+        op: atLeast
+        value: 3
+prerequisites:
+  - { id: non-mage, when: class.mage == 0 }
