@@ -36,10 +36,10 @@ describe('pnpm build:packs on the repository packs', () => {
       'mork-borg-core',
       'mothership-1e',
       'orc-2e',
+      'wn-apocalypse',
       'wn-cyber',
       'wn-fantasy',
       'wn-scifi',
-      'wn-apocalypse',
     ]);
   });
 

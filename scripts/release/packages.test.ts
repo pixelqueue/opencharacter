@@ -49,8 +49,8 @@ const withoutSource = (exports: Record<string, unknown>) =>
   );
 
 describe('published packages', () => {
-  it('finds the 12 packages', () => {
-    expect(pkgs.length).toBe(12);
+  it('finds the 16 packages', () => {
+    expect(pkgs.length).toBe(16);
   });
 
   for (const { dir, pkg } of pkgs) {
