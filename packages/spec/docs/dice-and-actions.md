@@ -334,6 +334,16 @@ passed on as `applied` is. Orc Ferocity marks its daily use:
 - { type: setState, pick: self, key: used, value: true }
 ```
 
+**The action's own grant**. In an action of content a holder grant activates, a
+proposed `setState` or `adjustState` with `grant: self` names that grant's saved state: the
+returned change carries its node (`entry`, or a pick's `path` and `option`) and `grant`, the
+granted item. Outside such an action it is `unknown-reference`. `grants: { where, limit? }`
+names granted content by query and is passed on as `picks` is. An artifact's gift commits Effort:
+
+```yaml
+- { type: adjustState, grant: self, key: committed, by: 1 }
+```
+
 **Changes to applied entries by query.** `removeEffect`, `toggleEffect`, `setState` and
 `adjustState` may name applied entries with `applied: { where, limit? }` instead of `id` (or
 `entry`). As for copies, the receiving character resolves it: its applied entries, in file

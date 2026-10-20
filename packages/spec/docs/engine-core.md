@@ -267,6 +267,12 @@ and its scope (`holder` or `applied`):
 An applied entry's `self` is `id` plus its state keys, read as in `character.applied`: declared
 keys by their type, with their `default` when unsaved.
 
+Content a holder grant activates that declares state (its type's or its own) reads its keys from
+its saved state on the grant's node (the owner copy, or the pick whose tree holds its picks),
+else the grant's `state` values, else the declared defaults, over the owner copy, as picked
+content reads its pick's ([content.md](content.md#when-content-is-active)). An applied grant's
+content sees the granting entry with the grant's `state` values in place.
+
 **Activation conditions** decide what is active: grant `when`, choice `when`, and an
 immunity's `when` and query `where`. They are
 evaluated before any field is computed, so they may read only `self`, `item`, `character` (its
@@ -635,7 +641,9 @@ depth first, then the active applied entries with their applied grants. Each is
 - `keptBy`: for a template content keeps on the copy, the index of the
   activation that keeps it (the first, when several do). Absent for a saved template.
 - `path`: for a pick, the choice path of the pick (`change.schema.json#/$defs/choicePath`), the
-  picked option last, as `pending` and change paths name it.
+  picked option last, as `pending` and change paths name it. For a holder grant whose node is a
+  pick (content granted by picked content or an inline option), that pick's path, which names
+  the grant's saved state ([applyChanges](#applychanges)).
 
 Inline options, the rules and applied entries an immunity blocks (which aren't activated) aren't
 listed, nor are the picks of a choice with `activate: false`. A content group's `from: own`
@@ -667,8 +675,13 @@ slotted choice is one entry per applicable slot. A choice that isn't applicable 
   ([formulas.md](formulas.md#functions)).
 - `min` and `max`: the evaluated pick counts, as `listOptions` gives them (`max` absent when
   unbounded; a count that fails to evaluate leaves the default, 1).
-- `picks`: the picked options, in saved order: content IDs, inline option IDs or values.
-- `open`: whether the choice is pending: `required` not `false` and fewer picks than `min`.
+- `picks`: the picked options, in saved order: content IDs, inline option IDs or values. For a
+  choice a grant presets, the grant's.
+- `open`: whether the choice is pending: `required` not `false` and fewer picks than `min`; a
+  preset choice never is.
+- `preset`: `true` when a grant presets the choice
+  ([content.md](content.md#when-content-is-active)); `choose` and `unchoose` on it are
+  `preset-choice`.
 
 The entries with `open: true` are `pending`. Each content pick in
 [the activation list](#the-activation-list) has a listed choice's path plus the option; inline
@@ -900,6 +913,22 @@ declared default is dropped from the pick (an empty `state` with it). `picks: { 
 names every pick, in file order (each copy's tree, then the rules-level tree, depth first),
 whose picked content declares the change's `key` and whose `where` holds with `item` the picked
 item and `self` its state; `by` and `value` are evaluated per pick. No match changes nothing.
+
+**A grant's state**. `setState` and `adjustState` may name granted content's saved
+state with `grant`, its qualified ID, beside its node: `entry` (the copy) or a pick's `path` and
+`option`. An active holder grant of that content on that node must exist (`not-granted`, data
+`grant`; an applied entry has none). The keys, types and bounds are those the granted content's
+type and item declare. Its current value is the saved one, else the grant's `state` value, else
+the declared default; a value equal to that default is dropped (an empty entry, and an empty
+`grants`, with it). A preset pick the path goes through is saved first, as `choose` saves it.
+`grants: { where, limit? }` names every active holder grant, in activation order (an item once
+per node), whose content declares the change's `key` and whose `where` holds with `item` the
+granted item and `self` its state; `by` and `value` are evaluated per grant. No match changes
+nothing.
+
+**Preset choices**. `choose` and `unchoose` on a choice a grant presets are
+`preset-choice` (data `path`). A `choose` (or a pick's `setState`) whose path goes through a
+preset pick first saves a pick of that option, with no state, to hold what nests under it.
 
 **Quantity**. `setQuantity` and `adjustQuantity` change a copy's
 `quantity` (any copy, in inventory or features; absent means 1). The result is always written,

@@ -367,6 +367,9 @@ export type SetStateChange = {
   /** With `path`: the picked option. */
   option?: string | number;
   picks?: Picks;
+  /** With `entry` (a copy) or `path` and `option` (a pick): the content that node's holder grants name, by qualified ID, whose saved state changes (the node's `grants`). It must be active there (`not-granted`). Its keys and bounds are those the granted content declares; a value equal to its default (the grant's `state` value, else the declared default) is dropped. */
+  grant?: QualifiedId;
+  grants?: Grants;
 };
 
 export type AdjustStateChange = {
@@ -384,6 +387,9 @@ export type AdjustStateChange = {
   /** With `path`: the picked option. */
   option?: string | number;
   picks?: Picks;
+  /** With `entry` (a copy) or `path` and `option` (a pick): the content that node's holder grants name, by qualified ID, whose saved state changes (the node's `grants`). It must be active there (`not-granted`). Its keys and bounds are those the granted content declares; a value equal to its default (the grant's `state` value, else the declared default) is dropped. */
+  grant?: QualifiedId;
+  grants?: Grants;
 };
 
 /** Set a copy's `quantity`. It may not be below 0 (`out-of-range`); a copy at 0 stays. */
@@ -538,6 +544,9 @@ export type ProposedChange = {
   /** setState and adjustState: `self`, the pick whose content defines the running action, resolved to `path` and `option` in the returned change. In an action that isn't a picked content's, `unknown-reference`. */
   pick?: 'self';
   picks?: Picks;
+  /** setState and adjustState: `self`, the grant that activated the running action's granted content (a holder grant), resolved to `entry` (or `path` and `option`, a pick) and `grant` in the returned change. In an action that isn't a granted content's, `unknown-reference`. */
+  grant?: 'self';
+  grants?: Grants;
   /** set and adjust may compute it: `{ formula }`, evaluated when the action runs to a field ID and qualified against the action's pack, as a literal one is. For `to: self` or a role it must name an input field (`unknown-field` or `not-input-field`, data: `field`); for a link it must be qualified and is passed on unchecked. A `split` adjust's field is written out. */
   field?: FieldRef | ComputedField;
   entry?: string | ProposedEntry | ComputedEntry;
@@ -638,6 +647,12 @@ export type Picks = {
   limit?: number;
 };
 
+/** setState and adjustState may name granted content by query: applyChanges resolves it against the character it changes, at that point in the batch: each active holder grant, in activation order (the same item on one node once), whose granted content declares the change's `key` and whose `where` holds with `item` the granted item and `self` its state (saved, else the grant's `state`, else declared defaults). With `limit`, only the first that many. `by` and `value` are formulas evaluated per grant with the same binding. No match is not an error. */
+export type Grants = {
+  where: Condition;
+  limit?: number;
+};
+
 /** removeEffect, toggleEffect, setState and adjustState may name applied entries by query instead of `id` or `entry`. applyChanges resolves it against the character it changes, at that point in the batch: the `applied` entries, in file order, whose `where` holds with `item` the source's item and `self` the entry (`id` and its state, with declared defaults). With `limit`, only the first that many. In such a change, `by` and `value` are formulas evaluated per entry with the same binding, and formulas resolve names in the source's pack. No match is not an error: each such change adds `{ applied: [ids] }` to `adjustments`. */
 export type Applied = {
   where: Condition;
@@ -693,6 +708,8 @@ export type Entry = {
   state?: EntryState;
   /** Picks for the choices declared by this item and its templates. */
   choices?: ChoiceTree;
+  /** Saved state of content this copy's item and templates grant (holder grants), by the granted content's qualified ID. */
+  grants?: GrantStore;
 };
 
 /** Per-copy state values by state key (charges, shots, level). */
@@ -707,7 +724,17 @@ export type ChoicePick = {
   choices?: ChoiceTree;
   /** Values for state keys the picked content declares (its content type's or its own), as a copy's state. The picked content sees them as `self.<key>`; a key at its default is left out. */
   state?: Record<string, Literal>;
+  /** Saved state of content the picked option grants (holder grants), by the granted content's qualified ID. */
+  grants?: GrantStore;
 };
+
+/** Granted content's saved state, kept on the node whose choice tree holds its picks: a copy, or a pick. Each key is a granted item's qualified ID; `state` holds values for state keys it declares (its content type's or its own), as a pick's does. The granted content sees them as `self.<key>`, over the grant's `state` and the declared defaults; a key at that default is left out. The same item granted twice to one node shares it. Kept while the grant is off. */
+export type GrantStore = Record<
+  string,
+  {
+    state?: Record<string, Literal>;
+  }
+>;
 
 /** A stored ephemeral follow-up. */
 export type StoredFollowUp = {
@@ -1013,9 +1040,25 @@ export type Grant = {
   scope?: 'holder' | 'applied';
   /** The granted item's prerequisites don't apply to this activation of it (content that gives a feat outright, whether or not the character meets its prerequisites). Its own grants and picks are checked as usual. Default false. */
   waivePrerequisites?: boolean;
-  /** State values the granted content sees as `self.<key>`, in place of the owner copy's (a holder grant) or the granting entry's (a grant with `scope: applied`). Each key is a state key the granted content declares (`unknown-state-key` at load); each value is a formula of the key's type evaluated as an activation condition is (it reads `self`, `item` and input fields). A condition that includes a valued condition gives its value: `{ item: conditions.enfeebled, scope: applied, state: { value: 2 } }`. */
+  /** State values for the granted content: in place of the owner copy's (a holder grant) or the granting entry's (a grant with `scope: applied`), the granted content sees them as `self.<key>`. Each key is a state key the granted content declares (`unknown-state-key` at load); each value is a formula of the key's type evaluated as an activation condition is (it reads `self`, `item` and input fields). For a holder grant they are the defaults of the granted content's saved state: a value saved in the owner's `grants` wins. A condition that includes a valued condition gives its value: `{ item: conditions.enfeebled, scope: applied, state: { value: 2 } }`. */
   state?: Record<string, Formula>;
+  /** Holder grants: picks the grant makes for the granted content's own choices, by choice ID (a slot's key for a slotted choice). A choice a literal `item` doesn't declare, a literal option it doesn't offer, or `choices` on a grant with `scope: applied`, is `unknown-reference` at load; with a formula `item`, a key the content doesn't declare presets nothing. A preset choice is answered: its picks are these, it is never pending, and `choose` and `unchoose` on it are `preset-choice`. Each pick's `option` is a literal or `{ formula }`, evaluated as an activation condition is, to a content ID (qualified in the grant's pack, as `item` is), an inline option ID or a value; a pick's `choices` preset the picked option's own choices. A formula that fails, or gives neither a string nor a number, leaves its pick out with a `formula-error`. So content gives a feat for a skill it names: `{ item: feats.assurance, choices: { skill: [{ option: skill.athletics }] } }`. */
+  choices?: PresetTree;
 };
+
+/** A grant's preset picks: keyed by the owner's bare choice IDs; each pick's `option` is a literal or `{ formula }`. */
+export type PresetTree = Record<
+  string,
+  {
+    option:
+      | string
+      | number
+      | {
+          formula: Formula;
+        };
+    choices?: PresetTree;
+  }[]
+>;
 
 export type Prerequisite = {
   /** Stable ID; rules issues carry it, and its text is `<owner>.prerequisites.<id>`. */
@@ -1850,7 +1893,7 @@ export type ComputeSheetOutput = {
     parent?: number;
     /** A template content keeps on the copy: the index in this list of the activation that keeps it. Absent for a saved template. */
     keptBy?: number;
-    /** Picks: the choice path of the pick, the picked option last. */
+    /** Picks: the choice path of the pick, the picked option last. Holder grants whose node is a pick (content granted by picked content or an inline option): that pick's path, which a grant's `setState` names with `path`, `option` and `grant`. */
     path?: ChoicePath;
   }[];
   /** Every applicable choice, answered or not, in pending order: the rules-level choices first, then each activation's own choices, each followed by those of what it picked, before those of the activations it grants. Inline options' choices and `activate: false` choices are included; a slotted choice is one entry per slot. `pending` is the open ones, in the same order. */
@@ -1942,6 +1985,8 @@ export type ListedChoice = {
   picks: (string | number)[];
   /** Whether the choice is pending: required (`required` not false) with fewer picks than `min`. */
   open: boolean;
+  /** `true` when a grant presets the choice (its `choices`): `picks` are the grant's, the choice is never open, and `choose` and `unchoose` on it are `preset-choice`. */
+  preset?: true;
 };
 
 export type CompetingOptions = {
@@ -2661,6 +2706,8 @@ export type ErrorCode =
   | 'unknown-choice'
   | 'invalid-option'
   | 'not-picked'
+  | 'not-granted'
+  | 'preset-choice'
   | 'pack-version-mismatch'
   | 'unknown-link'
   | 'homebrew-error'
