@@ -298,7 +298,13 @@ export type StepOptions =
   | StepOption[]
   | { content: { type: string; where?: Formula } }
   | { copies: { type: string; where?: Formula } }
+  | ValueSource
   | { pending: { entry?: Formula } };
+
+export interface ValueSource {
+  values: (string | number)[] | { formula: Formula };
+  where?: Formula;
+}
 
 export function writtenOptions(step: Step): StepOption[] {
   return Array.isArray(step.options) ? step.options : [];
@@ -312,6 +318,11 @@ export function optionQuery(
   if ('content' in options) return { source: 'content', ...options.content };
   if ('copies' in options) return { source: 'copies', ...options.copies };
   return undefined;
+}
+
+export function valueSource(step: Step): ValueSource | undefined {
+  const options = step.options;
+  return options && !Array.isArray(options) && 'values' in options ? options : undefined;
 }
 
 export function pendingSource(step: Step): { entry?: Formula } | undefined {

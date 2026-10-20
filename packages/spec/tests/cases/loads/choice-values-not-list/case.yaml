@@ -1,0 +1,21 @@
+description: "A choice step's `values` formula must give a list of strings or numbers"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stress: { type: integer, input: true, default: 0 }
+        actions:
+          - id: pick
+            steps:
+              - id: what
+                kind: choice
+                options: { values: { formula: stress } }
+      content: []

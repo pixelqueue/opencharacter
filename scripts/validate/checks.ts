@@ -26,6 +26,7 @@ const KEYWORDS = new Set(['true', 'false', 'null', 'in']);
 import {
   optionQuery,
   pendingSource,
+  valueSource,
   writtenOptions,
 } from '../../packages/engine/src/core/pack-types.ts';
 import { appliesQueries } from '../../packages/engine/src/core/pack-types.ts';
@@ -1618,6 +1619,8 @@ export class PackChecker {
         }
         for (const option of writtenOptions(step))
           this.requiredKeys.add(`${key}.options.${option.id}.name`);
+        // A value's own text is optional: the app names it otherwise.
+        if (valueSource(step)) this.optionalPrefixes.add(`${key}.options.`);
         const query = step.kind === 'choice' ? optionQuery(step) : undefined;
         if (query && !this.ruleset.contentType(query.type, this.scope))
           this.report.error(file, `${where}: unknown content type "${query.type}"`);

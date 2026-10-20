@@ -591,13 +591,11 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
                   : q.actionId(step.use, pack),
             }
           : {}),
-        ...(step.options && !Array.isArray(step.options) && !('pending' in step.options)
-          ? {
-              options:
-                'content' in step.options
-                  ? { content: q.query(step.options.content, pack) }
-                  : { copies: q.query(step.options.copies, pack) },
-            }
+        ...(step.options && !Array.isArray(step.options) && 'content' in step.options
+          ? { options: { content: q.query(step.options.content, pack) } }
+          : {}),
+        ...(step.options && !Array.isArray(step.options) && 'copies' in step.options
+          ? { options: { copies: q.query(step.options.copies, pack) } }
           : {}),
         ...(Array.isArray(step.options)
           ? {

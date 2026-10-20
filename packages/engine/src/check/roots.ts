@@ -365,7 +365,7 @@ export function paramsType(params: Record<string, ValueDecl> | undefined): FType
   return { object: declTypes(params) };
 }
 
-export type ChoiceViews = (step: Step) => { item?: FType; self?: FType };
+export type ChoiceViews = (step: Step) => { item?: FType; self?: FType; value?: FType };
 
 export function actionType(item: FType, self: FType): ObjectType {
   return {
@@ -373,7 +373,7 @@ export function actionType(item: FType, self: FType): ObjectType {
   };
 }
 
-export function pickedType(views: { item?: FType; self?: FType }): ObjectType {
+export function pickedType(views: { item?: FType; self?: FType; value?: FType }): ObjectType {
   return { object: { id: 'string', ...views } };
 }
 

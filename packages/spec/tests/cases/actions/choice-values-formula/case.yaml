@@ -1,0 +1,41 @@
+description: "A choice over values from a list formula, paused: it reads the action's `item`; `where` sees each `value` and `picks`; without `recommend`, the highest `prefer` is recommended; a repeated value is offered once"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          weapon:
+            carried: true
+            fields:
+              damageType: { type: string, default: slashing }
+              modularTypes: { type: set, of: string, default: [] }
+            state:
+              modular: { type: string, default: '' }
+      content:
+        - id: weapons.blade
+          type: weapon
+          fields: { modularTypes: [piercing, fire, bludgeoning, slashing] }
+          actions:
+            - id: modular
+              steps:
+                - id: type
+                  kind: choice
+                  options:
+                    values: { formula: '[item.damageType] + item.modularTypes' }
+                    where: "value != 'fire' && picks == 0"
+                  prefer: size(value)
+                  changes:
+                    - type: setState
+                      entry: self
+                      key: modular
+                      value: "picked.value == item.damageType ? '' : picked.value"
+input:
+  action: { id: 'test-pack:weapons.blade#modular', entry: blade-1 }
+  policy: { choices: pause }
