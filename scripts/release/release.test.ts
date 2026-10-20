@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { cpSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,7 +8,7 @@ import { buildRelease } from '../../packages/engine/src/index.ts';
 import type { BuiltPack } from '../build/index.ts';
 import { loadPack, SchemaValidator } from '../validate/load.ts';
 import { Reporter } from '../validate/report.ts';
-import { publishedFromGit, releaseCheck, syncPackVersions } from './index.ts';
+import { publishedFromGit, releaseCheck, syncPackVersions, syncPinnedVersions } from './index.ts';
 
 const fixture = fileURLToPath(new URL('./fixtures', import.meta.url));
 const repo = mkdtempSync(join(tmpdir(), 'ocf-release-test-'));
@@ -206,8 +206,49 @@ describe('syncPackVersions', () => {
       join(dir, 'test', 'demo', 'package.json'),
       JSON.stringify({ name: '@opencharacter/test-demo', version: '0.2.0' }),
     );
-    expect(syncPackVersions(dir)).toEqual(['test/demo → 0.2.0']);
+    expect(syncPackVersions(dir)).toEqual([{ id: 'test-demo', from: '0.1.0', to: '0.2.0' }]);
     expect(syncPackVersions(dir)).toEqual([]);
+    rmSync(dir, { recursive: true, force: true });
+  });
+});
+
+describe('syncPinnedVersions', () => {
+  const bumps = [{ id: 'test-demo', from: '0.1.0', to: '0.1.1' }];
+  const files: Record<string, [string, string]> = {
+    'flow.yaml': [
+      'packs:\n  - { id: test-demo, version: 0.1.0 }\n  - { id: other, version: 0.1.0 }\n',
+      'packs:\n  - { id: test-demo, version: 0.1.1 }\n  - { id: other, version: 0.1.0 }\n',
+    ],
+    'block.yaml': [
+      'packs:\n  - id: test-demo\n    version: 0.1.0\n',
+      'packs:\n  - id: test-demo\n    version: 0.1.1\n',
+    ],
+    'sample.ts': [
+      "packs: [{ id: 'test-demo', version: '0.1.0' }],\n",
+      "packs: [{ id: 'test-demo', version: '0.1.1' }],\n",
+    ],
+    'data.json': [
+      '{ "id": "test-demo", "version": "0.1.0" }\n',
+      '{ "id": "test-demo", "version": "0.1.1" }\n',
+    ],
+    'upgrade.yaml': [
+      '- { id: test-demo, version: 0.0.9 }\n- { id: test-demo, version: 0.1.0-beta }\n',
+      '- { id: test-demo, version: 0.0.9 }\n- { id: test-demo, version: 0.1.0-beta }\n',
+    ],
+  };
+
+  it('moves pins of the old version only, in every form', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ocf-pins-'));
+    for (const [name, [before]] of Object.entries(files)) writeFileSync(join(dir, name), before);
+    expect(syncPinnedVersions(dir, Object.keys(files), bumps).toSorted()).toEqual([
+      'block.yaml',
+      'data.json',
+      'flow.yaml',
+      'sample.ts',
+    ]);
+    for (const [name, [, after]] of Object.entries(files)) {
+      expect(readFileSync(join(dir, name), 'utf8')).toBe(after);
+    }
     rmSync(dir, { recursive: true, force: true });
   });
 });
