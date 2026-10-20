@@ -31,7 +31,10 @@ Each engine library (the TypeScript reference engine and community ports) has it
    package is 0.x, a breaking change is a `minor` changeset and anything else a `patch`; a
    `major` changeset takes it to 1.0.0.
 2. **Version:** `pnpm version-packages` runs `changeset version`, then copies each pack's new
-   `package.json` version into its `pack.yaml`, since that is the version characters pin.
+   `package.json` version into its `pack.yaml`, since that is the version characters pin. It
+   also moves every pin of a bumped pack's old version to the new one (example characters, test
+   cases, docs and code samples), since the engine reports a pin that doesn't match exactly
+   (`pack-version-mismatch`). Pins of any other version, such as an upgrade test's, stay.
 3. **Check:** `pnpm release` runs every check, builds the packs, then runs `pnpm release:check`.
    For each pack it compares the new release with the last published one, found by git tag
    (`@opencharacter/<id>@<version>`):
@@ -45,7 +48,30 @@ Each engine library (the TypeScript reference engine and community ports) has it
    whose version isn't on npm yet (with npm provenance) and tags it. Built output (`dist/`: the
    engine, text and spec modules, the packs' releases and text, the bundle) comes from
    `pnpm build`, which `pnpm release` runs; each published package's `prepack` refuses to pack
-   without it, so packing a package on its own needs `pnpm build` first.
+   without it, so packing a package on its own needs `pnpm build` first. Merge the "Version
+   Packages" pull request only once every CI check on it has passed.
+
+### A new package on npm
+
+The release workflow publishes through npm trusted publishing: no token, but each package needs
+a trust link to `release.yml`, and npm only takes one for a package that already exists. Nobody
+publishes a real version by hand.
+
+1. Just before merging the "Version Packages" pull request that first releases the package, run
+   `pnpm release:setup <pack-id>`, logged in to npm. It stages a placeholder version
+   (`0.0.0-trust`, tag `placeholder`), which makes npm create the package, and waits until npm
+   shows it. Never stage the real version: a staged version can't be published again.
+2. Run the `npm trust github …` command it prints in your own terminal; npm asks for 2FA in the
+   browser.
+3. Merge the "Version Packages" pull request within two days. A trust link that no publish has
+   used expires, and the publish then fails with `E404 Not Found` on `PUT`; delete the link on
+   npmjs.com and create it again. A package whose first version was published by hand keeps an
+   unused link until its first release from CI, so renew it just before that release.
+4. A new package's first version can take up to an hour to show on npm. A re-run of the release
+   in the meantime fails with `E409 Cannot publish over previously staged version`; wait instead.
+5. Once `npm view <package> versions` lists the real version, reject the placeholder with the
+   printed `npm stage reject <id>`. Not before: rejecting a package's only version deletes the
+   package.
 
 ## Character files
 

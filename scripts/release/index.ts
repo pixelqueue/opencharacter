@@ -189,12 +189,18 @@ function releaseAt(root: string, tag: string, packDir: string): PackRelease {
   }
 }
 
+export interface PackBump {
+  id: string;
+  from: string;
+  to: string;
+}
+
 /**
  * After `changeset version` bumps package.json versions, copies each pack's package.json version
  * into its pack.yaml (pack.yaml's version is what characters pin). Returns the packs changed.
  */
-export function syncPackVersions(packsDir: string): string[] {
-  const changed: string[] = [];
+export function syncPackVersions(packsDir: string): PackBump[] {
+  const bumps: PackBump[] = [];
   for (const game of readdirSync(packsDir, { withFileTypes: true }).filter((e) =>
     e.isDirectory(),
   )) {
@@ -205,14 +211,75 @@ export function syncPackVersions(packsDir: string): string[] {
       const manifest = join(dir, 'pack.yaml');
       const pkg = join(dir, 'package.json');
       if (!existsSync(manifest) || !existsSync(pkg)) continue;
-      const version = (JSON.parse(readFileSync(pkg, 'utf8')) as { version: string }).version;
+      const to = (JSON.parse(readFileSync(pkg, 'utf8')) as { version: string }).version;
       const text = readFileSync(manifest, 'utf8');
-      const next = text.replace(/^version: .*$/m, `version: ${version}`);
-      if (next !== text) {
-        writeFileSync(manifest, next);
-        changed.push(`${game.name}/${entry.name} → ${version}`);
-      }
+      const id = /^id: *(\S+)/m.exec(text)?.[1];
+      const from = /^version: *(\S+)/m.exec(text)?.[1];
+      if (!id || !from || from === to) continue;
+      writeFileSync(manifest, text.replace(/^version: .*$/m, `version: ${to}`));
+      bumps.push({ id, from, to });
+    }
+  }
+  return bumps;
+}
+
+const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** Only pins of the old version move, so an upgrade test's pin of another version stays. */
+export function syncPinnedVersions(root: string, files: string[], bumps: PackBump[]): string[] {
+  const patterns = bumps.flatMap(({ id, from, to }) => {
+    const q = `['"]?`;
+    return [
+      {
+        re: new RegExp(
+          `(${q}id${q}: *${q}${escape(id)}${q}, *${q}version${q}: *${q})${escape(from)}(?![\\w.-])`,
+          'g',
+        ),
+        to,
+      },
+      {
+        re: new RegExp(
+          `(^([ \\t]*)- id: *${q}${escape(id)}${q}[ \\t]*\\r?\\n\\2  version: *${q})${escape(from)}(?![\\w.-])`,
+          'gm',
+        ),
+        to,
+      },
+    ];
+  });
+  const changed: string[] = [];
+  for (const file of files) {
+    const path = join(root, file);
+    if (!existsSync(path)) continue;
+    const text = readFileSync(path, 'utf8');
+    let next = text;
+    for (const { re, to } of patterns) next = next.replace(re, `$1${to}`);
+    if (next !== text) {
+      writeFileSync(path, next);
+      changed.push(file);
     }
   }
   return changed;
+}
+
+export function pinFiles(root: string): string[] {
+  return execFileSync(
+    'git',
+    [
+      'ls-files',
+      '--',
+      ':!packs/*/*/content',
+      ':!packs/*/*/rules',
+      ':!packs/*/*/i18n',
+      ':!packs/*/*/upgrades',
+    ],
+    { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
+  )
+    .split('\n')
+    .filter(
+      (f) =>
+        /\.(ya?ml|md|mdx|ts|js|mjs|json)$/.test(f) &&
+        !/(^|\/)CHANGELOG\.md$/.test(f) &&
+        !/^packs\/[^/]+\/[^/]+\/(pack\.yaml|package\.json)$/.test(f) &&
+        !/(^|\/)(node_modules|dist)\//.test(f),
+    );
 }
