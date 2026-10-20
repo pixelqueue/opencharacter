@@ -582,11 +582,12 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       return steps.map((step) => ({
         ...step,
         ...(step.bands ? { bands: q.bands(step.bands, pack) } : {}),
-        // With `source`, a `use` no rules action has is the content's own action's local ID.
+        // With `source` or `entry`, a `use` no rules action has is the content's own action's
+        // local ID.
         ...(step.use
           ? {
               use:
-                step.source !== undefined && step.kind === 'action'
+                (step.source !== undefined || step.entry !== undefined) && step.kind === 'action'
                   ? (resolveAction(ruleset, step.use, pack) ?? step.use)
                   : q.actionId(step.use, pack),
             }

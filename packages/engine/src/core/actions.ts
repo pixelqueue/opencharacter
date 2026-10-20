@@ -1200,8 +1200,8 @@ function stepSituational(ctx: Ctx, frame: Frame, step: Step): Record<string, unk
 
 /**
  * Without `source` or `entry`, `use` runs with the parent's own entry and source; otherwise as
- * `computeSheet` lists it with those (a local `use` names `<source>#<use>`), preferring the
- * parent's entry.
+ * `computeSheet` lists it with those (a local `use` names `<source>#<use>`, or without `source`
+ * `<entry's item>#<use>`), preferring the parent's entry.
  */
 function nestedRun(
   ctx: Ctx,
@@ -1229,7 +1229,12 @@ function nestedRun(
       throw new ActionError('type-mismatch', { message: `entry evaluated to ${value.kind}` });
     entry = value.value;
   }
-  const action = ctx.ruleset.rules.actions[use] || source === undefined ? use : `${source}#${use}`;
+  // A `use` no rules action has is a local action ID: the source's, else the entry's own item's.
+  const owner = ctx.ruleset.rules.actions[use]
+    ? undefined
+    : (source ??
+      ctx.sheet.activations.find((a) => a.item && ownsEntry(a) && entryOf(a) === entry)?.item?.qid);
+  const action = owner === undefined ? use : `${owner}#${use}`;
   const listed = ctx.sheet
     .actions()
     .filter(
