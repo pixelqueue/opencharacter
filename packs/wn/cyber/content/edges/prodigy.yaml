@@ -1,0 +1,29 @@
+id: edges.prodigy
+type: edge
+tags:
+  - not-underdog
+fields:
+  asksAttribute: true
+choices:
+  - id: attribute
+    from:
+      values:
+        - str
+        - dex
+        - int
+        - wis
+        - cha
+    effects:
+      - target:
+          fields:
+            where: "'attribute' in item.tags && ('attr.' + pick.value) in item.tags"
+        op: atLeast
+        value: 18
+      - target:
+          fields:
+            where: "'attribute-score-mod' in item.tags && ('attr.' + pick.value) in item.tags"
+        op: atLeast
+        value: 3
+prerequisites:
+  - id: not-underdog
+    when: '!underdog'

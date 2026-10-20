@@ -1,0 +1,81 @@
+contentTypes:
+  # Armor must be Readied (`equipped`) to protect. Clothing and suits set the base Armor Classes;
+  # a shield adds to them. Damage Soak ablates in a fight: the copy counts what it has absorbed.
+  armor:
+    carried: true
+    equippable: true
+    fields:
+      cost: { type: integer, default: 0, min: 0 }
+      enc: { type: integer, min: 0 }
+      kind: { type: enum, values: [clothing, suit, shield], required: true }
+      # The Armor Classes clothing and suits set, or a shield's bonus to them.
+      rangedAc: { type: integer, required: true }
+      meleeAc: { type: integer, required: true }
+      soak: { type: integer, default: 0, min: 0 }
+      traumaMod: { type: integer, default: 0 }
+      # Heavy items: each puts -1 on Sneak and Exert checks. Accessories add to it.
+      heavy: { type: integer, default: 0, min: 0 }
+      obvious: { type: boolean, default: false }
+    state:
+      soakUsed: { type: integer, default: 0, min: 0 }
+    effects:
+      - id: ranged-ac
+        target: ac.ranged.base
+        op: set
+        value: item.rangedAc
+        when: self.equipped && item.kind != 'shield'
+      - id: melee-ac
+        target: ac.melee.base
+        op: set
+        value: item.meleeAc
+        when: self.equipped && item.kind != 'shield'
+      - id: shield-ranged
+        target: ac.ranged
+        op: add
+        value: item.rangedAc
+        when: self.equipped && item.kind == 'shield'
+      - id: shield-melee
+        target: ac.melee
+        op: add
+        value: item.meleeAc
+        when: self.equipped && item.kind == 'shield'
+      - id: trauma
+        target: trauma.target
+        op: add
+        value: item.traumaMod
+        when: self.equipped && item.traumaMod != 0
+      # Damage Soak takes weapon and other physical damage first, until it is spent for the fight.
+      - id: soak
+        target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: add
+        value: min(item.soak - self.soakUsed, -incoming.amount)
+        when: >-
+          self.equipped && item.soak > self.soakUsed && incoming.amount < 0
+            && !('damage.cyberspace' in incoming.tags) && !('damage.direct' in incoming.tags)
+        then:
+          - type: adjustState
+            entry: self
+            key: soakUsed
+            by: min(item.soak - self.soakUsed, -incoming.amount)
+
+fields:
+  # Damage Soak left on Readied armor, and its total.
+  soak.max:
+    type: integer
+    formula: "sumCopies(copy.fields.soak, copy.type == 'armor' && copy.equipped)"
+  soak.current:
+    type: integer
+    formula: >-
+      sumCopies(copy.fields.soak - copy.state.soakUsed, copy.type == 'armor' && copy.equipped)
+  # Heavy items worn: the penalty to Sneak and Exert checks.
+  armor.heavy:
+    type: integer
+    formula: "sumCopies(copy.fields.heavy, copy.type == 'armor' && copy.equipped)"
+
+effects:
+  - id: heavy-armor
+    target: { rolls: [skill.sneak, skill.exert] }
+    op: add
+    value: -armor.heavy
+    when: armor.heavy > 0
+    tags: [armor.heavy]

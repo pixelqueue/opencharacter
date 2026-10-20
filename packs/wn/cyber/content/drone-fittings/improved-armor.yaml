@@ -1,0 +1,9 @@
+id: drone-fittings.improved-armor
+type: template
+appliesTo:
+  type: drone
+fields:
+  ac: 'min(18, prior.ac + 2)'
+  enc: 'has(prior.enc) ? prior.enc + 1 : 0'
+  fittingsUsed: 'prior.fittingsUsed + 1'
+  cost: 'prior.cost + floor(base.cost * 0.25)'

@@ -1,0 +1,35 @@
+id: skillplugs.level-1
+type: skillplug
+fields:
+  cost: 10000
+  plugLevel: 1
+choices:
+  - id: skill
+    from:
+      values:
+        - administer
+        - connect
+        - drive
+        - exert
+        - fix
+        - heal
+        - know
+        - lead
+        - notice
+        - perform
+        - program
+        - punch
+        - shoot
+        - sneak
+        - stab
+        - survive
+        - talk
+        - trade
+        - work
+    effects:
+      - target:
+          fields:
+            where: "'skill' in item.tags && ('skill.' + pick.value) in item.tags"
+        op: atLeast
+        value: 1
+        when: "self.equipped && cyber.plugJack >= (pick.value in ['drive', 'exert', 'perform', 'punch', 'shoot', 'sneak', 'stab'] ? 2 : 1)"

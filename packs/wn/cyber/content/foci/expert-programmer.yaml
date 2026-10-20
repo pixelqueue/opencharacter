@@ -1,0 +1,16 @@
+id: foci.expert-programmer
+type: focus
+fields:
+  bonusSkill: program
+effects:
+  - target: hacking.programming.max
+    op: add
+    value: 'level + 2'
+  - target: hacking.memory.perElement
+    op: set
+    value: 0.5
+    when: 'self.level >= 2'
+  - target: hacking.cpu
+    op: add
+    value: 'max(0, skills.program.level)'
+    when: 'self.level >= 2'

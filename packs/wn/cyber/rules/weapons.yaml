@@ -1,0 +1,243 @@
+contentTypes:
+  # Weapons. A Readied weapon is `equipped`. Firearms track the rounds left in the magazine.
+  weapon:
+    carried: true
+    equippable: true
+    fields:
+      cost: { type: integer, default: 0, min: 0 }
+      enc: { type: integer, min: 0 }
+      damage: { type: dice, required: true }
+      # The combat skill: `shoot`, `stab` or `punch`. Thrown weapons may also use Exert or Stab.
+      skill: { type: enum, values: [shoot, stab, punch], required: true }
+      # The attribute that modifies hit and damage: the better of two where two are listed.
+      attribute: { type: enum, values: [str, dex, str-dex, wis, none], required: true }
+      rangeNormal: { type: integer, min: 0 }
+      rangeLong: { type: integer, min: 0 }
+      magazine: { type: integer, min: 1 }
+      # Shock: damage on a miss against a target whose Melee AC is at most `shockAc` (any AC when
+      # it has none).
+      shockDamage: { type: integer, min: 0 }
+      shockAc: { type: integer, min: 0 }
+      traumaDie: { type: dice }
+      traumaRating: { type: integer, min: 1 }
+      # Bonuses mods add.
+      attackBonus: { type: integer, default: 0 }
+      damageBonus: { type: integer, default: 0 }
+      shockBonus: { type: integer, default: 0 }
+      traumaDieBonus: { type: integer, default: 0 }
+    state:
+      loaded:
+        type: integer
+        default: 'has(item.magazine) ? item.magazine : 0'
+        min: 0
+        max: 'has(item.magazine) ? item.magazine : 0'
+    actions:
+      - use: attack
+      - use: reload
+
+  # The unarmed attack every character has.
+standardCopies:
+  - { type: weapon, where: "'standard' in item.tags" }
+
+fields:
+  # The highest Melee AC melee Shock treats a target as having: Armsmaster 2, Close Combatant 2
+  # and Shocking Assault treat every target as AC 10.
+  combat.shockAc: { type: integer, formula: '99' }
+  # A bonus to melee and unarmed Shock (Shocking Assault 2).
+  combat.shockBonus: { type: integer, formula: '0' }
+  # A combat skill added to damage: Stab to melee and thrown weapons and their Shock
+  # (Armsmaster), Shoot to ranged weapons (Deadeye). A thrown weapon takes the better one.
+  combat.meleeSkillDamage: { type: integer, formula: '0' }
+  combat.rangedSkillDamage: { type: integer, formula: '0' }
+  # A bonus to hit with melee and thrown weapons, not unarmed attacks (Armsmaster 2).
+  combat.meleeHitBonus: { type: integer, formula: '0' }
+
+resultBands:
+  hit:
+    - { id: hit, when: roll.total >= flags.ac }
+    - { id: miss, when: true }
+  trauma:
+    - { id: traumatic, when: roll.total >= flags.traumaTarget }
+    - { id: none, when: true }
+
+actions:
+  # Attack with a weapon: 1d20 + attack bonus + the attribute modifier + the combat skill (-2
+  # with no skill) against the target's Ranged or Melee AC. A hit rolls damage and the Trauma
+  # Die; a Traumatic Hit multiplies the damage by the Trauma Rating. A melee miss may still deal
+  # Shock. Burst fire spends three rounds for +2 to hit and damage.
+  - id: attack
+    tags: [attack]
+    available: >-
+      (self.equipped || 'standard' in item.tags || 'implant' in item.tags)
+        && !('trap' in item.tags) && (!has(item.magazine) || self.loaded >= 1)
+    params:
+      attribute: { type: enum, values: [str, dex, wis], optional: true }
+      thrown: { type: boolean, default: false }
+      burst: { type: boolean, default: false }
+      lethal: { type: boolean, optional: true }
+      targetAc: { type: integer, optional: true }
+      targetTrauma: { type: integer, optional: true }
+      modifier: { type: integer, optional: true }
+    participants:
+      target:
+        max: 1
+        fields:
+          ac.ranged: { type: integer }
+          ac.melee: { type: integer }
+          trauma.target: { type: integer, default: 6 }
+    results: [hit, miss, rolled]
+    steps:
+      - id: start
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ranged: >-
+                has(item.rangeNormal) && (!('melee' in item.tags) || params.thrown)
+              thrown: >-
+                'thrown' in item.tags
+                  || (params.thrown && has(item.rangeNormal) && 'melee' in item.tags)
+              attributes: >-
+                item.attribute == 'str-dex' ? ['str', 'dex']
+                  : item.attribute == 'none' ? [] : [item.attribute]
+              burst: params.burst && 'burst' in item.tags && self.loaded >= 3
+              nonlethal: "has(params.lethal) ? !params.lethal : 'nonlethal' in item.tags"
+      - id: pick
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              attribute: >-
+                has(params.attribute) && params.attribute in flags.attributes ? params.attribute
+                  : size(flags.attributes) == 0 ? ''
+                  : sortList(flags.attributes, -fieldOf('attributes.{attribute}.mod', x))[0]
+              skill: >-
+                flags.thrown ? max(skills.shoot.level, skills.stab.level, skills.exert.level)
+                  : fieldOf('skills.{skill}.level', item.skill)
+              ac: >-
+                'grenade' in item.tags ? 10
+                  : size(participants.target) > 0
+                  ? (flags.ranged ? participants.target[0].ac.ranged
+                    : participants.target[0].ac.melee)
+                  : has(params.targetAc) ? params.targetAc : -1
+              meleeAc: >-
+                size(participants.target) > 0 ? participants.target[0].ac.melee
+                  : has(params.targetAc) ? params.targetAc : -1
+              traumaTarget: >-
+                size(participants.target) > 0 ? participants.target[0].trauma.target
+                  : has(params.targetTrauma) ? params.targetTrauma : 6
+      - id: mod
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              attrMod: "flags.attribute == '' ? 0 : fieldOf('attributes.{attribute}.mod', flags.attribute)"
+              # Armsmaster and Deadeye: a skill's level to damage (and Armsmaster's to Shock).
+              skillDamage: >-
+                'unarmed' in item.tags ? 0
+                  : flags.thrown ? max(combat.meleeSkillDamage, combat.rangedSkillDamage)
+                  : flags.ranged ? combat.rangedSkillDamage : combat.meleeSkillDamage
+              meleeHit: >-
+                !('unarmed' in item.tags) && (!flags.ranged || flags.thrown)
+                  ? combat.meleeHitBonus : 0
+      - id: hit
+        kind: roll
+        tags:
+          - attack
+          - { formula: "flags.ranged ? 'attack.ranged' : 'attack.melee'" }
+          - { formula: "'skill.' + item.skill" }
+        bands: hit
+        parts:
+          - dice: 1d20
+          - field: "'combat.attackBonus'"
+          - { value: flags.attrMod, tags: [attack.attribute] }
+          - { value: 'flags.skill >= 0 ? flags.skill : -2', tags: [attack.skill] }
+          - { value: item.attackBonus, when: item.attackBonus != 0 }
+          - { value: flags.meleeHit, when: flags.meleeHit != 0 }
+          - { value: 2, when: flags.burst, tags: [attack.burst] }
+          - { value: params.modifier, when: has(params.modifier) }
+      - id: landed
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              hit: flags.ac < 0 || steps.hit.band == 'hit'
+              shock: >-
+                has(item.shockDamage) && item.shockDamage > 0 && !flags.ranged
+                  && (!has(item.shockAc) || flags.meleeAc < 0
+                    || min(flags.meleeAc, combat.shockAc) <= item.shockAc)
+                  ? max(0, item.shockDamage + flags.attrMod + item.shockBonus
+                    + combat.shockBonus + combat.damageBonus + flags.skillDamage)
+                  : 0
+      - id: damage
+        kind: roll
+        when: flags.hit
+        tags:
+          - damage
+          - { formula: "flags.ranged ? 'damage.ranged' : 'damage.melee'" }
+          - { formula: "'skill.' + item.skill" }
+        parts:
+          - dice: item.damage
+          - { value: flags.attrMod, tags: [damage.attribute] }
+          - { value: 2, when: flags.burst, tags: [damage.burst] }
+          - { value: item.damageBonus, when: item.damageBonus != 0 }
+          - { value: flags.skillDamage, when: flags.skillDamage != 0, tags: [damage.skill] }
+          - { field: "'combat.damageBonus'" }
+          - value: skills.punch.level
+            when: "'unarmed' in item.tags && skills.punch.level > 0"
+            tags: [damage.punch]
+      - id: trauma
+        kind: roll
+        when: flags.hit && has(item.traumaDie) && !flags.nonlethal
+        tags: [trauma]
+        bands: trauma
+        parts:
+          - dice: item.traumaDie
+          - { value: item.traumaDieBonus, when: item.traumaDieBonus != 0 }
+          - { field: "'combat.traumaBonus'" }
+      - id: total
+        kind: branch
+        cases:
+          - when: flags.hit
+            flags:
+              traumatic: has(steps.trauma) && steps.trauma.band == 'traumatic'
+              dealt: >-
+                max(0, max(steps.damage.total, flags.shock))
+                  * (has(steps.trauma) && steps.trauma.band == 'traumatic' ? item.traumaRating : 1)
+          - when: true
+            flags: { traumatic: false, dealt: flags.shock }
+      - id: ammo
+        kind: changes
+        when: has(item.magazine)
+        changes:
+          - { type: adjustState, entry: self, key: loaded, by: 'flags.burst ? -3 : -1' }
+      - id: deal
+        kind: changes
+        when: flags.dealt > 0
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            by: -flags.dealt
+            tags:
+              - damage
+              - damage.weapon
+              - { formula: "flags.nonlethal ? ['damage.nonlethal'] : []" }
+              - { formula: "flags.traumatic ? ['damage.traumatic'] : []" }
+      - id: result
+        kind: outcome
+        result: "flags.ac < 0 ? 'rolled' : flags.hit ? 'hit' : 'miss'"
+        data:
+          damage: flags.dealt
+          traumatic: flags.traumatic
+          shock: flags.shock
+
+  # Reload a firearm: fill its magazine.
+  - id: reload
+    tags: [reload]
+    available: has(item.magazine) && self.loaded < item.magazine
+    steps:
+      - id: fill
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: loaded, value: item.magazine }

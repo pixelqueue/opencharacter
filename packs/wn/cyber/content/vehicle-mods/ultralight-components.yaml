@@ -1,0 +1,8 @@
+id: vehicle-mods.ultralight-components
+type: template
+appliesTo:
+  type: vehicle
+fields:
+  mass: "prior.mass + (item.size == 'small' ? 2 : item.size == 'medium' ? 3 : 4)"
+  hp: 'max(1, prior.hp - ceil(base.hp * 0.2))'
+  cost: 'prior.cost + floor(base.cost * 0.2)'

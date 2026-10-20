@@ -1,0 +1,16 @@
+id: foci.armsmaster
+type: focus
+fields:
+  bonusSkill: stab
+effects:
+  - target: combat.meleeSkillDamage
+    op: atLeast
+    value: 'max(0, skills.stab.level)'
+  - target: combat.shockAc
+    op: atMost
+    value: 10
+    when: 'self.level >= 2'
+  - target: combat.meleeHitBonus
+    op: add
+    value: 1
+    when: 'self.level >= 2'

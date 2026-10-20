@@ -1,0 +1,98 @@
+families:
+  growthRoll: [1, 2, 3, 4, 5, 6]
+  learningRoll: [1, 2, 3, 4, 5, 6, 7, 8]
+
+contentTypes:
+  # A background is picked in the rules-level choice `background`. Its tables are read by the
+  # creation action: the free skill, then three rolls split between Growth (d6) and Learning (d8),
+  # or two picks from Learning.
+  background:
+    copies: { max: 0 }
+    fields:
+      freeSkill:
+        type: enum
+        required: true
+        values:
+          [
+            administer,
+            connect,
+            drive,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            program,
+            punch,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            talk,
+            trade,
+            work,
+            combat,
+          ]
+      'growth{growthRoll}':
+        type: enum
+        required: true
+        values:
+          [
+            administer,
+            connect,
+            drive,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            program,
+            punch,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            talk,
+            trade,
+            work,
+            combat,
+            any,
+            any-stat-1,
+            physical-2,
+            mental-2,
+          ]
+      'learning{learningRoll}':
+        type: enum
+        required: true
+        values:
+          [
+            administer,
+            connect,
+            drive,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            program,
+            punch,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            talk,
+            trade,
+            work,
+            combat,
+            any,
+          ]
+
+choices:
+  - id: background
+    from: { type: background }

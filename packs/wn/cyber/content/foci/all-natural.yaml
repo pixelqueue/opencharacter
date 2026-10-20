@@ -1,0 +1,40 @@
+id: foci.all-natural
+type: focus
+tags:
+  - asks-attribute
+fields:
+  maxLevel: 1
+  bonusSkill: any
+prerequisites:
+  - id: no-cyber
+    when: "countCopies(copy.type == 'cyberware' && copy.fields.strain > 0) == 0"
+  - id: no-magic
+    when: '!magic.mage && !magic.summoner && !magic.graced'
+choices:
+  - id: attribute
+    slots:
+      - 1
+      - 3
+      - 5
+      - 7
+      - 10
+    when: 'level >= slot'
+    from:
+      values:
+        - str
+        - dex
+        - con
+        - int
+        - wis
+        - cha
+    effects:
+      - target:
+          fields:
+            where: "'attribute-mod-bonus' in item.tags && ('attr.' + pick.value) in item.tags"
+        op: add
+        value: 1
+      - target:
+          fields:
+            where: "'attribute-mod-cap' in item.tags && ('attr.' + pick.value) in item.tags"
+        op: atLeast
+        value: 3

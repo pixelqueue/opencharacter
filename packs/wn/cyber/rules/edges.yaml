@@ -1,0 +1,78 @@
+contentTypes:
+  # Edges are picked in the rules-level choices below: two at creation, a bonus one under the
+  # Underdog Rule, and a third at 5th level.
+  edge:
+    copies: { max: 0 }
+    fields:
+      # The skill the Edge grants as a bonus skill: a skill, `combat` (a combat skill) or `any`.
+      bonusSkill:
+        type: enum
+        values:
+          [
+            administer,
+            connect,
+            drive,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            program,
+            punch,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            talk,
+            trade,
+            work,
+            cast,
+            summon,
+            combat,
+            any,
+          ]
+      # A magical Edge: only in campaigns with magic, only for new characters, and never as the
+      # Underdog Rule's bonus Edge.
+      magic: { type: boolean, default: false }
+      # What taking the Edge brings besides its effects, which the action that gains it adds: gear
+      # by content ID, program elements, a cyber budget, spells, a Focus pick, Friend Contacts.
+      startingItems: { type: set, of: string, default: [] }
+      # Cyberware it brings, installed when the character's System Strain can take it all.
+      startingCyber: { type: set, of: string, default: [] }
+      startingCyberStrain: { type: decimal, default: 0, min: 0 }
+      programElements: { type: integer, default: 0, min: 0 }
+      cyberBudget: { type: integer, default: 0, min: 0 }
+      spells: { type: integer, default: 0, min: 0 }
+      extraFocus: { type: boolean, default: false }
+      friendContacts: { type: integer, default: 0, min: 0 }
+      # The Edge buys Graced arts with its art points.
+      buysArts: { type: boolean, default: false }
+      # The Edge asks for an attribute (Prodigy).
+      asksAttribute: { type: boolean, default: false }
+    effects:
+      - id: taken
+        target: edges.taken
+        op: grant
+        value: { formula: item.id }
+
+fields:
+  edges.taken: { type: set, of: edge }
+  # Extra hit points on each hit die (Hard to Kill).
+  hp.dieBonus: { type: integer, formula: '0' }
+  # Skill points each level brings (Educated adds one).
+  skillPoints.perLevel: { type: integer, formula: '3' }
+
+choices:
+  - id: edge
+    slots: [1, 2, 5]
+    unique: edges
+    when: slot < 5 || level >= 5
+    from: { type: edge }
+    eligible: (campaign.magic || !item.magic) && (slot < 5 || !item.magic)
+  - id: underdog-edge
+    unique: edges
+    when: underdog
+    from: { type: edge }
+    eligible: '!item.magic'

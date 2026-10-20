@@ -1,0 +1,8 @@
+id: vehicle-mods.upgraded-speed
+type: template
+appliesTo:
+  type: vehicle
+fields:
+  speed: 'prior.speed + 1'
+  mass: 'max(0, prior.mass - ceil(prior.mass * 0.2))'
+  cost: 'prior.cost + floor(base.cost * 0.25)'

@@ -1,0 +1,19 @@
+description: 'wn-cyber: an advanced knife (1d6, Shock 2/AC 15, Trauma Die 1d8/x3) with Strength
+  +1 and Stab-1 hits Melee AC 13 on 15 + 2; its damage, 4 + 1 + 1 for Armsmaster + 1 for Killing
+  Blow, beats its Shock of 5, and the Trauma Die, 6 + 1 for Killing Blow, makes a Traumatic Hit
+  on Trauma Target 7: 7 x 3 = 21'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/wn/cyber
+input:
+  action:
+    id: wn-cyber:attack
+    entry: knife
+  participants:
+    target:
+      - id: guard
+        values:
+          wn-cyber:ac.ranged: 16
+          wn-cyber:ac.melee: 13
+          wn-cyber:trauma.target: 7
