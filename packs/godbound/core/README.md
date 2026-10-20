@@ -135,7 +135,9 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
   cumulative penalty (or a 1d6 damage die instead).
 - **Gear:** the weapon categories (unarmed always at hand), light, medium and heavy armor (each
   suit's hindered saves chosen on it), shields. Artifacts: a type with an Effort pool, a daily
-  bond and `spent` Effort; an artifact's own gifts are grants written on the item.
+  bond and `spent` Effort; an artifact's own gifts are grants written on the item, each passing
+  `state: { artifactEffort: item.effort }`, so `invoke-gift`, `gift-blast` and `gift-heal` spend
+  the artifact's Effort (its copy is the gift's `self`) instead of the hero's.
 
 ## Rule readings
 
@@ -144,5 +146,6 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
 - **Damage modifier on several dice:** the attacker's choice of die is the one the modifier helps
   most.
 - **Healing gifts on others:** they propose the hit points and the day's Effort to the target.
-- **Gifts used from an artifact** still offer `invoke-gift`, which commits the wielder's Effort;
-  use the artifact's `draw-artifact-effort` instead.
+- **An artifact's gift that lasts while active** spends a point of the artifact's Effort until
+  dawn: granted content keeps no state of its own to hold it on
+  ([#35](https://github.com/pixelqueue/opencharacter/issues/35)).

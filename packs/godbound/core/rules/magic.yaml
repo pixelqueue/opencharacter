@@ -46,8 +46,9 @@ contentTypes:
       - use: prepare-spell
       - use: release-spell
 
-  # An artifact: gifts it grants while bonded (written on the item as grants), and a pool of
-  # Effort that only its own gifts use, back each dawn.
+  # An artifact: gifts it grants while bonded (written on the item as grants, each with
+  # `state: { artifactEffort: item.effort }`), and a pool of Effort that only its own gifts use,
+  # back each dawn: their actions spend it as `spent`.
   artifact:
     carried: true
     equippable: true
@@ -59,7 +60,6 @@ contentTypes:
       spent: { type: integer, default: 0, min: 0, max: item.effort }
     actions:
       - use: bond-artifact
-      - use: draw-artifact-effort
 
 actions:
   # Slowly: no Effort. Quickly (a round per degree): Effort for the scene. Instantly: Effort for
@@ -213,16 +213,3 @@ actions:
       - id: result
         kind: outcome
         result: "'bonded'"
-
-  - id: draw-artifact-effort
-    tags: [artifact, effort]
-    available: self.bonded && self.spent < item.effort
-    results: [drawn]
-    steps:
-      - id: draw
-        kind: changes
-        changes:
-          - { type: adjustState, entry: self, key: spent, by: 1 }
-      - id: result
-        kind: outcome
-        result: "'drawn'"
