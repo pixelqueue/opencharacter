@@ -214,6 +214,8 @@ export interface EffectInstance {
   match?: string | number | boolean;
   matchPack?: string;
   picked?: Record<string, unknown>;
+  /** For an applied activation: the applied entry its `self` is (the granting one for a grant). */
+  applied?: string;
 }
 
 interface FieldResult {
@@ -1241,6 +1243,7 @@ export class Sheet {
           activation.source,
           activation.sourceId,
           `type.${effect.id ?? index}`,
+          activation.applied,
         );
       });
     }
@@ -1255,6 +1258,7 @@ export class Sheet {
         activation.source,
         activation.sourceId,
         effect.id ?? String(index),
+        activation.applied,
       );
     });
     if (activation.scope === 'applied') {
@@ -1459,7 +1463,9 @@ export class Sheet {
     source: Source,
     sourceId: string,
     key: string,
+    applied?: string,
   ): void {
+    const own = applied === undefined ? {} : { applied };
     const target = effect.target;
     if (typeof target === 'object' && 'fields' in target) {
       // One instance per matching field, as if written with that field as its target. A field whose
@@ -1481,6 +1487,7 @@ export class Sheet {
           sourceId,
           optionId: `${sourceId}#${key}@${qid}`,
           order: this.order++,
+          ...own,
           ...(computed ? { match: where, matchPack: pack, ...(picked ? { picked } : {}) } : {}),
         });
       return;
@@ -1493,6 +1500,7 @@ export class Sheet {
       sourceId,
       optionId: `${sourceId}#${key}`,
       order: this.order++,
+      ...own,
     });
   }
 
