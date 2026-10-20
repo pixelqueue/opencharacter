@@ -1,0 +1,23 @@
+id: gifts.universal.excellence-of-the-word
+type: gift
+fields:
+  degree: lesser
+  activation: constant
+choices:
+  - id: attribute
+    from:
+      values:
+        - str
+        - dex
+        - con
+        - wis
+        - int
+        - cha
+    recommend: sortList(['str', 'dex', 'con', 'wis', 'int', 'cha'],
+      fieldOf('attributes.{attribute}.base', x))[0]
+    effects:
+      - target:
+          fields:
+            where: "'attribute' in item.tags && 'attr.' + pick.value in item.tags"
+        op: atLeast
+        value: 18

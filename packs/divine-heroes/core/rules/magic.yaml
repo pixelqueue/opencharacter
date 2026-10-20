@@ -1,0 +1,228 @@
+fields:
+  # Low magic: spells cast spontaneously since the last hour's respite, spells stored ready, and
+  # the cumulative penalty some traditions' quick casting leaves.
+  lowMagic.spontaneous: { type: integer, input: true, default: 0, min: 0 }
+  lowMagic.prepared: { type: integer, input: true, default: 0, min: 0 }
+  lowMagic.strain: { type: integer, input: true, default: 0, min: 0 }
+  lowMagic.preparedMax: { type: integer, formula: 2 * level }
+  # Every two prepared spells take one spontaneous casting away.
+  lowMagic.spontaneousMax:
+    type: integer
+    formula: 'max(0, level - floor(lowMagic.prepared / 2))'
+
+effects:
+  - id: low-magic-strain
+    target: { rolls: [attack, check, save] }
+    op: add
+    value: -lowMagic.strain
+    when: lowMagic.strain > 0
+
+constraints:
+  - id: prepared-spells
+    check: lowMagic.prepared <= lowMagic.preparedMax
+  - id: spontaneous-spells
+    check: lowMagic.spontaneous <= lowMagic.spontaneousMax
+
+contentTypes:
+  # Theurgy: invocations of the three degrees, learned through the Sorcery gifts.
+  invocation:
+    carried: false
+    copies: { perItem: 1 }
+    fields:
+      tier: { type: enum, values: [gate, way, throne], required: true }
+    actions:
+      - use: cast-invocation
+
+  # A low magic tradition, known through a Fact.
+  tradition:
+    carried: false
+    copies: { perItem: 1 }
+    fields:
+      casting: { type: enum, values: [ritual, spontaneous, prepared], required: true }
+      # Each spontaneous casting costs a cumulative -1, or a d6 damage die instead.
+      strain: { type: boolean, default: false }
+    actions:
+      - use: cast-spontaneous
+      - use: prepare-spell
+      - use: release-spell
+
+  # An artifact: gifts it grants while bonded (written on the item as grants), and a pool of
+  # Effort that only its own gifts use, back each dawn.
+  artifact:
+    carried: true
+    equippable: true
+    fields:
+      effort: { type: integer, default: 0, min: 0 }
+      dominionCost: { type: integer, min: 0 }
+    state:
+      bonded: { type: boolean, default: false }
+      spent: { type: integer, default: 0, min: 0, max: item.effort }
+    actions:
+      - use: bond-artifact
+      - use: draw-artifact-effort
+
+actions:
+  # Slowly: no Effort. Quickly (a round per degree): Effort for the scene. Instantly: Effort for
+  # the day and a damage die of backlash, d6, d12 or d20 by degree.
+  - id: cast-invocation
+    tags: [theurgy]
+    params:
+      speed: { type: enum, values: [slow, quick, instant], default: slow }
+    results: [cast]
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - type: adjust
+            when: "params.speed == 'quick'"
+            field: effort.scene
+            by: 1
+          - type: adjust
+            when: "params.speed == 'instant'"
+            field: effort.day
+            by: 1
+      - id: backlash
+        kind: roll
+        when: "params.speed == 'instant'"
+        tags: [backlash]
+        parts:
+          - dice: "item.tier == 'gate' ? 1d6 : item.tier == 'way' ? 1d12 : 1d20"
+      - id: harm
+        kind: branch
+        cases:
+          - when: has(steps.backlash)
+            flags:
+              damage: 'sumList(steps.backlash.kept, x <= 1 ? 0 : x <= 5 ? 1 : x <= 9 ? 2 : 4)'
+          - when: true
+            flags:
+              damage: 0
+      - id: hurt
+        kind: changes
+        when: flags.damage > 0
+        changes:
+          - { type: adjust, field: hp.current, by: -flags.damage, tags: [damage] }
+      - id: result
+        kind: outcome
+        result: "'cast'"
+        data:
+          rounds: "params.speed == 'quick' ? indexOf(['gate', 'way', 'throne'], item.tier) + 1 : 0"
+          damage: flags.damage
+
+  - id: cast-spontaneous
+    tags: [low-magic]
+    available: "item.casting == 'spontaneous' && lowMagic.spontaneous < lowMagic.spontaneousMax"
+    results: [cast]
+    steps:
+      - id: cast
+        kind: changes
+        changes:
+          - { type: adjust, field: lowMagic.spontaneous, by: 1 }
+      - id: cost
+        kind: choice
+        when: item.strain
+        options:
+          - id: strain
+            changes:
+              - { type: adjust, field: lowMagic.strain, by: 1 }
+          - id: injury
+        recommend: "'strain'"
+      - id: injury
+        kind: roll
+        when: "has(steps.cost) && steps.cost.picked == 'injury'"
+        tags: [backlash]
+        parts:
+          - dice: 1d6
+      - id: hurt
+        kind: changes
+        when: has(steps.injury) && steps.injury.total >= 2
+        changes:
+          - type: adjust
+            field: hp.current
+            by: 'steps.injury.total >= 6 ? -2 : -1'
+            tags: [damage]
+      - id: result
+        kind: outcome
+        result: "'cast'"
+
+  - id: prepare-spell
+    tags: [low-magic]
+    available: "item.casting == 'prepared' && lowMagic.prepared < lowMagic.preparedMax"
+    results: [prepared]
+    steps:
+      - id: store
+        kind: changes
+        changes:
+          - { type: adjust, field: lowMagic.prepared, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'prepared'"
+
+  - id: release-spell
+    tags: [low-magic]
+    available: "item.casting == 'prepared' && lowMagic.prepared > 0"
+    results: [released]
+    steps:
+      - id: release
+        kind: changes
+        changes:
+          - { type: adjust, field: lowMagic.prepared, by: -1 }
+      - id: result
+        kind: outcome
+        result: "'released'"
+
+  # The Word of Sorcery: Effort for the scene negates a low magic spell or construct.
+  - id: negate-low-magic
+    tags: [low-magic, effort]
+    available: effort.free > 0
+    results: [negated]
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - { type: adjust, field: effort.scene, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'negated'"
+
+  # An hour's respite restores spontaneous castings and clears the strain.
+  - id: magic-respite
+    tags: [low-magic, rest]
+    available: lowMagic.spontaneous > 0 || lowMagic.strain > 0
+    results: [rested]
+    steps:
+      - id: reset
+        kind: changes
+        changes:
+          - { type: set, field: lowMagic.spontaneous, value: 0 }
+          - { type: set, field: lowMagic.strain, value: 0 }
+      - id: result
+        kind: outcome
+        result: "'rested'"
+
+  # The first handling each day commits a day's Effort to bond with the artifact.
+  - id: bond-artifact
+    tags: [artifact, effort]
+    available: '!self.bonded && effort.free > 0'
+    results: [bonded]
+    steps:
+      - id: bond
+        kind: changes
+        changes:
+          - { type: adjust, field: effort.day, by: 1 }
+          - { type: setState, entry: self, key: bonded, value: true }
+      - id: result
+        kind: outcome
+        result: "'bonded'"
+
+  - id: draw-artifact-effort
+    tags: [artifact, effort]
+    available: self.bonded && self.spent < item.effort
+    results: [drawn]
+    steps:
+      - id: draw
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: spent, by: 1 }
+      - id: result
+        kind: outcome
+        result: "'drawn'"

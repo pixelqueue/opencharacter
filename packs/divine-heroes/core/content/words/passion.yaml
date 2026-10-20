@@ -1,0 +1,15 @@
+id: words.passion
+type: word
+choices:
+  - id: attribute
+    from:
+      values:
+        - cha
+        - wis
+    recommend: "attributes.cha.base <= attributes.wis.base ? 'cha' : 'wis'"
+    effects:
+      - target:
+          fields:
+            where: "'attribute' in item.tags && 'attr.' + pick.value in item.tags"
+        op: atLeast
+        value: "fieldOf('attributes.{attribute}.base', pick.value) >= 16 ? 18 : 16"

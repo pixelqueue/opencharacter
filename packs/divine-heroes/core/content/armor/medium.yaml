@@ -1,0 +1,22 @@
+id: armor.medium
+type: armor
+fields:
+  weight: medium
+  ac: 5
+  penalties: 1
+choices:
+  - id: penalized
+    pick: 1
+    from:
+      values:
+        - hardiness
+        - evasion
+        - spirit
+    recommend: filterList(['spirit', 'evasion', 'hardiness'], !(x in choice.picks))[0]
+    effects:
+      - target:
+          fields:
+            where: "'save-penalty' in item.tags && 'save.' + pick.value in item.tags"
+        op: add
+        value: 4
+        when: self.equipped
