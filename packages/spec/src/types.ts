@@ -2307,7 +2307,7 @@ export type FollowUp = {
   action?: string;
   /** Formulas for the action's parameters. Parameters it doesn't fix are left for the app to supply. */
   params?: Record<string, Formula>;
-  /** Changes to apply, resolved like an action's `changes` step: formulas evaluated, fields qualified, `entry: self` the content's copy. No `split`. */
+  /** Changes to apply, resolved like an action's `changes` step: formulas evaluated, fields qualified, `entry: self` the content's copy, `pick: self` and `grant: self` the pick or holder grant that made the content active, `path`, `option`, `picks` and `grants` passed on. No `split`. */
   changes?: ProposedChange[];
   /** A derived offer to make a new character for one of the character's empty link slots: the app makes a character file with `creating: true`, runs the named creation start on it with `params`, and saves the new character's ID in this character's `links`, which ends the offer. Only with `while`, and instead of `action`, `changes` and `to`. Offered while `while` and `when` hold and the slot is empty (no saved link and no view). */
   create?: {
