@@ -8,7 +8,6 @@ contentTypes:
       startingCohort: { type: string, default: '' }
       claims: { type: set, of: claim, default: [] }
     effects:
-      - { id: tag, target: crewType.tag, op: set, value: 'item.tags[0]' }
       - { id: id, target: crewType.id, op: set, value: item.id }
       - { id: upgrades, target: crewType.upgrades, op: set, value: item.upgrades }
       - { id: claims, target: crewType.claims, op: set, value: item.claims }
@@ -29,7 +28,6 @@ contentTypes:
       favorite: { type: boolean, default: false }
 
 fields:
-  crewType.tag: { type: string, formula: "''" }
   crewType.id: { type: string, formula: "''" }
   crewType.upgrades: { type: set, of: field, formula: '[]' }
   crewType.claims: { type: set, of: claim, formula: '[]' }
@@ -41,10 +39,10 @@ choices:
     required: false
     from: { type: crewType }
   - id: crew-abilities
-    pick: "crewType.tag == '' ? 1 + advances.abilities : 0"
+    pick: "size(picksOf('crew-type')) == 0 ? 1 + advances.abilities : 0"
     from: { type: crewAbility }
   - id: operation
-    pick: "crewType.tag == '' ? 1 : 0"
+    pick: "size(picksOf('crew-type')) == 0 ? 1 : 0"
     from: { type: operation }
 
 constraints:
@@ -56,7 +54,6 @@ display:
     - id: crew-type
       priority: 0
   fields:
-    crewType.tag: { hidden: true }
     crewType.id: { hidden: true }
     crewType.upgrades: { hidden: true }
     crewType.claims: { hidden: true }

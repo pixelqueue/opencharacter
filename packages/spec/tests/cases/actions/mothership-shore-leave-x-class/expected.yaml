@@ -1,5 +1,5 @@
-# The Sanity save: 5 under 24, success. 2d10 rolls 1 + 2 = 3, then again 9 + 8 = 17: the
-# better is 17, held to the 16 stress above the minimum (18 - 2). The player splits the 16
+# The Sanity save: 5 under 24, success. The X-class port's [+] rolls the whole 2d10 twice,
+# 1 + 2 = 3 and 9 + 8 = 17: the better is 17, held to the 16 stress above the minimum (18 - 2). The player splits the 16
 # (Sanity 6, Body 10), and stress is relieved to 2.
 status: finished
 outcome:
@@ -26,14 +26,11 @@ log:
     action: mothership-1e:shore-leave
     kind: dice
     by: engine
-    faces: [1, 2]
-    total: 3
-  - step: conversionAgain
-    action: mothership-1e:shore-leave
-    kind: dice
-    by: engine
-    faces: [9, 8]
+    faces: [1, 2, 9, 8]
     total: 17
+    rolls:
+      - { total: 3, kept: false }
+      - { total: 17, kept: true }
   - step: improve
     action: mothership-1e:shore-leave
     kind: allocate

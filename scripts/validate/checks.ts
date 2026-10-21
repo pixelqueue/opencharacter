@@ -132,6 +132,8 @@ export class PackChecker {
     private readonly onFormula?: (text: string) => void,
     /** A character's homebrew: no name, and text only if it has any. */
     private readonly homebrew = false,
+    /** The version a pending changeset gives the pack: upgrade scripts may go to it. */
+    private readonly pending?: string,
   ) {
     this.scope = ruleset.scope(packId);
     this.tags = ruleset.declaredTags(this.scope);
@@ -524,10 +526,13 @@ export class PackChecker {
       if (!semver.valid(doc.from) || !semver.valid(doc.to) || !semver.lt(doc.from, doc.to)) {
         this.report.error(file, `upgrade script: from ${doc.from} must be below to ${doc.to}`);
       }
-      if (semver.gt(doc.to, pack.manifest.version)) {
+      const version = pack.manifest.version;
+      const next = this.pending && semver.gt(this.pending, version) ? this.pending : undefined;
+      if (semver.gt(doc.to, next ?? version)) {
+        const pending = next ? ` (${next} with its pending changeset)` : '';
         this.report.error(
           file,
-          `upgrade script goes to ${doc.to}, past the pack's version ${pack.manifest.version}`,
+          `upgrade script goes to ${doc.to}, past the pack's version ${version}${pending}`,
         );
       }
       for (const raw of doc.steps) {

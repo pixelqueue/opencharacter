@@ -16,6 +16,7 @@ import { LIMITS } from '../../packages/engine/src/formula/limits.ts';
 import { Reporter } from './report.ts';
 import type { CharacterDoc, ContentItem, RulesDoc } from './types.ts';
 import { Ruleset } from './ruleset.ts';
+import { pendingVersions } from '../release/pending.ts';
 
 const folders = (dir: string) =>
   readdirSync(dir, { withFileTypes: true })
@@ -30,6 +31,11 @@ export interface ValidateOptions {
   characters?: string;
   /** Called with each pack's formulas as the validator reaches them (used by the pack build). */
   onFormula?: (packId: string, text: string) => void;
+  /**
+   * The version pending changesets give each pack (pack ID → version), so an upgrade script may go
+   * to it. Default: read from `<root>/.changeset`.
+   */
+  pending?: ReadonlyMap<string, string>;
 }
 
 export interface ValidateResult {
@@ -166,7 +172,9 @@ export function validateRepo(root: string, options: ValidateOptions = {}): Valid
   const absRoot = resolve(root);
   const packsDir = options.packs ?? join(absRoot, 'packs');
   const charactersDir = options.characters ?? join(absRoot, 'examples', 'characters');
-  const key = [absRoot, packsDir, charactersDir].join('\0');
+  const pending = options.pending ?? pendingVersions(absRoot);
+  options = { ...options, pending };
+  const key = [absRoot, packsDir, charactersDir, JSON.stringify([...pending])].join('\0');
   let memo = memos.get(key);
   if (!memo) memos.set(key, (memo = { cache: new YamlCache() }));
   if (options.onFormula) return run(absRoot, packsDir, charactersDir, options, memo.cache);
@@ -225,6 +233,8 @@ function run(
       reporter,
       id,
       options.onFormula && ((text) => options.onFormula?.(id, text)),
+      false,
+      options.pending?.get(id),
     );
     checker.run();
     requiredKeys.set(id, checker.requiredKeys);

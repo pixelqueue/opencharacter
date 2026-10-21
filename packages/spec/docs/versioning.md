@@ -49,6 +49,14 @@ Each engine library (the TypeScript reference engine and community ports) has it
      (`published-version-changed` otherwise);
    - otherwise `checkRelease` against the latest lower version must pass: shape changes need a
      breaking bump and a covering upgrade script ([upgrades.md](upgrades.md#the-build-check)).
+
+   Pending changesets count: a pack that a changeset bumps is checked as the version step 2 will
+   give it (the Changesets release plan), so a pull request that changes a published pack passes
+   once it adds a changeset, before the "Version Packages" pull request bumps it. Its upgrade
+   script goes to that version, which `pnpm validate` allows; a script further ahead fails. A
+   breaking change needs a breaking changeset (`minor` while 0.x). Once step 2 has run, the
+   version is in `pack.yaml` and the changesets are gone, so nothing changes.
+
 4. **Publish:** the release workflow (`.github/workflows/release.yml`) runs on every push to
    `main`. With pending changesets it opens a "Version Packages" pull request that runs step 2;
    with none it runs `pnpm release`, then `changeset publish`, which publishes every package
