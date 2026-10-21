@@ -380,3 +380,77 @@ describe('adoptStandard', () => {
     expect(result.ok && result.report.steps).toEqual([]);
   });
 });
+
+const gearPack = (version: string, key: string, steps?: unknown[]): PackRelease =>
+  ({
+    manifest: manifest(version),
+    rules: {
+      fields: { 'stats.light': { type: 'integer', formula: '0' } },
+      contentTypes: { gear: { carried: true }, tool: { carried: true } },
+    },
+    content: [
+      { id: 'gear.rope', type: 'gear', state: { [key]: { type: 'integer', default: 0 } } },
+      { id: 'gear.lamp', type: 'gear', state: { uses: { type: 'integer', default: 0 } } },
+    ],
+    ...(steps ? { upgrades: [{ pack: 'test-pack', from: '1.0.0', to: '2.0.0', steps }] } : {}),
+  }) as never;
+const lightEffect = () => ({ target: 'stats.light', op: 'add', value: 'self.uses' });
+const ropeDoc = (): CharacterDoc =>
+  ({
+    specVersion: '0.1.0',
+    id: 'c',
+    packs: [{ id: 'test-pack', version: '1.0.0' }],
+    inventory: [
+      { id: 'r', item: 'homebrew:gear.long-rope', state: { uses: 2 } },
+      { id: 's', item: 'homebrew:gear.longer-rope', state: { uses: 4 } },
+      { id: 'l', item: 'homebrew:gear.lantern', state: { uses: 1 } },
+    ],
+    homebrew: {
+      content: [
+        { id: 'gear.long-rope', extends: 'gear.rope', effects: [lightEffect()] },
+        // Through another homebrew item.
+        { id: 'gear.longer-rope', extends: 'gear.long-rope' },
+        { id: 'gear.lantern', extends: 'gear.lamp', effects: [lightEffect()] },
+      ],
+    },
+  }) as CharacterDoc;
+const runStep = (step: object) => {
+  const result = upgrade(
+    load(gearPack('1.0.0', 'uses')),
+    load(gearPack('2.0.0', 'charges', [step])),
+    ropeDoc(),
+  );
+  if (!result.ok) throw new Error(JSON.stringify(result.errors));
+  return result;
+};
+const statesOf = (r: ReturnType<typeof runStep>) => r.character.inventory?.map((e) => e.state);
+
+describe('state steps with an item', () => {
+  it('renameState touches only the item and homebrew extending it', () => {
+    const result = runStep({ op: 'renameState', item: 'gear.rope', from: 'uses', to: 'charges' });
+    expect(statesOf(result)).toEqual([{ charges: 2 }, { charges: 4 }, { uses: 1 }]);
+    expect(result.report.homebrew.map((h) => h.path)).toEqual([
+      '/homebrew/content/0/effects/0/value',
+    ]);
+    expect(result.character.homebrew?.content?.[2]).toEqual(ropeDoc().homebrew?.content?.[2]);
+  });
+
+  it('with a type too, both must match', () => {
+    const result = runStep({
+      op: 'renameState',
+      item: 'gear.rope',
+      type: 'tool',
+      from: 'uses',
+      to: 'charges',
+    });
+    expect(statesOf(result)).toEqual([{ uses: 2 }, { uses: 4 }, { uses: 1 }]);
+    expect(result.report.homebrew).toEqual([]);
+  });
+
+  it('removeState and moveState follow the same copies', () => {
+    const removed = runStep({ op: 'removeState', item: 'gear.rope', key: 'uses' });
+    expect(statesOf(removed)).toEqual([undefined, undefined, { uses: 1 }]);
+    const moved = runStep({ op: 'moveState', item: 'gear.rope', from: 'uses', grant: 'gear.lamp' });
+    expect(statesOf(moved)).toEqual([undefined, undefined, { uses: 1 }]);
+  });
+});
