@@ -124,6 +124,14 @@ describe('pnpm validate', () => {
         /renameField: "abilities\.nope" is not an input field/,
       ],
       [
+        'a moveState to a key the granted content does not declare',
+        /moveState: "tricks\.hop" declares no state key "shots"/,
+      ],
+      [
+        'an owner path to a choice that does not exist',
+        /requireChoice: no choice "inner" on weapons\.club\/pick-one\/nope/,
+      ],
+      [
         'a reserved word in a field ID',
         /"loop" is a reserved word and cannot be part of a field ID/,
       ],

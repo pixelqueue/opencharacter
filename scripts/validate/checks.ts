@@ -544,6 +544,9 @@ export class PackChecker {
           choice?: string;
           type?: string;
           item?: string;
+          from?: string;
+          grant?: string;
+          option?: string | number;
         };
         const where = `upgrade ${doc.from}-to-${doc.to} ${step.op}`;
         if (step.op === 'renameContent' && step.to && !this.ruleset.item(step.to, [this.packId])) {
@@ -573,21 +576,55 @@ export class PackChecker {
         }
         if (step.op === 'adoptStandard' && step.item && !this.ruleset.item(step.item, own))
           this.report.error(file, `${where}: "${step.item}" is not content of this pack`);
-        if (step.op === 'requireChoice' && step.choice) {
-          const owner = step.owner ? this.ruleset.item(step.owner, [this.packId])?.item : undefined;
-          const choices = step.owner
-            ? (owner?.choices ?? [])
-            : [...(this.ruleset.rules.get(this.packId)?.choices.keys() ?? [])].map((id) => ({
-                id,
-              }));
-          if (!choices.some((c) => c.id === step.choice))
+        const target = step.op === 'moveState' && !step.grant;
+        if ((step.op === 'requireChoice' || target) && step.choice) {
+          const choice = this.ownerChoices(step.owner).find((c) => c.id === step.choice);
+          if (!choice)
             this.report.error(
               file,
               `${where}: no choice "${step.choice}" on ${step.owner ?? 'the rules'}`,
             );
         }
+        if (step.op === 'moveState') {
+          // The pick's or grant's content must declare the key the value moves to.
+          const ref = step.grant ?? (typeof step.option === 'string' ? step.option : undefined);
+          const hit = ref === undefined ? undefined : this.ruleset.item(ref, this.scope);
+          const key = step.to ?? step.from ?? '';
+          if (!hit)
+            this.report.error(file, `${where}: "${String(ref ?? step.option)}" is not content`);
+          else {
+            const typeName = this.ruleset.typeOf(hit);
+            const typeDef = typeName
+              ? this.ruleset.contentType(typeName, this.ruleset.scope(hit.pack))?.def
+              : undefined;
+            if (!Object.hasOwn({ ...typeDef?.state, ...hit.item.state }, key))
+              this.report.error(file, `${where}: "${ref}" declares no state key "${key}"`);
+          }
+        }
       }
     }
+  }
+
+  /**
+   * The choices an upgrade step's `owner` declares in this pack: an item's, or the rules' when
+   * absent; an owner path goes down each choice and inline option pair (an even number of parts
+   * starts at a rules-level choice). None for an owner that doesn't resolve.
+   */
+  private ownerChoices(owner: string | undefined): readonly Choice[] {
+    const parts = owner === undefined ? [] : owner.split('/');
+    const rules = () =>
+      [...(this.ruleset.rules.get(this.packId)?.choices.values() ?? [])].map((c) => c.def);
+    let choices: readonly Choice[] =
+      parts.length % 2 === 0
+        ? rules()
+        : (this.ruleset.item(parts.shift() as string, [this.packId])?.item.choices ?? []);
+    for (let i = 0; i < parts.length; i += 2) {
+      const from = choices.find((c) => c.id === parts[i])?.from;
+      const option =
+        from && 'options' in from ? from.options.find((o) => o.id === parts[i + 1]) : undefined;
+      choices = option?.choices ?? [];
+    }
+    return choices;
   }
 
   private computedNames(
