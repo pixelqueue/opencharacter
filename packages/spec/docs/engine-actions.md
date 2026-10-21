@@ -19,7 +19,8 @@ shape, an optional **dice function**.
    - An action reached through a content type or an item's `use` is listed under the used
      action's ID with the copy's `entry`; it runs with that copy's `item` and `self`.
    - An action of picked or granted content also names that content as `source`; it runs with
-     that content's `item` and the owning copy's `self`.
+     that content's `item` and the owning copy's `self`, with the pick's or grant's own state
+     keys over it.
    - An action of content with no owning copy (picked in a rules-level choice, or nested in
      such a pick) is named by `source` alone, with no `entry`; it runs with that content's
      `item` and no `self`.
