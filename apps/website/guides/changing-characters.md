@@ -59,6 +59,17 @@ it with `path` and `option`, as `choose` does, or every matching pick with `pick
 The character file keeps the value on the pick (`{ option, state: { used: true } }`). Actions
 propose these for you; show a pick's state from its content's own display, as a copy's.
 
+Content a copy or pick grants keeps its own state the same way (an artifact's gift with Effort
+committed): name it with `grant`, its qualified ID, beside the copy's `entry` or the pick's
+`path` and `option`, or every match with `grants: { where }`. The file keeps it in that copy's
+or pick's `grants` ([Storing characters](storing-characters.md#whats-in-a-character-file)). A
+grant that isn't active there (the artifact stowed) is `not-granted`. `sheet.activations` lists
+granted content with its owner `entry`, and a pick's `path` when the grant is on a pick.
+
+```ts
+{ type: 'adjustState', entry: 'blade', grant: 'my-pack:gifts.flame-ward', key: 'committed', by: 1 }
+```
+
 ## Batches are all or nothing
 
 `changes` is a list, and the whole list applies or none of it does. Group what belongs together:
@@ -143,7 +154,8 @@ resistances and before temporary hit points. Use it for the combat log: "Tamsin 
 damage (resisted)".
 When an effect also changes its own entry (Mothership armor breaking), that change follows as
 `{ entry, key, value, source }`: "The vest breaks". When it ends its applied entry (oil that
-burns away), it follows as `{ entry, removed: true, source }`: "The oil burns away".
+burns away), it follows as `{ entry, removed: true, source }`: "The oil burns away". The applied
+entry is gone from the returned character, so drop your own bookkeeping for it (its duration).
 
 Use `set` for values the player types in, and `adjust` for anything that happens in play. Only
 `adjust` goes through effects, absorbing fields and overflow.
