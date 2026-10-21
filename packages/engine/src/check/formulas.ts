@@ -24,6 +24,7 @@ import type {
   FieldDef,
   Formula,
   Grant,
+  PresetTree,
   GrantValue,
   Immunity,
   InlineOption,
@@ -37,7 +38,13 @@ import type {
   ValueDecl,
   ValueOptions,
 } from '../core/pack-types.ts';
-import { keptQuery, optionQuery, pendingSource, writtenOptions } from '../core/pack-types.ts';
+import {
+  keptQuery,
+  optionQuery,
+  pendingSource,
+  valueSource,
+  writtenOptions,
+} from '../core/pack-types.ts';
 import { isContentOnly, readsOnlyRoots } from '../core/load.ts';
 import type { PackSet } from './packset.ts';
 import {
@@ -757,11 +764,8 @@ class FormulaChecker<L> {
 
   private valueOptions(from: ValueOptions, at: L, where: string, choice?: Choice): void {
     let value: FType = 'dyn';
-    if (Array.isArray(from.values)) {
-      if (from.values.every((v) => typeof v === 'string')) value = 'string';
-      else if (from.values.every((v) => Number.isInteger(v))) value = 'int';
-      else if (from.values.every((v) => typeof v === 'number')) value = 'decimal';
-    } else {
+    if (Array.isArray(from.values)) value = writtenType(from.values);
+    else {
       const formula = from.values.formula;
       this.formula(formula, at, `${where} values`, [{ list: 'string' }, { list: 'decimal' }]);
       const tree = formulaTree(formula);
@@ -785,6 +789,18 @@ class FormulaChecker<L> {
         this.formula(grant.item.formula, at, `${where} item`, ['string']);
       for (const [key, value] of Object.entries(grant.state ?? {}))
         this.formula(value, at, `${where} state ${key}`, ANY);
+      const presets = (tree: PresetTree | undefined) => {
+        for (const [choice, picks] of Object.entries(tree ?? {}))
+          for (const pick of picks) {
+            if (typeof pick.option === 'object')
+              this.formula(pick.option.formula, at, `${where} choices ${choice}`, [
+                'string',
+                'decimal',
+              ]);
+            presets(pick.choices);
+          }
+      };
+      presets(grant.choices);
     });
   }
 
@@ -985,7 +1001,10 @@ class FormulaChecker<L> {
     for (const value of Object.values(step.data ?? {})) this.formula(value, at, where, ANY);
   }
 
-  private choiceViews(step: Step): { item?: FType; self?: FType } {
+  private choiceViews(step: Step): { item?: FType; self?: FType; value?: FType } {
+    const values = valueSource(step);
+    // A formula's element type would need the steps this builds, so it is `dyn` here.
+    if (values) return { value: Array.isArray(values.values) ? writtenType(values.values) : 'dyn' };
     const query = optionQuery(step);
     if (!query) return {};
     const def = this.contentTypeDef(query.type);
@@ -1010,6 +1029,26 @@ class FormulaChecker<L> {
     );
     this.formula(step.repeat?.max, at, where, ['int']);
     this.formula(step.repeat?.min, at, where, ['int']);
+    const values = valueSource(step);
+    if (values) {
+      let value: FType = 'dyn';
+      if (Array.isArray(values.values)) value = writtenType(values.values);
+      else {
+        const formula = values.values.formula;
+        this.formula(formula, at, `${where} values`, [{ list: 'string' }, { list: 'decimal' }]);
+        const tree = formulaTree(formula);
+        const type = tree.ok ? check(tree.value, this.checkContext()) : undefined;
+        if (type?.ok && typeof type.value === 'object' && 'list' in type.value)
+          value = type.value.list;
+      }
+      this.typed({ value, picks: 'int' }, () =>
+        this.withRoots(['value', 'picks'], () => {
+          this.formula(values.where, at, `${where} where`, BOOL);
+          this.formula(step.prefer, at, where, NUMBER);
+        }),
+      );
+      return;
+    }
     const query = optionQuery(step);
     if (!query) return;
     const views = this.choiceViews(step);
@@ -1077,7 +1116,8 @@ class FormulaChecker<L> {
             const perCopy = (fm: Formula | undefined) =>
               (change.copies !== undefined ||
                 change.applied !== undefined ||
-                change.picks !== undefined) &&
+                change.picks !== undefined ||
+                change.grants !== undefined) &&
               fm !== undefined &&
               readsCopy(fm);
             const value: Expect = change.type === 'setQuantity' ? ['int'] : ANY;
@@ -1096,8 +1136,8 @@ class FormulaChecker<L> {
                   ),
               );
             }
-            if (change.applied || change.picks) {
-              const query = (change.applied ?? change.picks)?.where as Formula;
+            if (change.applied || change.picks || change.grants) {
+              const query = (change.applied ?? change.picks ?? change.grants)?.where as Formula;
               this.typed({ item: 'dyn', self: entryType(undefined), batch: BATCH }, () =>
                 this.at('content', () =>
                   this.onlyRoots(['batch'], () => {
@@ -1235,7 +1275,7 @@ class FormulaChecker<L> {
       );
     }
     this.appliedContent(change, at, where, [...PASSED_ROOTS, ...this.inEach()]);
-    const applied = change.applied ?? change.picks;
+    const applied = change.applied ?? change.picks ?? change.grants;
     if (applied) {
       this.typed({ item: 'dyn', self: entryType(undefined), batch: BATCH }, () =>
         this.at('content', () =>
@@ -1682,4 +1722,12 @@ export function fieldsMatching<L>(
 /** Formats a problem the way the build reports it. */
 export function describeProblem<L>(problem: FormulaProblem<L>): string {
   return `${problem.where}: formula ${JSON.stringify(problem.formula)}: ${problem.code}: ${problem.message}`;
+}
+
+/** Written values' type: `string`, `int` or `decimal` when they all are, else `dyn`. */
+function writtenType(values: readonly (string | number)[]): FType {
+  if (values.every((v) => typeof v === 'string')) return 'string';
+  if (values.every((v) => Number.isInteger(v))) return 'int';
+  if (values.every((v) => typeof v === 'number')) return 'decimal';
+  return 'dyn';
 }

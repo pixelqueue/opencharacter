@@ -548,10 +548,25 @@
         },
         "option": {
           "description": "With `path`: the picked option.",
-          "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "number" }]
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "number"
+            }
+          ]
         },
         "picks": {
           "$ref": "#/$defs/picks"
+        },
+        "grant": {
+          "description": "With `entry` (a copy) or `path` and `option` (a pick): the content that node's holder grants name, by qualified ID, whose saved state changes (the node's `grants`). It must be active there (`not-granted`). Its keys and bounds are those the granted content declares; a value equal to its default (the grant's `state` value, else the declared default) is dropped.",
+          "$ref": "common.schema.json#/$defs/qualifiedId"
+        },
+        "grants": {
+          "$ref": "#/$defs/grants"
         }
       },
       "additionalProperties": false,
@@ -576,8 +591,26 @@
         {
           "required": ["picks"],
           "type": "object"
+        },
+        {
+          "required": ["grants"],
+          "type": "object"
         }
-      ]
+      ],
+      "not": {
+        "description": "`grant` names a grant on a copy or a pick only.",
+        "anyOf": [
+          {
+            "required": ["grant", "copies"]
+          },
+          {
+            "required": ["grant", "applied"]
+          },
+          {
+            "required": ["grant", "picks"]
+          }
+        ]
+      }
     },
     "adjustState": {
       "required": ["key", "by"],
@@ -616,10 +649,25 @@
         },
         "option": {
           "description": "With `path`: the picked option.",
-          "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "number" }]
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "number"
+            }
+          ]
         },
         "picks": {
           "$ref": "#/$defs/picks"
+        },
+        "grant": {
+          "description": "With `entry` (a copy) or `path` and `option` (a pick): the content that node's holder grants name, by qualified ID, whose saved state changes (the node's `grants`). It must be active there (`not-granted`). Its keys and bounds are those the granted content declares; a value equal to its default (the grant's `state` value, else the declared default) is dropped.",
+          "$ref": "common.schema.json#/$defs/qualifiedId"
+        },
+        "grants": {
+          "$ref": "#/$defs/grants"
         }
       },
       "additionalProperties": false,
@@ -644,8 +692,26 @@
         {
           "required": ["picks"],
           "type": "object"
+        },
+        {
+          "required": ["grants"],
+          "type": "object"
         }
-      ]
+      ],
+      "not": {
+        "description": "`grant` names a grant on a copy or a pick only.",
+        "anyOf": [
+          {
+            "required": ["grant", "copies"]
+          },
+          {
+            "required": ["grant", "applied"]
+          },
+          {
+            "required": ["grant", "picks"]
+          }
+        ]
+      }
     },
     "setQuantity": {
       "description": "Set a copy's `quantity`. It may not be below 0 (`out-of-range`); a copy at 0 stays.",
@@ -1032,6 +1098,13 @@
         "picks": {
           "$ref": "#/$defs/picks"
         },
+        "grant": {
+          "description": "setState and adjustState: `self`, the grant that activated the running action's granted content (a holder grant), resolved to `entry` (or `path` and `option`, a pick) and `grant` in the returned change. In an action that isn't a granted content's, `unknown-reference`.",
+          "const": "self"
+        },
+        "grants": {
+          "$ref": "#/$defs/grants"
+        },
         "field": {
           "description": "set and adjust may compute it: `{ formula }`, evaluated when the action runs to a field ID and qualified against the action's pack, as a literal one is. For `to: self` or a role it must name an input field (`unknown-field` or `not-input-field`, data: `field`); for a link it must be qualified and is passed on unchecked. A `split` adjust's field is written out.",
           "anyOf": [
@@ -1374,6 +1447,21 @@
     },
     "picks": {
       "description": "setState and adjustState may name picks by query: applyChanges resolves it against the character it changes, at that point in the batch: every pick, in file order (each copy's choice tree, then the rules-level one, depth first), whose picked content declares the change's `key` and whose `where` holds with `item` the picked item and `self` its state (with declared defaults). With `limit`, only the first that many. `by` and `value` are formulas evaluated per pick with the same binding. No match is not an error.",
+      "type": "object",
+      "required": ["where"],
+      "properties": {
+        "where": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "grants": {
+      "description": "setState and adjustState may name granted content by query: applyChanges resolves it against the character it changes, at that point in the batch: each active holder grant, in activation order (the same item on one node once), whose granted content declares the change's `key` and whose `where` holds with `item` the granted item and `self` its state (saved, else the grant's `state`, else declared defaults). With `limit`, only the first that many. `by` and `value` are formulas evaluated per grant with the same binding. No match is not an error.",
       "type": "object",
       "required": ["where"],
       "properties": {

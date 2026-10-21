@@ -282,6 +282,12 @@ and its scope (`holder` or `applied`):
 An applied entry's `self` is `id` plus its state keys, read as in `character.applied`: declared
 keys by their type, with their `default` when unsaved.
 
+Content a holder grant activates that declares state (its type's or its own) reads its keys from
+its saved state on the grant's node (the owner copy, or the pick whose tree holds its picks),
+else the grant's `state` values, else the declared defaults, over the owner copy, as picked
+content reads its pick's ([content.md](content.md#when-content-is-active)). An applied grant's
+content sees the granting entry with the grant's `state` values in place.
+
 **Activation conditions** decide what is active: grant `when`, choice `when`, and an
 immunity's `when` and query `where`. They are
 evaluated before any field is computed, so they may read only `self`, `item`, `character` (its
@@ -666,7 +672,9 @@ depth first, then the active applied entries with their applied grants. Each is
 - `keptBy`: for a template content keeps on the copy, the index of the
   activation that keeps it (the first, when several do). Absent for a saved template.
 - `path`: for a pick, the choice path of the pick (`change.schema.json#/$defs/choicePath`), the
-  picked option last, as `pending` and change paths name it.
+  picked option last, as `pending` and change paths name it. For a holder grant whose node is a
+  pick (content granted by picked content or an inline option), that pick's path, which names
+  the grant's saved state ([applyChanges](#applychanges)).
 
 Inline options, the rules and applied entries an immunity blocks (which aren't activated) aren't
 listed, nor are the picks of a choice with `activate: false`. A content group's `from: own`
@@ -698,8 +706,13 @@ slotted choice is one entry per applicable slot. A choice that isn't applicable 
   ([formulas.md](formulas.md#functions)).
 - `min` and `max`: the evaluated pick counts, as `listOptions` gives them (`max` absent when
   unbounded; a count that fails to evaluate leaves the default, 1).
-- `picks`: the picked options, in saved order: content IDs, inline option IDs or values.
-- `open`: whether the choice is pending: `required` not `false` and fewer picks than `min`.
+- `picks`: the picked options, in saved order: content IDs, inline option IDs or values. For a
+  choice a grant presets, the grant's.
+- `open`: whether the choice is pending: `required` not `false` and fewer picks than `min`; a
+  preset choice never is.
+- `preset`: `true` when a grant presets the choice
+  ([content.md](content.md#when-content-is-active)); `choose` and `unchoose` on it are
+  `preset-choice`.
 
 The entries with `open: true` are `pending`. Each content pick in
 [the activation list](#the-activation-list) has a listed choice's path plus the option; inline
@@ -932,6 +945,22 @@ names every pick, in file order (each copy's tree, then the rules-level tree, de
 whose picked content declares the change's `key` and whose `where` holds with `item` the picked
 item and `self` its state; `by` and `value` are evaluated per pick. No match changes nothing.
 
+**A grant's state**. `setState` and `adjustState` may name granted content's saved
+state with `grant`, its qualified ID, beside its node: `entry` (the copy) or a pick's `path` and
+`option`. An active holder grant of that content on that node must exist (`not-granted`, data
+`grant`; an applied entry has none). The keys, types and bounds are those the granted content's
+type and item declare. Its current value is the saved one, else the grant's `state` value, else
+the declared default; a value equal to that default is dropped (an empty entry, and an empty
+`grants`, with it). A preset pick the path goes through is saved first, as `choose` saves it.
+`grants: { where, limit? }` names every active holder grant, in activation order (an item once
+per node), whose content declares the change's `key` and whose `where` holds with `item` the
+granted item and `self` its state; `by` and `value` are evaluated per grant. No match changes
+nothing.
+
+**Preset choices**. `choose` and `unchoose` on a choice a grant presets are
+`preset-choice` (data `path`). A `choose` (or a pick's `setState`) whose path goes through a
+preset pick first saves a pick of that option, with no state, to hold what nests under it.
+
 **Quantity**. `setQuantity` and `adjustQuantity` change a copy's
 `quantity` (any copy, in inventory or features; absent means 1). The result is always written,
 1 included. It never goes below 0: such a change is `out-of-range` and rejects the batch, so an
@@ -981,13 +1010,18 @@ An `adjust` on field F with amount `by`, `tags` and optional `situational` choic
    (without incoming-change effects), up to `maxOverflowChain` adjusts in all.
 5. **Clamping.** Otherwise the result is clamped to `min`/`max`.
 6. **`then`.** After the adjust is fully routed, each instance that counted in step 1 applies its
-   `then` changes (`setState` or `adjustState`), in instance order, to its own copy: the copy
-   whose `self` it sees (for picked or granted content, the owning copy), before the next change
-   in the batch. Their `value` and `by` are evaluated with the instance's `item`, `self` and
-   `incoming`, on the same sheet as step 1. They are checked like the same changes given to
-   applyChanges, and a failure rejects the batch. They are not adjusts, so nothing routes or
-   triggers on them. An instance with no copy (content picked in a rules-level choice) skips
-   them; `then` where no copy can exist is a load error (`then-without-copy`).
+   `then` changes, in instance order, to its own entry, before the next change in the batch: for
+   an applied activation the applied entry whose `self` it sees (for content an applied grant
+   reaches, the granting entry), otherwise the copy whose `self` it sees (for picked or granted
+   content, the owning copy). A `setState` or `adjustState` changes the entry's state; a
+   `removeEffect` (applied effects only) removes the applied entry. Their `value` and `by` are
+   evaluated with the instance's `item`, `self` and `incoming`, on the same sheet as step 1.
+   They are checked like the same changes given to applyChanges, and a failure rejects the
+   batch. Once an entry is removed, every later `then` change aimed at it in this step is
+   skipped, so two effects of one ward that both counted remove it once. They are not adjusts,
+   so nothing routes or triggers on them. An instance with no entry (content picked in a
+   rules-level choice) skips them; `then` where no entry can exist is a load error
+   (`then-without-copy`).
 
 Each step that changes a field is reported in `adjustments`, in order, as
 `{ field, by, requested?, taken?, reason, clamped? }`, with qualified field IDs:
@@ -1009,8 +1043,9 @@ Each step that changes a field is reported in `adjustments`, in order, as
    - **`carry`**: with `carry: true`, the excess routed into the field again, its
      entry `{ field, by, reason: carry }` followed by its own steps if it overflows in turn.
 5. **`then`:** after the adjust's own entries, one `{ entry, key, value, source }` per `then`
-   change: the copy, the state key, its new value, and the effect instance's source with its
-   effect ID (`effect`, when the effect has one).
+   state change: the entry (a copy or an applied entry), the state key, its new value, and the
+   effect instance's source with its effect ID (`effect`, when the effect has one). A
+   `removeEffect` adds `{ entry, removed: true, source }` instead. A skipped change adds nothing.
 
 `clamped: true` appears only when clamping changed the amount. So FitD stress at 8 taking 3
 reports stress +3 (`requested`), trauma +1 (`overflow`), then stress −11 (`reset`). Mothership

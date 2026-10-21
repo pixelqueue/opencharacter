@@ -116,9 +116,10 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   `test-situational`, situational choices for rolls and incoming changes, `test-immunity`, immunity
   to applied content, `test-standard`, standard copies, `test-choice-picks`, a choice's own picks,
   `eligible` and repeatable content and waived prerequisites (0092), `test-kept-templates`,
-  templates content keeps on copies and on picked or granted content (the keeper's own picks, with its params), `test-applied`, actions
-  that apply content and change applied entries, and `test-owner-picks`, formulas reading their
-  owner's picks with `picksOf`.
+  templates content keeps on copies and on picked or granted content (the keeper's own picks, with
+  its params), `test-applied`, actions that apply content and change applied entries,
+  `test-roll-twice`, rolls made more than once (`of: roll`), and `test-owner-picks`, formulas
+  reading their owner's picks with `picksOf`.
 - **How outputs compare.** Only what `expected.yaml` lists is compared. A key the call doesn't
   define, in `case.yaml` or `expected.yaml`, is a mistake in the case: runners fail it rather
   than ignore it, so a case never seems to test something it doesn't.
@@ -178,7 +179,9 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   - `proposedChanges` (exact, `step` and `character` included);
   - `log`: per entry `step`, `action`, `kind`, `by`, `faces`/`option`/`amounts`, `draw`, `index`,
     `participant`, `outcome`, `total`, `band`, `bandSet`, `bandValue`, `summary` (exact); items only
-    when listed; `tallies` (exact) when listed, where `[]` means the entry has none;
+    when listed; `tallies` (exact) when listed, where `[]` means the entry has none; `rolls`
+    when listed, each roll's `total` and `kept` exact and its `items` as `items` are, where
+    `null` means the entry has none;
   - `needs` for a final paused result, on the keys it lists (`step`, `action`, `kind`, …);
   - `errors` codes, and `errorData`: per error, its `data` on the keys listed (a replay's
     `index` and `needs`).

@@ -26,6 +26,7 @@ const KEYWORDS = new Set(['true', 'false', 'null', 'in']);
 import {
   optionQuery,
   pendingSource,
+  valueSource,
   writtenOptions,
 } from '../../packages/engine/src/core/pack-types.ts';
 import { appliesQueries } from '../../packages/engine/src/core/pack-types.ts';
@@ -159,6 +160,16 @@ export class PackChecker {
       const parent = entry.item.extends ?? entry.item.override;
       entry = parent ? this.ruleset.item(parent, this.ruleset.scope(entry.pack)) : undefined;
     }
+    return false;
+  }
+
+  /** Whether any loaded content type or item defines an inline action with this local ID. */
+  private anyDefines(use: string): boolean {
+    const defines = (def: { actions?: ActionOrUse[] }) =>
+      (def.actions ?? []).some((a) => !('use' in a) && a.id === use);
+    for (const { item } of this.ruleset.content.values()) if (defines(item)) return true;
+    for (const rules of this.ruleset.rules.values())
+      for (const { def } of rules.contentTypes.values()) if (defines(def)) return true;
     return false;
   }
 
@@ -1081,6 +1092,18 @@ export class PackChecker {
         this.report.error(file, `${prefix}grants unknown item "${grant.item}"`);
         continue;
       }
+      if (grant.choices && grant.scope === 'applied')
+        this.report.error(
+          file,
+          `${prefix}grant of "${grant.item}" presets choices, but is applied`,
+        );
+      const choices = new Map((granted.item.choices ?? []).flatMap(slotKeys));
+      for (const key of Object.keys(grant.choices ?? {}))
+        if (!choices.has(key))
+          this.report.error(
+            file,
+            `${prefix}grant of "${grant.item}" presets choice "${key}", which it doesn't declare`,
+          );
       if (!grant.state) continue;
       const typeName = this.ruleset.typeOf(granted);
       const type = typeName
@@ -1322,10 +1345,10 @@ export class PackChecker {
   private effect(effect: Effect, file: string, where: string, copy = true): void {
     const kind = targetKind(effect.target);
     const label = `${where} effect${effect.id ? ` ${effect.id}` : ''}`;
-    if (effect.then && (!copy || effect.scope === 'applied'))
+    if (effect.then && !copy)
       this.report.error(
         file,
-        `${label}: then-without-copy: only an effect with a copy (content, not the rules, a situational choice, a choice's effects or an applied effect) can change its copy`,
+        `${label}: then-without-copy: only an effect with an entry (content's, not the rules', a situational choice's or a choice's) can change its entry`,
       );
     if (!OP_TARGETS.get(effect.op)?.includes(kind)) {
       this.report.error(file, `${label}: op "${effect.op}" cannot target ${kind}s`);
@@ -1622,6 +1645,8 @@ export class PackChecker {
         }
         for (const option of writtenOptions(step))
           this.requiredKeys.add(`${key}.options.${option.id}.name`);
+        // A value's own text is optional: the app names it otherwise.
+        if (valueSource(step)) this.optionalPrefixes.add(`${key}.options.`);
         const query = step.kind === 'choice' ? optionQuery(step) : undefined;
         if (query && !this.ruleset.contentType(query.type, this.scope))
           this.report.error(file, `${where}: unknown content type "${query.type}"`);
@@ -1647,7 +1672,8 @@ export class PackChecker {
           step.kind === 'action' &&
           step.use &&
           !this.ruleset.action(step.use, this.scope) &&
-          !this.sourceDefines(step.source, step.use)
+          !this.sourceDefines(step.source, step.use) &&
+          !(step.source === undefined && step.entry !== undefined && this.anyDefines(step.use))
         ) {
           this.report.error(file, `${where}: unknown action "${step.use}"`);
         }
@@ -2240,6 +2266,7 @@ export class CharacterChecker {
           if (!decl) error(`${where}: unknown state key "${key}"`);
           else this.literal(value, decl, file, `${where}.state.${key}`);
         }
+        this.grantStore(entry.grants, file, where);
         this.tree(entry.choices ?? {}, this.choicesOf(owners), file, where);
       }
     }
@@ -2340,6 +2367,7 @@ export class CharacterChecker {
       for (const pick of picks) {
         const nested = this.option(choice, pick.option, file, path);
         if (nested) this.tree(pick.choices ?? {}, nested, file, `${path}[${pick.option}]`);
+        this.grantStore(pick.grants, file, `${path}[${pick.option}]`);
         if (pick.state) {
           const hit =
             typeof pick.option === 'string' ? this.ruleset.content.get(pick.option) : undefined;
@@ -2359,8 +2387,32 @@ export class CharacterChecker {
     }
   }
 
+  /** Granted content's saved state: each key a content item, each state key one it declares. */
+  private grantStore(
+    grants: Record<string, { state?: Record<string, Literal> }> | undefined,
+    file: string,
+    where: string,
+  ): void {
+    for (const [ref, saved] of Object.entries(grants ?? {})) {
+      const at = `${where}.grants.${ref}`;
+      const hit = this.content(ref, file, at);
+      if (!hit) continue;
+      const typeName = this.ruleset.typeOf(hit);
+      const typeDef = typeName
+        ? this.ruleset.contentType(typeName, this.ruleset.scope(hit.pack))?.def
+        : undefined;
+      const decls = { ...typeDef?.state, ...hit.item.state };
+      for (const [key, value] of Object.entries(saved.state ?? {})) {
+        const decl = decls[key];
+        if (!decl) this.report.error(file, `${at}: unknown state key "${key}"`);
+        else this.literal(value, decl, file, `${at}.state.${key}`);
+      }
+    }
+  }
+
   private option(
     choice: Choice,
+
     option: string | number,
     file: string,
     where: string,

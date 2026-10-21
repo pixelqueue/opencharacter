@@ -17,7 +17,7 @@ export type {
   Text,
   TextOptions,
 } from './text.ts';
-export type { DiceLike } from './dice.ts';
+export type { DiceLike, Repeat } from './dice.ts';
 export { blockArgument, headlineArgument, messageArguments } from './block.ts';
 export type { BlockArgument, HeadlineArgument, HeadlineScope } from './block.ts';
 export { describeNeed } from './need.ts';

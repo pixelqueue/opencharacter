@@ -24,8 +24,10 @@ import type {
   InlineOption,
   KeptTemplate,
   Pick,
+  PresetTree,
   Query,
 } from './pack-types.ts';
+import type { GrantStore } from '@opencharacter/spec';
 import { appliesQueries } from './pack-types.ts';
 import { openOptionsOn } from './options.ts';
 import { isContentOnly } from './load.ts';
@@ -139,7 +141,18 @@ export interface Activation {
   /** `sourceId` with each slot key replaced by its declared choice ID, where nested text lives. */
   textId?: string;
   waived?: boolean;
+  /**
+   * The saved copy or pick whose choice tree is `tree`: where content this activation grants keeps
+   * its saved state (`grants`). Absent for the rules and applied content.
+   */
+  node?: { grants?: GrantStore } | undefined;
+  /** Picks a grant makes for this activation's own choices, evaluated; content IDs unqualified. */
+  presets?: { tree: EvaluatedPresets; pack: string } | undefined;
+  /** A holder grant: its `state` values, the defaults of the granted content's saved state. */
+  grantDefaults?: Record<string, Literal> | undefined;
 }
+
+type EvaluatedPresets = Record<string, { option: string | number; choices?: EvaluatedPresets }[]>;
 
 export interface ListedActivation {
   item: string;
@@ -161,10 +174,11 @@ export interface ListedChoice {
   max?: number;
   picks: (string | number)[];
   open: boolean;
+  preset?: true;
 }
 
 function isOpen(record: ChoiceRecord, min: number): boolean {
-  return record.picks.length < min && record.choice.required !== false;
+  return !record.preset && record.picks.length < min && record.choice.required !== false;
 }
 
 /**
@@ -189,6 +203,8 @@ export interface ChoiceRecord {
   applicable: boolean;
   roots: Record<string, unknown>;
   slot?: { choice: string; number: number };
+  /** A grant presets the choice: `picks` are the grant's, and it is never pending. */
+  preset?: boolean;
 }
 
 /** A choice, or with `slots` one choice per slot in list order, keyed `<id>-<slot>`. */
@@ -216,6 +232,8 @@ export interface EffectInstance {
   match?: string | number | boolean;
   matchPack?: string;
   picked?: Record<string, unknown>;
+  /** For an applied activation: the applied entry its `self` is (the granting one for a grant). */
+  applied?: string;
 }
 
 interface FieldResult {
@@ -1111,6 +1129,7 @@ export class Sheet {
             sourceId: item.qid,
             tree,
             path,
+            node: entry,
           },
           0,
         );
@@ -1128,6 +1147,7 @@ export class Sheet {
               sourceId: template.qid,
               tree,
               path,
+              node: entry,
               keyPrefix: `${template.qid}/`,
             },
             0,
@@ -1269,8 +1289,9 @@ export class Sheet {
         roots: {
           ...a.roots,
           item: itemView(this.ruleset, granted, [], (n, p) => this.inputByName(n, p)),
-          self: this.grantedSelf(grant, pack, a.roots, `${a.sourceId} grant`),
+          self: this.grantedSelf(grant, pack, a.roots, `${a.sourceId} grant`).self,
         },
+        presets: undefined,
         source: { type: 'item', id: granted.qid },
         sourceId: granted.qid,
         keyPrefix: `${granted.qid}/`,
@@ -1321,14 +1342,23 @@ export class Sheet {
     pack: string,
     roots: Record<string, unknown>,
     where: string,
-  ): unknown {
-    if (!grant.state) return roots.self;
-    const self = { ...(roots.self as Record<string, unknown> | undefined) };
-    for (const [key, formula] of Object.entries(grant.state)) {
+    holder?: { granted: LoadedItem; node: Activation['node'] },
+  ): { self: unknown; defaults: Record<string, Literal> } {
+    const defaults: Record<string, Literal> = {};
+    // Held granted content that declares state reads its grant's saved state, else the grant's
+    // `state`, else the declared default, over the owner's copy, as picked content reads its pick's.
+    const own = !!holder && Object.keys(stateDecls(this.ruleset, holder.granted, [])).length > 0;
+    if (!grant.state && !own) return { self: roots.self, defaults };
+    const self: Record<string, unknown> = {
+      ...(roots.self as Record<string, unknown> | undefined),
+      ...(own && holder ? pickState(this.ruleset, holder.granted, undefined) : {}),
+    };
+    for (const [key, formula] of Object.entries(grant.state ?? {})) {
       try {
         const value = this.evaluateInput(formula, pack, roots);
         self[key] =
           value.kind === 'decimal' || value.kind === 'dice' ? f.wrapValue(value) : f.toData(value);
+        defaults[key] = f.toData(value) as Literal;
       } catch (error) {
         if (!(error instanceof Failure)) throw error;
         this.errors.push({
@@ -1341,7 +1371,96 @@ export class Sheet {
         });
       }
     }
-    return self;
+    const saved = own && holder ? holder.node?.grants?.[holder.granted.qid]?.state : undefined;
+    if (saved && holder) {
+      const typed = pickState(this.ruleset, holder.granted, saved);
+      for (const key of Object.keys(saved)) if (key in typed) self[key] = typed[key];
+    }
+    return { self, defaults };
+  }
+
+  /**
+   * A grant's preset picks, each option a literal or an activation formula; one that fails, or
+   * isn't a string or number, is left out with a `formula-error`.
+   */
+  private evaluatePresets(
+    tree: PresetTree,
+    pack: string,
+    roots: Record<string, unknown>,
+    where: string,
+  ): EvaluatedPresets {
+    const out: EvaluatedPresets = {};
+    for (const [choice, picks] of Object.entries(tree)) {
+      const list: EvaluatedPresets[string] = [];
+      for (const pick of picks) {
+        let option: string | number;
+        if (typeof pick.option !== 'object') option = pick.option;
+        else {
+          try {
+            const value = this.evaluateInput(pick.option.formula, pack, roots);
+            if (value.kind !== 'string' && value.kind !== 'int' && value.kind !== 'decimal')
+              throw new Failure({
+                code: 'type-mismatch',
+                message: 'a preset option is a string or a number',
+              });
+            option = value.kind === 'string' ? value.value : (f.toData(value) as number);
+          } catch (error) {
+            if (!(error instanceof Failure)) throw error;
+            this.errors.push({
+              code: error.error.code,
+              data: {
+                where: `${where} choices ${choice}`,
+                message: error.error.message,
+                ...error.error.data,
+              },
+            });
+            continue;
+          }
+        }
+        list.push({
+          option,
+          ...(pick.choices
+            ? { choices: this.evaluatePresets(pick.choices, pack, roots, where) }
+            : {}),
+        });
+      }
+      out[choice] = list;
+    }
+    return out;
+  }
+
+  /**
+   * A preset choice's picks: the grant's options, a content ID qualified in the grant's pack (one
+   * naming no content is left out with `unknown-id`). A saved pick of the same option holds its
+   * nested picks, state and grants' state.
+   */
+  private presetPicks(
+    choice: Choice,
+    presets: NonNullable<Activation['presets']>,
+    saved: Pick[],
+    where: string,
+  ): { pick: Pick; nested?: EvaluatedPresets }[] {
+    const from = choice.from;
+    const content = !('values' in from) && !('options' in from);
+    const out: { pick: Pick; nested?: EvaluatedPresets }[] = [];
+    for (const preset of presets.tree[choice.id] ?? []) {
+      let option = preset.option;
+      if (content && typeof option === 'string') {
+        const qid = resolveContent(this.ruleset, option, presets.pack);
+        if (!qid) {
+          this.errors.push({ code: 'unknown-id', data: { id: option, where } });
+          continue;
+        }
+        option = qid;
+      }
+      if (out.some((p) => p.pick.option === option)) continue;
+      const node = saved.find((p) => p.option === option);
+      out.push({
+        pick: { ...node, option },
+        ...(preset.choices ? { nested: preset.choices } : {}),
+      });
+    }
+    return out;
   }
 
   private appliedReach(
@@ -1487,6 +1606,7 @@ export class Sheet {
           activation.source,
           activation.sourceId,
           `type.${effect.id ?? index}`,
+          activation.applied,
         );
       });
     }
@@ -1501,6 +1621,7 @@ export class Sheet {
         activation.source,
         activation.sourceId,
         effect.id ?? String(index),
+        activation.applied,
       );
     });
     if (activation.scope === 'applied') {
@@ -1546,6 +1667,14 @@ export class Sheet {
         `${activation.sourceId} grant`,
       );
       if (!granted) continue;
+      const where = `${activation.sourceId} grant`;
+      const { self, defaults } = this.grantedSelf(grant, pack, activation.roots, where, {
+        granted,
+        node: activation.node,
+      });
+      const presets = grant.choices
+        ? { tree: this.evaluatePresets(grant.choices, pack, activation.roots, where), pack }
+        : undefined;
       this.content(
         {
           ...activation,
@@ -1557,8 +1686,10 @@ export class Sheet {
           roots: {
             ...activation.roots,
             item: this.contentView(granted),
-            self: this.grantedSelf(grant, pack, activation.roots, `${activation.sourceId} grant`),
+            self,
           },
+          presets,
+          grantDefaults: defaults,
           source: {
             type: 'item',
             id: granted.qid,
@@ -1594,7 +1725,14 @@ export class Sheet {
     );
     for (const { choice, pack, slot } of expanded) {
       const key = `${owner.keyPrefix ?? ''}${choice.id}`;
-      const picks = owner.tree[key] ?? [];
+      const saved = owner.tree[key] ?? [];
+      // A choice a grant presets has the grant's picks; saved picks of the same options hold
+      // what is nested under them.
+      const preset =
+        owner.presets && Object.hasOwn(owner.presets.tree, choice.id)
+          ? this.presetPicks(choice, owner.presets, saved, `${owner.sourceId} choice ${choice.id}`)
+          : undefined;
+      const picks = preset ? preset.map((p) => p.pick) : saved;
       const path: ChoicePath = { ...owner.path, choice: [...owner.path.choice, key] };
       const roots = slot ? { ...owner.roots, slot: slot.number } : owner.roots;
       const applicable = this.condition(
@@ -1611,10 +1749,20 @@ export class Sheet {
         applicable,
         roots,
         ...(slot ? { slot } : {}),
+        ...(preset ? { preset: true } : {}),
       };
       this.choices.push(record);
       if (!applicable) continue;
-      for (const pick of picks) {
+      for (const [at, pick] of picks.entries()) {
+        const nestedPresets = preset?.[at]?.nested;
+        const own = {
+          node: pick,
+          presets:
+            nestedPresets && owner.presets
+              ? { tree: nestedPresets, pack: owner.presets.pack }
+              : undefined,
+          grantDefaults: undefined,
+        };
         const pickRoot = { pick: { id: pick.option, value: pick.option } };
         (choice.effects ?? []).forEach((effect, index) => {
           this.instance(
@@ -1650,6 +1798,7 @@ export class Sheet {
               tree: nested,
               path: pickPath,
               keyPrefix: '',
+              ...own,
             },
             depth + 1,
           );
@@ -1690,7 +1839,9 @@ export class Sheet {
               tree: nested,
               path: pickPath,
               keyPrefix: '',
+              ...own,
             },
+
             depth + 1,
           );
         }
@@ -1705,7 +1856,9 @@ export class Sheet {
     source: Source,
     sourceId: string,
     key: string,
+    applied?: string,
   ): void {
+    const own = applied === undefined ? {} : { applied };
     const target = effect.target;
     if (typeof target === 'object' && 'fields' in target) {
       // One instance per matching field, as if written with that field as its target. A field whose
@@ -1727,6 +1880,7 @@ export class Sheet {
           sourceId,
           optionId: `${sourceId}#${key}@${qid}`,
           order: this.order++,
+          ...own,
           ...(computed ? { match: where, matchPack: pack, ...(picked ? { picked } : {}) } : {}),
         });
       return;
@@ -1739,6 +1893,7 @@ export class Sheet {
       sourceId,
       optionId: `${sourceId}#${key}`,
       order: this.order++,
+      ...own,
     });
   }
 
@@ -2182,6 +2337,7 @@ export class Sheet {
           ...(max === undefined ? {} : { max }),
           picks: record.picks.map((pick) => pick.option),
           open: isOpen(record, min),
+          ...(record.preset ? { preset: true as const } : {}),
         };
       });
   }
@@ -2860,7 +3016,10 @@ export class Sheet {
         ...(a.scope === 'applied' ? { scope: 'applied' as const } : {}),
         ...(at === undefined ? {} : { parent: at }),
         ...(keptBy === undefined ? {} : { keptBy }),
-        ...(a.kind === 'pick' ? { path: a.path } : {}),
+        ...(a.kind === 'pick' ||
+        (a.kind === 'grant' && a.scope === 'holder' && a.path.choice.length > 0)
+          ? { path: a.path }
+          : {}),
       };
     });
   }

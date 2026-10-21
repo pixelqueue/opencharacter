@@ -1,0 +1,42 @@
+values:
+  test-grant-storage:skills.assured: { value: [arcana, athletics] }
+  test-grant-storage:lores.known: { value: [piloting] }
+pending:
+  - entry: driver
+    choice: [test-grant-storage:feats.additional-lore/lore, piloting, focus]
+choices:
+  - path: { entry: driver, choice: [test-grant-storage:feats.assurance/skill] }
+    owner: test-grant-storage:feats.assurance
+    id: skill
+    min: 1
+    max: 1
+    picks: [athletics]
+    open: false
+    preset: true
+  - path: { entry: driver, choice: [test-grant-storage:feats.additional-lore/lore] }
+    owner: test-grant-storage:feats.additional-lore
+    id: lore
+    min: 1
+    max: 1
+    picks: [piloting]
+    open: false
+    preset: true
+  - path:
+      entry: driver
+      choice: [test-grant-storage:feats.additional-lore/lore, piloting, focus]
+    owner: test-grant-storage:feats.additional-lore.choices.lore.options.piloting
+    id: focus
+    min: 1
+    max: 1
+    picks: []
+    open: true
+  - path: { entry: scout, choice: [test-grant-storage:feats.assurance/skill] }
+    owner: test-grant-storage:feats.assurance
+    id: skill
+    min: 1
+    max: 1
+    picks: [arcana]
+    open: false
+    preset: true
+issues: []
+errors: []

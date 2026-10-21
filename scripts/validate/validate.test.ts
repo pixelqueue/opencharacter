@@ -267,6 +267,7 @@ describe('pnpm validate', () => {
         /followUps.crew-roll: creation start "roll"'s action has no parameter "size"/,
       ],
       ['a source that defines no such action', /step lunge: unknown action "lunge"/],
+      ['an entry no content defines the action for', /step hop: unknown action "hop"/],
       [
         'a creation start missing a parameter',
         /creation bare: action "needs-kind" needs parameter "kind"/,
@@ -360,7 +361,7 @@ describe('pnpm validate', () => {
       ]);
     });
 
-    it("accepts an action step that uses its source's own action", () => {
+    it("accepts an action step that uses its source's or entry's own action", () => {
       expect(messages.filter((m) => /unknown action "whirl"/.test(m))).toEqual([]);
     });
 

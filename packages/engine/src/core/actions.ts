@@ -22,9 +22,10 @@ import type {
   Situational,
   Step,
   StepOption,
+  ValueSource,
   TagOrFormula,
 } from './pack-types.ts';
-import { optionQuery, pendingSource, writtenOptions } from './pack-types.ts';
+import { optionQuery, pendingSource, valueSource, writtenOptions } from './pack-types.ts';
 import {
   admitsTag,
   evaluateTags,
@@ -184,6 +185,15 @@ export interface LogEntry {
   tallies?: TallyLog[];
   /** Roll steps: each `atLeast` or `atMost` that changed the total. */
   bounds?: BoundLog[];
+  /** Roll steps made more than once (`of: roll`): every whole roll, in order. */
+  rolls?: RollLog[];
+}
+
+/** One whole roll of a roll step made more than once; `kept` marks the one kept. */
+export interface RollLog {
+  total: number;
+  kept: boolean;
+  items: RollItem[];
 }
 
 /** A bound on a roll's total that changed it. */
@@ -211,6 +221,8 @@ export interface Need {
   items?: RollItem[];
   /** Dice steps: the summary of the roll the pause is for. */
   summary?: RollSummary;
+  /** Dice steps made more than once (`of: roll`): how many whole rolls, and which total is kept. */
+  repeat?: { times: number; keep: 'high' | 'low' };
   options?: string[];
   recommended?: string;
   /** Choice steps over pending choices: the choice being asked. */
@@ -1213,8 +1225,8 @@ function stepSituational(ctx: Ctx, frame: Frame, step: Step): Record<string, unk
 
 /**
  * Without `source` or `entry`, `use` runs with the parent's own entry and source; otherwise as
- * `computeSheet` lists it with those (a local `use` names `<source>#<use>`), preferring the
- * parent's entry.
+ * `computeSheet` lists it with those (a local `use` names `<source>#<use>`, or without `source`
+ * `<entry's item>#<use>`), preferring the parent's entry.
  */
 function nestedRun(
   ctx: Ctx,
@@ -1242,7 +1254,12 @@ function nestedRun(
       throw new ActionError('type-mismatch', { message: `entry evaluated to ${value.kind}` });
     entry = value.value;
   }
-  const action = ctx.ruleset.rules.actions[use] || source === undefined ? use : `${source}#${use}`;
+  // A `use` no rules action has is a local action ID: the source's, else the entry's own item's.
+  const owner = ctx.ruleset.rules.actions[use]
+    ? undefined
+    : (source ??
+      ctx.sheet.activations.find((a) => a.item && ownsEntry(a) && entryOf(a) === entry)?.item?.qid);
+  const action = owner === undefined ? use : `${owner}#${use}`;
   const listed = ctx.sheet
     .actions()
     .filter(
@@ -1721,6 +1738,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     empty = true;
   }
   // 5. Advantage and disadvantage; `noAdvantage`/`noDisadvantage` remove every counted source.
+  let repeat: { times: number; keep: 'high' | 'low' } | undefined;
   const has = (kind: string) => modifiers.some((m) => m.modifier.kind === kind);
   const advantage = has('noAdvantage')
     ? 0
@@ -1747,13 +1765,18 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       extra = advantage + disadvantage;
       kind = advantage > 0 ? 'advantage' : 'disadvantage';
     }
+    // One source of the kind that applies with `of: roll` makes the extras whole rolls.
+    const whole = modifiers.some((m) => m.modifier.kind === kind && m.modifier.of === 'roll');
+    const highBetter = (step.better ?? 'high') === 'high';
     const main = items.find((i) => i.kind === 'dice');
-    if (extra > 0 && main?.term) {
+    if (extra > 0 && whole) {
+      const keep = (kind === 'advantage') === highBetter ? 'high' : 'low';
+      if (main) repeat = { times: extra + 1, keep };
+    } else if (extra > 0 && main?.term) {
       const hasKeep = main.term.modifiers.some((m) =>
         ['keepHighest', 'keepLowest', 'dropHighest', 'dropLowest'].includes(m.type),
       );
       if (!hasKeep) {
-        const highBetter = (step.better ?? 'high') === 'high';
         const keepHigh = kind === 'advantage' ? highBetter : !highBetter;
         main.term.modifiers.push({
           type: keepHigh ? 'keepHighest' : 'keepLowest',
@@ -1822,11 +1845,16 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   }
 
   // A roll with no dice items is not a checkpoint: it never pauses and records no answer.
-  const diceItems = items.filter((i) => i.term && i.term.count >= 0);
+  // A whole roll made again (`of: roll`) is a copy of the built items, without given faces.
+  const rolls: BuiltItem[][] = [items];
+  for (let k = 1; k < (repeat?.times ?? 1); k++)
+    rolls.push(items.map(({ preset: _preset, ...i }) => structuredClone(i)));
+  const diceOf = (list: BuiltItem[]) => list.filter((i) => i.term && i.term.count >= 0);
+  const allDice = rolls.flatMap(diceOf);
   const checkpoint = items.some((i) => i.kind === 'dice');
   const asked = (i: BuiltItem) =>
     Math.max(0, (i.term as f.DiceTerm).count - (i.preset?.length ?? 0));
-  const needs: Need['dice'] = diceItems.map((i) => {
+  const needs: Need['dice'] = allDice.map((i) => {
     const t = i.term as f.DiceTerm;
     return {
       count: asked(i),
@@ -1853,8 +1881,9 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
         dice: needs,
         items: output(items),
         summary,
+        ...(repeat ? { repeat } : {}),
       });
-    const faces = diceItems.flatMap((i) =>
+    const faces = allDice.flatMap((i) =>
       ctx.dice(asked(i), (i.term as f.DiceTerm).sides, (i.term as f.DiceTerm).zero === true),
     );
     recordAnswer(ctx, { step: path, kind: 'dice', by: 'engine', faces });
@@ -1880,6 +1909,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
           dice: [{ count: 1, sides, ...(zero ? { zero: true } : {}) }],
           items: output(items),
           summary,
+          ...(repeat ? { repeat } : {}),
         });
       }
     }
@@ -1887,7 +1917,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     consumed.push(face);
     return face;
   };
-  for (const item of diceItems) {
+  for (const item of allDice) {
     const preset = [...(item.preset ?? [])];
     const faceSource: f.FaceSource = (sides, zero) =>
       preset.length > 0 ? (preset.shift() as number) : source(sides, zero);
@@ -1921,7 +1951,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     if (modifier.kind !== 'multiply') continue;
     const factor = num(modifier.factor, c, 1);
     const mode = c.effect.rounding ?? ruleset.rules.settings.rounding ?? 'floor';
-    for (const item of items) {
+    for (const item of rolls.flat()) {
       if (item.unmultiplied) continue;
       const before = itemValue(item);
       const raw = before * factor;
@@ -1931,7 +1961,16 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       item.factor = (item.factor ?? 1) * factor;
     }
   }
-  const unbounded = items.reduce((sum, i) => sum + itemValue(i), 0);
+  // The better (or worse) whole roll is kept; the first among equal totals.
+  const totals = rolls.map((list) => list.reduce((sum, i) => sum + itemValue(i), 0));
+  let chosen = 0;
+  totals.forEach((t, k) => {
+    const best = totals[chosen] as number;
+    if (repeat?.keep === 'low' ? t < best : t > best) chosen = k;
+  });
+  items = rolls[chosen] as BuiltItem[];
+  const diceItems = diceOf(items);
+  const unbounded = totals[chosen] as number;
   const bounds = rollBounds(
     ctx,
     active.filter((c) => targets(c.effect)?.tally === undefined),
@@ -1953,6 +1992,12 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     bounds,
     unbounded,
   };
+  if (rolls.length > 1)
+    result.rolls = rolls.map((list, k) => ({
+      total: totals[k],
+      kept: k === chosen,
+      items: output(list),
+    }));
   const bandValue = classify(ctx, frame, step.bands, result);
   const out = output(items);
   result.items = out;
@@ -1974,6 +2019,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       ? { tallies: tallies.filter((t) => t.value !== 0) }
       : {}),
     ...(bounds.length ? { bounds } : {}),
+    ...(result.rolls ? { rolls: result.rolls as RollLog[] } : {}),
   });
 }
 
@@ -2290,6 +2336,8 @@ interface Candidate {
   id: string;
   item?: Record<string, unknown>;
   self?: Record<string, unknown>;
+  /** A value source's candidate: the value itself, its string form the ID. */
+  value?: string | number;
   option?: StepOption;
   added?: { instance: EffectInstance; value: OptionValue };
 }
@@ -2400,6 +2448,8 @@ function offeredOptions(
   counts: ReadonlyMap<string, number>,
   action: Record<string, unknown>,
 ): Candidate[] {
+  const values = valueSource(step);
+  if (values) return valueOptions(ctx, frame, values, counts, action);
   const query = optionQuery(step);
   if (!query)
     return writtenOptions(step)
@@ -2440,6 +2490,46 @@ function offeredOptions(
   });
 }
 
+/** The written values or the formula's, each once by its string form, that pass `where`. */
+function valueOptions(
+  ctx: Ctx,
+  frame: Frame,
+  source: ValueSource,
+  counts: ReadonlyMap<string, number>,
+  action: Record<string, unknown>,
+): Candidate[] {
+  let list: unknown = source.values;
+  if (!Array.isArray(list))
+    list = f.toData(evaluate(ctx, frame, (source.values as { formula: Formula }).formula));
+  if (!Array.isArray(list))
+    throw new ActionError('type-mismatch', { message: 'values evaluated to a non-list' });
+  const out: Candidate[] = [];
+  for (const value of list) {
+    if (typeof value !== 'string' && typeof value !== 'number')
+      throw new ActionError('type-mismatch', { message: 'values must be strings or numbers' });
+    const id = String(value);
+    if (out.some((c) => c.id === id)) continue;
+    if (source.where !== undefined) {
+      const roots = { value, picks: counts.get(id) ?? 0, action };
+      if (!test(ctx, frame, source.where, roots)) continue;
+    }
+    out.push({ id, value });
+  }
+  return out;
+}
+
+/** A candidate's `prefer`: content and copies bind it as `item` (and `self`), values as `value`. */
+function preferRoots(
+  frame: Frame,
+  candidate: Candidate,
+  picks: number,
+  action: Record<string, unknown>,
+): Record<string, unknown> {
+  if (candidate.value !== undefined)
+    return context(frame, { value: candidate.value, picks, action });
+  return candidateRoots(frame, candidate, picks, action);
+}
+
 /** Without `recommend`, the highest `prefer` (ties to the earlier), else nothing; never `#done`. */
 function recommendation(
   ctx: Ctx,
@@ -2454,10 +2544,10 @@ function recommendation(
     const v = f.toData(evaluate(ctx, frame, step.recommend as Formula, { options: ids }));
     return typeof v === 'string' && ids.includes(v) ? v : undefined;
   }
-  if (!optionQuery(step) || step.prefer === undefined) return undefined;
+  if ((!optionQuery(step) && !valueSource(step)) || step.prefer === undefined) return undefined;
   let best: { id: string; score: number } | undefined;
   for (const c of candidates) {
-    const roots = candidateRoots(frame, c, counts.get(c.id) ?? 0, action);
+    const roots = preferRoots(frame, c, counts.get(c.id) ?? 0, action);
     const v = ctx.sheet.evaluate(step.prefer, frame.pack, roots);
     if (v.kind !== 'int' && v.kind !== 'decimal')
       throw new ActionError('type-mismatch', { message: `prefer evaluated to ${v.kind}` });
@@ -2484,7 +2574,8 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     repeat?.min !== undefined ? integer(evaluate(ctx, frame, repeat.min), 'repeat.min') : 0;
   const counts = new Map<string, number>();
   const picks: string[] = [];
-  if (repeat) setResult(frame, step.id, { picked: [] });
+  const first = ctx.proposed.length;
+  if (repeat) setResult(frame, step.id, { picked: [], added: [] });
   for (let index = 0; picks.length < max; index++) {
     // Each pick proposes its changes at once, so the proposed sheet is read afresh per pick.
     if (index > 0 && readsProposed(step)) {
@@ -2535,21 +2626,21 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     const candidate = candidates.find((c) => c.id === pick) as Candidate;
     picks.push(pick);
     counts.set(pick, (counts.get(pick) ?? 0) + 1);
-    setResult(
-      frame,
-      step.id,
-      repeat
-        ? { picked: [...picks] }
-        : {
-            picked: pick,
-            ...(candidate.item !== undefined ? { item: candidate.item } : {}),
-            ...(candidate.self !== undefined ? { self: candidate.self } : {}),
-          },
-    );
+    const result: Record<string, unknown> = repeat
+      ? { picked: [...picks] }
+      : {
+          picked: pick,
+          ...(candidate.item !== undefined ? { item: candidate.item } : {}),
+          ...(candidate.self !== undefined ? { self: candidate.self } : {}),
+          ...(candidate.value !== undefined ? { value: candidate.value } : {}),
+        };
+    result.added = addedIds(ctx, first, path);
+    setResult(frame, step.id, result);
     const picked = {
       id: pick,
       ...(candidate.item !== undefined ? { item: candidate.item } : {}),
       ...(candidate.self !== undefined ? { self: candidate.self } : {}),
+      ...(candidate.value !== undefined ? { value: candidate.value } : {}),
     };
     const entries = { picked: candidate.self !== undefined ? pick : undefined };
     for (const [name, formula] of Object.entries(candidate.option?.flags ?? {}))
@@ -2583,6 +2674,7 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
       );
     if (step.changes)
       proposeChanges(ctx, frame, step, path, 'self', step.changes, { picked }, entries);
+    result.added = addedIds(ctx, first, path);
   }
 }
 
@@ -2633,7 +2725,8 @@ function pendingStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     source.entry === undefined ? undefined : String(f.toData(evaluate(ctx, frame, source.entry)));
   const picks: string[] = [];
   const paths: ChoicePath[] = [];
-  setResult(frame, step.id, { picked: [], paths: [] });
+  const first = ctx.proposed.length;
+  setResult(frame, step.id, { picked: [], paths: [], added: [] });
   for (let index = 0; ; index++) {
     if (index > 0) {
       if (++ctx.stepsRun > MAX_STEPS)
@@ -2705,7 +2798,8 @@ function pendingStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     const option = asked.options.find((o) => o.id === pick)?.option as string | number;
     picks.push(pick);
     paths.push(choice.path);
-    setResult(frame, step.id, { picked: [...picks], paths: [...paths] });
+    const result = { picked: [...picks], paths: [...paths], added: addedIds(ctx, first, path) };
+    setResult(frame, step.id, result);
     ctx.proposed.push({
       to: 'self',
       step: path,
@@ -2715,6 +2809,7 @@ function pendingStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
       proposeChanges(ctx, frame, step, path, 'self', step.changes, {
         picked: { id: pick, path: choice.path },
       });
+    result.added = addedIds(ctx, first, path);
   }
 }
 
@@ -2948,9 +3043,20 @@ function randomAmounts(
 }
 
 function changesStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
+  const first = ctx.proposed.length;
   if (step.release) release(ctx, frame, step.release);
   if (step.changes) proposeChanges(ctx, frame, step, path, step.to ?? 'self', step.changes);
   if (step.tags !== undefined || frame.added.length > 0) addedChanges(ctx, frame, step, path);
+  setResult(frame, step.id, { added: addedIds(ctx, first, path) });
+}
+
+/** The instance IDs of the copies the step's own `addItem`s add to the actor, in order. */
+function addedIds(ctx: Ctx, first: number, path: string): string[] {
+  return ctx.proposed
+    .slice(first)
+    .flatMap((p) =>
+      p.to === 'self' && p.step === path && p.change.type === 'addItem' ? [p.change.entry.id] : [],
+    );
 }
 
 /** Each proposes its changes after the step's own, with the content as `item` and `self`. */
@@ -3262,7 +3368,20 @@ function proposeOne(
       out.path = { ...a.path, choice: a.path.choice.slice(0, -1) };
       out.option = option;
     }
-    if (change.copies || change.applied || change.picks) {
+    if (change.grant === 'self') {
+      // The holder grant that activated the action's content: its node (the copy, or the pick its
+      // path ends at) and the granted item.
+      const a = frame.activation;
+      if (!a?.item || a.kind !== 'grant' || a.scope !== 'holder')
+        throw new ActionError('unknown-reference', { grant: 'self' });
+      if (a.path.choice.length === 0) out.entry = a.path.entry;
+      else {
+        out.path = { ...a.path, choice: a.path.choice.slice(0, -1) };
+        out.option = a.path.choice.at(-1);
+      }
+      out.grant = a.item.qid;
+    }
+    if (change.copies || change.applied || change.picks || change.grants) {
       // applyChanges resolves the query on the receiving character and evaluates per-copy
       // formulas for each match; other formulas are evaluated now.
       const passed = { ...extra, action: bound.action ?? actionRoot(ctx, frame, step) };
@@ -3290,6 +3409,12 @@ function proposeOne(
           where: passOn(ctx, frame, change.picks.where, passed),
           ...(change.picks.limit !== undefined ? { limit: change.picks.limit } : {}),
         };
+      if (change.grants)
+        out.grants = {
+          where: passOn(ctx, frame, change.grants.where, passed),
+          ...(change.grants.limit !== undefined ? { limit: change.grants.limit } : {}),
+        };
+
       if (change.value !== undefined)
         out.value = perCopy(change.value)
           ? passOn(ctx, frame, change.value, passed)

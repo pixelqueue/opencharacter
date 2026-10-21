@@ -69,7 +69,7 @@
       "type": "boolean"
     },
     "then": {
-      "description": "Incoming-change effects only: state changes to the effect's own copy, applied by applyChanges right after the adjust is routed, when the effect counted (its `when` held and stacking kept it). Each is a `setState` or `adjustState` with `entry: self`; `value` and `by` are formulas seeing `item`, `self` and `incoming`. Only for effects with a copy: on the rules' effects, `applied`-scope effects and choice effects it is a load error (`then-without-copy`).",
+      "description": "Incoming-change effects only: changes to the effect's own entry, applied by applyChanges right after the adjust is routed, when the effect counted (its `when` held and stacking kept it). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, whose `value` and `by` are formulas seeing `item`, `self` and `incoming`, or, on an `applied` effect, a `removeEffect` with `entry: self`, which ends the entry (a ward that triggers once). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`).",
       "type": "array",
       "items": {
         "$ref": "#/$defs/thenChange"
@@ -236,7 +236,7 @@
       }
     },
     "thenTarget": {
-      "description": "`then` is only for incoming-change effects.",
+      "description": "`then` is only for incoming-change effects, and only an `applied` effect's may remove its entry.",
       "if": {
         "required": ["then"],
         "type": "object"
@@ -247,16 +247,41 @@
             "$ref": "#/$defs/incomingTarget"
           }
         },
+        "if": {
+          "required": ["scope"],
+          "properties": {
+            "scope": {
+              "const": "applied"
+            }
+          },
+          "type": "object"
+        },
+        "else": {
+          "properties": {
+            "then": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "enum": ["setState", "adjustState"]
+                  }
+                }
+              }
+            }
+          },
+          "type": "object"
+        },
         "type": "object"
       }
     },
     "thenChange": {
-      "description": "A change an incoming-change effect makes to its own copy after the adjust is routed: `setState` with `value`, or `adjustState` with `by`, always `entry: self`.",
+      "description": "A change an incoming-change effect makes to its own entry after the adjust is routed: `setState` with `value`, `adjustState` with `by`, or `removeEffect` (an `applied` effect only), always `entry: self`.",
       "type": "object",
-      "required": ["type", "entry", "key"],
+      "required": ["type", "entry"],
       "properties": {
         "type": {
-          "enum": ["setState", "adjustState"]
+          "enum": ["setState", "adjustState", "removeEffect"]
         },
         "entry": {
           "const": "self"
@@ -282,7 +307,7 @@
             "type": "object"
           },
           "then": {
-            "required": ["value"],
+            "required": ["key", "value"],
             "not": {
               "required": ["by"],
               "type": "object"
@@ -300,10 +325,26 @@
             "type": "object"
           },
           "then": {
-            "required": ["by"],
+            "required": ["key", "by"],
             "not": {
               "required": ["value"],
               "type": "object"
+            },
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "removeEffect"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "propertyNames": {
+              "enum": ["type", "entry"]
             },
             "type": "object"
           }
@@ -607,6 +648,10 @@
         "steps": {
           "description": "stepDie: how many steps along d4, d6, d8, d10, d12 each matching die moves (negative for smaller); an integer formula.",
           "$ref": "formula.schema.json"
+        },
+        "of": {
+          "description": "advantage, disadvantage: `die` (default) rolls extra dice for the roll's main dice item and keeps the better or worse ones; `roll` makes the whole roll again and keeps the better or worse total. One counted source of the kind that applies with `roll` makes every extra a whole roll.",
+          "enum": ["die", "roll"]
         },
         "faces": {
           "description": "setFaces: the dice item's first faces, as integer formulas, used instead of asking for them.",

@@ -1,0 +1,13 @@
+# First hit: the dazed condition the trance grants adds 1 (hp 20 -> 17) and removes the trance,
+# so dazed goes too. Second hit: hp 17 -> 15.
+ok: true
+character:
+  values:
+    test-pack:hp.current: 15
+  applied: []
+adjustments:
+  - { field: test-pack:hp.current, by: -3, requested: -2, taken: -3, reason: requested }
+  - entry: trance
+    removed: true
+    source: { type: item, id: 'test-pack:conditions.dazed', effect: jolt }
+  - { field: test-pack:hp.current, by: -2, requested: -2, taken: -2, reason: requested }

@@ -1,0 +1,19 @@
+description: 'A choice step over values types `value` by its written values: a string compared as a number is a type error'
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: pick
+            steps:
+              - id: what
+                kind: choice
+                options: { values: [red, blue], where: value > 1 }
+      content: []

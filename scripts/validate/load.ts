@@ -202,6 +202,29 @@ export function readYaml(
   return undefined;
 }
 
+/** A pack's text files by language, in merge order (`i18n/<lang>/` before `i18n/<lang>.yaml`). */
+export function i18nFiles(packDir: string): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  const i18nDir = join(packDir, 'i18n');
+  if (!existsSync(i18nDir)) return out;
+  for (const name of readdirSync(i18nDir).toSorted()) {
+    const path = join(i18nDir, name);
+    const isDir = statSync(path).isDirectory();
+    const language = isDir ? name : name.replace(/\.yaml$/, '');
+    const files = isDir ? walkYaml(path) : name.endsWith('.yaml') ? [path] : [];
+    if (files.length > 0) out.set(language, [...(out.get(language) ?? []), ...files]);
+  }
+  return out;
+}
+
+/** A pack's text in one language, its files merged as the build merges them. */
+export function readI18n(packDir: string, language: string): Record<string, string> {
+  const docs = (i18nFiles(packDir).get(language) ?? []).map(
+    (f) => (parse(readFileSync(f, 'utf8')) ?? {}) as Record<string, string>,
+  );
+  return Object.assign({}, ...docs) as Record<string, string>;
+}
+
 export function walkYaml(dir: string): string[] {
   if (!existsSync(dir)) return [];
   return readdirSync(dir, { withFileTypes: true })
@@ -348,20 +371,13 @@ export function loadPack(
     }));
   }
 
-  const i18nDir = join(dir, 'i18n');
-  if (existsSync(i18nDir)) {
-    for (const name of readdirSync(i18nDir).toSorted()) {
-      const path = join(i18nDir, name);
-      const isDir = statSync(path).isDirectory();
-      const language = isDir ? name : name.replace(/\.yaml$/, '');
-      const files = isDir ? walkYaml(path) : name.endsWith('.yaml') ? [path] : [];
-      for (const file of files) {
-        const doc = readYaml(file, report, root, cache);
-        if (!schemas.check('i18n', doc ?? {}, rel(file), report)) continue;
-        const list = pack.i18n.get(language) ?? [];
-        list.push({ file: rel(file), doc: (doc ?? {}) as I18nDoc });
-        pack.i18n.set(language, list);
-      }
+  for (const [language, files] of i18nFiles(dir)) {
+    for (const file of files) {
+      const doc = readYaml(file, report, root, cache);
+      if (!schemas.check('i18n', doc ?? {}, rel(file), report)) continue;
+      const list = pack.i18n.get(language) ?? [];
+      list.push({ file: rel(file), doc: (doc ?? {}) as I18nDoc });
+      pack.i18n.set(language, list);
     }
   }
 

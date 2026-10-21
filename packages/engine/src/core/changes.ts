@@ -22,6 +22,7 @@ import { appliesQueries } from './pack-types.ts';
 import { admitsTag, type LoadedItem, localPart, type Ruleset } from './ruleset.ts';
 import { homebrewIdsInUse, withHomebrew, withoutHomebrew } from './homebrew.ts';
 import {
+  type Activation,
   type ChoicePath,
   type ChoiceRecord,
   type EffectInstance,
@@ -62,8 +63,10 @@ export type Adjustment =
     }
   | { copies: string[] }
   | { applied: string[] }
-  /** A state change an incoming-change effect's `then` made to its copy. */
-  | { entry: string; key: string; value: Literal; source: Source };
+  /** A state change an incoming-change effect's `then` made to its own entry. */
+  | { entry: string; key: string; value: Literal; source: Source }
+  /** An applied entry an incoming-change effect's `then` removed. */
+  | { entry: string; removed: true; source: Source };
 
 export interface Rolled {
   source: Source;
@@ -284,6 +287,7 @@ function dropDefaultStandard(ruleset: Ruleset, sheet: Sheet, c: CharacterDoc): b
     if (!saved.has(entry.id)) return false;
     if (entry.equipped === true || (entry.quantity ?? 1) !== 1) return false;
     if ((entry.templates ?? []).length > 0 || !noPicks(entry.choices)) return false;
+    if (Object.keys(entry.grants ?? {}).length > 0) return false;
     const item = ruleset.content[entry.item];
     if (!item) return false;
     const decls = stateDecls(ruleset, item, []);
@@ -527,6 +531,172 @@ function applyToPicks(
   }
 }
 
+/**
+ * Saves a pick for each preset option the path goes through, so what is nested under a preset pick
+ * (its own picks, its state, its grants' state) has a node to live in.
+ */
+function savePresetPicks(c: CharacterDoc, sheet: Sheet, path: ChoicePath): void {
+  for (let i = 1; i < path.choice.length; i += 2) {
+    const at: ChoicePath = { ...path, choice: path.choice.slice(0, i) };
+    const option = path.choice[i] as string;
+    const record = sheet.choices.find((r) => samePath(r.path, at));
+    if (!record?.preset) continue;
+    const picked = record.picks.find((p) => String(p.option) === option);
+    if (!picked) continue;
+    const tree = treeFor(c, at, true);
+    if (!tree) return;
+    const key = String(at.choice.at(-1));
+    const picks = tree[key] ?? [];
+    if (!picks.some((p) => p.option === picked.option))
+      tree[key] = [...picks, { option: picked.option }];
+  }
+}
+
+/** The node a holder grant keeps its content's state on: the copy, or the pick its path ends at. */
+function grantAddress(path: ChoicePath): Record<string, unknown> {
+  if (path.choice.length === 0) return { entry: path.entry };
+  return {
+    path: { ...path, choice: path.choice.slice(0, -1) },
+    option: path.choice.at(-1),
+  };
+}
+
+/** A holder grant's state: its saved values, else the grant's `state`, else declared defaults. */
+function grantStateView(ruleset: Ruleset, a: Activation): Record<string, unknown> {
+  const self = (a.roots.self ?? {}) as Record<string, unknown>;
+  const decls = stateDecls(ruleset, a.item as LoadedItem, []);
+  return Object.fromEntries(Object.keys(decls).flatMap((k) => (k in self ? [[k, self[k]]] : [])));
+}
+
+/** The active holder grants, in activation order, each item once per node. */
+function holderGrants(sheet: Sheet): Activation[] {
+  const seen = new Set<string>();
+  return sheet.activations.filter((a) => {
+    if (a.kind !== 'grant' || a.scope !== 'holder' || !a.item) return false;
+    const key = JSON.stringify([a.path, a.item.qid]);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/** setState and adjustState on a grant's saved state (`grant` with `entry`, or `path` and `option`). */
+function setGrantState(ruleset: Ruleset, sheet: Sheet, c: CharacterDoc, change: AnyChange): void {
+  const qid = String(change.grant);
+  let at: ChoicePath;
+  let node: { grants?: Entry['grants'] } | undefined;
+  if (change.path !== undefined) {
+    const path = change.path as ChoicePath;
+    const option = change.option as string | number;
+    at = { ...path, choice: [...path.choice, String(option)] };
+    const active = holderGrants(sheet).some((a) => a.item?.qid === qid && samePath(a.path, at));
+    if (!active) throw new ChangeError('not-granted', { grant: qid });
+    if (path.entry !== undefined) saveStandard(ruleset, sheet, c, path.entry);
+    savePresetPicks(c, sheet, at);
+    node = (treeFor(c, path, false)?.[String(path.choice.at(-1))] ?? []).find(
+      (p) => p.option === option,
+    );
+    if (!node) throw new ChangeError('not-picked', { option });
+  } else {
+    const id = String(change.entry);
+    at = { entry: id, choice: [] };
+    saveStandard(ruleset, sheet, c, id);
+    node = allEntries(c).find((e) => e.id === id);
+    if (!node) {
+      if ((c.applied ?? []).some((a) => a.id === id))
+        throw new ChangeError('not-granted', { grant: qid });
+      throw new ChangeError('not-owned', { entry: id });
+    }
+  }
+  const grant = holderGrants(sheet).find((a) => a.item?.qid === qid && samePath(a.path, at));
+  if (!grant) throw new ChangeError('not-granted', { grant: qid });
+  const item = grant.item as LoadedItem;
+  const key = String(change.key);
+  const decl = stateDecls(ruleset, item, [])[key];
+  if (!decl) throw new ChangeError('unknown-state-key', { key });
+  const view = itemView(ruleset, item, [], (n, p) => sheet.inputValue(`${p}:${n}`));
+  const pack = ruleset.contentTypes[item.type]?.pack ?? item.pack;
+  // The key's default: the grant's `state` value, else the declared default.
+  const fallback = grant.grantDefaults?.[key] ?? decl.default;
+  const saved = node.grants?.[qid]?.state ?? {};
+  let raw: unknown = change.value;
+  if (change.type === 'adjustState') {
+    if (decl.type !== 'integer' && decl.type !== 'decimal')
+      throw new ChangeError('wrong-type', { target: key, expected: 'a number' });
+    const current = saved[key] ?? fallback;
+    const base =
+      typeof current === 'number'
+        ? current
+        : typeof current === 'string'
+          ? (num(sheet.evaluateInput(current, pack, { item: view })) ?? 0)
+          : 0;
+    raw = base + (change.by as number);
+  }
+  const value = typedValue(decl, raw);
+  if (typeof value === 'string')
+    throw new ChangeError('wrong-type', { target: key, expected: value });
+  checkStateRange(sheet, pack, view, key, decl, num(value));
+  // Only what differs from the default is kept, so files stay minimal.
+  const state = { ...saved, [key]: raw as Literal };
+  if (JSON.stringify(raw) === JSON.stringify(fallback)) delete state[key];
+  const grants = { ...node.grants };
+  if (Object.keys(state).length > 0) grants[qid] = { ...grants[qid], state };
+  else delete grants[qid];
+  if (Object.keys(grants).length > 0) node.grants = grants;
+  else delete node.grants;
+}
+
+/** Granted content by query: the active holder grants whose content declares the key. */
+function applyToGrants(
+  ruleset: Ruleset,
+  sheet: Sheet,
+  c: CharacterDoc,
+  change: AnyChange,
+  adjustments: Adjustment[],
+  links: Links,
+): void {
+  const query = change.grants as { where: Formula; limit?: number };
+  const evaluate = (formula: Formula, pack: string, roots: Record<string, unknown>) => {
+    try {
+      return sheet.evaluate(formula, pack, roots);
+    } catch (error) {
+      if (!(error instanceof Failure)) throw error;
+      throw new ChangeError(error.error.code, {
+        message: error.error.message,
+        ...error.error.data,
+      });
+    }
+  };
+  const batch = batchRoot(adjustments);
+  const key = String(change.key);
+  const matches: { a: Activation; pack: string; roots: Record<string, unknown> }[] = [];
+  for (const a of holderGrants(sheet)) {
+    if (query.limit !== undefined && matches.length >= query.limit) break;
+    const item = a.item as LoadedItem;
+    if (stateDecls(ruleset, item, [])[key] === undefined) continue;
+    const pack = ruleset.contentTypes[item.type]?.pack ?? item.pack;
+    const roots = {
+      item: itemView(ruleset, item, [], (n, p) => sheet.inputValue(`${p}:${n}`)),
+      self: grantStateView(ruleset, a),
+      batch,
+    };
+    const ok = evaluate(query.where, pack, roots);
+    if (ok.kind === 'bool' && ok.value) matches.push({ a, pack, roots });
+  }
+  for (const { a, pack, roots } of matches) {
+    const one: AnyChange = {
+      ...change,
+      ...grantAddress(a.path),
+      grant: (a.item as LoadedItem).qid,
+    };
+    delete one.grants;
+    if (change.by !== undefined) one.by = f.toData(evaluate(change.by as Formula, pack, roots));
+    if (change.value !== undefined)
+      one.value = f.toData(evaluate(change.value as Formula, pack, roots));
+    applyOne(ruleset, c, one, adjustments, links);
+  }
+}
+
 function appliedId(c: CharacterDoc, sheet: Sheet, source: string): string {
   const used = usedIds(c, sheet);
   const stem = localPart(source).replaceAll('.', '-');
@@ -563,6 +733,13 @@ function applyOne(
   }
   if (change.picks !== undefined && (change.type === 'setState' || change.type === 'adjustState')) {
     applyToPicks(ruleset, sheet, c, change, adjustments, links);
+    return;
+  }
+  if (
+    change.grants !== undefined &&
+    (change.type === 'setState' || change.type === 'adjustState')
+  ) {
+    applyToGrants(ruleset, sheet, c, change, adjustments, links);
     return;
   }
   if (change.applied !== undefined && PER_APPLIED.has(change.type)) {
@@ -671,12 +848,18 @@ function applyOne(
     }
     case 'setState':
     case 'adjustState': {
+      if (change.grant !== undefined) {
+        setGrantState(ruleset, sheet, c, change);
+        return;
+      }
       let entry: { state?: Record<string, Literal> } | undefined;
       let item: LoadedItem | undefined;
       let copy: Entry | undefined;
       if (change.path !== undefined) {
         const path = change.path as ChoicePath;
         const option = change.option as string | number;
+        if (path.entry !== undefined) saveStandard(ruleset, sheet, c, path.entry);
+        savePresetPicks(c, sheet, { ...path, choice: [...path.choice, String(option)] });
         const picks = treeFor(c, path, false)?.[String(path.choice.at(-1))] ?? [];
         entry = picks.find((p) => p.option === option);
         if (!entry) throw new ChangeError('not-picked', { option });
@@ -839,6 +1022,7 @@ function applyOne(
       const path = change.path as ChoicePath;
       const record = sheet.choices.find((r) => samePath(r.path, path));
       if (!record) throw new ChangeError('unknown-choice', { path });
+      if (record.preset) throw new ChangeError('preset-choice', { path });
       const option = change.option as string | number;
       // An unchoose without `option` on a choice with no picks changes nothing.
       if (change.type === 'unchoose' && option === undefined) {
@@ -846,6 +1030,7 @@ function applyOne(
         if (!held || (held[String(path.choice.at(-1))] ?? []).length === 0) return;
       }
       if (path.entry !== undefined) saveStandard(ruleset, sheet, c, path.entry);
+      savePresetPicks(c, sheet, path);
       const tree = treeFor(c, path, true);
       if (!tree) throw new ChangeError('unknown-choice', { path });
       const key = String(path.choice.at(-1));
@@ -1398,7 +1583,11 @@ function rollIncoming(
   return out;
 }
 
-/** Runs once the adjust is fully routed; an instance with no copy has nothing to change. */
+/**
+ * Runs once the adjust is fully routed. Each instance changes its own entry: the applied entry
+ * for an applied effect, else its copy; an instance with neither has nothing to change. Once an
+ * entry is removed, later `then` changes to it are skipped.
+ */
 function applyThen(
   ruleset: Ruleset,
   sheet: Sheet,
@@ -1407,9 +1596,11 @@ function applyThen(
   adjustments: Adjustment[],
   links: Links,
 ): void {
+  const removed = new Set<string>();
   for (const i of counted.toSorted((a, b) => a.order - b.order)) {
-    const entry = i.source.entry;
+    const entry = i.applied ?? i.source.entry;
     if (!i.effect.then || entry === undefined) continue;
+    const source = { ...i.source, ...(i.effect.id !== undefined ? { effect: i.effect.id } : {}) };
     const evaluate = (formula: Formula) => {
       try {
         return f.toData(sheet.evaluate(formula, i.pack, i.roots));
@@ -1422,17 +1613,20 @@ function applyThen(
       }
     };
     for (const then of i.effect.then) {
+      if (removed.has(entry)) break;
+      if (then.type === 'removeEffect') {
+        if (i.applied === undefined) continue;
+        applyOne(ruleset, c, { type: 'removeEffect', id: entry }, adjustments, links);
+        removed.add(entry);
+        adjustments.push({ entry, removed: true, source });
+        continue;
+      }
       const one: AnyChange = { type: then.type, entry, key: then.key };
       if (then.value !== undefined) one.value = evaluate(then.value);
       if (then.by !== undefined) one.by = evaluate(then.by);
       applyOne(ruleset, c, one, adjustments, links);
-      const copy = allEntries(c).find((e) => e.id === entry);
-      adjustments.push({
-        entry,
-        key: then.key,
-        value: copy?.state?.[then.key] as Literal,
-        source: { ...i.source, ...(i.effect.id !== undefined ? { effect: i.effect.id } : {}) },
-      });
+      const own = [...allEntries(c), ...(c.applied ?? [])].find((e) => e.id === entry);
+      adjustments.push({ entry, key: then.key, value: own?.state?.[then.key] as Literal, source });
     }
   }
 }

@@ -1,0 +1,18 @@
+# Inline options, the piloting one with a choice of its own.
+id: feats.additional-lore
+type: feat
+choices:
+  - id: lore
+    from:
+      options:
+        - id: piloting
+          effects:
+            - { target: lores.known, op: grant, value: { formula: "'piloting'" } }
+          choices:
+            - id: focus
+              from: { values: [ships, mechs] }
+              effects:
+                - { target: lores.known, op: grant, value: { formula: pick.value } }
+        - id: hyperspace
+          effects:
+            - { target: lores.known, op: grant, value: { formula: "'hyperspace'" } }

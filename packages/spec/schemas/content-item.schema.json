@@ -299,7 +299,7 @@
           "type": "boolean"
         },
         "state": {
-          "description": "State values the granted content sees as `self.<key>`, in place of the owner copy's (a holder grant) or the granting entry's (a grant with `scope: applied`). Each key is a state key the granted content declares (`unknown-state-key` at load); each value is a formula of the key's type evaluated as an activation condition is (it reads `self`, `item` and input fields). A condition that includes a valued condition gives its value: `{ item: conditions.enfeebled, scope: applied, state: { value: 2 } }`.",
+          "description": "State values for the granted content: in place of the owner copy's (a holder grant) or the granting entry's (a grant with `scope: applied`), the granted content sees them as `self.<key>`. Each key is a state key the granted content declares (`unknown-state-key` at load); each value is a formula of the key's type evaluated as an activation condition is (it reads `self`, `item` and input fields). For a holder grant they are the defaults of the granted content's saved state: a value saved in the owner's `grants` wins. A condition that includes a valued condition gives its value: `{ item: conditions.enfeebled, scope: applied, state: { value: 2 } }`.",
           "type": "object",
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/name"
@@ -307,9 +307,55 @@
           "additionalProperties": {
             "$ref": "formula.schema.json"
           }
+        },
+        "choices": {
+          "description": "Holder grants: picks the grant makes for the granted content's own choices, by choice ID (a slot's key for a slotted choice). A choice a literal `item` doesn't declare, a literal option it doesn't offer, or `choices` on a grant with `scope: applied`, is `unknown-reference` at load; with a formula `item`, a key the content doesn't declare presets nothing. A preset choice is answered: its picks are these, it is never pending, and `choose` and `unchoose` on it are `preset-choice`. Each pick's `option` is a literal or `{ formula }`, evaluated as an activation condition is, to a content ID (qualified in the grant's pack, as `item` is), an inline option ID or a value; a pick's `choices` preset the picked option's own choices. A formula that fails, or gives neither a string nor a number, leaves its pick out with a `formula-error`. So content gives a feat for a skill it names: `{ item: feats.assurance, choices: { skill: [{ option: skill.athletics }] } }`.",
+          "$ref": "#/$defs/presetTree"
         }
       },
       "additionalProperties": false
+    },
+    "presetTree": {
+      "description": "A grant's preset picks: keyed by the owner's bare choice IDs; each pick's `option` is a literal or `{ formula }`.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/slug"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "required": ["option"],
+          "properties": {
+            "option": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "object",
+                  "required": ["formula"],
+                  "properties": {
+                    "formula": {
+                      "$ref": "formula.schema.json"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "choices": {
+              "$ref": "#/$defs/presetTree"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
     },
     "prerequisite": {
       "type": "object",

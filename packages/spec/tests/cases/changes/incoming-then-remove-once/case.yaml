@@ -1,0 +1,41 @@
+description: 'Two effects of one applied entry count on the same hit: the first `then` removes the entry, and the rest of its `then` changes are skipped'
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp.current: { type: integer, input: true, default: 20, min: 0, max: 20 }
+        contentTypes:
+          spell:
+            state:
+              struck: { type: boolean, default: false }
+      content:
+        # Death Ward, as a test: the first hit that would drop the target to 0 leaves it at 1, and
+        # the spell ends. A second effect on the same entry also reacts to the hit.
+        - id: spells.death-ward
+          type: spell
+          effects:
+            - id: floor
+              target: { incoming: { fields: [hp.current], tags: [damage] } }
+              op: atLeast
+              value: 1 - hp.current
+              when: hp.current + incoming.amount <= 0
+              scope: applied
+              then:
+                - { type: removeEffect, entry: self }
+                - { type: setState, entry: self, key: struck, value: true }
+            - id: mark
+              target: { incoming: { fields: [hp.current], tags: [damage] } }
+              op: add
+              value: 0
+              scope: applied
+              then:
+                - { type: setState, entry: self, key: struck, value: true }

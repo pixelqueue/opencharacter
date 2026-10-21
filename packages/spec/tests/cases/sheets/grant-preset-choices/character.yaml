@@ -1,0 +1,15 @@
+specVersion: 0.1.0
+id: tester
+packs:
+  - { id: test-grant-storage, version: 0.1.0 }
+values:
+  test-grant-storage:favored.skill: arcana
+features:
+  # A saved pick for another skill under the preset key is not the choice's: the preset's are.
+  - id: driver
+    item: test-grant-storage:backgrounds.driver
+    choices:
+      test-grant-storage:feats.assurance/skill:
+        - { option: stealth }
+  - id: scout
+    item: test-grant-storage:backgrounds.scout
