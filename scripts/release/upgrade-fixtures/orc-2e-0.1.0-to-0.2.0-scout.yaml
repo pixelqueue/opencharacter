@@ -1,0 +1,53 @@
+# A 0.1.0 fighter with the scout archetype: Terrain Scout's granted Terrain Stalker took rubble,
+# and the skill feat Assurance saved its skill in the pick's state. 0.2.0 drops that state, since
+# Assurance's skill is a pick now, and gives Terrain Scout its own terrain: both are pending.
+pack: orc-2e
+from: 0.1.0
+to: 0.2.0
+expect:
+  - at: /features/1/choices/skill-feat-2/0
+    value: { option: orc-2e:feats.skill.assurance }
+  - at: /features/1/choices/class-feat-4/0/choices
+    value: { orc-2e:feats.skill.terrain-stalker/terrain: [{ option: rubble }] }
+values:
+  orc-2e:assurance.skills: []
+pending:
+  - { entry: class, choice: [class-feat-4, orc-2e:feats.archetype.scout.terrain-scout, terrain] }
+  - { entry: class, choice: [skill-feat-2, orc-2e:feats.skill.assurance, skill] }
+character:
+  specVersion: 0.1.0
+  id: upgrade-orc-2e-scout
+  values:
+    orc-2e:level: 4
+  features:
+    - id: ancestry
+      item: orc-2e:ancestries.human
+      choices:
+        boosts:
+          - option: orc-2e:boosts.dex
+          - option: orc-2e:boosts.con
+    - id: class
+      item: orc-2e:classes.fighter
+      choices:
+        key-attribute:
+          - option: str
+        skills:
+          - option: skill.stealth
+          - option: skill.survival
+          - option: skill.athletics
+        class-feat-2:
+          - option: orc-2e:feats.archetype.scout.scout-dedication
+        class-feat-4:
+          - option: orc-2e:feats.archetype.scout.terrain-scout
+            choices:
+              orc-2e:feats.skill.terrain-stalker/terrain:
+                - option: rubble
+        skill-feat-2:
+          - option: orc-2e:feats.skill.assurance
+            state: { skill: skill.athletics }
+  choices:
+    free-boosts:
+      - option: orc-2e:boosts.dex
+      - option: orc-2e:boosts.str
+      - option: orc-2e:boosts.con
+      - option: orc-2e:boosts.wis

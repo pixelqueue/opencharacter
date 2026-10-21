@@ -132,7 +132,7 @@ for the player's choices and other characters.
     - Success converts stress into save points up to the port's conversion die (`convert`;
       `all` for a port that converts everything), split by the player, then relieves the rest
       down to the minimum. Converting stops at the minimum stress, which the source leaves open.
-    - An X-class port's [+] (situational `xClass`) rolls the die twice and keeps the better.
+    - An X-class port's [+] (situational `xClass`) rolls the whole conversion roll twice and keeps the better total.
     - A critical success converts the die's most; a failure relieves everything down to the
       minimum and adds 1; a critical failure converts and relieves nothing and makes a panic
       check (the save's own).

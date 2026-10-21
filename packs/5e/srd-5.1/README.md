@@ -250,8 +250,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Races and backgrounds:** the nine SRD races, four subraces and ten draconic ancestries, the
   Acolyte and the Grappler feat.
 - **Classes:** all twelve classes and their twelve SRD subclasses, feature by feature. Uses
-  until a rest are state on the class copy (an invocation's on its pick, a racial trait's on the
-  trait); per-roll bonuses are situational choices; lasting
+  until a rest are state on the class copy (an invocation's on its pick, the breath weapon's
+  `used` on the draconic ancestry pick, a racial trait's in its saved grant state); per-roll bonuses are situational choices; lasting
   effects are boolean inputs; once per turn is the app's.
 - **Spellcasting:** all 319 SRD spells as mechanics (level, school, class lists, casting time,
   range, components, duration, attack or save, damage and healing); class DCs and attack bonuses;

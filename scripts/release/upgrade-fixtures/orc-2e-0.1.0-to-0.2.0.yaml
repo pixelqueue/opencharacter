@@ -1,6 +1,6 @@
-# A 0.1.0 wizard who drained a 1st-rank spell and used Linked Focus today, on the class copy, and
-# whose scholar background's Assurance holds a saved `skill`. 0.2.0 keeps both uses on Arcane
-# Bond's grant state and presets Assurance's skill choice instead.
+# A 0.1.0 wizard who drained a 1st-rank spell and used Linked Focus today, on the class copy.
+# 0.2.0 keeps both uses on Arcane Bond's grant state; the scholar background's Assurance, granted
+# with a `skill` state formula before, presets its skill choice now.
 pack: orc-2e
 from: 0.1.0
 to: 0.2.0
@@ -8,7 +8,6 @@ expect:
   - at: /features/2/grants/orc-2e:features.wizard.arcane-bond/state
     value: { bondDrained: 1, linkedFocusUsed: true }
   - { at: /features/2/state, absent: true }
-  - { at: /features/1/choices/skill/0/grants, absent: true }
 values:
   orc-2e:assurance.skills: [skill.occultism]
 character:
@@ -36,8 +35,6 @@ character:
           - option: orc-2e:boosts.dex
         skill:
           - option: occultism
-            grants:
-              orc-2e:feats.skill.assurance: { state: { skill: skill.occultism } }
     - id: class
       item: orc-2e:classes.wizard
       state: { bondDrained: 1, linkedFocusUsed: true }
