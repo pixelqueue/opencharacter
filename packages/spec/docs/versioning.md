@@ -35,6 +35,11 @@ Each engine library (the TypeScript reference engine and community ports) has it
    also moves every pin of a bumped pack's old version to the new one (example characters, test
    cases, docs and code samples), since the engine reports a pin that doesn't match exactly
    (`pack-version-mismatch`). Pins of any other version, such as an upgrade test's, stay.
+   The spec version is always the `@opencharacter/spec` package version, so it then moves
+   `SPEC_VERSION` (and with it `SCHEMA_BASE`), every `schemas/<major.minor>/` in schema `$id`s
+   and links (schemas, docs, apps and tests), and the docs' statements of the current version.
+   Minimums and records stay: a pack's or character's `specVersion`, and the engine's
+   `IMPLEMENTS_SPEC`. A test fails if `SPEC_VERSION` and the package version ever differ.
 3. **Check:** `pnpm release` runs every check, builds the packs, then runs `pnpm release:check`.
    For each pack it compares the new release with the last published one, found by git tag
    (`@opencharacter/<id>@<version>`):

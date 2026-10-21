@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,7 +8,13 @@ import { buildRelease } from '../../packages/engine/src/index.ts';
 import type { BuiltPack } from '../build/index.ts';
 import { loadPack, SchemaValidator } from '../validate/load.ts';
 import { Reporter } from '../validate/report.ts';
-import { publishedFromGit, releaseCheck, syncPackVersions, syncPinnedVersions } from './index.ts';
+import {
+  publishedFromGit,
+  releaseCheck,
+  syncPackVersions,
+  syncPinnedVersions,
+  syncSpecVersion,
+} from './index.ts';
 
 const fixture = fileURLToPath(new URL('./fixtures', import.meta.url));
 const repo = mkdtempSync(join(tmpdir(), 'ocf-release-test-'));
@@ -249,6 +255,84 @@ describe('syncPinnedVersions', () => {
     for (const [name, [, after]] of Object.entries(files)) {
       expect(readFileSync(join(dir, name), 'utf8')).toBe(after);
     }
+    rmSync(dir, { recursive: true, force: true });
+  });
+});
+
+describe('syncSpecVersion', () => {
+  // Built from parts, so the real sync and the repo's spec-version test skip this file.
+  const [constant, schemas, spec, current] = [
+    'SPEC_VERSION',
+    'schemas',
+    'Spec version',
+    'current version is',
+  ];
+  const files: Record<string, [string, string]> = {
+    'packages/spec/src/index.ts': [
+      `export const ${constant} = '0.1.0';\n`,
+      `export const ${constant} = '0.2.0';\n`,
+    ],
+    'packages/spec/schemas/pack.schema.json': [
+      `{ "$id": "https://opencharacterformat.org/${schemas}/0.1/pack.schema.json" }\n`,
+      `{ "$id": "https://opencharacterformat.org/${schemas}/0.2/pack.schema.json" }\n`,
+    ],
+    'docs/versioning.md': [
+      `The ${current} **0.1.0**, which is pre-1.0. IDs are under \`/${schemas}/0.1/\`.\n`,
+      `The ${current} **0.2.0**, which is pre-1.0. IDs are under \`/${schemas}/0.2/\`.\n`,
+    ],
+    'docs/README.md': [
+      `**${spec} 0.1.0.** ${spec} **0.1.0**. ${spec} 0.1.0.1.\n`,
+      `**${spec} 0.2.0.** ${spec} **0.2.0**. ${spec} 0.1.0.1.\n`,
+    ],
+    'character.yaml': [
+      'specVersion: 0.1.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
+      'specVersion: 0.1.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
+    ],
+    'other.md': [
+      `see my${schemas}/0.1/ and ${schemas}/0.10/\n`,
+      `see my${schemas}/0.1/ and ${schemas}/0.10/\n`,
+    ],
+  };
+
+  function setup(version: string) {
+    const dir = mkdtempSync(join(tmpdir(), 'ocf-spec-'));
+    for (const [name, [before]] of Object.entries(files)) {
+      mkdirSync(join(dir, name, '..'), { recursive: true });
+      writeFileSync(join(dir, name), before);
+    }
+    writeFileSync(
+      join(dir, 'packages', 'spec', 'package.json'),
+      JSON.stringify({ name: '@opencharacter/spec', version }),
+    );
+    return dir;
+  }
+
+  it('moves SPEC_VERSION, schema paths and the stated version, not pinned minimums', () => {
+    const dir = setup('0.2.0');
+    const result = syncSpecVersion(dir, Object.keys(files));
+    expect(result?.bump).toEqual({ from: '0.1.0', to: '0.2.0' });
+    expect(result?.files.toSorted()).toEqual([
+      'docs/README.md',
+      'docs/versioning.md',
+      'packages/spec/schemas/pack.schema.json',
+      'packages/spec/src/index.ts',
+    ]);
+    for (const [name, [, after]] of Object.entries(files)) {
+      expect(readFileSync(join(dir, name), 'utf8')).toBe(after);
+    }
+    expect(syncSpecVersion(dir, Object.keys(files))).toBeUndefined();
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('leaves schema paths alone on a patch bump', () => {
+    const dir = setup('0.1.1');
+    expect(syncSpecVersion(dir, Object.keys(files))?.files.toSorted()).toEqual([
+      'docs/README.md',
+      'docs/versioning.md',
+      'packages/spec/src/index.ts',
+    ]);
+    const schema = 'packages/spec/schemas/pack.schema.json';
+    expect(readFileSync(join(dir, schema), 'utf8')).toBe(files[schema]?.[0]);
     rmSync(dir, { recursive: true, force: true });
   });
 });
