@@ -1,0 +1,26 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - id: test-pack
+    version: 1.0.0
+choices:
+  motto:
+    - option: brave
+      choices:
+        deed: [{ option: duel }]
+features:
+  - id: ghost
+    item: test-pack:classes.operative
+    choices:
+      specialization:
+        - option: ghost
+          choices:
+            skill-feat: [{ option: test-pack:feats.hide }]
+  # The sniper's skill-feat is another choice: it stays.
+  - id: sniper
+    item: test-pack:classes.operative
+    choices:
+      specialization:
+        - option: sniper
+          choices:
+            skill-feat: [{ option: test-pack:feats.hide }]

@@ -1,0 +1,24 @@
+# each step touches only its item's copies, so the elf's value isn't taken by the tiefling's step
+ok: true
+character:
+  features:
+    - id: elf
+      item: test-pack:species.elf
+      grants:
+        test-pack:traits.elven-lineage: { state: { spellUsed: true } }
+    - id: tiefling
+      item: test-pack:species.tiefling
+      grants:
+        test-pack:traits.fiendish-legacy: { state: { spellUsed: true } }
+pending: []
+report:
+  values: []
+  steps:
+    - pack: test-pack
+      from: 1.0.0
+      to: 2.0.0
+      op: moveState
+    - pack: test-pack
+      from: 1.0.0
+      to: 2.0.0
+      op: moveState
