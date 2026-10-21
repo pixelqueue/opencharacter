@@ -100,8 +100,7 @@ It names no factions, people or places: the GM defines the factions.
   moves for the tier in coin (`relocate-lair`).
 - **A table's own crew type** (homebrew, of the `crewType` type): it lists its own upgrades
   (`upgrades`), its starting upgrades and starting gang (counted in the boxes earned), its claim
-  map (`claims`), and its own `special-ability` and `operation` choices; its first tag is
-  `crewType.tag`. With one, another type's upgrades are a rules issue (`special-upgrades`);
+  map (`claims`), and its own `special-ability` and `operation` choices. With one, another type's upgrades are a rules issue (`special-upgrades`);
   without one, every crew-specific upgrade is open.
 - **Cohorts** as copies: a gang (one of five types, and an optional second type) or an expert
   (its type in words). Each has a label, one or two edges and as many flaws, and harm 0 to 4

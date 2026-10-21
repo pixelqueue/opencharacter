@@ -11,10 +11,10 @@
       "$ref": "common.schema.json#/$defs/semver"
     },
     "id": {
-      "description": "An ID for this character, unique within the app or campaign (a UUID is a good choice).",
+      "description": "An ID for this character. A UUID is fine for an ID unique within the app or campaign; a URL (IRI) makes it global, so the character keeps one identity across apps.",
       "type": "string",
       "minLength": 1,
-      "maxLength": 128
+      "maxLength": 2048
     },
     "packs": {
       "description": "The exact pack versions this character uses, in load order (later packs win).",
@@ -106,7 +106,7 @@
       "additionalProperties": {
         "type": "string",
         "minLength": 1,
-        "maxLength": 128
+        "maxLength": 2048
       }
     },
     "homebrew": {
@@ -119,11 +119,30 @@
       "propertyNames": {
         "pattern": "^(@?[a-z0-9-]+([./][a-z0-9-]+)+)$",
         "type": "string"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/extension"
       }
     }
   },
   "additionalProperties": false,
   "$defs": {
+    "extension": {
+      "description": "One app's extension data, any JSON value. An object may carry `$schema`: the URI of a JSON Schema the extending app publishes for it, so other apps can validate, render or edit it. OCF doesn't host, fetch or check these schemas.",
+      "if": {
+        "type": "object"
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "$schema": {
+            "description": "The URI of a JSON Schema, published by the extending app, that this namespace's data follows.",
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    },
     "entry": {
       "type": "object",
       "required": ["id", "item"],

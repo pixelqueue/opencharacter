@@ -1,0 +1,28 @@
+# `choice` names the slotted choice, so every slot is searched: w1's word pick takes used: true;
+# w2 has no word pick and w3's value is the default, so both are dropped; every class copy loses
+# wordUsed
+ok: true
+character:
+  features:
+    - id: w1
+      item: test-pack:classes.warlock
+      choices:
+        test-pack:features.invocations/invocation-1: [{ option: test-pack:invocations.blast }]
+        test-pack:features.invocations/invocation-2:
+          - { option: test-pack:invocations.word, state: { used: true } }
+    - id: w2
+      item: test-pack:classes.warlock
+      choices:
+        test-pack:features.invocations/invocation-1: [{ option: test-pack:invocations.blast }]
+    - id: w3
+      item: test-pack:classes.warlock
+      choices:
+        test-pack:features.invocations/invocation-1: [{ option: test-pack:invocations.word }]
+pending: []
+report:
+  values: []
+  steps:
+    - pack: test-pack
+      from: 1.0.0
+      to: 2.0.0
+      op: moveState

@@ -1,0 +1,33 @@
+description: written values replaced by a values formula are not removed options; a written list that loses one still is
+specVersion: 0.1.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      choices:
+        - id: skill
+          from: { values: [skill.arcana, skill.stealth] }
+        - id: motto
+          from: { values: [brave, bold] }
+    content: []
+next:
+  inline:
+    manifest:
+      id: test-pack
+      version: 2.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      choices:
+        - id: skill
+          from: { values: { formula: "['skill.arcana', 'skill.stealth', 'skill.nature']" } }
+        - id: motto
+          from: { values: [bold] }
+    content: []

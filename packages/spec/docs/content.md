@@ -671,7 +671,35 @@ A **query** ([`query.schema.json`](../schemas/query.schema.json)) is a link to a
 - A query that refers only to `item` is resolved once by `loadRuleset`, after all packs are merged. This is how matching homebrew joins automatically.
 - A query that refers to the character (fields, `self`, `character`) is evaluated during `computeSheet` and `listOptions`.
 
-Queries appear in choices (`from`), templates (`appliesTo`), grant values (`{ query }`), immunities (`immuneTo`), standard copies (`standardCopies`) and display groups (`members`).
+Queries appear in choices (`from`), templates (`appliesTo`), grant values (`{ query }`), immunities (`immuneTo`), standard copies (`standardCopies`), kept templates (`copies`, `content`) and display groups (`members`).
+
+### Families of content
+
+A family of content is a tag plus a set field granted from a query. Tag every member, declare a
+`set` field, and grant the query's matches to it from the rules; a formula then tests
+membership with `in`. orc-sf-2e's solar weapon forms are templates tagged `solar-form`:
+
+```yaml
+# packs/orc/sf-2e/rules/solarian.yaml
+fields:
+  solarian.forms: { type: set, of: string }
+effects:
+  - target: solarian.forms
+    op: grant
+    value: { query: { type: template, where: "'solar-form' in item.tags" } }
+---
+# content/features/solarian/re-forge-solar-weapon.yaml: a change taking the weapon's old forms off
+- type: removeTemplate
+  forEach: 'filterList(steps.weapon.self.templates, x in solarian.forms)'
+  entry: { formula: steps.weapon.picked }
+  template: x
+```
+
+Prefer it to reading meaning out of IDs (a prefix such as `orc-sf-2e:templates.solar.`). IDs
+are qualified, so a prefix names one pack and misses homebrew, and an upgrade's
+`renameContent` breaks it. The query reads only `item`, so it is resolved at load, after every
+pack is merged: a homebrew template tagged `solar-form` joins the family with no change to the
+pack.
 
 ### Standard copies
 

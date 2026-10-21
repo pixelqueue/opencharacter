@@ -1,0 +1,71 @@
+description: moveState with item moves a key that items of a type share to each item's own granted content
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          species: {}
+          trait: {}
+      content:
+        - id: species.elf
+          type: species
+          state:
+            spellUsed: { type: boolean, default: false }
+          grants:
+            - item: traits.elven-lineage
+        - id: species.tiefling
+          type: species
+          state:
+            spellUsed: { type: boolean, default: false }
+          grants:
+            - item: traits.fiendish-legacy
+        - id: traits.elven-lineage
+          type: trait
+        - id: traits.fiendish-legacy
+          type: trait
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          species: {}
+          trait: {}
+      content:
+        - id: species.elf
+          type: species
+          grants:
+            - item: traits.elven-lineage
+        - id: species.tiefling
+          type: species
+          grants:
+            - item: traits.fiendish-legacy
+        - id: traits.elven-lineage
+          type: trait
+          state:
+            spellUsed: { type: boolean, default: false }
+        - id: traits.fiendish-legacy
+          type: trait
+          state:
+            spellUsed: { type: boolean, default: false }
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - { op: moveState, item: species.elf, from: spellUsed, grant: traits.elven-lineage }
+            - op: moveState
+              item: species.tiefling
+              from: spellUsed
+              grant: traits.fiendish-legacy

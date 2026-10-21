@@ -20,6 +20,7 @@ import { HomebrewRewriter } from './homebrew-upgrade.ts';
 import { loadRuleset } from './load.ts';
 import { itemStandard, rulesStandard, standardId } from './ruleset.ts';
 import { expandSlots, Sheet } from './sheet.ts';
+import { stateDecls } from './views.ts';
 
 type Step = UpgradeStep;
 
@@ -128,18 +129,153 @@ export function upgrade(from: Ruleset, to: Ruleset, character: CharacterDoc): Up
 
 const allEntries = (c: CharacterDoc): Entry[] => [...(c.features ?? []), ...(c.inventory ?? [])];
 
-/** Every choice tree in the character with the content ID that owns its bare keys (null: rules). */
-function trees(c: CharacterDoc): { tree: ChoiceTree; owner: string | null }[] {
-  const out: { tree: ChoiceTree; owner: string | null }[] = [];
-  const walk = (tree: ChoiceTree, owner: string | null) => {
-    out.push({ tree, owner });
+interface TreeAt {
+  tree: ChoiceTree;
+  /** The content ID that owns the tree's bare keys (null: the rules, an inline option or a value). */
+  owner: string | null;
+}
+
+/** A choice tree and every tree nested in its picks. */
+function treesUnder(root: ChoiceTree, owner: string | null): TreeAt[] {
+  const out: TreeAt[] = [];
+  const walk = (tree: ChoiceTree, at: string | null) => {
+    out.push({ tree, owner: at });
     for (const picks of Object.values(tree)) {
       for (const pick of picks)
-        if (pick.choices) walk(pick.choices, typeof pick.option === 'string' ? pick.option : null);
+        if (pick.choices)
+          walk(
+            pick.choices,
+            typeof pick.option === 'string' && pick.option.includes(':') ? pick.option : null,
+          );
     }
   };
-  if (c.choices) walk(c.choices, null);
-  for (const e of allEntries(c)) if (e.choices) walk(e.choices, e.item);
+  walk(root, owner);
+  return out;
+}
+
+/** Every choice tree in the character with the content ID that owns its bare keys. */
+function trees(c: CharacterDoc): TreeAt[] {
+  return [
+    ...(c.choices ? treesUnder(c.choices, null) : []),
+    ...allEntries(c).flatMap((e) => (e.choices ? treesUnder(e.choices, e.item) : [])),
+  ];
+}
+
+/**
+ * A step's `owner`: content, then choice and inline option pairs down to a nested choice; an
+ * even number of parts starts at a rules-level choice. Absent: the rules.
+ */
+interface OwnerPath {
+  head: string | null;
+  pairs: [string, string][];
+}
+
+function ownerPath(owner: string | undefined, q: (local: string) => string): OwnerPath {
+  if (owner === undefined) return { head: null, pairs: [] };
+  const parts = owner.split('/');
+  const head = parts.length % 2 === 1 ? q(parts.shift() as string) : null;
+  const pairs: [string, string][] = [];
+  for (let i = 0; i < parts.length; i += 2)
+    pairs.push([parts[i] as string, parts[i + 1] as string]);
+  return { head, pairs };
+}
+
+/** A tree that holds an owner's own choices, and the key prefix they use in it. */
+interface OwnerTree {
+  tree: ChoiceTree;
+  prefix: string;
+}
+
+/**
+ * The trees among `scope` (or the rules tree) that hold `path`'s own choices: its content's
+ * trees (bare keys) and trees that key its choices `<owner>/<choice>`, then down each choice and
+ * inline option pair.
+ */
+function ownerTrees(scope: TreeAt[], rules: ChoiceTree | undefined, path: OwnerPath): OwnerTree[] {
+  let at: OwnerTree[] = [];
+  if (path.head === null) {
+    if (rules) at.push({ tree: rules, prefix: '' });
+  } else {
+    const head = path.head;
+    for (const { tree, owner } of scope) {
+      if (owner === head) at.push({ tree, prefix: '' });
+      if (Object.keys(tree).some((k) => k.startsWith(`${head}/`)))
+        at.push({ tree, prefix: `${head}/` });
+    }
+  }
+  for (const [choice, option] of path.pairs) {
+    const next: OwnerTree[] = [];
+    for (const { tree, prefix } of at)
+      for (const pick of tree[`${prefix}${choice}`] ?? [])
+        if (String(pick.option) === option && pick.choices)
+          next.push({ tree: pick.choices, prefix: '' });
+    at = next;
+  }
+  return at;
+}
+
+const sameValue = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+
+/** A saved state map and its content: copies, content picks and granted content. */
+interface StateHolder {
+  holder: { state?: Record<string, unknown> };
+  content: string;
+}
+
+function stateHolders(c: CharacterDoc): StateHolder[] {
+  const out: StateHolder[] = [];
+  const grants = (node: { grants?: Entry['grants'] }) => {
+    for (const [content, saved] of Object.entries(node.grants ?? {}))
+      out.push({ holder: saved as StateHolder['holder'], content });
+  };
+  for (const e of allEntries(c)) {
+    out.push({ holder: e as StateHolder['holder'], content: e.item });
+    grants(e);
+  }
+  for (const { tree } of trees(c))
+    for (const pick of Object.values(tree).flat()) {
+      if (typeof pick.option === 'string' && pick.option.includes(':'))
+        out.push({ holder: pick as StateHolder['holder'], content: pick.option });
+      grants(pick);
+    }
+  return out;
+}
+
+/** Drops a holder's empty `state`, and a grant store left empty. */
+function prune(c: CharacterDoc): void {
+  for (const { holder } of stateHolders(c))
+    if (holder.state && Object.keys(holder.state).length === 0) delete holder.state;
+  for (const node of grantNodes(c)) {
+    if (!node.grants) continue;
+    for (const [id, saved] of Object.entries(node.grants))
+      if (Object.keys(saved).length === 0) delete node.grants[id];
+    if (Object.keys(node.grants).length === 0) delete node.grants;
+  }
+}
+
+/**
+ * Content a copy's own node holds by holder grants on `ruleset` (those of its type, item and
+ * templates, and of what they grant), by qualified ID, each with the state keys its grants set.
+ */
+function heldGrants(ruleset: Ruleset, entry: Entry): Map<string, Set<string>> {
+  const out = new Map<string, Set<string>>();
+  const queue = [entry.item, ...(entry.templates ?? [])];
+  const seen = new Set<string>();
+  while (queue.length > 0) {
+    const id = queue.shift() as string;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const item = ruleset.content[id];
+    if (!item) continue;
+    const type = ruleset.contentTypes[item.type];
+    for (const grant of [...(type?.grants ?? []), ...(item.grants ?? [])]) {
+      if ((grant.scope ?? 'holder') !== 'holder' || typeof grant.item !== 'string') continue;
+      const keys = out.get(grant.item) ?? new Set<string>();
+      for (const key of Object.keys(grant.state ?? {})) keys.add(key);
+      out.set(grant.item, keys);
+      queue.push(grant.item);
+    }
+  }
   return out;
 }
 
@@ -163,6 +299,85 @@ function renameGrant(c: CharacterDoc, from: string, to?: string): boolean {
   return changed;
 }
 
+/**
+ * Where moveState puts a copy's value, on the new ruleset: the pick of `option` in the copy's
+ * own trees (the rules tree for a rules-level choice), or the saved state of content the copy
+ * holds by a holder grant. `decl` gives a key's declared default (undefined: not declared);
+ * `overridden` tells a key a grant sets, whose default isn't the declared one.
+ */
+function moveTarget(
+  step: Step,
+  entry: Entry,
+  c: CharacterDoc,
+  to: Ruleset,
+  q: (local: string) => string,
+  option: (o: string | number) => string | number,
+):
+  | {
+      holder: { state?: Record<string, unknown> };
+      decl: ((key: string) => unknown) | undefined;
+      overridden: (key: string) => boolean;
+    }
+  | undefined {
+  const declOf = (id: string) => {
+    const item = to.content[id];
+    if (!item) return undefined;
+    const decls = stateDecls(to, item, []);
+    return (key: string) => (Object.hasOwn(decls, key) ? decls[key]?.default : undefined);
+  };
+  const declares = (id: string, key: string) => {
+    const item = to.content[id];
+    return !!item && Object.hasOwn(stateDecls(to, item, []), key);
+  };
+  const target = step.to ?? (step.from as string);
+  if (step.grant !== undefined) {
+    const id = q(step.grant);
+    const sets = heldGrants(to, entry).get(id);
+    if (!sets || !declares(id, target)) return undefined;
+    entry.grants ??= {};
+    const saved = (entry.grants[id] ??= {});
+    return {
+      holder: saved as { state?: Record<string, unknown> },
+      decl: declOf(id),
+      overridden: (key) => sets.has(key),
+    };
+  }
+  const path = ownerPath(step.owner, q);
+  const scope = entry.choices ? treesUnder(entry.choices, entry.item) : [];
+  const picked = option(step.option as string | number);
+  const keys = choiceKeys(to, path, step.choice as string);
+  for (const { tree, prefix } of ownerTrees(
+    scope,
+    path.head === null ? c.choices : undefined,
+    path,
+  ))
+    for (const pick of keys.flatMap((key) => tree[`${prefix}${key}`] ?? [])) {
+      if (pick.option !== picked) continue;
+      if (typeof picked !== 'string' || !declares(picked, target)) return undefined;
+      return {
+        holder: pick as { state?: Record<string, unknown> },
+        decl: declOf(picked),
+        overridden: () => false,
+      };
+    }
+  return undefined;
+}
+
+/** The saved keys of an owner's choice on `ruleset`: each slot's for a slotted choice. */
+function choiceKeys(ruleset: Ruleset, path: OwnerPath, choice: string): string[] {
+  let choices: readonly Choice[] =
+    path.head === null
+      ? Object.values(ruleset.rules.choices)
+      : (ruleset.content[path.head]?.choices ?? []);
+  for (const [id, opt] of path.pairs) {
+    const from = choices.find((c) => c.id === id)?.from;
+    choices =
+      (from && 'options' in from ? from.options.find((o) => o.id === opt)?.choices : []) ?? [];
+  }
+  const declared = choices.find((c) => c.id === choice);
+  return declared?.slots ? declared.slots.map((n) => `${choice}-${n}`) : [choice];
+}
+
 function renameKey(tree: ChoiceTree, from: string, to: string): boolean {
   if (!(from in tree)) return false;
   tree[to] = tree[from] as Pick[];
@@ -181,6 +396,15 @@ function applyStep(
   rewriter: HomebrewRewriter,
 ): boolean {
   const q = (local: string) => (local.includes(':') ? local : `${pack}:${local}`);
+  // A picked option: content as a qualified ID, else an inline option or value as written.
+  const option = (o: string | number) =>
+    typeof o === 'string' && (from.content[q(o)] || to.content[q(o)]) ? q(o) : o;
+  const typeOf = (id: string) =>
+    rewriter.typeOf(id) ?? to.content[id]?.type ?? from.content[id]?.type;
+  // The state steps' content: of `item`, and of content type `type` (any when both are absent).
+  const holds = (id: string) =>
+    (step.item === undefined || q(step.item) === id) &&
+    (step.type === undefined || typeOf(id) === q(step.type));
   let changed = false;
   switch (step.op) {
     case 'renameContent': {
@@ -283,46 +507,62 @@ function applyStep(
       (c.values as Record<string, unknown>)[id] = step.map[String(current)];
       return true;
     }
-    case 'renameState': {
-      const type = step.type === undefined ? undefined : q(step.type);
-      for (const e of allEntries(c)) {
-        const itemType =
-          rewriter.typeOf(e.item) ?? to.content[e.item]?.type ?? from.content[e.item]?.type;
-        if (type !== undefined && itemType !== type) continue;
-        if (e.state && (step.from as string) in e.state) {
-          e.state[step.to as string] = e.state[step.from as string] as never;
-          delete e.state[step.from as string];
-          changed = true;
-        }
+    case 'renameState':
+    case 'removeState': {
+      const key = (step.op === 'renameState' ? step.from : step.key) as string;
+      for (const { holder, content } of stateHolders(c)) {
+        if (!holds(content)) continue;
+        if (!holder.state || !Object.hasOwn(holder.state, key)) continue;
+        if (step.op === 'renameState') holder.state[step.to as string] = holder.state[key];
+        delete holder.state[key];
+        changed = true;
       }
+      if (changed && step.op === 'removeState') prune(c);
+      return changed;
+    }
+    case 'moveState': {
+      const key = step.from as string;
+      const target = step.to ?? key;
+      for (const e of allEntries(c)) {
+        if (!holds(e.item)) continue;
+        if (!e.state || !Object.hasOwn(e.state, key)) continue;
+        const value = e.state[key];
+        delete e.state[key];
+        changed = true;
+        const place = moveTarget(step, e, c, to, q, option);
+        if (!place) continue;
+        const { holder, decl, overridden } = place;
+        if (!decl || Object.hasOwn(holder.state ?? {}, target)) continue;
+        if (!overridden(target) && sameValue(value, decl(target))) continue;
+        holder.state = { ...holder.state, [target]: value };
+      }
+      if (changed) prune(c);
       return changed;
     }
     case 'renameChoice':
-    case 'renameOption': {
-      const owner = step.owner === undefined ? null : q(step.owner);
+    case 'renameOption':
+    case 'removeChoice': {
       const name = step.op === 'renameChoice' ? (step.from as string) : (step.choice as string);
-      for (const { tree, owner: treeOwner } of trees(c)) {
-        const keys: string[] = [];
-        if (treeOwner === owner && name in tree) keys.push(name);
-        if (owner !== null && `${owner}/${name}` in tree) keys.push(`${owner}/${name}`);
-        for (const key of keys) {
-          if (step.op === 'renameChoice') {
-            const target = key.includes('/') ? `${owner}/${step.to}` : (step.to as string);
-            changed = renameKey(tree, key, target) || changed;
-            continue;
-          }
-          const option = (o: string) => (from.content[q(o)] || to.content[q(o)] ? q(o) : o);
-          const a = option(step.from as string);
-          const picks = tree[key] as Pick[];
-          if (!picks.some((p) => p.option === a)) continue;
-          tree[key] =
-            step.to === undefined
-              ? picks.filter((p) => p.option !== a)
-              : picks.map((p) =>
-                  p.option === a ? { ...p, option: option(step.to as string) } : p,
-                );
-          changed = true;
+      for (const { tree, prefix } of ownerTrees(trees(c), c.choices, ownerPath(step.owner, q))) {
+        const key = `${prefix}${name}`;
+        if (!(key in tree)) continue;
+        if (step.op === 'renameChoice') {
+          changed = renameKey(tree, key, `${prefix}${step.to}`) || changed;
+          continue;
         }
+        if (step.op === 'removeChoice') {
+          delete tree[key];
+          changed = true;
+          continue;
+        }
+        const a = option(step.from as string);
+        const picks = tree[key] as Pick[];
+        if (!picks.some((p) => p.option === a)) continue;
+        tree[key] =
+          step.to === undefined
+            ? picks.filter((p) => p.option !== a)
+            : picks.map((p) => (p.option === a ? { ...p, option: option(step.to as string) } : p));
+        changed = true;
       }
       return changed;
     }
@@ -352,8 +592,9 @@ function applyStep(
       // Informational: the upgraded character reports the choice as pending. Listed when the
       // character holds the owner (or for a rules-level choice).
       if (step.owner === undefined) return true;
-      const owner = q(step.owner);
-      return trees(c).some((t) => t.owner === owner);
+      const path = ownerPath(step.owner, q);
+      if (path.pairs.length === 0) return trees(c).some((t) => t.owner === path.head);
+      return ownerTrees(trees(c), c.choices, path).length > 0;
     }
     default:
       return false;
@@ -439,9 +680,10 @@ function states(release: PackRelease): Map<string, { decl: ValueDecl; type?: str
   return out;
 }
 
-const optionIds = (choice: Choice): string[] => {
+/** A choice's written option IDs; undefined for a `values` formula, whose options are unknown. */
+const optionIds = (choice: Choice): string[] | undefined => {
   const from = choice.from;
-  if ('values' in from) return Array.isArray(from.values) ? from.values.map(String) : [];
+  if ('values' in from) return Array.isArray(from.values) ? from.values.map(String) : undefined;
   if ('options' in from) return from.options.map((o) => o.id);
   return [];
 };
@@ -524,8 +766,12 @@ export function checkRelease(
       changes.push({ kind: 'choice-removed', id });
       continue;
     }
-    const kept = new Set(optionIds(now.choice));
-    for (const option of optionIds(choice))
+    // A `values` formula's options can't be known before a sheet: written values it replaces
+    // aren't removed (a character's pick the formula no longer offers is reported then).
+    const offered = optionIds(now.choice);
+    if (offered === undefined) continue;
+    const kept = new Set(offered);
+    for (const option of optionIds(choice) ?? [])
       if (!kept.has(option)) changes.push({ kind: 'option-removed', id: `${id}/${option}` });
   }
   for (const [id, { owner, choice }] of nextChoices) {
@@ -660,8 +906,14 @@ function covered(
   pack: string,
 ): boolean {
   const has = (pred: (s: Step) => boolean) => steps.some(pred);
-  const ownerMatches = (s: Step, owner: string) =>
-    owner === 'rules' ? s.owner === undefined : s.owner === owner;
+  // A step's owner as choicesOf keys it: `rules` (plus the path of a rules-level nested choice),
+  // or the local content ID plus the path.
+  const ownerKey = (s: Step) => {
+    if (s.owner === undefined) return 'rules';
+    const local = s.owner.startsWith(`${pack}:`) ? s.owner.slice(pack.length + 1) : s.owner;
+    return local.split('/').length % 2 === 0 ? `rules/${local}` : local;
+  };
+  const ownerMatches = (s: Step, owner: string) => ownerKey(s) === owner;
   switch (change.kind) {
     case 'content-removed':
       return has(
@@ -687,17 +939,24 @@ function covered(
         type,
         ...steps.filter((s) => s.op === 'renameContentType' && s.from === type).map((s) => s.to),
       ]);
+      // A step limited to an item covers only that item's own key.
+      const owner = change.id.slice(0, change.id.lastIndexOf('/'));
+      const local = (ref: string) =>
+        ref.startsWith(`${pack}:`) ? ref.slice(pack.length + 1) : ref;
       return has(
         (s) =>
-          s.op === 'renameState' && s.from === key && (s.type === undefined || names.has(s.type)),
+          (((s.op === 'renameState' || s.op === 'moveState') && s.from === key) ||
+            (s.op === 'removeState' && s.key === key)) &&
+          (s.type === undefined || names.has(s.type)) &&
+          (s.item === undefined || local(s.item) === owner),
       );
     }
     case 'choice-removed': {
       const info = prevChoices.get(change.id);
       return has(
         (s) =>
-          s.op === 'renameChoice' &&
-          s.from === info?.choice.id &&
+          ((s.op === 'renameChoice' && s.from === info?.choice.id) ||
+            (s.op === 'removeChoice' && s.choice === info?.choice.id)) &&
           ownerMatches(s, info?.owner ?? ''),
       );
     }

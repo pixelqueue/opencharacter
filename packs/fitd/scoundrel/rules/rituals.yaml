@@ -54,20 +54,14 @@ actions:
       - id: coin
         kind: choice
         when: params.uncertain && coin > 0 && flags.level < 3
-        options:
-          - { id: keep }
-          - { id: spend1 }
-          - { id: spend2, when: coin >= 2 && flags.level < 2 }
-          - { id: spend3, when: coin >= 3 && flags.level == 0 }
-        recommend: "'keep'"
+        options: { values: [0, 1, 2, 3], where: value <= coin && value <= 3 - flags.level }
+        recommend: options[0]
       - id: spent
         kind: branch
         cases:
           - when: true
             flags:
-              coin: >-
-                !has(steps.coin) ? 0 : steps.coin.picked == 'spend3' ? 3
-                : steps.coin.picked == 'spend2' ? 2 : steps.coin.picked == 'spend1' ? 1 : 0
+              coin: 'has(steps.coin) ? steps.coin.value : 0'
       - id: spend
         kind: changes
         when: flags.coin > 0

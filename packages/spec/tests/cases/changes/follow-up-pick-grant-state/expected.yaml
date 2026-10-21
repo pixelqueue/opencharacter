@@ -1,0 +1,49 @@
+# The ward's `grant: self` resolves to the class copy and the granted ward; the talent's
+# `pick: self` to its pick's path and option. Queries and their per-match formulas pass on.
+ok: true
+followUps:
+  - id: drain-1
+    kind: ephemeral
+    followUp: test-pack:ward#drain
+    source: { type: item, id: test-pack:wards.ward, entry: class }
+    to: self
+    required: false
+    changes:
+      - { type: adjustState, entry: class, grant: test-pack:wards.ward, key: charges, by: -1 }
+      - { type: setState, grants: { where: self.charges > 0 }, key: charges, value: 0 }
+      - { type: setState, picks: { where: self.uses > 0 }, key: uses, value: 0 }
+      - { type: clearFollowUp, id: drain-1 }
+    cause:
+      field: test-pack:strain
+      by: 1
+      requested: 1
+      taken: 1
+      reason: requested
+      clamped: false
+      tags: []
+  - id: tire-1
+    kind: ephemeral
+    followUp: test-pack:talent#tire
+    source: { type: item, id: test-pack:talents.tough, entry: class }
+    to: self
+    required: false
+    changes:
+      - type: adjustState
+        path: { entry: class, choice: [talent] }
+        option: test-pack:talents.tough
+        key: uses
+        by: -1
+      - type: setState
+        path: { entry: class, choice: [talent] }
+        option: test-pack:talents.tough
+        key: uses
+        value: 0
+      - { type: clearFollowUp, id: tire-1 }
+    cause:
+      field: test-pack:strain
+      by: 1
+      requested: 1
+      taken: 1
+      reason: requested
+      clamped: false
+      tags: []

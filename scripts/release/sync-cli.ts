@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { pinFiles, syncPackVersions, syncPinnedVersions } from './index.ts';
+import { pinFiles, syncPackVersions, syncPinnedVersions, syncSpecVersion } from './index.ts';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const bumps = syncPackVersions(fileURLToPath(new URL('../../packs', import.meta.url)));
@@ -16,3 +16,9 @@ if (bumps.length === 0) {
       : 'no pinned versions to update.',
   );
 }
+const spec = syncSpecVersion(root, pinFiles(root));
+console.log(
+  spec
+    ? `spec version ${spec.bump.from} → ${spec.bump.to}: updated ${spec.files.length} file(s).`
+    : 'spec version already matches @opencharacter/spec.',
+);
