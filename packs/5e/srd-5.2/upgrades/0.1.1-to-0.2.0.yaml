@@ -1,0 +1,40 @@
+pack: 5e-srd-5.2
+from: 0.1.1
+to: 0.2.0
+steps:
+  # Uses until a rest moved from the species copy to each granted trait's saved state.
+  - { op: moveState, type: species, from: breathWeaponUsed, grant: traits.breath-weapon }
+  - { op: moveState, type: species, from: flightUsed, grant: traits.draconic-flight }
+  - { op: moveState, type: species, from: flightActive, grant: traits.draconic-flight }
+  - { op: moveState, type: species, from: stonecunningUsed, grant: traits.stonecunning }
+  - { op: moveState, type: species, from: tremorsenseActive, grant: traits.stonecunning }
+  # Elves and tieflings share the keys: each species' value goes to its own lineage trait.
+  - { op: moveState, item: species.elf, from: lineageSpell1Used, grant: traits.elven-lineage }
+  - { op: moveState, item: species.elf, from: lineageSpell2Used, grant: traits.elven-lineage }
+  - op: moveState
+    item: species.tiefling
+    from: lineageSpell1Used
+    grant: traits.fiendish-legacy
+  - op: moveState
+    item: species.tiefling
+    from: lineageSpell2Used
+    grant: traits.fiendish-legacy
+  - { op: moveState, type: species, from: speakWithAnimalsUsed, grant: traits.gnomish-lineage }
+  - { op: moveState, type: species, from: largeFormUsed, grant: traits.large-form }
+  - { op: moveState, type: species, from: largeFormActive, grant: traits.large-form }
+  - { op: moveState, type: species, from: adrenalineRushUsed, grant: traits.adrenaline-rush }
+  - op: moveState
+    type: species
+    from: relentlessEnduranceUsed
+    grant: traits.relentless-endurance
+  - { op: moveState, type: species, from: giantAncestryUsed, grant: traits.giant-ancestry }
+  # Gift of the Depths' use moved from the warlock copy to the invocation's pick (any slot).
+  - op: moveState
+    type: class
+    from: giftOfTheDepthsUsed
+    to: used
+    owner: features.warlock.eldritch-invocations
+    choice: invocation
+    option: invocations.gift-of-the-depths
+  # Magic Initiate's list was grant state; backgrounds preset the pick now.
+  - { op: removeState, type: feat, key: list }

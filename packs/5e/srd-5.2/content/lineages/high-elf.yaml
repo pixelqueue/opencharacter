@@ -6,7 +6,7 @@ effects:
   - target: spells.species
     op: grant
     value: { item: spells.prestidigitation }
-    when: '!origins.cantripReplaced'
+    when: "size(picksOf('replacement')) == 0"
   - target: spells.species
     op: grant
     value: { item: spells.detect-magic }
@@ -25,6 +25,7 @@ effects:
     when: level.total >= 5
 grants:
   - item: spells.prestidigitation
+    when: "size(picksOf('replacement')) == 0"
   - item: spells.detect-magic
     when: "sumCopies(copy.state.level, copy.type == 'class') >= 3"
   - item: spells.misty-step
@@ -83,4 +84,3 @@ choices:
       where: 'item.level == 0 && @classes.wizard in item.classes && item.id != @spells.prestidigitation'
     effects:
       - { target: spells.species, op: grant, value: { formula: pick.id } }
-      - { target: origins.cantripReplaced, op: set, value: true }

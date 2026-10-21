@@ -35,3 +35,10 @@ effects:
     op: option
     when: action.item.id == item.id
     value: { id: sickened }
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    value: 0
+    when: "self.option == 'asleep' && incoming.amount < 0"
+    scope: applied
+    then:
+      - { type: removeEffect, entry: self }

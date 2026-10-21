@@ -6,7 +6,7 @@ effects:
   - { target: proficiencies.tools, op: grant, value: { item: tools.calligraphers-supplies } }
 grants:
   - item: feats.magic-initiate
-    state: { list: "'wizard'" }
+    choices: { list: [{ option: wizard }] }
   - item: languages.common
 choices:
   - id: ability-increase
@@ -28,13 +28,12 @@ choices:
                     }
                   op: add
                   value: 2
-                - { target: origins.backgroundPlusTwo, op: set, value: pick.value }
             - id: plus-one
               unique: sage-increase
               uniqueScope: owner
               from: { values: [con, int, wis] }
               recommend: >-
-                sortList(filterList(['con', 'int', 'wis'], x != origins.backgroundPlusTwo),
+                sortList(filterList(['con', 'int', 'wis'], !(x in picksOf('plus-two'))),
                   -fieldOf('abilities.{ability}.base', x))[0]
               effects:
                 - target:

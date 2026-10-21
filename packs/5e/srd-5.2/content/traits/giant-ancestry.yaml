@@ -1,6 +1,14 @@
 id: traits.giant-ancestry
 type: trait
+# The uses spent since the last long rest, shared by every power (proficiency bonus of them). An
+# action spends one with `grant: self`; Stone's Endurance's `then` writes it here too, since the
+# trait declares the key.
+state:
+  giantAncestryUsed: { type: integer, default: 0, min: 0 }
 effects:
+  - target: origins.giantAncestryLeft
+    op: set
+    value: max(0, proficiency.bonus - self.giantAncestryUsed)
   - target: { incoming: { fields: [hp.current], tags: [damage] } }
     op: add
     value: 1d12 + abilities.con.mod
@@ -16,7 +24,10 @@ effects:
     when: self.giantAncestryUsed > 0
     value:
       changes:
-        - { type: setState, entry: self, key: giantAncestryUsed, value: 0 }
+        - type: setState
+          grants: { where: 'item.id == @traits.giant-ancestry' }
+          key: giantAncestryUsed
+          value: 0
 actions:
   - id: clouds-jaunt
     tags: [feature]
@@ -26,7 +37,7 @@ actions:
       - id: spend
         kind: changes
         changes:
-          - { type: adjustState, entry: self, key: giantAncestryUsed, by: 1 }
+          - { type: adjustState, grant: self, key: giantAncestryUsed, by: 1 }
       - id: result
         kind: outcome
         result: "'teleported'"
@@ -66,7 +77,7 @@ actions:
       - id: spend
         kind: changes
         changes:
-          - { type: adjustState, entry: self, key: giantAncestryUsed, by: 1 }
+          - { type: adjustState, grant: self, key: giantAncestryUsed, by: 1 }
       - id: result
         kind: outcome
         result: "'burned'"
@@ -108,7 +119,7 @@ actions:
       - id: spend
         kind: changes
         changes:
-          - { type: adjustState, entry: self, key: giantAncestryUsed, by: 1 }
+          - { type: adjustState, grant: self, key: giantAncestryUsed, by: 1 }
       - id: result
         kind: outcome
         result: "'chilled'"
@@ -139,7 +150,7 @@ actions:
       - id: spend
         kind: changes
         changes:
-          - { type: adjustState, entry: self, key: giantAncestryUsed, by: 1 }
+          - { type: adjustState, grant: self, key: giantAncestryUsed, by: 1 }
       - id: result
         kind: outcome
         result: "'toppled'"
@@ -170,7 +181,7 @@ actions:
       - id: spend
         kind: changes
         changes:
-          - { type: adjustState, entry: self, key: giantAncestryUsed, by: 1 }
+          - { type: adjustState, grant: self, key: giantAncestryUsed, by: 1 }
       - id: result
         kind: outcome
         result: "'thundered'"

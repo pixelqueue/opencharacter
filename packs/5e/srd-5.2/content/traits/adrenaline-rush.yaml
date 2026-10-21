@@ -1,12 +1,17 @@
 id: traits.adrenaline-rush
 type: trait
+state:
+  adrenalineRushUsed: { type: integer, default: 0, min: 0 }
 effects:
   - target: { steps: [rest.short, rest.long] }
     op: changes
     when: self.adrenalineRushUsed > 0
     value:
       changes:
-        - { type: setState, entry: self, key: adrenalineRushUsed, value: 0 }
+        - type: setState
+          grants: { where: 'item.id == @traits.adrenaline-rush' }
+          key: adrenalineRushUsed
+          value: 0
 actions:
   - id: adrenaline-rush
     tags: [feature]
@@ -16,7 +21,7 @@ actions:
       - id: spend
         kind: changes
         changes:
-          - { type: adjustState, entry: self, key: adrenalineRushUsed, by: 1 }
+          - { type: adjustState, grant: self, key: adrenalineRushUsed, by: 1 }
       - id: rush
         kind: action
         use: gain-temporary-hit-points

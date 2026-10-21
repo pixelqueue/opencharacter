@@ -154,7 +154,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
     weapon. Pact of the Blade binds a weapon kind, which may attack with Charisma and deal Necrotic,
     Psychic or Radiant damage (picked on the attack, as Empowered Strikes' Force is); damage a
     feature or item adds in the weapon's type (Rage, Sneak Attack, a magic weapon's bonus) takes the
-    picked type.
+    picked type. Eldritch Spear's range, and Improved Elemental Fury's for a cantrip on the Druid
+    list, go on the spell wherever the character knows it (another class's copy of the cantrip
+    included).
   - A created spell slot (Font of Magic, Wild Resurgence, Nature Magician, Rod of Absorption)
     only refills an expended slot; Sorcery Points never pass their maximum.
   - Empowered Spell rerolls the lowest dice; Overchannel maximizes the spell's first damage die
@@ -175,6 +177,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
   - Conjure Fey, Chromatic Orb, Eldritch Blast's later beams, Scorching Ray's rays, Magic
     Missile's darts and other repeated effects are their own actions on the spell; the cast is the
     first.
+  - Death Ward ends when it saves its target: on the first damage that, before resistances,
+    would drop the target to 0 Hit Points. Oil's extra fire damage ends with the first fire
+    damage; Hypnotic Pattern and Eyebite's Asleep end on any damage.
   - Vampiric Touch heals half the damage rolled; Mass Heal gives out its 700 hit points one
     creature at a time.
   - A smite is an option on a hit with a melee weapon or an Unarmed Strike: picking it casts the
@@ -201,7 +206,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Resistance's situational Advantage, the Rakshasa's option on a failed save). Conditions a grapple
   brings (Restrained, Blinded) are applied with it and ended by the app. A Multiattack's "replace
   one attack" replaces the last. A charge ("moved 20 feet straight toward") is its own action on the
-  attack. A Priest Acolyte's spell save DC, which the SRD doesn't print, is 8 + Wisdom modifier +
+  attack; a Multiattack's `charged` parameter makes its first attack the charge. The Half-Dragon's
+  Multiattack adds each Claw's Draconic Origin damage, its type a parameter. A Priest Acolyte's spell save DC, which the SRD doesn't print, is 8 + Wisdom modifier +
   PB. The Hydra's heads are a parameter of its Multiattack. A size limit follows the stat block's
   words: "one Large or smaller creature" keeps a larger one out of the whole effect, while "if the
   target is Large or smaller" limits only the condition.
@@ -253,7 +259,11 @@ Where the SRD is unclear or silent, the pack reads it this way:
   a failed test), Channel Divinity, Wild Shape, Fighting Styles, Martial Arts and Focus, Lay On
   Hands and smites, Favored Enemy, Sneak Attack and Cunning Strike, Font of Magic and the ten
   Metamagic options, Pact Magic and the 28 invocations, the spellbook, Arcane Recovery. Uses until
-  a rest are state on the class copy.
+  a rest are state on the class copy, an invocation's on its pick (Gift of the Depths' `used`).
+  A species trait keeps its own uses as its grant's saved state (Breath Weapon, Draconic Flight,
+  Stonecunning, the lineage spells, Giant Ancestry, Large Form, Adrenaline Rush, Relentless
+  Endurance); Stone's Endurance spends a Giant Ancestry use from its incoming-damage effect's
+  `then`, and `origins.giantAncestryLeft` offers it while one is left.
 - **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
   prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
   and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with
@@ -294,8 +304,6 @@ as text are listed below.
   from higher slots, Enlarge/Reduce's size change, Chill Touch's no-regain, Beacon of Hope's
   maximum healing, Heroism's temporary hit points each turn, a second damage type for Transmuted
   Spell.
-- **Effects that end themselves:** an applied effect can't remove itself when it triggers (Death
-  Ward, Oil): the app removes it.
 - **Metamagic:** Distant, Quickened and Subtle Spell are recorded in the cast's `data.metamagic`
   for the app.
 - **Monsters:** movement and sense traits, revival traits, reactions that change a roll (Parry),
@@ -303,12 +311,6 @@ as text are listed below.
   escalations on a second failed save, healing equal to damage dealt, a lost Hit Point maximum,
   lycanthrope curses, vampire weaknesses and once-per-turn limits on legendary actions are text.
   Gear quantities and language dialects aren't stored.
-- **Class features:** Improved Elemental Fury's range is text (an effect can't change a spell's
-  fields).
-- **Open spec issues:** four of these wait on the format: an applied effect removing itself (Death
-  Ward, Oil), a Multiattack calling an action an entry defines inline, an effect changing a
-  spell's fields (Improved Elemental Fury's range), and a choice reading a sibling choice (a
-  background's +1 and +2, kept apart by a hidden field).
 
 ## Omitted
 

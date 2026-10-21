@@ -242,7 +242,6 @@ actions:
                   && character.id in participants.target[0].mastery.vexedBy
               smite: "''"
               smiteLevel: 0
-              smiteSlot: 0
       - id: ability
         kind: branch
         cases:
@@ -335,51 +334,12 @@ actions:
         kind: choice
         when: flags.smite != ''
         options:
-          - id: level1
-            when: >-
-              flags.smiteLevel <= 1 && (spellSlots.level1.max - spellSlots.level1.used > 0
-                || (pactSlots.level == 1 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 1 }
-          - id: level2
-            when: >-
-              flags.smiteLevel <= 2 && (spellSlots.level2.max - spellSlots.level2.used > 0
-                || (pactSlots.level == 2 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 2 }
-          - id: level3
-            when: >-
-              flags.smiteLevel <= 3 && (spellSlots.level3.max - spellSlots.level3.used > 0
-                || (pactSlots.level == 3 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 3 }
-          - id: level4
-            when: >-
-              flags.smiteLevel <= 4 && (spellSlots.level4.max - spellSlots.level4.used > 0
-                || (pactSlots.level == 4 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 4 }
-          - id: level5
-            when: >-
-              flags.smiteLevel <= 5 && (spellSlots.level5.max - spellSlots.level5.used > 0
-                || (pactSlots.level == 5 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 5 }
-          - id: level6
-            when: >-
-              flags.smiteLevel <= 6 && (spellSlots.level6.max - spellSlots.level6.used > 0
-                || (pactSlots.level == 6 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 6 }
-          - id: level7
-            when: >-
-              flags.smiteLevel <= 7 && (spellSlots.level7.max - spellSlots.level7.used > 0
-                || (pactSlots.level == 7 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 7 }
-          - id: level8
-            when: >-
-              flags.smiteLevel <= 8 && (spellSlots.level8.max - spellSlots.level8.used > 0
-                || (pactSlots.level == 8 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 8 }
-          - id: level9
-            when: >-
-              flags.smiteLevel <= 9 && (spellSlots.level9.max - spellSlots.level9.used > 0
-                || (pactSlots.level == 9 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 9 }
+          values: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+          where: >-
+            value >= flags.smiteLevel
+              && (fieldOf('spellSlots.level{slot}.max', value)
+                - fieldOf('spellSlots.level{slot}.used', value) > 0
+                || (pactSlots.level == value && pactSlots.max - pactSlots.used > 0))
         recommend: options[0]
       - id: smiteCast
         kind: action
@@ -387,7 +347,7 @@ actions:
         use: cast-spell
         source: flags.smite
         params:
-          slot: 'flags.smiteSlot > 0 ? flags.smiteSlot : null'
+          slot: 'has(steps.smiteSlot) ? steps.smiteSlot.value : null'
         participants:
           target: participants.target
       - id: damage
@@ -534,7 +494,6 @@ actions:
               damageType: "'bludgeoning'"
               smite: "''"
               smiteLevel: 0
-              smiteSlot: 0
               crit: combat.critRange
               me: character.id
               vexed: >-
@@ -598,51 +557,12 @@ actions:
         kind: choice
         when: flags.smite != ''
         options:
-          - id: level1
-            when: >-
-              flags.smiteLevel <= 1 && (spellSlots.level1.max - spellSlots.level1.used > 0
-                || (pactSlots.level == 1 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 1 }
-          - id: level2
-            when: >-
-              flags.smiteLevel <= 2 && (spellSlots.level2.max - spellSlots.level2.used > 0
-                || (pactSlots.level == 2 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 2 }
-          - id: level3
-            when: >-
-              flags.smiteLevel <= 3 && (spellSlots.level3.max - spellSlots.level3.used > 0
-                || (pactSlots.level == 3 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 3 }
-          - id: level4
-            when: >-
-              flags.smiteLevel <= 4 && (spellSlots.level4.max - spellSlots.level4.used > 0
-                || (pactSlots.level == 4 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 4 }
-          - id: level5
-            when: >-
-              flags.smiteLevel <= 5 && (spellSlots.level5.max - spellSlots.level5.used > 0
-                || (pactSlots.level == 5 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 5 }
-          - id: level6
-            when: >-
-              flags.smiteLevel <= 6 && (spellSlots.level6.max - spellSlots.level6.used > 0
-                || (pactSlots.level == 6 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 6 }
-          - id: level7
-            when: >-
-              flags.smiteLevel <= 7 && (spellSlots.level7.max - spellSlots.level7.used > 0
-                || (pactSlots.level == 7 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 7 }
-          - id: level8
-            when: >-
-              flags.smiteLevel <= 8 && (spellSlots.level8.max - spellSlots.level8.used > 0
-                || (pactSlots.level == 8 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 8 }
-          - id: level9
-            when: >-
-              flags.smiteLevel <= 9 && (spellSlots.level9.max - spellSlots.level9.used > 0
-                || (pactSlots.level == 9 && pactSlots.max - pactSlots.used > 0))
-            flags: { smiteSlot: 9 }
+          values: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+          where: >-
+            value >= flags.smiteLevel
+              && (fieldOf('spellSlots.level{slot}.max', value)
+                - fieldOf('spellSlots.level{slot}.used', value) > 0
+                || (pactSlots.level == value && pactSlots.max - pactSlots.used > 0))
         recommend: options[0]
       - id: smiteCast
         kind: action
@@ -650,7 +570,7 @@ actions:
         use: cast-spell
         source: flags.smite
         params:
-          slot: 'flags.smiteSlot > 0 ? flags.smiteSlot : null'
+          slot: 'has(steps.smiteSlot) ? steps.smiteSlot.value : null'
         participants:
           target: participants.target
       - id: damage
