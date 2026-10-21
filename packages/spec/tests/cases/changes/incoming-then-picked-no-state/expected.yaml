@@ -1,0 +1,18 @@
+# The talent soaks 1 (-3 + 1 = -2) and spends the class copy's stamina (2 -> 1).
+ok: true
+character:
+  values:
+    test-pack:hp.current: 10
+  features:
+    - id: class
+      item: test-pack:classes.warrior
+      state: { stamina: 1 }
+      choices:
+        talent:
+          - option: test-pack:talents.tough
+adjustments:
+  - { field: test-pack:hp.current, by: -2, requested: -3, taken: -2, reason: requested }
+  - entry: class
+    key: stamina
+    value: 1
+    source: { type: item, id: 'test-pack:talents.tough', entry: class, effect: shrug }

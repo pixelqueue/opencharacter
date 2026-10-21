@@ -1,0 +1,35 @@
+description: 'A picked talent that declares no state of its own: its `then` changes the owning copy, whose state its `self` reads'
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp.current: { type: integer, input: true, default: 20, min: 0, max: 20 }
+        contentTypes:
+          class:
+            state:
+              stamina: { type: integer, default: 2, min: 0 }
+          # A made-up talent that spends the class's stamina to shrug off 1 damage per hit.
+          talent:
+            effects:
+              - id: shrug
+                target: { incoming: { fields: [hp.current], tags: [damage] } }
+                op: add
+                value: 1
+                when: self.stamina > 0 && incoming.amount < 0
+                then:
+                  - { type: adjustState, entry: self, key: stamina, by: -1 }
+      content:
+        - id: classes.warrior
+          type: class
+          choices:
+            - { id: talent, from: { type: talent } }
+        - { id: talents.tough, type: talent }

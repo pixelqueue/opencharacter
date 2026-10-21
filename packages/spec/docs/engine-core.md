@@ -1012,16 +1012,21 @@ An `adjust` on field F with amount `by`, `tags` and optional `situational` choic
 6. **`then`.** After the adjust is fully routed, each instance that counted in step 1 applies its
    `then` changes, in instance order, to its own entry, before the next change in the batch: for
    an applied activation the applied entry whose `self` it sees (for content an applied grant
-   reaches, the granting entry), otherwise its copy (for picked or granted content, the owning
-   copy, not the pick's or the grant's own saved state). A `setState` or `adjustState` changes the entry's state; a
+   reaches, the granting entry), otherwise its copy. A `setState` or `adjustState` changes the
+   state `self` reads the key from: for picked content that declares the key, its pick's state,
+   as the same change with the pick's `path` and `option` would; for held granted content that
+   declares it, its grant's saved state, as the same change with `grant` and the grant's node
+   would (a value equal to its default is dropped; two grants of one item on one node share it);
+   otherwise the entry's state (for picked or granted content, the owning copy's). A change to a
+   grant that is no longer active (an earlier `then` turned its `when` off) is skipped. A
    `removeEffect` (applied effects only) removes the applied entry. Their `value` and `by` are
    evaluated with the instance's `item`, `self` and `incoming`, on the same sheet as step 1.
    They are checked like the same changes given to applyChanges, and a failure rejects the
    batch. Once an entry is removed, every later `then` change aimed at it in this step is
    skipped, so two effects of one ward that both counted remove it once. They are not adjusts,
-   so nothing routes or triggers on them. An instance with no entry (content picked in a
-   rules-level choice) skips them; `then` where no entry can exist is a load error
-   (`then-without-copy`).
+   so nothing routes or triggers on them. A change with nowhere to go is skipped: content picked
+   in the rules' choices, or granted by the rules, has no entry, so a change to the entry's state
+   is skipped (a key its pick declares still changes on the pick). `then` where no entry can exist is a load error (`then-without-copy`).
 
 Each step that changes a field is reported in `adjustments`, in order, as
 `{ field, by, requested?, taken?, reason, clamped? }`, with qualified field IDs:
@@ -1042,9 +1047,11 @@ Each step that changes a field is reported in `adjustments`, in order, as
 4. **`reset`:** the jump of the named field to its `reset` value.
    - **`carry`**: with `carry: true`, the excess routed into the field again, its
      entry `{ field, by, reason: carry }` followed by its own steps if it overflows in turn.
-5. **`then`:** after the adjust's own entries, one `{ entry, key, value, source }` per `then`
-   state change: the entry (a copy or an applied entry), the state key, its new value, and the
-   effect instance's source with its effect ID (`effect`, when the effect has one). A
+5. **`then`:** after the adjust's own entries, one `{ key, value, source }` per `then` state
+   change, with the state's address as the setState that makes it takes: `entry` (a copy or an
+   applied entry), a pick's `path` and `option`, or `grant` with the grant's node (`entry`, or
+   `path` and `option`); then the state key, its new value, and the effect instance's source
+   with its effect ID (`effect`, when the effect has one). A
    `removeEffect` adds `{ entry, removed: true, source }` instead. A skipped change adds nothing.
 
 `clamped: true` appears only when clamping changed the amount. So FitD stress at 8 taking 3

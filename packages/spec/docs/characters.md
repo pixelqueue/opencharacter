@@ -157,7 +157,9 @@ Content a holder grant makes active keeps its own state where its picks are kept
 a pick, holds `grants`, the saved state of the content its item (with its templates) or picked
 option grants, by the granted content's qualified ID. Each holds `state`, as a pick does, for
 keys the granted content declares; a key at its default (the grant's `state` value, else the
-declared default) is left out ([content.md](content.md#when-content-is-active)).
+declared default) is left out ([content.md](content.md#when-content-is-active)). It changes
+through `setState` and `adjustState` with `grant`, and through the granted content's own
+incoming-change `then` ([effects.md](effects.md)).
 
 ```yaml
 inventory:

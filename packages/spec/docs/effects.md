@@ -23,7 +23,7 @@ effects:
 | `tags`       | `add` on rolls only: tags for the roll item the effect adds (see below)                                                           |
 | `multiplied` | `add` on rolls only: `false` keeps `multiplyDice` and `multiply` off the items the effect adds (see below)                        |
 | `duration`   | Informational only: `{ amount, unit, concentration }`. Time tracking is the app's job; the engine never ends an effect by itself. |
-| `then`       | Incoming changes only: changes to the effect's own entry after the adjust is routed (see below)                                   |
+| `then`       | Incoming changes only: changes to the effect's own entry or state after the adjust is routed (see below)                          |
 
 ## Targets
 
@@ -96,13 +96,16 @@ incoming-change effect's `when`, `value` and `then` see `incoming`: `incoming.am
 change's `by` as requested, before any incoming-change effect (negative for harm), so every
 effect sees the same number whatever op runs first; `incoming.field` is the qualified ID of the
 field; `incoming.tags` is the change's tags. An incoming-change effect may also carry `then`: a
-list of changes to its own **entry**, `self`: the copy for a `holder` effect (for picked or
-granted content, the owning copy), the applied entry for an `applied` one (for content an
-applied grant reaches, the granting entry). Each is a
+list of changes to its own **entry**, `self`: the copy for a `holder` effect, the applied entry
+for an `applied` one (for content an applied grant reaches, the granting entry). Each is a
 `setState` or `adjustState` with `entry: self`, or, on an `applied` effect only, a
-`removeEffect` with `entry: self`, which ends the entry. When the effect counted (its `when`
-held and stacking kept it), applyChanges applies them right after the adjust is routed, and
-reports each in `adjustments`: a state change as `{ entry, key, value, source }`, a removal as
+`removeEffect` with `entry: self`, which ends the entry. A state change goes where `self` reads
+the key: for picked content that declares it, the pick's own state (as `pick: self` does in an
+action); for held granted content that declares it, the grant's saved state (as `grant: self`
+does); any other key, the owning copy's. When the effect counted (its `when` held and stacking
+kept it), applyChanges applies them right after the adjust is routed, and reports each in
+`adjustments`: a state change as `{ key, value, source }` with the address a setState would
+take (`entry`; `path` and `option`; or `grant` with either), a removal as
 `{ entry, removed: true, source }` ([engine-core.md](engine-core.md#routing-an-adjust)). Their
 `value` and `by` are formulas seeing `item`, `self` and `incoming`. They are not adjusts, so
 nothing routes or triggers on them. Only an effect with an entry can carry `then`: on the rules'
