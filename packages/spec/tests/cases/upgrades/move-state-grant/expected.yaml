@@ -1,0 +1,29 @@
+# o1's endurance grant takes used: true and its saved rebuke value wins; o2's false differs from
+# the grant's `state` (true), so it is kept; the elf grants no endurance trait, so its value is
+# dropped
+ok: true
+character:
+  features:
+    - id: o1
+      item: test-pack:races.orc
+      grants:
+        test-pack:traits.rebuke: { state: { used: false } }
+        test-pack:traits.endurance: { state: { used: true } }
+    - id: o2
+      item: test-pack:races.orc
+      grants:
+        test-pack:traits.rebuke: { state: { used: false } }
+    - id: e
+      item: test-pack:races.elf
+pending: []
+report:
+  values: []
+  steps:
+    - pack: test-pack
+      from: 1.0.0
+      to: 2.0.0
+      op: moveState
+    - pack: test-pack
+      from: 1.0.0
+      to: 2.0.0
+      op: moveState

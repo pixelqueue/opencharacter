@@ -1,0 +1,75 @@
+description: moveState moves a copy's state value to a pick in the copy's tree, through a granted feature's prefixed choice key
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          class: {}
+          feature: {}
+          invocation: {}
+      content:
+        - id: classes.warlock
+          type: class
+          state:
+            wordUsed: { type: boolean, default: false }
+          grants:
+            - item: features.invocations
+        - id: features.invocations
+          type: feature
+          choices:
+            - id: invocations
+              pick: { min: 0, max: 2 }
+              from: { type: invocation }
+        - id: invocations.word
+          type: invocation
+        - id: invocations.blast
+          type: invocation
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          class: {}
+          feature: {}
+          invocation: {}
+      content:
+        - id: classes.warlock
+          type: class
+          grants:
+            - item: features.invocations
+        - id: features.invocations
+          type: feature
+          choices:
+            - id: invocations
+              pick: { min: 0, max: 2 }
+              from: { type: invocation }
+        - id: invocations.word
+          type: invocation
+          state:
+            used: { type: boolean, default: false }
+        - id: invocations.blast
+          type: invocation
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - op: moveState
+              type: class
+              from: wordUsed
+              to: used
+              owner: features.invocations
+              choice: invocations
+              option: invocations.word

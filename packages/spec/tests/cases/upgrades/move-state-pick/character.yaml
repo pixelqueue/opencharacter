@@ -1,0 +1,28 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - id: test-pack
+    version: 1.0.0
+features:
+  # The word is picked: its pick takes the value.
+  - id: w1
+    item: test-pack:classes.warlock
+    state: { wordUsed: true }
+    choices:
+      test-pack:features.invocations/invocations:
+        - option: test-pack:invocations.word
+        - option: test-pack:invocations.blast
+  # No word pick: the value is dropped.
+  - id: w2
+    item: test-pack:classes.warlock
+    state: { wordUsed: true }
+    choices:
+      test-pack:features.invocations/invocations:
+        - option: test-pack:invocations.blast
+  # At the target's default: dropped.
+  - id: w3
+    item: test-pack:classes.warlock
+    state: { wordUsed: false }
+    choices:
+      test-pack:features.invocations/invocations:
+        - option: test-pack:invocations.word
