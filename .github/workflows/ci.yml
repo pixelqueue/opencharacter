@@ -78,4 +78,6 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build:packs
       - run: pnpm release:check
+      # The upgrade scripts on old saved data: the test jobs' clones have no tags, so it skips there.
+      - run: pnpm vitest run scripts/release/upgrades.test.ts
       - run: pnpm build:website
