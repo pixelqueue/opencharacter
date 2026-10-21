@@ -293,97 +293,12 @@ actions:
     steps:
       - id: type
         kind: choice
-        options:
-          - id: acid
-            when: "item.damageType == 'acid' || 'acid' in item.modularTypes"
-            changes:
-              - {
-                  type: setState,
-                  entry: self,
-                  key: modular,
-                  value: "item.damageType == 'acid' ? '' : 'acid'",
-                }
-          - id: bludgeoning
-            when: "item.damageType == 'bludgeoning' || 'bludgeoning' in item.modularTypes"
-            changes:
-              - {
-                  type: setState,
-                  entry: self,
-                  key: modular,
-                  value: "item.damageType == 'bludgeoning' ? '' : 'bludgeoning'",
-                }
-          - id: cold
-            when: "item.damageType == 'cold' || 'cold' in item.modularTypes"
-            changes:
-              - {
-                  type: setState,
-                  entry: self,
-                  key: modular,
-                  value: "item.damageType == 'cold' ? '' : 'cold'",
-                }
-          - id: electricity
-            when: "item.damageType == 'electricity' || 'electricity' in item.modularTypes"
-            changes:
-              - {
-                  type: setState,
-                  entry: self,
-                  key: modular,
-                  value: "item.damageType == 'electricity' ? '' : 'electricity'",
-                }
-          - id: fire
-            when: "item.damageType == 'fire' || 'fire' in item.modularTypes"
-            changes:
-              - {
-                  type: setState,
-                  entry: self,
-                  key: modular,
-                  value: "item.damageType == 'fire' ? '' : 'fire'",
-                }
-          - id: mental
-            when: "item.damageType == 'mental' || 'mental' in item.modularTypes"
-            changes:
-              - {
-                  type: setState,
-                  entry: self,
-                  key: modular,
-                  value: "item.damageType == 'mental' ? '' : 'mental'",
-                }
-          - id: piercing
-            when: "item.damageType == 'piercing' || 'piercing' in item.modularTypes"
-            changes:
-              - {
-                  type: setState,
-                  entry: self,
-                  key: modular,
-                  value: "item.damageType == 'piercing' ? '' : 'piercing'",
-                }
-          - id: slashing
-            when: "item.damageType == 'slashing' || 'slashing' in item.modularTypes"
-            changes:
-              - {
-                  type: setState,
-                  entry: self,
-                  key: modular,
-                  value: "item.damageType == 'slashing' ? '' : 'slashing'",
-                }
-          - id: sonic
-            when: "item.damageType == 'sonic' || 'sonic' in item.modularTypes"
-            changes:
-              - {
-                  type: setState,
-                  entry: self,
-                  key: modular,
-                  value: "item.damageType == 'sonic' ? '' : 'sonic'",
-                }
-          - id: void
-            when: "item.damageType == 'void' || 'void' in item.modularTypes"
-            changes:
-              - {
-                  type: setState,
-                  entry: self,
-                  key: modular,
-                  value: "item.damageType == 'void' ? '' : 'void'",
-                }
+        options: { values: { formula: '[item.damageType] + item.modularTypes' } }
+        changes:
+          - type: setState
+            entry: self
+            key: modular
+            value: "picked.value == item.damageType ? '' : picked.value"
       - id: result
         kind: outcome
         result: "'switched'"
