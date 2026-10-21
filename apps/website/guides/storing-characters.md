@@ -84,6 +84,9 @@ applyChanges(ruleset, character, [
 - The engine ignores extensions, except to store them with `setExtension`. `value: null`
   removes your namespace.
 - `setExtension` replaces your namespace's whole value, so merge before you write.
+- **Publish a schema for your data** if other apps should understand it: put its URI in
+  `$schema` in your namespace's object (`$schema: https://example.com/ocf/vtt-extension/1.json`).
+  Other apps can then validate it, show it as a form or edit it safely. OCF never fetches it.
 
 Changing extensions through `applyChanges` isn't required (it's not game state), but it keeps
 them in your change log with everything else.

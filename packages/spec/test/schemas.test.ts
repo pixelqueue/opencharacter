@@ -241,7 +241,7 @@ function url(length: number) {
   return base + 'a'.repeat(length - base.length);
 }
 
-describe('character IDs', () => {
+describe('character IDs and extensions', () => {
   const ajv = compileAll();
   const valid = (ref: string, data: unknown) => {
     const validate = ajv.getSchema(`${SCHEMA_BASE}${ref}`);
@@ -255,6 +255,7 @@ describe('character IDs', () => {
       packs: [{ id: 'p', version: '0.1.0' }],
       ...extra,
     });
+  const ext = (value: unknown) => character({ extensions: { 'com.example.vtt': value } });
 
   it('takes a URL of up to 2048 characters as a character, link or view ID', () => {
     expect(character({ id: url(2048) })).toBe(true);
@@ -264,5 +265,17 @@ describe('character IDs', () => {
     const view = 'engine/compute-sheet.schema.json#/$defs/view';
     expect(valid(view, { id: url(2048) })).toBe(true);
     expect(valid(view, { id: url(2049) })).toBe(false);
+  });
+
+  it('lets an object extension carry a $schema URI, and leaves other values as they were', () => {
+    expect(ext({ $schema: 'https://example.com/ocf/vtt-extension/1.json', tokenSize: 2 })).toBe(
+      true,
+    );
+    expect(ext({ $schema: 'not a uri' })).toBe(false);
+    expect(ext({ $schema: 2 })).toBe(false);
+    expect(ext({ tokenSize: 2 })).toBe(true);
+    expect(ext('a string')).toBe(true);
+    expect(ext([1, 2])).toBe(true);
+    expect(ext(null)).toBe(true);
   });
 });

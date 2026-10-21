@@ -262,6 +262,16 @@ inventory:
 
 `extensions` holds app-specific extras (portrait, notes, token settings), each under the app's own namespace: reverse DNS (`com.example.vtt`) or an npm package name (`@example/vtt`). Apps MUST carry other apps' extensions along untouched on import and export. The engine ignores them except for the `setExtension` change.
 
+A namespace's value may be any JSON value. When it is an object, it may carry `$schema`: the URI of a JSON Schema that the extending app publishes for its data. Another app can then validate the data, render it as a form from the schema's titles and descriptions, or edit it safely. OCF doesn't host, fetch or check these schemas; whether to use one is each app's choice. `$schema` is carried along with the rest of the value.
+
+```yaml
+extensions:
+  com.example.vtt:
+    $schema: https://example.com/ocf/vtt-extension/1.json
+    portrait: https://example.com/portraits/tamsin.png
+    tokenSize: 2
+```
+
 ## Legality
 
 Legality is checked against the current character only, never its history. A character with rules issues is still a valid file. Runtime errors are the things that would make a file invalid (unknown IDs, wrong types, out-of-range inputs, templates that don't apply), and the engine never produces such a file.
