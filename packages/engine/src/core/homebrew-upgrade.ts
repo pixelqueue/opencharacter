@@ -111,6 +111,26 @@ export class HomebrewRewriter {
     return i < 0 ? undefined : this.types[i];
   }
 
+  /**
+   * Whether content `qid` is `item`, or a homebrew item that extends it, directly or through
+   * other homebrew items (`extends` as rewritten so far).
+   */
+  isOf(qid: string, item: string): boolean {
+    const content = this.character.homebrew?.content ?? [];
+    const seen = new Set<string>();
+    for (let at: string | undefined = qid; at !== undefined && !seen.has(at);) {
+      if (at === item) return true;
+      seen.add(at);
+      const current: string = at;
+      const ref = content.find((c) => `${HOMEBREW}:${c.id}` === current)?.extends;
+      at =
+        ref === undefined || ref.includes(':')
+          ? ref
+          : (resolveContent(this.from, ref, HOMEBREW) ?? `${HOMEBREW}:${ref}`);
+    }
+    return false;
+  }
+
   apply(step: UpgradeStep, pack: string): string[] {
     const homebrew = this.character.homebrew as Obj | undefined;
     if (!homebrew) return [];
@@ -133,16 +153,20 @@ export class HomebrewRewriter {
       case 'renameTag':
         return this.rename({ kind: 'tag', from: str(step.from), to: str(step.to) });
       case 'renameState':
-        return this.onItems(step.type === undefined ? undefined : q(step.type), (item, at) => {
-          const paths: string[] = [];
-          const state = item.state;
-          const key = str(step.from);
-          if (isObj(state) && Object.hasOwn(state, key)) {
-            item.state = renameKey(state, key, str(step.to));
-            paths.push(pointer([...at, 'state', key]));
-          }
-          return [...paths, ...this.rootRename(item, at, 'self', key, str(step.to))];
-        });
+        return this.onItems(
+          step.type === undefined ? undefined : q(step.type),
+          (item, at) => {
+            const paths: string[] = [];
+            const state = item.state;
+            const key = str(step.from);
+            if (isObj(state) && Object.hasOwn(state, key)) {
+              item.state = renameKey(state, key, str(step.to));
+              paths.push(pointer([...at, 'state', key]));
+            }
+            return [...paths, ...this.rootRename(item, at, 'self', key, str(step.to))];
+          },
+          step.item === undefined ? undefined : q(step.item),
+        );
       case 'renameItemField':
         return this.onItems(q(str(step.type)), (item, at) => {
           const paths: string[] = [];
@@ -180,11 +204,21 @@ export class HomebrewRewriter {
     }
   }
 
-  /** Runs `fn` on each homebrew content item of the type (every item when `type` is absent). */
-  private onItems(type: string | undefined, fn: (item: Obj, at: (string | number)[]) => string[]) {
+  /**
+   * Runs `fn` on each homebrew content item of the type and of content `of` (the item or one
+   * extending it); without either, on every item.
+   */
+  private onItems(
+    type: string | undefined,
+    fn: (item: Obj, at: (string | number)[]) => string[],
+    of?: string,
+  ) {
     const content = (this.character.homebrew?.content ?? []) as Obj[];
     return content.flatMap((item, i) =>
-      type === undefined || this.types[i] === type ? fn(item, ['homebrew', 'content', i]) : [],
+      (type === undefined || this.types[i] === type) &&
+      (of === undefined || this.isOf(`${HOMEBREW}:${str(item.id)}`, of))
+        ? fn(item, ['homebrew', 'content', i])
+        : [],
     );
   }
 

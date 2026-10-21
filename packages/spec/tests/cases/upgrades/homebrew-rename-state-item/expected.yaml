@@ -1,0 +1,26 @@
+ok: true
+character:
+  inventory:
+    - { id: r, item: homebrew:gear.long-rope, state: { charges: 2 } }
+    - { id: l, item: homebrew:gear.lantern, state: { uses: 1 } }
+    - { id: t, item: homebrew:gear.torch, state: { uses: 3 } }
+  homebrew:
+    content:
+      - id: gear.long-rope
+        extends: gear.rope
+        effects:
+          - { target: stats.light, op: add, value: self.charges }
+      - id: gear.lantern
+        extends: gear.lamp
+        effects:
+          - { target: stats.light, op: add, value: self.uses }
+      - id: gear.torch
+        type: gear
+        state:
+          uses: { type: integer, default: 0 }
+        effects:
+          - { target: stats.light, op: add, value: self.uses }
+report:
+  homebrew:
+    - { path: /homebrew/content/0/effects/0/value, op: renameState }
+  errors: []

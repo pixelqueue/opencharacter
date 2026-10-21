@@ -63,12 +63,12 @@ display:
   a pick or a grant (a wizard's spells), once per activation, in activation order: computeSheet's
   `activations` whose `scope` isn't `applied`
   ([engine-core.md](engine-core.md#the-activation-list)). `item` is its item (base plus templates)
-  and `self` its copy; for picked or granted content, the owning copy, as everywhere else, and
-  absent when there is none (a rules-level pick). **Templates show with their copy**: a template on
-  a copy, saved or kept (an activation with `via: template`), is part of that copy's member, as its
-  `item` already is, and the copy's name names it (`{base} +1`). It is never a member of its own,
-  and never in "Other"; its actions and choices are listed like any other. Applied entries
-  (`applied`) aren't members unless the query says `from: applied` (below). As in a change aimed at
+  and `self` its copy; for picked or granted content, the owning copy with the pick's or grant's
+  own state keys over it, as everywhere else, and absent when there is none (a rules-level pick).
+  **Templates show with their copy**: a template on a copy, saved or kept (an activation with
+  `via: template`), is part of that copy's member, as its `item` already is, and the copy's name
+  names it (`{base} +1`). It is never a member of its own, and never in "Other"; its actions and
+  choices are listed like any other. Applied entries (`applied`) aren't members unless the query says `from: applied` (below). As in a change aimed at
   copies, the character's fields are visible too. Only the character's own content is listed:
   content the character doesn't have (a shop, a class's spell list) is the app's catalog.
 - **Applied entries**: a content group's `members` may say `from: applied`
