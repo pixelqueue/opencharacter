@@ -1,0 +1,11 @@
+pack: orc-2e
+from: 0.1.0
+to: 0.2.0
+steps:
+  # Drain Bonded Item's and Linked Focus's daily uses moved from the wizard copy to Arcane Bond's
+  # saved grant state.
+  - { op: moveState, type: class, from: bondDrained, grant: features.wizard.arcane-bond }
+  - { op: moveState, type: class, from: linkedFocusUsed, grant: features.wizard.arcane-bond }
+  # Assurance's skill was grant state; it is a pick now, preset by the granting content.
+  - { op: removeState, type: feat, key: skill }
+  - { op: requireChoice, owner: feats.archetype.scout.terrain-scout, choice: terrain }

@@ -7,6 +7,10 @@ fields:
   duration: minutes
   durationAmount: 1
   applyTo: self
+# `blocked` is the Hit Points the shield has lost to Shield Block; at its Hit Points it is
+# destroyed and the spell ends.
+state:
+  blocked: { type: integer, default: 0, min: 0 }
 effects:
   - target:
       incoming:
@@ -17,3 +21,30 @@ effects:
     value: min(-incoming.amount, 5 + 5 * floor((self.rank - 4) / 2))
     when: incoming.amount < 0
     scope: applied
+  - target: { fields: { where: "'ac' in item.tags" } }
+    op: add
+    value: 1
+    stackKey: circumstance-bonus
+    when: shield.raised
+    scope: applied
+  - id: block
+    target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    value: min(10, -incoming.amount)
+    when: situational.fireShieldBlock && incoming.amount < 0
+    scope: applied
+    then:
+      - type: adjustState
+        entry: self
+        key: blocked
+        by: max(0, -incoming.amount - 10)
+  - id: destroyed
+    target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    value: 0
+    when: >-
+      situational.fireShieldBlock && incoming.amount < 0
+        && self.blocked + max(0, -incoming.amount - 10) >= 40 + 10 * floor((self.rank - 4) / 2)
+    scope: applied
+    then:
+      - { type: removeEffect, entry: self }

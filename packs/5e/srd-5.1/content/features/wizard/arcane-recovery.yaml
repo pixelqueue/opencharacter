@@ -3,79 +3,34 @@ type: feature
 actions:
   - id: arcane-recovery
     tags: [feature]
-    results: [too-many, recovered]
-    available: '!self.arcaneRecoveryUsed'
-    params:
-      level1: { type: integer, optional: true }
-      level2: { type: integer, optional: true }
-      level3: { type: integer, optional: true }
-      level4: { type: integer, optional: true }
-      level5: { type: integer, optional: true }
+    results: [recovered]
+    available: >-
+      !self.arcaneRecoveryUsed
+        && spellSlots.level1.used + spellSlots.level2.used + spellSlots.level3.used
+          + spellSlots.level4.used + spellSlots.level5.used > 0
     steps:
-      - id: counts
-        kind: branch
-        cases:
-          - when: true
-            flags:
-              level1: 'has(params.level1) ? params.level1 : 0'
-              level2: 'has(params.level2) ? params.level2 : 0'
-              level3: 'has(params.level3) ? params.level3 : 0'
-              level4: 'has(params.level4) ? params.level4 : 0'
-              level5: 'has(params.level5) ? params.level5 : 0'
-      - id: total
-        kind: branch
-        cases:
-          - when: true
-            flags:
-              levels: flags.level1 + 2 * flags.level2 + 3 * flags.level3 + 4 * flags.level4 + 5 * flags.level5
-      - id: tooMany
-        kind: outcome
-        when: >-
-          flags.levels == 0 || flags.levels > ceil(self.level / 2)
-            || flags.level1 < 0 || flags.level1 > spellSlots.level1.used
-            || flags.level2 < 0 || flags.level2 > spellSlots.level2.used
-            || flags.level3 < 0 || flags.level3 > spellSlots.level3.used
-            || flags.level4 < 0 || flags.level4 > spellSlots.level4.used
-            || flags.level5 < 0 || flags.level5 > spellSlots.level5.used
-        result: "'too-many'"
-        data:
-          maxLevels: ceil(self.level / 2)
+      # One spent slot per pick, of 5th level or lower, while the levels fit under half the
+      # wizard level.
+      - id: slots
+        kind: choice
+        options:
+          values: [1, 2, 3, 4, 5]
+          where: >-
+            picks < fieldOf('spellSlots.level{slot}.used', value)
+              && value + sumList(steps.slots.picked, indexOf(['1', '2', '3', '4', '5'], x) + 1)
+                <= ceil(self.level / 2)
+        repeat: { max: ceil(self.level / 2), min: 1 }
+        prefer: value
+        changes:
+          - type: adjust
+            field: { formula: "'spellSlots.level' + string(picked.value) + '.used'" }
+            by: -1
       - id: recover
         kind: changes
         changes:
           - { type: setState, entry: self, key: arcaneRecoveryUsed, value: true }
-          - {
-              type: adjust,
-              field: spellSlots.level1.used,
-              by: -flags.level1,
-              when: flags.level1 > 0,
-            }
-          - {
-              type: adjust,
-              field: spellSlots.level2.used,
-              by: -flags.level2,
-              when: flags.level2 > 0,
-            }
-          - {
-              type: adjust,
-              field: spellSlots.level3.used,
-              by: -flags.level3,
-              when: flags.level3 > 0,
-            }
-          - {
-              type: adjust,
-              field: spellSlots.level4.used,
-              by: -flags.level4,
-              when: flags.level4 > 0,
-            }
-          - {
-              type: adjust,
-              field: spellSlots.level5.used,
-              by: -flags.level5,
-              when: flags.level5 > 0,
-            }
       - id: result
         kind: outcome
         result: "'recovered'"
         data:
-          levels: flags.levels
+          levels: sumList(steps.slots.picked, indexOf(['1', '2', '3', '4', '5'], x) + 1)

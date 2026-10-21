@@ -1,4 +1,4 @@
-description: '5E wizard 6: Arcane Recovery refuses two 2nd-level slots (4 levels, more than 3)'
+description: '5E wizard 6: after a 2nd-level slot, Arcane Recovery offers only a 1st (3 levels, half of 6)'
 specVersion: 0.1.0
 call: startAction
 packs:
@@ -10,4 +10,6 @@ input:
       entry: wizard,
       source: 5e-srd-5.1:features.wizard.arcane-recovery,
     }
-  params: { level2: 2 }
+  policy: { choices: pause }
+answers:
+  - { option: '2' }

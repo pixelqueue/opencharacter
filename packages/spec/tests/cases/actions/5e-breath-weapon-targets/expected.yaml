@@ -24,6 +24,15 @@ proposedChanges:
         by: -5,
         tags: [damage, save-half, save.dex, save-success, damage.fire],
       }
+  # Once until a rest, on the ancestry's pick.
+  - to: self
+    step: spend
+    change:
+      type: setState
+      path: { entry: race, choice: [draconic-ancestry] }
+      option: 5e-srd-5.1:draconic-ancestries.red
+      key: used
+      value: true
 log:
   - {
       step: damage,

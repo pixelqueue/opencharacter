@@ -13,12 +13,8 @@ effects:
     value: { tag: skill.society }
     when: "!('skill.society' in skills.chosen)"
   - { target: skills.trainings, op: add, value: 1 }
-  - target: skills.trained
-    op: grant
-    value: { tag: skill.lore.skittermander }
-    when: "!('skill.lore.skittermander' in skills.chosen)"
-  - { target: skills.trainings, op: add, value: 1 }
-  - target: skills.lore.skittermander.granted
-    op: add
-    value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
   - { target: languages, op: grant, value: { item: languages.skittermander } }
+grants:
+  - item: feats.skill.additional-lore
+    waivePrerequisites: true
+    choices: { lore: [{ option: skittermander }] }

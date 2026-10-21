@@ -236,16 +236,9 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
   other creatures' sheets, starships and drones; most harmony and quantum field effects; skill
   feats that change time or what the GM tells you; more than half the spells (utility,
   summoning, counteracting, illusions, areas over time); the rituals' outcomes; services.
-- **Format gaps** (each filed as a spec-change issue; the pack works around it):
-  - Formulas can't test a string's prefix
-    ([#21](https://github.com/pixelqueue/opencharacter/issues/21)): the solarian's form
-    templates are collected into a set field (`solarian.forms`) to find them on a weapon.
-  - An action's choice step can't take its options from a list
-    ([#22](https://github.com/pixelqueue/opencharacter/issues/22)): a modular weapon's damage
-    types and Core Memories' skills are written options, each gated by `when`.
-  - A grant can't preset the granted item's choices
-    ([#23](https://github.com/pixelqueue/opencharacter/issues/23)): Assurance takes its skill
-    from grant state; feats with nested choices can't be granted preset.
+- **Format gaps** (the pack works around it):
+  - An upgrade script can't name a choice nested in an inline option, so such a choice can't
+    move: the operative's specialization skill feat stays one copied choice per specialization.
 
 ## Sources
 

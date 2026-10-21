@@ -1,6 +1,6 @@
 id: backgrounds.driver
 type: background
-# Assurance gets the picked Lore through its `skill` state, so its own choice isn't asked.
+# Assurance's skill choice is preset to the picked Lore.
 effects:
   - target: skills.trained
     op: grant
@@ -27,7 +27,7 @@ choices:
               }
             - { target: skills.trainings, op: add, value: 1 }
           grants:
-            - { item: feats.skill.assurance, state: { skill: "'skill.lore.driving'" } }
+            - { item: feats.skill.assurance, choices: { skill: [{ option: skill.lore.driving }] } }
         - id: piloting
           effects:
             - {
@@ -38,4 +38,4 @@ choices:
               }
             - { target: skills.trainings, op: add, value: 1 }
           grants:
-            - { item: feats.skill.assurance, state: { skill: "'skill.lore.piloting'" } }
+            - { item: feats.skill.assurance, choices: { skill: [{ option: skill.lore.piloting }] } }

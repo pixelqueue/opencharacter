@@ -18,7 +18,11 @@ outcome:
 proposedChanges:
   - to: self
     step: cost
-    change: { type: setState, entry: tiefling, key: hellishRebukeUsed, value: true }
+    change:
+      type: setState
+      grants: { where: "item.id == '5e-srd-5.1:traits.infernal-legacy'" }
+      key: hellishRebukeUsed
+      value: true
 log:
   - step: cost
     action: 5e-srd-5.1:cast-spell

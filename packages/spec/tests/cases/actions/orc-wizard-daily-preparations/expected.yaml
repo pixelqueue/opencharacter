@@ -33,8 +33,14 @@ proposedChanges:
     change:
       type: setState
       key: bondDrained
-      copies:
-        type: orc-2e:class
-        where: has(self.bondDrained) && self.bondDrained > 0
+      grants: { where: self.bondDrained > 0 }
       value: 0
+  # Arcane Bond keeps its own state; with Linked Focus unused, nothing changes.
+  - to: self
+    step: regain
+    change:
+      type: setState
+      key: linkedFocusUsed
+      grants: { where: self.linkedFocusUsed }
+      value: false
 log: []

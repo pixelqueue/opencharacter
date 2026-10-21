@@ -1,8 +1,12 @@
 id: features.wizard.arcane-bond
 type: feature
 fields: { level: 1 }
-# The ranks drained today are the class copy's `bondDrained` (bit `2^(rank - 1)` each). With
-# Improved Familiar Attunement this is Drain Familiar.
+# The ranks drained today are its `bondDrained` (bit `2^(rank - 1)` each), and Linked Focus's use
+# its `linkedFocusUsed`; daily preparations reset both. With Improved Familiar Attunement this is
+# Drain Familiar.
+state:
+  bondDrained: { type: integer, default: 0, min: 0, max: 511 }
+  linkedFocusUsed: { type: boolean, default: false }
 actions:
   - id: drain-bonded-item
     tags: [class-action, spell]
@@ -30,7 +34,7 @@ actions:
         kind: changes
         changes:
           - type: adjustState
-            entry: self
+            grant: self
             key: bondDrained
             by: '[1, 2, 4, 8, 16, 32, 64, 128, 256][steps.spell.self.rank - 1]'
       - id: linked
@@ -40,7 +44,7 @@ actions:
             && steps.spell.item.id in spells.curriculum && focus.spent > 0
         changes:
           - { type: adjust, field: focus.spent, by: -1 }
-          - { type: setState, entry: self, key: linkedFocusUsed, value: true }
+          - { type: setState, grant: self, key: linkedFocusUsed, value: true }
       - id: result
         kind: outcome
         result: "'drained'"

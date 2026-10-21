@@ -1,0 +1,18 @@
+pack: orc-sf-2e
+from: 0.1.1
+to: 0.2.0
+steps:
+  # Assurance's skill was grant state; it is a pick now, preset by the granting content.
+  - { op: removeState, type: feat, key: skill }
+  # Fixation's Lore was the granted Additional Lore's own choice, saved in Fixation's pick; it is
+  # Fixation's topic now, with the same options, which presets Additional Lore and Assurance.
+  - op: renameChoice
+    owner: feats.ancestry.fixation
+    from: orc-sf-2e:feats.skill.additional-lore/lore
+    to: topic
+  # Warblood vesk's attack was the granted Brutal Anatomy's own choice, saved in the heritage's
+  # pick; the heritage picks two attacks now, with the same options. The second is pending.
+  - op: renameChoice
+    owner: heritages.warblood-vesk
+    from: orc-sf-2e:feats.ancestry.brutal-anatomy/attack
+    to: attacks

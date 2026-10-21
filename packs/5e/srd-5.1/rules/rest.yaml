@@ -279,13 +279,13 @@ actions:
             key: wholenessUsed
             value: false
           - type: setState
-            when: countCopies(has(copy.state.hellishRebukeUsed) && copy.state.hellishRebukeUsed) > 0
-            copies: { type: race, where: has(self.hellishRebukeUsed) && self.hellishRebukeUsed }
+            when: countCopies(copy.item == @races.tiefling) > 0
+            grants: { where: 'item.id == @traits.infernal-legacy && self.hellishRebukeUsed' }
             key: hellishRebukeUsed
             value: false
           - type: setState
-            when: countCopies(has(copy.state.darknessUsed) && copy.state.darknessUsed) > 0
-            copies: { type: race, where: has(self.darknessUsed) && self.darknessUsed }
+            when: countCopies(copy.item == @races.tiefling) > 0
+            grants: { where: 'item.id == @traits.infernal-legacy && self.darknessUsed' }
             key: darknessUsed
             value: false
           - type: setState
@@ -300,15 +300,9 @@ actions:
             key: used
             value: false
           - type: setState
-            when: >-
-              countCopies(has(copy.state.relentlessEnduranceUsed)
-                && copy.state.relentlessEnduranceUsed) > 0
-            copies:
-              {
-                type: race,
-                where: has(self.relentlessEnduranceUsed) && self.relentlessEnduranceUsed,
-              }
-            key: relentlessEnduranceUsed
+            when: countCopies(copy.item == @races.half-orc) > 0
+            grants: { where: 'item.id == @traits.relentless-endurance && self.used' }
+            key: used
             value: false
           - type: setState
             when: countCopies(has(copy.state.signatureSpell1Used) && copy.state.signatureSpell1Used) > 0
@@ -323,45 +317,14 @@ actions:
             key: signatureSpell2Used
             value: false
           - type: setState
-            when: countCopies(has(copy.state.bewitchingWhispersUsed) && copy.state.bewitchingWhispersUsed) > 0
-            copies:
-              {
-                type: class,
-                where: has(self.bewitchingWhispersUsed) && self.bewitchingWhispersUsed,
-              }
-            key: bewitchingWhispersUsed
+            when: countCopies(copy.item == @classes.warlock) > 0
+            picks: { where: "item.type == 'invocation' && self.used" }
+            key: used
             value: false
           - type: setState
-            when: countCopies(has(copy.state.dreadfulWordUsed) && copy.state.dreadfulWordUsed) > 0
-            copies: { type: class, where: has(self.dreadfulWordUsed) && self.dreadfulWordUsed }
-            key: dreadfulWordUsed
-            value: false
-          - type: setState
-            when: countCopies(has(copy.state.minionsOfChaosUsed) && copy.state.minionsOfChaosUsed) > 0
-            copies: { type: class, where: has(self.minionsOfChaosUsed) && self.minionsOfChaosUsed }
-            key: minionsOfChaosUsed
-            value: false
-          - type: setState
-            when: countCopies(has(copy.state.mireTheMindUsed) && copy.state.mireTheMindUsed) > 0
-            copies: { type: class, where: has(self.mireTheMindUsed) && self.mireTheMindUsed }
-            key: mireTheMindUsed
-            value: false
-          - type: setState
-            when: countCopies(has(copy.state.sculptorOfFleshUsed) && copy.state.sculptorOfFleshUsed) > 0
-            copies:
-              { type: class, where: has(self.sculptorOfFleshUsed) && self.sculptorOfFleshUsed }
-            key: sculptorOfFleshUsed
-            value: false
-          - type: setState
-            when: countCopies(has(copy.state.signOfIllOmenUsed) && copy.state.signOfIllOmenUsed) > 0
-            copies: { type: class, where: has(self.signOfIllOmenUsed) && self.signOfIllOmenUsed }
-            key: signOfIllOmenUsed
-            value: false
-          - type: setState
-            when: countCopies(has(copy.state.thiefOfFiveFatesUsed) && copy.state.thiefOfFiveFatesUsed) > 0
-            copies:
-              { type: class, where: has(self.thiefOfFiveFatesUsed) && self.thiefOfFiveFatesUsed }
-            key: thiefOfFiveFatesUsed
+            when: countCopies(copy.item == @races.dragonborn) > 0
+            picks: { where: "item.type == 'draconicAncestry' && self.used" }
+            key: used
             value: false
           - type: setState
             when: countCopies(copy.type == 'monsterAction') > 0

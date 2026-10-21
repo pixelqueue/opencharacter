@@ -540,7 +540,7 @@ actions:
         changes:
           - type: choose
             when: has(steps.monster.item.startingForm)
-            path: { entry: monster, choice: [form] }
+            path: { entry: { formula: 'steps.monster.added[0]' }, choice: [form] }
             option: steps.monster.item.startingForm
           - type: addItem
             forEach: steps.monster.item.ownCopies

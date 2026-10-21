@@ -1,5 +1,7 @@
 id: invocations.sculptor-of-flesh
 type: invocation
+state:
+  used: { type: boolean, default: false }
 prerequisites:
   - id: level
     when: self.level >= 7
@@ -12,9 +14,14 @@ effects:
     op: option
     when: >-
       action.item.id == @spells.polymorph && flags.slot == pactSlots.level
-        && pactSlots.used < pactSlots.max && !self.sculptorOfFleshUsed
+        && pactSlots.used < pactSlots.max && !self.used
     value:
       id: invocation
       changes:
         - { type: adjust, field: pactSlots.used, by: 1 }
-        - { type: setState, entry: self, key: sculptorOfFleshUsed, value: true }
+        - {
+            type: setState,
+            picks: { where: 'item.id == @invocations.sculptor-of-flesh' },
+            key: used,
+            value: true,
+          }
