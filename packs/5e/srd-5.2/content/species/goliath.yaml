@@ -6,13 +6,8 @@ fields:
 suppress: [size]
 state:
   giantAncestryUsed: { type: integer, default: 0, min: 0 }
-  largeFormUsed: { type: boolean, default: false }
-  largeFormActive: { type: boolean, default: false }
 effects:
   - { target: creature.type, op: set, value: "'humanoid'" }
-  - target: creature.size
-    op: set
-    value: "self.largeFormActive ? 'large' : 'medium'"
 grants:
   - item: traits.giant-ancestry
   - item: traits.large-form

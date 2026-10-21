@@ -1,5 +1,7 @@
 id: traits.gnomish-lineage
 type: trait
+state:
+  speakWithAnimalsUsed: { type: integer, default: 0, min: 0 }
 effects:
   - target: { choices: [spell-cost] }
     op: option
@@ -11,10 +13,10 @@ effects:
       id: free-cast
       flags: { slot: 1, castAbility: "'species'" }
       changes:
-        - { type: adjustState, entry: self, key: speakWithAnimalsUsed, by: 1 }
+        - { type: adjustState, grants: { where: "item.id == @traits.gnomish-lineage" }, key: speakWithAnimalsUsed, by: 1 }
   - target: { steps: [rest.long] }
     op: changes
     when: self.speakWithAnimalsUsed > 0
     value:
       changes:
-        - { type: setState, entry: self, key: speakWithAnimalsUsed, value: 0 }
+        - { type: setState, grants: { where: "item.id == @traits.gnomish-lineage" }, key: speakWithAnimalsUsed, value: 0 }

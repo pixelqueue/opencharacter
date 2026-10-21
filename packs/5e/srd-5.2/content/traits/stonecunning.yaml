@@ -1,5 +1,8 @@
 id: traits.stonecunning
 type: trait
+state:
+  stonecunningUsed: { type: integer, default: 0, min: 0 }
+  tremorsenseActive: { type: boolean, default: false }
 effects:
   - { target: senses.tremorsense, op: atLeast, value: 60, when: self.tremorsenseActive }
   - target: { steps: [rest.long] }
@@ -7,8 +10,8 @@ effects:
     when: self.stonecunningUsed > 0 || self.tremorsenseActive
     value:
       changes:
-        - { type: setState, entry: self, key: stonecunningUsed, value: 0 }
-        - { type: setState, entry: self, key: tremorsenseActive, value: false }
+        - { type: setState, grants: { where: "item.id == @traits.stonecunning" }, key: stonecunningUsed, value: 0 }
+        - { type: setState, grants: { where: "item.id == @traits.stonecunning" }, key: tremorsenseActive, value: false }
 actions:
   - id: stonecunning
     tags: [feature]
@@ -18,8 +21,8 @@ actions:
       - id: sense
         kind: changes
         changes:
-          - { type: setState, entry: self, key: tremorsenseActive, value: true }
-          - { type: adjustState, entry: self, key: stonecunningUsed, by: 1 }
+          - { type: setState, grant: self, key: tremorsenseActive, value: true }
+          - { type: adjustState, grant: self, key: stonecunningUsed, by: 1 }
       - id: result
         kind: outcome
         result: "'sensing'"
@@ -31,7 +34,7 @@ actions:
       - id: end
         kind: changes
         changes:
-          - { type: setState, entry: self, key: tremorsenseActive, value: false }
+          - { type: setState, grant: self, key: tremorsenseActive, value: false }
       - id: result
         kind: outcome
         result: "'ended'"

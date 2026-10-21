@@ -1,5 +1,8 @@
 id: traits.draconic-flight
 type: trait
+state:
+  flightUsed: { type: boolean, default: false }
+  flightActive: { type: boolean, default: false }
 effects:
   - { target: combat.flySpeed, op: atLeast, value: combat.speed, when: self.flightActive }
   - target: { steps: [rest.long] }
@@ -7,20 +10,14 @@ effects:
     when: self.flightUsed || self.flightActive
     value:
       changes:
-        - { type: setState, entry: self, key: flightUsed, value: false }
-        - { type: setState, entry: self, key: flightActive, value: false }
+        - { type: setState, grants: { where: "item.id == @traits.draconic-flight" }, key: flightUsed, value: false }
+        - { type: setState, grants: { where: "item.id == @traits.draconic-flight" }, key: flightActive, value: false }
 followUps:
   - id: incapacitated
     becomes: conditions.incapacitated
     required: true
-    when: >-
-      countCopies(copy.type == 'species' && has(copy.state.flightActive)
-        && copy.state.flightActive) > 0
-    changes:
-      - type: setState
-        copies: { type: species, where: has(self.flightActive) }
-        key: flightActive
-        value: false
+    when: self.flightActive
+    action: retract-wings
 actions:
   - id: draconic-flight
     tags: [feature]
@@ -30,8 +27,8 @@ actions:
       - id: wings
         kind: changes
         changes:
-          - { type: setState, entry: self, key: flightActive, value: true }
-          - { type: setState, entry: self, key: flightUsed, value: true }
+          - { type: setState, grant: self, key: flightActive, value: true }
+          - { type: setState, grant: self, key: flightUsed, value: true }
       - id: result
         kind: outcome
         result: "'flying'"
@@ -43,7 +40,7 @@ actions:
       - id: retract
         kind: changes
         changes:
-          - { type: setState, entry: self, key: flightActive, value: false }
+          - { type: setState, grant: self, key: flightActive, value: false }
       - id: result
         kind: outcome
         result: "'ended'"

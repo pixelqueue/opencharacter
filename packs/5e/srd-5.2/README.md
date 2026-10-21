@@ -259,7 +259,11 @@ Where the SRD is unclear or silent, the pack reads it this way:
   a failed test), Channel Divinity, Wild Shape, Fighting Styles, Martial Arts and Focus, Lay On
   Hands and smites, Favored Enemy, Sneak Attack and Cunning Strike, Font of Magic and the ten
   Metamagic options, Pact Magic and the 28 invocations, the spellbook, Arcane Recovery. Uses until
-  a rest are state on the class copy.
+  a rest are state on the class copy, an invocation's on its pick (Gift of the Depths' `used`).
+  A species trait keeps its own uses as its grant's saved state (Breath Weapon, Draconic Flight,
+  Stonecunning, the lineage spells, Large Form, Adrenaline Rush, Relentless Endurance); Giant
+  Ancestry's are on the species copy, since Stone's Endurance spends one from an incoming-damage
+  effect, which can change only a copy's state.
 - **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
   prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
   and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with

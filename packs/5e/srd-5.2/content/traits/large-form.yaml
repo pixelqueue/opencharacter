@@ -1,6 +1,12 @@
 id: traits.large-form
 type: trait
+state:
+  largeFormUsed: { type: boolean, default: false }
+  largeFormActive: { type: boolean, default: false }
 effects:
+  - target: creature.size
+    op: set
+    value: "self.largeFormActive ? 'large' : 'medium'"
   - target: { rolls: [check.str] }
     op: rollModifier
     value: { kind: advantage }
@@ -11,8 +17,8 @@ effects:
     when: self.largeFormUsed || self.largeFormActive
     value:
       changes:
-        - { type: setState, entry: self, key: largeFormUsed, value: false }
-        - { type: setState, entry: self, key: largeFormActive, value: false }
+        - { type: setState, grants: { where: "item.id == @traits.large-form" }, key: largeFormUsed, value: false }
+        - { type: setState, grants: { where: "item.id == @traits.large-form" }, key: largeFormActive, value: false }
 actions:
   - id: large-form
     tags: [feature]
@@ -22,8 +28,8 @@ actions:
       - id: grow
         kind: changes
         changes:
-          - { type: setState, entry: self, key: largeFormActive, value: true }
-          - { type: setState, entry: self, key: largeFormUsed, value: true }
+          - { type: setState, grant: self, key: largeFormActive, value: true }
+          - { type: setState, grant: self, key: largeFormUsed, value: true }
       - id: result
         kind: outcome
         result: "'large'"
@@ -35,7 +41,7 @@ actions:
       - id: shrink
         kind: changes
         changes:
-          - { type: setState, entry: self, key: largeFormActive, value: false }
+          - { type: setState, grant: self, key: largeFormActive, value: false }
       - id: result
         kind: outcome
         result: "'ended'"
