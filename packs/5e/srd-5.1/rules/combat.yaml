@@ -754,6 +754,7 @@ actions:
   - id: breath-weapon
     tags: [breath-weapon]
     results: [breathed]
+    available: '!self.used'
     participants:
       target: {}
     steps:
@@ -788,6 +789,10 @@ actions:
               - save-half
               - { formula: "'save.' + item.save" }
               - { formula: "steps.saves.result == 'success' ? 'save-success' : 'save-failure'" }
+      - id: spend
+        kind: changes
+        changes:
+          - { type: setState, pick: self, key: used, value: true }
       - id: result
         kind: outcome
         result: "'breathed'"
