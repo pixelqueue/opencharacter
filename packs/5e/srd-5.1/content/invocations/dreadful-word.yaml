@@ -1,5 +1,7 @@
 id: invocations.dreadful-word
 type: invocation
+state:
+  used: { type: boolean, default: false }
 prerequisites:
   - id: level
     when: self.level >= 7
@@ -12,9 +14,9 @@ effects:
     op: option
     when: >-
       action.item.id == @spells.confusion && flags.slot == pactSlots.level
-        && pactSlots.used < pactSlots.max && !self.dreadfulWordUsed
+        && pactSlots.used < pactSlots.max && !self.used
     value:
       id: invocation
       changes:
         - { type: adjust, field: pactSlots.used, by: 1 }
-        - { type: setState, entry: self, key: dreadfulWordUsed, value: true }
+        - { type: setState, picks: { where: 'item.id == @invocations.dreadful-word' }, key: used, value: true }
