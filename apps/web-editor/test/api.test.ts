@@ -1,5 +1,13 @@
 import { execFileSync } from 'node:child_process';
-import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +25,15 @@ cpSync(join(source, 'packs'), join(root, 'packs'), {
   filter: (p) => !/\/(dist|node_modules)(\/|$)/.test(p),
 });
 cpSync(join(source, 'examples'), join(root, 'examples'), { recursive: true });
+// The workspace's manifests and pending changesets, which validation reads for each pack's next
+// version (an upgrade script may go to it).
+cpSync(join(source, '.changeset'), join(root, '.changeset'), { recursive: true });
+for (const file of ['package.json', 'pnpm-workspace.yaml'])
+  cpSync(join(source, file), join(root, file));
+for (const dir of ['packages', 'apps'])
+  for (const name of readdirSync(join(source, dir)))
+    if (existsSync(join(source, dir, name, 'package.json')))
+      cpSync(join(source, dir, name, 'package.json'), join(root, dir, name, 'package.json'));
 symlinkSync(join(source, 'node_modules'), join(root, 'node_modules'));
 execFileSync('git', ['init', '-q'], { cwd: root });
 execFileSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', 'add', '-A'], { cwd: root });
