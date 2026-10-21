@@ -1,0 +1,20 @@
+# First hit: -10 is raised to 1 - 5 = -4 (hp 1); `floor` removes the ward, so its own setState
+# and `mark`'s are skipped. Second hit: no ward, hp 1 -> 0.
+ok: true
+character:
+  values:
+    test-pack:hp.current: 0
+  applied: []
+adjustments:
+  - { field: test-pack:hp.current, by: -4, requested: -10, taken: -4, reason: requested }
+  - entry: ward
+    removed: true
+    source: { type: item, id: 'test-pack:spells.death-ward', effect: floor }
+  - {
+      field: test-pack:hp.current,
+      by: -1,
+      requested: -10,
+      taken: -10,
+      reason: requested,
+      clamped: true,
+    }
