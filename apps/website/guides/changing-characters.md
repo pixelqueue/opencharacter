@@ -7,6 +7,7 @@ taking damage to levelling up, goes through `applyChanges`:
 const result = applyChanges(ruleset, character, changes);
 if (result.ok) {
   character = result.character; // save it
+  log(result.changes); // the batch as applied, for replays
   showWarnings(result.issues); // rules issues: applied, but the rules object
 } else {
   showError(result.errors); // nothing was applied
@@ -15,7 +16,9 @@ if (result.ok) {
 
 `applyChanges` works like a reducer: it returns a new character and never mutates the one you
 pass in. The same changes on the same character always give the same result
-([Storing characters](storing-characters.md#change-logs-undo-and-sync)).
+([Storing characters](storing-characters.md#change-logs-undo-and-sync)). Log `result.changes`,
+not the batch you sent: an `adjust` whose effects rolled dice comes back with the faces it used,
+so a replay reads them instead of failing with `faces-required`.
 
 ## The change types
 
@@ -32,6 +35,8 @@ this field exist, is 25 in range) is checked against the ruleset.
 | `equip`          | Equips or unequips a copy                                        | `{ type: 'equip', entry: 'inv-4', equipped: true }`                                             |
 | `setState`       | Sets a per-copy state value                                      | `{ type: 'setState', entry: 'inv-2', key: 'ignited', value: true }`                             |
 | `adjustState`    | Adds to a numeric per-copy state value                           | `{ type: 'adjustState', entry: 'fighter', key: 'level', by: 1 }`                                |
+| `setQuantity`    | Sets a copy's quantity (not below 0; a copy at 0 stays)          | `{ type: 'setQuantity', entry: 'inv-3', value: 20 }`                                            |
+| `adjustQuantity` | Adds to a copy's quantity (spending an arrow)                    | `{ type: 'adjustQuantity', entry: 'inv-3', by: -1 }`                                            |
 | `applyTemplate`  | Applies a template to a copy                                     | `{ type: 'applyTemplate', entry: 'inv-6', template: '5e-srd-5.1:magic-items.weapon-plus-one' }` |
 | `removeTemplate` | Removes a template from a copy                                   | `{ type: 'removeTemplate', entry: 'inv-6', template: '…' }`                                     |
 | `applyEffect`    | Starts a temporary effect from content not owned                 | `{ type: 'applyEffect', id: 'bless-1', source: '5e-srd-5.1:spells.bless' }`                     |
@@ -49,9 +54,11 @@ A set of tags, such as 5E's `5e-srd-5.1:damage.resistances`, may take only some 
 in the ruleset lists them as `tagOptions`: offer those in your "Add" picker. A `set` with any
 other tag fails with `invalid-option`.
 
-`setState`, `adjustState`, `equip` and `removeItem` can also aim at copies by query instead of
-one `entry`: `copies: { type, where }`, optionally with `limit`. Actions use this (a long rest
-restores every class's hit dice); your app rarely needs to
+`setState`, `adjustState`, `setQuantity`, `adjustQuantity`, `equip` and `removeItem` can also
+aim at copies by query instead of one `entry`: `copies: { type, where }`, optionally with
+`limit`. `setState`, `adjustState`, `toggleEffect` and `removeEffect` can aim at applied entries
+the same way, with `applied: { where }`. Actions use this (a long rest restores every class's hit
+dice); your app rarely needs to
 ([engine core](../../../packages/spec/docs/engine-core.md#applychanges)).
 
 A pick can keep state too (a once-a-day feat's `used`): `setState` and `adjustState` then name
@@ -148,14 +155,15 @@ itself**; it sends the damage with its type and the engine works out the rest:
 - clamping to the field's bounds (HP doesn't go below 0).
 
 `adjustments` lists what actually happened, step by step: each entry has the `field`, the amount
-it took (`by`), and a `reason` (`absorbed`, `requested`, `overflow`, `reset`), with `requested`
-and `clamped` where they apply; the `requested` entry also has `taken`, the amount after
-resistances and before temporary hit points. Use it for the combat log: "Tamsin takes 5 fire
-damage (resisted)".
+it took (`by`), and a `reason` (`absorbed`, `requested`, `overflow`, `reset`, `carry`), with
+`requested` and `clamped` where they apply; the `requested` entry also has `taken`, the amount
+after resistances and before temporary hit points, and `rolled`, the dice its effects rolled
+(MÖRK BORG armor). Use it for the combat log: "Tamsin takes 5 fire damage (resisted)". A change
+aimed by query adds `{ copies }` or `{ applied }`: the instance IDs it matched.
 When an effect also changes its own entry (Mothership armor breaking), that change follows as
 `{ entry, key, value, source }`: "The vest breaks". For picked or granted content with state of
 its own (a ward's charges), it carries the pick's `path` and `option`, or `grant` with the node,
-as a setState would. When it ends its applied entry (oil that
+as a setState would. A change to a grant that an earlier `then` turned off is skipped. When it ends its applied entry (oil that
 burns away), it follows as `{ entry, removed: true, source }`: "The oil burns away". The applied
 entry is gone from the returned character, so drop your own bookkeeping for it (its duration).
 
@@ -242,8 +250,10 @@ prompt.
   `{ type: 'clearFollowUp', id }`, so applying them removes the offer in the same batch. A run
   that fails, or changes you never apply, clear nothing.
 - **Apply it.** `changes` are ready for a new `applyChanges` batch (5E: damage at 0 hit points is
-  a failed death save), and for an ephemeral offer they already end with the clear. That batch may
-  store follow-ups of its own.
+  a failed death save), and for an ephemeral offer they already end with the clear. They keep the
+  addresses of picks and granted content (`pick: self` and `grant: self` resolved to `path`,
+  `option` and `grant`; `picks` and `grants` queries passed on), so a change to a pick's state
+  lands there. That batch may store follow-ups of its own.
 - **Make a linked character.** An offer with `create` (a MÖRK BORG companion's sheet) asks for a
   new character for an empty link slot: make the file, run the named creation start on it and
   save the link, which ends the offer

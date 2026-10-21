@@ -257,6 +257,7 @@ lists them, says which one the rules recommend, and applies that one:
 ```json
 "competing": [{
   "field": "5e-srd-5.1:combat.ac",
+  "op": "set",
   "options": [
     { "id": "5e-srd-5.1:features.unarmored-defense#0", "value": 14, "source": { … } },
     { "id": "5e-srd-5.1:spells.mage-armor#0", "value": 15, "source": { … } }
@@ -266,14 +267,17 @@ lists them, says which one the rules recommend, and applies that one:
 }]
 ```
 
-Using the recommendation without asking is fine. To let the player choose, show the options and
-pass the pick back as the third argument:
+Each entry is one competing group: the `set` effects on a field, or a `playerChooses` stacking
+group (a choice of morale bonus), with its `op` and `stackKey`. Using the
+recommendation without asking is fine. To let the player choose, show the options and pass the
+picked option IDs back as the third argument:
 
 ```ts
-const sheet = computeSheet(ruleset, character, {
-  '5e-srd-5.1:combat.ac': '5e-srd-5.1:features.unarmored-defense#0',
-});
+const sheet = computeSheet(ruleset, character, ['5e-srd-5.1:features.unarmored-defense#0']);
 ```
+
+Each group applies the first of its options (in instance order) that the list names, else its
+recommendation.
 
 These picks aren't part of the character file. Store them yourself (in `extensions` if they
 should travel with the character), and pass them on every `computeSheet` call. A pick that no
