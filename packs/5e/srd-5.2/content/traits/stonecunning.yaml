@@ -10,8 +10,14 @@ effects:
     when: self.stonecunningUsed > 0 || self.tremorsenseActive
     value:
       changes:
-        - { type: setState, grants: { where: "item.id == @traits.stonecunning" }, key: stonecunningUsed, value: 0 }
-        - { type: setState, grants: { where: "item.id == @traits.stonecunning" }, key: tremorsenseActive, value: false }
+        - type: setState
+          grants: { where: 'item.id == @traits.stonecunning' }
+          key: stonecunningUsed
+          value: 0
+        - type: setState
+          grants: { where: 'item.id == @traits.stonecunning' }
+          key: tremorsenseActive
+          value: false
 actions:
   - id: stonecunning
     tags: [feature]

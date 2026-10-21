@@ -10,8 +10,14 @@ effects:
     when: self.flightUsed || self.flightActive
     value:
       changes:
-        - { type: setState, grants: { where: "item.id == @traits.draconic-flight" }, key: flightUsed, value: false }
-        - { type: setState, grants: { where: "item.id == @traits.draconic-flight" }, key: flightActive, value: false }
+        - type: setState
+          grants: { where: 'item.id == @traits.draconic-flight' }
+          key: flightUsed
+          value: false
+        - type: setState
+          grants: { where: 'item.id == @traits.draconic-flight' }
+          key: flightActive
+          value: false
 followUps:
   - id: incapacitated
     becomes: conditions.incapacitated

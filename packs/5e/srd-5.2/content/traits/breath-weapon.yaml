@@ -8,7 +8,10 @@ effects:
     when: self.breathWeaponUsed > 0
     value:
       changes:
-        - { type: setState, grants: { where: "item.id == @traits.breath-weapon" }, key: breathWeaponUsed, value: 0 }
+        - type: setState
+          grants: { where: 'item.id == @traits.breath-weapon' }
+          key: breathWeaponUsed
+          value: 0
 actions:
   - id: breath-weapon
     tags: [feature]

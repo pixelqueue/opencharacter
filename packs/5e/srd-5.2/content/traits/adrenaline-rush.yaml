@@ -8,7 +8,10 @@ effects:
     when: self.adrenalineRushUsed > 0
     value:
       changes:
-        - { type: setState, grants: { where: "item.id == @traits.adrenaline-rush" }, key: adrenalineRushUsed, value: 0 }
+        - type: setState
+          grants: { where: 'item.id == @traits.adrenaline-rush' }
+          key: adrenalineRushUsed
+          value: 0
 actions:
   - id: adrenaline-rush
     tags: [feature]

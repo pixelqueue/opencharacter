@@ -17,8 +17,14 @@ effects:
     when: self.largeFormUsed || self.largeFormActive
     value:
       changes:
-        - { type: setState, grants: { where: "item.id == @traits.large-form" }, key: largeFormUsed, value: false }
-        - { type: setState, grants: { where: "item.id == @traits.large-form" }, key: largeFormActive, value: false }
+        - type: setState
+          grants: { where: 'item.id == @traits.large-form' }
+          key: largeFormUsed
+          value: false
+        - type: setState
+          grants: { where: 'item.id == @traits.large-form' }
+          key: largeFormActive
+          value: false
 actions:
   - id: large-form
     tags: [feature]

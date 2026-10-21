@@ -13,7 +13,10 @@ effects:
     when: self.relentlessEnduranceUsed
     value:
       changes:
-        - { type: setState, grants: { where: "item.id == @traits.relentless-endurance" }, key: relentlessEnduranceUsed, value: false }
+        - type: setState
+          grants: { where: 'item.id == @traits.relentless-endurance' }
+          key: relentlessEnduranceUsed
+          value: false
 actions:
   - id: relentless-endurance
     tags: [feature]

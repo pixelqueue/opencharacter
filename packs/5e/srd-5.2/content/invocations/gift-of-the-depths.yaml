@@ -24,10 +24,16 @@ effects:
       id: free
       flags: { slot: action.item.level, castAbility: "'warlock'" }
       changes:
-        - { type: setState, picks: { where: "item.id == @invocations.gift-of-the-depths" }, key: used, value: true }
+        - type: setState
+          picks: { where: 'item.id == @invocations.gift-of-the-depths' }
+          key: used
+          value: true
   - target: { steps: [rest.long] }
     op: changes
     when: self.used
     value:
       changes:
-        - { type: setState, picks: { where: "item.id == @invocations.gift-of-the-depths" }, key: used, value: false }
+        - type: setState
+          picks: { where: 'item.id == @invocations.gift-of-the-depths' }
+          key: used
+          value: false

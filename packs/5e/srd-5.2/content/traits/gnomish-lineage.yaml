@@ -13,10 +13,16 @@ effects:
       id: free-cast
       flags: { slot: 1, castAbility: "'species'" }
       changes:
-        - { type: adjustState, grants: { where: "item.id == @traits.gnomish-lineage" }, key: speakWithAnimalsUsed, by: 1 }
+        - type: adjustState
+          grants: { where: 'item.id == @traits.gnomish-lineage' }
+          key: speakWithAnimalsUsed
+          by: 1
   - target: { steps: [rest.long] }
     op: changes
     when: self.speakWithAnimalsUsed > 0
     value:
       changes:
-        - { type: setState, grants: { where: "item.id == @traits.gnomish-lineage" }, key: speakWithAnimalsUsed, value: 0 }
+        - type: setState
+          grants: { where: 'item.id == @traits.gnomish-lineage' }
+          key: speakWithAnimalsUsed
+          value: 0

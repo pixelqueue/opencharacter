@@ -14,7 +14,10 @@ effects:
       id: free-cast
       flags: { slot: 1, castAbility: "'species'" }
       changes:
-        - { type: setState, grants: { where: "item.id == @traits.fiendish-legacy" }, key: lineageSpell1Used, value: true }
+        - type: setState
+          grants: { where: 'item.id == @traits.fiendish-legacy' }
+          key: lineageSpell1Used
+          value: true
   - target: { choices: [spell-cost] }
     op: option
     stackKey: lineage-spell-2
@@ -25,11 +28,20 @@ effects:
       id: free-cast-2
       flags: { slot: 2, castAbility: "'species'" }
       changes:
-        - { type: setState, grants: { where: "item.id == @traits.fiendish-legacy" }, key: lineageSpell2Used, value: true }
+        - type: setState
+          grants: { where: 'item.id == @traits.fiendish-legacy' }
+          key: lineageSpell2Used
+          value: true
   - target: { steps: [rest.long] }
     op: changes
     when: self.lineageSpell1Used || self.lineageSpell2Used
     value:
       changes:
-        - { type: setState, grants: { where: "item.id == @traits.fiendish-legacy" }, key: lineageSpell1Used, value: false }
-        - { type: setState, grants: { where: "item.id == @traits.fiendish-legacy" }, key: lineageSpell2Used, value: false }
+        - type: setState
+          grants: { where: 'item.id == @traits.fiendish-legacy' }
+          key: lineageSpell1Used
+          value: false
+        - type: setState
+          grants: { where: 'item.id == @traits.fiendish-legacy' }
+          key: lineageSpell2Used
+          value: false
