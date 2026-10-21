@@ -271,7 +271,7 @@ reading is listed under [Rule readings](#rule-readings).
   first of three Lores of the player's choice, named by the subject the player writes
   (`skills.lore.custom1.subject`); Additional Lore offers all three. Assurance (farmhand, nomad, raised by belief, scholar) is an action for the skill it's
   chosen for: a fixed 10 + the proficiency bonus against the DC, no dice and no other bonus or
-  penalty. Content can grant Assurance for a named skill (the grant's `skill` state): each background's Assurance is for the skill the book names (the driver's Lore, the scholar's and raised by belief's chosen skill, an inline option each). Player Core 2's eight new Lores and its
+  penalty. Its skill is a pick (any skill, or a trained Lore), which content granting Assurance for a named skill presets: each background's Assurance is for the skill the book names (the driver's Lore, the scholar's and raised by belief's chosen skill, an inline option each). Player Core 2's eight new Lores and its
   ten ancestry Lores are `rules/lores-pc2.yaml`; the cursed background's Warding Sign is the
   situational choice `wardingSign`, the feybound's Fey's Fortune `fortune`.
 - **Feats:** a slot per level for ancestry (1, 5, 9, 13, 17), general (3, 7, 11, 15, 19; skill feats
@@ -428,8 +428,9 @@ reading is listed under [Rule readings](#rule-readings).
   `prepare-spells` (inputs per rank the slot counts read); Improved Familiar Attunement
   and Staff Nexus text). Split Slot: `prepare-spells` may put a second
   spell in one slot below the highest rank, its copy naming the first's (`split`); casting either
-  expends both. Drain Bonded Item is an action (the ranks drained today are the
-  class copy's state, which `daily-preparations` clears). Feats: Counterspell (the expending),
+  expends both. Drain Bonded Item is an action (the ranks drained today, `bondDrained`, and
+  Linked Focus's `linkedFocusUsed` are Arcane Bond's saved grant state, which `daily-preparations`
+  clears). Feats: Counterspell (the expending),
   Linked Focus and twelve more, text where they shape a spell's range, area or traits.
 - **The cleric** (Player Core): Wisdom, divine prepared, and the divine font's 4 to 6 extra slots
   of heal or harm at the highest rank (to 9th), which `prepare-spells` fills. The deity is the
@@ -825,7 +826,7 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
   any other Lore is a homebrew increases input and a trained-by-increase input (tagged
   `skill-increase`, they join level-up) and rank and modifier fields, trained by a homebrew
   effect granting its tag into `skills.trained`. The class's free skills and `extra-training`
-  offer the first seven Lores only: a value choice lists its values.
+  offer the first seven Lores only: their lists are written out, as no formula lists fields by tag.
 
 ## Sources
 
