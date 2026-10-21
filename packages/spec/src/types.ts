@@ -673,7 +673,7 @@ export type Applied = {
 export type CharacterFile = {
   /** The OCF spec version this file was written against. */
   specVersion: Semver;
-  /** An ID for this character, unique within the app or campaign (a UUID is a good choice). */
+  /** An ID for this character. A UUID is fine for an ID unique within the app or campaign; a URL (IRI) makes it global, so the character keeps one identity across apps. */
   id: string;
   /** The exact pack versions this character uses, in load order (later packs win). */
   packs: {

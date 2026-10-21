@@ -11,10 +11,10 @@
       "$ref": "common.schema.json#/$defs/semver"
     },
     "id": {
-      "description": "An ID for this character, unique within the app or campaign (a UUID is a good choice).",
+      "description": "An ID for this character. A UUID is fine for an ID unique within the app or campaign; a URL (IRI) makes it global, so the character keeps one identity across apps.",
       "type": "string",
       "minLength": 1,
-      "maxLength": 128
+      "maxLength": 2048
     },
     "packs": {
       "description": "The exact pack versions this character uses, in load order (later packs win).",
@@ -106,7 +106,7 @@
       "additionalProperties": {
         "type": "string",
         "minLength": 1,
-        "maxLength": 128
+        "maxLength": 2048
       }
     },
     "homebrew": {
