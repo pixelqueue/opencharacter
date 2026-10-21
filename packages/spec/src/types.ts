@@ -460,7 +460,7 @@ export type ToggleEffectChange = {
   active: boolean;
 };
 
-/** Pick an option (choose). Un-picking (unchoose) is `#/$defs/unchoose`. */
+/** Pick an option (choose). Un-picking (unchoose) is `#/$defs/unchoose`. A choice a grant presets takes neither (`preset-choice`). */
 export type ChooseChange = {
   type: 'choose';
   path: ChoicePath;
@@ -1027,7 +1027,7 @@ export type ContentItem = {
   standardCopies?: Query[];
   /** Item fields the templates this item keeps (`keepsTemplates`) leave as they are, on the copies it keeps them on: a specific magic weapon's Price, which already counts the runes it comes with. A template the player applies later changes them as usual. */
   keepsFields?: Name[];
-  /** Templates this item keeps while it is active: on the character's copies (`copies`), each copy of `copies.type` whose base item matches `copies.where` has the template applied after its saved ones; on content picked or granted to the character (`content`), each item of `content.type` matching `content.where` has the template's fields and tags merged into its `item`. Both queries read only `item` and are resolved by loadRuleset; a template whose `appliesTo` doesn't match isn't kept. Nothing is saved. */
+  /** Templates this item keeps while it is active: on the character's copies (`copies`), each copy of `copies.type` whose base item matches `copies.where` has the template applied after its saved ones; on content picked or granted to the character (`content`), each item of `content.type` matching `content.where` has the template's fields and tags merged into its `item`. A query reading only `item` is resolved by loadRuleset; one that also reads the keeper is an activation condition. A template whose `appliesTo` doesn't match isn't kept. Nothing is saved. */
   keepsTemplates?: KeptTemplate[];
   /** Conditions for having this item. Failing ones are rules issues (`prerequisite-not-met`), never blocking unless strict mode is on. */
   prerequisites?: Prerequisite[];
@@ -2025,9 +2025,9 @@ export type ListedChoice = {
   min: number;
   /** The evaluated maximum number of picks; absent when unbounded. */
   max?: number;
-  /** The picked options, in the order saved: content IDs, inline option IDs or values, as `choose` names them. */
+  /** The picked options, in the order saved: content IDs, inline option IDs or values, as `choose` names them. For a preset choice, the grant's. */
   picks: (string | number)[];
-  /** Whether the choice is pending: required (`required` not false) with fewer picks than `min`. */
+  /** Whether the choice is pending: required (`required` not false) with fewer picks than `min`. A preset choice never is. */
   open: boolean;
   /** `true` when a grant presets the choice (its `choices`): `picks` are the grant's, the choice is never open, and `choose` and `unchoose` on it are `preset-choice`. */
   preset?: true;

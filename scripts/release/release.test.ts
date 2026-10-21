@@ -15,6 +15,7 @@ import {
   syncPinnedVersions,
   syncSpecVersion,
 } from './index.ts';
+import { pendingVersions } from './pending.ts';
 
 const fixture = fileURLToPath(new URL('./fixtures', import.meta.url));
 const repo = mkdtempSync(join(tmpdir(), 'ocf-release-test-'));
@@ -87,6 +88,107 @@ describe('release checks against git tags', () => {
     );
     const findings = releaseCheck([built()], publishedFromGit(repo));
     expect(findings.map((f) => `${f.level} ${f.code}`)).toEqual(['info ok']);
+  });
+});
+
+describe('pending changesets', () => {
+  // A workspace with the demo pack released at 0.1.0, as Changesets reads it.
+  const ws = mkdtempSync(join(tmpdir(), 'ocf-release-pending-'));
+  afterAll(() => rmSync(ws, { recursive: true, force: true }));
+  const run = (...args: string[]) =>
+    execFileSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', ...args], { cwd: ws });
+  cpSync(fixture, join(ws, 'packs'), { recursive: true });
+  const dir = join(ws, 'packs', 'test', 'demo');
+  writeFileSync(join(ws, 'package.json'), JSON.stringify({ name: 'root', private: true }));
+  writeFileSync(join(ws, 'pnpm-workspace.yaml'), "packages:\n  - 'packs/*/*'\n");
+  writeFileSync(
+    join(dir, 'package.json'),
+    JSON.stringify({ name: '@opencharacter/test-demo', version: '0.1.0' }),
+  );
+  mkdirSync(join(ws, '.changeset'));
+  writeFileSync(
+    join(ws, '.changeset', 'config.json'),
+    JSON.stringify({ changelog: false, baseBranch: 'main', access: 'public' }),
+  );
+  writeFileSync(join(ws, '.changeset', 'README.md'), '# Changesets\n');
+  run('init', '-q');
+  run('add', '-A');
+  run('commit', '-qm', 'release 0.1.0');
+  run('tag', '@opencharacter/test-demo@0.1.0');
+
+  const changeset = (bump?: 'patch' | 'minor') => {
+    const file = join(ws, '.changeset', 'demo-change.md');
+    if (bump) writeFileSync(file, `---\n'@opencharacter/test-demo': ${bump}\n---\n\nA change.\n`);
+    else rmSync(file, { force: true });
+  };
+  const upgrade = (to?: string) => {
+    rmSync(join(dir, 'upgrades'), { recursive: true, force: true });
+    if (!to) return;
+    mkdirSync(join(dir, 'upgrades'));
+    writeFileSync(
+      join(dir, 'upgrades', `0.1.0-to-${to}.yaml`),
+      `pack: test-demo\nfrom: 0.1.0\nto: ${to}\nsteps:\n  - { op: removeContent, id: gear.rope }\n`,
+    );
+  };
+  const builtHere = (): BuiltPack => {
+    const pack = loadPack(dir, ws, new SchemaValidator(), new Reporter());
+    if (!pack) throw new Error('fixture did not load');
+    const release = buildRelease({
+      manifest: pack.manifest,
+      rules: pack.rules.map((r) => r.doc),
+      content: pack.content.map((c) => c.doc),
+      upgrades: pack.upgrades.map((u) => u.doc),
+    });
+    return {
+      id: 'test-demo',
+      dir,
+      release: { ...release, formulas: {} },
+      i18n: {},
+      defaultLanguage: 'en',
+    };
+  };
+  const findings = () =>
+    releaseCheck([builtHere()], publishedFromGit(ws), undefined, pendingVersions(ws));
+  const check = () => findings().map((f) => `${f.level} ${f.code}`);
+
+  it('reads the release plan', () => {
+    expect(pendingVersions(ws)).toEqual(new Map());
+    changeset('patch');
+    expect(pendingVersions(ws)).toEqual(new Map([['test-demo', '0.1.1']]));
+    changeset('minor');
+    expect(pendingVersions(ws)).toEqual(new Map([['test-demo', '0.2.0']]));
+  });
+
+  it('lets a published version change with a changeset', () => {
+    writeFileSync(join(dir, 'content', 'gear', 'lamp.yaml'), 'id: gear.lamp\ntype: gear\n');
+    changeset();
+    expect(check()).toEqual(['error published-version-changed']);
+    changeset('patch');
+    expect(check()).toEqual(['info pending-bump', 'info ok']);
+    expect(findings()[0]?.message).toBe('test-demo 0.1.0 → 0.1.1 (pending changeset)');
+    rmSync(join(dir, 'content', 'gear', 'lamp.yaml'));
+  });
+
+  it('needs a breaking changeset and an upgrade to its version for a shape change', () => {
+    rmSync(join(dir, 'content', 'gear', 'rope.yaml'));
+    changeset();
+    expect(check()).toEqual(['error published-version-changed']);
+    changeset('patch');
+    upgrade('0.1.1');
+    expect(check()).toEqual(['info pending-bump', 'error version-bump-too-small']);
+    changeset('minor');
+    expect(check()).toEqual(['info pending-bump', 'error missing-upgrade-script']);
+    upgrade('0.2.0');
+    expect(check()).toEqual(['info pending-bump', 'info ok']);
+  });
+
+  it('checks as before once the version is bumped', () => {
+    changeset();
+    writeFileSync(
+      join(dir, 'pack.yaml'),
+      'id: test-demo\nversion: 0.2.0\nspecVersion: 0.1.0\nlicense: CC0-1.0\ndefaultLanguage: en\n',
+    );
+    expect(check()).toEqual(['info ok']);
   });
 });
 
@@ -284,6 +386,10 @@ describe('syncSpecVersion', () => {
       `**${spec} 0.1.0.** ${spec} **0.1.0**. ${spec} 0.1.0.1.\n`,
       `**${spec} 0.2.0.** ${spec} **0.2.0**. ${spec} 0.1.0.1.\n`,
     ],
+    'examples/characters/sample.yaml': [
+      'specVersion: 0.1.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
+      'specVersion: 0.2.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
+    ],
     'character.yaml': [
       'specVersion: 0.1.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
       'specVersion: 0.1.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
@@ -307,13 +413,14 @@ describe('syncSpecVersion', () => {
     return dir;
   }
 
-  it('moves SPEC_VERSION, schema paths and the stated version, not pinned minimums', () => {
+  it('moves SPEC_VERSION, schema paths, the stated version and example characters, not other minimums', () => {
     const dir = setup('0.2.0');
     const result = syncSpecVersion(dir, Object.keys(files));
     expect(result?.bump).toEqual({ from: '0.1.0', to: '0.2.0' });
     expect(result?.files.toSorted()).toEqual([
       'docs/README.md',
       'docs/versioning.md',
+      'examples/characters/sample.yaml',
       'packages/spec/schemas/pack.schema.json',
       'packages/spec/src/index.ts',
     ]);
@@ -329,6 +436,7 @@ describe('syncSpecVersion', () => {
     expect(syncSpecVersion(dir, Object.keys(files))?.files.toSorted()).toEqual([
       'docs/README.md',
       'docs/versioning.md',
+      'examples/characters/sample.yaml',
       'packages/spec/src/index.ts',
     ]);
     const schema = 'packages/spec/schemas/pack.schema.json';

@@ -96,8 +96,9 @@ incoming-change effect's `when`, `value` and `then` see `incoming`: `incoming.am
 change's `by` as requested, before any incoming-change effect (negative for harm), so every
 effect sees the same number whatever op runs first; `incoming.field` is the qualified ID of the
 field; `incoming.tags` is the change's tags. An incoming-change effect may also carry `then`: a
-list of changes to its own **entry**, `self`: the copy for a `holder` effect, the applied entry
-for an `applied` one (for content an applied grant reaches, the granting entry). Each is a
+list of changes to its own **entry**, `self`: the copy for a `holder` effect (for picked or
+granted content, the owning copy), the applied entry for an `applied` one (for content an
+applied grant reaches, the granting entry). Each is a
 `setState` or `adjustState` with `entry: self`, or, on an `applied` effect only, a
 `removeEffect` with `entry: self`, which ends the entry. When the effect counted (its `when`
 held and stacking kept it), applyChanges applies them right after the adjust is routed, and
