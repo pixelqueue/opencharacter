@@ -236,6 +236,9 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
   other creatures' sheets, starships and drones; most harmony and quantum field effects; skill
   feats that change time or what the GM tells you; more than half the spells (utility,
   summoning, counteracting, illusions, areas over time); the rituals' outcomes; services.
+- **Format gaps** (the pack works around it):
+  - An upgrade script can't name a choice nested in an inline option, so such a choice can't
+    move: the operative's specialization skill feat stays one copied choice per specialization.
 
 ## Sources
 
