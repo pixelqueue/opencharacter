@@ -36,7 +36,13 @@ import type {
   ValueDecl,
   ValueOptions,
 } from '../core/pack-types.ts';
-import { optionQuery, pendingSource, valueSource, writtenOptions } from '../core/pack-types.ts';
+import {
+  keptQuery,
+  optionQuery,
+  pendingSource,
+  valueSource,
+  writtenOptions,
+} from '../core/pack-types.ts';
 import { isContentOnly, readsOnlyRoots } from '../core/load.ts';
 import type { PackSet } from './packset.ts';
 import {
@@ -430,9 +436,10 @@ class FormulaChecker<L> {
     for (const immunity of item.immuneTo ?? []) this.immunity(immunity, at, owner);
     for (const query of item.standardCopies ?? [])
       this.standardQuery(query, at, `${owner} standardCopies`);
-    // Kept templates: the copies query reads only `item`; `when` is an activation condition.
+    // Kept templates: the copies or content query reads only `item`; `when` is an activation
+    // condition.
     for (const kept of item.keepsTemplates ?? []) {
-      this.standardQuery(kept.copies, at, `${owner} keepsTemplates`);
+      this.standardQuery(keptQuery(kept), at, `${owner} keepsTemplates`);
       this.activation(() => this.formula(kept.when, at, `${owner} keepsTemplates`, BOOL));
     }
     for (const prerequisite of item.prerequisites ?? [])
@@ -532,7 +539,7 @@ class FormulaChecker<L> {
       where,
       formula: query.where as Formula,
       code: 'unknown-name',
-      message: `${where.endsWith('keepsTemplates') ? "a kept template's copies query" : 'a standard copies query'} reads only \`item\``,
+      message: `${where.endsWith('keepsTemplates') ? "a kept template's query" : 'a standard copies query'} reads only \`item\``,
     });
   }
 

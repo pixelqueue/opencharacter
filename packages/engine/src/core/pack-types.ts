@@ -203,7 +203,9 @@ export interface Grant {
 
 export interface KeptTemplate {
   template: string;
-  copies: Query;
+  /** Exactly one of `copies` and `content`. */
+  copies?: Query;
+  content?: Query;
   when?: Formula;
   scope?: 'holder' | 'applied';
 }
@@ -305,6 +307,11 @@ export interface ValueSource {
 
 export function writtenOptions(step: Step): StepOption[] {
   return Array.isArray(step.options) ? step.options : [];
+}
+
+/** The query a kept template is kept by, over copies' base items or over content. */
+export function keptQuery(kept: KeptTemplate): Query {
+  return (kept.copies ?? kept.content) as Query;
 }
 
 export function optionQuery(

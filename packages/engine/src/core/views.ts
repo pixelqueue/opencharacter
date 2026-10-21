@@ -8,7 +8,7 @@ import type {
   TagOrFormula,
   ValueDecl,
 } from './pack-types.ts';
-import { appliesQueries } from './pack-types.ts';
+import { appliesQueries, keptQuery } from './pack-types.ts';
 import { type LoadedItem, localPart, queryKey, resolveId, type Ruleset } from './ruleset.ts';
 
 /** undefined when the name isn't visible from the pack. */
@@ -369,7 +369,7 @@ export interface CopyView {
 
 const keptFieldsCache = new WeakMap<Ruleset, Map<string, Set<string>>>();
 
-/** The `keepsFields` of every item that keeps the template on copies of `item`. */
+/** The `keepsFields` of every item that keeps the template on copies of `item`, or on `item`. */
 export function keptFields(ruleset: Ruleset, template: string, item: string): ReadonlySet<string> {
   let cache = keptFieldsCache.get(ruleset);
   if (!cache) keptFieldsCache.set(ruleset, (cache = new Map()));
@@ -382,7 +382,8 @@ export function keptFields(ruleset: Ruleset, template: string, item: string): Re
     const pack = keeper.scopes?.keepsTemplates ?? keeper.pack;
     for (const kept of keeper.keepsTemplates ?? []) {
       if (kept.template !== template) continue;
-      const matches = ruleset.queries[queryKey(pack, kept.copies.type, kept.copies.where)];
+      const query = keptQuery(kept);
+      const matches = ruleset.queries[queryKey(pack, query.type, query.where)];
       if (matches && !matches.includes(item)) continue;
       for (const field of keeper.keepsFields) out.add(field);
     }

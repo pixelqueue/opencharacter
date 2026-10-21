@@ -287,6 +287,15 @@ export class Failure extends Error {
 
 const MAX_DEPTH = 16;
 
+/** An item as merged with its templates: a copy's (`entry`), or content's without a copy. */
+export interface TemplatedItem {
+  entry?: string;
+  item: string;
+  templates: string[];
+  tags: string[];
+  fields: Record<string, Literal>;
+}
+
 export interface StandardCopy {
   entry: string;
   item: string;
@@ -333,13 +342,45 @@ function hasKeptTemplates(ruleset: Ruleset): boolean {
 
 export interface Rounds {
   standard: readonly string[];
+  /** Kept templates by copy instance ID. */
   kept: ReadonlyMap<string, readonly string[]>;
+  /** Kept templates by the qualified ID of content without a copy. */
+  content: ReadonlyMap<string, readonly string[]>;
+}
+
+function sameKept(
+  a: ReadonlyMap<string, readonly string[]>,
+  b: ReadonlyMap<string, readonly string[]>,
+): boolean {
+  if (a.size !== b.size) return false;
+  for (const [id, list] of a) if (b.get(id)?.length !== list.length) return false;
+  return true;
+}
+
+function addKept(into: Map<string, string[]>, id: string, template: string): void {
+  const list = into.get(id) ?? [];
+  if (list.includes(template)) return;
+  list.push(template);
+  into.set(id, list);
+}
+
+/** A merged `item` view as output data: its tags and fields. */
+function mergedData(view: Record<string, unknown>): {
+  tags: string[];
+  fields: Record<string, Literal>;
+} {
+  const { id: _id, type: _type, tags, ...rest } = view;
+  const fields: Record<string, Literal> = {};
+  for (const [name, v] of Object.entries(rest)) fields[name] = literal(f.fromData(v));
+  return { tags: [...(tags as string[])], fields };
 }
 
 function sameRounds(a: Rounds, b: Rounds): boolean {
-  if (a.standard.length !== b.standard.length || a.kept.size !== b.kept.size) return false;
-  for (const [id, list] of a.kept) if (b.kept.get(id)?.length !== list.length) return false;
-  return true;
+  return (
+    a.standard.length === b.standard.length &&
+    sameKept(a.kept, b.kept) &&
+    sameKept(a.content, b.content)
+  );
 }
 
 export class Sheet {
@@ -392,7 +433,11 @@ export class Sheet {
   ) {
     this.picks = new Set(picks);
     this.file = character;
-    let found: Rounds = fixed ?? { standard: rulesStandard(ruleset), kept: new Map() };
+    let found: Rounds = fixed ?? {
+      standard: rulesStandard(ruleset),
+      kept: new Map(),
+      content: new Map(),
+    };
     // `fixed` given, the sheet is a probe that finds what its active items add. Otherwise standard
     // copies and kept templates are found in rounds: what the active content adds is added, until
     // a round adds nothing.
@@ -412,6 +457,7 @@ export class Sheet {
     }
     const items = found.standard;
     this.kept = found.kept;
+    this.keptContent = found.content;
     this.character = this.withStandard(character, items);
     character = this.character;
     this.readInputs();
@@ -722,13 +768,10 @@ export class Sheet {
     for (const a of this.activations)
       if (a.item) for (const qid of itemStandard(this.ruleset, a.item)) standard.add(qid);
     const kept = new Map([...found.kept].map(([id, list]) => [id, [...list]]));
-    for (const { template, entry } of this.keptWanted()) {
-      const list = kept.get(entry.id) ?? [];
-      if (list.includes(template)) continue;
-      list.push(template);
-      kept.set(entry.id, list);
-    }
-    return { standard: [...standard], kept };
+    for (const { template, entry } of this.keptWanted()) addKept(kept, entry.id, template);
+    const content = new Map([...found.content].map(([id, list]) => [id, [...list]]));
+    for (const { template, item } of this.keptContentWanted()) addKept(content, item, template);
+    return { standard: [...standard], kept, content };
   }
 
   private keptWanted(): { template: string; entry: Entry; keeper: Activation }[] {
@@ -739,7 +782,7 @@ export class Sheet {
       if (!item?.keepsTemplates?.length) continue;
       const pack = item.scopes?.keepsTemplates ?? item.pack;
       for (const kept of item.keepsTemplates) {
-        if ((kept.scope ?? 'holder') !== a.scope) continue;
+        if (!kept.copies || (kept.scope ?? 'holder') !== a.scope) continue;
         if (!this.condition(kept.when, pack, a.roots, `${a.sourceId} keepsTemplates`)) continue;
         const template = this.ruleset.content[kept.template];
         if (template?.type !== 'template') continue;
@@ -754,6 +797,55 @@ export class Sheet {
       }
     }
     return out;
+  }
+
+  /**
+   * Templates kept on content without a copy: for each holder activation picked or granted whose
+   * item an active keeper's `content` query matches, by item.
+   */
+  private keptContentWanted(): { template: string; item: string }[] {
+    const out: { template: string; item: string }[] = [];
+    const reached = this.activations.filter(
+      (a) => (a.kind === 'pick' || a.kind === 'grant') && a.scope === 'holder' && a.item,
+    );
+    for (const a of this.activations) {
+      const item = a.item;
+      if (!item?.keepsTemplates?.length) continue;
+      const pack = item.scopes?.keepsTemplates ?? item.pack;
+      for (const kept of item.keepsTemplates) {
+        if (!kept.content || (kept.scope ?? 'holder') !== a.scope) continue;
+        if (!this.condition(kept.when, pack, a.roots, `${a.sourceId} keepsTemplates`)) continue;
+        const template = this.ruleset.content[kept.template];
+        if (template?.type !== 'template') continue;
+        const matches = new Set(
+          this.ruleset.queries[queryKey(pack, kept.content.type, kept.content.where)] ?? [],
+        );
+        for (const r of reached) {
+          const base = r.item as LoadedItem;
+          if (!matches.has(base.qid) || !this.appliesTo(template, base)) continue;
+          out.push({ template: template.qid, item: base.qid });
+        }
+      }
+    }
+    return out;
+  }
+
+  private readonly keptContent!: ReadonlyMap<string, readonly string[]>;
+
+  /** The templates content keeps on an item without a copy, its keepers' `keepsFields` left out. */
+  contentTemplates(item: LoadedItem): LoadedItem[] {
+    const ids = this.keptContent.get(item.qid);
+    if (!ids?.length) return [];
+    return ids.map((t) =>
+      keptTemplate(this.ruleset, this.ruleset.content[t] as LoadedItem, item.qid),
+    );
+  }
+
+  /** Picked or granted content's `item`: the item with the templates content keeps on it. */
+  private contentView(item: LoadedItem): Record<string, unknown> {
+    return itemView(this.ruleset, item, this.contentTemplates(item), (n, p) =>
+      this.inputByName(n, p),
+    );
   }
 
   /** The item's type and `where` (input fields only); a failing condition doesn't match. */
@@ -1321,7 +1413,7 @@ export class Sheet {
           pack: granted.pack,
           roots: {
             ...activation.roots,
-            item: itemView(this.ruleset, granted, [], (n, p) => this.inputByName(n, p)),
+            item: this.contentView(granted),
             self: this.grantedSelf(grant, pack, activation.roots, `${activation.sourceId} grant`),
           },
           source: {
@@ -1435,7 +1527,7 @@ export class Sheet {
               pack: picked.pack,
               roots: {
                 ...owner.roots,
-                item: itemView(this.ruleset, picked, [], (n, p) => this.inputByName(n, p)),
+                item: this.contentView(picked),
                 // Content that declares state reads it from its pick, over the owner's copy.
                 ...(Object.keys(stateDecls(this.ruleset, picked, [])).length > 0
                   ? {
@@ -2643,6 +2735,36 @@ export class Sheet {
       out[a.entry.id] = Object.fromEntries(
         Object.entries(values).map(([name, v]) => [name, literal(v)]),
       );
+    }
+    return out;
+  }
+
+  /**
+   * Every item the character has with templates, as merged: each copy with a saved or kept
+   * template, then each content item without a copy that content keeps templates on.
+   */
+  templated(): TemplatedItem[] {
+    const out: TemplatedItem[] = [];
+    for (const a of this.activations) {
+      if ((a.kind !== 'feature' && a.kind !== 'inventory') || !a.entry || !a.item) continue;
+      const templates = this.templatesOf(a.entry);
+      if (templates.length === 0) continue;
+      const view = a.roots.item as Record<string, unknown>;
+      out.push({
+        entry: a.entry.id,
+        item: a.item.qid,
+        templates: [...templates],
+        ...mergedData(view),
+      });
+    }
+    const seen = new Set<string>();
+    for (const a of this.activations) {
+      if ((a.kind !== 'pick' && a.kind !== 'grant') || a.scope !== 'holder' || !a.item) continue;
+      const qid = a.item.qid;
+      const templates = this.keptContent.get(qid);
+      if (!templates?.length || seen.has(qid)) continue;
+      seen.add(qid);
+      out.push({ item: qid, templates: [...templates], ...mergedData(this.contentView(a.item)) });
     }
     return out;
   }

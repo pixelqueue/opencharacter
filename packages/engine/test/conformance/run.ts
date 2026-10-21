@@ -78,6 +78,7 @@ const expectedKeys: Record<string, string[]> = {
     'valueErrors',
     'copies',
     'copyNames',
+    'templated',
     'standardCopies',
     'copyLimits',
     'pendingSlots',
@@ -211,6 +212,7 @@ function run(dir: string): void {
     if (expected.situational) expect(sheet.situational).toEqual(expected.situational);
     if (expected.copies) expect(sheet.copies).toEqual(expected.copies);
     if (expected.copyNames) expect(sheet.copyNames).toEqual(expected.copyNames);
+    if (expected.templated) expect(sheet.templated).toEqual(expected.templated);
     if (expected.standardCopies) expect(sheet.standardCopies).toEqual(expected.standardCopies);
     if (expected.activations) expect(sheet.activations).toEqual(expected.activations);
     if (expected.choices) expect(sheet.choices).toEqual(expected.choices);
