@@ -248,11 +248,11 @@ export type ActionStep = {
   sheet?: StepSheet;
   /** Run the step once per participant of this declared role, in input order, with `participant` bound and `when` evaluated per participant. With none, the step doesn't run. Its result is a list in participant order (null where `when` skipped one); inside a later `each` step over the same role, it is the current participant's. Log paths gain the index (`saves[1]`). */
   each?: Name;
-  /** The action to run: a rules action, or with `source` one the content's type or the content itself defines (its local action ID, when no rules action has that ID). */
+  /** The action to run: a rules action, or with `source` one the content's type or the content itself defines, or with `entry` and no `source` one the copy's item or its type defines (its local action ID, when no rules action has that ID). */
   use: Ref;
   /** A formula giving a content ID, qualified against the action's pack. The step runs `use` as `computeSheet` lists it for this character with that `source`: with that content as `item` and the listing's `entry` as `self`. With no such listing (the action not available included) the action fails with `unknown-action` (data: `action`, `source`). */
   source?: Formula;
-  /** A formula giving an instance ID, such as a choice step's `steps.weapon.picked`. The step runs `use` as `computeSheet` lists it, on the step's sheet, with that `entry` (and that `source`, when given too): that copy is `self` and its item `item`. With no such listing (no such copy, the copy doesn't list the action, or its `available` is false) the action fails with `unknown-action` (data: `action`, `entry`, and `source` when given). Not with `as`. */
+  /** A formula giving an instance ID, such as a choice step's `steps.weapon.picked`. The step runs `use` as `computeSheet` lists it, on the step's sheet, with that `entry` (and that `source`, when given too): that copy is `self` and its item `item`. Without `source`, a local `use` names the copy's item's own action (`<item>#<use>`). With no such listing (no such copy, the copy doesn't list the action, or its `available` is false) the action fails with `unknown-action` (data: `action`, `entry`, and `source` when given). Not with `as`. */
   entry?: Formula;
   /** Keep what the nested action proposes instead of proposing it: every change it and the actions it runs propose is resolved as usual and held under the step, in order (with `each`, every run's, in run order). The nested action's own steps see them; the parent's later steps don't until a changes step's `release` names the step. Held changes never released are dropped. Not with `as`. */
   hold?: boolean;
@@ -1289,17 +1289,17 @@ export type Effect = {
   tags?: TagList;
   /** Rolls with op `add` only: `false` leaves the roll items the effect adds, dice or flat, alone when `multiplyDice` multiplies the roll's dice or `multiply` its items (5E's Savage Attacks: an extra die rolled once on a critical hit, not doubled; orc-2e's deadly die, added after doubling). Default `true`. */
   multiplied?: boolean;
-  /** Incoming-change effects only: state changes to the effect's own copy, applied by applyChanges right after the adjust is routed, when the effect counted (its `when` held and stacking kept it). Each is a `setState` or `adjustState` with `entry: self`; `value` and `by` are formulas seeing `item`, `self` and `incoming`. Only for effects with a copy: on the rules' effects, `applied`-scope effects and choice effects it is a load error (`then-without-copy`). */
+  /** Incoming-change effects only: changes to the effect's own entry, applied by applyChanges right after the adjust is routed, when the effect counted (its `when` held and stacking kept it). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, whose `value` and `by` are formulas seeing `item`, `self` and `incoming`, or, on an `applied` effect, a `removeEffect` with `entry: self`, which ends the entry (a ward that triggers once). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`). */
   then?: ThenChange[];
   /** Who the effect applies to. `holder` (default): a character who has the content active (features, inventory, picks, grants). `applied`: a character the content is applied to (its `applied` list: cast on them, a condition). Content in `applied` runs only its `applied` effects; held content runs only its `holder` effects. */
   scope?: 'holder' | 'applied';
 };
 
-/** A change an incoming-change effect makes to its own copy after the adjust is routed: `setState` with `value`, or `adjustState` with `by`, always `entry: self`. */
+/** A change an incoming-change effect makes to its own entry after the adjust is routed: `setState` with `value`, `adjustState` with `by`, or `removeEffect` (an `applied` effect only), always `entry: self`. */
 export type ThenChange = {
-  type: 'setState' | 'adjustState';
+  type: 'setState' | 'adjustState' | 'removeEffect';
   entry: 'self';
-  key: Name;
+  key?: Name;
   value?: Formula;
   by?: Formula;
 };
@@ -1405,6 +1405,8 @@ export type RollModifier = {
   part?: Slug;
   /** stepDie: how many steps along d4, d6, d8, d10, d12 each matching die moves (negative for smaller); an integer formula. */
   steps?: Formula;
+  /** advantage, disadvantage: `die` (default) rolls extra dice for the roll's main dice item and keeps the better or worse ones; `roll` makes the whole roll again and keeps the better or worse total. One counted source of the kind that applies with `roll` makes every extra a whole roll. */
+  of?: 'die' | 'roll';
   /** setFaces: the dice item's first faces, as integer formulas, used instead of asking for them. */
   faces?: Formula[];
 };
@@ -1480,7 +1482,9 @@ export type Answer =
 
 /** When the engine continues by itself and when it pauses. Rules are checked in order; the first matching rule decides; unmatched checkpoints use the defaults. */
 export type ActionPolicy = {
+  /** Roll steps. Default `auto`. */
   dice?: 'auto' | 'pause';
+  /** Choice steps. Default `auto`. */
   choices?: 'auto' | 'pause';
   /** Allocation steps. Default `auto`. */
   allocations?: 'auto' | 'pause';
@@ -1533,6 +1537,12 @@ export type LogEntry = {
     op: 'atLeast' | 'atMost';
     value: number;
   }[];
+  /** Roll steps made more than once (advantage or disadvantage `of: roll`): every whole roll, in roll order, with its total before bounds; `kept` marks the one kept, whose items are `items`. `faces` lists every roll's faces. Absent for a roll made once. */
+  rolls?: {
+    total: number;
+    kept: boolean;
+    items: RollItem[];
+  }[];
   /** Roll steps: each roll tally with a non-zero value, with what contributed to it. */
   tallies?: {
     name: Name;
@@ -1563,6 +1573,11 @@ export type ActionNeed = {
   draw?: Draw;
   /** The itemized roll so far, for display while waiting. */
   items?: RollItem[];
+  /** Dice steps made more than once (advantage or disadvantage `of: roll`): `times` whole rolls of `items`, whose dice `dice` lists roll after roll, and the total kept: `high` or `low`. Absent for a roll made once. */
+  repeat?: {
+    times: number;
+    keep: 'high' | 'low';
+  };
   /** Dice steps: the summary of the roll the pause is for; a pause for more dice mid-roll carries the same one. To preview a roll, an app starts the action with `dice: 'pause'`, reads this and drops the result. */
   summary?: RollSummary;
   /** The offered option IDs, in order: written option IDs, qualified content IDs or instance IDs. A repeated step that has its `min` picks offers the reserved `#done` last. */
@@ -1726,7 +1741,7 @@ export type ApplyChangesOutput =
       /** The batch as applied: each `adjust` whose incoming-change effects rolled dice carries every face it used in `faces`, supplied and rolled. Apps log this, not their input, so a replay never rolls. A batch that rolled nothing comes back unchanged. */
       changes: Change[];
       issues: RulesIssue[];
-      /** What adjust changes actually did after incoming-change effects, absorption, overflow and clamping: one entry per field touched, in order. A change aimed at copies by query adds `{ copies }`: the instance IDs it matched, in order (empty when none matched); one aimed at applied entries by query adds `{ applied }` the same way, and an `applyEffect` merged into an existing entry (`reapply`) adds `{ applied: [<that entry's ID>] }`. An incoming-change effect's `then` adds `{ entry, key, value, source }` per state change it made. */
+      /** What adjust changes actually did after incoming-change effects, absorption, overflow and clamping: one entry per field touched, in order. A change aimed at copies by query adds `{ copies }`: the instance IDs it matched, in order (empty when none matched); one aimed at applied entries by query adds `{ applied }` the same way, and an `applyEffect` merged into an existing entry (`reapply`) adds `{ applied: [<that entry's ID>] }`. An incoming-change effect's `then` adds `{ entry, key, value, source }` per state change it made to its own entry, and `{ entry, removed: true, source }` when it removed its applied entry. */
       adjustments?: (
         | {
             field: string;
@@ -1752,6 +1767,11 @@ export type ApplyChangesOutput =
             key: Name;
             /** The state key's new value. */
             value: unknown;
+            source: Source;
+          }
+        | {
+            entry: InstanceId;
+            removed: true;
             source: Source;
           }
         | {

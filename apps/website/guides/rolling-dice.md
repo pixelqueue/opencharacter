@@ -135,7 +135,7 @@ final total, a flat damage) isn't one: it never pauses, and its log entry has no
 ```ts
 const policy = {
   dice: 'auto', // default for rolls
-  choices: 'pause', // default for choices
+  choices: 'auto', // default for choices
   rules: [
     { kind: 'roll', tags: ['attack'], then: 'pause' }, // animate attack rolls
     { step: 'hit/confirm', then: 'auto' }, // take the recommendation here

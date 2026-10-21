@@ -62,8 +62,10 @@ export type Adjustment =
     }
   | { copies: string[] }
   | { applied: string[] }
-  /** A state change an incoming-change effect's `then` made to its copy. */
-  | { entry: string; key: string; value: Literal; source: Source };
+  /** A state change an incoming-change effect's `then` made to its own entry. */
+  | { entry: string; key: string; value: Literal; source: Source }
+  /** An applied entry an incoming-change effect's `then` removed. */
+  | { entry: string; removed: true; source: Source };
 
 export interface Rolled {
   source: Source;
@@ -1400,7 +1402,11 @@ function rollIncoming(
   return out;
 }
 
-/** Runs once the adjust is fully routed; an instance with no copy has nothing to change. */
+/**
+ * Runs once the adjust is fully routed. Each instance changes its own entry: the applied entry
+ * for an applied effect, else its copy; an instance with neither has nothing to change. Once an
+ * entry is removed, later `then` changes to it are skipped.
+ */
 function applyThen(
   ruleset: Ruleset,
   sheet: Sheet,
@@ -1409,9 +1415,11 @@ function applyThen(
   adjustments: Adjustment[],
   links: Links,
 ): void {
+  const removed = new Set<string>();
   for (const i of counted.toSorted((a, b) => a.order - b.order)) {
-    const entry = i.source.entry;
+    const entry = i.applied ?? i.source.entry;
     if (!i.effect.then || entry === undefined) continue;
+    const source = { ...i.source, ...(i.effect.id !== undefined ? { effect: i.effect.id } : {}) };
     const evaluate = (formula: Formula) => {
       try {
         return f.toData(sheet.evaluate(formula, i.pack, i.roots));
@@ -1424,17 +1432,20 @@ function applyThen(
       }
     };
     for (const then of i.effect.then) {
+      if (removed.has(entry)) break;
+      if (then.type === 'removeEffect') {
+        if (i.applied === undefined) continue;
+        applyOne(ruleset, c, { type: 'removeEffect', id: entry }, adjustments, links);
+        removed.add(entry);
+        adjustments.push({ entry, removed: true, source });
+        continue;
+      }
       const one: AnyChange = { type: then.type, entry, key: then.key };
       if (then.value !== undefined) one.value = evaluate(then.value);
       if (then.by !== undefined) one.by = evaluate(then.by);
       applyOne(ruleset, c, one, adjustments, links);
-      const copy = allEntries(c).find((e) => e.id === entry);
-      adjustments.push({
-        entry,
-        key: then.key,
-        value: copy?.state?.[then.key] as Literal,
-        source: { ...i.source, ...(i.effect.id !== undefined ? { effect: i.effect.id } : {}) },
-      });
+      const own = [...allEntries(c), ...(c.applied ?? [])].find((e) => e.id === entry);
+      adjustments.push({ entry, key: then.key, value: own?.state?.[then.key] as Literal, source });
     }
   }
 }

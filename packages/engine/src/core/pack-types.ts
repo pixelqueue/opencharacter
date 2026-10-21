@@ -88,6 +88,7 @@ export interface RollModifier {
   at?: Formula;
   steps?: Formula;
   faces?: Formula[];
+  of?: 'die' | 'roll';
 }
 
 export type EffectTarget =
@@ -113,13 +114,9 @@ export interface OptionValue {
   flags?: Record<string, Formula>;
 }
 
-export interface ThenChange {
-  type: 'setState' | 'adjustState';
-  entry: 'self';
-  key: string;
-  value?: Formula;
-  by?: Formula;
-}
+export type ThenChange =
+  | { type: 'setState' | 'adjustState'; entry: 'self'; key: string; value?: Formula; by?: Formula }
+  | { type: 'removeEffect'; entry: 'self'; key?: undefined; value?: undefined; by?: undefined };
 
 /** The actor, another character the app picks, an action role, or a link slot's character. */
 export type Destination = string | { link: string };

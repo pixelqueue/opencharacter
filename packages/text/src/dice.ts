@@ -47,7 +47,13 @@ function item(d: DiceLike, spec: Spec): string {
   return text;
 }
 
-export function diceText(items: readonly DiceLike[], spec: Spec): string {
+/** A roll made more than once (`needs.repeat`): how many whole rolls, and which total is kept. */
+export interface Repeat {
+  times: number;
+  keep: 'high' | 'low';
+}
+
+export function diceText(items: readonly DiceLike[], spec: Spec, repeat?: Repeat): string {
   let out: string | undefined;
   for (const d of items) {
     if (d.kind === 'flat' || d.count === undefined) continue;
@@ -61,5 +67,10 @@ export function diceText(items: readonly DiceLike[], spec: Spec): string {
         : (spec(negative ? 'dice.minus' : 'dice.plus', { first: out, second: text }) ??
           `${out} ${negative ? '-' : '+'} ${text}`);
   }
-  return out ?? '';
+  if (out === undefined) return '';
+  if (!repeat) return out;
+  return (
+    spec('dice.repeat', { dice: out, times: repeat.times, keep: repeat.keep }) ??
+    `${out}, ${repeat.times} times, keep ${repeat.keep === 'high' ? 'highest' : 'lowest'}`
+  );
 }

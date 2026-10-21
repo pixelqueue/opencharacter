@@ -222,6 +222,10 @@ A roll step is built, then rolled, then classified.
    `better: low`) of its count before the extra dice, reversed for disadvantage. If it already has
    one, only its count grows.
 
+   **Whole rolls.** When a counted source of the kind that applies says `of: roll`, the extras
+   are whole rolls instead of dice: the roll is made once more per extra (below), and nothing is
+   added to the main dice item. A roll with no dice items is made once.
+
 6. **Multiply dice:** each `multiplyDice` multiplies the count of every dice item except those
    marked `multiplied: false`.
 7. **Reroll, minimum face, explode:** each adds its dice modifier (`reroll`/`rerollOnce` at
@@ -234,6 +238,15 @@ A roll step is built, then rolled, then classified.
 
 Dice items are rolled in order, each by the formula language's rules
 ([formulas.md](formulas.md#rolling-dice-values)), with faces from the checkpoint.
+
+- **Whole rolls**: a roll made more than once (`of: roll`, step 5) is built once and
+  rolled that many times, each a copy of the built items rolled in full in turn, the first
+  roll's dice first. Only the first roll has given faces; the later ones ask for every die. A
+  pause's `dice` lists every roll's dice in that order, and `repeat: { times, keep }` says how
+  many rolls and which total is kept (`high` or `low`). Each roll's items are multiplied as
+  below and summed; the roll whose sum is better (higher, or lower with `better: low`; worse
+  for disadvantage) is kept, the first among equal sums. The kept roll's items are the roll's
+  items from here on: its total, faces, bounds and band.
 
 - **Given faces**: an item's given faces are its first, before any face from the
   checkpoint, and are marked `set: true`. The checkpoint asks only for the rest: the need's
@@ -251,7 +264,7 @@ Dice items are rolled in order, each by the formula language's rules
   `floor`). Faces are unchanged; the item's `value` is the multiplied value and its `factor`
   the product of the factors. Tallies aren't multiplied.
 - **Result:** the roll's total is the sum of every item's value (multiplied), a dice item counting
-  with its term's sign. A `split` change sums the same values per tag.
+  with its term's sign; for a roll made more than once, the kept roll's. A `split` change sums the same values per tag.
 - **Bounds**: the highest counted `atLeast` roll effect raises the total, then the
   lowest counted `atMost` lowers it. Stacking applies per op. The bounded total is `total`, and
   the band reads it; the items and faces are unchanged.
@@ -259,6 +272,9 @@ Dice items are rolled in order, each by the formula language's rules
   - `total`;
   - `faces`: every face of every dice item, in roll order, dropped and rerolled included;
   - `kept`: kept faces;
+  - `rolls`: for a roll made more than once, every whole roll in order, `{ total, kept, items }`,
+    `total` before bounds and `kept` true for the one kept (whose items, faces and kept faces
+    are the result's); absent for a roll made once;
   - `empty`;
   - `items`: the itemized roll;
   - `tallies`: each roll tally visible from the action's pack, by name (below);
@@ -288,7 +304,7 @@ A roll step with `of` builds and rolls nothing and is not a checkpoint:
    isn't reached yet) leaves the step without a result, as a false `when` does. At load, the
    path's first step must be a step of the action (`unknown-reference`, kind `step`).
 2. **The result** is the earlier roll's `total`, `faces`, `kept`, `empty`, `items`, `tallies`,
-   `bounds` and `unbounded`, with `band`, `bandValue` and `bandSet` worked out afresh by the
+   `bounds`, `unbounded` and `rolls`, with `band`, `bandValue` and `bandSet` worked out afresh by the
    step's `bands` in the step's band context (its flags, `params`, `steps`, `participants`, and
    in an `each` step `participant` and the participant's flags). A `split` may read it as it
    would the earlier roll.
@@ -492,6 +508,11 @@ roll.
   step's path (per participant in an `each` step), and held by a `hold` action step like any
   other. A step with no `changes` and no `release` (only `tags`) is a place content adds to;
   without matching content it proposes nothing.
+- **The step's result** is `steps.<id>.added`: the instance IDs of the copies the step's
+  `addItem` changes to `self` add, its own and those content adds, in the order proposed (`[]`
+  for none). An ID the engine picked is listed as picked, so a later step can aim a computed
+  `entry`, a `path.entry` or a pending choice step's `entry` at the new copy. Changes for another
+  character, and held changes the step releases (they keep their own `step`), are left out.
 - **action:** runs the used action with the evaluated `params`, the same character, entry,
   source and situational choices. Its steps' log entries are nested under `<step id>/`. Its outcome is
   `steps.<id>.result` and `steps.<id>.data`. Its proposed changes are appended to the parent's;
@@ -520,7 +541,9 @@ roll.
   - **`entry`**. Evaluated to a string, an instance ID (`type-mismatch`
     otherwise). The step takes the listing of `computeSheet`'s `actions`, for the character on
     the step's sheet, with the action `use` (as above) and that `entry`, and with that `source`
-    when the step gives one too (with neither, the listing has no `source`); it runs as
+    when the step gives one too (with neither, the listing has no `source`). Without `source`,
+    a `use` that names no rules action is `<item>#<use>`, `<item>` the entry's own item (the
+    copy's, or an applied entry's source): an action that item or its type defines. It runs as
     `startAction` would run that listing: that copy is `self` and its item `item`. No such
     listing (no such copy, the copy doesn't list the action, or its `available` is false) is
     `unknown-action` (data: `action`, `entry`, and `source` when given). Not on a handoff: its
@@ -675,6 +698,9 @@ A choice step has one source of options (a fifth, pending choices, is
   content), and over copies `steps.<id>.self` is the picked copy's view; over values without
   `repeat`, `steps.<id>.value` is the picked value. When an added option is picked, `.item`,
   `.self` and `.value` are absent.
+  `steps.<id>.added` lists the copies the step's changes add to `self`, every pick's in order,
+  as a changes step's does (above); it is updated after each pick's changes, so with `repeat` a
+  later pick's changes see the earlier picks' copies.
 - **Flags**. A written or added option may have `flags`
   (`{ <name>: <formula> }`). After each pick (not `#done`), before any changes, the picked
   option's flags are evaluated in order, each with `picked` bound and the earlier ones already
@@ -737,8 +763,9 @@ ones included. Each pick is a checkpoint:
    offered only outside creation. To end one choice early, the app answers its picks; a choice with
    `min` picks is no longer asked.
 
-The result is `steps.<id>.picked`, the picked option IDs in order (`#done` left out), and
-`steps.<id>.paths`, their choice paths. Policy rules match the step by its tags and path, and
+The result is `steps.<id>.picked`, the picked option IDs in order (`#done` left out),
+`steps.<id>.paths`, their choice paths, and `steps.<id>.added`, the copies its changes add, as
+for other choice steps. Policy rules match the step by its tags and path, and
 `maxActionSteps` counts each pick.
 
 **Pausing.** `needs.choice` is the choice being asked: `path`; `owner`, the key root of the
@@ -879,7 +906,8 @@ Every checkpoint adds a log entry:
 - for rolls, the `items`, `total`, `band` and `bandSet` (as in the step's result), and `tallies`:
   each tally with a non-zero value as `{ name, value, sources }`, each source `{ source, op, value
   }` (an `atLeast` or `atMost` is listed only when it changed the value); `bounds`, when a bound
-  changed the total; and `summary`, the roll's [summary](#the-roll-summary), a dice-less roll's
+  changed the total; `rolls`, for a roll made more than once (as in the step's result), while
+  `faces` lists every roll's faces as supplied; and `summary`, the roll's [summary](#the-roll-summary), a dice-less roll's
   included.
 
 **A paused action is its inputs plus its answers so far** (`state`): the ruleset version, the

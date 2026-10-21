@@ -417,7 +417,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       for (const tag of list ?? [])
         if (typeof tag === 'string' && !declared.has(tag)) err('unknown-tag', { tag, pack });
     },
-    /** An effect with `then` changes its own copy, so it must have one. */
+    /** An effect with `then` changes its own entry (a copy or an applied entry), so it must have one. */
     copyless(effect: Effect, pack: string): void {
       if (effect.then)
         err('then-without-copy', {
@@ -426,7 +426,6 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         });
     },
     effect(effect: Effect, pack: string): Effect {
-      if (effect.scope === 'applied') q.copyless(effect, pack);
       const out: Effect = { ...effect };
       if (typeof effect.target === 'string') out.target = q.field(effect.target, pack);
       else if ('rolls' in effect.target && effect.target.tally !== undefined) {
@@ -532,7 +531,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         ...(choice.effects
           ? {
               effects: choice.effects.map((e) => {
-                if (e.scope !== 'applied') q.copyless(e, pack);
+                q.copyless(e, pack);
                 return q.effect(e, pack);
               }),
             }
@@ -582,11 +581,12 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       return steps.map((step) => ({
         ...step,
         ...(step.bands ? { bands: q.bands(step.bands, pack) } : {}),
-        // With `source`, a `use` no rules action has is the content's own action's local ID.
+        // With `source` or `entry`, a `use` no rules action has is the content's own action's
+        // local ID.
         ...(step.use
           ? {
               use:
-                step.source !== undefined && step.kind === 'action'
+                (step.source !== undefined || step.entry !== undefined) && step.kind === 'action'
                   ? (resolveAction(ruleset, step.use, pack) ?? step.use)
                   : q.actionId(step.use, pack),
             }
@@ -822,7 +822,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         ...(def.effects
           ? {
               effects: def.effects.map((e) => {
-                if (e.scope !== 'applied') q.copyless(e, pid);
+                q.copyless(e, pid);
                 return q.effect(e, pid);
               }),
             }
@@ -830,7 +830,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       };
     }
     (r.effects ?? []).forEach((def, index) => {
-      if (def.scope !== 'applied') q.copyless(def, pid);
+      q.copyless(def, pid);
       ruleset.rules.effects.push({ ...q.effect(def, pid), pack: pid, index });
     });
     for (const def of r.followUps ?? [])

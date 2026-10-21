@@ -1,0 +1,16 @@
+# 1 + 2 + 1 = 4, then 6 + 6 + 1 = 13: the double six is the kept roll's.
+status: finished
+outcome:
+  result: boxcars
+  data: { total: 13, rolls: 2, kept: 1 }
+log:
+  - step: roll
+    action: 'test-roll-twice:check'
+    kind: dice
+    by: engine
+    faces: [1, 2, 6, 6]
+    total: 13
+    band: boxcars
+    rolls:
+      - { total: 4, kept: false }
+      - { total: 13, kept: true }

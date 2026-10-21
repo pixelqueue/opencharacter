@@ -869,7 +869,7 @@
           "$ref": "common.schema.json#/$defs/name"
         },
         "use": {
-          "description": "The action to run: a rules action, or with `source` one the content's type or the content itself defines (its local action ID, when no rules action has that ID).",
+          "description": "The action to run: a rules action, or with `source` one the content's type or the content itself defines, or with `entry` and no `source` one the copy's item or its type defines (its local action ID, when no rules action has that ID).",
           "$ref": "common.schema.json#/$defs/ref"
         },
         "source": {
@@ -877,7 +877,7 @@
           "$ref": "formula.schema.json"
         },
         "entry": {
-          "description": "A formula giving an instance ID, such as a choice step's `steps.weapon.picked`. The step runs `use` as `computeSheet` lists it, on the step's sheet, with that `entry` (and that `source`, when given too): that copy is `self` and its item `item`. With no such listing (no such copy, the copy doesn't list the action, or its `available` is false) the action fails with `unknown-action` (data: `action`, `entry`, and `source` when given). Not with `as`.",
+          "description": "A formula giving an instance ID, such as a choice step's `steps.weapon.picked`. The step runs `use` as `computeSheet` lists it, on the step's sheet, with that `entry` (and that `source`, when given too): that copy is `self` and its item `item`. Without `source`, a local `use` names the copy's item's own action (`<item>#<use>`). With no such listing (no such copy, the copy doesn't list the action, or its `available` is false) the action fails with `unknown-action` (data: `action`, `entry`, and `source` when given). Not with `as`.",
           "$ref": "formula.schema.json"
         },
         "hold": {
