@@ -1,0 +1,62 @@
+pack: 5e-srd-5.1
+from: 0.1.0
+to: 0.2.0
+steps:
+  # Each once-per-rest invocation's use moved from the warlock copy to the invocation's pick.
+  - op: moveState
+    type: class
+    from: bewitchingWhispersUsed
+    to: used
+    owner: features.warlock.eldritch-invocations
+    choice: invocations
+    option: invocations.bewitching-whispers
+  - op: moveState
+    type: class
+    from: dreadfulWordUsed
+    to: used
+    owner: features.warlock.eldritch-invocations
+    choice: invocations
+    option: invocations.dreadful-word
+  - op: moveState
+    type: class
+    from: minionsOfChaosUsed
+    to: used
+    owner: features.warlock.eldritch-invocations
+    choice: invocations
+    option: invocations.minions-of-chaos
+  - op: moveState
+    type: class
+    from: mireTheMindUsed
+    to: used
+    owner: features.warlock.eldritch-invocations
+    choice: invocations
+    option: invocations.mire-the-mind
+  - op: moveState
+    type: class
+    from: sculptorOfFleshUsed
+    to: used
+    owner: features.warlock.eldritch-invocations
+    choice: invocations
+    option: invocations.sculptor-of-flesh
+  - op: moveState
+    type: class
+    from: signOfIllOmenUsed
+    to: used
+    owner: features.warlock.eldritch-invocations
+    choice: invocations
+    option: invocations.sign-of-ill-omen
+  - op: moveState
+    type: class
+    from: thiefOfFiveFatesUsed
+    to: used
+    owner: features.warlock.eldritch-invocations
+    choice: invocations
+    option: invocations.thief-of-five-fates
+  # Racial uses moved from the race copy to the granted trait's saved state.
+  - op: moveState
+    type: race
+    from: relentlessEnduranceUsed
+    to: used
+    grant: traits.relentless-endurance
+  - { op: moveState, type: race, from: hellishRebukeUsed, grant: traits.infernal-legacy }
+  - { op: moveState, type: race, from: darknessUsed, grant: traits.infernal-legacy }
