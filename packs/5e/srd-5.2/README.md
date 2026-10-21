@@ -261,9 +261,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Metamagic options, Pact Magic and the 28 invocations, the spellbook, Arcane Recovery. Uses until
   a rest are state on the class copy, an invocation's on its pick (Gift of the Depths' `used`).
   A species trait keeps its own uses as its grant's saved state (Breath Weapon, Draconic Flight,
-  Stonecunning, the lineage spells, Large Form, Adrenaline Rush, Relentless Endurance); Giant
-  Ancestry's are on the species copy, since Stone's Endurance spends one from an incoming-damage
-  effect, which can change only a copy's state.
+  Stonecunning, the lineage spells, Giant Ancestry, Large Form, Adrenaline Rush, Relentless
+  Endurance); Stone's Endurance spends a Giant Ancestry use from its incoming-damage effect's
+  `then`, and `origins.giantAncestryLeft` offers it while one is left.
 - **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
   prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
   and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with

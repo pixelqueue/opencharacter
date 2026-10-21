@@ -2,6 +2,7 @@ fields:
   origins.conditionAdvantage: { type: set, of: condition }
   origins.draconicDamage: { type: string, formula: "''" }
   origins.giantAncestry: { type: string, formula: "''" }
+  origins.giantAncestryLeft: { type: integer, formula: 0 }
 
 situational:
   - id: avoidCondition
@@ -23,13 +24,11 @@ situational:
     type: boolean
     default: false
     incoming: { fields: [hp.current], tags: [damage] }
-    available: >-
-      origins.giantAncestry == 'stone'
-        && countCopies(copy.type == 'species' && has(copy.state.giantAncestryUsed)
-          && copy.state.giantAncestryUsed < proficiency.bonus) > 0
+    available: origins.giantAncestry == 'stone' && origins.giantAncestryLeft > 0
 
 display:
   fields:
     origins.conditionAdvantage: { hidden: true }
     origins.draconicDamage: { hidden: true }
     origins.giantAncestry: { hidden: true }
+    origins.giantAncestryLeft: { hidden: true }
