@@ -2712,7 +2712,10 @@ export type UpgradeStep = {
     | 'setDefault'
     | 'mapValues'
     | 'renameState'
+    | 'removeState'
+    | 'moveState'
     | 'renameChoice'
+    | 'removeChoice'
     | 'renameOption'
     | 'requireChoice'
     | 'renameContentType'
@@ -2729,11 +2732,20 @@ export type UpgradeStep = {
   type?: Name;
   value?: Formula;
   map?: Record<string, Literal>;
-  owner?: Ref;
+  owner?: ChoiceOwner;
   choice?: Slug;
   /** adoptStandard: the item whose standard copy an entry becomes. */
   item?: Ref;
+  /** removeState: the state key to drop. */
+  key?: Name;
+  /** moveState: the granted content whose saved state on the copy (its `grants`) receives the value. */
+  grant?: Ref;
+  /** moveState: the picked option, in choice `choice` of `owner` (or the rules), whose pick receives the value. */
+  option?: string | number;
 };
+
+/** Whose choice a step names: content (a local or qualified ID); for a choice nested in an inline option, that content then each choice and inline option down to it, joined by `/` (`classes.operative/specialization/ghost`). A path with an even number of parts starts at a rules-level choice (`motto/brave`). Absent: the rules. */
+export type ChoiceOwner = Ref | string;
 
 /** Codes in `data/error-codes.json`. */
 export type ErrorCode =

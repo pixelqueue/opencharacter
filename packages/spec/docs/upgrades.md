@@ -10,17 +10,17 @@ item values just recalculate. A version that changes the **shape** of saved stat
 Between two releases of a pack, these differences are **shape changes**, because a saved
 character could refer to something that no longer means the same:
 
-| Change                                                                           | `kind`                 | Covered by                         |
-| -------------------------------------------------------------------------------- | ---------------------- | ---------------------------------- |
-| A content item is removed                                                        | `content-removed`      | `renameContent` or `removeContent` |
-| An item's content type changes                                                   | `content-type-changed` | `removeContent`                    |
-| An input field is removed, or stops being an input                               | `field-removed`        | `renameField` or `removeField`     |
-| An input field's type changes, or an enum loses values                           | `field-type-changed`   | `mapValues` or `removeField`       |
-| A state key is removed or its type changes (on a content type, item or template) | `state-removed`        | `renameState`                      |
-| A choice is removed                                                              | `choice-removed`       | `renameChoice`                     |
-| An option is removed from a `values` or inline-options choice                    | `option-removed`       | `renameOption`                     |
-| A new required choice appears on existing content or in the rules                | `choice-added`         | `requireChoice`                    |
-| An existing item becomes standard (a standard copies query now matches it)       | `standard-copy-added`  | `adoptStandard`                    |
+| Change                                                                           | `kind`                 | Covered by                                  |
+| -------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------- |
+| A content item is removed                                                        | `content-removed`      | `renameContent` or `removeContent`          |
+| An item's content type changes                                                   | `content-type-changed` | `removeContent`                             |
+| An input field is removed, or stops being an input                               | `field-removed`        | `renameField` or `removeField`              |
+| An input field's type changes, or an enum loses values                           | `field-type-changed`   | `mapValues` or `removeField`                |
+| A state key is removed or its type changes (on a content type, item or template) | `state-removed`        | `renameState`, `removeState` or `moveState` |
+| A choice is removed                                                              | `choice-removed`       | `renameChoice` or `removeChoice`            |
+| An option is removed from a `values` or inline-options choice                    | `option-removed`       | `renameOption`                              |
+| A new required choice appears on existing content or in the rules                | `choice-added`         | `requireChoice`                             |
+| An existing item becomes standard (a standard copies query now matches it)       | `standard-copy-added`  | `adoptStandard`                             |
 
 `standard-copy-added` is for an item of the pack, in both releases with the same
 type, that the standard copies queries ([content.md](content.md#standard-copies)) match in the
@@ -28,6 +28,12 @@ new release but not the old: the rules' and every item's, whichever loaded pack 
 Saved characters hold the item as an ordinary entry, which would otherwise stay beside the new
 standard copy. An item that stops being standard, and a new item that is standard from the start,
 are not shape changes.
+
+A choice's options are compared only where both releases write them. A `values` formula's
+options are known only on a sheet, so written values it replaces are not `option-removed`, nor
+are the options of a formula the old release had: a saved pick the formula no longer offers is
+reported when the character is computed. A written list that loses a value is `option-removed`
+as before.
 
 Adding things (content, fields with a default, optional choices, state keys with a default) and
 changing formulas, item field values, display hints and translations are not shape changes.
@@ -39,6 +45,8 @@ Deprecating an item (it stays, marked `deprecated`) is not a shape change.
 - state keys: `<pack>:<type or item>/<key>`;
 - choices on content: `<pack>:<item>/<choice>`;
 - rules-level choices: `<pack>:<choice>`;
+- choices nested in an inline option: the option's choice ID, then `/<option>/<choice>`
+  (`<pack>:classes.operative/specialization/ghost/skill-feat`);
 - removed options: `<choice id>/<option>`.
 
 `changes` are listed in the table's order, then by ID. A field that stays but stops being an
@@ -109,20 +117,56 @@ steps:
 The steps are a [fixed set](../data/upgrade-steps.json). A step applies to every place saved
 state can refer to what it names:
 
-| Op              | Params                            | Effect                                                                                                                                                                                       |
-| --------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `renameContent` | `from`, `to`                      | Replaces the content ID everywhere: entry `item`s, `templates`, `applied` sources, picked `option`s at any depth, members of `set` input values, and the owner part of prefixed choice keys  |
-| `removeContent` | `id`                              | Removes entries holding it (with their picks), removes it from `templates`, `applied`, picks (with their nested picks) and `set` input values                                                |
-| `renameField`   | `from`, `to`                      | Moves the saved value                                                                                                                                                                        |
-| `removeField`   | `field`                           | Drops the saved value                                                                                                                                                                        |
-| `setDefault`    | `field`, `value`                  | Where the field has no saved value, saves the formula's value. The formula is evaluated against the **original** character under the **old** ruleset                                         |
-| `mapValues`     | `field`, `map`                    | Replaces a saved value found as a key of `map` (compared as text) with the mapped value                                                                                                      |
-| `renameState`   | `type?`, `from`, `to`             | Renames a state key on copies of content of `type` (all copies when absent)                                                                                                                  |
-| `renameChoice`  | `owner?`, `from`, `to`            | Renames a choice key on entries holding `owner`, in picks of `owner`, and in prefixed keys (`<owner>/<choice>`). Without `owner`, renames a rules-level choice                               |
-| `renameOption`  | `owner?`, `choice`, `from`, `to?` | Replaces a picked option of the choice (`from`) with `to`; without `to`, removes the pick and its nested picks                                                                               |
-| `requireChoice` | `owner?`, `choice`                | Records that a new required choice exists; the upgraded character reports it as pending                                                                                                      |
-| `renameTag`     | `from`, `to`                      | Replaces the tag in saved `set` values of `of: tag` input fields (and in the homebrew, below)                                                                                                |
-| `adoptStandard` | `item`                            | Renames the first entry holding the item (features, then inventory, in file order) to the item's standard copy ID, keeping its state, picks and templates; nothing when an entry has that ID |
+| Op              | Params                                                               | Effect                                                                                                                                                                                       |
+| --------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `renameContent` | `from`, `to`                                                         | Replaces the content ID everywhere: entry `item`s, `templates`, `applied` sources, picked `option`s at any depth, members of `set` input values, and the owner part of prefixed choice keys  |
+| `removeContent` | `id`                                                                 | Removes entries holding it (with their picks), removes it from `templates`, `applied`, picks (with their nested picks) and `set` input values                                                |
+| `renameField`   | `from`, `to`                                                         | Moves the saved value                                                                                                                                                                        |
+| `removeField`   | `field`                                                              | Drops the saved value                                                                                                                                                                        |
+| `setDefault`    | `field`, `value`                                                     | Where the field has no saved value, saves the formula's value. The formula is evaluated against the **original** character under the **old** ruleset                                         |
+| `mapValues`     | `field`, `map`                                                       | Replaces a saved value found as a key of `map` (compared as text) with the mapped value                                                                                                      |
+| `renameState`   | `type?`, `from`, `to`                                                | Renames a state key in the saved state of copies, picks and granted content ([characters.md](characters.md#granted-contents-state)) of content of `type` (all of them when absent)           |
+| `removeState`   | `type?`, `key`                                                       | Drops the state key from the same places as `renameState`; a pick's or grant's `state` left empty goes, and a grant entry with it                                                            |
+| `moveState`     | `type?`, `from`, `to?`, and `grant`, or `owner?`, `choice`, `option` | Moves state key `from` off copies of content of `type` to key `to` (default `from`) of a pick or of granted content's saved state ([below](#moving-state))                                   |
+| `renameChoice`  | `owner?`, `from`, `to`                                               | Renames a choice key on entries holding `owner`, in picks of `owner`, and in prefixed keys (`<owner>/<choice>`). Without `owner`, renames a rules-level choice                               |
+| `removeChoice`  | `owner?`, `choice`                                                   | Removes the choice's picks, with their nested picks, wherever `renameChoice` would rename it                                                                                                 |
+| `renameOption`  | `owner?`, `choice`, `from`, `to?`                                    | Replaces a picked option of the choice (`from`) with `to`; without `to`, removes the pick and its nested picks                                                                               |
+| `requireChoice` | `owner?`, `choice`                                                   | Records that a new required choice exists; the upgraded character reports it as pending                                                                                                      |
+| `renameTag`     | `from`, `to`                                                         | Replaces the tag in saved `set` values of `of: tag` input fields (and in the homebrew, below)                                                                                                |
+| `adoptStandard` | `item`                                                               | Renames the first entry holding the item (features, then inventory, in file order) to the item's standard copy ID, keeping its state, picks and templates; nothing when an entry has that ID |
+
+**Owners.** A choice step's `owner` is content (local or qualified), or the rules when absent.
+A choice nested in an inline option is named by a path, as its change ID writes it: the owner,
+then each choice and inline option down to the option that declares it, joined by `/`
+(`owner: classes.operative/specialization/ghost`, `choice: skill-feat`). A path with an even
+number of parts starts at a rules-level choice (`owner: motto/brave`). The step follows the
+saved picks: the choice under the pick of `ghost`, wherever the operative's tree is saved.
+Choice keys are as in [characters.md](characters.md#choices-tree): a slotted choice's slot is its
+own key (`skill-feat-2`).
+
+### Moving state
+
+`moveState` is for state that a release moves off a copy to the content that now keeps it: a
+pick's `state`, or granted content's saved state (`grants`) on the copy. For each copy of content
+of `type` (every copy when absent) with a saved `from`, the value leaves the copy, and goes to:
+
+- **with `grant`:** the saved state of that content, on the copy, when the copy holds it by a
+  holder grant on the new release (its type's, item's or templates' grants, and theirs in turn;
+  a grant whose `item` is a formula isn't followed);
+- **with `choice` and `option`:** the pick of `option` (content local or qualified, else an
+  inline option or value as written) in that choice of `owner`, in the copy's own choice tree at
+  any depth; a rules-level choice (no `owner`) is the top-level `choices`.
+
+The value is dropped, never reported, when:
+
+- the target isn't there (no such pick on the copy, or no holder grant of the content);
+- the target content doesn't declare key `to` on the new release;
+- the target already has a saved `to`: it is newer, and wins;
+- it equals the target's default: the declared default, unless a grant of that content sets the
+  key in its `state`, whose value the saved one then overrides, so it is kept.
+
+A dropped value counts as a change: the step is listed in the report. A copy's `state` left empty
+goes.
 
 `adoptStandard` is for a release that makes an item standard
 ([content.md](content.md#standard-copies)): entry IDs are the app's choice, so the script names

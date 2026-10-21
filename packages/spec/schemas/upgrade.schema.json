@@ -38,7 +38,10 @@
             "setDefault",
             "mapValues",
             "renameState",
+            "removeState",
+            "moveState",
             "renameChoice",
+            "removeChoice",
             "renameOption",
             "requireChoice",
             "renameContentType",
@@ -75,7 +78,7 @@
           }
         },
         "owner": {
-          "$ref": "common.schema.json#/$defs/ref"
+          "$ref": "#/$defs/choiceOwner"
         },
         "choice": {
           "$ref": "common.schema.json#/$defs/slug"
@@ -83,6 +86,26 @@
         "item": {
           "description": "adoptStandard: the item whose standard copy an entry becomes.",
           "$ref": "common.schema.json#/$defs/ref"
+        },
+        "key": {
+          "description": "removeState: the state key to drop.",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "grant": {
+          "description": "moveState: the granted content whose saved state on the copy (its `grants`) receives the value.",
+          "$ref": "common.schema.json#/$defs/ref"
+        },
+        "option": {
+          "description": "moveState: the picked option, in choice `choice` of `owner` (or the rules), whose pick receives the value.",
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "number"
+            }
+          ]
         }
       },
       "allOf": [
@@ -248,9 +271,94 @@
             "type": "object",
             "required": ["item"]
           }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "removeState"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["key"]
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "moveState"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["from"],
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["grant"],
+                "not": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "required": ["choice"]
+                    },
+                    {
+                      "type": "object",
+                      "required": ["option"]
+                    },
+                    {
+                      "type": "object",
+                      "required": ["owner"]
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "object",
+                "required": ["choice", "option"],
+                "not": {
+                  "type": "object",
+                  "required": ["grant"]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "removeChoice"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["choice"]
+          }
         }
       ],
       "additionalProperties": false
+    },
+    "choiceOwner": {
+      "description": "Whose choice a step names: content (a local or qualified ID); for a choice nested in an inline option, that content then each choice and inline option down to it, joined by `/` (`classes.operative/specialization/ghost`). A path with an even number of parts starts at a rules-level choice (`motto/brave`). Absent: the rules.",
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/ref"
+        },
+        {
+          "type": "string",
+          "maxLength": 512,
+          "pattern": "^(([a-z0-9]+([-.][a-z0-9]+)*:[a-z0-9]+(-[a-z0-9]+)*(\\.[a-z0-9]+(-[a-z0-9]+)*)*|[a-z0-9]+(-[a-z0-9]+)*(\\.[a-z0-9]+(-[a-z0-9]+)*)*)/[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*|[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*)(/[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*)*$"
+        }
+      ]
     }
   }
 }
