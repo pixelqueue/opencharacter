@@ -175,6 +175,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
   - Conjure Fey, Chromatic Orb, Eldritch Blast's later beams, Scorching Ray's rays, Magic
     Missile's darts and other repeated effects are their own actions on the spell; the cast is the
     first.
+  - Death Ward ends when it saves its target: on the first damage that, before resistances,
+    would drop the target to 0 Hit Points. Oil's extra fire damage ends with the first fire
+    damage; Hypnotic Pattern and Eyebite's Asleep end on any damage.
   - Vampiric Touch heals half the damage rolled; Mass Heal gives out its 700 hit points one
     creature at a time.
   - A smite is an option on a hit with a melee weapon or an Unarmed Strike: picking it casts the
@@ -294,8 +297,6 @@ as text are listed below.
   from higher slots, Enlarge/Reduce's size change, Chill Touch's no-regain, Beacon of Hope's
   maximum healing, Heroism's temporary hit points each turn, a second damage type for Transmuted
   Spell.
-- **Effects that end themselves:** an applied effect can't remove itself when it triggers (Death
-  Ward, Oil): the app removes it.
 - **Metamagic:** Distant, Quickened and Subtle Spell are recorded in the cast's `data.metamagic`
   for the app.
 - **Monsters:** movement and sense traits, revival traits, reactions that change a roll (Parry),
@@ -305,8 +306,7 @@ as text are listed below.
   Gear quantities and language dialects aren't stored.
 - **Class features:** Improved Elemental Fury's range is text (an effect can't change a spell's
   fields).
-- **Open spec issues:** four of these wait on the format: an applied effect removing itself (Death
-  Ward, Oil), a Multiattack calling an action an entry defines inline, an effect changing a
+- **Open spec issues:** three of these wait on the format: a Multiattack calling an action an entry defines inline, an effect changing a
   spell's fields (Improved Elemental Fury's range), and a choice reading a sibling choice (a
   background's +1 and +2, kept apart by a hidden field).
 

@@ -11,6 +11,8 @@ effects:
     when: incoming.amount < 0
     scope: applied
     duration: { amount: 1, unit: minute }
+    then:
+      - { type: removeEffect, entry: self }
 actions:
   - use: throw-item
     params: { applies: "'gear.oil'" }
