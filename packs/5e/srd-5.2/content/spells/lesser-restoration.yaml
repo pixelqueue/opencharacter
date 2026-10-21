@@ -25,27 +25,16 @@ actions:
       - id: effect
         kind: choice
         options:
-          - id: blinded
-            changes:
-              - type: removeEffect
-                applied: { where: item.id == @conditions.blinded }
-            to: target
-          - id: deafened
-            changes:
-              - type: removeEffect
-                applied: { where: item.id == @conditions.deafened }
-            to: target
-          - id: paralyzed
-            changes:
-              - type: removeEffect
-                applied: { where: item.id == @conditions.paralyzed }
-            to: target
-          - id: poisoned
-            changes:
-              - type: removeEffect
-                applied: { where: item.id == @conditions.poisoned }
-            to: target
+          values:
+            formula: >-
+              [@conditions.blinded, @conditions.deafened, @conditions.paralyzed,
+                @conditions.poisoned]
+      - id: end
+        kind: changes
+        to: target
+        changes:
+          - { type: removeEffect, applied: { where: item.id == steps.effect.value } }
       - id: result
         kind: outcome
         result: "'ended'"
-        data: { effect: steps.effect.picked }
+        data: { effect: steps.effect.value }
