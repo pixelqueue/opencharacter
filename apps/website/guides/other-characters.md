@@ -38,7 +38,7 @@ if ('status' in attack && attack.status === 'finished') {
     .map((c) => c.change);
   const hit = applyChanges(goblinRuleset, goblin, forGoblin);
   // hit.adjustments: [{ field: '5e-srd-5.1:hp.current', by: -7, requested: -13,
-  //                     reason: 'requested', clamped: true }]
+  //                     taken: -13, reason: 'requested', clamped: true }]
 }
 ```
 

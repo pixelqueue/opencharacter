@@ -145,7 +145,7 @@ inventory:
   earlier in the same batch. A batch that starts with `setHomebrew` also repairs a homebrew that
   no longer loads.
 - **Upgrades** rewrite the homebrew along with the saved state: a field, item, content type, item
-  field, tag or action the pack renames is renamed in it too, each place listed in the report's
+  field, state key, tag or action the pack renames is renamed in it too, each place listed in the report's
   `homebrew`. What can't be migrated is in the report's `errors`, for the player to fix.
 - **A custom-item form** builds its inputs from the content type's `fields`
   (`ruleset.contentTypes[type].fields`): the declaration gives each input's kind (`dice`,
@@ -186,8 +186,10 @@ item, a value for a field that no longer exists) in `errors`, computing the rest
 and the same changes always give the same result. That gives you three patterns for free:
 
 - **Undo:** keep the previous character. Undo is putting it back.
-- **History:** store each batch of changes with who made it and when. Replaying the batches from
-  a starting file rebuilds the character exactly.
+- **History:** store each batch of changes with who made it and when. Log `result.changes`, the
+  batch as applied, not the one you sent: an `adjust` whose effects rolled dice comes back with
+  the faces it used, and replaying it without them fails with `faces-required`. Replaying the
+  batches from a starting file rebuilds the character exactly.
 - **Multiplayer sync:** send change batches instead of whole characters. Every client applies
   them in the same order and gets the same character. Keep the server's copy authoritative and
   let it reject batches that fail.

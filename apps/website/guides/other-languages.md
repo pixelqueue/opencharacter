@@ -75,13 +75,13 @@ YAML ([`tests/`](../../../packages/spec/tests/README.md)), so any language can r
 
 | Area        | Covers                              | Cases (spec 0.1) |
 | ----------- | ----------------------------------- | ---------------- |
-| `formulas/` | Parsing, printing, evaluation, dice | 13 topic files   |
-| `loads/`    | `loadRuleset`                       | 10               |
-| `sheets/`   | `computeSheet`                      | 66               |
-| `options/`  | `listOptions`                       | 7                |
-| `changes/`  | `applyChanges`                      | 38               |
-| `actions/`  | `startAction`, `continueAction`     | 122              |
-| `upgrades/` | `upgrade`, `checkRelease`           | 37               |
+| `formulas/` | Parsing, printing, evaluation, dice | 24 topic files   |
+| `loads/`    | `loadRuleset`                       | 100              |
+| `sheets/`   | `computeSheet`                      | 414              |
+| `options/`  | `listOptions`                       | 30               |
+| `changes/`  | `applyChanges`                      | 277              |
+| `actions/`  | `startAction`, `continueAction`     | 1066             |
+| `upgrades/` | `upgrade`, `checkRelease`           | 61               |
 
 A port doesn't have to start with everything:
 
