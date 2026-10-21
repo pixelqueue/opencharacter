@@ -23,7 +23,11 @@ sheet is computed without the broken part.
 | `competing`      | Fields where several effects compete to set the value                     | A picker on the field                          |
 | `issues`         | Rules issues: valid, but the rules object                                 | Warnings                                       |
 | `copies`         | Each copy's computed values (an item's quality), by instance ID           | Next to the item in the inventory              |
+| `copyNames`      | Copies the player named (`nameFrom`), by instance ID                      | In place of the item's name                    |
+| `templated`      | Every item with templates, as merged (a Longsword +1, a longer cantrip)   | Item cards                                     |
 | `standardCopies` | The copies every character holds, and whether the file saves each         | The inventory, unsaved items greyed out        |
+| `activations`    | Every piece of active content and how it was reached                      | Content groups                                 |
+| `copyLimits`     | Per content type, how many copies the character may hold and holds        | Replace instead of Add                         |
 | `errors`         | Problems with the file itself (unknown items, wrong types)                | An import warning                              |
 
 The full shape is in
@@ -301,6 +305,16 @@ with a `formula-error` in `sheet.errors`. Name each one by
 `types.<type>.computed.<name>.name` (`types.cohort.computed.quality.name`), or by
 `<item>.computed.<name>.name` when the item declares it; a state key likewise by
 `types.<type>.state.<key>.name`. Leave out a value without a name.
+
+## Items with templates
+
+`sheet.templated` lists every item the character has with templates, merged as the rules read
+it, so you never merge templates yourself. Each is `{ entry?, item, templates, tags, fields }`:
+first each copy with a saved or kept template (`entry` its instance ID: a Longsword +1), then
+each picked or granted item that content keeps templates on, with no `entry` (a cantrip a
+feature reaches 300 feet farther). `fields` is each item field as merged. An item that isn't
+listed is the ruleset's own. Pass the entry to the item's card
+([Showing text](showing-text.md#content-cards)).
 
 ## Standard copies
 

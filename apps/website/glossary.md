@@ -38,7 +38,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Effect operation:** one of the fixed set: add, set, multiply, atLeast, atMost, grant, rollModifier.
 - **Effect scope:** whether an effect applies to a character who has the content (`holder`) or one it is applied to (`applied`).
 - **Engine:** an implementation of the spec's calls; the TypeScript one is the reference engine, others are ports.
-- **Entry (copy):** the character's copy of a content item: base item, templates, equipped flag, quantity, state, picks.
+- **Entry (copy):** the character's copy of a content item: base item, templates, equipped flag, quantity, state, picks, and the state of content it grants.
 - **Ephemeral offer:** a follow-up (`on`, `becomes`) that a batch fired, stored in the character file until it is acted on or dismissed (a `becomes` one also until its condition is false): a concentration check after damage.
 - **Exclusivity group:** choices sharing a `unique` key; an option picked in one is ineligible (`already-picked`) in the others.
 - **Extends:** a pack author's permanent variant of an item, inheriting everything and overriding parts.
@@ -72,6 +72,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Pick:** one selected option in a choice, stored in the character's choices tree with its own nested picks.
 - **Pool dice:** dice an effect adds to a roll's dice part (`poolDice`) before keep and drop, each recording its source.
 - **Prerequisite:** a condition for having content; a false one is a rules issue.
+- **Preset choice:** a choice of granted content that the grant answers (`choices`); never pending, and `choose` and `unchoose` refuse it (`preset-choice`).
 - **Priority:** a display hint ordering groups and fields; whole numbers, 0 highest.
 - **Proposed change:** a change an action returns for the app to apply, to the acting character, a target or a linked character.
 - **Proposed sheet:** the character with the changes an action has proposed so far `to: self` applied, which a step with `sheet: proposed` reads; built afresh in each call, never stored.

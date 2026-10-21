@@ -37,11 +37,26 @@ The full shape is [character.schema.json](../../../packages/spec/schemas/charact
 explained in [Characters](../../../packages/spec/docs/characters.md).
 
 **It holds only base state:** the values a player typed in, what the character owns, per-copy
-state (charges, a class's level), picks (with their own state, such as a once-a-day feat's use)
-and active temporary effects. Armor Class, modifiers,
+state (charges, a class's level), picks (with their own state, such as a once-a-day feat's use),
+the state of content a copy or pick grants (`grants`, below) and active temporary effects. Armor Class, modifiers,
 attack bonuses and maximum HP are **never** in the file. They come from `computeSheet` every
 time, so a saved character can't disagree with the rules, and a pack fix reaches every character
 without migrating anything.
+
+Content an item grants can keep state of its own: an artifact's gift whose Effort stays
+committed. It is saved on the copy (or the pick) that grants it, under `grants`, by the granted
+content's qualified ID, and left out while at its defaults:
+
+```yaml
+inventory:
+  - id: blade
+    item: my-pack:artifacts.sun-blade
+    equipped: true
+    grants:
+      my-pack:gifts.flame-ward: { state: { committed: 1 } }
+```
+
+It stays while the grant is off (the blade stowed), so round-trip it like picks.
 
 > Don't add derived values to the file "for convenience". If you need them without computing
 > (a search index, a token's HP bar on a server), keep them in your own cache next to the file
