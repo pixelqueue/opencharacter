@@ -2,7 +2,13 @@ import type { CharacterDoc } from './pack-types.ts';
 import type { Ruleset } from './ruleset.ts';
 import { offers, type ListedFollowUp } from './follow-ups.ts';
 import { withHomebrew } from './homebrew.ts';
-import { type Links, type ListedActivation, type ListedChoice, Sheet } from './sheet.ts';
+import {
+  type Links,
+  type ListedActivation,
+  type ListedChoice,
+  Sheet,
+  type TemplatedItem,
+} from './sheet.ts';
 
 export type {
   ActionAnswer,
@@ -47,6 +53,7 @@ export type {
   RulesIssue,
   Source,
   StandardCopy,
+  TemplatedItem,
   View,
 } from './sheet.ts';
 export type { CharacterFile, FieldValue } from '@opencharacter/spec';
@@ -69,6 +76,7 @@ export function computeSheet(
       values: {} as ReturnType<Sheet['values']>,
       copies: {},
       copyNames: {} as Record<string, string>,
+      templated: [] as TemplatedItem[],
       standardCopies: [] as Sheet['standard'],
       activations: [] as ListedActivation[],
       choices: [] as ListedChoice[],
@@ -92,6 +100,7 @@ export function computeSheet(
     values,
     copies,
     copyNames: sheet.copyNames(),
+    templated: sheet.templated(),
     standardCopies: sheet.standard,
     activations: sheet.activationList(),
     choices: sheet.choiceList(),

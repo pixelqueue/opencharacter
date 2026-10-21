@@ -181,7 +181,12 @@
     {
       "id": "then-without-copy",
       "kind": "load",
-      "description": "An effect with `then` has no copy whose state it could change: it is in the rules' effects, a situational choice, a choice's effects, or has `scope: applied`. Data: `effect` (the effect's ID, if any), `pack`."
+      "description": "An effect with `then` has no entry (a copy or an applied entry) its changes could name: it is in the rules' effects, a situational choice's or a choice's effects. Data: `effect` (the effect's ID, if any), `pack`."
+    },
+    {
+      "id": "template-without-copy",
+      "kind": "load",
+      "description": "A `keepsTemplates` entry keeps a template on content (`content`), which has no copy, and the template gives more than fields and tags: state, computed values, effects, actions, choices, grants or anything else a copy carries. Data: `item` (the keeping item), `template`, `keys` (what it gives), `pack`."
     },
     {
       "id": "link-field-mismatch",

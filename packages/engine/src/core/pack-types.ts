@@ -88,6 +88,7 @@ export interface RollModifier {
   at?: Formula;
   steps?: Formula;
   faces?: Formula[];
+  of?: 'die' | 'roll';
 }
 
 export type EffectTarget =
@@ -113,13 +114,9 @@ export interface OptionValue {
   flags?: Record<string, Formula>;
 }
 
-export interface ThenChange {
-  type: 'setState' | 'adjustState';
-  entry: 'self';
-  key: string;
-  value?: Formula;
-  by?: Formula;
-}
+export type ThenChange =
+  | { type: 'setState' | 'adjustState'; entry: 'self'; key: string; value?: Formula; by?: Formula }
+  | { type: 'removeEffect'; entry: 'self'; key?: undefined; value?: undefined; by?: undefined };
 
 /** The actor, another character the app picks, an action role, or a link slot's character. */
 export type Destination = string | { link: string };
@@ -214,7 +211,9 @@ export type PresetTree = Record<
 
 export interface KeptTemplate {
   template: string;
-  copies: Query;
+  /** Exactly one of `copies` and `content`. */
+  copies?: Query;
+  content?: Query;
   when?: Formula;
   scope?: 'holder' | 'applied';
 }
@@ -306,10 +305,21 @@ export type StepOptions =
   | StepOption[]
   | { content: { type: string; where?: Formula } }
   | { copies: { type: string; where?: Formula } }
+  | ValueSource
   | { pending: { entry?: Formula } };
+
+export interface ValueSource {
+  values: (string | number)[] | { formula: Formula };
+  where?: Formula;
+}
 
 export function writtenOptions(step: Step): StepOption[] {
   return Array.isArray(step.options) ? step.options : [];
+}
+
+/** The query a kept template is kept by, over copies' base items or over content. */
+export function keptQuery(kept: KeptTemplate): Query {
+  return (kept.copies ?? kept.content) as Query;
 }
 
 export function optionQuery(
@@ -320,6 +330,11 @@ export function optionQuery(
   if ('content' in options) return { source: 'content', ...options.content };
   if ('copies' in options) return { source: 'copies', ...options.copies };
   return undefined;
+}
+
+export function valueSource(step: Step): ValueSource | undefined {
+  const options = step.options;
+  return options && !Array.isArray(options) && 'values' in options ? options : undefined;
 }
 
 export function pendingSource(step: Step): { entry?: Formula } | undefined {

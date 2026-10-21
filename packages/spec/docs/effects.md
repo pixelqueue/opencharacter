@@ -23,7 +23,7 @@ effects:
 | `tags`       | `add` on rolls only: tags for the roll item the effect adds (see below)                                                           |
 | `multiplied` | `add` on rolls only: `false` keeps `multiplyDice` and `multiply` off the items the effect adds (see below)                        |
 | `duration`   | Informational only: `{ amount, unit, concentration }`. Time tracking is the app's job; the engine never ends an effect by itself. |
-| `then`       | Incoming changes only: state changes to the effect's own copy after the adjust is routed (see below)                              |
+| `then`       | Incoming changes only: changes to the effect's own entry after the adjust is routed (see below)                                   |
 
 ## Targets
 
@@ -72,6 +72,11 @@ effects:
 - **Choice steps as actions run:** `target: { choices: [push-cost], from: self }`. The effect adds an option to every choice step of the character's actions that carries a matching tag; `from: self` limits it to the actions of the item carrying the effect. The only op is `option`.
 - **Changes steps as actions run:** `target: { steps: [strike.hit], from: self }`. The effect adds changes to every `changes` step of the character's actions that carries a matching tag, after the step's own, each time it runs (per participant in an `each` step); `from: self` limits it to the actions of the item carrying the effect. The only op is `changes`, whose value is `{ changes, to? }` (`to` defaults to the step's). Its `when` and changes see what an added option's do, with the action's `participants` (and `participant` in an `each` step) and no `picks`. Content items, templates and content types (for each active item of the type) add changes, as for options (a build error on the rules' effects or a situational choice's). See [engine-actions.md](engine-actions.md#other-steps).
 
+**Another item's fields.** An effect targets the character, never a content item's fields. To
+change those (a cantrip's range, a weapon that counts as magical), content keeps a template on
+the item: on the character's copies, or on content picked or granted to them, such as a spell
+known ([content.md](content.md#kept-templates)).
+
 **Options added to choice steps.** An `option` effect's `value` is `{ id, changes?, to?, flags? }`. While the effect's `when` holds, a matching choice step offers it after its own options, with the ID `<content id>#<id>` (`fitd-scoundrel:special-abilities.battleborn#special-armor`), named by `<content id>.options.<id>.name`. When it is picked, its `changes` are proposed like a `changes` step's, `to` the option's `to` (default `self`); an option without `changes` is only recorded as the step's pick, for later steps to read (Sculpt Spells' `spare`). Its `flags` are set as the action's flags first, before its `changes`; it may set only flags the action sets elsewhere, in a branch case or a written option, which is checked at load. In its `when`, `flags` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy) and the action's own item, copy and step are `action.item`, `action.self` and `action.step`; the action's `params`, `situational`, `steps` and `flags` are bound too, and `when` sees `picks`. Of the options sharing a `stackKey` on one step, only the first offered counts, whatever the stacking policy; content never makes its option the recommended one. Content items add options, and so do content types: a type's `option` effect acts for each active item of the type as if the item wrote it (`item` and `self` that item and its copy, the ID `<item id>#<id>`), and is named by `<item id>.options.<id>.name` if the item has that text, else by the type's `types.<type>.options.<id>.name`, so one option serves every staff, wand or scroll. An `option` effect in the rules' `effects` or a situational choice's is a build error. See [engine-actions.md](engine-actions.md#choice-steps).
 
 ```yaml
@@ -86,19 +91,22 @@ effects:
       - { type: set, field: armor.special, value: true }
 ```
 
-**The incoming amount, and effects that break their copy**. An
+**The incoming amount, and effects that change their own entry**. An
 incoming-change effect's `when`, `value` and `then` see `incoming`: `incoming.amount` is the
 change's `by` as requested, before any incoming-change effect (negative for harm), so every
 effect sees the same number whatever op runs first; `incoming.field` is the qualified ID of the
 field; `incoming.tags` is the change's tags. An incoming-change effect may also carry `then`: a
-list of `setState` or `adjustState` changes with `entry: self`. When the effect counted (its
-`when` held and stacking kept it), applyChanges applies them to the effect's own copy right after
-the adjust is routed, and reports each one in `adjustments` as `{ entry, key, value, source }`
-([engine-core.md](engine-core.md#routing-an-adjust)). Their `value` and `by` are formulas seeing
-`item`, `self` and `incoming`. They are not adjusts, so nothing routes or triggers on them. Only
-an effect with a copy can carry `then`: on the rules' `effects`, a situational choice's, a
-choice's `effects` or an `applied`-scope effect it is a load error, `then-without-copy`.
-Mothership armor points ignore damage under the armor's AP; damage at or over it breaks the
+list of changes to its own **entry**, `self`: the copy for a `holder` effect, the applied entry
+for an `applied` one (for content an applied grant reaches, the granting entry). Each is a
+`setState` or `adjustState` with `entry: self`, or, on an `applied` effect only, a
+`removeEffect` with `entry: self`, which ends the entry. When the effect counted (its `when`
+held and stacking kept it), applyChanges applies them right after the adjust is routed, and
+reports each in `adjustments`: a state change as `{ entry, key, value, source }`, a removal as
+`{ entry, removed: true, source }` ([engine-core.md](engine-core.md#routing-an-adjust)). Their
+`value` and `by` are formulas seeing `item`, `self` and `incoming`. They are not adjusts, so
+nothing routes or triggers on them. Only an effect with an entry can carry `then`: on the rules'
+`effects`, a situational choice's or a choice's `effects` it is a load error,
+`then-without-copy`. Mothership armor points ignore damage under the armor's AP; damage at or over it breaks the
 armor, and only the excess gets through:
 
 ```yaml
@@ -123,6 +131,26 @@ armor, and only the excess gets through:
 
 A damage threshold alone (damage under it is ignored, otherwise all of it gets through) is the
 first effect without the second.
+
+An applied effect that lasts until it does its job removes its entry. 5E's Death Ward leaves
+its target at 1 Hit Point the first time it would drop to 0, and ends:
+
+```yaml
+# Death Ward, applied to its target
+- id: ward
+  target: { incoming: { fields: [hp.current], tags: [damage] } }
+  op: atLeast
+  value: 1 - hp.current
+  when: hp.current + incoming.amount <= 0
+  scope: applied
+  then:
+    - { type: removeEffect, entry: self }
+```
+
+Once an entry is removed, the rest of the `then` changes aimed at it on that adjust, its own
+effect's and its other effects', are skipped. An effect that lasts for a number of triggers
+counts them in a state key: one effect spends a use while more than one is left, and a second,
+for the last use, removes the entry.
 
 **Dice on incoming changes**. An incoming-change `add` may be dice; `set`,
 `multiply`, `atLeast` and `atMost` stay numbers. applyChanges rolls it when it routes the adjust,

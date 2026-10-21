@@ -12,7 +12,7 @@ import {
   type BlockArgument,
   type HeadlineArgument,
 } from './block.ts';
-import { diceText, type DiceLike } from './dice.ts';
+import { diceText, type DiceLike, type Repeat } from './dice.ts';
 import {
   actionKey,
   addedOptionKey,
@@ -131,6 +131,8 @@ export interface BlockItem {
 /** A copy of the item; `computed` is computeSheet's `copies[<entry>]`. */
 export interface BlockCopy {
   templates?: readonly string[];
+  /** The merged item's tags (computeSheet's `templated`), in place of the item's. */
+  tags?: readonly string[];
   fields?: Readonly<Record<string, unknown>>;
   state?: Readonly<Record<string, unknown>>;
   computed?: Readonly<Record<string, unknown>>;
@@ -207,8 +209,11 @@ export interface Text {
   band(bandSet: string, band: string): string;
   /** The bands a roll summary can still reach. */
   rollTargets(summary: RollSummary): RollTarget[];
-  /** "2d100, keep lowest", "4dF"; flat items are left out. */
-  dice(items: readonly DiceLike[]): string;
+  /**
+   * "2d100, keep lowest", "4dF"; flat items are left out. With `repeat` (a dice pause's), the
+   * roll made more than once: "2d6, rolled twice, keep the lower total".
+   */
+  dice(items: readonly DiceLike[], repeat?: Repeat): string;
   value(type: string, name: string, value: string, of?: 'fields' | 'state'): string;
   /** The item's own state value names first, else its `type`'s. */
   stateValue(item: string, key: string, value: string, type?: string): string;
@@ -338,6 +343,7 @@ export function createText(options: TextOptions): Text {
     // A template's fields are formulas over the item it's applied to: only literal numbers and
     // booleans are values of its own.
     const isTemplate = item.type === 'template';
+    const itemTags = copy?.tags ?? item.tags ?? [];
     const written = (name: string): unknown => {
       const v = item.fields?.[name];
       return isTemplate && typeof v !== 'number' && typeof v !== 'boolean' ? undefined : v;
@@ -374,7 +380,7 @@ export function createText(options: TextOptions): Text {
             : content(qid);
         }
         case 'tags':
-          return a.names ? (item.tags ?? []).map((t) => tag(t, pack)) : item.tags;
+          return a.names ? itemTags.map((t) => tag(t, pack)) : itemTags;
         case 'text':
           return lookup(contentKey(qid, `texts.${a.text}`));
         case 'self': {
@@ -386,7 +392,7 @@ export function createText(options: TextOptions): Text {
           return a.names ? names(v, 'fields', a.field) : v;
         }
         case 'tag':
-          return holdsTag(item.tags ?? [], a.spelled);
+          return holdsTag(itemTags, a.spelled);
         case 'has': {
           const v = read(a.of);
           return !(v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length));
@@ -674,7 +680,7 @@ export function createText(options: TextOptions): Text {
         };
       });
     },
-    dice: (items) => diceText(items, specMessage),
+    dice: (items, repeat) => diceText(items, specMessage, repeat),
     value,
     contentBlock,
     headline,

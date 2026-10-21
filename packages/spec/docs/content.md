@@ -445,7 +445,8 @@ contentTypes:
 - **Evaluating:** after every field, for each copy (`features`, then `inventory`, in file order).
   The formula sees `item` (the copy's item with its templates), `self` (the copy, with the
   computed values declared before it), every field, `character`, `links` and the
-  character functions. It resolves names in the pack that declared it.
+  character functions, `picksOf` reading the copy's item's choices (a CWN spirit's Effort is
+  `max(1, size(picksOf('powers')) - 1)`). It resolves names in the pack that declared it.
 - **Reading:** `self.<name>`, in the copy's own actions (including those it reaches through
   `use`, and their `available`) and its follow-ups, and in the copy's later computed values:
   a computed value reads those declared **before** it, in declaration order (the
@@ -523,7 +524,8 @@ fields: { damageType: radiant, rarity: rare, requiresAttunement: true, attackBon
 
 ### Kept templates
 
-A content item may keep templates on the character's copies while it is active:
+A content item may keep templates on the character's copies while it is active (or on content
+without a copy, [below](#on-content-without-a-copy)):
 
 ```yaml
 # packs/orc/2e/content/features/monk/powerful-fist.yaml: the fist deals 1d6
@@ -562,6 +564,50 @@ keepsTemplates:
   - template: runes.weapon-potency-3
     copies: { type: weapon, where: 'item.id == @weapons.specific.sky-hammer' }
 ```
+
+#### On content without a copy
+
+A kept template may reach content the character has without a copy of its own: content picked
+in a choice or granted, such as a spell known. In place of `copies`, the entry gives `content`,
+a query of the same kind (`item` only, resolved by `loadRuleset`); an entry has one of the two.
+So a feature changes another item's fields, here a cantrip's range:
+
+```yaml
+# Potent Spellcasting: a Druid cantrip with a range of 10 feet or more reaches 300 feet farther.
+keepsTemplates:
+  - template: templates.potent-range
+    content:
+      {
+        type: spell,
+        where: 'item.level == 0 && item.range >= 10 && @classes.druid in item.classes',
+      }
+---
+id: templates.potent-range
+type: template
+appliesTo: { type: spell }
+fields: { range: 'prior.range + 300' }
+```
+
+- **Which content.** Every holder activation reached by a pick or a grant (at any depth, under
+  a copy or the rules) whose item the query matches and the template's `appliesTo` admits keeps
+  it, while the keeping item is active and its `when` holds. The templates are kept by item: two
+  activations of one spell have the same templates, in instance order of the content keeping
+  them, each once. Copies, applied entries and the content applied entries grant are not
+  reached.
+- **What it changes.** The item only: its fields (with `base`, `prior` and `null` as on a copy)
+  and its tags (`tags` and `removeTags`), merged into the content's `item` wherever that
+  activation reads it: its effects, grants, choices, prerequisites, actions (their `available`
+  and steps, a roll's `roll.item`) and follow-ups. The keeper's `keepsFields` apply too. The
+  template isn't an activation of its own, so it is not in `activations`. Queries over items
+  (a choice's `from`, a grant's `{ query }`, listOptions' options) still see the base item.
+- **Fields and tags only.** With no copy there is no state to hold, nothing for actions or
+  choices to belong to. A template kept by `content` may give fields, tags and `removeTags`
+  (with `appliesTo`); giving state, computed values, effects, actions, follow-ups, choices,
+  grants, immunities, prerequisites or the other copy properties is the load error
+  `template-without-copy`.
+- **Shown.** computeSheet's `templated` lists each such item as merged, after the copies with
+  templates ([engine-core.md](engine-core.md#merged-items)), so an app's card shows the far
+  range.
 
 ## Queries
 
@@ -811,6 +857,29 @@ character's part in `eligible`.
 A choice of inline options has no `eligible` (a schema error): its options have prerequisites.
 A pick another source also gives (an acolyte cleric's class skill Insight) passes such a
 condition, being the choice's own pick; the rules issue is the app's to raise, if the game wants it.
+
+### Reading other choices' picks
+
+Any formula of an owner reads the saved picks of the owner's choices with
+[`picksOf('<choice>')`](formulas.md#picks-of-the-owners-choices): a list of content IDs or
+values, in saved order. A choice's `recommend`, `eligible` and `where` can depend on a sibling
+choice's picks, and a copy's computed values, effects, actions and follow-ups can count its own:
+
+```yaml
+# packs/5e/srd-5.2/content/backgrounds/acolyte.yaml: the +1 recommends the best ability the +2
+# hasn't taken; `unique` already keeps the two apart.
+- id: plus-one
+  unique: acolyte-increase
+  uniqueScope: owner
+  from: { values: [int, wis, cha] }
+  recommend: >-
+    sortList(filterList(['int', 'wis', 'cha'], !(x in picksOf('plus-two'))),
+      -fieldOf('abilities.{ability}.base', x))[0]
+```
+
+The siblings are the choices of the same owner: the item's, or an inline option's (here
+`two-and-one`'s). Picks are saved input, so two choices may read each other without a loop; each
+sees the other's picks, not its recommendation.
 
 ### Where picks are kept
 

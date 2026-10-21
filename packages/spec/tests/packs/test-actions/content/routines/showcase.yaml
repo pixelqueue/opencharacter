@@ -66,3 +66,16 @@ actions:
           result: steps.run.result,
           data: { power: steps.run.data.power },
         }
+  # Twirl the prop the app names: `twirl` is no rules action, so it is the copy's own.
+  - id: spin
+    params:
+      prop: { type: string }
+    steps:
+      - id: run
+        kind: action
+        use: twirl
+        entry: params.prop
+      - id: result
+        kind: outcome
+        result: steps.run.result
+        data: { copy: steps.run.data.copy, flair: steps.run.data.flair }

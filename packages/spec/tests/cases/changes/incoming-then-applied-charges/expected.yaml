@@ -1,0 +1,18 @@
+# First hit: halved to -2 (hp 18), charges 2 -> 1. Second hit: the last charge halves it to -2
+# (hp 16) and removes the ward. Third hit: -4 (hp 12).
+ok: true
+character:
+  values:
+    test-pack:hp.current: 12
+  applied: []
+adjustments:
+  - { field: test-pack:hp.current, by: -2, requested: -4, taken: -2, reason: requested }
+  - entry: ward
+    key: charges
+    value: 1
+    source: { type: item, id: 'test-pack:spells.ward', effect: halve }
+  - { field: test-pack:hp.current, by: -2, requested: -4, taken: -2, reason: requested }
+  - entry: ward
+    removed: true
+    source: { type: item, id: 'test-pack:spells.ward', effect: halve-last }
+  - { field: test-pack:hp.current, by: -4, requested: -4, taken: -4, reason: requested }

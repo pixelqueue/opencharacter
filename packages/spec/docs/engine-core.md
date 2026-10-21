@@ -141,6 +141,11 @@ or item and the rules actions they `use`) and in its follow-ups, `self` also has
 on the copy sees the copy's computed values there too, since its `self` is that copy. A roll
 effect's `roll.self` doesn't have them.
 
+The copy's picks aren't on `self`: a formula reads its owner's choices with
+[`picksOf`](formulas.md#picks-of-the-owners-choices), a copy's item reading the entry's bare
+keys, a template or granted content its prefixed ones, picked content those nested under its
+pick. A rules action the copy uses reads the copy's.
+
 ### Items and `item`
 
 The item a copy holds, as `item`, is the base item merged with the copy's templates:
@@ -167,6 +172,11 @@ In a template's formulas, `item` is the merged item and `base` is the base item 
 values also see `prior`, the item as merged before it. A template's `removeTags`
 take tags away in template order before its `tags` are added. The templates are
 the copy's saved ones, then those content keeps on it ([content.md](content.md#kept-templates)).
+
+Content picked or granted, which has no copy, is merged the same way with the templates content
+keeps on its item ([content.md](content.md#on-content-without-a-copy)): its `item` in its own
+effects, grants, choices, actions and follow-ups is that merged item. Without such templates it
+is the base item.
 
 ### `character`
 
@@ -221,7 +231,8 @@ The rules and content items may declare `standardCopies` ([content.md](content.m
   there yet; activate again, until a round adds none (at most `maxChoiceDepth` rounds). A copy
   added in a round stays for that computation. The templates content keeps on copies
   are found in the same rounds: each round also adds, for every active
-  `keepsTemplates` entry whose `when` holds, its template on each matching copy that hasn't it.
+  `keepsTemplates` entry whose `when` holds, its template on each matching copy that hasn't it,
+  or with `content`, on each matching item picked or granted that hasn't it.
   The rounds end when a round adds neither a copy nor a kept template.
 - **Instance ID:** the item's qualified ID with the colon and dots as hyphens.
 - **Saved or not.** An entry with a standard copy's ID and item is that copy, saved, in its
@@ -277,7 +288,7 @@ content sees the granting entry with the grant's `state` values in place.
 immunity's `when` and query `where`. They are
 evaluated before any field is computed, so they may read only `self`, `item`, `character` (its
 `applied` list included, which is raw), `entry` in an immunity's query, the character functions,
-and the raw values of **input fields** (saved value, or default). Effects
+the owner's saved picks (`picksOf`), and the raw values of **input fields** (saved value, or default). Effects
 are not applied to those values. A condition that reads a derived field is rejected by the build
 (`type-mismatch`). **PROVISIONAL.** This keeps activation free of loops: a class grants features
 by `self.level`, never by a computed field.
@@ -600,8 +611,8 @@ later declaration replacing an earlier one with the same name in its place.
 
 - A formula resolves names in the pack that declared it (an override's in the overriding pack)
   and sees `item` and `self` as the copy's effects do, every field (fields never read computed
-  values, so they are all computed first), `character`, `links` and the character functions.
-  `self` has the copy's computed values declared before this one, each as
+  values, so they are all computed first), `character`, `links` and the character functions,
+  `picksOf` reading the copy's item's choices. `self` has the copy's computed values declared before this one, each as
   worked out; one that failed is absent. A replacement keeps the replaced name's place, so the
   values after it read the replacement, and it reads only what comes before the name.
 - An `integer` value must be an int, a `decimal` value a number (an int becomes a decimal), a
@@ -618,6 +629,22 @@ an engine may compute them on demand, with the same result.
 ([content.md](content.md#per-copy-state)) to the value of that state key, when it is a
 non-empty string (not only spaces); an item's `nameFrom` replaces its type's. Copies without one
 are left out.
+
+### Merged items
+
+`templated` lists every item the character has with templates, as the rules read it, so an app
+shows a Longsword +1's bonus or a cantrip's longer range without merging templates itself. Each
+is `{ entry?, item, templates, tags, fields }`:
+
+- First each copy with a saved or kept template, in instance order, with `entry` its instance
+  ID; then each item picked or granted that content keeps templates on
+  ([content.md](content.md#on-content-without-a-copy)), in activation order, once per item,
+  with no `entry`. Content without templates isn't listed: its item is the ruleset's.
+- `item` is the base item's qualified ID and `templates` the templates in the order they apply
+  (saved, then kept).
+- `tags` is the merged `item.tags`, and `fields` each item field as the merged `item` reads it
+  ([Items and `item`](#items-and-item)): a template's `null` leaves the field out, a default
+  fills in, and a dice field is its canonical dice text.
 
 ### The activation list
 
@@ -979,13 +1006,18 @@ An `adjust` on field F with amount `by`, `tags` and optional `situational` choic
    (without incoming-change effects), up to `maxOverflowChain` adjusts in all.
 5. **Clamping.** Otherwise the result is clamped to `min`/`max`.
 6. **`then`.** After the adjust is fully routed, each instance that counted in step 1 applies its
-   `then` changes (`setState` or `adjustState`), in instance order, to its own copy: the copy
-   whose `self` it sees (for picked or granted content, the owning copy), before the next change
-   in the batch. Their `value` and `by` are evaluated with the instance's `item`, `self` and
-   `incoming`, on the same sheet as step 1. They are checked like the same changes given to
-   applyChanges, and a failure rejects the batch. They are not adjusts, so nothing routes or
-   triggers on them. An instance with no copy (content picked in a rules-level choice) skips
-   them; `then` where no copy can exist is a load error (`then-without-copy`).
+   `then` changes, in instance order, to its own entry, before the next change in the batch: for
+   an applied activation the applied entry whose `self` it sees (for content an applied grant
+   reaches, the granting entry), otherwise the copy whose `self` it sees (for picked or granted
+   content, the owning copy). A `setState` or `adjustState` changes the entry's state; a
+   `removeEffect` (applied effects only) removes the applied entry. Their `value` and `by` are
+   evaluated with the instance's `item`, `self` and `incoming`, on the same sheet as step 1.
+   They are checked like the same changes given to applyChanges, and a failure rejects the
+   batch. Once an entry is removed, every later `then` change aimed at it in this step is
+   skipped, so two effects of one ward that both counted remove it once. They are not adjusts,
+   so nothing routes or triggers on them. An instance with no entry (content picked in a
+   rules-level choice) skips them; `then` where no entry can exist is a load error
+   (`then-without-copy`).
 
 Each step that changes a field is reported in `adjustments`, in order, as
 `{ field, by, requested?, taken?, reason, clamped? }`, with qualified field IDs:
@@ -1007,8 +1039,9 @@ Each step that changes a field is reported in `adjustments`, in order, as
    - **`carry`**: with `carry: true`, the excess routed into the field again, its
      entry `{ field, by, reason: carry }` followed by its own steps if it overflows in turn.
 5. **`then`:** after the adjust's own entries, one `{ entry, key, value, source }` per `then`
-   change: the copy, the state key, its new value, and the effect instance's source with its
-   effect ID (`effect`, when the effect has one).
+   state change: the entry (a copy or an applied entry), the state key, its new value, and the
+   effect instance's source with its effect ID (`effect`, when the effect has one). A
+   `removeEffect` adds `{ entry, removed: true, source }` instead. A skipped change adds nothing.
 
 `clamped: true` appears only when clamping changed the amount. So FitD stress at 8 taking 3
 reports stress +3 (`requested`), trauma +1 (`overflow`), then stress −11 (`reset`). Mothership

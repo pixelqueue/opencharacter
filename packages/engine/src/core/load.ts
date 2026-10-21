@@ -26,7 +26,7 @@ import type {
   StepChanges,
   ValueDecl,
 } from './pack-types.ts';
-import { appliesQueries } from './pack-types.ts';
+import { appliesQueries, keptQuery } from './pack-types.ts';
 import { bandSet } from './pack-types.ts';
 import type { PackRelease } from './release.ts';
 import { expandFamilies } from './families.ts';
@@ -56,6 +56,24 @@ export type { EngineError };
 export type LoadResult = { ok: true; ruleset: Ruleset } | { ok: false; errors: EngineError[] };
 
 const MAX_EXTENDS = 16;
+/** What a template gives only on a copy, so it can't be kept on content without one. */
+const COPY_ONLY = [
+  'state',
+  'computed',
+  'effects',
+  'followUps',
+  'actions',
+  'choices',
+  'grants',
+  'immuneTo',
+  'reapply',
+  'nameFrom',
+  'standardCopies',
+  'keepsFields',
+  'keepsTemplates',
+  'prerequisites',
+  'suppress',
+] as const;
 const BUILT_IN_MEMBER_KINDS = new Set(['field', 'tag', 'string']);
 
 const isObj = (v: unknown) => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -418,7 +436,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       for (const tag of list ?? [])
         if (typeof tag === 'string' && !declared.has(tag)) err('unknown-tag', { tag, pack });
     },
-    /** An effect with `then` changes its own copy, so it must have one. */
+    /** An effect with `then` changes its own entry (a copy or an applied entry), so it must have one. */
     copyless(effect: Effect, pack: string): void {
       if (effect.then)
         err('then-without-copy', {
@@ -427,7 +445,6 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         });
     },
     effect(effect: Effect, pack: string): Effect {
-      if (effect.scope === 'applied') q.copyless(effect, pack);
       const out: Effect = { ...effect };
       if (typeof effect.target === 'string') out.target = q.field(effect.target, pack);
       else if ('rolls' in effect.target && effect.target.tally !== undefined) {
@@ -533,7 +550,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         ...(choice.effects
           ? {
               effects: choice.effects.map((e) => {
-                if (e.scope !== 'applied') q.copyless(e, pack);
+                q.copyless(e, pack);
                 return q.effect(e, pack);
               }),
             }
@@ -583,22 +600,21 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       return steps.map((step) => ({
         ...step,
         ...(step.bands ? { bands: q.bands(step.bands, pack) } : {}),
-        // With `source`, a `use` no rules action has is the content's own action's local ID.
+        // With `source` or `entry`, a `use` no rules action has is the content's own action's
+        // local ID.
         ...(step.use
           ? {
               use:
-                step.source !== undefined && step.kind === 'action'
+                (step.source !== undefined || step.entry !== undefined) && step.kind === 'action'
                   ? (resolveAction(ruleset, step.use, pack) ?? step.use)
                   : q.actionId(step.use, pack),
             }
           : {}),
-        ...(step.options && !Array.isArray(step.options) && !('pending' in step.options)
-          ? {
-              options:
-                'content' in step.options
-                  ? { content: q.query(step.options.content, pack) }
-                  : { copies: q.query(step.options.copies, pack) },
-            }
+        ...(step.options && !Array.isArray(step.options) && 'content' in step.options
+          ? { options: { content: q.query(step.options.content, pack) } }
+          : {}),
+        ...(step.options && !Array.isArray(step.options) && 'copies' in step.options
+          ? { options: { copies: q.query(step.options.copies, pack) } }
           : {}),
         ...(Array.isArray(step.options)
           ? {
@@ -720,7 +736,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       out.keepsTemplates = raw.keepsTemplates.map((k) => ({
         ...k,
         template: q.content(k.template, pack),
-        copies: q.query(k.copies, pack),
+        ...(k.copies ? { copies: q.query(k.copies, pack) } : {}),
+        ...(k.content ? { content: q.query(k.content, pack) } : {}),
       }));
     if (raw.state) out.state = q.decls(raw.state, pack) as Record<string, ValueDecl>;
     return out;
@@ -825,7 +842,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         ...(def.effects
           ? {
               effects: def.effects.map((e) => {
-                if (e.scope !== 'applied') q.copyless(e, pid);
+                q.copyless(e, pid);
                 return q.effect(e, pid);
               }),
             }
@@ -833,7 +850,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       };
     }
     (r.effects ?? []).forEach((def, index) => {
-      if (def.scope !== 'applied') q.copyless(def, pid);
+      q.copyless(def, pid);
       ruleset.rules.effects.push({ ...q.effect(def, pid), pack: pid, index });
     });
     for (const def of r.followUps ?? [])
@@ -1018,7 +1035,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     for (const query of item.standardCopies ?? [])
       queries.push({ query, pack: item.scopes?.standardCopies ?? pack });
     for (const kept of item.keepsTemplates ?? [])
-      queries.push({ query: kept.copies, pack: item.scopes?.keepsTemplates ?? pack });
+      queries.push({ query: keptQuery(kept), pack: item.scopes?.keepsTemplates ?? pack });
   }
   for (const { pack, ...query } of ruleset.rules.standardCopies) queries.push({ query, pack });
   for (const choice of Object.values(ruleset.rules.choices)) collectChoices([choice], choice.pack);
@@ -1069,9 +1086,25 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     else derived.set(id, qid);
   }
   for (const item of Object.values(ruleset.content))
-    for (const kept of item.keepsTemplates ?? [])
-      if (ruleset.content[kept.template] && ruleset.content[kept.template]?.type !== 'template')
+    for (const kept of item.keepsTemplates ?? []) {
+      const template = ruleset.content[kept.template];
+      if (template && template.type !== 'template')
         err('unknown-reference', { kind: 'template', id: kept.template, pack: item.pack });
+      // Content without a copy takes a template's fields and tags only.
+      else if (template && kept.content) {
+        const extra = COPY_ONLY.filter((key) => {
+          const v = (template as unknown as Record<string, unknown>)[key];
+          return v !== undefined && !(Array.isArray(v) && v.length === 0);
+        });
+        if (extra.length > 0)
+          err('template-without-copy', {
+            item: item.qid,
+            template: template.qid,
+            keys: extra,
+            pack: item.pack,
+          });
+      }
+    }
   for (const item of Object.values(ruleset.content)) {
     const type = ruleset.contentTypes[item.type];
     const reapply = item.reapply ?? type?.reapply;
@@ -1233,6 +1266,7 @@ const CHARACTER_FUNCTIONS = new Set([
   'countEquipped',
   'countState',
   'sumState',
+  'picksOf',
 ]);
 
 /** Whether a query condition reads only `item`, so it can be resolved at load time. */

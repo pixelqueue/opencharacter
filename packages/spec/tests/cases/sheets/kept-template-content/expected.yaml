@@ -1,0 +1,25 @@
+# Bolt (range 120) is far: 420, and the spell type's effect reads it. Touch (range 0) doesn't
+# match the query and keeps its range. Templates on content aren't activations of their own.
+values:
+  test-kept-templates:range.best: { value: 420 }
+templated:
+  - item: test-kept-templates:spells.bolt
+    templates: [test-kept-templates:templates.far]
+    tags: [far]
+    fields: { level: 0, range: 420 }
+activations:
+  - { item: test-kept-templates:features.casting, entry: casting, via: copy }
+  - item: test-kept-templates:spells.bolt
+    entry: casting
+    via: pick
+    parent: 0
+    path: { entry: casting, choice: [cantrips, test-kept-templates:spells.bolt] }
+  - item: test-kept-templates:spells.touch
+    entry: casting
+    via: pick
+    parent: 0
+    path: { entry: casting, choice: [cantrips, test-kept-templates:spells.touch] }
+  - { item: test-kept-templates:features.potent, entry: potent, via: copy }
+  - { item: test-kept-templates:weapons.fist, entry: test-kept-templates-weapons-fist, via: copy }
+issues: []
+errors: []

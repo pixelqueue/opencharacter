@@ -5,7 +5,7 @@ import { join, relative, sep } from 'node:path';
 import { parse } from 'yaml';
 import { buildRelease, computeSheet, loadRuleset } from '../../../packages/engine/src/index.ts';
 import { validateRepo } from '../../../scripts/validate/index.ts';
-import { contentIdFromPath } from '../../../scripts/validate/load.ts';
+import { contentIdFromPath, i18nFiles, readI18n } from '../../../scripts/validate/load.ts';
 import { loadSchemas } from '../../../packages/spec/src/node.ts';
 import {
   EditorError,
@@ -44,8 +44,6 @@ function packOf(root: string, path: string): PackInfo {
   return pack;
 }
 
-const i18nFile = (pack: PackInfo) => `${pack.dir}/i18n/${pack.defaultLanguage}.yaml`;
-
 function validate(root: string) {
   const { reporter } = validateRepo(root);
   const rel = (f: string) => (f.startsWith('/') ? relative(root, f) : f).split(sep).join('/');
@@ -72,9 +70,7 @@ function item(root: string, path: string): Json {
       if (name && r.doc.contentTypes?.[name]) contentType = r.doc.contentTypes[name];
     }
   }
-  const i18n = existsSync(join(root, i18nFile(pack)))
-    ? ((parse(readFileSync(join(root, i18nFile(pack)), 'utf8')) ?? {}) as Record<string, string>)
-    : {};
+  const i18n = readI18n(join(root, pack.dir), pack.defaultLanguage);
   const id = typeof doc.id === 'string' ? doc.id : '';
   return {
     path,
@@ -120,28 +116,14 @@ interface TranslationFile {
 
 function translationFiles(root: string, pack: PackInfo): Map<string, TranslationFile[]> {
   const out = new Map<string, TranslationFile[]>();
-  const dir = join(root, pack.dir, 'i18n');
-  if (!existsSync(dir)) return out;
-  for (const entry of readdirSync(dir, { withFileTypes: true }).toSorted((a, b) =>
-    a.name.localeCompare(b.name),
-  )) {
-    const language = entry.isDirectory() ? entry.name : entry.name.replace(/\.yaml$/, '');
-    const files = entry.isDirectory()
-      ? readdirSync(join(dir, entry.name))
-          .filter((f) => f.endsWith('.yaml'))
-          .toSorted()
-          .map((f) => `${pack.dir}/i18n/${entry.name}/${f}`)
-      : entry.name.endsWith('.yaml')
-        ? [`${pack.dir}/i18n/${entry.name}`]
-        : [];
-    for (const file of files) {
-      const list = out.get(language) ?? [];
-      list.push({
-        path: file,
-        entries: (parse(readFileSync(join(root, file), 'utf8')) ?? {}) as Record<string, string>,
-      });
-      out.set(language, list);
-    }
+  for (const [language, files] of i18nFiles(join(root, pack.dir))) {
+    out.set(
+      language,
+      files.map((file) => ({
+        path: relative(root, file).split(sep).join('/'),
+        entries: (parse(readFileSync(file, 'utf8')) ?? {}) as Record<string, string>,
+      })),
+    );
   }
   return out;
 }
@@ -184,7 +166,8 @@ function writeTranslations(
   if (!/^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(language))
     throw new EditorError(400, `not a language tag: ${language}`);
   const files = translationFiles(root, pack).get(language) ?? [];
-  const main = files[0]?.path ?? `${pack.dir}/i18n/${language}.yaml`;
+  const single = `${pack.dir}/i18n/${language}.yaml`;
+  const main = files.some((f) => f.path === single) ? single : (files[0]?.path ?? single);
   const byFile = new Map<string, Record<string, string | null>>();
   for (const [key, value] of Object.entries(entries)) {
     const file = files.find((f) => key in f.entries)?.path ?? main;
@@ -303,7 +286,7 @@ export async function handle(
           const pack = packOf(root, target);
           const doc = readYaml(root, target) as Json;
           const names = b.i18n as { name?: string; description?: string };
-          patchI18n(root, i18nFile(pack), {
+          writeTranslations(root, pack.id, pack.defaultLanguage, {
             ...(names.name !== undefined ? { [`${doc.id}.name`]: names.name } : {}),
             ...(names.description !== undefined
               ? { [`${doc.id}.description`]: names.description || null }
@@ -325,7 +308,7 @@ export async function handle(
           throw new EditorError(400, 'ID and path disagree');
         writeText(root, target, `id: ${id}\ntype: ${String(b.type)}\n`);
         if (typeof b.name === 'string' && b.name)
-          patchI18n(root, i18nFile(pack), { [`${id}.name`]: b.name });
+          writeTranslations(root, pack.id, pack.defaultLanguage, { [`${id}.name`]: b.name });
         return (send(201, { path: target, validation: validate(root) }), true);
       }
       case 'GET /api/types': {

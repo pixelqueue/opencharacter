@@ -1,0 +1,17 @@
+# 13, 7 and 9: the second is kept.
+status: finished
+outcome:
+  result: failure
+  data: { total: 7, rolls: 3, kept: 1 }
+log:
+  - step: roll
+    action: 'test-roll-twice:check'
+    kind: dice
+    by: engine
+    faces: [6, 6, 3, 3, 4, 4]
+    total: 7
+    band: failure
+    rolls:
+      - { total: 13, kept: false }
+      - { total: 7, kept: true }
+      - { total: 9, kept: false }

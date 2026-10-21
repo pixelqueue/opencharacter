@@ -78,6 +78,7 @@ const expectedKeys: Record<string, string[]> = {
     'valueErrors',
     'copies',
     'copyNames',
+    'templated',
     'standardCopies',
     'copyLimits',
     'pendingSlots',
@@ -211,6 +212,7 @@ function run(dir: string): void {
     if (expected.situational) expect(sheet.situational).toEqual(expected.situational);
     if (expected.copies) expect(sheet.copies).toEqual(expected.copies);
     if (expected.copyNames) expect(sheet.copyNames).toEqual(expected.copyNames);
+    if (expected.templated) expect(sheet.templated).toEqual(expected.templated);
     if (expected.standardCopies) expect(sheet.standardCopies).toEqual(expected.standardCopies);
     if (expected.activations) expect(sheet.activations).toEqual(expected.activations);
     if (expected.choices) expect(sheet.choices).toEqual(expected.choices);
@@ -388,6 +390,11 @@ function run(dir: string): void {
         if ('tallies' in want) expect(got.tallies ?? [], `log[${i}].tallies`).toEqual(want.tallies);
         if ('items' in want)
           expect(got.items, `log[${i}].items`).toMatchObject(want.items as object);
+        // A roll made more than once: every roll, items as for `items`; `null` for none.
+        if ('rolls' in want) {
+          if (want.rolls === null) expect(got.rolls, `log[${i}].rolls`).toBeUndefined();
+          else expect(got.rolls, `log[${i}].rolls`).toMatchObject(want.rolls as object);
+        }
       });
     }
     return;

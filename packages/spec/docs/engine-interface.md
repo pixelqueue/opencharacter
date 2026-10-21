@@ -66,6 +66,10 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
 - `issues` lists rules issues.
 - `copies` maps each copy's instance ID to its computed values (`{ <name>: value }`), for copies that have any.
 - `copyNames` maps each copy's instance ID to its name from its state (`nameFrom`), for copies that have one; apps show it in place of the item's name.
+- `templated` lists every item the character has with templates, as merged: each copy with a
+  saved or kept template (`entry`), then each picked or granted item that content keeps
+  templates on, as `{ entry?, item, templates, tags, fields }`, so an app shows the item as the
+  rules read it ([engine-core.md](engine-core.md#merged-items)).
 - `standardCopies` lists the character's standard copies, as
   `{ entry, item, saved }`: the rules' first, then those of active items, so an app can show the
   unsaved ones without running the queries. Each is also a copy in `inventory` or `features`.
@@ -87,6 +91,10 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   resolved, structured `tests` and the running action's flags. An app previews a roll by
   starting the action with `dice: 'pause'` and reading `needs.summary`
   ([engine-actions.md](engine-actions.md#the-roll-summary)).
+- A roll made more than once (advantage or disadvantage `of: roll`) pauses with `needs.repeat`
+  (`{ times, keep }`) and `dice` for every roll in turn; its log entry lists every roll as
+  `rolls`, the kept one marked, whose items are the entry's `items`
+  ([engine-actions.md](engine-actions.md#rolling)).
 - Each of a finished result's `proposedChanges` is `{ to, character?, step, change }`: `step` is
   the path of the `changes` step that proposed it. `to` is `self`, `target`, a role of the action
   or `{ link }` (a qualified slot ID). A change for a link carries the linked character's ID as

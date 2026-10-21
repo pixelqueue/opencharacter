@@ -17,7 +17,7 @@
     },
     {
       "id": "self",
-      "description": "The character's copy of the item carrying the formula: `self.equipped`, `self.<state key>`, `self.templates` (saved, then those content keeps on the copy). For content made active by a pick or a grant, the copy that owns the choice or grant (a subclass sees its class copy's `self.level`); picked or held granted content that declares state keys reads them from its pick, or its grant's saved state (else the grant's `state`), with declared defaults, over that copy. Absent for content with no owning copy (picked in a rules-level choice). In a choice step over copies (`where`, `prefer`), the candidate copy; not bound in one over content. In an applied entry's effects and its actions (`scope: applied`), the entry: `id` and its state keys. In a change aimed at applied entries (`applied.where`, a per-entry `by` or `value`), the entry: `id` and its state keys with declared defaults. In the copy's own actions (and actions it reaches through `use`) and its follow-ups, `self` also has the copy's computed values, `self.<name>`; in a computed value, those declared before it; everywhere else a computed name is `unknown-name`. In a content display group's `where`, `sectionBy` and `sortBy` and a content-type state hint's `showWhen`, the member copy, absent for picked content with no owning copy."
+      "description": "The character's copy of the item carrying the formula: `self.equipped`, `self.<state key>`, `self.templates` (saved, then those content keeps on the copy). For content made active by a pick or a grant, the copy that owns the choice or grant (a subclass sees its class copy's `self.level`); picked or held granted content that declares state keys reads them from its pick, or its grant's saved state (else the grant's `state`), with declared defaults, over that copy. Absent for content with no owning copy (picked in a rules-level choice). In a choice step over copies (`where`, `prefer`), the candidate copy; not bound in one over content. In an applied entry's effects and its actions (`scope: applied`), the entry: `id` and its state keys. In a change aimed at applied entries (`applied.where`, a per-entry `by` or `value`), the entry: `id` and its state keys with declared defaults. In the copy's own actions (and actions it reaches through `use`) and its follow-ups, `self` also has the copy's computed values, `self.<name>`; in a computed value, those declared before it; everywhere else a computed name is `unknown-name`. In a content display group's `where`, `sectionBy` and `sortBy` and a content-type state hint's `showWhen`, the member copy, absent for picked content with no owning copy. The copy's choices aren't on `self`: `picksOf(<choice>)` reads them."
     },
     {
       "id": "pick",
@@ -29,11 +29,11 @@
     },
     {
       "id": "value",
-      "description": "In a value choice's `where and `eligible``: the candidate value, a string or number, typed by the choice's list."
+      "description": "In a value choice's `where` and `eligible`, and a choice step's `where` and `prefer` over values: the candidate value, a string or number, typed by the list."
     },
     {
       "id": "steps",
-      "description": "In an action: results of earlier steps: roll steps `steps.<id>.total`, `.faces`, `.kept`, `.empty` (the part's `ifEmpty` dice were rolled), `.band` and `.bandSet` (the band set's qualified ID), `.bandValue` (the band set's `value`, when it has one), `.tallies.<name>` (each declared roll tally, 0 when nothing added to it), `.bounds` (each `atLeast` or `atMost` roll effect that changed the total, `{ source, op, value }`) and `.unbounded` (the total before them); choice steps `.picked` (the option ID, or with `repeat` the list of picked IDs; over pending choices the list of picked IDs, with `.paths` their choice paths), and over content or copies without `repeat` `.item` (the picked content's item view) and, over copies, `.self` (the picked copy); action steps `.result` (the nested action's outcome). Use `has(steps.<id>)` for a step that may not have run. An `each` step's result is the list of per-participant results in participant order (null where its `when` skipped one); inside a later `each` step over the same role it is the current participant's result, absent when skipped, and inside the step's own run for participant `i` the list of runs `0` to `i - 1` (absent in the first run). A handoff's result is `.result` and `.data` from the app's answer. In a formula a proposed change passes on (`copies.where`, `applied.where`, a per-copy or per-entry `by` or `value`), the action replaces each path with its value as a literal."
+      "description": "In an action: results of earlier steps: roll steps `steps.<id>.total`, `.faces`, `.kept`, `.empty` (the part's `ifEmpty` dice were rolled), `.band` and `.bandSet` (the band set's qualified ID), `.bandValue` (the band set's `value`, when it has one), `.tallies.<name>` (each declared roll tally, 0 when nothing added to it), `.bounds` (each `atLeast` or `atMost` roll effect that changed the total, `{ source, op, value }`) and `.unbounded` (the total before them); choice steps `.picked` (the option ID, or with `repeat` the list of picked IDs; over pending choices the list of picked IDs, with `.paths` their choice paths), and over content or copies without `repeat` `.item` (the picked content's item view) and, over copies, `.self` (the picked copy), and over values without `repeat` `.value` (the picked value); choice and changes steps `.added` (the instance IDs of the copies the step's `addItem` changes add to the actor, in order, engine-picked IDs included); action steps `.result` (the nested action's outcome). Use `has(steps.<id>)` for a step that may not have run. An `each` step's result is the list of per-participant results in participant order (null where its `when` skipped one); inside a later `each` step over the same role it is the current participant's result, absent when skipped, and inside the step's own run for participant `i` the list of runs `0` to `i - 1` (absent in the first run). A handoff's result is `.result` and `.data` from the app's answer. In a formula a proposed change passes on (`copies.where`, `applied.where`, a per-copy or per-entry `by` or `value`), the action replaces each path with its value as a literal."
     },
     {
       "id": "flags",
@@ -57,11 +57,11 @@
     },
     {
       "id": "picks",
-      "description": "In a choice step's candidate formulas (a written option's `when`; `where` and `prefer` over content or copies; an `option` effect's `when`): how many times this step has already picked the candidate, an int."
+      "description": "In a choice step's candidate formulas (a written option's `when`; `where` and `prefer` over content, copies or values; an `option` effect's `when`): how many times this step has already picked the candidate, an int."
     },
     {
       "id": "picked",
-      "description": "In a choice step's `changes` and its options' `changes` and `flags`: the pick they follow: `picked.id` (the option ID), plus `picked.item` (the item view) over content and copies, and `picked.self` (the copy) over copies. Over pending choices, `picked.id` and `picked.path`, the choice path."
+      "description": "In a choice step's `changes` and its options' `changes` and `flags`: the pick they follow: `picked.id` (the option ID), plus `picked.item` (the item view) over content and copies, and `picked.self` (the copy) over copies, and `picked.value` (the value itself, `picked.id` its string form) over values. Over pending choices, `picked.id` and `picked.path`, the choice path."
     },
     {
       "id": "options",
@@ -69,7 +69,7 @@
     },
     {
       "id": "choice",
-      "description": "In the `recommend` of a choice step over pending choices: the choice being asked, `choice.path` (its choice path), `choice.owner` (the qualified key root of its owner) and `choice.id`, so one step can recommend differently per choice. In a declared choice's own `where` (a query reading the character, or a value choice's), `eligible`, `recommend` and a value choice's `values` formula: the choice itself, the same keys plus `slot` for a slot and `picks`, its own picks (content IDs or values, in saved order), so a choice can leave out what the character has without ruling out its own picks."
+      "description": "In the `recommend` of a choice step over pending choices: the choice being asked, `choice.path` (its choice path), `choice.owner` (the qualified key root of its owner) and `choice.id`, so one step can recommend differently per choice. In a declared choice's own `where` (a query reading the character, or a value choice's), `eligible`, `recommend` and a value choice's `values` formula: the choice itself, the same keys plus `slot` for a slot and `picks`, its own picks (content IDs or values, in saved order), so a choice can leave out what the character has without ruling out its own picks. Other choices' picks, a sibling's included, are `picksOf(<choice>)`."
     },
     {
       "id": "field",
@@ -329,6 +329,12 @@
       "id": "hasChoice",
       "signature": "hasChoice(string type) -> bool",
       "description": "Whether the character has a choice drawing from the content type, made or pending: an entry of computeSheet's `choices` whose `type` is it. A local type ID resolves in the formula's pack as a field ID does. Bound only in display hints' `showWhen` (groups, field hints, state hints); elsewhere `unknown-function`."
+    },
+    {
+      "id": "picksOf",
+      "signature": "picksOf(string choice) -> list",
+      "character": true,
+      "description": "The saved picks of a choice of the formula's owner (the content or rules declaring the formula, as activated: a copy's item, a template or granted content on it, picked content or an inline option, the rules), as content IDs or values in saved order, `[]` when none; saved picks whether or not the choice applies or they are eligible, so it adds no dependency and can't loop. The choice is a string literal, a choice ID or a slot's key (`class-feat-2`); a literal naming none of the owner's choices is `unknown-reference` at load where the owner is known (an item's, a template's, an inline option's formulas), else `no-such-key` when evaluated. A content type's formulas, and a rules action a copy uses, see that copy's item's choices; a rules action with no copy, and the rules' effects, follow-ups and choices, the rules-level ones. Bound in content formulas (effects, grants, prerequisites, choices, computed values, actions, follow-ups) and the rules' choices, effects, follow-ups and actions; elsewhere `unknown-function`. A query `where` calling it reads the character."
     }
   ]
 }

@@ -77,8 +77,11 @@ text.value('5e-srd-5.1:spell', 'school', 'evocation'); // 'Evocation'
   whichever the item has; `undefined` when it has neither. `contentBlock` is the header alone,
   `undefined` when the pack has no block for the item.
 - **Pass the item as the ruleset holds it** (`ruleset.content[id]`). For a copy on a sheet, also
-  pass the copy, `{ templates, fields, state, computed }` (`computed` from computeSheet's
-  `copies[entry]`), so the card names a Longsword +1 and can show the copy's state.
+  pass the copy, `{ templates, tags, fields, state, computed }` (`templates`, `tags` and
+  `fields` from computeSheet's `templated` entry for the copy, `computed` from `copies[entry]`),
+  so the card names a Longsword +1 and shows its merged fields and the copy's state. A spell
+  known whose item content keeps templates on (a longer range) has a `templated` entry without
+  `entry`: pass its `{ templates, tags, fields }` the same way.
 - **Give the bundle `contentTypes`** (`ruleset.contentTypes`), or pass the item's type as the
   third argument: a field the item leaves out then reads as its declared default (a Fate stunt's
   `action: any`), as the rules read it.

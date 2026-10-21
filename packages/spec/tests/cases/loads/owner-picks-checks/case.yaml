@@ -1,0 +1,54 @@
+description: "`picksOf` is bound where a formula has an owner, and a literal must name one of the owner's choices: a field formula and a state default calling it are `unknown-function`; a choice the item doesn't declare, or the item's own choice read from inside an inline option, `unknown-reference`; a computed argument `type-mismatch`. A slot by its key, a sibling in an inline option, and a content type's formulas (whose items' choices are known only on the sheet) pass"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          counted: { type: integer, formula: "size(picksOf('powers'))" }
+          bonus: { type: integer, formula: 0 }
+          picked: { type: string, input: true, default: '' }
+        contentTypes:
+          spirit:
+            computed:
+              powers: { type: integer, formula: "size(picksOf('powers'))" }
+          feat:
+            state:
+              uses: { type: integer, default: "size(picksOf('powers'))" }
+      content:
+        - id: spirits.typo
+          type: spirit
+          effects:
+            - { target: bonus, op: add, value: "size(picksOf('power'))" }
+          choices:
+            - { id: powers, from: { values: [claws, flight] } }
+        - id: spirits.nested
+          type: spirit
+          choices:
+            - id: style
+              from:
+                options:
+                  - id: pair
+                    choices:
+                      - { id: first, from: { values: [a, b] } }
+                      - id: second
+                        from: { values: [a, b] }
+                        eligible: "!(value in picksOf('first')) && size(picksOf('style')) > 0"
+        - id: spirits.computed-name
+          type: spirit
+          effects:
+            - { target: bonus, op: add, value: 'size(picksOf(picked))' }
+          choices:
+            - { id: powers, from: { values: [claws, flight] } }
+        - id: spirits.slotted
+          type: spirit
+          effects:
+            - { target: bonus, op: add, value: "size(picksOf('gift-2'))" }
+          choices:
+            - { id: gift, slots: [1, 2], from: { values: [a, b] } }
