@@ -157,7 +157,7 @@ An incoming `adjust` on a field is processed in this order:
 3. **The field** takes what remains.
 4. **`overflow`:** if the result passes the bound named by `at` (or reaches it, with `inclusive: true`), the engine adjusts `into` by `by` (default 1) and sets the field to `reset`. The adjust on `into` is routed the same way, so overflow can cascade, up to the `maxOverflowChain` safety limit. The excess is dropped unless the entry says `carry: true`: then the excess past the bound (the result less the bound: positive past `max`, negative past `min`; 0 when it only reached it) is routed into the field again from its reset value, as an adjust with no tags and no incoming-change effects, so it can overflow in turn (FitD heat 7 and 12 more is two wanted levels and 1 heat; Mothership damage past 0 health comes off the reset health). Each step of a cascade reads the values the earlier steps stored.
 5. **Clamping:** without an overflow for that bound, the result is clamped to `min`/`max`.
-6. **`then`:** each incoming-change effect from step 1 that counted applies its `then` to its own entry: its copy (Mothership armor that breaks) or its applied entry, which it may also remove (oil that burns away).
+6. **`then`:** each incoming-change effect from step 1 that counted applies its `then` to its own entry: its copy (Mothership armor that breaks) or its applied entry, which it may also remove (oil that burns away). Picked or granted content that declares the key changes its pick's or grant's own state, which its `self` reads.
 
 Clamping is not an error. applyChanges reports what each adjust actually did in its `adjustments` output (absorbed, overflowed, reset, clamped).
 
@@ -325,7 +325,7 @@ resultBands:
     - { id: failure, when: true }
 ```
 
-Bands are checked in order and the first true `when` wins. Formulas see the roll as `roll` (`roll.total`; `roll.faces`, every face rolled as an integer, dropped dice included; `roll.kept`, the kept faces; `roll.tallies`, the roll's [tallies](#roll-tallies)) and, PROVISIONALLY, the context of the action making the roll (`flags`, `params`, `steps`), so a roll-under band can compare against the tested stat. A roll step selects a band set with `bands: <set>`, and the band becomes `steps.<id>.band`. Text: `bands.<set>.<band>.name`.
+Bands are checked in order and the first true `when` wins. Formulas see the roll as `roll` (`roll.total`; `roll.faces`, every face rolled as an integer, dropped dice included; `roll.kept`, the kept faces; `roll.tallies`, the roll's [tallies](#roll-tallies); `roll.rolls`, every whole roll of a roll made more than once) and, PROVISIONALLY, the context of the action making the roll (`flags`, `params`, `steps`), so a roll-under band can compare against the tested stat. A roll step selects a band set with `bands: <set>`, and the band becomes `steps.<id>.band`. Text: `bands.<set>.<band>.name`.
 
 **A set's value**. A band set may be written `{ value, bands }` instead of a list. `value` is a formula in the band context, evaluated once each time the set classifies a roll, before the bands; its bands read it as `roll.value`, typed as the formula's result (`roll.value` is bound only there: `unknown-name` elsewhere). A `value` that fails to evaluate fails the classification, as a failing `when` does. The roll step's result keeps it as `steps.<id>.bandValue`, and the action log's roll entry as `bandValue`. A result worked out once (a degree of success: the DC comparison, a natural 20 or 1, a cap) is then named by bands that compare one number, and a result a tally moves is moved in one place:
 
@@ -556,7 +556,10 @@ followUps:
     own, with `params` formulas. Parameters it doesn't fix are the app's to supply. An ephemeral
     offer keeps the parameters as evaluated when it fired.
   - **`changes`**, proposed changes resolved like an action's `changes` step (no `split`);
-    `entry: self` is the content's copy. A change may compute its field and repeat with
+    `entry: self` is the content's copy, `pick: self` and `grant: self` the pick or holder
+    grant that made the content active (resolved to `path` and `option`, or `grant` with its
+    node), and `path`, `option`, `picks` and `grants` are passed on as an action's are. A change
+    may compute its field and repeat with
     `forEach`; each copy counts toward `maxFollowUps`, and a computed field
     that names no input field, like a formula that fails, leaves the follow-up out. An ephemeral
     offer stores what it fired on and resolves its changes when listed, so they are never stale.

@@ -234,6 +234,11 @@ export interface EffectInstance {
   picked?: Record<string, unknown>;
   /** For an applied activation: the applied entry its `self` is (the granting one for a grant). */
   applied?: string;
+  /**
+   * For picked or held granted content that declares state: its activation, whose pick or grant
+   * keeps the state its `self` reads (where `then` writes those keys).
+   */
+  own?: Activation;
 }
 
 interface FieldResult {
@@ -1595,6 +1600,14 @@ export class Sheet {
     const item = activation.item;
     const type =
       item && item.type !== 'template' ? this.ruleset.contentTypes[item.type] : undefined;
+    // Picked or held granted content with state of its own: `then` writes there, as `self` reads.
+    const owner =
+      item &&
+      activation.scope === 'holder' &&
+      (activation.kind === 'pick' || activation.kind === 'grant') &&
+      Object.keys(stateDecls(this.ruleset, item, [])).length > 0
+        ? activation
+        : undefined;
     if (type) {
       (type.effects ?? []).forEach((effect, index) => {
         if (effect.id !== undefined && item?.suppress?.includes(effect.id)) return;
@@ -1607,6 +1620,7 @@ export class Sheet {
           activation.sourceId,
           `type.${effect.id ?? index}`,
           activation.applied,
+          owner,
         );
       });
     }
@@ -1622,6 +1636,7 @@ export class Sheet {
         activation.sourceId,
         effect.id ?? String(index),
         activation.applied,
+        owner,
       );
     });
     if (activation.scope === 'applied') {
@@ -1857,8 +1872,12 @@ export class Sheet {
     sourceId: string,
     key: string,
     applied?: string,
+    owner?: Activation,
   ): void {
-    const own = applied === undefined ? {} : { applied };
+    const own = {
+      ...(applied === undefined ? {} : { applied }),
+      ...(owner === undefined ? {} : { own: owner }),
+    };
     const target = effect.target;
     if (typeof target === 'object' && 'fields' in target) {
       // One instance per matching field, as if written with that field as its target. A field whose

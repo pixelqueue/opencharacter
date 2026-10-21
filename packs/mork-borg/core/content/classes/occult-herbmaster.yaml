@@ -21,32 +21,27 @@ actions:
       - { id: doses, kind: roll, tags: [decoction], parts: [{ dice: 1d4 }] }
       - id: split
         kind: choice
-        options:
-          - { id: first-0, flags: { toFirst: 0 } }
-          - { id: first-1, flags: { toFirst: 1 } }
-          - { id: first-2, when: steps.doses.total >= 2, flags: { toFirst: 2 } }
-          - { id: first-3, when: steps.doses.total >= 3, flags: { toFirst: 3 } }
-          - { id: first-4, when: steps.doses.total >= 4, flags: { toFirst: 4 } }
-        recommend: "['first-0', 'first-1', 'first-1', 'first-2', 'first-2'][steps.doses.total]"
+        options: { values: [0, 1, 2, 3, 4], where: value <= steps.doses.total }
+        recommend: options[floor((steps.doses.total + 1) / 2)]
       - id: add
         kind: changes
         changes:
           - type: addItem
-            when: flags.toFirst > 0
+            when: steps.split.value > 0
             entry:
               item: >-
-                'decoctions.' + ['red-poison', 'ezumiels-vapor', 'southern-frog-stew',
-                'elixir-vitalis', 'spider-owl-soup', 'fernors-philtre', 'hyphos-enervating-snuff',
-                'black-poison'][steps.first.total - 1]
-              quantity: flags.toFirst
+                [@decoctions.red-poison, @decoctions.ezumiels-vapor, @decoctions.southern-frog-stew,
+                @decoctions.elixir-vitalis, @decoctions.spider-owl-soup, @decoctions.fernors-philtre,
+                @decoctions.hyphos-enervating-snuff, @decoctions.black-poison][steps.first.total - 1]
+              quantity: steps.split.value
           - type: addItem
-            when: steps.doses.total - flags.toFirst > 0
+            when: steps.doses.total - steps.split.value > 0
             entry:
               item: >-
-                'decoctions.' + ['red-poison', 'ezumiels-vapor', 'southern-frog-stew',
-                'elixir-vitalis', 'spider-owl-soup', 'fernors-philtre', 'hyphos-enervating-snuff',
-                'black-poison'][steps.second.total - 1]
-              quantity: steps.doses.total - flags.toFirst
+                [@decoctions.red-poison, @decoctions.ezumiels-vapor, @decoctions.southern-frog-stew,
+                @decoctions.elixir-vitalis, @decoctions.spider-owl-soup, @decoctions.fernors-philtre,
+                @decoctions.hyphos-enervating-snuff, @decoctions.black-poison][steps.second.total - 1]
+              quantity: steps.doses.total - steps.split.value
       - id: result
         kind: outcome
         result: "'brewed'"
