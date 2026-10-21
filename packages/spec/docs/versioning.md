@@ -38,8 +38,10 @@ Each engine library (the TypeScript reference engine and community ports) has it
    The spec version is always the `@opencharacter/spec` package version, so it then moves
    `SPEC_VERSION` (and with it `SCHEMA_BASE`), every `schemas/<major.minor>/` in schema `$id`s
    and links (schemas, docs, apps and tests), and the docs' statements of the current version.
-   Minimums and records stay: a pack's or character's `specVersion`, and the engine's
-   `IMPLEMENTS_SPEC`. A test fails if `SPEC_VERSION` and the package version ever differ.
+   The example characters' `specVersion` moves too, since they are samples of the current spec;
+   other minimums and records stay (a pack's `specVersion`, a character file's). The engine's
+   `IMPLEMENTS_SPEC` follows `SPEC_VERSION`: the reference engine implements the spec it ships
+   with. A test fails if `SPEC_VERSION` and the package version ever differ.
 3. **Check:** `pnpm release` runs every check, builds the packs, then runs `pnpm release:check`.
    For each pack it compares the new release with the last published one, found by git tag
    (`@opencharacter/<id>@<version>`):
