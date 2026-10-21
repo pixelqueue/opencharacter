@@ -269,6 +269,13 @@ situational:
     incoming: { fields: [hp.current], tags: [damage] }
     available: >-
       countList(character.applied, x.active && x.source == @spells.shield) > 0
+  - id: fireShieldBlock
+    type: boolean
+    default: false
+    incoming: { fields: [hp.current], tags: [damage] }
+    available: >-
+      shield.raised
+        && countList(character.applied, x.active && x.source == @spells.fire-shield) > 0
 
   - id: bespellStrikes
     type: boolean

@@ -9,3 +9,5 @@ effects:
     value: min(-incoming.amount, self.amount)
     when: incoming.amount < 0 && 'damage' in incoming.tags
     scope: applied
+    then:
+      - { type: removeEffect, entry: self }
