@@ -1,0 +1,31 @@
+description: "A kept template's param is an activation formula of the param's type: a string for an integer is type-mismatch, and a derived field is unknown-name"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        fields:
+          level: { type: integer, formula: 1 }
+        contentTypes:
+          spell:
+            fields:
+              range: { type: integer, default: 0 }
+          feature: {}
+      content:
+        - { id: spells.bolt, type: spell }
+        - id: templates.far
+          type: template
+          appliesTo: { type: spell }
+          params:
+            feet: { type: integer, default: 0 }
+          fields: { range: 'prior.range + params.feet' }
+        - id: features.wrong-type
+          type: feature
+          keepsTemplates:
+            - { template: templates.far, content: { type: spell }, params: { feet: "'far'" } }
+        - id: features.derived
+          type: feature
+          keepsTemplates:
+            - { template: templates.far, content: { type: spell }, params: { feet: 30 * level } }

@@ -1,4 +1,4 @@
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -122,6 +122,14 @@ describe('pnpm validate', () => {
       [
         'an upgrade step naming a field the pack lacks',
         /renameField: "abilities\.nope" is not an input field/,
+      ],
+      [
+        'a moveState to a key the granted content does not declare',
+        /moveState: "tricks\.hop" declares no state key "shots"/,
+      ],
+      [
+        'an owner path to a choice that does not exist',
+        /requireChoice: no choice "inner" on weapons\.club\/pick-one\/nope/,
       ],
       [
         'a reserved word in a field ID',
@@ -479,5 +487,44 @@ describe('repeated runs', () => {
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
+  });
+});
+
+describe('upgrade scripts and pending changesets', () => {
+  const demo = fileURLToPath(new URL('../release/fixtures', import.meta.url));
+  const upgradeTo = (to: string, pending?: string) => {
+    const root = mkdtempSync(join(tmpdir(), 'ocf-validate-pending-'));
+    try {
+      cpSync(demo, join(root, 'packs'), { recursive: true });
+      mkdirSync(join(root, 'packs', 'test', 'demo', 'upgrades'));
+      writeFileSync(
+        join(root, 'packs', 'test', 'demo', 'upgrades', `0.1.0-to-${to}.yaml`),
+        `pack: test-demo\nfrom: 0.1.0\nto: ${to}\nsteps:\n  - { op: removeContent, id: gear.rope }\n`,
+      );
+      const { reporter } = validateRepo(root, {
+        packs: join(root, 'packs'),
+        characters: join(root, 'characters'),
+        pending: new Map(pending ? [['test-demo', pending]] : []),
+      });
+      return reporter.errors.map((e) => e.message);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  };
+
+  it("rejects a script past the pack's version", () => {
+    expect(upgradeTo('0.2.0')).toEqual([
+      "upgrade script goes to 0.2.0, past the pack's version 0.1.0",
+    ]);
+  });
+
+  it('accepts a script to the version a pending changeset gives the pack', () => {
+    expect(upgradeTo('0.2.0', '0.2.0')).toEqual([]);
+  });
+
+  it('rejects a script past that version', () => {
+    expect(upgradeTo('0.3.0', '0.2.0')).toEqual([
+      "upgrade script goes to 0.3.0, past the pack's version 0.1.0 (0.2.0 with its pending changeset)",
+    ]);
   });
 });

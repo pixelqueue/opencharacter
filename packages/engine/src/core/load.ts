@@ -740,6 +740,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         ...(k.content ? { content: q.query(k.content, pack) } : {}),
       }));
     if (raw.state) out.state = q.decls(raw.state, pack) as Record<string, ValueDecl>;
+    if (raw.params) out.params = q.decls(raw.params, pack) as Record<string, ValueDecl>;
     return out;
   };
 

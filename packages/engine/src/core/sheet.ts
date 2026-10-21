@@ -22,8 +22,10 @@ import type {
   GrantValue,
   Immunity,
   InlineOption,
+  KeptTemplate,
   Pick,
   PresetTree,
+  Query,
 } from './pack-types.ts';
 import type { GrantStore } from '@opencharacter/spec';
 import { appliesQueries } from './pack-types.ts';
@@ -232,6 +234,11 @@ export interface EffectInstance {
   picked?: Record<string, unknown>;
   /** For an applied activation: the applied entry its `self` is (the granting one for a grant). */
   applied?: string;
+  /**
+   * For picked or held granted content that declares state: its activation, whose pick or grant
+   * keeps the state its `self` reads (where `then` writes those keys).
+   */
+  own?: Activation;
 }
 
 interface FieldResult {
@@ -356,28 +363,59 @@ function hasKeptTemplates(ruleset: Ruleset): boolean {
   return has;
 }
 
+/** A template kept on a copy or an item, with the `params` its first keeper gave. */
+export interface KeptOn {
+  template: string;
+  params?: Record<string, unknown>;
+}
+
 export interface Rounds {
   standard: readonly string[];
   /** Kept templates by copy instance ID. */
-  kept: ReadonlyMap<string, readonly string[]>;
+  kept: ReadonlyMap<string, readonly KeptOn[]>;
   /** Kept templates by the qualified ID of content without a copy. */
-  content: ReadonlyMap<string, readonly string[]>;
+  content: ReadonlyMap<string, readonly KeptOn[]>;
 }
 
 function sameKept(
-  a: ReadonlyMap<string, readonly string[]>,
-  b: ReadonlyMap<string, readonly string[]>,
+  a: ReadonlyMap<string, readonly KeptOn[]>,
+  b: ReadonlyMap<string, readonly KeptOn[]>,
 ): boolean {
   if (a.size !== b.size) return false;
-  for (const [id, list] of a) if (b.get(id)?.length !== list.length) return false;
+  for (const [id, list] of a) {
+    const other = b.get(id);
+    if (other?.length !== list.length) return false;
+    for (const [i, k] of list.entries())
+      if (
+        other[i]?.template !== k.template ||
+        JSON.stringify(other[i]?.params) !== JSON.stringify(k.params)
+      )
+        return false;
+  }
   return true;
 }
 
-function addKept(into: Map<string, string[]>, id: string, template: string): void {
-  const list = into.get(id) ?? [];
-  if (list.includes(template)) return;
-  list.push(template);
-  into.set(id, list);
+/**
+ * The templates found so far, each kept once per copy or item: one found again keeps its place
+ * and takes the params of its first keeper this round, one new is added after.
+ */
+function addKept(
+  found: ReadonlyMap<string, readonly KeptOn[]>,
+  wanted: readonly { id: string; kept: KeptOn }[],
+): Map<string, KeptOn[]> {
+  const out = new Map([...found].map(([id, list]) => [id, [...list]]));
+  const seen = new Set<string>();
+  for (const { id, kept } of wanted) {
+    const key = `${id}\0${kept.template}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const list = out.get(id) ?? [];
+    const at = list.findIndex((k) => k.template === kept.template);
+    if (at >= 0) list[at] = kept;
+    else list.push(kept);
+    out.set(id, list);
+  }
+  return out;
 }
 
 /** A merged `item` view as output data: its tags and fields. */
@@ -486,6 +524,7 @@ export class Sheet {
           character,
           (n, p) => this.inputByName(n, p),
           this.templatesOf,
+          this.templateItems,
         );
         return this.copyData;
       }),
@@ -654,6 +693,26 @@ export class Sheet {
     return result.value;
   }
 
+  /** An activation formula's value: input fields and the character functions. Throws Failure. */
+  private evaluateActivation(
+    formula: Formula,
+    pack: string,
+    roots: Record<string, unknown>,
+  ): f.Value {
+    const result = f.evaluate(this.parse(formula), {
+      field: (name) => {
+        const qid = resolveField(this.ruleset, name, pack);
+        return qid ? this.inputValue(qid) : undefined;
+      },
+      roots: { ...this.baseRoots(pack), ...roots },
+      id: (text) => resolveId(this.ruleset, text, pack),
+      family: (name) => familyIn(this.ruleset, name, pack),
+      character: this.inputQueries,
+    });
+    if (!result.ok) throw new Failure(result.error);
+    return result.value;
+  }
+
   private condition(
     formula: Formula | undefined,
     pack: string,
@@ -746,9 +805,7 @@ export class Sheet {
       this.character[list] = entries.map((entry) => {
         const item = this.ruleset.content[entry.item];
         if (!item) return entry;
-        const templates = this.templatesOf(entry)
-          .map((t) => this.ruleset.content[t])
-          .filter((t): t is LoadedItem => t?.type === 'template');
+        const templates = this.templateItems(entry, item);
         const decls = Object.entries(stateDecls(this.ruleset, item, templates)).filter(
           ([key, decl]) =>
             entry.state?.[key] === undefined &&
@@ -783,15 +840,69 @@ export class Sheet {
     const standard = new Set(found.standard);
     for (const a of this.activations)
       if (a.item) for (const qid of itemStandard(this.ruleset, a.item)) standard.add(qid);
-    const kept = new Map([...found.kept].map(([id, list]) => [id, [...list]]));
-    for (const { template, entry } of this.keptWanted()) addKept(kept, entry.id, template);
-    const content = new Map([...found.content].map(([id, list]) => [id, [...list]]));
-    for (const { template, item } of this.keptContentWanted()) addKept(content, item, template);
+    const kept = addKept(
+      found.kept,
+      this.keptWanted().map((k) => ({ id: k.entry.id, kept: k.kept })),
+    );
+    const content = addKept(found.content, this.keptContentWanted());
     return { standard: [...standard], kept, content };
   }
 
-  private keptWanted(): { template: string; entry: Entry; keeper: Activation }[] {
-    const out: { template: string; entry: Entry; keeper: Activation }[] = [];
+  /**
+   * Whether a kept template's query matches a base item: resolved at load when it reads only
+   * `item`, else an activation condition with the keeper's roots and the candidate as `item`.
+   */
+  private keptMatches(query: Query, pack: string, keeper: Activation, base: LoadedItem): boolean {
+    if (base.type !== query.type) return false;
+    const stored = this.ruleset.queries[queryKey(pack, query.type, query.where)];
+    if (stored) return stored.includes(base.qid);
+    if (query.where === undefined) return true;
+    let view = this.queryViews.get(base);
+    if (!view) {
+      view = itemView(this.ruleset, base, [], (n, p) => this.inputByName(n, p));
+      this.queryViews.set(base, view);
+    }
+    return this.condition(
+      query.where,
+      pack,
+      { ...keeper.roots, item: view },
+      `${keeper.sourceId} keepsTemplates`,
+    );
+  }
+
+  /** A kept template's `params`: activation formulas with the keeper's roots. */
+  private keptParams(
+    kept: KeptTemplate,
+    template: LoadedItem,
+    pack: string,
+    keeper: Activation,
+  ): KeptOn {
+    if (!kept.params) return { template: template.qid };
+    const params: Record<string, unknown> = {};
+    for (const [name, formula] of Object.entries(kept.params)) {
+      try {
+        let value = this.evaluateActivation(formula, pack, keeper.roots);
+        if (template.params?.[name]?.type === 'decimal' && value.kind === 'int')
+          value = { kind: 'decimal', value: value.value };
+        params[name] =
+          value.kind === 'decimal' || value.kind === 'dice' ? f.wrapValue(value) : f.toData(value);
+      } catch (error) {
+        if (!(error instanceof Failure)) throw error;
+        this.errors.push({
+          code: error.error.code,
+          data: {
+            where: `${keeper.sourceId} keepsTemplates params ${name}`,
+            message: error.error.message,
+            ...error.error.data,
+          },
+        });
+      }
+    }
+    return { template: template.qid, params };
+  }
+
+  private keptWanted(): { kept: KeptOn; entry: Entry; keeper: Activation }[] {
+    const out: { kept: KeptOn; entry: Entry; keeper: Activation }[] = [];
     const entries = [...(this.character.features ?? []), ...(this.character.inventory ?? [])];
     for (const a of this.activations) {
       const item = a.item;
@@ -802,13 +913,13 @@ export class Sheet {
         if (!this.condition(kept.when, pack, a.roots, `${a.sourceId} keepsTemplates`)) continue;
         const template = this.ruleset.content[kept.template];
         if (template?.type !== 'template') continue;
-        const matches = new Set(
-          this.ruleset.queries[queryKey(pack, kept.copies.type, kept.copies.where)] ?? [],
-        );
+        let values: KeptOn | undefined;
         for (const entry of entries) {
           const base = this.ruleset.content[entry.item];
-          if (!base || !matches.has(base.qid) || !this.appliesTo(template, base)) continue;
-          out.push({ template: template.qid, entry, keeper: a });
+          if (!base || !this.keptMatches(kept.copies, pack, a, base)) continue;
+          if (!this.appliesTo(template, base)) continue;
+          values ??= this.keptParams(kept, template, pack, a);
+          out.push({ kept: values, entry, keeper: a });
         }
       }
     }
@@ -819,8 +930,8 @@ export class Sheet {
    * Templates kept on content without a copy: for each holder activation picked or granted whose
    * item an active keeper's `content` query matches, by item.
    */
-  private keptContentWanted(): { template: string; item: string }[] {
-    const out: { template: string; item: string }[] = [];
+  private keptContentWanted(): { id: string; kept: KeptOn }[] {
+    const out: { id: string; kept: KeptOn }[] = [];
     const reached = this.activations.filter(
       (a) => (a.kind === 'pick' || a.kind === 'grant') && a.scope === 'holder' && a.item,
     );
@@ -833,27 +944,35 @@ export class Sheet {
         if (!this.condition(kept.when, pack, a.roots, `${a.sourceId} keepsTemplates`)) continue;
         const template = this.ruleset.content[kept.template];
         if (template?.type !== 'template') continue;
-        const matches = new Set(
-          this.ruleset.queries[queryKey(pack, kept.content.type, kept.content.where)] ?? [],
-        );
+        let values: KeptOn | undefined;
         for (const r of reached) {
           const base = r.item as LoadedItem;
-          if (!matches.has(base.qid) || !this.appliesTo(template, base)) continue;
-          out.push({ template: template.qid, item: base.qid });
+          if (!this.keptMatches(kept.content, pack, a, base)) continue;
+          if (!this.appliesTo(template, base)) continue;
+          values ??= this.keptParams(kept, template, pack, a);
+          out.push({ id: base.qid, kept: values });
         }
       }
     }
     return out;
   }
 
-  private readonly keptContent!: ReadonlyMap<string, readonly string[]>;
+  private readonly keptContent!: ReadonlyMap<string, readonly KeptOn[]>;
 
-  /** The templates content keeps on an item without a copy, its keepers' `keepsFields` left out. */
+  /**
+   * The templates content keeps on an item without a copy, its keepers' `keepsFields` left out
+   * and their `params` given.
+   */
   contentTemplates(item: LoadedItem): LoadedItem[] {
-    const ids = this.keptContent.get(item.qid);
-    if (!ids?.length) return [];
-    return ids.map((t) =>
-      keptTemplate(this.ruleset, this.ruleset.content[t] as LoadedItem, item.qid),
+    const kept = this.keptContent.get(item.qid);
+    if (!kept?.length) return [];
+    return kept.map((k) =>
+      keptTemplate(
+        this.ruleset,
+        this.ruleset.content[k.template] as LoadedItem,
+        item.qid,
+        k.params,
+      ),
     );
   }
 
@@ -883,19 +1002,47 @@ export class Sheet {
     });
   }
 
-  private readonly kept!: ReadonlyMap<string, readonly string[]>;
+  private readonly kept!: ReadonlyMap<string, readonly KeptOn[]>;
+
+  /** The kept templates a copy doesn't have saved. */
+  private keptOn(entry: Entry): readonly KeptOn[] {
+    const kept = this.kept.get(entry.id);
+    if (!kept?.length) return [];
+    const saved = entry.templates ?? [];
+    return kept.filter((k) => !saved.includes(k.template));
+  }
 
   readonly templatesOf = (entry: Entry): readonly string[] => {
     const saved = entry.templates ?? [];
-    const kept = this.kept.get(entry.id);
-    if (!kept?.length) return saved;
-    return [...saved, ...kept.filter((t) => !saved.includes(t))];
+    const kept = this.keptOn(entry);
+    if (kept.length === 0) return saved;
+    return [...saved, ...kept.map((k) => k.template)];
+  };
+
+  /**
+   * A copy's templates as merged: its saved ones (those in the ruleset), then the kept ones,
+   * which leave their keepers' `keepsFields` alone and have their keepers' `params`.
+   */
+  readonly templateItems = (entry: Entry, item: LoadedItem): LoadedItem[] => {
+    const out: LoadedItem[] = [];
+    for (const t of entry.templates ?? []) {
+      const template = this.ruleset.content[t];
+      if (template?.type === 'template') out.push(template);
+    }
+    for (const k of this.keptOn(entry))
+      out.push(
+        keptTemplate(
+          this.ruleset,
+          this.ruleset.content[k.template] as LoadedItem,
+          item.qid,
+          k.params,
+        ),
+      );
+    return out;
   };
 
   isKept(entry: Entry, template: string): boolean {
-    return (
-      !(entry.templates ?? []).includes(template) && !!this.kept.get(entry.id)?.includes(template)
-    );
+    return this.keptOn(entry).some((k) => k.template === template);
   }
 
   // --- Activation ---------------------------------------------------------------------------
@@ -961,10 +1108,15 @@ export class Sheet {
             });
         }
         const ids = this.templatesOf(entry);
-        // A kept template leaves its keepers' `keepsFields` alone.
-        for (const t of ids.slice((entry.templates ?? []).length))
+        // A kept template leaves its keepers' `keepsFields` alone and has their `params`.
+        for (const k of this.keptOn(entry))
           templates.push(
-            keptTemplate(this.ruleset, this.ruleset.content[t] as LoadedItem, item.qid),
+            keptTemplate(
+              this.ruleset,
+              this.ruleset.content[k.template] as LoadedItem,
+              item.qid,
+              k.params,
+            ),
           );
         const self = selfView(entry, stateDecls(this.ruleset, item, templates), ids);
         const merged = itemView(this.ruleset, item, templates, (n, p) => this.inputByName(n, p));
@@ -1448,6 +1600,14 @@ export class Sheet {
     const item = activation.item;
     const type =
       item && item.type !== 'template' ? this.ruleset.contentTypes[item.type] : undefined;
+    // Picked or held granted content with state of its own: `then` writes there, as `self` reads.
+    const owner =
+      item &&
+      activation.scope === 'holder' &&
+      (activation.kind === 'pick' || activation.kind === 'grant') &&
+      Object.keys(stateDecls(this.ruleset, item, [])).length > 0
+        ? activation
+        : undefined;
     if (type) {
       (type.effects ?? []).forEach((effect, index) => {
         if (effect.id !== undefined && item?.suppress?.includes(effect.id)) return;
@@ -1460,6 +1620,7 @@ export class Sheet {
           activation.sourceId,
           `type.${effect.id ?? index}`,
           activation.applied,
+          owner,
         );
       });
     }
@@ -1475,6 +1636,7 @@ export class Sheet {
         activation.sourceId,
         effect.id ?? String(index),
         activation.applied,
+        owner,
       );
     });
     if (activation.scope === 'applied') {
@@ -1710,8 +1872,12 @@ export class Sheet {
     sourceId: string,
     key: string,
     applied?: string,
+    owner?: Activation,
   ): void {
-    const own = applied === undefined ? {} : { applied };
+    const own = {
+      ...(applied === undefined ? {} : { applied }),
+      ...(owner === undefined ? {} : { own: owner }),
+    };
     const target = effect.target;
     if (typeof target === 'object' && 'fields' in target) {
       // One instance per matching field, as if written with that field as its target. A field whose
@@ -2836,7 +3002,7 @@ export class Sheet {
     const keepers = new Map<string, Activation>();
     if (this.kept.size > 0)
       for (const k of this.keptWanted()) {
-        const key = `${k.entry.id} ${k.template}`;
+        const key = `${k.entry.id} ${k.kept.template}`;
         if (!keepers.has(key)) keepers.set(key, k.keeper);
       }
     return listed.map((a) => {
@@ -2912,10 +3078,14 @@ export class Sheet {
     for (const a of this.activations) {
       if ((a.kind !== 'pick' && a.kind !== 'grant') || a.scope !== 'holder' || !a.item) continue;
       const qid = a.item.qid;
-      const templates = this.keptContent.get(qid);
-      if (!templates?.length || seen.has(qid)) continue;
+      const kept = this.keptContent.get(qid);
+      if (!kept?.length || seen.has(qid)) continue;
       seen.add(qid);
-      out.push({ item: qid, templates: [...templates], ...mergedData(this.contentView(a.item)) });
+      out.push({
+        item: qid,
+        templates: kept.map((k) => k.template),
+        ...mergedData(this.contentView(a.item)),
+      });
     }
     return out;
   }

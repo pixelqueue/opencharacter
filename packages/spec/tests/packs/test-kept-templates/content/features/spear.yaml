@@ -1,0 +1,12 @@
+# Keeps the spear template on the cantrip its own choice names (known through casting, not
+# activated here), 30 farther per rank.
+id: features.spear
+type: feature
+choices:
+  - id: cantrip
+    from: { type: spell, where: 'item.level == 0' }
+    activate: false
+keepsTemplates:
+  - template: templates.spear
+    content: { type: spell, where: "item.id in picksOf('cantrip')" }
+    params: { feet: 30 * self.rank }

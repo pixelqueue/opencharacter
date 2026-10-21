@@ -460,7 +460,7 @@ export type ToggleEffectChange = {
   active: boolean;
 };
 
-/** Pick an option (choose). Un-picking (unchoose) is `#/$defs/unchoose`. */
+/** Pick an option (choose). Un-picking (unchoose) is `#/$defs/unchoose`. A choice a grant presets takes neither (`preset-choice`). */
 export type ChooseChange = {
   type: 'choose';
   path: ChoicePath;
@@ -673,7 +673,7 @@ export type Applied = {
 export type CharacterFile = {
   /** The OCF spec version this file was written against. */
   specVersion: Semver;
-  /** An ID for this character, unique within the app or campaign (a UUID is a good choice). */
+  /** An ID for this character. A UUID is fine for an ID unique within the app or campaign; a URL (IRI) makes it global, so the character keeps one identity across apps. */
   id: string;
   /** The exact pack versions this character uses, in load order (later packs win). */
   packs: {
@@ -1004,6 +1004,8 @@ export type ContentItem = {
   removeTags?: Tag[];
   /** Values for the item fields declared by the content type. How a value is read depends on the declared type: `integer`, `decimal`, `boolean` and `dice` values are formulas (a plain literal is a formula with no inputs); `string`, `enum` and `id` values are literal strings; `set` values are lists of literals. A template may set the rules' `templateFields` and the fields of the content type its `appliesTo` names; its values are merged into the copy's `item` in template order, replacing the base item's, and its formulas see the base item as `base`. A template may give `null` for a field: the field is absent from the copy's `item` (no declared default applies), unless a later template sets it again. Only templates may give `null`. */
   fields?: Record<string, Literal | null>;
+  /** Templates only: values the template's item fields read as `params.<name>`, given by the content keeping it (`keepsTemplates` `params`). A param the keeper doesn't give, or on a saved template, is its `default`, else absent. */
+  params?: Record<string, ValueDecl>;
   /** Extra per-copy state keys this item (or template) adds to the character's copy, beyond those its content type declares. */
   state?: Record<string, ValueDecl>;
   /** Computed values on this item's copies, added to the content type's or replacing one of them by name. A template's are added to the copies it is applied to. */
@@ -1025,7 +1027,7 @@ export type ContentItem = {
   standardCopies?: Query[];
   /** Item fields the templates this item keeps (`keepsTemplates`) leave as they are, on the copies it keeps them on: a specific magic weapon's Price, which already counts the runes it comes with. A template the player applies later changes them as usual. */
   keepsFields?: Name[];
-  /** Templates this item keeps while it is active: on the character's copies (`copies`), each copy of `copies.type` whose base item matches `copies.where` has the template applied after its saved ones; on content picked or granted to the character (`content`), each item of `content.type` matching `content.where` has the template's fields and tags merged into its `item`. Both queries read only `item` and are resolved by loadRuleset; a template whose `appliesTo` doesn't match isn't kept. Nothing is saved. */
+  /** Templates this item keeps while it is active: on the character's copies (`copies`), each copy of `copies.type` whose base item matches `copies.where` has the template applied after its saved ones; on content picked or granted to the character (`content`), each item of `content.type` matching `content.where` has the template's fields and tags merged into its `item`. A query reading only `item` is resolved by loadRuleset; one that also reads the keeper is an activation condition. A template whose `appliesTo` doesn't match isn't kept. Nothing is saved. */
   keepsTemplates?: KeptTemplate[];
   /** Conditions for having this item. Failing ones are rules issues (`prerequisite-not-met`), never blocking unless strict mode is on. */
   prerequisites?: Prerequisite[];
@@ -1079,10 +1081,12 @@ export type Prerequisite = {
 export type KeptTemplate = {
   /** The template kept on the copies or the content. */
   template: Ref;
-  /** The copies it is kept on: a content type and a condition over the copy's base item (`item` only). */
+  /** The copies it is kept on: a content type and a condition over the copy's base item. A condition reading only `item` is resolved by loadRuleset; one that also reads the keeper (`self`, `picksOf`, `character`, input fields, the character functions) is an activation condition with `item` the candidate, so a keeper keeps a template on what its own choice picked. */
   copies?: Query;
-  /** The content without a copy of its own it is kept on: every holder activation of content picked or granted to the character whose item is of the type and matches the condition (`item` only). The template may give only fields and tags (`template-without-copy` otherwise). */
+  /** The content without a copy of its own it is kept on: every holder activation of content picked or granted to the character whose item is of the type and matches the condition, read as `copies`' is. The template may give only fields and tags (`template-without-copy` otherwise). */
   content?: Query;
+  /** Values for the template's `params`, each a formula of the param's type evaluated as an activation condition is, with the keeper's roots (`self`, `item`, `picksOf`, `character`, input fields). The template's item fields read them as `params.<name>`, so a kept template scales with the character. A name the template doesn't declare is `unknown-name` at load. */
+  params?: Record<string, Formula>;
   /** An activation condition: while it holds, the template is kept. */
   when?: Condition;
   /** `holder` (default): while the item is held. `applied`: while it is the source of an active, unblocked `applied` entry, on that character's copies. */
@@ -1334,7 +1338,7 @@ export type Effect = {
   tags?: TagList;
   /** Rolls with op `add` only: `false` leaves the roll items the effect adds, dice or flat, alone when `multiplyDice` multiplies the roll's dice or `multiply` its items (5E's Savage Attacks: an extra die rolled once on a critical hit, not doubled; orc-2e's deadly die, added after doubling). Default `true`. */
   multiplied?: boolean;
-  /** Incoming-change effects only: changes to the effect's own entry, applied by applyChanges right after the adjust is routed, when the effect counted (its `when` held and stacking kept it). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, whose `value` and `by` are formulas seeing `item`, `self` and `incoming`, or, on an `applied` effect, a `removeEffect` with `entry: self`, which ends the entry (a ward that triggers once). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`). */
+  /** Incoming-change effects only: changes to the effect's own entry, applied by applyChanges right after the adjust is routed, when the effect counted (its `when` held and stacking kept it). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), whose `value` and `by` are formulas seeing `item`, `self` and `incoming`, or, on an `applied` effect, a `removeEffect` with `entry: self`, which ends the entry (a ward that triggers once). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`). */
   then?: ThenChange[];
   /** Who the effect applies to. `holder` (default): a character who has the content active (features, inventory, picks, grants). `applied`: a character the content is applied to (its `applied` list: cast on them, a condition). Content in `applied` runs only its `applied` effects; held content runs only its `holder` effects. */
   scope?: 'holder' | 'applied';
@@ -1786,7 +1790,7 @@ export type ApplyChangesOutput =
       /** The batch as applied: each `adjust` whose incoming-change effects rolled dice carries every face it used in `faces`, supplied and rolled. Apps log this, not their input, so a replay never rolls. A batch that rolled nothing comes back unchanged. */
       changes: Change[];
       issues: RulesIssue[];
-      /** What adjust changes actually did after incoming-change effects, absorption, overflow and clamping: one entry per field touched, in order. A change aimed at copies by query adds `{ copies }`: the instance IDs it matched, in order (empty when none matched); one aimed at applied entries by query adds `{ applied }` the same way, and an `applyEffect` merged into an existing entry (`reapply`) adds `{ applied: [<that entry's ID>] }`. An incoming-change effect's `then` adds `{ entry, key, value, source }` per state change it made to its own entry, and `{ entry, removed: true, source }` when it removed its applied entry. */
+      /** What adjust changes actually did after incoming-change effects, absorption, overflow and clamping: one entry per field touched, in order. A change aimed at copies by query adds `{ copies }`: the instance IDs it matched, in order (empty when none matched); one aimed at applied entries by query adds `{ applied }` the same way, and an `applyEffect` merged into an existing entry (`reapply`) adds `{ applied: [<that entry's ID>] }`. An incoming-change effect's `then` adds `{ key, value, source }` per state change it made, addressed as the setState that made it: `entry` (its own entry), `path` and `option` (its pick), or `grant` with the node (its grant's saved state); and `{ entry, removed: true, source }` when it removed its applied entry. */
       adjustments?: (
         | {
             field: string;
@@ -1808,7 +1812,10 @@ export type ApplyChangesOutput =
             }[];
           }
         | {
-            entry: InstanceId;
+            entry?: InstanceId;
+            path?: ChoicePath;
+            option?: string | number;
+            grant?: QualifiedId;
             key: Name;
             /** The state key's new value. */
             value: unknown;
@@ -2021,9 +2028,9 @@ export type ListedChoice = {
   min: number;
   /** The evaluated maximum number of picks; absent when unbounded. */
   max?: number;
-  /** The picked options, in the order saved: content IDs, inline option IDs or values, as `choose` names them. */
+  /** The picked options, in the order saved: content IDs, inline option IDs or values, as `choose` names them. For a preset choice, the grant's. */
   picks: (string | number)[];
-  /** Whether the choice is pending: required (`required` not false) with fewer picks than `min`. */
+  /** Whether the choice is pending: required (`required` not false) with fewer picks than `min`. A preset choice never is. */
   open: boolean;
   /** `true` when a grant presets the choice (its `choices`): `picks` are the grant's, the choice is never open, and `choose` and `unchoose` on it are `preset-choice`. */
   preset?: true;
@@ -2300,7 +2307,7 @@ export type FollowUp = {
   action?: string;
   /** Formulas for the action's parameters. Parameters it doesn't fix are left for the app to supply. */
   params?: Record<string, Formula>;
-  /** Changes to apply, resolved like an action's `changes` step: formulas evaluated, fields qualified, `entry: self` the content's copy. No `split`. */
+  /** Changes to apply, resolved like an action's `changes` step: formulas evaluated, fields qualified, `entry: self` the content's copy, `pick: self` and `grant: self` the pick or holder grant that made the content active, `path`, `option`, `picks` and `grants` passed on. No `split`. */
   changes?: ProposedChange[];
   /** A derived offer to make a new character for one of the character's empty link slots: the app makes a character file with `creating: true`, runs the named creation start on it with `params`, and saves the new character's ID in this character's `links`, which ends the offer. Only with `while`, and instead of `action`, `changes` and `to`. Offered while `while` and `when` hold and the slot is empty (no saved link and no view). */
   create?: {
@@ -2705,7 +2712,10 @@ export type UpgradeStep = {
     | 'setDefault'
     | 'mapValues'
     | 'renameState'
+    | 'removeState'
+    | 'moveState'
     | 'renameChoice'
+    | 'removeChoice'
     | 'renameOption'
     | 'requireChoice'
     | 'renameContentType'
@@ -2722,11 +2732,20 @@ export type UpgradeStep = {
   type?: Name;
   value?: Formula;
   map?: Record<string, Literal>;
-  owner?: Ref;
+  owner?: ChoiceOwner;
   choice?: Slug;
-  /** adoptStandard: the item whose standard copy an entry becomes. */
+  /** adoptStandard: the item whose standard copy an entry becomes. renameState, removeState, moveState: limits the step to content `item` (with `type`, both must match). */
   item?: Ref;
+  /** removeState: the state key to drop. */
+  key?: Name;
+  /** moveState: the granted content whose saved state on the copy (its `grants`) receives the value. */
+  grant?: Ref;
+  /** moveState: the picked option, in choice `choice` of `owner` (or the rules), whose pick receives the value. */
+  option?: string | number;
 };
+
+/** Whose choice a step names: content (a local or qualified ID); for a choice nested in an inline option, that content then each choice and inline option down to it, joined by `/` (`classes.operative/specialization/ghost`). A path with an even number of parts starts at a rules-level choice (`motto/brave`). Absent: the rules. */
+export type ChoiceOwner = Ref | string;
 
 /** Codes in `data/error-codes.json`. */
 export type ErrorCode =

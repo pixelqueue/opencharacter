@@ -72,12 +72,31 @@ function dependenciesOf(
   return [...out.values()].toReversed();
 }
 
+/**
+ * Checks each pack against its published releases. A pack with a pending changeset (`pending`:
+ * pack ID → the version `pnpm version-packages` will give it) is checked as that version, so a
+ * change to a published version passes once a changeset bumps it.
+ */
 export function releaseCheck(
-  built: BuiltPack[],
+  current: BuiltPack[],
   published: (pack: BuiltPack) => PublishedReleases,
   inRange: PublishedInRange = () => undefined,
+  pending: ReadonlyMap<string, string> = new Map(),
 ): ReleaseFinding[] {
   const findings: ReleaseFinding[] = [];
+  const built = current.map((pack) => {
+    const from = pack.release.manifest.version;
+    const to = pending.get(pack.id);
+    if (!to || to === from) return pack;
+    findings.push({
+      pack: pack.id,
+      level: 'info',
+      code: 'pending-bump',
+      message: `${pack.id} ${from} → ${to} (pending changeset)`,
+    });
+    const manifest = { ...pack.release.manifest, version: to };
+    return { ...pack, release: { ...pack.release, manifest } };
+  });
   for (const pack of built) {
     const { same, previous } = published(pack);
     const version = pack.release.manifest.version;
@@ -261,6 +280,68 @@ export function syncPinnedVersions(root: string, files: string[], bumps: PackBum
   return changed;
 }
 
+export interface SpecBump {
+  from: string;
+  to: string;
+}
+
+const SPEC_SOURCE = 'packages/spec/src/index.ts';
+const majorMinor = (v: string) => v.split('.').slice(0, 2).join('.');
+
+/**
+ * After `changeset version` bumps `@opencharacter/spec`, moves the spec version everywhere it is
+ * stated: `SPEC_VERSION` (which `SCHEMA_BASE` derives from), the `schemas/<major.minor>/` path of
+ * every schema ID and link, the prose that names the current version, and the example characters'
+ * `specVersion` (samples follow the current spec). Other minimums and records stay. Returns the
+ * bump and the files changed, or undefined when they match.
+ */
+export function syncSpecVersion(
+  root: string,
+  files: string[],
+): { bump: SpecBump; files: string[] } | undefined {
+  const pkg = join(root, 'packages', 'spec', 'package.json');
+  const to = (JSON.parse(readFileSync(pkg, 'utf8')) as { version: string }).version;
+  const source = readFileSync(join(root, SPEC_SOURCE), 'utf8');
+  const from = /SPEC_VERSION = '([^']+)'/.exec(source)?.[1];
+  if (!from) throw new Error(`no SPEC_VERSION in ${SPEC_SOURCE}`);
+  if (from === to) return undefined;
+  const patterns: [RegExp, string][] = [
+    [new RegExp(`(SPEC_VERSION = ')${escape(from)}'`, 'g'), `$1${to}'`],
+    [
+      new RegExp(
+        `(Spec version \\**|current version is \\**)${escape(from)}(?![\\w-]|\\.\\d)`,
+        'g',
+      ),
+      `$1${to}`,
+    ],
+  ];
+  // Example characters are samples, not records: they follow the current spec.
+  const examples: [RegExp, string] = [
+    new RegExp(`^(specVersion: ['"]?)${escape(from)}(['"]?)$`, 'gm'),
+    `$1${to}$2`,
+  ];
+  if (majorMinor(from) !== majorMinor(to)) {
+    patterns.push([
+      new RegExp(`(?<![\\w.-])schemas/${escape(majorMinor(from))}/`, 'g'),
+      `schemas/${majorMinor(to)}/`,
+    ]);
+  }
+  const changed: string[] = [];
+  for (const file of new Set([SPEC_SOURCE, ...files])) {
+    const path = join(root, file);
+    if (!existsSync(path)) continue;
+    const text = readFileSync(path, 'utf8');
+    let next = text;
+    for (const [re, sub] of patterns) next = next.replace(re, sub);
+    if (file.startsWith('examples/characters/')) next = next.replace(examples[0], examples[1]);
+    if (next !== text) {
+      writeFileSync(path, next);
+      changed.push(file);
+    }
+  }
+  return { bump: { from, to }, files: changed };
+}
+
 export function pinFiles(root: string): string[] {
   return execFileSync(
     'git',
@@ -277,7 +358,7 @@ export function pinFiles(root: string): string[] {
     .split('\n')
     .filter(
       (f) =>
-        /\.(ya?ml|md|mdx|ts|js|mjs|json)$/.test(f) &&
+        /\.(ya?ml|md|mdx|tsx?|jsx?|mjs|json|html|astro)$/.test(f) &&
         !/(^|\/)CHANGELOG\.md$/.test(f) &&
         !/^packs\/[^/]+\/[^/]+\/(pack\.yaml|package\.json)$/.test(f) &&
         !/(^|\/)(node_modules|dist)\//.test(f),

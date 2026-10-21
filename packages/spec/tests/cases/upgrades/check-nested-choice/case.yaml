@@ -1,0 +1,86 @@
+description: choice steps cover changes to choices nested in inline options through owner paths
+specVersion: 0.1.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      contentTypes:
+        class: {}
+        feat: {}
+      choices:
+        - id: motto
+          from:
+            options:
+              - id: brave
+                choices:
+                  - id: deed
+                    from: { values: [duel, rescue] }
+    content:
+      - id: classes.operative
+        type: class
+        choices:
+          - id: specialization
+            from:
+              options:
+                - id: ghost
+                  choices:
+                    - id: skill-feat
+                      from: { type: feat }
+                - id: sniper
+      - id: feats.hide
+        type: feat
+next:
+  inline:
+    manifest:
+      id: test-pack
+      version: 2.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      contentTypes:
+        class: {}
+        feat: {}
+      choices:
+        - id: motto
+          from:
+            options:
+              - id: brave
+                choices:
+                  - id: deed
+                    from: { values: [rescue] }
+    content:
+      - id: classes.operative
+        type: class
+        choices:
+          - id: specialization
+            from:
+              options:
+                - id: ghost
+                - id: sniper
+                  choices:
+                    - id: skill-feat
+                      from: { type: feat }
+      - id: feats.hide
+        type: feat
+    upgrades:
+      - pack: test-pack
+        from: 1.0.0
+        to: 2.0.0
+        steps:
+          - op: removeChoice
+            owner: classes.operative/specialization/ghost
+            choice: skill-feat
+          - op: requireChoice
+            owner: test-pack:classes.operative/specialization/sniper
+            choice: skill-feat
+          - op: renameOption
+            owner: motto/brave
+            choice: deed
+            from: duel

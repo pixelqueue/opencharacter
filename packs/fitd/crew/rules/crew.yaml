@@ -73,7 +73,7 @@ actions:
         recommend: "'ability'"
       - id: ability
         kind: choice
-        when: "steps.advance.picked == 'ability' && crewType.id == ''"
+        when: "steps.advance.picked == 'ability' && size(picksOf('crew-type')) == 0"
         options:
           content: { type: crewAbility, where: '!(item.id in abilities.crew)' }
         recommend: options[0]
@@ -81,7 +81,7 @@ actions:
           - { type: choose, path: { choice: [crew-abilities] }, option: picked.id }
       - id: typeAbility
         kind: choice
-        when: "steps.advance.picked == 'ability' && crewType.id != ''"
+        when: "steps.advance.picked == 'ability' && size(picksOf('crew-type')) > 0"
         options: { pending: {} }
         recommend: options[0]
       - id: upgrades

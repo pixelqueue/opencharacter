@@ -126,19 +126,17 @@ actions:
         kind: choice
         when: "coin > 0 && steps.roll.result != 'critical'"
         options:
-          - { id: keep }
-          - { id: spend1 }
-          - { id: spend2, when: "coin >= 2 && steps.roll.result != 'success'" }
-          - { id: spend3, when: "coin >= 3 && steps.roll.result == 'failure'" }
-        recommend: "'keep'"
+          values: [0, 1, 2, 3]
+          where: >-
+            value <= coin && value <= 3
+            - indexOf(['failure', 'partial', 'success', 'critical'], steps.roll.result)
+        recommend: options[0]
       - id: spent
         kind: branch
         cases:
           - when: true
             flags:
-              coin: >-
-                !has(steps.coin) ? 0 : steps.coin.picked == 'spend3' ? 3
-                : steps.coin.picked == 'spend2' ? 2 : steps.coin.picked == 'spend1' ? 1 : 0
+              coin: 'has(steps.coin) ? steps.coin.value : 0'
       - id: spend
         kind: changes
         when: flags.coin > 0
@@ -210,19 +208,17 @@ actions:
         kind: choice
         when: "coin > 0 && steps.roll.result != 'critical'"
         options:
-          - { id: keep }
-          - { id: spend1 }
-          - { id: spend2, when: "coin >= 2 && steps.roll.result != 'success'" }
-          - { id: spend3, when: "coin >= 3 && steps.roll.result == 'failure'" }
-        recommend: "'keep'"
+          values: [0, 1, 2, 3]
+          where: >-
+            value <= coin && value <= 3
+            - indexOf(['failure', 'partial', 'success', 'critical'], steps.roll.result)
+        recommend: options[0]
       - id: spent
         kind: branch
         cases:
           - when: true
             flags:
-              coin: >-
-                !has(steps.coin) ? 0 : steps.coin.picked == 'spend3' ? 3
-                : steps.coin.picked == 'spend2' ? 2 : steps.coin.picked == 'spend1' ? 1 : 0
+              coin: 'has(steps.coin) ? steps.coin.value : 0'
       - id: spend
         kind: changes
         when: flags.coin > 0
@@ -335,21 +331,15 @@ actions:
         kind: choice
         when: coin > 1 || coin > 0 && flags.level < 3
         options:
-          - { id: keep }
-          - { id: spend1, when: flags.level < 3 }
-          - { id: spend2, when: coin >= 2 && (flags.level < 2 || flags.level == 3) }
-          - { id: spend3, when: coin >= 3 && flags.level != 1 && flags.level != 3 }
-          - { id: spend4, when: coin >= 4 && (flags.level == 1 || flags.level == 3) }
-        recommend: "'keep'"
+          values: [0, 1, 2, 3, 4]
+          where: value <= coin && (value <= 3 - flags.level || (value - (3 - flags.level)) % 2 == 0)
+        recommend: options[0]
       - id: spent
         kind: branch
         cases:
           - when: true
             flags:
-              coin: >-
-                !has(steps.coin) ? 0 : steps.coin.picked == 'spend4' ? 4
-                : steps.coin.picked == 'spend3' ? 3 : steps.coin.picked == 'spend2' ? 2
-                : steps.coin.picked == 'spend1' ? 1 : 0
+              coin: 'has(steps.coin) ? steps.coin.value : 0'
       - id: quality
         kind: branch
         cases:

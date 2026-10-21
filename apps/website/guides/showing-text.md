@@ -171,14 +171,14 @@ six 1st-level spells for your spellbook", then "Choose two spells for your spell
 
 An option is labeled by `text.option(id, context)`, whatever its kind:
 
-| Option ID                                        | Label from                                                                                                                                     |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `#done`                                          | the spec's `actions.options.done.name` ("Done"); over pending choices (`context.choice`) `actions.options.done.pending.name` ("Skip the rest") |
-| `<content id>#<option>` (added by content)       | `<content>.options.<option>.name` in the content's pack                                                                                        |
-| a content ID                                     | the item's name                                                                                                                                |
-| a copy's instance ID (`context.copies`)          | the copy's name                                                                                                                                |
-| an inline option or value (`context.choice`)     | `<owner>.choices.<choice>.options.<id>.name`, else as a set member (`skill.arcana` is "Arcana")                                                |
-| a written option of an action (`context.action`) | `<actionKey>.options.<id>.name`, else as a set member                                                                                          |
+| Option ID                                                 | Label from                                                                                                                                     |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `#done`                                                   | the spec's `actions.options.done.name` ("Done"); over pending choices (`context.choice`) `actions.options.done.pending.name` ("Skip the rest") |
+| `<content id>#<option>` (added by content)                | `<content>.options.<option>.name` in the content's pack                                                                                        |
+| a content ID                                              | the item's name                                                                                                                                |
+| a copy's instance ID (`context.copies`)                   | the copy's name                                                                                                                                |
+| an inline option or value (`context.choice`)              | `<owner>.choices.<choice>.options.<id>.name`, else as a set member (`skill.arcana` is "Arcana")                                                |
+| a written option or value of an action (`context.action`) | `<actionKey>.options.<id>.name`, else as a set member                                                                                          |
 
 ```ts
 const bonus = sheet.choices[0];
@@ -250,6 +250,9 @@ A Mothership stat check with advantage, paused for dice:
   "2d20, keep highest - 1d4", "4dF", "5d6, exploding on 6". Flat items are left out, and so is a
   keep or drop that can't change the roll: one die kept highest is "1d6". The words
   are the spec's `dice.*` text, so they translate like the rest.
+- **Rolled twice.** Pass a dice pause's `needs.repeat` too, `text.dice(needs.items,
+  needs.repeat)`, for a whole roll made more than once: "2d6, rolled twice, keep the lower
+  total" (`dice.repeat`). `describeNeed` does it for you.
 
 ## Issues and errors
 

@@ -1,0 +1,81 @@
+description: moveState moves a copy's state value to the saved state of content the copy grants
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          race: {}
+          trait: {}
+      content:
+        - id: races.orc
+          type: race
+          state:
+            enduranceUsed: { type: boolean, default: false }
+            rebukeUsed: { type: boolean, default: false }
+          grants:
+            - item: traits.endurance
+            - item: traits.rebuke
+              state: { used: true }
+        - id: races.elf
+          type: race
+          state:
+            enduranceUsed: { type: boolean, default: false }
+        - id: traits.endurance
+          type: trait
+          state:
+            used: { type: boolean, default: false }
+        - id: traits.rebuke
+          type: trait
+          state:
+            used: { type: boolean, default: false }
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          race: {}
+          trait: {}
+      content:
+        - id: races.orc
+          type: race
+          grants:
+            - item: traits.endurance
+            - item: traits.rebuke
+              state: { used: true }
+        - id: races.elf
+          type: race
+        - id: traits.endurance
+          type: trait
+          state:
+            used: { type: boolean, default: false }
+        - id: traits.rebuke
+          type: trait
+          state:
+            used: { type: boolean, default: false }
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - op: moveState
+              type: race
+              from: enduranceUsed
+              to: used
+              grant: traits.endurance
+            - op: moveState
+              type: race
+              from: rebukeUsed
+              to: used
+              grant: traits.rebuke

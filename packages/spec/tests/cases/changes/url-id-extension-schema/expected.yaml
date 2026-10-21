@@ -1,0 +1,34 @@
+# The ID, the link and both extensions come back as they went in; the follow-up to the link
+# names the linked character by its URL.
+ok: true
+character:
+  id: 'https://example.com/characters/tamsin-vale-7d1c2f4e-5b0a-4c39-9a51-2f7e8a6b3c10/7d1c2f4e-5b0a-4c39-9a51-2f7e8a6b3c10/7d1c2f4e-5b0a-4c39-9a51-2f7e8a6b3c10/7d1c2f4e-5b0a-4c39-9a51-2f7e8a6b3c10/sheet'
+  links:
+    test-follow-ups:ally: 'https://example.com/characters/ally-0b9e1a3c-2d4f-4e6a-8b7c-9d0e1f2a3b4c/0b9e1a3c-2d4f-4e6a-8b7c-9d0e1f2a3b4c/0b9e1a3c-2d4f-4e6a-8b7c-9d0e1f2a3b4c/0b9e1a3c-2d4f-4e6a-8b7c-9d0e1f2a3b4c/sheet'
+  extensions:
+    com.example.vtt:
+      $schema: https://example.com/ocf/vtt-extension/1.json
+      portrait: https://example.com/portraits/tamsin.png
+      tokenSize: 2
+    com.example.notes: Carries her mother's sword.
+followUps:
+  - id: call-ally-1
+    kind: ephemeral
+    followUp: test-follow-ups:call-ally
+    to:
+      link: test-follow-ups:ally
+    character: 'https://example.com/characters/ally-0b9e1a3c-2d4f-4e6a-8b7c-9d0e1f2a3b4c/0b9e1a3c-2d4f-4e6a-8b7c-9d0e1f2a3b4c/0b9e1a3c-2d4f-4e6a-8b7c-9d0e1f2a3b4c/0b9e1a3c-2d4f-4e6a-8b7c-9d0e1f2a3b4c/sheet'
+    required: false
+    action:
+      id: test-ally:help
+    params:
+      lost: 4
+    cause:
+      field: test-follow-ups:hp.current
+      by: -4
+      requested: -4
+      taken: -4
+      reason: requested
+      clamped: false
+      tags:
+        - damage

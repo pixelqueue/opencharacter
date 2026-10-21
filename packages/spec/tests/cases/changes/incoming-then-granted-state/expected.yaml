@@ -1,0 +1,36 @@
+# Each hit: the ward soaks 1 (-3 + 1 = -2), spends a charge from the grant's saved state (2, the
+# grant's `state` value, then 1, then 0), and counts the hit on the mail, which declares `hits`.
+# Healing recharges the ward to 2, the grant's value, so its saved state is dropped.
+ok: true
+character:
+  values:
+    test-pack:hp.current: 9
+  inventory:
+    - { id: mail, item: test-pack:gear.mail, equipped: true, state: { hits: 2 } }
+adjustments:
+  - { field: test-pack:hp.current, by: -2, requested: -3, taken: -2, reason: requested }
+  - entry: mail
+    grant: test-pack:wards.ward
+    key: charges
+    value: 1
+    source: { type: item, id: 'test-pack:wards.ward', entry: mail, effect: soak }
+  - entry: mail
+    key: hits
+    value: 1
+    source: { type: item, id: 'test-pack:wards.ward', entry: mail, effect: soak }
+  - { field: test-pack:hp.current, by: -2, requested: -3, taken: -2, reason: requested }
+  - entry: mail
+    grant: test-pack:wards.ward
+    key: charges
+    value: 0
+    source: { type: item, id: 'test-pack:wards.ward', entry: mail, effect: soak }
+  - entry: mail
+    key: hits
+    value: 2
+    source: { type: item, id: 'test-pack:wards.ward', entry: mail, effect: soak }
+  - { field: test-pack:hp.current, by: 1, requested: 1, taken: 1, reason: requested }
+  - entry: mail
+    grant: test-pack:wards.ward
+    key: charges
+    value: 2
+    source: { type: item, id: 'test-pack:wards.ward', entry: mail, effect: recharge }

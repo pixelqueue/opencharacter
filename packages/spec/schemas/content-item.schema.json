@@ -49,6 +49,16 @@
         ]
       }
     },
+    "params": {
+      "description": "Templates only: values the template's item fields read as `params.<name>`, given by the content keeping it (`keepsTemplates` `params`). A param the keeper doesn't give, or on a saved template, is its `default`, else absent.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "content-type.schema.json#/$defs/valueDecl"
+      }
+    },
     "state": {
       "description": "Extra per-copy state keys this item (or template) adds to the character's copy, beyond those its content type declares.",
       "type": "object",
@@ -133,7 +143,7 @@
       "uniqueItems": true
     },
     "keepsTemplates": {
-      "description": "Templates this item keeps while it is active: on the character's copies (`copies`), each copy of `copies.type` whose base item matches `copies.where` has the template applied after its saved ones; on content picked or granted to the character (`content`), each item of `content.type` matching `content.where` has the template's fields and tags merged into its `item`. Both queries read only `item` and are resolved by loadRuleset; a template whose `appliesTo` doesn't match isn't kept. Nothing is saved.",
+      "description": "Templates this item keeps while it is active: on the character's copies (`copies`), each copy of `copies.type` whose base item matches `copies.where` has the template applied after its saved ones; on content picked or granted to the character (`content`), each item of `content.type` matching `content.where` has the template's fields and tags merged into its `item`. A query reading only `item` is resolved by loadRuleset; one that also reads the keeper is an activation condition. A template whose `appliesTo` doesn't match isn't kept. Nothing is saved.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/keptTemplate"
@@ -229,6 +239,10 @@
                 },
                 {
                   "required": ["removeTags"],
+                  "type": "object"
+                },
+                {
+                  "required": ["params"],
                   "type": "object"
                 }
               ]
@@ -367,12 +381,22 @@
           "$ref": "common.schema.json#/$defs/ref"
         },
         "copies": {
-          "description": "The copies it is kept on: a content type and a condition over the copy's base item (`item` only).",
+          "description": "The copies it is kept on: a content type and a condition over the copy's base item. A condition reading only `item` is resolved by loadRuleset; one that also reads the keeper (`self`, `picksOf`, `character`, input fields, the character functions) is an activation condition with `item` the candidate, so a keeper keeps a template on what its own choice picked.",
           "$ref": "query.schema.json"
         },
         "content": {
-          "description": "The content without a copy of its own it is kept on: every holder activation of content picked or granted to the character whose item is of the type and matches the condition (`item` only). The template may give only fields and tags (`template-without-copy` otherwise).",
+          "description": "The content without a copy of its own it is kept on: every holder activation of content picked or granted to the character whose item is of the type and matches the condition, read as `copies`' is. The template may give only fields and tags (`template-without-copy` otherwise).",
           "$ref": "query.schema.json"
+        },
+        "params": {
+          "description": "Values for the template's `params`, each a formula of the param's type evaluated as an activation condition is, with the keeper's roots (`self`, `item`, `picksOf`, `character`, input fields). The template's item fields read them as `params.<name>`, so a kept template scales with the character. A name the template doesn't declare is `unknown-name` at load.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "formula.schema.json"
+          }
         },
         "when": {
           "description": "An activation condition: while it holds, the template is kept.",

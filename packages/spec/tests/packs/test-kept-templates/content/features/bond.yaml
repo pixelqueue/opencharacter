@@ -1,0 +1,11 @@
+# Keeps the keen template on copies of the weapon its own choice names, +1 per rank.
+id: features.bond
+type: feature
+choices:
+  - id: weapon
+    from: { type: weapon }
+    activate: false
+keepsTemplates:
+  - template: templates.keen
+    copies: { type: weapon, where: "item.id in picksOf('weapon')" }
+    params: { bonus: self.rank }

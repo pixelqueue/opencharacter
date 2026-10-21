@@ -109,6 +109,7 @@ A content item ([`content-item.schema.json`](../schemas/content-item.schema.json
 | `reapply`        | `{ match?, state }`: what applying the item again does, replacing its type's (below)                                                                                             |
 | `appliesTo`      | Templates only                                                                                                                                                                   |
 | `removeTags`     | Templates only: tags the copy's item doesn't have ([below](#templates))                                                                                                          |
+| `params`         | Templates only: values its item fields read as `params.<name>`, given by the content keeping it ([below](#from-the-keeper))                                                      |
 | `keepsTemplates` | Templates kept on the character's copies while the item is active ([below](#kept-templates))                                                                                     |
 | `keepsFields`    | Item fields the templates it keeps leave alone ([below](#kept-templates))                                                                                                        |
 | `repeatable`     | `true`: exempt from exclusivity groups, so several choices of one can pick it ([below](#exclusive-choices))                                                                      |
@@ -535,10 +536,13 @@ keepsTemplates:
 ```
 
 - `template` names a template (`unknown-reference` at load otherwise). `copies` is a query over
-  the copy's base item, read only `item` (resolved by `loadRuleset`, as a standard copies query;
-  `formula-error`, cause `unknown-name`, otherwise). `when` is an optional activation condition,
-  and `scope` says whether the item keeps it while held (`holder`, the default) or while it is
-  the source of an active, unblocked `applied` entry (`applied`), as grants say.
+  the copy's base item. One that reads only `item` is resolved by `loadRuleset`, as a standard
+  copies query; one that reads the keeper too is an activation condition
+  ([below](#from-the-keeper)), and reading anything else (a derived field) is `formula-error`,
+  cause `unknown-name`. `when` is an optional activation condition, `params` gives the
+  template's params ([below](#from-the-keeper)), and `scope` says whether the item keeps it
+  while held (`holder`, the default) or while it is the source of an active, unblocked
+  `applied` entry (`applied`), as grants say.
 - Every copy (`features` and `inventory`, standard copies included) whose base item the query
   matches keeps the template, after its saved templates, unless the template's `appliesTo`
   doesn't match the item (then it isn't kept; no error). Kept templates follow in instance order
@@ -569,7 +573,7 @@ keepsTemplates:
 
 A kept template may reach content the character has without a copy of its own: content picked
 in a choice or granted, such as a spell known. In place of `copies`, the entry gives `content`,
-a query of the same kind (`item` only, resolved by `loadRuleset`); an entry has one of the two.
+a query of the same kind, read the same way; an entry has one of the two.
 So a feature changes another item's fields, here a cantrip's range:
 
 ```yaml
@@ -609,6 +613,57 @@ fields: { range: 'prior.range + 300' }
   templates ([engine-core.md](engine-core.md#merged-items)), so an app's card shows the far
   range.
 
+#### From the keeper
+
+A kept template may depend on the content keeping it: which items it goes on, through what the
+keeper picked, and how much it gives, through the keeper's values. Eldritch Spear (5E) takes one
+known Warlock cantrip and adds 30 feet of range per Warlock level to it:
+
+```yaml
+# The invocation, picked under the Warlock: its `cantrip` choice names a cantrip known elsewhere.
+id: invocations.eldritch-spear
+type: invocation
+repeatable: true
+choices:
+  - { id: cantrip, from: { type: spell, where: 'item.level == 0' }, activate: false }
+keepsTemplates:
+  - template: templates.eldritch-spear
+    content: { type: spell, where: "item.id in picksOf('cantrip')" }
+    params: { feet: 30 * self.level }
+---
+id: templates.eldritch-spear
+type: template
+appliesTo: { type: spell }
+params:
+  feet: { type: integer, default: 0 }
+fields: { range: 'prior.range + params.feet' }
+```
+
+- **Which items.** A `copies` or `content` query whose `where` reads more than `item` is an
+  activation condition of the keeper, evaluated for each candidate in the rounds that find kept
+  templates: `item` is the candidate's base item, and `self`, `picksOf`, `character`, input
+  fields and the character functions are the keeper's, as in its `when`. So a keeper keeps a
+  template on what its own choice picked (`item.id in picksOf('cantrip')`), whether or not the
+  choice activates the pick. It can't read derived fields, as no activation condition can.
+- **How much.** A template declares `params` (`{ <name>: valueDecl }`, templates only), and its
+  item field values read them as `params.<name>`. A `keepsTemplates` entry gives them, `params:
+  { <name>: <formula> }`, each formula of the param's type evaluated as an activation condition
+  with the keeper's roots: its `self` (a picked invocation's is the Warlock copy, so
+  `self.level` is the Warlock level), its `item`, `picksOf`, input fields and the character
+  functions. A name the template doesn't declare is `formula-error`, cause `unknown-name`, at
+  load. A param not given, and every param of a saved template, is its declared `default` (a
+  literal), else absent.
+- **Free of loops.** A param reads what an activation condition reads, never a derived field,
+  so the merged item stays what item field values are: fixed before any effect. A template's
+  field that needs a derived value has the keeper's effects target a character field instead.
+- **Each keeper its own.** Each activation of the keeper evaluates its own query and params,
+  so two Eldritch Spears on two cantrips keep the template on each with its own range. A copy
+  or item keeps a template once: when two keepers keep the same template on it, the first in
+  activation order gives the params, and its fields apply once. Two features that stack give
+  two templates, each building on `prior`.
+- **Shown.** The template's fields are merged with the params, so `templated`
+  ([engine-core.md](engine-core.md#merged-items)) shows the cantrip's range for this character.
+
 ## Queries
 
 A **query** ([`query.schema.json`](../schemas/query.schema.json)) is a link to a set of things written as a rule rather than a list: `{ type, where }`. `type` is a content type name, `field` or `template`. `where` is a condition evaluated with the candidate bound to `item`.
@@ -616,7 +671,35 @@ A **query** ([`query.schema.json`](../schemas/query.schema.json)) is a link to a
 - A query that refers only to `item` is resolved once by `loadRuleset`, after all packs are merged. This is how matching homebrew joins automatically.
 - A query that refers to the character (fields, `self`, `character`) is evaluated during `computeSheet` and `listOptions`.
 
-Queries appear in choices (`from`), templates (`appliesTo`), grant values (`{ query }`), immunities (`immuneTo`), standard copies (`standardCopies`) and display groups (`members`).
+Queries appear in choices (`from`), templates (`appliesTo`), grant values (`{ query }`), immunities (`immuneTo`), standard copies (`standardCopies`), kept templates (`copies`, `content`) and display groups (`members`).
+
+### Families of content
+
+A family of content is a tag plus a set field granted from a query. Tag every member, declare a
+`set` field, and grant the query's matches to it from the rules; a formula then tests
+membership with `in`. orc-sf-2e's solar weapon forms are templates tagged `solar-form`:
+
+```yaml
+# packs/orc/sf-2e/rules/solarian.yaml
+fields:
+  solarian.forms: { type: set, of: string }
+effects:
+  - target: solarian.forms
+    op: grant
+    value: { query: { type: template, where: "'solar-form' in item.tags" } }
+---
+# content/features/solarian/re-forge-solar-weapon.yaml: a change taking the weapon's old forms off
+- type: removeTemplate
+  forEach: 'filterList(steps.weapon.self.templates, x in solarian.forms)'
+  entry: { formula: steps.weapon.picked }
+  template: x
+```
+
+Prefer it to reading meaning out of IDs (a prefix such as `orc-sf-2e:templates.solar.`). IDs
+are qualified, so a prefix names one pack and misses homebrew, and an upgrade's
+`renameContent` breaks it. The query reads only `item`, so it is resolved at load, after every
+pack is merged: a homebrew template tagged `solar-form` joins the family with no change to the
+pack.
 
 ### Standard copies
 
