@@ -154,7 +154,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
     weapon. Pact of the Blade binds a weapon kind, which may attack with Charisma and deal Necrotic,
     Psychic or Radiant damage (picked on the attack, as Empowered Strikes' Force is); damage a
     feature or item adds in the weapon's type (Rage, Sneak Attack, a magic weapon's bonus) takes the
-    picked type.
+    picked type. Eldritch Spear's range, and Improved Elemental Fury's for a cantrip on the Druid
+    list, go on the spell wherever the character knows it (another class's copy of the cantrip
+    included).
   - A created spell slot (Font of Magic, Wild Resurgence, Nature Magician, Rod of Absorption)
     only refills an expended slot; Sorcery Points never pass their maximum.
   - Empowered Spell rerolls the lowest dice; Overchannel maximizes the spell's first damage die
@@ -305,9 +307,7 @@ as text are listed below.
   escalations on a second failed save, healing equal to damage dealt, a lost Hit Point maximum,
   lycanthrope curses, vampire weaknesses and once-per-turn limits on legendary actions are text.
   Gear quantities and language dialects aren't stored.
-- **Class features:** Improved Elemental Fury's range is text (an effect can't change a spell's
-  fields).
-- **Open spec issues:** two of these wait on the format: an effect changing a spell's fields (Improved Elemental Fury's range), and a choice reading a sibling choice (a
+- **Open spec issues:** one of these waits on the format: a choice reading a sibling choice (a
   background's +1 and +2, kept apart by a hidden field).
 
 ## Omitted
