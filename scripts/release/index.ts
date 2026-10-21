@@ -332,7 +332,7 @@ export function pinFiles(root: string): string[] {
     .split('\n')
     .filter(
       (f) =>
-        /\.(ya?ml|md|mdx|ts|js|mjs|json)$/.test(f) &&
+        /\.(ya?ml|md|mdx|tsx?|jsx?|mjs|json|html|astro)$/.test(f) &&
         !/(^|\/)CHANGELOG\.md$/.test(f) &&
         !/^packs\/[^/]+\/[^/]+\/(pack\.yaml|package\.json)$/.test(f) &&
         !/(^|\/)(node_modules|dist)\//.test(f),
