@@ -556,8 +556,10 @@ change that (with `as: participant`, only `participants`):
 - **`entry`**, a formula giving an instance ID (a choice step's
   `steps.weapon.picked`), runs `use` as `computeSheet` lists it with that `entry`, and with that
   `source` when the step gives one too: that copy is `self` and its item `item`, as if the app
-  had started the copy's action. No such listing (no such copy, the copy doesn't list the
-  action, or its `available` is false) is `unknown-action`. A feat that is a Strike with a
+  had started the copy's action. Without `source`, `use` may also be the local ID of an action
+  the copy's item or its type defines (`<item>#<use>`), so a monster's Multiattack runs its
+  gore's own `charge` with `use: charge`. No such listing (no such copy, the copy doesn't list
+  the action, or its `available` is false) is `unknown-action`. A feat that is a Strike with a
   weapon the player picks picks the weapon, then runs that copy's Strike (below).
 - **`participants`** maps the used action's roles to formulas giving lists of participant IDs of
   this action, in any role, or of their views, mixed or not: each view is passed

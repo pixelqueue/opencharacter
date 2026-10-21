@@ -1,3 +1,13 @@
 id: props.cane
 type: prop
 fields: { flair: 2 }
+# The cane's own action, which a routine runs by the copy's entry and its local ID.
+actions:
+  - id: twirl
+    steps:
+      - id: result
+        kind: outcome
+        result: item.id
+        data:
+          copy: self.id
+          flair: item.flair * 2
