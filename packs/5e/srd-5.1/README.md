@@ -57,7 +57,7 @@ the [guides](https://opencharacterformat.org/guides/) explain each call.
 - **Modeled:** abilities, skills and saves; creation (guided, random, point buy, standard
   array, rolled) and leveling to 20 with multiclassing; the nine races, the acolyte and the
   Grappler feat; all twelve classes and their SRD subclasses, feature by feature; all 319
-  spells (slots, Pact Magic, damage, healing, saves, conditions, and 30 spells' effects on the
+  spells (slots, Pact Magic, damage, healing, saves, conditions, and 31 spells' effects on the
   creature they are cast on); weapons, armor, gear, tools, mounts and vehicles; the SRD magic
   items; conditions and diseases; combat, damage, resting and death saves; all 322 monsters,
   with their attacks, legendary actions, spellcasting and forms. Details in
@@ -255,7 +255,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Spellcasting:** all 319 SRD spells as mechanics (level, school, class lists, casting time,
   range, components, duration, attack or save, damage and healing); class DCs and attack bonuses;
   spell slots by the multiclass table; Pact Magic; `cast-spell` with upcasting and cantrip
-  scaling; concentration; 30 spells whose effects apply to their target's sheet; racial spells;
+  scaling; concentration; 31 spells whose effects apply to their target's sheet; racial spells;
   subclass spells; the wizard's spellbook (a spell only in the book is cast only as a ritual).
 - **Equipment:** every SRD weapon and armor, 135 gear items, 7 equipment packs, 35 tools, 8
   mounts and 11 vehicles, with cost (gp) and weight (lb) per unit. Extradimensional containers
@@ -271,7 +271,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
 ## Limitations
 
 Of the 152 class and subclass features, 8 have no mechanics, and 63 of the 318 magic items are
-text. Of the 319 spells, 201 do nothing on the sheet beyond spending the slot: what they do is
+text. Of the 319 spells, 200 do nothing on the sheet beyond spending the slot: what they do is
 their SRD text, for the app and the table (detection, illusions, summoning, movement, utility).
 
 - **The app's:** turns and action economy (Cunning Action, Fast Hands, Vanish, Persistent Rage,

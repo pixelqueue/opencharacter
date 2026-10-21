@@ -1,0 +1,9 @@
+# 20 would drop 6 + 3 temporary to 0: the ward lets 8 through (3 to the temporary hit points,
+# 5 to the 6 left), and ends.
+ok: true
+adjustments:
+  - { field: 5e-srd-5.1:hp.temp, by: -3, reason: absorbed }
+  - { field: 5e-srd-5.1:hp.current, by: -5, requested: -20, taken: -8, reason: requested }
+  - entry: ward
+    removed: true
+    source: { type: item, id: 5e-srd-5.1:spells.death-ward, effect: ward }
