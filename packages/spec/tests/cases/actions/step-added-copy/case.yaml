@@ -1,0 +1,50 @@
+description: "`steps.<id>.added` names the copies a step's `addItem`s add, with the IDs the engine picked: a later step asks only the new kit's pending choice and sets its state, not the owned kit's; a changes step's own `added` lists its copy"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          kit:
+            state:
+              filled: { type: boolean, default: false }
+        actions:
+          - id: gain-kit
+            steps:
+              - id: kit
+                kind: choice
+                recommend: options[0]
+                options: { content: { type: kit } }
+                changes:
+                  - type: addItem
+                    entry: { item: picked.id }
+              - id: picks
+                kind: choice
+                options: { pending: { entry: 'steps.kit.added[0]' } }
+              - id: mark
+                kind: changes
+                changes:
+                  - type: setState
+                    entry: { formula: 'steps.kit.added[0]' }
+                    key: filled
+                    value: true
+                  - type: addItem
+                    entry: { item: "'kits.basic'" }
+              - id: done
+                kind: outcome
+                data: { kit: steps.kit.added, mark: steps.mark.added }
+      content:
+        - id: kits.basic
+          type: kit
+          choices:
+            - id: tool
+              from: { options: [{ id: hammer }, { id: saw }] }
+              recommend: "'saw'"
+input:
+  action: { id: test-pack:gain-kit }

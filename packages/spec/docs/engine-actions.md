@@ -492,6 +492,11 @@ roll.
   step's path (per participant in an `each` step), and held by a `hold` action step like any
   other. A step with no `changes` and no `release` (only `tags`) is a place content adds to;
   without matching content it proposes nothing.
+- **The step's result** is `steps.<id>.added`: the instance IDs of the copies the step's
+  `addItem` changes to `self` add, its own and those content adds, in the order proposed (`[]`
+  for none). An ID the engine picked is listed as picked, so a later step can aim a computed
+  `entry`, a `path.entry` or a pending choice step's `entry` at the new copy. Changes for another
+  character, and held changes the step releases (they keep their own `step`), are left out.
 - **action:** runs the used action with the evaluated `params`, the same character, entry,
   source and situational choices. Its steps' log entries are nested under `<step id>/`. Its outcome is
   `steps.<id>.result` and `steps.<id>.data`. Its proposed changes are appended to the parent's;
@@ -669,7 +674,9 @@ A choice step has one source of options (a fourth, pending choices, is
   order, `#done` left out, updated after each pick. Over content or copies without `repeat`,
   `steps.<id>.item` is the picked content's item view (the view `item` gives an action of that
   content), and over copies `steps.<id>.self` is the picked copy's view. When an added option is
-  picked, `.item` and `.self` are absent.
+  picked, `.item` and `.self` are absent. `steps.<id>.added` lists the copies the step's changes
+  add to `self`, every pick's in order, as a changes step's does (above); it is updated after each
+  pick's changes, so with `repeat` a later pick's changes see the earlier picks' copies.
 - **Flags**. A written or added option may have `flags`
   (`{ <name>: <formula> }`). After each pick (not `#done`), before any changes, the picked
   option's flags are evaluated in order, each with `picked` bound and the earlier ones already
@@ -732,8 +739,9 @@ ones included. Each pick is a checkpoint:
    offered only outside creation. To end one choice early, the app answers its picks; a choice with
    `min` picks is no longer asked.
 
-The result is `steps.<id>.picked`, the picked option IDs in order (`#done` left out), and
-`steps.<id>.paths`, their choice paths. Policy rules match the step by its tags and path, and
+The result is `steps.<id>.picked`, the picked option IDs in order (`#done` left out),
+`steps.<id>.paths`, their choice paths, and `steps.<id>.added`, the copies its changes add, as
+for other choice steps. Policy rules match the step by its tags and path, and
 `maxActionSteps` counts each pick.
 
 **Pausing.** `needs.choice` is the choice being asked: `path`; `owner`, the key root of the
