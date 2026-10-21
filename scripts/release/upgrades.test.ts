@@ -80,6 +80,18 @@ const cases = readdirSync(fixtures)
   .map((file) => ({ file, fixture: parse(readFileSync(join(fixtures, file), 'utf8')) as Fixture }));
 
 describe('upgrade scripts on old saved data', () => {
+  it('every committed upgrade script has a fixture', () => {
+    const scripts = git('ls-files', ':(glob)packs/*/*/upgrades/*.yaml')
+      .split('\n')
+      .filter(Boolean)
+      .map((file) => {
+        const { pack, from, to } = parse(readFileSync(join(root, file), 'utf8')) as Fixture;
+        return `${pack} ${from}-to-${to}`;
+      });
+    const covered = new Set(cases.map(({ fixture: f }) => `${f.pack} ${f.from}-to-${f.to}`));
+    expect(scripts.filter((s) => !covered.has(s))).toEqual([]);
+  });
+
   for (const { file, fixture } of cases) {
     const { pack, from, to } = fixture;
     it.skipIf(!tagged(pack, from))(

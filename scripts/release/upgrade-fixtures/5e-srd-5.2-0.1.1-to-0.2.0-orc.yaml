@@ -1,0 +1,49 @@
+# A 0.1.1 orc fighter who used Adrenaline Rush twice and Relentless Endurance: the species copy's
+# state. Their 4th-level feat is Magic Initiate, its pick saving a `list`. 0.2.0 keeps the uses on
+# the Adrenaline Rush and Relentless Endurance traits' grant state and drops the saved list: the
+# pick's list choice stays.
+pack: 5e-srd-5.2
+from: 0.1.1
+to: 0.2.0
+expect:
+  - at: /features/1/grants
+    value:
+      5e-srd-5.2:traits.adrenaline-rush: { state: { adrenalineRushUsed: 2 } }
+      5e-srd-5.2:traits.relentless-endurance: { state: { relentlessEnduranceUsed: true } }
+  - { at: /features/1/state, absent: true }
+  - at: /features/0/choices/5e-srd-5.2:features.fighter.ability-score-improvement~1feat-4/0/state
+    absent: true
+  - at: /features/0/choices/5e-srd-5.2:features.fighter.ability-score-improvement~1feat-4/0/choices/list/0/option
+    value: druid
+character:
+  specVersion: 0.1.0
+  id: upgrade-5e52-orc
+  values:
+    5e-srd-5.2:abilities.str.base: 16
+    5e-srd-5.2:abilities.dex.base: 12
+    5e-srd-5.2:abilities.con.base: 15
+    5e-srd-5.2:abilities.int.base: 8
+    5e-srd-5.2:abilities.wis.base: 13
+    5e-srd-5.2:abilities.cha.base: 10
+    5e-srd-5.2:hp.base: 36
+    5e-srd-5.2:hp.current: 1
+  features:
+    - id: class
+      item: 5e-srd-5.2:classes.fighter
+      state: { level: 4, startingClass: true }
+      choices:
+        5e-srd-5.2:features.fighter.ability-score-improvement/feat-4:
+          - option: 5e-srd-5.2:feats.magic-initiate
+            state: { list: druid }
+            choices:
+              list:
+                - option: druid
+                  choices:
+                    ability: [{ option: wis }]
+                    cantrips:
+                      - option: 5e-srd-5.2:spells.guidance
+                      - option: 5e-srd-5.2:spells.druidcraft
+                    spell: [{ option: 5e-srd-5.2:spells.cure-wounds }]
+    - id: species
+      item: 5e-srd-5.2:species.orc
+      state: { adrenalineRushUsed: 2, relentlessEnduranceUsed: true }

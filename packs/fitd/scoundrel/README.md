@@ -210,11 +210,6 @@ projects, rituals, designs).
   effect (Arcane Fighter, Infiltrator), it is the action roll's `effect` choice, not a fixed
   bonus.
 
-## Limitations
-
-- A situational choice's values (`devils-bargain`) have no text keys, so apps show them as
-  written.
-
 ## License
 
 License metadata: `mechanics-only`. The pack takes only mechanics and names from the

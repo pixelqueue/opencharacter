@@ -113,8 +113,8 @@ the player's choices and other characters.
     blank.
 - **Rolling** (`skill-roll`, shared by every rolling action): 4dF plus the skill, or Mediocre
   without one, plus +1 per helper. After the dice the player may invoke aspects: up to three
-  rerolls, each after seeing the last (a fate point or a free invocation each), then any number
-  of +2s paid with fate points or free invocations. A free invocation held on the sheet is picked
+  rerolls, each after seeing the last (a fate point or a free invocation each), then up to four
+  +2s paid with fate points and four with free invocations. A free invocation held on the sheet is picked
   by its copy, and a copy with none left goes. Keeping the roll is recommended, so an automatic
   run spends nothing. A fourth reroll isn't offered: the SRD sets no limit, but each invocation
   needs a different aspect.
