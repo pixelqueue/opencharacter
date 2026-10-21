@@ -12,7 +12,11 @@ outcome:
 proposedChanges:
   - to: self
     step: class
-    change: { type: addItem, entry: { id: class, item: mork-borg-core:classes.wretched-royalty } }
+    change:
+      {
+        type: addItem,
+        entry: { id: classes-wretched-royalty-1, item: mork-borg-core:classes.wretched-royalty },
+      }
   - {
       to: self,
       step: save,
@@ -57,7 +61,12 @@ proposedChanges:
       entry: { id: armor-medium-1, item: mork-borg-core:armor.medium, equipped: true }
   - to: self
     step: features
-    change: { type: choose, path: { entry: class, choice: [feature] }, option: hamfund }
+    change:
+      {
+        type: choose,
+        path: { entry: classes-wretched-royalty-1, choice: [feature] },
+        option: hamfund,
+      }
   - to: self
     step: features
     change:
@@ -67,7 +76,7 @@ proposedChanges:
     step: features
     change:
       type: choose
-      path: { entry: class, choice: [feature] }
+      path: { entry: classes-wretched-royalty-1, choice: [feature] }
       option: blade-of-your-ancestors
   - to: self
     step: features
@@ -103,10 +112,10 @@ log:
     by: engine
     option: hamfund
     index: 0
-    choice: { entry: class, choice: [feature] }
+    choice: { entry: classes-wretched-royalty-1, choice: [feature] }
   - step: features
     kind: choice
     by: engine
     option: blade-of-your-ancestors
     index: 1
-    choice: { entry: class, choice: [feature] }
+    choice: { entry: classes-wretched-royalty-1, choice: [feature] }
