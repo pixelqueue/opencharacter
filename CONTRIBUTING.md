@@ -44,7 +44,11 @@ agreement: you keep your copyright and license your contribution under the licen
 ## Releases
 
 A change to a published package or pack adds a changeset (`pnpm changeset`; while a package is
-0.x, `minor` for a breaking change, `patch` otherwise). On `main`, the release workflow opens a
+0.x, `minor` for a breaking change, `patch` otherwise) in the same pull request;
+`pnpm release:check` then checks the pack as the version it will get. A pack change that changes saved
+state's shape also adds its upgrade script (`upgrades/<from>-to-<to>.yaml`) and a fixture for it
+in `scripts/release/upgrade-fixtures/`: a character saved at the old version and what the upgrade
+must leave, which CI runs against the published releases. On `main`, the release workflow opens a
 "Version Packages" pull request from pending changesets; merging it publishes the new versions
 to npm through trusted publishing (no token), with provenance, and tags them. Nobody publishes by hand. See
 [versioning](packages/spec/docs/versioning.md#the-release-flow).
