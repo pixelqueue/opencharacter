@@ -20,7 +20,7 @@ Each engine library (the TypeScript reference engine and community ports) has it
 ## 3. Each pack
 
 - Every pack update gets a unique version. **Published versions never change**, because characters pin them.
-- Each pack declares the **minimum** spec version it needs (`specVersion` in `pack.yaml`). `loadRuleset` refuses a pack that needs a newer spec than the engine implements (`spec-version-unsupported`).
+- Each pack declares the **minimum** spec version it needs (`specVersion` in `pack.yaml`). `loadRuleset` compares it with the engine's `SPEC_VERSION` and refuses a pack that needs a newer spec (`spec-version-unsupported`). The reference engine's `IMPLEMENTS_SPEC` (the major.minor versions it implements) derives from `SPEC_VERSION` too.
 - Pack versions are [semver](https://semver.org/) and follow its convention for 0.x. A **breaking bump** is a minor bump while the version is 0.x (0.1.4 → 0.2.0) and a major bump from 1.0.0 on (1.4.2 → 2.0.0); any smaller bump is non-breaking. A dependency range such as `^0.1.0` accepts only non-breaking bumps (`>=0.1.0 <0.2.0`).
 - Pack versions follow the upgrade rule in [upgrades.md](upgrades.md): a version that changes the saved state's shape, or the pack's interface, gets a breaking bump; a shape change also ships an upgrade script.
 - There is one package per pack. The reason is versioning, not size: each version must mean only "this pack changed". Translations for languages other than the default live in a separate `-i18n` package, so translation fixes never bump the mechanics pack.
@@ -35,13 +35,20 @@ Each engine library (the TypeScript reference engine and community ports) has it
    also moves every pin of a bumped pack's old version to the new one (example characters, test
    cases, docs and code samples), since the engine reports a pin that doesn't match exactly
    (`pack-version-mismatch`). Pins of any other version, such as an upgrade test's, stay.
+   A dependency range on a bumped pack (a homebrew's or test pack's `dependencies`, in test cases,
+   characters and docs) that the new version no longer satisfies becomes its caret range
+   (`^0.1.0` → `^0.2.0`); one it still satisfies stays. An official pack's own range is part of
+   its release, so the sync only warns about it: that pack needs its own changeset.
    The spec version is always the `@opencharacter/spec` package version, so it then moves
    `SPEC_VERSION` (and with it `SCHEMA_BASE`), every `schemas/<major.minor>/` in schema `$id`s
-   and links (schemas, docs, apps and tests), and the docs' statements of the current version.
-   The example characters' `specVersion` moves too, since they are samples of the current spec;
-   other minimums and records stay (a pack's `specVersion`, a character file's). The engine's
-   `IMPLEMENTS_SPEC` follows `SPEC_VERSION`: the reference engine implements the spec it ships
-   with. A test fails if `SPEC_VERSION` and the package version ever differ.
+   and links (schemas, docs, apps and tests), and the docs' statements of the current version
+   (prose and the README badge). The `specVersion` of the example characters and of the docs'
+   samples (Markdown) moves too, since they are samples of the current spec; other minimums and
+   records stay (a pack's `specVersion`, a test case's, a character file's). Code samples can
+   import `SPEC_VERSION` instead of a literal. The engine's `IMPLEMENTS_SPEC` follows
+   `SPEC_VERSION`: the reference engine implements the spec it ships with. A test fails if
+   `SPEC_VERSION` and the package version ever differ, or if a stated version, badge or sample
+   names another.
 3. **Check:** `pnpm release` runs every check, builds the packs, then runs `pnpm release:check`.
    For each pack it compares the new release with the last published one, found by git tag
    (`@opencharacter/<id>@<version>`):
@@ -56,6 +63,13 @@ Each engine library (the TypeScript reference engine and community ports) has it
    script goes to that version, which `pnpm validate` allows; a script further ahead fails. A
    breaking change needs a breaking changeset (`minor` while 0.x). Once step 2 has run, the
    version is in `pack.yaml` and the changesets are gone, so nothing changes.
+
+   The migration tests (`scripts/release/upgrades.test.ts`) run the upgrade scripts on old saved
+   data. Each upgrade script ships with a fixture in `scripts/release/upgrade-fixtures/` holding
+   a character of the old shape; the test upgrades it from the release tagged at the script's
+   `from` to the one at its `to`, tagged or, before then, as built here at the pending version,
+   and checks the result. It needs the git tags, so it skips in a clone without them; CI's build
+   job runs it with them.
 
 4. **Publish:** the release workflow (`.github/workflows/release.yml`) runs on every push to
    `main`. With pending changesets it opens a "Version Packages" pull request that runs step 2;

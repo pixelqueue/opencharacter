@@ -13,10 +13,12 @@ describe('the repo states one spec version', () => {
     .filter((file) => existsSync(join(root, file)))
     .map((file) => ({ file, text: readFileSync(join(root, file), 'utf8') }));
 
-  function stale(re: RegExp, expected: string) {
-    return texts.flatMap(({ file, text }) =>
-      [...text.matchAll(re)].filter((m) => m[1] !== expected).map((m) => `${file}: ${m[0]}`),
-    );
+  function stale(re: RegExp, expected: string, only: (file: string) => boolean = () => true) {
+    return texts
+      .filter(({ file }) => only(file))
+      .flatMap(({ file, text }) =>
+        [...text.matchAll(re)].filter((m) => m[1] !== expected).map((m) => `${file}: ${m[0]}`),
+      );
   }
 
   it(`links every schema under schemas/${major}.${minor}/`, () => {
@@ -25,7 +27,14 @@ describe('the repo states one spec version', () => {
 
   it(`names ${SPEC_VERSION} wherever it states the current version`, () => {
     expect(
-      stale(/(?:Spec version \**|current version is \**)(\d+\.\d+\.\d+)/g, SPEC_VERSION),
+      stale(/(?:Spec (?:version )?\**|current version is \**)(\d+\.\d+\.\d+)/g, SPEC_VERSION),
     ).toEqual([]);
+    expect(stale(/shields\.io\/badge\/spec-(\d+\.\d+\.\d+)-/g, SPEC_VERSION)).toEqual([]);
+  });
+
+  it(`writes ${SPEC_VERSION} in the docs' samples and the example characters`, () => {
+    const re = /['"]?specVersion['"]?: *['"]?(\d+\.\d+\.\d+)/g;
+    expect(stale(re, SPEC_VERSION, (file) => /\.mdx?$/.test(file))).toEqual([]);
+    expect(stale(re, SPEC_VERSION, (file) => file.startsWith('examples/characters/'))).toEqual([]);
   });
 });

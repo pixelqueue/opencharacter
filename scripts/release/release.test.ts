@@ -9,8 +9,10 @@ import type { BuiltPack } from '../build/index.ts';
 import { loadPack, SchemaValidator } from '../validate/load.ts';
 import { Reporter } from '../validate/report.ts';
 import {
+  type PackBump,
   publishedFromGit,
   releaseCheck,
+  syncDependencyRanges,
   syncPackVersions,
   syncPinnedVersions,
   syncSpecVersion,
@@ -361,13 +363,63 @@ describe('syncPinnedVersions', () => {
   });
 });
 
+describe('syncDependencyRanges', () => {
+  const files: Record<string, [string, string]> = {
+    'case.yaml': [
+      'manifest:\n  dependencies:\n    test-demo: ^0.1.0\n    other: ^0.1.0\n',
+      'manifest:\n  dependencies:\n    test-demo: ^0.2.0\n    other: ^0.1.0\n',
+    ],
+    'flow.yaml': [
+      "dependencies: { test-demo: '~0.1.0', test-demo-extra: ^0.1.0 }\n",
+      "dependencies: { test-demo: '^0.2.0', test-demo-extra: ^0.1.0 }\n",
+    ],
+    'data.json': [
+      '{ "dependencies": { "test-demo": "^0.1.0" } }\n',
+      '{ "dependencies": { "test-demo": "^0.2.0" } }\n',
+    ],
+    'sample.ts': [
+      "dependencies: { 'test-demo': '>=0.1.0 <0.2.0' },\n",
+      "dependencies: { 'test-demo': '^0.2.0' },\n",
+    ],
+    'kept.yaml': [
+      'dependencies:\n  test-demo: ">=0.1.0"\n  test-demo: ^0.0.9\nvalues:\n  test-demo:a.b: 1\npacks:\n  - { id: test-demo, version: 0.1.0 }\n',
+      'dependencies:\n  test-demo: ">=0.1.0"\n  test-demo: ^0.0.9\nvalues:\n  test-demo:a.b: 1\npacks:\n  - { id: test-demo, version: 0.1.0 }\n',
+    ],
+  };
+
+  function run(bumps: PackBump[]) {
+    const dir = mkdtempSync(join(tmpdir(), 'ocf-ranges-'));
+    for (const [name, [before]] of Object.entries(files)) writeFileSync(join(dir, name), before);
+    const changed = syncDependencyRanges(dir, Object.keys(files), bumps).toSorted();
+    const read = (name: string) => readFileSync(join(dir, name), 'utf8');
+    return { changed, read, done: () => rmSync(dir, { recursive: true, force: true }) };
+  }
+
+  it('moves ranges the new version leaves, to its caret range', () => {
+    const { changed, read, done } = run([{ id: 'test-demo', from: '0.1.0', to: '0.2.0' }]);
+    expect(changed).toEqual(['case.yaml', 'data.json', 'flow.yaml', 'sample.ts']);
+    for (const [name, [, after]] of Object.entries(files)) expect(read(name)).toBe(after);
+    done();
+  });
+
+  it('leaves ranges the new version still satisfies', () => {
+    const { changed, read, done } = run([{ id: 'test-demo', from: '0.1.0', to: '0.1.1' }]);
+    expect(changed).toEqual([]);
+    for (const [name, [before]] of Object.entries(files)) expect(read(name)).toBe(before);
+    done();
+  });
+});
+
 describe('syncSpecVersion', () => {
   // Built from parts, so the real sync and the repo's spec-version test skip this file.
-  const [constant, schemas, spec, current] = [
+  const [label, constant, schemas, spec, current, badge, field] = [
+    'Spec',
     'SPEC_VERSION',
     'schemas',
     'Spec version',
     'current version is',
+    'shields.io/badge/spec-',
+    'specVersion',
   ];
   const files: Record<string, [string, string]> = {
     'packages/spec/src/index.ts': [
@@ -385,6 +437,14 @@ describe('syncSpecVersion', () => {
     'docs/README.md': [
       `**${spec} 0.1.0.** ${spec} **0.1.0**. ${spec} 0.1.0.1.\n`,
       `**${spec} 0.2.0.** ${spec} **0.2.0**. ${spec} 0.1.0.1.\n`,
+    ],
+    'README.md': [
+      `<img src="https://img.${badge}0.1.0-61578c" alt="${label} 0.1.0">\n`,
+      `<img src="https://img.${badge}0.2.0-61578c" alt="${label} 0.2.0">\n`,
+    ],
+    'guides/sample.md': [
+      `\`\`\`yaml\n${field}: 0.1.0\n\`\`\`\n\`{ ${field}: '0.1.0' }\` and ${field}: 0.1.0.1\n`,
+      `\`\`\`yaml\n${field}: 0.2.0\n\`\`\`\n\`{ ${field}: '0.2.0' }\` and ${field}: 0.1.0.1\n`,
     ],
     'examples/characters/sample.yaml': [
       'specVersion: 0.1.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
@@ -418,9 +478,11 @@ describe('syncSpecVersion', () => {
     const result = syncSpecVersion(dir, Object.keys(files));
     expect(result?.bump).toEqual({ from: '0.1.0', to: '0.2.0' });
     expect(result?.files.toSorted()).toEqual([
+      'README.md',
       'docs/README.md',
       'docs/versioning.md',
       'examples/characters/sample.yaml',
+      'guides/sample.md',
       'packages/spec/schemas/pack.schema.json',
       'packages/spec/src/index.ts',
     ]);
@@ -434,9 +496,11 @@ describe('syncSpecVersion', () => {
   it('leaves schema paths alone on a patch bump', () => {
     const dir = setup('0.1.1');
     expect(syncSpecVersion(dir, Object.keys(files))?.files.toSorted()).toEqual([
+      'README.md',
       'docs/README.md',
       'docs/versioning.md',
       'examples/characters/sample.yaml',
+      'guides/sample.md',
       'packages/spec/src/index.ts',
     ]);
     const schema = 'packages/spec/schemas/pack.schema.json';
