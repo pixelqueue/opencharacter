@@ -26,13 +26,12 @@ choices:
                     }
                   op: add
                   value: 2
-                - { target: origins.backgroundPlusTwo, op: set, value: pick.value }
             - id: plus-one
               unique: soldier-increase
               uniqueScope: owner
               from: { values: [str, dex, con] }
               recommend: >-
-                sortList(filterList(['str', 'dex', 'con'], x != origins.backgroundPlusTwo),
+                sortList(filterList(['str', 'dex', 'con'], !(x in picksOf('plus-two'))),
                   -fieldOf('abilities.{ability}.base', x))[0]
               effects:
                 - target:

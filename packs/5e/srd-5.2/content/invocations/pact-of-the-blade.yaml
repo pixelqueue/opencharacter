@@ -6,25 +6,24 @@ choices:
     activate: false
     effects:
       - { target: proficiencies.weapons, op: grant, value: { formula: pick.id } }
-      - { target: warlock.pactWeapons, op: grant, value: { formula: pick.id } }
       - { target: weapons.charismaAttack, op: grant, value: { formula: pick.id } }
       - { target: weapons.damageTypeChoice, op: grant, value: { formula: pick.id } }
 effects:
   - target: { choices: [weapon-damage-type] }
     op: option
-    when: action.item.id in warlock.pactWeapons
+    when: "action.item.id in picksOf('weapon')"
     value:
       id: necrotic
       flags: { damageType: "'necrotic'" }
   - target: { choices: [weapon-damage-type] }
     op: option
-    when: action.item.id in warlock.pactWeapons
+    when: "action.item.id in picksOf('weapon')"
     value:
       id: psychic
       flags: { damageType: "'psychic'" }
   - target: { choices: [weapon-damage-type] }
     op: option
-    when: action.item.id in warlock.pactWeapons
+    when: "action.item.id in picksOf('weapon')"
     value:
       id: radiant
       flags: { damageType: "'radiant'" }

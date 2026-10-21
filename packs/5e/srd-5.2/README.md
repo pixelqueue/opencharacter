@@ -307,8 +307,6 @@ as text are listed below.
   escalations on a second failed save, healing equal to damage dealt, a lost Hit Point maximum,
   lycanthrope curses, vampire weaknesses and once-per-turn limits on legendary actions are text.
   Gear quantities and language dialects aren't stored.
-- **Open spec issues:** one of these waits on the format: a choice reading a sibling choice (a
-  background's +1 and +2, kept apart by a hidden field).
 
 ## Omitted
 
