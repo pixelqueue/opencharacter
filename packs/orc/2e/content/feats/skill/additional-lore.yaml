@@ -655,6 +655,18 @@ choices:
             - target: skills.lore.vampire.rank
               op: add
               value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+        - id: hag
+          effects:
+            - {
+                target: skills.trained,
+                op: grant,
+                value: { tag: skill.lore.hag },
+                when: "!('skill.lore.hag' in skills.chosen)",
+              }
+            - { target: skills.trainings, op: add, value: 1 }
+            - target: skills.lore.hag.rank
+              op: add
+              value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
         - id: custom1
           effects:
             - {
