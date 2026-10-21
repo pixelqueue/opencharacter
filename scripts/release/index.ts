@@ -72,12 +72,31 @@ function dependenciesOf(
   return [...out.values()].toReversed();
 }
 
+/**
+ * Checks each pack against its published releases. A pack with a pending changeset (`pending`:
+ * pack ID → the version `pnpm version-packages` will give it) is checked as that version, so a
+ * change to a published version passes once a changeset bumps it.
+ */
 export function releaseCheck(
-  built: BuiltPack[],
+  current: BuiltPack[],
   published: (pack: BuiltPack) => PublishedReleases,
   inRange: PublishedInRange = () => undefined,
+  pending: ReadonlyMap<string, string> = new Map(),
 ): ReleaseFinding[] {
   const findings: ReleaseFinding[] = [];
+  const built = current.map((pack) => {
+    const from = pack.release.manifest.version;
+    const to = pending.get(pack.id);
+    if (!to || to === from) return pack;
+    findings.push({
+      pack: pack.id,
+      level: 'info',
+      code: 'pending-bump',
+      message: `${pack.id} ${from} → ${to} (pending changeset)`,
+    });
+    const manifest = { ...pack.release.manifest, version: to };
+    return { ...pack, release: { ...pack.release, manifest } };
+  });
   for (const pack of built) {
     const { same, previous } = published(pack);
     const version = pack.release.manifest.version;
