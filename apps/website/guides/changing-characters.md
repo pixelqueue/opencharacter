@@ -153,7 +153,9 @@ and `clamped` where they apply; the `requested` entry also has `taken`, the amou
 resistances and before temporary hit points. Use it for the combat log: "Tamsin takes 5 fire
 damage (resisted)".
 When an effect also changes its own entry (Mothership armor breaking), that change follows as
-`{ entry, key, value, source }`: "The vest breaks". When it ends its applied entry (oil that
+`{ entry, key, value, source }`: "The vest breaks". For picked or granted content with state of
+its own (a ward's charges), it carries the pick's `path` and `option`, or `grant` with the node,
+as a setState would. When it ends its applied entry (oil that
 burns away), it follows as `{ entry, removed: true, source }`: "The oil burns away". The applied
 entry is gone from the returned character, so drop your own bookkeeping for it (its duration).
 

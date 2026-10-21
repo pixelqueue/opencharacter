@@ -157,7 +157,7 @@ An incoming `adjust` on a field is processed in this order:
 3. **The field** takes what remains.
 4. **`overflow`:** if the result passes the bound named by `at` (or reaches it, with `inclusive: true`), the engine adjusts `into` by `by` (default 1) and sets the field to `reset`. The adjust on `into` is routed the same way, so overflow can cascade, up to the `maxOverflowChain` safety limit. The excess is dropped unless the entry says `carry: true`: then the excess past the bound (the result less the bound: positive past `max`, negative past `min`; 0 when it only reached it) is routed into the field again from its reset value, as an adjust with no tags and no incoming-change effects, so it can overflow in turn (FitD heat 7 and 12 more is two wanted levels and 1 heat; Mothership damage past 0 health comes off the reset health). Each step of a cascade reads the values the earlier steps stored.
 5. **Clamping:** without an overflow for that bound, the result is clamped to `min`/`max`.
-6. **`then`:** each incoming-change effect from step 1 that counted applies its `then` to its own entry: its copy (Mothership armor that breaks) or its applied entry, which it may also remove (oil that burns away).
+6. **`then`:** each incoming-change effect from step 1 that counted applies its `then` to its own entry: its copy (Mothership armor that breaks) or its applied entry, which it may also remove (oil that burns away). Picked or granted content that declares the key changes its pick's or grant's own state, which its `self` reads.
 
 Clamping is not an error. applyChanges reports what each adjust actually did in its `adjustments` output (absorbed, overflowed, reset, clamped).
 
