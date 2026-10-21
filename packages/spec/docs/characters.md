@@ -21,7 +21,7 @@ Derived values are **never** saved, so a character can never disagree with the r
 
 ```yaml
 specVersion: 0.1.0
-id: 7f1c... # unique within the app or campaign
+id: 7f1c... # unique within the app or campaign, or a URL to make it global
 packs: # exact versions, in load order
   - { id: 5e-srd-5.1, version: 0.1.0 }
 creating: false # true while the character is being created (the default is false)
@@ -66,7 +66,7 @@ extensions:
 | Property      | Meaning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `specVersion` | The spec version the file was written against                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| `id`          | Character ID (a UUID is a good choice)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `id`          | Character ID, up to 2048 characters. A UUID is fine for an ID unique within the app or campaign; a URL (IRI, `https://example.com/characters/tamsin`) makes it global, so the character keeps one identity across apps and other files can link to it by that URL                                                                                                                                                                                                                                                      |
 | `packs`       | Pinned exact pack versions, in load order. The app decides when, or whether, to upgrade ([upgrades.md](upgrades.md)).                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `creating`    | Whether the character is being created. Default false: see [Creating a character](#creating-a-character)                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `values`      | Input field values by **qualified** field ID. Missing fields take their default. A value for a derived field is a runtime error (`not-input-field`).                                                                                                                                                                                                                                                                                                                                                                   |
@@ -261,6 +261,16 @@ inventory:
 ## Extensions
 
 `extensions` holds app-specific extras (portrait, notes, token settings), each under the app's own namespace: reverse DNS (`com.example.vtt`) or an npm package name (`@example/vtt`). Apps MUST carry other apps' extensions along untouched on import and export. The engine ignores them except for the `setExtension` change.
+
+A namespace's value may be any JSON value. When it is an object, it may carry `$schema`: the URI of a JSON Schema that the extending app publishes for its data. Another app can then validate the data, render it as a form from the schema's titles and descriptions, or edit it safely. OCF doesn't host, fetch or check these schemas; whether to use one is each app's choice. `$schema` is carried along with the rest of the value.
+
+```yaml
+extensions:
+  com.example.vtt:
+    $schema: https://example.com/ocf/vtt-extension/1.json
+    portrait: https://example.com/portraits/tamsin.png
+    tokenSize: 2
+```
 
 ## Legality
 

@@ -56,7 +56,9 @@ There are two kinds of ID in a character file:
 - **Instance IDs** are yours: the character's `id`, and the `id` of each entry in `features`,
   `inventory` and `applied`. Changes refer to copies by instance ID (`equip inv-1`). They must be
   unique within the file; the character's `id` should be unique within your app or campaign. A
-  UUID is a good choice for characters. For entries, anything readable and stable works
+  UUID is fine for that. To give a character one identity across apps, use a URL (IRI) you
+  control, such as `https://example.com/characters/tamsin`: it's global, and other characters'
+  `links` can name it the same way. A character ID may be up to 2048 characters. For entries, anything readable and stable works
   (`fighter`, `inv-1`, a UUID). A standard copy, which every character holds (the ritual FitD's
   Ritual ability starts with), has an ID the engine derives from its item
   (`fitd-scoundrel-rituals-ritual`); the
@@ -82,6 +84,9 @@ applyChanges(ruleset, character, [
 - The engine ignores extensions, except to store them with `setExtension`. `value: null`
   removes your namespace.
 - `setExtension` replaces your namespace's whole value, so merge before you write.
+- **Publish a schema for your data** if other apps should understand it: put its URI in
+  `$schema` in your namespace's object (`$schema: https://example.com/ocf/vtt-extension/1.json`).
+  Other apps can then validate it, show it as a form or edit it safely. OCF never fetches it.
 
 Changing extensions through `applyChanges` isn't required (it's not game state), but it keeps
 them in your change log with everything else.
