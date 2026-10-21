@@ -41,20 +41,21 @@ character and roll an attack.
 The engine calls, as the spec defines them
 ([engine interface](https://opencharacterformat.org/spec/engine-interface/)):
 
-| Export                            | What it does                                                                  |
-| --------------------------------- | ----------------------------------------------------------------------------- |
-| `loadRuleset`                     | Merges packs (releases or sources) into a ruleset and checks every reference. |
-| `computeSheet`                    | A character's computed values, actions, choices and issues.                   |
-| `listOptions`                     | The options a choice offers, with what each would need.                       |
-| `applyChanges`                    | A new character file with changes applied; the one passed in is untouched.    |
-| `startAction`, `continueAction`   | Run an action: rolls, pauses for the player's input, outcomes.                |
-| `upgrade`, `checkRelease`         | Move a character to newer pack versions; check a pack release.                |
-| `withHomebrew`                    | A ruleset with a character's own homebrew added.                              |
-| `resolveId`                       | Resolves an ID as formulas do.                                                |
-| `buildRelease`                    | Builds a pack release from pack sources.                                      |
-| `randomDice`, `diceFrom`          | The dice an action rolls: random, or from given results.                      |
-| `formula`, `check`                | The formula parser, printer and type checker; the pack formula checks.        |
-| `SPEC_VERSION`, `IMPLEMENTS_SPEC` | The spec version it follows.                                                  |
+| Export                          | What it does                                                                  |
+| ------------------------------- | ----------------------------------------------------------------------------- |
+| `loadRuleset`                   | Merges packs (releases or sources) into a ruleset and checks every reference. |
+| `computeSheet`                  | A character's computed values, actions, choices and issues.                   |
+| `listOptions`                   | The options a choice offers, with what each would need.                       |
+| `applyChanges`                  | A new character file with changes applied; the one passed in is untouched.    |
+| `startAction`, `continueAction` | Run an action: rolls, pauses for the player's input, outcomes.                |
+| `upgrade`, `checkRelease`       | Move a character to newer pack versions; check a pack release.                |
+| `withHomebrew`                  | A ruleset with a character's own homebrew added.                              |
+| `resolveId`                     | Resolves an ID as formulas do.                                                |
+| `buildRelease`                  | Builds a pack release from pack sources.                                      |
+| `randomDice`, `diceFrom`        | The dice an action rolls: random, or from given results.                      |
+| `formula`, `check`              | The formula parser, printer and type checker; the pack formula checks.        |
+| `SPEC_VERSION`                  | The spec version it ships with.                                               |
+| `IMPLEMENTS_SPEC`               | The spec major.minor versions it implements, derived from `SPEC_VERSION`.     |
 
 The types (`CharacterFile`, `Ruleset`, `PackRelease` and the call inputs and outputs) come with
 it. The [guides](https://opencharacterformat.org/guides/) show each call in an app, and the
