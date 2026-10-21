@@ -4,8 +4,6 @@ repeatable: true
 tags: [repeatable]
 fields:
   category: origin
-state:
-  list: { type: enum, values: [any, cleric, druid, wizard], default: any }
 effects:
   - { target: feats.held, op: grant, value: { formula: item.id } }
   - target: { choices: [spell-cost] }
@@ -51,14 +49,11 @@ choices:
     unique: magic-initiate
     requiresOption: true
     recommend: >-
-      self.list != 'any' ? self.list : size(spells.initiateCleric) == 0 ? 'cleric'
-        : size(spells.initiateDruid) == 0 ? 'druid' : 'wizard'
-
+      size(spells.initiateCleric) == 0 ? 'cleric' : size(spells.initiateDruid) == 0 ? 'druid'
+        : 'wizard'
     from:
       options:
         - id: cleric
-          prerequisites:
-            - { id: list, when: "self.list == 'any' || self.list == 'cleric'" }
           choices:
             - id: ability
               recommend: >-
@@ -116,8 +111,6 @@ choices:
                 - { target: spells.initiateCleric, op: grant, value: { formula: pick.id } }
                 - { target: spells.free, op: grant, value: { formula: pick.id } }
         - id: druid
-          prerequisites:
-            - { id: list, when: "self.list == 'any' || self.list == 'druid'" }
           choices:
             - id: ability
               recommend: >-
@@ -175,8 +168,6 @@ choices:
                 - { target: spells.initiateDruid, op: grant, value: { formula: pick.id } }
                 - { target: spells.free, op: grant, value: { formula: pick.id } }
         - id: wizard
-          prerequisites:
-            - { id: list, when: "self.list == 'any' || self.list == 'wizard'" }
           choices:
             - id: ability
               recommend: >-
