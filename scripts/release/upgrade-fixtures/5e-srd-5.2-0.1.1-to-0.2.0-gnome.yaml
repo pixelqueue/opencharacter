@@ -1,0 +1,33 @@
+# A 0.1.1 forest gnome druid who cast Speak with Animals once without a slot: the species copy's
+# state. 0.2.0 keeps it on Gnomish Lineage's grant state.
+pack: 5e-srd-5.2
+from: 0.1.1
+to: 0.2.0
+expect:
+  - at: /features/1/grants/5e-srd-5.2:traits.gnomish-lineage/state
+    value: { speakWithAnimalsUsed: 1 }
+  - { at: /features/1/state, absent: true }
+character:
+  specVersion: 0.1.0
+  id: upgrade-5e52-gnome
+  values:
+    5e-srd-5.2:abilities.str.base: 8
+    5e-srd-5.2:abilities.dex.base: 14
+    5e-srd-5.2:abilities.con.base: 13
+    5e-srd-5.2:abilities.int.base: 12
+    5e-srd-5.2:abilities.wis.base: 15
+    5e-srd-5.2:abilities.cha.base: 10
+    5e-srd-5.2:hp.base: 17
+    5e-srd-5.2:hp.current: 17
+  features:
+    - id: class
+      item: 5e-srd-5.2:classes.druid
+      state: { level: 3, startingClass: true }
+    - id: species
+      item: 5e-srd-5.2:species.gnome
+      state: { speakWithAnimalsUsed: 1 }
+      choices:
+        lineage:
+          - option: 5e-srd-5.2:lineages.forest-gnome
+            choices:
+              ability: [{ option: wis }]
