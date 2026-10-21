@@ -17,6 +17,7 @@ tags:
   - skill.lore.tengu
   - skill.lore.tripkee
   - skill.lore.vampire
+  - skill.lore.hag
 
 fields:
   skills.lore.accounting.increases:
@@ -685,6 +686,43 @@ fields:
           skills.lore.vampire.rank == 0 ? ['untrained']
             : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.vampire.rank) - 1]]
     formula: 'attributes.int.mod + (skills.lore.vampire.rank > 0 ? 2 * skills.lore.vampire.rank + proficiency.level : proficiency.untrained)'
+  skills.lore.hag.increases:
+    type: integer
+    input: true
+    default: 0
+    min: 0
+    max: >-
+      'skill.lore.hag' in skills.trained || 'skill.lore.hag' in skills.chosen
+        ? skills.maxRank - 1 : 0
+    tags:
+      - skill-increase
+      - lore
+      - formula: "'skill.lore.hag' in skills.trained || 'skill.lore.hag' in skills.chosen ? [] : ['untrained']"
+  skills.lore.hag.trainedByIncrease:
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: 0,
+      max: 1,
+      tags: [skill-increase, skill-training, skill.lore.hag, lore],
+    }
+  skills.lore.hag.rank:
+    type: integer
+    tags: [skill-rank, lore, skill.lore.hag]
+    formula: "('skill.lore.hag' in skills.trained || 'skill.lore.hag' in skills.chosen ? 1 : 0) + skills.lore.hag.increases"
+  skills.lore.hag.mod:
+    type: integer
+    tags:
+      - check
+      - skill
+      - skill.lore.hag
+      - attr.int
+      - lore
+      - formula: >-
+          skills.lore.hag.rank == 0 ? ['untrained']
+            : [['rank.trained', 'rank.expert', 'rank.master', 'rank.legendary'][min(4, skills.lore.hag.rank) - 1]]
+    formula: 'attributes.int.mod + (skills.lore.hag.rank > 0 ? 2 * skills.lore.hag.rank + proficiency.level : proficiency.untrained)'
 # A skill trained by a skill increase counts as a training the player chose.
 effects:
   - {
@@ -795,6 +833,12 @@ effects:
       value: { tag: skill.lore.vampire },
       when: skills.lore.vampire.trainedByIncrease > 0,
     }
+  - {
+      target: skills.chosen,
+      op: grant,
+      value: { tag: skill.lore.hag },
+      when: skills.lore.hag.trainedByIncrease > 0,
+    }
 
 display:
   fields:
@@ -852,3 +896,6 @@ display:
     skills.lore.vampire.rank: { format: { bands: rank } }
     skills.lore.vampire.mod:
       { format: signed, rolls: [{ action: check, params: { check: skills.lore.vampire.mod } }] }
+    skills.lore.hag.rank: { format: { bands: rank } }
+    skills.lore.hag.mod:
+      { format: signed, rolls: [{ action: check, params: { check: skills.lore.hag.mod } }] }

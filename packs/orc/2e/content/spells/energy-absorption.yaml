@@ -16,3 +16,5 @@ effects:
     value: min(-incoming.amount, 15 + 5 * (self.rank - 4))
     when: incoming.amount < 0 && ('damage.' + self.damageType) in incoming.tags
     scope: applied
+    then:
+      - { type: removeEffect, entry: self }
