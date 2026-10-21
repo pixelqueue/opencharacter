@@ -169,7 +169,8 @@ step over copies and its `steps.<id>.item`, display groups) and in `copy.fields`
 these merged ones.
 
 In a template's formulas, `item` is the merged item and `base` is the base item alone; its field
-values also see `prior`, the item as merged before it. A template's `removeTags`
+values also see `prior`, the item as merged before it, and `params`, its params as its keeper
+gave them ([content.md](content.md#from-the-keeper)). A template's `removeTags`
 take tags away in template order before its `tags` are added. The templates are
 the copy's saved ones, then those content keeps on it ([content.md](content.md#kept-templates)).
 
@@ -232,8 +233,11 @@ The rules and content items may declare `standardCopies` ([content.md](content.m
   added in a round stays for that computation. The templates content keeps on copies
   are found in the same rounds: each round also adds, for every active
   `keepsTemplates` entry whose `when` holds, its template on each matching copy that hasn't it,
-  or with `content`, on each matching item picked or granted that hasn't it.
-  The rounds end when a round adds neither a copy nor a kept template.
+  or with `content`, on each matching item picked or granted that hasn't it. A query reading
+  the keeper and the entry's `params` are evaluated in each round with the keeper's roots
+  ([content.md](content.md#from-the-keeper)); a template found again takes the params of its
+  first keeper that round. The rounds end when a round adds neither a copy nor a kept template
+  and changes no params.
 - **Instance ID:** the item's qualified ID with the colon and dots as hyphens.
 - **Saved or not.** An entry with a standard copy's ID and item is that copy, saved, in its
   place in the file. An entry with its ID and another item is `duplicate-id` (path: the entry's

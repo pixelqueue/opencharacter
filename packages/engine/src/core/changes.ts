@@ -366,7 +366,7 @@ function applyToCopies(
     const item = ruleset.content[entry.item];
     if (item?.type !== query.type) continue;
     const ids = sheet.templatesOf(entry);
-    const templates = ids.map((t) => ruleset.content[t]).filter((t): t is LoadedItem => !!t);
+    const templates = sheet.templateItems(entry, item);
     const roots = {
       item: itemView(ruleset, item, templates, (n, p) => sheet.inputValue(`${p}:${n}`)),
       self: selfView(entry, stateDecls(ruleset, item, templates), ids),
@@ -875,9 +875,7 @@ function applyOne(
         item = ruleset.content[copy ? copy.item : (appliedEntry?.source ?? '')];
         if (!item) throw new ChangeError('unknown-id', { id: appliedEntry?.source ?? id });
       }
-      const templates = (copy ? sheet.templatesOf(copy) : [])
-        .map((t) => ruleset.content[t])
-        .filter((t): t is LoadedItem => !!t);
+      const templates = copy ? sheet.templateItems(copy, item) : [];
       const decls = stateDecls(ruleset, item, templates);
       const key = str('key');
       const decl = decls[key];

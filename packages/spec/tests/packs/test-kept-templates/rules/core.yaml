@@ -2,7 +2,8 @@
 # weapons; the iron template grants training, which keeps the sharp template on heavy weapons
 # (by the base item's tags); focus keeps it while focused; an applied enchantment keeps it on
 # every weapon. Potent keeps the far template on picked or granted spells with a range; a spell's
-# own effect and its cast action read its range.
+# own effect and its cast action read its range. Spear keeps the spear template on the cantrip it
+# names, 30 farther per rank; bond keeps the keen template on copies of the weapon it names.
 standardCopies:
   - { type: weapon, where: "'standard' in item.tags" }
 
@@ -23,6 +24,7 @@ contentTypes:
   feature:
     state:
       focused: { type: boolean, default: false }
+      rank: { type: integer, default: 1 }
   spell:
     fields:
       level: { type: integer, default: 0 }

@@ -216,6 +216,8 @@ export interface KeptTemplate {
   content?: Query;
   when?: Formula;
   scope?: 'holder' | 'applied';
+  /** Values for the template's `params`: activation formulas with the keeper's roots. */
+  params?: Record<string, Formula>;
 }
 
 export interface Reapply {
@@ -440,6 +442,8 @@ export interface ContentItem {
   tags?: string[];
   removeTags?: string[];
   fields?: Record<string, Literal>;
+  /** Templates only: values its item fields read as `params.<name>`, given by a keeper. */
+  params?: Record<string, ValueDecl>;
   state?: Record<string, ValueDecl>;
   computed?: Record<string, ComputedDecl>;
   /** A string state key whose non-empty value names each copy, replacing the type's. */

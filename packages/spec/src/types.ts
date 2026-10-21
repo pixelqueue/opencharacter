@@ -1004,6 +1004,8 @@ export type ContentItem = {
   removeTags?: Tag[];
   /** Values for the item fields declared by the content type. How a value is read depends on the declared type: `integer`, `decimal`, `boolean` and `dice` values are formulas (a plain literal is a formula with no inputs); `string`, `enum` and `id` values are literal strings; `set` values are lists of literals. A template may set the rules' `templateFields` and the fields of the content type its `appliesTo` names; its values are merged into the copy's `item` in template order, replacing the base item's, and its formulas see the base item as `base`. A template may give `null` for a field: the field is absent from the copy's `item` (no declared default applies), unless a later template sets it again. Only templates may give `null`. */
   fields?: Record<string, Literal | null>;
+  /** Templates only: values the template's item fields read as `params.<name>`, given by the content keeping it (`keepsTemplates` `params`). A param the keeper doesn't give, or on a saved template, is its `default`, else absent. */
+  params?: Record<string, ValueDecl>;
   /** Extra per-copy state keys this item (or template) adds to the character's copy, beyond those its content type declares. */
   state?: Record<string, ValueDecl>;
   /** Computed values on this item's copies, added to the content type's or replacing one of them by name. A template's are added to the copies it is applied to. */
@@ -1079,10 +1081,12 @@ export type Prerequisite = {
 export type KeptTemplate = {
   /** The template kept on the copies or the content. */
   template: Ref;
-  /** The copies it is kept on: a content type and a condition over the copy's base item (`item` only). */
+  /** The copies it is kept on: a content type and a condition over the copy's base item. A condition reading only `item` is resolved by loadRuleset; one that also reads the keeper (`self`, `picksOf`, `character`, input fields, the character functions) is an activation condition with `item` the candidate, so a keeper keeps a template on what its own choice picked. */
   copies?: Query;
-  /** The content without a copy of its own it is kept on: every holder activation of content picked or granted to the character whose item is of the type and matches the condition (`item` only). The template may give only fields and tags (`template-without-copy` otherwise). */
+  /** The content without a copy of its own it is kept on: every holder activation of content picked or granted to the character whose item is of the type and matches the condition, read as `copies`' is. The template may give only fields and tags (`template-without-copy` otherwise). */
   content?: Query;
+  /** Values for the template's `params`, each a formula of the param's type evaluated as an activation condition is, with the keeper's roots (`self`, `item`, `picksOf`, `character`, input fields). The template's item fields read them as `params.<name>`, so a kept template scales with the character. A name the template doesn't declare is `unknown-name` at load. */
+  params?: Record<string, Formula>;
   /** An activation condition: while it holds, the template is kept. */
   when?: Condition;
   /** `holder` (default): while the item is held. `applied`: while it is the source of an active, unblocked `applied` entry, on that character's copies. */
