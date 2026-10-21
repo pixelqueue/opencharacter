@@ -1249,13 +1249,13 @@ actions:
             key: expended
             value: false
           - type: setState
-            when: "countCopies(copy.type == 'class' && has(copy.state.bondDrained) && copy.state.bondDrained > 0) > 0"
-            copies: { type: class, where: 'has(self.bondDrained) && self.bondDrained > 0' }
+            when: class.has.wizard
+            grants: { where: self.bondDrained > 0 }
             key: bondDrained
             value: 0
           - type: setState
-            when: "countCopies(copy.type == 'class' && has(copy.state.linkedFocusUsed) && copy.state.linkedFocusUsed) > 0"
-            copies: { type: class, where: 'has(self.linkedFocusUsed) && self.linkedFocusUsed' }
+            when: class.has.wizard
+            grants: { where: self.linkedFocusUsed }
             key: linkedFocusUsed
             value: false
       - id: items
