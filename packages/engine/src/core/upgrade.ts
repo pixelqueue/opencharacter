@@ -345,12 +345,13 @@ function moveTarget(
   const path = ownerPath(step.owner, q);
   const scope = entry.choices ? treesUnder(entry.choices, entry.item) : [];
   const picked = option(step.option as string | number);
+  const keys = choiceKeys(to, path, step.choice as string);
   for (const { tree, prefix } of ownerTrees(
     scope,
     path.head === null ? c.choices : undefined,
     path,
   ))
-    for (const pick of tree[`${prefix}${step.choice}`] ?? []) {
+    for (const pick of keys.flatMap((key) => tree[`${prefix}${key}`] ?? [])) {
       if (pick.option !== picked) continue;
       if (typeof picked !== 'string' || !declares(picked, target)) return undefined;
       return {
@@ -360,6 +361,21 @@ function moveTarget(
       };
     }
   return undefined;
+}
+
+/** The saved keys of an owner's choice on `ruleset`: each slot's for a slotted choice. */
+function choiceKeys(ruleset: Ruleset, path: OwnerPath, choice: string): string[] {
+  let choices: readonly Choice[] =
+    path.head === null
+      ? Object.values(ruleset.rules.choices)
+      : (ruleset.content[path.head]?.choices ?? []);
+  for (const [id, opt] of path.pairs) {
+    const from = choices.find((c) => c.id === id)?.from;
+    choices =
+      (from && 'options' in from ? from.options.find((o) => o.id === opt)?.choices : []) ?? [];
+  }
+  const declared = choices.find((c) => c.id === choice);
+  return declared?.slots ? declared.slots.map((n) => `${choice}-${n}`) : [choice];
 }
 
 function renameKey(tree: ChoiceTree, from: string, to: string): boolean {

@@ -155,7 +155,8 @@ of `type` (every copy when absent) with a saved `from`, the value leaves the cop
   a grant whose `item` is a formula isn't followed);
 - **with `choice` and `option`:** the pick of `option` (content local or qualified, else an
   inline option or value as written) in that choice of `owner`, in the copy's own choice tree at
-  any depth; a rules-level choice (no `owner`) is the top-level `choices`.
+  any depth; a rules-level choice (no `owner`) is the top-level `choices`. A slotted choice (on
+  the new release) is searched slot by slot, so `choice` names it once.
 
 The value is dropped, never reported, when:
 

@@ -1,4 +1,4 @@
-description: moveState moves a copy's state value to a pick in the copy's tree, through a granted feature's prefixed choice key
+description: moveState moves a copy's state value to a pick in the copy's tree, through a granted feature's prefixed key of a slotted choice
 specVersion: 0.1.0
 call: upgrade
 from:
@@ -24,8 +24,9 @@ from:
         - id: features.invocations
           type: feature
           choices:
-            - id: invocations
-              pick: { min: 0, max: 2 }
+            - id: invocation
+              slots: [1, 2]
+              required: false
               from: { type: invocation }
         - id: invocations.word
           type: invocation
@@ -52,8 +53,9 @@ to:
         - id: features.invocations
           type: feature
           choices:
-            - id: invocations
-              pick: { min: 0, max: 2 }
+            - id: invocation
+              slots: [1, 2]
+              required: false
               from: { type: invocation }
         - id: invocations.word
           type: invocation
@@ -71,5 +73,5 @@ to:
               from: wordUsed
               to: used
               owner: features.invocations
-              choice: invocations
+              choice: invocation
               option: invocations.word
