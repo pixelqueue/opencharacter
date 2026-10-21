@@ -1,0 +1,134 @@
+# The form is chosen in the copy the monster step added (steps.monster.added[0]).
+status: finished
+outcome:
+  result: created
+  data:
+    hp: 58
+proposedChanges:
+  - to: self
+    step: monster
+    change:
+      type: addItem
+      entry:
+        id: monster
+        item: 5e-srd-5.1:monsters.werewolf
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.str.base
+      value: 15
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.dex.base
+      value: 13
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.con.base
+      value: 14
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.int.base
+      value: 10
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.wis.base
+      value: 11
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.cha.base
+      value: 10
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:challenge.rating
+      value: 3
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:creature.size
+      value: medium
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:creature.type
+      value: humanoid
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:creature.alignment
+      value: chaotic-evil
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:combat.speed
+      value: 30
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:proficiencies.skills
+      value:
+        - skill.perception
+        - skill.stealth
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:proficiencies.expertise
+      value:
+        - skill.perception
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:proficiencies.languages
+      value:
+        - 5e-srd-5.1:languages.common
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:damage.immunities
+      value:
+        - nonmagical-unsilvered
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:hp.base
+      value: 58
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:hp.current
+      value: 58
+  - to: self
+    step: ownCopies
+    change:
+      type: choose
+      path:
+        entry: monster
+        choice:
+          - form
+      option: humanoid
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

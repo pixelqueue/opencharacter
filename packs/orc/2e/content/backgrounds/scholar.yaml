@@ -26,7 +26,7 @@ choices:
               when: "!('skill.arcana' in skills.chosen)"
             - { target: skills.trainings, op: add, value: 1 }
           grants:
-            - { item: feats.skill.assurance, state: { skill: "'skill.arcana'" } }
+            - { item: feats.skill.assurance, choices: { skill: [{ option: skill.arcana }] } }
         - id: nature
           effects:
             - target: skills.trained
@@ -35,7 +35,7 @@ choices:
               when: "!('skill.nature' in skills.chosen)"
             - { target: skills.trainings, op: add, value: 1 }
           grants:
-            - { item: feats.skill.assurance, state: { skill: "'skill.nature'" } }
+            - { item: feats.skill.assurance, choices: { skill: [{ option: skill.nature }] } }
         - id: occultism
           effects:
             - target: skills.trained
@@ -44,7 +44,7 @@ choices:
               when: "!('skill.occultism' in skills.chosen)"
             - { target: skills.trainings, op: add, value: 1 }
           grants:
-            - { item: feats.skill.assurance, state: { skill: "'skill.occultism'" } }
+            - { item: feats.skill.assurance, choices: { skill: [{ option: skill.occultism }] } }
         - id: religion
           effects:
             - target: skills.trained
@@ -53,4 +53,4 @@ choices:
               when: "!('skill.religion' in skills.chosen)"
             - { target: skills.trainings, op: add, value: 1 }
           grants:
-            - { item: feats.skill.assurance, state: { skill: "'skill.religion'" } }
+            - { item: feats.skill.assurance, choices: { skill: [{ option: skill.religion }] } }

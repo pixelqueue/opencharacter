@@ -3,5 +3,6 @@ type: invocation
 prerequisites:
   - id: spell
     when: '@spells.eldritch-blast in spells.warlock'
-effects:
-  - { target: eldritchBlast.range, op: atLeast, value: 300 }
+keepsTemplates:
+  - template: templates.eldritch-spear
+    content: { type: spell, where: 'item.id == @spells.eldritch-blast' }

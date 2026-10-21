@@ -1,0 +1,27 @@
+# A 0.1.0 half-orc fighter who used Relentless Endurance: the use was the race copy's state.
+# 0.2.0 keeps it as the trait's `used`, in its grant state.
+pack: 5e-srd-5.1
+from: 0.1.0
+to: 0.2.0
+expect:
+  - at: /features/0/grants/5e-srd-5.1:traits.relentless-endurance/state
+    value: { used: true }
+  - { at: /features/0/state, absent: true }
+character:
+  specVersion: 0.1.0
+  id: upgrade-5e-half-orc
+  values:
+    5e-srd-5.1:abilities.str.base: 15
+    5e-srd-5.1:abilities.con.base: 14
+    5e-srd-5.1:hp.base: 20
+    5e-srd-5.1:hp.current: 1
+  features:
+    - id: half-orc
+      item: 5e-srd-5.1:races.half-orc
+      state: { relentlessEnduranceUsed: true }
+    - id: fighter
+      item: 5e-srd-5.1:classes.fighter
+      state: { level: 3, startingClass: true }
+      choices:
+        fighting-style: [{ option: 5e-srd-5.1:fighting-styles.defense }]
+        skills: [{ option: skill.athletics }, { option: skill.perception }]

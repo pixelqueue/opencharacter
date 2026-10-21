@@ -1,14 +1,15 @@
-# Up to ceil(5 / 2) = 3 slot levels: one 1st and one 2nd. Used 3 -> 2 and 2 -> 1.
+# Up to ceil(5 / 2) = 3 slot levels: one 1st and one 2nd, one pick each.
 status: finished
 outcome:
   result: recovered
+  data: { levels: 3 }
 proposedChanges:
   - to: self
-    step: recover
-    change: { type: set, field: 5e-srd-5.1:spellSlots.level1.used, value: 2 }
+    step: slots
+    change: { type: adjust, field: 5e-srd-5.1:spellSlots.level1.used, by: -1 }
   - to: self
-    step: recover
-    change: { type: set, field: 5e-srd-5.1:spellSlots.level2.used, value: 1 }
+    step: slots
+    change: { type: adjust, field: 5e-srd-5.1:spellSlots.level2.used, by: -1 }
   - to: self
     step: recover
     change: { type: setState, entry: druid, key: naturalRecoveryUsed, value: true }

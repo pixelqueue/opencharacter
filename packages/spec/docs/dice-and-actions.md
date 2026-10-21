@@ -796,7 +796,8 @@ default in an early branch:
   cases:
     - when: true
       flags: { slot: params.slot, castAbility: "'class'" }
-# A trait's option on the `spell-cost` step casts at 2nd level with Charisma.
+# A trait's option on the `spell-cost` step casts at 2nd level with Charisma, and marks the
+# trait's own saved state.
 - target: { choices: [spell-cost] }
   op: option
   when: "action.item.id == '5e-srd-5.1:spells.hellish-rebuke' && !self.hellishRebukeUsed"
@@ -804,7 +805,10 @@ default in an early branch:
     id: hellish-rebuke
     flags: { slot: 2, castAbility: "'cha'" }
     changes:
-      - { type: setState, entry: self, key: hellishRebukeUsed, value: true }
+      - type: setState
+        grants: { where: "item.id == '5e-srd-5.1:traits.infernal-legacy'" }
+        key: hellishRebukeUsed
+        value: true
 ```
 
 | Property    | Meaning                                                                                                                                           |
