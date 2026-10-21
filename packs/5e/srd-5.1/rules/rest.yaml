@@ -279,13 +279,13 @@ actions:
             key: wholenessUsed
             value: false
           - type: setState
-            when: countCopies(has(copy.state.hellishRebukeUsed) && copy.state.hellishRebukeUsed) > 0
-            copies: { type: race, where: has(self.hellishRebukeUsed) && self.hellishRebukeUsed }
+            when: countCopies(copy.item == @races.tiefling) > 0
+            grants: { where: 'item.id == @traits.infernal-legacy && self.hellishRebukeUsed' }
             key: hellishRebukeUsed
             value: false
           - type: setState
-            when: countCopies(has(copy.state.darknessUsed) && copy.state.darknessUsed) > 0
-            copies: { type: race, where: has(self.darknessUsed) && self.darknessUsed }
+            when: countCopies(copy.item == @races.tiefling) > 0
+            grants: { where: 'item.id == @traits.infernal-legacy && self.darknessUsed' }
             key: darknessUsed
             value: false
           - type: setState
@@ -300,15 +300,9 @@ actions:
             key: used
             value: false
           - type: setState
-            when: >-
-              countCopies(has(copy.state.relentlessEnduranceUsed)
-                && copy.state.relentlessEnduranceUsed) > 0
-            copies:
-              {
-                type: race,
-                where: has(self.relentlessEnduranceUsed) && self.relentlessEnduranceUsed,
-              }
-            key: relentlessEnduranceUsed
+            when: countCopies(copy.item == @races.half-orc) > 0
+            grants: { where: 'item.id == @traits.relentless-endurance && self.used' }
+            key: used
             value: false
           - type: setState
             when: countCopies(has(copy.state.signatureSpell1Used) && copy.state.signatureSpell1Used) > 0

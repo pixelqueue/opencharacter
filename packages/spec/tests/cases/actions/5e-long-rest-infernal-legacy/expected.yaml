@@ -98,9 +98,15 @@ proposedChanges:
     step: rest
     change:
       type: setState
+      grants:
+        where: "item.id == '5e-srd-5.1:traits.infernal-legacy' && self.hellishRebukeUsed"
       key: hellishRebukeUsed
-      copies:
-        type: 5e-srd-5.1:race
-        where: has(self.hellishRebukeUsed) && self.hellishRebukeUsed
+      value: false
+  - to: self
+    step: rest
+    change:
+      type: setState
+      grants: { where: "item.id == '5e-srd-5.1:traits.infernal-legacy' && self.darknessUsed" }
+      key: darknessUsed
       value: false
 log: []
