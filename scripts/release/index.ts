@@ -186,7 +186,8 @@ export function publishedInRangeFromGit(root: string): PublishedInRange {
   };
 }
 
-function releaseAt(root: string, tag: string, packDir: string): PackRelease {
+/** The release published under a git tag, built from the pack's source at that tag. */
+export function releaseAt(root: string, tag: string, packDir: string): PackRelease {
   const tmp = mkdtempSync(join(tmpdir(), 'ocf-release-'));
   try {
     const rel = relative(root, packDir);
@@ -195,17 +196,22 @@ function releaseAt(root: string, tag: string, packDir: string): PackRelease {
       maxBuffer: 1 << 30,
     });
     execFileSync('tar', ['-x', '-C', tmp], { input: archive });
-    const pack = loadPack(join(tmp, rel), tmp, new SchemaValidator(), new Reporter());
-    if (!pack) throw new Error(`could not read ${rel} at ${tag}`);
-    return buildRelease({
-      manifest: pack.manifest,
-      rules: pack.rules.map((r) => r.doc),
-      content: pack.content.map((c) => c.doc),
-      upgrades: pack.upgrades.map((u) => u.doc),
-    });
+    return releaseFromSource(tmp, join(tmp, rel));
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
+}
+
+/** A pack's release, built from its source in `packDir` (`root`: the repo holding it). */
+export function releaseFromSource(root: string, packDir: string): PackRelease {
+  const pack = loadPack(packDir, root, new SchemaValidator(), new Reporter());
+  if (!pack) throw new Error(`could not read ${relative(root, packDir)}`);
+  return buildRelease({
+    manifest: pack.manifest,
+    rules: pack.rules.map((r) => r.doc),
+    content: pack.content.map((c) => c.doc),
+    upgrades: pack.upgrades.map((u) => u.doc),
+  });
 }
 
 export interface PackBump {
