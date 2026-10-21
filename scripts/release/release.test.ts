@@ -284,6 +284,10 @@ describe('syncSpecVersion', () => {
       `**${spec} 0.1.0.** ${spec} **0.1.0**. ${spec} 0.1.0.1.\n`,
       `**${spec} 0.2.0.** ${spec} **0.2.0**. ${spec} 0.1.0.1.\n`,
     ],
+    'examples/characters/sample.yaml': [
+      'specVersion: 0.1.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
+      'specVersion: 0.2.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
+    ],
     'character.yaml': [
       'specVersion: 0.1.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
       'specVersion: 0.1.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
@@ -307,13 +311,14 @@ describe('syncSpecVersion', () => {
     return dir;
   }
 
-  it('moves SPEC_VERSION, schema paths and the stated version, not pinned minimums', () => {
+  it('moves SPEC_VERSION, schema paths, the stated version and example characters, not other minimums', () => {
     const dir = setup('0.2.0');
     const result = syncSpecVersion(dir, Object.keys(files));
     expect(result?.bump).toEqual({ from: '0.1.0', to: '0.2.0' });
     expect(result?.files.toSorted()).toEqual([
       'docs/README.md',
       'docs/versioning.md',
+      'examples/characters/sample.yaml',
       'packages/spec/schemas/pack.schema.json',
       'packages/spec/src/index.ts',
     ]);
@@ -329,6 +334,7 @@ describe('syncSpecVersion', () => {
     expect(syncSpecVersion(dir, Object.keys(files))?.files.toSorted()).toEqual([
       'docs/README.md',
       'docs/versioning.md',
+      'examples/characters/sample.yaml',
       'packages/spec/src/index.ts',
     ]);
     const schema = 'packages/spec/schemas/pack.schema.json';

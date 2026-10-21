@@ -272,8 +272,9 @@ const majorMinor = (v: string) => v.split('.').slice(0, 2).join('.');
 /**
  * After `changeset version` bumps `@opencharacter/spec`, moves the spec version everywhere it is
  * stated: `SPEC_VERSION` (which `SCHEMA_BASE` derives from), the `schemas/<major.minor>/` path of
- * every schema ID and link, and the prose that names the current version. Minimums and records
- * (`specVersion`) stay. Returns the bump and the files changed, or undefined when they match.
+ * every schema ID and link, the prose that names the current version, and the example characters'
+ * `specVersion` (samples follow the current spec). Other minimums and records stay. Returns the
+ * bump and the files changed, or undefined when they match.
  */
 export function syncSpecVersion(
   root: string,
@@ -295,6 +296,11 @@ export function syncSpecVersion(
       `$1${to}`,
     ],
   ];
+  // Example characters are samples, not records: they follow the current spec.
+  const examples: [RegExp, string] = [
+    new RegExp(`^(specVersion: ['"]?)${escape(from)}(['"]?)$`, 'gm'),
+    `$1${to}$2`,
+  ];
   if (majorMinor(from) !== majorMinor(to)) {
     patterns.push([
       new RegExp(`(?<![\\w.-])schemas/${escape(majorMinor(from))}/`, 'g'),
@@ -308,6 +314,7 @@ export function syncSpecVersion(
     const text = readFileSync(path, 'utf8');
     let next = text;
     for (const [re, sub] of patterns) next = next.replace(re, sub);
+    if (file.startsWith('examples/characters/')) next = next.replace(examples[0], examples[1]);
     if (next !== text) {
       writeFileSync(path, next);
       changed.push(file);
