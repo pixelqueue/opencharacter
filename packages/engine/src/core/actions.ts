@@ -22,9 +22,10 @@ import type {
   Situational,
   Step,
   StepOption,
+  ValueSource,
   TagOrFormula,
 } from './pack-types.ts';
-import { optionQuery, pendingSource, writtenOptions } from './pack-types.ts';
+import { optionQuery, pendingSource, valueSource, writtenOptions } from './pack-types.ts';
 import {
   admitsTag,
   evaluateTags,
@@ -2322,6 +2323,8 @@ interface Candidate {
   id: string;
   item?: Record<string, unknown>;
   self?: Record<string, unknown>;
+  /** A value source's candidate: the value itself, its string form the ID. */
+  value?: string | number;
   option?: StepOption;
   added?: { instance: EffectInstance; value: OptionValue };
 }
@@ -2432,6 +2435,8 @@ function offeredOptions(
   counts: ReadonlyMap<string, number>,
   action: Record<string, unknown>,
 ): Candidate[] {
+  const values = valueSource(step);
+  if (values) return valueOptions(ctx, frame, values, counts, action);
   const query = optionQuery(step);
   if (!query)
     return writtenOptions(step)
@@ -2472,6 +2477,46 @@ function offeredOptions(
   });
 }
 
+/** The written values or the formula's, each once by its string form, that pass `where`. */
+function valueOptions(
+  ctx: Ctx,
+  frame: Frame,
+  source: ValueSource,
+  counts: ReadonlyMap<string, number>,
+  action: Record<string, unknown>,
+): Candidate[] {
+  let list: unknown = source.values;
+  if (!Array.isArray(list))
+    list = f.toData(evaluate(ctx, frame, (source.values as { formula: Formula }).formula));
+  if (!Array.isArray(list))
+    throw new ActionError('type-mismatch', { message: 'values evaluated to a non-list' });
+  const out: Candidate[] = [];
+  for (const value of list) {
+    if (typeof value !== 'string' && typeof value !== 'number')
+      throw new ActionError('type-mismatch', { message: 'values must be strings or numbers' });
+    const id = String(value);
+    if (out.some((c) => c.id === id)) continue;
+    if (source.where !== undefined) {
+      const roots = { value, picks: counts.get(id) ?? 0, action };
+      if (!test(ctx, frame, source.where, roots)) continue;
+    }
+    out.push({ id, value });
+  }
+  return out;
+}
+
+/** A candidate's `prefer`: content and copies bind it as `item` (and `self`), values as `value`. */
+function preferRoots(
+  frame: Frame,
+  candidate: Candidate,
+  picks: number,
+  action: Record<string, unknown>,
+): Record<string, unknown> {
+  if (candidate.value !== undefined)
+    return context(frame, { value: candidate.value, picks, action });
+  return candidateRoots(frame, candidate, picks, action);
+}
+
 /** Without `recommend`, the highest `prefer` (ties to the earlier), else nothing; never `#done`. */
 function recommendation(
   ctx: Ctx,
@@ -2486,10 +2531,10 @@ function recommendation(
     const v = f.toData(evaluate(ctx, frame, step.recommend as Formula, { options: ids }));
     return typeof v === 'string' && ids.includes(v) ? v : undefined;
   }
-  if (!optionQuery(step) || step.prefer === undefined) return undefined;
+  if ((!optionQuery(step) && !valueSource(step)) || step.prefer === undefined) return undefined;
   let best: { id: string; score: number } | undefined;
   for (const c of candidates) {
-    const roots = candidateRoots(frame, c, counts.get(c.id) ?? 0, action);
+    const roots = preferRoots(frame, c, counts.get(c.id) ?? 0, action);
     const v = ctx.sheet.evaluate(step.prefer, frame.pack, roots);
     if (v.kind !== 'int' && v.kind !== 'decimal')
       throw new ActionError('type-mismatch', { message: `prefer evaluated to ${v.kind}` });
@@ -2574,6 +2619,7 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
           picked: pick,
           ...(candidate.item !== undefined ? { item: candidate.item } : {}),
           ...(candidate.self !== undefined ? { self: candidate.self } : {}),
+          ...(candidate.value !== undefined ? { value: candidate.value } : {}),
         };
     result.added = addedIds(ctx, first, path);
     setResult(frame, step.id, result);
@@ -2581,6 +2627,7 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
       id: pick,
       ...(candidate.item !== undefined ? { item: candidate.item } : {}),
       ...(candidate.self !== undefined ? { self: candidate.self } : {}),
+      ...(candidate.value !== undefined ? { value: candidate.value } : {}),
     };
     const entries = { picked: candidate.self !== undefined ? pick : undefined };
     for (const [name, formula] of Object.entries(candidate.option?.flags ?? {}))

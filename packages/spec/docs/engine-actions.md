@@ -103,9 +103,9 @@ An action proposes changes and never applies them. A step with `sheet: proposed`
    listed nor run; the proposed character's stored follow-ups are never read.
 2. **What reads it.** Every formula and source of the step: fields, `character`, the character
    functions (`countCopies`, `sumFields`, …); `self` and `item`, the action's own copy as it is
-   on that sheet (absent if a change removed it); a choice step's content, copies and added
-   options, and the `where`, `prefer` and `recommend` over them; an allocate step's fields, their
-   values and `max`; a roll step's parts and roll effects (the effects active on that sheet).
+   on that sheet (absent if a change removed it); a choice step's content, copies, values and
+   added options, and the `where`, `prefer` and `recommend` over them; an allocate step's fields,
+   their values and `max`; a roll step's parts and roll effects (the effects active on that sheet).
    `params`, `situational` (decided when the action starts), `participants`, `links`, `flags`
    and `steps` don't change.
 3. **Per pick.** A choice step with `sheet: proposed` builds the sheet again before each pick,
@@ -633,7 +633,7 @@ participant runs the used action on its own character, and the engine doesn't ru
 
 ## Choice steps
 
-A choice step has one source of options (a fourth, pending choices, is
+A choice step has one source of options (a fifth, pending choices, is
 [below](#choice-steps-over-pending-choices)):
 
 | `options`                                       | Offers                                                                                                          | Option ID                |
@@ -641,6 +641,7 @@ A choice step has one source of options (a fourth, pending choices, is
 | a list `[{ id, when?, changes?, to?, flags? }]` | the written options whose `when` holds, in written order                                                        | the written `id`         |
 | `{ content: { type, where? } }`                 | the ruleset's content of `type` (qualified against the action's pack), by qualified ID, hidden content left out | the qualified content ID |
 | `{ copies: { type, where? } }`                  | the character's copies of `type`, inventory then features, each in file order                                   | the instance ID          |
+| `{ values, where? }`                            | the written values, or the strings and numbers a `{ formula }` gives, in list order, each once                  | the value as a string    |
 
 - **Added options**. A step with `tags` also offers, after its source's
   options, the options content adds: each of the character's active `option` effects (in
@@ -656,7 +657,12 @@ A choice step has one source of options (a fourth, pending choices, is
 - **Candidate formulas.** A written option's `when` sees the action context and `picks`. A query
   source's `where` and `prefer` see the action context with `item` the candidate's item view,
   `self` the candidate copy (copies only; over content `self` isn't bound), `picks` and
-  `action`. `picks` is how many times this step has already picked the candidate.
+  `action`. A value source's `values` formula sees the action context; its `where` and `prefer`
+  see it with `value` the candidate value, `picks` and `action` (`item` and `self` stay the
+  action's own). `picks` is how many times this step has already picked the candidate. A
+  `values` formula that fails is an error, as any action formula is, and a list element that
+  isn't a string or number is `type-mismatch`; two values with the same string form (`1` and
+  `'1'`) are offered once, the first.
 - **Each pick is a checkpoint.** Before each pick the options are worked out again. With no
   `repeat` the step picks once. With `repeat: { max, min? }` (both evaluated once, before the
   first pick; `min` defaults to 0) it picks until it has `max` picks, nothing is offered, or
@@ -667,7 +673,7 @@ A choice step has one source of options (a fourth, pending choices, is
   (`has(steps.<id>)` is false); with it, `steps.<id>.picked` is `[]`.
 - **Recommending.** `recommend` is evaluated before each pick, with `options` bound to the IDs
   the step's own source offers (`#done` and added options left out); it recommends its value if
-  that is one of them, else nothing. Without `recommend`, a `content` or `copies` step
+  that is one of them, else nothing. Without `recommend`, a `content`, `copies` or `values` step
   recommends the candidate with the highest `prefer` (a number; ties go to the earlier
   candidate). A step with neither recommends nothing, whatever its source and however many
   candidates it offers: the first candidate is never recommended by default, so
@@ -689,10 +695,12 @@ A choice step has one source of options (a fourth, pending choices, is
 - **Result.** `steps.<id>.picked` is the option ID; with `repeat`, the list of picked IDs in
   order, `#done` left out, updated after each pick. Over content or copies without `repeat`,
   `steps.<id>.item` is the picked content's item view (the view `item` gives an action of that
-  content), and over copies `steps.<id>.self` is the picked copy's view. When an added option is
-  picked, `.item` and `.self` are absent. `steps.<id>.added` lists the copies the step's changes
-  add to `self`, every pick's in order, as a changes step's does (above); it is updated after each
-  pick's changes, so with `repeat` a later pick's changes see the earlier picks' copies.
+  content), and over copies `steps.<id>.self` is the picked copy's view; over values without
+  `repeat`, `steps.<id>.value` is the picked value. When an added option is picked, `.item`,
+  `.self` and `.value` are absent.
+  `steps.<id>.added` lists the copies the step's changes add to `self`, every pick's in order,
+  as a changes step's does (above); it is updated after each pick's changes, so with `repeat` a
+  later pick's changes see the earlier picks' copies.
 - **Flags**. A written or added option may have `flags`
   (`{ <name>: <formula> }`). After each pick (not `#done`), before any changes, the picked
   option's flags are evaluated in order, each with `picked` bound and the earlier ones already
@@ -710,8 +718,8 @@ A choice step has one source of options (a fourth, pending choices, is
   added option's, with its `to`, default `self`), then the step's `changes` (with `to: self`),
   are resolved like a `changes` step's at the choice step's path and appended to
   `proposedChanges` right away. Their formulas see `picked`: `{ id }`, plus `item` over content
-  and copies, plus `self` over copies (absent for an added option). In a written option's and
-  the step's changes `item` and `self` stay the action's own; in an added option's they are the
+  and copies, plus `self` over copies, plus `value` over values (absent for an added option). In
+  a written option's and the step's changes `item` and `self` stay the action's own; in an added option's they are the
   effect's, `entry: self` names the effect's copy and fields and content are resolved in the
   effect's pack. `entry: picked` names the picked copy. Since the action never applies its
   changes, a budget sees earlier picks through `picks`, or, with `sheet: proposed`, on the
