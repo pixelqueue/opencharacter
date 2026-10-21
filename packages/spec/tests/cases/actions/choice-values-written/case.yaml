@@ -1,0 +1,32 @@
+description: "A choice over written number values: each option ID is the value's string form; `picked.value` and `steps.<id>.value` keep the number; the recommended value is taken"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          slotLevel: { type: integer, input: true, default: 2 }
+          hp: { type: integer, input: true, default: 10 }
+        actions:
+          - id: smite
+            steps:
+              - id: slot
+                kind: choice
+                options: { values: [1, 2, 3], where: value >= slotLevel }
+                recommend: options[size(options) - 1]
+                changes:
+                  - { type: adjust, field: hp, by: picked.value * -2 }
+              - id: done
+                kind: outcome
+                data:
+                  picked: steps.slot.picked
+                  level: steps.slot.value + 1
+      content: []
+input:
+  action: { id: test-pack:smite }

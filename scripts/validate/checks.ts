@@ -26,6 +26,7 @@ const KEYWORDS = new Set(['true', 'false', 'null', 'in']);
 import {
   optionQuery,
   pendingSource,
+  valueSource,
   writtenOptions,
 } from '../../packages/engine/src/core/pack-types.ts';
 import { appliesQueries } from '../../packages/engine/src/core/pack-types.ts';
@@ -159,6 +160,16 @@ export class PackChecker {
       const parent = entry.item.extends ?? entry.item.override;
       entry = parent ? this.ruleset.item(parent, this.ruleset.scope(entry.pack)) : undefined;
     }
+    return false;
+  }
+
+  /** Whether any loaded content type or item defines an inline action with this local ID. */
+  private anyDefines(use: string): boolean {
+    const defines = (def: { actions?: ActionOrUse[] }) =>
+      (def.actions ?? []).some((a) => !('use' in a) && a.id === use);
+    for (const { item } of this.ruleset.content.values()) if (defines(item)) return true;
+    for (const rules of this.ruleset.rules.values())
+      for (const { def } of rules.contentTypes.values()) if (defines(def)) return true;
     return false;
   }
 
@@ -1318,10 +1329,10 @@ export class PackChecker {
   private effect(effect: Effect, file: string, where: string, copy = true): void {
     const kind = targetKind(effect.target);
     const label = `${where} effect${effect.id ? ` ${effect.id}` : ''}`;
-    if (effect.then && (!copy || effect.scope === 'applied'))
+    if (effect.then && !copy)
       this.report.error(
         file,
-        `${label}: then-without-copy: only an effect with a copy (content, not the rules, a situational choice, a choice's effects or an applied effect) can change its copy`,
+        `${label}: then-without-copy: only an effect with an entry (content's, not the rules', a situational choice's or a choice's) can change its entry`,
       );
     if (!OP_TARGETS.get(effect.op)?.includes(kind)) {
       this.report.error(file, `${label}: op "${effect.op}" cannot target ${kind}s`);
@@ -1618,6 +1629,8 @@ export class PackChecker {
         }
         for (const option of writtenOptions(step))
           this.requiredKeys.add(`${key}.options.${option.id}.name`);
+        // A value's own text is optional: the app names it otherwise.
+        if (valueSource(step)) this.optionalPrefixes.add(`${key}.options.`);
         const query = step.kind === 'choice' ? optionQuery(step) : undefined;
         if (query && !this.ruleset.contentType(query.type, this.scope))
           this.report.error(file, `${where}: unknown content type "${query.type}"`);
@@ -1643,7 +1656,8 @@ export class PackChecker {
           step.kind === 'action' &&
           step.use &&
           !this.ruleset.action(step.use, this.scope) &&
-          !this.sourceDefines(step.source, step.use)
+          !this.sourceDefines(step.source, step.use) &&
+          !(step.source === undefined && step.entry !== undefined && this.anyDefines(step.use))
         ) {
           this.report.error(file, `${where}: unknown action "${step.use}"`);
         }

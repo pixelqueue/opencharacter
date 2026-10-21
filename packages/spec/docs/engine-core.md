@@ -955,13 +955,18 @@ An `adjust` on field F with amount `by`, `tags` and optional `situational` choic
    (without incoming-change effects), up to `maxOverflowChain` adjusts in all.
 5. **Clamping.** Otherwise the result is clamped to `min`/`max`.
 6. **`then`.** After the adjust is fully routed, each instance that counted in step 1 applies its
-   `then` changes (`setState` or `adjustState`), in instance order, to its own copy: the copy
-   whose `self` it sees (for picked or granted content, the owning copy), before the next change
-   in the batch. Their `value` and `by` are evaluated with the instance's `item`, `self` and
-   `incoming`, on the same sheet as step 1. They are checked like the same changes given to
-   applyChanges, and a failure rejects the batch. They are not adjusts, so nothing routes or
-   triggers on them. An instance with no copy (content picked in a rules-level choice) skips
-   them; `then` where no copy can exist is a load error (`then-without-copy`).
+   `then` changes, in instance order, to its own entry, before the next change in the batch: for
+   an applied activation the applied entry whose `self` it sees (for content an applied grant
+   reaches, the granting entry), otherwise the copy whose `self` it sees (for picked or granted
+   content, the owning copy). A `setState` or `adjustState` changes the entry's state; a
+   `removeEffect` (applied effects only) removes the applied entry. Their `value` and `by` are
+   evaluated with the instance's `item`, `self` and `incoming`, on the same sheet as step 1.
+   They are checked like the same changes given to applyChanges, and a failure rejects the
+   batch. Once an entry is removed, every later `then` change aimed at it in this step is
+   skipped, so two effects of one ward that both counted remove it once. They are not adjusts,
+   so nothing routes or triggers on them. An instance with no entry (content picked in a
+   rules-level choice) skips them; `then` where no entry can exist is a load error
+   (`then-without-copy`).
 
 Each step that changes a field is reported in `adjustments`, in order, as
 `{ field, by, requested?, taken?, reason, clamped? }`, with qualified field IDs:
@@ -983,8 +988,9 @@ Each step that changes a field is reported in `adjustments`, in order, as
    - **`carry`**: with `carry: true`, the excess routed into the field again, its
      entry `{ field, by, reason: carry }` followed by its own steps if it overflows in turn.
 5. **`then`:** after the adjust's own entries, one `{ entry, key, value, source }` per `then`
-   change: the copy, the state key, its new value, and the effect instance's source with its
-   effect ID (`effect`, when the effect has one).
+   state change: the entry (a copy or an applied entry), the state key, its new value, and the
+   effect instance's source with its effect ID (`effect`, when the effect has one). A
+   `removeEffect` adds `{ entry, removed: true, source }` instead. A skipped change adds nothing.
 
 `clamped: true` appears only when clamping changed the amount. So FitD stress at 8 taking 3
 reports stress +3 (`requested`), trauma +1 (`overflow`), then stress −11 (`reset`). Mothership

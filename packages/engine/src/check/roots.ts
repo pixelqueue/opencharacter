@@ -318,6 +318,8 @@ export function talliesType(names: Iterable<string>): ObjectType {
   return { object: Object.fromEntries([...names].map((n) => [n, 'int' as FType])) };
 }
 const NO_TALLIES = talliesType([]);
+// A roll made more than once (`of: roll`): every whole roll, the kept one marked.
+const ROLLS: FType = { list: { object: { total: 'int', kept: 'bool', items: 'dyn' } } };
 function rollResult(tallies: FType): ObjectType {
   return {
     object: {
@@ -333,6 +335,7 @@ function rollResult(tallies: FType): ObjectType {
       // Each bound that changed the total, and the total before them.
       bounds: { list: { object: { source: 'dyn', op: 'string', value: 'int' } } },
       unbounded: 'int',
+      rolls: ROLLS,
     },
   };
 }
@@ -344,6 +347,7 @@ export function bandRoll(tallies: FType = NO_TALLIES, value?: FType): ObjectType
       kept: { list: 'int' },
       empty: 'bool',
       tallies,
+      rolls: ROLLS,
       ...(value !== undefined ? { value } : {}),
     },
   };
@@ -365,7 +369,7 @@ export function paramsType(params: Record<string, ValueDecl> | undefined): FType
   return { object: declTypes(params) };
 }
 
-export type ChoiceViews = (step: Step) => { item?: FType; self?: FType };
+export type ChoiceViews = (step: Step) => { item?: FType; self?: FType; value?: FType };
 
 export function actionType(item: FType, self: FType): ObjectType {
   return {
@@ -373,9 +377,12 @@ export function actionType(item: FType, self: FType): ObjectType {
   };
 }
 
-export function pickedType(views: { item?: FType; self?: FType }): ObjectType {
+export function pickedType(views: { item?: FType; self?: FType; value?: FType }): ObjectType {
   return { object: { id: 'string', ...views } };
 }
+
+/** The instance IDs of the copies a step's own `addItem`s add to the actor. */
+const ADDED: FType = { list: 'string' };
 
 /**
  * An `each` step's result is a list of per-participant results; one of them inside an `each`
@@ -397,10 +404,11 @@ export function stepsAndFlags(
       if (step.kind === 'roll') type = rollResult(tallies);
       else if (step.kind === 'choice')
         type = pendingSource(step)
-          ? { object: { picked: { list: 'string' }, paths: { list: 'dyn' } } }
+          ? { object: { picked: { list: 'string' }, paths: { list: 'dyn' }, added: ADDED } }
           : step.repeat
-            ? { object: { picked: { list: 'string' } } }
-            : { object: { picked: 'string', ...views(step) } };
+            ? { object: { picked: { list: 'string' }, added: ADDED } }
+            : { object: { picked: 'string', ...views(step), added: ADDED } };
+      else if (step.kind === 'changes') type = { object: { added: ADDED } };
       else if (step.kind === 'action') type = { object: { result: 'string', data: 'dyn' } };
       // An allocate step's amounts are by qualified field ID, which no path can name.
       else if (step.kind === 'allocate') type = { object: { amounts: 'dyn' } };
