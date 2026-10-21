@@ -300,6 +300,30 @@
             "additionalProperties": false
           }
         },
+        "rolls": {
+          "description": "Roll steps made more than once (advantage or disadvantage `of: roll`): every whole roll, in roll order, with its total before bounds; `kept` marks the one kept, whose items are `items`. `faces` lists every roll's faces. Absent for a roll made once.",
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["total", "kept", "items"],
+            "properties": {
+              "total": {
+                "type": "number"
+              },
+              "kept": {
+                "type": "boolean"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "../roll-item.schema.json"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
         "tallies": {
           "description": "Roll steps: each roll tally with a non-zero value, with what contributed to it.",
           "type": "array",
@@ -396,6 +420,21 @@
           "items": {
             "$ref": "../roll-item.schema.json"
           }
+        },
+        "repeat": {
+          "description": "Dice steps made more than once (advantage or disadvantage `of: roll`): `times` whole rolls of `items`, whose dice `dice` lists roll after roll, and the total kept: `high` or `low`. Absent for a roll made once.",
+          "type": "object",
+          "required": ["times", "keep"],
+          "properties": {
+            "times": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "keep": {
+              "enum": ["high", "low"]
+            }
+          },
+          "additionalProperties": false
         },
         "summary": {
           "description": "Dice steps: the summary of the roll the pause is for; a pause for more dice mid-roll carries the same one. To preview a roll, an app starts the action with `dice: 'pause'`, reads this and drops the result.",

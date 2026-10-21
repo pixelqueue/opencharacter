@@ -222,6 +222,10 @@ A roll step is built, then rolled, then classified.
    `better: low`) of its count before the extra dice, reversed for disadvantage. If it already has
    one, only its count grows.
 
+   **Whole rolls.** When a counted source of the kind that applies says `of: roll`, the extras
+   are whole rolls instead of dice: the roll is made once more per extra (below), and nothing is
+   added to the main dice item. A roll with no dice items is made once.
+
 6. **Multiply dice:** each `multiplyDice` multiplies the count of every dice item except those
    marked `multiplied: false`.
 7. **Reroll, minimum face, explode:** each adds its dice modifier (`reroll`/`rerollOnce` at
@@ -234,6 +238,15 @@ A roll step is built, then rolled, then classified.
 
 Dice items are rolled in order, each by the formula language's rules
 ([formulas.md](formulas.md#rolling-dice-values)), with faces from the checkpoint.
+
+- **Whole rolls**: a roll made more than once (`of: roll`, step 5) is built once and
+  rolled that many times, each a copy of the built items rolled in full in turn, the first
+  roll's dice first. Only the first roll has given faces; the later ones ask for every die. A
+  pause's `dice` lists every roll's dice in that order, and `repeat: { times, keep }` says how
+  many rolls and which total is kept (`high` or `low`). Each roll's items are multiplied as
+  below and summed; the roll whose sum is better (higher, or lower with `better: low`; worse
+  for disadvantage) is kept, the first among equal sums. The kept roll's items are the roll's
+  items from here on: its total, faces, bounds and band.
 
 - **Given faces**: an item's given faces are its first, before any face from the
   checkpoint, and are marked `set: true`. The checkpoint asks only for the rest: the need's
@@ -251,7 +264,7 @@ Dice items are rolled in order, each by the formula language's rules
   `floor`). Faces are unchanged; the item's `value` is the multiplied value and its `factor`
   the product of the factors. Tallies aren't multiplied.
 - **Result:** the roll's total is the sum of every item's value (multiplied), a dice item counting
-  with its term's sign. A `split` change sums the same values per tag.
+  with its term's sign; for a roll made more than once, the kept roll's. A `split` change sums the same values per tag.
 - **Bounds**: the highest counted `atLeast` roll effect raises the total, then the
   lowest counted `atMost` lowers it. Stacking applies per op. The bounded total is `total`, and
   the band reads it; the items and faces are unchanged.
@@ -259,6 +272,9 @@ Dice items are rolled in order, each by the formula language's rules
   - `total`;
   - `faces`: every face of every dice item, in roll order, dropped and rerolled included;
   - `kept`: kept faces;
+  - `rolls`: for a roll made more than once, every whole roll in order, `{ total, kept, items }`,
+    `total` before bounds and `kept` true for the one kept (whose items, faces and kept faces
+    are the result's); absent for a roll made once;
   - `empty`;
   - `items`: the itemized roll;
   - `tallies`: each roll tally visible from the action's pack, by name (below);
@@ -288,7 +304,7 @@ A roll step with `of` builds and rolls nothing and is not a checkpoint:
    isn't reached yet) leaves the step without a result, as a false `when` does. At load, the
    path's first step must be a step of the action (`unknown-reference`, kind `step`).
 2. **The result** is the earlier roll's `total`, `faces`, `kept`, `empty`, `items`, `tallies`,
-   `bounds` and `unbounded`, with `band`, `bandValue` and `bandSet` worked out afresh by the
+   `bounds`, `unbounded` and `rolls`, with `band`, `bandValue` and `bandSet` worked out afresh by the
    step's `bands` in the step's band context (its flags, `params`, `steps`, `participants`, and
    in an `each` step `participant` and the participant's flags). A `split` may read it as it
    would the earlier roll.
@@ -882,7 +898,8 @@ Every checkpoint adds a log entry:
 - for rolls, the `items`, `total`, `band` and `bandSet` (as in the step's result), and `tallies`:
   each tally with a non-zero value as `{ name, value, sources }`, each source `{ source, op, value
   }` (an `atLeast` or `atMost` is listed only when it changed the value); `bounds`, when a bound
-  changed the total; and `summary`, the roll's [summary](#the-roll-summary), a dice-less roll's
+  changed the total; `rolls`, for a roll made more than once (as in the step's result), while
+  `faces` lists every roll's faces as supplied; and `summary`, the roll's [summary](#the-roll-summary), a dice-less roll's
   included.
 
 **A paused action is its inputs plus its answers so far** (`state`): the ruleset version, the

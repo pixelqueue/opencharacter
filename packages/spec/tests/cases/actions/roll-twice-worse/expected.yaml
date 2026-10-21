@@ -1,0 +1,42 @@
+# 6 + 5 + 1 = 12, then 2 + 3 + 1 = 6: the second roll is kept, its dice are the items.
+status: finished
+outcome:
+  result: failure
+  data: { total: 6, rolls: 2, kept: 1 }
+log:
+  - step: roll
+    action: 'test-roll-twice:check'
+    kind: dice
+    by: engine
+    faces: [6, 5, 2, 3]
+    total: 6
+    band: failure
+    items:
+      - {
+          kind: dice,
+          count: 2,
+          sides: 6,
+          modifiers: [],
+          faces: [{ value: 2, kept: true }, { value: 3, kept: true }],
+          value: 5,
+        }
+      - { kind: flat, value: 1 }
+    rolls:
+      - {
+          total: 12,
+          kept: false,
+          items:
+            [
+              { kind: dice, count: 2, faces: [{ value: 6 }, { value: 5 }], value: 11 },
+              { kind: flat, value: 1 },
+            ],
+        }
+      - {
+          total: 6,
+          kept: true,
+          items:
+            [
+              { kind: dice, count: 2, faces: [{ value: 2 }, { value: 3 }], value: 5 },
+              { kind: flat, value: 1 },
+            ],
+        }
