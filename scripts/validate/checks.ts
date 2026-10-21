@@ -1318,10 +1318,10 @@ export class PackChecker {
   private effect(effect: Effect, file: string, where: string, copy = true): void {
     const kind = targetKind(effect.target);
     const label = `${where} effect${effect.id ? ` ${effect.id}` : ''}`;
-    if (effect.then && (!copy || effect.scope === 'applied'))
+    if (effect.then && !copy)
       this.report.error(
         file,
-        `${label}: then-without-copy: only an effect with a copy (content, not the rules, a situational choice, a choice's effects or an applied effect) can change its copy`,
+        `${label}: then-without-copy: only an effect with an entry (content's, not the rules', a situational choice's or a choice's) can change its entry`,
       );
     if (!OP_TARGETS.get(effect.op)?.includes(kind)) {
       this.report.error(file, `${label}: op "${effect.op}" cannot target ${kind}s`);

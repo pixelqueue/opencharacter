@@ -19,6 +19,18 @@ function enumAt(file: string, pointer: string[]): unknown[] {
   return (node as { enum: unknown[] }).enum;
 }
 
+/** An incoming-change effect with `then`. */
+function ward(scope: string | undefined, changes: object[]) {
+  return {
+    target: { incoming: { tags: ['damage'] } },
+    op: 'add',
+    value: '1',
+    ...(scope ? { scope } : {}),
+    // oxlint-disable-next-line unicorn/no-thenable
+    then: changes,
+  };
+}
+
 describe('schemas', () => {
   it('have $ids under the spec base URI that match their file paths', () => {
     for (const [path, schema] of loadSchemas()) {
@@ -153,6 +165,20 @@ describe('display, template and change shapes', () => {
     );
     expect(
       valid('content-item.schema.json', { id: 'a', type: 'armor', fields: { strength: null } }),
+    ).toBe(false);
+  });
+
+  it("lets only an applied incoming-change effect's then remove its entry", () => {
+    const remove = [{ type: 'removeEffect', entry: 'self' }];
+    const set = [{ type: 'setState', entry: 'self', key: 'k', value: '1' }];
+    expect(valid('effect.schema.json', ward('applied', remove))).toBe(true);
+    expect(valid('effect.schema.json', ward('applied', set))).toBe(true);
+    expect(valid('effect.schema.json', ward('holder', set))).toBe(true);
+    expect(valid('effect.schema.json', ward('holder', remove))).toBe(false);
+    expect(valid('effect.schema.json', ward(undefined, remove))).toBe(false);
+    expect(valid('effect.schema.json', ward('applied', [{ ...remove[0], key: 'k' }]))).toBe(false);
+    expect(
+      valid('effect.schema.json', ward('applied', [{ type: 'setState', entry: 'self' }])),
     ).toBe(false);
   });
 

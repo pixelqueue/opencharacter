@@ -1279,17 +1279,17 @@ export type Effect = {
   tags?: TagList;
   /** Rolls with op `add` only: `false` leaves the roll items the effect adds, dice or flat, alone when `multiplyDice` multiplies the roll's dice or `multiply` its items (5E's Savage Attacks: an extra die rolled once on a critical hit, not doubled; orc-2e's deadly die, added after doubling). Default `true`. */
   multiplied?: boolean;
-  /** Incoming-change effects only: state changes to the effect's own copy, applied by applyChanges right after the adjust is routed, when the effect counted (its `when` held and stacking kept it). Each is a `setState` or `adjustState` with `entry: self`; `value` and `by` are formulas seeing `item`, `self` and `incoming`. Only for effects with a copy: on the rules' effects, `applied`-scope effects and choice effects it is a load error (`then-without-copy`). */
+  /** Incoming-change effects only: changes to the effect's own entry, applied by applyChanges right after the adjust is routed, when the effect counted (its `when` held and stacking kept it). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, whose `value` and `by` are formulas seeing `item`, `self` and `incoming`, or, on an `applied` effect, a `removeEffect` with `entry: self`, which ends the entry (a ward that triggers once). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`). */
   then?: ThenChange[];
   /** Who the effect applies to. `holder` (default): a character who has the content active (features, inventory, picks, grants). `applied`: a character the content is applied to (its `applied` list: cast on them, a condition). Content in `applied` runs only its `applied` effects; held content runs only its `holder` effects. */
   scope?: 'holder' | 'applied';
 };
 
-/** A change an incoming-change effect makes to its own copy after the adjust is routed: `setState` with `value`, or `adjustState` with `by`, always `entry: self`. */
+/** A change an incoming-change effect makes to its own entry after the adjust is routed: `setState` with `value`, `adjustState` with `by`, or `removeEffect` (an `applied` effect only), always `entry: self`. */
 export type ThenChange = {
-  type: 'setState' | 'adjustState';
+  type: 'setState' | 'adjustState' | 'removeEffect';
   entry: 'self';
-  key: Name;
+  key?: Name;
   value?: Formula;
   by?: Formula;
 };
@@ -1718,7 +1718,7 @@ export type ApplyChangesOutput =
       /** The batch as applied: each `adjust` whose incoming-change effects rolled dice carries every face it used in `faces`, supplied and rolled. Apps log this, not their input, so a replay never rolls. A batch that rolled nothing comes back unchanged. */
       changes: Change[];
       issues: RulesIssue[];
-      /** What adjust changes actually did after incoming-change effects, absorption, overflow and clamping: one entry per field touched, in order. A change aimed at copies by query adds `{ copies }`: the instance IDs it matched, in order (empty when none matched); one aimed at applied entries by query adds `{ applied }` the same way, and an `applyEffect` merged into an existing entry (`reapply`) adds `{ applied: [<that entry's ID>] }`. An incoming-change effect's `then` adds `{ entry, key, value, source }` per state change it made. */
+      /** What adjust changes actually did after incoming-change effects, absorption, overflow and clamping: one entry per field touched, in order. A change aimed at copies by query adds `{ copies }`: the instance IDs it matched, in order (empty when none matched); one aimed at applied entries by query adds `{ applied }` the same way, and an `applyEffect` merged into an existing entry (`reapply`) adds `{ applied: [<that entry's ID>] }`. An incoming-change effect's `then` adds `{ entry, key, value, source }` per state change it made to its own entry, and `{ entry, removed: true, source }` when it removed its applied entry. */
       adjustments?: (
         | {
             field: string;
@@ -1744,6 +1744,11 @@ export type ApplyChangesOutput =
             key: Name;
             /** The state key's new value. */
             value: unknown;
+            source: Source;
+          }
+        | {
+            entry: InstanceId;
+            removed: true;
             source: Source;
           }
         | {
