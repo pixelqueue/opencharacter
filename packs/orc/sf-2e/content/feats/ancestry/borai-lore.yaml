@@ -13,11 +13,7 @@ effects:
     value: { tag: skill.religion }
     when: "!('skill.religion' in skills.chosen)"
   - { target: skills.trainings, op: add, value: 1 }
-  - target: skills.trained
-    op: grant
-    value: { tag: skill.lore.borai }
-    when: "!('skill.lore.borai' in skills.chosen)"
-  - { target: skills.trainings, op: add, value: 1 }
-  - target: skills.lore.borai.granted
-    op: add
-    value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+grants:
+  - item: feats.skill.additional-lore
+    waivePrerequisites: true
+    choices: { lore: [{ option: borai }] }
