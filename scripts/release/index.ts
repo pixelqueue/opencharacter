@@ -261,6 +261,61 @@ export function syncPinnedVersions(root: string, files: string[], bumps: PackBum
   return changed;
 }
 
+export interface SpecBump {
+  from: string;
+  to: string;
+}
+
+const SPEC_SOURCE = 'packages/spec/src/index.ts';
+const majorMinor = (v: string) => v.split('.').slice(0, 2).join('.');
+
+/**
+ * After `changeset version` bumps `@opencharacter/spec`, moves the spec version everywhere it is
+ * stated: `SPEC_VERSION` (which `SCHEMA_BASE` derives from), the `schemas/<major.minor>/` path of
+ * every schema ID and link, and the prose that names the current version. Minimums and records
+ * (`specVersion`) stay. Returns the bump and the files changed, or undefined when they match.
+ */
+export function syncSpecVersion(
+  root: string,
+  files: string[],
+): { bump: SpecBump; files: string[] } | undefined {
+  const pkg = join(root, 'packages', 'spec', 'package.json');
+  const to = (JSON.parse(readFileSync(pkg, 'utf8')) as { version: string }).version;
+  const source = readFileSync(join(root, SPEC_SOURCE), 'utf8');
+  const from = /SPEC_VERSION = '([^']+)'/.exec(source)?.[1];
+  if (!from) throw new Error(`no SPEC_VERSION in ${SPEC_SOURCE}`);
+  if (from === to) return undefined;
+  const patterns: [RegExp, string][] = [
+    [new RegExp(`(SPEC_VERSION = ')${escape(from)}'`, 'g'), `$1${to}'`],
+    [
+      new RegExp(
+        `(Spec version \\**|current version is \\**)${escape(from)}(?![\\w-]|\\.\\d)`,
+        'g',
+      ),
+      `$1${to}`,
+    ],
+  ];
+  if (majorMinor(from) !== majorMinor(to)) {
+    patterns.push([
+      new RegExp(`(?<![\\w.-])schemas/${escape(majorMinor(from))}/`, 'g'),
+      `schemas/${majorMinor(to)}/`,
+    ]);
+  }
+  const changed: string[] = [];
+  for (const file of new Set([SPEC_SOURCE, ...files])) {
+    const path = join(root, file);
+    if (!existsSync(path)) continue;
+    const text = readFileSync(path, 'utf8');
+    let next = text;
+    for (const [re, sub] of patterns) next = next.replace(re, sub);
+    if (next !== text) {
+      writeFileSync(path, next);
+      changed.push(file);
+    }
+  }
+  return { bump: { from, to }, files: changed };
+}
+
 export function pinFiles(root: string): string[] {
   return execFileSync(
     'git',
@@ -277,7 +332,7 @@ export function pinFiles(root: string): string[] {
     .split('\n')
     .filter(
       (f) =>
-        /\.(ya?ml|md|mdx|ts|js|mjs|json)$/.test(f) &&
+        /\.(ya?ml|md|mdx|tsx?|jsx?|mjs|json|html|astro)$/.test(f) &&
         !/(^|\/)CHANGELOG\.md$/.test(f) &&
         !/^packs\/[^/]+\/[^/]+\/(pack\.yaml|package\.json)$/.test(f) &&
         !/(^|\/)(node_modules|dist)\//.test(f),
