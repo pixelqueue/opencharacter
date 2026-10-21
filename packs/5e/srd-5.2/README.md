@@ -204,7 +204,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Resistance's situational Advantage, the Rakshasa's option on a failed save). Conditions a grapple
   brings (Restrained, Blinded) are applied with it and ended by the app. A Multiattack's "replace
   one attack" replaces the last. A charge ("moved 20 feet straight toward") is its own action on the
-  attack. A Priest Acolyte's spell save DC, which the SRD doesn't print, is 8 + Wisdom modifier +
+  attack; a Multiattack's `charged` parameter makes its first attack the charge. The Half-Dragon's
+  Multiattack adds each Claw's Draconic Origin damage, its type a parameter. A Priest Acolyte's spell save DC, which the SRD doesn't print, is 8 + Wisdom modifier +
   PB. The Hydra's heads are a parameter of its Multiattack. A size limit follows the stat block's
   words: "one Large or smaller creature" keeps a larger one out of the whole effect, while "if the
   target is Large or smaller" limits only the condition.
@@ -306,8 +307,7 @@ as text are listed below.
   Gear quantities and language dialects aren't stored.
 - **Class features:** Improved Elemental Fury's range is text (an effect can't change a spell's
   fields).
-- **Open spec issues:** three of these wait on the format: a Multiattack calling an action an entry defines inline, an effect changing a
-  spell's fields (Improved Elemental Fury's range), and a choice reading a sibling choice (a
+- **Open spec issues:** two of these wait on the format: an effect changing a spell's fields (Improved Elemental Fury's range), and a choice reading a sibling choice (a
   background's +1 and +2, kept apart by a hidden field).
 
 ## Omitted

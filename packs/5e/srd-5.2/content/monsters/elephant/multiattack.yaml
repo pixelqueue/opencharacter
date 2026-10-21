@@ -8,11 +8,21 @@ actions:
     tags: [attack]
     participants:
       target: { max: 2, fields: target }
+    params:
+      charged: { type: boolean, default: false }
     results: [done]
     steps:
       - id: gore1
         kind: action
         use: monster-attack
+        when: '!params.charged'
+        entry: filterList(character.features, x.item == @monsters.elephant.gore)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: charge1
+        kind: action
+        use: charge
+        when: params.charged
         entry: filterList(character.features, x.item == @monsters.elephant.gore)[0].id
         participants:
           target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
@@ -27,5 +37,6 @@ actions:
         result: "'done'"
         data:
           hits: >-
-            (steps.gore1.result == 'hit' ? 1 : 0)
+            (has(steps.gore1) && steps.gore1.result == 'hit' ? 1 : 0)
+              + (has(steps.charge1) && steps.charge1.result == 'hit' ? 1 : 0)
               + (steps.gore2.result == 'hit' ? 1 : 0)

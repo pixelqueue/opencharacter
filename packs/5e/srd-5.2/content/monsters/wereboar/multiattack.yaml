@@ -8,6 +8,8 @@ actions:
     tags: [attack]
     participants:
       target: { max: 2, fields: target }
+    params:
+      charged: { type: boolean, default: false }
     results: [done]
     steps:
       - id: pick1
@@ -23,8 +25,15 @@ actions:
           target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
       - id: tusk1
         kind: action
-        when: "steps.pick1.picked == 'tusk'"
+        when: "steps.pick1.picked == 'tusk' && !params.charged"
         use: monster-attack
+        entry: filterList(character.features, x.item == @monsters.wereboar.tusk)[0].id
+        participants:
+          target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
+      - id: charge1
+        kind: action
+        when: "steps.pick1.picked == 'tusk' && params.charged"
+        use: charge
         entry: filterList(character.features, x.item == @monsters.wereboar.tusk)[0].id
         participants:
           target: 'size(participants.target) > 0 ? [participants.target[0]] : []'
@@ -60,6 +69,7 @@ actions:
           hits: >-
             (has(steps.javelin1) && steps.javelin1.result == 'hit' ? 1 : 0)
               + (has(steps.tusk1) && steps.tusk1.result == 'hit' ? 1 : 0)
+              + (has(steps.charge1) && steps.charge1.result == 'hit' ? 1 : 0)
               + (has(steps.javelin2) && steps.javelin2.result == 'hit' ? 1 : 0)
               + (has(steps.tusk2) && steps.tusk2.result == 'hit' ? 1 : 0)
               + (has(steps.gore2) && steps.gore2.result == 'hit' ? 1 : 0)
