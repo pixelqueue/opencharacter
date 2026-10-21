@@ -53,14 +53,14 @@ npm install @opencharacter/engine @opencharacter/5e-srd-5.1
 ```
 
 ```ts
-import { computeSheet, loadRuleset, type CharacterFile } from '@opencharacter/engine';
+import { computeSheet, loadRuleset, SPEC_VERSION, type CharacterFile } from '@opencharacter/engine';
 import srd from '@opencharacter/5e-srd-5.1';
 
 const loaded = loadRuleset([srd]);
 if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
 
 const tamsin: CharacterFile = {
-  specVersion: '0.1.0',
+  specVersion: SPEC_VERSION,
   id: 'tamsin',
   packs: [{ id: '5e-srd-5.1', version: '0.1.0' }],
   values: { '5e-srd-5.1:abilities.str.base': 16 },

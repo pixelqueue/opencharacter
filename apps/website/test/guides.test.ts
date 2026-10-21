@@ -117,7 +117,7 @@ function runnable(code: string): string {
     const [file = ''] = writeBlocks(dir, [code]);
     tsc(dir, ['--noCheck', '--noResolve', '--target', 'ES2022', '--module', 'ESNext', file]);
     return read(join(dir, file.replace(/\.ts$/, '.js')))
-      .replace(/^import .*$/gm, '')
+      .replace(/^import [^;]*;$/gm, '')
       .replace(/^export \{\};$/m, '');
   } finally {
     rmSync(dir, { recursive: true, force: true });
@@ -138,7 +138,7 @@ describe('guides', { timeout: 30_000 }, () => {
     const run = new Function(
       'engine',
       'srd',
-      `const { computeSheet, loadRuleset } = engine;
+      `const { computeSheet, loadRuleset, SPEC_VERSION } = engine;
       ${runnable(readme())}
       return sheet.values['5e-srd-5.1:abilities.str.mod']?.value;`,
     );
@@ -155,7 +155,7 @@ describe('guides', { timeout: 30_000 }, () => {
       'en',
       'console',
       `
-      const { applyChanges, computeSheet, loadRuleset, startAction } = engine;
+      const { applyChanges, computeSheet, loadRuleset, SPEC_VERSION, startAction } = engine;
       ${body}
     `,
     );

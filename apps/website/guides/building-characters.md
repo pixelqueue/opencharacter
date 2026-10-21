@@ -26,7 +26,7 @@ with `creating: true`, then offer:
 | Manual | always                | nothing: the player fills in the blank sheet                                  |
 
 ```ts
-const character = { specVersion: '0.1.0', id: newId(), packs, creating: true };
+const character = { specVersion: SPEC_VERSION, id: newId(), packs, creating: true };
 const start = ruleset.creation[0];
 let run = startAction(ruleset, character, {
   action: { id: start.action },
