@@ -367,7 +367,8 @@ contentTypes:
 - **Evaluating:** after every field, for each copy (`features`, then `inventory`, in file order).
   The formula sees `item` (the copy's item with its templates), `self` (the copy, with the
   computed values declared before it), every field, `character`, `links` and the
-  character functions. It resolves names in the pack that declared it.
+  character functions, `picksOf` reading the copy's item's choices (a CWN spirit's Effort is
+  `max(1, size(picksOf('powers')) - 1)`). It resolves names in the pack that declared it.
 - **Reading:** `self.<name>`, in the copy's own actions (including those it reaches through
   `use`, and their `available`) and its follow-ups, and in the copy's later computed values:
   a computed value reads those declared **before** it, in declaration order (the
@@ -733,6 +734,29 @@ character's part in `eligible`.
 A choice of inline options has no `eligible` (a schema error): its options have prerequisites.
 A pick another source also gives (an acolyte cleric's class skill Insight) passes such a
 condition, being the choice's own pick; the rules issue is the app's to raise, if the game wants it.
+
+### Reading other choices' picks
+
+Any formula of an owner reads the saved picks of the owner's choices with
+[`picksOf('<choice>')`](formulas.md#picks-of-the-owners-choices): a list of content IDs or
+values, in saved order. A choice's `recommend`, `eligible` and `where` can depend on a sibling
+choice's picks, and a copy's computed values, effects, actions and follow-ups can count its own:
+
+```yaml
+# packs/5e/srd-5.2/content/backgrounds/acolyte.yaml: the +1 recommends the best ability the +2
+# hasn't taken; `unique` already keeps the two apart.
+- id: plus-one
+  unique: acolyte-increase
+  uniqueScope: owner
+  from: { values: [int, wis, cha] }
+  recommend: >-
+    sortList(filterList(['int', 'wis', 'cha'], !(x in picksOf('plus-two'))),
+      -fieldOf('abilities.{ability}.base', x))[0]
+```
+
+The siblings are the choices of the same owner: the item's, or an inline option's (here
+`two-and-one`'s). Picks are saved input, so two choices may read each other without a loop; each
+sees the other's picks, not its recommendation.
 
 ### Where picks are kept
 
