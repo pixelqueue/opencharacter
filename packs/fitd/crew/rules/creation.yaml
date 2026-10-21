@@ -52,7 +52,6 @@ actions:
           - type: addItem
             when: "has(steps.type) && steps.type.item.startingCohort != ''"
             entry:
-              id: cohort-start
               item: "'cohorts.gang'"
               state: { gangType: steps.type.item.startingCohort }
       - id: startingUpgrades
@@ -74,7 +73,11 @@ actions:
         random: params.random
         recommend: options[0]
         changes:
-          - { type: choose, path: { entry: cohort-start, choice: [edges] }, option: picked.id }
+          - {
+              type: choose,
+              path: { entry: { formula: 'steps.start.added[0]' }, choice: [edges] },
+              option: picked.id,
+            }
       - id: startFlaw
         kind: choice
         when: "has(steps.type) && steps.type.item.startingCohort != ''"
@@ -83,7 +86,11 @@ actions:
         random: params.random
         recommend: options[0]
         changes:
-          - { type: choose, path: { entry: cohort-start, choice: [flaws] }, option: picked.id }
+          - {
+              type: choose,
+              path: { entry: { formula: 'steps.start.added[0]' }, choice: [flaws] },
+              option: picked.id,
+            }
       - id: huntingGrounds
         kind: choice
         options:
@@ -144,12 +151,11 @@ actions:
           - type: addItem
             when: "steps.more.picked == 'gang'"
             entry:
-              id: cohort-new
               item: "'cohorts.gang'"
               state: { gangType: steps.gangType.picked }
           - type: addItem
             when: "steps.more.picked == 'expert'"
-            entry: { id: cohort-new, item: "'cohorts.expert'" }
+            entry: { item: "'cohorts.expert'" }
       - id: newEdge
         kind: choice
         when: "steps.more.picked != 'upgrades'"
@@ -158,7 +164,11 @@ actions:
         random: params.random
         recommend: options[0]
         changes:
-          - { type: choose, path: { entry: cohort-new, choice: [edges] }, option: picked.id }
+          - {
+              type: choose,
+              path: { entry: { formula: 'steps.cohort.added[0]' }, choice: [edges] },
+              option: picked.id,
+            }
       - id: newFlaw
         kind: choice
         when: "steps.more.picked != 'upgrades'"
@@ -167,7 +177,11 @@ actions:
         random: params.random
         recommend: options[0]
         changes:
-          - { type: choose, path: { entry: cohort-new, choice: [flaws] }, option: picked.id }
+          - {
+              type: choose,
+              path: { entry: { formula: 'steps.cohort.added[0]' }, choice: [flaws] },
+              option: picked.id,
+            }
       # Each faction step reads the proposed sheet, so a faction picked twice adds up, kept between
       # -3 and +3.
       - id: helped

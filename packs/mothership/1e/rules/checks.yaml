@@ -37,6 +37,10 @@ situational:
     type: boolean
     default: false
     rolls: [conversion]
+    effects:
+      - target: { rolls: [conversion] }
+        op: rollModifier
+        value: { kind: advantage, of: roll }
 
 # At least 1: 00 always succeeds, even against 0.
 resultBands:
@@ -304,13 +308,6 @@ actions:
         tags: [conversion]
         parts:
           - dice: params.convert
-      # The whole roll again, keeping the better total; a roll modifier would add one die instead.
-      - id: conversionAgain
-        kind: roll
-        when: has(steps.conversion) && situational.xClass
-        tags: [conversion]
-        parts:
-          - dice: params.convert
       - id: amount
         kind: branch
         cases:
@@ -322,8 +319,6 @@ actions:
                     params.all ? stress.current
                     : steps.check.result == 'critical-success'
                       ? (has(params.convert) ? maxOf(params.convert) : 0)
-                    : has(steps.conversionAgain)
-                      ? max(steps.conversion.total, steps.conversionAgain.total)
                     : has(steps.conversion) ? steps.conversion.total : 0)
       - id: improve
         kind: allocate

@@ -5,7 +5,6 @@ contentTypes:
       twoDots: { type: set, of: field, required: true }
       oneDot: { type: set, of: field, required: true }
     effects:
-      - { id: tag, target: playbook.tag, op: set, value: 'item.tags[0]' }
       - id: dots
         target: playbook.dots
         op: set
@@ -79,7 +78,6 @@ contentTypes:
   traumaCondition: {}
 
 fields:
-  playbook.tag: { type: string, formula: "''" }
   # Without a playbook the player places the template's three starting dots (the playbook's three,
   # plus four), so a new scoundrel always has seven.
   playbook.dots: { type: integer, formula: 3 }
@@ -106,7 +104,7 @@ choices:
     required: false
     from: { type: playbook }
   - id: special-abilities
-    pick: "playbook.tag == '' ? 1 + advances.playbook : 0"
+    pick: "size(picksOf('playbook')) == 0 ? 1 + advances.playbook : 0"
     from: { type: specialAbility }
   - id: vice
     pick: 1
@@ -136,7 +134,6 @@ display:
       }
     advances.playbook:
       { groups: [xp], priority: 1, input: { widget: number }, visibility: background }
-    playbook.tag: { hidden: true }
     abilities.special: { hidden: true }
     playbook.dots: { hidden: true }
     expertise.action: { hidden: true }

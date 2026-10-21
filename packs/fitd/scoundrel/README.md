@@ -83,7 +83,7 @@ start's odds are the pack's: every pick uniform over what the guided start offer
 at a time to an action that can still take one.
 
 **A table's own playbook** is a homebrew item of the `playbook` type: its `twoDots` and `oneDot`
-fields place its starting dots, its first tag is `playbook.tag`, and its own `special-ability`
+fields place its starting dots, and its own `special-ability`
 choice offers its abilities (by ID or by a tag homebrew abilities carry). With one, creation
 picks it first, places its dots for the player, and asks its ability with the pending picks.
 [An example](https://github.com/pixelqueue/opencharacter/blob/main/examples/characters/fitd-ash.yaml)

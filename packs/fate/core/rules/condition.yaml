@@ -353,30 +353,21 @@ actions:
         kind: choice
         when: flags.rest > 0
         options:
-          - id: box1
-            when: flags.rest <= 1 && flags.free1
-          - id: box2
-            when: flags.rest <= 2 && flags.free2
-          - id: box3
-            when: flags.rest <= 3 && flags.free3
-          - id: box4
-            when: flags.rest <= 4 && flags.free4
-        recommend: >-
-          flags.rest <= 1 && flags.free1 ? 'box1' : flags.rest <= 2 && flags.free2 ? 'box2'
-            : flags.rest <= 3 && flags.free3 ? 'box3' : 'box4'
+          values: [1, 2, 3, 4]
+          where: value >= flags.rest && [flags.free1, flags.free2, flags.free3, flags.free4][value - 1]
+        recommend: options[0]
         changes:
           - type: set
             field:
-              { formula: "'stress.' + (flags.physical ? 'physical' : 'mental') + '.' + picked.id" }
+              formula: >-
+                'stress.' + (flags.physical ? 'physical' : 'mental') + '.box' + string(picked.value)
             value: true
       - id: result
         kind: outcome
         result: "flags.rest > 0 && !has(steps.box) ? 'taken-out' : 'absorbed'"
         data:
           shifts: params.shifts
-          box: >-
-            !has(steps.box) ? 0 : steps.box.picked == 'box1' ? 1 : steps.box.picked == 'box2' ? 2
-              : steps.box.picked == 'box3' ? 3 : 4
+          box: 'has(steps.box) ? steps.box.value : 0'
           unabsorbed: 'has(steps.box) ? 0 : max(0, flags.rest)'
           consequences: >-
             (has(steps.extraMild) && steps.extraMild.picked == 'take' ? 1 : 0)

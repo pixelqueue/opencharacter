@@ -1,0 +1,17 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - id: test-pack
+    version: 1.0.0
+features:
+  - id: scout
+    item: test-pack:paths.scout
+    grants:
+      test-pack:feats.track: { state: { skill: stealth } }
+    choices:
+      feat:
+        - option: test-pack:feats.hide
+          state: { skill: nature, uses: 1 }
+  - id: hide
+    item: test-pack:feats.hide
+    state: { skill: arcana }

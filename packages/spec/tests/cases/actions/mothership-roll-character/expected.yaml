@@ -9,15 +9,16 @@ outcome:
 proposedChanges:
   - to: self
     step: class
-    change: { type: addItem, entry: { id: class, item: mothership-1e:classes.marine } }
+    change: { type: addItem, entry: { id: classes-marine-1, item: mothership-1e:classes.marine } }
   - to: self
     step: skills
-    change: { type: choose, path: { entry: class, choice: [bonus-skills] }, option: expert }
+    change:
+      { type: choose, path: { entry: classes-marine-1, choice: [bonus-skills] }, option: expert }
   - to: self
     step: skills
     change:
       type: choose
-      path: { entry: class, choice: [bonus-skills, expert, expert] }
+      path: { entry: classes-marine-1, choice: [bonus-skills, expert, expert] }
       option: mothership-1e:skills.explosives
   - { to: self, step: save, change: { type: set, field: mothership-1e:stats.strength, value: 32 } }
   - { to: self, step: save, change: { type: set, field: mothership-1e:stats.speed, value: 36 } }
@@ -57,12 +58,12 @@ log:
     by: engine
     option: expert
     index: 0
-    choice: { entry: class, choice: [bonus-skills] }
+    choice: { entry: classes-marine-1, choice: [bonus-skills] }
   - step: skills
     kind: choice
     by: engine
     option: mothership-1e:skills.explosives
     index: 1
-    choice: { entry: class, choice: [bonus-skills, expert, expert] }
+    choice: { entry: classes-marine-1, choice: [bonus-skills, expert, expert] }
   - { step: credits, kind: dice, faces: [8, 9], total: 17 }
   - { step: kit, kind: choice, by: engine, option: loadout }

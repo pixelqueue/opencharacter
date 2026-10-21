@@ -1,0 +1,46 @@
+description: "A granted ward's `then` changes the grant's saved state, which its `self` reads, for the keys it declares, and the owning copy for the rest; a value equal to the grant's `state` value is dropped"
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage, healing]
+        fields:
+          hp.current: { type: integer, input: true, default: 20, min: 0, max: 20 }
+        contentTypes:
+          # Made-up armor that grants a ward while worn and counts the hits it takes.
+          armor:
+            carried: true
+            equippable: true
+            state:
+              hits: { type: integer, default: 0, min: 0 }
+            grants:
+              - { item: wards.ward, state: { charges: 2 }, when: self.equipped }
+          # The ward soaks 1 damage per hit while it has charges; healing recharges it.
+          ward:
+            state:
+              charges: { type: integer, default: 1, min: 0 }
+            effects:
+              - id: soak
+                target: { incoming: { fields: [hp.current], tags: [damage] } }
+                op: add
+                value: 1
+                when: self.charges > 0 && incoming.amount < 0
+                then:
+                  - { type: adjustState, entry: self, key: charges, by: -1 }
+                  - { type: adjustState, entry: self, key: hits, by: 1 }
+              - id: recharge
+                target: { incoming: { fields: [hp.current], tags: [healing] } }
+                op: add
+                value: 0
+                then:
+                  - { type: setState, entry: self, key: charges, value: 2 }
+      content:
+        - { id: gear.mail, type: armor }
+        - { id: wards.ward, type: ward }

@@ -28,14 +28,14 @@ actions:
       - id: more
         kind: choice
         when: size(steps.stunts.picked) == 3
-        options: [{ id: none }, { id: one }, { id: two }]
-        recommend: "'none'"
+        options: { values: [0, 1, 2] }
+        recommend: options[0]
       - id: extra
         kind: choice
-        when: "has(steps.more) && steps.more.picked != 'none'"
+        when: has(steps.more) && steps.more.value > 0
         options:
           content: { type: stunt, where: '!(item.id in steps.stunts.picked) && picks == 0' }
-        repeat: { max: "steps.more.picked == 'one' ? 1 : 2" }
+        repeat: { max: steps.more.value }
         changes:
           - type: addItem
             entry: { item: picked.id }

@@ -1,0 +1,50 @@
+description: "A follow-up's changes keep their targets: `pick: self` resolves to the pick's `path` and `option`, `grant: self` to the grant's node and `grant`, and `path`, `option`, `picks` and `grants` pass on"
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          strain: { type: integer, input: true, default: 0 }
+        contentTypes:
+          class: {}
+          # A made-up talent that tires under strain; its uses are its pick's.
+          talent:
+            state:
+              uses: { type: integer, default: 2, min: 0 }
+            followUps:
+              - id: tire
+                on: { field: strain }
+                changes:
+                  - { type: adjustState, pick: self, key: uses, by: -1 }
+                  - type: setState
+                    path: { entry: self, choice: [talent] }
+                    option: "'test-pack:talents.tough'"
+                    key: uses
+                    value: 0
+          # A made-up ward the class grants; its charges are the grant's saved state.
+          ward:
+            state:
+              charges: { type: integer, default: 2, min: 0 }
+            followUps:
+              - id: drain
+                on: { field: strain }
+                changes:
+                  - { type: adjustState, grant: self, key: charges, by: -1 }
+                  - { type: setState, grants: { where: self.charges > 0 }, key: charges, value: 0 }
+                  - { type: setState, picks: { where: self.uses > 0 }, key: uses, value: 0 }
+      content:
+        - id: classes.warrior
+          type: class
+          choices:
+            - { id: talent, from: { type: talent } }
+          grants:
+            - { item: wards.ward }
+        - { id: talents.tough, type: talent }
+        - { id: wards.ward, type: ward }

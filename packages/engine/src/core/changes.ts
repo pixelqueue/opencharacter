@@ -63,8 +63,19 @@ export type Adjustment =
     }
   | { copies: string[] }
   | { applied: string[] }
-  /** A state change an incoming-change effect's `then` made to its own entry. */
-  | { entry: string; key: string; value: Literal; source: Source }
+  /**
+   * A state change an incoming-change effect's `then` made: to its own entry (`entry`), its pick
+   * (`path`, `option`) or its grant's saved state (`grant` with `entry`, or `path` and `option`).
+   */
+  | {
+      entry?: string;
+      path?: ChoicePath;
+      option?: string | number;
+      grant?: string;
+      key: string;
+      value: Literal;
+      source: Source;
+    }
   /** An applied entry an incoming-change effect's `then` removed. */
   | { entry: string; removed: true; source: Source };
 
@@ -580,8 +591,16 @@ function holderGrants(sheet: Sheet): Activation[] {
   });
 }
 
-/** setState and adjustState on a grant's saved state (`grant` with `entry`, or `path` and `option`). */
-function setGrantState(ruleset: Ruleset, sheet: Sheet, c: CharacterDoc, change: AnyChange): void {
+/**
+ * setState and adjustState on a grant's saved state (`grant` with `entry`, or `path` and `option`).
+ * Returns the key's new value.
+ */
+function setGrantState(
+  ruleset: Ruleset,
+  sheet: Sheet,
+  c: CharacterDoc,
+  change: AnyChange,
+): Literal {
   const qid = String(change.grant);
   let at: ChoicePath;
   let node: { grants?: Entry['grants'] } | undefined;
@@ -644,6 +663,7 @@ function setGrantState(ruleset: Ruleset, sheet: Sheet, c: CharacterDoc, change: 
   else delete grants[qid];
   if (Object.keys(grants).length > 0) node.grants = grants;
   else delete node.grants;
+  return raw as Literal;
 }
 
 /** Granted content by query: the active holder grants whose content declares the key. */
@@ -1583,10 +1603,33 @@ function rollIncoming(
   return out;
 }
 
+/** Where a `then` state change goes: the pick or grant state `self` reads the key from, if any. */
+function ownTarget(
+  ruleset: Ruleset,
+  i: EffectInstance,
+  key: string,
+):
+  | { pick: { path: ChoicePath; option: string | number } }
+  | { grant: Record<string, unknown> }
+  | undefined {
+  const a = i.own;
+  if (!a?.item || stateDecls(ruleset, a.item, [])[key] === undefined) return undefined;
+  if (a.kind === 'pick') {
+    const option = a.path.choice.at(-1);
+    if (option === undefined) return undefined;
+    return { pick: { path: { ...a.path, choice: a.path.choice.slice(0, -1) }, option } };
+  }
+  // A grant of the rules has no node to keep state on.
+  if (a.node === undefined) return undefined;
+  return { grant: { ...grantAddress(a.path), grant: a.item.qid } };
+}
+
 /**
- * Runs once the adjust is fully routed. Each instance changes its own entry: the applied entry
- * for an applied effect, else its copy; an instance with neither has nothing to change. Once an
- * entry is removed, later `then` changes to it are skipped.
+ * Runs once the adjust is fully routed. Each instance changes the state its `self` reads: for
+ * picked or held granted content, a key it declares is on its pick or its grant's saved state;
+ * otherwise its own entry, the applied entry for an applied effect, else its copy. An instance
+ * with none has nothing to change. Once an entry is removed, later `then` changes to it are
+ * skipped, as are changes to a grant no longer active.
  */
 function applyThen(
   ruleset: Ruleset,
@@ -1598,8 +1641,8 @@ function applyThen(
 ): void {
   const removed = new Set<string>();
   for (const i of counted.toSorted((a, b) => a.order - b.order)) {
+    if (!i.effect.then) continue;
     const entry = i.applied ?? i.source.entry;
-    if (!i.effect.then || entry === undefined) continue;
     const source = { ...i.source, ...(i.effect.id !== undefined ? { effect: i.effect.id } : {}) };
     const evaluate = (formula: Formula) => {
       try {
@@ -1613,20 +1656,52 @@ function applyThen(
       }
     };
     for (const then of i.effect.then) {
-      if (removed.has(entry)) break;
+      if (entry !== undefined && removed.has(entry)) break;
       if (then.type === 'removeEffect') {
-        if (i.applied === undefined) continue;
+        if (i.applied === undefined || entry === undefined) continue;
         applyOne(ruleset, c, { type: 'removeEffect', id: entry }, adjustments, links);
         removed.add(entry);
         adjustments.push({ entry, removed: true, source });
         continue;
       }
-      const one: AnyChange = { type: then.type, entry, key: then.key };
+      const own = ownTarget(ruleset, i, then.key);
+      if (own === undefined && entry === undefined) continue;
+      const one: AnyChange = { type: then.type, key: then.key };
       if (then.value !== undefined) one.value = evaluate(then.value);
       if (then.by !== undefined) one.by = evaluate(then.by);
-      applyOne(ruleset, c, one, adjustments, links);
-      const own = [...allEntries(c), ...(c.applied ?? [])].find((e) => e.id === entry);
-      adjustments.push({ entry, key: then.key, value: own?.state?.[then.key] as Literal, source });
+      if (own === undefined) {
+        one.entry = entry;
+        applyOne(ruleset, c, one, adjustments, links);
+        const at = [...allEntries(c), ...(c.applied ?? [])].find((e) => e.id === entry);
+        adjustments.push({
+          entry: entry as string,
+          key: then.key,
+          value: at?.state?.[then.key] as Literal,
+          source,
+        });
+      } else if ('pick' in own) {
+        const { path, option } = own.pick;
+        applyOne(ruleset, c, { ...one, path, option }, adjustments, links);
+        const pick = (treeFor(c, path, false)?.[String(path.choice.at(-1))] ?? []).find(
+          (p) => p.option === option,
+        );
+        const decl = stateDecls(ruleset, i.own?.item as LoadedItem, [])[then.key];
+        const value = (pick?.state?.[then.key] ?? decl?.default) as Literal;
+        adjustments.push({ path, option, key: then.key, value, source });
+      } else {
+        let value: Literal;
+        try {
+          value = setGrantState(ruleset, new Sheet(ruleset, c, [], links), c, {
+            ...one,
+            ...own.grant,
+          });
+        } catch (error) {
+          // A grant an earlier change turned off keeps no state to change.
+          if (error instanceof ChangeError && error.code === 'not-granted') continue;
+          throw error;
+        }
+        adjustments.push({ ...own.grant, key: then.key, value, source } as Adjustment);
+      }
     }
   }
 }

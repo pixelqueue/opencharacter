@@ -37,7 +37,7 @@ actions:
           !has(steps.classRoll) ? options[0] : options[(steps.classRoll.total - 1) % size(options)]
         changes:
           - type: addItem
-            entry: { id: class, item: picked.id }
+            entry: { item: picked.id }
       - id: best
         kind: choice
         when: has(steps.class.item.bestOf)
@@ -165,52 +165,53 @@ actions:
           - type: addItem
             entry:
               item: >-
-                'weapons.' + ['femur', 'staff', 'shortsword', 'knife', 'warhammer', 'sword', 'bow',
-                'flail', 'crossbow', 'zweihander'][steps.weapon.total - 1]
+                [@weapons.femur, @weapons.staff, @weapons.shortsword, @weapons.knife,
+                @weapons.warhammer, @weapons.sword, @weapons.bow, @weapons.flail, @weapons.crossbow,
+                @weapons.zweihander][steps.weapon.total - 1]
               equipped: true
           - type: addItem
             when: steps.weapon.total == 7
-            entry: { item: "'ammo.arrows'", quantity: flags.presence + 10 }
+            entry: { item: '@ammo.arrows', quantity: flags.presence + 10 }
           - type: addItem
             when: steps.weapon.total == 9
-            entry: { item: "'ammo.bolts'", quantity: flags.presence + 10 }
+            entry: { item: '@ammo.bolts', quantity: flags.presence + 10 }
           - type: addItem
             when: steps.armor.total >= 2
             entry:
-              item: "'armor.' + ['light', 'medium', 'heavy'][steps.armor.total - 2]"
+              item: '[@armor.light, @armor.medium, @armor.heavy][steps.armor.total - 2]'
               equipped: true
           - type: addItem
             when: has(steps.hermitScroll)
             entry:
               item: >-
                 (steps.scrollKind.total == 1 ? [
-                'scrolls.unclean.palms-open-the-southern-gate',
-                'scrolls.unclean.tongue-of-eris',
-                'scrolls.unclean.te-le-kin-esis',
-                'scrolls.unclean.lucy-fires-levitation',
-                'scrolls.unclean.daemon-of-capillaries',
-                'scrolls.unclean.nine-violet-signs-unknot-the-storm',
-                'scrolls.unclean.metzhuotl-blind-your-eye',
-                'scrolls.unclean.eyelid-blinds-the-mind',
-                'scrolls.unclean.death',
-                'scrolls.unclean.foul-psychopomp'
+                @scrolls.unclean.palms-open-the-southern-gate,
+                @scrolls.unclean.tongue-of-eris,
+                @scrolls.unclean.te-le-kin-esis,
+                @scrolls.unclean.lucy-fires-levitation,
+                @scrolls.unclean.daemon-of-capillaries,
+                @scrolls.unclean.nine-violet-signs-unknot-the-storm,
+                @scrolls.unclean.metzhuotl-blind-your-eye,
+                @scrolls.unclean.eyelid-blinds-the-mind,
+                @scrolls.unclean.death,
+                @scrolls.unclean.foul-psychopomp
                 ] : [
-                'scrolls.sacred.grace-of-a-dead-saint',
-                'scrolls.sacred.grace-for-a-sinner',
-                'scrolls.sacred.whispers-pass-the-gate',
-                'scrolls.sacred.aegis-of-sorrow',
-                'scrolls.sacred.unmet-fate',
-                'scrolls.sacred.bestial-speech',
-                'scrolls.sacred.false-dawn-nights-chariot',
-                'scrolls.sacred.hermetic-step',
-                'scrolls.sacred.roskoes-consuming-glare',
-                'scrolls.sacred.enochian-syntax'
+                @scrolls.sacred.grace-of-a-dead-saint,
+                @scrolls.sacred.grace-for-a-sinner,
+                @scrolls.sacred.whispers-pass-the-gate,
+                @scrolls.sacred.aegis-of-sorrow,
+                @scrolls.sacred.unmet-fate,
+                @scrolls.sacred.bestial-speech,
+                @scrolls.sacred.false-dawn-nights-chariot,
+                @scrolls.sacred.hermetic-step,
+                @scrolls.sacred.roskoes-consuming-glare,
+                @scrolls.sacred.enochian-syntax
                 ])[steps.hermitScroll.total - 1]
       # A picked option isn't offered again, so the Royalty's second pick's five are the others: the
       # d5 counts on from the first.
       - id: features
         kind: choice
-        options: { pending: { entry: "'class'" } }
+        options: { pending: { entry: 'steps.class.added[0]' } }
         recommend: >-
           !has(steps.feature) ? '' : size(options) == 6 ? options[steps.feature.total - 1]
             : has(steps.feature2) && size(options) == 5
@@ -222,11 +223,11 @@ actions:
               'blade-of-your-ancestors', 'hamfund', 'snake-skin-gift', 'sacred-shepherds-crook']
             entry:
               item: >-
-                'weapons.' + ['brown-scimitar', 'old-sigurds-sling', 'shoe-of-deaths-horse',
-                'blade-of-your-ancestors', 'eurekia', 'snake-skin-dagger', 'shepherds-crook'][
-                indexOf(['brown-scimitar', 'old-sigurds-sling', 'shoe-of-deaths-horse',
-                'blade-of-your-ancestors', 'hamfund', 'snake-skin-gift', 'sacred-shepherds-crook'],
-                picked.id)]
+                [@weapons.brown-scimitar, @weapons.old-sigurds-sling, @weapons.shoe-of-deaths-horse,
+                @weapons.blade-of-your-ancestors, @weapons.eurekia, @weapons.snake-skin-dagger,
+                @weapons.shepherds-crook][indexOf(['brown-scimitar', 'old-sigurds-sling',
+                'shoe-of-deaths-horse', 'blade-of-your-ancestors', 'hamfund', 'snake-skin-gift',
+                'sacred-shepherds-crook'], picked.id)]
       - id: finish
         kind: changes
         changes:

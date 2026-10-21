@@ -396,6 +396,11 @@ roll.
     written, for the actor, a role, a target or a link alike: the character receiving the
     change checks it as it would a written ID (`unknown-id`, …). `path.entry` may be computed the
     same way;
+  - a `setState` or `adjustState` with `pick: self` becomes the `path` and `option` of the pick
+    that activated the action's content, and one with `grant: self` the node (`entry`, or a
+    pick's `path` and `option`) and `grant` of the holder grant that did
+    ([dice-and-actions.md](dice-and-actions.md#actions)); `picks` and `grants` queries are passed
+    on as written;
   - an `addItem` entry object is resolved: `item` is evaluated to a content ID and qualified against
     the action's pack; `quantity`, `equipped` and each `state` value are evaluated; `templates` are
     qualified; a pick's `option` given as `{ formula }` is evaluated to a string or number

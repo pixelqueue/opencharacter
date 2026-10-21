@@ -35,6 +35,13 @@ Each engine library (the TypeScript reference engine and community ports) has it
    also moves every pin of a bumped pack's old version to the new one (example characters, test
    cases, docs and code samples), since the engine reports a pin that doesn't match exactly
    (`pack-version-mismatch`). Pins of any other version, such as an upgrade test's, stay.
+   The spec version is always the `@opencharacter/spec` package version, so it then moves
+   `SPEC_VERSION` (and with it `SCHEMA_BASE`), every `schemas/<major.minor>/` in schema `$id`s
+   and links (schemas, docs, apps and tests), and the docs' statements of the current version.
+   The example characters' `specVersion` moves too, since they are samples of the current spec;
+   other minimums and records stay (a pack's `specVersion`, a character file's). The engine's
+   `IMPLEMENTS_SPEC` follows `SPEC_VERSION`: the reference engine implements the spec it ships
+   with. A test fails if `SPEC_VERSION` and the package version ever differ.
 3. **Check:** `pnpm release` runs every check, builds the packs, then runs `pnpm release:check`.
    For each pack it compares the new release with the last published one, found by git tag
    (`@opencharacter/<id>@<version>`):
@@ -42,6 +49,14 @@ Each engine library (the TypeScript reference engine and community ports) has it
      (`published-version-changed` otherwise);
    - otherwise `checkRelease` against the latest lower version must pass: shape changes need a
      breaking bump and a covering upgrade script ([upgrades.md](upgrades.md#the-build-check)).
+
+   Pending changesets count: a pack that a changeset bumps is checked as the version step 2 will
+   give it (the Changesets release plan), so a pull request that changes a published pack passes
+   once it adds a changeset, before the "Version Packages" pull request bumps it. Its upgrade
+   script goes to that version, which `pnpm validate` allows; a script further ahead fails. A
+   breaking change needs a breaking changeset (`minor` while 0.x). Once step 2 has run, the
+   version is in `pack.yaml` and the changesets are gone, so nothing changes.
+
 4. **Publish:** the release workflow (`.github/workflows/release.yml`) runs on every push to
    `main`. With pending changesets it opens a "Version Packages" pull request that runs step 2;
    with none it runs `pnpm release`, then `changeset publish`, which publishes every package
