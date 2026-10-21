@@ -145,43 +145,20 @@ actions:
       - id: invokes
         kind: choice
         sheet: proposed
-        options:
-          - { id: none }
-          - id: one
-            when: fatePoints.current >= 1
-            changes: [{ type: adjust, field: fatePoints.current, by: -1 }]
-          - id: two
-            when: fatePoints.current >= 2
-            changes: [{ type: adjust, field: fatePoints.current, by: -2 }]
-          - id: three
-            when: fatePoints.current >= 3
-            changes: [{ type: adjust, field: fatePoints.current, by: -3 }]
-          - id: four
-            when: fatePoints.current >= 4
-            changes: [{ type: adjust, field: fatePoints.current, by: -4 }]
-        recommend: "'none'"
+        options: { values: [0, 1, 2, 3, 4], where: value <= fatePoints.current }
+        recommend: options[0]
+        changes:
+          - { type: adjust, field: fatePoints.current, by: -picked.value, when: picked.value > 0 }
       - id: freeInvokes
         kind: choice
-        options: [{ id: none }, { id: one }, { id: two }, { id: three }, { id: four }]
-        recommend: "'none'"
-      - id: count
-        kind: branch
-        cases:
-          - when: true
-            flags:
-              paid: >-
-                steps.invokes.picked == 'one' ? 1 : steps.invokes.picked == 'two' ? 2
-                  : steps.invokes.picked == 'three' ? 3 : steps.invokes.picked == 'four' ? 4 : 0
-              free: >-
-                steps.freeInvokes.picked == 'one' ? 1 : steps.freeInvokes.picked == 'two' ? 2
-                  : steps.freeInvokes.picked == 'three' ? 3
-                  : steps.freeInvokes.picked == 'four' ? 4 : 0
+        options: { values: [0, 1, 2, 3, 4] }
+        recommend: options[0]
       - id: freeFrom
         kind: choice
         sheet: proposed
-        when: flags.free > 0
+        when: steps.freeInvokes.value > 0
         options: { copies: { type: advantage, where: self.invokes > 0 } }
-        repeat: { max: flags.free, min: 0 }
+        repeat: { max: steps.freeInvokes.value, min: 0 }
         prefer: "self.kind == 'boost' ? 1 : 0"
         changes:
           - { type: adjustState, entry: picked, key: invokes, by: -1 }
@@ -221,12 +198,12 @@ actions:
         kind: outcome
         result: "'rolled'"
         data:
-          total: flags.total + 2 * (flags.paid + flags.free)
+          total: flags.total + 2 * (steps.invokes.value + steps.freeInvokes.value)
           rung: flags.rung
           rerolled: flags.rerolls > 0
           rerolls: flags.rerolls
-          fatePoints: flags.paid + flags.paidRerolls
-          freeInvokes: flags.free + flags.freeRerolls
+          fatePoints: steps.invokes.value + flags.paidRerolls
+          freeInvokes: steps.freeInvokes.value + flags.freeRerolls
 
   - id: assist-check
     tags: [teamwork]
