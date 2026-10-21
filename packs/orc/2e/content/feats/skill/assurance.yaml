@@ -4,40 +4,18 @@ tags: [trait.fortune]
 fields: { level: 1, category: skill, skills: [skill] }
 repeatable: true
 
-# Content that grants Assurance for a skill it names passes it as the grant's `skill` state, and the
-# choice isn't asked.
-state:
-  skill: { type: string, default: '' }
-effects:
-  - {
-      target: assurance.skills,
-      op: grant,
-      value: { formula: self.skill },
-      when: "has(self.skill) && self.skill != ''",
-    }
+# Any skill, or a Lore the character is trained in. Content that grants Assurance for a skill it
+# names presets the choice.
 choices:
   - id: skill
-    when: "!has(self.skill) || self.skill == ''"
     from:
       values:
-        [
-          skill.acrobatics,
-          skill.arcana,
-          skill.athletics,
-          skill.crafting,
-          skill.deception,
-          skill.diplomacy,
-          skill.intimidation,
-          skill.medicine,
-          skill.nature,
-          skill.occultism,
-          skill.performance,
-          skill.religion,
-          skill.society,
-          skill.stealth,
-          skill.survival,
-          skill.thievery,
-        ]
+        formula: >-
+          ['skill.acrobatics', 'skill.arcana', 'skill.athletics', 'skill.crafting',
+            'skill.deception', 'skill.diplomacy', 'skill.intimidation', 'skill.medicine',
+            'skill.nature', 'skill.occultism', 'skill.performance', 'skill.religion',
+            'skill.society', 'skill.stealth', 'skill.survival', 'skill.thievery']
+            + sortList(skills.trained + skills.chosen)
     effects:
       - { target: assurance.skills, op: grant, value: { formula: pick.value } }
 
