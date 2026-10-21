@@ -2734,7 +2734,7 @@ export type UpgradeStep = {
   map?: Record<string, Literal>;
   owner?: ChoiceOwner;
   choice?: Slug;
-  /** adoptStandard: the item whose standard copy an entry becomes. */
+  /** adoptStandard: the item whose standard copy an entry becomes. renameState, removeState, moveState: limits the step to content `item` (with `type`, both must match). */
   item?: Ref;
   /** removeState: the state key to drop. */
   key?: Name;

@@ -574,7 +574,8 @@ export class PackChecker {
           if (!Object.hasOwn(type?.def.fields ?? {}, step.to))
             this.report.error(file, `${where}: "${step.to}" is not an item field of ${step.type}`);
         }
-        if (step.op === 'adoptStandard' && step.item && !this.ruleset.item(step.item, own))
+        const itemSteps = ['adoptStandard', 'renameState', 'removeState', 'moveState'];
+        if (itemSteps.includes(step.op) && step.item && !this.ruleset.item(step.item, own))
           this.report.error(file, `${where}: "${step.item}" is not content of this pack`);
         const target = step.op === 'moveState' && !step.grant;
         if ((step.op === 'requireChoice' || target) && step.choice) {

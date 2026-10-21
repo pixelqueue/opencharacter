@@ -117,23 +117,23 @@ steps:
 The steps are a [fixed set](../data/upgrade-steps.json). A step applies to every place saved
 state can refer to what it names:
 
-| Op              | Params                                                               | Effect                                                                                                                                                                                       |
-| --------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `renameContent` | `from`, `to`                                                         | Replaces the content ID everywhere: entry `item`s, `templates`, `applied` sources, picked `option`s at any depth, members of `set` input values, and the owner part of prefixed choice keys  |
-| `removeContent` | `id`                                                                 | Removes entries holding it (with their picks), removes it from `templates`, `applied`, picks (with their nested picks) and `set` input values                                                |
-| `renameField`   | `from`, `to`                                                         | Moves the saved value                                                                                                                                                                        |
-| `removeField`   | `field`                                                              | Drops the saved value                                                                                                                                                                        |
-| `setDefault`    | `field`, `value`                                                     | Where the field has no saved value, saves the formula's value. The formula is evaluated against the **original** character under the **old** ruleset                                         |
-| `mapValues`     | `field`, `map`                                                       | Replaces a saved value found as a key of `map` (compared as text) with the mapped value                                                                                                      |
-| `renameState`   | `type?`, `from`, `to`                                                | Renames a state key in the saved state of copies, picks and granted content ([characters.md](characters.md#granted-contents-state)) of content of `type` (all of them when absent)           |
-| `removeState`   | `type?`, `key`                                                       | Drops the state key from the same places as `renameState`; a pick's or grant's `state` left empty goes, and a grant entry with it                                                            |
-| `moveState`     | `type?`, `from`, `to?`, and `grant`, or `owner?`, `choice`, `option` | Moves state key `from` off copies of content of `type` to key `to` (default `from`) of a pick or of granted content's saved state ([below](#moving-state))                                   |
-| `renameChoice`  | `owner?`, `from`, `to`                                               | Renames a choice key on entries holding `owner`, in picks of `owner`, and in prefixed keys (`<owner>/<choice>`). Without `owner`, renames a rules-level choice                               |
-| `removeChoice`  | `owner?`, `choice`                                                   | Removes the choice's picks, with their nested picks, wherever `renameChoice` would rename it                                                                                                 |
-| `renameOption`  | `owner?`, `choice`, `from`, `to?`                                    | Replaces a picked option of the choice (`from`) with `to`; without `to`, removes the pick and its nested picks                                                                               |
-| `requireChoice` | `owner?`, `choice`                                                   | Records that a new required choice exists; the upgraded character reports it as pending                                                                                                      |
-| `renameTag`     | `from`, `to`                                                         | Replaces the tag in saved `set` values of `of: tag` input fields (and in the homebrew, below)                                                                                                |
-| `adoptStandard` | `item`                                                               | Renames the first entry holding the item (features, then inventory, in file order) to the item's standard copy ID, keeping its state, picks and templates; nothing when an entry has that ID |
+| Op              | Params                                                                        | Effect                                                                                                                                                                                                              |
+| --------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `renameContent` | `from`, `to`                                                                  | Replaces the content ID everywhere: entry `item`s, `templates`, `applied` sources, picked `option`s at any depth, members of `set` input values, and the owner part of prefixed choice keys                         |
+| `removeContent` | `id`                                                                          | Removes entries holding it (with their picks), removes it from `templates`, `applied`, picks (with their nested picks) and `set` input values                                                                       |
+| `renameField`   | `from`, `to`                                                                  | Moves the saved value                                                                                                                                                                                               |
+| `removeField`   | `field`                                                                       | Drops the saved value                                                                                                                                                                                               |
+| `setDefault`    | `field`, `value`                                                              | Where the field has no saved value, saves the formula's value. The formula is evaluated against the **original** character under the **old** ruleset                                                                |
+| `mapValues`     | `field`, `map`                                                                | Replaces a saved value found as a key of `map` (compared as text) with the mapped value                                                                                                                             |
+| `renameState`   | `item?`, `type?`, `from`, `to`                                                | Renames a state key in the saved state of copies, picks and granted content ([characters.md](characters.md#granted-contents-state)) of content `item` and of content type `type` (all of them when both are absent) |
+| `removeState`   | `item?`, `type?`, `key`                                                       | Drops the state key from the same places as `renameState`; a pick's or grant's `state` left empty goes, and a grant entry with it                                                                                   |
+| `moveState`     | `item?`, `type?`, `from`, `to?`, and `grant`, or `owner?`, `choice`, `option` | Moves state key `from` off copies of `item` and of content of `type` to key `to` (default `from`) of a pick or of granted content's saved state ([below](#moving-state))                                            |
+| `renameChoice`  | `owner?`, `from`, `to`                                                        | Renames a choice key on entries holding `owner`, in picks of `owner`, and in prefixed keys (`<owner>/<choice>`). Without `owner`, renames a rules-level choice                                                      |
+| `removeChoice`  | `owner?`, `choice`                                                            | Removes the choice's picks, with their nested picks, wherever `renameChoice` would rename it                                                                                                                        |
+| `renameOption`  | `owner?`, `choice`, `from`, `to?`                                             | Replaces a picked option of the choice (`from`) with `to`; without `to`, removes the pick and its nested picks                                                                                                      |
+| `requireChoice` | `owner?`, `choice`                                                            | Records that a new required choice exists; the upgraded character reports it as pending                                                                                                                             |
+| `renameTag`     | `from`, `to`                                                                  | Replaces the tag in saved `set` values of `of: tag` input fields (and in the homebrew, below)                                                                                                                       |
+| `adoptStandard` | `item`                                                                        | Renames the first entry holding the item (features, then inventory, in file order) to the item's standard copy ID, keeping its state, picks and templates; nothing when an entry has that ID                        |
 
 **Owners.** A choice step's `owner` is content (local or qualified), or the rules when absent.
 A choice nested in an inline option is named by a path, as its change ID writes it: the owner,
@@ -147,8 +147,9 @@ own key (`skill-feat-2`).
 ### Moving state
 
 `moveState` is for state that a release moves off a copy to the content that now keeps it: a
-pick's `state`, or granted content's saved state (`grants`) on the copy. For each copy of content
-of `type` (every copy when absent) with a saved `from`, the value leaves the copy, and goes to:
+pick's `state`, or granted content's saved state (`grants`) on the copy. For each copy of `item`
+and of content of `type` (every copy when both are absent) with a saved `from`, the value leaves
+the copy, and goes to:
 
 - **with `grant`:** the saved state of that content, on the copy, when the copy holds it by a
   holder grant on the new release (its type's, item's or templates' grants, and theirs in turn;
@@ -167,7 +168,10 @@ The value is dropped, never reported, when:
   key in its `state`, whose value the saved one then overrides, so it is kept.
 
 A dropped value counts as a change: the step is listed in the report. A copy's `state` left empty
-goes.
+goes. Where items of a type share a key that moves to different content (an elf's and a
+tiefling's `lineageSpell1Used`, to each one's lineage trait), one step per item with `item`
+moves each; the first step without it would drop the others'. For `state-removed`, a step with
+`item` covers only that item's key.
 
 `adoptStandard` is for a release that makes an item standard
 ([content.md](content.md#standard-copies)): entry IDs are the app's choice, so the script names

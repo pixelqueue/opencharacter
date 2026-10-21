@@ -401,6 +401,10 @@ function applyStep(
     typeof o === 'string' && (from.content[q(o)] || to.content[q(o)]) ? q(o) : o;
   const typeOf = (id: string) =>
     rewriter.typeOf(id) ?? to.content[id]?.type ?? from.content[id]?.type;
+  // The state steps' content: of `item`, and of content type `type` (any when both are absent).
+  const holds = (id: string) =>
+    (step.item === undefined || q(step.item) === id) &&
+    (step.type === undefined || typeOf(id) === q(step.type));
   let changed = false;
   switch (step.op) {
     case 'renameContent': {
@@ -505,10 +509,9 @@ function applyStep(
     }
     case 'renameState':
     case 'removeState': {
-      const type = step.type === undefined ? undefined : q(step.type);
       const key = (step.op === 'renameState' ? step.from : step.key) as string;
       for (const { holder, content } of stateHolders(c)) {
-        if (type !== undefined && typeOf(content) !== type) continue;
+        if (!holds(content)) continue;
         if (!holder.state || !Object.hasOwn(holder.state, key)) continue;
         if (step.op === 'renameState') holder.state[step.to as string] = holder.state[key];
         delete holder.state[key];
@@ -518,11 +521,10 @@ function applyStep(
       return changed;
     }
     case 'moveState': {
-      const type = step.type === undefined ? undefined : q(step.type);
       const key = step.from as string;
       const target = step.to ?? key;
       for (const e of allEntries(c)) {
-        if (type !== undefined && typeOf(e.item) !== type) continue;
+        if (!holds(e.item)) continue;
         if (!e.state || !Object.hasOwn(e.state, key)) continue;
         const value = e.state[key];
         delete e.state[key];
@@ -937,11 +939,16 @@ function covered(
         type,
         ...steps.filter((s) => s.op === 'renameContentType' && s.from === type).map((s) => s.to),
       ]);
+      // A step limited to an item covers only that item's own key.
+      const owner = change.id.slice(0, change.id.lastIndexOf('/'));
+      const local = (ref: string) =>
+        ref.startsWith(`${pack}:`) ? ref.slice(pack.length + 1) : ref;
       return has(
         (s) =>
           (((s.op === 'renameState' || s.op === 'moveState') && s.from === key) ||
             (s.op === 'removeState' && s.key === key)) &&
-          (s.type === undefined || names.has(s.type)),
+          (s.type === undefined || names.has(s.type)) &&
+          (s.item === undefined || local(s.item) === owner),
       );
     }
     case 'choice-removed': {
