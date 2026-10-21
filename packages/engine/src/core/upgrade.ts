@@ -401,9 +401,10 @@ function applyStep(
     typeof o === 'string' && (from.content[q(o)] || to.content[q(o)]) ? q(o) : o;
   const typeOf = (id: string) =>
     rewriter.typeOf(id) ?? to.content[id]?.type ?? from.content[id]?.type;
-  // The state steps' content: of `item`, and of content type `type` (any when both are absent).
+  // The state steps' content: of `item` (or homebrew extending it), and of content type `type`
+  // (any when both are absent).
   const holds = (id: string) =>
-    (step.item === undefined || q(step.item) === id) &&
+    (step.item === undefined || rewriter.isOf(id, q(step.item))) &&
     (step.type === undefined || typeOf(id) === q(step.type));
   let changed = false;
   switch (step.op) {

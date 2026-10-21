@@ -1,0 +1,67 @@
+description: renameChoice with a prefixed from moves a granted content's saved pick, kept under its prefixed key on the granting pick, onto the granter's own choice
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          ancestry: {}
+          feat: {}
+      content:
+        - id: ancestries.human
+          type: ancestry
+          choices:
+            - id: feat
+              from: { type: feat }
+        - id: feats.fixation
+          type: feat
+          grants:
+            - item: feats.lore
+        - id: feats.lore
+          type: feat
+          choices:
+            - id: topic
+              from: { values: [academia, engineering] }
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          ancestry: {}
+          feat: {}
+      content:
+        - id: ancestries.human
+          type: ancestry
+          choices:
+            - id: feat
+              from: { type: feat }
+        - id: feats.fixation
+          type: feat
+          choices:
+            - id: topic
+              from: { values: [academia, engineering] }
+          grants:
+            - item: feats.lore
+        - id: feats.lore
+          type: feat
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            # The saved key of the granted lore's choice, qualified as saved.
+            - op: renameChoice
+              owner: feats.fixation
+              from: test-pack:feats.lore/topic
+              to: topic
