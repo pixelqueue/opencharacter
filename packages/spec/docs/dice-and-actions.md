@@ -160,6 +160,22 @@ proposed change may also have a `when` condition. A rolled starting weapon:
 The returned change is an ordinary `addItem`. A literal `item` is checked at build time; a
 computed one when the action runs.
 
+A later step finds the new copies through `steps.<id>.added`: the instance IDs a changes or
+choice step's `addItem`s gave the actor's new copies, in order, the ones the engine picked
+included. So an action can ask the new copy's own choices, set its state or pick in it, with no
+naming scheme. A focus gained twice gets two copies; each run asks only its own:
+
+```yaml
+- id: focus
+  kind: choice
+  options: { content: { type: focus } }
+  changes:
+    - { type: addItem, entry: { item: picked.id } }
+- id: picks
+  kind: choice
+  options: { pending: { entry: 'steps.focus.added[0]' } }
+```
+
 A pick's `option` in `choices` may be `{ formula }`, evaluated by the action (with
 `x` under `forEach`) to a string or number; the tree's keys stay literal. applyChanges checks an
 added copy's picks as it would a `choose` of each (`unknown-choice`, `invalid-option`). 5E's
@@ -467,15 +483,15 @@ before. The changes name the actor's own fields, as `to: target` changes do.
 
 ### Steps
 
-| Kind       | Does                                                                                                                                                                                                              | Result                                |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| `roll`     | Rolls `parts` (one roll item each); roll effects matching the step's `tags` add items, modify dice or bound the total; an optional `bands` set classifies it; with `of`, classifies an earlier roll again (below) | `steps.<id>.total`, `.dice`, `.band`  |
-| `choice`   | Offers `options` from one source (below); `recommend` or `prefer` names the rules' pick; `repeat` picks more than once                                                                                            | `steps.<id>.picked`, `.item`, `.self` |
-| `allocate` | Spends a budget across fields, or hands out a list of values, one per field ([below](#allocate-steps))                                                                                                            | `steps.<id>.amounts`                  |
-| `branch`   | Runs the first case whose `when` is true (else `else`), sets its `flags` and runs its `steps`                                                                                                                     | `flags.<name>`                        |
-| `changes`  | Proposes changes for the app to apply, `to: self` (default), `to: target`, `to: <role>` or `to: { link: <slot> }`; `release` proposes held ones; content adds to a tagged one (below)                             | —                                     |
-| `action`   | Runs another action (`use`, `params`, and `source`, `participants` and `tags` below), e.g. a panic check after a failed save; with `as: participant`, hands it off                                                | `steps.<id>.result`, `.data`          |
-| `outcome`  | Ends the action with `result` and `data`                                                                                                                                                                          | —                                     |
+| Kind       | Does                                                                                                                                                                                                              | Result                                          |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `roll`     | Rolls `parts` (one roll item each); roll effects matching the step's `tags` add items, modify dice or bound the total; an optional `bands` set classifies it; with `of`, classifies an earlier roll again (below) | `steps.<id>.total`, `.dice`, `.band`            |
+| `choice`   | Offers `options` from one source (below); `recommend` or `prefer` names the rules' pick; `repeat` picks more than once                                                                                            | `steps.<id>.picked`, `.item`, `.self`, `.added` |
+| `allocate` | Spends a budget across fields, or hands out a list of values, one per field ([below](#allocate-steps))                                                                                                            | `steps.<id>.amounts`                            |
+| `branch`   | Runs the first case whose `when` is true (else `else`), sets its `flags` and runs its `steps`                                                                                                                     | `flags.<name>`                                  |
+| `changes`  | Proposes changes for the app to apply, `to: self` (default), `to: target`, `to: <role>` or `to: { link: <slot> }`; `release` proposes held ones; content adds to a tagged one (below)                             | `steps.<id>.added`                              |
+| `action`   | Runs another action (`use`, `params`, and `source`, `participants` and `tags` below), e.g. a panic check after a failed save; with `as: participant`, hands it off                                                | `steps.<id>.result`, `.data`                    |
+| `outcome`  | Ends the action with `result` and `data`                                                                                                                                                                          | —                                               |
 
 Every step may have `when`; a step whose `when` is false is skipped. Roll, choice, changes,
 action and branch steps may have `each: <role>` ([Participants](#participants)).
@@ -556,8 +572,10 @@ change that (with `as: participant`, only `participants`):
 - **`entry`**, a formula giving an instance ID (a choice step's
   `steps.weapon.picked`), runs `use` as `computeSheet` lists it with that `entry`, and with that
   `source` when the step gives one too: that copy is `self` and its item `item`, as if the app
-  had started the copy's action. No such listing (no such copy, the copy doesn't list the
-  action, or its `available` is false) is `unknown-action`. A feat that is a Strike with a
+  had started the copy's action. Without `source`, `use` may also be the local ID of an action
+  the copy's item or its type defines (`<item>#<use>`), so a monster's Multiattack runs its
+  gore's own `charge` with `use: charge`. No such listing (no such copy, the copy doesn't list
+  the action, or its `available` is false) is `unknown-action`. A feat that is a Strike with a
   weapon the player picks picks the weapon, then runs that copy's Strike (below).
 - **`participants`** maps the used action's roles to formulas giving lists of participant IDs of
   this action, in any role, or of their views, mixed or not: each view is passed
@@ -716,6 +734,13 @@ A choice step's `options` come from one source:
   Each option is a qualified content ID, named by the item's name.
 - **The character's copies**, `{ copies: { type, where? } }`: inventory then features.
   Each option is an instance ID, named by the copy's item name.
+- **Values**, `{ values, where? }`: plain values, strings or numbers, as a value choice's
+  ([content.md](content.md#value-choices)). `values` is a list written out, or `{ formula }`
+  giving a list, evaluated before each pick with the action's roots, so it can read `item`,
+  `self` and earlier steps. Each value is offered once, in the list's order; its option ID is
+  the value as a string. A formula that fails is an error, as any action formula is. Each value
+  is named `<actionKey>.options.<value>.name` when the pack has it; otherwise the app names it (a
+  content ID by its item's name, a field ID by the field's).
 - **Pending choices**, `{ pending: { entry? } }`: the choices still pending on
   the [proposed character](#steps), in `pending`'s order (each item's own choices before
   those of what it grants, each followed by those of what it picked),
@@ -727,7 +752,26 @@ A choice step's `options` come from one source:
 
 In a query source's `where`, `item` (and for copies `self`) is the candidate, `picks` is how
 many times the step has already picked it, and the action's own item and copy are `action.item`
-and `action.self`. A written option's `when` sees `picks` too.
+and `action.self`. A value source's `where` sees the candidate as `value`, and `picks`; `item`
+and `self` stay the action's own. A written option's `when` sees `picks` too.
+
+A modular weapon's damage type comes from the copy's list, and a skill from the character's:
+
+```yaml
+- id: type
+  kind: choice # actions.modular.steps.type.prompt
+  options: { values: { formula: '[item.damageType] + item.modularTypes' } }
+  changes:
+    - type: setState
+      entry: self
+      key: modular
+      value: "picked.value == item.damageType ? '' : picked.value"
+- id: skill
+  kind: choice
+  options: { values: { formula: skills.trained } } # named by each skill field's name
+  recommend: options[0]
+  changes: [{ type: set, field: witchwarper.memorySkill, value: picked.value }]
+```
 
 **Options that set flags**. A written option, or one content adds, may set the
 action's flags when picked, as a branch case does. They are set before the option's changes, so
@@ -753,14 +797,14 @@ default in an early branch:
       - { type: setState, entry: self, key: hellishRebukeUsed, value: true }
 ```
 
-| Property    | Meaning                                                                                                                       |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `tags`      | The step's tags: content adds options to it, and policy rules match it, by tag                                                |
-| `recommend` | A formula giving the recommended option ID; it may read `options`, the source's offered IDs, so a roll can pick one           |
-| `prefer`    | Content and copies: a number per candidate; without `recommend`, the highest is recommended; with neither, nothing is (0100)  |
-| `random`    | A condition: while it holds, each pick's recommendation is drawn uniformly with a die as large as the options (0108)          |
-| `repeat`    | `{ max, min? }`: pick up to `max` times; after `min` picks the reserved `#done` is offered last and ends the step             |
-| `changes`   | Proposed after every pick, `to: self`; `picked` is `{ id }` (plus `item`, and `self` for copies); `entry: picked` is the copy |
+| Property    | Meaning                                                                                                                                           |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tags`      | The step's tags: content adds options to it, and policy rules match it, by tag                                                                    |
+| `recommend` | A formula giving the recommended option ID; it may read `options`, the source's offered IDs, so a roll can pick one                               |
+| `prefer`    | Content, copies or values: a number per candidate; without `recommend`, the highest is recommended; with neither, nothing is (0100)               |
+| `random`    | A condition: while it holds, each pick's recommendation is drawn uniformly with a die as large as the options (0108)                              |
+| `repeat`    | `{ max, min? }`: pick up to `max` times; after `min` picks the reserved `#done` is offered last and ends the step                                 |
+| `changes`   | Proposed after every pick, `to: self`; `picked` is `{ id }` (plus `item`, and `self` for copies; `value` for values); `entry: picked` is the copy |
 
 Over pending choices `recommend` also sees `choice` (`{ path, owner, id }`, the choice asked), and
 without it the choice's own recommendation applies; `picked` is `{ id, path }`, and the result
@@ -808,7 +852,8 @@ effects:
 
 `steps.<id>.picked` is the option ID, or with `repeat` the list of picks (`#done` left out).
 Over content or copies without `repeat`, `steps.<id>.item` is the picked item and, for copies,
-`steps.<id>.self` the picked copy. A step with nothing to offer is skipped. 5E's long rest
+`steps.<id>.self` the picked copy; over values, `steps.<id>.value` is the picked value (a
+number stays a number). A step with nothing to offer is skipped. 5E's long rest
 regains spent hit dice up to half the total level, one die per pick, from the classes the player
 chooses:
 
@@ -907,6 +952,15 @@ the proposed sheet shows), and 5E's point buy and standard array:
 `rollModifier` effects ([data](../data/roll-modifiers.json)) change how a roll is made:
 
 - **`advantage` / `disadvantage`:** roll one extra die for the roll's main dice item (its first dice part) and keep the better or worse ones. "Better" follows the step's `better`: `high` (the default) or `low` (roll-under games).
+
+  With `of: roll`, the whole roll is made again instead, every dice item, and the better or worse total is kept: "roll twice and keep the worse" on a 2d6 check compares two 2d6 totals, where an extra die would roll 3d6 and keep two. On a roll of one die and flat items the two agree. The kept roll's faces are the roll's `faces` and `kept`, so a band reading a natural reads the kept roll; the step's result and log entry list every roll as `rolls` ([engine-actions.md](engine-actions.md#rolling)). Sources count and combine as any advantage and disadvantage do, below; when one counted source of the kind that applies says `of: roll`, every extra is a whole roll. Ashes Without Number's Weak Heart, on its Exert checks:
+
+  ```yaml
+  - target: { rolls: [skill.exert] }
+    op: rollModifier
+    value: { kind: disadvantage, of: roll }
+  ```
+
 - **`noAdvantage` / `noDisadvantage`**: once the advantage and disadvantage sources are counted, set the count of that kind to 0, before `settings.rollModifiers.advantage` combines them. The player's situational advantage is a source like any other, so it is removed too. 5E's Elusive: no attack roll against the rogue has advantage, and disadvantage still applies.
 - **`reroll`** (`below`, `once`, `count`), **`minimumFace`** (`value`), **`explode`** (`at`).
   `reroll`'s optional `count` (an integer formula) rerolls at most that many of the
@@ -983,7 +1037,8 @@ A `rollModifier` of kind `poolDice` adds `count` dice to a dice part of the roll
 - **`stack`:** every source adds a die; both kinds together is an error in the pack.
 
 Advantage keeps the better dice per the roll step's `better`. That doesn't change how sources
-net out. The action log records every source, including cancelled ones. A `noAdvantage` or
+net out. With `of: roll`, the extras are whole rolls: under `net` or `stack`, two extras make
+the roll three times and keep the best total. The action log records every source, including cancelled ones. A `noAdvantage` or
 `noDisadvantage` modifier removes its kind before they combine (above): with `cancel`, advantage
 and disadvantage plus `noAdvantage` is disadvantage.
 
@@ -1030,7 +1085,7 @@ Each `roll`, `choice` and `allocate` step is a **checkpoint**, except a roll ste
 ```yaml
 policy:
   dice: auto # default for roll checkpoints
-  choices: pause # default for choice checkpoints
+  choices: auto # default for choice checkpoints
   allocations: auto # default for allocate checkpoints
   rules: # first match wins
     - { kind: roll, tags: [attack], then: pause } # "wait on attack dice so I can animate them"

@@ -36,7 +36,13 @@ import type {
   ValueDecl,
   ValueOptions,
 } from '../core/pack-types.ts';
-import { keptQuery, optionQuery, pendingSource, writtenOptions } from '../core/pack-types.ts';
+import {
+  keptQuery,
+  optionQuery,
+  pendingSource,
+  valueSource,
+  writtenOptions,
+} from '../core/pack-types.ts';
 import { isContentOnly, readsOnlyRoots } from '../core/load.ts';
 import type { PackSet } from './packset.ts';
 import {
@@ -193,6 +199,14 @@ function actionFlagTypes<L>(set: PackSet<L>, target: ActionTarget<L>): Map<strin
   return types;
 }
 
+/** An owner whose choices are known only when the formula runs (a content type's, the rules'). */
+const ANY_CHOICE = Symbol('any choice');
+
+/** The keys of an owner's choices: each choice's ID, a slotted one's `<id>-<slot>` per slot. */
+function choiceKeys(choices: readonly Choice[] | undefined): string[] {
+  return (choices ?? []).flatMap((c) => (c.slots ? c.slots.map((n) => `${c.id}-${n}`) : [c.id]));
+}
+
 class FormulaChecker<L> {
   readonly problems: FormulaProblem<L>[] = [];
   private readonly scope: string[];
@@ -256,15 +270,20 @@ class FormulaChecker<L> {
                   fieldFormulaType(decl.type),
                 ]),
               );
-          this.computed(def.computed, at, where);
-          for (const effect of def.effects ?? []) this.effect(effect, at, where);
-          for (const fu of def.followUps ?? [])
-            this.followUp(fu, at, `${where} follow-up ${fu.id}`);
-          for (const grant of def.grants ?? []) this.grant(grant, at, `${where} grant`);
+          // Run for each item of the type: its choices, known only then.
+          this.owned(ANY_CHOICE, () => {
+            this.computed(def.computed, at, where);
+            for (const effect of def.effects ?? []) this.effect(effect, at, where);
+            for (const fu of def.followUps ?? [])
+              this.followUp(fu, at, `${where} follow-up ${fu.id}`);
+            for (const grant of def.grants ?? []) this.grant(grant, at, `${where} grant`);
+          });
         }),
       );
       for (const action of def.actions ?? [])
-        this.at('action', () => this.actionOrUse(action, at, `types.${name}`, name));
+        this.owned(ANY_CHOICE, () =>
+          this.at('action', () => this.actionOrUse(action, at, `types.${name}`, name)),
+        );
     }
 
     for (const [id, { def, at }] of rules.situational) {
@@ -304,14 +323,19 @@ class FormulaChecker<L> {
       }
     }
 
-    for (const [, { def, at }] of rules.actions)
-      this.at('action', () => this.action(def, at, `actions.${def.id}`));
-    for (const { def, at } of rules.effects) this.effect(def, at, 'rules effect');
-    for (const { def, at } of rules.followUps) this.followUp(def, at, `follow-up ${def.id}`);
+    // A rules action reads the choices of the copy that uses it, else the rules'; the rules'
+    // effects, follow-ups and choices read the rules' choices, from every loaded pack.
+    this.owned(ANY_CHOICE, () => {
+      for (const [, { def, at }] of rules.actions)
+        this.at('action', () => this.action(def, at, `actions.${def.id}`));
+      for (const { def, at } of rules.effects) this.effect(def, at, 'rules effect');
+      for (const { def, at } of rules.followUps) this.followUp(def, at, `follow-up ${def.id}`);
+    });
     for (const { def, at } of rules.immuneTo) this.immunity(def, at, 'rules');
     for (const { def, at } of rules.standardCopies)
       this.standardQuery(def, at, 'rules standardCopies');
-    for (const { def, at } of rules.choices.values()) this.choices([def], at, 'rules');
+    for (const { def, at } of rules.choices.values())
+      this.owned(ANY_CHOICE, () => this.choices([def], at, 'rules'));
 
     for (const [id, { def, at }] of rules.constraints) {
       const constraintFormulas = () => {
@@ -360,6 +384,12 @@ class FormulaChecker<L> {
   }
 
   private item(item: ContentItem, at: L): void {
+    // An override or extension may take its choices from the item it replaces.
+    const own = item.override || item.extends ? ANY_CHOICE : choiceKeys(item.choices);
+    this.owned(own, () => this.ownedItem(item, at));
+  }
+
+  private ownedItem(item: ContentItem, at: L): void {
     const owner = item.id ?? item.override ?? '?';
     this.tagList(item.tags, at, owner);
     // A template's formulas see the base item as `base`.
@@ -698,11 +728,8 @@ class FormulaChecker<L> {
 
   private valueOptions(from: ValueOptions, at: L, where: string, choice?: Choice): void {
     let value: FType = 'dyn';
-    if (Array.isArray(from.values)) {
-      if (from.values.every((v) => typeof v === 'string')) value = 'string';
-      else if (from.values.every((v) => Number.isInteger(v))) value = 'int';
-      else if (from.values.every((v) => typeof v === 'number')) value = 'decimal';
-    } else {
+    if (Array.isArray(from.values)) value = writtenType(from.values);
+    else {
       const formula = from.values.formula;
       this.formula(formula, at, `${where} values`, [{ list: 'string' }, { list: 'decimal' }]);
       const tree = formulaTree(formula);
@@ -733,11 +760,14 @@ class FormulaChecker<L> {
     for (const option of options) {
       const owner = `${key}.options.${option.id}`;
       this.tagList(option.tags, at, owner);
-      for (const effect of option.effects ?? []) this.effect(effect, at, owner);
-      for (const grant of option.grants ?? []) this.grant(grant, at, owner);
-      for (const prerequisite of option.prerequisites ?? [])
-        this.formula(prerequisite.when, at, owner, BOOL);
-      this.choices(option.choices ?? [], at, owner);
+      // An inline option owns its own choices.
+      this.owned(choiceKeys(option.choices), () => {
+        for (const effect of option.effects ?? []) this.effect(effect, at, owner);
+        for (const grant of option.grants ?? []) this.grant(grant, at, owner);
+        for (const prerequisite of option.prerequisites ?? [])
+          this.formula(prerequisite.when, at, owner, BOOL);
+        this.choices(option.choices ?? [], at, owner);
+      });
     }
   }
 
@@ -923,7 +953,10 @@ class FormulaChecker<L> {
     for (const value of Object.values(step.data ?? {})) this.formula(value, at, where, ANY);
   }
 
-  private choiceViews(step: Step): { item?: FType; self?: FType } {
+  private choiceViews(step: Step): { item?: FType; self?: FType; value?: FType } {
+    const values = valueSource(step);
+    // A formula's element type would need the steps this builds, so it is `dyn` here.
+    if (values) return { value: Array.isArray(values.values) ? writtenType(values.values) : 'dyn' };
     const query = optionQuery(step);
     if (!query) return {};
     const def = this.contentTypeDef(query.type);
@@ -948,6 +981,26 @@ class FormulaChecker<L> {
     );
     this.formula(step.repeat?.max, at, where, ['int']);
     this.formula(step.repeat?.min, at, where, ['int']);
+    const values = valueSource(step);
+    if (values) {
+      let value: FType = 'dyn';
+      if (Array.isArray(values.values)) value = writtenType(values.values);
+      else {
+        const formula = values.values.formula;
+        this.formula(formula, at, `${where} values`, [{ list: 'string' }, { list: 'decimal' }]);
+        const tree = formulaTree(formula);
+        const type = tree.ok ? check(tree.value, this.checkContext()) : undefined;
+        if (type?.ok && typeof type.value === 'object' && 'list' in type.value)
+          value = type.value.list;
+      }
+      this.typed({ value, picks: 'int' }, () =>
+        this.withRoots(['value', 'picks'], () => {
+          this.formula(values.where, at, `${where} where`, BOOL);
+          this.formula(step.prefer, at, where, NUMBER);
+        }),
+      );
+      return;
+    }
     const query = optionQuery(step);
     if (!query) return;
     const views = this.choiceViews(step);
@@ -1432,6 +1485,42 @@ class FormulaChecker<L> {
 
   private choicesBound = false;
 
+  /** The choice keys `picksOf` may name: unbound without an owner; any when known only later. */
+  private ownerChoices: readonly string[] | typeof ANY_CHOICE | undefined;
+
+  private owned<T>(choices: readonly string[] | typeof ANY_CHOICE, fn: () => T): T {
+    const previous = this.ownerChoices;
+    this.ownerChoices = choices;
+    try {
+      return fn();
+    } finally {
+      this.ownerChoices = previous;
+    }
+  }
+
+  /** A literal `picksOf` argument must name a choice of the formula's owner. */
+  private ownerPicks(formula: Formula, at: L, where: string): void {
+    const choices = this.ownerChoices;
+    if (!Array.isArray(choices)) return;
+    const tree = formulaTree(formula);
+    if (!tree.ok) return;
+    const visit = (node: Node): void => {
+      if (node.type === 'call' && node.fn === 'picksOf') {
+        const [arg] = node.args;
+        if (arg?.type === 'string' && !choices.includes(arg.value))
+          this.problems.push({
+            at,
+            where,
+            formula,
+            code: 'unknown-reference',
+            message: `picksOf('${arg.value}') names no choice of the formula's owner (${choices.join(', ') || 'none'})`,
+          });
+      }
+      for (const child of children(node)) visit(child);
+    };
+    visit(tree.value);
+  }
+
   private showWhen(formula: Formula | undefined, at: L, where: string): void {
     if (formula === undefined) return;
     this.choicesBound = true;
@@ -1470,6 +1559,9 @@ class FormulaChecker<L> {
       rootTypes: this.types,
       character: this.place !== 'itemField' && this.place !== 'query',
       ...(this.choicesBound ? { choices: true } : {}),
+      ...(this.ownerChoices !== undefined && this.place !== 'itemField' && this.place !== 'query'
+        ? { picks: true }
+        : {}),
       family: (name) => this.set.family(name, this.scope),
       id: (text) =>
         this.set.item(text, this.scope) !== undefined ||
@@ -1519,7 +1611,10 @@ class FormulaChecker<L> {
     if (typeof formula === 'string') this.options.onFormula?.(formula, at, where);
     const context = this.checkContext();
     const problem = checkFormula(formula, nullable ? { ...context, nullable } : context, expect);
-    if (!problem) return;
+    if (!problem) {
+      if (context.picks) this.ownerPicks(formula, at, where);
+      return;
+    }
     const hint =
       this.inputOnly && problem.code === 'unknown-name'
         ? ' (activation conditions and item fields can read only input fields)'
@@ -1578,4 +1673,12 @@ export function fieldsMatching<L>(
 /** Formats a problem the way the build reports it. */
 export function describeProblem<L>(problem: FormulaProblem<L>): string {
   return `${problem.where}: formula ${JSON.stringify(problem.formula)}: ${problem.code}: ${problem.message}`;
+}
+
+/** Written values' type: `string`, `int` or `decimal` when they all are, else `dyn`. */
+function writtenType(values: readonly (string | number)[]): FType {
+  if (values.every((v) => typeof v === 'string')) return 'string';
+  if (values.every((v) => Number.isInteger(v))) return 'int';
+  if (values.every((v) => typeof v === 'number')) return 'decimal';
+  return 'dyn';
 }

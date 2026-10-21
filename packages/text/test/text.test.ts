@@ -451,6 +451,16 @@ describe('keys and fallbacks', () => {
     ).toBe('5d6, exploding on 6, reroll 2 or lower, drop lowest 2');
   });
 
+  it('words a roll made more than once', () => {
+    const dice = [{ kind: 'dice', count: 2, sides: 6 }] as never;
+    expect(text.dice(dice, { times: 2, keep: 'low' })).toBe(
+      '2d6, rolled twice, keep the lower total',
+    );
+    expect(text.dice(dice, { times: 3, keep: 'high' })).toBe(
+      '2d6, rolled 3 times, keep the highest total',
+    );
+  });
+
   it('leaves out a keep or drop that cannot change the roll', () => {
     // A FitD pool of one die: keeping the highest of one is the die.
     expect(

@@ -42,6 +42,12 @@ export interface CharacterQueries {
   hasChoice?(type: string): boolean;
 }
 
+/**
+ * The roots key holding the formula's owner's choices, `{ <choice key>: picks }`, which `picksOf`
+ * reads. Not an identifier, so no formula can name it.
+ */
+export const OWNER_PICKS = '#picks';
+
 export interface EvalContext {
   /** The value of a visible field, or undefined when no field has this ID. */
   field(id: string): Value | undefined;
@@ -418,6 +424,19 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
         });
       arity(fn, args, 1);
       return bool(hasChoice(stringArg(fn, values()[0] as Value)));
+    }
+    case 'picksOf': {
+      const owner = ctx.roots[OWNER_PICKS] as Record<string, unknown> | undefined;
+      if (!owner)
+        return fail('unknown-function', 'picksOf() is bound only where the formula has an owner', {
+          function: fn,
+        });
+      arity(fn, args, 1);
+      const [name] = args;
+      if (name?.type !== 'string') return fail('type-mismatch', 'picksOf() takes a choice ID');
+      if (!Object.hasOwn(owner, name.value))
+        return fail('no-such-key', `the owner has no choice "${name.value}"`, { key: name.value });
+      return fromData(owner[name.value]);
     }
     case 'indexOf': {
       arity(fn, args, 2);

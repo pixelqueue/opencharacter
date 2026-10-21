@@ -390,6 +390,11 @@ function run(dir: string): void {
         if ('tallies' in want) expect(got.tallies ?? [], `log[${i}].tallies`).toEqual(want.tallies);
         if ('items' in want)
           expect(got.items, `log[${i}].items`).toMatchObject(want.items as object);
+        // A roll made more than once: every roll, items as for `items`; `null` for none.
+        if ('rolls' in want) {
+          if (want.rolls === null) expect(got.rolls, `log[${i}].rolls`).toBeUndefined();
+          else expect(got.rolls, `log[${i}].rolls`).toMatchObject(want.rolls as object);
+        }
       });
     }
     return;

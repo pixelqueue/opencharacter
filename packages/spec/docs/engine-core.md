@@ -141,6 +141,11 @@ or item and the rules actions they `use`) and in its follow-ups, `self` also has
 on the copy sees the copy's computed values there too, since its `self` is that copy. A roll
 effect's `roll.self` doesn't have them.
 
+The copy's picks aren't on `self`: a formula reads its owner's choices with
+[`picksOf`](formulas.md#picks-of-the-owners-choices), a copy's item reading the entry's bare
+keys, a template or granted content its prefixed ones, picked content those nested under its
+pick. A rules action the copy uses reads the copy's.
+
 ### Items and `item`
 
 The item a copy holds, as `item`, is the base item merged with the copy's templates:
@@ -277,7 +282,7 @@ keys by their type, with their `default` when unsaved.
 immunity's `when` and query `where`. They are
 evaluated before any field is computed, so they may read only `self`, `item`, `character` (its
 `applied` list included, which is raw), `entry` in an immunity's query, the character functions,
-and the raw values of **input fields** (saved value, or default). Effects
+the owner's saved picks (`picksOf`), and the raw values of **input fields** (saved value, or default). Effects
 are not applied to those values. A condition that reads a derived field is rejected by the build
 (`type-mismatch`). **PROVISIONAL.** This keeps activation free of loops: a class grants features
 by `self.level`, never by a computed field.
@@ -600,8 +605,8 @@ later declaration replacing an earlier one with the same name in its place.
 
 - A formula resolves names in the pack that declared it (an override's in the overriding pack)
   and sees `item` and `self` as the copy's effects do, every field (fields never read computed
-  values, so they are all computed first), `character`, `links` and the character functions.
-  `self` has the copy's computed values declared before this one, each as
+  values, so they are all computed first), `character`, `links` and the character functions,
+  `picksOf` reading the copy's item's choices. `self` has the copy's computed values declared before this one, each as
   worked out; one that failed is absent. A replacement keeps the replaced name's place, so the
   values after it read the replacement, and it reads only what comes before the name.
 - An `integer` value must be an int, a `decimal` value a number (an int becomes a decimal), a
@@ -972,13 +977,18 @@ An `adjust` on field F with amount `by`, `tags` and optional `situational` choic
    (without incoming-change effects), up to `maxOverflowChain` adjusts in all.
 5. **Clamping.** Otherwise the result is clamped to `min`/`max`.
 6. **`then`.** After the adjust is fully routed, each instance that counted in step 1 applies its
-   `then` changes (`setState` or `adjustState`), in instance order, to its own copy: the copy
-   whose `self` it sees (for picked or granted content, the owning copy), before the next change
-   in the batch. Their `value` and `by` are evaluated with the instance's `item`, `self` and
-   `incoming`, on the same sheet as step 1. They are checked like the same changes given to
-   applyChanges, and a failure rejects the batch. They are not adjusts, so nothing routes or
-   triggers on them. An instance with no copy (content picked in a rules-level choice) skips
-   them; `then` where no copy can exist is a load error (`then-without-copy`).
+   `then` changes, in instance order, to its own entry, before the next change in the batch: for
+   an applied activation the applied entry whose `self` it sees (for content an applied grant
+   reaches, the granting entry), otherwise the copy whose `self` it sees (for picked or granted
+   content, the owning copy). A `setState` or `adjustState` changes the entry's state; a
+   `removeEffect` (applied effects only) removes the applied entry. Their `value` and `by` are
+   evaluated with the instance's `item`, `self` and `incoming`, on the same sheet as step 1.
+   They are checked like the same changes given to applyChanges, and a failure rejects the
+   batch. Once an entry is removed, every later `then` change aimed at it in this step is
+   skipped, so two effects of one ward that both counted remove it once. They are not adjusts,
+   so nothing routes or triggers on them. An instance with no entry (content picked in a
+   rules-level choice) skips them; `then` where no entry can exist is a load error
+   (`then-without-copy`).
 
 Each step that changes a field is reported in `adjustments`, in order, as
 `{ field, by, requested?, taken?, reason, clamped? }`, with qualified field IDs:
@@ -1000,8 +1010,9 @@ Each step that changes a field is reported in `adjustments`, in order, as
    - **`carry`**: with `carry: true`, the excess routed into the field again, its
      entry `{ field, by, reason: carry }` followed by its own steps if it overflows in turn.
 5. **`then`:** after the adjust's own entries, one `{ entry, key, value, source }` per `then`
-   change: the copy, the state key, its new value, and the effect instance's source with its
-   effect ID (`effect`, when the effect has one).
+   state change: the entry (a copy or an applied entry), the state key, its new value, and the
+   effect instance's source with its effect ID (`effect`, when the effect has one). A
+   `removeEffect` adds `{ entry, removed: true, source }` instead. A skipped change adds nothing.
 
 `clamped: true` appears only when clamping changed the amount. So FitD stress at 8 taking 3
 reports stress +3 (`requested`), trauma +1 (`overflow`), then stress −11 (`reset`). Mothership

@@ -1,0 +1,34 @@
+description: 'Content an applied grant reaches removes the granting entry from its `then`: `self` is that entry'
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp.current: { type: integer, input: true, default: 20, min: 0, max: 20 }
+        contentTypes:
+          condition: {}
+      content:
+        # A made-up trance that a single hit breaks, through the condition it grants.
+        - id: conditions.trance
+          type: condition
+          grants:
+            - { item: conditions.dazed, scope: applied }
+        - id: conditions.dazed
+          type: condition
+          effects:
+            - id: jolt
+              target: { incoming: { fields: [hp.current], tags: [damage] } }
+              op: add
+              value: -1
+              when: incoming.amount < 0
+              scope: applied
+              then:
+                - { type: removeEffect, entry: self }

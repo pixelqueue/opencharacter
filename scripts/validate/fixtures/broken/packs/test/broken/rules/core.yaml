@@ -58,11 +58,14 @@ actions:
         budget: 1
         recommend: { nope.field: 1 }
   # An action step with `source` may use the content's own action: the spin trick's
-  # `whirl` is fine, `lunge` it doesn't define.
+  # `whirl` is fine, `lunge` it doesn't define. With `entry`, any content's own action
+  # may be used: `whirl` again, but no content defines `hop`.
   - id: brawl
     steps:
       - { id: whirl, kind: action, use: whirl, source: "'tricks.spin'" }
       - { id: lunge, kind: action, use: lunge, source: "'tricks.spin'" }
+      - { id: spin, kind: action, use: whirl, entry: "'trick'" }
+      - { id: hop, kind: action, use: hop, entry: "'trick'" }
   - id: needs-kind
     params:
       kind: { type: string }

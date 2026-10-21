@@ -1,0 +1,63 @@
+# Three abilities a background raises, a spirit's powers, and two rules-level picks.
+fields:
+  str: { type: integer, formula: 10 }
+  dex: { type: integer, formula: 10 }
+  con: { type: integer, formula: 10 }
+  powerCount: { type: integer, formula: 0 }
+  effortUsed: { type: integer, input: true, default: 0 }
+
+contentTypes:
+  background: {}
+  spirit:
+    actions:
+      - use: summon
+
+choices:
+  - id: favored
+    required: false
+    from: { values: [dex, con, str] }
+  # Another ability than the favored one: the rules read their own choices' picks too.
+  - id: second
+    required: false
+    from: { values: [dex, con, str] }
+    eligible: "!(value in picksOf('favored'))"
+    recommend: "filterList(['dex', 'con', 'str'], !(x in picksOf('favored')))[0]"
+
+actions:
+  # Commits effort for each power past the first, at least 1: the spirit's own picks.
+  - id: summon
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - type: adjust
+            field: effortUsed
+            by: "max(1, size(picksOf('powers')) - 1)"
+      - id: done
+        kind: outcome
+        data: { powers: picksOf('powers'), effort: self.effort }
+  # Favors Dexterity, then reads the rules' picks on the given sheet and on the proposed one.
+  - id: favor
+    steps:
+      - id: choose
+        kind: changes
+        changes:
+          - { type: choose, path: { choice: [favored] }, option: "'dex'" }
+      - id: before
+        kind: branch
+        cases:
+          - when: true
+            flags: { given: picksOf('favored') }
+      - id: done
+        kind: outcome
+        sheet: proposed
+        data: { given: flags.given, proposed: picksOf('favored') }
+  # Answers the scholar's pending choices, each by its own recommendation.
+  - id: fill
+    steps:
+      - id: picks
+        kind: choice
+        options: { pending: { entry: "'scholar'" } }
+      - id: done
+        kind: outcome
+        data: { picked: steps.picks.picked }

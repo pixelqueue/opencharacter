@@ -23,7 +23,7 @@ effects:
 | `tags`       | `add` on rolls only: tags for the roll item the effect adds (see below)                                                           |
 | `multiplied` | `add` on rolls only: `false` keeps `multiplyDice` and `multiply` off the items the effect adds (see below)                        |
 | `duration`   | Informational only: `{ amount, unit, concentration }`. Time tracking is the app's job; the engine never ends an effect by itself. |
-| `then`       | Incoming changes only: state changes to the effect's own copy after the adjust is routed (see below)                              |
+| `then`       | Incoming changes only: changes to the effect's own entry after the adjust is routed (see below)                                   |
 
 ## Targets
 
@@ -91,19 +91,22 @@ known ([content.md](content.md#kept-templates)).
       - { type: set, field: armor.special, value: true }
 ```
 
-**The incoming amount, and effects that break their copy**. An
+**The incoming amount, and effects that change their own entry**. An
 incoming-change effect's `when`, `value` and `then` see `incoming`: `incoming.amount` is the
 change's `by` as requested, before any incoming-change effect (negative for harm), so every
 effect sees the same number whatever op runs first; `incoming.field` is the qualified ID of the
 field; `incoming.tags` is the change's tags. An incoming-change effect may also carry `then`: a
-list of `setState` or `adjustState` changes with `entry: self`. When the effect counted (its
-`when` held and stacking kept it), applyChanges applies them to the effect's own copy right after
-the adjust is routed, and reports each one in `adjustments` as `{ entry, key, value, source }`
-([engine-core.md](engine-core.md#routing-an-adjust)). Their `value` and `by` are formulas seeing
-`item`, `self` and `incoming`. They are not adjusts, so nothing routes or triggers on them. Only
-an effect with a copy can carry `then`: on the rules' `effects`, a situational choice's, a
-choice's `effects` or an `applied`-scope effect it is a load error, `then-without-copy`.
-Mothership armor points ignore damage under the armor's AP; damage at or over it breaks the
+list of changes to its own **entry**, `self`: the copy for a `holder` effect, the applied entry
+for an `applied` one (for content an applied grant reaches, the granting entry). Each is a
+`setState` or `adjustState` with `entry: self`, or, on an `applied` effect only, a
+`removeEffect` with `entry: self`, which ends the entry. When the effect counted (its `when`
+held and stacking kept it), applyChanges applies them right after the adjust is routed, and
+reports each in `adjustments`: a state change as `{ entry, key, value, source }`, a removal as
+`{ entry, removed: true, source }` ([engine-core.md](engine-core.md#routing-an-adjust)). Their
+`value` and `by` are formulas seeing `item`, `self` and `incoming`. They are not adjusts, so
+nothing routes or triggers on them. Only an effect with an entry can carry `then`: on the rules'
+`effects`, a situational choice's or a choice's `effects` it is a load error,
+`then-without-copy`. Mothership armor points ignore damage under the armor's AP; damage at or over it breaks the
 armor, and only the excess gets through:
 
 ```yaml
@@ -128,6 +131,26 @@ armor, and only the excess gets through:
 
 A damage threshold alone (damage under it is ignored, otherwise all of it gets through) is the
 first effect without the second.
+
+An applied effect that lasts until it does its job removes its entry. 5E's Death Ward leaves
+its target at 1 Hit Point the first time it would drop to 0, and ends:
+
+```yaml
+# Death Ward, applied to its target
+- id: ward
+  target: { incoming: { fields: [hp.current], tags: [damage] } }
+  op: atLeast
+  value: 1 - hp.current
+  when: hp.current + incoming.amount <= 0
+  scope: applied
+  then:
+    - { type: removeEffect, entry: self }
+```
+
+Once an entry is removed, the rest of the `then` changes aimed at it on that adjust, its own
+effect's and its other effects', are skipped. An effect that lasts for a number of triggers
+counts them in a state key: one effect spends a use while more than one is left, and a second,
+for the last use, removes the entry.
 
 **Dice on incoming changes**. An incoming-change `add` may be dice; `set`,
 `multiply`, `atLeast` and `atMost` stay numbers. applyChanges rolls it when it routes the adjust,
