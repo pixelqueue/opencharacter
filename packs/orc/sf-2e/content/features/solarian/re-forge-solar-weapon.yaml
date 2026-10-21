@@ -33,30 +33,25 @@ actions:
         repeat: { max: 2, min: 0 }
         recommend: "'#done'"
         options:
-          - id: disarm
-            when: "picks == 0 && !('disarm' in ['agile', 'twin']) || ('disarm' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
-          - id: free-hand
-            when: "picks == 0 && !('free-hand' in ['agile', 'twin']) || ('free-hand' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
-          - id: grapple
-            when: "picks == 0 && !('grapple' in ['agile', 'twin']) || ('grapple' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
-          - id: nonlethal
-            when: "picks == 0 && !('nonlethal' in ['agile', 'twin']) || ('nonlethal' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
-          - id: parry
-            when: "picks == 0 && !('parry' in ['agile', 'twin']) || ('parry' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
-          - id: shove
-            when: "picks == 0 && !('shove' in ['agile', 'twin']) || ('shove' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
-          - id: sweep
-            when: "picks == 0 && !('sweep' in ['agile', 'twin']) || ('sweep' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
-          - id: trip
-            when: "picks == 0 && !('trip' in ['agile', 'twin']) || ('trip' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
-          - id: versatile
-            when: "picks == 0 && !('versatile' in ['agile', 'twin']) || ('versatile' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
-          - { id: reach, when: 'true' }
-          - { id: two-hand, when: 'true' }
-          - id: agile
-            when: "picks == 0 && !('agile' in ['agile', 'twin']) || ('agile' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
-          - id: twin
-            when: "picks == 0 && !('twin' in ['agile', 'twin']) || ('twin' in ['agile', 'twin'] && @feats.solarian.twin-weapons in feats.held)"
+          values:
+            - disarm
+            - free-hand
+            - grapple
+            - nonlethal
+            - parry
+            - shove
+            - sweep
+            - trip
+            - versatile
+            - reach
+            - two-hand
+            - agile
+            - twin
+          where: >-
+            picks == 0
+              && (!(value in ['agile', 'twin']) || @feats.solarian.twin-weapons in feats.held)
+              && (value in ['reach', 'two-hand'] ? size(steps.traits.picked) == 0
+                : countList(steps.traits.picked, x in ['reach', 'two-hand']) == 0)
       - id: apply
         kind: changes
         changes:
