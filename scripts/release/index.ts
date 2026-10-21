@@ -286,6 +286,46 @@ export function syncPinnedVersions(root: string, files: string[], bumps: PackBum
   return changed;
 }
 
+/**
+ * A dependency range (`<pack ID>: <range>`, in YAML, JSON or code) on a bumped pack that the old
+ * version satisfied and the new one doesn't becomes the new version's caret range. Others stay.
+ */
+export function bumpDependencyRanges(text: string, bumps: PackBump[]): string {
+  let next = text;
+  for (const { id, from, to } of bumps) {
+    const re = new RegExp(
+      `(?<![\\w.:/@-])(['"]?)${escape(id)}\\1(: *)(?:(['"])([^'"\\n]+)\\3|([^\\s,}'"#]+))`,
+      'g',
+    );
+    next = next.replace(
+      re,
+      (match, q: string, colon: string, rq?: string, quoted?: string, bare?: string) => {
+        const range = (quoted ?? bare ?? '').trim();
+        if (!semver.validRange(range)) return match;
+        if (!semver.satisfies(from, range) || semver.satisfies(to, range)) return match;
+        return `${q}${id}${q}${colon}${rq ?? ''}^${to}${rq ?? ''}`;
+      },
+    );
+  }
+  return next;
+}
+
+/** Applies bumpDependencyRanges to each file. Returns the files changed. */
+export function syncDependencyRanges(root: string, files: string[], bumps: PackBump[]): string[] {
+  const changed: string[] = [];
+  for (const file of files) {
+    const path = join(root, file);
+    if (!existsSync(path)) continue;
+    const text = readFileSync(path, 'utf8');
+    const next = bumpDependencyRanges(text, bumps);
+    if (next !== text) {
+      writeFileSync(path, next);
+      changed.push(file);
+    }
+  }
+  return changed;
+}
+
 export interface SpecBump {
   from: string;
   to: string;
@@ -297,8 +337,8 @@ const majorMinor = (v: string) => v.split('.').slice(0, 2).join('.');
 /**
  * After `changeset version` bumps `@opencharacter/spec`, moves the spec version everywhere it is
  * stated: `SPEC_VERSION` (which `SCHEMA_BASE` derives from), the `schemas/<major.minor>/` path of
- * every schema ID and link, the prose that names the current version, and the example characters'
- * `specVersion` (samples follow the current spec). Other minimums and records stay. Returns the
+ * every schema ID and link, the prose and badge that name the current version, and the `specVersion`
+ * of the example characters and the docs' samples (samples follow the current spec). Other minimums and records stay. Returns the
  * bump and the files changed, or undefined when they match.
  */
 export function syncSpecVersion(
@@ -315,16 +355,21 @@ export function syncSpecVersion(
     [new RegExp(`(SPEC_VERSION = ')${escape(from)}'`, 'g'), `$1${to}'`],
     [
       new RegExp(
-        `(Spec version \\**|current version is \\**)${escape(from)}(?![\\w-]|\\.\\d)`,
+        `(Spec (?:version )?\\**|current version is \\**)${escape(from)}(?![\\w-]|\\.\\d)`,
         'g',
       ),
       `$1${to}`,
     ],
+    [new RegExp(`(shields\\.io/badge/spec-)${escape(from)}(?=-)`, 'g'), `$1${to}`],
   ];
-  // Example characters are samples, not records: they follow the current spec.
+  // Example characters and the docs' samples are not records: they follow the current spec.
   const examples: [RegExp, string] = [
     new RegExp(`^(specVersion: ['"]?)${escape(from)}(['"]?)$`, 'gm'),
     `$1${to}$2`,
+  ];
+  const samples: [RegExp, string] = [
+    new RegExp(`(['"]?specVersion['"]?: *['"]?)${escape(from)}(?![\\w-]|\\.\\d)`, 'g'),
+    `$1${to}`,
   ];
   if (majorMinor(from) !== majorMinor(to)) {
     patterns.push([
@@ -340,6 +385,7 @@ export function syncSpecVersion(
     let next = text;
     for (const [re, sub] of patterns) next = next.replace(re, sub);
     if (file.startsWith('examples/characters/')) next = next.replace(examples[0], examples[1]);
+    if (/\.mdx?$/.test(file)) next = next.replace(samples[0], samples[1]);
     if (next !== text) {
       writeFileSync(path, next);
       changed.push(file);
