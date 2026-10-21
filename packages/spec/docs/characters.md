@@ -94,10 +94,13 @@ An entry ([`character.schema.json#/$defs/entry`](../schemas/character.schema.jso
   at 0 stays until removed.
 - `state`: values for keys declared by the content type, the item, or its templates.
 - `choices`: picks for choices declared by the item and its templates.
+- `grants`: saved state of content the item and its templates grant
+  ([below](#granted-contents-state)).
 
 **Standard copies**. Copies every character holds
 ([content.md](content.md#standard-copies)) aren't listed while they're at their defaults: not
-equipped, quantity 1, no templates or picks, and no state other than the defaults.
+equipped, quantity 1, no templates, picks or granted content's state, and no state other than
+the defaults.
 
 - An entry whose `id` is a standard copy's derived ID and whose `item` is that item **is** the
   standard copy, saved with its changes, and keeps its place in the file. With another `item` it
@@ -139,13 +142,31 @@ choices:
 ```
 
 A pick may also keep `state`, for state keys its picked content declares: a
-once-a-day feat's `used`, as a copy's state would. A key at its default is left out.
+once-a-day feat's `used`, as a copy's state would. A key at its default is left out. It may keep
+`grants`, the saved state of content its option grants ([below](#granted-contents-state)).
 
 Choices declared on an item are stored on that item's entry. Choices declared in the rules are stored in the top-level `choices`. Picked content is never also listed in `features`.
 
 Keys in a `choices` tree are bare choice IDs for the tree's own item (the entry's item, or the
 picked option). Choices declared by templates or granted content in the same tree use
 `<qualified owner id>/<choice id>`, such as `5e-srd-5.1:magic-items.some-template/damage-type`.
+
+## Granted content's state
+
+Content a holder grant makes active keeps its own state where its picks are kept: an entry, or
+a pick, holds `grants`, the saved state of the content its item (with its templates) or picked
+option grants, by the granted content's qualified ID. Each holds `state`, as a pick does, for
+keys the granted content declares; a key at its default (the grant's `state` value, else the
+declared default) is left out ([content.md](content.md#when-content-is-active)).
+
+```yaml
+inventory:
+  - id: blade
+    item: my-pack:artifacts.sun-blade
+    equipped: true
+    grants:
+      my-pack:gifts.flame-ward: { state: { committed: 1 } }
+```
 
 ## Creating a character
 

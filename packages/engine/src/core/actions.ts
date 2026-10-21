@@ -3368,7 +3368,20 @@ function proposeOne(
       out.path = { ...a.path, choice: a.path.choice.slice(0, -1) };
       out.option = option;
     }
-    if (change.copies || change.applied || change.picks) {
+    if (change.grant === 'self') {
+      // The holder grant that activated the action's content: its node (the copy, or the pick its
+      // path ends at) and the granted item.
+      const a = frame.activation;
+      if (!a?.item || a.kind !== 'grant' || a.scope !== 'holder')
+        throw new ActionError('unknown-reference', { grant: 'self' });
+      if (a.path.choice.length === 0) out.entry = a.path.entry;
+      else {
+        out.path = { ...a.path, choice: a.path.choice.slice(0, -1) };
+        out.option = a.path.choice.at(-1);
+      }
+      out.grant = a.item.qid;
+    }
+    if (change.copies || change.applied || change.picks || change.grants) {
       // applyChanges resolves the query on the receiving character and evaluates per-copy
       // formulas for each match; other formulas are evaluated now.
       const passed = { ...extra, action: bound.action ?? actionRoot(ctx, frame, step) };
@@ -3396,6 +3409,12 @@ function proposeOne(
           where: passOn(ctx, frame, change.picks.where, passed),
           ...(change.picks.limit !== undefined ? { limit: change.picks.limit } : {}),
         };
+      if (change.grants)
+        out.grants = {
+          where: passOn(ctx, frame, change.grants.where, passed),
+          ...(change.grants.limit !== undefined ? { limit: change.grants.limit } : {}),
+        };
+
       if (change.value !== undefined)
         out.value = perCopy(change.value)
           ? passOn(ctx, frame, change.value, passed)

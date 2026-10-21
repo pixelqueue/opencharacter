@@ -84,6 +84,16 @@
       "description": "unchoose: the option is not picked."
     },
     {
+      "id": "not-granted",
+      "kind": "runtime",
+      "description": "setState or adjustState names a grant (`grant`) that isn't active on that copy or pick: no active holder grant there gives the content. Data: `grant`."
+    },
+    {
+      "id": "preset-choice",
+      "kind": "runtime",
+      "description": "choose or unchoose on a choice a grant presets (its `choices`): the grant's picks are the choice's. Data: `path`."
+    },
+    {
       "id": "pack-version-mismatch",
       "kind": "runtime",
       "description": "The character pins pack versions that differ from the ruleset's."
@@ -151,7 +161,7 @@
     {
       "id": "unknown-reference",
       "kind": "load",
-      "description": "Content refers to an ID that does not exist. Also raised when an action runs, for an addItem's item or an applyEffect's source that names no content or a template. A kept template (`keepsTemplates`) that names content other than a template is `unknown-reference` too, with kind `template`."
+      "description": "Content refers to an ID that does not exist. Also raised when an action runs, for an addItem's item or an applyEffect's source that names no content or a template. A kept template (`keepsTemplates`) that names content other than a template is `unknown-reference` too, with kind `template`. A grant's preset `choices` naming a choice the granted content doesn't declare (or on a `scope: applied` grant) is kind `choice`; a literal preset option it doesn't offer, kind `option` or `content`."
     },
     {
       "id": "circular-formula",

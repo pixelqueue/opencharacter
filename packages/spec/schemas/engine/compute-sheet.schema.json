@@ -218,7 +218,7 @@
                 "minimum": 0
               },
               "path": {
-                "description": "Picks: the choice path of the pick, the picked option last.",
+                "description": "Picks: the choice path of the pick, the picked option last. Holder grants whose node is a pick (content granted by picked content or an inline option): that pick's path, which a grant's `setState` names with `path`, `option` and `grant`.",
                 "$ref": "../change.schema.json#/$defs/choicePath"
               }
             },
@@ -477,6 +477,10 @@
         "open": {
           "description": "Whether the choice is pending: required (`required` not false) with fewer picks than `min`.",
           "type": "boolean"
+        },
+        "preset": {
+          "description": "`true` when a grant presets the choice (its `choices`): `picks` are the grant's, the choice is never open, and `choose` and `unchoose` on it are `preset-choice`.",
+          "const": true
         }
       },
       "additionalProperties": false

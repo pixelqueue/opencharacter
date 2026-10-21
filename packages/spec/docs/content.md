@@ -167,7 +167,85 @@ grants:
 ```
 
 The granted content's `self` keeps the entry's `id` and its other keys; its effects, actions
-and nested grants see the values, and nothing is saved.
+and nested grants see the values. For an applied grant nothing is saved; a holder grant's values
+are the defaults of its saved state (below).
+
+**Granted content's saved state**. Content a holder grant makes active keeps
+state of its own, as a pick does: an artifact's gift whose Effort stays committed, an art that is
+on or off. It is kept on the node whose choice tree holds the granted content's picks: the copy
+(content its item or templates grant), or the pick (content picked content or an inline option
+grants), in that node's `grants`, by the granted content's qualified ID
+([characters.md](characters.md#granted-contents-state)). Content granted by granted content
+keeps it on the same node.
+
+- **Reading:** granted content that declares state (its type's or its own) reads `self.<key>` from
+  its saved value, else the grant's `state` value, else the declared default, over the owner's
+  copy; its other keys stay the copy's.
+- **Changing:** `setState` and `adjustState` name it with `grant`, its qualified ID, beside the
+  node: `entry` for a copy, or the pick's `path` and `option`; `grant: self` in its own action
+  ([dice-and-actions.md](dice-and-actions.md#actions)); or every granted
+  content by query, `grants: { where }` ([engine-core.md](engine-core.md#applychanges)). A value
+  equal to the key's default (the grant's `state` value, else the declared one) is dropped.
+- **One node, one item:** the same item granted twice on one node shares its saved state, as it
+  shares its picks.
+- **A grant that is off:** its saved state is kept and unread, so a wielded artifact's gifts
+  keep their state while it is stowed; `setState` on it is `not-granted`.
+
+```yaml
+# An artifact's gift keeps its own committed Effort.
+contentTypes:
+  gift:
+    state:
+      committed: { type: integer, default: 0, min: 0 }
+    actions:
+      - id: invoke
+        steps:
+          - id: commit
+            kind: changes
+            to: self
+            changes: [{ type: adjustState, grant: self, key: committed, by: 1 }]
+# content/artifacts/sun-blade.yaml
+grants:
+  - { item: gifts.flame-ward, when: self.equipped }
+# The character file
+inventory:
+  - id: blade
+    item: my-pack:artifacts.sun-blade
+    equipped: true
+    grants:
+      my-pack:gifts.flame-ward: { state: { committed: 1 } }
+```
+
+**A grant's preset choices**. A holder grant may say `choices`: picks it makes
+for the granted content's own choices, as `addItem`'s `entry.choices` does for a copy. Keys are
+the granted item's choice IDs (a slot's key for a slotted choice); each pick's `option` is a
+literal or `{ formula }`, evaluated as the grant's `when` is, to a content ID (qualified in the
+grant's pack, as `item` is), an inline option ID or a value; a pick's own `choices` preset the
+picked option's choices in turn. So content gives a feat for a skill it names, or the skill the
+player chose for it:
+
+```yaml
+# Assurance in Athletics, and the Additional Lore feat for piloting
+grants:
+  - { item: feats.skill.assurance, choices: { skill: [{ option: skill.athletics }] } }
+  - { item: feats.skill.additional-lore, choices: { lore: [{ option: piloting }] } }
+  - item: feats.skill.assurance
+    when: "witchwarper.memorySkill != ''"
+    choices: { skill: [{ option: { formula: witchwarper.memorySkill } }] }
+```
+
+- **Answered:** a preset choice's picks are the grant's, so it is never pending; computeSheet
+  lists it with `preset: true`, and `choose` and `unchoose` on it are `preset-choice`. Saved picks
+  under its key are not its picks. The preset picks are checked as saved ones are (eligibility,
+  counts).
+- **What is nested:** a preset option's own choices that the grant doesn't preset are asked as
+  usual. Their picks, and the preset pick's state, live in a saved pick of the same option, which
+  `choose` and `setState` add when they need one.
+- **Failing:** an option formula that fails, or gives neither a string nor a number, leaves its
+  pick out with a `formula-error`; a content ID that names no content, with `unknown-id`. With a
+  literal `item`, a choice it doesn't declare or a literal option it doesn't offer is
+  `unknown-reference` at load, as is `choices` on a `scope: applied` grant: applied content has
+  no choices.
 
 **A grant's item from a formula**. A grant's `item` may be `{ formula }`: a
 string formula evaluated as the grant's `when` is (an activation condition: `self`, `item` and
@@ -812,5 +890,7 @@ Picks for a copy's choices live in its entry's `choices` tree:
   `<qualified owner id>/<choice id>`, so they can't collide.
 - **Nested picks:** a picked option's own choices nest under the pick, where their owner is
   unambiguous.
+- **Granted content's state** is kept beside its picks: in the entry's, or the pick's, `grants`
+  ([above](#when-content-is-active)).
 
 Choice paths in changes and `listOptions` use the same keys.
