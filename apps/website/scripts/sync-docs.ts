@@ -10,6 +10,7 @@ import {
 import { dirname, join, posix, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
+import { readI18n } from '../../../scripts/validate/load.ts';
 import { BASE } from '../site.ts';
 
 // Copies the repo's documentation into the site (src/content/docs), so the Markdown lives in one
@@ -134,9 +135,7 @@ function ecosystem(root: string): string {
         license: string;
         defaultLanguage: string;
       };
-      const text = parse(
-        readFileSync(join(dir, `i18n/${manifest.defaultLanguage}.yaml`), 'utf8'),
-      ) as Record<string, string>;
+      const text = readI18n(dir, manifest.defaultLanguage);
       return { path, manifest, name: text['pack.name'] ?? manifest.id };
     })
     .toSorted((a, b) => a.name.localeCompare(b.name))

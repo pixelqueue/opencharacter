@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync, statSync, writeFileSync, mkdirSy
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
+import { readI18n } from '../../../scripts/validate/load.ts';
 import { BASE, SITE } from '../site.ts';
 import { GUIDE_ORDER, SPEC_ORDER } from './sync-docs.ts';
 
@@ -96,9 +97,7 @@ function packs(): PackInfo[] {
         homepage?: string;
         dependencies?: Record<string, string>;
       };
-      const text = parse(
-        readFileSync(join(root, path, `i18n/${manifest.defaultLanguage}.yaml`), 'utf8'),
-      ) as Record<string, string>;
+      const text = readI18n(join(root, path), manifest.defaultLanguage);
       return {
         id: manifest.id,
         name: text['pack.name'] ?? manifest.id,

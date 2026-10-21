@@ -1030,7 +1030,7 @@ Each `roll`, `choice` and `allocate` step is a **checkpoint**, except a roll ste
 ```yaml
 policy:
   dice: auto # default for roll checkpoints
-  choices: pause # default for choice checkpoints
+  choices: auto # default for choice checkpoints
   allocations: auto # default for allocate checkpoints
   rules: # first match wins
     - { kind: roll, tags: [attack], then: pause } # "wait on attack dice so I can animate them"
