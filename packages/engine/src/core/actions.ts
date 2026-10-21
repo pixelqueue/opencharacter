@@ -184,6 +184,15 @@ export interface LogEntry {
   tallies?: TallyLog[];
   /** Roll steps: each `atLeast` or `atMost` that changed the total. */
   bounds?: BoundLog[];
+  /** Roll steps made more than once (`of: roll`): every whole roll, in order. */
+  rolls?: RollLog[];
+}
+
+/** One whole roll of a roll step made more than once; `kept` marks the one kept. */
+export interface RollLog {
+  total: number;
+  kept: boolean;
+  items: RollItem[];
 }
 
 /** A bound on a roll's total that changed it. */
@@ -211,6 +220,8 @@ export interface Need {
   items?: RollItem[];
   /** Dice steps: the summary of the roll the pause is for. */
   summary?: RollSummary;
+  /** Dice steps made more than once (`of: roll`): how many whole rolls, and which total is kept. */
+  repeat?: { times: number; keep: 'high' | 'low' };
   options?: string[];
   recommended?: string;
   /** Choice steps over pending choices: the choice being asked. */
@@ -1713,6 +1724,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     empty = true;
   }
   // 5. Advantage and disadvantage; `noAdvantage`/`noDisadvantage` remove every counted source.
+  let repeat: { times: number; keep: 'high' | 'low' } | undefined;
   const has = (kind: string) => modifiers.some((m) => m.modifier.kind === kind);
   const advantage = has('noAdvantage')
     ? 0
@@ -1739,13 +1751,18 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       extra = advantage + disadvantage;
       kind = advantage > 0 ? 'advantage' : 'disadvantage';
     }
+    // One source of the kind that applies with `of: roll` makes the extras whole rolls.
+    const whole = modifiers.some((m) => m.modifier.kind === kind && m.modifier.of === 'roll');
+    const highBetter = (step.better ?? 'high') === 'high';
     const main = items.find((i) => i.kind === 'dice');
-    if (extra > 0 && main?.term) {
+    if (extra > 0 && whole) {
+      const keep = (kind === 'advantage') === highBetter ? 'high' : 'low';
+      if (main) repeat = { times: extra + 1, keep };
+    } else if (extra > 0 && main?.term) {
       const hasKeep = main.term.modifiers.some((m) =>
         ['keepHighest', 'keepLowest', 'dropHighest', 'dropLowest'].includes(m.type),
       );
       if (!hasKeep) {
-        const highBetter = (step.better ?? 'high') === 'high';
         const keepHigh = kind === 'advantage' ? highBetter : !highBetter;
         main.term.modifiers.push({
           type: keepHigh ? 'keepHighest' : 'keepLowest',
@@ -1814,11 +1831,16 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   }
 
   // A roll with no dice items is not a checkpoint: it never pauses and records no answer.
-  const diceItems = items.filter((i) => i.term && i.term.count >= 0);
+  // A whole roll made again (`of: roll`) is a copy of the built items, without given faces.
+  const rolls: BuiltItem[][] = [items];
+  for (let k = 1; k < (repeat?.times ?? 1); k++)
+    rolls.push(items.map(({ preset: _preset, ...i }) => structuredClone(i)));
+  const diceOf = (list: BuiltItem[]) => list.filter((i) => i.term && i.term.count >= 0);
+  const allDice = rolls.flatMap(diceOf);
   const checkpoint = items.some((i) => i.kind === 'dice');
   const asked = (i: BuiltItem) =>
     Math.max(0, (i.term as f.DiceTerm).count - (i.preset?.length ?? 0));
-  const needs: Need['dice'] = diceItems.map((i) => {
+  const needs: Need['dice'] = allDice.map((i) => {
     const t = i.term as f.DiceTerm;
     return {
       count: asked(i),
@@ -1845,8 +1867,9 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
         dice: needs,
         items: output(items),
         summary,
+        ...(repeat ? { repeat } : {}),
       });
-    const faces = diceItems.flatMap((i) =>
+    const faces = allDice.flatMap((i) =>
       ctx.dice(asked(i), (i.term as f.DiceTerm).sides, (i.term as f.DiceTerm).zero === true),
     );
     recordAnswer(ctx, { step: path, kind: 'dice', by: 'engine', faces });
@@ -1872,6 +1895,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
           dice: [{ count: 1, sides, ...(zero ? { zero: true } : {}) }],
           items: output(items),
           summary,
+          ...(repeat ? { repeat } : {}),
         });
       }
     }
@@ -1879,7 +1903,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     consumed.push(face);
     return face;
   };
-  for (const item of diceItems) {
+  for (const item of allDice) {
     const preset = [...(item.preset ?? [])];
     const faceSource: f.FaceSource = (sides, zero) =>
       preset.length > 0 ? (preset.shift() as number) : source(sides, zero);
@@ -1913,7 +1937,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     if (modifier.kind !== 'multiply') continue;
     const factor = num(modifier.factor, c, 1);
     const mode = c.effect.rounding ?? ruleset.rules.settings.rounding ?? 'floor';
-    for (const item of items) {
+    for (const item of rolls.flat()) {
       if (item.unmultiplied) continue;
       const before = itemValue(item);
       const raw = before * factor;
@@ -1923,7 +1947,16 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       item.factor = (item.factor ?? 1) * factor;
     }
   }
-  const unbounded = items.reduce((sum, i) => sum + itemValue(i), 0);
+  // The better (or worse) whole roll is kept; the first among equal totals.
+  const totals = rolls.map((list) => list.reduce((sum, i) => sum + itemValue(i), 0));
+  let chosen = 0;
+  totals.forEach((t, k) => {
+    const best = totals[chosen] as number;
+    if (repeat?.keep === 'low' ? t < best : t > best) chosen = k;
+  });
+  items = rolls[chosen] as BuiltItem[];
+  const diceItems = diceOf(items);
+  const unbounded = totals[chosen] as number;
   const bounds = rollBounds(
     ctx,
     active.filter((c) => targets(c.effect)?.tally === undefined),
@@ -1945,6 +1978,12 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     bounds,
     unbounded,
   };
+  if (rolls.length > 1)
+    result.rolls = rolls.map((list, k) => ({
+      total: totals[k],
+      kept: k === chosen,
+      items: output(list),
+    }));
   const bandValue = classify(ctx, frame, step.bands, result);
   const out = output(items);
   result.items = out;
@@ -1966,6 +2005,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       ? { tallies: tallies.filter((t) => t.value !== 0) }
       : {}),
     ...(bounds.length ? { bounds } : {}),
+    ...(result.rolls ? { rolls: result.rolls as RollLog[] } : {}),
   });
 }
 

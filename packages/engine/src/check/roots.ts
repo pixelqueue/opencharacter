@@ -318,6 +318,8 @@ export function talliesType(names: Iterable<string>): ObjectType {
   return { object: Object.fromEntries([...names].map((n) => [n, 'int' as FType])) };
 }
 const NO_TALLIES = talliesType([]);
+// A roll made more than once (`of: roll`): every whole roll, the kept one marked.
+const ROLLS: FType = { list: { object: { total: 'int', kept: 'bool', items: 'dyn' } } };
 function rollResult(tallies: FType): ObjectType {
   return {
     object: {
@@ -333,6 +335,7 @@ function rollResult(tallies: FType): ObjectType {
       // Each bound that changed the total, and the total before them.
       bounds: { list: { object: { source: 'dyn', op: 'string', value: 'int' } } },
       unbounded: 'int',
+      rolls: ROLLS,
     },
   };
 }
@@ -344,6 +347,7 @@ export function bandRoll(tallies: FType = NO_TALLIES, value?: FType): ObjectType
       kept: { list: 'int' },
       empty: 'bool',
       tallies,
+      rolls: ROLLS,
       ...(value !== undefined ? { value } : {}),
     },
   };

@@ -12,7 +12,7 @@ import {
   type BlockArgument,
   type HeadlineArgument,
 } from './block.ts';
-import { diceText, type DiceLike } from './dice.ts';
+import { diceText, type DiceLike, type Repeat } from './dice.ts';
 import {
   actionKey,
   addedOptionKey,
@@ -207,8 +207,11 @@ export interface Text {
   band(bandSet: string, band: string): string;
   /** The bands a roll summary can still reach. */
   rollTargets(summary: RollSummary): RollTarget[];
-  /** "2d100, keep lowest", "4dF"; flat items are left out. */
-  dice(items: readonly DiceLike[]): string;
+  /**
+   * "2d100, keep lowest", "4dF"; flat items are left out. With `repeat` (a dice pause's), the
+   * roll made more than once: "2d6, rolled twice, keep the lower total".
+   */
+  dice(items: readonly DiceLike[], repeat?: Repeat): string;
   value(type: string, name: string, value: string, of?: 'fields' | 'state'): string;
   /** The item's own state value names first, else its `type`'s. */
   stateValue(item: string, key: string, value: string, type?: string): string;
@@ -674,7 +677,7 @@ export function createText(options: TextOptions): Text {
         };
       });
     },
-    dice: (items) => diceText(items, specMessage),
+    dice: (items, repeat) => diceText(items, specMessage, repeat),
     value,
     contentBlock,
     headline,
