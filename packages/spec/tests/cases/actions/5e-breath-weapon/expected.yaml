@@ -3,7 +3,16 @@ status: finished
 outcome:
   result: breathed
   data: { damage: 11, damageType: fire, dc: 13, save: dex, area: cone }
-proposedChanges: []
+proposedChanges:
+  # Once until a rest, on the ancestry's pick.
+  - to: self
+    step: spend
+    change:
+      type: setState
+      path: { entry: race, choice: [draconic-ancestry] }
+      option: 5e-srd-5.1:draconic-ancestries.red
+      key: used
+      value: true
 log:
   - step: damage
     action: 5e-srd-5.1:breath-weapon

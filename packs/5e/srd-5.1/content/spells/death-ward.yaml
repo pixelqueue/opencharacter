@@ -11,5 +11,16 @@ fields:
   material: false
   durationUnit: hour
   durationAmount: 8
+  applied: true
 actions:
   - use: cast-spell
+effects:
+  - id: ward
+    target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: atLeast
+    value: -(hp.current + hp.temp - 1)
+    when: hp.current > 0 && hp.current + hp.temp + incoming.amount <= 0
+    scope: applied
+    duration: { amount: 8, unit: hour }
+    then:
+      - { type: removeEffect, entry: self }
