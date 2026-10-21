@@ -1,0 +1,27 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - id: test-pack
+    version: 1.0.0
+inventory:
+  - { id: r, item: homebrew:gear.long-rope, state: { uses: 2 } }
+  - { id: l, item: homebrew:gear.lantern, state: { uses: 1 } }
+  - { id: t, item: homebrew:gear.torch, state: { uses: 3 } }
+homebrew:
+  content:
+    # Extends the renamed item: its saved key and self.uses follow.
+    - id: gear.long-rope
+      extends: gear.rope
+      effects:
+        - { target: stats.light, op: add, value: self.uses }
+    # Another item's variant, and the homebrew's own item: both keep uses.
+    - id: gear.lantern
+      extends: gear.lamp
+      effects:
+        - { target: stats.light, op: add, value: self.uses }
+    - id: gear.torch
+      type: gear
+      state:
+        uses: { type: integer, default: 0 }
+      effects:
+        - { target: stats.light, op: add, value: self.uses }
