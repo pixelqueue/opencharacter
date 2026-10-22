@@ -77,10 +77,8 @@ actions:
         sheet: proposed
         random: params.random
         options:
-          - { id: highmage, when: tradition.highmage.tier > 0 }
-          - { id: elementalist, when: tradition.elementalist.tier > 0 }
-          - { id: necromancer, when: tradition.necromancer.tier > 0 }
-          - { id: invoker, when: tradition.invoker.tier > 0 }
+          values: [highmage, elementalist, necromancer, invoker]
+          where: "fieldOf('tradition.{trad}.tier', value) > 0"
         recommend: options[0]
       - id: newSpells
         kind: choice
@@ -132,121 +130,19 @@ actions:
     steps:
       - id: pick
         kind: choice
+        # A combat skill takes no Expert points.
         options:
-          - id: administer
-            when: >-
-              skills.administer < 4 && level >= [1, 1, 3, 6, 9][skills.administer + 1]
-                && skills.administer + 2 - skillCredit.administer <= skillPoints.unspent + skillPoints.expert
-          - id: connect
-            when: >-
-              skills.connect < 4 && level >= [1, 1, 3, 6, 9][skills.connect + 1]
-                && skills.connect + 2 - skillCredit.connect <= skillPoints.unspent + skillPoints.expert
-          - id: convince
-            when: >-
-              skills.convince < 4 && level >= [1, 1, 3, 6, 9][skills.convince + 1]
-                && skills.convince + 2 - skillCredit.convince <= skillPoints.unspent + skillPoints.expert
-          - id: craft
-            when: >-
-              skills.craft < 4 && level >= [1, 1, 3, 6, 9][skills.craft + 1]
-                && skills.craft + 2 - skillCredit.craft <= skillPoints.unspent + skillPoints.expert
-          - id: exert
-            when: >-
-              skills.exert < 4 && level >= [1, 1, 3, 6, 9][skills.exert + 1]
-                && skills.exert + 2 - skillCredit.exert <= skillPoints.unspent + skillPoints.expert
-          - id: heal
-            when: >-
-              skills.heal < 4 && level >= [1, 1, 3, 6, 9][skills.heal + 1]
-                && skills.heal + 2 - skillCredit.heal <= skillPoints.unspent + skillPoints.expert
-          - id: know
-            when: >-
-              skills.know < 4 && level >= [1, 1, 3, 6, 9][skills.know + 1]
-                && skills.know + 2 - skillCredit.know <= skillPoints.unspent + skillPoints.expert
-          - id: lead
-            when: >-
-              skills.lead < 4 && level >= [1, 1, 3, 6, 9][skills.lead + 1]
-                && skills.lead + 2 - skillCredit.lead <= skillPoints.unspent + skillPoints.expert
-          - id: magic
-            when: >-
-              skills.magic < 4 && level >= [1, 1, 3, 6, 9][skills.magic + 1]
-                && skills.magic + 2 - skillCredit.magic <= skillPoints.unspent + skillPoints.expert
-          - id: notice
-            when: >-
-              skills.notice < 4 && level >= [1, 1, 3, 6, 9][skills.notice + 1]
-                && skills.notice + 2 - skillCredit.notice <= skillPoints.unspent + skillPoints.expert
-          - id: perform
-            when: >-
-              skills.perform < 4 && level >= [1, 1, 3, 6, 9][skills.perform + 1]
-                && skills.perform + 2 - skillCredit.perform <= skillPoints.unspent + skillPoints.expert
-          - id: pray
-            when: >-
-              skills.pray < 4 && level >= [1, 1, 3, 6, 9][skills.pray + 1]
-                && skills.pray + 2 - skillCredit.pray <= skillPoints.unspent + skillPoints.expert
-          - id: punch
-            when: >-
-              skills.punch < 4 && level >= [1, 1, 3, 6, 9][skills.punch + 1]
-                && skills.punch + 2 - skillCredit.punch <= skillPoints.unspent
-          - id: ride
-            when: >-
-              skills.ride < 4 && level >= [1, 1, 3, 6, 9][skills.ride + 1]
-                && skills.ride + 2 - skillCredit.ride <= skillPoints.unspent + skillPoints.expert
-          - id: sail
-            when: >-
-              skills.sail < 4 && level >= [1, 1, 3, 6, 9][skills.sail + 1]
-                && skills.sail + 2 - skillCredit.sail <= skillPoints.unspent + skillPoints.expert
-          - id: shoot
-            when: >-
-              skills.shoot < 4 && level >= [1, 1, 3, 6, 9][skills.shoot + 1]
-                && skills.shoot + 2 - skillCredit.shoot <= skillPoints.unspent
-          - id: sneak
-            when: >-
-              skills.sneak < 4 && level >= [1, 1, 3, 6, 9][skills.sneak + 1]
-                && skills.sneak + 2 - skillCredit.sneak <= skillPoints.unspent + skillPoints.expert
-          - id: stab
-            when: >-
-              skills.stab < 4 && level >= [1, 1, 3, 6, 9][skills.stab + 1]
-                && skills.stab + 2 - skillCredit.stab <= skillPoints.unspent
-          - id: survive
-            when: >-
-              skills.survive < 4 && level >= [1, 1, 3, 6, 9][skills.survive + 1]
-                && skills.survive + 2 - skillCredit.survive <= skillPoints.unspent + skillPoints.expert
-          - id: trade
-            when: >-
-              skills.trade < 4 && level >= [1, 1, 3, 6, 9][skills.trade + 1]
-                && skills.trade + 2 - skillCredit.trade <= skillPoints.unspent + skillPoints.expert
-          - id: work
-            when: >-
-              skills.work < 4 && level >= [1, 1, 3, 6, 9][skills.work + 1]
-                && skills.work + 2 - skillCredit.work <= skillPoints.unspent + skillPoints.expert
-          - id: str
-            when: >-
-              attributes.boosts < 5 && attributes.str.score < 18
+          values: { formula: "keysOf('skill') + keysOf('attr')" }
+          where: >-
+            value in keysOf('attr')
+              ? attributes.boosts < 5 && fieldOf('attributes.{attr}.score', value) < 18
                 && level >= [1, 1, 3, 6, 9][attributes.boosts]
                 && attributes.boosts + 1 <= skillPoints.unspent + skillPoints.expert
-          - id: dex
-            when: >-
-              attributes.boosts < 5 && attributes.dex.score < 18
-                && level >= [1, 1, 3, 6, 9][attributes.boosts]
-                && attributes.boosts + 1 <= skillPoints.unspent + skillPoints.expert
-          - id: con
-            when: >-
-              attributes.boosts < 5 && attributes.con.score < 18
-                && level >= [1, 1, 3, 6, 9][attributes.boosts]
-                && attributes.boosts + 1 <= skillPoints.unspent + skillPoints.expert
-          - id: int
-            when: >-
-              attributes.boosts < 5 && attributes.int.score < 18
-                && level >= [1, 1, 3, 6, 9][attributes.boosts]
-                && attributes.boosts + 1 <= skillPoints.unspent + skillPoints.expert
-          - id: wis
-            when: >-
-              attributes.boosts < 5 && attributes.wis.score < 18
-                && level >= [1, 1, 3, 6, 9][attributes.boosts]
-                && attributes.boosts + 1 <= skillPoints.unspent + skillPoints.expert
-          - id: cha
-            when: >-
-              attributes.boosts < 5 && attributes.cha.score < 18
-                && level >= [1, 1, 3, 6, 9][attributes.boosts]
-                && attributes.boosts + 1 <= skillPoints.unspent + skillPoints.expert
+              : fieldOf('skills.{skill}', value) < 4
+                && level >= [1, 1, 3, 6, 9][fieldOf('skills.{skill}', value) + 1]
+                && fieldOf('skills.{skill}', value) + 2 - fieldOf('skillCredit.{skill}', value)
+                  <= skillPoints.unspent
+                    + (value in ['punch', 'shoot', 'stab'] ? 0 : skillPoints.expert)
         recommend: options[0]
       - id: cost
         kind: branch

@@ -65,30 +65,8 @@ actions:
         when: '!flags.direct'
         random: params.random
         options:
-          - {
-              id: administer,
-              when: "'administer' in flags.allowed && skills.administer < flags.cap",
-            }
-          - { id: connect, when: "'connect' in flags.allowed && skills.connect < flags.cap" }
-          - { id: convince, when: "'convince' in flags.allowed && skills.convince < flags.cap" }
-          - { id: craft, when: "'craft' in flags.allowed && skills.craft < flags.cap" }
-          - { id: exert, when: "'exert' in flags.allowed && skills.exert < flags.cap" }
-          - { id: heal, when: "'heal' in flags.allowed && skills.heal < flags.cap" }
-          - { id: know, when: "'know' in flags.allowed && skills.know < flags.cap" }
-          - { id: lead, when: "'lead' in flags.allowed && skills.lead < flags.cap" }
-          - { id: magic, when: "'magic' in flags.allowed && skills.magic < flags.cap" }
-          - { id: notice, when: "'notice' in flags.allowed && skills.notice < flags.cap" }
-          - { id: perform, when: "'perform' in flags.allowed && skills.perform < flags.cap" }
-          - { id: pray, when: "'pray' in flags.allowed && skills.pray < flags.cap" }
-          - { id: punch, when: "'punch' in flags.allowed && skills.punch < flags.cap" }
-          - { id: ride, when: "'ride' in flags.allowed && skills.ride < flags.cap" }
-          - { id: sail, when: "'sail' in flags.allowed && skills.sail < flags.cap" }
-          - { id: shoot, when: "'shoot' in flags.allowed && skills.shoot < flags.cap" }
-          - { id: sneak, when: "'sneak' in flags.allowed && skills.sneak < flags.cap" }
-          - { id: stab, when: "'stab' in flags.allowed && skills.stab < flags.cap" }
-          - { id: survive, when: "'survive' in flags.allowed && skills.survive < flags.cap" }
-          - { id: trade, when: "'trade' in flags.allowed && skills.trade < flags.cap" }
-          - { id: work, when: "'work' in flags.allowed && skills.work < flags.cap" }
+          values: { formula: flags.allowed }
+          where: "fieldOf('skills.{skill}', value) < flags.cap"
         recommend: options[0]
       - id: target
         kind: branch
@@ -153,12 +131,8 @@ actions:
         when: "params.kind == 'any-stat'"
         random: params.random
         options:
-          - { id: str, when: attributes.str.score < 18 }
-          - { id: dex, when: attributes.dex.score < 18 }
-          - { id: con, when: attributes.con.score < 18 }
-          - { id: int, when: attributes.int.score < 18 }
-          - { id: wis, when: attributes.wis.score < 18 }
-          - { id: cha, when: attributes.cha.score < 18 }
+          values: [str, dex, con, int, wis, cha]
+          where: "fieldOf('attributes.{attr}.score', value) < 18"
         recommend: "sortList(options, fieldOf('attributes.{attr}.score', x))[0]"
         changes:
           - { type: adjust, field: { formula: "'attributes.' + picked.id + '.score'" }, by: 1 }

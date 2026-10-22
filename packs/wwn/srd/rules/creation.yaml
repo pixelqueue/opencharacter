@@ -45,12 +45,8 @@ actions:
                 kind: choice
                 sheet: proposed
                 options:
-                  - { id: str, when: attributes.str.score < 14 }
-                  - { id: dex, when: attributes.dex.score < 14 }
-                  - { id: con, when: attributes.con.score < 14 }
-                  - { id: int, when: attributes.int.score < 14 }
-                  - { id: wis, when: attributes.wis.score < 14 }
-                  - { id: cha, when: attributes.cha.score < 14 }
+                  values: [str, dex, con, int, wis, cha]
+                  where: "fieldOf('attributes.{attr}.score', value) < 14"
                 recommend: "sortList(options, fieldOf('attributes.{attr}.score', x))[0]"
                 changes:
                   - {
@@ -115,26 +111,21 @@ actions:
               - id: learning
                 kind: choice
                 repeat: { max: 2, min: 2 }
+                # Each Learning entry once: an entry the table has twice may be picked twice.
                 options:
-                  - { id: l1, when: "flags.learning[0] != 'any'" }
-                  - { id: l2, when: "flags.learning[1] != 'any'" }
-                  - { id: l3, when: "flags.learning[2] != 'any'" }
-                  - { id: l4, when: "flags.learning[3] != 'any'" }
-                  - { id: l5, when: "flags.learning[4] != 'any'" }
-                  - { id: l6, when: "flags.learning[5] != 'any'" }
-                  - { id: l7, when: "flags.learning[6] != 'any'" }
-                  - { id: l8, when: "flags.learning[7] != 'any'" }
+                  values: { formula: flags.learning }
+                  where: "value != 'any' && picks < countList(flags.learning, x == value)"
                 recommend: options[0]
               - id: learned1
                 kind: action
                 use: background-entry
                 params:
-                  entry: "flags.learning[indexOf(['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8'], steps.learning.picked[0])]"
+                  entry: steps.learning.picked[0]
               - id: learned2
                 kind: action
                 use: background-entry
                 params:
-                  entry: "flags.learning[indexOf(['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8'], steps.learning.picked[1])]"
+                  entry: steps.learning.picked[1]
       - id: rolls
         kind: branch
         cases:
