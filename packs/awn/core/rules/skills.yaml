@@ -92,19 +92,15 @@ actions:
               suggest: >-
                 size(filterList(params.prefer, x in flags.offered)) > 0
                   ? filterList(params.prefer, x in flags.offered)[0] : flags.offered[0]
-      # Every skill is offered; those the pick can't take have no room.
       - id: skill
-        kind: allocate
-        sheet: proposed
-        fields: { type: field, where: "'skill' in item.tags" }
-        budget: 1
-        limit: >-
-          field.value < 1
-            && countList(flags.offered, field.id == 'awn-core:skills.' + x + '.level') > 0
-            ? 1 : 0
+        kind: choice
+        options: { values: { formula: flags.offered } }
         random: params.random
-        recommend:
-          'skills.{skill}.level': "flags.suggest == '{skill}' ? 1 : 0"
+        recommend: flags.suggest
+        changes:
+          - type: adjust
+            field: { formula: "'skills.' + picked.value + '.level'" }
+            by: 1
       - id: result
         kind: outcome
         result: "'gained'"

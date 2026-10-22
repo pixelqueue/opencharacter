@@ -159,29 +159,7 @@ actions:
       - id: entry
         kind: choice
         when: "has(steps.extra) && steps.extra.picked == 'pick'"
-        options:
-          [
-            { id: '1' },
-            { id: '2' },
-            { id: '3' },
-            { id: '4' },
-            { id: '5' },
-            { id: '6' },
-            { id: '7' },
-            { id: '8' },
-            { id: '9' },
-            { id: '10' },
-            { id: '11' },
-            { id: '12' },
-            { id: '13' },
-            { id: '14' },
-            { id: '15' },
-            { id: '16' },
-            { id: '17' },
-            { id: '18' },
-            { id: '19' },
-            { id: '20' },
-          ]
+        options: { values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] }
         recommend: "steps.kit.picked == 'wasteland' ? '10' : '4'"
       - id: picked
         kind: action
@@ -189,7 +167,7 @@ actions:
         use: kit-entry
         params:
           table: steps.kit.picked
-          entry: "indexOf(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'], steps.entry.picked) + 1"
+          entry: steps.entry.value
           random: params.random
       - {
           id: roll1,

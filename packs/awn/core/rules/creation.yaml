@@ -32,16 +32,7 @@ actions:
       - id: fourteen
         kind: choice
         when: flags.roll
-        options:
-          [
-            { id: str },
-            { id: dex },
-            { id: con },
-            { id: int },
-            { id: wis },
-            { id: cha },
-            { id: none },
-          ]
+        options: { values: [str, dex, con, int, wis, cha, none] }
         recommend: >-
           minList([steps.str.total, steps.dex.total, steps.con.total, steps.int.total,
             steps.wis.total, steps.cha.total], x) >= 14 ? 'none'
@@ -147,27 +138,20 @@ actions:
       - id: split
         kind: choice
         when: "steps.skillMethod.picked == 'roll'"
-        options: [{ id: growth0 }, { id: growth1 }, { id: growth2 }, { id: growth3 }]
-        recommend: "'growth1'"
-      - id: splitCount
-        kind: branch
-        when: has(steps.split)
-        cases:
-          - when: true
-            flags:
-              growthRolls: "indexOf(['growth0', 'growth1', 'growth2', 'growth3'], steps.split.picked)"
+        options: { values: [0, 1, 2, 3] } # Growth rolls; the rest are Learning rolls
+        recommend: "'1'"
       - id: roll1
         kind: roll
         tags: [creation]
         when: has(steps.split)
-        parts: [{ dice: 'flags.growthRolls >= 1 ? 1d6 : 1d8' }]
+        parts: [{ dice: 'steps.split.value >= 1 ? 1d6 : 1d8' }]
       - id: benefit1
         kind: action
         when: has(steps.split)
         use: gain-benefit
         params:
           entry: >-
-            flags.growthRolls >= 1 ? flags.growth[steps.roll1.total - 1]
+            steps.split.value >= 1 ? flags.growth[steps.roll1.total - 1]
               : flags.learning[steps.roll1.total - 1]
           prefer: flags.prefer
           random: params.random
@@ -175,14 +159,14 @@ actions:
         kind: roll
         tags: [creation]
         when: has(steps.split)
-        parts: [{ dice: 'flags.growthRolls >= 2 ? 1d6 : 1d8' }]
+        parts: [{ dice: 'steps.split.value >= 2 ? 1d6 : 1d8' }]
       - id: benefit2
         kind: action
         when: has(steps.split)
         use: gain-benefit
         params:
           entry: >-
-            flags.growthRolls >= 2 ? flags.growth[steps.roll2.total - 1]
+            steps.split.value >= 2 ? flags.growth[steps.roll2.total - 1]
               : flags.learning[steps.roll2.total - 1]
           prefer: flags.prefer
           random: params.random
@@ -190,14 +174,14 @@ actions:
         kind: roll
         tags: [creation]
         when: has(steps.split)
-        parts: [{ dice: 'flags.growthRolls >= 3 ? 1d6 : 1d8' }]
+        parts: [{ dice: 'steps.split.value >= 3 ? 1d6 : 1d8' }]
       - id: benefit3
         kind: action
         when: has(steps.split)
         use: gain-benefit
         params:
           entry: >-
-            flags.growthRolls >= 3 ? flags.growth[steps.roll3.total - 1]
+            steps.split.value >= 3 ? flags.growth[steps.roll3.total - 1]
               : flags.learning[steps.roll3.total - 1]
           prefer: flags.prefer
           random: params.random
