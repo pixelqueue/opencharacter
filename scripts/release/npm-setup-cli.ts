@@ -58,10 +58,16 @@ const npmShown = (npmArgs: string[]) =>
     child.on('close', (status) => resolve({ status, stdout }));
   });
 
+console.log('Checking the npm login (npm whoami)…');
 try {
-  console.log(`npm user: ${execFileSync('npm', ['whoami'], { encoding: 'utf8' }).trim()}`);
+  const user = execFileSync('npm', ['whoami'], {
+    encoding: 'utf8',
+    stdio: ['inherit', 'pipe', 'inherit'],
+    timeout: 60_000,
+  }).trim();
+  console.log(`npm user: ${user}`);
 } catch {
-  console.error('Not logged in to npm. Run `npm login` first.');
+  console.error('Not logged in to npm (or npm whoami timed out). Run `npm login` first.');
   process.exit(1);
 }
 console.log(`Packages: ${names.join(', ')}\n`);
