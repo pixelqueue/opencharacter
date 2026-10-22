@@ -50,6 +50,7 @@ actions:
         when: foci.count < foci.allowed
         use: gain-focus
         params: { random: params.random }
+      # The new edge's and mutations' own choices.
       - id: picks
         kind: choice
         options: { pending: {} }
@@ -181,12 +182,32 @@ actions:
               new: >-
                 countCopies(copy.item == steps.focus.picked) == 0
                   || (has(steps.raise) && steps.raise.picked == 'new')
+      # Specialist's skill, asked first: it is both the skill sharpened and the bonus skill.
+      - id: specialty
+        kind: choice
+        sheet: proposed
+        when: flags.new && steps.focus.item.specialty
+        options: { values: { formula: steps.focus.item.bonusSkill } }
+        random: params.random
+        recommend: "sortList(steps.focus.item.bonusSkill, -fieldOf('skills.{skill}.level', x))[0]"
       - id: add
         kind: changes
         when: flags.new
         changes:
           - type: addItem
+            when: '!has(steps.specialty)'
             entry: { item: steps.focus.picked }
+          - type: addItem
+            when: has(steps.specialty)
+            entry:
+              item: steps.focus.picked
+              choices: { skill: [{ option: { formula: steps.specialty.value } }] }
+      # The new copy's own choices.
+      - id: picks
+        kind: choice
+        when: flags.new
+        options: { pending: { entry: 'steps.add.added[0]' } }
+        random: params.random
       - id: up
         kind: changes
         when: '!flags.new'
@@ -201,7 +222,9 @@ actions:
         kind: action
         when: flags.new && size(steps.focus.item.bonusSkill) > 0
         use: bonus-skill
-        params: { skills: steps.focus.item.bonusSkill, random: params.random }
+        params:
+          skills: 'has(steps.specialty) ? [steps.specialty.value] : steps.focus.item.bonusSkill'
+          random: params.random
       - id: skill2
         kind: action
         when: flags.new && size(steps.focus.item.bonusSkill2) > 0
