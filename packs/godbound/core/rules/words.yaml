@@ -96,9 +96,11 @@ contentTypes:
       healing: { type: dice }
       healingCost: { type: enum, values: [none, day], default: none }
     state:
+      # Effort held while the gift lasts: on the gift's copy, or on an artifact's grant of it.
       committed: { type: integer, default: 0, min: 0 }
       # An artifact's grant sets this to the artifact's Effort: the gift's actions then run with
-      # the artifact's copy as `self` and spend its Effort (`spent`), not the hero's.
+      # the artifact's copy as `self` and spend its Effort (`spent`, or the grant's `committed`
+      # while it lasts), not the hero's.
       artifactEffort: { type: integer, default: 0, min: 0 }
     actions:
       - use: invoke-gift
@@ -124,28 +126,32 @@ situational:
 actions:
   # Uses a gift that commits Effort: while it lasts (held on the gift until released), for the
   # scene, or for the day. A gift an artifact grants spends a point of the artifact's Effort
-  # instead, back at dawn.
+  # instead: held on its grant while it lasts, otherwise back at dawn.
   - id: invoke-gift
     tags: [gift, effort]
     available: >-
       item.commit != 'none' && !has(item.blast) && !has(item.healing)
-        && (has(self.artifactEffort) && self.artifactEffort > 0
-          ? self.spent < self.artifactEffort
-          : effort.free > 0 && (item.commit != 'active' || self.committed == 0))
+        && (item.commit != 'active' || self.committed == 0)
+        && (self.artifactEffort > 0 ? self.spent < self.artifactEffort : effort.free > 0)
     results: [invoked]
     steps:
       - id: source
         kind: branch
         cases:
           - when: true
-            flags: { artifact: 'has(self.artifactEffort) && self.artifactEffort > 0' }
+            flags: { artifact: self.artifactEffort > 0 }
       - id: commit
         kind: changes
         changes:
           - type: adjustState
-            when: flags.artifact
+            when: "flags.artifact && item.commit != 'active'"
             entry: self
             key: spent
+            by: 1
+          - type: adjustState
+            when: "flags.artifact && item.commit == 'active'"
+            grant: self
+            key: committed
             by: 1
           - type: adjustState
             when: "!flags.artifact && item.commit == 'active'"
@@ -172,7 +178,14 @@ actions:
       - id: release
         kind: changes
         changes:
-          - { type: setState, entry: self, key: committed, value: 0 }
+          - { type: setState, when: self.artifactEffort > 0, grant: self, key: committed, value: 0 }
+          - {
+              type: setState,
+              when: self.artifactEffort == 0,
+              entry: self,
+              key: committed,
+              value: 0,
+            }
       - id: result
         kind: outcome
         result: "'released'"
@@ -181,8 +194,7 @@ actions:
     tags: [gift, damage]
     available: >-
       has(item.blast) && (item.commit == 'none'
-        || (has(self.artifactEffort) && self.artifactEffort > 0
-          ? self.spent < self.artifactEffort : effort.free > 0))
+        || (self.artifactEffort > 0 ? self.spent < self.artifactEffort : effort.free > 0))
     params:
       mob: { type: boolean, default: false }
       straight: { type: boolean, default: false }
@@ -192,7 +204,7 @@ actions:
         kind: branch
         cases:
           - when: true
-            flags: { artifact: 'has(self.artifactEffort) && self.artifactEffort > 0' }
+            flags: { artifact: self.artifactEffort > 0 }
       - id: commit
         kind: changes
         changes:
@@ -233,8 +245,7 @@ actions:
     tags: [gift, healing]
     available: >-
       has(item.healing) && (item.commit == 'none'
-        || (has(self.artifactEffort) && self.artifactEffort > 0
-          ? self.spent < self.artifactEffort : effort.free > 0))
+        || (self.artifactEffort > 0 ? self.spent < self.artifactEffort : effort.free > 0))
     params:
       onSelf: { type: boolean, default: true }
     results: [healed]
@@ -243,7 +254,7 @@ actions:
         kind: branch
         cases:
           - when: true
-            flags: { artifact: 'has(self.artifactEffort) && self.artifactEffort > 0' }
+            flags: { artifact: self.artifactEffort > 0 }
       - id: commit
         kind: changes
         changes:

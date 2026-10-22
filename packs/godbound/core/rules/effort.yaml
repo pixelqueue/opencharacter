@@ -1,6 +1,7 @@
 fields:
   # Effort committed for the scene or for the day, from gifts, miracles and saves; Effort a gift
-  # holds while it lasts is that gift's copy's `committed`.
+  # holds while it lasts is that gift's copy's `committed` (an artifact's gift holds the
+  # artifact's, on its grant).
   effort.scene: { type: integer, input: true, default: 0, min: 0 }
   effort.day: { type: integer, input: true, default: 0, min: 0 }
   effort.active:
@@ -119,6 +120,11 @@ actions:
           - type: setState
             when: '!params.keepActive'
             copies: { type: gift, where: self.committed > 0 }
+            key: committed
+            value: 0
+          - type: setState
+            when: '!params.keepActive'
+            grants: { where: "item.type == 'gift' && self.committed > 0" }
             key: committed
             value: 0
           - type: setState

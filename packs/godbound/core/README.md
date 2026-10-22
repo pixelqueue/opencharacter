@@ -137,7 +137,9 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
   suit's hindered saves chosen on it), shields. Artifacts: a type with an Effort pool, a daily
   bond and `spent` Effort; an artifact's own gifts are grants written on the item, each passing
   `state: { artifactEffort: item.effort }`, so `invoke-gift`, `gift-blast` and `gift-heal` spend
-  the artifact's Effort (its copy is the gift's `self`) instead of the hero's.
+  the artifact's Effort (its copy is the gift's `self`) instead of the hero's. A gift held while
+  it lasts keeps that Effort on its own grant (`committed` in the artifact copy's `grants`) until
+  `release-gift` or dawn; the others add to the artifact's `spent`, back at dawn.
 
 ## Rule readings
 
@@ -146,6 +148,7 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
 - **Damage modifier on several dice:** the attacker's choice of die is the one the modifier helps
   most.
 - **Healing gifts on others:** they propose the hit points and the day's Effort to the target.
-- **An artifact's gift that lasts while active** spends a point of the artifact's Effort until
-  dawn: granted content keeps no state of its own to hold it on
-  ([#35](https://github.com/pixelqueue/opencharacter/issues/35)).
+- **An artifact's Effort for the scene** comes back at dawn, with the day's.
+- **An artifact's free Effort** is its Effort less its `spent`; what its gifts hold on their
+  grants isn't taken off, since formulas can't sum saved grant state
+  ([#70](https://github.com/pixelqueue/opencharacter/issues/70)).
