@@ -42,15 +42,19 @@ fields:
     }
   'attributes.{attribute}.base':
     type: integer
+    tags: [attribute-base, 'attribute.{attribute}']
     formula: >-
       attributes.{attribute}.score <= 3 ? -2 : attributes.{attribute}.score <= 7 ? -1
         : attributes.{attribute}.score <= 13 ? 0 : attributes.{attribute}.score <= 17 ? 1 : 2
   # "+1, to a maximum of +2" bonuses (edges, foci, mutations) add here.
-  'attributes.{attribute}.boost': { type: integer, formula: 0 }
+  'attributes.{attribute}.boost':
+    { type: integer, formula: 0, tags: [attribute-boost, 'attribute.{attribute}'] }
   # Bonuses with no stated cap.
-  'attributes.{attribute}.bonus': { type: integer, formula: 0 }
+  'attributes.{attribute}.bonus':
+    { type: integer, formula: 0, tags: [attribute-bonus, 'attribute.{attribute}'] }
   # Penalties (negative mutations, the mutant's own); they stop at -2.
-  'attributes.{attribute}.penalty': { type: integer, formula: 0 }
+  'attributes.{attribute}.penalty':
+    { type: integer, formula: 0, tags: [attribute-penalty, 'attribute.{attribute}'] }
   'attributes.{attribute}.mod':
     type: integer
     tags: [attribute-mod, 'attribute-mod.{attribute}']

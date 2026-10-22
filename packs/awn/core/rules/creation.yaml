@@ -430,19 +430,20 @@ actions:
                 sortList(filterList(flags.allowed,
                   fieldOf('attributes.{attribute}.score', x) <= 18 - flags.budget),
                   -fieldOf('attributes.{attribute}.score', x))
-      # Every attribute is offered; those the entry doesn't cover take nothing.
+      # One point per pick, the budget at most (an attribute stops at 18).
       - id: stat
-        kind: allocate
+        kind: choice
         sheet: proposed
         when: has(flags.allowed)
-        fields: { type: field, where: "'attribute' in item.tags" }
-        budget: flags.budget
-        spend: upTo
-        limit: >-
-          countList(flags.allowed, field.id == 'awn-core:attributes.' + x + '.score') > 0
-            ? 18 - field.value : 0
-        recommend:
-          'attributes.{attribute}.score': "size(flags.best) > 0 && flags.best[0] == '{attribute}' ? flags.budget : 0"
+        options:
+          values: { formula: flags.allowed }
+          where: "fieldOf('attributes.{attribute}.score', value) < 18"
+        repeat: { max: flags.budget }
+        recommend: 'size(flags.best) > 0 ? flags.best[0] : options[0]'
+        changes:
+          - type: adjust
+            field: { formula: "'attributes.' + picked.value + '.score'" }
+            by: 1
       - id: result
         kind: outcome
         result: "'gained'"

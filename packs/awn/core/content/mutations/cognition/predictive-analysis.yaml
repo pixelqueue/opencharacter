@@ -8,6 +8,12 @@ choices:
     from: { values: [int, wis] }
     recommend: "sortList(['int', 'wis'], -fieldOf('attributes.{attribute}.score', x))[0]"
     effects:
-      - target: { fields: { where: "item.id == 'awn-core:attributes.' + pick.value + '.bonus'" } }
+      - target:
+          {
+            fields:
+              {
+                where: "'attribute-bonus' in item.tags && ('attribute.' + pick.value) in item.tags",
+              },
+          }
         op: add
         value: 1

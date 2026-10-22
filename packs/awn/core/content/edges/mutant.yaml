@@ -11,6 +11,12 @@ choices:
         fieldOf('attributes.{attribute}.mod', x) >= -1),
         fieldOf('attributes.{attribute}.mod', x))[0]
     effects:
-      - target: { fields: { where: "item.id == 'awn-core:attributes.' + pick.value + '.penalty'" } }
+      - target:
+          {
+            fields:
+              {
+                where: "'attribute-penalty' in item.tags && ('attribute.' + pick.value) in item.tags",
+              },
+          }
         op: add
         value: -1
