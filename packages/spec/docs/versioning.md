@@ -4,14 +4,14 @@ There are three separate version numbers.
 
 ## 1. The spec
 
-The spec covers formats, operations, dice modifiers and engine behavior. The current version is **0.1.0**, which is pre-1.0: anything may still change.
+The spec covers formats, operations, dice modifiers and engine behavior. The current version is **0.2.0**, which is pre-1.0: anything may still change.
 
 From 1.0:
 
 - **Minor bump:** additions that old packs keep working with, such as a new effect operation, dice modifier, change type or error code.
 - **Major bump:** a change to what something means. This should almost never happen.
 
-The spec is its own package (`@opencharacter/spec`), so ports get it without touching TypeScript, and so engine releases never look like spec changes. Schema `$id`s carry the spec's major.minor (`/schemas/0.1/`).
+The spec is its own package (`@opencharacter/spec`), so ports get it without touching TypeScript, and so engine releases never look like spec changes. Schema `$id`s carry the spec's major.minor (`/schemas/0.2/`).
 
 ## 2. Each engine
 
