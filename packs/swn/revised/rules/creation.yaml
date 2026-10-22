@@ -255,22 +255,6 @@ actions:
     tags: [creation, level-up]
     params:
       kind: { type: enum, values: [any, combat, noncombat], default: any }
-      # The new copy's instance ID.
-      copy:
-        {
-          type: enum,
-          required: true,
-          values:
-            [
-              focus-1,
-              focus-2,
-              focus-3,
-              focus-level-2,
-              focus-level-5,
-              focus-level-7,
-              focus-level-10,
-            ],
-        }
       advancement: { type: boolean, default: false }
       random: { type: boolean, default: false }
     results: [gained]
@@ -297,46 +281,14 @@ actions:
             key: level
             by: 1
           - type: addItem
-            when: >-
-              params.copy == 'focus-1' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-1, item: picked.id }
-          - type: addItem
-            when: >-
-              params.copy == 'focus-2' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-2, item: picked.id }
-          - type: addItem
-            when: >-
-              params.copy == 'focus-3' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-3, item: picked.id }
-          - type: addItem
-            when: >-
-              params.copy == 'focus-level-2' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-level-2, item: picked.id }
-          - type: addItem
-            when: >-
-              params.copy == 'focus-level-5' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-level-5, item: picked.id }
-          - type: addItem
-            when: >-
-              params.copy == 'focus-level-7' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-level-7, item: picked.id }
-          - type: addItem
-            when: >-
-              params.copy == 'focus-level-10' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-level-10, item: picked.id }
+            when: steps.focus.item.repeatable || countCopies(copy.item == picked.id) == 0
+            entry: { item: picked.id }
       - id: picks
         kind: choice
         sheet: proposed
-        when: countCopies(copy.id == params.copy) > 0
+        when: size(steps.focus.added) > 0
         random: params.random
-        options: { pending: { entry: params.copy } }
+        options: { pending: { entry: 'steps.focus.added[0]' } }
       - id: bonus
         kind: branch
         sheet: proposed
@@ -344,7 +296,7 @@ actions:
           - when: true
             flags:
               entry: >-
-                countCopies(copy.id == params.copy) == 0 ? 'none'
+                size(steps.focus.added) == 0 ? 'none'
                   : steps.focus.item.skill != 'chosen' ? steps.focus.item.skill
                   : size(steps.picks.picked) > 0 ? steps.picks.picked[0] : 'any-skill'
       - id: skill

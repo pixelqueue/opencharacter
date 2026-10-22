@@ -229,19 +229,18 @@ actions:
       - id: focus1
         kind: action
         use: gain-focus
-        params: { copy: "'focus-1'" }
       - id: focus2
         kind: action
         sheet: proposed
         when: class.focus.noncombat > 0
         use: gain-focus
-        params: { kind: "'noncombat'", copy: "'focus-2'" }
+        params: { kind: "'noncombat'" }
       - id: focus3
         kind: action
         sheet: proposed
         when: class.focus.combat > 0
         use: gain-focus
-        params: { kind: "'combat'", copy: "'focus-3'" }
+        params: { kind: "'combat'" }
       # One more non-psychic skill: a hobby or a natural talent.
       - id: hobby
         kind: action
@@ -362,7 +361,7 @@ actions:
         kind: changes
         changes:
           - type: addItem
-            entry: { id: focus-1, item: "'foci.' + flags.foci[0][0]" }
+            entry: { item: "'foci.' + flags.foci[0][0]" }
       - id: focusSkill1
         kind: action
         use: gain-skill
@@ -371,7 +370,7 @@ actions:
           random: params.random
       - id: focusPicks1
         kind: choice
-        options: { pending: { entry: "'focus-1'" } }
+        options: { pending: { entry: 'steps.focus1.added[0]' } }
         recommend: >-
           choice.id == 'skill' ? flags.foci[0][2]
             : choice.id == 'discipline' && has(steps.focusSkill1.data)
@@ -382,7 +381,7 @@ actions:
         when: size(flags.foci) > 1
         changes:
           - type: addItem
-            entry: { id: focus-2, item: "'foci.' + flags.foci[1][0]" }
+            entry: { item: "'foci.' + flags.foci[1][0]" }
       - id: focusSkill2
         kind: action
         when: size(flags.foci) > 1
@@ -393,7 +392,7 @@ actions:
       - id: focusPicks2
         kind: choice
         when: size(flags.foci) > 1
-        options: { pending: { entry: "'focus-2'" } }
+        options: { pending: { entry: 'steps.focus2.added[0]' } }
         recommend: >-
           choice.id == 'skill' ? flags.foci[1][2]
             : choice.id == 'discipline' && has(steps.focusSkill2.data)
