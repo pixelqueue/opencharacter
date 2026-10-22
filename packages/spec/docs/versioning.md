@@ -4,14 +4,14 @@ There are three separate version numbers.
 
 ## 1. The spec
 
-The spec covers formats, operations, dice modifiers and engine behavior. The current version is **0.1.0**, which is pre-1.0: anything may still change.
+The spec covers formats, operations, dice modifiers and engine behavior. The current version is **0.2.0**, which is pre-1.0: anything may still change.
 
 From 1.0:
 
 - **Minor bump:** additions that old packs keep working with, such as a new effect operation, dice modifier, change type or error code.
 - **Major bump:** a change to what something means. This should almost never happen.
 
-The spec is its own package (`@opencharacter/spec`), so ports get it without touching TypeScript, and so engine releases never look like spec changes. Schema `$id`s carry the spec's major.minor (`/schemas/0.1/`).
+The spec is its own package (`@opencharacter/spec`), so ports get it without touching TypeScript, and so engine releases never look like spec changes. Schema `$id`s carry the spec's major.minor (`/schemas/0.2/`).
 
 ## 2. Each engine
 
@@ -86,12 +86,17 @@ The release workflow publishes through npm trusted publishing: no token, but eac
 a trust link to `release.yml`, and npm only takes one for a package that already exists. Nobody
 publishes a real version by hand.
 
-1. Just before merging the "Version Packages" pull request that first releases the package, run
-   `pnpm release:setup <pack-id>`, logged in to npm. It stages a placeholder version
-   (`0.0.0-trust`, tag `placeholder`), which makes npm create the package, and waits until npm
-   shows it. Never stage the real version: a staged version can't be published again.
-2. Run the `npm trust github …` command it prints in your own terminal; npm asks for 2FA in the
-   browser.
+1. Just before merging the pull request that first releases a package, run `pnpm release:setup`
+   in your own terminal, logged in to npm. It goes through every public package in the repo (or
+   the ones you name: `pnpm release:setup <pack-id>…`):
+   - a package not on npm gets a placeholder version (`0.0.0-trust`, tag `placeholder`), which
+     makes npm create it, and the script waits until npm shows it. Never stage the real version:
+     a staged version can't be published again;
+   - it reads each package's trust links (`npm trust list`) and runs `npm trust github …` for
+     every package without a link to `release.yml`. npm asks for 2FA in the browser.
+     `--renew` revokes and recreates existing links, for a package whose link was never used (see
+     below); `--print` only prints the trust commands.
+2. Check its summary: packages that failed are listed, to run again by name.
 3. Merge the "Version Packages" pull request within two days. A trust link that no publish has
    used expires, and the publish then fails with `E404 Not Found` on `PUT`; delete the link on
    npmjs.com and create it again. A package whose first version was published by hand keeps an

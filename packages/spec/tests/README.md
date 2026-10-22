@@ -32,7 +32,7 @@ each with a list of cases, instead of one folder per case:
 
 ```yaml
 description: Operator precedence and associativity
-specVersion: 0.1.0
+specVersion: 0.2.0
 cases:
   - name: multiplication binds tighter than addition
     parse: '1 + 2 * 3' # text to parse
@@ -97,7 +97,7 @@ cases:
 
 ```yaml
 description: Advantage keeps the higher d20
-specVersion: 0.1.0 # the earliest spec version this case applies to
+specVersion: 0.2.0 # the earliest spec version this case applies to
 call: startAction
 packs: # pack sources, in load order
   - path: ../../../../../packs/5e/srd-5.1 # a repo pack, by path, or…

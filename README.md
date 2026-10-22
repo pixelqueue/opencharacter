@@ -23,7 +23,7 @@
 <p align="center">
   <a href="https://github.com/pixelqueue/opencharacter/actions/workflows/ci.yml"><img src="https://github.com/pixelqueue/opencharacter/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://www.npmjs.com/package/@opencharacter/engine"><img src="https://img.shields.io/npm/v/@opencharacter/engine?label=engine" alt="npm"></a>
-  <a href="https://opencharacterformat.org/spec/"><img src="https://img.shields.io/badge/spec-0.1.0-61578c" alt="Spec 0.1.0"></a>
+  <a href="https://opencharacterformat.org/spec/"><img src="https://img.shields.io/badge/spec-0.2.0-61578c" alt="Spec 0.2.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-61578c" alt="Apache 2.0"></a>
 </p>
 
@@ -62,7 +62,7 @@ if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
 const tamsin: CharacterFile = {
   specVersion: SPEC_VERSION,
   id: 'tamsin',
-  packs: [{ id: '5e-srd-5.1', version: '0.1.0' }],
+  packs: [{ id: '5e-srd-5.1', version: '0.2.0' }],
   values: { '5e-srd-5.1:abilities.str.base': 16 },
 };
 

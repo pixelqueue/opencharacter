@@ -9,7 +9,7 @@ boundary as JSON.
 
 Every engine call's inputs and outputs are defined as JSON Schema in
 [`schemas/engine/`](../../../packages/spec/schemas/engine/), published with the spec at
-`schemas/0.1/` on this site. Pack releases, character files and changes are JSON too. So in any
+`schemas/0.2/` on this site. Pack releases, character files and changes are JSON too. So in any
 language you can:
 
 - generate types for the calls from the schemas (quicktype, NJsonSchema, datamodel-code-generator

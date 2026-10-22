@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   packageName,
+  parseTrustList,
+  releaseLinks,
+  trustArgs,
   placeholderManifest,
+  publishedPackages,
   registryUrl,
   stagedId,
   trustCommand,
@@ -31,5 +35,52 @@ describe('npm setup', () => {
     expect(trustCommand('@opencharacter/x')).toBe(
       'npm trust github @opencharacter/x --file release.yml --repo pixelqueue/opencharacter --allow-publish -y',
     );
+  });
+
+  it('lists the public workspace packages, sorted', () => {
+    expect(
+      publishedPackages([
+        { name: '@opencharacter/spec' },
+        { name: '@opencharacter/web-editor', private: true },
+        { name: '@opencharacter/5e-srd-5.1' },
+      ]),
+    ).toEqual(['@opencharacter/5e-srd-5.1', '@opencharacter/spec']);
+  });
+
+  it('reads back-to-back JSON objects from npm trust list', () => {
+    const out = `{
+  "id": "a1",
+  "type": "github",
+  "file": "release.yml",
+  "repository": "pixelqueue/opencharacter",
+  "permissions": { "publish": true }
+}
+{
+  "id": "b2",
+  "type": "github",
+  "file": "other.yml",
+  "repository": "pixelqueue/opencharacter"
+}`;
+    const links = parseTrustList(out);
+    expect(links.map((l) => l.id)).toEqual(['a1', 'b2']);
+    expect(releaseLinks(links).map((l) => l.id)).toEqual(['a1']);
+    expect(parseTrustList('')).toEqual([]);
+    expect(parseTrustList('{ "id": "x}", "type": "gitlab" }')).toEqual([
+      { id: 'x}', type: 'gitlab' },
+    ]);
+  });
+
+  it('builds the trust arguments', () => {
+    expect(trustArgs('@opencharacter/x')).toEqual([
+      'trust',
+      'github',
+      '@opencharacter/x',
+      '--file',
+      'release.yml',
+      '--repo',
+      'pixelqueue/opencharacter',
+      '--allow-publish',
+      '-y',
+    ]);
   });
 });

@@ -110,12 +110,12 @@ describe('the editor API', { timeout: 20_000 }, () => {
   it('serves the spec schemas and a document with its schema', async () => {
     const schemas = await call('GET', '/api/schemas');
     expect(Object.keys(schemas.body.schemas as object)).toContain(
-      'https://opencharacterformat.org/schemas/0.1/rules.schema.json',
+      'https://opencharacterformat.org/schemas/0.2/rules.schema.json',
     );
     const doc = await call('GET', '/api/doc?path=packs/5e/srd-5.1/rules/core.yaml');
     expect(doc.body).toMatchObject({
       kind: 'rules',
-      schema: 'https://opencharacterformat.org/schemas/0.1/rules.schema.json',
+      schema: 'https://opencharacterformat.org/schemas/0.2/rules.schema.json',
     });
   });
 
