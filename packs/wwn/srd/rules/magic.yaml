@@ -429,7 +429,7 @@ actions:
   - id: commit-effort
     tags: [art]
     available: >-
-      item.effort != 'none' && level >= item.minLevel && !(item.effort == 'ongoing' && has(self.active) && self.active)
+      item.effort != 'none' && level >= item.minLevel && !(item.effort == 'ongoing' && self.active)
         && item.tradition != 'wise' && fieldOf('effort.{effortTrad}.free', item.tradition) > 0
         && (item.tradition in ['highmage', 'elementalist', 'necromancer', 'vowed'] ? !magic.hindered
           : item.tradition == 'duelist' ? !duelist.hindered : true)
@@ -441,9 +441,15 @@ actions:
           - type: adjust
             field: { formula: "'effort.' + item.tradition + '.' + item.effort" }
             by: 1
+          # A copy keeps its state; an art a class grants, its grant's saved state.
           - type: setState
-            when: "item.effort == 'ongoing' && has(self.active)"
+            when: "item.effort == 'ongoing' && !('granted' in item.tags)"
             entry: self
+            key: active
+            value: true
+          - type: setState
+            when: "item.effort == 'ongoing' && 'granted' in item.tags"
+            grant: self
             key: active
             value: true
       - id: result
@@ -453,7 +459,7 @@ actions:
   # Reclaim the Effort an art keeps committed, ending it.
   - id: release-effort
     tags: [art]
-    available: "item.effort == 'ongoing' && has(self.active) && self.active"
+    available: "item.effort == 'ongoing' && self.active"
     results: [released]
     steps:
       - id: release
@@ -463,47 +469,16 @@ actions:
             when: "fieldOf('effort.{effortTrad}.ongoing', item.tradition) > 0"
             field: { formula: "'effort.' + item.tradition + '.ongoing'" }
             by: -1
-          - { type: setState, entry: self, key: active, value: false }
+          - type: setState
+            when: "!('granted' in item.tags)"
+            entry: self
+            key: active
+            value: false
+          - type: setState
+            when: "'granted' in item.tags"
+            grant: self
+            key: active
+            value: false
       - id: result
         kind: outcome
         result: "'released'"
-
-  # Reclaim a point of Effort committed for as long as a power lasts, from one tradition (for an
-  # art a class grants, which has no copy to end).
-  - id: reclaim-effort
-    tags: [art]
-    available: >-
-      effort.highmage.ongoing + effort.elementalist.ongoing + effort.necromancer.ongoing + effort.healer.ongoing + effort.vowed.ongoing + effort.accursed.ongoing + effort.bard.ongoing + effort.beastmaster.ongoing + effort.bloodpriest.ongoing + effort.duelist.ongoing + effort.mageslayer.ongoing + effort.skinshifter.ongoing + effort.thoughtnoble.ongoing > 0
-    params:
-      tradition:
-        {
-          type: enum,
-          values:
-            [
-              highmage,
-              elementalist,
-              necromancer,
-              healer,
-              vowed,
-              accursed,
-              bard,
-              beastmaster,
-              bloodpriest,
-              duelist,
-              mageslayer,
-              skinshifter,
-              thoughtnoble,
-            ],
-        }
-    results: [reclaimed]
-    steps:
-      - id: reclaim
-        kind: changes
-        changes:
-          - type: adjust
-            when: "fieldOf('effort.{effortTrad}.ongoing', params.tradition) > 0"
-            field: { formula: "'effort.' + params.tradition + '.ongoing'" }
-            by: -1
-      - id: result
-        kind: outcome
-        result: "'reclaimed'"
