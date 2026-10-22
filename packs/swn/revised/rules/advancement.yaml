@@ -151,32 +151,7 @@ actions:
         when: size(flags.open) > 1
         random: params.random
         recommend: flags.open[0]
-        options: &skills
-          - { id: administer, when: "'administer' in flags.open" }
-          - { id: connect, when: "'connect' in flags.open" }
-          - { id: exert, when: "'exert' in flags.open" }
-          - { id: fix, when: "'fix' in flags.open" }
-          - { id: heal, when: "'heal' in flags.open" }
-          - { id: know, when: "'know' in flags.open" }
-          - { id: lead, when: "'lead' in flags.open" }
-          - { id: notice, when: "'notice' in flags.open" }
-          - { id: perform, when: "'perform' in flags.open" }
-          - { id: pilot, when: "'pilot' in flags.open" }
-          - { id: program, when: "'program' in flags.open" }
-          - { id: punch, when: "'punch' in flags.open" }
-          - { id: shoot, when: "'shoot' in flags.open" }
-          - { id: sneak, when: "'sneak' in flags.open" }
-          - { id: stab, when: "'stab' in flags.open" }
-          - { id: survive, when: "'survive' in flags.open" }
-          - { id: talk, when: "'talk' in flags.open" }
-          - { id: trade, when: "'trade' in flags.open" }
-          - { id: work, when: "'work' in flags.open" }
-          - { id: biopsionics, when: "'biopsionics' in flags.open" }
-          - { id: metapsionics, when: "'metapsionics' in flags.open" }
-          - { id: precognition, when: "'precognition' in flags.open" }
-          - { id: telekinesis, when: "'telekinesis' in flags.open" }
-          - { id: telepathy, when: "'telepathy' in flags.open" }
-          - { id: teleportation, when: "'teleportation' in flags.open" }
+        options: { values: { formula: flags.open } }
       - id: picked
         kind: branch
         sheet: proposed

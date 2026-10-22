@@ -36,14 +36,7 @@ actions:
               # A rolled character may set one attribute to 14: the lowest, by default.
               - id: fourteen
                 kind: choice
-                options:
-                  - { id: str }
-                  - { id: dex }
-                  - { id: con }
-                  - { id: int }
-                  - { id: wis }
-                  - { id: cha }
-                  - { id: none }
+                options: { values: { formula: "keysOf('attr') + ['none']" } }
                 recommend: >-
                   minList([steps.str.total, steps.dex.total, steps.con.total, steps.int.total,
                     steps.wis.total, steps.cha.total], x) >= 14 ? 'none'
@@ -109,33 +102,12 @@ actions:
               - id: learn1
                 kind: choice
                 recommend: options[0]
-                options: &learning
-                  - { id: administer, when: "'administer' in flags.learning" }
-                  - { id: connect, when: "'connect' in flags.learning" }
-                  - { id: exert, when: "'exert' in flags.learning" }
-                  - { id: fix, when: "'fix' in flags.learning" }
-                  - { id: heal, when: "'heal' in flags.learning" }
-                  - { id: know, when: "'know' in flags.learning" }
-                  - { id: lead, when: "'lead' in flags.learning" }
-                  - { id: notice, when: "'notice' in flags.learning" }
-                  - { id: perform, when: "'perform' in flags.learning" }
-                  - { id: pilot, when: "'pilot' in flags.learning" }
-                  - { id: program, when: "'program' in flags.learning" }
-                  - { id: punch, when: "'punch' in flags.learning" }
-                  - { id: shoot, when: "'shoot' in flags.learning" }
-                  - { id: sneak, when: "'sneak' in flags.learning" }
-                  - { id: stab, when: "'stab' in flags.learning" }
-                  - { id: survive, when: "'survive' in flags.learning" }
-                  - { id: talk, when: "'talk' in flags.learning" }
-                  - { id: trade, when: "'trade' in flags.learning" }
-                  - { id: work, when: "'work' in flags.learning" }
-                  - { id: any-combat, when: "'any-combat' in flags.learning" }
-                  - { id: stab-or-shoot, when: "'stab-or-shoot' in flags.learning" }
+                options: { values: { formula: "filterList(flags.learning, x != 'any-skill')" } }
               - { id: gain1, kind: action, use: gain-skill, params: { entry: steps.learn1.picked } }
               - id: learn2
                 kind: choice
                 recommend: options[0]
-                options: *learning
+                options: { values: { formula: "filterList(flags.learning, x != 'any-skill')" } }
               - { id: gain2, kind: action, use: gain-skill, params: { entry: steps.learn2.picked } }
           # Three rolls, each on the Growth table (d6) or the Learning table (d8).
           - when: true
@@ -398,31 +370,13 @@ actions:
             : choice.id == 'discipline' && has(steps.focusSkill2.data)
               && steps.focusSkill2.data.skill in options ? steps.focusSkill2.data.skill
             : options[0]
+      # The d20 table: every non-psychic skill in order, then a level-0 skill raised to level-1.
       - id: bonus
         kind: choice
         random: params.random
         recommend: options[0]
         options:
-          - { id: administer }
-          - { id: connect }
-          - { id: exert }
-          - { id: fix }
-          - { id: heal }
-          - { id: know }
-          - { id: lead }
-          - { id: notice }
-          - { id: perform }
-          - { id: pilot }
-          - { id: program }
-          - { id: punch }
-          - { id: shoot }
-          - { id: sneak }
-          - { id: stab }
-          - { id: survive }
-          - { id: talk }
-          - { id: trade }
-          - { id: work }
-          - { id: raise-zero }
+          values: { formula: "sortList(keysOf('general') + keysOf('combat')) + ['raise-zero']" }
       - id: bonusSkill
         kind: action
         use: gain-skill
