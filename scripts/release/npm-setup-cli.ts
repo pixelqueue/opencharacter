@@ -1,4 +1,4 @@
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -44,6 +44,19 @@ const onNpm = async (name: string) => (await fetch(registryUrl(name))).status ==
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 // npm may ask for 2FA in the browser: let it talk to the terminal.
 const npm = (npmArgs: string[]) => spawnSync('npm', npmArgs, { stdio: 'inherit' }).status === 0;
+// Like npm(), but also keeps stdout to parse: npm prints its 2FA login link there too, so the
+// output goes to the terminal as it arrives.
+const npmShown = (npmArgs: string[]) =>
+  new Promise<{ status: number | null; stdout: string }>((resolve) => {
+    const child = spawn('npm', npmArgs, { stdio: ['inherit', 'pipe', 'inherit'] });
+    let stdout = '';
+    child.stdout.setEncoding('utf8');
+    child.stdout.on('data', (chunk: string) => {
+      stdout += chunk;
+      process.stdout.write(chunk);
+    });
+    child.on('close', (status) => resolve({ status, stdout }));
+  });
 
 try {
   console.log(`npm user: ${execFileSync('npm', ['whoami'], { encoding: 'utf8' }).trim()}`);
@@ -108,10 +121,7 @@ if (printOnly) {
     '\nnpm may ask for 2FA in the browser for each package; choose "skip for 5 minutes" once.\n',
   );
   for (const name of names) {
-    const list = spawnSync('npm', ['trust', 'list', name, '--json'], {
-      encoding: 'utf8',
-      stdio: ['inherit', 'pipe', 'inherit'],
-    });
+    const list = await npmShown(['trust', 'list', name, '--json']);
     if (list.status !== 0) {
       console.error(`${name}: npm trust list failed; skipped.`);
       failed.push(name);
