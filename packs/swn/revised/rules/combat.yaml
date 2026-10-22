@@ -15,6 +15,7 @@ actions:
         fields:
           ac.value: { type: integer, default: 10 }
           ac.advanced: { type: integer }
+          psionics.cursedLuck: { type: boolean, default: false }
     results: [hit, miss, rolled]
     steps:
       - id: start
@@ -284,7 +285,7 @@ actions:
       - id: attribute
         kind: choice
         when: steps.roll.total == 5
-        options: [{ id: str }, { id: dex }, { id: con }, { id: int }, { id: wis }, { id: cha }]
+        options: { values: { formula: "keysOf('attr')" } }
         recommend: >-
           ['str', 'dex', 'con', 'int', 'wis', 'cha'][indexOf([attributes.str.score,
             attributes.dex.score, attributes.con.score, attributes.int.score,

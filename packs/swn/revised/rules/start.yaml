@@ -36,14 +36,7 @@ actions:
               # A rolled character may set one attribute to 14: the lowest, by default.
               - id: fourteen
                 kind: choice
-                options:
-                  - { id: str }
-                  - { id: dex }
-                  - { id: con }
-                  - { id: int }
-                  - { id: wis }
-                  - { id: cha }
-                  - { id: none }
+                options: { values: { formula: "keysOf('attr') + ['none']" } }
                 recommend: >-
                   minList([steps.str.total, steps.dex.total, steps.con.total, steps.int.total,
                     steps.wis.total, steps.cha.total], x) >= 14 ? 'none'
@@ -109,33 +102,12 @@ actions:
               - id: learn1
                 kind: choice
                 recommend: options[0]
-                options: &learning
-                  - { id: administer, when: "'administer' in flags.learning" }
-                  - { id: connect, when: "'connect' in flags.learning" }
-                  - { id: exert, when: "'exert' in flags.learning" }
-                  - { id: fix, when: "'fix' in flags.learning" }
-                  - { id: heal, when: "'heal' in flags.learning" }
-                  - { id: know, when: "'know' in flags.learning" }
-                  - { id: lead, when: "'lead' in flags.learning" }
-                  - { id: notice, when: "'notice' in flags.learning" }
-                  - { id: perform, when: "'perform' in flags.learning" }
-                  - { id: pilot, when: "'pilot' in flags.learning" }
-                  - { id: program, when: "'program' in flags.learning" }
-                  - { id: punch, when: "'punch' in flags.learning" }
-                  - { id: shoot, when: "'shoot' in flags.learning" }
-                  - { id: sneak, when: "'sneak' in flags.learning" }
-                  - { id: stab, when: "'stab' in flags.learning" }
-                  - { id: survive, when: "'survive' in flags.learning" }
-                  - { id: talk, when: "'talk' in flags.learning" }
-                  - { id: trade, when: "'trade' in flags.learning" }
-                  - { id: work, when: "'work' in flags.learning" }
-                  - { id: any-combat, when: "'any-combat' in flags.learning" }
-                  - { id: stab-or-shoot, when: "'stab-or-shoot' in flags.learning" }
+                options: { values: { formula: "filterList(flags.learning, x != 'any-skill')" } }
               - { id: gain1, kind: action, use: gain-skill, params: { entry: steps.learn1.picked } }
               - id: learn2
                 kind: choice
                 recommend: options[0]
-                options: *learning
+                options: { values: { formula: "filterList(flags.learning, x != 'any-skill')" } }
               - { id: gain2, kind: action, use: gain-skill, params: { entry: steps.learn2.picked } }
           # Three rolls, each on the Growth table (d6) or the Learning table (d8).
           - when: true
@@ -229,19 +201,18 @@ actions:
       - id: focus1
         kind: action
         use: gain-focus
-        params: { copy: "'focus-1'" }
       - id: focus2
         kind: action
         sheet: proposed
         when: class.focus.noncombat > 0
         use: gain-focus
-        params: { kind: "'noncombat'", copy: "'focus-2'" }
+        params: { kind: "'noncombat'" }
       - id: focus3
         kind: action
         sheet: proposed
         when: class.focus.combat > 0
         use: gain-focus
-        params: { kind: "'combat'", copy: "'focus-3'" }
+        params: { kind: "'combat'" }
       # One more non-psychic skill: a hobby or a natural talent.
       - id: hobby
         kind: action
@@ -362,7 +333,7 @@ actions:
         kind: changes
         changes:
           - type: addItem
-            entry: { id: focus-1, item: "'foci.' + flags.foci[0][0]" }
+            entry: { item: "'foci.' + flags.foci[0][0]" }
       - id: focusSkill1
         kind: action
         use: gain-skill
@@ -371,7 +342,7 @@ actions:
           random: params.random
       - id: focusPicks1
         kind: choice
-        options: { pending: { entry: "'focus-1'" } }
+        options: { pending: { entry: 'steps.focus1.added[0]' } }
         recommend: >-
           choice.id == 'skill' ? flags.foci[0][2]
             : choice.id == 'discipline' && has(steps.focusSkill1.data)
@@ -382,7 +353,7 @@ actions:
         when: size(flags.foci) > 1
         changes:
           - type: addItem
-            entry: { id: focus-2, item: "'foci.' + flags.foci[1][0]" }
+            entry: { item: "'foci.' + flags.foci[1][0]" }
       - id: focusSkill2
         kind: action
         when: size(flags.foci) > 1
@@ -393,37 +364,19 @@ actions:
       - id: focusPicks2
         kind: choice
         when: size(flags.foci) > 1
-        options: { pending: { entry: "'focus-2'" } }
+        options: { pending: { entry: 'steps.focus2.added[0]' } }
         recommend: >-
           choice.id == 'skill' ? flags.foci[1][2]
             : choice.id == 'discipline' && has(steps.focusSkill2.data)
               && steps.focusSkill2.data.skill in options ? steps.focusSkill2.data.skill
             : options[0]
+      # The d20 table: every non-psychic skill in order, then a level-0 skill raised to level-1.
       - id: bonus
         kind: choice
         random: params.random
         recommend: options[0]
         options:
-          - { id: administer }
-          - { id: connect }
-          - { id: exert }
-          - { id: fix }
-          - { id: heal }
-          - { id: know }
-          - { id: lead }
-          - { id: notice }
-          - { id: perform }
-          - { id: pilot }
-          - { id: program }
-          - { id: punch }
-          - { id: shoot }
-          - { id: sneak }
-          - { id: stab }
-          - { id: survive }
-          - { id: talk }
-          - { id: trade }
-          - { id: work }
-          - { id: raise-zero }
+          values: { formula: "sortList(keysOf('general') + keysOf('combat')) + ['raise-zero']" }
       - id: bonusSkill
         kind: action
         use: gain-skill

@@ -101,32 +101,7 @@ actions:
         when: size(flags.open) > 1
         random: params.random
         recommend: flags.open[0]
-        options:
-          - { id: administer, when: "'administer' in flags.open" }
-          - { id: connect, when: "'connect' in flags.open" }
-          - { id: exert, when: "'exert' in flags.open" }
-          - { id: fix, when: "'fix' in flags.open" }
-          - { id: heal, when: "'heal' in flags.open" }
-          - { id: know, when: "'know' in flags.open" }
-          - { id: lead, when: "'lead' in flags.open" }
-          - { id: notice, when: "'notice' in flags.open" }
-          - { id: perform, when: "'perform' in flags.open" }
-          - { id: pilot, when: "'pilot' in flags.open" }
-          - { id: program, when: "'program' in flags.open" }
-          - { id: punch, when: "'punch' in flags.open" }
-          - { id: shoot, when: "'shoot' in flags.open" }
-          - { id: sneak, when: "'sneak' in flags.open" }
-          - { id: stab, when: "'stab' in flags.open" }
-          - { id: survive, when: "'survive' in flags.open" }
-          - { id: talk, when: "'talk' in flags.open" }
-          - { id: trade, when: "'trade' in flags.open" }
-          - { id: work, when: "'work' in flags.open" }
-          - { id: biopsionics, when: "'biopsionics' in flags.open" }
-          - { id: metapsionics, when: "'metapsionics' in flags.open" }
-          - { id: precognition, when: "'precognition' in flags.open" }
-          - { id: telekinesis, when: "'telekinesis' in flags.open" }
-          - { id: telepathy, when: "'telepathy' in flags.open" }
-          - { id: teleportation, when: "'teleportation' in flags.open" }
+        options: { values: { formula: flags.open } }
       - id: picked
         kind: branch
         cases:
@@ -154,43 +129,27 @@ actions:
                 && countCopies(copy.item == item.id) == 0
         changes:
           - { type: addItem, entry: { item: picked.id } }
+      # +1 to any attribute below 18, or one of the +2 pairs of the physical or mental ones.
       - id: attribute
         kind: choice
         sheet: proposed
-        when: flags.stat
+        when: "params.entry == 'any-stat'"
         random: params.random
         recommend: options[0]
         options:
-          - {
-              id: str,
-              when: "params.entry == 'any-stat' && attributes.str.score < 18",
-              flags: { str: 1 },
-            }
-          - {
-              id: dex,
-              when: "params.entry == 'any-stat' && attributes.dex.score < 18",
-              flags: { dex: 1 },
-            }
-          - {
-              id: con,
-              when: "params.entry == 'any-stat' && attributes.con.score < 18",
-              flags: { con: 1 },
-            }
-          - {
-              id: int,
-              when: "params.entry == 'any-stat' && attributes.int.score < 18",
-              flags: { int: 1 },
-            }
-          - {
-              id: wis,
-              when: "params.entry == 'any-stat' && attributes.wis.score < 18",
-              flags: { wis: 1 },
-            }
-          - {
-              id: cha,
-              when: "params.entry == 'any-stat' && attributes.cha.score < 18",
-              flags: { cha: 1 },
-            }
+          values:
+            { formula: "filterList(keysOf('attr'), fieldOf('attributes.{attr}.score', x) < 18)" }
+        changes:
+          - type: set
+            field: { formula: "'attributes.' + picked.value + '.score'" }
+            value: "fieldOf('attributes.{attr}.score', picked.value) + 1"
+      - id: pair
+        kind: choice
+        sheet: proposed
+        when: "params.entry in ['physical', 'mental']"
+        random: params.random
+        recommend: options[0]
+        options:
           - { id: str2, when: "params.entry == 'physical'", flags: { str: 2 } }
           - { id: dex2, when: "params.entry == 'physical'", flags: { dex: 2 } }
           - { id: con2, when: "params.entry == 'physical'", flags: { con: 2 } }
@@ -206,44 +165,32 @@ actions:
       - id: raise
         kind: changes
         sheet: proposed
-        when: flags.stat
+        when: has(steps.pair)
         changes:
-          - {
-              type: set,
-              field: attributes.str.score,
-              value: 'min(18, attributes.str.score + flags.str)',
-              when: flags.str > 0,
-            }
-          - {
-              type: set,
-              field: attributes.dex.score,
-              value: 'min(18, attributes.dex.score + flags.dex)',
-              when: flags.dex > 0,
-            }
-          - {
-              type: set,
-              field: attributes.con.score,
-              value: 'min(18, attributes.con.score + flags.con)',
-              when: flags.con > 0,
-            }
-          - {
-              type: set,
-              field: attributes.int.score,
-              value: 'min(18, attributes.int.score + flags.int)',
-              when: flags.int > 0,
-            }
-          - {
-              type: set,
-              field: attributes.wis.score,
-              value: 'min(18, attributes.wis.score + flags.wis)',
-              when: flags.wis > 0,
-            }
-          - {
-              type: set,
-              field: attributes.cha.score,
-              value: 'min(18, attributes.cha.score + flags.cha)',
-              when: flags.cha > 0,
-            }
+          - type: set
+            when: flags.str > 0
+            field: attributes.str.score
+            value: 'min(18, attributes.str.score + flags.str)'
+          - type: set
+            when: flags.dex > 0
+            field: attributes.dex.score
+            value: 'min(18, attributes.dex.score + flags.dex)'
+          - type: set
+            when: flags.con > 0
+            field: attributes.con.score
+            value: 'min(18, attributes.con.score + flags.con)'
+          - type: set
+            when: flags.int > 0
+            field: attributes.int.score
+            value: 'min(18, attributes.int.score + flags.int)'
+          - type: set
+            when: flags.wis > 0
+            field: attributes.wis.score
+            value: 'min(18, attributes.wis.score + flags.wis)'
+          - type: set
+            when: flags.cha > 0
+            field: attributes.cha.score
+            value: 'min(18, attributes.cha.score + flags.cha)'
       - id: result
         kind: outcome
         result: "'gained'"
@@ -255,22 +202,6 @@ actions:
     tags: [creation, level-up]
     params:
       kind: { type: enum, values: [any, combat, noncombat], default: any }
-      # The new copy's instance ID.
-      copy:
-        {
-          type: enum,
-          required: true,
-          values:
-            [
-              focus-1,
-              focus-2,
-              focus-3,
-              focus-level-2,
-              focus-level-5,
-              focus-level-7,
-              focus-level-10,
-            ],
-        }
       advancement: { type: boolean, default: false }
       random: { type: boolean, default: false }
     results: [gained]
@@ -297,46 +228,14 @@ actions:
             key: level
             by: 1
           - type: addItem
-            when: >-
-              params.copy == 'focus-1' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-1, item: picked.id }
-          - type: addItem
-            when: >-
-              params.copy == 'focus-2' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-2, item: picked.id }
-          - type: addItem
-            when: >-
-              params.copy == 'focus-3' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-3, item: picked.id }
-          - type: addItem
-            when: >-
-              params.copy == 'focus-level-2' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-level-2, item: picked.id }
-          - type: addItem
-            when: >-
-              params.copy == 'focus-level-5' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-level-5, item: picked.id }
-          - type: addItem
-            when: >-
-              params.copy == 'focus-level-7' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-level-7, item: picked.id }
-          - type: addItem
-            when: >-
-              params.copy == 'focus-level-10' && (steps.focus.item.repeatable
-                || countCopies(copy.item == picked.id) == 0)
-            entry: { id: focus-level-10, item: picked.id }
+            when: steps.focus.item.repeatable || countCopies(copy.item == picked.id) == 0
+            entry: { item: picked.id }
       - id: picks
         kind: choice
         sheet: proposed
-        when: countCopies(copy.id == params.copy) > 0
+        when: size(steps.focus.added) > 0
         random: params.random
-        options: { pending: { entry: params.copy } }
+        options: { pending: { entry: 'steps.focus.added[0]' } }
       - id: bonus
         kind: branch
         sheet: proposed
@@ -344,7 +243,7 @@ actions:
           - when: true
             flags:
               entry: >-
-                countCopies(copy.id == params.copy) == 0 ? 'none'
+                size(steps.focus.added) == 0 ? 'none'
                   : steps.focus.item.skill != 'chosen' ? steps.focus.item.skill
                   : size(steps.picks.picked) > 0 ? steps.picks.picked[0] : 'any-skill'
       - id: skill
