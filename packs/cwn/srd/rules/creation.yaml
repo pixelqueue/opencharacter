@@ -233,27 +233,7 @@ actions:
       - id: pick1
         kind: choice
         when: steps.skillMethod.picked == 'pick'
-        options:
-          - { id: administer, when: "'administer' in flags.learning" }
-          - { id: connect, when: "'connect' in flags.learning" }
-          - { id: drive, when: "'drive' in flags.learning" }
-          - { id: exert, when: "'exert' in flags.learning" }
-          - { id: fix, when: "'fix' in flags.learning" }
-          - { id: heal, when: "'heal' in flags.learning" }
-          - { id: know, when: "'know' in flags.learning" }
-          - { id: lead, when: "'lead' in flags.learning" }
-          - { id: notice, when: "'notice' in flags.learning" }
-          - { id: perform, when: "'perform' in flags.learning" }
-          - { id: program, when: "'program' in flags.learning" }
-          - { id: punch, when: "'punch' in flags.learning" }
-          - { id: shoot, when: "'shoot' in flags.learning" }
-          - { id: sneak, when: "'sneak' in flags.learning" }
-          - { id: stab, when: "'stab' in flags.learning" }
-          - { id: survive, when: "'survive' in flags.learning" }
-          - { id: talk, when: "'talk' in flags.learning" }
-          - { id: trade, when: "'trade' in flags.learning" }
-          - { id: work, when: "'work' in flags.learning" }
-          - { id: combat, when: "'combat' in flags.learning" }
+        options: { values: { formula: "filterList(flags.learning, x != 'any')" } }
         recommend: filterList(flags.learning, x != 'any')[0]
         random: params.random
       - id: learned1
@@ -264,27 +244,7 @@ actions:
       - id: pick2
         kind: choice
         when: steps.skillMethod.picked == 'pick'
-        options:
-          - { id: administer, when: "'administer' in flags.learning" }
-          - { id: connect, when: "'connect' in flags.learning" }
-          - { id: drive, when: "'drive' in flags.learning" }
-          - { id: exert, when: "'exert' in flags.learning" }
-          - { id: fix, when: "'fix' in flags.learning" }
-          - { id: heal, when: "'heal' in flags.learning" }
-          - { id: know, when: "'know' in flags.learning" }
-          - { id: lead, when: "'lead' in flags.learning" }
-          - { id: notice, when: "'notice' in flags.learning" }
-          - { id: perform, when: "'perform' in flags.learning" }
-          - { id: program, when: "'program' in flags.learning" }
-          - { id: punch, when: "'punch' in flags.learning" }
-          - { id: shoot, when: "'shoot' in flags.learning" }
-          - { id: sneak, when: "'sneak' in flags.learning" }
-          - { id: stab, when: "'stab' in flags.learning" }
-          - { id: survive, when: "'survive' in flags.learning" }
-          - { id: talk, when: "'talk' in flags.learning" }
-          - { id: trade, when: "'trade' in flags.learning" }
-          - { id: work, when: "'work' in flags.learning" }
-          - { id: combat, when: "'combat' in flags.learning" }
+        options: { values: { formula: "filterList(flags.learning, x != 'any')" } }
         recommend: filterList(flags.learning, x != 'any')[1]
         random: params.random
       - id: learned2
