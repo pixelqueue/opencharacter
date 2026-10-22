@@ -105,7 +105,7 @@ const SCHEMAS = {
 function schemaFor(path: string): string | null {
   const kind = kindOf(path);
   return kind in SCHEMAS
-    ? `https://opencharacterformat.org/schemas/0.1/${SCHEMAS[kind as keyof typeof SCHEMAS]}`
+    ? `https://opencharacterformat.org/schemas/0.2/${SCHEMAS[kind as keyof typeof SCHEMAS]}`
     : null;
 }
 

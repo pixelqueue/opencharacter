@@ -142,7 +142,7 @@ export function DocEditor({ path, onSaved }: { path: string; onSaved: (v: Valida
 
 /** The item form's own fields; everything else on an item comes from the content-item schema. */
 const OWN = new Set(['id', 'type', 'tags', 'fields', 'override']);
-const ITEM_SCHEMA = 'https://opencharacterformat.org/schemas/0.1/content-item.schema.json';
+const ITEM_SCHEMA = 'https://opencharacterformat.org/schemas/0.2/content-item.schema.json';
 
 export function ItemEditor({ path, onSaved }: { path: string; onSaved: (v: Validation) => void }) {
   const reg = useRegistry();

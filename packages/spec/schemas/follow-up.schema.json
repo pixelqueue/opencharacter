@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://opencharacterformat.org/schemas/0.1/follow-up.schema.json",
+  "$id": "https://opencharacterformat.org/schemas/0.2/follow-up.schema.json",
   "title": "Follow-up",
   "description": "What the rules call for on a character: an action to run, changes to apply, or a linked character to make. Two kinds. A **derived** offer (`while`) is offered exactly as long as its condition holds; computeSheet derives it and nothing is stored. An **ephemeral** offer (`on`, an adjustment to a field; `becomes`, a condition false before a batch and true after it) is stored in the character file by the applyChanges that triggered it, until it is acted on or dismissed (a `becomes` one also until its condition is false). The engine never runs or applies either. Declared at the rules level, on a content type or on a content item; on content it applies while the character has the copy or pick, as effects do. A follow-up with no trigger (none of `on`, `becomes` and `while`) is offered only by an action proposing an `offerFollowUp` change that names it, and is then stored as an ephemeral one; an `on` or `becomes` one may be offered so too.",
   "type": "object",

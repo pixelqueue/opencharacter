@@ -29,9 +29,9 @@ const { ruleset } = loaded;
 
 // A random character: stats, saves, a class, health, skills and credits, all rolled.
 const blank = {
-  specVersion: '0.1.0',
+  specVersion: '0.2.0',
   id: 'okafor',
-  packs: [{ id: 'mothership-1e', version: '0.1.0' }],
+  packs: [{ id: 'mothership-1e', version: '0.1.1' }],
   creating: true,
 };
 const run = startAction(ruleset, blank, { action: { id: 'mothership-1e:roll-character' } });
