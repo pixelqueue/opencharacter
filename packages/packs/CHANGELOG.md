@@ -1,5 +1,16 @@
 # @opencharacter/packs
 
+## 0.4.0
+
+### Minor Changes
+
+- 1bba1b3: Add the `awn-core` pack (Ashes Without Number's character rules, free-edition text used with
+  the author's permission) to the bundle.
+- 1bba1b3: Add the `cwn-srd` pack (the Cities Without Number SRD's character rules, CC0) to the bundle.
+- 1bba1b3: Add the `godbound-core` pack (Godbound's Free Edition, text used with the author's permission) to the bundle.
+- 1bba1b3: Add the `swn-revised` pack (Stars Without Number: Revised Edition's character rules, free edition text by the author's permission) to the bundle.
+- 1bba1b3: Add the `wwn-srd` pack (the Worlds Without Number SRD's fantasy rules, CC0) to the bundle.
+
 ## 0.3.0
 
 ### Minor Changes
