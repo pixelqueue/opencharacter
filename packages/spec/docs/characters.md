@@ -20,10 +20,10 @@ Derived values are **never** saved, so a character can never disagree with the r
 ## Structure
 
 ```yaml
-specVersion: 0.1.0
+specVersion: 0.2.0
 id: 7f1c... # unique within the app or campaign, or a URL to make it global
 packs: # exact versions, in load order
-  - { id: 5e-srd-5.1, version: 0.1.0 }
+  - { id: 5e-srd-5.1, version: 0.2.0 }
 creating: false # true while the character is being created (the default is false)
 values: # input fields, qualified IDs
   5e-srd-5.1:abilities.str.base: 16
@@ -205,10 +205,10 @@ weapon, a custom skill or feat, a table's own special ability. It is a small pac
 to the character, so the character file stays self-contained when it is shared.
 
 ```yaml
-specVersion: 0.1.0
+specVersion: 0.2.0
 id: example-mothership-reyes
 packs:
-  - { id: mothership-1e, version: 0.1.0 }
+  - { id: mothership-1e, version: 0.1.1 }
 homebrew:
   defaultLanguage: en
   rules: # optional: a rules document, without settings

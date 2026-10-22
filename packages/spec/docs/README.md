@@ -1,6 +1,6 @@
 # Open Character Format: specification
 
-**Spec version 0.1.0.** The shapes are in place and were checked against three hand-modeled games. The formula language and engine behavior (the core calls, actions and upgrades) are specified, and the shared test suite covers every call. Parts that are not final are marked **PROVISIONAL** or **PLACEHOLDER**.
+**Spec version 0.2.0.** The shapes are in place and were checked against three hand-modeled games. The formula language and engine behavior (the core calls, actions and upgrades) are specified, and the shared test suite covers every call. Parts that are not final are marked **PROVISIONAL** or **PLACEHOLDER**.
 
 OCF is an open format for tabletop RPG character data. The spec covers three layers:
 
@@ -33,7 +33,7 @@ Core principle: **the engine knows the rules; the app owns the experience.** The
 
 ## Machine-readable parts
 
-- [`../schemas/`](../schemas/): JSON Schema (draft 2020-12) for every file format and every engine input and output. Each schema's `$id` is under `https://opencharacterformat.org/schemas/0.1/`, where the website serves the schemas, so each ID is also the schema's URL. Schema files that disagree with this prose are a spec bug. Until it is fixed, the stricter of the two applies.
+- [`../schemas/`](../schemas/): JSON Schema (draft 2020-12) for every file format and every engine input and output. Each schema's `$id` is under `https://opencharacterformat.org/schemas/0.2/`, where the website serves the schemas, so each ID is also the schema's URL. Schema files that disagree with this prose are a spec bug. Until it is fixed, the stricter of the two applies.
 - [`../data/`](../data/): the **fixed sets** as JSON: effect operations, roll modifiers, dice modifiers, die types, change types, stacking policies, error codes, rules-issue codes, upgrade steps, value types, rounding modes, display formats, safety limits and the provisional formula context. Each schema enum must equal the matching fixed set; the spec package's tests check this.
 - [`../i18n/en.yaml`](../i18n/en.yaml): standard English text for the spec's error and rules-issue codes.
 - [`../src/types.ts`](../src/types.ts): TypeScript types generated from the schemas (`pnpm types`), exported by `@opencharacter/spec`. The schemas are the source; the types are a convenience and are a little looser where a schema adds requirements conditionally.
