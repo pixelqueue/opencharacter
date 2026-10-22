@@ -105,7 +105,10 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
   it for the scene or the day, `sustain-technique` commits a point to a technique for as long as
   it lasts (held on the technique's copy, the pick of a Wild Psychic Talent, or the grant of a
   core technique, until `release-technique` reclaims it), and `torch`
-  rolls the torching table for a free point.
+  rolls the torching table for a free point. Cursed Luck's `curse` commits Effort for the scene
+  and applies the technique to its target: their attacks, damage, checks and saves roll twice
+  and keep the worse, attacks and damage against them roll twice and keep the better, and their
+  `throw-off` makes the Mental save that ends it.
 - **Advancement:** the experience table (a `level-up` follow-up to 10th level; later levels are
   the GM's call). `level-up` rolls the hit dice, grants three skill points (one psychic for a
   psychic, plus the Expert's), and a focus level at 2nd, 5th, 7th and 10th. `raise-skill`,

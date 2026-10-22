@@ -1,4 +1,7 @@
 fields:
+  # Cursed Luck is on the character: attacks against them and damage they take roll twice and
+  # keep the better.
+  psionics.cursedLuck: { type: boolean, formula: false }
   effort.bonus: { type: integer, formula: 0 }
   # A wild talent's Effort, for a character who isn't a psychic.
   effort.wild: { type: integer, formula: 0 }
@@ -20,6 +23,14 @@ fields:
     type: integer
     formula: effort.max + effort.torched - effort.scene - effort.day - effort.active
     limits: { min: 0 }
+
+effects:
+  - target: { rolls: [attack, damage] }
+    op: rollModifier
+    value: { kind: advantage, of: roll }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && participants.target[0].psionics.cursedLuck
 
 contentTypes:
   technique:
