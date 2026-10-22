@@ -32,6 +32,15 @@ contentTypes:
         values: [spirit-1, spirit-2, spirit-3, physical-1, physical-2, physical-3]
         default: spirit-1
       ritual: { type: boolean, default: true }
+    computed:
+      # The Effort a summoning Commits for the day: one per power, less one for a ritual
+      # summoning, less the Summon skill, at least 1.
+      cost:
+        type: integer
+        formula: >-
+          max(1, size(picksOf('powers')) - (self.ritual ? 1 : 0) - max(0, skills.summon.level))
+    actions:
+      - use: summon-spirit
 
   # A spirit power: each adds one point to a spirit's cost.
   spiritPower:
@@ -92,6 +101,24 @@ fields:
     type: integer
     formula: "sumCopies(copy.fields.cost, copy.type == 'art')"
     limits: { max: arts.points }
+  # Martial Instinct's bonus combat rolls: as many as the highest combat skill, at least one,
+  # refreshed by a night's rest.
+  arts.bonusRolls.max: { type: integer, formula: 0 }
+  arts.bonusRolls.used:
+    { type: integer, input: true, default: 0, min: 0, max: 'max(0, arts.bonusRolls.max)' }
+
+situational:
+  # One of Martial Instinct's bonus rolls, spent on the attack's hit or damage roll.
+  - id: bonusRoll
+    type: enum
+    values: [none, hit, damage]
+    default: none
+    rolls: [attack, damage]
+  # The save resists a spell or magical effect (Occult Pavis).
+  - id: versusMagic
+    type: boolean
+    default: false
+    rolls: [save]
 
 resultBands:
   overcast:
@@ -161,8 +188,6 @@ actions:
     tags: [magic, summoning]
     available: magic.summoner
     params:
-      powers: { type: integer, min: 0 }
-      ritual: { type: boolean, default: true }
       # Immediate summonings already made this scene, each adding one point.
       earlier: { type: integer, default: 0, min: 0 }
     steps:
@@ -171,6 +196,4 @@ actions:
         changes:
           - type: adjust
             field: effort.summoner.day
-            by: >-
-              max(1, params.powers - (params.ritual ? 1 : 0) - max(0, skills.summon.level))
-                + (params.ritual ? 0 : params.earlier)
+            by: 'self.cost + (self.ritual ? 0 : params.earlier)'
