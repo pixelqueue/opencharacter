@@ -102,7 +102,10 @@ the player's choices and other characters.
 - **Hacking:** Access, Memory, CPU and Shielding from the best deck, the program elements in
   Memory, the programs a hacker can write and keep, and an action to run a program.
 - **Magic:** Mage and Summoner Effort, cyber's cost to them, prepared spells, casting and
-  overcasting, summoning, spirits and their powers, and Graced arts with their points.
+  overcasting, summoning (each spirit's cost from its own powers and ritual), spirits and their
+  powers, and Graced arts with their points. Martial Instinct's bonus rolls (the `bonusRoll`
+  situational choice on an attack) roll the hit or damage twice, the better kept, and refresh
+  with rest; Occult Pavis rolls saves against magic (`versusMagic`) twice.
 - **Contacts**, named by the player, as Acquaintances or Friends.
 
 ## Left to the table
