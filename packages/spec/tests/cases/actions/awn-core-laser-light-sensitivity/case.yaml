@@ -1,0 +1,10 @@
+description: "awn-core: laser damage against a target with Light Sensitivity (its view's
+  defense.laserSensitive) is rolled twice and the higher kept"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/awn/core
+input:
+  action: { id: 'awn-core:attack', entry: pistol }
+  participants:
+    target: [{ id: mutant, values: { 'awn-core:defense.laserSensitive': true } }]

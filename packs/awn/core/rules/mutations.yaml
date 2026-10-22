@@ -151,31 +151,26 @@ actions:
         }
       - id: negatives
         kind: choice
-        options: [{ id: none }, { id: one }, { id: two }, { id: three }]
+        options: { values: [0, 1, 2, 3] }
         recommend: 'params.random ? options[steps.negativesRoll.total - 1] : options[0]'
-      - id: count
-        kind: branch
-        cases:
-          - when: true
-            flags: { negatives: "indexOf(['none', 'one', 'two', 'three'], steps.negatives.picked)" }
       - {
           id: negative1,
           kind: action,
-          when: flags.negatives >= 1,
+          when: steps.negatives.value >= 1,
           use: roll-negative-mutation,
           params: { random: params.random },
         }
       - {
           id: negative2,
           kind: action,
-          when: flags.negatives >= 2,
+          when: steps.negatives.value >= 2,
           use: roll-negative-mutation,
           params: { random: params.random },
         }
       - {
           id: negative3,
           kind: action,
-          when: flags.negatives >= 3,
+          when: steps.negatives.value >= 3,
           use: roll-negative-mutation,
           params: { random: params.random },
         }

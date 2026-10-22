@@ -84,6 +84,10 @@ const run = startAction(ruleset, blank, {
   three to one when stowed, and the slower moves of pushing past the limits. A start that brings
   more than its Strength can haul stows Readied items, then leaves Stowed ones behind, heaviest
   first, until it is within the limits.
+- **Rolled twice:** Weak Heart's Exert checks keep the worse of two 2d6 rolls; Constant
+  Secretions (the `grapple` situational choice) and Survivalist (`foraging`) keep the better. An
+  attack given its target's view (`participants.target`) rolls laser damage twice against Light
+  Sensitivity, the higher kept.
 - **System strain and stress:** maximums with the edges, foci and mutations that change them.
 
 ## Rule readings
@@ -102,4 +106,6 @@ const run = startAction(ruleset, blank, {
 
 Vehicles, mods, the high-tech loot tables (a placeholder item stands for them), psychic scars,
 traumatic hits beyond the trauma target, and the many once-per-scene or narrative powers, which
-are text only.
+are text only. Low Resistances (the day's first Physical, Mental or Evasion save rolled twice)
+is text only too: a roll effect can't end itself once it applies
+([#68](https://github.com/pixelqueue/opencharacter/issues/68)).

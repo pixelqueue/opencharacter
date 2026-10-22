@@ -9,9 +9,19 @@ choices:
       sortList(['str', 'dex', 'int', 'wis', 'cha'],
         -fieldOf('attributes.{attribute}.score', x))[0]
     effects:
-      - target: { fields: { where: "item.id == 'awn-core:attributes.' + pick.value + '.score'" } }
+      - target:
+          {
+            fields:
+              { where: "'attribute' in item.tags && ('attribute.' + pick.value) in item.tags" },
+          }
         op: atLeast
         value: 18
-      - target: { fields: { where: "item.id == 'awn-core:attributes.' + pick.value + '.base'" } }
+      - target:
+          {
+            fields:
+              {
+                where: "'attribute-base' in item.tags && ('attribute.' + pick.value) in item.tags",
+              },
+          }
         op: atLeast
         value: 3

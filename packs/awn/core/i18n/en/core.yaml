@@ -1,6 +1,7 @@
 # Rules text: fields, actions, groups, tags
 actions.attack.name: Attack
 actions.attack.params.targetAc.name: Target's AC
+actions.attack.participants.target.name: Target
 actions.attack.results.hit.name: Hit
 actions.attack.results.miss.name: Miss
 actions.attack.results.rolled.name: Rolled
@@ -28,10 +29,10 @@ actions.create-character.options.array.name: 'Assign 14, 12, 11, 10, 9, 7'
 actions.create-character.options.cha.name: Charisma
 actions.create-character.options.con.name: Constitution
 actions.create-character.options.dex.name: Dexterity
-actions.create-character.options.growth0.name: Three Learning rolls
-actions.create-character.options.growth1.name: 'One Growth roll, two Learning rolls'
-actions.create-character.options.growth2.name: 'Two Growth rolls, one Learning roll'
-actions.create-character.options.growth3.name: Three Growth rolls
+actions.create-character.options.0.name: Three Learning rolls
+actions.create-character.options.1.name: 'One Growth roll, two Learning rolls'
+actions.create-character.options.2.name: 'Two Growth rolls, one Learning roll'
+actions.create-character.options.3.name: Three Growth rolls
 actions.create-character.options.int.name: Intelligence
 actions.create-character.options.no.name: No bonus edge
 actions.create-character.options.none.name: 'None'
@@ -66,6 +67,12 @@ actions.create-character.steps.str.name: Strength
 actions.create-character.steps.underdog.prompt: The underdog rule
 actions.create-character.steps.wis.name: Wisdom
 actions.gain-benefit.name: Background table entry
+actions.gain-benefit.options.str.name: Strength
+actions.gain-benefit.options.dex.name: Dexterity
+actions.gain-benefit.options.con.name: Constitution
+actions.gain-benefit.options.int.name: Intelligence
+actions.gain-benefit.options.wis.name: Wisdom
+actions.gain-benefit.options.cha.name: Charisma
 actions.gain-benefit.params.entry.name: Entry
 actions.gain-benefit.params.prefer.name: Preferred skills
 actions.gain-benefit.params.random.name: Random
@@ -82,7 +89,27 @@ actions.gain-focus.params.random.name: Random
 actions.gain-focus.results.gained.name: Gained
 actions.gain-focus.steps.focus.prompt: Focus
 actions.gain-focus.steps.raise.prompt: Specialist
+actions.gain-focus.steps.specialty.prompt: Specialist skill
 actions.gain-skill.name: Gain a skill
+actions.gain-skill.options.administer.name: Administer
+actions.gain-skill.options.connect.name: Connect
+actions.gain-skill.options.drive.name: Drive
+actions.gain-skill.options.exert.name: Exert
+actions.gain-skill.options.fix.name: Fix
+actions.gain-skill.options.heal.name: Heal
+actions.gain-skill.options.know.name: Know
+actions.gain-skill.options.lead.name: Lead
+actions.gain-skill.options.notice.name: Notice
+actions.gain-skill.options.perform.name: Perform
+actions.gain-skill.options.program.name: Program
+actions.gain-skill.options.punch.name: Punch
+actions.gain-skill.options.shoot.name: Shoot
+actions.gain-skill.options.sneak.name: Sneak
+actions.gain-skill.options.stab.name: Stab
+actions.gain-skill.options.survive.name: Survive
+actions.gain-skill.options.talk.name: Talk
+actions.gain-skill.options.trade.name: Trade
+actions.gain-skill.options.work.name: Work
 actions.gain-skill.params.prefer.name: Preferred skills
 actions.gain-skill.params.random.name: Random
 actions.gain-skill.params.skills.name: Skills
@@ -137,10 +164,10 @@ actions.level-up.params.random.name: Random
 actions.level-up.results.advanced.name: Advanced
 actions.mutate.name: Mutations
 actions.mutate.options.concealed.name: Concealable stigma (1 point)
-actions.mutate.options.none.name: 'None'
-actions.mutate.options.one.name: One
-actions.mutate.options.three.name: Three
-actions.mutate.options.two.name: Two
+actions.mutate.options.0.name: 'None'
+actions.mutate.options.1.name: One
+actions.mutate.options.3.name: Three
+actions.mutate.options.2.name: Two
 actions.mutate.options.visible.name: Visible stigma
 actions.mutate.params.random.name: Random
 actions.mutate.results.mutated.name: Mutated
@@ -426,6 +453,7 @@ fields.strain.current.name: System strain
 fields.strain.max.name: Maximum system strain
 fields.stress.current.name: Stress
 fields.stress.limit.name: Breakdown threshold
+fields.defense.laserSensitive.name: Laser damage rolled twice
 fields.variant.giftedSurvivors.name: Gifted survivors (optional rule)
 fields.xp.current.name: Experience
 fields.xp.next.name: Next level at
@@ -454,6 +482,8 @@ groups.skills.label: Skills
 groups.weapons.label: Weapons
 situational.burst.name: Burst fire
 situational.social.name: Social check
+situational.grapple.name: Resisting or escaping a grapple
+situational.foraging.name: Foraging
 situational.versus.name: Saving against
 situational.versus.values.disease.name: Disease
 situational.versus.values.other.name: Anything else
@@ -464,6 +494,9 @@ tags.animal.name: Animal
 tags.attack.melee.name: Melee attack
 tags.attack.name: Attack
 tags.attack.ranged.name: Ranged attack
+tags.attribute-base.name: Table attribute modifier
+tags.attribute-boost.name: Attribute bonus to a maximum of +2
+tags.attribute-bonus.name: Attribute bonus
 tags.attribute-mod.cha.name: Charisma modifier
 tags.attribute-mod.con.name: Constitution modifier
 tags.attribute-mod.dex.name: Dexterity modifier
@@ -476,6 +509,7 @@ tags.attribute.con.name: Constitution
 tags.attribute.dex.name: Dexterity
 tags.attribute.int.name: Intelligence
 tags.attribute.name: Attribute
+tags.attribute-penalty.name: Attribute penalty
 tags.attribute.str.name: Strength
 tags.attribute.wis.name: Wisdom
 tags.bundleable.name: Bundles three to one
@@ -485,6 +519,7 @@ tags.creation.name: Creation
 tags.damage.name: Damage
 tags.drug.name: Drug
 tags.energy.name: Energy weapon
+tags.laser.name: Laser weapon
 tags.grenade.name: Grenade
 tags.hearing.name: Improves hearing
 tags.heavy.name: Heavy
@@ -559,6 +594,7 @@ types.edge.name: Edge
 types.focus.fields.bonusSkill.name: Bonus skill options
 types.focus.fields.bonusSkill2.name: Second bonus skill options
 types.focus.fields.maxLevel.name: Levels
+types.focus.fields.specialty.name: Bonus skill is the specialised skill
 types.focus.fields.multiple.name: May be taken more than once
 types.focus.name: Focus
 types.gear.fields.cost.name: Cost

@@ -72,28 +72,7 @@ actions:
       - id: skill
         kind: choice
         tags: [skill-pick]
-        options:
-          - { id: administer, when: "'administer' in flags.candidates" }
-          - { id: connect, when: "'connect' in flags.candidates" }
-          - { id: drive, when: "'drive' in flags.candidates" }
-          - { id: exert, when: "'exert' in flags.candidates" }
-          - { id: fix, when: "'fix' in flags.candidates" }
-          - { id: heal, when: "'heal' in flags.candidates" }
-          - { id: know, when: "'know' in flags.candidates" }
-          - { id: lead, when: "'lead' in flags.candidates" }
-          - { id: notice, when: "'notice' in flags.candidates" }
-          - { id: perform, when: "'perform' in flags.candidates" }
-          - { id: program, when: "'program' in flags.candidates" }
-          - { id: punch, when: "'punch' in flags.candidates" }
-          - { id: shoot, when: "'shoot' in flags.candidates" }
-          - { id: sneak, when: "'sneak' in flags.candidates" }
-          - { id: stab, when: "'stab' in flags.candidates" }
-          - { id: survive, when: "'survive' in flags.candidates" }
-          - { id: talk, when: "'talk' in flags.candidates" }
-          - { id: trade, when: "'trade' in flags.candidates" }
-          - { id: work, when: "'work' in flags.candidates" }
-          - { id: cast, when: "'cast' in flags.candidates" }
-          - { id: summon, when: "'summon' in flags.candidates" }
+        options: { values: { formula: flags.candidates } }
         when: size(flags.candidates) > 1
         random: params.random
         recommend: flags.candidates[0]
@@ -256,29 +235,32 @@ actions:
         kind: choice
         when: has(steps.focus) && has(steps.focus.item.bonusSkill) && steps.focus.item.bonusSkill == 'noncombat'
         options:
-          - { id: administer }
-          - { id: connect }
-          - { id: drive }
-          - { id: exert }
-          - { id: fix }
-          - { id: heal }
-          - { id: know }
-          - { id: lead }
-          - { id: notice }
-          - { id: perform }
-          - { id: program }
-          - { id: sneak }
-          - { id: survive }
-          - { id: talk }
-          - { id: trade }
-          - { id: work }
+          values:
+            [
+              administer,
+              connect,
+              drive,
+              exert,
+              fix,
+              heal,
+              know,
+              lead,
+              notice,
+              perform,
+              program,
+              sneak,
+              survive,
+              talk,
+              trade,
+              work,
+            ]
         recommend: options[0]
         random: params.random
       # All Natural's first attribute pick.
       - id: attribute
         kind: choice
         when: has(steps.focus) && 'asks-attribute' in steps.focus.item.tags
-        options: [{ id: str }, { id: dex }, { id: con }, { id: int }, { id: wis }, { id: cha }]
+        options: { values: [str, dex, con, int, wis, cha] }
         recommend: options[0]
         random: params.random
       - id: add
@@ -301,6 +283,12 @@ actions:
           - type: addItem
             forEach: steps.focus.item.startingItems
             entry: { item: x }
+      # The new Focus's other choices (All Natural's later attribute picks).
+      - id: picks
+        kind: choice
+        when: has(steps.focus)
+        options: { pending: { entry: 'steps.add.added[0]' } }
+        random: params.random
       - id: cyber
         kind: changes
         sheet: proposed
@@ -364,7 +352,7 @@ actions:
       - id: attribute
         kind: choice
         when: steps.edge.item.asksAttribute
-        options: [{ id: str }, { id: dex }, { id: int }, { id: wis }, { id: cha }]
+        options: { values: [str, dex, int, wis, cha] }
         recommend: options[0]
         random: params.random
         changes:

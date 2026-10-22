@@ -2,3 +2,15 @@ id: arts.martial-instinct
 type: art
 fields:
   cost: 1
+effects:
+  - target: arts.bonusRolls.max
+    op: set
+    value: max(1, skills.punch.level, skills.shoot.level, skills.stab.level)
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: advantage, of: roll }
+    when: "situational.bonusRoll == 'hit' && arts.bonusRolls.used < arts.bonusRolls.max"
+  - target: { rolls: [damage] }
+    op: rollModifier
+    value: { kind: advantage, of: roll }
+    when: "situational.bonusRoll == 'damage' && arts.bonusRolls.used < arts.bonusRolls.max"

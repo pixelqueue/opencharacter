@@ -117,7 +117,7 @@ actions:
           - { type: set, field: effort.summoner.scene, value: 0 }
 
   # A night's rest, warm and fed: hit points equal to the level (none while Frail), one point of
-  # System Strain, all Effort Committed for the day and the day's Access.
+  # System Strain, all Effort Committed for the day, the day's Access and Martial Instinct's rolls.
   - id: rest
     tags: [rest]
     steps:
@@ -131,6 +131,7 @@ actions:
           - { type: set, field: effort.summoner.day, value: 0 }
           - { type: set, field: effort.summoner.scene, value: 0 }
           - { type: set, field: hacking.access.spent, value: 0 }
+          - { type: set, field: arts.bonusRolls.used, value: 0 }
 
   # First aid from a medic: 1d6 plus their Heal skill (1d6-1 without one), and one System
   # Strain. It can't be applied past the System Strain maximum.

@@ -50,6 +50,7 @@ actions:
         when: foci.count < foci.allowed
         use: gain-focus
         params: { random: params.random }
+      # The new edge's and mutations' own choices.
       - id: picks
         kind: choice
         options: { pending: {} }
@@ -181,12 +182,32 @@ actions:
               new: >-
                 countCopies(copy.item == steps.focus.picked) == 0
                   || (has(steps.raise) && steps.raise.picked == 'new')
+      # Specialist's skill, asked first: it is both the skill sharpened and the bonus skill.
+      - id: specialty
+        kind: choice
+        sheet: proposed
+        when: flags.new && steps.focus.item.specialty
+        options: { values: { formula: steps.focus.item.bonusSkill } }
+        random: params.random
+        recommend: "sortList(steps.focus.item.bonusSkill, -fieldOf('skills.{skill}.level', x))[0]"
       - id: add
         kind: changes
         when: flags.new
         changes:
           - type: addItem
+            when: '!has(steps.specialty)'
             entry: { item: steps.focus.picked }
+          - type: addItem
+            when: has(steps.specialty)
+            entry:
+              item: steps.focus.picked
+              choices: { skill: [{ option: { formula: steps.specialty.value } }] }
+      # The new copy's own choices.
+      - id: picks
+        kind: choice
+        when: flags.new
+        options: { pending: { entry: 'steps.add.added[0]' } }
+        random: params.random
       - id: up
         kind: changes
         when: '!flags.new'
@@ -201,7 +222,9 @@ actions:
         kind: action
         when: flags.new && size(steps.focus.item.bonusSkill) > 0
         use: bonus-skill
-        params: { skills: steps.focus.item.bonusSkill, random: params.random }
+        params:
+          skills: 'has(steps.specialty) ? [steps.specialty.value] : steps.focus.item.bonusSkill'
+          random: params.random
       - id: skill2
         kind: action
         when: flags.new && size(steps.focus.item.bonusSkill2) > 0
@@ -267,26 +290,7 @@ actions:
                     fieldOf('skills.{skill}.level', x) < fieldOf('skills.{skill}.cap', x))
       - id: skill
         kind: choice
-        options:
-          - { id: administer, when: "'administer' in flags.offered" }
-          - { id: connect, when: "'connect' in flags.offered" }
-          - { id: drive, when: "'drive' in flags.offered" }
-          - { id: exert, when: "'exert' in flags.offered" }
-          - { id: fix, when: "'fix' in flags.offered" }
-          - { id: heal, when: "'heal' in flags.offered" }
-          - { id: know, when: "'know' in flags.offered" }
-          - { id: lead, when: "'lead' in flags.offered" }
-          - { id: notice, when: "'notice' in flags.offered" }
-          - { id: perform, when: "'perform' in flags.offered" }
-          - { id: program, when: "'program' in flags.offered" }
-          - { id: punch, when: "'punch' in flags.offered" }
-          - { id: shoot, when: "'shoot' in flags.offered" }
-          - { id: sneak, when: "'sneak' in flags.offered" }
-          - { id: stab, when: "'stab' in flags.offered" }
-          - { id: survive, when: "'survive' in flags.offered" }
-          - { id: talk, when: "'talk' in flags.offered" }
-          - { id: trade, when: "'trade' in flags.offered" }
-          - { id: work, when: "'work' in flags.offered" }
+        options: { values: { formula: flags.offered } }
         random: params.random
         recommend: flags.offered[0]
       - id: start

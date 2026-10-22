@@ -2,6 +2,7 @@ id: foci.specialist
 type: focus
 fields:
   multiple: true
+  specialty: true
   bonusSkill:
     [
       administer,
@@ -27,104 +28,29 @@ choices:
   # character's best non-combat skill.
   - id: skill
     from:
-      options:
-        - id: administer
-          effects:
-            - target: { rolls: [skill.administer] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: connect
-          effects:
-            - target: { rolls: [skill.connect] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: drive
-          effects:
-            - target: { rolls: [skill.drive] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: exert
-          effects:
-            - target: { rolls: [skill.exert] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: fix
-          effects:
-            - target: { rolls: [skill.fix] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: heal
-          effects:
-            - target: { rolls: [skill.heal] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: know
-          effects:
-            - target: { rolls: [skill.know] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: lead
-          effects:
-            - target: { rolls: [skill.lead] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: notice
-          effects:
-            - target: { rolls: [skill.notice] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: perform
-          effects:
-            - target: { rolls: [skill.perform] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: program
-          effects:
-            - target: { rolls: [skill.program] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: sneak
-          effects:
-            - target: { rolls: [skill.sneak] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: survive
-          effects:
-            - target: { rolls: [skill.survive] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: talk
-          effects:
-            - target: { rolls: [skill.talk] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: trade
-          effects:
-            - target: { rolls: [skill.trade] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-        - id: work
-          effects:
-            - target: { rolls: [skill.work] }
-              op: rollModifier
-              value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
-              stackKey: skill-dice
-    recommend: >-
-      sortList(filterList(['administer', 'connect', 'drive', 'exert', 'fix', 'heal', 'know',
-        'lead', 'notice', 'perform', 'program', 'sneak', 'survive', 'talk', 'trade', 'work'],
-        true), -fieldOf('skills.{skill}.level', x))[0]
+      values:
+        [
+          administer,
+          connect,
+          drive,
+          exert,
+          fix,
+          heal,
+          know,
+          lead,
+          notice,
+          perform,
+          program,
+          sneak,
+          survive,
+          talk,
+          trade,
+          work,
+        ]
+    effects:
+      - target: { rolls: [check] }
+        op: rollModifier
+        value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
+        when: "('skill.' + pick.value) in roll.tags"
+        stackKey: skill-dice
+    recommend: sortList(item.bonusSkill, -fieldOf('skills.{skill}.level', x))[0]
