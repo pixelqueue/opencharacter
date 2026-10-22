@@ -44,18 +44,23 @@ const onNpm = async (name: string) => (await fetch(registryUrl(name))).status ==
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 // npm may ask for 2FA in the browser: let it talk to the terminal.
 const npm = (npmArgs: string[]) => spawnSync('npm', npmArgs, { stdio: 'inherit' }).status === 0;
-// Like npm(), but also keeps stdout to parse: npm prints its 2FA login link there too, so the
-// output goes to the terminal as it arrives.
+// Like npm(), but keeps the output to parse. npm only runs its browser 2FA when stdin and stdout
+// are terminals, so it runs inside a pseudo-terminal (`script`) and the output is shown as it
+// arrives.
 const npmShown = (npmArgs: string[]) =>
   new Promise<{ status: number | null; stdout: string }>((resolve) => {
-    const child = spawn('npm', npmArgs, { stdio: ['inherit', 'pipe', 'inherit'] });
+    const scriptArgs =
+      process.platform === 'darwin'
+        ? ['-q', '/dev/null', 'npm', ...npmArgs]
+        : ['-qec', ['npm', ...npmArgs].join(' '), '/dev/null'];
+    const child = spawn('script', scriptArgs, { stdio: ['inherit', 'pipe', 'inherit'] });
     let stdout = '';
     child.stdout.setEncoding('utf8');
     child.stdout.on('data', (chunk: string) => {
       stdout += chunk;
       process.stdout.write(chunk);
     });
-    child.on('close', (status) => resolve({ status, stdout }));
+    child.on('close', (status) => resolve({ status, stdout: stdout.replaceAll('\r', '') }));
   });
 
 console.log('Checking the npm login (npm whoami)…');
