@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   packageName,
   placeholderManifest,
+  publishedPackages,
   registryUrl,
   stagedId,
   trustCommand,
@@ -31,5 +32,15 @@ describe('npm setup', () => {
     expect(trustCommand('@opencharacter/x')).toBe(
       'npm trust github @opencharacter/x --file release.yml --repo pixelqueue/opencharacter --allow-publish -y',
     );
+  });
+
+  it('lists the public workspace packages, sorted', () => {
+    expect(
+      publishedPackages([
+        { name: '@opencharacter/spec' },
+        { name: '@opencharacter/web-editor', private: true },
+        { name: '@opencharacter/5e-srd-5.1' },
+      ]),
+    ).toEqual(['@opencharacter/5e-srd-5.1', '@opencharacter/spec']);
   });
 });

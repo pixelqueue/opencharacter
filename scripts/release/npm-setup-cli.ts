@@ -5,6 +5,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   packageName,
+  publishedPackages,
+  type WorkspacePackage,
   PLACEHOLDER_TAG,
   placeholderManifest,
   registryUrl,
@@ -14,25 +16,41 @@ import {
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const args = process.argv.slice(2);
-if (args.length === 0) {
-  console.error('Usage: pnpm release:setup <pack-id or package name>...');
-  process.exit(1);
-}
+const all = args.includes('--all');
+const listed = args.filter((a) => !a.startsWith('--'));
 
-const workspace = new Set(
-  execFileSync('git', ['ls-files', '--', 'packages/*/package.json', 'packs/*/*/package.json'], {
-    cwd: root,
-    encoding: 'utf8',
-  })
-    .split('\n')
-    .filter(Boolean)
-    .map((f) => (JSON.parse(readFileSync(join(root, f), 'utf8')) as { name: string }).name),
-);
-const names = args.map(packageName);
-const unknown = names.filter((n) => !workspace.has(n));
-if (unknown.length > 0) {
-  console.error(`Not a published package in this repo: ${unknown.join(', ')}`);
-  process.exit(1);
+const workspace = execFileSync(
+  'git',
+  ['ls-files', '--', 'packages/*/package.json', 'packs/*/*/package.json'],
+  { cwd: root, encoding: 'utf8' },
+)
+  .split('\n')
+  .filter(Boolean)
+  .map((f) => JSON.parse(readFileSync(join(root, f), 'utf8')) as WorkspacePackage);
+const known = new Set(workspace.map((p) => p.name));
+
+const onNpm = async (name: string) => (await fetch(registryUrl(name))).status === 200;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+let names: string[];
+if (listed.length > 0) {
+  names = listed.map(packageName);
+  const unknown = names.filter((n) => !known.has(n));
+  if (unknown.length > 0) {
+    console.error(`Not a published package in this repo: ${unknown.join(', ')}`);
+    process.exit(1);
+  }
+} else {
+  const candidates = publishedPackages(workspace);
+  names = all ? candidates : [];
+  if (!all) for (const name of candidates) if (!(await onNpm(name))) names.push(name);
+  if (names.length === 0) {
+    console.log(
+      'Every package in this repo is already on npm. Use --all to print every trust command.',
+    );
+    process.exit(0);
+  }
+  console.log(`${all ? 'Every package' : 'Not on npm yet'}: ${names.join(', ')}`);
 }
 
 try {
@@ -41,9 +59,6 @@ try {
   console.error('Not logged in to npm. Run `npm login` first.');
   process.exit(1);
 }
-
-const onNpm = async (name: string) => (await fetch(registryUrl(name))).status === 200;
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const staged: { name: string; id: string | undefined }[] = [];
 for (const name of names) {
