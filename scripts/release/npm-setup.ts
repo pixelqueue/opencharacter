@@ -25,3 +25,16 @@ export function registryUrl(name: string): string {
 export function trustCommand(name: string): string {
   return `npm trust github ${name} --file release.yml --repo pixelqueue/opencharacter --allow-publish -y`;
 }
+
+export interface WorkspacePackage {
+  name: string;
+  private?: boolean;
+}
+
+/** The workspace packages that publish to npm (not private), sorted by name. */
+export function publishedPackages(packages: WorkspacePackage[]): string[] {
+  return packages
+    .filter((p) => p.private !== true)
+    .map((p) => p.name)
+    .toSorted();
+}

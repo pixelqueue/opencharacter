@@ -86,11 +86,14 @@ The release workflow publishes through npm trusted publishing: no token, but eac
 a trust link to `release.yml`, and npm only takes one for a package that already exists. Nobody
 publishes a real version by hand.
 
-1. Just before merging the "Version Packages" pull request that first releases the package, run
-   `pnpm release:setup <pack-id>`, logged in to npm. It stages a placeholder version
+1. Just before merging the pull request that first releases the package, run
+   `pnpm release:setup`, logged in to npm. With no arguments it takes every public package in the
+   repo that isn't on npm yet; name packages (`pnpm release:setup <pack-id>…`) to pick some, or
+   pass `--all` to include those already on npm, whose trust commands it only prints (to renew a
+   link, delete the old one first). For each new package it stages a placeholder version
    (`0.0.0-trust`, tag `placeholder`), which makes npm create the package, and waits until npm
    shows it. Never stage the real version: a staged version can't be published again.
-2. Run the `npm trust github …` command it prints in your own terminal; npm asks for 2FA in the
+2. Run the `npm trust github …` commands it prints in your own terminal; npm asks for 2FA in the
    browser.
 3. Merge the "Version Packages" pull request within two days. A trust link that no publish has
    used expires, and the publish then fails with `E404 Not Found` on `PUT`; delete the link on
