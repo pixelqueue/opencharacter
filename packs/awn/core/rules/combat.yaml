@@ -91,6 +91,9 @@ fields:
   stress.limit: { type: integer, formula: attributes.wis.score }
   stress.immune: { type: boolean, formula: false }
 
+  # Laser damage against the character is rolled twice, the higher kept (Light Sensitivity).
+  defense.laserSensitive: { type: boolean, formula: false }
+
 situational:
   # What a saving throw resists, for bonuses that apply only against it.
   - id: versus
@@ -100,6 +103,16 @@ situational:
     rolls: [save]
   # The GM calls the skill check social (persuading, charming, dealing with people).
   - id: social
+    type: boolean
+    default: false
+    rolls: [check]
+  # The check resists or escapes a grapple (Constant Secretions).
+  - id: grapple
+    type: boolean
+    default: false
+    rolls: [check]
+  # The check (or its result roll) is for foraging (Survivalist).
+  - id: foraging
     type: boolean
     default: false
     rolls: [check]
