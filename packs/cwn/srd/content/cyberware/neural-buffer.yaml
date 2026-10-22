@@ -1,0 +1,27 @@
+id: cyberware.neural-buffer
+type: cyberware
+fields:
+  cost: 40000
+  category: head
+  concealment: medical
+  strain: 1
+state:
+  bufferUsed:
+    type: integer
+    default: 0
+    min: 0
+effects:
+  - target:
+      incoming:
+        fields:
+          - hp.current
+        tags:
+          - damage.cyberspace
+    op: add
+    value: 'min(3 * level - self.bufferUsed, -incoming.amount)'
+    when: '!self.damaged && 3 * level > self.bufferUsed && incoming.amount < 0'
+    then:
+      - type: adjustState
+        entry: self
+        key: bufferUsed
+        by: 'min(3 * level - self.bufferUsed, -incoming.amount)'

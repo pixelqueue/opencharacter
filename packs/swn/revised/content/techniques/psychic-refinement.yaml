@@ -1,0 +1,11 @@
+id: techniques.psychic-refinement
+type: technique
+fields:
+  discipline: metapsionics
+  level: 0
+  core: true
+effects:
+  # Level-1 and level-3: a point of maximum Effort each.
+  - target: effort.bonus
+    op: add
+    value: '(skills.metapsionics.level >= 1 ? 1 : 0) + (skills.metapsionics.level >= 3 ? 1 : 0)'

@@ -1,0 +1,9 @@
+id: foci.armsman
+type: focus
+fields:
+  kind: combat
+  skill: stab
+effects:
+  - { target: damage.melee, op: add, value: 'max(0, skills.stab.level)' }
+  - { target: miss.melee, op: set, value: 1d4, when: self.level >= 2 }
+  - { target: combat.meleeAdvanced, op: set, value: true, when: self.level >= 2 }

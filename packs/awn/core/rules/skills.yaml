@@ -1,0 +1,106 @@
+fields:
+  # -1 is untrained: a check without the skill takes -1, which the level gives.
+  'skills.{skill}.level':
+    { type: integer, input: true, default: -1, min: -1, max: 4, tags: [skill, 'skill.{skill}'] }
+  # Skill points spent toward the next level, kept as credit (a focus's bonus skill after
+  # creation counts as three points).
+  'skills.{skill}.credit': { type: integer, input: true, default: 0, min: 0 }
+  # The highest level the character may have; a negative mutation that forbids the skill sets -1,
+  # and Slow Development lowers every skill but the favorite.
+  'skills.{skill}.cap': { type: integer, formula: 4, tags: [skill-cap, 'skill.{skill}'] }
+
+  # Unspent skill points from advancement.
+  skills.points: { type: integer, input: true, default: 0, min: 0 }
+  # Points each new level brings (Educated and some mutations change it).
+  skills.perLevel: { type: integer, formula: 3, min: 0 }
+  skills.highest: { type: integer, formula: "maxFields(f.value, 'skill' in f.tags)" }
+
+  # Languages beyond the native and the enclave's: one per level of Connect and Know from level-0.
+  languages.extra:
+    type: integer
+    formula: max(0, skills.connect.level + 1) + max(0, skills.know.level + 1)
+
+constraints:
+  # No skill above level-1 at creation.
+  - id: creation-skill-limit
+    check: '!character.creating || skills.highest <= 1'
+  - id: forbidden-skill
+    check: >-
+      countList(keysOf('skill'),
+        fieldOf('skills.{skill}.level', x) > fieldOf('skills.{skill}.cap', x)) == 0
+
+actions:
+  # A skill check: 2d6 plus an attribute modifier and the skill's level (-1 untrained). Dice that
+  # a focus adds keep the best two.
+  - id: skill-check
+    tags: [check]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags" }
+      attribute: { type: id, of: field, where: "'attribute-mod' in item.tags" }
+      difficulty: { type: integer, optional: true }
+    results: { bands: check }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [check, { formula: params.skill.tags }]
+        bands: check
+        parts:
+          - dice: 2d6kh2
+          - field: params.attribute.id
+          - field: params.skill.id
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          total: steps.roll.total
+
+  # Gaining a skill pick at creation: level-0, or level-1 if the character has it at level-0. A
+  # skill already at level-1 can't take another pick, so another skill is chosen instead (any
+  # skill when none of the offered ones can take it). `skills` lists the skill keys offered (all
+  # when empty); `prefer` the ones to recommend, in order.
+  - id: gain-skill
+    params:
+      skills: { type: set, of: string, default: [] }
+      prefer: { type: set, of: string, default: [] }
+      random: { type: boolean, default: false }
+    results: [gained]
+    steps:
+      - id: open
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              open: >-
+                filterList(size(params.skills) > 0 ? params.skills : keysOf('skill'),
+                  fieldOf('skills.{skill}.level', x) < min(1, fieldOf('skills.{skill}.cap', x)))
+      - id: fallback
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              offered: >-
+                size(flags.open) > 0 ? flags.open
+                  : filterList(keysOf('skill'),
+                    fieldOf('skills.{skill}.level', x) < min(1, fieldOf('skills.{skill}.cap', x)))
+      - id: suggest
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              suggest: >-
+                size(filterList(params.prefer, x in flags.offered)) > 0
+                  ? filterList(params.prefer, x in flags.offered)[0] : flags.offered[0]
+      - id: skill
+        kind: choice
+        options: { values: { formula: flags.offered } }
+        random: params.random
+        recommend: flags.suggest
+        changes:
+          - type: adjust
+            field: { formula: "'skills.' + picked.value + '.level'" }
+            by: 1
+      - id: result
+        kind: outcome
+        result: "'gained'"

@@ -1,0 +1,10 @@
+id: foci.polymath
+type: focus
+tags: [noncombat]
+fields:
+  bonusSkill: any
+  requires: expert
+prerequisites:
+  - { id: expert, when: class.expert > 0 }
+effects:
+  - { target: skills.noncombatFloor, op: atLeast, value: self.level - 1 }

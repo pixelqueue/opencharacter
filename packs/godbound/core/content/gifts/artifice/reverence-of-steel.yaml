@@ -1,0 +1,14 @@
+id: gifts.artifice.reverence-of-steel
+type: gift
+fields:
+  word: words.artifice
+  degree: greater
+  activation: constant
+  commit: scene
+prerequisites:
+  - id: word
+    when: '@words.artifice in words.bound'
+effects:
+  - target: ac.natural
+    op: atMost
+    value: 3

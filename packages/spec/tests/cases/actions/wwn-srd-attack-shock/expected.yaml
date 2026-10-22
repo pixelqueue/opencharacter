@@ -1,0 +1,14 @@
+# The hit roll: 5 + attack bonus 1 + Stab-1 + Str 1 = 8, a miss against AC 13. The short sword's
+# Shock reaches AC 15, so it deals 2 + Str 1 + Killing Blow 1 + Armsmaster's Stab 1 = 5.
+status: finished
+outcome:
+  result: miss
+  data: { total: 8, damage: 5 }
+proposedChanges:
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: wwn-srd:hp.current
+      by: -5
+      tags: [damage]

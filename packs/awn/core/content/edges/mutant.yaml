@@ -1,0 +1,22 @@
+id: edges.mutant
+type: edge
+choices:
+  # After the mutations: one attribute with a modifier of -1 or better takes -1.
+  - id: penalty
+    from:
+      values: [str, dex, con, int, wis, cha]
+      where: "value in choice.picks || fieldOf('attributes.{attribute}.mod', value) >= -1"
+    recommend: >-
+      sortList(filterList(['str', 'dex', 'con', 'int', 'wis', 'cha'],
+        fieldOf('attributes.{attribute}.mod', x) >= -1),
+        fieldOf('attributes.{attribute}.mod', x))[0]
+    effects:
+      - target:
+          {
+            fields:
+              {
+                where: "'attribute-penalty' in item.tags && ('attribute.' + pick.value) in item.tags",
+              },
+          }
+        op: add
+        value: -1

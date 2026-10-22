@@ -1,0 +1,484 @@
+families:
+  trad:
+    [
+      highmage,
+      elementalist,
+      necromancer,
+      healer,
+      vowed,
+      accursed,
+      bard,
+      beastmaster,
+      bloodpriest,
+      duelist,
+      mageslayer,
+      skinshifter,
+      thoughtnoble,
+      invoker,
+      wise,
+    ]
+  effortTrad:
+    [
+      highmage,
+      elementalist,
+      necromancer,
+      healer,
+      vowed,
+      accursed,
+      bard,
+      beastmaster,
+      bloodpriest,
+      duelist,
+      mageslayer,
+      skinshifter,
+      thoughtnoble,
+    ]
+  artTrad:
+    [
+      highmage,
+      elementalist,
+      necromancer,
+      healer,
+      vowed,
+      accursed,
+      bard,
+      beastmaster,
+      bloodpriest,
+      duelist,
+      mageslayer,
+      skinshifter,
+      thoughtnoble,
+      wise,
+    ]
+  effortSpan: [scene, day, ongoing]
+
+fields:
+  # 2 for a full Mage of the tradition, 1 for a partial one, 0 otherwise.
+  'tradition.{trad}.tier': { type: integer, formula: 0, tags: [tradition-tier] }
+
+  # How the character casts: a full caster, one partial caster, two partial casters, an
+  # Invoker (full or partial), or none.
+  spells.mode:
+    type: enum
+    values: [none, full, partial, dual, invoker, partial-invoker]
+    formula: >-
+      tradition.invoker.tier == 2 ? 'invoker'
+        : tradition.invoker.tier == 1 ? 'partial-invoker'
+        : tradition.highmage.tier == 2 || tradition.elementalist.tier == 2
+            || tradition.necromancer.tier == 2 ? 'full'
+        : (tradition.highmage.tier == 1 ? 1 : 0) + (tradition.elementalist.tier == 1 ? 1 : 0)
+            + (tradition.necromancer.tier == 1 ? 1 : 0) >= 2 ? 'dual'
+        : tradition.highmage.tier == 1 || tradition.elementalist.tier == 1
+            || tradition.necromancer.tier == 1 ? 'partial'
+        : 'none'
+  spells.maxLevel:
+    type: integer
+    formula: >-
+      spells.mode == 'full' || spells.mode == 'invoker' ? [1, 1, 2, 2, 3, 3, 4, 4, 5, 5][level - 1]
+        : spells.mode == 'partial' || spells.mode == 'partial-invoker'
+          ? [1, 1, 1, 1, 2, 2, 2, 2, 3, 3][level - 1]
+        : spells.mode == 'dual' ? [1, 1, 1, 2, 2, 2, 3, 3, 3, 4][level - 1]
+        : 0
+  # Spells cast a day (an Invoker spends spell points instead).
+  spells.castsPerDay:
+    type: integer
+    formula: >-
+      spells.mode == 'full' ? [1, 1, 2, 2, 3, 3, 4, 4, 5, 6][level - 1]
+        : spells.mode == 'partial' ? [1, 1, 1, 2, 2, 3, 3, 3, 4, 4][level - 1]
+        : spells.mode == 'dual' ? [1, 1, 2, 2, 2, 3, 3, 4, 4, 5][level - 1]
+        : 0
+  spells.preparedMax:
+    type: integer
+    formula: >-
+      spells.mode == 'full' ? [3, 3, 4, 5, 6, 7, 8, 9, 10, 12][level - 1]
+        : spells.mode == 'partial' ? [2, 3, 3, 4, 5, 6, 7, 7, 8, 9][level - 1]
+        : spells.mode == 'dual' ? [3, 4, 5, 6, 8, 9, 10, 12, 13, 15][level - 1]
+        : spells.mode == 'invoker'
+          ? max(0, [2, 3, 4, 4, 5, 6, 7, 7, 8, 9][level - 1] + attributes.int.mod)
+        : spells.mode == 'partial-invoker'
+          ? max(0, [1, 3, 3, 4, 4, 5, 5, 6, 6, 7][level - 1] + attributes.int.mod)
+        : 0
+  spells.castsUsed: { type: integer, input: true, default: 0, min: 0 }
+  spells.castsLeft: { type: integer, formula: 'max(0, spells.castsPerDay - spells.castsUsed)' }
+  # An Invoker's spell points: a cast spends the spell's level.
+  spells.points:
+    type: integer
+    formula: >-
+      spells.mode == 'invoker' ? max(0, [1, 3, 4, 5, 6, 7, 8, 9, 10, 11][level - 1] + attributes.int.mod)
+        : spells.mode == 'partial-invoker'
+          ? max(0, [1, 1, 2, 2, 3, 3, 4, 4, 5, 6][level - 1] + attributes.int.mod)
+        : 0
+  spells.pointsUsed: { type: integer, input: true, default: 0, min: 0 }
+  spells.pointsLeft: { type: integer, formula: 'max(0, spells.points - spells.pointsUsed)' }
+  spells.prepared:
+    type: integer
+    formula: "countCopies(copy.type == 'spell' && copy.state.prepared)"
+  # Spells a new character knows: four for a full caster or two partial casters, two for one.
+  spells.starting:
+    type: integer
+    formula: >-
+      spells.mode == 'full' || spells.mode == 'dual' || spells.mode == 'invoker' ? 4
+        : spells.mode == 'partial' || spells.mode == 'partial-invoker' ? 2 : 0
+  # An Invoker's Traditional Education: the tradition whose spells and first-level arts they
+  # gain, or ''.
+  invoker.education: { type: string, formula: "''" }
+
+  # Effort: each tradition has its own pool. A full class's is 1 plus a skill and an attribute
+  # modifier; a partial one has 1 less; the partial-only classes give theirs whole. At least 1.
+  effort.highmage.max:
+    type: integer
+    formula: >-
+      tradition.highmage.tier == 0 ? (invoker.education == 'highmage' ? max(1, max(0, skills.magic)) : 0)
+        : max(1, 1 + max(0, skills.magic) + max(attributes.int.mod, attributes.cha.mod) - (tradition.highmage.tier == 1 ? 1 : 0))
+  effort.elementalist.max:
+    type: integer
+    formula: >-
+      tradition.elementalist.tier == 0 ? (invoker.education == 'elementalist' ? max(1, max(0, skills.magic)) : 0)
+        : max(1, 1 + max(0, skills.magic) + max(attributes.int.mod, attributes.cha.mod) - (tradition.elementalist.tier == 1 ? 1 : 0))
+  effort.necromancer.max:
+    type: integer
+    formula: >-
+      tradition.necromancer.tier == 0 ? (invoker.education == 'necromancer' ? max(1, max(0, skills.magic)) : 0)
+        : max(1, 1 + max(0, skills.magic) + max(attributes.int.mod, attributes.cha.mod) - (tradition.necromancer.tier == 1 ? 1 : 0))
+  effort.healer.max:
+    type: integer
+    formula: >-
+      tradition.healer.tier == 0 ? 0
+        : max(1, max(0, skills.heal) + max(attributes.int.mod, attributes.cha.mod))
+  effort.vowed.max:
+    type: integer
+    formula: >-
+      tradition.vowed.tier == 0 ? 0
+        : max(1, (vowed.skill == '' ? 0 : max(0, fieldOf('skills.{skill}', vowed.skill))) + attributes.bestMod)
+  effort.accursed.max:
+    type: integer
+    formula: >-
+      tradition.accursed.tier == 0 ? 0
+        : max(1, max(0, skills.magic) + max(attributes.int.mod, attributes.cha.mod))
+  effort.bard.max:
+    type: integer
+    formula: >-
+      tradition.bard.tier == 0 ? 0
+        : max(1, max(0, skills.perform) + attributes.cha.mod)
+  effort.beastmaster.max:
+    type: integer
+    formula: >-
+      tradition.beastmaster.tier == 0 ? 0
+        : max(1, max(0, skills.survive) + max(attributes.wis.mod, attributes.cha.mod))
+  effort.bloodpriest.max:
+    type: integer
+    formula: >-
+      tradition.bloodpriest.tier == 0 ? 0
+        : max(1, max(0, skills.pray) + max(attributes.wis.mod, attributes.cha.mod))
+  effort.duelist.max:
+    type: integer
+    formula: >-
+      tradition.duelist.tier == 0 ? 0
+        : max(1, max(0, skills.stab) + max(attributes.dex.mod, attributes.int.mod))
+  effort.mageslayer.max:
+    type: integer
+    formula: >-
+      tradition.mageslayer.tier == 0 ? 0
+        : max(1, max(0, skills.magic) + max(attributes.int.mod, attributes.con.mod))
+  effort.skinshifter.max:
+    type: integer
+    formula: >-
+      tradition.skinshifter.tier == 0 ? 0
+        : max(1, max(0, skills.survive) + max(attributes.con.mod, attributes.cha.mod))
+  effort.thoughtnoble.max:
+    type: integer
+    formula: >-
+      tradition.thoughtnoble.tier == 0 ? 0
+        : max(1, max(0, skills.notice) + max(attributes.int.mod, attributes.wis.mod))
+  # Effort committed for the scene, for the day, and for as long as a power lasts.
+  'effort.{effortTrad}.{effortSpan}': { type: integer, input: true, default: 0, min: 0 }
+  'effort.{effortTrad}.free':
+    type: integer
+    formula: >-
+      max(0, effort.{effortTrad}.max - effort.{effortTrad}.scene - effort.{effortTrad}.day
+        - effort.{effortTrad}.ongoing)
+
+  # The skill a Vowed's order teaches, and a Wise's, as a family key of `skill`.
+  vowed.skill: { type: string, formula: "''" }
+  wise.skill: { type: string, formula: "''" }
+  # A Wise's art progression: four arts by level 4 for a priest, witch or seer, fewer for an
+  # esoteric one.
+  wise.path: { type: enum, values: [none, priest, witch, seer, esoteric], formula: "'none'" }
+
+  # Arts picked from each tradition's list; the ones a tradition grants don't count.
+  arts.highmage.allowed:
+    type: integer
+    formula: >-
+      tradition.highmage.tier == 2 ? [2, 3, 3, 4, 4, 5, 5, 6, 6, 7][level - 1]
+        : tradition.highmage.tier == 1 ? [1, 2, 3, 3, 3, 4, 4, 4, 5, 5][level - 1]
+        : invoker.education == 'highmage' ? (tradition.invoker.tier == 2 ? 2 : 1) : 0
+  arts.elementalist.allowed:
+    type: integer
+    formula: >-
+      tradition.elementalist.tier == 2 ? [1, 2, 2, 3, 3, 4, 4, 5, 5, 6][level - 1]
+        : tradition.elementalist.tier == 1 ? [1, 1, 2, 2, 2, 3, 3, 3, 4, 4][level - 1]
+        : invoker.education == 'elementalist' ? (tradition.invoker.tier == 2 ? 1 : 1) : 0
+  arts.necromancer.allowed:
+    type: integer
+    formula: >-
+      tradition.necromancer.tier == 2 ? [2, 3, 3, 4, 4, 5, 5, 6, 6, 7][level - 1]
+        : tradition.necromancer.tier == 1 ? [1, 2, 3, 3, 3, 4, 4, 4, 5, 5][level - 1]
+        : invoker.education == 'necromancer' ? (tradition.invoker.tier == 2 ? 2 : 1) : 0
+  arts.healer.allowed:
+    type: integer
+    formula: >-
+      tradition.healer.tier > 0 ? [1, 2, 2, 3, 4, 5, 5, 6, 6, 7][level - 1] : 0
+  arts.vowed.allowed:
+    type: integer
+    formula: >-
+      tradition.vowed.tier > 0 ? [1, 2, 2, 3, 4, 5, 5, 6, 6, 7][level - 1] : 0
+  arts.accursed.allowed:
+    type: integer
+    formula: >-
+      tradition.accursed.tier > 0 ? [1, 1, 1, 1, 1, 1, 1, 1, 1, 1][level - 1] : 0
+  arts.bard.allowed:
+    type: integer
+    formula: >-
+      tradition.bard.tier > 0 ? [1, 2, 2, 3, 3, 4, 4, 5, 5, 6][level - 1] : 0
+  arts.beastmaster.allowed:
+    type: integer
+    formula: >-
+      tradition.beastmaster.tier > 0 ? [1, 2, 2, 3, 4, 5, 5, 6, 6, 7][level - 1] : 0
+  arts.bloodpriest.allowed:
+    type: integer
+    formula: >-
+      tradition.bloodpriest.tier > 0 ? [2, 3, 3, 4, 5, 6, 6, 7, 7, 8][level - 1] : 0
+  arts.duelist.allowed:
+    type: integer
+    formula: >-
+      tradition.duelist.tier > 0 ? [1, 2, 2, 3, 4, 5, 5, 6, 6, 7][level - 1] : 0
+  arts.mageslayer.allowed:
+    type: integer
+    formula: >-
+      tradition.mageslayer.tier > 0 ? [0, 0, 0, 0, 0, 0, 0, 0, 0, 0][level - 1] : 0
+  arts.skinshifter.allowed:
+    type: integer
+    formula: >-
+      tradition.skinshifter.tier > 0 ? [1, 2, 2, 3, 4, 5, 5, 6, 6, 7][level - 1] : 0
+  arts.thoughtnoble.allowed:
+    type: integer
+    formula: >-
+      tradition.thoughtnoble.tier > 0 ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10][level - 1] : 0
+  arts.wise.allowed:
+    type: integer
+    formula: >-
+      tradition.wise.tier == 0 ? 0
+        : wise.path == 'esoteric' ? [1, 1, 2, 2, 3, 3, 4, 4, 5, 5][level - 1]
+        : [1, 2, 2, 3, 4, 5, 5, 6, 6, 7][level - 1]
+  'arts.{artTrad}.taken':
+    type: integer
+    formula: "countCopies(copy.type == 'art' && copy.fields.tradition == '{artTrad}')"
+  'arts.{artTrad}.owed':
+    { type: integer, formula: 'max(0, arts.{artTrad}.allowed - arts.{artTrad}.taken)' }
+  arts.owed:
+    type: integer
+    formula: >-
+      arts.highmage.owed
+        + arts.elementalist.owed
+        + arts.necromancer.owed
+        + arts.healer.owed
+        + arts.vowed.owed
+        + arts.accursed.owed
+        + arts.bard.owed
+        + arts.beastmaster.owed
+        + arts.bloodpriest.owed
+        + arts.duelist.owed
+        + arts.mageslayer.owed
+        + arts.skinshifter.owed
+        + arts.thoughtnoble.owed
+        + arts.wise.owed
+
+  # Armored Magic's level, and whether worn armor or a shield stops spells and arts.
+  magic.armoredLevel: { type: integer, formula: 0 }
+  magic.hindered:
+    type: boolean
+    formula: >-
+      (armor.wornEnc >= 0 && magic.armoredLevel < 2
+          && !(magic.armoredLevel == 1 && armor.wornEnc <= 2))
+        || (armor.shield && magic.armoredLevel < 1)
+  # Duelist arts: not in medium or heavy armor or with a large shield.
+  duelist.hindered:
+    type: boolean
+    formula: armor.wornHeavy || (armor.shield && armor.shieldAc >= 14)
+
+contentTypes:
+  spell:
+    fields:
+      level: { type: integer, required: true, min: 1, max: 5 }
+      list: { type: enum, values: [high, elementalist, necromancer], required: true }
+    state:
+      prepared: { type: boolean, default: false }
+    actions:
+      - use: cast-spell
+
+  art:
+    fields:
+      tradition:
+        type: enum
+        values:
+          [
+            highmage,
+            elementalist,
+            necromancer,
+            healer,
+            vowed,
+            accursed,
+            bard,
+            beastmaster,
+            bloodpriest,
+            duelist,
+            mageslayer,
+            skinshifter,
+            thoughtnoble,
+            wise,
+          ]
+        required: true
+      # How long using it commits a point of Effort, if it does.
+      effort: { type: enum, values: [none, scene, day, ongoing], default: none }
+      minLevel: { type: integer, default: 1, min: 1, max: 10 }
+      # An art that must be held first.
+      requiresArt: { type: id, of: art }
+    state:
+      # An art whose Effort stays committed while it lasts.
+      active: { type: boolean, default: false }
+    actions:
+      - use: commit-effort
+      - use: release-effort
+
+constraints:
+  - id: spells-prepared
+    check: spells.prepared <= spells.preparedMax
+    data: { limit: spells.preparedMax }
+  # A mage can learn only spells they can cast, from lists their traditions teach.
+  - id: spell-known
+    copies: { type: spell }
+    check: >-
+      item.level <= spells.maxLevel
+        && (item.list == 'high' ? spells.mode != 'none'
+          : item.list == 'elementalist'
+            ? tradition.elementalist.tier > 0 || invoker.education == 'elementalist'
+          : tradition.necromancer.tier > 0 || invoker.education == 'necromancer')
+  - id: art-tradition
+    copies: { type: art }
+    check: >-
+      fieldOf('tradition.{trad}.tier', item.tradition) > 0 || invoker.education == item.tradition
+  - id: arts-allowed
+    check: >-
+      arts.highmage.taken <= arts.highmage.allowed
+        && arts.elementalist.taken <= arts.elementalist.allowed
+        && arts.necromancer.taken <= arts.necromancer.allowed
+        && arts.healer.taken <= arts.healer.allowed
+        && arts.vowed.taken <= arts.vowed.allowed
+        && arts.accursed.taken <= arts.accursed.allowed
+        && arts.bard.taken <= arts.bard.allowed
+        && arts.beastmaster.taken <= arts.beastmaster.allowed
+        && arts.bloodpriest.taken <= arts.bloodpriest.allowed
+        && arts.duelist.taken <= arts.duelist.allowed
+        && arts.mageslayer.taken <= arts.mageslayer.allowed
+        && arts.skinshifter.taken <= arts.skinshifter.allowed
+        && arts.thoughtnoble.taken <= arts.thoughtnoble.allowed
+        && arts.wise.taken <= arts.wise.allowed
+  - id: effort-committed
+    check: >-
+      effort.highmage.scene + effort.highmage.day + effort.highmage.ongoing <= effort.highmage.max
+        && effort.elementalist.scene + effort.elementalist.day + effort.elementalist.ongoing <= effort.elementalist.max
+        && effort.necromancer.scene + effort.necromancer.day + effort.necromancer.ongoing <= effort.necromancer.max
+        && effort.healer.scene + effort.healer.day + effort.healer.ongoing <= effort.healer.max
+        && effort.vowed.scene + effort.vowed.day + effort.vowed.ongoing <= effort.vowed.max
+        && effort.accursed.scene + effort.accursed.day + effort.accursed.ongoing <= effort.accursed.max
+        && effort.bard.scene + effort.bard.day + effort.bard.ongoing <= effort.bard.max
+        && effort.beastmaster.scene + effort.beastmaster.day + effort.beastmaster.ongoing <= effort.beastmaster.max
+        && effort.bloodpriest.scene + effort.bloodpriest.day + effort.bloodpriest.ongoing <= effort.bloodpriest.max
+        && effort.duelist.scene + effort.duelist.day + effort.duelist.ongoing <= effort.duelist.max
+        && effort.mageslayer.scene + effort.mageslayer.day + effort.mageslayer.ongoing <= effort.mageslayer.max
+        && effort.skinshifter.scene + effort.skinshifter.day + effort.skinshifter.ongoing <= effort.skinshifter.max
+        && effort.thoughtnoble.scene + effort.thoughtnoble.day + effort.thoughtnoble.ongoing <= effort.thoughtnoble.max
+
+actions:
+  # Casting a prepared spell spends a casting, or an Invoker's spell points.
+  - id: cast-spell
+    tags: [spell]
+    available: >-
+      self.prepared && item.level <= spells.maxLevel && !magic.hindered
+        && (spells.mode == 'invoker' || spells.mode == 'partial-invoker'
+          ? spells.pointsLeft >= item.level : spells.castsLeft > 0)
+    results: [cast]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - type: adjust
+            when: "spells.mode == 'invoker' || spells.mode == 'partial-invoker'"
+            field: spells.pointsUsed
+            by: item.level
+          - type: adjust
+            when: "spells.mode != 'invoker' && spells.mode != 'partial-invoker'"
+            field: spells.castsUsed
+            by: 1
+      - id: result
+        kind: outcome
+        result: "'cast'"
+        data:
+          level: item.level
+
+  - id: commit-effort
+    tags: [art]
+    available: >-
+      item.effort != 'none' && level >= item.minLevel && !(item.effort == 'ongoing' && self.active)
+        && item.tradition != 'wise' && fieldOf('effort.{effortTrad}.free', item.tradition) > 0
+        && (item.tradition in ['highmage', 'elementalist', 'necromancer', 'vowed'] ? !magic.hindered
+          : item.tradition == 'duelist' ? !duelist.hindered : true)
+    results: [committed]
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - type: adjust
+            field: { formula: "'effort.' + item.tradition + '.' + item.effort" }
+            by: 1
+          # A copy keeps its state; an art a class grants, its grant's saved state.
+          - type: setState
+            when: "item.effort == 'ongoing' && !('granted' in item.tags)"
+            entry: self
+            key: active
+            value: true
+          - type: setState
+            when: "item.effort == 'ongoing' && 'granted' in item.tags"
+            grant: self
+            key: active
+            value: true
+      - id: result
+        kind: outcome
+        result: "'committed'"
+
+  # Reclaim the Effort an art keeps committed, ending it.
+  - id: release-effort
+    tags: [art]
+    available: "item.effort == 'ongoing' && self.active"
+    results: [released]
+    steps:
+      - id: release
+        kind: changes
+        changes:
+          - type: adjust
+            when: "fieldOf('effort.{effortTrad}.ongoing', item.tradition) > 0"
+            field: { formula: "'effort.' + item.tradition + '.ongoing'" }
+            by: -1
+          - type: setState
+            when: "!('granted' in item.tags)"
+            entry: self
+            key: active
+            value: false
+          - type: setState
+            when: "'granted' in item.tags"
+            grant: self
+            key: active
+            value: false
+      - id: result
+        kind: outcome
+        result: "'released'"

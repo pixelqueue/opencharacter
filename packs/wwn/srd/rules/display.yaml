@@ -1,0 +1,597 @@
+display:
+  groups:
+    - id: summary
+      priority: 0
+      visibility: primary
+    - id: attributes
+      priority: 0
+    - id: saves
+      priority: 0
+      members: { type: field, where: "'save' in item.tags" }
+    - id: combat
+      priority: 0
+    - id: condition
+      priority: 0
+    - id: skills
+      priority: 1
+      members: { type: field, where: "'skill' in item.tags" }
+    - id: magic
+      priority: 1
+      showWhen: class.mage > 0 || spells.mode != 'none' || effort.mageslayer.max > 0
+        || effort.bard.max > 0 || tradition.wise.tier > 0
+    - id: advancement
+      priority: 2
+    - id: record
+      priority: 2
+    - id: encumbrance
+      priority: 2
+    # Actions
+    - id: checks
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'check' in item.tags || 'save' in item.tags" }
+    - id: attacks
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'attack' in item.tags || 'combat' in item.tags" }
+    - id: magic-actions
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'spell' in item.tags || 'art' in item.tags" }
+    - id: health-actions
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'health' in item.tags || 'rest' in item.tags" }
+    - id: advancement-actions
+      kind: actions
+      priority: 2
+      members: { type: action, where: "'advancement' in item.tags" }
+    - id: creation
+      kind: actions
+      priority: 3
+      visibility: background
+      members: { type: action, where: "'creation' in item.tags" }
+    # Content
+    - id: class
+      kind: content
+      priority: 0
+      members: { type: class }
+    - id: partials
+      kind: content
+      priority: 0
+      showWhen: hasChoice('partial')
+      members: { type: partial }
+    - id: background
+      kind: content
+      priority: 0
+      members: { type: background }
+    - id: foci
+      kind: content
+      priority: 1
+      members: { type: focus }
+    - id: arts
+      kind: content
+      priority: 1
+      members: { type: art }
+    - id: spells
+      kind: content
+      priority: 1
+      showWhen: spells.mode != 'none'
+      members: { type: spell }
+      sectionBy: item.level
+    - id: weapons
+      kind: content
+      priority: 1
+      members: { type: weapon }
+    - id: armor
+      kind: content
+      priority: 1
+      members: { type: armor }
+    - id: gear
+      kind: content
+      priority: 2
+      members: { type: gear }
+
+  fields:
+    level: { groups: [summary], priority: 0, visibility: primary }
+    hp.current:
+      groups: [summary, condition]
+      priority: 1
+      visibility: primary
+      with: [{ field: hp.max, as: max }]
+    hp.max: { groups: [condition], priority: 2 }
+    hp.rolled: { groups: [condition], priority: 3, visibility: background }
+    ac.value: { groups: [summary, combat], priority: 2, visibility: primary }
+    attack.base: { groups: [combat], priority: 0, format: signed }
+    attack.punchBase: { hidden: true }
+    attack.favoredBase: { hidden: true }
+    hp.dieBonus: { hidden: true }
+    damage.killingBlow: { groups: [combat], priority: 3, showWhen: damage.killingBlow > 0 }
+    ac.innate: { hidden: true }
+    ac.base: { hidden: true }
+    ac.withShield: { hidden: true }
+    ac.cappedBonus: { hidden: true }
+    armor.wornAc: { hidden: true }
+    armor.wornEnc: { hidden: true }
+    armor.wornHeavy: { hidden: true }
+    armor.shield: { hidden: true }
+    armor.shieldAc: { hidden: true }
+    shock.bonus: { hidden: true }
+    shock.ignoresAc: { hidden: true }
+    shock.unarmedIgnoresAc: { hidden: true }
+    unarmed.die: { groups: [combat], priority: 4, format: dice }
+    unarmed.shock: { hidden: true }
+    unarmed.shockAc: { hidden: true }
+    duelist.favored: { hidden: true }
+    strain.current:
+      groups: [condition]
+      priority: 4
+      with: [{ field: strain.max, as: max }]
+    strain.max: { groups: [condition], priority: 5 }
+    conditions.frail: { groups: [condition], priority: 6, input: { widget: checkbox } }
+    conditions.mortallyWounded: { groups: [condition], priority: 7, input: { widget: checkbox } }
+    class.warrior: { hidden: true }
+    class.expert: { hidden: true }
+    class.mage: { hidden: true }
+    chassis.attackFull: { hidden: true }
+    chassis.attackWarrior: { hidden: true }
+    chassis.attackExpert: { hidden: true }
+    chassis.hitsWarrior: { hidden: true }
+    chassis.hitsExpert: { hidden: true }
+    chassis.fragile: { hidden: true }
+    foci.allowed: { groups: [advancement], priority: 3, visibility: background }
+    foci.taken: { hidden: true }
+    companion.hitDice: { groups: [record], priority: 5, showWhen: tradition.beastmaster.tier > 0 }
+    xp.current:
+      groups: [advancement]
+      priority: 0
+      with: [{ field: xp.nextLevel, as: max }]
+    xp.nextLevel: { groups: [advancement], priority: 1, showWhen: xp.nextLevel > 0 }
+    xp.pace: { groups: [advancement], priority: 2, visibility: background }
+    xp.levelUp: { hidden: true }
+    skillPoints.unspent: { groups: [advancement], priority: 4 }
+    skillPoints.expert: { groups: [advancement], priority: 5, showWhen: class.expert > 0 }
+    attributes.boosts: { groups: [advancement], priority: 6, visibility: background }
+    attributes.bestMod: { hidden: true }
+    skills.noncombatFloor: { hidden: true }
+    coins.gold: { groups: [record], priority: 0 }
+    coins.silver: { groups: [record], priority: 1 }
+    coins.copper: { groups: [record], priority: 2 }
+    enc.readied:
+      groups: [encumbrance]
+      priority: 0
+      with: [{ field: enc.readiedLimit, as: max }]
+    enc.stowed:
+      groups: [encumbrance]
+      priority: 1
+      with: [{ field: enc.stowedLimit, as: max }]
+    enc.readiedLimit: { groups: [encumbrance], priority: 2, visibility: background }
+    enc.stowedLimit: { groups: [encumbrance], priority: 3, visibility: background }
+    enc.over: { hidden: true }
+    move.feet: { groups: [combat], priority: 5, unit: ft }
+    spells.mode: { hidden: true }
+    spells.maxLevel: { groups: [magic], priority: 0, showWhen: spells.maxLevel > 0 }
+    spells.castsUsed:
+      groups: [magic]
+      priority: 1
+      showWhen: spells.castsPerDay > 0
+      with: [{ field: spells.castsPerDay, as: max }]
+    spells.castsPerDay:
+      { groups: [magic], priority: 10, visibility: background, showWhen: spells.castsPerDay > 0 }
+    spells.castsLeft: { hidden: true }
+    spells.pointsUsed:
+      groups: [magic]
+      priority: 1
+      showWhen: spells.points > 0
+      with: [{ field: spells.points, as: max }]
+    spells.points:
+      { groups: [magic], priority: 10, visibility: background, showWhen: spells.points > 0 }
+    spells.pointsLeft: { hidden: true }
+    spells.prepared:
+      groups: [magic]
+      priority: 2
+      showWhen: spells.preparedMax > 0
+      with: [{ field: spells.preparedMax, as: max }]
+    spells.preparedMax:
+      { groups: [magic], priority: 10, visibility: background, showWhen: spells.preparedMax > 0 }
+    spells.starting: { hidden: true }
+    invoker.education: { hidden: true }
+    vowed.skill: { hidden: true }
+    wise.skill: { hidden: true }
+    wise.path: { hidden: true }
+    magic.armoredLevel: { hidden: true }
+    magic.hindered: { groups: [magic], priority: 9, showWhen: magic.hindered }
+    duelist.hindered: { hidden: true }
+    arts.owed: { groups: [magic], priority: 8, showWhen: arts.owed > 0 }
+    attributes.str.score:
+      groups: [attributes]
+      with: [{ field: attributes.str.mod, as: modifier }]
+    attributes.str.mod: { format: signed }
+    attributes.str.modBonus: { hidden: true }
+    attributes.str.modCap: { hidden: true }
+    attributes.dex.score:
+      groups: [attributes]
+      with: [{ field: attributes.dex.mod, as: modifier }]
+    attributes.dex.mod: { format: signed }
+    attributes.dex.modBonus: { hidden: true }
+    attributes.dex.modCap: { hidden: true }
+    attributes.con.score:
+      groups: [attributes]
+      with: [{ field: attributes.con.mod, as: modifier }]
+    attributes.con.mod: { format: signed }
+    attributes.con.modBonus: { hidden: true }
+    attributes.con.modCap: { hidden: true }
+    attributes.int.score:
+      groups: [attributes]
+      with: [{ field: attributes.int.mod, as: modifier }]
+    attributes.int.mod: { format: signed }
+    attributes.int.modBonus: { hidden: true }
+    attributes.int.modCap: { hidden: true }
+    attributes.wis.score:
+      groups: [attributes]
+      with: [{ field: attributes.wis.mod, as: modifier }]
+    attributes.wis.mod: { format: signed }
+    attributes.wis.modBonus: { hidden: true }
+    attributes.wis.modCap: { hidden: true }
+    attributes.cha.score:
+      groups: [attributes]
+      with: [{ field: attributes.cha.mod, as: modifier }]
+    attributes.cha.mod: { format: signed }
+    attributes.cha.modBonus: { hidden: true }
+    attributes.cha.modCap: { hidden: true }
+    skills.administer:
+      rolls: [{ action: skill-check, params: { skill: skills.administer, attribute: int } }]
+    skillCredit.administer: { visibility: background, showWhen: skillCredit.administer > 0 }
+    skills.connect:
+      rolls: [{ action: skill-check, params: { skill: skills.connect, attribute: cha } }]
+    skillCredit.connect: { visibility: background, showWhen: skillCredit.connect > 0 }
+    skills.convince:
+      rolls: [{ action: skill-check, params: { skill: skills.convince, attribute: cha } }]
+    skillCredit.convince: { visibility: background, showWhen: skillCredit.convince > 0 }
+    skills.craft:
+      rolls: [{ action: skill-check, params: { skill: skills.craft, attribute: int } }]
+    skillCredit.craft: { visibility: background, showWhen: skillCredit.craft > 0 }
+    skills.exert:
+      rolls: [{ action: skill-check, params: { skill: skills.exert, attribute: str } }]
+    skillCredit.exert: { visibility: background, showWhen: skillCredit.exert > 0 }
+    skills.heal:
+      rolls: [{ action: skill-check, params: { skill: skills.heal, attribute: int } }]
+    skillCredit.heal: { visibility: background, showWhen: skillCredit.heal > 0 }
+    skills.know:
+      rolls: [{ action: skill-check, params: { skill: skills.know, attribute: int } }]
+    skillCredit.know: { visibility: background, showWhen: skillCredit.know > 0 }
+    skills.lead:
+      rolls: [{ action: skill-check, params: { skill: skills.lead, attribute: cha } }]
+    skillCredit.lead: { visibility: background, showWhen: skillCredit.lead > 0 }
+    skills.magic:
+      rolls: [{ action: skill-check, params: { skill: skills.magic, attribute: int } }]
+    skillCredit.magic: { visibility: background, showWhen: skillCredit.magic > 0 }
+    skills.notice:
+      rolls: [{ action: skill-check, params: { skill: skills.notice, attribute: wis } }]
+    skillCredit.notice: { visibility: background, showWhen: skillCredit.notice > 0 }
+    skills.perform:
+      rolls: [{ action: skill-check, params: { skill: skills.perform, attribute: cha } }]
+    skillCredit.perform: { visibility: background, showWhen: skillCredit.perform > 0 }
+    skills.pray:
+      rolls: [{ action: skill-check, params: { skill: skills.pray, attribute: wis } }]
+    skillCredit.pray: { visibility: background, showWhen: skillCredit.pray > 0 }
+    skills.punch:
+      rolls: [{ action: skill-check, params: { skill: skills.punch, attribute: str } }]
+    skillCredit.punch: { visibility: background, showWhen: skillCredit.punch > 0 }
+    skills.ride:
+      rolls: [{ action: skill-check, params: { skill: skills.ride, attribute: dex } }]
+    skillCredit.ride: { visibility: background, showWhen: skillCredit.ride > 0 }
+    skills.sail:
+      rolls: [{ action: skill-check, params: { skill: skills.sail, attribute: dex } }]
+    skillCredit.sail: { visibility: background, showWhen: skillCredit.sail > 0 }
+    skills.shoot:
+      rolls: [{ action: skill-check, params: { skill: skills.shoot, attribute: dex } }]
+    skillCredit.shoot: { visibility: background, showWhen: skillCredit.shoot > 0 }
+    skills.sneak:
+      rolls: [{ action: skill-check, params: { skill: skills.sneak, attribute: dex } }]
+    skillCredit.sneak: { visibility: background, showWhen: skillCredit.sneak > 0 }
+    skills.stab:
+      rolls: [{ action: skill-check, params: { skill: skills.stab, attribute: str } }]
+    skillCredit.stab: { visibility: background, showWhen: skillCredit.stab > 0 }
+    skills.survive:
+      rolls: [{ action: skill-check, params: { skill: skills.survive, attribute: wis } }]
+    skillCredit.survive: { visibility: background, showWhen: skillCredit.survive > 0 }
+    skills.trade:
+      rolls: [{ action: skill-check, params: { skill: skills.trade, attribute: cha } }]
+    skillCredit.trade: { visibility: background, showWhen: skillCredit.trade > 0 }
+    skills.work:
+      rolls: [{ action: skill-check, params: { skill: skills.work, attribute: int } }]
+    skillCredit.work: { visibility: background, showWhen: skillCredit.work > 0 }
+    saves.physical: { rolls: [{ action: saving-throw, params: { save: saves.physical } }] }
+    saves.evasion: { rolls: [{ action: saving-throw, params: { save: saves.evasion } }] }
+    saves.mental: { rolls: [{ action: saving-throw, params: { save: saves.mental } }] }
+    saves.luck: { rolls: [{ action: saving-throw, params: { save: saves.luck } }] }
+    tradition.highmage.tier: { hidden: true }
+    tradition.elementalist.tier: { hidden: true }
+    tradition.necromancer.tier: { hidden: true }
+    tradition.healer.tier: { hidden: true }
+    tradition.vowed.tier: { hidden: true }
+    tradition.accursed.tier: { hidden: true }
+    tradition.bard.tier: { hidden: true }
+    tradition.beastmaster.tier: { hidden: true }
+    tradition.bloodpriest.tier: { hidden: true }
+    tradition.duelist.tier: { hidden: true }
+    tradition.mageslayer.tier: { hidden: true }
+    tradition.skinshifter.tier: { hidden: true }
+    tradition.thoughtnoble.tier: { hidden: true }
+    tradition.invoker.tier: { hidden: true }
+    tradition.wise.tier: { hidden: true }
+    effort.highmage.free:
+      groups: [magic]
+      priority: 3
+      showWhen: effort.highmage.max > 0
+      with: [{ field: effort.highmage.max, as: max }]
+    effort.highmage.max:
+      { groups: [magic], priority: 7, visibility: background, showWhen: effort.highmage.max > 0 }
+    effort.highmage.scene:
+      { groups: [magic], priority: 4, visibility: background, showWhen: effort.highmage.max > 0 }
+    effort.highmage.day:
+      { groups: [magic], priority: 5, visibility: background, showWhen: effort.highmage.max > 0 }
+    effort.highmage.ongoing:
+      { groups: [magic], priority: 6, visibility: background, showWhen: effort.highmage.max > 0 }
+    effort.elementalist.free:
+      groups: [magic]
+      priority: 3
+      showWhen: effort.elementalist.max > 0
+      with: [{ field: effort.elementalist.max, as: max }]
+    effort.elementalist.max:
+      {
+        groups: [magic],
+        priority: 7,
+        visibility: background,
+        showWhen: effort.elementalist.max > 0,
+      }
+    effort.elementalist.scene:
+      {
+        groups: [magic],
+        priority: 4,
+        visibility: background,
+        showWhen: effort.elementalist.max > 0,
+      }
+    effort.elementalist.day:
+      {
+        groups: [magic],
+        priority: 5,
+        visibility: background,
+        showWhen: effort.elementalist.max > 0,
+      }
+    effort.elementalist.ongoing:
+      {
+        groups: [magic],
+        priority: 6,
+        visibility: background,
+        showWhen: effort.elementalist.max > 0,
+      }
+    effort.necromancer.free:
+      groups: [magic]
+      priority: 3
+      showWhen: effort.necromancer.max > 0
+      with: [{ field: effort.necromancer.max, as: max }]
+    effort.necromancer.max:
+      { groups: [magic], priority: 7, visibility: background, showWhen: effort.necromancer.max > 0 }
+    effort.necromancer.scene:
+      { groups: [magic], priority: 4, visibility: background, showWhen: effort.necromancer.max > 0 }
+    effort.necromancer.day:
+      { groups: [magic], priority: 5, visibility: background, showWhen: effort.necromancer.max > 0 }
+    effort.necromancer.ongoing:
+      { groups: [magic], priority: 6, visibility: background, showWhen: effort.necromancer.max > 0 }
+    effort.healer.free:
+      groups: [magic]
+      priority: 3
+      showWhen: effort.healer.max > 0
+      with: [{ field: effort.healer.max, as: max }]
+    effort.healer.max:
+      { groups: [magic], priority: 7, visibility: background, showWhen: effort.healer.max > 0 }
+    effort.healer.scene:
+      { groups: [magic], priority: 4, visibility: background, showWhen: effort.healer.max > 0 }
+    effort.healer.day:
+      { groups: [magic], priority: 5, visibility: background, showWhen: effort.healer.max > 0 }
+    effort.healer.ongoing:
+      { groups: [magic], priority: 6, visibility: background, showWhen: effort.healer.max > 0 }
+    effort.vowed.free:
+      groups: [magic]
+      priority: 3
+      showWhen: effort.vowed.max > 0
+      with: [{ field: effort.vowed.max, as: max }]
+    effort.vowed.max:
+      { groups: [magic], priority: 7, visibility: background, showWhen: effort.vowed.max > 0 }
+    effort.vowed.scene:
+      { groups: [magic], priority: 4, visibility: background, showWhen: effort.vowed.max > 0 }
+    effort.vowed.day:
+      { groups: [magic], priority: 5, visibility: background, showWhen: effort.vowed.max > 0 }
+    effort.vowed.ongoing:
+      { groups: [magic], priority: 6, visibility: background, showWhen: effort.vowed.max > 0 }
+    effort.accursed.free:
+      groups: [magic]
+      priority: 3
+      showWhen: effort.accursed.max > 0
+      with: [{ field: effort.accursed.max, as: max }]
+    effort.accursed.max:
+      { groups: [magic], priority: 7, visibility: background, showWhen: effort.accursed.max > 0 }
+    effort.accursed.scene:
+      { groups: [magic], priority: 4, visibility: background, showWhen: effort.accursed.max > 0 }
+    effort.accursed.day:
+      { groups: [magic], priority: 5, visibility: background, showWhen: effort.accursed.max > 0 }
+    effort.accursed.ongoing:
+      { groups: [magic], priority: 6, visibility: background, showWhen: effort.accursed.max > 0 }
+    effort.bard.free:
+      groups: [magic]
+      priority: 3
+      showWhen: effort.bard.max > 0
+      with: [{ field: effort.bard.max, as: max }]
+    effort.bard.max:
+      { groups: [magic], priority: 7, visibility: background, showWhen: effort.bard.max > 0 }
+    effort.bard.scene:
+      { groups: [magic], priority: 4, visibility: background, showWhen: effort.bard.max > 0 }
+    effort.bard.day:
+      { groups: [magic], priority: 5, visibility: background, showWhen: effort.bard.max > 0 }
+    effort.bard.ongoing:
+      { groups: [magic], priority: 6, visibility: background, showWhen: effort.bard.max > 0 }
+    effort.beastmaster.free:
+      groups: [magic]
+      priority: 3
+      showWhen: effort.beastmaster.max > 0
+      with: [{ field: effort.beastmaster.max, as: max }]
+    effort.beastmaster.max:
+      { groups: [magic], priority: 7, visibility: background, showWhen: effort.beastmaster.max > 0 }
+    effort.beastmaster.scene:
+      { groups: [magic], priority: 4, visibility: background, showWhen: effort.beastmaster.max > 0 }
+    effort.beastmaster.day:
+      { groups: [magic], priority: 5, visibility: background, showWhen: effort.beastmaster.max > 0 }
+    effort.beastmaster.ongoing:
+      { groups: [magic], priority: 6, visibility: background, showWhen: effort.beastmaster.max > 0 }
+    effort.bloodpriest.free:
+      groups: [magic]
+      priority: 3
+      showWhen: effort.bloodpriest.max > 0
+      with: [{ field: effort.bloodpriest.max, as: max }]
+    effort.bloodpriest.max:
+      { groups: [magic], priority: 7, visibility: background, showWhen: effort.bloodpriest.max > 0 }
+    effort.bloodpriest.scene:
+      { groups: [magic], priority: 4, visibility: background, showWhen: effort.bloodpriest.max > 0 }
+    effort.bloodpriest.day:
+      { groups: [magic], priority: 5, visibility: background, showWhen: effort.bloodpriest.max > 0 }
+    effort.bloodpriest.ongoing:
+      { groups: [magic], priority: 6, visibility: background, showWhen: effort.bloodpriest.max > 0 }
+    effort.duelist.free:
+      groups: [magic]
+      priority: 3
+      showWhen: effort.duelist.max > 0
+      with: [{ field: effort.duelist.max, as: max }]
+    effort.duelist.max:
+      { groups: [magic], priority: 7, visibility: background, showWhen: effort.duelist.max > 0 }
+    effort.duelist.scene:
+      { groups: [magic], priority: 4, visibility: background, showWhen: effort.duelist.max > 0 }
+    effort.duelist.day:
+      { groups: [magic], priority: 5, visibility: background, showWhen: effort.duelist.max > 0 }
+    effort.duelist.ongoing:
+      { groups: [magic], priority: 6, visibility: background, showWhen: effort.duelist.max > 0 }
+    effort.mageslayer.free:
+      groups: [magic]
+      priority: 3
+      showWhen: effort.mageslayer.max > 0
+      with: [{ field: effort.mageslayer.max, as: max }]
+    effort.mageslayer.max:
+      { groups: [magic], priority: 7, visibility: background, showWhen: effort.mageslayer.max > 0 }
+    effort.mageslayer.scene:
+      { groups: [magic], priority: 4, visibility: background, showWhen: effort.mageslayer.max > 0 }
+    effort.mageslayer.day:
+      { groups: [magic], priority: 5, visibility: background, showWhen: effort.mageslayer.max > 0 }
+    effort.mageslayer.ongoing:
+      { groups: [magic], priority: 6, visibility: background, showWhen: effort.mageslayer.max > 0 }
+    effort.skinshifter.free:
+      groups: [magic]
+      priority: 3
+      showWhen: effort.skinshifter.max > 0
+      with: [{ field: effort.skinshifter.max, as: max }]
+    effort.skinshifter.max:
+      { groups: [magic], priority: 7, visibility: background, showWhen: effort.skinshifter.max > 0 }
+    effort.skinshifter.scene:
+      { groups: [magic], priority: 4, visibility: background, showWhen: effort.skinshifter.max > 0 }
+    effort.skinshifter.day:
+      { groups: [magic], priority: 5, visibility: background, showWhen: effort.skinshifter.max > 0 }
+    effort.skinshifter.ongoing:
+      { groups: [magic], priority: 6, visibility: background, showWhen: effort.skinshifter.max > 0 }
+    effort.thoughtnoble.free:
+      groups: [magic]
+      priority: 3
+      showWhen: effort.thoughtnoble.max > 0
+      with: [{ field: effort.thoughtnoble.max, as: max }]
+    effort.thoughtnoble.max:
+      {
+        groups: [magic],
+        priority: 7,
+        visibility: background,
+        showWhen: effort.thoughtnoble.max > 0,
+      }
+    effort.thoughtnoble.scene:
+      {
+        groups: [magic],
+        priority: 4,
+        visibility: background,
+        showWhen: effort.thoughtnoble.max > 0,
+      }
+    effort.thoughtnoble.day:
+      {
+        groups: [magic],
+        priority: 5,
+        visibility: background,
+        showWhen: effort.thoughtnoble.max > 0,
+      }
+    effort.thoughtnoble.ongoing:
+      {
+        groups: [magic],
+        priority: 6,
+        visibility: background,
+        showWhen: effort.thoughtnoble.max > 0,
+      }
+    arts.highmage.allowed: { hidden: true }
+    arts.highmage.taken: { hidden: true }
+    arts.highmage.owed: { hidden: true }
+    arts.elementalist.allowed: { hidden: true }
+    arts.elementalist.taken: { hidden: true }
+    arts.elementalist.owed: { hidden: true }
+    arts.necromancer.allowed: { hidden: true }
+    arts.necromancer.taken: { hidden: true }
+    arts.necromancer.owed: { hidden: true }
+    arts.healer.allowed: { hidden: true }
+    arts.healer.taken: { hidden: true }
+    arts.healer.owed: { hidden: true }
+    arts.vowed.allowed: { hidden: true }
+    arts.vowed.taken: { hidden: true }
+    arts.vowed.owed: { hidden: true }
+    arts.accursed.allowed: { hidden: true }
+    arts.accursed.taken: { hidden: true }
+    arts.accursed.owed: { hidden: true }
+    arts.bard.allowed: { hidden: true }
+    arts.bard.taken: { hidden: true }
+    arts.bard.owed: { hidden: true }
+    arts.beastmaster.allowed: { hidden: true }
+    arts.beastmaster.taken: { hidden: true }
+    arts.beastmaster.owed: { hidden: true }
+    arts.bloodpriest.allowed: { hidden: true }
+    arts.bloodpriest.taken: { hidden: true }
+    arts.bloodpriest.owed: { hidden: true }
+    arts.duelist.allowed: { hidden: true }
+    arts.duelist.taken: { hidden: true }
+    arts.duelist.owed: { hidden: true }
+    arts.mageslayer.allowed: { hidden: true }
+    arts.mageslayer.taken: { hidden: true }
+    arts.mageslayer.owed: { hidden: true }
+    arts.skinshifter.allowed: { hidden: true }
+    arts.skinshifter.taken: { hidden: true }
+    arts.skinshifter.owed: { hidden: true }
+    arts.thoughtnoble.allowed: { hidden: true }
+    arts.thoughtnoble.taken: { hidden: true }
+    arts.thoughtnoble.owed: { hidden: true }
+    arts.wise.allowed: { hidden: true }
+    arts.wise.taken: { hidden: true }
+    arts.wise.owed: { hidden: true }
+
+  types:
+    class: { quantity: { hidden: true } }
+    partial: { quantity: { hidden: true } }
+    background:
+      quantity: { hidden: true }
+    focus:
+      quantity: { hidden: true }
+      state:
+        level: { priority: 0 }
+    art:
+      quantity: { hidden: true }
+      state:
+        active: { priority: 0, showWhen: "item.effort == 'ongoing'" }
+    spell:
+      quantity: { hidden: true }
+      state:
+        prepared: { priority: 0, input: { widget: checkbox } }
+    weapon:
+      fields:
+        damage: { format: dice }
+        rangeShort: { unit: ft }
+        rangeLong: { unit: ft }

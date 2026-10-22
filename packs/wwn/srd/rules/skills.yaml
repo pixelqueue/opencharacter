@@ -1,0 +1,93 @@
+families:
+  skill:
+    [
+      administer,
+      connect,
+      convince,
+      craft,
+      exert,
+      heal,
+      know,
+      lead,
+      magic,
+      notice,
+      perform,
+      pray,
+      punch,
+      ride,
+      sail,
+      shoot,
+      sneak,
+      stab,
+      survive,
+      trade,
+      work,
+    ]
+
+fields:
+  # -1 is no skill at all: an untrained check takes -1, which is the value itself.
+  'skills.{skill}':
+    type: integer
+    input: true
+    default: -1
+    min: -1
+    max: 4
+    tags: [skill, 'skill.{skill}']
+  # Skill points a Focus gained after first level put toward the skill that didn't buy a level.
+  'skillCredit.{skill}': { type: integer, input: true, default: 0, min: 0, max: 4 }
+
+  # Polymath: non-combat skills count as at least this level for checks.
+  skills.noncombatFloor: { type: integer, formula: -1 }
+
+  skillPoints.unspent: { type: integer, input: true, default: 0, min: 0 }
+  # The Expert's extra point each level: non-combat skills or attributes only.
+  skillPoints.expert: { type: integer, input: true, default: 0, min: 0 }
+
+constraints:
+  # No novice's skill is above level-1.
+  - id: creation-skill-cap
+    check: "!character.creating || maxFields(f.value, 'skill' in f.tags) <= 1"
+    data: { limit: 1 }
+
+resultBands:
+  check:
+    - { id: rolled, when: flags.difficulty < 0 }
+    - { id: success, when: roll.total >= flags.difficulty }
+    - { id: failure, when: true }
+
+actions:
+  # 2d6 plus the skill and an attribute modifier. The dice keep the highest two, so a Specialist's
+  # or a Gifted Chirurgeon's extra dice drop the lowest.
+  - id: skill-check
+    tags: [check]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags" }
+      attribute: { type: enum, values: [str, dex, con, int, wis, cha] }
+      difficulty: { type: integer, optional: true }
+      modifier: { type: integer, default: 0 }
+    results: { bands: check }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              difficulty: 'has(params.difficulty) ? params.difficulty : -1'
+              level: >-
+                params.skill.id in [@skills.stab, @skills.shoot, @skills.punch]
+                  ? params.skill.value : max(params.skill.value, skills.noncombatFloor)
+      - id: check
+        kind: roll
+        tags: [check, { formula: params.skill.tags }]
+        bands: check
+        parts:
+          - dice: 2d6kh2
+          - value: flags.level
+          - field: "'attributes.' + params.attribute + '.mod'"
+          - value: params.modifier
+            when: params.modifier != 0
+      - id: result
+        kind: outcome
+        result: steps.check.band
+        data:
+          total: steps.check.total

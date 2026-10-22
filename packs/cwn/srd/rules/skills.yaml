@@ -1,0 +1,61 @@
+families:
+  skill:
+    [
+      administer,
+      connect,
+      drive,
+      exert,
+      fix,
+      heal,
+      know,
+      lead,
+      notice,
+      perform,
+      program,
+      punch,
+      shoot,
+      sneak,
+      stab,
+      survive,
+      talk,
+      trade,
+      work,
+      cast,
+      summon,
+    ]
+
+fields:
+  # The level the character has trained, -1 for no skill at all, up to level-4. Creation and
+  # advancement raise it; nothing else does.
+  'skills.{skill}.base':
+    type: integer
+    input: true
+    default: -1
+    min: -1
+    max: 4
+    tags: [skill-base, 'skill.{skill}']
+  # Skill points banked toward the skill's next level: a Focus's bonus skill taken during
+  # advancement counts as three points, and what doesn't buy a level stays here.
+  'skills.{skill}.credit': { type: integer, input: true, default: 0, min: 0, max: 4 }
+  # The level checks use: the trained level, or a skillplug's if that is higher.
+  'skills.{skill}.level':
+    { type: integer, formula: 'skills.{skill}.base', tags: [skill, 'skill.{skill}'] }
+
+  # Work names a profession.
+  skills.work.profession: { type: string, input: true, default: '' }
+
+# Names for a skill's level, for showing it ("Level-1", or "No skill" for -1).
+resultBands:
+  skill-level:
+    - { id: untrained, when: roll.total < 0 }
+    - { id: level-0, when: roll.total == 0 }
+    - { id: level-1, when: roll.total == 1 }
+    - { id: level-2, when: roll.total == 2 }
+    - { id: level-3, when: roll.total == 3 }
+    - { id: level-4, when: true }
+
+constraints:
+  # No character begins play with a skill above level-1.
+  - id: creation-skill-cap
+    check: >-
+      !character.creating || maxList(keysOf('skill'), fieldOf('skills.{skill}.base', x)) <= 1

@@ -1,0 +1,44 @@
+id: partials.wise
+type: partial
+effects:
+  - { target: chassis.hitsExpert, op: add, value: 1 }
+  - { target: tradition.wise.tier, op: add, value: 1 }
+choices:
+  # The skill that suits the Wise's concept.
+  - id: skill
+    from:
+      {
+        values:
+          [
+            administer,
+            connect,
+            convince,
+            craft,
+            exert,
+            heal,
+            know,
+            lead,
+            magic,
+            notice,
+            perform,
+            pray,
+            punch,
+            ride,
+            sail,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            trade,
+            work,
+          ],
+      }
+    recommend: "'pray'"
+    effects:
+      - { target: wise.skill, op: set, value: pick.value }
+  # Which example progression the Wise's arts follow.
+  - id: path
+    from: { values: [priest, witch, seer, esoteric] }
+    recommend: "'priest'"
+    effects:
+      - { target: wise.path, op: set, value: pick.value }

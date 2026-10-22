@@ -1,0 +1,156 @@
+contentTypes:
+  # Implanted cyberware. Each system adds its System Strain as permanent strain.
+  cyberware:
+    fields:
+      cost: { type: integer, default: 0, min: 0 }
+      category:
+        type: enum
+        values: [body, head, skin, limb, sensory, medical, nerve]
+        required: true
+      concealment: { type: enum, values: [medical, touch, sight], required: true }
+      strain: { type: decimal, default: 0, min: 0 }
+      # Eye and ear mods cost half their strain with a pair of cybereyes or cyberears.
+      eyeMod: { type: boolean, default: false }
+      earMod: { type: boolean, default: false }
+      # System Strain triggering the system costs, for systems that cost it every time.
+      triggerStrain: { type: integer, min: 1 }
+      # The base Armor Class dermal plating gives, and a bonus to the Trauma Target.
+      baseAc: { type: integer }
+      traumaMod: { type: integer, default: 0 }
+    state:
+      # Damaged cyber is useless until repaired.
+      damaged: { type: boolean, default: false }
+      # Bought with the Wired Edge's budget.
+      wired: { type: boolean, default: false }
+    effects:
+      - id: ranged-ac
+        target: ac.ranged.base
+        op: set
+        value: item.baseAc
+        when: has(item.baseAc) && !self.damaged
+      - id: melee-ac
+        target: ac.melee.base
+        op: set
+        value: item.baseAc
+        when: has(item.baseAc) && !self.damaged
+      - id: trauma
+        target: trauma.target
+        op: add
+        value: item.traumaMod
+        when: item.traumaMod != 0 && !self.damaged
+    actions:
+      - use: trigger-cyber
+
+  # A skillplug chip, slotted (`equipped`) in a skillplug jack: a skill at its level. Physical
+  # skills need a Skillplug Jack II, and level-2 and level-3 plugs Skillplug Wiring.
+  skillplug:
+    carried: true
+    equippable: true
+    fields:
+      cost: { type: integer, default: 0, min: 0 }
+      plugLevel: { type: integer, required: true, min: 0, max: 3 }
+
+  # Optional alienation: a chrome syndrome raises the alienation the character can bear.
+  syndrome:
+    fields:
+      alienation: { type: integer, required: true, min: 0 }
+    effects:
+      - { id: allowance, target: alienation.max, op: add, value: item.alienation }
+
+fields:
+  cyber.eyes:
+    type: boolean
+    formula: "countCopies(copy.type == 'cyberware' && 'cybereyes' in copy.tags) > 0"
+  # The best skillplug jack implanted (1 for Jack I, 2 for Jack II) and Skillplug Wiring.
+  cyber.plugJack: { type: integer, formula: '0' }
+  cyber.plugWiring: { type: boolean, formula: 'false' }
+  cyber.ears:
+    type: boolean
+    formula: "countCopies(copy.type == 'cyberware' && 'cyberears' in copy.tags) > 0"
+  # Strain from implants, eye and ear mods halved by a pair of cybereyes or cyberears.
+  strain.cyber:
+    type: decimal
+    formula: >-
+      sumCopies(copy.fields.strain
+        * ((copy.fields.eyeMod && cyber.eyes) || (copy.fields.earMod && cyber.ears) ? 0.5 : 1),
+        copy.type == 'cyberware')
+  # Implant strain the body ignores (Cybernetic Infrastructure Baseline).
+  strain.cyberIgnored: { type: decimal, formula: '0' }
+  # A cyberdoc's maintenance lowers implant strain by one or two points until the next one.
+  strain.maintenanceRelief: { type: integer, input: true, default: 0, min: 0, max: 2 }
+  # Other permanent strain: Hypervigilant, linked magic items, an implant complication.
+  strain.otherPermanent: { type: decimal, input: true, default: 0, min: 0 }
+  strain.permanent:
+    type: decimal
+    formula: >-
+      max(0, strain.cyber - strain.cyberIgnored - strain.maintenanceRelief) + strain.otherPermanent
+  # Strain from drugs, healing and cyber activation; one point goes each night's rest.
+  strain.temporary: { type: integer, input: true, default: 0, min: 0 }
+  strain.total:
+    type: decimal
+    formula: strain.permanent + strain.temporary
+    limits: { max: strain.max }
+  # The Constitution score the maximum counts (20 for a full body conversion).
+  strain.constitution: { type: integer, formula: attributes.con.score }
+  strain.max: { type: integer, formula: strain.constitution + lifestyle.strain }
+
+  # The Wired Edge's budget and the cyber bought with it.
+  cyber.wiredBudget: { type: integer, formula: '0' }
+  cyber.wiredUsed:
+    type: integer
+    formula: "sumCopies(copy.fields.cost, copy.type == 'cyberware' && copy.state.wired)"
+
+  # Optional: cyberware alienation. Each system adds its strain rounded up, two more for Nerve
+  # cyber; going over the Wisdom score (plus the chrome syndromes' allowances) is cyber-induced
+  # psychosis.
+  alienation.permanent:
+    type: integer
+    formula: >-
+      sumCopies(ceil(copy.fields.strain
+        * ((copy.fields.eyeMod && cyber.eyes) || (copy.fields.earMod && cyber.ears) ? 0.5 : 1))
+        + (copy.fields.category == 'nerve' ? 2 : 0), copy.type == 'cyberware')
+  alienation.current: { type: integer, input: true, default: 0, min: 0 }
+  alienation.max: { type: integer, formula: attributes.wis.score }
+  alienation.total:
+    type: integer
+    formula: max(alienation.permanent, alienation.current)
+    limits: { max: 'campaign.alienation ? alienation.max : 1000' }
+
+constraints:
+  - id: wired-budget
+    check: cyber.wiredUsed <= cyber.wiredBudget
+
+actions:
+  # Trigger a system that costs System Strain each use. It can't be triggered past the maximum.
+  - id: trigger-cyber
+    tags: [cyber]
+    available: >-
+      has(item.triggerStrain) && !self.damaged && strain.total + item.triggerStrain <= strain.max
+    steps:
+      - id: strain
+        kind: changes
+        changes:
+          - { type: adjust, field: strain.temporary, by: item.triggerStrain }
+
+  # Pick cyber with the Wired Edge's budget: new systems the character's strain can carry.
+  - id: acquire-wired-cyber
+    tags: [building]
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: cyber
+        kind: choice
+        sheet: proposed
+        options:
+          content:
+            type: cyberware
+            where: >-
+              item.cost <= cyber.wiredBudget - cyber.wiredUsed
+                && strain.total + item.strain <= strain.max
+                && countCopies(copy.item == item.id) == 0
+        repeat: { max: 8 }
+        recommend: options[0]
+        random: params.random
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { wired: true } }

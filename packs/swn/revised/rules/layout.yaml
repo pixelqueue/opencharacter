@@ -1,0 +1,195 @@
+display:
+  groups:
+    - id: attributes
+      priority: 0
+      members: { type: field, where: "'attribute' in item.tags" }
+    - id: saves
+      priority: 0
+      members: { type: field, where: "'save' in item.tags" }
+    - id: skills
+      priority: 0
+      members: { type: field, where: "'skill.general' in item.tags || 'skill.combat' in item.tags" }
+    - id: psychic-skills
+      priority: 1
+      showWhen: "psionics.access != 'none'"
+      members: { type: field, where: "'skill.psychic' in item.tags" }
+    - id: condition
+      priority: 0
+    - id: combat
+      priority: 0
+    - id: psionics
+      priority: 1
+      showWhen: "psionics.access != 'none' || effort.max > 0"
+    - id: advancement
+      priority: 2
+    - id: carrying
+      priority: 2
+    - id: attacks
+      kind: actions
+      priority: 0
+      members: { type: action, where: "'attack' in item.tags || 'combat' in item.tags" }
+    - id: checks
+      kind: actions
+      priority: 0
+      members:
+        type: action
+        where: "'check' in item.tags || 'save' in item.tags || 'initiative' in item.tags"
+    - id: health-actions
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'health' in item.tags || 'strain' in item.tags" }
+    - id: psionic-actions
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'psionics' in item.tags" }
+    - id: advancement-actions
+      kind: actions
+      priority: 2
+      visibility: background
+      members: { type: action, where: "'level-up' in item.tags || 'creation' in item.tags" }
+    - id: class
+      kind: content
+      priority: 0
+      members: { type: class }
+    - id: background
+      kind: content
+      priority: 0
+      members: { type: background }
+    - id: foci
+      kind: content
+      priority: 0
+      members: { type: focus }
+    - id: techniques
+      kind: content
+      priority: 1
+      showWhen: "hasChoice('technique') || psionics.access != 'none' || effort.max > 0"
+      members: { type: technique }
+      sectionBy: item.level
+    - id: weapons
+      kind: content
+      priority: 1
+      members: { type: weapon }
+    - id: armor
+      kind: content
+      priority: 1
+      members: { type: armor }
+    - id: gear
+      kind: content
+      priority: 2
+      members: { type: gear }
+      sectionBy: item.category
+    - id: cyberware
+      kind: content
+      priority: 2
+      members: { type: cyberware }
+  types:
+    class: { quantity: { hidden: true } }
+    background: { quantity: { hidden: true } }
+    focus:
+      quantity: { hidden: true }
+      state:
+        level: { priority: 0 }
+    technique:
+      quantity: { hidden: true }
+      state:
+        committed: { priority: 0, showWhen: self.committed > 0 }
+    cyberware: { quantity: { hidden: true } }
+    weapon:
+      state:
+        loaded: { priority: 0, input: { widget: track }, showWhen: has(item.magazine) }
+      fields:
+        damage: { format: dice }
+  fields:
+    level: { groups: [advancement], priority: 0, visibility: primary }
+    xp.current: { groups: [advancement], priority: 0, with: [{ field: xp.next, as: max }] }
+    xp.next: { groups: [advancement], priority: 1 }
+    skillPoints.general: { groups: [advancement], priority: 1 }
+    skillPoints.expert: { groups: [advancement], priority: 1, showWhen: class.expertPoints > 0 }
+    skillPoints.psychic:
+      { groups: [advancement], priority: 1, showWhen: "psionics.access != 'none'" }
+    skillPoints.training: { groups: [advancement], priority: 1, showWhen: skillPoints.training > 0 }
+    attributes.boosts: { groups: [advancement], priority: 2 }
+    'skills.{skill}.credit':
+      { groups: [advancement], priority: 3, showWhen: 'skills.{skill}.credit > 0' }
+    hp.current:
+      groups: [condition]
+      priority: 0
+      visibility: primary
+      with: [{ field: hp.max, as: max }]
+      rolls: [{ action: take-damage }, { action: heal }]
+    hp.max: { groups: [condition], priority: 1 }
+    hp.rolled: { groups: [condition], priority: 2 }
+    hp.perLevel: { hidden: true }
+    strain.current:
+      groups: [condition]
+      priority: 0
+      with: [{ field: strain.max, as: max }, { field: strain.permanent, as: detail }]
+    strain.total: { groups: [condition], priority: 1 }
+    strain.permanent: { groups: [condition], priority: 1 }
+    strain.max: { groups: [condition], priority: 1 }
+    scene.expertReroll:
+      groups: [condition]
+      priority: 1
+      showWhen: 'countCopies(copy.item == @classes.expert) > 0'
+      input: { widget: checkbox }
+    scene.warriorLuck:
+      groups: [condition]
+      priority: 1
+      showWhen: 'countCopies(copy.item == @classes.warrior) > 0'
+      input: { widget: checkbox }
+    ac.value: { groups: [combat], priority: 0, visibility: primary }
+    ac.advanced: { groups: [combat], priority: 1 }
+    combat.attackBonus: { groups: [combat], priority: 0, visibility: primary }
+    credits.current: { groups: [carrying], priority: 0 }
+    encumbrance.readied:
+      { groups: [carrying], priority: 0, with: [{ field: encumbrance.readiedLimit, as: max }] }
+    encumbrance.stowed:
+      { groups: [carrying], priority: 0, with: [{ field: encumbrance.stowedLimit, as: max }] }
+    encumbrance.level: { groups: [carrying], priority: 1 }
+    movement: { groups: [carrying], priority: 1 }
+    henchmen.max: { groups: [carrying], priority: 2, showWhen: henchmen.max > 0 }
+    effort.available:
+      groups: [psionics]
+      priority: 0
+      with: [{ field: effort.max, as: max }]
+      rolls: [{ action: commit-effort }]
+    effort.max: { groups: [psionics], priority: 1 }
+    effort.scene: { groups: [psionics], priority: 1 }
+    effort.day: { groups: [psionics], priority: 1 }
+    effort.active: { groups: [psionics], priority: 1, showWhen: effort.active > 0 }
+    effort.torched: { groups: [psionics], priority: 2 }
+    psionics.access: { groups: [psionics], priority: 1 }
+    psionics.discipline: { groups: [psionics], priority: 1, showWhen: "psionics.discipline != ''" }
+    psionics.training: { hidden: true }
+    effort.bonus: { hidden: true }
+    effort.wild: { hidden: true }
+    class.focus.combat: { hidden: true }
+    class.focus.noncombat: { hidden: true }
+    class.expertPoints: { hidden: true }
+    ac.armor: { hidden: true }
+    ac.innate: { hidden: true }
+    ac.shield: { hidden: true }
+    damage.melee: { hidden: true }
+    damage.ranged: { hidden: true }
+    shock.bonus: { hidden: true }
+    shock.anyAc: { hidden: true }
+    miss.melee: { hidden: true }
+    miss.ranged: { hidden: true }
+    miss.punch: { hidden: true }
+    combat.meleeAdvanced: { hidden: true }
+    combat.punchAdvanced: { hidden: true }
+    encumbrance.strength: { hidden: true }
+    'attributes.{attr}.score':
+      with: [{ field: 'attributes.{attr}.mod', as: detail }]
+    'skills.{general}.level':
+      rolls: [{ action: skill-check, params: { skill: '{general}' } }]
+    'skills.{combat}.level':
+      rolls: [{ action: skill-check, params: { skill: '{combat}' } }]
+    'skills.{psychic}.level':
+      rolls: [{ action: skill-check, params: { skill: '{psychic}' } }]
+    'skills.{general}.dice': { hidden: true }
+    'skills.{combat}.dice': { hidden: true }
+    'skills.{psychic}.dice': { hidden: true }
+    saves.physical: { rolls: [{ action: saving-throw, params: { save: physical } }] }
+    saves.evasion: { rolls: [{ action: saving-throw, params: { save: evasion } }] }
+    saves.mental: { rolls: [{ action: saving-throw, params: { save: mental } }] }

@@ -1,0 +1,13 @@
+id: foci.survivalist
+type: focus
+fields:
+  bonusSkill: [survive]
+effects:
+  - target: { rolls: [check] }
+    op: rollModifier
+    value: { kind: advantage, of: roll }
+    when: situational.foraging
+  - target: attributes.con.boost
+    op: add
+    value: 1
+    when: self.level >= 2

@@ -1,0 +1,174 @@
+settings:
+  # Rerolled or extra-die skill checks (Specialist, Healer, Sniper's Eye) don't stack: the best
+  # applies.
+  stacking:
+    keys: { skill-dice: highestOnly }
+
+resultBands:
+  check:
+    - { id: success, when: roll.total >= flags.dc }
+    - { id: failure, when: true }
+  # A natural 1 always fails a save and a natural 20 always succeeds.
+  save:
+    - { id: failure, when: 'roll.kept[0] == 1' }
+    - { id: success, when: 'roll.kept[0] == 20 || roll.total >= flags.target' }
+    - { id: failure, when: true }
+  major-injury:
+    - { id: death, when: roll.total <= 1 }
+    - { id: internal, when: roll.total == 2 }
+    - { id: brain, when: roll.total == 3 }
+    - { id: eye, when: roll.total == 4 }
+    - { id: gut, when: roll.total == 5 }
+    - { id: right-leg, when: roll.total == 6 }
+    - { id: left-leg, when: roll.total == 7 }
+    - { id: right-arm, when: roll.total == 8 }
+    - { id: left-arm, when: roll.total == 9 }
+    - { id: system, when: roll.total == 10 }
+    - { id: flesh-wound, when: true }
+
+actions:
+  # A skill check: 2d6 plus the skill level (-1 untrained) and an attribute modifier, against a
+  # difficulty from 6 (simple) to 14+ (near impossible).
+  - id: skill-check
+    tags: [check]
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags" }
+      attribute: { type: enum, values: [str, dex, con, int, wis, cha] }
+      difficulty: { type: integer, optional: true }
+      modifier: { type: integer, optional: true }
+    results: [success, failure, rolled]
+    steps:
+      - id: start
+        kind: branch
+        cases:
+          - when: true
+            flags: { dc: 'has(params.difficulty) ? params.difficulty : -1' }
+      - id: check
+        kind: roll
+        tags:
+          - skill-check
+          - { formula: params.skill.tags }
+          - { formula: "'attr.' + params.attribute" }
+        bands: check
+        parts:
+          - { dice: 2d6kh2, tags: [skill-dice] }
+          - field: params.skill.id
+          - field: "'attributes.' + params.attribute + '.mod'"
+          - { value: params.modifier, when: has(params.modifier) }
+      - id: result
+        kind: outcome
+        result: "flags.dc < 0 ? 'rolled' : steps.check.band"
+        data: { total: steps.check.total }
+
+  # A saving throw: 1d20 equal or over the save's target.
+  - id: saving-throw
+    tags: [save]
+    params:
+      save: { type: enum, values: [physical, evasion, mental, luck] }
+      modifier: { type: integer, optional: true }
+    results: [success, failure]
+    steps:
+      - id: start
+        kind: branch
+        cases:
+          - when: true
+            flags: { target: "fieldOf('saves.{save}', params.save)" }
+      - id: save
+        kind: roll
+        tags: [save, { formula: "'save.' + params.save" }]
+        bands: save
+        parts:
+          - dice: 1d20
+          - { value: params.modifier, when: has(params.modifier) }
+      - id: result
+        kind: outcome
+        result: steps.save.band
+        data: { total: steps.save.total, target: flags.target }
+
+  # Initiative: 1d8 plus the Dexterity modifier (the side rolls with its best).
+  - id: initiative
+    tags: [initiative]
+    results: [rolled]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [initiative]
+        parts:
+          - dice: 1d8
+          - field: "'combat.initiative'"
+      - { id: result, kind: outcome, result: "'rolled'", data: { total: steps.roll.total } }
+
+  # The end of a fight or scene: Damage Soak and deck Shielding refresh, scene Effort returns.
+  - id: end-scene
+    tags: [rest]
+    steps:
+      - id: refresh
+        kind: changes
+        changes:
+          - type: setState
+            copies: { type: armor, where: self.soakUsed > 0 }
+            key: soakUsed
+            value: 0
+          - type: setState
+            copies: { type: cyberdeck, where: self.shieldingUsed > 0 }
+            key: shieldingUsed
+            value: 0
+          - { type: set, field: effort.mage.scene, value: 0 }
+          - { type: set, field: effort.summoner.scene, value: 0 }
+
+  # A night's rest, warm and fed: hit points equal to the level (none while Frail), one point of
+  # System Strain, all Effort Committed for the day, the day's Access and Martial Instinct's rolls.
+  - id: rest
+    tags: [rest]
+    steps:
+      - id: recover
+        kind: changes
+        changes:
+          - { type: adjust, when: '!hp.frail', field: hp.current, by: level }
+          - { type: adjust, when: strain.temporary > 0, field: strain.temporary, by: -1 }
+          - { type: set, field: effort.mage.day, value: 0 }
+          - { type: set, field: effort.mage.scene, value: 0 }
+          - { type: set, field: effort.summoner.day, value: 0 }
+          - { type: set, field: effort.summoner.scene, value: 0 }
+          - { type: set, field: hacking.access.spent, value: 0 }
+          - { type: set, field: arts.bonusRolls.used, value: 0 }
+
+  # First aid from a medic: 1d6 plus their Heal skill (1d6-1 without one), and one System
+  # Strain. It can't be applied past the System Strain maximum.
+  - id: first-aid
+    tags: [healing]
+    available: strain.total + 1 <= strain.max
+    params:
+      healerSkill: { type: integer, min: -1, max: 4 }
+    steps:
+      - id: heal
+        kind: roll
+        tags: [healing, first-aid]
+        parts:
+          - dice: 1d6
+          - value: params.healerSkill
+      - id: apply
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: 'max(0, steps.heal.total)' }
+          - { type: adjust, field: strain.temporary, by: 1 }
+
+  # A Major Injury: after a failed Physical save at zero hit points in a scene with a Traumatic
+  # Hit, roll 1d12 on the table.
+  - id: major-injury
+    tags: [injury]
+    results: [rolled]
+    params:
+      modifier: { type: integer, optional: true }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [major-injury]
+        bands: major-injury
+        parts:
+          - dice: 1d12
+          - { value: params.modifier, when: has(params.modifier) }
+      - id: result
+        kind: outcome
+        result: "'rolled'"
+        data: { injury: steps.roll.band }

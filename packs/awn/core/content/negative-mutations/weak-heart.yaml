@@ -1,0 +1,13 @@
+id: negative-mutations.weak-heart
+type: negative
+fields:
+  roll: 79
+effects:
+  - target: attributes.con.penalty
+    op: add
+    value: -1
+    when: '!self.light'
+  - target: { rolls: [skill.exert] }
+    op: rollModifier
+    value: { kind: disadvantage, of: roll }
+    when: '!self.light'

@@ -1,0 +1,210 @@
+contentTypes:
+  # Weapons, natural weapons included. `skills` are the skills that can wield it (the best one
+  # counts), `attributes` the attributes whose modifier it adds (the best one counts).
+  weapon:
+    carried: true
+    equippable: true
+    fields:
+      damage: { type: dice }
+      skills: { type: set, of: string, required: true }
+      attributes: { type: set, of: string, default: [] }
+      rangeNormal: { type: integer, min: 0 }
+      rangeLong: { type: integer, min: 0 }
+      # Shock: damage on a miss against a target whose AC is at or under `shockAc`.
+      shock: { type: integer, default: 0, min: 0 }
+      shockAc: { type: integer, default: 0, min: 0 }
+      magazine: { type: integer, min: 0 }
+      hitBonus: { type: integer, default: 0 }
+      enc: { type: integer, default: 1, min: 0 }
+      cost: { type: integer, min: 0 }
+      techLevel: { type: integer, min: 0, max: 5 }
+      traumaDie: { type: dice }
+      traumaRating: { type: integer, min: 1 }
+    state:
+      shots: { type: integer, min: 0, default: 'has(item.magazine) ? item.magazine : 0' }
+    computed:
+      skillLevel:
+        type: integer
+        formula: "maxList(item.skills, fieldOf('skills.{skill}.level', x))"
+      attributeMod:
+        type: integer
+        formula: "size(item.attributes) == 0 ? 0 : maxList(item.attributes, fieldOf('attributes.{attribute}.mod', x))"
+      armed:
+        type: boolean
+        formula: "'stab' in item.skills || 'thrown' in item.tags"
+      close:
+        type: boolean
+        formula: "self.armed || 'punch' in item.skills"
+      # The total hit bonus: attack bonus, skill (-2 without even level-0), attribute, and the
+      # +1 of energy weapons.
+      hit:
+        type: integer
+        formula: >-
+          combat.attackBonus + (self.skillLevel < 0 ? -2 : self.skillLevel) + self.attributeMod
+            + item.hitBonus + ('energy' in item.tags ? 1 : 0) + (self.close ? combat.melee.hit : 0)
+            + (self.armed ? combat.armed.hit : 0)
+      # Added to the damage die: the attribute, the Punch level for unarmed and Punch weapons.
+      damage:
+        type: integer
+        formula: >-
+          self.attributeMod + ('punch' in item.skills ? max(0, skills.punch.level) : 0)
+            + combat.damageBonus + (self.close ? combat.melee.damage : combat.ranged.damage)
+            + (self.armed ? combat.armed.damage : 0)
+      shockDamage:
+        type: integer
+        formula: >-
+          item.shock > 0 ? item.shock + self.attributeMod + combat.melee.shock
+            + (self.armed ? combat.armed.shock : 0) : 0
+      shockAnyAc:
+        type: boolean
+        formula: 'item.shock > 0 && (combat.melee.shockAnyAc || (self.armed && combat.armed.shockAnyAc))'
+    effects:
+      # Light Sensitivity: laser damage against the target is rolled twice, the higher kept.
+      - target: { rolls: [damage], from: self }
+        op: rollModifier
+        value: { kind: advantage, of: roll }
+        when: >-
+          'laser' in item.tags && has(participants.target) && size(participants.target) > 0
+            && participants.target[0].defense.laserSensitive
+    actions:
+      - use: attack
+
+  # Armor and shields. `ac` is the armor class it grants (a shield's is 14, or +1).
+  armor:
+    carried: true
+    equippable: true
+    fields:
+      ac: { type: integer, required: true, min: 10 }
+      enc: { type: integer, default: 1, min: 0 }
+      traumaMod: { type: integer, default: 0 }
+      subtle: { type: boolean, default: false }
+      cost: { type: integer, min: 0 }
+      techLevel: { type: integer, min: 0, max: 5 }
+    effects:
+      # Heavy armor: -1 to Sneak and Exert checks while worn.
+      - target: { rolls: [skill.sneak, skill.exert] }
+        op: add
+        value: -1
+        when: "self.equipped && 'heavy' in item.tags"
+        stackKey: heavy-armor
+
+  # Everything else a survivor carries. `enc` is per unit; worn clothing and packs count nothing
+  # while worn (`wornFree`). Equipped means Readied.
+  gear:
+    carried: true
+    equippable: true
+    fields:
+      enc: { type: integer, default: 1, min: 0 }
+      wornFree: { type: boolean, default: false }
+      cost: { type: integer, min: 0 }
+      techLevel: { type: integer, min: 0, max: 5 }
+      # Drugs and stims: the Heal level applying it needs.
+      healSkill: { type: integer, min: 0 }
+
+# Everyone has fists.
+standardCopies:
+  - { type: weapon, where: 'item.id == @weapons.unarmed' }
+
+fields:
+  # Encumbrance: Readied items (equipped) up to half Strength, Stowed up to Strength. Pushing
+  # past them by up to 2 Readied and 4 Stowed slows to 7 meters, by twice that to 5 meters.
+  encumbrance.strength: { type: integer, formula: attributes.str.score }
+  # Worn armor's Readied encumbrance is multiplied by this (a negative mutation doubles it).
+  encumbrance.armorFactor: { type: integer, formula: 1 }
+  encumbrance.readied.max: { type: integer, formula: floor(encumbrance.strength / 2) }
+  encumbrance.stowed.max: { type: integer, formula: encumbrance.strength }
+  encumbrance.readied:
+    type: integer
+    formula: >-
+      sumCopies(copy.fields.enc * copy.quantity * (copy.type == 'armor' ? encumbrance.armorFactor : 1),
+        copy.equipped && has(copy.fields.enc)
+          && !(has(copy.fields.wornFree) && copy.fields.wornFree))
+  encumbrance.stowed:
+    type: integer
+    # Stowed small items (magazines, grenades, rations, drugs) bundle three to one.
+    formula: >-
+      sumCopies(copy.fields.enc * ('bundleable' in copy.tags ? floor((copy.quantity + 2) / 3) : copy.quantity),
+        !copy.equipped && has(copy.fields.enc))
+  # 0 within the limits, 1 or 2 for each step pushed past them.
+  encumbrance.overload:
+    type: integer
+    formula: >-
+      max(0, ceil((encumbrance.readied - encumbrance.readied.max) / 2),
+        ceil((encumbrance.stowed - encumbrance.stowed.max) / 4))
+
+constraints:
+  # Not checked while creating; before it finishes, the creation action stows or leaves behind
+  # what a start brings past the limits.
+  - id: encumbrance-limit
+    check: 'character.creating || encumbrance.overload <= 2'
+  - id: one-armor
+    check: "countCopies(copy.type == 'armor' && copy.equipped && !('shield' in copy.tags)) <= 1"
+
+situational:
+  # Burst fire: three rounds for +2 to hit and damage.
+  - id: burst
+    type: boolean
+    default: false
+    rolls: [attack.ranged, damage]
+    effects:
+      - target: { rolls: [attack.ranged, damage] }
+        op: add
+        value: 2
+        when: "'burst' in action.item.tags"
+
+resultBands:
+  attack:
+    - { id: hit, when: 'roll.kept[0] == 20 || (roll.kept[0] != 1 && roll.total >= flags.ac)' }
+    - { id: miss, when: true }
+
+actions:
+  # An attack with a weapon: a d20 plus the hit bonus against the target's AC (20 always hits,
+  # 1 always misses), damage on a hit, and Shock on a melee miss.
+  - id: attack
+    tags: [attack]
+    available: self.equipped || item.id == @weapons.unarmed
+    params:
+      targetAc: { type: integer, min: 0, optional: true }
+    # The one attacked, for what its own sheet changes about the attack.
+    participants:
+      target:
+        max: 1
+        fields:
+          defense.laserSensitive: { type: boolean, default: false }
+    results: [hit, miss, rolled]
+    steps:
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ac: 'has(params.targetAc) ? params.targetAc : 0'
+              burst: "situational.burst && 'burst' in item.tags && has(item.magazine) && self.shots >= 3"
+      - id: roll
+        kind: roll
+        tags: [attack, { formula: "self.close ? 'attack.melee' : 'attack.ranged'" }]
+        bands: attack
+        parts:
+          - dice: 1d20
+          - value: self.hit
+      - id: damage
+        kind: roll
+        tags: [damage]
+        when: "has(item.damage) && (steps.roll.band == 'hit' || !has(params.targetAc))"
+        parts:
+          - dice: item.damage
+          - value: self.damage
+      - id: shots
+        kind: changes
+        when: has(item.magazine) && self.shots > 0
+        changes:
+          - { type: adjustState, entry: self, key: shots, by: 'flags.burst ? -3 : -1' }
+      - id: result
+        kind: outcome
+        result: "!has(params.targetAc) ? 'rolled' : steps.roll.band"
+        data:
+          attack: steps.roll.total
+          damage: 'has(steps.damage) ? max(steps.damage.total, self.shockDamage) : 0'
+          shock: >-
+            !has(steps.damage) && self.shockDamage > 0
+              && (self.shockAnyAc || flags.ac <= item.shockAc) ? self.shockDamage : 0

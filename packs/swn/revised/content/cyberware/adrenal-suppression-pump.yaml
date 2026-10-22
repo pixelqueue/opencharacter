@@ -1,0 +1,17 @@
+id: cyberware.adrenal-suppression-pump
+type: cyberware
+fields:
+  strain: 1
+  cost: 30000
+  techLevel: 4
+state:
+  active: { type: boolean, default: false }
+effects:
+  - target: { rolls: [initiative] }
+    op: add
+    value: 2
+    when: self.active
+  - target: { rolls: [check.social] }
+    op: add
+    value: -2
+    when: self.active

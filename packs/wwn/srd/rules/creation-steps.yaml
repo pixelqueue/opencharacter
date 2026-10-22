@@ -1,0 +1,258 @@
+actions:
+  # A background table entry: a skill, `any` or `combat` skill, or `any-stat`, `physical` or
+  # `mental` attribute points.
+  - id: background-entry
+    available: false
+    params:
+      entry: { type: string }
+      random: { type: boolean, default: false }
+    results: [gained]
+    steps:
+      - id: skill
+        kind: action
+        when: "!(params.entry in ['any-stat', 'physical', 'mental'])"
+        use: gain-skill
+        params: { skill: params.entry, random: params.random }
+      - id: attribute
+        kind: action
+        when: "params.entry in ['any-stat', 'physical', 'mental']"
+        use: gain-attributes
+        params: { kind: params.entry, random: params.random }
+      - id: result
+        kind: outcome
+        result: "'gained'"
+
+  # Gaining a skill at creation: level-0, or level-1 if it is already level-0. A skill already
+  # at level-1, or a choice (`any`, `combat`, `punch-stab`, `perform-sneak`, `specialist`), is a
+  # pick among the skills still below level-1; a Focus's pick leaves out Magic.
+  #
+  # With `points` (a Focus gained after first level), the skill gets that many skill points
+  # instead: levels as far as they pay, the rest kept as credit toward the next. A skill at
+  # level-4 sends them to another.
+  - id: gain-skill
+    available: false
+    params:
+      skill: { type: string }
+      random: { type: boolean, default: false }
+      focus: { type: boolean, default: false }
+      points: { type: integer, default: 0, min: 0 }
+    results: [gained]
+    steps:
+      - id: setup
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              cap: 'params.points > 0 ? 4 : 1'
+              direct: >-
+                params.skill in keysOf('skill')
+                  && fieldOf('skills.{skill}', params.skill) < (params.points > 0 ? 4 : 1)
+              allowed: >-
+                params.skill == 'combat' && (skills.stab < 1 || skills.shoot < 1 || skills.punch < 1)
+                    ? ['stab', 'shoot', 'punch']
+                  : params.skill == 'punch-stab' && (skills.punch < 1 || skills.stab < 1)
+                    ? ['punch', 'stab']
+                  : params.skill == 'perform-sneak' && (skills.perform < 1 || skills.sneak < 1)
+                    ? ['perform', 'sneak']
+                  : params.skill == 'specialist'
+                    ? filterList(keysOf('skill'), !(x in ['magic', 'stab', 'shoot', 'punch']))
+                  : params.focus ? filterList(keysOf('skill'), x != 'magic')
+                  : keysOf('skill')
+      - id: pick
+        kind: choice
+        sheet: proposed
+        when: '!flags.direct'
+        random: params.random
+        options:
+          values: { formula: flags.allowed }
+          where: "fieldOf('skills.{skill}', value) < flags.cap"
+        recommend: options[0]
+      - id: target
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: flags.direct || has(steps.pick)
+            flags:
+              target: 'flags.direct ? params.skill : steps.pick.picked'
+              from: "fieldOf('skills.{skill}', flags.direct ? params.skill : steps.pick.picked)"
+              credit: >-
+                fieldOf('skillCredit.{skill}', flags.direct ? params.skill : steps.pick.picked)
+                  + params.points
+      # Skill points: a level costs one more than the level bought.
+      - id: spend
+        kind: branch
+        when: params.points > 0 && has(flags.target)
+        cases:
+          - when: true
+            flags:
+              first: 'flags.credit >= flags.from + 2 ? 1 : 0'
+              left: 'flags.credit >= flags.from + 2 ? flags.credit - flags.from - 2 : flags.credit'
+      - id: spend2
+        kind: branch
+        when: params.points > 0 && has(flags.target)
+        cases:
+          - when: true
+            flags:
+              second: 'flags.from + flags.first < 4 && flags.left >= flags.from + flags.first + 2 ? 1 : 0'
+      - id: raise
+        kind: changes
+        when: has(flags.target)
+        changes:
+          - type: adjust
+            when: params.points == 0
+            field: { formula: "'skills.' + flags.target" }
+            by: 1
+          - type: adjust
+            when: params.points > 0 && flags.first + flags.second > 0
+            field: { formula: "'skills.' + flags.target" }
+            by: flags.first + flags.second
+          - type: set
+            when: params.points > 0
+            field: { formula: "'skillCredit.' + flags.target" }
+            value: >-
+              flags.second > 0 ? flags.left - flags.from - flags.first - 2 : flags.left
+      - id: result
+        kind: outcome
+        result: "'gained'"
+
+  # Background attribute points: +1 to any attribute, or +2 to one physical (or mental)
+  # attribute or +1 to two. None goes past 18.
+  - id: gain-attributes
+    available: false
+    params:
+      kind: { type: enum, values: [any-stat, physical, mental] }
+      random: { type: boolean, default: false }
+    results: [gained]
+    steps:
+      - id: one
+        kind: choice
+        sheet: proposed
+        when: "params.kind == 'any-stat'"
+        random: params.random
+        options:
+          values: [str, dex, con, int, wis, cha]
+          where: "fieldOf('attributes.{attr}.score', value) < 18"
+        recommend: "sortList(options, fieldOf('attributes.{attr}.score', x))[0]"
+        changes:
+          - { type: adjust, field: { formula: "'attributes.' + picked.id + '.score'" }, by: 1 }
+      - id: two
+        kind: allocate
+        sheet: proposed
+        when: "params.kind != 'any-stat'"
+        fields:
+          type: field
+          where: >-
+            params.kind == 'physical'
+              ? item.id in [@attributes.str.score, @attributes.dex.score, @attributes.con.score]
+              : item.id in [@attributes.int.score, @attributes.wis.score, @attributes.cha.score]
+        budget: 2
+        spend: upTo
+        limit: 18 - field.value
+        random: true
+      - id: result
+        kind: outcome
+        result: "'gained'"
+
+  # A Focus: a new one at its first level, or the next level of one held. A new Focus asks its
+  # own choices, then gives its bonus skill.
+  - id: pick-focus
+    available: false
+    params:
+      kind: { type: enum, values: [any, combat, noncombat] }
+      random: { type: boolean, default: false }
+      points: { type: integer, default: 0, min: 0 }
+    results: [picked]
+    steps:
+      - id: focus
+        kind: choice
+        sheet: proposed
+        random: params.random
+        options:
+          content:
+            type: focus
+            where: >-
+              (params.kind == 'any' || params.kind in item.tags)
+                && (!params.random || !('gm-defined' in item.tags))
+                && (item.repeatable || sumCopies(copy.state.level,
+                  copy.type == 'focus' && copy.item == item.id) < item.maxLevel)
+                && (item.requires == 'none'
+                  || (item.requires == 'mage' && class.mage > 0)
+                  || (item.requires == 'non-mage' && class.mage == 0)
+                  || (item.requires == 'expert' && class.expert > 0)
+                  || (item.requires == 'invoker' && tradition.invoker.tier > 0)
+                  || (item.requires == 'low-attribute' && min(attributes.str.mod,
+                    attributes.dex.mod, attributes.con.mod, attributes.int.mod,
+                    attributes.wis.mod, attributes.cha.mod) <= -1))
+        recommend: options[0]
+      - id: held
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              raise: >-
+                countCopies(copy.type == 'focus' && copy.item == steps.focus.picked
+                  && copy.state.level < steps.focus.item.maxLevel) > 0
+      - id: take
+        kind: changes
+        changes:
+          - type: adjustState
+            when: flags.raise
+            copies:
+              { type: focus, where: 'item.id == steps.focus.picked && self.level < item.maxLevel' }
+            limit: 1
+            key: level
+            by: 1
+          - type: addItem
+            when: '!flags.raise'
+            entry: { item: steps.focus.picked, state: { level: 1 } }
+      - id: focusChoices
+        kind: choice
+        when: '!flags.raise'
+        random: params.random
+        options: { pending: { entry: 'steps.take.added[0]' } }
+        recommend: options[0]
+      - id: bonusSkill
+        kind: action
+        when: "!flags.raise && steps.focus.item.bonusSkill != 'none'"
+        use: gain-skill
+        params:
+          skill: >-
+            steps.focus.item.bonusSkill == 'specialist' && has(steps.focusChoices)
+                && size(steps.focusChoices.picked) > 0
+              ? steps.focusChoices.picked[0] : steps.focus.item.bonusSkill
+          random: params.random
+          focus: true
+          points: params.points
+      - id: result
+        kind: outcome
+        result: "'picked'"
+
+  # The arts each tradition still owes, one pick at a time.
+  - id: pick-arts
+    available: false
+    params:
+      random: { type: boolean, default: false }
+    results: [picked]
+    steps:
+      - id: arts
+        kind: choice
+        sheet: proposed
+        random: params.random
+        repeat: { max: arts.owed, min: arts.owed }
+        options:
+          content:
+            type: art
+            where: >-
+              fieldOf('arts.{artTrad}.owed', item.tradition) > 0
+                && (countCopies(copy.item == item.id) == 0 || 'repeatable' in item.tags)
+                && level >= item.minLevel && !('granted' in item.tags)
+                && (!has(item.requiresArt) || countCopies(copy.item == item.requiresArt) > 0)
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: result
+        kind: outcome
+        result: "'picked'"

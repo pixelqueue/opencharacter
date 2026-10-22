@@ -1,0 +1,199 @@
+# The optional magic rules: mages (Spellcaster), summoners (Summoner) and the Graced. Each
+# cybernetic system lowers a mage's or summoner's Effort, and a Graced's art points, by its
+# System Strain, at least one point each.
+contentTypes:
+  # A spell the mage knows. Prepared spells can be cast.
+  spell:
+    fields:
+      # How long casting Commits Effort: for the day, the scene, either (the caster picks), or no
+      # Effort at all.
+      effort: { type: enum, values: [day, scene, either, none], required: true }
+      duration:
+        type: enum
+        values: [instant, scene, concentration, rounds]
+        required: true
+    state:
+      prepared: { type: boolean, default: false }
+    actions:
+      - use: cast-spell
+
+  # A Graced art, bought with art points.
+  art:
+    fields:
+      cost: { type: integer, required: true, min: 1 }
+
+  # A spirit the summoner has called: its manifestation, how it was summoned and its powers.
+  spirit:
+    nameFrom: label
+    state:
+      label: { type: string, default: '' }
+      form:
+        type: enum
+        values: [spirit-1, spirit-2, spirit-3, physical-1, physical-2, physical-3]
+        default: spirit-1
+      ritual: { type: boolean, default: true }
+    computed:
+      # The Effort a summoning Commits for the day: one per power, less one for a ritual
+      # summoning, less the Summon skill, at least 1.
+      cost:
+        type: integer
+        formula: >-
+          max(1, size(picksOf('powers')) - (self.ritual ? 1 : 0) - max(0, skills.summon.level))
+    actions:
+      - use: summon-spirit
+
+  # A spirit power: each adds one point to a spirit's cost.
+  spiritPower:
+    copies: { max: 0 }
+    fields:
+      minLevel: { type: integer, default: 1, min: 1 }
+      physicalOnly: { type: boolean, default: false }
+
+fields:
+  magic.mage: { type: boolean, formula: 'false' }
+  magic.summoner: { type: boolean, formula: 'false' }
+  magic.graced: { type: boolean, formula: 'false' }
+  # Each implanted system costs its System Strain, at least one point.
+  magic.cyberPenalty:
+    type: integer
+    formula: "ceil(sumCopies(max(1, copy.fields.strain), copy.type == 'cyberware'))"
+
+  # Mage Effort: the better of Int or Wis plus Cast, at least 1. Committed Effort is tracked by
+  # how long it is Committed.
+  effort.mage.max:
+    type: integer
+    formula: >-
+      magic.mage ? max(1, max(attributes.int.mod, attributes.wis.mod) + skills.cast.level
+        - magic.cyberPenalty) : 0
+  effort.mage.scene: { type: integer, input: true, default: 0, min: 0 }
+  effort.mage.day: { type: integer, input: true, default: 0, min: 0 }
+  effort.mage.current:
+    type: integer
+    formula: max(0, effort.mage.max - effort.mage.scene - effort.mage.day)
+  # Spells a mage can have prepared: half their level, rounded up, plus Cast.
+  spells.preparedMax:
+    type: integer
+    formula: 'magic.mage ? max(0, ceil(level / 2) + skills.cast.level) : 0'
+  spells.prepared:
+    type: integer
+    formula: "countCopies(copy.type == 'spell' && copy.state.prepared)"
+    limits: { max: spells.preparedMax }
+
+  # Summoner Effort: the better of Con or Cha plus Summon, at least 1.
+  effort.summoner.max:
+    type: integer
+    formula: >-
+      magic.summoner ? max(1, max(attributes.con.mod, attributes.cha.mod) + skills.summon.level
+        - magic.cyberPenalty) : 0
+  effort.summoner.scene: { type: integer, input: true, default: 0, min: 0 }
+  effort.summoner.day: { type: integer, input: true, default: 0, min: 0 }
+  effort.summoner.current:
+    type: integer
+    formula: max(0, effort.summoner.max - effort.summoner.scene - effort.summoner.day)
+
+  # Graced art points: 2 at 1st level and more as the character rises, less the cyber penalty.
+  arts.points:
+    type: integer
+    formula: >-
+      magic.graced ? max(0, [2, 3, 4, 6, 6, 7, 7, 9, 10, 11][level - 1]
+        - (countCopies(copy.type == 'cyberware') > 0 ? magic.cyberPenalty : 0)) : 0
+  arts.spent:
+    type: integer
+    formula: "sumCopies(copy.fields.cost, copy.type == 'art')"
+    limits: { max: arts.points }
+  # Martial Instinct's bonus combat rolls: as many as the highest combat skill, at least one,
+  # refreshed by a night's rest.
+  arts.bonusRolls.max: { type: integer, formula: 0 }
+  arts.bonusRolls.used:
+    { type: integer, input: true, default: 0, min: 0, max: 'max(0, arts.bonusRolls.max)' }
+
+situational:
+  # One of Martial Instinct's bonus rolls, spent on the attack's hit or damage roll.
+  - id: bonusRoll
+    type: enum
+    values: [none, hit, damage]
+    default: none
+    rolls: [attack, damage]
+  # The save resists a spell or magical effect (Occult Pavis).
+  - id: versusMagic
+    type: boolean
+    default: false
+    rolls: [save]
+
+resultBands:
+  overcast:
+    - { id: death, when: roll.total <= 1 }
+    - { id: mortal, when: roll.total <= 4 }
+    - { id: unconscious, when: roll.total <= 8 }
+    - { id: stunned, when: roll.total <= 15 }
+    - { id: dazed, when: roll.total <= 19 }
+    - { id: strained, when: true }
+
+actions:
+  # Cast a prepared spell: Commit its Effort, or overcast it for none and roll on the overcasting
+  # table (d20 + Cast + Con, -2 for a day spell) for its System Strain and worse.
+  - id: cast-spell
+    tags: [magic, spell]
+    available: magic.mage && self.prepared
+    params:
+      # For spells Committing for the scene or the day.
+      commit: { type: enum, values: [scene, day], optional: true }
+      overcast: { type: boolean, default: false }
+    results: [cast, overcast]
+    steps:
+      - id: start
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              commit: >-
+                item.effort == 'either' ? (has(params.commit) ? params.commit : 'scene')
+                  : item.effort
+      - id: effort
+        kind: changes
+        when: "!params.overcast && flags.commit != 'none'"
+        changes:
+          - { type: adjust, when: "flags.commit == 'scene'", field: effort.mage.scene, by: 1 }
+          - { type: adjust, when: "flags.commit == 'day'", field: effort.mage.day, by: 1 }
+      - id: overcasting
+        kind: roll
+        when: params.overcast
+        tags: [overcast]
+        bands: overcast
+        parts:
+          - dice: 1d20
+          - field: "'skills.cast.level'"
+          - field: "'attributes.con.mod'"
+          - { value: -2, when: "flags.commit == 'day'" }
+      - id: strain
+        kind: changes
+        when: params.overcast
+        changes:
+          - type: adjust
+            when: "!(steps.overcasting.band in ['death', 'mortal'])"
+            field: strain.temporary
+            by: "steps.overcasting.band == 'unconscious' ? 4 : steps.overcasting.band == 'stunned' ? 2 : 1"
+          - type: set
+            when: steps.overcasting.band == 'mortal'
+            field: hp.current
+            value: 0
+      - id: result
+        kind: outcome
+        result: "params.overcast ? 'overcast' : 'cast'"
+        data:
+          consequence: "params.overcast ? steps.overcasting.band : 'none'"
+
+  # Summon a spirit: Commit Summoner Effort for the day, its cost.
+  - id: summon-spirit
+    tags: [magic, summoning]
+    available: magic.summoner
+    params:
+      # Immediate summonings already made this scene, each adding one point.
+      earlier: { type: integer, default: 0, min: 0 }
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - type: adjust
+            field: effort.summoner.day
+            by: 'self.cost + (self.ritual ? 0 : params.earlier)'

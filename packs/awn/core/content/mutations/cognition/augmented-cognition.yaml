@@ -1,0 +1,19 @@
+id: mutations.cognition.augmented-cognition
+type: mutation
+fields:
+  category: cognition
+  roll: 1
+choices:
+  - id: attribute
+    from: { values: [int, wis, cha] }
+    recommend: "sortList(['int', 'wis', 'cha'], -fieldOf('attributes.{attribute}.score', x))[0]"
+    effects:
+      - target:
+          {
+            fields:
+              {
+                where: "'attribute-boost' in item.tags && ('attribute.' + pick.value) in item.tags",
+              },
+          }
+        op: add
+        value: 1

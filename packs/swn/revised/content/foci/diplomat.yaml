@@ -1,0 +1,10 @@
+id: foci.diplomat
+type: focus
+fields:
+  kind: noncombat
+  skill: talk
+effects:
+  - target: { rolls: [check] }
+    op: rollModifier
+    value: { kind: reroll, below: 1, once: true }
+    when: situational.negotiation

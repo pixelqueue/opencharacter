@@ -58,8 +58,10 @@ change packs, scripts or docs.
 
 - **Mechanics in `content/` and `rules/`, text in `i18n/`.** No player-facing string next to
   mechanics. One file per content item; its `id` matches its path.
-- **No copyrighted rules text** from games that aren't openly licensed. Mechanics-only packs
-  hold the math and names only. Open-licensed packs keep their license and credit line.
+- **No copyrighted rules text** from games that aren't openly licensed, unless the rights holder
+  gave permission: such a pack declares a `LicenseRef-` license with a `credit` and a
+  `permission` notice. Mechanics-only packs hold the math and names only. Open-licensed packs
+  keep their license and credit line.
 - **Every pack that starts a sheet offers a random start** (`random: true` in `creation`) beside
   its guided one: its steps recommend every pick, so an automatic run finishes. Where the book
   has no random method, the pack picks reasonable odds.

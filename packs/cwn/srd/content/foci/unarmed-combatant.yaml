@@ -1,0 +1,14 @@
+id: foci.unarmed-combatant
+type: focus
+fields:
+  bonusSkill: punch
+keepsTemplates:
+  - template: weapon-mods.unarmed-combatant
+    copies:
+      type: weapon
+      where: "'unarmed' in item.tags"
+  - template: weapon-mods.unarmed-combatant-2
+    when: 'self.level >= 2'
+    copies:
+      type: weapon
+      where: "'unarmed' in item.tags"

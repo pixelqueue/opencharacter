@@ -1,0 +1,13 @@
+description: 'wwn-srd: the random start rolls the attributes, three Growth or Learning rolls and
+  3d6 x 10 starting silver, and draws the background, class, its partial classes, Foci, arts,
+  spells and the weapon, armor and gear it buys among the options open, so an automatic run
+  finishes'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/wwn/srd
+input:
+  action:
+    id: wwn-srd:create-character
+  params: { random: true }
+  policy: { dice: auto, choices: auto, allocations: auto }

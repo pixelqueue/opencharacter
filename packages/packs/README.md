@@ -18,7 +18,7 @@ import all, { packs } from '@opencharacter/packs';
 import en from '@opencharacter/packs/i18n/en';
 
 const loaded = loadRuleset([packs['5e-srd-5.1']]);
-console.log(all.length, en['5e-srd-5.1']['spells.fireball.name']); // 9 'Fireball'
+console.log(all.length, en['5e-srd-5.1']['spells.fireball.name']); // 14 'Fireball'
 ```
 
 - `default`: every pack's release, as an array.
@@ -45,6 +45,11 @@ text, under the same licenses:
 | `fitd-crew`      | mechanics-only (own work CC0 1.0; SRD material CC-BY-3.0)        | `credit` (the SRD's attribution)                             |
 | `mork-borg-core` | mechanics-only (own work CC0 1.0), MÖRK BORG Third Party License | `credit`; `not-affiliated`                                   |
 | `mothership-1e`  | mechanics-only (own work CC0 1.0)                                | none                                                         |
+| `awn-core`       | free-edition text by the author's permission (own work CC0 1.0)  | `credit`; `permission`, `not-affiliated`                     |
+| `cwn-srd`        | CC0-1.0 (the Cities Without Number SRD)                          | `not-affiliated`                                             |
+| `godbound-core`  | free-edition text by the author's permission (own work CC0 1.0)  | `credit`; `permission`, `not-affiliated`                     |
+| `swn-revised`    | free-edition text by the author's permission (own work CC0 1.0)  | `credit`; `permission`, `not-affiliated`                     |
+| `wwn-srd`        | CC0-1.0 (the Worlds Without Number SRD)                          | `not-affiliated`                                             |
 
 **How credits and notices reach users:** each pack's `credit` and `notices` are in its release's
 manifest, and `loadRuleset` lists them in the ruleset's `packs`. An app that uses a pack's content

@@ -1,0 +1,36 @@
+id: foci.specialist
+type: focus
+fields:
+  kind: noncombat
+  skill: chosen
+  repeatable: true
+choices:
+  - id: skill
+    unique: specialist
+    from:
+      {
+        values:
+          [
+            administer,
+            connect,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            pilot,
+            program,
+            sneak,
+            survive,
+            talk,
+            trade,
+            work,
+          ],
+      }
+    recommend: "'fix'"
+    effects:
+      - target: { fields: { where: "item.id == 'swn-revised:skills.' + pick.value + '.dice'" } }
+        op: atLeast
+        value: self.level + 2

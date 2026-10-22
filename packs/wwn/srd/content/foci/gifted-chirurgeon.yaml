@@ -1,0 +1,11 @@
+id: foci.gifted-chirurgeon
+type: focus
+tags: [noncombat]
+fields:
+  bonusSkill: heal
+effects:
+  # Heal checks: 3d6, the lowest dropped.
+  - target: { rolls: [skill.heal] }
+    op: rollModifier
+    value: { kind: poolDice, count: 1 }
+    stackKey: skill-dice

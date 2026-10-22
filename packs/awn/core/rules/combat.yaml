@@ -1,0 +1,146 @@
+fields:
+  # Hit points: 1d6 per level, each die adding the Constitution modifier and never under 1.
+  hp.max: { type: integer, input: true, default: 1, min: 1 }
+  hp.current: { type: integer, input: true, default: 1, min: 0, max: hp.max }
+  # The attribute modifier each hit die adds (some mutations substitute another).
+  hp.attributeMod: { type: integer, formula: attributes.con.mod }
+  # What each hit die adds: the modifier, +2 for Hard to Kill, less for some mutations.
+  hp.dieBonus: { type: integer, formula: hp.attributeMod }
+
+  combat.attackBonus: { type: integer, formula: floor(level / 2) }
+  # Added to every damage roll (Killing Blow).
+  combat.damageBonus: { type: integer, formula: 0 }
+  # Melee and thrown attacks: hit and damage bonuses, Shock bonuses, and whether their Shock
+  # treats every target as AC 10.
+  combat.melee.hit: { type: integer, formula: 0 }
+  combat.melee.damage: { type: integer, formula: 0 }
+  combat.melee.shock: { type: integer, formula: 0 }
+  combat.melee.shockAnyAc: { type: boolean, formula: false }
+  # Armed melee and thrown attacks only, not unarmed ones (Armsmaster).
+  combat.armed.hit: { type: integer, formula: 0 }
+  combat.armed.damage: { type: integer, formula: 0 }
+  combat.armed.shock: { type: integer, formula: 0 }
+  combat.armed.shockAnyAc: { type: boolean, formula: false }
+  # Ranged attacks: damage bonus (Deadeye).
+  combat.ranged.damage: { type: integer, formula: 0 }
+  # The optional Traumatic Hit rules: a human's base trauma target is 6, worn armor adds its
+  # modifier.
+  combat.traumaTarget:
+    type: integer
+    formula: >-
+      6 + maxCopies(copy.fields.traumaMod, copy.type == 'armor' && copy.equipped
+        && has(copy.fields.traumaMod))
+  # Movement per Move action, in meters, after encumbrance.
+  move.base: { type: integer, formula: 10 }
+  move.value:
+    type: integer
+    formula: >-
+      encumbrance.overload <= 0 ? move.base
+        : encumbrance.overload == 1 ? floor(move.base * 7 / 10) : floor(move.base / 2)
+
+  # Armor class: the best worn armor (10 unarmored), a shield's 14 or +1, then Dexterity.
+  # Primitive armor and shields count as AC 10 against gunfire, explosives and high-tech blades.
+  ac.armor:
+    type: integer
+    formula: >-
+      max(10, maxCopies(copy.fields.ac, copy.type == 'armor' && copy.equipped
+        && !('shield' in copy.tags)))
+  ac.armorVsGuns:
+    type: integer
+    formula: >-
+      max(10, maxCopies(copy.fields.ac, copy.type == 'armor' && copy.equipped
+        && !('shield' in copy.tags) && !('primitive' in copy.tags)))
+  ac.shield:
+    type: boolean
+    formula: "countCopies(copy.type == 'armor' && copy.equipped && 'shield' in copy.tags) > 0"
+  # Added after armor (Reinforced Tissues).
+  ac.bonus: { type: integer, formula: 0 }
+  ac.value:
+    type: integer
+    formula: >-
+      (ac.shield ? (ac.armor >= 14 ? ac.armor + 1 : 14) : ac.armor) + attributes.dex.mod
+        + ac.bonus
+  ac.vsGuns: { type: integer, formula: ac.armorVsGuns + attributes.dex.mod + ac.bonus }
+
+  # Saving throws: 16 less the level, less the better attribute modifier; roll at or over.
+  saves.physicalMod: { type: integer, formula: 'max(attributes.str.mod, attributes.con.mod)' }
+  saves.evasionMod: { type: integer, formula: 'max(attributes.int.mod, attributes.dex.mod)' }
+  saves.mentalMod: { type: integer, formula: 'max(attributes.wis.mod, attributes.cha.mod)' }
+  saves.physical:
+    { type: integer, formula: 16 - level - saves.physicalMod, tags: [save, save.physical] }
+  saves.evasion:
+    { type: integer, formula: 16 - level - saves.evasionMod, tags: [save, save.evasion] }
+  saves.mental: { type: integer, formula: 16 - level - saves.mentalMod, tags: [save, save.mental] }
+  saves.luck: { type: integer, formula: 16 - level, tags: [save, save.luck] }
+
+  # System strain: up to the Constitution score. Penalties stop at 3; bonuses at their cap.
+  strain.penalty: { type: integer, formula: 0 }
+  strain.bonus: { type: integer, formula: 0 }
+  strain.bonusCap: { type: integer, formula: 20 }
+  strain.max:
+    type: integer
+    formula: >-
+      (strain.penalty < 0
+        ? max(min(3, attributes.con.score), attributes.con.score + strain.penalty)
+        : attributes.con.score) + max(0, min(strain.bonus,
+          strain.bonusCap - attributes.con.score))
+  strain.current: { type: integer, input: true, default: 0, min: 0, max: strain.max }
+
+  # The optional Stress rules: a breakdown threatens once stress passes the Wisdom score.
+  stress.current: { type: integer, input: true, default: 0, min: 0 }
+  stress.limit: { type: integer, formula: attributes.wis.score }
+  stress.immune: { type: boolean, formula: false }
+
+  # Laser damage against the character is rolled twice, the higher kept (Light Sensitivity).
+  defense.laserSensitive: { type: boolean, formula: false }
+
+situational:
+  # What a saving throw resists, for bonuses that apply only against it.
+  - id: versus
+    type: enum
+    values: [other, poison, disease, radiation]
+    default: other
+    rolls: [save]
+  # The GM calls the skill check social (persuading, charming, dealing with people).
+  - id: social
+    type: boolean
+    default: false
+    rolls: [check]
+  # The check resists or escapes a grapple (Constant Secretions).
+  - id: grapple
+    type: boolean
+    default: false
+    rolls: [check]
+  # The check (or its result roll) is for foraging (Survivalist).
+  - id: foraging
+    type: boolean
+    default: false
+    rolls: [check]
+
+resultBands:
+  save:
+    - { id: success, when: 'roll.total >= flags.target' }
+    - { id: failure, when: true }
+
+actions:
+  # A saving throw: a d20 at or over the save's score.
+  - id: save
+    tags: [save]
+    params:
+      save: { type: id, of: field, where: "'save' in item.tags" }
+    results: { bands: save }
+    steps:
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags: { target: params.save.value }
+      - id: roll
+        kind: roll
+        tags: [{ formula: params.save.tags }]
+        bands: save
+        parts: [{ dice: 1d20 }]
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data: { roll: steps.roll.total, target: flags.target }

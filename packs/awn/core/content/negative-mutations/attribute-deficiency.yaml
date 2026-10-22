@@ -1,0 +1,27 @@
+id: negative-mutations.attribute-deficiency
+type: negative
+fields:
+  roll: 81
+choices:
+  # The lowest attribute (a tie is the player's pick) takes -1.
+  - id: attribute
+    from:
+      values: [str, dex, con, int, wis, cha]
+      where: >-
+        value in choice.picks || fieldOf('attributes.{attribute}.score', value)
+          == minList(['str', 'dex', 'con', 'int', 'wis', 'cha'],
+            fieldOf('attributes.{attribute}.score', x))
+    recommend: >-
+      sortList(['str', 'dex', 'con', 'int', 'wis', 'cha'],
+        fieldOf('attributes.{attribute}.score', x))[0]
+    effects:
+      - target:
+          {
+            fields:
+              {
+                where: "'attribute-penalty' in item.tags && ('attribute.' + pick.value) in item.tags",
+              },
+          }
+        op: add
+        value: -1
+        when: '!self.light'

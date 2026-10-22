@@ -1,0 +1,12 @@
+id: cyberware.remote-control-unit
+type: cyberware
+fields:
+  cost: 10000
+  category: nerve
+  concealment: touch
+  strain: 2
+  triggerStrain: 1
+effects:
+  - target: drones.commandable
+    op: atLeast
+    value: '1 + max(0, skills.drive.level)'

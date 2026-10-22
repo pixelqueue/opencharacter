@@ -1,0 +1,115 @@
+contentTypes:
+  # A Focus is a copy with its level: the first time it is chosen it is level 1, the second time
+  # level 2. Specialist may be taken again for another skill.
+  focus:
+    fields:
+      maxLevel: { type: integer, default: 2, min: 1, max: 2 }
+      # Bonus skills on taking the first level: a skill or `combat`, `any`, `punch-stab`, or
+      # `noncombat` (the Specialist's skill). `bonusSkill2` is a second one.
+      bonusSkill:
+        type: enum
+        values:
+          [
+            administer,
+            connect,
+            drive,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            program,
+            punch,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            talk,
+            trade,
+            work,
+            combat,
+            any,
+            punch-stab,
+            noncombat,
+          ]
+      bonusSkill2:
+        type: enum
+        values:
+          [
+            administer,
+            connect,
+            drive,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            program,
+            punch,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            talk,
+            trade,
+            work,
+          ]
+      # A bonus skill on taking the second level (Ace Driver's Fix).
+      levelTwoSkill:
+        type: enum
+        values:
+          [
+            administer,
+            connect,
+            drive,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            program,
+            punch,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            talk,
+            trade,
+            work,
+          ]
+      # Gear the first level brings, by content ID, and the gear budget it opens.
+      startingItems: { type: set, of: string, default: [] }
+      # Cyberware it brings, installed when the character's System Strain can take it all.
+      startingCyber: { type: set, of: string, default: [] }
+      startingCyberStrain: { type: decimal, default: 0, min: 0 }
+      gearBudget: { type: enum, values: [vehicle, drone] }
+    state:
+      level: { type: integer, default: 1, min: 1, max: item.maxLevel }
+
+fields:
+  # Focus levels the character may have: one at creation, one more at levels 2, 5, 7 and 10, and
+  # one per Focused Edge.
+  foci.allowed:
+    type: integer
+    formula: '1 + (level >= 2 ? 1 : 0) + (level >= 5 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 10 ? 1 : 0)'
+  foci.taken:
+    type: integer
+    formula: "sumCopies(copy.state.level, copy.type == 'focus')"
+
+constraints:
+  - id: foci-allowed
+    check: foci.taken <= foci.allowed
+  - id: focus-once
+    copies: { type: focus, where: "!('repeatable' in item.tags)" }
+    check: countCopies(copy.item == item.id) <= 1
+
+followUps:
+  - id: gain-focus
+    while: '!character.creating && foci.taken < foci.allowed'
+    action: gain-focus

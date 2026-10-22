@@ -1,0 +1,450 @@
+actions:
+  # The GM says which of the three starting options the campaign uses. Hapless innocents have
+  # what the players have on them (the app's); prepared survivors add four picks from a list;
+  # wasteland warriors get a kit, then one pick or three rolls on a d20 table: the near-future
+  # one or the wasteland one. The book's default setting is a wasteland, so that is recommended.
+  - id: starting-equipment
+    tags: [creation]
+    params:
+      random: { type: boolean, default: false }
+    results: [equipped]
+    steps:
+      - id: kit
+        kind: choice
+        options: [{ id: innocents }, { id: prepared }, { id: near-future }, { id: wasteland }]
+        recommend: "'wasteland'"
+      - id: prepared
+        kind: choice
+        when: "steps.kit.picked == 'prepared'"
+        repeat: { max: 4, min: 4 }
+        random: params.random
+        recommend: >-
+          size(filterList(['knife', 'first-aid-kit', 'preserved-food', 'backpack'], x in options)) > 0
+            ? filterList(['knife', 'first-aid-kit', 'preserved-food', 'backpack'], x in options)[0]
+            : options[0]
+        options:
+          - id: light-pistol
+            when: picks == 0
+            changes:
+              - { type: addItem, entry: { item: "'weapons.light-pistol'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.magazine'", quantity: 2 } }
+          - id: heavy-pistol
+            when: picks == 0
+            changes:
+              - { type: addItem, entry: { item: "'weapons.heavy-pistol'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.magazine'", quantity: 2 } }
+          - id: rifle
+            when: picks == 0
+            changes:
+              - { type: addItem, entry: { item: "'weapons.rifle'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.magazine'", quantity: 2 } }
+          - id: shotgun
+            when: picks == 0
+            changes:
+              - { type: addItem, entry: { item: "'weapons.shotgun'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.ammo'", quantity: 2 } }
+          # A criminal's non-military firearm: the semi-auto shotgun stands for any of them.
+          - id: criminal-firearm
+            when: picks == 0
+            changes:
+              - { type: addItem, entry: { item: "'weapons.semi-auto-shotgun'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.magazine'", quantity: 2 } }
+          - id: knife
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'weapons.knife'", equipped: true } }]
+          - id: smartphone
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.smartphone'" } }]
+          - id: preserved-food
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.preserved-food'" } }]
+          - id: camping-kit
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.camping-kit'" } }]
+          - id: first-aid-kit
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.first-aid-kit'" } }]
+          - id: tent
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.tent'" } }]
+          - id: toolkit
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.toolkit'" } }]
+          - id: flashlight
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.flashlight'" } }]
+          - id: cold-weather-clothes
+            when: picks == 0
+            changes:
+              [{ type: addItem, entry: { item: "'gear.clothes-cold-weather'", equipped: true } }]
+          - id: sleeping-bag
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.sleeping-bag'" } }]
+          - id: cash
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.cash'" } }]
+          - id: laptop
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.laptop'" } }]
+          - id: walkie-talkies
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.walkie-talkie'", quantity: 2 } }]
+          - id: solar-charger
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.solar-charger'" } }]
+          - id: radio
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.radio'" } }]
+          - id: lockpick-kit
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.lockpick-kit'" } }]
+          - id: lighters
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.lighters'" } }]
+          - id: purification-tablets
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.purification-tablets'" } }]
+          - id: profession-item
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.profession-item'" } }]
+          - id: backpack
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.backpack'", equipped: true } }]
+          - id: binoculars
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.binoculars'" } }]
+          - id: water-purifier
+            when: picks == 0
+            changes: [{ type: addItem, entry: { item: "'gear.water-purifier'" } }]
+
+      # The warrior's kit: a primitive melee weapon or a primitive bow with 20 arrows, a knife,
+      # backpack, sleeping bag, tinderbox, three torches, clothes and 1d4 days of food.
+      - id: weapon
+        kind: choice
+        when: "steps.kit.picked == 'near-future' || steps.kit.picked == 'wasteland'"
+        options:
+          content:
+            type: weapon
+            where: >-
+              has(item.techLevel) && item.techLevel <= 1 && !('grenade' in item.tags)
+                && ('stab' in item.skills || item.id == @weapons.primitive-bow)
+        random: params.random
+        recommend: options[0]
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+          - type: addItem
+            when: picked.id == @weapons.primitive-bow
+            entry: { item: "'gear.arrows'" }
+      - id: food
+        kind: roll
+        tags: [creation]
+        when: has(steps.weapon)
+        parts: [{ dice: 1d4 }]
+      - id: warriorKit
+        kind: changes
+        when: has(steps.weapon)
+        changes:
+          - { type: addItem, entry: { item: "'weapons.knife'" } }
+          - { type: addItem, entry: { item: "'gear.backpack'", equipped: true } }
+          - { type: addItem, entry: { item: "'gear.sleeping-bag'" } }
+          - { type: addItem, entry: { item: "'gear.tinderbox'" } }
+          - { type: addItem, entry: { item: "'gear.torch'", quantity: 3 } }
+          - { type: addItem, entry: { item: "'gear.clothes'", equipped: true } }
+          - { type: addItem, entry: { item: "'gear.ration'", quantity: steps.food.total } }
+      - id: extra
+        kind: choice
+        when: has(steps.weapon)
+        options: [{ id: pick }, { id: roll }]
+        recommend: "'roll'"
+      - id: entry
+        kind: choice
+        when: "has(steps.extra) && steps.extra.picked == 'pick'"
+        options: { values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] }
+        recommend: "steps.kit.picked == 'wasteland' ? '10' : '4'"
+      - id: picked
+        kind: action
+        when: has(steps.entry)
+        use: kit-entry
+        params:
+          table: steps.kit.picked
+          entry: steps.entry.value
+          random: params.random
+      - {
+          id: roll1,
+          kind: roll,
+          tags: [creation],
+          when: "has(steps.extra) && steps.extra.picked == 'roll'",
+          parts: [{ dice: 1d20 }],
+        }
+      - {
+          id: entry1,
+          kind: action,
+          when: has(steps.roll1),
+          use: kit-entry,
+          params: { table: steps.kit.picked, entry: steps.roll1.total, random: params.random },
+        }
+      - { id: roll2, kind: roll, tags: [creation], when: has(steps.roll1), parts: [{ dice: 1d20 }] }
+      - {
+          id: entry2,
+          kind: action,
+          when: has(steps.roll2),
+          use: kit-entry,
+          params: { table: steps.kit.picked, entry: steps.roll2.total, random: params.random },
+        }
+      - { id: roll3, kind: roll, tags: [creation], when: has(steps.roll1), parts: [{ dice: 1d20 }] }
+      - {
+          id: entry3,
+          kind: action,
+          when: has(steps.roll3),
+          use: kit-entry,
+          params: { table: steps.kit.picked, entry: steps.roll3.total, random: params.random },
+        }
+      - id: result
+        kind: outcome
+        result: "'equipped'"
+        data: { kit: steps.kit.picked }
+
+  # One entry of a warrior's d20 table. The wasteland table's three high-tech items stand for
+  # rolls on the GM's loot tables, which this pack doesn't model.
+  - id: kit-entry
+    tags: [creation]
+    params:
+      table: { type: string }
+      entry: { type: integer, min: 1, max: 20 }
+      random: { type: boolean, default: false }
+    results: [added]
+    steps:
+      - id: flags
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              near: "params.table == 'near-future'"
+              waste: "params.table != 'near-future'"
+      - id: count
+        kind: roll
+        tags: [creation]
+        when: >-
+          (flags.near && (params.entry == 11 || params.entry == 14))
+            || (flags.waste && (params.entry == 5 || params.entry == 18))
+        parts:
+          - dice: 'flags.waste && params.entry == 5 ? 1d6 + 4 : flags.waste ? 1d4 + 2 : 1d4'
+      - id: melee
+        kind: choice
+        when: flags.waste && params.entry == 11
+        options:
+          content:
+            type: weapon
+            where: >-
+              has(item.techLevel) && item.techLevel <= 2 && 'stab' in item.skills
+                && !('grenade' in item.tags)
+        random: params.random
+        recommend: options[0]
+        changes:
+          - { type: addItem, entry: { item: picked.id } }
+      - id: add
+        kind: changes
+        changes:
+          # Near-future survivor
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 1,
+              entry: { item: "'weapons.light-pistol'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && (params.entry == 1 || params.entry == 9 || params.entry == 17),
+              entry: { item: "'gear.magazine'", quantity: 2 },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 2,
+              entry: { item: "'gear.camping-kit'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 3,
+              entry: { item: "'gear.hand-tool'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 4,
+              entry: { item: "'armor.plate-carrier'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 5,
+              entry: { item: "'gear.crowbar'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 6,
+              entry: { item: "'gear.lockpick-kit'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 7,
+              entry: { item: "'gear.binoculars'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 8,
+              entry: { item: "'gear.flashlight'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 9,
+              entry: { item: "'weapons.rifle'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 10,
+              entry: { item: "'gear.walkie-talkie'", quantity: 2 },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 11,
+              entry: { item: "'weapons.grenade-frag'", quantity: steps.count.total },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 12,
+              entry: { item: "'gear.jewelry'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 13,
+              entry: { item: "'armor.protective-sport-gear'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 14,
+              entry: { item: "'gear.ration'", quantity: steps.count.total },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 15,
+              entry: { item: "'gear.first-aid-kit'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 16,
+              entry: { item: "'gear.toolkit'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 17,
+              entry: { item: "'weapons.semi-auto-shotgun'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 18,
+              entry: { item: "'gear.batteries-rechargeable'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 19,
+              entry: { item: "'gear.rope'" },
+            }
+          - {
+              type: addItem,
+              when: flags.near && params.entry == 20,
+              entry: { item: "'gear.profession-item'" },
+            }
+          # Wasteland wanderer
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 1,
+              entry: { item: "'weapons.primitive-bow'" },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 1,
+              entry: { item: "'gear.arrows'" },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 2,
+              entry: { item: "'armor.leathers'" },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 3,
+              entry: { item: "'gear.ammo'", quantity: 4 },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 4,
+              entry: { item: "'gear.first-aid-kit'" },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 5,
+              entry: { item: "'gear.scrap-tl2'", quantity: steps.count.total },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 6,
+              entry: { item: "'gear.camping-kit'" },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 7,
+              entry: { item: "'gear.energy-cell-a'" },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 8,
+              entry: { item: "'gear.clothes-fine'" },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 9,
+              entry: { item: "'gear.lantern'" },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 9,
+              entry: { item: "'gear.oil-flask'", quantity: 2 },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 10,
+              entry: { item: "'armor.scrap-mail'" },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 12,
+              entry: { item: "'gear.keepsake'" },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 13,
+              entry: { item: "'gear.perpetual-lighter'" },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 14,
+              entry: { item: "'gear.toolkit'" },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry >= 15 && params.entry <= 17,
+              entry: { item: "'gear.salvaged-tech'" },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 18,
+              entry: { item: "'gear.ration'", quantity: steps.count.total },
+            }
+          - {
+              type: addItem,
+              when: flags.waste && params.entry == 19,
+              entry: { item: "'gear.rope-fiber'" },
+            }
+          - type: addItem
+            when: flags.waste && params.entry == 20
+            entry: { item: "'weapons.shotgun'", state: { shots: 1 } }
+      - id: result
+        kind: outcome
+        result: "'added'"

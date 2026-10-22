@@ -1,0 +1,443 @@
+fields:
+  xp.current: { type: integer, input: true, default: 0, min: 0 }
+  # The GM's choice of the fast or slow advancement table.
+  xp.rate: { type: enum, input: true, default: fast, values: [fast, slow] }
+  # The experience the next level needs (0 at 10th level, the highest).
+  xp.next:
+    type: integer
+    formula: >-
+      level >= 10 ? 0 : (xp.rate == 'fast' ? [0, 3, 6, 12, 18, 27, 39, 54, 72, 93]
+        : [0, 6, 15, 24, 36, 51, 69, 87, 105, 139])[level]
+  # Attribute boosts bought with skill points (five at most, ever).
+  attributes.boosts: { type: integer, input: true, default: 0, min: 0, max: 5 }
+
+followUps:
+  - id: level-up
+    while: '!character.creating && level < 10 && xp.current >= xp.next'
+    action: level-up
+
+actions:
+  # A new level: three skill points (more or fewer with some edges and mutations), the edge and
+  # focus it brings, then hit points rerolled: the new roll if it beats the old maximum, else the
+  # old maximum plus one. Saves and attack bonus follow the level.
+  - id: level-up
+    tags: [advancement]
+    available: '!character.creating && level < 10'
+    params:
+      random: { type: boolean, default: false }
+    results: [advanced]
+    steps:
+      - id: up
+        kind: changes
+        changes:
+          - { type: set, field: level, value: level + 1 }
+          - { type: adjust, field: skills.points, by: skills.perLevel }
+      - id: edge
+        kind: action
+        sheet: proposed
+        when: edges.count < edges.allowed
+        use: gain-edge
+        params: { random: params.random }
+      - id: focus1
+        kind: action
+        sheet: proposed
+        when: foci.count < foci.allowed
+        use: gain-focus
+        params: { random: params.random }
+      - id: focus2
+        kind: action
+        sheet: proposed
+        when: foci.count < foci.allowed
+        use: gain-focus
+        params: { random: params.random }
+      # The new edge's and mutations' own choices.
+      - id: picks
+        kind: choice
+        options: { pending: {} }
+        random: params.random
+      - id: hp
+        kind: roll
+        sheet: proposed
+        tags: [hit-points]
+        parts: [{ dice: '(level)d6' }]
+      - id: rolled
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              rolled: sumList(steps.hp.faces, max(1, x + hp.dieBonus))
+              old: hp.max
+      - id: hpSet
+        kind: changes
+        changes:
+          - type: set
+            field: hp.max
+            value: 'flags.rolled > flags.old ? flags.rolled : flags.old + 1'
+          - type: adjust
+            field: hp.current
+            by: '(flags.rolled > flags.old ? flags.rolled : flags.old + 1) - flags.old'
+      - id: result
+        kind: outcome
+        result: "'advanced'"
+        data: { hitPoints: 'flags.rolled > flags.old ? flags.rolled : flags.old + 1' }
+
+  # A new edge, with what it brings: its bonus skill (a pick at creation, three skill points
+  # later), Educated's points for earlier levels, a later Mutant's mutations.
+  - id: gain-edge
+    tags: [advancement]
+    params:
+      random: { type: boolean, default: false }
+    results: [gained]
+    steps:
+      - id: edge
+        kind: choice
+        sheet: proposed
+        options:
+          content:
+            type: edge
+            where: >-
+              (!(item.id in edges.held) || item.id == @edges.focused)
+                && (item.id != @edges.forged-by-fire || (character.creating && edges.count == 0))
+                && (item.id != @edges.mutation-acceleration || mutations.mutant)
+                && (item.id != @edges.mutant || !(@edges.hardened-genetics in edges.held))
+                && (item.id != @edges.hardened-genetics || !mutations.mutant)
+                && (item.id != @edges.prodigy || !edges.underdog)
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: skill
+        kind: action
+        when: size(steps.edge.item.bonusSkill) > 0
+        use: bonus-skill
+        params: { skills: steps.edge.item.bonusSkill, random: params.random }
+      - id: educated
+        kind: changes
+        when: '!character.creating && steps.edge.picked == @edges.educated'
+        changes:
+          - { type: adjust, field: skills.points, by: level - 1 }
+      - id: mutate
+        kind: action
+        when: '!character.creating && steps.edge.picked == @edges.mutant'
+        use: mutate
+        params: { random: params.random }
+      - id: accelerate1
+        kind: action
+        sheet: proposed
+        when: >-
+          !character.creating && steps.edge.picked == @edges.mutation-acceleration
+            && mutations.points.left >= 1
+        use: buy-mutation
+        params: { random: params.random }
+      - id: accelerate2
+        kind: action
+        sheet: proposed
+        when: >-
+          !character.creating && steps.edge.picked == @edges.mutation-acceleration
+            && mutations.points.left >= 1
+        use: buy-mutation
+        params: { random: params.random }
+      - id: result
+        kind: outcome
+        result: "'gained'"
+
+  # A focus level: a new focus at level 1 with its bonus skills (a pick each at creation, three
+  # skill points each later), or the second level of one the character has.
+  - id: gain-focus
+    tags: [advancement]
+    params:
+      random: { type: boolean, default: false }
+    results: [gained]
+    steps:
+      - id: focus
+        kind: choice
+        sheet: proposed
+        options:
+          content:
+            type: focus
+            where: >-
+              (countCopies(copy.item == item.id) == 0 || item.multiple
+                || countCopies(copy.item == item.id && copy.state.level < item.maxLevel) > 0)
+                && !(item.id in foci.held && countCopies(copy.item == item.id) == 0)
+                && (item.id != @foci.unstable-mutant || mutations.mutant)
+        random: params.random
+        recommend: options[0]
+      # Specialist again: a second level of a held one, or another skill.
+      - id: raise
+        kind: choice
+        sheet: proposed
+        when: >-
+          steps.focus.item.multiple && countCopies(copy.item == steps.focus.picked
+            && copy.state.level < steps.focus.item.maxLevel) > 0
+        options: [{ id: raise }, { id: new }]
+        recommend: "'raise'"
+      - id: mode
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              new: >-
+                countCopies(copy.item == steps.focus.picked) == 0
+                  || (has(steps.raise) && steps.raise.picked == 'new')
+      # Specialist's skill, asked first: it is both the skill sharpened and the bonus skill.
+      - id: specialty
+        kind: choice
+        sheet: proposed
+        when: flags.new && steps.focus.item.specialty
+        options: { values: { formula: steps.focus.item.bonusSkill } }
+        random: params.random
+        recommend: "sortList(steps.focus.item.bonusSkill, -fieldOf('skills.{skill}.level', x))[0]"
+      - id: add
+        kind: changes
+        when: flags.new
+        changes:
+          - type: addItem
+            when: '!has(steps.specialty)'
+            entry: { item: steps.focus.picked }
+          - type: addItem
+            when: has(steps.specialty)
+            entry:
+              item: steps.focus.picked
+              choices: { skill: [{ option: { formula: steps.specialty.value } }] }
+      # The new copy's own choices.
+      - id: picks
+        kind: choice
+        when: flags.new
+        options: { pending: { entry: 'steps.add.added[0]' } }
+        random: params.random
+      - id: up
+        kind: changes
+        when: '!flags.new'
+        changes:
+          - type: adjustState
+            copies:
+              { type: focus, where: 'item.id == steps.focus.picked && self.level < item.maxLevel' }
+            limit: 1
+            key: level
+            by: 1
+      - id: skill1
+        kind: action
+        when: flags.new && size(steps.focus.item.bonusSkill) > 0
+        use: bonus-skill
+        params:
+          skills: 'has(steps.specialty) ? [steps.specialty.value] : steps.focus.item.bonusSkill'
+          random: params.random
+      - id: skill2
+        kind: action
+        when: flags.new && size(steps.focus.item.bonusSkill2) > 0
+        use: bonus-skill
+        params: { skills: steps.focus.item.bonusSkill2, random: params.random }
+      - id: unstable
+        kind: action
+        when: flags.new && steps.focus.picked == @foci.unstable-mutant
+        use: roll-mutation
+        params: { origin: "'unstable'", random: params.random }
+      - id: result
+        kind: outcome
+        result: "'gained'"
+
+  # A bonus skill: a skill pick at creation, three skill points toward it afterwards.
+  - id: bonus-skill
+    params:
+      skills: { type: set, of: string, default: [] }
+      random: { type: boolean, default: false }
+    results: [gained]
+    steps:
+      - id: pick
+        kind: action
+        when: character.creating
+        use: gain-skill
+        params: { skills: params.skills, random: params.random }
+      - id: points
+        kind: action
+        when: '!character.creating'
+        use: skill-points-toward
+        params: { skills: params.skills, points: 3, random: params.random }
+      - id: result
+        kind: outcome
+        result: "'gained'"
+
+  # Skill points spent toward one skill, raising it as far as they go with its credit; what's
+  # left stays as credit. A skill at level-4 can't take them, so another is chosen.
+  - id: skill-points-toward
+    params:
+      skills: { type: set, of: string, default: [] }
+      points: { type: integer, default: 3, min: 0 }
+      random: { type: boolean, default: false }
+    results: [spent]
+    steps:
+      - id: offer
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              open: >-
+                filterList(size(params.skills) > 0 ? params.skills : keysOf('skill'),
+                  fieldOf('skills.{skill}.level', x) < fieldOf('skills.{skill}.cap', x))
+      - id: offered
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              offered: >-
+                size(flags.open) > 0 ? flags.open
+                  : filterList(keysOf('skill'),
+                    fieldOf('skills.{skill}.level', x) < fieldOf('skills.{skill}.cap', x))
+      - id: skill
+        kind: choice
+        options: { values: { formula: flags.offered } }
+        random: params.random
+        recommend: flags.offered[0]
+      - id: start
+        kind: branch
+        sheet: proposed
+        cases:
+          - when: true
+            flags:
+              level0: "fieldOf('skills.{skill}.level', steps.skill.picked)"
+              credit0: "fieldOf('skills.{skill}.credit', steps.skill.picked) + params.points"
+      - id: raise1
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              level1: 'flags.level0 < 4 && flags.credit0 >= flags.level0 + 2 ? flags.level0 + 1 : flags.level0'
+              credit1: 'flags.level0 < 4 && flags.credit0 >= flags.level0 + 2 ? flags.credit0 - flags.level0 - 2 : flags.credit0'
+      - id: raise2
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              level2: 'flags.level1 < 4 && flags.credit1 >= flags.level1 + 2 ? flags.level1 + 1 : flags.level1'
+              credit2: 'flags.level1 < 4 && flags.credit1 >= flags.level1 + 2 ? flags.credit1 - flags.level1 - 2 : flags.credit1'
+      - id: raise3
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              level3: 'flags.level2 < 4 && flags.credit2 >= flags.level2 + 2 ? flags.level2 + 1 : flags.level2'
+              credit3: 'flags.level2 < 4 && flags.credit2 >= flags.level2 + 2 ? flags.credit2 - flags.level2 - 2 : flags.credit2'
+      - id: save
+        kind: changes
+        changes:
+          - type: set
+            field: { formula: "'skills.' + steps.skill.picked + '.level'" }
+            value: flags.level3
+          - type: set
+            field: { formula: "'skills.' + steps.skill.picked + '.credit'" }
+            value: flags.credit3
+      - id: result
+        kind: outcome
+        result: "'spent'"
+        data: { level: flags.level3, credit: flags.credit3 }
+
+  # Buying the next level of a skill with skill points (its credit first): level-0 costs 1,
+  # level-1 2, level-2 3 (from 3rd level), level-3 4 (from 6th), level-4 5 (from 9th).
+  - id: improve-skill
+    tags: [advancement]
+    available: '!character.creating'
+    params:
+      skill:
+        type: enum
+        values:
+          [
+            administer,
+            connect,
+            drive,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            program,
+            punch,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            talk,
+            trade,
+            work,
+          ]
+    results: [improved, maxed, barred, level-too-low, not-enough-points]
+    steps:
+      - id: cost
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              level: "fieldOf('skills.{skill}.level', params.skill)"
+              credit: "fieldOf('skills.{skill}.credit', params.skill)"
+              cap: "fieldOf('skills.{skill}.cap', params.skill)"
+      - id: price
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              cost: flags.level + 2
+              minimum: 'flags.level >= 4 ? 99 : [1, 1, 3, 6, 9][flags.level + 1]'
+              fromCredit: min(flags.credit, flags.level + 2)
+      - { id: maxed, kind: outcome, when: flags.level >= 4, result: "'maxed'" }
+      - { id: barred, kind: outcome, when: flags.level + 1 > flags.cap, result: "'barred'" }
+      - { id: tooLow, kind: outcome, when: level < flags.minimum, result: "'level-too-low'" }
+      - id: short
+        kind: outcome
+        when: skills.points + flags.credit < flags.cost
+        result: "'not-enough-points'"
+      - id: buy
+        kind: changes
+        changes:
+          - type: set
+            field: { formula: "'skills.' + params.skill + '.level'" }
+            value: flags.level + 1
+          - type: set
+            field: { formula: "'skills.' + params.skill + '.credit'" }
+            value: flags.credit - flags.fromCredit
+          - { type: adjust, field: skills.points, by: 'flags.fromCredit - flags.cost' }
+      - id: result
+        kind: outcome
+        result: "'improved'"
+
+  # An attribute boost: +1 to a score for 1, 2, 3, 4 and 5 skill points in turn, five at most,
+  # the first two from 2nd level, the others from 3rd, 6th and 9th. Not for underdogs.
+  - id: improve-attribute
+    tags: [advancement]
+    available: '!character.creating && !edges.underdog && attributes.boosts < 5'
+    params:
+      attribute: { type: enum, values: [str, dex, con, int, wis, cha] }
+    results: [improved, maxed, level-too-low, not-enough-points]
+    steps:
+      - id: cost
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              cost: attributes.boosts + 1
+              minimum: '[2, 2, 3, 6, 9][attributes.boosts]'
+              score: "fieldOf('attributes.{attribute}.score', params.attribute)"
+      - { id: maxed, kind: outcome, when: flags.score >= 18, result: "'maxed'" }
+      - { id: tooLow, kind: outcome, when: level < flags.minimum, result: "'level-too-low'" }
+      - {
+          id: short,
+          kind: outcome,
+          when: skills.points < flags.cost,
+          result: "'not-enough-points'",
+        }
+      - id: buy
+        kind: changes
+        changes:
+          - type: adjust
+            field: { formula: "'attributes.' + params.attribute + '.score'" }
+            by: 1
+          - { type: adjust, field: attributes.boosts, by: 1 }
+          - { type: adjust, field: skills.points, by: -flags.cost }
+      - id: result
+        kind: outcome
+        result: "'improved'"

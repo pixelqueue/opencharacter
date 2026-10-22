@@ -1,0 +1,27 @@
+id: edges.prodigy
+type: edge
+prerequisites:
+  - { id: not-underdog, when: '!edges.underdog' }
+choices:
+  - id: attribute
+    from: { values: [str, dex, int, wis, cha] }
+    recommend: >-
+      sortList(['str', 'dex', 'int', 'wis', 'cha'],
+        -fieldOf('attributes.{attribute}.score', x))[0]
+    effects:
+      - target:
+          {
+            fields:
+              { where: "'attribute' in item.tags && ('attribute.' + pick.value) in item.tags" },
+          }
+        op: atLeast
+        value: 18
+      - target:
+          {
+            fields:
+              {
+                where: "'attribute-base' in item.tags && ('attribute.' + pick.value) in item.tags",
+              },
+          }
+        op: atLeast
+        value: 3

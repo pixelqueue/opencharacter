@@ -1,0 +1,27 @@
+id: classes.warrior
+type: class
+effects:
+  - { target: class.focus.combat, op: add, value: 1 }
+  - { target: hp.perLevel, op: add, value: 2 }
+  - { target: combat.attackBonus, op: set, value: level }
+  # Once a scene: a missed attack hits.
+  - target: { choices: [missed-attack] }
+    op: option
+    when: '!scene.warriorLuck'
+    value:
+      id: luck
+      flags: { hit: true }
+      changes:
+        - { type: set, field: scene.warriorLuck, value: true }
+actions:
+  # Once a scene: an attack roll that hit the warrior misses instead.
+  - id: negate-hit
+    tags: [combat]
+    available: '!scene.warriorLuck'
+    results: [negated]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: set, field: scene.warriorLuck, value: true }
+      - { id: result, kind: outcome, result: "'negated'" }

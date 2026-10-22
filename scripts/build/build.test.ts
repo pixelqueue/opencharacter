@@ -30,13 +30,18 @@ describe('pnpm build:packs on the repository packs', () => {
     expect(built.map((b) => b.id)).toEqual([
       '5e-srd-5.1',
       '5e-srd-5.2',
+      'awn-core',
+      'cwn-srd',
       'fate-core',
       'fitd-crew',
       'fitd-scoundrel',
+      'godbound-core',
       'mork-borg-core',
       'mothership-1e',
       'orc-2e',
       'orc-sf-2e',
+      'swn-revised',
+      'wwn-srd',
     ]);
   });
 
@@ -90,6 +95,8 @@ describe('pnpm build:packs on the repository packs', () => {
       '5e-52-ithilwen.yaml',
       '5e-52-dagna.yaml',
       'mothership-okafor.yaml',
+      'godbound-tavian.yaml',
+      'godbound-ysolde.yaml',
       'fitd-vex.yaml',
       'fitd-crew-ravens.yaml',
       'fate-mara.yaml',
@@ -106,6 +113,14 @@ describe('pnpm build:packs on the repository packs', () => {
       'orc-cassia.yaml',
       'orc-aldric.yaml',
       'orc-fenn.yaml',
+      'cwn-srd-vex.yaml',
+      'cwn-srd-nix.yaml',
+      'wwn-srd-brannoc.yaml',
+      'wwn-srd-ysolde.yaml',
+      'swn-revised-ines.yaml',
+      'swn-revised-tamar.yaml',
+      'awn-core-sable.yaml',
+      'awn-core-hollis.yaml',
       'orc-sf-kade.yaml',
       'orc-sf-ilia.yaml',
     ]) {

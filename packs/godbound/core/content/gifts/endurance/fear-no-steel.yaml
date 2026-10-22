@@ -1,0 +1,31 @@
+id: gifts.endurance.fear-no-steel
+type: gift
+fields:
+  word: words.endurance
+  degree: greater
+  activation: on-turn
+  commit: active
+prerequisites:
+  - id: word
+    when: '@words.endurance in words.bound'
+effects:
+  - id: reduce
+    target:
+      incoming:
+        fields:
+          - hp.current
+        tags:
+          - damage
+    op: add
+    value: 1
+    when: self.committed > 0
+  - id: floor
+    target:
+      incoming:
+        fields:
+          - hp.current
+        tags:
+          - damage
+    op: atMost
+    value: 0
+    when: self.committed > 0

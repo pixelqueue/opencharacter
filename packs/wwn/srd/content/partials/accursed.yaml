@@ -1,0 +1,17 @@
+id: partials.accursed
+type: partial
+tags: [mage-class]
+effects:
+  - { target: class.mage, op: add, value: 1 }
+  - { target: tradition.accursed.tier, op: add, value: 1 }
+choices:
+  # The starting art: Accursed Blade or Accursed Bolt.
+  - id: starting-art
+    from:
+      options:
+        - id: blade
+          grants:
+            - { item: arts.accursed.accursed-blade }
+        - id: bolt
+          grants:
+            - { item: arts.accursed.accursed-bolt }

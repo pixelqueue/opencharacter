@@ -1,0 +1,45 @@
+specVersion: 0.1.0
+id: example-cwn-srd-vex
+packs:
+  - { id: cwn-srd, version: 0.1.0 }
+values:
+  cwn-srd:level: 2
+  cwn-srd:attributes.str.base: 14
+  cwn-srd:attributes.dex.base: 13
+  cwn-srd:attributes.con.base: 12
+  cwn-srd:attributes.int.base: 9
+  cwn-srd:attributes.wis.base: 10
+  cwn-srd:attributes.cha.base: 8
+  # Ganger: Any Combat (Stab) free, then Learning picks Any Combat (Stab) and Connect. Killing
+  # Blow's combat skill is Shoot, Armsmaster's bonus skill raises nothing new (Stab is level-1),
+  # so the player took Exert; the free skill is Notice.
+  cwn-srd:skills.stab.base: 1
+  cwn-srd:skills.connect.base: 0
+  cwn-srd:skills.shoot.base: 0
+  cwn-srd:skills.exert.base: 0
+  cwn-srd:skills.notice.base: 0
+  cwn-srd:hp.rolled: 7
+  cwn-srd:hp.current: 7
+  cwn-srd:money: 380
+  cwn-srd:goal: Pay off the debt that got her brother killed.
+choices:
+  background:
+    - option: cwn-srd:backgrounds.ganger
+  edge-1:
+    - option: cwn-srd:edges.killing-blow
+  edge-2:
+    - option: cwn-srd:edges.hard-to-kill
+features:
+  - { id: armsmaster, item: cwn-srd:foci.armsmaster }
+  - { id: ace-driver, item: cwn-srd:foci.ace-driver }
+  - id: fixer
+    item: cwn-srd:contacts.contact
+    state: { label: Marlo, bond: acquaintance, about: A fence who owes her a favor. }
+  - id: doc
+    item: cwn-srd:contacts.contact
+    state: { label: Auntie Seo, bond: acquaintance, about: The street doc two blocks over. }
+inventory:
+  - { id: knife, item: cwn-srd:weapons.advanced-knife, equipped: true }
+  - { id: pistol, item: cwn-srd:weapons.heavy-pistol, equipped: true }
+  - { id: leathers, item: cwn-srd:armor.street-leathers, equipped: true }
+  - { id: medkit, item: cwn-srd:gear.kit-medkit }

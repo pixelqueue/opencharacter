@@ -16,13 +16,18 @@ describe('pnpm validate', () => {
     expect(packs).toEqual([
       '5e-srd-5.1',
       '5e-srd-5.2',
+      'awn-core',
+      'cwn-srd',
       'fate-core',
       'fitd-crew',
       'fitd-scoundrel',
+      'godbound-core',
       'mork-borg-core',
       'mothership-1e',
       'orc-2e',
       'orc-sf-2e',
+      'swn-revised',
+      'wwn-srd',
     ]);
     expect(characters.length).toBeGreaterThanOrEqual(5);
     // A first run parses every pack file: seconds, more on a busy machine.

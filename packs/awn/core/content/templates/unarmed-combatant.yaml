@@ -1,0 +1,11 @@
+id: templates.unarmed-combatant
+type: template
+appliesTo: { type: weapon, where: 'item.id == @weapons.unarmed' }
+fields:
+  damage: >-
+    skills.punch.level >= 4 ? 1d12 + 1 : skills.punch.level == 3 ? 1d12
+      : skills.punch.level == 2 ? 1d10 : skills.punch.level == 1 ? 1d8 : 1d6
+  shock: 'max(0, skills.punch.level)'
+  shockAc: 15
+  traumaDie: 1d6
+  traumaRating: 2

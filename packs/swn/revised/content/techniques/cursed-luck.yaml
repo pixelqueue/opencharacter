@@ -1,0 +1,59 @@
+id: techniques.cursed-luck
+type: technique
+fields:
+  discipline: precognition
+  level: 3
+prerequisites:
+  - id: skill
+    when: skills.precognition.level >= 3
+  - id: discipline
+    when: "psionics.access != 'restricted' || psionics.discipline == 'precognition'"
+effects:
+  # The cursed target rolls its attacks, damage, checks and saves twice and keeps the worse; the
+  # Mental save that throws the curse off is the power's own and isn't penalized.
+  - target: { rolls: [attack, damage, check, save] }
+    op: rollModifier
+    value: { kind: disadvantage, of: roll }
+    when: "!('psionics' in roll.tags)"
+    scope: applied
+  # Attackers read it from the target's sheet.
+  - { target: psionics.cursedLuck, op: set, value: true, scope: applied }
+actions:
+  # A Main Action and Effort Committed for the scene curse a visible target.
+  - id: curse
+    tags: [psionics]
+    available: effort.available > 0
+    results: [cursed]
+    participants:
+      target: { min: 1, max: 1 }
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - { type: adjust, field: effort.scene, by: 1 }
+      - id: curse
+        kind: changes
+        to: target
+        changes:
+          - { type: applyEffect, source: "'techniques.cursed-luck'" }
+      - { id: result, kind: outcome, result: "'cursed'" }
+  # An intelligent target's Mental save at the end of each round throws the curse off.
+  - id: throw-off
+    scope: applied
+    tags: [psionics, save]
+    results: [freed, cursed]
+    steps:
+      - id: save
+        kind: action
+        use: saving-throw
+        params: { save: "'mental'" }
+        tags: [psionics]
+      - id: free
+        kind: changes
+        when: "steps.save.result == 'success'"
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @techniques.cursed-luck' }
+      - id: result
+        kind: outcome
+        result: "steps.save.result == 'success' ? 'freed' : 'cursed'"

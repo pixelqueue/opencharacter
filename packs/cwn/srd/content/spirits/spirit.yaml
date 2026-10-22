@@ -1,0 +1,11 @@
+id: spirits.spirit
+type: spirit
+choices:
+  - id: powers
+    from:
+      type: spiritPower
+    pick:
+      min: 0
+      max: 31
+    required: false
+    eligible: "level >= item.minLevel && (!item.physicalOnly || self.form in ['physical-1', 'physical-2', 'physical-3'])"

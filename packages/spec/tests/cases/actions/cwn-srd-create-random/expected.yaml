@@ -1,0 +1,183 @@
+status: finished
+outcome:
+  result: created
+proposedChanges:
+  - to: self
+    step: scores
+    change:
+      type: set
+      field: cwn-srd:attributes.str.base
+      value: 14
+  - to: self
+    step: scores
+    change:
+      type: set
+      field: cwn-srd:attributes.dex.base
+      value: 7
+  - to: self
+    step: scores
+    change:
+      type: set
+      field: cwn-srd:attributes.con.base
+      value: 7
+  - to: self
+    step: scores
+    change:
+      type: set
+      field: cwn-srd:attributes.int.base
+      value: 7
+  - to: self
+    step: scores
+    change:
+      type: set
+      field: cwn-srd:attributes.wis.base
+      value: 11
+  - to: self
+    step: scores
+    change:
+      type: set
+      field: cwn-srd:attributes.cha.base
+      value: 7
+  - to: self
+    step: background
+    change:
+      type: choose
+      path:
+        choice:
+          - background
+      option: cwn-srd:backgrounds.manager
+  - to: self
+    step: freeSkill/raise
+    change:
+      type: adjust
+      field: cwn-srd:skills.administer.base
+      by: 1
+  - to: self
+    step: stat1/boost
+    change:
+      type: adjust
+      field: cwn-srd:attributes.wis.base
+      by: 2
+  - to: self
+    step: stat2/boost
+    change:
+      type: adjust
+      field: cwn-srd:attributes.str.base
+      by: 1
+  - to: self
+    step: skill3/raise
+    change:
+      type: adjust
+      field: cwn-srd:skills.administer.base
+      by: 1
+  - to: self
+    step: edge1/edge
+    change:
+      type: choose
+      path:
+        choice:
+          - edge-1
+      option: cwn-srd:edges.prodigy
+  - to: self
+    step: edge1/attribute
+    change:
+      type: choose
+      path:
+        choice:
+          - edge-1
+          - cwn-srd:edges.prodigy
+          - attribute
+      option: str
+  - to: self
+    step: edge2/edge
+    change:
+      type: choose
+      path:
+        choice:
+          - edge-2
+      option: cwn-srd:edges.focused
+  - to: self
+    step: edge2/focus/add
+    change:
+      type: addItem
+      entry:
+        id: foci-many-faces-1
+        item: cwn-srd:foci.many-faces
+  - to: self
+    step: edge2/focus/bonus/raise
+    change:
+      type: adjust
+      field: cwn-srd:skills.sneak.base
+      by: 1
+  - to: self
+    step: focus/add
+    change:
+      type: addItem
+      entry:
+        id: foci-whirlwind-assault-1
+        item: cwn-srd:foci.whirlwind-assault
+  - to: self
+    step: focus/bonus/raise
+    change:
+      type: adjust
+      field: cwn-srd:skills.punch.base
+      by: 1
+  - to: self
+    step: hpMax
+    change:
+      type: set
+      field: cwn-srd:hp.rolled
+      value: 4
+  - to: self
+    step: freePick/raise
+    change:
+      type: adjust
+      field: cwn-srd:skills.survive.base
+      by: 1
+  - to: self
+    step: contacts
+    change:
+      type: addItem
+      entry:
+        id: contacts-contact-1
+        item: cwn-srd:contacts.contact
+        state:
+          bond: acquaintance
+  - to: self
+    step: contacts
+    change:
+      type: addItem
+      entry:
+        id: contacts-contact-2
+        item: cwn-srd:contacts.contact
+        state:
+          bond: acquaintance
+  - to: self
+    step: freeGear
+    change:
+      type: addItem
+      entry:
+        id: gear-bus-pass-monthly-1
+        item: cwn-srd:gear.bus-pass-monthly
+  - to: self
+    step: gear
+    change:
+      type: set
+      field: cwn-srd:money
+      value: 500
+  - to: self
+    step: gear
+    change:
+      type: set
+      field: cwn-srd:lifestyle
+      value: middle
+  - to: self
+    step: finish
+    change:
+      type: set
+      field: cwn-srd:hp.current
+      value: 4
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

@@ -1,0 +1,56 @@
+id: foci.specialist
+type: focus
+fields:
+  multiple: true
+  specialty: true
+  bonusSkill:
+    [
+      administer,
+      connect,
+      drive,
+      exert,
+      fix,
+      heal,
+      know,
+      lead,
+      notice,
+      perform,
+      program,
+      sneak,
+      survive,
+      talk,
+      trade,
+      work,
+    ]
+repeatable: true
+choices:
+  # The skill it sharpens: 3d6 keeping the best two, 4d6 at level 2. Recommended: the
+  # character's best non-combat skill.
+  - id: skill
+    from:
+      values:
+        [
+          administer,
+          connect,
+          drive,
+          exert,
+          fix,
+          heal,
+          know,
+          lead,
+          notice,
+          perform,
+          program,
+          sneak,
+          survive,
+          talk,
+          trade,
+          work,
+        ]
+    effects:
+      - target: { rolls: [check] }
+        op: rollModifier
+        value: { kind: poolDice, count: 'self.level >= 2 ? 2 : 1' }
+        when: "('skill.' + pick.value) in roll.tags"
+        stackKey: skill-dice
+    recommend: sortList(item.bonusSkill, -fieldOf('skills.{skill}.level', x))[0]

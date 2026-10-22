@@ -1,0 +1,16 @@
+id: weapon-mods.hand-of-doom
+type: template
+appliesTo:
+  type: weapon
+  where: "'unarmed' in item.tags"
+removeTags:
+  - nonlethal
+fields:
+  damage: '1d10'
+  shockDamage: 2
+  shockAc: 15
+  traumaDie: '1d8'
+  traumaRating: 3
+  attackBonus: 'prior.attackBonus + floor(level / 3)'
+  damageBonus: 'prior.damageBonus + floor(level / 3)'
+  shockBonus: 'prior.shockBonus + floor(level / 3)'

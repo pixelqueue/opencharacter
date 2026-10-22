@@ -1,0 +1,8 @@
+id: drone-mods.redundant-systems
+type: template
+appliesTo:
+  type: drone
+fields:
+  hp: 'prior.hp + ceil(base.hp * 0.25)'
+  enc: 'has(prior.enc) ? prior.enc + 1 : 0'
+  cost: 'prior.cost + floor(base.cost * 0.5)'

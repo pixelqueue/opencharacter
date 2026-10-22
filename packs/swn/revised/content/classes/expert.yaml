@@ -1,0 +1,14 @@
+id: classes.expert
+type: class
+effects:
+  - { target: class.focus.noncombat, op: add, value: 1 }
+  - { target: class.expertPoints, op: add, value: 1 }
+  # Once a scene: reroll a failed skill check.
+  - target: { choices: [failed-check] }
+    op: option
+    when: '!scene.expertReroll'
+    value:
+      id: reroll
+      flags: { reroll: true }
+      changes:
+        - { type: set, field: scene.expertReroll, value: true }

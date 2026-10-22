@@ -1,0 +1,277 @@
+status: finished
+outcome:
+  result: created
+proposedChanges:
+  - to: self
+    step: rolled/scores
+    change:
+      type: set
+      field: wwn-srd:attributes.str.score
+      value: 10
+  - to: self
+    step: rolled/scores
+    change:
+      type: set
+      field: wwn-srd:attributes.dex.score
+      value: 6
+  - to: self
+    step: rolled/scores
+    change:
+      type: set
+      field: wwn-srd:attributes.con.score
+      value: 12
+  - to: self
+    step: rolled/scores
+    change:
+      type: set
+      field: wwn-srd:attributes.int.score
+      value: 10
+  - to: self
+    step: rolled/scores
+    change:
+      type: set
+      field: wwn-srd:attributes.wis.score
+      value: 8
+  - to: self
+    step: rolled/scores
+    change:
+      type: set
+      field: wwn-srd:attributes.cha.score
+      value: 12
+  - to: self
+    step: rolled/fourteen
+    change:
+      type: set
+      field: wwn-srd:attributes.dex.score
+      value: 14
+  - to: self
+    step: background
+    change:
+      type: addItem
+      entry:
+        id: background
+        item: wwn-srd:backgrounds.artisan
+  - to: self
+    step: freeSkill/skill/raise
+    change:
+      type: adjust
+      field: wwn-srd:skills.craft
+      by: 1
+  - to: self
+    step: rolls/rolled1/attribute/two
+    change:
+      type: adjust
+      field: wwn-srd:attributes.str.score
+      by: 2
+  - to: self
+    step: rolls/rolled2/skill/raise
+    change:
+      type: adjust
+      field: wwn-srd:skills.know
+      by: 1
+  - to: self
+    step: rolls/rolled3/skill/raise
+    change:
+      type: adjust
+      field: wwn-srd:skills.craft
+      by: 1
+  - to: self
+    step: class
+    change:
+      type: addItem
+      entry:
+        id: class
+        item: wwn-srd:classes.warrior
+  - to: self
+    step: warriorFocus/take
+    change:
+      type: addItem
+      entry:
+        id: foci-xenoblooded-1
+        item: wwn-srd:foci.xenoblooded
+        state:
+          level: 1
+  - to: self
+    step: warriorFocus/focusChoices
+    change:
+      type: choose
+      path:
+        entry: foci-xenoblooded-1
+        choice:
+          - heritage
+      option: heavy
+  - to: self
+    step: freeFocus/take
+    change:
+      type: addItem
+      entry:
+        id: foci-shocking-assault-1
+        item: wwn-srd:foci.shocking-assault
+        state:
+          level: 1
+  - to: self
+    step: freeFocus/bonusSkill/raise
+    change:
+      type: adjust
+      field: wwn-srd:skills.punch
+      by: 1
+  - to: self
+    step: freePick/raise
+    change:
+      type: adjust
+      field: wwn-srd:skills.convince
+      by: 1
+  - to: self
+    step: hp
+    change:
+      type: set
+      field: wwn-srd:hp.rolled
+      value: 7
+  - to: self
+    step: purse
+    change:
+      type: adjust
+      field: wwn-srd:coins.silver
+      by: 120
+  - to: self
+    step: weapon
+    change:
+      type: addItem
+      entry:
+        id: weapons-war-hammer-1
+        item: wwn-srd:weapons.war-hammer
+        equipped: true
+  - to: self
+    step: weapon
+    change:
+      type: adjust
+      field: wwn-srd:coins.silver
+      by: -30
+  - to: self
+    step: armor
+    change:
+      type: addItem
+      entry:
+        id: armor-linothorax-1
+        item: wwn-srd:armor.linothorax
+        equipped: true
+  - to: self
+    step: armor
+    change:
+      type: adjust
+      field: wwn-srd:coins.silver
+      by: -20
+  - to: self
+    step: armor
+    change:
+      type: addItem
+      entry:
+        id: armor-small-shield-1
+        item: wwn-srd:armor.small-shield
+        equipped: true
+  - to: self
+    step: armor
+    change:
+      type: adjust
+      field: wwn-srd:coins.silver
+      by: -20
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry:
+        id: gear-rations-1
+        item: wwn-srd:gear.rations
+        equipped: false
+  - to: self
+    step: gear
+    change:
+      type: adjust
+      field: wwn-srd:coins.silver
+      by: -5
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry:
+        id: gear-working-dog-1
+        item: wwn-srd:gear.working-dog
+        equipped: false
+  - to: self
+    step: gear
+    change:
+      type: adjust
+      field: wwn-srd:coins.silver
+      by: -20
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry:
+        id: gear-torch-1
+        item: wwn-srd:gear.torch
+        equipped: false
+  - to: self
+    step: gear
+    change:
+      type: adjust
+      field: wwn-srd:coins.silver
+      by: -1
+  - to: self
+    step: gear
+    change:
+      type: adjust
+      field: wwn-srd:coins.copper
+      by: 8
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry:
+        id: gear-grappling-hook-1
+        item: wwn-srd:gear.grappling-hook
+        equipped: false
+  - to: self
+    step: gear
+    change:
+      type: adjust
+      field: wwn-srd:coins.silver
+      by: -5
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry:
+        id: gear-iron-spikes-1
+        item: wwn-srd:gear.iron-spikes
+        equipped: false
+  - to: self
+    step: gear
+    change:
+      type: adjust
+      field: wwn-srd:coins.silver
+      by: -1
+  - to: self
+    step: gear
+    change:
+      type: addItem
+      entry:
+        id: gear-backpack-1
+        item: wwn-srd:gear.backpack
+        equipped: true
+  - to: self
+    step: gear
+    change:
+      type: adjust
+      field: wwn-srd:coins.silver
+      by: -2
+  - to: self
+    step: finish
+    change:
+      type: set
+      field: wwn-srd:hp.current
+      value: 7
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

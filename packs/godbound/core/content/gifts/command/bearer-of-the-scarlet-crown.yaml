@@ -1,0 +1,13 @@
+id: gifts.command.bearer-of-the-scarlet-crown
+type: gift
+fields:
+  word: words.command
+  degree: greater
+  activation: constant
+prerequisites:
+  - id: word
+    when: '@words.command in words.bound'
+effects:
+  - target: dominion.monthly
+    op: add
+    value: 1

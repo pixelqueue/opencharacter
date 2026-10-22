@@ -1,0 +1,176 @@
+contentTypes:
+  # Mission gear: kits, tools, clothing, comms. Readied gear is `equipped`.
+  gear:
+    carried: true
+    equippable: true
+    fields:
+      cost: { type: integer, default: 0, min: 0 }
+      # Encumbrance; none for gear that fits in a pocket. Gear tagged `worn` (clothing, packs)
+      # counts nothing while Readied.
+      enc: { type: integer, min: 0 }
+
+  # Pharmaceuticals and street drugs. `minHeal` is the Heal skill needed to administer one (none
+  # for anyone); `strain` the System Strain a dose adds.
+  drug:
+    carried: true
+    fields:
+      cost: { type: integer, default: 0, min: 0 }
+      enc: { type: integer, default: 1, min: 0 }
+      minHeal: { type: integer, min: 0 }
+      strain: { type: integer, default: 0, min: 0 }
+      # Hit points a dose heals, plus the Heal skill of whoever applies it.
+      healDice: { type: dice }
+    actions:
+      - use: use-drug
+
+fields:
+  # Encumbrance: Readied gear up to half Strength, Stowed gear up to Strength. A character may
+  # push past both by two Readied and four Stowed, twice, losing Move each time.
+  enc.readied:
+    type: integer
+    formula: >-
+      sumCopies(copy.fields.enc * copy.quantity,
+        has(copy.fields.enc) && copy.equipped && !('worn' in copy.tags))
+    limits: { max: enc.readiedMax + 4 }
+  enc.stowed:
+    type: integer
+    formula: >-
+      sumCopies(copy.fields.enc * copy.quantity, has(copy.fields.enc) && !copy.equipped)
+    limits: { max: enc.stowedMax + 8 }
+  enc.readiedMax: { type: integer, formula: floor(attributes.str.score / 2) }
+  enc.stowedMax: { type: integer, formula: attributes.str.score }
+  # How far past the limits the load is: 0, 1 (Move 7 m) or 2 (Move 5 m).
+  enc.overload:
+    type: integer
+    formula: >-
+      min(2, max(0, max(ceil((enc.readied - enc.readiedMax) / 2),
+        ceil((enc.stowed - enc.stowedMax) / 4))))
+
+  # Mods a tech can keep maintained: Int and Con modifiers plus three times Fix (Tinker doubles
+  # it, and at level 2 counts Fix one level higher).
+  maintenance.multiplier: { type: integer, formula: '1' }
+  maintenance.fixBonus: { type: integer, formula: '0' }
+  maintenance.max:
+    type: integer
+    formula: >-
+      max(0, attributes.int.mod + attributes.con.mod
+        + 3 * min(5, max(0, skills.fix.level + maintenance.fixBonus))) * maintenance.multiplier
+  # Mods the character keeps up, counted by the player.
+  maintenance.used: { type: integer, input: true, default: 0, min: 0 }
+
+  # Focus gear budgets (Ace Driver and Roamer for vehicles, Drone Pilot for drones), and what the
+  # character's focus gear costs against them.
+  budget.vehicle: { type: integer, formula: '0' }
+  budget.drone: { type: integer, formula: '0' }
+  budget.vehicleUsed:
+    type: integer
+    formula: "sumCopies(copy.fields.cost, copy.type == 'vehicle' && copy.state.focusGear)"
+  budget.droneUsed:
+    type: integer
+    formula: "sumCopies(copy.fields.cost, copy.type == 'drone' && copy.state.focusGear)"
+
+effects:
+  - id: overload
+    target: combat.move
+    op: add
+    value: '-[0, 3, 5][enc.overload]'
+    when: enc.overload > 0
+
+constraints:
+  - id: vehicle-budget
+    check: budget.vehicleUsed <= budget.vehicle
+  - id: drone-budget
+    check: budget.droneUsed <= budget.drone
+
+actions:
+  # Take a dose: spends the copy, adds its System Strain and, for healing drugs, heals.
+  - id: use-drug
+    tags: [drug]
+    available: self.quantity > 0
+    params:
+      healerSkill: { type: integer, optional: true }
+    steps:
+      - id: heal
+        kind: roll
+        when: has(item.healDice)
+        tags: [healing]
+        parts:
+          - dice: item.healDice
+          - value: 'has(params.healerSkill) ? params.healerSkill : 0'
+      - id: take
+        kind: changes
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1 }
+          - { type: adjust, when: item.strain > 0, field: strain.temporary, by: item.strain }
+          - { type: adjust, when: has(steps.heal), field: hp.current, by: steps.heal.total }
+
+  # Buy vehicles or drones with a Focus's gear budget: the dearest one the budget buys is
+  # recommended. More are offered while the budget lasts, the dearest that still fits recommended,
+  # so an automatic run spends the budget; a player stops with `#done`.
+  - id: acquire-focus-gear
+    tags: [building]
+    available: budget.vehicle > budget.vehicleUsed || budget.drone > budget.droneUsed
+    params:
+      kind: { type: enum, values: [vehicle, drone] }
+      random: { type: boolean, default: false }
+    steps:
+      - id: vehicle
+        kind: choice
+        when: params.kind == 'vehicle'
+        sheet: proposed
+        options:
+          content:
+            type: vehicle
+            where: >-
+              item.cost <= budget.vehicle - budget.vehicleUsed && !('restricted' in item.tags)
+        prefer: item.cost
+        random: params.random
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { focusGear: true } }
+      - id: vehicles
+        kind: choice
+        when: params.kind == 'vehicle'
+        sheet: proposed
+        options:
+          content:
+            type: vehicle
+            where: >-
+              item.cost <= budget.vehicle - budget.vehicleUsed && !('restricted' in item.tags)
+        repeat: { max: 5 }
+        prefer: item.cost
+        random: params.random
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { focusGear: true } }
+      - id: drone
+        kind: choice
+        when: params.kind == 'drone'
+        sheet: proposed
+        options:
+          content:
+            type: drone
+            where: >-
+              item.cost <= budget.drone - budget.droneUsed && !('restricted' in item.tags)
+                && (!has(item.enc) || enc.stowed + item.enc <= enc.stowedMax)
+        prefer: item.cost
+        random: params.random
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { focusGear: true } }
+      - id: drones
+        kind: choice
+        when: params.kind == 'drone'
+        sheet: proposed
+        options:
+          content:
+            type: drone
+            where: >-
+              item.cost <= budget.drone - budget.droneUsed && !('restricted' in item.tags)
+                && (!has(item.enc) || enc.stowed + item.enc <= enc.stowedMax)
+        repeat: { max: 5 }
+        prefer: item.cost
+        random: params.random
+        changes:
+          - type: addItem
+            entry: { item: picked.id, state: { focusGear: true } }

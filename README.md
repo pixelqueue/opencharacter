@@ -88,6 +88,11 @@ much of OCF your app needs.
 | [`fitd-crew`](packs/fitd/crew/)           | Forged in the Dark crew (SRD)              | Mechanics only |
 | [`mork-borg-core`](packs/mork-borg/core/) | MÖRK BORG                                  | Mechanics only |
 | [`fate-core`](packs/fate/core/)           | Fate Core                                  | CC-BY-3.0      |
+| [`awn-core`](packs/awn/core/)             | Ashes Without Number                       | By permission  |
+| [`cwn-srd`](packs/cwn/srd/)               | Cities Without Number (SRD)                | CC0-1.0        |
+| [`godbound-core`](packs/godbound/core/)   | Godbound                                   | By permission  |
+| [`swn-revised`](packs/swn/revised/)       | Stars Without Number: Revised Edition      | By permission  |
+| [`wwn-srd`](packs/wwn/srd/)               | Worlds Without Number (SRD)                | CC0-1.0        |
 
 Each pack is its own npm package (`@opencharacter/<pack>`), and
 [`@opencharacter/packs`](packages/packs/) bundles them all. Mechanics-only packs model games that
@@ -120,7 +125,10 @@ Packs, fixes and engine ports are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.m
 
 Code, spec, schemas and tests are [Apache 2.0](LICENSE). Original packs are [CC0](packs/LICENSE);
 packs from licensed material keep that license and its credit line: `5e-srd-5.1` and `5e-srd-5.2`
-CC-BY-4.0, `fate-core` CC-BY-3.0, and `orc-2e` and `orc-sf-2e` the ORC License, each with its notices. `mothership-1e`, `mork-borg-core` and the Forged in the Dark packs are unofficial,
-mechanics-only models whose own work is CC0; the Forged in the Dark packs keep the SRD's CC-BY credit line and
-the MÖRK BORG pack the notices of its third-party license. Every package has a `LICENSE` file
-with its terms, credit and notices.
+CC-BY-4.0, `fate-core` CC-BY-3.0, and `orc-2e` and `orc-sf-2e` the ORC License, each with its
+notices. `cwn-srd` and `wwn-srd` are CC0, as the SRDs they are built from are. `swn-revised`,
+`awn-core` and `godbound-core` carry text from Sine Nomine Publishing's free editions with the
+author's permission, with a credit line and notices. `mothership-1e`, `mork-borg-core` and the
+Forged in the Dark packs are unofficial, mechanics-only models whose own work is CC0; the Forged
+in the Dark packs keep the SRD's CC-BY credit line and the MÖRK BORG pack the notices of its
+third-party license. Every package has a `LICENSE` file with its terms, credit and notices.

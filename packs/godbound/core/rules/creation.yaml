@@ -1,0 +1,238 @@
+creation:
+  - { id: guided, action: create-character }
+  - { id: random, action: create-character, params: { random: true }, random: true }
+
+actions:
+  # Attributes, three Words, six points of gifts (or a fourth Word for three), armor, a shield and
+  # a weapon, then whatever the Words, gifts and armor ask. The random start rolls the attributes
+  # in order, draws the Words, the gifts of those Words and the universal gifts, the armor, shield
+  # and weapon, and the Sorcery invocations; every other pick takes its recommendation.
+  - id: create-character
+    tags: [creation]
+    available: character.creating && words.count == 0
+    params:
+      random: { type: boolean, default: false }
+    results: [created]
+    steps:
+      - id: method
+        kind: choice
+        when: '!params.random'
+        options: [{ id: roll }, { id: array }]
+        recommend: "'array'"
+      - id: roll1
+        kind: roll
+        when: "params.random || steps.method.picked == 'roll'"
+        tags: [creation]
+        parts: [{ dice: 4d6dl1 }]
+      - id: roll2
+        kind: roll
+        when: "params.random || steps.method.picked == 'roll'"
+        tags: [creation]
+        parts: [{ dice: 4d6dl1 }]
+      - id: roll3
+        kind: roll
+        when: "params.random || steps.method.picked == 'roll'"
+        tags: [creation]
+        parts: [{ dice: 4d6dl1 }]
+      - id: roll4
+        kind: roll
+        when: "params.random || steps.method.picked == 'roll'"
+        tags: [creation]
+        parts: [{ dice: 4d6dl1 }]
+      - id: roll5
+        kind: roll
+        when: "params.random || steps.method.picked == 'roll'"
+        tags: [creation]
+        parts: [{ dice: 4d6dl1 }]
+      - id: roll6
+        kind: roll
+        when: "params.random || steps.method.picked == 'roll'"
+        tags: [creation]
+        parts: [{ dice: 4d6dl1 }]
+      # Rolled scores are recommended in the order rolled; the array puts 16 in Constitution.
+      - id: scores
+        kind: branch
+        cases:
+          - when: has(steps.roll1)
+            flags:
+              values: >-
+                [steps.roll1.total, steps.roll2.total, steps.roll3.total, steps.roll4.total,
+                  steps.roll5.total, steps.roll6.total]
+              order: >-
+                [steps.roll1.total, steps.roll2.total, steps.roll3.total, steps.roll4.total,
+                  steps.roll5.total, steps.roll6.total]
+          - when: true
+            flags:
+              values: '[16, 14, 13, 13, 10, 8]'
+              order: '[13, 14, 16, 13, 10, 8]'
+      - id: attributes
+        kind: allocate
+        fields: { type: field, where: "'attribute-base' in item.tags" }
+        values:
+          - flags.values[0]
+          - flags.values[1]
+          - flags.values[2]
+          - flags.values[3]
+          - flags.values[4]
+          - flags.values[5]
+        recommend:
+          'attributes.{attribute}.base': "flags.order[indexOf(['str', 'dex', 'con', 'wis', 'int', 'cha'], '{attribute}')]"
+      - id: words
+        kind: choice
+        options: { content: { type: word, where: item.bindable && picks == 0 } }
+        repeat: { max: 3, min: 3 }
+        random: params.random
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: moreWords
+        kind: choice
+        when: '!params.random'
+        options: [{ id: no }, { id: yes }]
+        recommend: "'no'"
+      - id: extraWord
+        kind: choice
+        when: "has(steps.moreWords) && steps.moreWords.picked == 'yes'"
+        sheet: proposed
+        options: { content: { type: word, where: 'item.bindable && !(item.id in words.bound)' } }
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      # Gifts until the points run out (or the player stops). The random start draws among the
+      # gifts of its Words and the universal gifts.
+      - id: gifts
+        kind: choice
+        sheet: proposed
+        options:
+          content:
+            type: gift
+            where: >-
+              !has(item.apotheosisLevel)
+                && (item.repeatable || countCopies(copy.item == item.id) == 0)
+                && (!has(item.requires) || countCopies(copy.item == item.requires) > 0)
+                && (item.id != @gifts.universal.effort-of-the-word
+                  || gifts.effortOfTheWord < words.count)
+                && (item.id != @gifts.universal.influence-of-the-word
+                  || gifts.influenceOfTheWord < words.count)
+                && (!has(item.word) || item.word in words.bound
+                  || (!params.random && item.degree == 'lesser'))
+                && (!has(item.word)
+                  ? (item.id == @gifts.universal.effort-of-the-word && gifts.effortOfTheWord > 0 ? 2 : 1)
+                  : item.word in words.bound ? (item.degree == 'greater' ? 2 : 1) : 2)
+                  <= gifts.points.free
+        repeat: { max: 12, min: 0 }
+        random: params.random
+        prefer: "has(item.word) && item.word in words.bound ? (item.degree == 'greater' ? 2 : 1) : 0"
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: armor
+        kind: choice
+        options:
+          - id: none
+          - id: light
+            changes:
+              - type: addItem
+                entry: { item: "'armor.light'", equipped: true }
+          - id: medium
+            changes:
+              - type: addItem
+                entry: { item: "'armor.medium'", equipped: true }
+          - id: heavy
+            changes:
+              - type: addItem
+                entry: { item: "'armor.heavy'", equipped: true }
+        random: params.random
+        recommend: "'none'"
+      - id: shield
+        kind: choice
+        options:
+          - id: none
+          - id: shield
+            changes:
+              - type: addItem
+                entry: { item: "'shields.shield'", equipped: true }
+        random: params.random
+        recommend: "'none'"
+      - id: weapon
+        kind: choice
+        options: { content: { type: weapon, where: 'item.id != @weapons.unarmed' } }
+        random: params.random
+        recommend: '@weapons.medium'
+        changes:
+          - type: addItem
+            entry: { item: picked.id, equipped: true }
+      # The Words' attribute raises, gift choices, Sorcery invocations and armor penalties.
+      - id: picks
+        kind: choice
+        options: { pending: {} }
+        random: "params.random && choice.id == 'invocations'"
+      - id: finish
+        kind: changes
+        sheet: proposed
+        changes:
+          - { type: set, field: hp.current, value: hp.max }
+          - { type: finishCreation }
+      - id: result
+        kind: outcome
+        result: "'created'"
+
+  # A new level: the level, a new divine fury, and two gift points to spend or save (a new Word
+  # costs three). The new Fact is the player's to write.
+  - id: level-up
+    tags: [level]
+    available: '!character.creating && level < 10 && xp.current >= xp.next && dominion.spent >= dominion.next'
+    results: [advanced]
+    steps:
+      - id: advance
+        kind: changes
+        changes:
+          - { type: adjust, field: level, by: 1 }
+          - { type: set, field: fury.spent, value: false }
+      - id: newWord
+        kind: choice
+        sheet: proposed
+        when: gifts.points.free >= 3
+        options: [{ id: no }, { id: yes }]
+        recommend: "'no'"
+      - id: word
+        kind: choice
+        when: "has(steps.newWord) && steps.newWord.picked == 'yes'"
+        sheet: proposed
+        options: { content: { type: word, where: 'item.bindable && !(item.id in words.bound)' } }
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: gifts
+        kind: choice
+        sheet: proposed
+        options:
+          content:
+            type: gift
+            where: >-
+              !has(item.apotheosisLevel)
+                && (item.repeatable || countCopies(copy.item == item.id) == 0)
+                && (!has(item.requires) || countCopies(copy.item == item.requires) > 0)
+                && (item.id != @gifts.universal.effort-of-the-word
+                  || gifts.effortOfTheWord < words.count)
+                && (item.id != @gifts.universal.influence-of-the-word
+                  || gifts.influenceOfTheWord < words.count)
+                && (!has(item.word) || item.word in words.bound || item.degree == 'lesser')
+                && (!has(item.word)
+                  ? (item.id == @gifts.universal.effort-of-the-word && gifts.effortOfTheWord > 0 ? 2 : 1)
+                  : item.word in words.bound ? (item.degree == 'greater' ? 2 : 1) : 2)
+                  <= gifts.points.free
+        repeat: { max: 12, min: 0 }
+        prefer: "has(item.word) && item.word in words.bound ? (item.degree == 'greater' ? 2 : 1) : 0"
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: picks
+        kind: choice
+        options: { pending: {} }
+      - id: result
+        kind: outcome
+        result: "'advanced'"

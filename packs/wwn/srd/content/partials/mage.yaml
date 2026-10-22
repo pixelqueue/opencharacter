@@ -1,0 +1,33 @@
+id: partials.mage
+type: partial
+tags: [mage-class]
+# Taken twice for two traditions.
+repeatable: true
+effects:
+  - { target: class.mage, op: add, value: 1 }
+choices:
+  - id: tradition
+    unique: partial-traditions
+    from:
+      options:
+        - id: high-mage
+          prerequisites:
+            - { id: no-invoker, when: tradition.invoker.tier == 0 }
+          effects:
+            - { target: tradition.highmage.tier, op: add, value: 1 }
+        - id: elementalist
+          prerequisites:
+            - { id: no-invoker, when: tradition.invoker.tier == 0 }
+          effects:
+            - { target: tradition.elementalist.tier, op: add, value: 1 }
+        - id: necromancer
+          prerequisites:
+            - { id: no-invoker, when: tradition.invoker.tier == 0 }
+          effects:
+            - { target: tradition.necromancer.tier, op: add, value: 1 }
+        - id: invoker
+          prerequisites:
+            - id: no-other-caster
+              when: tradition.highmage.tier + tradition.elementalist.tier + tradition.necromancer.tier == 0
+          effects:
+            - { target: tradition.invoker.tier, op: add, value: 1 }

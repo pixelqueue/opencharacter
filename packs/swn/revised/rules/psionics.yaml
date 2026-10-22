@@ -1,0 +1,105 @@
+fields:
+  # Cursed Luck is on the character: attacks against them and damage they take roll twice and
+  # keep the better.
+  psionics.cursedLuck: { type: boolean, formula: false }
+  effort.bonus: { type: integer, formula: 0 }
+  # A wild talent's Effort, for a character who isn't a psychic.
+  effort.wild: { type: integer, formula: 0 }
+  effort.max:
+    type: integer
+    formula: >-
+      psionics.access == 'none' ? effort.wild
+        : max(1, 1 + maxFields(f.value, 'skill.psychic' in f.tags)
+          + max(attributes.wis.mod, attributes.con.mod)) + effort.bonus
+  # Effort Committed until the end of the scene, and until the next night's rest.
+  effort.scene: { type: integer, input: true, default: 0, min: 0 }
+  effort.day: { type: integer, input: true, default: 0, min: 0 }
+  # Effort gained by torching, which lasts for the scene.
+  effort.torched: { type: integer, input: true, default: 0, min: 0 }
+  # Effort Committed for as long as a technique lasts, held on the technique: its copy, the
+  # pick that chose it, or the grant of a core technique. Each technique adds its own.
+  effort.active: { type: integer, formula: 0 }
+  effort.available:
+    type: integer
+    formula: effort.max + effort.torched - effort.scene - effort.day - effort.active
+    limits: { min: 0 }
+
+effects:
+  - target: { rolls: [attack, damage] }
+    op: rollModifier
+    value: { kind: advantage, of: roll }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && participants.target[0].psionics.cursedLuck
+
+contentTypes:
+  technique:
+    copies: { perItem: 1 }
+    fields:
+      discipline:
+        type: enum
+        required: true
+        values: [biopsionics, metapsionics, precognition, telekinesis, telepathy, teleportation]
+      level: { type: integer, required: true, min: 0, max: 4 }
+      # The discipline's core technique: every psychic with the skill has it.
+      core: { type: boolean, default: false }
+    state:
+      # Effort Committed to keep the technique going, until it is released.
+      committed: { type: integer, default: 0, min: 0 }
+    effects:
+      - { target: effort.active, op: add, value: self.committed }
+    actions:
+      - use: sustain-technique
+      - use: release-technique
+
+constraints:
+  # Only psychics have psychic skills, and a restricted psychic only their one discipline.
+  - id: psychic-skills
+    check: >-
+      psionics.access == 'unrestricted'
+        || sumFields(f.value >= 0 && (psionics.access == 'none'
+          || f.id != 'swn-revised:skills.' + psionics.discipline + '.level') ? 1 : 0,
+          'skill.psychic' in f.tags) == 0
+
+actions:
+  # Commit a point of Effort for as long as the technique lasts: it stays Committed on the
+  # technique until the psychic releases it, ending the power.
+  - id: sustain-technique
+    tags: [psionics]
+    available: effort.available > 0
+    results: [committed]
+    steps:
+      - &held
+        id: held
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              # Where the technique is held: its own copy, a focus's pick (Wild Psychic Talent)
+              # or a psychic class's grant (a core technique). The owning copy's type tells.
+              held: >-
+                countCopies(copy.id == self.id && copy.type == 'technique') > 0 ? 'copy'
+                  : countCopies(copy.id == self.id && copy.type == 'focus') > 0 ? 'pick'
+                  : 'grant'
+      - id: commit
+        kind: changes
+        changes:
+          - { type: adjustState, when: "flags.held == 'copy'", entry: self, key: committed, by: 1 }
+          - { type: adjustState, when: "flags.held == 'pick'", pick: self, key: committed, by: 1 }
+          - { type: adjustState, when: "flags.held == 'grant'", grant: self, key: committed, by: 1 }
+      - { id: result, kind: outcome, result: "'committed'" }
+
+  # Reclaim the Effort a technique holds, ending it.
+  - id: release-technique
+    tags: [psionics]
+    available: self.committed > 0
+    results: [released]
+    steps:
+      - *held
+      - id: release
+        kind: changes
+        changes:
+          - { type: setState, when: "flags.held == 'copy'", entry: self, key: committed, value: 0 }
+          - { type: setState, when: "flags.held == 'pick'", pick: self, key: committed, value: 0 }
+          - { type: setState, when: "flags.held == 'grant'", grant: self, key: committed, value: 0 }
+      - { id: result, kind: outcome, result: "'released'" }

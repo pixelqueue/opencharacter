@@ -1,0 +1,42 @@
+families:
+  attribute: [str, dex, con, int, wis, cha]
+
+fields:
+  # The rolled (or assigned) score, raised by background and advancement boosts. 18 is the cap.
+  'attributes.{attribute}.base':
+    type: integer
+    input: true
+    default: 10
+    min: 3
+    max: 18
+    tags: [attribute-base, 'attr.{attribute}']
+  # What everything reads. Cyberware that sets a score (Muscle Fiber Replacement) acts here.
+  'attributes.{attribute}.score':
+    { type: integer, formula: 'attributes.{attribute}.base', tags: [attribute, 'attr.{attribute}'] }
+  # The modifier a score gives: 3 is -2, 4-7 -1, 8-13 +0, 14-17 +1, 18 +2. Prodigy raises it to +3.
+  'attributes.{attribute}.scoreMod':
+    type: integer
+    tags: [attribute-score-mod, 'attr.{attribute}']
+    formula: >-
+      attributes.{attribute}.score >= 18 ? 2 : attributes.{attribute}.score >= 14 ? 1
+        : attributes.{attribute}.score >= 8 ? 0 : attributes.{attribute}.score >= 4 ? -1 : -2
+  # Bonuses and penalties to the modifier itself (foci, cyberware, Graced arts, injuries).
+  'attributes.{attribute}.modBonus':
+    { type: integer, formula: '0', tags: [attribute-mod-bonus, 'attr.{attribute}'] }
+  # Bonuses can't raise a modifier past +2 unless their source says so (+3 for All Natural and
+  # the Graced arts).
+  'attributes.{attribute}.modCap':
+    { type: integer, formula: '2', tags: [attribute-mod-cap, 'attr.{attribute}'] }
+  'attributes.{attribute}.mod':
+    type: integer
+    tags: [attribute-mod, 'attr.{attribute}']
+    formula: >-
+      max(-3, min(max(attributes.{attribute}.modCap, attributes.{attribute}.scoreMod),
+        attributes.{attribute}.scoreMod + attributes.{attribute}.modBonus))
+
+  # The Underdog Rule reads the sum of the six modifiers.
+  attributes.modTotal:
+    type: integer
+    formula: >-
+      attributes.str.mod + attributes.dex.mod + attributes.con.mod + attributes.int.mod
+        + attributes.wis.mod + attributes.cha.mod

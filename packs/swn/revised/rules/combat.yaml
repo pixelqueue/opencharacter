@@ -1,0 +1,312 @@
+actions:
+  # d20 + attack bonus + combat skill (unskilled -2) + the weapon's attribute modifier, against
+  # the target's AC. A miss still does the weapon's Shock if the target's AC is low enough, and a
+  # hit never does less than the Shock would.
+  - id: attack
+    tags: [attack]
+    available: >-
+      (self.equipped || 'unarmed' in item.tags) && (!has(item.magazine) || self.loaded > 0)
+    params:
+      targetAc: { type: integer, optional: true }
+      modifier: { type: integer, default: 0 }
+    participants:
+      target:
+        max: 1
+        fields:
+          ac.value: { type: integer, default: 10 }
+          ac.advanced: { type: integer }
+          psionics.cursedLuck: { type: boolean, default: false }
+    results: [hit, miss, rolled]
+    steps:
+      - id: start
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              skill: "fieldOf('skills.{skill}.level', item.skill)"
+              attr: >-
+                !has(item.attribute) ? 0
+                  : item.attribute == 'str-dex' ? max(attributes.str.mod, attributes.dex.mod)
+                  : fieldOf('attributes.{attr}.mod', item.attribute)
+              advanced: >-
+                item.advanced || (item.skill == 'stab' && combat.meleeAdvanced)
+                  || (item.skill == 'punch' && combat.punchAdvanced)
+              bonus: >-
+                item.skill == 'punch' ? max(0, skills.punch.level)
+                  : item.skill == 'stab' ? damage.melee : damage.ranged
+              burst: situational.burst && item.burst && self.loaded >= 3
+              hit: false
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ac: >-
+                has(item.fixedAc) ? item.fixedAc : has(params.targetAc) ? params.targetAc
+                  : size(participants.target) == 0 ? -1
+                  : flags.advanced && has(participants.target[0].ac.advanced)
+                    ? participants.target[0].ac.advanced : participants.target[0].ac.value
+      - id: roll
+        kind: roll
+        tags: [attack, { formula: "'attack.' + item.skill" }]
+        bands: attack
+        parts:
+          - dice: 1d20
+          - value: combat.attackBonus
+          - value: 'flags.skill < 0 ? -2 : flags.skill'
+          - value: flags.attr
+          - value: 'item.energy ? 1 : 0'
+          - value: 'flags.burst ? 2 : 0'
+          - value: params.modifier
+      - id: luck
+        kind: choice
+        tags: [missed-attack]
+        when: "steps.roll.band == 'miss'"
+        options: [{ id: accept }]
+        recommend: "'accept'"
+      - id: outcome
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              landed: "steps.roll.band == 'hit' || flags.hit"
+              shock: >-
+                has(item.shock) && item.shock > 0 && flags.ac >= 0
+                  && ((shock.anyAc && item.skill != 'shoot') || flags.ac <= item.shockAc)
+                  ? max(0, item.shock + flags.attr + shock.bonus
+                    + (item.skill == 'stab' ? damage.melee : 0))
+                  : 0
+      - id: damage
+        kind: roll
+        when: flags.landed
+        tags: [damage]
+        parts:
+          - dice: item.damage
+          - value: flags.attr
+          - value: flags.bonus
+          - value: 'flags.burst ? 2 : 0'
+      - id: missDamage
+        kind: roll
+        when: "!flags.landed && steps.roll.band == 'miss'"
+        tags: [damage]
+        parts:
+          - dice: "item.skill == 'punch' ? miss.punch : item.skill == 'stab' ? miss.melee : miss.ranged"
+      - id: total
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              damage: >-
+                flags.landed ? max(0, steps.damage.total, flags.shock)
+                  : has(steps.missDamage) ? flags.shock + steps.missDamage.total : 0
+      - id: deal
+        kind: changes
+        when: flags.damage > 0
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            by: -flags.damage
+            tags: [{ formula: "item.nonlethal ? 'damage.nonlethal' : 'damage'" }]
+      - id: spend
+        kind: changes
+        changes:
+          - type: adjustState
+            when: has(item.magazine)
+            entry: self
+            key: loaded
+            by: '-(flags.burst ? 3 : 1)'
+          - type: adjustQuantity
+            when: has(item.fixedAc)
+            entry: self
+            by: -1
+      - id: result
+        kind: outcome
+        result: "flags.landed ? 'hit' : steps.roll.band"
+        data:
+          total: steps.roll.total
+          damage: flags.damage
+
+  # Refills the magazine from a power cell or a load of ammunition carried, when there is one.
+  - id: reload
+    tags: [attack]
+    available: has(item.magazine) && self.loaded < item.magazine
+    results: [reloaded]
+    steps:
+      - id: load
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: loaded, value: item.magazine }
+          - type: adjustQuantity
+            when: has(item.ammo)
+            copies:
+              {
+                type: gear,
+                where: 'has(item.kind) && item.kind == action.item.ammo && self.quantity > 0',
+              }
+            limit: 1
+            by: -1
+      - { id: result, kind: outcome, result: "'reloaded'" }
+
+  - id: take-damage
+    tags: [health]
+    params:
+      amount: { type: integer, min: 0 }
+    results: [taken]
+    steps:
+      - id: deal
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: -params.amount, tags: [damage] }
+      - { id: result, kind: outcome, result: "'taken'" }
+
+  - id: heal
+    tags: [health]
+    params:
+      amount: { type: integer, min: 0 }
+    results: [healed]
+    steps:
+      - id: restore
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: params.amount, tags: [healing] }
+      - { id: result, kind: outcome, result: "'healed'" }
+
+  # A night's rest: hit points back by the character level (unless mortally wounded), one point
+  # of System Strain gone, and every Effort and once-a-scene ability back.
+  - id: rest
+    tags: [health]
+    results: [rested]
+    steps:
+      - id: rest
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: level, when: hp.current > 0, tags: [healing] }
+          - { type: adjust, field: strain.current, by: -1, when: strain.current > 0 }
+          - { type: set, field: effort.day, value: 0 }
+          - { type: set, field: effort.scene, value: 0 }
+          - { type: set, field: effort.torched, value: 0 }
+          - { type: set, field: scene.expertReroll, value: false }
+          - { type: set, field: scene.warriorLuck, value: false }
+      - { id: result, kind: outcome, result: "'rested'" }
+
+  - id: end-scene
+    tags: [health]
+    results: [ended]
+    steps:
+      - id: reset
+        kind: changes
+        changes:
+          - { type: set, field: effort.scene, value: 0 }
+          - { type: set, field: effort.torched, value: 0 }
+          - { type: set, field: scene.expertReroll, value: false }
+          - { type: set, field: scene.warriorLuck, value: false }
+      - { id: result, kind: outcome, result: "'ended'" }
+
+  # A stim or drug on yourself: it fails if its System Strain would pass Constitution.
+  - id: use-drug
+    tags: [health]
+    available: "item.category == 'pharmaceutical' && self.quantity > 0"
+    results: [applied, failed]
+    steps:
+      - id: start
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              fits: strain.total + item.strain <= strain.max
+      - id: heal
+        kind: roll
+        when: flags.fits && has(item.heal)
+        tags: [healing]
+        parts:
+          - dice: item.heal
+          - value: 'item.healAddsSkill ? max(0, skills.heal.level) : 0'
+      - id: apply
+        kind: changes
+        changes:
+          - { type: adjustQuantity, entry: self, by: -1 }
+          - {
+              type: adjust,
+              field: strain.current,
+              by: item.strain,
+              when: flags.fits && item.strain > 0,
+            }
+          - type: adjust
+            when: has(steps.heal)
+            field: hp.current
+            by: steps.heal.total
+            tags: [healing]
+      - { id: result, kind: outcome, result: "flags.fits ? 'applied' : 'failed'" }
+
+  - id: trigger-cyberware
+    tags: [strain]
+    available: item.activationStrain > 0
+    results: [triggered, failed]
+    steps:
+      - id: start
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              fits: strain.total + item.activationStrain <= strain.max
+      - id: strain
+        kind: changes
+        when: flags.fits
+        changes:
+          - { type: adjust, field: strain.current, by: item.activationStrain }
+      - { id: result, kind: outcome, result: "flags.fits ? 'triggered' : 'failed'" }
+
+  # Commit a point of Effort for the scene or for the day.
+  - id: commit-effort
+    tags: [psionics]
+    available: effort.available > 0
+    params:
+      until: { type: enum, values: [scene, day], default: scene }
+    results: [committed]
+    steps:
+      - id: commit
+        kind: changes
+        changes:
+          - { type: adjust, field: effort.scene, by: 1, when: "params.until == 'scene'" }
+          - { type: adjust, field: effort.day, by: 1, when: "params.until == 'day'" }
+      - { id: result, kind: outcome, result: "'committed'" }
+
+  # Torching: a free point of Effort for the scene, at a risk to Wisdom or Constitution.
+  - id: torch
+    tags: [psionics]
+    available: "psionics.access != 'none'"
+    results: [harmless, wisdom, constitution, chosen]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [torch]
+        parts: [{ dice: 1d6 }]
+      - id: attribute
+        kind: choice
+        when: steps.roll.total == 5
+        options: { values: { formula: "keysOf('attr')" } }
+        recommend: >-
+          ['str', 'dex', 'con', 'int', 'wis', 'cha'][indexOf([attributes.str.score,
+            attributes.dex.score, attributes.con.score, attributes.int.score,
+            attributes.wis.score, attributes.cha.score], maxList([attributes.str.score,
+            attributes.dex.score, attributes.con.score, attributes.int.score,
+            attributes.wis.score, attributes.cha.score], x))]
+      - id: apply
+        kind: changes
+        changes:
+          - { type: adjust, field: effort.torched, by: 1 }
+          - { type: adjust, field: attributes.wis.score, by: -1, when: steps.roll.total <= 2 }
+          - type: adjust
+            when: steps.roll.total == 3 || steps.roll.total == 4
+            field: attributes.con.score
+            by: -1
+          - type: adjust
+            when: has(steps.attribute)
+            field: { formula: "'attributes.' + steps.attribute.picked + '.score'" }
+            by: -1
+      - id: result
+        kind: outcome
+        result: >-
+          steps.roll.total <= 2 ? 'wisdom' : steps.roll.total <= 4 ? 'constitution'
+            : steps.roll.total == 5 ? 'chosen' : 'harmless'

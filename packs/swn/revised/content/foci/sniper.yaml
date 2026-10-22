@@ -1,0 +1,10 @@
+id: foci.sniper
+type: focus
+fields:
+  kind: combat
+  skill: shoot
+effects:
+  - target: { rolls: [check.shoot] }
+    op: rollModifier
+    value: { kind: poolDice, count: 1 }
+    when: situational.executionShot && skills.shoot.dice < 3

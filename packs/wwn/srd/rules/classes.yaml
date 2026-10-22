@@ -1,0 +1,76 @@
+fields:
+  level: { type: integer, input: true, default: 1, min: 1, max: 10 }
+
+  # Each class's perks: 2 for the full class, 1 for a partial one. A Warrior's or an Expert's
+  # brings a Focus pick, an Expert's an extra skill point each level. A Mage's tradition counts
+  # in `tradition.<key>.tier` (magic.yaml); `class.mage` counts the Mage classes held.
+  class.warrior: { type: integer, formula: 0 }
+  class.expert: { type: integer, formula: 0 }
+  class.mage: { type: integer, formula: 0 }
+
+  # The class mix's hit dice and attack bonus. Some partial classes count as Warriors or Experts
+  # here without their perks (the Bard, the Wise, the Mageslayer); the Duelist's fragility
+  # takes the Warrior's +2 away.
+  chassis.attackFull: { type: integer, formula: 0 }
+  chassis.attackWarrior: { type: integer, formula: 0 }
+  chassis.attackExpert: { type: integer, formula: 0 }
+  chassis.hitsWarrior: { type: integer, formula: 0 }
+  chassis.hitsExpert: { type: integer, formula: 0 }
+  chassis.fragile: { type: integer, formula: 0 }
+
+  # Each hit die is 1d6 plus this: +2 with a Warrior, +0 with an Expert, -1 otherwise.
+  # Martial Style keeps it at least +0.
+  hp.dieBonus:
+    type: integer
+    formula: >-
+      chassis.hitsWarrior > 0 && chassis.fragile == 0 ? 2
+        : chassis.hitsWarrior > 0 || chassis.hitsExpert > 0 ? 0
+        : -1
+
+  attack.base:
+    type: integer
+    formula: >-
+      chassis.attackFull > 0 ? level
+        : chassis.attackWarrior > 0 ? [1, 2, 2, 3, 4, 5, 5, 6, 6, 7][level - 1]
+        : chassis.attackExpert > 0 ? floor(level / 2)
+        : floor(level / 5)
+
+  # Focus levels: one of any kind, one combat Focus with a Warrior, one non-combat Focus with an
+  # Expert, and one more at levels 2, 5, 7 and 10.
+  foci.allowed:
+    type: integer
+    formula: >-
+      1 + (class.warrior > 0 ? 1 : 0) + (class.expert > 0 ? 1 : 0)
+        + (level >= 2 ? 1 : 0) + (level >= 5 ? 1 : 0) + (level >= 7 ? 1 : 0)
+        + (level >= 10 ? 1 : 0)
+  foci.taken:
+    type: integer
+    formula: "sumCopies(copy.state.level, copy.type == 'focus')"
+
+  # A Beastmaster's companion's natural hit dice (Feral Toughness adds them to hit points).
+  companion.hitDice: { type: integer, input: true, default: 0, min: 0 }
+
+  # Killing Blow: half the level, rounded up, on every damage roll and Shock.
+  damage.killingBlow: { type: integer, formula: 0 }
+
+contentTypes:
+  class:
+    copies: { max: 1 }
+  # An Adventurer's two halves.
+  partial:
+    copies: { max: 0 }
+
+constraints:
+  - id: creation-class
+    check: "!character.creating || countCopies(copy.type == 'class') > 0"
+  - id: foci-allowed
+    check: foci.taken <= foci.allowed
+    data: { allowed: foci.allowed }
+  # No Mage class pairs with the Mageslayer.
+  - id: mageslayer-pairing
+    check: tradition.mageslayer.tier == 0 || class.mage == 0
+  # A partial Invoker doesn't pair with another partial spellcasting class.
+  - id: invoker-pairing
+    check: >-
+      tradition.invoker.tier != 1
+        || tradition.highmage.tier + tradition.elementalist.tier + tradition.necromancer.tier == 0

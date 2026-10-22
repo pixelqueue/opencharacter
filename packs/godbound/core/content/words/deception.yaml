@@ -1,0 +1,15 @@
+id: words.deception
+type: word
+choices:
+  - id: attribute
+    from:
+      values:
+        - dex
+        - cha
+    recommend: "attributes.dex.base <= attributes.cha.base ? 'dex' : 'cha'"
+    effects:
+      - target:
+          fields:
+            where: "'attribute' in item.tags && 'attr.' + pick.value in item.tags"
+        op: atLeast
+        value: "fieldOf('attributes.{attribute}.base', pick.value) >= 16 ? 18 : 16"

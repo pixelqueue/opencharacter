@@ -1,0 +1,30 @@
+families:
+  attr: [str, dex, con, int, wis, cha]
+
+fields:
+  'attributes.{attr}.score':
+    type: integer
+    input: true
+    default: 10
+    min: 3
+    max: 18
+    tags: [attribute, 'attr.{attr}']
+  # Bonuses and penalties to the modifier, not the score. They keep it within -2 and +2, or +3
+  # where a Focus says so (Developed Attribute, Xenoblooded).
+  'attributes.{attr}.modBonus': { type: integer, formula: 0, tags: [mod-bonus, 'attr.{attr}'] }
+  'attributes.{attr}.modCap': { type: integer, formula: 2, tags: [mod-cap, 'attr.{attr}'] }
+  'attributes.{attr}.mod':
+    type: integer
+    tags: [attribute-mod]
+    formula: >-
+      max(-2, min(attributes.{attr}.modCap, (attributes.{attr}.score <= 3 ? -2
+        : attributes.{attr}.score <= 7 ? -1 : attributes.{attr}.score <= 13 ? 0
+        : attributes.{attr}.score <= 17 ? 1 : 2) + attributes.{attr}.modBonus))
+
+  # Attribute boosts bought with skill points as the character advances (five at most).
+  attributes.boosts: { type: integer, input: true, default: 0, min: 0, max: 5 }
+  attributes.bestMod:
+    type: integer
+    formula: >-
+      max(attributes.str.mod, attributes.dex.mod, attributes.con.mod, attributes.int.mod,
+        attributes.wis.mod, attributes.cha.mod)
