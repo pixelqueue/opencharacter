@@ -5,11 +5,11 @@
   "items": [
     {
       "id": "renameContent",
-      "description": "Replace references to content ID `from` with `to`."
+      "description": "Replace references to content ID `from` with `to`, the keys of its saved grant state (`grants`) included."
     },
     {
       "id": "removeContent",
-      "description": "Remove copies of and picks for content `id`."
+      "description": "Remove copies of, picks for and the saved grant state (`grants`) of content `id`."
     },
     {
       "id": "renameField",
@@ -29,11 +29,23 @@
     },
     {
       "id": "renameState",
-      "description": "Rename a per-copy state key on copies of content type `type`."
+      "description": "Rename a state key in the saved state of copies, picks and granted content of `item`, of content type `type`, or both when both are given (every one when neither is)."
+    },
+    {
+      "id": "removeState",
+      "description": "Drop state key `key` from the saved state of copies, picks and granted content of `item`, of content type `type`, or both when both are given (every one when neither is)."
+    },
+    {
+      "id": "moveState",
+      "description": "Move state key `from` off copies of `item`, of content type `type`, or both when both are given, to key `to` of a pick on the copy (`owner`, `choice`, `option`) or of content the copy grants (`grant`)."
     },
     {
       "id": "renameChoice",
-      "description": "Rename a choice ID on `owner`."
+      "description": "Rename a choice ID on `owner` (or the rules); a prefixed `from` (`<qualified id>/<choice>`) moves that content's saved choice onto `owner`'s choice `to`."
+    },
+    {
+      "id": "removeChoice",
+      "description": "Remove the picks of choice `choice` on `owner` (or the rules), with their nested picks."
     },
     {
       "id": "renameOption",

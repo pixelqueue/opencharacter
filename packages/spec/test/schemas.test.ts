@@ -19,6 +19,18 @@ function enumAt(file: string, pointer: string[]): unknown[] {
   return (node as { enum: unknown[] }).enum;
 }
 
+/** An incoming-change effect with `then`. */
+function ward(scope: string | undefined, changes: object[]) {
+  return {
+    target: { incoming: { tags: ['damage'] } },
+    op: 'add',
+    value: '1',
+    ...(scope ? { scope } : {}),
+    // oxlint-disable-next-line unicorn/no-thenable
+    then: changes,
+  };
+}
+
 describe('schemas', () => {
   it('have $ids under the spec base URI that match their file paths', () => {
     for (const [path, schema] of loadSchemas()) {
@@ -82,7 +94,7 @@ describe('fixed sets match the schemas', () => {
   it('every dice modifier has standard English text', () => {
     const en = parse(readFileSync(join(paths.i18n, 'en.yaml'), 'utf8')) as Record<string, string>;
     for (const id of fixedSetIds('dice-modifiers')) expect(en).toHaveProperty([`dice.${id}`]);
-    for (const key of ['dice', 'fate', 'modified', 'plus', 'minus', 'negative'])
+    for (const key of ['dice', 'fate', 'modified', 'plus', 'minus', 'negative', 'repeat'])
       expect(en).toHaveProperty([`dice.${key}`]);
   });
 });
@@ -156,6 +168,20 @@ describe('display, template and change shapes', () => {
     ).toBe(false);
   });
 
+  it("lets only an applied incoming-change effect's then remove its entry", () => {
+    const remove = [{ type: 'removeEffect', entry: 'self' }];
+    const set = [{ type: 'setState', entry: 'self', key: 'k', value: '1' }];
+    expect(valid('effect.schema.json', ward('applied', remove))).toBe(true);
+    expect(valid('effect.schema.json', ward('applied', set))).toBe(true);
+    expect(valid('effect.schema.json', ward('holder', set))).toBe(true);
+    expect(valid('effect.schema.json', ward('holder', remove))).toBe(false);
+    expect(valid('effect.schema.json', ward(undefined, remove))).toBe(false);
+    expect(valid('effect.schema.json', ward('applied', [{ ...remove[0], key: 'k' }]))).toBe(false);
+    expect(
+      valid('effect.schema.json', ward('applied', [{ type: 'setState', entry: 'self' }])),
+    ).toBe(false);
+  });
+
   it('lets unchoose leave out its option, but not choose', () => {
     const path = { entry: 'x', choice: ['form'] };
     expect(valid('change.schema.json', { type: 'unchoose', path })).toBe(true);
@@ -206,5 +232,50 @@ describe('field tag and held-change shapes', () => {
     expect(
       step({ id: 'a', kind: 'action', use: 'save', each: 'target', as: 'participant', hold: true }),
     ).toBe(false);
+  });
+});
+
+/** A URL of the given length. */
+function url(length: number) {
+  const base = 'https://example.com/characters/';
+  return base + 'a'.repeat(length - base.length);
+}
+
+describe('character IDs and extensions', () => {
+  const ajv = compileAll();
+  const valid = (ref: string, data: unknown) => {
+    const validate = ajv.getSchema(`${SCHEMA_BASE}${ref}`);
+    if (!validate) throw new Error(`no schema ${ref}`);
+    return validate(data) as boolean;
+  };
+  const character = (extra: object) =>
+    valid('character.schema.json', {
+      specVersion: '0.1.0',
+      id: 'c1',
+      packs: [{ id: 'p', version: '0.1.0' }],
+      ...extra,
+    });
+  const ext = (value: unknown) => character({ extensions: { 'com.example.vtt': value } });
+
+  it('takes a URL of up to 2048 characters as a character, link or view ID', () => {
+    expect(character({ id: url(2048) })).toBe(true);
+    expect(character({ id: url(2049) })).toBe(false);
+    expect(character({ links: { 'p:crew': url(2048) } })).toBe(true);
+    expect(character({ links: { 'p:crew': url(2049) } })).toBe(false);
+    const view = 'engine/compute-sheet.schema.json#/$defs/view';
+    expect(valid(view, { id: url(2048) })).toBe(true);
+    expect(valid(view, { id: url(2049) })).toBe(false);
+  });
+
+  it('lets an object extension carry a $schema URI, and leaves other values as they were', () => {
+    expect(ext({ $schema: 'https://example.com/ocf/vtt-extension/1.json', tokenSize: 2 })).toBe(
+      true,
+    );
+    expect(ext({ $schema: 'not a uri' })).toBe(false);
+    expect(ext({ $schema: 2 })).toBe(false);
+    expect(ext({ tokenSize: 2 })).toBe(true);
+    expect(ext('a string')).toBe(true);
+    expect(ext([1, 2])).toBe(true);
+    expect(ext(null)).toBe(true);
   });
 });

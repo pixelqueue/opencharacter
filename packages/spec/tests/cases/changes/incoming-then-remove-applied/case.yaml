@@ -1,0 +1,30 @@
+description: "An applied incoming-change effect's `then` removes its own applied entry, so it counts once"
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage, damage.fire, damage.cold]
+        fields:
+          hp.current: { type: integer, input: true, default: 20, min: 0, max: 20 }
+        contentTypes:
+          condition: {}
+      content:
+        # Oil: the next fire damage deals 5 more, and the oil burns away.
+        - id: conditions.oiled
+          type: condition
+          effects:
+            - id: burn
+              target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+              op: add
+              value: -5
+              when: incoming.amount < 0
+              scope: applied
+              then:
+                - { type: removeEffect, entry: self }

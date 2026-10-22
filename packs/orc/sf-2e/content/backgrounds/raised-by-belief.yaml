@@ -6,7 +6,10 @@ effects:
     value: { tag: skill.lore.custom1 }
     when: "!('skill.lore.custom1' in skills.chosen)"
   - { target: skills.trainings, op: add, value: 1 }
-grants: [{ item: feats.skill.assurance }]
+grants:
+  - item: feats.skill.assurance
+    when: size(picksOf('divine-skill')) > 0
+    choices: { skill: [{ option: { formula: "picksOf('divine-skill')[0]" } }] }
 choices:
   - { id: boost, unique: background-boosts, from: { type: boost } }
   - { id: free-boost, unique: background-boosts, from: { type: boost } }

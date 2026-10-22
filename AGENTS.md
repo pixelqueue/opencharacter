@@ -30,25 +30,26 @@ The documentation website (https://opencharacterformat.org/) is built from these
 
 ## Commands
 
-| Command                 | Does                                                                                                               |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `pnpm install`          | Install (Node 26, pnpm 10)                                                                                         |
-| `pnpm lint`             | oxlint, then oxfmt in check mode                                                                                   |
-| `pnpm format`           | Format everything with oxfmt (TS, JSON, YAML, Markdown)                                                            |
-| `pnpm typecheck`        | TypeScript, strict                                                                                                 |
-| `pnpm test`             | Vitest: schema checks, fixed sets vs. schemas, validator tests                                                     |
-| `pnpm validate`         | Check every pack and example character against the schemas and check every reference                               |
-| `pnpm types`            | Regenerate the TypeScript types in `packages/spec/src/types.ts` from the schemas (run after changing a schema)     |
-| `pnpm editor`           | Start the local pack editor (`apps/web-editor`) at http://127.0.0.1:5173                                           |
-| `pnpm website`          | Start the documentation website (`apps/website`) at http://localhost:4321/                                         |
-| `pnpm build:website`    | Build the website into `apps/website/dist/` and check every internal link                                          |
-| `pnpm build`            | Build every published package: `build:ts` (spec, engine and text to `dist/` with tsc), then `build:packs`          |
-| `pnpm build:packs`      | Validate, then build every pack's release (`dist/`), the `@opencharacter/packs` bundle and the spec's text modules |
-| `pnpm release:check`    | Compare each pack with its last published release (git tags): published versions unchanged, shape changes covered  |
-| `pnpm release:setup`    | Before a new package's first release: create it on npm and print the trust steps (see versioning)                  |
-| `pnpm version-packages` | `changeset version`, then sync `pack.yaml` versions and every pin of a bumped pack's old version                   |
-| `pnpm release`          | Every check, `pnpm build` and the release check. Publishing happens only in CI (`release.yml`)                     |
-| `pnpm check`            | Lint, typecheck, test and validate. CI also runs `build:packs`, `release:check` and `build:website`                |
+| Command                 | Does                                                                                                                                                                                                                                    |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm install`          | Install (Node 26, pnpm 10)                                                                                                                                                                                                              |
+| `pnpm lint`             | oxlint, then oxfmt in check mode                                                                                                                                                                                                        |
+| `pnpm format`           | Format everything with oxfmt (TS, JSON, YAML, Markdown)                                                                                                                                                                                 |
+| `pnpm typecheck`        | TypeScript, strict                                                                                                                                                                                                                      |
+| `pnpm test`             | Vitest: schemas, fixed sets, validator, engine, conformance suite, release scripts; the upgrade-fixture test needs git tags                                                                                                             |
+| `pnpm validate`         | Check every pack and example character against the schemas and check every reference                                                                                                                                                    |
+| `pnpm types`            | Regenerate the TypeScript types in `packages/spec/src/types.ts` from the schemas (run after changing a schema)                                                                                                                          |
+| `pnpm editor`           | Start the local pack editor (`apps/web-editor`) at http://127.0.0.1:5173                                                                                                                                                                |
+| `pnpm website`          | Start the documentation website (`apps/website`) at http://localhost:4321/                                                                                                                                                              |
+| `pnpm build:website`    | Build the website into `apps/website/dist/` and check every internal link                                                                                                                                                               |
+| `pnpm build`            | Build every published package: `build:ts` (spec, engine and text to `dist/` with tsc), then `build:packs`                                                                                                                               |
+| `pnpm build:packs`      | Validate, then build every pack's release (`dist/`), the `@opencharacter/packs` bundle and the spec's text modules                                                                                                                      |
+| `pnpm release:check`    | Compare each pack with its last published release (git tags): published versions unchanged, shape changes covered. Pending changesets count: a bumped pack is checked as its next version                                               |
+| `pnpm release:setup`    | Before a new package's first release: create it on npm and print the trust steps (see versioning)                                                                                                                                       |
+| `pnpm changeset`        | Describe a change to a published package: which packages, which bump                                                                                                                                                                    |
+| `pnpm version-packages` | `changeset version` (it also moves dependency ranges a bump breaks), then sync `pack.yaml` versions, every pin of a bumped pack's old version, and the spec version (`SPEC_VERSION`, `schemas/X.Y/`, example characters' `specVersion`) |
+| `pnpm release`          | Every check, `pnpm build` and the release check. Publishing happens only in CI (`release.yml`)                                                                                                                                          |
+| `pnpm check`            | Lint, typecheck, test and validate. CI also runs `build:packs`, `release:check`, the upgrade-fixture test and `build:website`                                                                                                           |
 
 Run `pnpm check` before every commit, and `pnpm release` and `pnpm build:website` too when you
 change packs, scripts or docs.
@@ -69,6 +70,9 @@ change packs, scripts or docs.
 - **No PDF support, no hosted service.** The only editor is the local `apps/web-editor`.
 - **Packages and packs publish only through the release workflow** (changesets on `main`, see
   [versioning](packages/spec/docs/versioning.md#the-release-flow)); never `npm publish` by hand.
+- **A change to a published package adds its changeset in the same PR.**
+- **An upgrade script ships with a fixture** in `scripts/release/upgrade-fixtures/`: saved data
+  of the old shape and what the upgrade must leave.
 - **In the repo, packages resolve to their TypeScript sources** through the
   `@opencharacter/source` export condition (tsconfig, vitest, the editor's Vite config, `tsx
   --conditions`), so nothing needs a build first. Outside it, they resolve to `dist/`.

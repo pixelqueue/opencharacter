@@ -26,7 +26,7 @@ with `creating: true`, then offer:
 | Manual | always                | nothing: the player fills in the blank sheet                                  |
 
 ```ts
-const character = { specVersion: '0.1.0', id: newId(), packs, creating: true };
+const character = { specVersion: SPEC_VERSION, id: newId(), packs, creating: true };
 const start = ruleset.creation[0];
 let run = startAction(ruleset, character, {
   action: { id: start.action },
@@ -164,6 +164,9 @@ that applies, in the same order as `pending`, answered or not:
   `slot: { choice, number }`: its prompt is under `slot.choice`, with `{slot}` filled in.
 - Inline options (the Marine's "two Trained skills") and picks that are references only (a
   bard's instruments) are listed here, though `activations` doesn't list them.
+- **`preset: true`** marks a choice the content granting it answers (a feat granted for a named
+  skill). Its `picks` are the grant's and it is never open. Show it as answered, but don't offer
+  to change it: `choose` and `unchoose` on it fail with `preset-choice`.
 
 Show each entry as a step. To change an answer, `unchoose` and `choose` in one batch; the next
 sheet lists the new answer's own choices where the old answer's were (after the choices of the
@@ -259,9 +262,10 @@ consult, and that's on purpose.
 - **Magic properties** like +1 are **templates** applied to a copy (`applyTemplate`). To offer
   them, list the templates in the ruleset (content of type `template`) whose `appliesTo` matches
   the item; `applyChanges` rejects one that doesn't apply with `template-not-applicable`.
-  A template can set fields too (a rarity, a bonus, a Sun Blade's radiant damage); to show a
-  copy's fields, read the ruleset's `templateFields` and merge each template's `fields` over the
-  base item's in the copy's order, as the engine does for `item`.
+  A template can set fields too (a rarity, a bonus, a Sun Blade's radiant damage). Content can
+  also keep templates on items while it's active (a feature lengthening a cantrip's range).
+  computeSheet's `templated` lists every such item as merged
+  ([Showing a sheet](showing-a-sheet.md#items-with-templates)), so you don't merge them yourself.
 
 ## Next
 

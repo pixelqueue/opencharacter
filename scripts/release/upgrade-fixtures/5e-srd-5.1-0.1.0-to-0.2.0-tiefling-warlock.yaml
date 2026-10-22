@@ -1,0 +1,37 @@
+# A 0.1.0 tiefling warlock who used Hellish Rebuke, Darkness and Sign of Ill Omen: the uses were
+# the race copy's and the class copy's state. 0.2.0 keeps the racial ones on Infernal Legacy's
+# grant state and the invocation's on its own pick.
+pack: 5e-srd-5.1
+from: 0.1.0
+to: 0.2.0
+expect:
+  - at: /features/0/grants/5e-srd-5.1:traits.infernal-legacy/state
+    value: { hellishRebukeUsed: true, darknessUsed: true }
+  - { at: /features/0/state, absent: true }
+  - { at: /features/1/state, value: { level: 5, startingClass: true } }
+  - at: /features/1/choices/5e-srd-5.1:features.warlock.eldritch-invocations~1invocations/1
+    value: { option: 5e-srd-5.1:invocations.sign-of-ill-omen, state: { used: true } }
+character:
+  specVersion: 0.1.0
+  id: upgrade-5e-tiefling-warlock
+  values:
+    5e-srd-5.1:abilities.str.base: 10
+    5e-srd-5.1:abilities.dex.base: 14
+    5e-srd-5.1:abilities.con.base: 14
+    5e-srd-5.1:abilities.int.base: 10
+    5e-srd-5.1:abilities.wis.base: 12
+    5e-srd-5.1:abilities.cha.base: 16
+    5e-srd-5.1:hp.base: 30
+    5e-srd-5.1:hp.current: 30
+  features:
+    - id: tiefling
+      item: 5e-srd-5.1:races.tiefling
+      state: { hellishRebukeUsed: true, darknessUsed: true }
+    - id: warlock
+      item: 5e-srd-5.1:classes.warlock
+      state: { level: 5, startingClass: true, signOfIllOmenUsed: true }
+      choices:
+        5e-srd-5.1:features.warlock.eldritch-invocations/invocations:
+          - option: 5e-srd-5.1:invocations.agonizing-blast
+          - option: 5e-srd-5.1:invocations.sign-of-ill-omen
+          - option: 5e-srd-5.1:invocations.mask-of-many-faces

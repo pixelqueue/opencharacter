@@ -1,0 +1,41 @@
+# A 0.1.1 tiefling warlock who cast both Fiendish Legacy spells without a slot and used Gift of
+# the Depths: the uses were the species copy's and the class copy's state. 0.2.0 keeps the
+# tiefling's on Fiendish Legacy's grant state (not Elven Lineage's, which shares the keys) and
+# Gift of the Depths' as its pick's `used`.
+pack: 5e-srd-5.2
+from: 0.1.1
+to: 0.2.0
+expect:
+  - at: /features/1/grants/5e-srd-5.2:traits.fiendish-legacy/state
+    value: { lineageSpell1Used: true, lineageSpell2Used: true }
+  - { at: /features/1/state, absent: true }
+  - { at: /features/0/state, value: { level: 5, startingClass: true } }
+  - at: /features/0/choices/5e-srd-5.2:features.warlock.eldritch-invocations~1invocation-3/0
+    value: { option: 5e-srd-5.2:invocations.gift-of-the-depths, state: { used: true } }
+character:
+  specVersion: 0.1.0
+  id: upgrade-5e52-tiefling-warlock
+  values:
+    5e-srd-5.2:abilities.str.base: 8
+    5e-srd-5.2:abilities.dex.base: 14
+    5e-srd-5.2:abilities.con.base: 14
+    5e-srd-5.2:abilities.int.base: 10
+    5e-srd-5.2:abilities.wis.base: 12
+    5e-srd-5.2:abilities.cha.base: 16
+    5e-srd-5.2:hp.base: 38
+    5e-srd-5.2:hp.current: 38
+  features:
+    - id: class
+      item: 5e-srd-5.2:classes.warlock
+      state: { level: 5, startingClass: true, giftOfTheDepthsUsed: true }
+      choices:
+        5e-srd-5.2:features.warlock.eldritch-invocations/invocation-1:
+          - option: 5e-srd-5.2:invocations.agonizing-blast
+        5e-srd-5.2:features.warlock.eldritch-invocations/invocation-3:
+          - option: 5e-srd-5.2:invocations.gift-of-the-depths
+    - id: species
+      item: 5e-srd-5.2:species.tiefling
+      state: { lineageSpell1Used: true, lineageSpell2Used: true }
+      choices:
+        lineage: [{ option: 5e-srd-5.2:lineages.infernal }]
+        size: [{ option: medium }]

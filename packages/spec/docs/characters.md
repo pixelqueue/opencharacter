@@ -21,7 +21,7 @@ Derived values are **never** saved, so a character can never disagree with the r
 
 ```yaml
 specVersion: 0.1.0
-id: 7f1c... # unique within the app or campaign
+id: 7f1c... # unique within the app or campaign, or a URL to make it global
 packs: # exact versions, in load order
   - { id: 5e-srd-5.1, version: 0.1.0 }
 creating: false # true while the character is being created (the default is false)
@@ -66,7 +66,7 @@ extensions:
 | Property      | Meaning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `specVersion` | The spec version the file was written against                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| `id`          | Character ID (a UUID is a good choice)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `id`          | Character ID, up to 2048 characters. A UUID is fine for an ID unique within the app or campaign; a URL (IRI, `https://example.com/characters/tamsin`) makes it global, so the character keeps one identity across apps and other files can link to it by that URL                                                                                                                                                                                                                                                      |
 | `packs`       | Pinned exact pack versions, in load order. The app decides when, or whether, to upgrade ([upgrades.md](upgrades.md)).                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `creating`    | Whether the character is being created. Default false: see [Creating a character](#creating-a-character)                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `values`      | Input field values by **qualified** field ID. Missing fields take their default. A value for a derived field is a runtime error (`not-input-field`).                                                                                                                                                                                                                                                                                                                                                                   |
@@ -94,10 +94,13 @@ An entry ([`character.schema.json#/$defs/entry`](../schemas/character.schema.jso
   at 0 stays until removed.
 - `state`: values for keys declared by the content type, the item, or its templates.
 - `choices`: picks for choices declared by the item and its templates.
+- `grants`: saved state of content the item and its templates grant
+  ([below](#granted-contents-state)).
 
 **Standard copies**. Copies every character holds
 ([content.md](content.md#standard-copies)) aren't listed while they're at their defaults: not
-equipped, quantity 1, no templates or picks, and no state other than the defaults.
+equipped, quantity 1, no templates, picks or granted content's state, and no state other than
+the defaults.
 
 - An entry whose `id` is a standard copy's derived ID and whose `item` is that item **is** the
   standard copy, saved with its changes, and keeps its place in the file. With another `item` it
@@ -139,13 +142,33 @@ choices:
 ```
 
 A pick may also keep `state`, for state keys its picked content declares: a
-once-a-day feat's `used`, as a copy's state would. A key at its default is left out.
+once-a-day feat's `used`, as a copy's state would. A key at its default is left out. It may keep
+`grants`, the saved state of content its option grants ([below](#granted-contents-state)).
 
 Choices declared on an item are stored on that item's entry. Choices declared in the rules are stored in the top-level `choices`. Picked content is never also listed in `features`.
 
 Keys in a `choices` tree are bare choice IDs for the tree's own item (the entry's item, or the
 picked option). Choices declared by templates or granted content in the same tree use
 `<qualified owner id>/<choice id>`, such as `5e-srd-5.1:magic-items.some-template/damage-type`.
+
+## Granted content's state
+
+Content a holder grant makes active keeps its own state where its picks are kept: an entry, or
+a pick, holds `grants`, the saved state of the content its item (with its templates) or picked
+option grants, by the granted content's qualified ID. Each holds `state`, as a pick does, for
+keys the granted content declares; a key at its default (the grant's `state` value, else the
+declared default) is left out ([content.md](content.md#when-content-is-active)). It changes
+through `setState` and `adjustState` with `grant`, and through the granted content's own
+incoming-change `then` ([effects.md](effects.md)).
+
+```yaml
+inventory:
+  - id: blade
+    item: my-pack:artifacts.sun-blade
+    equipped: true
+    grants:
+      my-pack:gifts.flame-ward: { state: { committed: 1 } }
+```
 
 ## Creating a character
 
@@ -240,6 +263,16 @@ inventory:
 ## Extensions
 
 `extensions` holds app-specific extras (portrait, notes, token settings), each under the app's own namespace: reverse DNS (`com.example.vtt`) or an npm package name (`@example/vtt`). Apps MUST carry other apps' extensions along untouched on import and export. The engine ignores them except for the `setExtension` change.
+
+A namespace's value may be any JSON value. When it is an object, it may carry `$schema`: the URI of a JSON Schema that the extending app publishes for its data. Another app can then validate the data, render it as a form from the schema's titles and descriptions, or edit it safely. OCF doesn't host, fetch or check these schemas; whether to use one is each app's choice. `$schema` is carried along with the rest of the value.
+
+```yaml
+extensions:
+  com.example.vtt:
+    $schema: https://example.com/ocf/vtt-extension/1.json
+    portrait: https://example.com/portraits/tamsin.png
+    tokenSize: 2
+```
 
 ## Legality
 

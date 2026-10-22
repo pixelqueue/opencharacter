@@ -10,6 +10,8 @@ import {
 import { dirname, join, posix, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
+import { SCHEMA_BASE } from '../../../packages/spec/src/index.ts';
+import { readI18n } from '../../../scripts/validate/load.ts';
 import { BASE } from '../site.ts';
 
 // Copies the repo's documentation into the site (src/content/docs), so the Markdown lives in one
@@ -134,9 +136,7 @@ function ecosystem(root: string): string {
         license: string;
         defaultLanguage: string;
       };
-      const text = parse(
-        readFileSync(join(dir, `i18n/${manifest.defaultLanguage}.yaml`), 'utf8'),
-      ) as Record<string, string>;
+      const text = readI18n(dir, manifest.defaultLanguage);
       return { path, manifest, name: text['pack.name'] ?? manifest.id };
     })
     .toSorted((a, b) => a.name.localeCompare(b.name))
@@ -368,8 +368,12 @@ export function sync(root: string, out: string): Page[] {
   docs.set('index.mdx', home(root));
   mirror(out, docs);
   const source = join(root, 'packages/spec/schemas');
-  const schemas = new Map(filesUnder(source).map((rel) => [rel, readFileSync(join(source, rel))]));
-  mirror(join(site, 'public', 'schemas', '0.1'), schemas);
+  // Served at their $ids (public/schemas/<major.minor>/); an older version's folder goes.
+  const dir = posix.relative('/schemas', new URL(SCHEMA_BASE).pathname);
+  const schemas = new Map(
+    filesUnder(source).map((rel) => [posix.join(dir, rel), readFileSync(join(source, rel))]),
+  );
+  mirror(join(site, 'public', 'schemas'), schemas);
   return list;
 }
 

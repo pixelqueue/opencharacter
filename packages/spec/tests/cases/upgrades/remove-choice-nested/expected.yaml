@@ -1,0 +1,35 @@
+# owner paths: content, then choice and inline option pairs; an even number of parts starts at a
+# rules-level choice (motto/brave)
+ok: true
+character:
+  choices:
+    motto:
+      - option: brave
+        choices:
+          feat: [{ option: duel }]
+  features:
+    - id: ghost
+      item: test-pack:classes.operative
+      choices:
+        specialization:
+          - option: ghost
+            choices: {}
+    - id: sniper
+      item: test-pack:classes.operative
+      choices:
+        specialization:
+          - option: sniper
+            choices:
+              skill-feat: [{ option: test-pack:feats.hide }]
+pending: []
+report:
+  values: []
+  steps:
+    - pack: test-pack
+      from: 1.0.0
+      to: 2.0.0
+      op: removeChoice
+    - pack: test-pack
+      from: 1.0.0
+      to: 2.0.0
+      op: renameChoice

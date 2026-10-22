@@ -1,0 +1,40 @@
+description: 'An applied ward spends a charge per hit through `then`, and its last charge removes it'
+specVersion: 0.1.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp.current: { type: integer, input: true, default: 20, min: 0, max: 20 }
+        contentTypes:
+          spell:
+            state:
+              charges: { type: integer, default: 2, min: 0 }
+      content:
+        # A made-up ward: each of its charges halves one hit; the last one ends it.
+        - id: spells.ward
+          type: spell
+          effects:
+            - id: halve
+              target: { incoming: { fields: [hp.current], tags: [damage] } }
+              op: multiply
+              value: 0.5
+              when: incoming.amount < 0 && self.charges > 1
+              scope: applied
+              then:
+                - { type: adjustState, entry: self, key: charges, by: -1 }
+            - id: halve-last
+              target: { incoming: { fields: [hp.current], tags: [damage] } }
+              op: multiply
+              value: 0.5
+              when: incoming.amount < 0 && self.charges == 1
+              scope: applied
+              then:
+                - { type: removeEffect, entry: self }

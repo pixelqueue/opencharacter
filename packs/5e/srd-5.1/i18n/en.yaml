@@ -11,6 +11,7 @@ types.weapon.name: 'Weapon'
 types.weapon.followUps.retaliation.name: 'Retaliation'
 types.weapon.followUps.retaliation.description: 'A creature within 5 feet damaged you: attack it with this weapon as a reaction'
 types.weapon.state.wielding.name: 'Wielded'
+types.draconicAncestry.state.used.name: 'Breath weapon used'
 types.weapon.state.wielding.values.one-handed.name: 'One-handed'
 types.weapon.state.wielding.values.two-handed.name: 'Two-handed'
 types.weapon.state.attuned.name: 'Attuned'
@@ -436,7 +437,6 @@ fields.elementalAffinity.resistant.name: 'Elemental Affinity resistance'
 fields.dragonWings.active.name: 'Dragon wings out'
 fields.warlock.boons.name: 'Pact boon'
 fields.eldritchBlast.beams.name: 'Eldritch blast beams'
-fields.eldritchBlast.range.name: 'Eldritch blast range (feet)'
 fields.eldritchBlast.push.name: 'Eldritch blast push (feet)'
 fields.spellcasting.bard.dc.name: 'Bard spell save DC'
 fields.spellcasting.bard.attack.name: 'Bard spell attack bonus'
@@ -6672,6 +6672,7 @@ traits.skill-versatility.choices.skills.prompt: 'Skill Versatility: choose two s
 traits.menacing.name: 'Menacing'
 traits.menacing.description: 'You gain proficiency in the Intimidation skill.'
 traits.relentless-endurance.name: 'Relentless Endurance'
+traits.relentless-endurance.state.used.name: 'Relentless Endurance used'
 traits.relentless-endurance.description: "When you are reduced to 0 hit points but not killed outright, you can drop to 1 hit point instead. You can't use this feature again until you finish a long rest."
 traits.relentless-endurance.actions.relentless-endurance.name: 'Relentless Endurance'
 traits.relentless-endurance.actions.relentless-endurance.results.endured.name: 'At 1 hit point'
@@ -6682,6 +6683,8 @@ traits.savage-attacks.description: "When you score a critical hit with a melee w
 traits.hellish-resistance.name: 'Hellish Resistance'
 traits.hellish-resistance.description: 'You have resistance to fire damage.'
 traits.infernal-legacy.name: 'Infernal Legacy'
+traits.infernal-legacy.state.hellishRebukeUsed.name: 'Hellish Rebuke used'
+traits.infernal-legacy.state.darknessUsed.name: 'Darkness used'
 traits.infernal-legacy.description: 'You know the *thaumaturgy* cantrip. When you reach 3rd level, you can cast the *hellish rebuke* spell as a 2nd-level spell once with this trait and regain the ability to do so when you finish a long rest. When you reach 5th level, you can cast the *darkness* spell once with this trait and regain the ability to do so when you finish a long rest. Charisma is your spellcasting ability for these spells.'
 traits.infernal-legacy.options.hellish-rebuke.name: 'Infernal Legacy (once per long rest)'
 traits.infernal-legacy.options.darkness.name: 'Infernal Legacy (once per long rest)'
@@ -6847,7 +6850,6 @@ races.half-orc.description: |-
   ***Speed.*** Your base walking speed is 30 feet.
 
   ***Languages.*** You can speak, read, and write Common and Orc. Orc is a harsh, grating language with hard consonants. It has no script of its own but is written in the Dwarvish script.
-races.half-orc.state.relentlessEnduranceUsed.name: 'Relentless Endurance used'
 races.tiefling.name: 'Tiefling'
 races.tiefling.description: |-
   Tieflings share certain racial traits as a result of their infernal descent.
@@ -6863,8 +6865,6 @@ races.tiefling.description: |-
   ***Speed.*** Your base walking speed is 30 feet.
 
   ***Languages.*** You can speak, read, and write Common and Infernal.
-races.tiefling.state.hellishRebukeUsed.name: 'Hellish Rebuke used'
-races.tiefling.state.darknessUsed.name: 'Darkness used'
 
 # Subraces
 subraces.hill-dwarf.name: 'Hill dwarf'
@@ -7374,13 +7374,6 @@ classes.warlock.state.arcanum9Used.name: '9th-level arcanum used'
 classes.warlock.state.eldritchMasterUsed.name: 'Eldritch Master used'
 classes.warlock.state.darkOnesOwnLuckUsed.name: "Dark One's Own Luck used"
 classes.warlock.state.hurlThroughHellUsed.name: 'Hurl Through Hell used'
-classes.warlock.state.bewitchingWhispersUsed.name: 'Bewitching Whispers used'
-classes.warlock.state.dreadfulWordUsed.name: 'Dreadful Word used'
-classes.warlock.state.minionsOfChaosUsed.name: 'Minions of Chaos used'
-classes.warlock.state.mireTheMindUsed.name: 'Mire the Mind used'
-classes.warlock.state.sculptorOfFleshUsed.name: 'Sculptor of Flesh used'
-classes.warlock.state.signOfIllOmenUsed.name: 'Sign of Ill Omen used'
-classes.warlock.state.thiefOfFiveFatesUsed.name: 'Thief of Five Fates used'
 classes.wizard.choices.skills.prompt: 'Choose two wizard skills'
 classes.wizard.name: 'Wizard'
 classes.wizard.description: |-
@@ -7853,13 +7846,13 @@ features.druid.natural-recovery.description: |-
 
   For example, when you are a 4th-level druid, you can recover up to two levels worth of spell slots. You can recover either a 2nd-level slot or two 1st-level slots.
 features.druid.natural-recovery.actions.natural-recovery.name: 'Natural Recovery'
-features.druid.natural-recovery.actions.natural-recovery.params.level1.name: '1st-level slots'
-features.druid.natural-recovery.actions.natural-recovery.params.level2.name: '2nd-level slots'
-features.druid.natural-recovery.actions.natural-recovery.params.level3.name: '3rd-level slots'
-features.druid.natural-recovery.actions.natural-recovery.params.level4.name: '4th-level slots'
-features.druid.natural-recovery.actions.natural-recovery.params.level5.name: '5th-level slots'
+features.druid.natural-recovery.actions.natural-recovery.steps.slots.prompt: 'Choose a spent slot to recover'
+features.druid.natural-recovery.actions.natural-recovery.options.1.name: '1st-level slot'
+features.druid.natural-recovery.actions.natural-recovery.options.2.name: '2nd-level slot'
+features.druid.natural-recovery.actions.natural-recovery.options.3.name: '3rd-level slot'
+features.druid.natural-recovery.actions.natural-recovery.options.4.name: '4th-level slot'
+features.druid.natural-recovery.actions.natural-recovery.options.5.name: '5th-level slot'
 features.druid.natural-recovery.actions.natural-recovery.results.recovered.name: 'Slots recovered'
-features.druid.natural-recovery.actions.natural-recovery.results.too-many.name: 'Too many slot levels'
 features.druid.circle-spells.name: 'Circle Spells'
 features.druid.circle-spells.description: |-
   Your mystical connection to the land infuses you with the ability to cast certain spells. At 3rd, 5th, 7th, and 9th level you gain access to circle spells connected to the land where you became a druid. Choose that land—arctic, coast, desert, forest, grassland, mountain, or swamp—and consult the associated list of spells.
@@ -8715,6 +8708,7 @@ invocations.beast-speech.description: 'You can cast *speak with animals* at will
 invocations.beguiling-influence.name: 'Beguiling Influence'
 invocations.beguiling-influence.description: 'You gain proficiency in the Deception and Persuasion skills.'
 invocations.bewitching-whispers.name: 'Bewitching Whispers'
+invocations.bewitching-whispers.state.used.name: 'Bewitching Whispers used'
 invocations.bewitching-whispers.description: "You can cast *compulsion* once using a warlock spell slot. You can't do so again until you finish a long rest."
 invocations.bewitching-whispers.prerequisites.level: 'Bewitching Whispers needs warlock level 7.'
 invocations.book-of-ancient-secrets.name: 'Book of Ancient Secrets'
@@ -8734,12 +8728,14 @@ invocations.chains-of-carceri.prerequisites.pact: 'Chains of Carceri needs the P
 invocations.devils-sight.name: "Devil's Sight"
 invocations.devils-sight.description: 'You can see normally in darkness, both magical and nonmagical, to a distance of 120 feet.'
 invocations.dreadful-word.name: 'Dreadful Word'
+invocations.dreadful-word.state.used.name: 'Dreadful Word used'
 invocations.dreadful-word.description: "You can cast *confusion* once using a warlock spell slot. You can't do so again until you finish a long rest."
 invocations.dreadful-word.prerequisites.level: 'Dreadful Word needs warlock level 7.'
 invocations.eldritch-sight.name: 'Eldritch Sight'
 invocations.eldritch-sight.description: 'You can cast *detect magic* at will, without expending a spell slot.'
 invocations.eldritch-spear.name: 'Eldritch Spear'
 invocations.eldritch-spear.description: 'When you cast *eldritch blast*, its range is 300 feet.'
+templates.eldritch-spear.name: '{base}'
 invocations.eyes-of-the-rune-keeper.name: 'Eyes of the Rune Keeper'
 invocations.eyes-of-the-rune-keeper.description: 'You can read all writing.'
 invocations.fiendish-vigor.name: 'Fiendish Vigor'
@@ -8756,9 +8752,11 @@ invocations.master-of-myriad-forms.name: 'Master of Myriad Forms'
 invocations.master-of-myriad-forms.description: 'You can cast *alter self* at will, without expending a spell slot.'
 invocations.master-of-myriad-forms.prerequisites.level: 'Master of Myriad Forms needs warlock level 15.'
 invocations.minions-of-chaos.name: 'Minions of Chaos'
+invocations.minions-of-chaos.state.used.name: 'Minions of Chaos used'
 invocations.minions-of-chaos.description: "You can cast *conjure elemental* once using a warlock spell slot. You can't do so again until you finish a long rest."
 invocations.minions-of-chaos.prerequisites.level: 'Minions of Chaos needs warlock level 9.'
 invocations.mire-the-mind.name: 'Mire the Mind'
+invocations.mire-the-mind.state.used.name: 'Mire the Mind used'
 invocations.mire-the-mind.description: "You can cast *slow* once using a warlock spell slot. You can't do so again until you finish a long rest."
 invocations.mire-the-mind.prerequisites.level: 'Mire the Mind needs warlock level 5.'
 invocations.misty-visions.name: 'Misty Visions'
@@ -8772,12 +8770,15 @@ invocations.otherworldly-leap.prerequisites.level: 'Otherworldly Leap needs warl
 invocations.repelling-blast.name: 'Repelling Blast'
 invocations.repelling-blast.description: 'When you hit a creature with *eldritch blast*, you can push the creature up to 10 feet away from you in a straight line.'
 invocations.sculptor-of-flesh.name: 'Sculptor of Flesh'
+invocations.sculptor-of-flesh.state.used.name: 'Sculptor of Flesh used'
 invocations.sculptor-of-flesh.description: "You can cast *polymorph* once using a warlock spell slot. You can't do so again until you finish a long rest."
 invocations.sculptor-of-flesh.prerequisites.level: 'Sculptor of Flesh needs warlock level 7.'
 invocations.sign-of-ill-omen.name: 'Sign of Ill Omen'
+invocations.sign-of-ill-omen.state.used.name: 'Sign of Ill Omen used'
 invocations.sign-of-ill-omen.description: "You can cast *bestow curse* once using a warlock spell slot. You can't do so again until you finish a long rest."
 invocations.sign-of-ill-omen.prerequisites.level: 'Sign of Ill Omen needs warlock level 5.'
 invocations.thief-of-five-fates.name: 'Thief of Five Fates'
+invocations.thief-of-five-fates.state.used.name: 'Thief of Five Fates used'
 invocations.thief-of-five-fates.description: "You can cast *bane* once using a warlock spell slot. You can't do so again until you finish a long rest."
 invocations.thirsting-blade.name: 'Thirsting Blade'
 invocations.thirsting-blade.description: 'You can attack with your pact weapon twice, instead of once, whenever you take the Attack action on your turn.'
@@ -8845,14 +8846,14 @@ features.wizard.spellcasting.choices.spells.prompt: 'Choose wizard spells to pre
 features.wizard.spellcasting.choices.spellbook.prompt: '{slot, select, 1 {Choose six 1st-level spells for your spellbook} other {Choose two spells for your spellbook (level {slot})}}'
 features.wizard.spellcasting.choices.copied.prompt: 'Spells copied into your spellbook'
 features.wizard.arcane-recovery.actions.arcane-recovery.name: 'Arcane Recovery'
+features.wizard.arcane-recovery.actions.arcane-recovery.steps.slots.prompt: 'Choose a spent slot to recover'
+features.wizard.arcane-recovery.actions.arcane-recovery.options.1.name: '1st-level slot'
+features.wizard.arcane-recovery.actions.arcane-recovery.options.2.name: '2nd-level slot'
+features.wizard.arcane-recovery.actions.arcane-recovery.options.3.name: '3rd-level slot'
+features.wizard.arcane-recovery.actions.arcane-recovery.options.4.name: '4th-level slot'
+features.wizard.arcane-recovery.actions.arcane-recovery.options.5.name: '5th-level slot'
 features.wizard.overchannel.actions.overchannel.name: 'Overchannel'
 features.wizard.spell-mastery.choices.level.prompt: 'Choose a {slot, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}-level spell to master'
-features.wizard.arcane-recovery.actions.arcane-recovery.params.level1.name: '1st-level slots'
-features.wizard.arcane-recovery.actions.arcane-recovery.params.level2.name: '2nd-level slots'
-features.wizard.arcane-recovery.actions.arcane-recovery.params.level3.name: '3rd-level slots'
-features.wizard.arcane-recovery.actions.arcane-recovery.params.level4.name: '4th-level slots'
-features.wizard.arcane-recovery.actions.arcane-recovery.params.level5.name: '5th-level slots'
-features.wizard.arcane-recovery.actions.arcane-recovery.results.too-many.name: 'Too many slot levels'
 features.wizard.arcane-recovery.actions.arcane-recovery.results.recovered.name: 'Slots recovered'
 features.wizard.overchannel.actions.overchannel.params.spellLevel.name: 'Spell level'
 features.wizard.overchannel.actions.overchannel.results.overchanneled.name: 'Overchanneled'

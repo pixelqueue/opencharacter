@@ -33,7 +33,7 @@ actions:
           has(steps.classRoll) ? options[(steps.classRoll.total - 1) % size(options)] : options[0]
         changes:
           - type: addItem
-            entry: { id: class, item: picked.id }
+            entry: { item: picked.id }
       - { id: health, kind: roll, tags: [creation], parts: [{ dice: 1d10 }, { value: 10 }] }
       - id: statRoll
         kind: roll
@@ -50,13 +50,13 @@ actions:
         changes:
           - type: choose
             path:
-              entry: class
+              entry: { formula: 'steps.class.added[0]' }
               choice: >-
                 [steps.class.picked == @classes.android ? 'stat-penalty' : 'stat-bonus']
             option: picked.id
       - id: skills
         kind: choice
-        options: { pending: { entry: "'class'" } }
+        options: { pending: { entry: 'steps.class.added[0]' } }
         recommend: options[0]
       - { id: credits, kind: roll, tags: [creation], parts: [{ dice: 2d10 }] }
       - id: kit

@@ -72,12 +72,31 @@ function dependenciesOf(
   return [...out.values()].toReversed();
 }
 
+/**
+ * Checks each pack against its published releases. A pack with a pending changeset (`pending`:
+ * pack ID → the version `pnpm version-packages` will give it) is checked as that version, so a
+ * change to a published version passes once a changeset bumps it.
+ */
 export function releaseCheck(
-  built: BuiltPack[],
+  current: BuiltPack[],
   published: (pack: BuiltPack) => PublishedReleases,
   inRange: PublishedInRange = () => undefined,
+  pending: ReadonlyMap<string, string> = new Map(),
 ): ReleaseFinding[] {
   const findings: ReleaseFinding[] = [];
+  const built = current.map((pack) => {
+    const from = pack.release.manifest.version;
+    const to = pending.get(pack.id);
+    if (!to || to === from) return pack;
+    findings.push({
+      pack: pack.id,
+      level: 'info',
+      code: 'pending-bump',
+      message: `${pack.id} ${from} → ${to} (pending changeset)`,
+    });
+    const manifest = { ...pack.release.manifest, version: to };
+    return { ...pack, release: { ...pack.release, manifest } };
+  });
   for (const pack of built) {
     const { same, previous } = published(pack);
     const version = pack.release.manifest.version;
@@ -167,7 +186,8 @@ export function publishedInRangeFromGit(root: string): PublishedInRange {
   };
 }
 
-function releaseAt(root: string, tag: string, packDir: string): PackRelease {
+/** The release published under a git tag, built from the pack's source at that tag. */
+export function releaseAt(root: string, tag: string, packDir: string): PackRelease {
   const tmp = mkdtempSync(join(tmpdir(), 'ocf-release-'));
   try {
     const rel = relative(root, packDir);
@@ -176,17 +196,22 @@ function releaseAt(root: string, tag: string, packDir: string): PackRelease {
       maxBuffer: 1 << 30,
     });
     execFileSync('tar', ['-x', '-C', tmp], { input: archive });
-    const pack = loadPack(join(tmp, rel), tmp, new SchemaValidator(), new Reporter());
-    if (!pack) throw new Error(`could not read ${rel} at ${tag}`);
-    return buildRelease({
-      manifest: pack.manifest,
-      rules: pack.rules.map((r) => r.doc),
-      content: pack.content.map((c) => c.doc),
-      upgrades: pack.upgrades.map((u) => u.doc),
-    });
+    return releaseFromSource(tmp, join(tmp, rel));
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
+}
+
+/** A pack's release, built from its source in `packDir` (`root`: the repo holding it). */
+export function releaseFromSource(root: string, packDir: string): PackRelease {
+  const pack = loadPack(packDir, root, new SchemaValidator(), new Reporter());
+  if (!pack) throw new Error(`could not read ${relative(root, packDir)}`);
+  return buildRelease({
+    manifest: pack.manifest,
+    rules: pack.rules.map((r) => r.doc),
+    content: pack.content.map((c) => c.doc),
+    upgrades: pack.upgrades.map((u) => u.doc),
+  });
 }
 
 export interface PackBump {
@@ -261,6 +286,114 @@ export function syncPinnedVersions(root: string, files: string[], bumps: PackBum
   return changed;
 }
 
+/**
+ * A dependency range (`<pack ID>: <range>`, in YAML, JSON or code) on a bumped pack that the old
+ * version satisfied and the new one doesn't becomes the new version's caret range. Others stay.
+ */
+export function bumpDependencyRanges(text: string, bumps: PackBump[]): string {
+  let next = text;
+  for (const { id, from, to } of bumps) {
+    const re = new RegExp(
+      `(?<![\\w.:/@-])(['"]?)${escape(id)}\\1(: *)(?:(['"])([^'"\\n]+)\\3|([^\\s,}'"#]+))`,
+      'g',
+    );
+    next = next.replace(
+      re,
+      (match, q: string, colon: string, rq?: string, quoted?: string, bare?: string) => {
+        const range = (quoted ?? bare ?? '').trim();
+        if (!semver.validRange(range)) return match;
+        if (!semver.satisfies(from, range) || semver.satisfies(to, range)) return match;
+        return `${q}${id}${q}${colon}${rq ?? ''}^${to}${rq ?? ''}`;
+      },
+    );
+  }
+  return next;
+}
+
+/** Applies bumpDependencyRanges to each file. Returns the files changed. */
+export function syncDependencyRanges(root: string, files: string[], bumps: PackBump[]): string[] {
+  const changed: string[] = [];
+  for (const file of files) {
+    const path = join(root, file);
+    if (!existsSync(path)) continue;
+    const text = readFileSync(path, 'utf8');
+    const next = bumpDependencyRanges(text, bumps);
+    if (next !== text) {
+      writeFileSync(path, next);
+      changed.push(file);
+    }
+  }
+  return changed;
+}
+
+export interface SpecBump {
+  from: string;
+  to: string;
+}
+
+const SPEC_SOURCE = 'packages/spec/src/index.ts';
+const majorMinor = (v: string) => v.split('.').slice(0, 2).join('.');
+
+/**
+ * After `changeset version` bumps `@opencharacter/spec`, moves the spec version everywhere it is
+ * stated: `SPEC_VERSION` (which `SCHEMA_BASE` derives from), the `schemas/<major.minor>/` path of
+ * every schema ID and link, the prose and badge that name the current version, and the `specVersion`
+ * of the example characters and the docs' samples (samples follow the current spec). Other minimums and records stay. Returns the
+ * bump and the files changed, or undefined when they match.
+ */
+export function syncSpecVersion(
+  root: string,
+  files: string[],
+): { bump: SpecBump; files: string[] } | undefined {
+  const pkg = join(root, 'packages', 'spec', 'package.json');
+  const to = (JSON.parse(readFileSync(pkg, 'utf8')) as { version: string }).version;
+  const source = readFileSync(join(root, SPEC_SOURCE), 'utf8');
+  const from = /SPEC_VERSION = '([^']+)'/.exec(source)?.[1];
+  if (!from) throw new Error(`no SPEC_VERSION in ${SPEC_SOURCE}`);
+  if (from === to) return undefined;
+  const patterns: [RegExp, string][] = [
+    [new RegExp(`(SPEC_VERSION = ')${escape(from)}'`, 'g'), `$1${to}'`],
+    [
+      new RegExp(
+        `(Spec (?:version )?\\**|current version is \\**)${escape(from)}(?![\\w-]|\\.\\d)`,
+        'g',
+      ),
+      `$1${to}`,
+    ],
+    [new RegExp(`(shields\\.io/badge/spec-)${escape(from)}(?=-)`, 'g'), `$1${to}`],
+  ];
+  // Example characters and the docs' samples are not records: they follow the current spec.
+  const examples: [RegExp, string] = [
+    new RegExp(`^(specVersion: ['"]?)${escape(from)}(['"]?)$`, 'gm'),
+    `$1${to}$2`,
+  ];
+  const samples: [RegExp, string] = [
+    new RegExp(`(['"]?specVersion['"]?: *['"]?)${escape(from)}(?![\\w-]|\\.\\d)`, 'g'),
+    `$1${to}`,
+  ];
+  if (majorMinor(from) !== majorMinor(to)) {
+    patterns.push([
+      new RegExp(`(?<![\\w.-])schemas/${escape(majorMinor(from))}/`, 'g'),
+      `schemas/${majorMinor(to)}/`,
+    ]);
+  }
+  const changed: string[] = [];
+  for (const file of new Set([SPEC_SOURCE, ...files])) {
+    const path = join(root, file);
+    if (!existsSync(path)) continue;
+    const text = readFileSync(path, 'utf8');
+    let next = text;
+    for (const [re, sub] of patterns) next = next.replace(re, sub);
+    if (file.startsWith('examples/characters/')) next = next.replace(examples[0], examples[1]);
+    if (/\.mdx?$/.test(file)) next = next.replace(samples[0], samples[1]);
+    if (next !== text) {
+      writeFileSync(path, next);
+      changed.push(file);
+    }
+  }
+  return { bump: { from, to }, files: changed };
+}
+
 export function pinFiles(root: string): string[] {
   return execFileSync(
     'git',
@@ -277,7 +410,7 @@ export function pinFiles(root: string): string[] {
     .split('\n')
     .filter(
       (f) =>
-        /\.(ya?ml|md|mdx|ts|js|mjs|json)$/.test(f) &&
+        /\.(ya?ml|md|mdx|tsx?|jsx?|mjs|json|html|astro)$/.test(f) &&
         !/(^|\/)CHANGELOG\.md$/.test(f) &&
         !/^packs\/[^/]+\/[^/]+\/(pack\.yaml|package\.json)$/.test(f) &&
         !/(^|\/)(node_modules|dist)\//.test(f),

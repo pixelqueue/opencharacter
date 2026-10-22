@@ -83,7 +83,7 @@ start's odds are the pack's: every pick uniform over what the guided start offer
 at a time to an action that can still take one.
 
 **A table's own playbook** is a homebrew item of the `playbook` type: its `twoDots` and `oneDot`
-fields place its starting dots, its first tag is `playbook.tag`, and its own `special-ability`
+fields place its starting dots, and its own `special-ability`
 choice offers its abilities (by ID or by a tag homebrew abilities carry). With one, creation
 picks it first, places its dots for the player, and asks its ability with the pending picks.
 [An example](https://github.com/pixelqueue/opencharacter/blob/main/examples/characters/fitd-ash.yaml)
@@ -209,11 +209,6 @@ projects, rituals, designs).
 - **Text-only abilities:** where an ability's benefit is a factor the GM weighs when setting
   effect (Arcane Fighter, Infiltrator), it is the action roll's `effect` choice, not a fixed
   bonus.
-
-## Limitations
-
-- A situational choice's values (`devils-bargain`) have no text keys, so apps show them as
-  written.
 
 ## License
 

@@ -27,13 +27,12 @@ choices:
                     }
                   op: add
                   value: 2
-                - { target: origins.backgroundPlusTwo, op: set, value: pick.value }
             - id: plus-one
               unique: criminal-increase
               uniqueScope: owner
               from: { values: [dex, con, int] }
               recommend: >-
-                sortList(filterList(['dex', 'con', 'int'], x != origins.backgroundPlusTwo),
+                sortList(filterList(['dex', 'con', 'int'], !(x in picksOf('plus-two'))),
                   -fieldOf('abilities.{ability}.base', x))[0]
               effects:
                 - target:

@@ -60,12 +60,17 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   (which carries `followUp: <id>`), and dismisses only ephemeral ones
   ([engine-core.md](engine-core.md#the-offer-list)).
 - `choices` lists every applicable choice, answered or not, in pending order,
-  as `{ path, owner, id, slot?, min, max?, picks, open }`, inline options' and
-  `activate: false` choices included ([engine-core.md](engine-core.md#the-choice-list)).
+  as `{ path, owner, id, slot?, min, max?, picks, open, preset? }`, inline options' and
+  `activate: false` choices included; `preset: true` marks a choice a grant answers, which
+  `choose` and `unchoose` refuse (`preset-choice`) ([engine-core.md](engine-core.md#the-choice-list)).
 - `competing` lists competing options, one entry per competing group with its `op` and, for a stacking group, `stackKey` (see [effects.md](effects.md#competing-options)). The input's `competing` is a list of picked option IDs; each group applies its listed option, else its recommendation.
 - `issues` lists rules issues.
 - `copies` maps each copy's instance ID to its computed values (`{ <name>: value }`), for copies that have any.
 - `copyNames` maps each copy's instance ID to its name from its state (`nameFrom`), for copies that have one; apps show it in place of the item's name.
+- `templated` lists every item the character has with templates, as merged: each copy with a
+  saved or kept template (`entry`), then each picked or granted item that content keeps
+  templates on, as `{ entry?, item, templates, tags, fields }`, so an app shows the item as the
+  rules read it ([engine-core.md](engine-core.md#merged-items)).
 - `standardCopies` lists the character's standard copies, as
   `{ entry, item, saved }`: the rules' first, then those of active items, so an app can show the
   unsaved ones without running the queries. Each is also a copy in `inventory` or `features`.
@@ -87,6 +92,10 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   resolved, structured `tests` and the running action's flags. An app previews a roll by
   starting the action with `dice: 'pause'` and reading `needs.summary`
   ([engine-actions.md](engine-actions.md#the-roll-summary)).
+- A roll made more than once (advantage or disadvantage `of: roll`) pauses with `needs.repeat`
+  (`{ times, keep }`) and `dice` for every roll in turn; its log entry lists every roll as
+  `rolls`, the kept one marked, whose items are the entry's `items`
+  ([engine-actions.md](engine-actions.md#rolling)).
 - Each of a finished result's `proposedChanges` is `{ to, character?, step, change }`: `step` is
   the path of the `changes` step that proposed it. `to` is `self`, `target`, a role of the action
   or `{ link }` (a qualified slot ID). A change for a link carries the linked character's ID as
@@ -145,12 +154,12 @@ A runtime error means the result would not be a valid character file. A rules is
 
 ## Changes
 
-The change types are a small, generic, fixed set ([data](../data/change-types.json)): `set`, `adjust`, `addItem`, `removeItem`, `equip`, `setState`, `adjustState`, `setQuantity`, `adjustQuantity`, `applyTemplate`, `removeTemplate`, `applyEffect`, `removeEffect`, `toggleEffect`, `choose`, `unchoose`, `setExtension`, `finishCreation`, `setHomebrew`, `dismissFollowUp` and `clearFollowUp`.
+The change types are a small, generic, fixed set ([data](../data/change-types.json)): `set`, `adjust`, `addItem`, `removeItem`, `equip`, `setState`, `adjustState`, `setQuantity`, `adjustQuantity`, `applyTemplate`, `removeTemplate`, `applyEffect`, `removeEffect`, `toggleEffect`, `choose`, `unchoose`, `setExtension`, `finishCreation`, `setHomebrew`, `dismissFollowUp`, `clearFollowUp` and `offerFollowUp`.
 
 - **Batches are all or nothing.** A level-up of eight changes either fully applies or doesn't apply at all.
 - **Same changes, same result.** Replaying a character's change list from the start always rebuilds the same character, which gives apps undo, history and multiplayer sync.
 - **Apps log the output's `changes`, not their input.** It is the batch as applied: an `adjust` whose incoming-change effects rolled dice (MÖRK BORG armor) carries the faces it used in `faces`, so a replay reads them back and never rolls. Without faces or a dice function such a batch is rejected with `faces-required`, listing the dice to roll; the app can roll them and resend the batch with `faces` ([engine-core.md](engine-core.md#dice-on-incoming-changes)).
-- An `adjust` change with `tags` passes through the character's incoming-change effects first (resistance halves tagged fire damage), then through absorbing fields and overflow ([rules-and-fields.md](rules-and-fields.md#absorbing-and-overflow)). The output's `adjustments` lists what each adjust actually did to each field.
+- An `adjust` change with `tags` passes through the character's incoming-change effects first (resistance halves tagged fire damage), then through absorbing fields and overflow ([rules-and-fields.md](rules-and-fields.md#absorbing-and-overflow)). The output's `adjustments` lists what each adjust actually did to each field, then what an incoming-change effect's `then` did: a state change, addressed as a setState would be (its entry, its pick's `path` and `option`, or its grant's saved state with `grant`), or `removed: true` when it ended its applied entry.
 - An `on` or `becomes` follow-up the batch triggers (a concentration check after damage, a death save at maximum wounds) is stored in the returned character's `followUps`, and the output's `followUps` lists the ones this batch stored, as computeSheet's `offers` does. applyChanges never runs or applies them; the app decides ([engine-core.md](engine-core.md#follow-ups)). `dismissFollowUp` deletes one unrun; `clearFollowUp`, which startAction proposes for a run that takes one up, deletes it when the run's changes are applied.
 - `unchoose` removes the option's nested picks in the same change. Without `option` it removes every
   pick of the choice, with their nested picks; a choice with none is left unchanged, so a batch can
@@ -164,6 +173,7 @@ The change types are a small, generic, fixed set ([data](../data/change-types.js
 - `setQuantity` and `adjustQuantity` change a copy's `quantity` (spending an arrow, buying ten more). It never goes below 0, and a copy at 0 stays: removing it is a separate `removeItem`.
 - `setState`, `adjustState`, `setQuantity`, `adjustQuantity`, `equip` and `removeItem` may name their copies with a query (`copies: { type, where }`) instead of one `entry`. The receiving character resolves it, so an action can aim one at its target's copies ([engine-core.md](engine-core.md#applychanges)).
 - `applyEffect` may leave out `id`, and `removeEffect`, `toggleEffect`, `setState` and `adjustState` may name applied entries with a query (`applied: { where, limit? }`). The receiving character picks the ID and resolves the query, so an action can apply a condition to its target, or end or worsen one, without knowing the target's file ([engine-core.md](engine-core.md#applychanges)).
+- `setState` and `adjustState` also change a pick's state (`path` and `option`, or `picks: { where }`) and the saved state of content a holder grant makes active (`grant` beside the copy's `entry` or the pick's `path` and `option`, or `grants: { where }`); a grant not active there is `not-granted` ([engine-core.md](engine-core.md#applychanges)).
 
 **Typing at two levels.** The change itself is checked against the spec's JSON Schema. What's inside it (does `abilities.str.score` exist; is 25 within its range) is defined by the ruleset and checked at runtime. Tooling can generate game-specific types (TypeScript, JSON Schema) from a ruleset, so an app built for one game catches most runtime errors before anything runs.
 

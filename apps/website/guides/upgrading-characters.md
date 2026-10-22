@@ -10,15 +10,19 @@ Only base state is saved, so most new pack versions (a fixed formula, a correcte
 content, better display hints) need no upgrade work at all. The character's saved state means the
 same thing under the new version; only the computed sheet changes.
 
-Some updates do change what saved state means: an item renamed or removed, a choice split in two,
-a new required choice. Those versions have a **breaking** version bump (the minor version while a pack is 0.x, such
+Some updates do change what saved state means: an item renamed or removed, a choice split in two
+or removed, a state key moved from a copy to one of its picks or granted content, a new required
+choice. Those versions have a **breaking** version bump (the minor version while a pack is 0.x, such
 as 0.1.4 → 0.2.0; the major version from 1.0.0, such as 1.4.2 → 2.0.0) and ship an
 **upgrade script**, written by the pack's author, that moves characters across. The pack build
 refuses to release such a version without one, so your app never has to work out what a change
 meant.
 
 Upgrade scripts are data in the pack release, not code. A pack's latest release carries all of
-its scripts, so any older pinned version can be upgraded from it.
+its scripts, so any older pinned version can be upgraded from it. Their steps (`renameContent`,
+`removeChoice`, `moveState`, `removeState`, …, with `item` to narrow a state step to one item and
+an owner path for a choice nested in an inline option) are listed in the spec's
+[upgrade scripts](../../../packages/spec/docs/upgrades.md#upgrade-scripts).
 
 ## The `upgrade` call
 
@@ -31,7 +35,8 @@ if (result.ok) {
     askAbout(result.pending); // new required choices, if any
   }
 } else {
-  // result.errors: unknown-id (a pinned pack isn't in the new ruleset), no-upgrade-path
+  // result.errors: unknown-id (a pinned pack isn't in the new ruleset), no-upgrade-path,
+  // homebrew-error (the character's homebrew doesn't load on the old ruleset)
 }
 ```
 
@@ -59,15 +64,23 @@ The engine computes the character under both versions and reports the difference
     { "pack": "5e-srd-5.1", "from": "0.2.1", "to": "0.3.0",
       "step": { "op": "renameContent", "from": "feats.sharpshooter", "to": "feats.sharp-shooter" } }
   ],
+  "homebrew": [],
   "errors": []
 }
 ```
 
 - **`values`**: every field whose value changed, with `before` and `after`. A field that exists on
   one side only has only one of them.
-- **`steps`**: each upgrade step that changed this character, and the script it came from.
+- **`steps`**: each upgrade step that changed this character, and the script it came from. A
+  `moveState` may drop a value instead of moving it (the target pick or grant is missing, the
+  value equals the target's default, or the target already has one); that's listed as a step too.
+- **`homebrew`**: each place in the character's homebrew a step rewrote, as `{ path, step }`
+  (`path` a JSON Pointer into the upgraded character).
 - **`errors`**: anything in the upgraded character that still doesn't resolve (a reference no
-  script handled). Show these; the character still computes without the broken part.
+  script handled). Show these; the character still computes without the broken part. Homebrew
+  that no longer loads on the new ruleset is `homebrew-error`; the upgraded character still comes
+  back, so the player can fix the custom content with a `setHomebrew` change
+  ([Changing characters](changing-characters.md)).
 
 Show the report before the player accepts: "Armor Class 16 → 17; Sharpshooter renamed to Sharp
 Shooter". Name fields and content with their translated names.

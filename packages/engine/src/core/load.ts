@@ -18,6 +18,7 @@ import type {
   InlineOption,
   Literal,
   OptionValue,
+  PresetTree,
   ProposedChange,
   Query,
   Role,
@@ -25,7 +26,7 @@ import type {
   StepChanges,
   ValueDecl,
 } from './pack-types.ts';
-import { appliesQueries } from './pack-types.ts';
+import { appliesQueries, keptQuery } from './pack-types.ts';
 import { bandSet } from './pack-types.ts';
 import type { PackRelease } from './release.ts';
 import { expandFamilies } from './families.ts';
@@ -55,6 +56,24 @@ export type { EngineError };
 export type LoadResult = { ok: true; ruleset: Ruleset } | { ok: false; errors: EngineError[] };
 
 const MAX_EXTENDS = 16;
+/** What a template gives only on a copy, so it can't be kept on content without one. */
+const COPY_ONLY = [
+  'state',
+  'computed',
+  'effects',
+  'followUps',
+  'actions',
+  'choices',
+  'grants',
+  'immuneTo',
+  'reapply',
+  'nameFrom',
+  'standardCopies',
+  'keepsFields',
+  'keepsTemplates',
+  'prerequisites',
+  'suppress',
+] as const;
 const BUILT_IN_MEMBER_KINDS = new Set(['field', 'tag', 'string']);
 
 const isObj = (v: unknown) => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -417,7 +436,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       for (const tag of list ?? [])
         if (typeof tag === 'string' && !declared.has(tag)) err('unknown-tag', { tag, pack });
     },
-    /** An effect with `then` changes its own copy, so it must have one. */
+    /** An effect with `then` changes its own entry (a copy or an applied entry), so it must have one. */
     copyless(effect: Effect, pack: string): void {
       if (effect.then)
         err('then-without-copy', {
@@ -426,7 +445,6 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         });
     },
     effect(effect: Effect, pack: string): Effect {
-      if (effect.scope === 'applied') q.copyless(effect, pack);
       const out: Effect = { ...effect };
       if (typeof effect.target === 'string') out.target = q.field(effect.target, pack);
       else if ('rolls' in effect.target && effect.target.tally !== undefined) {
@@ -532,7 +550,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         ...(choice.effects
           ? {
               effects: choice.effects.map((e) => {
-                if (e.scope !== 'applied') q.copyless(e, pack);
+                q.copyless(e, pack);
                 return q.effect(e, pack);
               }),
             }
@@ -582,22 +600,21 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       return steps.map((step) => ({
         ...step,
         ...(step.bands ? { bands: q.bands(step.bands, pack) } : {}),
-        // With `source`, a `use` no rules action has is the content's own action's local ID.
+        // With `source` or `entry`, a `use` no rules action has is the content's own action's
+        // local ID.
         ...(step.use
           ? {
               use:
-                step.source !== undefined && step.kind === 'action'
+                (step.source !== undefined || step.entry !== undefined) && step.kind === 'action'
                   ? (resolveAction(ruleset, step.use, pack) ?? step.use)
                   : q.actionId(step.use, pack),
             }
           : {}),
-        ...(step.options && !Array.isArray(step.options) && !('pending' in step.options)
-          ? {
-              options:
-                'content' in step.options
-                  ? { content: q.query(step.options.content, pack) }
-                  : { copies: q.query(step.options.copies, pack) },
-            }
+        ...(step.options && !Array.isArray(step.options) && 'content' in step.options
+          ? { options: { content: q.query(step.options.content, pack) } }
+          : {}),
+        ...(step.options && !Array.isArray(step.options) && 'copies' in step.options
+          ? { options: { copies: q.query(step.options.copies, pack) } }
           : {}),
         ...(Array.isArray(step.options)
           ? {
@@ -719,9 +736,11 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       out.keepsTemplates = raw.keepsTemplates.map((k) => ({
         ...k,
         template: q.content(k.template, pack),
-        copies: q.query(k.copies, pack),
+        ...(k.copies ? { copies: q.query(k.copies, pack) } : {}),
+        ...(k.content ? { content: q.query(k.content, pack) } : {}),
       }));
     if (raw.state) out.state = q.decls(raw.state, pack) as Record<string, ValueDecl>;
+    if (raw.params) out.params = q.decls(raw.params, pack) as Record<string, ValueDecl>;
     return out;
   };
 
@@ -824,7 +843,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         ...(def.effects
           ? {
               effects: def.effects.map((e) => {
-                if (e.scope !== 'applied') q.copyless(e, pid);
+                q.copyless(e, pid);
                 return q.effect(e, pid);
               }),
             }
@@ -832,7 +851,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       };
     }
     (r.effects ?? []).forEach((def, index) => {
-      if (def.scope !== 'applied') q.copyless(def, pid);
+      q.copyless(def, pid);
       ruleset.rules.effects.push({ ...q.effect(def, pid), pack: pid, index });
     });
     for (const def of r.followUps ?? [])
@@ -1017,7 +1036,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     for (const query of item.standardCopies ?? [])
       queries.push({ query, pack: item.scopes?.standardCopies ?? pack });
     for (const kept of item.keepsTemplates ?? [])
-      queries.push({ query: kept.copies, pack: item.scopes?.keepsTemplates ?? pack });
+      queries.push({ query: keptQuery(kept), pack: item.scopes?.keepsTemplates ?? pack });
   }
   for (const { pack, ...query } of ruleset.rules.standardCopies) queries.push({ query, pack });
   for (const choice of Object.values(ruleset.rules.choices)) collectChoices([choice], choice.pack);
@@ -1068,9 +1087,25 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     else derived.set(id, qid);
   }
   for (const item of Object.values(ruleset.content))
-    for (const kept of item.keepsTemplates ?? [])
-      if (ruleset.content[kept.template] && ruleset.content[kept.template]?.type !== 'template')
+    for (const kept of item.keepsTemplates ?? []) {
+      const template = ruleset.content[kept.template];
+      if (template && template.type !== 'template')
         err('unknown-reference', { kind: 'template', id: kept.template, pack: item.pack });
+      // Content without a copy takes a template's fields and tags only.
+      else if (template && kept.content) {
+        const extra = COPY_ONLY.filter((key) => {
+          const v = (template as unknown as Record<string, unknown>)[key];
+          return v !== undefined && !(Array.isArray(v) && v.length === 0);
+        });
+        if (extra.length > 0)
+          err('template-without-copy', {
+            item: item.qid,
+            template: template.qid,
+            keys: extra,
+            pack: item.pack,
+          });
+      }
+    }
   for (const item of Object.values(ruleset.content)) {
     const type = ruleset.contentTypes[item.type];
     const reapply = item.reapply ?? type?.reapply;
@@ -1084,18 +1119,76 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     }
   }
 
-  const grantState = (grants: readonly Grant[] | undefined, owner: string) => {
+  // A grant's preset picks name choices the granted content declares (slot keys for a slotted
+  // choice), and literal options it offers; nested presets those of the literal option.
+  const presetChoices = (
+    tree: PresetTree,
+    choices: readonly Choice[] | undefined,
+    pack: string,
+    at: Record<string, unknown>,
+  ): void => {
+    const byKey = new Map<string, Choice>();
+    for (const choice of choices ?? [])
+      for (const key of choice.slots?.map((n) => `${choice.id}-${n}`) ?? [choice.id])
+        byKey.set(key, choice);
+    for (const [key, picks] of Object.entries(tree)) {
+      const choice = byKey.get(key);
+      if (!choice) {
+        err('unknown-reference', { kind: 'choice', id: key, ...at });
+        continue;
+      }
+      for (const pick of picks) {
+        if (typeof pick.option === 'object') continue;
+        const from = choice.from;
+        let nested: readonly Choice[] | undefined;
+        if ('options' in from) {
+          const inline = from.options.find((o) => o.id === pick.option);
+          if (!inline) err('unknown-reference', { kind: 'option', id: pick.option, ...at });
+          nested = inline?.choices;
+        } else if ('values' in from) {
+          if (Array.isArray(from.values) && !from.values.includes(pick.option))
+            err('unknown-reference', { kind: 'option', id: pick.option, ...at });
+        } else {
+          const qid = resolveContent(ruleset, String(pick.option), pack);
+          if (!qid) err('unknown-reference', { kind: 'content', id: pick.option, ...at });
+          nested = qid ? ruleset.content[qid]?.choices : undefined;
+        }
+        if (pick.choices) presetChoices(pick.choices, nested, pack, at);
+      }
+    }
+  };
+  const grantChecks = (grants: readonly Grant[] | undefined, owner: string, pack: string) => {
     for (const grant of grants ?? []) {
-      if (!grant.state || typeof grant.item !== 'string') continue;
+      if (grant.choices && grant.scope === 'applied')
+        err('unknown-reference', { kind: 'choice', item: owner, scope: 'applied' });
+      if (typeof grant.item !== 'string') continue;
       const granted = ruleset.content[grant.item];
       if (!granted) continue;
+      if (grant.choices && grant.scope !== 'applied')
+        presetChoices(grant.choices, granted.choices, pack, { item: owner, granted: granted.qid });
+      if (!grant.state) continue;
       const declared = { ...ruleset.contentTypes[granted.type]?.state, ...granted.state };
       for (const key of Object.keys(grant.state))
         if (!declared[key]) err('unknown-state-key', { item: owner, granted: granted.qid, key });
     }
   };
-  for (const item of Object.values(ruleset.content)) grantState(item.grants, item.qid);
-  for (const [name, type] of Object.entries(ruleset.contentTypes)) grantState(type.grants, name);
+  const optionGrants = (choices: readonly Choice[] | undefined, owner: string, pack: string) => {
+    for (const choice of choices ?? []) {
+      if (!('options' in choice.from)) continue;
+      for (const option of choice.from.options) {
+        grantChecks(option.grants, owner, pack);
+        optionGrants(option.choices, owner, pack);
+      }
+    }
+  };
+  for (const item of Object.values(ruleset.content)) {
+    grantChecks(item.grants, item.qid, item.scopes?.grants ?? item.pack);
+    optionGrants(item.choices, item.qid, item.scopes?.choices ?? item.pack);
+  }
+  for (const [name, type] of Object.entries(ruleset.contentTypes))
+    grantChecks(type.grants, name, type.pack);
+  for (const choice of Object.values(ruleset.rules.choices))
+    optionGrants([choice as Choice], `${choice.pack}:rules`, choice.pack);
 
   // Qualified once every pack's situational choices are loaded.
   const situationalId = (ref: string, pack: string): string | undefined => {
@@ -1174,6 +1267,7 @@ const CHARACTER_FUNCTIONS = new Set([
   'countEquipped',
   'countState',
   'sumState',
+  'picksOf',
 ]);
 
 /** Whether a query condition reads only `item`, so it can be resolved at load time. */

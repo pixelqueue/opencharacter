@@ -1,6 +1,5 @@
 values:
   5e-srd-5.1:eldritchBlast.beams: { value: 2 }
-  5e-srd-5.1:eldritchBlast.range: { value: 300 } # Eldritch Spear
   5e-srd-5.1:eldritchBlast.push: { value: 10 } # Repelling Blast
   5e-srd-5.1:spells.warlock:
     value:
@@ -10,4 +9,23 @@ values:
       - 5e-srd-5.1:spells.mage-hand
       - 5e-srd-5.1:spells.minor-illusion
       - 5e-srd-5.1:spells.slow
+templated: # Eldritch Spear
+  - item: 5e-srd-5.1:spells.eldritch-blast
+    templates: [5e-srd-5.1:templates.eldritch-spear]
+    tags: []
+    fields:
+      level: 0
+      school: evocation
+      classes: [5e-srd-5.1:classes.warlock]
+      castingTime: action
+      rangeKind: ranged
+      range: 300
+      verbal: true
+      somatic: true
+      material: false
+      durationUnit: instantaneous
+      attack: ranged
+      requiresAttunement: false
+      attackBonus: 0
+      acBonus: 0
 issues: []

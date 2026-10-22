@@ -17,7 +17,13 @@ npm install @opencharacter/engine @opencharacter/5e-srd-5.1
 ## Load, compute, change, roll
 
 ```ts
-import { applyChanges, computeSheet, loadRuleset, startAction } from '@opencharacter/engine';
+import {
+  applyChanges,
+  computeSheet,
+  loadRuleset,
+  SPEC_VERSION,
+  startAction,
+} from '@opencharacter/engine';
 import type { CharacterFile } from '@opencharacter/engine';
 import srd from '@opencharacter/5e-srd-5.1';
 import en from '@opencharacter/5e-srd-5.1/i18n/en';
@@ -30,7 +36,7 @@ const { ruleset } = loaded;
 // 2. A character file holds only base state: inputs, owned items, picks. The CharacterFile type
 //    catches a misspelled or missing property before anything runs.
 let character: CharacterFile = {
-  specVersion: '0.1.0',
+  specVersion: SPEC_VERSION,
   id: 'quick-start',
   packs: [{ id: '5e-srd-5.1', version: '0.1.0' }],
   values: {

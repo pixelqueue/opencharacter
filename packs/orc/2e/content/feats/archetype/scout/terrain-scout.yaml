@@ -7,3 +7,9 @@ prerequisites:
   - { id: scout-dedication, when: '@feats.archetype.scout.scout-dedication in feats.held' }
 grants:
   - { item: feats.skill.terrain-stalker, waivePrerequisites: true }
+# The second Terrain Stalker is written out as the feat's own terrain choice: a second grant of
+# the feat would share the first's picks. Terrain Stalker has no effects beyond its terrain.
+choices:
+  - id: terrain
+    unique: terrain-stalker
+    from: { values: [rubble, snow, underbrush] }

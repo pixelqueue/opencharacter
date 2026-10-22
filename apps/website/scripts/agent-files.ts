@@ -2,6 +2,8 @@ import { existsSync, readdirSync, readFileSync, statSync, writeFileSync, mkdirSy
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
+import { SPEC_VERSION } from '../../../packages/spec/src/index.ts';
+import { readI18n } from '../../../scripts/validate/load.ts';
 import { BASE, SITE } from '../site.ts';
 import { GUIDE_ORDER, SPEC_ORDER } from './sync-docs.ts';
 
@@ -96,9 +98,7 @@ function packs(): PackInfo[] {
         homepage?: string;
         dependencies?: Record<string, string>;
       };
-      const text = parse(
-        readFileSync(join(root, path, `i18n/${manifest.defaultLanguage}.yaml`), 'utf8'),
-      ) as Record<string, string>;
+      const text = readI18n(join(root, path), manifest.defaultLanguage);
       return {
         id: manifest.id,
         name: text['pack.name'] ?? manifest.id,
@@ -144,7 +144,7 @@ write(
 - npm: \`@opencharacter/engine\` (the TypeScript reference engine, no runtime dependencies),
   \`@opencharacter/spec\` (docs, JSON Schemas, conformance suite), \`@opencharacter/text\`
   (wording helper), \`@opencharacter/packs\` (every official pack), and one package per pack.
-- Spec version 0.1.0. Source: ${REPO}. Code and spec are Apache-2.0; each pack keeps its own license.
+- Spec version ${SPEC_VERSION}. Source: ${REPO}. Code and spec are Apache-2.0; each pack keeps its own license.
 - Every page below is Markdown; the website has each one as HTML at the same path without \`.md\`.
   [llms-full.txt](${SITE}llms-full.txt) holds every guide and spec chapter in one file.
 
@@ -163,7 +163,7 @@ ${packList.map((p) => `- [${p.name}](${p.source}): \`${p.id}\` ${p.version}, ${p
 ## Machine-readable
 
 - [packs.json](${SITE}packs.json): the official packs as JSON (ID, name, version, license, npm package, source, dependencies)
-${schemas.map((s) => `- [${s.replace(/^schemas\/0\.1\//, '')}](${SITE}${s}): JSON Schema (draft 2020-12)`).join('\n')}
+${schemas.map((s) => `- [${s.replace(/^schemas\/[^/]+\//, '')}](${SITE}${s}): JSON Schema (draft 2020-12)`).join('\n')}
 
 ## Optional
 

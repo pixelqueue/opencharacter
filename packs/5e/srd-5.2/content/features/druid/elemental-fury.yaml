@@ -23,3 +23,9 @@ effects:
     when: >-
       druid.elementalFury == 'potent-spellcasting' && roll.item.level == 0
         && has(roll.item.damageType) && has(flags.cls) && flags.cls == 'druid'
+keepsTemplates:
+  - template: features.druid.potent-spellcasting-range
+    when: "self.level >= 15 && 'potent-spellcasting' in picksOf('option')"
+    content:
+      type: spell
+      where: 'item.level == 0 && has(item.range) && item.range >= 10 && @classes.druid in item.classes'

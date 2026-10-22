@@ -1,0 +1,36 @@
+# A 4th-level fighter with the scout archetype: Terrain Scout's granted Terrain Stalker took
+# rubble; Terrain Scout's own terrain is not picked yet.
+specVersion: 0.1.0
+id: test-terrain-scout-unique
+packs:
+  - { id: orc-2e, version: 0.1.0 }
+values:
+  orc-2e:level: 4
+features:
+  - id: ancestry
+    item: orc-2e:ancestries.human
+    choices:
+      boosts:
+        - option: orc-2e:boosts.dex
+        - option: orc-2e:boosts.con
+  - id: class
+    item: orc-2e:classes.fighter
+    choices:
+      key-attribute:
+        - option: str
+      skills:
+        - option: skill.stealth
+        - option: skill.survival
+      class-feat-2:
+        - option: orc-2e:feats.archetype.scout.scout-dedication
+      class-feat-4:
+        - option: orc-2e:feats.archetype.scout.terrain-scout
+          choices:
+            orc-2e:feats.skill.terrain-stalker/terrain:
+              - option: rubble
+choices:
+  free-boosts:
+    - option: orc-2e:boosts.dex
+    - option: orc-2e:boosts.str
+    - option: orc-2e:boosts.con
+    - option: orc-2e:boosts.wis

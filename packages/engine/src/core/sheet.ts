@@ -22,8 +22,12 @@ import type {
   GrantValue,
   Immunity,
   InlineOption,
+  KeptTemplate,
   Pick,
+  PresetTree,
+  Query,
 } from './pack-types.ts';
+import type { GrantStore } from '@opencharacter/spec';
 import { appliesQueries } from './pack-types.ts';
 import { openOptionsOn } from './options.ts';
 import { isContentOnly } from './load.ts';
@@ -137,7 +141,18 @@ export interface Activation {
   /** `sourceId` with each slot key replaced by its declared choice ID, where nested text lives. */
   textId?: string;
   waived?: boolean;
+  /**
+   * The saved copy or pick whose choice tree is `tree`: where content this activation grants keeps
+   * its saved state (`grants`). Absent for the rules and applied content.
+   */
+  node?: { grants?: GrantStore } | undefined;
+  /** Picks a grant makes for this activation's own choices, evaluated; content IDs unqualified. */
+  presets?: { tree: EvaluatedPresets; pack: string } | undefined;
+  /** A holder grant: its `state` values, the defaults of the granted content's saved state. */
+  grantDefaults?: Record<string, Literal> | undefined;
 }
+
+type EvaluatedPresets = Record<string, { option: string | number; choices?: EvaluatedPresets }[]>;
 
 export interface ListedActivation {
   item: string;
@@ -159,10 +174,11 @@ export interface ListedChoice {
   max?: number;
   picks: (string | number)[];
   open: boolean;
+  preset?: true;
 }
 
 function isOpen(record: ChoiceRecord, min: number): boolean {
-  return record.picks.length < min && record.choice.required !== false;
+  return !record.preset && record.picks.length < min && record.choice.required !== false;
 }
 
 /**
@@ -187,6 +203,8 @@ export interface ChoiceRecord {
   applicable: boolean;
   roots: Record<string, unknown>;
   slot?: { choice: string; number: number };
+  /** A grant presets the choice: `picks` are the grant's, and it is never pending. */
+  preset?: boolean;
 }
 
 /** A choice, or with `slots` one choice per slot in list order, keyed `<id>-<slot>`. */
@@ -214,6 +232,13 @@ export interface EffectInstance {
   match?: string | number | boolean;
   matchPack?: string;
   picked?: Record<string, unknown>;
+  /** For an applied activation: the applied entry its `self` is (the granting one for a grant). */
+  applied?: string;
+  /**
+   * For picked or held granted content that declares state: its activation, whose pick or grant
+   * keeps the state its `self` reads (where `then` writes those keys).
+   */
+  own?: Activation;
 }
 
 interface FieldResult {
@@ -285,6 +310,15 @@ export class Failure extends Error {
 
 const MAX_DEPTH = 16;
 
+/** An item as merged with its templates: a copy's (`entry`), or content's without a copy. */
+export interface TemplatedItem {
+  entry?: string;
+  item: string;
+  templates: string[];
+  tags: string[];
+  fields: Record<string, Literal>;
+}
+
 export interface StandardCopy {
   entry: string;
   item: string;
@@ -329,15 +363,78 @@ function hasKeptTemplates(ruleset: Ruleset): boolean {
   return has;
 }
 
+/** A template kept on a copy or an item, with the `params` its first keeper gave. */
+export interface KeptOn {
+  template: string;
+  params?: Record<string, unknown>;
+}
+
 export interface Rounds {
   standard: readonly string[];
-  kept: ReadonlyMap<string, readonly string[]>;
+  /** Kept templates by copy instance ID. */
+  kept: ReadonlyMap<string, readonly KeptOn[]>;
+  /** Kept templates by the qualified ID of content without a copy. */
+  content: ReadonlyMap<string, readonly KeptOn[]>;
+}
+
+function sameKept(
+  a: ReadonlyMap<string, readonly KeptOn[]>,
+  b: ReadonlyMap<string, readonly KeptOn[]>,
+): boolean {
+  if (a.size !== b.size) return false;
+  for (const [id, list] of a) {
+    const other = b.get(id);
+    if (other?.length !== list.length) return false;
+    for (const [i, k] of list.entries())
+      if (
+        other[i]?.template !== k.template ||
+        JSON.stringify(other[i]?.params) !== JSON.stringify(k.params)
+      )
+        return false;
+  }
+  return true;
+}
+
+/**
+ * The templates found so far, each kept once per copy or item: one found again keeps its place
+ * and takes the params of its first keeper this round, one new is added after.
+ */
+function addKept(
+  found: ReadonlyMap<string, readonly KeptOn[]>,
+  wanted: readonly { id: string; kept: KeptOn }[],
+): Map<string, KeptOn[]> {
+  const out = new Map([...found].map(([id, list]) => [id, [...list]]));
+  const seen = new Set<string>();
+  for (const { id, kept } of wanted) {
+    const key = `${id}\0${kept.template}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const list = out.get(id) ?? [];
+    const at = list.findIndex((k) => k.template === kept.template);
+    if (at >= 0) list[at] = kept;
+    else list.push(kept);
+    out.set(id, list);
+  }
+  return out;
+}
+
+/** A merged `item` view as output data: its tags and fields. */
+function mergedData(view: Record<string, unknown>): {
+  tags: string[];
+  fields: Record<string, Literal>;
+} {
+  const { id: _id, type: _type, tags, ...rest } = view;
+  const fields: Record<string, Literal> = {};
+  for (const [name, v] of Object.entries(rest)) fields[name] = literal(f.fromData(v));
+  return { tags: [...(tags as string[])], fields };
 }
 
 function sameRounds(a: Rounds, b: Rounds): boolean {
-  if (a.standard.length !== b.standard.length || a.kept.size !== b.kept.size) return false;
-  for (const [id, list] of a.kept) if (b.kept.get(id)?.length !== list.length) return false;
-  return true;
+  return (
+    a.standard.length === b.standard.length &&
+    sameKept(a.kept, b.kept) &&
+    sameKept(a.content, b.content)
+  );
 }
 
 export class Sheet {
@@ -390,7 +487,11 @@ export class Sheet {
   ) {
     this.picks = new Set(picks);
     this.file = character;
-    let found: Rounds = fixed ?? { standard: rulesStandard(ruleset), kept: new Map() };
+    let found: Rounds = fixed ?? {
+      standard: rulesStandard(ruleset),
+      kept: new Map(),
+      content: new Map(),
+    };
     // `fixed` given, the sheet is a probe that finds what its active items add. Otherwise standard
     // copies and kept templates are found in rounds: what the active content adds is added, until
     // a round adds nothing.
@@ -410,6 +511,7 @@ export class Sheet {
     }
     const items = found.standard;
     this.kept = found.kept;
+    this.keptContent = found.content;
     this.character = this.withStandard(character, items);
     character = this.character;
     this.readInputs();
@@ -422,6 +524,7 @@ export class Sheet {
           character,
           (n, p) => this.inputByName(n, p),
           this.templatesOf,
+          this.templateItems,
         );
         return this.copyData;
       }),
@@ -590,6 +693,26 @@ export class Sheet {
     return result.value;
   }
 
+  /** An activation formula's value: input fields and the character functions. Throws Failure. */
+  private evaluateActivation(
+    formula: Formula,
+    pack: string,
+    roots: Record<string, unknown>,
+  ): f.Value {
+    const result = f.evaluate(this.parse(formula), {
+      field: (name) => {
+        const qid = resolveField(this.ruleset, name, pack);
+        return qid ? this.inputValue(qid) : undefined;
+      },
+      roots: { ...this.baseRoots(pack), ...roots },
+      id: (text) => resolveId(this.ruleset, text, pack),
+      family: (name) => familyIn(this.ruleset, name, pack),
+      character: this.inputQueries,
+    });
+    if (!result.ok) throw new Failure(result.error);
+    return result.value;
+  }
+
   private condition(
     formula: Formula | undefined,
     pack: string,
@@ -682,9 +805,7 @@ export class Sheet {
       this.character[list] = entries.map((entry) => {
         const item = this.ruleset.content[entry.item];
         if (!item) return entry;
-        const templates = this.templatesOf(entry)
-          .map((t) => this.ruleset.content[t])
-          .filter((t): t is LoadedItem => t?.type === 'template');
+        const templates = this.templateItems(entry, item);
         const decls = Object.entries(stateDecls(this.ruleset, item, templates)).filter(
           ([key, decl]) =>
             entry.state?.[key] === undefined &&
@@ -719,39 +840,147 @@ export class Sheet {
     const standard = new Set(found.standard);
     for (const a of this.activations)
       if (a.item) for (const qid of itemStandard(this.ruleset, a.item)) standard.add(qid);
-    const kept = new Map([...found.kept].map(([id, list]) => [id, [...list]]));
-    for (const { template, entry } of this.keptWanted()) {
-      const list = kept.get(entry.id) ?? [];
-      if (list.includes(template)) continue;
-      list.push(template);
-      kept.set(entry.id, list);
-    }
-    return { standard: [...standard], kept };
+    const kept = addKept(
+      found.kept,
+      this.keptWanted().map((k) => ({ id: k.entry.id, kept: k.kept })),
+    );
+    const content = addKept(found.content, this.keptContentWanted());
+    return { standard: [...standard], kept, content };
   }
 
-  private keptWanted(): { template: string; entry: Entry; keeper: Activation }[] {
-    const out: { template: string; entry: Entry; keeper: Activation }[] = [];
+  /**
+   * Whether a kept template's query matches a base item: resolved at load when it reads only
+   * `item`, else an activation condition with the keeper's roots and the candidate as `item`.
+   */
+  private keptMatches(query: Query, pack: string, keeper: Activation, base: LoadedItem): boolean {
+    if (base.type !== query.type) return false;
+    const stored = this.ruleset.queries[queryKey(pack, query.type, query.where)];
+    if (stored) return stored.includes(base.qid);
+    if (query.where === undefined) return true;
+    let view = this.queryViews.get(base);
+    if (!view) {
+      view = itemView(this.ruleset, base, [], (n, p) => this.inputByName(n, p));
+      this.queryViews.set(base, view);
+    }
+    return this.condition(
+      query.where,
+      pack,
+      { ...keeper.roots, item: view },
+      `${keeper.sourceId} keepsTemplates`,
+    );
+  }
+
+  /** A kept template's `params`: activation formulas with the keeper's roots. */
+  private keptParams(
+    kept: KeptTemplate,
+    template: LoadedItem,
+    pack: string,
+    keeper: Activation,
+  ): KeptOn {
+    if (!kept.params) return { template: template.qid };
+    const params: Record<string, unknown> = {};
+    for (const [name, formula] of Object.entries(kept.params)) {
+      try {
+        let value = this.evaluateActivation(formula, pack, keeper.roots);
+        if (template.params?.[name]?.type === 'decimal' && value.kind === 'int')
+          value = { kind: 'decimal', value: value.value };
+        params[name] =
+          value.kind === 'decimal' || value.kind === 'dice' ? f.wrapValue(value) : f.toData(value);
+      } catch (error) {
+        if (!(error instanceof Failure)) throw error;
+        this.errors.push({
+          code: error.error.code,
+          data: {
+            where: `${keeper.sourceId} keepsTemplates params ${name}`,
+            message: error.error.message,
+            ...error.error.data,
+          },
+        });
+      }
+    }
+    return { template: template.qid, params };
+  }
+
+  private keptWanted(): { kept: KeptOn; entry: Entry; keeper: Activation }[] {
+    const out: { kept: KeptOn; entry: Entry; keeper: Activation }[] = [];
     const entries = [...(this.character.features ?? []), ...(this.character.inventory ?? [])];
     for (const a of this.activations) {
       const item = a.item;
       if (!item?.keepsTemplates?.length) continue;
       const pack = item.scopes?.keepsTemplates ?? item.pack;
       for (const kept of item.keepsTemplates) {
-        if ((kept.scope ?? 'holder') !== a.scope) continue;
+        if (!kept.copies || (kept.scope ?? 'holder') !== a.scope) continue;
         if (!this.condition(kept.when, pack, a.roots, `${a.sourceId} keepsTemplates`)) continue;
         const template = this.ruleset.content[kept.template];
         if (template?.type !== 'template') continue;
-        const matches = new Set(
-          this.ruleset.queries[queryKey(pack, kept.copies.type, kept.copies.where)] ?? [],
-        );
+        let values: KeptOn | undefined;
         for (const entry of entries) {
           const base = this.ruleset.content[entry.item];
-          if (!base || !matches.has(base.qid) || !this.appliesTo(template, base)) continue;
-          out.push({ template: template.qid, entry, keeper: a });
+          if (!base || !this.keptMatches(kept.copies, pack, a, base)) continue;
+          if (!this.appliesTo(template, base)) continue;
+          values ??= this.keptParams(kept, template, pack, a);
+          out.push({ kept: values, entry, keeper: a });
         }
       }
     }
     return out;
+  }
+
+  /**
+   * Templates kept on content without a copy: for each holder activation picked or granted whose
+   * item an active keeper's `content` query matches, by item.
+   */
+  private keptContentWanted(): { id: string; kept: KeptOn }[] {
+    const out: { id: string; kept: KeptOn }[] = [];
+    const reached = this.activations.filter(
+      (a) => (a.kind === 'pick' || a.kind === 'grant') && a.scope === 'holder' && a.item,
+    );
+    for (const a of this.activations) {
+      const item = a.item;
+      if (!item?.keepsTemplates?.length) continue;
+      const pack = item.scopes?.keepsTemplates ?? item.pack;
+      for (const kept of item.keepsTemplates) {
+        if (!kept.content || (kept.scope ?? 'holder') !== a.scope) continue;
+        if (!this.condition(kept.when, pack, a.roots, `${a.sourceId} keepsTemplates`)) continue;
+        const template = this.ruleset.content[kept.template];
+        if (template?.type !== 'template') continue;
+        let values: KeptOn | undefined;
+        for (const r of reached) {
+          const base = r.item as LoadedItem;
+          if (!this.keptMatches(kept.content, pack, a, base)) continue;
+          if (!this.appliesTo(template, base)) continue;
+          values ??= this.keptParams(kept, template, pack, a);
+          out.push({ id: base.qid, kept: values });
+        }
+      }
+    }
+    return out;
+  }
+
+  private readonly keptContent!: ReadonlyMap<string, readonly KeptOn[]>;
+
+  /**
+   * The templates content keeps on an item without a copy, its keepers' `keepsFields` left out
+   * and their `params` given.
+   */
+  contentTemplates(item: LoadedItem): LoadedItem[] {
+    const kept = this.keptContent.get(item.qid);
+    if (!kept?.length) return [];
+    return kept.map((k) =>
+      keptTemplate(
+        this.ruleset,
+        this.ruleset.content[k.template] as LoadedItem,
+        item.qid,
+        k.params,
+      ),
+    );
+  }
+
+  /** Picked or granted content's `item`: the item with the templates content keeps on it. */
+  private contentView(item: LoadedItem): Record<string, unknown> {
+    return itemView(this.ruleset, item, this.contentTemplates(item), (n, p) =>
+      this.inputByName(n, p),
+    );
   }
 
   /** The item's type and `where` (input fields only); a failing condition doesn't match. */
@@ -773,30 +1002,59 @@ export class Sheet {
     });
   }
 
-  private readonly kept!: ReadonlyMap<string, readonly string[]>;
+  private readonly kept!: ReadonlyMap<string, readonly KeptOn[]>;
+
+  /** The kept templates a copy doesn't have saved. */
+  private keptOn(entry: Entry): readonly KeptOn[] {
+    const kept = this.kept.get(entry.id);
+    if (!kept?.length) return [];
+    const saved = entry.templates ?? [];
+    return kept.filter((k) => !saved.includes(k.template));
+  }
 
   readonly templatesOf = (entry: Entry): readonly string[] => {
     const saved = entry.templates ?? [];
-    const kept = this.kept.get(entry.id);
-    if (!kept?.length) return saved;
-    return [...saved, ...kept.filter((t) => !saved.includes(t))];
+    const kept = this.keptOn(entry);
+    if (kept.length === 0) return saved;
+    return [...saved, ...kept.map((k) => k.template)];
+  };
+
+  /**
+   * A copy's templates as merged: its saved ones (those in the ruleset), then the kept ones,
+   * which leave their keepers' `keepsFields` alone and have their keepers' `params`.
+   */
+  readonly templateItems = (entry: Entry, item: LoadedItem): LoadedItem[] => {
+    const out: LoadedItem[] = [];
+    for (const t of entry.templates ?? []) {
+      const template = this.ruleset.content[t];
+      if (template?.type === 'template') out.push(template);
+    }
+    for (const k of this.keptOn(entry))
+      out.push(
+        keptTemplate(
+          this.ruleset,
+          this.ruleset.content[k.template] as LoadedItem,
+          item.qid,
+          k.params,
+        ),
+      );
+    return out;
   };
 
   isKept(entry: Entry, template: string): boolean {
-    return (
-      !(entry.templates ?? []).includes(template) && !!this.kept.get(entry.id)?.includes(template)
-    );
+    return this.keptOn(entry).some((k) => k.template === template);
   }
 
   // --- Activation ---------------------------------------------------------------------------
 
   private activate(): void {
     const rulesTree = this.character.choices ?? {};
+    const rulesChoices = Object.values(this.ruleset.rules.choices) as Choice[];
     const rules: Activation = {
       kind: 'rules',
       scope: 'holder',
       pack: '',
-      roots: {},
+      roots: { [f.OWNER_PICKS]: ownerPicks(rulesChoices, rulesTree, '') },
       source: { type: 'rules' },
       sourceId: 'rules',
       tree: rulesTree,
@@ -809,7 +1067,7 @@ export class Sheet {
       this.instance(
         effect,
         pack,
-        {},
+        rules.roots,
         { type: 'rules', id: `${pack}:rules` },
         `${pack}:rules`,
         String(e.id ?? index),
@@ -850,10 +1108,15 @@ export class Sheet {
             });
         }
         const ids = this.templatesOf(entry);
-        // A kept template leaves its keepers' `keepsFields` alone.
-        for (const t of ids.slice((entry.templates ?? []).length))
+        // A kept template leaves its keepers' `keepsFields` alone and has their `params`.
+        for (const k of this.keptOn(entry))
           templates.push(
-            keptTemplate(this.ruleset, this.ruleset.content[t] as LoadedItem, item.qid),
+            keptTemplate(
+              this.ruleset,
+              this.ruleset.content[k.template] as LoadedItem,
+              item.qid,
+              k.params,
+            ),
           );
         const self = selfView(entry, stateDecls(this.ruleset, item, templates), ids);
         const merged = itemView(this.ruleset, item, templates, (n, p) => this.inputByName(n, p));
@@ -871,6 +1134,7 @@ export class Sheet {
             sourceId: item.qid,
             tree,
             path,
+            node: entry,
           },
           0,
         );
@@ -888,6 +1152,7 @@ export class Sheet {
               sourceId: template.qid,
               tree,
               path,
+              node: entry,
               keyPrefix: `${template.qid}/`,
             },
             0,
@@ -1029,8 +1294,9 @@ export class Sheet {
         roots: {
           ...a.roots,
           item: itemView(this.ruleset, granted, [], (n, p) => this.inputByName(n, p)),
-          self: this.grantedSelf(grant, pack, a.roots, `${a.sourceId} grant`),
+          self: this.grantedSelf(grant, pack, a.roots, `${a.sourceId} grant`).self,
         },
+        presets: undefined,
         source: { type: 'item', id: granted.qid },
         sourceId: granted.qid,
         keyPrefix: `${granted.qid}/`,
@@ -1081,14 +1347,23 @@ export class Sheet {
     pack: string,
     roots: Record<string, unknown>,
     where: string,
-  ): unknown {
-    if (!grant.state) return roots.self;
-    const self = { ...(roots.self as Record<string, unknown> | undefined) };
-    for (const [key, formula] of Object.entries(grant.state)) {
+    holder?: { granted: LoadedItem; node: Activation['node'] },
+  ): { self: unknown; defaults: Record<string, Literal> } {
+    const defaults: Record<string, Literal> = {};
+    // Held granted content that declares state reads its grant's saved state, else the grant's
+    // `state`, else the declared default, over the owner's copy, as picked content reads its pick's.
+    const own = !!holder && Object.keys(stateDecls(this.ruleset, holder.granted, [])).length > 0;
+    if (!grant.state && !own) return { self: roots.self, defaults };
+    const self: Record<string, unknown> = {
+      ...(roots.self as Record<string, unknown> | undefined),
+      ...(own && holder ? pickState(this.ruleset, holder.granted, undefined) : {}),
+    };
+    for (const [key, formula] of Object.entries(grant.state ?? {})) {
       try {
         const value = this.evaluateInput(formula, pack, roots);
         self[key] =
           value.kind === 'decimal' || value.kind === 'dice' ? f.wrapValue(value) : f.toData(value);
+        defaults[key] = f.toData(value) as Literal;
       } catch (error) {
         if (!(error instanceof Failure)) throw error;
         this.errors.push({
@@ -1101,7 +1376,96 @@ export class Sheet {
         });
       }
     }
-    return self;
+    const saved = own && holder ? holder.node?.grants?.[holder.granted.qid]?.state : undefined;
+    if (saved && holder) {
+      const typed = pickState(this.ruleset, holder.granted, saved);
+      for (const key of Object.keys(saved)) if (key in typed) self[key] = typed[key];
+    }
+    return { self, defaults };
+  }
+
+  /**
+   * A grant's preset picks, each option a literal or an activation formula; one that fails, or
+   * isn't a string or number, is left out with a `formula-error`.
+   */
+  private evaluatePresets(
+    tree: PresetTree,
+    pack: string,
+    roots: Record<string, unknown>,
+    where: string,
+  ): EvaluatedPresets {
+    const out: EvaluatedPresets = {};
+    for (const [choice, picks] of Object.entries(tree)) {
+      const list: EvaluatedPresets[string] = [];
+      for (const pick of picks) {
+        let option: string | number;
+        if (typeof pick.option !== 'object') option = pick.option;
+        else {
+          try {
+            const value = this.evaluateInput(pick.option.formula, pack, roots);
+            if (value.kind !== 'string' && value.kind !== 'int' && value.kind !== 'decimal')
+              throw new Failure({
+                code: 'type-mismatch',
+                message: 'a preset option is a string or a number',
+              });
+            option = value.kind === 'string' ? value.value : (f.toData(value) as number);
+          } catch (error) {
+            if (!(error instanceof Failure)) throw error;
+            this.errors.push({
+              code: error.error.code,
+              data: {
+                where: `${where} choices ${choice}`,
+                message: error.error.message,
+                ...error.error.data,
+              },
+            });
+            continue;
+          }
+        }
+        list.push({
+          option,
+          ...(pick.choices
+            ? { choices: this.evaluatePresets(pick.choices, pack, roots, where) }
+            : {}),
+        });
+      }
+      out[choice] = list;
+    }
+    return out;
+  }
+
+  /**
+   * A preset choice's picks: the grant's options, a content ID qualified in the grant's pack (one
+   * naming no content is left out with `unknown-id`). A saved pick of the same option holds its
+   * nested picks, state and grants' state.
+   */
+  private presetPicks(
+    choice: Choice,
+    presets: NonNullable<Activation['presets']>,
+    saved: Pick[],
+    where: string,
+  ): { pick: Pick; nested?: EvaluatedPresets }[] {
+    const from = choice.from;
+    const content = !('values' in from) && !('options' in from);
+    const out: { pick: Pick; nested?: EvaluatedPresets }[] = [];
+    for (const preset of presets.tree[choice.id] ?? []) {
+      let option = preset.option;
+      if (content && typeof option === 'string') {
+        const qid = resolveContent(this.ruleset, option, presets.pack);
+        if (!qid) {
+          this.errors.push({ code: 'unknown-id', data: { id: option, where } });
+          continue;
+        }
+        option = qid;
+      }
+      if (out.some((p) => p.pick.option === option)) continue;
+      const node = saved.find((p) => p.option === option);
+      out.push({
+        pick: { ...node, option },
+        ...(preset.choices ? { nested: preset.choices } : {}),
+      });
+    }
+    return out;
   }
 
   private appliedReach(
@@ -1181,6 +1545,12 @@ export class Sheet {
       this.errors.push({ code: 'safety-limit-exceeded', data: { limit: 'maxChoiceDepth' } });
       return;
     }
+    // Its formulas read its own choices' picks with `picksOf`.
+    const declared = activation.item?.choices ?? activation.inline?.choices ?? [];
+    activation.roots = {
+      ...activation.roots,
+      [f.OWNER_PICKS]: ownerPicks(declared, activation.tree, activation.keyPrefix ?? ''),
+    };
     this.activations.push(activation);
     this.childOf(this.walking.at(-1), activation);
     this.walking.push(activation);
@@ -1230,6 +1600,14 @@ export class Sheet {
     const item = activation.item;
     const type =
       item && item.type !== 'template' ? this.ruleset.contentTypes[item.type] : undefined;
+    // Picked or held granted content with state of its own: `then` writes there, as `self` reads.
+    const owner =
+      item &&
+      activation.scope === 'holder' &&
+      (activation.kind === 'pick' || activation.kind === 'grant') &&
+      Object.keys(stateDecls(this.ruleset, item, [])).length > 0
+        ? activation
+        : undefined;
     if (type) {
       (type.effects ?? []).forEach((effect, index) => {
         if (effect.id !== undefined && item?.suppress?.includes(effect.id)) return;
@@ -1241,6 +1619,8 @@ export class Sheet {
           activation.source,
           activation.sourceId,
           `type.${effect.id ?? index}`,
+          activation.applied,
+          owner,
         );
       });
     }
@@ -1255,6 +1635,8 @@ export class Sheet {
         activation.source,
         activation.sourceId,
         effect.id ?? String(index),
+        activation.applied,
+        owner,
       );
     });
     if (activation.scope === 'applied') {
@@ -1300,6 +1682,14 @@ export class Sheet {
         `${activation.sourceId} grant`,
       );
       if (!granted) continue;
+      const where = `${activation.sourceId} grant`;
+      const { self, defaults } = this.grantedSelf(grant, pack, activation.roots, where, {
+        granted,
+        node: activation.node,
+      });
+      const presets = grant.choices
+        ? { tree: this.evaluatePresets(grant.choices, pack, activation.roots, where), pack }
+        : undefined;
       this.content(
         {
           ...activation,
@@ -1310,9 +1700,11 @@ export class Sheet {
           pack: granted.pack,
           roots: {
             ...activation.roots,
-            item: itemView(this.ruleset, granted, [], (n, p) => this.inputByName(n, p)),
-            self: this.grantedSelf(grant, pack, activation.roots, `${activation.sourceId} grant`),
+            item: this.contentView(granted),
+            self,
           },
+          presets,
+          grantDefaults: defaults,
           source: {
             type: 'item',
             id: granted.qid,
@@ -1348,7 +1740,14 @@ export class Sheet {
     );
     for (const { choice, pack, slot } of expanded) {
       const key = `${owner.keyPrefix ?? ''}${choice.id}`;
-      const picks = owner.tree[key] ?? [];
+      const saved = owner.tree[key] ?? [];
+      // A choice a grant presets has the grant's picks; saved picks of the same options hold
+      // what is nested under them.
+      const preset =
+        owner.presets && Object.hasOwn(owner.presets.tree, choice.id)
+          ? this.presetPicks(choice, owner.presets, saved, `${owner.sourceId} choice ${choice.id}`)
+          : undefined;
+      const picks = preset ? preset.map((p) => p.pick) : saved;
       const path: ChoicePath = { ...owner.path, choice: [...owner.path.choice, key] };
       const roots = slot ? { ...owner.roots, slot: slot.number } : owner.roots;
       const applicable = this.condition(
@@ -1365,10 +1764,20 @@ export class Sheet {
         applicable,
         roots,
         ...(slot ? { slot } : {}),
+        ...(preset ? { preset: true } : {}),
       };
       this.choices.push(record);
       if (!applicable) continue;
-      for (const pick of picks) {
+      for (const [at, pick] of picks.entries()) {
+        const nestedPresets = preset?.[at]?.nested;
+        const own = {
+          node: pick,
+          presets:
+            nestedPresets && owner.presets
+              ? { tree: nestedPresets, pack: owner.presets.pack }
+              : undefined,
+          grantDefaults: undefined,
+        };
         const pickRoot = { pick: { id: pick.option, value: pick.option } };
         (choice.effects ?? []).forEach((effect, index) => {
           this.instance(
@@ -1404,6 +1813,7 @@ export class Sheet {
               tree: nested,
               path: pickPath,
               keyPrefix: '',
+              ...own,
             },
             depth + 1,
           );
@@ -1424,7 +1834,7 @@ export class Sheet {
               pack: picked.pack,
               roots: {
                 ...owner.roots,
-                item: itemView(this.ruleset, picked, [], (n, p) => this.inputByName(n, p)),
+                item: this.contentView(picked),
                 // Content that declares state reads it from its pick, over the owner's copy.
                 ...(Object.keys(stateDecls(this.ruleset, picked, [])).length > 0
                   ? {
@@ -1444,7 +1854,9 @@ export class Sheet {
               tree: nested,
               path: pickPath,
               keyPrefix: '',
+              ...own,
             },
+
             depth + 1,
           );
         }
@@ -1459,7 +1871,13 @@ export class Sheet {
     source: Source,
     sourceId: string,
     key: string,
+    applied?: string,
+    owner?: Activation,
   ): void {
+    const own = {
+      ...(applied === undefined ? {} : { applied }),
+      ...(owner === undefined ? {} : { own: owner }),
+    };
     const target = effect.target;
     if (typeof target === 'object' && 'fields' in target) {
       // One instance per matching field, as if written with that field as its target. A field whose
@@ -1481,6 +1899,7 @@ export class Sheet {
           sourceId,
           optionId: `${sourceId}#${key}@${qid}`,
           order: this.order++,
+          ...own,
           ...(computed ? { match: where, matchPack: pack, ...(picked ? { picked } : {}) } : {}),
         });
       return;
@@ -1493,6 +1912,7 @@ export class Sheet {
       sourceId,
       optionId: `${sourceId}#${key}`,
       order: this.order++,
+      ...own,
     });
   }
 
@@ -1936,6 +2356,7 @@ export class Sheet {
           ...(max === undefined ? {} : { max }),
           picks: record.picks.map((pick) => pick.option),
           open: isOpen(record, min),
+          ...(record.preset ? { preset: true as const } : {}),
         };
       });
   }
@@ -2556,6 +2977,7 @@ export class Sheet {
         const value = this.evaluate(decl.formula, pack, {
           item: a.roots.item,
           self: { ...(a.roots.self as Record<string, unknown>), ...earlier },
+          [f.OWNER_PICKS]: a.roots[f.OWNER_PICKS],
         });
         const typed = computedValue(decl.type, value);
         if (typed) out[name] = typed;
@@ -2580,7 +3002,7 @@ export class Sheet {
     const keepers = new Map<string, Activation>();
     if (this.kept.size > 0)
       for (const k of this.keptWanted()) {
-        const key = `${k.entry.id} ${k.template}`;
+        const key = `${k.entry.id} ${k.kept.template}`;
         if (!keepers.has(key)) keepers.set(key, k.keeper);
       }
     return listed.map((a) => {
@@ -2613,7 +3035,10 @@ export class Sheet {
         ...(a.scope === 'applied' ? { scope: 'applied' as const } : {}),
         ...(at === undefined ? {} : { parent: at }),
         ...(keptBy === undefined ? {} : { keptBy }),
-        ...(a.kind === 'pick' ? { path: a.path } : {}),
+        ...(a.kind === 'pick' ||
+        (a.kind === 'grant' && a.scope === 'holder' && a.path.choice.length > 0)
+          ? { path: a.path }
+          : {}),
       };
     });
   }
@@ -2631,6 +3056,40 @@ export class Sheet {
     return out;
   }
 
+  /**
+   * Every item the character has with templates, as merged: each copy with a saved or kept
+   * template, then each content item without a copy that content keeps templates on.
+   */
+  templated(): TemplatedItem[] {
+    const out: TemplatedItem[] = [];
+    for (const a of this.activations) {
+      if ((a.kind !== 'feature' && a.kind !== 'inventory') || !a.entry || !a.item) continue;
+      const templates = this.templatesOf(a.entry);
+      if (templates.length === 0) continue;
+      const view = a.roots.item as Record<string, unknown>;
+      out.push({
+        entry: a.entry.id,
+        item: a.item.qid,
+        templates: [...templates],
+        ...mergedData(view),
+      });
+    }
+    const seen = new Set<string>();
+    for (const a of this.activations) {
+      if ((a.kind !== 'pick' && a.kind !== 'grant') || a.scope !== 'holder' || !a.item) continue;
+      const qid = a.item.qid;
+      const kept = this.keptContent.get(qid);
+      if (!kept?.length || seen.has(qid)) continue;
+      seen.add(qid);
+      out.push({
+        item: qid,
+        templates: kept.map((k) => k.template),
+        ...mergedData(this.contentView(a.item)),
+      });
+    }
+    return out;
+  }
+
   /** For each copy whose item (else content type) has `nameFrom`: the key's non-empty value. */
   copyNames(): Record<string, string> {
     const out: Record<string, string> = {};
@@ -2642,6 +3101,11 @@ export class Sheet {
       if (typeof value === 'string' && value.trim() !== '') out[a.entry.id] = value;
     }
     return out;
+  }
+
+  /** The rules' roots: `picksOf` reads the rules' own choices there. */
+  rulesRoots(): Record<string, unknown> {
+    return (this.activations[0] as Activation).roots;
   }
 
   /** A holder activation's roots, with `self` also holding its copy's computed values. */
@@ -2749,6 +3213,19 @@ export function roundNumber(x: number, mode: 'floor' | 'ceil' | 'round' | 'trunc
 }
 
 export { diceText, isContentOnly, localPart };
+
+/** An owner's saved picks by choice key (a slot's `<id>-<slot>`), as `picksOf` reads them. */
+function ownerPicks(
+  choices: readonly Choice[],
+  tree: ChoiceTree,
+  prefix: string,
+): Record<string, (string | number)[]> {
+  const out: Record<string, (string | number)[]> = {};
+  for (const declared of choices)
+    for (const { choice } of expandSlots(declared))
+      out[choice.id] = (tree[`${prefix}${choice.id}`] ?? []).map((p) => p.option);
+  return out;
+}
 
 function pickRoots(roots: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};

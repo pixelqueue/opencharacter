@@ -88,6 +88,7 @@ export interface RollModifier {
   at?: Formula;
   steps?: Formula;
   faces?: Formula[];
+  of?: 'die' | 'roll';
 }
 
 export type EffectTarget =
@@ -113,13 +114,9 @@ export interface OptionValue {
   flags?: Record<string, Formula>;
 }
 
-export interface ThenChange {
-  type: 'setState' | 'adjustState';
-  entry: 'self';
-  key: string;
-  value?: Formula;
-  by?: Formula;
-}
+export type ThenChange =
+  | { type: 'setState' | 'adjustState'; entry: 'self'; key: string; value?: Formula; by?: Formula }
+  | { type: 'removeEffect'; entry: 'self'; key?: undefined; value?: undefined; by?: undefined };
 
 /** The actor, another character the app picks, an action role, or a link slot's character. */
 export type Destination = string | { link: string };
@@ -202,13 +199,25 @@ export interface Grant {
   waivePrerequisites?: boolean;
   /** Values the granted content sees as `self.<key>`, each an activation formula. */
   state?: Record<string, Formula>;
+  /** Holder grants: picks made for the granted content's choices. */
+  choices?: PresetTree;
 }
+
+/** A grant's preset picks, keyed by bare choice IDs; an option is a literal or `{ formula }`. */
+export type PresetTree = Record<
+  string,
+  { option: string | number | { formula: Formula }; choices?: PresetTree }[]
+>;
 
 export interface KeptTemplate {
   template: string;
-  copies: Query;
+  /** Exactly one of `copies` and `content`. */
+  copies?: Query;
+  content?: Query;
   when?: Formula;
   scope?: 'holder' | 'applied';
+  /** Values for the template's `params`: activation formulas with the keeper's roots. */
+  params?: Record<string, Formula>;
 }
 
 export interface Reapply {
@@ -298,10 +307,21 @@ export type StepOptions =
   | StepOption[]
   | { content: { type: string; where?: Formula } }
   | { copies: { type: string; where?: Formula } }
+  | ValueSource
   | { pending: { entry?: Formula } };
+
+export interface ValueSource {
+  values: (string | number)[] | { formula: Formula };
+  where?: Formula;
+}
 
 export function writtenOptions(step: Step): StepOption[] {
   return Array.isArray(step.options) ? step.options : [];
+}
+
+/** The query a kept template is kept by, over copies' base items or over content. */
+export function keptQuery(kept: KeptTemplate): Query {
+  return (kept.copies ?? kept.content) as Query;
 }
 
 export function optionQuery(
@@ -312,6 +332,11 @@ export function optionQuery(
   if ('content' in options) return { source: 'content', ...options.content };
   if ('copies' in options) return { source: 'copies', ...options.copies };
   return undefined;
+}
+
+export function valueSource(step: Step): ValueSource | undefined {
+  const options = step.options;
+  return options && !Array.isArray(options) && 'values' in options ? options : undefined;
 }
 
 export function pendingSource(step: Step): { entry?: Formula } | undefined {
@@ -351,6 +376,8 @@ export interface ProposedChange {
   applied?: { where: Formula; limit?: number };
   picks?: { where: Formula; limit?: number };
   pick?: 'self';
+  grant?: 'self';
+  grants?: { where: Formula; limit?: number };
   id?: string;
   source?: Formula;
   active?: Formula;
@@ -415,6 +442,8 @@ export interface ContentItem {
   tags?: string[];
   removeTags?: string[];
   fields?: Record<string, Literal>;
+  /** Templates only: values its item fields read as `params.<name>`, given by a keeper. */
+  params?: Record<string, ValueDecl>;
   state?: Record<string, ValueDecl>;
   computed?: Record<string, ComputedDecl>;
   /** A string state key whose non-empty value names each copy, replacing the type's. */

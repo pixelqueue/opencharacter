@@ -29,6 +29,13 @@ effects:
     value: 0
     scope: applied
     duration: { amount: 1, unit: minute, concentration: true }
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    value: 0
+    when: incoming.amount < 0
+    scope: applied
+    then:
+      - { type: removeEffect, entry: self }
 grants:
   - { item: conditions.incapacitated, scope: applied }
 actions:

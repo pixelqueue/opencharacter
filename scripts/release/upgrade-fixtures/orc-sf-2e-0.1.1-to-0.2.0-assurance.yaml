@@ -1,0 +1,56 @@
+# A 0.1.1 2nd-level soldier whose skill feat Assurance saved its skill in the pick's state. 0.2.0
+# drops that state, since Assurance's skill is a pick now: the choice is pending.
+pack: orc-sf-2e
+from: 0.1.1
+to: 0.2.0
+expect:
+  - at: /features/2/choices/skill-feat-2/0
+    value: { option: orc-sf-2e:feats.skill.assurance }
+values:
+  orc-sf-2e:assurance.skills: []
+pending:
+  - { entry: class, choice: [skill-feat-2, orc-sf-2e:feats.skill.assurance, skill] }
+character:
+  specVersion: 0.1.0
+  id: upgrade-orc-sf-2e-assurance
+  values:
+    orc-sf-2e:level: 2
+    orc-sf-2e:hp.current: 30
+  features:
+    - id: ancestry
+      item: orc-sf-2e:ancestries.skittermander
+      choices:
+        heritage:
+          - option: orc-sf-2e:heritages.scrabbler-skittermander
+        boosts:
+          - option: standard
+            choices:
+              free:
+                - option: orc-sf-2e:boosts.dex
+    - id: background
+      item: orc-sf-2e:backgrounds.trooper
+      choices:
+        boost:
+          - option: orc-sf-2e:boosts.con
+        free-boost:
+          - option: orc-sf-2e:boosts.str
+    - id: class
+      item: orc-sf-2e:classes.soldier
+      choices:
+        fighting-style:
+          - option: orc-sf-2e:features.soldier.style.bombard
+        skills:
+          - option: skill.survival
+          - option: skill.piloting
+          - option: skill.medicine
+        class-feat-1:
+          - option: orc-sf-2e:feats.soldier.pin-down
+        skill-feat-2:
+          - option: orc-sf-2e:feats.skill.assurance
+            state: { skill: skill.athletics }
+  choices:
+    free-boosts:
+      - option: orc-sf-2e:boosts.str
+      - option: orc-sf-2e:boosts.dex
+      - option: orc-sf-2e:boosts.con
+      - option: orc-sf-2e:boosts.wis

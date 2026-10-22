@@ -109,6 +109,7 @@ A content item ([`content-item.schema.json`](../schemas/content-item.schema.json
 | `reapply`        | `{ match?, state }`: what applying the item again does, replacing its type's (below)                                                                                             |
 | `appliesTo`      | Templates only                                                                                                                                                                   |
 | `removeTags`     | Templates only: tags the copy's item doesn't have ([below](#templates))                                                                                                          |
+| `params`         | Templates only: values its item fields read as `params.<name>`, given by the content keeping it ([below](#from-the-keeper))                                                      |
 | `keepsTemplates` | Templates kept on the character's copies while the item is active ([below](#kept-templates))                                                                                     |
 | `keepsFields`    | Item fields the templates it keeps leave alone ([below](#kept-templates))                                                                                                        |
 | `repeatable`     | `true`: exempt from exclusivity groups, so several choices of one can pick it ([below](#exclusive-choices))                                                                      |
@@ -167,7 +168,85 @@ grants:
 ```
 
 The granted content's `self` keeps the entry's `id` and its other keys; its effects, actions
-and nested grants see the values, and nothing is saved.
+and nested grants see the values. For an applied grant nothing is saved; a holder grant's values
+are the defaults of its saved state (below).
+
+**Granted content's saved state**. Content a holder grant makes active keeps
+state of its own, as a pick does: an artifact's gift whose Effort stays committed, an art that is
+on or off. It is kept on the node whose choice tree holds the granted content's picks: the copy
+(content its item or templates grant), or the pick (content picked content or an inline option
+grants), in that node's `grants`, by the granted content's qualified ID
+([characters.md](characters.md#granted-contents-state)). Content granted by granted content
+keeps it on the same node.
+
+- **Reading:** granted content that declares state (its type's or its own) reads `self.<key>` from
+  its saved value, else the grant's `state` value, else the declared default, over the owner's
+  copy; its other keys stay the copy's.
+- **Changing:** `setState` and `adjustState` name it with `grant`, its qualified ID, beside the
+  node: `entry` for a copy, or the pick's `path` and `option`; `grant: self` in its own action
+  ([dice-and-actions.md](dice-and-actions.md#actions)); or every granted
+  content by query, `grants: { where }` ([engine-core.md](engine-core.md#applychanges)). A value
+  equal to the key's default (the grant's `state` value, else the declared one) is dropped.
+- **One node, one item:** the same item granted twice on one node shares its saved state, as it
+  shares its picks.
+- **A grant that is off:** its saved state is kept and unread, so a wielded artifact's gifts
+  keep their state while it is stowed; `setState` on it is `not-granted`.
+
+```yaml
+# An artifact's gift keeps its own committed Effort.
+contentTypes:
+  gift:
+    state:
+      committed: { type: integer, default: 0, min: 0 }
+    actions:
+      - id: invoke
+        steps:
+          - id: commit
+            kind: changes
+            to: self
+            changes: [{ type: adjustState, grant: self, key: committed, by: 1 }]
+# content/artifacts/sun-blade.yaml
+grants:
+  - { item: gifts.flame-ward, when: self.equipped }
+# The character file
+inventory:
+  - id: blade
+    item: my-pack:artifacts.sun-blade
+    equipped: true
+    grants:
+      my-pack:gifts.flame-ward: { state: { committed: 1 } }
+```
+
+**A grant's preset choices**. A holder grant may say `choices`: picks it makes
+for the granted content's own choices, as `addItem`'s `entry.choices` does for a copy. Keys are
+the granted item's choice IDs (a slot's key for a slotted choice); each pick's `option` is a
+literal or `{ formula }`, evaluated as the grant's `when` is, to a content ID (qualified in the
+grant's pack, as `item` is), an inline option ID or a value; a pick's own `choices` preset the
+picked option's choices in turn. So content gives a feat for a skill it names, or the skill the
+player chose for it:
+
+```yaml
+# Assurance in Athletics, and the Additional Lore feat for piloting
+grants:
+  - { item: feats.skill.assurance, choices: { skill: [{ option: skill.athletics }] } }
+  - { item: feats.skill.additional-lore, choices: { lore: [{ option: piloting }] } }
+  - item: feats.skill.assurance
+    when: "witchwarper.memorySkill != ''"
+    choices: { skill: [{ option: { formula: witchwarper.memorySkill } }] }
+```
+
+- **Answered:** a preset choice's picks are the grant's, so it is never pending; computeSheet
+  lists it with `preset: true`, and `choose` and `unchoose` on it are `preset-choice`. Saved picks
+  under its key are not its picks. The preset picks are checked as saved ones are (eligibility,
+  counts).
+- **What is nested:** a preset option's own choices that the grant doesn't preset are asked as
+  usual. Their picks, and the preset pick's state, live in a saved pick of the same option, which
+  `choose` and `setState` add when they need one.
+- **Failing:** an option formula that fails, or gives neither a string nor a number, leaves its
+  pick out with a `formula-error`; a content ID that names no content, with `unknown-id`. With a
+  literal `item`, a choice it doesn't declare or a literal option it doesn't offer is
+  `unknown-reference` at load, as is `choices` on a `scope: applied` grant: applied content has
+  no choices.
 
 **A grant's item from a formula**. A grant's `item` may be `{ formula }`: a
 string formula evaluated as the grant's `when` is (an activation condition: `self`, `item` and
@@ -367,7 +446,8 @@ contentTypes:
 - **Evaluating:** after every field, for each copy (`features`, then `inventory`, in file order).
   The formula sees `item` (the copy's item with its templates), `self` (the copy, with the
   computed values declared before it), every field, `character`, `links` and the
-  character functions. It resolves names in the pack that declared it.
+  character functions, `picksOf` reading the copy's item's choices (a CWN spirit's Effort is
+  `max(1, size(picksOf('powers')) - 1)`). It resolves names in the pack that declared it.
 - **Reading:** `self.<name>`, in the copy's own actions (including those it reaches through
   `use`, and their `available`) and its follow-ups, and in the copy's later computed values:
   a computed value reads those declared **before** it, in declaration order (the
@@ -445,7 +525,8 @@ fields: { damageType: radiant, rarity: rare, requiresAttunement: true, attackBon
 
 ### Kept templates
 
-A content item may keep templates on the character's copies while it is active:
+A content item may keep templates on the character's copies while it is active (or on content
+without a copy, [below](#on-content-without-a-copy)):
 
 ```yaml
 # packs/orc/2e/content/features/monk/powerful-fist.yaml: the fist deals 1d6
@@ -455,10 +536,13 @@ keepsTemplates:
 ```
 
 - `template` names a template (`unknown-reference` at load otherwise). `copies` is a query over
-  the copy's base item, read only `item` (resolved by `loadRuleset`, as a standard copies query;
-  `formula-error`, cause `unknown-name`, otherwise). `when` is an optional activation condition,
-  and `scope` says whether the item keeps it while held (`holder`, the default) or while it is
-  the source of an active, unblocked `applied` entry (`applied`), as grants say.
+  the copy's base item. One that reads only `item` is resolved by `loadRuleset`, as a standard
+  copies query; one that reads the keeper too is an activation condition
+  ([below](#from-the-keeper)), and reading anything else (a derived field) is `formula-error`,
+  cause `unknown-name`. `when` is an optional activation condition, `params` gives the
+  template's params ([below](#from-the-keeper)), and `scope` says whether the item keeps it
+  while held (`holder`, the default) or while it is the source of an active, unblocked
+  `applied` entry (`applied`), as grants say.
 - Every copy (`features` and `inventory`, standard copies included) whose base item the query
   matches keeps the template, after its saved templates, unless the template's `appliesTo`
   doesn't match the item (then it isn't kept; no error). Kept templates follow in instance order
@@ -485,6 +569,101 @@ keepsTemplates:
     copies: { type: weapon, where: 'item.id == @weapons.specific.sky-hammer' }
 ```
 
+#### On content without a copy
+
+A kept template may reach content the character has without a copy of its own: content picked
+in a choice or granted, such as a spell known. In place of `copies`, the entry gives `content`,
+a query of the same kind, read the same way; an entry has one of the two.
+So a feature changes another item's fields, here a cantrip's range:
+
+```yaml
+# Potent Spellcasting: a Druid cantrip with a range of 10 feet or more reaches 300 feet farther.
+keepsTemplates:
+  - template: templates.potent-range
+    content:
+      {
+        type: spell,
+        where: 'item.level == 0 && item.range >= 10 && @classes.druid in item.classes',
+      }
+---
+id: templates.potent-range
+type: template
+appliesTo: { type: spell }
+fields: { range: 'prior.range + 300' }
+```
+
+- **Which content.** Every holder activation reached by a pick or a grant (at any depth, under
+  a copy or the rules) whose item the query matches and the template's `appliesTo` admits keeps
+  it, while the keeping item is active and its `when` holds. The templates are kept by item: two
+  activations of one spell have the same templates, in instance order of the content keeping
+  them, each once. Copies, applied entries and the content applied entries grant are not
+  reached.
+- **What it changes.** The item only: its fields (with `base`, `prior` and `null` as on a copy)
+  and its tags (`tags` and `removeTags`), merged into the content's `item` wherever that
+  activation reads it: its effects, grants, choices, prerequisites, actions (their `available`
+  and steps, a roll's `roll.item`) and follow-ups. The keeper's `keepsFields` apply too. The
+  template isn't an activation of its own, so it is not in `activations`. Queries over items
+  (a choice's `from`, a grant's `{ query }`, listOptions' options) still see the base item.
+- **Fields and tags only.** With no copy there is no state to hold, nothing for actions or
+  choices to belong to. A template kept by `content` may give fields, tags and `removeTags`
+  (with `appliesTo`); giving state, computed values, effects, actions, follow-ups, choices,
+  grants, immunities, prerequisites or the other copy properties is the load error
+  `template-without-copy`.
+- **Shown.** computeSheet's `templated` lists each such item as merged, after the copies with
+  templates ([engine-core.md](engine-core.md#merged-items)), so an app's card shows the far
+  range.
+
+#### From the keeper
+
+A kept template may depend on the content keeping it: which items it goes on, through what the
+keeper picked, and how much it gives, through the keeper's values. Eldritch Spear (5E) takes one
+known Warlock cantrip and adds 30 feet of range per Warlock level to it:
+
+```yaml
+# The invocation, picked under the Warlock: its `cantrip` choice names a cantrip known elsewhere.
+id: invocations.eldritch-spear
+type: invocation
+repeatable: true
+choices:
+  - { id: cantrip, from: { type: spell, where: 'item.level == 0' }, activate: false }
+keepsTemplates:
+  - template: templates.eldritch-spear
+    content: { type: spell, where: "item.id in picksOf('cantrip')" }
+    params: { feet: 30 * self.level }
+---
+id: templates.eldritch-spear
+type: template
+appliesTo: { type: spell }
+params:
+  feet: { type: integer, default: 0 }
+fields: { range: 'prior.range + params.feet' }
+```
+
+- **Which items.** A `copies` or `content` query whose `where` reads more than `item` is an
+  activation condition of the keeper, evaluated for each candidate in the rounds that find kept
+  templates: `item` is the candidate's base item, and `self`, `picksOf`, `character`, input
+  fields and the character functions are the keeper's, as in its `when`. So a keeper keeps a
+  template on what its own choice picked (`item.id in picksOf('cantrip')`), whether or not the
+  choice activates the pick. It can't read derived fields, as no activation condition can.
+- **How much.** A template declares `params` (`{ <name>: valueDecl }`, templates only), and its
+  item field values read them as `params.<name>`. A `keepsTemplates` entry gives them, `params:
+  { <name>: <formula> }`, each formula of the param's type evaluated as an activation condition
+  with the keeper's roots: its `self` (a picked invocation's is the Warlock copy, so
+  `self.level` is the Warlock level), its `item`, `picksOf`, input fields and the character
+  functions. A name the template doesn't declare is `formula-error`, cause `unknown-name`, at
+  load. A param not given, and every param of a saved template, is its declared `default` (a
+  literal), else absent.
+- **Free of loops.** A param reads what an activation condition reads, never a derived field,
+  so the merged item stays what item field values are: fixed before any effect. A template's
+  field that needs a derived value has the keeper's effects target a character field instead.
+- **Each keeper its own.** Each activation of the keeper evaluates its own query and params,
+  so two Eldritch Spears on two cantrips keep the template on each with its own range. A copy
+  or item keeps a template once: when two keepers keep the same template on it, the first in
+  activation order gives the params, and its fields apply once. Two features that stack give
+  two templates, each building on `prior`.
+- **Shown.** The template's fields are merged with the params, so `templated`
+  ([engine-core.md](engine-core.md#merged-items)) shows the cantrip's range for this character.
+
 ## Queries
 
 A **query** ([`query.schema.json`](../schemas/query.schema.json)) is a link to a set of things written as a rule rather than a list: `{ type, where }`. `type` is a content type name, `field` or `template`. `where` is a condition evaluated with the candidate bound to `item`.
@@ -492,7 +671,35 @@ A **query** ([`query.schema.json`](../schemas/query.schema.json)) is a link to a
 - A query that refers only to `item` is resolved once by `loadRuleset`, after all packs are merged. This is how matching homebrew joins automatically.
 - A query that refers to the character (fields, `self`, `character`) is evaluated during `computeSheet` and `listOptions`.
 
-Queries appear in choices (`from`), templates (`appliesTo`), grant values (`{ query }`), immunities (`immuneTo`), standard copies (`standardCopies`) and display groups (`members`).
+Queries appear in choices (`from`), templates (`appliesTo`), grant values (`{ query }`), immunities (`immuneTo`), standard copies (`standardCopies`), kept templates (`copies`, `content`) and display groups (`members`).
+
+### Families of content
+
+A family of content is a tag plus a set field granted from a query. Tag every member, declare a
+`set` field, and grant the query's matches to it from the rules; a formula then tests
+membership with `in`. orc-sf-2e's solar weapon forms are templates tagged `solar-form`:
+
+```yaml
+# packs/orc/sf-2e/rules/solarian.yaml
+fields:
+  solarian.forms: { type: set, of: string }
+effects:
+  - target: solarian.forms
+    op: grant
+    value: { query: { type: template, where: "'solar-form' in item.tags" } }
+---
+# content/features/solarian/re-forge-solar-weapon.yaml: a change taking the weapon's old forms off
+- type: removeTemplate
+  forEach: 'filterList(steps.weapon.self.templates, x in solarian.forms)'
+  entry: { formula: steps.weapon.picked }
+  template: x
+```
+
+Prefer it to reading meaning out of IDs (a prefix such as `orc-sf-2e:templates.solar.`). IDs
+are qualified, so a prefix names one pack and misses homebrew, and an upgrade's
+`renameContent` breaks it. The query reads only `item`, so it is resolved at load, after every
+pack is merged: a homebrew template tagged `solar-form` joins the family with no change to the
+pack.
 
 ### Standard copies
 
@@ -734,6 +941,29 @@ A choice of inline options has no `eligible` (a schema error): its options have 
 A pick another source also gives (an acolyte cleric's class skill Insight) passes such a
 condition, being the choice's own pick; the rules issue is the app's to raise, if the game wants it.
 
+### Reading other choices' picks
+
+Any formula of an owner reads the saved picks of the owner's choices with
+[`picksOf('<choice>')`](formulas.md#picks-of-the-owners-choices): a list of content IDs or
+values, in saved order. A choice's `recommend`, `eligible` and `where` can depend on a sibling
+choice's picks, and a copy's computed values, effects, actions and follow-ups can count its own:
+
+```yaml
+# packs/5e/srd-5.2/content/backgrounds/acolyte.yaml: the +1 recommends the best ability the +2
+# hasn't taken; `unique` already keeps the two apart.
+- id: plus-one
+  unique: acolyte-increase
+  uniqueScope: owner
+  from: { values: [int, wis, cha] }
+  recommend: >-
+    sortList(filterList(['int', 'wis', 'cha'], !(x in picksOf('plus-two'))),
+      -fieldOf('abilities.{ability}.base', x))[0]
+```
+
+The siblings are the choices of the same owner: the item's, or an inline option's (here
+`two-and-one`'s). Picks are saved input, so two choices may read each other without a loop; each
+sees the other's picks, not its recommendation.
+
 ### Where picks are kept
 
 Picks for a copy's choices live in its entry's `choices` tree:
@@ -743,5 +973,7 @@ Picks for a copy's choices live in its entry's `choices` tree:
   `<qualified owner id>/<choice id>`, so they can't collide.
 - **Nested picks:** a picked option's own choices nest under the pick, where their owner is
   unambiguous.
+- **Granted content's state** is kept beside its picks: in the entry's, or the pick's, `grants`
+  ([above](#when-content-is-active)).
 
 Choice paths in changes and `listOptions` use the same keys.

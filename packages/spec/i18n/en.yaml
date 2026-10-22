@@ -29,6 +29,8 @@ errors.template-not-applicable: 'This template cannot be applied to that item.'
 errors.unknown-choice: 'There is no such choice.'
 errors.invalid-option: '"{option}" is not an option for this choice.'
 errors.not-picked: '"{option}" is not picked.'
+errors.not-granted: '"{grant}" is not granted there.'
+errors.preset-choice: 'This choice is made by what grants it.'
 errors.pack-version-mismatch: 'The character uses {pack} {expected}, but the ruleset has {actual}.'
 errors.unknown-link: 'There is no link "{link}" in this ruleset.'
 errors.homebrew-error: "The character's homebrew could not be loaded ({cause})."
@@ -83,7 +85,8 @@ errors.no-such-key: 'A formula refers to "{key}", which is not there.'
 errors.index-out-of-range: 'A formula refers to a list position that does not exist.'
 errors.invalid-face: 'A die face does not fit the die.'
 errors.unknown-tag: '"{tag}" is not a tag this game declares.'
-errors.then-without-copy: 'An effect changes its own copy, but nothing gives it a copy.'
+errors.then-without-copy: 'An effect changes its own entry, but nothing gives it one.'
+errors.template-without-copy: 'A template is kept on content without a copy, but gives more than fields and tags.'
 issues.already-picked: 'This option is already picked elsewhere.'
 issues.out-of-limits: 'This value is past its limit ({bound}).'
 issues.too-many-copies: 'Too many of these are held (at most {limit}).'
@@ -106,13 +109,16 @@ compare.eq: 'exactly {value}'
 # Fate dice, `dice.fate`; each dice modifier (data/dice-modifiers.json) is `dice.<modifier>` with
 # `count` (keep, drop), `target` (minimum, maximum) or `faces` (the faces it matches, as
 # `compare.<code>` text or the face itself), added with `dice.modified`; items are joined with
-# `dice.plus` and `dice.minus`, and a subtracted first item is `dice.negative`.
+# `dice.plus` and `dice.minus`, and a subtracted first item is `dice.negative`. A roll made more
+# than once (a dice pause's `repeat`) is `dice.repeat`: `dice` (the roll's words), `times` and
+# `keep` (`high` or `low`).
 dice.dice: '{count}d{sides}'
 dice.fate: '{count}dF'
 dice.modified: '{dice}, {modifier}'
 dice.plus: '{first} + {second}'
 dice.minus: '{first} - {second}'
 dice.negative: '-{dice}'
+dice.repeat: '{dice}, rolled {times, plural, =2 {twice} other {# times}}, keep the {keep, select, high {{times, plural, =2 {higher} other {highest}}} other {{times, plural, =2 {lower} other {lowest}}}} total'
 dice.keepHighest: '{count, plural, =1 {keep highest} other {keep highest #}}'
 dice.keepLowest: '{count, plural, =1 {keep lowest} other {keep lowest #}}'
 dice.dropHighest: '{count, plural, =1 {drop highest} other {drop highest #}}'

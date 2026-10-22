@@ -9,16 +9,17 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Aggregate:** a formula macro that counts, sums or takes the highest or lowest of something over the character's copies (`countCopies`), the ruleset's fields (`countFields`) or a list (`countList`), with a root (`copy`, `f`, `x`) bound to each element.
 - **Allocate step:** an action step that spends a budget across fields (FitD's creation dots, 5E point buy) or hands out a list of values, one per field (the standard array); a checkpoint answered with amounts.
 - **App:** the program using the engine; it owns the experience (dice presentation, time, choices, storage, display).
-- **Applied effect:** an entry in the character's `applied` list that turns on the effects of content the character doesn't own (Bless from an ally); the app toggles it.
+- **Applied effect:** an entry in the character's `applied` list that turns on the effects of content the character doesn't own (Bless from an ally); the app toggles it, and its own incoming-change effect's `then` can end it (oil that burns away).
 - **Breakdown:** the list of effects that changed a field's value, in order, returned by computeSheet ("showing the work").
+- **Breaking bump:** a pack version bump that may change saved state or the pack's interface: the minor version while 0.x (0.1.4 → 0.2.0), the major version from 1.0.0 (1.4.2 → 2.0.0). Shape and interface changes need one.
 - **Change:** one edit to a character, from the fixed set of change types, applied by applyChanges.
 - **Change type:** one of the fixed kinds of change (set, adjust, addItem, equip, choose, …).
-- **Character file:** the standard interchange file holding a character's base state and pinned pack versions.
+- **Character file:** the standard interchange file holding a character's base state and pinned pack versions; its `id` is a UUID or a URL, up to 2048 characters.
 - **Checkpoint:** a roll, choice or allocate step in an action, where the engine either continues by itself or pauses. A roll with no dice isn't one.
 - **Checkpoint policy:** the app's rules for which checkpoints continue automatically and which pause.
 - **Choice:** a decision declared in content or rules: options, how many to pick, and when it applies. A value choice's options may come from a formula and be filtered by `where` (`value`); a content choice with `activate: false` picks references, not active content.
 - **Choice path:** the address of a choice: an optional entry, then alternating choice IDs and picked options.
-- **Competing options:** several active `set` effects on one field; the engine reports them and the recommended one, and the app picks.
+- **Competing options:** several active `set` effects on one field, or the effects of a `playerChooses` stacking group; the engine reports them and the recommended one, and the app picks.
 - **Computed value:** a value worked out for each copy of an item from the character (a FitD cohort's quality), declared by its content type, item or templates, never saved; computeSheet returns it in `copies` and the copy's actions and follow-ups read it as `self.<name>`.
 - **Condition:** a formula that must evaluate to true or false (`when`, `showWhen`, `where`, prerequisites).
 - **Constraint:** a game rule in the rules data, checked against the current character, whose failure is a rules issue.
@@ -35,10 +36,10 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Dice modifier:** one of the fixed set of notation modifiers (keep, drop, explode, reroll, count successes, …).
 - **Display hint:** optional presentation data (groups, priority, format, unit, `showWhen`, hidden) that never affects calculations. A display group holds fields, actions or content.
 - **Effect:** a change active content makes to a field, a roll or an incoming change, with an operation, value and condition.
-- **Effect operation:** one of the fixed set: add, set, multiply, atLeast, atMost, grant, rollModifier.
+- **Effect operation:** one of the fixed set: add, set, multiply, atLeast, atMost, grant, rollModifier, and, for tagged action steps, option (an extra choice option) and changes (extra proposed changes).
 - **Effect scope:** whether an effect applies to a character who has the content (`holder`) or one it is applied to (`applied`).
 - **Engine:** an implementation of the spec's calls; the TypeScript one is the reference engine, others are ports.
-- **Entry (copy):** the character's copy of a content item: base item, templates, equipped flag, quantity, state, picks.
+- **Entry (copy):** the character's copy of a content item: base item, templates, equipped flag, quantity, state, picks, and the state of content it grants.
 - **Ephemeral offer:** a follow-up (`on`, `becomes`) that a batch fired, stored in the character file until it is acted on or dismissed (a `becomes` one also until its condition is false): a concentration check after damage.
 - **Exclusivity group:** choices sharing a `unique` key; an option picked in one is ineligible (`already-picked`) in the others.
 - **Extends:** a pack author's permanent variant of an item, inheriting everything and overriding parts.
@@ -48,30 +49,33 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Fixed set:** a list of values defined by the spec and versioned with it (operations, modifiers, codes), published as data.
 - **Follow-up:** what the rules call for on a character: a derived offer (`while`) or an ephemeral one (`on`, an adjustment, with `once` the batch's matching adjustments summed; `becomes`, a condition becoming true), with an action to run, changes to apply or (a derived one) a linked character to make. computeSheet lists them in `offers`; the engine never runs or applies one.
 - **Formula:** an expression in OCF's CEL-like language with dice notation; safe, finite and deterministic.
-- **Handoff:** an action step (`as: participant`) run on a participant's own character by the app, which answers the paused action with that run's outcome.
 - **Grant:** an effect operation that adds a member (proficiency, tag, action) to a set field; also an item's `grants` list making other content active.
+- **Handoff:** an action step (`as: participant`) run on a participant's own character by the app, which answers the paused action with that run's outcome.
+- **Homebrew:** a character's own content and rules additions, saved in its file and loaded on top of its pinned packs as the pack `homebrew` (`homebrew:<id>`); it may add, never override, and upgrades rewrite it with the saved state.
 - **I18n key:** the permanent key under which player-facing text is looked up in translation files.
 - **Immunity:** applied content a character can't be affected by, declared by content or the rules (`immuneTo`); a matching `applied` entry is blocked and reported as the rules issue `immune`. A query can read the candidate entry as `entry`, and any activation condition the raw `character.applied` list.
 - **Incoming change:** a change about to be applied to a character (damage), which effects can modify first (resistance).
 - **Inline option:** an option defined inside a choice rather than as separate content.
 - **Input field:** a field whose value the player supplies and the character file saves.
+- **Interface change:** a difference between two pack releases that can break a character's homebrew (a removed derived field, content type, item field, enum value, tag or rules action); it needs a breaking bump but no upgrade script.
 - **Item field:** a typed property declared by a content type and set on each item (damage, weight).
 - **Limits:** bounds on a field's final value, after effects; a value outside them is the rules issue `out-of-limits`.
-- **Link slot:** a named place in the rules for another character (a scoundrel's crew), saved in the character file and read by formulas as `links.<slot>`, a view.
+- **Link slot:** a named place in the rules for another character (a scoundrel's crew), saved in the character file as that character's `id` (up to 2048 characters, so a URL works) and read by formulas as `links.<slot>`, a view.
 - **Load order:** the order the app passes packs to loadRuleset; dependencies first, later packs win.
 - **Monster / NPC:** a character file like any other, usually with mostly fixed values.
 - **Nested choice:** a choice inside an option, pending as soon as that option is picked.
 - **Overflow:** what happens when an adjust takes an input field past a bound: another field is adjusted and this one resets (FitD stress into trauma).
-- **Participant:** another character taking part in an action in one of its declared roles (a target, a helper), passed to `startAction` as a view and read as `participants.<role>`.
 - **Override:** a homebrew content file that changes only the properties it mentions on another pack's item.
 - **Pack:** a versioned bundle of rules and/or content with a manifest, license and translations.
 - **Pack release:** the single JSON document the build produces from a pack's files; the input to loadRuleset.
+- **Participant:** another character taking part in an action in one of its declared roles (a target, a helper), passed to `startAction` as a view and read as `participants.<role>`.
 - **Paused action:** an action waiting at a checkpoint, returned as plain data so it can be continued later anywhere.
 - **Pending choice:** a choice that applies and still needs picks. A choice step over `{ pending }` asks them one pick at a time.
-- **Per-copy state:** values tracked on a character's copy of an item (charges, shots, level), declared by its type, item or templates.
-- **Pick:** one selected option in a choice, stored in the character's choices tree with its own nested picks.
+- **Per-copy state:** values tracked on a character's copy of an item (charges, shots, level), declared by its type, item or templates. Picks and granted content keep state of their own the same way.
+- **Pick:** one selected option in a choice, stored in the character's choices tree with its own nested picks, its `state` (a once-a-day feat's `used`) and the saved state of content it grants (`grants`).
 - **Pool dice:** dice an effect adds to a roll's dice part (`poolDice`) before keep and drop, each recording its source.
 - **Prerequisite:** a condition for having content; a false one is a rules issue.
+- **Preset choice:** a choice of granted content that the grant answers (`choices`); never pending, and `choose` and `unchoose` refuse it (`preset-choice`).
 - **Priority:** a display hint ordering groups and fields; whole numbers, 0 highest.
 - **Proposed change:** a change an action returns for the app to apply, to the acting character, a target or a linked character.
 - **Proposed sheet:** the character with the changes an action has proposed so far `to: self` applied, which a step with `sheet: proposed` reads; built afresh in each call, never stored.
@@ -84,10 +88,11 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Ruleset:** the output of loadRuleset: all packs merged and resolved, passed to every other call.
 - **Runtime error:** a change rejected because the result wouldn't be a valid character file; the character is unchanged.
 - **Safety limit:** a spec-defined cap (exploding dice, nesting depth, action steps) protecting engines from untrusted packs.
+- **Shape change:** a difference between two pack releases that changes what saved state means (removed content, field, state key, choice or option; a new required choice); it needs a breaking bump and an upgrade script that covers it.
 - **Shape error:** input that doesn't match the spec's JSON Schema, rejected before running.
 - **Situational choice:** a roll-time choice declared in game data (advantage, cover, push yourself), or a choice the receiving player makes on one incoming change (Uncanny Dodge).
 - **Source:** where a value, roll item or issue came from (field, item, entry, template, effect, situational, rules, step, app).
-- **Spec version:** the version of the OCF formats and behavior; packs declare the minimum they need.
+- **Spec version:** the version of the OCF formats and behavior, which is the `@opencharacter/spec` package version; packs declare the minimum they need, and an engine lists the major.minor versions it implements (`IMPLEMENTS_SPEC`).
 - **Split (typed damage):** a proposed adjust split into one change per tag group of a roll's items, so resistances apply per damage type.
 - **Stacking key:** a label on an effect grouping it with others for the stacking policy; `source` means the effect's content item.
 - **Stacking policy:** how effects sharing a stacking key combine: addAll, highestOnly, lowestOnly, playerChooses.
@@ -95,10 +100,11 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Strict mode:** an applyChanges option that turns rules issues into a runtime error.
 - **Tag:** a dotted label on content, fields or rolls (`damage.fire`); matches itself and every tag below it.
 - **Tag vocabulary:** the tags a pack declares in its rules' `tags`; every tag the pack uses must be declared there or by a dependency.
-- **Template:** content applied on top of a character's copy of an item during play (+1 weapon, Flame Tongue).
+- **Template:** content applied on top of a character's copy of an item during play (+1 weapon, Flame Tongue). Content may also keep one on copies, or on picked or granted content's item (a feature lengthening a spell's range), while it is active.
 - **Template field:** an item field every template may set, declared once in the rules (`templateFields`): a magic weapon's rarity, attunement and bonuses. A copy's `item` merges its templates' values over the base item's.
 - **Test suite:** plain-data cases (inputs, die faces, expected outputs) every engine runs to prove conformance.
 - **Upgrade script:** data shipped with a pack version that moves saved characters from the previous version's state shape.
+- **Upgrade step:** one operation of an upgrade script, from a fixed set (renameContent, removeChoice, moveState, requireChoice, …), applied to saved state and the character's homebrew.
 - **View:** another character as values: its `id` and computed values for the fields the rules declare, passed in by the app; the engine never computes the other character.
-- **What-changed report:** the upgrade call's comparison of a character computed under the old and new pack versions.
+- **What-changed report:** the upgrade call's report: the values that differ between the character computed under the old and new pack versions, the steps that changed it, the places in its homebrew they rewrote, and the errors left to fix.
 - **Zero-based die:** `dNz`, with faces 0 to N − 1 (`1d100z` reads 00–99).

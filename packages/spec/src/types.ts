@@ -88,7 +88,7 @@ export type RollPart = {
   multiplied?: false;
 };
 
-/** A choice checkpoint (hit or miss, use a reaction, push the roll, which class regains a hit die). Its options come from one source: a written list, the ruleset's content of a type (`{ content }`), the character's copies of a type (`{ copies }`), or the choices pending on the proposed sheet (`{ pending }`). Active content adds options to a step with `tags` through `option` effects; an added option's ID is `<content id>#<option id>`. Result: `steps.<id>.picked`, the option ID (with `repeat`, the list of picked IDs); for content and copies without `repeat`, also `steps.<id>.item` (and `.self` for copies). */
+/** A choice checkpoint (hit or miss, use a reaction, push the roll, which class regains a hit die). Its options come from one source: a written list, the ruleset's content of a type (`{ content }`), the character's copies of a type (`{ copies }`), a list of values (`{ values }`), or the choices pending on the proposed sheet (`{ pending }`). Active content adds options to a step with `tags` through `option` effects; an added option's ID is `<content id>#<option id>`. Result: `steps.<id>.picked`, the option ID (with `repeat`, the list of picked IDs); for content and copies without `repeat`, also `steps.<id>.item` (and `.self` for copies); for values without `repeat`, `steps.<id>.value`. */
 export type ChoiceStep = {
   /** Step ID, unique within the action. Identifier-safe because formulas read results as `steps.<id>`. */
   id: Name;
@@ -99,7 +99,7 @@ export type ChoiceStep = {
   each?: Name;
   /** Tags of the step; entries may be formulas. `option` effects aimed at `{ choices: [<tag>] }` add options to a step carrying a matching tag, and policy rules match it by tag. The step's evaluated tags are `action.step.tags`. */
   tags?: TagList;
-  /** Where the options come from: exactly one source. A written list offers the options whose `when` holds (option ID: the written `id`; name: `<actionKey>.options.<id>.name`). `{ content }` offers the ruleset's content of a type, in content order (option ID: the qualified content ID; name: the item's name). `{ copies }` offers the character's copies of a type, inventory then features (option ID: the instance ID; name: the copy's item name). `{ pending }` asks the choices still pending on the proposed sheet, one pick at a time (option ID: the option as `listOptions` names it; name: the choice's own text). On a step with `tags`, matching `option` effects add options after these. */
+  /** Where the options come from: exactly one source. A written list offers the options whose `when` holds (option ID: the written `id`; name: `<actionKey>.options.<id>.name`). `{ content }` offers the ruleset's content of a type, in content order (option ID: the qualified content ID; name: the item's name). `{ copies }` offers the character's copies of a type, inventory then features (option ID: the instance ID; name: the copy's item name). `{ values }` offers plain values, written out or from a list formula (option ID: the value as a string; name: `<actionKey>.options.<value>.name` when the pack has it, else the app names it). `{ pending }` asks the choices still pending on the proposed sheet, one pick at a time (option ID: the option as `listOptions` names it; name: the choice's own text). On a step with `tags`, matching `option` effects add options after these. */
   options:
     | {
         id: Slug;
@@ -119,6 +119,16 @@ export type ChoiceStep = {
         copies: ChoiceQuery;
       }
     | {
+        /** The values to pick from: a list written out, or a formula giving a list of strings or numbers, evaluated with the action's roots before each pick (so it may read earlier steps, `item` and `self`). Each value is offered once, in the list's order, as its string form (option ID); a formula that fails is an error, as any action formula is, and an element that isn't a string or number is `type-mismatch`. */
+        values:
+          | (string | number)[]
+          | {
+              formula: Formula;
+            };
+        /** A condition over each candidate, bound as `value`, with `picks` how many times this step has picked it. `item` and `self` stay the action's own. */
+        where?: Condition;
+      }
+    | {
         /** The choices still pending on the proposed sheet, in `computeSheet`'s `pending` order. Each pick answers the first of them with an eligible option not picked yet, offering those options as `listOptions` gives them, then `#done`; it proposes the `choose` for it, then the step's `changes`. The step reads the proposed sheet before each pick and goes on until nothing more can be picked or `#done` is picked. Result: `steps.<id>.picked`, the picked option IDs in order, and `steps.<id>.paths`, their choice paths. */
         pending: {
           /** String formula giving an instance ID: only choices whose path starts at that copy are asked. Without it, every pending choice is, rules-level ones included. */
@@ -132,13 +142,13 @@ export type ChoiceStep = {
     /** Integer formula: the picks needed before `#done` is offered (default 0). Evaluated once, before the first pick. */
     min?: Formula;
   };
-  /** Formula naming the recommended option ID; it may read `options`, the list of IDs the step's own source offers (`#done` and added options left out). Under an automatic policy the engine takes it. `#done` and added options are never recommended. Without it, a `content` or `copies` step recommends the candidate with the highest `prefer`; with neither, no option is recommended, so an automatic run pauses there. Over pending choices, it also sees `choice`, the choice being asked (`{ path, owner, id }`); without it, the option `listOptions` marks recommended is. */
+  /** Formula naming the recommended option ID; it may read `options`, the list of IDs the step's own source offers (`#done` and added options left out). Under an automatic policy the engine takes it. `#done` and added options are never recommended. Without it, a `content`, `copies` or `values` step recommends the candidate with the highest `prefer`; with neither, no option is recommended, so an automatic run pauses there. Over pending choices, it also sees `choice`, the choice being asked (`{ path, owner, id }`); without it, the option `listOptions` marks recommended is. */
   recommend?: Formula;
   /** Boolean formula, evaluated before each pick with `options` (and, over pending choices, `choice`) bound as for `recommend`: when it holds, the engine draws one die with as many sides as the source's offered options (added options and `#done` left out; over pending choices, the asked choice's eligible options) and recommends option face − 1 instead of `recommend` and `prefer`. With one option nothing is drawn. The draw is a dice checkpoint at the step's path, following the dice policy for the step's tags: a pause is `needs.kind: dice` with one die and `draw`. A creation action says `random: params.random`. */
   random?: Formula;
-  /** `content` and `copies` only: a number formula per candidate, with `item` (and `self`) the candidate's and `picks` how many times this step has picked it. Without `recommend`, the candidate with the highest value is recommended, ties going to the earlier one. */
+  /** `content`, `copies` and `values` only: a number formula per candidate, with `item` (and `self`) the candidate's, or `value` the candidate value, and `picks` how many times this step has picked it. Without `recommend`, the candidate with the highest value is recommended, ties going to the earlier one. */
   prefer?: Formula;
-  /** Changes proposed after every pick, after the picked option's own `changes`, resolved like a `changes` step's at this step's path, always `to: self`. `entry: picked` names the picked copy (`copies` only). Their formulas see `picked`: `{ id }`, plus `item` for content and copies and `self` for copies; `item` and `self` stay the action's own. Over pending choices, `picked` is `{ id, path }`, the option and the choice path, and the `choose` comes first. */
+  /** Changes proposed after every pick, after the picked option's own `changes`, resolved like a `changes` step's at this step's path, always `to: self`. `entry: picked` names the picked copy (`copies` only). Their formulas see `picked`: `{ id }`, plus `item` for content and copies, `self` for copies and `value` (the value itself) for values; `item` and `self` stay the action's own. Over pending choices, `picked` is `{ id, path }`, the option and the choice path, and the `choose` comes first. */
   changes?: ProposedChange[];
   /** The question ("Did the attack hit?"). Default key: `<actionKey>.steps.<id>.prompt`. */
   prompt?: I18nKey;
@@ -238,11 +248,11 @@ export type ActionStep = {
   sheet?: StepSheet;
   /** Run the step once per participant of this declared role, in input order, with `participant` bound and `when` evaluated per participant. With none, the step doesn't run. Its result is a list in participant order (null where `when` skipped one); inside a later `each` step over the same role, it is the current participant's. Log paths gain the index (`saves[1]`). */
   each?: Name;
-  /** The action to run: a rules action, or with `source` one the content's type or the content itself defines (its local action ID, when no rules action has that ID). */
+  /** The action to run: a rules action, or with `source` one the content's type or the content itself defines, or with `entry` and no `source` one the copy's item or its type defines (its local action ID, when no rules action has that ID). */
   use: Ref;
   /** A formula giving a content ID, qualified against the action's pack. The step runs `use` as `computeSheet` lists it for this character with that `source`: with that content as `item` and the listing's `entry` as `self`. With no such listing (the action not available included) the action fails with `unknown-action` (data: `action`, `source`). */
   source?: Formula;
-  /** A formula giving an instance ID, such as a choice step's `steps.weapon.picked`. The step runs `use` as `computeSheet` lists it, on the step's sheet, with that `entry` (and that `source`, when given too): that copy is `self` and its item `item`. With no such listing (no such copy, the copy doesn't list the action, or its `available` is false) the action fails with `unknown-action` (data: `action`, `entry`, and `source` when given). Not with `as`. */
+  /** A formula giving an instance ID, such as a choice step's `steps.weapon.picked`. The step runs `use` as `computeSheet` lists it, on the step's sheet, with that `entry` (and that `source`, when given too): that copy is `self` and its item `item`. Without `source`, a local `use` names the copy's item's own action (`<item>#<use>`). With no such listing (no such copy, the copy doesn't list the action, or its `available` is false) the action fails with `unknown-action` (data: `action`, `entry`, and `source` when given). Not with `as`. */
   entry?: Formula;
   /** Keep what the nested action proposes instead of proposing it: every change it and the actions it runs propose is resolved as usual and held under the step, in order (with `each`, every run's, in run order). The nested action's own steps see them; the parent's later steps don't until a changes step's `release` names the step. Held changes never released are dropped. Not with `as`. */
   hold?: boolean;
@@ -367,6 +377,9 @@ export type SetStateChange = {
   /** With `path`: the picked option. */
   option?: string | number;
   picks?: Picks;
+  /** With `entry` (a copy) or `path` and `option` (a pick): the content that node's holder grants name, by qualified ID, whose saved state changes (the node's `grants`). It must be active there (`not-granted`). Its keys and bounds are those the granted content declares; a value equal to its default (the grant's `state` value, else the declared default) is dropped. */
+  grant?: QualifiedId;
+  grants?: Grants;
 };
 
 export type AdjustStateChange = {
@@ -384,6 +397,9 @@ export type AdjustStateChange = {
   /** With `path`: the picked option. */
   option?: string | number;
   picks?: Picks;
+  /** With `entry` (a copy) or `path` and `option` (a pick): the content that node's holder grants name, by qualified ID, whose saved state changes (the node's `grants`). It must be active there (`not-granted`). Its keys and bounds are those the granted content declares; a value equal to its default (the grant's `state` value, else the declared default) is dropped. */
+  grant?: QualifiedId;
+  grants?: Grants;
 };
 
 /** Set a copy's `quantity`. It may not be below 0 (`out-of-range`); a copy at 0 stays. */
@@ -444,7 +460,7 @@ export type ToggleEffectChange = {
   active: boolean;
 };
 
-/** Pick an option (choose). Un-picking (unchoose) is `#/$defs/unchoose`. */
+/** Pick an option (choose). Un-picking (unchoose) is `#/$defs/unchoose`. A choice a grant presets takes neither (`preset-choice`). */
 export type ChooseChange = {
   type: 'choose';
   path: ChoicePath;
@@ -538,6 +554,9 @@ export type ProposedChange = {
   /** setState and adjustState: `self`, the pick whose content defines the running action, resolved to `path` and `option` in the returned change. In an action that isn't a picked content's, `unknown-reference`. */
   pick?: 'self';
   picks?: Picks;
+  /** setState and adjustState: `self`, the grant that activated the running action's granted content (a holder grant), resolved to `entry` (or `path` and `option`, a pick) and `grant` in the returned change. In an action that isn't a granted content's, `unknown-reference`. */
+  grant?: 'self';
+  grants?: Grants;
   /** set and adjust may compute it: `{ formula }`, evaluated when the action runs to a field ID and qualified against the action's pack, as a literal one is. For `to: self` or a role it must name an input field (`unknown-field` or `not-input-field`, data: `field`); for a link it must be qualified and is passed on unchecked. A `split` adjust's field is written out. */
   field?: FieldRef | ComputedField;
   entry?: string | ProposedEntry | ComputedEntry;
@@ -638,6 +657,12 @@ export type Picks = {
   limit?: number;
 };
 
+/** setState and adjustState may name granted content by query: applyChanges resolves it against the character it changes, at that point in the batch: each active holder grant, in activation order (the same item on one node once), whose granted content declares the change's `key` and whose `where` holds with `item` the granted item and `self` its state (saved, else the grant's `state`, else declared defaults). With `limit`, only the first that many. `by` and `value` are formulas evaluated per grant with the same binding. No match is not an error. */
+export type Grants = {
+  where: Condition;
+  limit?: number;
+};
+
 /** removeEffect, toggleEffect, setState and adjustState may name applied entries by query instead of `id` or `entry`. applyChanges resolves it against the character it changes, at that point in the batch: the `applied` entries, in file order, whose `where` holds with `item` the source's item and `self` the entry (`id` and its state, with declared defaults). With `limit`, only the first that many. In such a change, `by` and `value` are formulas evaluated per entry with the same binding, and formulas resolve names in the source's pack. No match is not an error: each such change adds `{ applied: [ids] }` to `adjustments`. */
 export type Applied = {
   where: Condition;
@@ -648,7 +673,7 @@ export type Applied = {
 export type CharacterFile = {
   /** The OCF spec version this file was written against. */
   specVersion: Semver;
-  /** An ID for this character, unique within the app or campaign (a UUID is a good choice). */
+  /** An ID for this character. A UUID is fine for an ID unique within the app or campaign; a URL (IRI) makes it global, so the character keeps one identity across apps. */
   id: string;
   /** The exact pack versions this character uses, in load order (later packs win). */
   packs: {
@@ -693,6 +718,8 @@ export type Entry = {
   state?: EntryState;
   /** Picks for the choices declared by this item and its templates. */
   choices?: ChoiceTree;
+  /** Saved state of content this copy's item and templates grant (holder grants), by the granted content's qualified ID. */
+  grants?: GrantStore;
 };
 
 /** Per-copy state values by state key (charges, shots, level). */
@@ -707,7 +734,17 @@ export type ChoicePick = {
   choices?: ChoiceTree;
   /** Values for state keys the picked content declares (its content type's or its own), as a copy's state. The picked content sees them as `self.<key>`; a key at its default is left out. */
   state?: Record<string, Literal>;
+  /** Saved state of content the picked option grants (holder grants), by the granted content's qualified ID. */
+  grants?: GrantStore;
 };
+
+/** Granted content's saved state, kept on the node whose choice tree holds its picks: a copy, or a pick. Each key is a granted item's qualified ID; `state` holds values for state keys it declares (its content type's or its own), as a pick's does. The granted content sees them as `self.<key>`, over the grant's `state` and the declared defaults; a key at that default is left out. The same item granted twice to one node shares it. Kept while the grant is off. */
+export type GrantStore = Record<
+  string,
+  {
+    state?: Record<string, Literal>;
+  }
+>;
 
 /** A stored ephemeral follow-up. */
 export type StoredFollowUp = {
@@ -967,6 +1004,8 @@ export type ContentItem = {
   removeTags?: Tag[];
   /** Values for the item fields declared by the content type. How a value is read depends on the declared type: `integer`, `decimal`, `boolean` and `dice` values are formulas (a plain literal is a formula with no inputs); `string`, `enum` and `id` values are literal strings; `set` values are lists of literals. A template may set the rules' `templateFields` and the fields of the content type its `appliesTo` names; its values are merged into the copy's `item` in template order, replacing the base item's, and its formulas see the base item as `base`. A template may give `null` for a field: the field is absent from the copy's `item` (no declared default applies), unless a later template sets it again. Only templates may give `null`. */
   fields?: Record<string, Literal | null>;
+  /** Templates only: values the template's item fields read as `params.<name>`, given by the content keeping it (`keepsTemplates` `params`). A param the keeper doesn't give, or on a saved template, is its `default`, else absent. */
+  params?: Record<string, ValueDecl>;
   /** Extra per-copy state keys this item (or template) adds to the character's copy, beyond those its content type declares. */
   state?: Record<string, ValueDecl>;
   /** Computed values on this item's copies, added to the content type's or replacing one of them by name. A template's are added to the copies it is applied to. */
@@ -988,7 +1027,7 @@ export type ContentItem = {
   standardCopies?: Query[];
   /** Item fields the templates this item keeps (`keepsTemplates`) leave as they are, on the copies it keeps them on: a specific magic weapon's Price, which already counts the runes it comes with. A template the player applies later changes them as usual. */
   keepsFields?: Name[];
-  /** Templates this item keeps on the character's copies while it is active: each copy of `copies.type` whose base item matches `copies.where` (which reads only `item`, resolved by loadRuleset) has the template applied after its saved ones, unless the template's `appliesTo` doesn't match. Nothing is saved. */
+  /** Templates this item keeps while it is active: on the character's copies (`copies`), each copy of `copies.type` whose base item matches `copies.where` has the template applied after its saved ones; on content picked or granted to the character (`content`), each item of `content.type` matching `content.where` has the template's fields and tags merged into its `item`. A query reading only `item` is resolved by loadRuleset; one that also reads the keeper is an activation condition. A template whose `appliesTo` doesn't match isn't kept. Nothing is saved. */
   keepsTemplates?: KeptTemplate[];
   /** Conditions for having this item. Failing ones are rules issues (`prerequisite-not-met`), never blocking unless strict mode is on. */
   prerequisites?: Prerequisite[];
@@ -1013,9 +1052,25 @@ export type Grant = {
   scope?: 'holder' | 'applied';
   /** The granted item's prerequisites don't apply to this activation of it (content that gives a feat outright, whether or not the character meets its prerequisites). Its own grants and picks are checked as usual. Default false. */
   waivePrerequisites?: boolean;
-  /** State values the granted content sees as `self.<key>`, in place of the owner copy's (a holder grant) or the granting entry's (a grant with `scope: applied`). Each key is a state key the granted content declares (`unknown-state-key` at load); each value is a formula of the key's type evaluated as an activation condition is (it reads `self`, `item` and input fields). A condition that includes a valued condition gives its value: `{ item: conditions.enfeebled, scope: applied, state: { value: 2 } }`. */
+  /** State values for the granted content: in place of the owner copy's (a holder grant) or the granting entry's (a grant with `scope: applied`), the granted content sees them as `self.<key>`. Each key is a state key the granted content declares (`unknown-state-key` at load); each value is a formula of the key's type evaluated as an activation condition is (it reads `self`, `item` and input fields). For a holder grant they are the defaults of the granted content's saved state: a value saved in the owner's `grants` wins. A condition that includes a valued condition gives its value: `{ item: conditions.enfeebled, scope: applied, state: { value: 2 } }`. */
   state?: Record<string, Formula>;
+  /** Holder grants: picks the grant makes for the granted content's own choices, by choice ID (a slot's key for a slotted choice). A choice a literal `item` doesn't declare, a literal option it doesn't offer, or `choices` on a grant with `scope: applied`, is `unknown-reference` at load; with a formula `item`, a key the content doesn't declare presets nothing. A preset choice is answered: its picks are these, it is never pending, and `choose` and `unchoose` on it are `preset-choice`. Each pick's `option` is a literal or `{ formula }`, evaluated as an activation condition is, to a content ID (qualified in the grant's pack, as `item` is), an inline option ID or a value; a pick's `choices` preset the picked option's own choices. A formula that fails, or gives neither a string nor a number, leaves its pick out with a `formula-error`. So content gives a feat for a skill it names: `{ item: feats.assurance, choices: { skill: [{ option: skill.athletics }] } }`. */
+  choices?: PresetTree;
 };
+
+/** A grant's preset picks: keyed by the owner's bare choice IDs; each pick's `option` is a literal or `{ formula }`. */
+export type PresetTree = Record<
+  string,
+  {
+    option:
+      | string
+      | number
+      | {
+          formula: Formula;
+        };
+    choices?: PresetTree;
+  }[]
+>;
 
 export type Prerequisite = {
   /** Stable ID; rules issues carry it, and its text is `<owner>.prerequisites.<id>`. */
@@ -1024,10 +1079,14 @@ export type Prerequisite = {
 };
 
 export type KeptTemplate = {
-  /** The template kept on the copies. */
+  /** The template kept on the copies or the content. */
   template: Ref;
-  /** The copies it is kept on: a content type and a condition over the copy's base item (`item` only). */
-  copies: Query;
+  /** The copies it is kept on: a content type and a condition over the copy's base item. A condition reading only `item` is resolved by loadRuleset; one that also reads the keeper (`self`, `picksOf`, `character`, input fields, the character functions) is an activation condition with `item` the candidate, so a keeper keeps a template on what its own choice picked. */
+  copies?: Query;
+  /** The content without a copy of its own it is kept on: every holder activation of content picked or granted to the character whose item is of the type and matches the condition, read as `copies`' is. The template may give only fields and tags (`template-without-copy` otherwise). */
+  content?: Query;
+  /** Values for the template's `params`, each a formula of the param's type evaluated as an activation condition is, with the keeper's roots (`self`, `item`, `picksOf`, `character`, input fields). The template's item fields read them as `params.<name>`, so a kept template scales with the character. A name the template doesn't declare is `unknown-name` at load. */
+  params?: Record<string, Formula>;
   /** An activation condition: while it holds, the template is kept. */
   when?: Condition;
   /** `holder` (default): while the item is held. `applied`: while it is the source of an active, unblocked `applied` entry, on that character's copies. */
@@ -1279,17 +1338,17 @@ export type Effect = {
   tags?: TagList;
   /** Rolls with op `add` only: `false` leaves the roll items the effect adds, dice or flat, alone when `multiplyDice` multiplies the roll's dice or `multiply` its items (5E's Savage Attacks: an extra die rolled once on a critical hit, not doubled; orc-2e's deadly die, added after doubling). Default `true`. */
   multiplied?: boolean;
-  /** Incoming-change effects only: state changes to the effect's own copy, applied by applyChanges right after the adjust is routed, when the effect counted (its `when` held and stacking kept it). Each is a `setState` or `adjustState` with `entry: self`; `value` and `by` are formulas seeing `item`, `self` and `incoming`. Only for effects with a copy: on the rules' effects, `applied`-scope effects and choice effects it is a load error (`then-without-copy`). */
+  /** Incoming-change effects only: changes to the effect's own entry, applied by applyChanges right after the adjust is routed, when the effect counted (its `when` held and stacking kept it). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), whose `value` and `by` are formulas seeing `item`, `self` and `incoming`, or, on an `applied` effect, a `removeEffect` with `entry: self`, which ends the entry (a ward that triggers once). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`). */
   then?: ThenChange[];
   /** Who the effect applies to. `holder` (default): a character who has the content active (features, inventory, picks, grants). `applied`: a character the content is applied to (its `applied` list: cast on them, a condition). Content in `applied` runs only its `applied` effects; held content runs only its `holder` effects. */
   scope?: 'holder' | 'applied';
 };
 
-/** A change an incoming-change effect makes to its own copy after the adjust is routed: `setState` with `value`, or `adjustState` with `by`, always `entry: self`. */
+/** A change an incoming-change effect makes to its own entry after the adjust is routed: `setState` with `value`, `adjustState` with `by`, or `removeEffect` (an `applied` effect only), always `entry: self`. */
 export type ThenChange = {
-  type: 'setState' | 'adjustState';
+  type: 'setState' | 'adjustState' | 'removeEffect';
   entry: 'self';
-  key: Name;
+  key?: Name;
   value?: Formula;
   by?: Formula;
 };
@@ -1395,6 +1454,8 @@ export type RollModifier = {
   part?: Slug;
   /** stepDie: how many steps along d4, d6, d8, d10, d12 each matching die moves (negative for smaller); an integer formula. */
   steps?: Formula;
+  /** advantage, disadvantage: `die` (default) rolls extra dice for the roll's main dice item and keeps the better or worse ones; `roll` makes the whole roll again and keeps the better or worse total. One counted source of the kind that applies with `roll` makes every extra a whole roll. */
+  of?: 'die' | 'roll';
   /** setFaces: the dice item's first faces, as integer formulas, used instead of asking for them. */
   faces?: Formula[];
 };
@@ -1470,7 +1531,9 @@ export type Answer =
 
 /** When the engine continues by itself and when it pauses. Rules are checked in order; the first matching rule decides; unmatched checkpoints use the defaults. */
 export type ActionPolicy = {
+  /** Roll steps. Default `auto`. */
   dice?: 'auto' | 'pause';
+  /** Choice steps. Default `auto`. */
   choices?: 'auto' | 'pause';
   /** Allocation steps. Default `auto`. */
   allocations?: 'auto' | 'pause';
@@ -1523,6 +1586,12 @@ export type LogEntry = {
     op: 'atLeast' | 'atMost';
     value: number;
   }[];
+  /** Roll steps made more than once (advantage or disadvantage `of: roll`): every whole roll, in roll order, with its total before bounds; `kept` marks the one kept, whose items are `items`. `faces` lists every roll's faces. Absent for a roll made once. */
+  rolls?: {
+    total: number;
+    kept: boolean;
+    items: RollItem[];
+  }[];
   /** Roll steps: each roll tally with a non-zero value, with what contributed to it. */
   tallies?: {
     name: Name;
@@ -1553,6 +1622,11 @@ export type ActionNeed = {
   draw?: Draw;
   /** The itemized roll so far, for display while waiting. */
   items?: RollItem[];
+  /** Dice steps made more than once (advantage or disadvantage `of: roll`): `times` whole rolls of `items`, whose dice `dice` lists roll after roll, and the total kept: `high` or `low`. Absent for a roll made once. */
+  repeat?: {
+    times: number;
+    keep: 'high' | 'low';
+  };
   /** Dice steps: the summary of the roll the pause is for; a pause for more dice mid-roll carries the same one. To preview a roll, an app starts the action with `dice: 'pause'`, reads this and drops the result. */
   summary?: RollSummary;
   /** The offered option IDs, in order: written option IDs, qualified content IDs or instance IDs. A repeated step that has its `min` picks offers the reserved `#done` last. */
@@ -1716,7 +1790,7 @@ export type ApplyChangesOutput =
       /** The batch as applied: each `adjust` whose incoming-change effects rolled dice carries every face it used in `faces`, supplied and rolled. Apps log this, not their input, so a replay never rolls. A batch that rolled nothing comes back unchanged. */
       changes: Change[];
       issues: RulesIssue[];
-      /** What adjust changes actually did after incoming-change effects, absorption, overflow and clamping: one entry per field touched, in order. A change aimed at copies by query adds `{ copies }`: the instance IDs it matched, in order (empty when none matched); one aimed at applied entries by query adds `{ applied }` the same way, and an `applyEffect` merged into an existing entry (`reapply`) adds `{ applied: [<that entry's ID>] }`. An incoming-change effect's `then` adds `{ entry, key, value, source }` per state change it made. */
+      /** What adjust changes actually did after incoming-change effects, absorption, overflow and clamping: one entry per field touched, in order. A change aimed at copies by query adds `{ copies }`: the instance IDs it matched, in order (empty when none matched); one aimed at applied entries by query adds `{ applied }` the same way, and an `applyEffect` merged into an existing entry (`reapply`) adds `{ applied: [<that entry's ID>] }`. An incoming-change effect's `then` adds `{ key, value, source }` per state change it made, addressed as the setState that made it: `entry` (its own entry), `path` and `option` (its pick), or `grant` with the node (its grant's saved state); and `{ entry, removed: true, source }` when it removed its applied entry. */
       adjustments?: (
         | {
             field: string;
@@ -1738,10 +1812,18 @@ export type ApplyChangesOutput =
             }[];
           }
         | {
-            entry: InstanceId;
+            entry?: InstanceId;
+            path?: ChoicePath;
+            option?: string | number;
+            grant?: QualifiedId;
             key: Name;
             /** The state key's new value. */
             value: unknown;
+            source: Source;
+          }
+        | {
+            entry: InstanceId;
+            removed: true;
             source: Source;
           }
         | {
@@ -1830,6 +1912,14 @@ export type ComputeSheetOutput = {
   copies?: Record<string, Record<string, Literal>>;
   /** Copies named by their state, by instance ID: for each copy whose item or content type has `nameFrom`, the value of that state key when it is a non-empty string. Apps show it as the copy's name in place of the item's (a choice's copy options included). */
   copyNames?: Record<string, string>;
+  /** Every item the character has with templates, as merged, so an app shows the item as the rules read it: each copy with a saved or kept template, in instance order (`entry` its instance ID), then each piece of content without a copy (picked or granted) that content keeps templates on, in activation order, once per item (no `entry`). `templates` lists the templates in the order they apply, `tags` and `fields` are the merged item's (`item.tags` and each item field as `item` reads it; a dice field as canonical dice text). */
+  templated?: {
+    entry?: InstanceId;
+    item: QualifiedId;
+    templates: QualifiedId[];
+    tags: string[];
+    fields: Record<string, Literal>;
+  }[];
   /** The character's standard copies, in instance order: each copy the rules or an active item give every character, by its instance ID (`entry`) and item, and whether the file saves it (`saved`). Unsaved copies are at their defaults and appear in `inventory` or `features` like any other. */
   standardCopies?: {
     entry: InstanceId;
@@ -1850,7 +1940,7 @@ export type ComputeSheetOutput = {
     parent?: number;
     /** A template content keeps on the copy: the index in this list of the activation that keeps it. Absent for a saved template. */
     keptBy?: number;
-    /** Picks: the choice path of the pick, the picked option last. */
+    /** Picks: the choice path of the pick, the picked option last. Holder grants whose node is a pick (content granted by picked content or an inline option): that pick's path, which a grant's `setState` names with `path`, `option` and `grant`. */
     path?: ChoicePath;
   }[];
   /** Every applicable choice, answered or not, in pending order: the rules-level choices first, then each activation's own choices, each followed by those of what it picked, before those of the activations it grants. Inline options' choices and `activate: false` choices are included; a slotted choice is one entry per slot. `pending` is the open ones, in the same order. */
@@ -1938,10 +2028,12 @@ export type ListedChoice = {
   min: number;
   /** The evaluated maximum number of picks; absent when unbounded. */
   max?: number;
-  /** The picked options, in the order saved: content IDs, inline option IDs or values, as `choose` names them. */
+  /** The picked options, in the order saved: content IDs, inline option IDs or values, as `choose` names them. For a preset choice, the grant's. */
   picks: (string | number)[];
-  /** Whether the choice is pending: required (`required` not false) with fewer picks than `min`. */
+  /** Whether the choice is pending: required (`required` not false) with fewer picks than `min`. A preset choice never is. */
   open: boolean;
+  /** `true` when a grant presets the choice (its `choices`): `picks` are the grant's, the choice is never open, and `choose` and `unchoose` on it are `preset-choice`. */
+  preset?: true;
 };
 
 export type CompetingOptions = {
@@ -2215,7 +2307,7 @@ export type FollowUp = {
   action?: string;
   /** Formulas for the action's parameters. Parameters it doesn't fix are left for the app to supply. */
   params?: Record<string, Formula>;
-  /** Changes to apply, resolved like an action's `changes` step: formulas evaluated, fields qualified, `entry: self` the content's copy. No `split`. */
+  /** Changes to apply, resolved like an action's `changes` step: formulas evaluated, fields qualified, `entry: self` the content's copy, `pick: self` and `grant: self` the pick or holder grant that made the content active, `path`, `option`, `picks` and `grants` passed on. No `split`. */
   changes?: ProposedChange[];
   /** A derived offer to make a new character for one of the character's empty link slots: the app makes a character file with `creating: true`, runs the named creation start on it with `params`, and saves the new character's ID in this character's `links`, which ends the offer. Only with `while`, and instead of `action`, `changes` and `to`. Offered while `while` and `when` hold and the slot is empty (no saved link and no view). */
   create?: {
@@ -2620,7 +2712,10 @@ export type UpgradeStep = {
     | 'setDefault'
     | 'mapValues'
     | 'renameState'
+    | 'removeState'
+    | 'moveState'
     | 'renameChoice'
+    | 'removeChoice'
     | 'renameOption'
     | 'requireChoice'
     | 'renameContentType'
@@ -2630,18 +2725,32 @@ export type UpgradeStep = {
     | 'renameTag'
     | 'renameAction'
     | 'adoptStandard';
+  /** The old name. renameContent, renameField, renameContentType, renameItemField, renameTag, renameAction: the ID. renameState, moveState: the state key. renameChoice: the choice ID on `owner`, or a prefixed choice key as saved (`<qualified id>/<choice>`, a granted or template content's choice), whose picks in `owner`'s trees become its choice `to`. renameOption: the picked option. */
   from?: string;
+  /** The new name, as for `from`. moveState: the target's state key (default `from`). renameOption: the replacing option; absent, the pick is removed. */
   to?: string;
   id?: string;
   field?: FieldRef;
+  /** renameState, removeState, moveState: limits the step to content of this content type (with `item`, both must match). renameItemField, removeItemField, mapItemValues: the homebrew items' content type. */
   type?: Name;
   value?: Formula;
   map?: Record<string, Literal>;
-  owner?: Ref;
+  /** Choice steps: whose choice it is (absent: the rules). moveState: the owner of `choice`, whose pick of `option` in the copy's own choice tree, at any depth, receives the value (absent: a rules-level choice). A path names a choice nested in an inline option (see `choiceOwner`). */
+  owner?: ChoiceOwner;
+  /** removeChoice, renameOption, requireChoice: the choice on `owner`, as saved (a slot is its own key). moveState: the choice whose pick receives the value; a slotted one is searched slot by slot. */
   choice?: Slug;
-  /** adoptStandard: the item whose standard copy an entry becomes. */
+  /** adoptStandard: the item whose standard copy an entry becomes. renameState, removeState, moveState: limits the step to content `item` and homebrew items extending it (with `type`, both must match). */
   item?: Ref;
+  /** removeState: the state key to drop. */
+  key?: Name;
+  /** moveState: the granted content whose saved state on the copy (its `grants`) receives the value. */
+  grant?: Ref;
+  /** moveState: the picked option, in choice `choice` of `owner` (or the rules), whose pick receives the value. */
+  option?: string | number;
 };
+
+/** Whose choice a step names: content (a local or qualified ID); for a choice nested in an inline option, that content then each choice and inline option down to it, joined by `/` (`classes.operative/specialization/ghost`). A path with an even number of parts starts at a rules-level choice (`motto/brave`). Absent: the rules. */
+export type ChoiceOwner = Ref | string;
 
 /** Codes in `data/error-codes.json`. */
 export type ErrorCode =
@@ -2661,6 +2770,8 @@ export type ErrorCode =
   | 'unknown-choice'
   | 'invalid-option'
   | 'not-picked'
+  | 'not-granted'
+  | 'preset-choice'
   | 'pack-version-mismatch'
   | 'unknown-link'
   | 'homebrew-error'
@@ -2679,6 +2790,7 @@ export type ErrorCode =
   | 'formula-error'
   | 'unknown-tally'
   | 'then-without-copy'
+  | 'template-without-copy'
   | 'link-field-mismatch'
   | 'invalid-create-offer'
   | 'invalid-family'

@@ -15,6 +15,8 @@ effects:
   - target: { fields: { where: "'archetype-extra.at10' in item.tags" } }
     op: grant
     value: { item: feats.fighter.quick-shield-block }
+  # Additional Lore for Warfare Lore is written out: a second grant of the feat would share the
+  # first's picks.
   - {
       target: skills.trained,
       op: grant,
@@ -26,4 +28,4 @@ effects:
     op: add
     value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
 grants:
-  - item: feats.skill.additional-lore
+  - { item: feats.skill.additional-lore, choices: { lore: [{ option: sailing }] } }

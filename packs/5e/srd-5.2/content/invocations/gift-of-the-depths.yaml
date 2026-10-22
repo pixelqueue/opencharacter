@@ -1,5 +1,7 @@
 id: invocations.gift-of-the-depths
 type: invocation
+state:
+  used: { type: boolean, default: false }
 prerequisites:
   - id: level
     when: self.level >= 5
@@ -16,16 +18,22 @@ effects:
   - target: { choices: [spell-cost] }
     op: option
     when: >-
-      action.item.id == @spells.water-breathing && !self.giftOfTheDepthsUsed
+      action.item.id == @spells.water-breathing && !self.used
         && (!has(params.slot) || params.slot == action.item.level)
     value:
       id: free
       flags: { slot: action.item.level, castAbility: "'warlock'" }
       changes:
-        - { type: setState, entry: self, key: giftOfTheDepthsUsed, value: true }
+        - type: setState
+          picks: { where: 'item.id == @invocations.gift-of-the-depths' }
+          key: used
+          value: true
   - target: { steps: [rest.long] }
     op: changes
-    when: self.giftOfTheDepthsUsed
+    when: self.used
     value:
       changes:
-        - { type: setState, entry: self, key: giftOfTheDepthsUsed, value: false }
+        - type: setState
+          picks: { where: 'item.id == @invocations.gift-of-the-depths' }
+          key: used
+          value: false

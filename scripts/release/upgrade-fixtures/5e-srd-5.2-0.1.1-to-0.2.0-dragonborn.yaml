@@ -1,0 +1,33 @@
+# A 0.1.1 red dragonborn fighter who breathed twice and is flying with Draconic Flight: the
+# species copy's state. 0.2.0 keeps them on the Breath Weapon and Draconic Flight traits' grant
+# state.
+pack: 5e-srd-5.2
+from: 0.1.1
+to: 0.2.0
+expect:
+  - at: /features/1/grants
+    value:
+      5e-srd-5.2:traits.breath-weapon: { state: { breathWeaponUsed: 2 } }
+      5e-srd-5.2:traits.draconic-flight: { state: { flightUsed: true, flightActive: true } }
+  - { at: /features/1/state, absent: true }
+character:
+  specVersion: 0.1.0
+  id: upgrade-5e52-dragonborn
+  values:
+    5e-srd-5.2:abilities.str.base: 16
+    5e-srd-5.2:abilities.dex.base: 12
+    5e-srd-5.2:abilities.con.base: 14
+    5e-srd-5.2:abilities.int.base: 8
+    5e-srd-5.2:abilities.wis.base: 10
+    5e-srd-5.2:abilities.cha.base: 13
+    5e-srd-5.2:hp.base: 44
+    5e-srd-5.2:hp.current: 44
+  features:
+    - id: class
+      item: 5e-srd-5.2:classes.fighter
+      state: { level: 5, startingClass: true }
+    - id: species
+      item: 5e-srd-5.2:species.dragonborn
+      state: { breathWeaponUsed: 2, flightUsed: true, flightActive: true }
+      choices:
+        lineage: [{ option: 5e-srd-5.2:lineages.red-dragon }]

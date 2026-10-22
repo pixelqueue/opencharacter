@@ -56,6 +56,12 @@ describe('a synthetic pack', () => {
     ).toBe('**Rock** · stone ·  · 1 ft');
   });
 
+  it('reads a merged item’s tags and fields from computeSheet’s templated', () => {
+    expect(text.contentBlock(lamp, { tags: [], fields: { kind: 'light', size: 300 } })).toBe(
+      '**Lamp** · Light source ·  · 300 ft · burns oil',
+    );
+  });
+
   it('gives the best rendering: block and description, or either alone', () => {
     expect(text.contentCard(lamp)).toBe('**Lamp** · Light source · Heavy · burns oil\n\nIt glows.');
     expect(text.contentCard({ id: 'p:things.lamp', type: 'p:other' })).toBe('It glows.');

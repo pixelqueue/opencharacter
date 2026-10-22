@@ -1,0 +1,14 @@
+# The cold hit doesn't match, so the oil stays (hp 20 -> 18). The first fire hit takes 5 more
+# (-3 - 5 = -8, hp 18 -> 10) and the oil is removed. The second fire hit is plain: hp 10 -> 7.
+ok: true
+character:
+  values:
+    test-pack:hp.current: 7
+  applied: []
+adjustments:
+  - { field: test-pack:hp.current, by: -2, requested: -2, taken: -2, reason: requested }
+  - { field: test-pack:hp.current, by: -8, requested: -3, taken: -8, reason: requested }
+  - entry: oil
+    removed: true
+    source: { type: item, id: 'test-pack:conditions.oiled', effect: burn }
+  - { field: test-pack:hp.current, by: -3, requested: -3, taken: -3, reason: requested }

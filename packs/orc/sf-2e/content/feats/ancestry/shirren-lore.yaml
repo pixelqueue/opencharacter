@@ -13,11 +13,7 @@ effects:
     value: { tag: skill.society }
     when: "!('skill.society' in skills.chosen)"
   - { target: skills.trainings, op: add, value: 1 }
-  - target: skills.trained
-    op: grant
-    value: { tag: skill.lore.shirren }
-    when: "!('skill.lore.shirren' in skills.chosen)"
-  - { target: skills.trainings, op: add, value: 1 }
-  - target: skills.lore.shirren.granted
-    op: add
-    value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+grants:
+  - item: feats.skill.additional-lore
+    waivePrerequisites: true
+    choices: { lore: [{ option: shirren }] }

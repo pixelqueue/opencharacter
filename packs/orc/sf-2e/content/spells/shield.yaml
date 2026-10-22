@@ -19,3 +19,4 @@ effects:
     value: 'min(5 + 5 * floor((self.rank - 1) / 2), -incoming.amount)'
     when: 'situational.shieldSpellBlock && incoming.amount < 0'
     scope: applied
+    then: [{ type: removeEffect, entry: self }]

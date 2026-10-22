@@ -26,6 +26,7 @@ const KEYWORDS = new Set(['true', 'false', 'null', 'in']);
 import {
   optionQuery,
   pendingSource,
+  valueSource,
   writtenOptions,
 } from '../../packages/engine/src/core/pack-types.ts';
 import { appliesQueries } from '../../packages/engine/src/core/pack-types.ts';
@@ -131,6 +132,8 @@ export class PackChecker {
     private readonly onFormula?: (text: string) => void,
     /** A character's homebrew: no name, and text only if it has any. */
     private readonly homebrew = false,
+    /** The version a pending changeset gives the pack: upgrade scripts may go to it. */
+    private readonly pending?: string,
   ) {
     this.scope = ruleset.scope(packId);
     this.tags = ruleset.declaredTags(this.scope);
@@ -159,6 +162,16 @@ export class PackChecker {
       const parent = entry.item.extends ?? entry.item.override;
       entry = parent ? this.ruleset.item(parent, this.ruleset.scope(entry.pack)) : undefined;
     }
+    return false;
+  }
+
+  /** Whether any loaded content type or item defines an inline action with this local ID. */
+  private anyDefines(use: string): boolean {
+    const defines = (def: { actions?: ActionOrUse[] }) =>
+      (def.actions ?? []).some((a) => !('use' in a) && a.id === use);
+    for (const { item } of this.ruleset.content.values()) if (defines(item)) return true;
+    for (const rules of this.ruleset.rules.values())
+      for (const { def } of rules.contentTypes.values()) if (defines(def)) return true;
     return false;
   }
 
@@ -513,10 +526,13 @@ export class PackChecker {
       if (!semver.valid(doc.from) || !semver.valid(doc.to) || !semver.lt(doc.from, doc.to)) {
         this.report.error(file, `upgrade script: from ${doc.from} must be below to ${doc.to}`);
       }
-      if (semver.gt(doc.to, pack.manifest.version)) {
+      const version = pack.manifest.version;
+      const next = this.pending && semver.gt(this.pending, version) ? this.pending : undefined;
+      if (semver.gt(doc.to, next ?? version)) {
+        const pending = next ? ` (${next} with its pending changeset)` : '';
         this.report.error(
           file,
-          `upgrade script goes to ${doc.to}, past the pack's version ${pack.manifest.version}`,
+          `upgrade script goes to ${doc.to}, past the pack's version ${version}${pending}`,
         );
       }
       for (const raw of doc.steps) {
@@ -528,6 +544,9 @@ export class PackChecker {
           choice?: string;
           type?: string;
           item?: string;
+          from?: string;
+          grant?: string;
+          option?: string | number;
         };
         const where = `upgrade ${doc.from}-to-${doc.to} ${step.op}`;
         if (step.op === 'renameContent' && step.to && !this.ruleset.item(step.to, [this.packId])) {
@@ -555,23 +574,58 @@ export class PackChecker {
           if (!Object.hasOwn(type?.def.fields ?? {}, step.to))
             this.report.error(file, `${where}: "${step.to}" is not an item field of ${step.type}`);
         }
-        if (step.op === 'adoptStandard' && step.item && !this.ruleset.item(step.item, own))
+        const itemSteps = ['adoptStandard', 'renameState', 'removeState', 'moveState'];
+        if (itemSteps.includes(step.op) && step.item && !this.ruleset.item(step.item, own))
           this.report.error(file, `${where}: "${step.item}" is not content of this pack`);
-        if (step.op === 'requireChoice' && step.choice) {
-          const owner = step.owner ? this.ruleset.item(step.owner, [this.packId])?.item : undefined;
-          const choices = step.owner
-            ? (owner?.choices ?? [])
-            : [...(this.ruleset.rules.get(this.packId)?.choices.keys() ?? [])].map((id) => ({
-                id,
-              }));
-          if (!choices.some((c) => c.id === step.choice))
+        const target = step.op === 'moveState' && !step.grant;
+        if ((step.op === 'requireChoice' || target) && step.choice) {
+          const choice = this.ownerChoices(step.owner).find((c) => c.id === step.choice);
+          if (!choice)
             this.report.error(
               file,
               `${where}: no choice "${step.choice}" on ${step.owner ?? 'the rules'}`,
             );
         }
+        if (step.op === 'moveState') {
+          // The pick's or grant's content must declare the key the value moves to.
+          const ref = step.grant ?? (typeof step.option === 'string' ? step.option : undefined);
+          const hit = ref === undefined ? undefined : this.ruleset.item(ref, this.scope);
+          const key = step.to ?? step.from ?? '';
+          if (!hit)
+            this.report.error(file, `${where}: "${String(ref ?? step.option)}" is not content`);
+          else {
+            const typeName = this.ruleset.typeOf(hit);
+            const typeDef = typeName
+              ? this.ruleset.contentType(typeName, this.ruleset.scope(hit.pack))?.def
+              : undefined;
+            if (!Object.hasOwn({ ...typeDef?.state, ...hit.item.state }, key))
+              this.report.error(file, `${where}: "${ref}" declares no state key "${key}"`);
+          }
+        }
       }
     }
+  }
+
+  /**
+   * The choices an upgrade step's `owner` declares in this pack: an item's, or the rules' when
+   * absent; an owner path goes down each choice and inline option pair (an even number of parts
+   * starts at a rules-level choice). None for an owner that doesn't resolve.
+   */
+  private ownerChoices(owner: string | undefined): readonly Choice[] {
+    const parts = owner === undefined ? [] : owner.split('/');
+    const rules = () =>
+      [...(this.ruleset.rules.get(this.packId)?.choices.values() ?? [])].map((c) => c.def);
+    let choices: readonly Choice[] =
+      parts.length % 2 === 0
+        ? rules()
+        : (this.ruleset.item(parts.shift() as string, [this.packId])?.item.choices ?? []);
+    for (let i = 0; i < parts.length; i += 2) {
+      const from = choices.find((c) => c.id === parts[i])?.from;
+      const option =
+        from && 'options' in from ? from.options.find((o) => o.id === parts[i + 1]) : undefined;
+      choices = option?.choices ?? [];
+    }
+    return choices;
   }
 
   private computedNames(
@@ -854,17 +908,21 @@ export class PackChecker {
       if (!template) this.report.error(file, `keepsTemplates: unknown item "${kept.template}"`);
       else if (template.item.type !== 'template')
         this.report.error(file, `keepsTemplates: "${kept.template}" is not a template`);
-      this.query(kept.copies, file, `${owner}.keepsTemplates`);
+      const query = kept.copies ?? kept.content;
+      if (query) this.query(query, file, `${owner}.keepsTemplates`);
     }
     for (const name of item.keepsFields ?? []) {
       const types = (item.keepsTemplates ?? []).map(
-        (k) => this.ruleset.contentType(k.copies.type, this.scope)?.def,
+        (k) => this.ruleset.contentType((k.copies ?? k.content)?.type ?? '', this.scope)?.def,
       );
       const known =
         this.ruleset.templateFields(this.scope).has(name) ||
         (types.length > 0 && types.every((t) => t?.fields?.[name] !== undefined));
       if (!known)
-        this.report.error(file, `keepsFields: "${name}" is not an item field of the kept copies`);
+        this.report.error(
+          file,
+          `keepsFields: "${name}" is not an item field of the kept copies or content`,
+        );
     }
     for (const prerequisite of item.prerequisites ?? [])
       this.requiredKeys.add(`${owner}.prerequisites.${prerequisite.id}`);
@@ -1077,6 +1135,18 @@ export class PackChecker {
         this.report.error(file, `${prefix}grants unknown item "${grant.item}"`);
         continue;
       }
+      if (grant.choices && grant.scope === 'applied')
+        this.report.error(
+          file,
+          `${prefix}grant of "${grant.item}" presets choices, but is applied`,
+        );
+      const choices = new Map((granted.item.choices ?? []).flatMap(slotKeys));
+      for (const key of Object.keys(grant.choices ?? {}))
+        if (!choices.has(key))
+          this.report.error(
+            file,
+            `${prefix}grant of "${grant.item}" presets choice "${key}", which it doesn't declare`,
+          );
       if (!grant.state) continue;
       const typeName = this.ruleset.typeOf(granted);
       const type = typeName
@@ -1318,10 +1388,10 @@ export class PackChecker {
   private effect(effect: Effect, file: string, where: string, copy = true): void {
     const kind = targetKind(effect.target);
     const label = `${where} effect${effect.id ? ` ${effect.id}` : ''}`;
-    if (effect.then && (!copy || effect.scope === 'applied'))
+    if (effect.then && !copy)
       this.report.error(
         file,
-        `${label}: then-without-copy: only an effect with a copy (content, not the rules, a situational choice, a choice's effects or an applied effect) can change its copy`,
+        `${label}: then-without-copy: only an effect with an entry (content's, not the rules', a situational choice's or a choice's) can change its entry`,
       );
     if (!OP_TARGETS.get(effect.op)?.includes(kind)) {
       this.report.error(file, `${label}: op "${effect.op}" cannot target ${kind}s`);
@@ -1618,6 +1688,8 @@ export class PackChecker {
         }
         for (const option of writtenOptions(step))
           this.requiredKeys.add(`${key}.options.${option.id}.name`);
+        // A value's own text is optional: the app names it otherwise.
+        if (valueSource(step)) this.optionalPrefixes.add(`${key}.options.`);
         const query = step.kind === 'choice' ? optionQuery(step) : undefined;
         if (query && !this.ruleset.contentType(query.type, this.scope))
           this.report.error(file, `${where}: unknown content type "${query.type}"`);
@@ -1643,7 +1715,8 @@ export class PackChecker {
           step.kind === 'action' &&
           step.use &&
           !this.ruleset.action(step.use, this.scope) &&
-          !this.sourceDefines(step.source, step.use)
+          !this.sourceDefines(step.source, step.use) &&
+          !(step.source === undefined && step.entry !== undefined && this.anyDefines(step.use))
         ) {
           this.report.error(file, `${where}: unknown action "${step.use}"`);
         }
@@ -2236,6 +2309,7 @@ export class CharacterChecker {
           if (!decl) error(`${where}: unknown state key "${key}"`);
           else this.literal(value, decl, file, `${where}.state.${key}`);
         }
+        this.grantStore(entry.grants, file, where);
         this.tree(entry.choices ?? {}, this.choicesOf(owners), file, where);
       }
     }
@@ -2336,6 +2410,7 @@ export class CharacterChecker {
       for (const pick of picks) {
         const nested = this.option(choice, pick.option, file, path);
         if (nested) this.tree(pick.choices ?? {}, nested, file, `${path}[${pick.option}]`);
+        this.grantStore(pick.grants, file, `${path}[${pick.option}]`);
         if (pick.state) {
           const hit =
             typeof pick.option === 'string' ? this.ruleset.content.get(pick.option) : undefined;
@@ -2355,8 +2430,32 @@ export class CharacterChecker {
     }
   }
 
+  /** Granted content's saved state: each key a content item, each state key one it declares. */
+  private grantStore(
+    grants: Record<string, { state?: Record<string, Literal> }> | undefined,
+    file: string,
+    where: string,
+  ): void {
+    for (const [ref, saved] of Object.entries(grants ?? {})) {
+      const at = `${where}.grants.${ref}`;
+      const hit = this.content(ref, file, at);
+      if (!hit) continue;
+      const typeName = this.ruleset.typeOf(hit);
+      const typeDef = typeName
+        ? this.ruleset.contentType(typeName, this.ruleset.scope(hit.pack))?.def
+        : undefined;
+      const decls = { ...typeDef?.state, ...hit.item.state };
+      for (const [key, value] of Object.entries(saved.state ?? {})) {
+        const decl = decls[key];
+        if (!decl) this.report.error(file, `${at}: unknown state key "${key}"`);
+        else this.literal(value, decl, file, `${at}.state.${key}`);
+      }
+    }
+  }
+
   private option(
     choice: Choice,
+
     option: string | number,
     file: string,
     where: string,

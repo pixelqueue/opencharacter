@@ -8,7 +8,7 @@ import type {
   TagOrFormula,
   ValueDecl,
 } from './pack-types.ts';
-import { appliesQueries } from './pack-types.ts';
+import { appliesQueries, keptQuery } from './pack-types.ts';
 import { type LoadedItem, localPart, queryKey, resolveId, type Ruleset } from './ruleset.ts';
 
 /** undefined when the name isn't visible from the pack. */
@@ -195,6 +195,7 @@ function mergedView(
     templates.forEach((template, i) => {
       const scope = template.scopes?.fields ?? template.pack;
       const prior = { ...view, tags: mergedTags(item, templates.slice(0, i)) };
+      const params = templateParams(template);
       for (const [name, raw] of Object.entries(template.fields ?? {})) {
         const decl = type?.fields?.[name] ?? templateFields[name];
         if (!decl) continue;
@@ -203,12 +204,23 @@ function mergedView(
           delete view[name];
           continue;
         }
-        const value = fieldValue(ruleset, decl, raw, scope, inputField, { base, prior });
+        const value = fieldValue(ruleset, decl, raw, scope, inputField, { base, prior, params });
         if (value !== undefined) view[name] = rootValue(value);
       }
     });
   }
   return view;
+}
+
+/** A template's `params`: each declared default (a literal), then what its keeper gave. */
+function templateParams(template: LoadedItem): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [name, decl] of Object.entries(template.params ?? {})) {
+    if (decl.default === undefined) continue;
+    const value = typedValue(decl, decl.default);
+    if (typeof value !== 'string') out[name] = rootValue(value);
+  }
+  return { ...out, ...template.bound };
 }
 
 /** Each template in order takes away its `removeTags`, then adds its `tags`. */
@@ -369,7 +381,7 @@ export interface CopyView {
 
 const keptFieldsCache = new WeakMap<Ruleset, Map<string, Set<string>>>();
 
-/** The `keepsFields` of every item that keeps the template on copies of `item`. */
+/** The `keepsFields` of every item that keeps the template on copies of `item`, or on `item`. */
 export function keptFields(ruleset: Ruleset, template: string, item: string): ReadonlySet<string> {
   let cache = keptFieldsCache.get(ruleset);
   if (!cache) keptFieldsCache.set(ruleset, (cache = new Map()));
@@ -382,8 +394,11 @@ export function keptFields(ruleset: Ruleset, template: string, item: string): Re
     const pack = keeper.scopes?.keepsTemplates ?? keeper.pack;
     for (const kept of keeper.keepsTemplates ?? []) {
       if (kept.template !== template) continue;
-      const matches = ruleset.queries[queryKey(pack, kept.copies.type, kept.copies.where)];
+      const query = keptQuery(kept);
+      const matches = ruleset.queries[queryKey(pack, query.type, query.where)];
       if (matches && !matches.includes(item)) continue;
+      // A query reading the keeper isn't resolved: it may match any item of its type.
+      if (!matches && ruleset.content[item]?.type !== query.type) continue;
       for (const field of keeper.keepsFields) out.add(field);
     }
   }
@@ -391,11 +406,18 @@ export function keptFields(ruleset: Ruleset, template: string, item: string): Re
   return out;
 }
 
-export function keptTemplate(ruleset: Ruleset, template: LoadedItem, item: string): LoadedItem {
+/** A kept template as merged: its keepers' `keepsFields` left out, its `params` as given. */
+export function keptTemplate(
+  ruleset: Ruleset,
+  template: LoadedItem,
+  item: string,
+  bound?: Record<string, unknown>,
+): LoadedItem {
   const skip = keptFields(ruleset, template.qid, item);
-  if (skip.size === 0 || !template.fields) return template;
+  const out = bound && Object.keys(bound).length > 0 ? { ...template, bound } : template;
+  if (skip.size === 0 || !template.fields) return out;
   return {
-    ...template,
+    ...out,
     fields: Object.fromEntries(Object.entries(template.fields).filter(([k]) => !skip.has(k))),
   };
 }
@@ -439,6 +461,7 @@ export function copyRoots(
   character: CharacterDoc,
   inputField: FieldLookup,
   templatesOf: TemplatesOf = savedTemplates,
+  templateItems?: (entry: Entry, item: LoadedItem) => LoadedItem[],
 ): Record<string, unknown>[] {
   const out: Record<string, unknown>[] = [];
   for (const entry of [...(character.inventory ?? []), ...(character.features ?? [])]) {
@@ -446,12 +469,14 @@ export function copyRoots(
     if (!item) continue;
     const ids = templatesOf(entry);
     const saved = entry.templates?.length ?? 0;
-    const templates = ids
-      .map((t, i) => {
-        const template = ruleset.content[t];
-        return template && i >= saved ? keptTemplate(ruleset, template, item.qid) : template;
-      })
-      .filter((t): t is LoadedItem => t?.type === 'template');
+    const templates =
+      templateItems?.(entry, item) ??
+      ids
+        .map((t, i) => {
+          const template = ruleset.content[t];
+          return template && i >= saved ? keptTemplate(ruleset, template, item.qid) : template;
+        })
+        .filter((t): t is LoadedItem => t?.type === 'template');
     const self = selfView(entry, stateDecls(ruleset, item, templates), ids);
     const { id: qid, type, tags, ...fields } = itemView(ruleset, item, templates, inputField);
     const state: Record<string, unknown> = {};

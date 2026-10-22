@@ -1,5 +1,8 @@
 id: traits.infernal-legacy
 type: trait
+state:
+  hellishRebukeUsed: { type: boolean, default: false }
+  darknessUsed: { type: boolean, default: false }
 # The option casts at 2nd level with Charisma (`slot` and `castAbility`), whatever slot the app
 # passed and even when a class knows the spell. A spell no class knows is also in spells.limited, so
 # no slot is offered for it.
@@ -41,7 +44,10 @@ effects:
       id: hellish-rebuke
       flags: { slot: 2, castAbility: "'cha'" }
       changes:
-        - { type: setState, entry: self, key: hellishRebukeUsed, value: true }
+        - type: setState
+          grants: { where: 'item.id == @traits.infernal-legacy' }
+          key: hellishRebukeUsed
+          value: true
   - target: { choices: [spell-cost] }
     op: option
     when: >-
@@ -50,7 +56,10 @@ effects:
       id: darkness
       flags: { slot: 2, castAbility: "'cha'" }
       changes:
-        - { type: setState, entry: self, key: darknessUsed, value: true }
+        - type: setState
+          grants: { where: 'item.id == @traits.infernal-legacy' }
+          key: darknessUsed
+          value: true
 grants:
   - item: spells.thaumaturgy
   - item: spells.hellish-rebuke

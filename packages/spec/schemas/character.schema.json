@@ -11,10 +11,10 @@
       "$ref": "common.schema.json#/$defs/semver"
     },
     "id": {
-      "description": "An ID for this character, unique within the app or campaign (a UUID is a good choice).",
+      "description": "An ID for this character. A UUID is fine for an ID unique within the app or campaign; a URL (IRI) makes it global, so the character keeps one identity across apps.",
       "type": "string",
       "minLength": 1,
-      "maxLength": 128
+      "maxLength": 2048
     },
     "packs": {
       "description": "The exact pack versions this character uses, in load order (later packs win).",
@@ -106,7 +106,7 @@
       "additionalProperties": {
         "type": "string",
         "minLength": 1,
-        "maxLength": 128
+        "maxLength": 2048
       }
     },
     "homebrew": {
@@ -119,11 +119,30 @@
       "propertyNames": {
         "pattern": "^(@?[a-z0-9-]+([./][a-z0-9-]+)+)$",
         "type": "string"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/extension"
       }
     }
   },
   "additionalProperties": false,
   "$defs": {
+    "extension": {
+      "description": "One app's extension data, any JSON value. An object may carry `$schema`: the URI of a JSON Schema the extending app publishes for it, so other apps can validate, render or edit it. OCF doesn't host, fetch or check these schemas.",
+      "if": {
+        "type": "object"
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "$schema": {
+            "description": "The URI of a JSON Schema, published by the extending app, that this namespace's data follows.",
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    },
     "entry": {
       "type": "object",
       "required": ["id", "item"],
@@ -155,6 +174,10 @@
         "choices": {
           "description": "Picks for the choices declared by this item and its templates.",
           "$ref": "#/$defs/choiceTree"
+        },
+        "grants": {
+          "description": "Saved state of content this copy's item and templates grant (holder grants), by the granted content's qualified ID.",
+          "$ref": "#/$defs/grantStore"
         }
       },
       "additionalProperties": false
@@ -205,11 +228,41 @@
         "state": {
           "description": "Values for state keys the picked content declares (its content type's or its own), as a copy's state. The picked content sees them as `self.<key>`; a key at its default is left out.",
           "type": "object",
-          "propertyNames": { "$ref": "common.schema.json#/$defs/name" },
-          "additionalProperties": { "$ref": "common.schema.json#/$defs/literal" }
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "common.schema.json#/$defs/literal"
+          }
+        },
+        "grants": {
+          "description": "Saved state of content the picked option grants (holder grants), by the granted content's qualified ID.",
+          "$ref": "#/$defs/grantStore"
         }
       },
       "additionalProperties": false
+    },
+    "grantStore": {
+      "description": "Granted content's saved state, kept on the node whose choice tree holds its picks: a copy, or a pick. Each key is a granted item's qualified ID; `state` holds values for state keys it declares (its content type's or its own), as a pick's does. The granted content sees them as `self.<key>`, over the grant's `state` and the declared defaults; a key at that default is left out. The same item granted twice to one node shares it. Kept while the grant is off.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/qualifiedId"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "object",
+            "propertyNames": {
+              "$ref": "common.schema.json#/$defs/name"
+            },
+            "additionalProperties": {
+              "$ref": "common.schema.json#/$defs/literal"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
     },
     "followUp": {
       "description": "A stored ephemeral follow-up.",

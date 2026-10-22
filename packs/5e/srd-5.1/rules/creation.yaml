@@ -23,7 +23,9 @@ actions:
         kind: choice
         options: { content: { type: subrace, where: item.race == steps.race.picked } }
         changes:
-          - { type: choose, path: { entry: race, choice: [subrace] }, option: picked.id }
+          - type: choose
+            path: { entry: { formula: 'steps.race.added[0]' }, choice: [subrace] }
+            option: picked.id
       - id: class
         kind: choice
         options: { content: { type: class } }
@@ -129,7 +131,9 @@ actions:
         options: { content: { type: subrace, where: item.race == steps.race.picked } }
         random: true
         changes:
-          - { type: choose, path: { entry: race, choice: [subrace] }, option: picked.id }
+          - type: choose
+            path: { entry: { formula: 'steps.race.added[0]' }, choice: [subrace] }
+            option: picked.id
       - id: class
         kind: choice
         options: { content: { type: class } }

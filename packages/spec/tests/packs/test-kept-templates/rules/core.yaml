@@ -1,11 +1,13 @@
 # Every character has a fist (a standard copy). Iron fists keep the iron template on unarmed
 # weapons; the iron template grants training, which keeps the sharp template on heavy weapons
 # (by the base item's tags); focus keeps it while focused; an applied enchantment keeps it on
-# every weapon.
+# every weapon. Potent keeps the far template on picked or granted spells with a range; a spell's
+# own effect and its cast action read its range. Spear keeps the spear template on the cantrip it
+# names, 30 farther per rank; bond keeps the keen template on copies of the weapon it names.
 standardCopies:
   - { type: weapon, where: "'standard' in item.tags" }
 
-tags: [standard, unarmed, light, heavy]
+tags: [standard, unarmed, light, heavy, far]
 
 contentTypes:
   weapon:
@@ -22,9 +24,29 @@ contentTypes:
   feature:
     state:
       focused: { type: boolean, default: false }
-  spell: {}
+      rank: { type: integer, default: 1 }
+  spell:
+    fields:
+      level: { type: integer, default: 0 }
+      range: { type: integer, default: 0 }
+    effects:
+      - { target: range.best, op: atLeast, value: item.range }
+    actions:
+      - use: cast
 
 fields:
+  range.best: { type: integer, formula: 0 }
   kept.count: { type: integer, formula: 0 }
   heavy.count:
     { type: integer, formula: "countCopies(copy.type == 'weapon' && 'heavy' in copy.tags)" }
+
+actions:
+  # A spell's cast: its range, as its item reads it.
+  - id: cast
+    steps:
+      - id: result
+        kind: outcome
+        result: item.id
+        data:
+          range: item.range
+          far: "'far' in item.tags"

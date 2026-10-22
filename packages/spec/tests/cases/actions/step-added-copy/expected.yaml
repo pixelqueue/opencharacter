@@ -1,0 +1,28 @@
+status: finished
+outcome: { data: { kit: [kits-basic-2], mark: [kits-basic-3] } }
+proposedChanges:
+  - to: self
+    step: kit
+    change: { type: addItem, entry: { id: kits-basic-2, item: test-pack:kits.basic } }
+  - to: self
+    step: picks
+    change: { type: choose, path: { entry: kits-basic-2, choice: [tool] }, option: saw }
+  - to: self
+    step: mark
+    change: { type: setState, entry: kits-basic-2, key: filled, value: true }
+  - to: self
+    step: mark
+    change: { type: addItem, entry: { id: kits-basic-3, item: test-pack:kits.basic } }
+log:
+  - step: kit
+    action: test-pack:gain-kit
+    kind: choice
+    by: engine
+    option: test-pack:kits.basic
+  - step: picks
+    action: test-pack:gain-kit
+    kind: choice
+    by: engine
+    option: saw
+    index: 0
+    choice: { entry: kits-basic-2, choice: [tool] }

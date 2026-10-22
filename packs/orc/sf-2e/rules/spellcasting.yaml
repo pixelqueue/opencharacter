@@ -1004,10 +1004,6 @@ actions:
           - { type: set, when: focus.spent > 0, field: focus.spent, value: 0 }
           - { type: set, when: vitality.spent > 0, field: vitality.spent, value: 0 }
           - { type: setState, picks: { where: self.used }, key: used, value: false }
-          - type: setState
-            picks: { where: has(self.fanUses) && self.fanUses > 0 }
-            key: fanUses
-            value: 0
           - type: set
             forEach: keysOf('archetypeSource')
             when: fieldOf('spellSlots.archetype.{archetypeSource}.rank{archetypeRank}.used', x, 1) > 0

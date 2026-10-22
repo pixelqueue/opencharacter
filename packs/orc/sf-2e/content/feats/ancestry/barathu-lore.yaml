@@ -13,11 +13,7 @@ effects:
     value: { tag: skill.medicine }
     when: "!('skill.medicine' in skills.chosen)"
   - { target: skills.trainings, op: add, value: 1 }
-  - target: skills.trained
-    op: grant
-    value: { tag: skill.lore.barathu }
-    when: "!('skill.lore.barathu' in skills.chosen)"
-  - { target: skills.trainings, op: add, value: 1 }
-  - target: skills.lore.barathu.granted
-    op: add
-    value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+grants:
+  - item: feats.skill.additional-lore
+    waivePrerequisites: true
+    choices: { lore: [{ option: barathu }] }

@@ -1,0 +1,21 @@
+# skill goes from the granted feat's saved state (an emptied grant entry goes with it), the
+# pick (which keeps uses) and the copy
+ok: true
+character:
+  features:
+    - id: scout
+      item: test-pack:paths.scout
+      choices:
+        feat:
+          - option: test-pack:feats.hide
+            state: { uses: 1 }
+    - id: hide
+      item: test-pack:feats.hide
+pending: []
+report:
+  values: []
+  steps:
+    - pack: test-pack
+      from: 1.0.0
+      to: 2.0.0
+      op: removeState

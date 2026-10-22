@@ -17,3 +17,5 @@ effects:
     value: min(-incoming.amount, 15 + 5 * floor((self.rank - 4) / 2))
     when: incoming.amount < 0
     scope: applied
+    then:
+      - { type: removeEffect, entry: self }

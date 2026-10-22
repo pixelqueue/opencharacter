@@ -126,6 +126,14 @@ If rolling needs more dice than that (a reroll, an exploding die), the action pa
 one die at a time. A wrong number of faces, or a face that isn't on the die, is the error
 `answer-mismatch`.
 
+**Rolling the whole roll twice.** Some rules roll a whole roll again and keep the better or
+worse total (Ashes Without Number's "roll twice, keep the worse" on 2d6). Such a pause has
+`needs.repeat: { times, keep }` (`keep` is `high` or `low`), and `needs.dice` lists every roll's
+dice in turn: answer with the faces of the first roll, then the second. The log entry's `items`
+and `total` are the kept roll's, its `faces` every face you gave, and `rolls` lists every roll as
+`{ total, kept, items }`, so show both and mark the kept one. `text.dice(needs.items, needs.repeat)`
+words it: "2d6, rolled twice, keep the lower total".
+
 ### Checkpoint policies
 
 Every roll and every in-action choice is a **checkpoint**. The policy decides, for each one,
@@ -135,7 +143,7 @@ final total, a flat damage) isn't one: it never pauses, and its log entry has no
 ```ts
 const policy = {
   dice: 'auto', // default for rolls
-  choices: 'pause', // default for choices
+  choices: 'auto', // default for choices
   rules: [
     { kind: 'roll', tags: ['attack'], then: 'pause' }, // animate attack rolls
     { step: 'hit/confirm', then: 'auto' }, // take the recommendation here
@@ -187,6 +195,11 @@ A choice like this may ask again, once per pick, with the same `step`; each pick
 log entry with an `index`. `#done` stops early. Name a copy option by its item's name, a
 content option (a qualified content ID) by that item's name, and `#done` by the spec's
 `actions.options.done.name`.
+
+A choice can also offer plain values (a modular weapon's damage types, the character's trained
+skills). Each option is the value as a string. Name it by `<actionKey>.options.<value>.name`
+when the pack has that key; otherwise name it as a set member: a content ID by its item's name,
+a field ID by the field's, a tag by the tag's (`text.option(id, { action: needs.action })` does this).
 
 A character's abilities and items can add their own options to a choice. In FitD, pushing
 yourself costs 2 stress, and a scoundrel with Battleborn may mark special armor instead:

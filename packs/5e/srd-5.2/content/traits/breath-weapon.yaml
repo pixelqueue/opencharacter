@@ -1,12 +1,17 @@
 id: traits.breath-weapon
 type: trait
+state:
+  breathWeaponUsed: { type: integer, default: 0, min: 0 }
 effects:
   - target: { steps: [rest.long] }
     op: changes
     when: self.breathWeaponUsed > 0
     value:
       changes:
-        - { type: setState, entry: self, key: breathWeaponUsed, value: 0 }
+        - type: setState
+          grants: { where: 'item.id == @traits.breath-weapon' }
+          key: breathWeaponUsed
+          value: 0
 actions:
   - id: breath-weapon
     tags: [feature]
@@ -27,7 +32,7 @@ actions:
       - id: spend
         kind: changes
         changes:
-          - { type: adjustState, entry: self, key: breathWeaponUsed, by: 1 }
+          - { type: adjustState, grant: self, key: breathWeaponUsed, by: 1 }
       - id: saves
         kind: action
         each: target

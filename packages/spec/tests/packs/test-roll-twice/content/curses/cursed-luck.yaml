@@ -1,0 +1,8 @@
+# While applied, the character's checks and damage are rolled twice, the worse kept.
+id: curses.cursed-luck
+type: curse
+effects:
+  - target: { rolls: [check, damage] }
+    op: rollModifier
+    value: { kind: disadvantage, of: roll }
+    scope: applied

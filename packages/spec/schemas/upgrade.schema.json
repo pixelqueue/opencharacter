@@ -38,7 +38,10 @@
             "setDefault",
             "mapValues",
             "renameState",
+            "removeState",
+            "moveState",
             "renameChoice",
+            "removeChoice",
             "renameOption",
             "requireChoice",
             "renameContentType",
@@ -51,9 +54,11 @@
           ]
         },
         "from": {
+          "description": "The old name. renameContent, renameField, renameContentType, renameItemField, renameTag, renameAction: the ID. renameState, moveState: the state key. renameChoice: the choice ID on `owner`, or a prefixed choice key as saved (`<qualified id>/<choice>`, a granted or template content's choice), whose picks in `owner`'s trees become its choice `to`. renameOption: the picked option.",
           "type": "string"
         },
         "to": {
+          "description": "The new name, as for `from`. moveState: the target's state key (default `from`). renameOption: the replacing option; absent, the pick is removed.",
           "type": "string"
         },
         "id": {
@@ -63,6 +68,7 @@
           "$ref": "common.schema.json#/$defs/fieldRef"
         },
         "type": {
+          "description": "renameState, removeState, moveState: limits the step to content of this content type (with `item`, both must match). renameItemField, removeItemField, mapItemValues: the homebrew items' content type.",
           "$ref": "common.schema.json#/$defs/name"
         },
         "value": {
@@ -75,14 +81,36 @@
           }
         },
         "owner": {
-          "$ref": "common.schema.json#/$defs/ref"
+          "description": "Choice steps: whose choice it is (absent: the rules). moveState: the owner of `choice`, whose pick of `option` in the copy's own choice tree, at any depth, receives the value (absent: a rules-level choice). A path names a choice nested in an inline option (see `choiceOwner`).",
+          "$ref": "#/$defs/choiceOwner"
         },
         "choice": {
+          "description": "removeChoice, renameOption, requireChoice: the choice on `owner`, as saved (a slot is its own key). moveState: the choice whose pick receives the value; a slotted one is searched slot by slot.",
           "$ref": "common.schema.json#/$defs/slug"
         },
         "item": {
-          "description": "adoptStandard: the item whose standard copy an entry becomes.",
+          "description": "adoptStandard: the item whose standard copy an entry becomes. renameState, removeState, moveState: limits the step to content `item` and homebrew items extending it (with `type`, both must match).",
           "$ref": "common.schema.json#/$defs/ref"
+        },
+        "key": {
+          "description": "removeState: the state key to drop.",
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "grant": {
+          "description": "moveState: the granted content whose saved state on the copy (its `grants`) receives the value.",
+          "$ref": "common.schema.json#/$defs/ref"
+        },
+        "option": {
+          "description": "moveState: the picked option, in choice `choice` of `owner` (or the rules), whose pick receives the value.",
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "number"
+            }
+          ]
         }
       },
       "allOf": [
@@ -248,9 +276,94 @@
             "type": "object",
             "required": ["item"]
           }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "removeState"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["key"]
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "moveState"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["from"],
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["grant"],
+                "not": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "required": ["choice"]
+                    },
+                    {
+                      "type": "object",
+                      "required": ["option"]
+                    },
+                    {
+                      "type": "object",
+                      "required": ["owner"]
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "object",
+                "required": ["choice", "option"],
+                "not": {
+                  "type": "object",
+                  "required": ["grant"]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "removeChoice"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["choice"]
+          }
         }
       ],
       "additionalProperties": false
+    },
+    "choiceOwner": {
+      "description": "Whose choice a step names: content (a local or qualified ID); for a choice nested in an inline option, that content then each choice and inline option down to it, joined by `/` (`classes.operative/specialization/ghost`). A path with an even number of parts starts at a rules-level choice (`motto/brave`). Absent: the rules.",
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/ref"
+        },
+        {
+          "type": "string",
+          "maxLength": 512,
+          "pattern": "^(([a-z0-9]+([-.][a-z0-9]+)*:[a-z0-9]+(-[a-z0-9]+)*(\\.[a-z0-9]+(-[a-z0-9]+)*)*|[a-z0-9]+(-[a-z0-9]+)*(\\.[a-z0-9]+(-[a-z0-9]+)*)*)/[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*|[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*)(/[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*)*$"
+        }
+      ]
     }
   }
 }

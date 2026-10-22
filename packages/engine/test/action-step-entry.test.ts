@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { loadRuleset } from '../src/index.ts';
 
-function load(entry: string) {
+function load(entry?: string, use = 'swing') {
   return loadRuleset([
     {
       manifest: {
@@ -17,7 +17,7 @@ function load(entry: string) {
           { id: 'swing', steps: [{ id: 'result', kind: 'outcome', result: "'done'" }] },
           {
             id: 'go',
-            steps: [{ id: 'run', kind: 'action', use: 'swing', entry }],
+            steps: [{ id: 'run', kind: 'action', use, ...(entry ? { entry } : {}) }],
           },
         ],
       },
@@ -30,5 +30,10 @@ describe('an action step entry', () => {
   it('is a string formula', () => {
     expect(load("'tool-1'").ok).toBe(true);
     expect(load('1 + 1').ok).toBe(false);
+  });
+
+  it("may name the copy's own action by a local ID no rules action has", () => {
+    expect(load("'tool-1'", 'twirl').ok).toBe(true);
+    expect(load(undefined, 'twirl').ok).toBe(false);
   });
 });

@@ -37,11 +37,26 @@ The full shape is [character.schema.json](../../../packages/spec/schemas/charact
 explained in [Characters](../../../packages/spec/docs/characters.md).
 
 **It holds only base state:** the values a player typed in, what the character owns, per-copy
-state (charges, a class's level), picks (with their own state, such as a once-a-day feat's use)
-and active temporary effects. Armor Class, modifiers,
+state (charges, a class's level), picks (with their own state, such as a once-a-day feat's use),
+the state of content a copy or pick grants (`grants`, below) and active temporary effects. Armor Class, modifiers,
 attack bonuses and maximum HP are **never** in the file. They come from `computeSheet` every
 time, so a saved character can't disagree with the rules, and a pack fix reaches every character
 without migrating anything.
+
+Content an item grants can keep state of its own: an artifact's gift whose Effort stays
+committed. It is saved on the copy (or the pick) that grants it, under `grants`, by the granted
+content's qualified ID, and left out while at its defaults:
+
+```yaml
+inventory:
+  - id: blade
+    item: my-pack:artifacts.sun-blade
+    equipped: true
+    grants:
+      my-pack:gifts.flame-ward: { state: { committed: 1 } }
+```
+
+It stays while the grant is off (the blade stowed), so round-trip it like picks.
 
 > Don't add derived values to the file "for convenience". If you need them without computing
 > (a search index, a token's HP bar on a server), keep them in your own cache next to the file
@@ -56,7 +71,9 @@ There are two kinds of ID in a character file:
 - **Instance IDs** are yours: the character's `id`, and the `id` of each entry in `features`,
   `inventory` and `applied`. Changes refer to copies by instance ID (`equip inv-1`). They must be
   unique within the file; the character's `id` should be unique within your app or campaign. A
-  UUID is a good choice for characters. For entries, anything readable and stable works
+  UUID is fine for that. To give a character one identity across apps, use a URL (IRI) you
+  control, such as `https://example.com/characters/tamsin`: it's global, and other characters'
+  `links` can name it the same way. A character ID may be up to 2048 characters. For entries, anything readable and stable works
   (`fighter`, `inv-1`, a UUID). A standard copy, which every character holds (the ritual FitD's
   Ritual ability starts with), has an ID the engine derives from its item
   (`fitd-scoundrel-rituals-ritual`); the
@@ -82,6 +99,9 @@ applyChanges(ruleset, character, [
 - The engine ignores extensions, except to store them with `setExtension`. `value: null`
   removes your namespace.
 - `setExtension` replaces your namespace's whole value, so merge before you write.
+- **Publish a schema for your data** if other apps should understand it: put its URI in
+  `$schema` in your namespace's object (`$schema: https://example.com/ocf/vtt-extension/1.json`).
+  Other apps can then validate it, show it as a form or edit it safely. OCF never fetches it.
 
 Changing extensions through `applyChanges` isn't required (it's not game state), but it keeps
 them in your change log with everything else.
@@ -125,7 +145,7 @@ inventory:
   earlier in the same batch. A batch that starts with `setHomebrew` also repairs a homebrew that
   no longer loads.
 - **Upgrades** rewrite the homebrew along with the saved state: a field, item, content type, item
-  field, tag or action the pack renames is renamed in it too, each place listed in the report's
+  field, state key, tag or action the pack renames is renamed in it too, each place listed in the report's
   `homebrew`. What can't be migrated is in the report's `errors`, for the player to fix.
 - **A custom-item form** builds its inputs from the content type's `fields`
   (`ruleset.contentTypes[type].fields`): the declaration gives each input's kind (`dice`,
@@ -166,8 +186,10 @@ item, a value for a field that no longer exists) in `errors`, computing the rest
 and the same changes always give the same result. That gives you three patterns for free:
 
 - **Undo:** keep the previous character. Undo is putting it back.
-- **History:** store each batch of changes with who made it and when. Replaying the batches from
-  a starting file rebuilds the character exactly.
+- **History:** store each batch of changes with who made it and when. Log `result.changes`, the
+  batch as applied, not the one you sent: an `adjust` whose effects rolled dice comes back with
+  the faces it used, and replaying it without them fails with `faces-required`. Replaying the
+  batches from a starting file rebuilds the character exactly.
 - **Multiplayer sync:** send change batches instead of whole characters. Every client applies
   them in the same order and gets the same character. Keep the server's copy authoritative and
   let it reject batches that fail.

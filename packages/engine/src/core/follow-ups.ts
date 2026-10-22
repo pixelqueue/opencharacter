@@ -373,7 +373,7 @@ function declarations(ruleset: Ruleset, sheet: Sheet): Declared[] {
   const out: Declared[] = [];
   for (const def of ruleset.rules.followUps) {
     const id = `${def.pack}:${def.id}`;
-    out.push({ def, pack: def.pack, id, roots: {}, key: id, sheet, offerId: id });
+    out.push({ def, pack: def.pack, id, roots: sheet.rulesRoots(), key: id, sheet, offerId: id });
   }
   for (const a of sheet.activations) {
     if (a.scope !== 'holder' || !a.item) continue;
@@ -598,13 +598,59 @@ function resolveChange(
         readsBatch(v) ? { formula: v } : outputData(evaluate(v)),
       ]),
     );
+  if (change.path) {
+    const at = change.path.entry;
+    let entry: string | undefined;
+    if (typeof at === 'object') {
+      const id = evaluate(at.formula);
+      if (id.kind !== 'string' || id.value === '')
+        throw new Failure({ code: 'type-mismatch', message: 'an entry is an instance ID' });
+      entry = id.value;
+    } else if (at === 'self') {
+      if (!activation?.entry)
+        throw new Failure({ code: 'unknown-name', message: 'entry: self needs a copy' });
+      entry = activation.entry.id;
+    } else entry = at;
+    const choice = Array.isArray(change.path.choice)
+      ? change.path.choice
+      : f.toData(evaluate(change.path.choice));
+    if (!Array.isArray(choice) || choice.some((c) => typeof c !== 'string'))
+      throw new Failure({ code: 'type-mismatch', message: 'a choice path is a list of strings' });
+    out.path = { ...(entry !== undefined ? { entry } : {}), choice };
+  }
+  if (change.option !== undefined) out.option = outputData(evaluate(change.option));
+  // `pick: self` and `grant: self` name the pick or holder grant that made the content active.
+  if (change.pick === 'self') {
+    const option = activation?.kind === 'pick' ? activation.path.choice.at(-1) : undefined;
+    if (!activation || option === undefined)
+      throw new Failure({ code: 'unknown-name', message: 'pick: self needs picked content' });
+    out.path = { ...activation.path, choice: activation.path.choice.slice(0, -1) };
+    out.option = option;
+  }
+  if (change.grant === 'self') {
+    if (!activation?.item || activation.kind !== 'grant' || activation.scope !== 'holder')
+      throw new Failure({ code: 'unknown-name', message: 'grant: self needs granted content' });
+    const at = activation.path;
+    if (at.choice.length === 0) out.entry = at.entry;
+    else {
+      out.path = { ...at, choice: at.choice.slice(0, -1) };
+      out.option = at.choice.at(-1);
+    }
+    out.grant = activation.item.qid;
+  }
   if (change.copies) {
     out.copies = { ...change.copies };
     if (change.limit !== undefined) out.limit = change.limit;
   }
   if (change.applied) out.applied = { ...change.applied };
+  if (change.picks) out.picks = { ...change.picks };
+  if (change.grants) out.grants = { ...change.grants };
   const perCopy = (formula: Formula) =>
-    (change.copies !== undefined || change.applied !== undefined) && readsCopy(formula);
+    (change.copies !== undefined ||
+      change.applied !== undefined ||
+      change.picks !== undefined ||
+      change.grants !== undefined) &&
+    readsCopy(formula);
   if (change.value !== undefined)
     out.value = perCopy(change.value) ? change.value : outputData(evaluate(change.value));
   if (change.by !== undefined)

@@ -141,6 +141,11 @@ or item and the rules actions they `use`) and in its follow-ups, `self` also has
 on the copy sees the copy's computed values there too, since its `self` is that copy. A roll
 effect's `roll.self` doesn't have them.
 
+The copy's picks aren't on `self`: a formula reads its owner's choices with
+[`picksOf`](formulas.md#picks-of-the-owners-choices), a copy's item reading the entry's bare
+keys, a template or granted content its prefixed ones, picked content those nested under its
+pick. A rules action the copy uses reads the copy's.
+
 ### Items and `item`
 
 The item a copy holds, as `item`, is the base item merged with the copy's templates:
@@ -164,9 +169,15 @@ step over copies and its `steps.<id>.item`, display groups) and in `copy.fields`
 these merged ones.
 
 In a template's formulas, `item` is the merged item and `base` is the base item alone; its field
-values also see `prior`, the item as merged before it. A template's `removeTags`
+values also see `prior`, the item as merged before it, and `params`, its params as its keeper
+gave them ([content.md](content.md#from-the-keeper)). A template's `removeTags`
 take tags away in template order before its `tags` are added. The templates are
 the copy's saved ones, then those content keeps on it ([content.md](content.md#kept-templates)).
+
+Content picked or granted, which has no copy, is merged the same way with the templates content
+keeps on its item ([content.md](content.md#on-content-without-a-copy)): its `item` in its own
+effects, grants, choices, actions and follow-ups is that merged item. Without such templates it
+is the base item.
 
 ### `character`
 
@@ -221,8 +232,12 @@ The rules and content items may declare `standardCopies` ([content.md](content.m
   there yet; activate again, until a round adds none (at most `maxChoiceDepth` rounds). A copy
   added in a round stays for that computation. The templates content keeps on copies
   are found in the same rounds: each round also adds, for every active
-  `keepsTemplates` entry whose `when` holds, its template on each matching copy that hasn't it.
-  The rounds end when a round adds neither a copy nor a kept template.
+  `keepsTemplates` entry whose `when` holds, its template on each matching copy that hasn't it,
+  or with `content`, on each matching item picked or granted that hasn't it. A query reading
+  the keeper and the entry's `params` are evaluated in each round with the keeper's roots
+  ([content.md](content.md#from-the-keeper)); a template found again takes the params of its
+  first keeper that round. The rounds end when a round adds neither a copy nor a kept template
+  and changes no params.
 - **Instance ID:** the item's qualified ID with the colon and dots as hyphens.
 - **Saved or not.** An entry with a standard copy's ID and item is that copy, saved, in its
   place in the file. An entry with its ID and another item is `duplicate-id` (path: the entry's
@@ -267,11 +282,17 @@ and its scope (`holder` or `applied`):
 An applied entry's `self` is `id` plus its state keys, read as in `character.applied`: declared
 keys by their type, with their `default` when unsaved.
 
+Content a holder grant activates that declares state (its type's or its own) reads its keys from
+its saved state on the grant's node (the owner copy, or the pick whose tree holds its picks),
+else the grant's `state` values, else the declared defaults, over the owner copy, as picked
+content reads its pick's ([content.md](content.md#when-content-is-active)). An applied grant's
+content sees the granting entry with the grant's `state` values in place.
+
 **Activation conditions** decide what is active: grant `when`, choice `when`, and an
 immunity's `when` and query `where`. They are
 evaluated before any field is computed, so they may read only `self`, `item`, `character` (its
 `applied` list included, which is raw), `entry` in an immunity's query, the character functions,
-and the raw values of **input fields** (saved value, or default). Effects
+the owner's saved picks (`picksOf`), and the raw values of **input fields** (saved value, or default). Effects
 are not applied to those values. A condition that reads a derived field is rejected by the build
 (`type-mismatch`). **PROVISIONAL.** This keeps activation free of loops: a class grants features
 by `self.level`, never by a computed field.
@@ -594,8 +615,8 @@ later declaration replacing an earlier one with the same name in its place.
 
 - A formula resolves names in the pack that declared it (an override's in the overriding pack)
   and sees `item` and `self` as the copy's effects do, every field (fields never read computed
-  values, so they are all computed first), `character`, `links` and the character functions.
-  `self` has the copy's computed values declared before this one, each as
+  values, so they are all computed first), `character`, `links` and the character functions,
+  `picksOf` reading the copy's item's choices. `self` has the copy's computed values declared before this one, each as
   worked out; one that failed is absent. A replacement keeps the replaced name's place, so the
   values after it read the replacement, and it reads only what comes before the name.
 - An `integer` value must be an int, a `decimal` value a number (an int becomes a decimal), a
@@ -612,6 +633,22 @@ an engine may compute them on demand, with the same result.
 ([content.md](content.md#per-copy-state)) to the value of that state key, when it is a
 non-empty string (not only spaces); an item's `nameFrom` replaces its type's. Copies without one
 are left out.
+
+### Merged items
+
+`templated` lists every item the character has with templates, as the rules read it, so an app
+shows a Longsword +1's bonus or a cantrip's longer range without merging templates itself. Each
+is `{ entry?, item, templates, tags, fields }`:
+
+- First each copy with a saved or kept template, in instance order, with `entry` its instance
+  ID; then each item picked or granted that content keeps templates on
+  ([content.md](content.md#on-content-without-a-copy)), in activation order, once per item,
+  with no `entry`. Content without templates isn't listed: its item is the ruleset's.
+- `item` is the base item's qualified ID and `templates` the templates in the order they apply
+  (saved, then kept).
+- `tags` is the merged `item.tags`, and `fields` each item field as the merged `item` reads it
+  ([Items and `item`](#items-and-item)): a template's `null` leaves the field out, a default
+  fills in, and a dice field is its canonical dice text.
 
 ### The activation list
 
@@ -635,7 +672,9 @@ depth first, then the active applied entries with their applied grants. Each is
 - `keptBy`: for a template content keeps on the copy, the index of the
   activation that keeps it (the first, when several do). Absent for a saved template.
 - `path`: for a pick, the choice path of the pick (`change.schema.json#/$defs/choicePath`), the
-  picked option last, as `pending` and change paths name it.
+  picked option last, as `pending` and change paths name it. For a holder grant whose node is a
+  pick (content granted by picked content or an inline option), that pick's path, which names
+  the grant's saved state ([applyChanges](#applychanges)).
 
 Inline options, the rules and applied entries an immunity blocks (which aren't activated) aren't
 listed, nor are the picks of a choice with `activate: false`. A content group's `from: own`
@@ -667,8 +706,13 @@ slotted choice is one entry per applicable slot. A choice that isn't applicable 
   ([formulas.md](formulas.md#functions)).
 - `min` and `max`: the evaluated pick counts, as `listOptions` gives them (`max` absent when
   unbounded; a count that fails to evaluate leaves the default, 1).
-- `picks`: the picked options, in saved order: content IDs, inline option IDs or values.
-- `open`: whether the choice is pending: `required` not `false` and fewer picks than `min`.
+- `picks`: the picked options, in saved order: content IDs, inline option IDs or values. For a
+  choice a grant presets, the grant's.
+- `open`: whether the choice is pending: `required` not `false` and fewer picks than `min`; a
+  preset choice never is.
+- `preset`: `true` when a grant presets the choice
+  ([content.md](content.md#when-content-is-active)); `choose` and `unchoose` on it are
+  `preset-choice`.
 
 The entries with `open: true` are `pending`. Each content pick in
 [the activation list](#the-activation-list) has a listed choice's path plus the option; inline
@@ -800,14 +844,14 @@ successful result returns `changes`: the batch as applied, with the faces it rol
 | `addItem`                       | instance ID unused (`duplicate-id`); item exists (`unknown-id`); templates are templates and apply (`template-not-applicable`); `equipped` only if equippable (`not-equippable`); state keys declared (`unknown-state-key`) and typed (`wrong-type`); a formula default within the key's `min`/`max` (`out-of-range`); each pick, at any depth, names a choice of the copy (`unknown-choice`) and one of its options (`invalid-option`), as a `choose` would | Adds the entry to `inventory` (carried types) or `features`                                                                                              |
 | `removeItem`                    | entry exists (`not-owned`); not a standard copy (`standard-copy`)                                                                                                                                                                                                                                                                                                                                                                                            | Removes it with its picks                                                                                                                                |
 | `equip`                         | entry in inventory (`not-owned`), equippable (`not-equippable`)                                                                                                                                                                                                                                                                                                                                                                                              | Sets `equipped`                                                                                                                                          |
-| `setState`, `adjustState`       | entry exists (a copy, or an applied entry by its ID), key declared (for an applied entry, by its source), type, numeric for adjust, within the declaration's `min`/`max` (`out-of-range`), evaluated for the copy with `item` bound ([content.md](content.md#state-formulas))                                                                                                                                                                                | Stores the value                                                                                                                                         |
+| `setState`, `adjustState`       | entry exists (a copy, or an applied entry by its ID; a pick by `path` and `option`; with `grant`, a holder grant of that content active on the copy or pick, `not-granted`), key declared (for an applied entry, by its source; for a pick or grant, by its content), type, numeric for adjust, within the declaration's `min`/`max` (`out-of-range`), evaluated for the copy with `item` bound ([content.md](content.md#state-formulas))                    | Stores the value                                                                                                                                         |
 | `setQuantity`, `adjustQuantity` | entry exists (`not-owned`); an integer (`wrong-type`); the new quantity not below 0 (`out-of-range`)                                                                                                                                                                                                                                                                                                                                                         | Sets `quantity`, or adds `by` to it (default 1). A copy at 0 stays                                                                                       |
 | `applyTemplate`                 | entry exists; template is a template (`unknown-id`) whose `appliesTo` matches the item (`template-not-applicable`); not already applied (`duplicate-id`)                                                                                                                                                                                                                                                                                                     | Appends it                                                                                                                                               |
 | `removeTemplate`                | applied (`not-picked`)                                                                                                                                                                                                                                                                                                                                                                                                                                       | Removes it and its state values                                                                                                                          |
 | `applyEffect`                   | ID unused when an entry is added (`duplicate-id`; without one, generated: below), source is content and not a template (`unknown-id`), state keys declared (`unknown-state-key`), typed (`wrong-type`) and within their `min`/`max` (`out-of-range`)                                                                                                                                                                                                         | Adds an `applied` entry, or merges into one (`reapply`, below)                                                                                           |
 | `removeEffect`, `toggleEffect`  | entry exists (`not-owned`), or by query (below)                                                                                                                                                                                                                                                                                                                                                                                                              | Removes it, or sets `active`                                                                                                                             |
-| `choose`                        | the path leads to a choice (`unknown-choice`); the option is one of its options (`invalid-option`; a `values` formula is evaluated on the sheet before the change) and not already picked (`duplicate-id`)                                                                                                                                                                                                                                                   | Appends the pick                                                                                                                                         |
-| `unchoose`                      | the path leads to a choice (`unknown-choice`); the option is picked (`not-picked`). Without `option`: nothing                                                                                                                                                                                                                                                                                                                                                | Removes the pick and its nested picks; without `option`, every pick and their nested picks (none to remove is no change). The choice keeps an empty list |
+| `choose`                        | the path leads to a choice (`unknown-choice`) no grant presets (`preset-choice`); the option is one of its options (`invalid-option`; a `values` formula is evaluated on the sheet before the change) and not already picked (`duplicate-id`)                                                                                                                                                                                                                | Appends the pick                                                                                                                                         |
+| `unchoose`                      | the path leads to a choice (`unknown-choice`) no grant presets (`preset-choice`); the option is picked (`not-picked`). Without `option`: nothing                                                                                                                                                                                                                                                                                                             | Removes the pick and its nested picks; without `option`, every pick and their nested picks (none to remove is no change). The choice keeps an empty list |
 | `setExtension`                  | —                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Stores or (with `null`) removes the namespace's data                                                                                                     |
 | `finishCreation`                | the character, with the batch's earlier changes applied, has no rules issues and no pending choices (`creation-incomplete`; its `issues`, pending choices as `too-few-picks`, are also the failed result's `issues`)                                                                                                                                                                                                                                         | Clears `creating`. Nothing on a character not being created                                                                                              |
 | `setHomebrew`                   | the new homebrew loads (`homebrew-error`, paths into the change: `/changes/<index>/homebrew/…`); the rest of the file names no `homebrew:` content or field it lacks (`unknown-id`)                                                                                                                                                                                                                                                                          | Replaces the homebrew, or removes it with `null`                                                                                                         |
@@ -901,6 +945,22 @@ names every pick, in file order (each copy's tree, then the rules-level tree, de
 whose picked content declares the change's `key` and whose `where` holds with `item` the picked
 item and `self` its state; `by` and `value` are evaluated per pick. No match changes nothing.
 
+**A grant's state**. `setState` and `adjustState` may name granted content's saved
+state with `grant`, its qualified ID, beside its node: `entry` (the copy) or a pick's `path` and
+`option`. An active holder grant of that content on that node must exist (`not-granted`, data
+`grant`; an applied entry has none). The keys, types and bounds are those the granted content's
+type and item declare. Its current value is the saved one, else the grant's `state` value, else
+the declared default; a value equal to that default is dropped (an empty entry, and an empty
+`grants`, with it). A preset pick the path goes through is saved first, as `choose` saves it.
+`grants: { where, limit? }` names every active holder grant, in activation order (an item once
+per node), whose content declares the change's `key` and whose `where` holds with `item` the
+granted item and `self` its state; `by` and `value` are evaluated per grant. No match changes
+nothing.
+
+**Preset choices**. `choose` and `unchoose` on a choice a grant presets are
+`preset-choice` (data `path`). A `choose` (or a pick's `setState`) whose path goes through a
+preset pick first saves a pick of that option, with no state, to hold what nests under it.
+
 **Quantity**. `setQuantity` and `adjustQuantity` change a copy's
 `quantity` (any copy, in inventory or features; absent means 1). The result is always written,
 1 included. It never goes below 0: such a change is `out-of-range` and rejects the batch, so an
@@ -950,13 +1010,23 @@ An `adjust` on field F with amount `by`, `tags` and optional `situational` choic
    (without incoming-change effects), up to `maxOverflowChain` adjusts in all.
 5. **Clamping.** Otherwise the result is clamped to `min`/`max`.
 6. **`then`.** After the adjust is fully routed, each instance that counted in step 1 applies its
-   `then` changes (`setState` or `adjustState`), in instance order, to its own copy: the copy
-   whose `self` it sees (for picked or granted content, the owning copy), before the next change
-   in the batch. Their `value` and `by` are evaluated with the instance's `item`, `self` and
-   `incoming`, on the same sheet as step 1. They are checked like the same changes given to
-   applyChanges, and a failure rejects the batch. They are not adjusts, so nothing routes or
-   triggers on them. An instance with no copy (content picked in a rules-level choice) skips
-   them; `then` where no copy can exist is a load error (`then-without-copy`).
+   `then` changes, in instance order, to its own entry, before the next change in the batch: for
+   an applied activation the applied entry whose `self` it sees (for content an applied grant
+   reaches, the granting entry), otherwise its copy. A `setState` or `adjustState` changes the
+   state `self` reads the key from: for picked content that declares the key, its pick's state,
+   as the same change with the pick's `path` and `option` would; for held granted content that
+   declares it, its grant's saved state, as the same change with `grant` and the grant's node
+   would (a value equal to its default is dropped; two grants of one item on one node share it);
+   otherwise the entry's state (for picked or granted content, the owning copy's). A change to a
+   grant that is no longer active (an earlier `then` turned its `when` off) is skipped. A
+   `removeEffect` (applied effects only) removes the applied entry. Their `value` and `by` are
+   evaluated with the instance's `item`, `self` and `incoming`, on the same sheet as step 1.
+   They are checked like the same changes given to applyChanges, and a failure rejects the
+   batch. Once an entry is removed, every later `then` change aimed at it in this step is
+   skipped, so two effects of one ward that both counted remove it once. They are not adjusts,
+   so nothing routes or triggers on them. A change with nowhere to go is skipped: content picked
+   in the rules' choices, or granted by the rules, has no entry, so a change to the entry's state
+   is skipped (a key its pick declares still changes on the pick). `then` where no entry can exist is a load error (`then-without-copy`).
 
 Each step that changes a field is reported in `adjustments`, in order, as
 `{ field, by, requested?, taken?, reason, clamped? }`, with qualified field IDs:
@@ -977,9 +1047,12 @@ Each step that changes a field is reported in `adjustments`, in order, as
 4. **`reset`:** the jump of the named field to its `reset` value.
    - **`carry`**: with `carry: true`, the excess routed into the field again, its
      entry `{ field, by, reason: carry }` followed by its own steps if it overflows in turn.
-5. **`then`:** after the adjust's own entries, one `{ entry, key, value, source }` per `then`
-   change: the copy, the state key, its new value, and the effect instance's source with its
-   effect ID (`effect`, when the effect has one).
+5. **`then`:** after the adjust's own entries, one `{ key, value, source }` per `then` state
+   change, with the state's address as the setState that makes it takes: `entry` (a copy or an
+   applied entry), a pick's `path` and `option`, or `grant` with the grant's node (`entry`, or
+   `path` and `option`); then the state key, its new value, and the effect instance's source
+   with its effect ID (`effect`, when the effect has one). A
+   `removeEffect` adds `{ entry, removed: true, source }` instead. A skipped change adds nothing.
 
 `clamped: true` appears only when clamping changed the amount. So FitD stress at 8 taking 3
 reports stress +3 (`requested`), trauma +1 (`overflow`), then stress −11 (`reset`). Mothership

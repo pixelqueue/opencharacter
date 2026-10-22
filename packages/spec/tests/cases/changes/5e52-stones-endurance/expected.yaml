@@ -1,0 +1,19 @@
+# 1d12 (5) + Con (+1) is 6 off the 12. The use goes from 1 to 2 of the proficiency bonus's 3, in
+# Giant Ancestry's grant state on the species copy.
+ok: true
+adjustments:
+  - field: 5e-srd-5.2:hp.current
+    by: -6
+    requested: -12
+    taken: -6
+    reason: requested
+    rolled:
+      - source: { type: item, id: 5e-srd-5.2:traits.giant-ancestry, entry: species }
+        dice: 1d12 + 1
+        faces: [5]
+        total: 6
+  - entry: species
+    grant: 5e-srd-5.2:traits.giant-ancestry
+    key: giantAncestryUsed
+    value: 2
+    source: { type: item, id: 5e-srd-5.2:traits.giant-ancestry, entry: species }
