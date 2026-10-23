@@ -312,40 +312,17 @@ actions:
         to: self
         changes:
           - { type: adjust, field: silver.current, by: steps.coins.total }
-      # The second specialty is a d5 counting on from the first in table order, as the Royalty's
-      # second item does at creation.
-      - id: scum
+      # A class's own part of getting better: an unlisted `get-better-part` action of its copy.
+      - id: class
         kind: choice
-        when: countCopies(copy.item == @classes.gutterborn-scum) > 0
-        options: { copies: { type: class, where: item.id == @classes.gutterborn-scum } }
+        when: countCopies(copy.type == 'class' && copy.fields.getsBetter) > 0
+        options: { copies: { type: class, where: item.getsBetter } }
         recommend: options[0]
-      - id: specialty
-        kind: roll
-        tags: [advancement]
-        when: >-
-          has(steps.scum)
-            && (features.cowardsJab ? 1 : 0) + (features.filthyFingersmith ? 1 : 0)
-              + (features.gobLobber ? 1 : 0) + (features.escapingFate ? 1 : 0)
-              + (features.excretalStealth ? 1 : 0) + (features.dodgingDeath ? 1 : 0) == 1
-        parts: [{ dice: 1d5 }]
-      - id: second
-        kind: choice
-        when: has(steps.specialty)
-        options:
-          - { id: cowards-jab, when: '!features.cowardsJab' }
-          - { id: filthy-fingersmith, when: '!features.filthyFingersmith' }
-          - { id: abominable-gob-lobber, when: '!features.gobLobber' }
-          - { id: escaping-fate, when: '!features.escapingFate' }
-          - { id: excretal-stealth, when: '!features.excretalStealth' }
-          - { id: dodging-death, when: '!features.dodgingDeath' }
-        recommend: >-
-          options[((features.cowardsJab ? 0 : features.filthyFingersmith ? 1
-            : features.gobLobber ? 2 : features.escapingFate ? 3 : features.excretalStealth ? 4 : 5)
-            + steps.specialty.total - 1) % 5]
-        changes:
-          - type: choose
-            path: { entry: { formula: steps.scum.picked }, choice: [feature] }
-            option: picked.id
+      - id: classPart
+        kind: action
+        when: has(steps.class)
+        entry: steps.class.picked
+        use: get-better-part
       - id: result
         kind: outcome
         result: "'rolled'"

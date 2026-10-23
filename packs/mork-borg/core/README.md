@@ -275,7 +275,9 @@ start a character with `creating: true` and run one of the creation starts below
   - A d6 for what's found: 3d10 silver is added; a scroll is outcome data.
   - A Gutterborn Scum with one specialty rolls its second: a d5 counting on from the first in
     table order, recommending the option the player confirms or changes. Rerolling them
-    on later advancements is the table's.
+    on later advancements is the table's. This is the class's own part: a class whose
+    `getsBetter` is set has an unlisted `get-better-part` action, which `get-better` runs, so a
+    homebrew class can add one too.
 - **Sheet layout** (`rules/layout.yaml`): display groups for actions
   (combat, hit points, Broken only at exactly 0 HP or, for a scum with Dodging Death, below it,
   tests with the class features' tests and Escaping Fate, powers and decoctions, days and rest,
