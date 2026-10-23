@@ -279,12 +279,13 @@ actions:
             key: wholenessUsed
             value: false
           - type: setState
-            when: countCopies(copy.item == @races.tiefling) > 0
+            when: >-
+              countGrants(grant.item == @traits.infernal-legacy && grant.state.hellishRebukeUsed) > 0
             grants: { where: 'item.id == @traits.infernal-legacy && self.hellishRebukeUsed' }
             key: hellishRebukeUsed
             value: false
           - type: setState
-            when: countCopies(copy.item == @races.tiefling) > 0
+            when: countGrants(grant.item == @traits.infernal-legacy && grant.state.darknessUsed) > 0
             grants: { where: 'item.id == @traits.infernal-legacy && self.darknessUsed' }
             key: darknessUsed
             value: false
@@ -300,7 +301,7 @@ actions:
             key: used
             value: false
           - type: setState
-            when: countCopies(copy.item == @races.half-orc) > 0
+            when: countGrants(grant.item == @traits.relentless-endurance && grant.state.used) > 0
             grants: { where: 'item.id == @traits.relentless-endurance && self.used' }
             key: used
             value: false
@@ -317,12 +318,15 @@ actions:
             key: signatureSpell2Used
             value: false
           - type: setState
-            when: countCopies(copy.item == @classes.warlock) > 0
+            when: >-
+              countPicks(pick.type == 'invocation' && has(pick.state.used) && pick.state.used) > 0
             picks: { where: "item.type == 'invocation' && self.used" }
             key: used
             value: false
           - type: setState
-            when: countCopies(copy.item == @races.dragonborn) > 0
+            when: >-
+              countPicks(pick.type == 'draconicAncestry' && has(pick.state.used) && pick.state.used)
+                > 0
             picks: { where: "item.type == 'draconicAncestry' && self.used" }
             key: used
             value: false
