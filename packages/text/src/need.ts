@@ -6,8 +6,10 @@ export interface NeedText {
   title: string;
   options: { id: string; label: string }[];
   fields: { id: string; label: string }[];
-  /** "2d100, keep lowest". */
+  /** "2d100, keep lowest": the dice to throw. */
   dice?: string;
+  /** "2d10 + 25": the whole roll, flat items included. */
+  roll?: string;
   /** A random draw: `options` or `fields` are what the die picks among, face 1 first. */
   draw?: true;
   targets?: RollTarget[];
@@ -75,10 +77,13 @@ export function describeNeed(
         break;
       }
       out.title = text.stepName(needs);
-      out.dice = text.dice(
-        needs.items?.some((i) => i.kind === 'dice') ? needs.items : (needs.dice ?? []),
-        needs.repeat,
-      );
+      {
+        const items = needs.items?.some((i) => i.kind === 'dice')
+          ? needs.items
+          : (needs.dice ?? []);
+        out.dice = text.dice(items, needs.repeat);
+        out.roll = text.roll(items, needs.repeat);
+      }
       if (needs.summary?.bandSet) out.targets = text.rollTargets(needs.summary);
       break;
     case 'handoff':

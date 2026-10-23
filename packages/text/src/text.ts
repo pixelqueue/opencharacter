@@ -214,6 +214,8 @@ export interface Text {
    * roll made more than once: "2d6, rolled twice, keep the lower total".
    */
   dice(items: readonly DiceLike[], repeat?: Repeat): string;
+  /** The whole roll: the dice, then the flat items' sum, "2d10 + 25"; `repeat` as for `dice`. */
+  roll(items: readonly DiceLike[], repeat?: Repeat): string;
   value(type: string, name: string, value: string, of?: 'fields' | 'state'): string;
   /** The item's own state value names first, else its `type`'s. */
   stateValue(item: string, key: string, value: string, type?: string): string;
@@ -708,6 +710,7 @@ export function createText(options: TextOptions): Text {
       });
     },
     dice: (items, repeat) => diceText(items, specMessage, repeat),
+    roll: (items, repeat) => diceText(items, specMessage, repeat, numberText),
     value,
     contentBlock,
     headline,

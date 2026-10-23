@@ -4,7 +4,7 @@ import type { RollItem } from '@opencharacter/spec';
 
 type Modifier = NonNullable<RollItem['modifiers']>[number];
 type Spec = (key: string, args?: Readonly<Record<string, unknown>>) => string | undefined;
-export type DiceLike = Pick<RollItem, 'count' | 'sides' | 'modifiers' | 'sign'> & {
+export type DiceLike = Pick<RollItem, 'count' | 'sides' | 'modifiers' | 'sign' | 'value'> & {
   kind?: RollItem['kind'];
 };
 
@@ -53,19 +53,34 @@ export interface Repeat {
   keep: 'high' | 'low';
 }
 
-export function diceText(items: readonly DiceLike[], spec: Spec, repeat?: Repeat): string {
+/**
+ * The dice items joined in order. With `number` (the whole roll), the flat items' sum follows,
+ * written by `number`: "2d10 + 25".
+ */
+export function diceText(
+  items: readonly DiceLike[],
+  spec: Spec,
+  repeat?: Repeat,
+  number?: (n: number) => string,
+): string {
   let out: string | undefined;
+  const join = (text: string, negative: boolean) =>
+    out === undefined
+      ? negative
+        ? (spec('dice.negative', { dice: text }) ?? `-${text}`)
+        : text
+      : (spec(negative ? 'dice.minus' : 'dice.plus', { first: out, second: text }) ??
+        `${out} ${negative ? '-' : '+'} ${text}`);
+  let flat = 0;
   for (const d of items) {
-    if (d.kind === 'flat' || d.count === undefined) continue;
-    const text = item(d, spec);
-    const negative = d.sign === -1;
-    out =
-      out === undefined
-        ? negative
-          ? (spec('dice.negative', { dice: text }) ?? `-${text}`)
-          : text
-        : (spec(negative ? 'dice.minus' : 'dice.plus', { first: out, second: text }) ??
-          `${out} ${negative ? '-' : '+'} ${text}`);
+    if (d.kind === 'flat' || d.count === undefined) {
+      flat += d.kind === 'flat' ? (d.value ?? 0) : 0;
+      continue;
+    }
+    out = join(item(d, spec), d.sign === -1);
+  }
+  if (number && (flat !== 0 || (out === undefined && items.some((d) => d.kind === 'flat')))) {
+    out = out === undefined ? number(flat) : join(number(Math.abs(flat)), flat < 0);
   }
   if (out === undefined) return '';
   if (!repeat) return out;

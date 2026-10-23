@@ -65,6 +65,43 @@ describe('Mothership', () => {
       condition: 'Roll under 34 (90+ always fails)',
     });
   });
+
+  it("words a creation roll's dice and the whole roll", () => {
+    const blank: CharacterDoc = {
+      specVersion: '0.1.0',
+      id: 'new',
+      packs: [{ id: 'mothership-1e', version: '0.1.1' }],
+      creating: true,
+    };
+    const need = paused(
+      startAction(ruleset, blank, {
+        action: { id: 'mothership-1e:roll-character' },
+        params: { choose: true },
+        policy: { dice: 'pause', choices: 'pause', allocations: 'pause' },
+      }),
+    ).needs;
+    const worded = describeNeed(ruleset, text, need);
+    expect(worded.dice).toBe('2d10');
+    expect(worded.roll).toBe('2d10 + 25');
+  });
+});
+
+const d = (count: number, sides: number) => ({ kind: 'dice' as const, count, sides });
+const flat = (value: number) => ({ kind: 'flat' as const, value });
+
+describe('whole rolls', () => {
+  const { text } = load('mothership/1e');
+
+  it('sums the flat items after the dice', () => {
+    expect(text.roll([d(2, 10), flat(25)])).toBe('2d10 + 25');
+    expect(text.roll([flat(3), d(1, 20), flat(-5)])).toBe('1d20 - 2');
+    expect(text.roll([d(1, 20), flat(2), flat(-2)])).toBe('1d20');
+    expect(text.roll([flat(4)])).toBe('4');
+    expect(text.roll([])).toBe('');
+    expect(text.roll([d(2, 6), flat(1)], { times: 2, keep: 'low' })).toBe(
+      '2d6 + 1, rolled twice, keep the lower total',
+    );
+  });
 });
 
 describe('5E', () => {
