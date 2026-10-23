@@ -1,0 +1,21 @@
+# The proposed changes aren't applied during the action, so Lucky's `when` holds in both passes.
+status: finished
+outcome:
+  data: { first: 14, last: 9 }
+proposedChanges:
+  - to: self
+    step: shots[0]/roll
+    change:
+      type: adjustState
+      key: uses
+      path: { entry: seer, choice: [boon] }
+      option: test-roll-then:boons.lucky
+      by: -1
+  - to: self
+    step: shots[1]/roll
+    change:
+      type: adjustState
+      key: uses
+      path: { entry: seer, choice: [boon] }
+      option: test-roll-then:boons.lucky
+      by: -1
