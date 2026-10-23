@@ -126,7 +126,8 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   - **`computeSheet`:**
     - `values`: listed fields only, comparing `value` (or `error.code`), and `base` and `breakdown`
       (exact) when listed, and `tags` (exact, `[]` for a field with none), and `name` (exact, `null`
-      for a field with none). Dice values are compared as canonical text.
+      for a field with none), and `shown` when listed (a field may list `shown` alone). Dice values
+      are compared as canonical text.
     - `effects`: the exact list.
     - `pending`: the exact list of choice paths.
     - `pendingSlots`: the exact list of the pending choices' `slot` (`{ choice, number }`), in
@@ -145,6 +146,7 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
     - `activations`: the exact list.
     - `choices`: the exact list of `{ path, owner, id, slot, min, max, picks, open }`.
     - `copyLimits`: the exact list of `{ type, max, perItem, count, entries }`.
+    - `groups`: the exact list of `{ id, shown, fields }`.
     - `offers`: the exact list.
   - **`listOptions`:**
     - `options`: the exact list, in order. Each is compared as

@@ -41,6 +41,7 @@ import {
   resolveContent,
   resolveField,
   resolveId,
+  resolveType,
   familyIn,
   familyFieldPack,
   type Ruleset,
@@ -659,7 +660,12 @@ export class Sheet {
   }
 
   /** Throws Failure. */
-  evaluate(formula: Formula, pack: string, roots: Record<string, unknown>): f.Value {
+  evaluate(
+    formula: Formula,
+    pack: string,
+    roots: Record<string, unknown>,
+    queries: f.CharacterQueries = this.queries,
+  ): f.Value {
     const result = f.evaluate(this.parse(formula), {
       field: (name) => {
         const qid = resolveField(this.ruleset, name, pack);
@@ -672,10 +678,25 @@ export class Sheet {
         const qid = resolveField(this.ruleset, id, familyFieldPack(this.ruleset, name, key, pack));
         return qid ? this.fieldValue(qid) : undefined;
       },
-      character: this.queries,
+      character: queries,
     });
     if (!result.ok) throw new Failure(result.error);
     return result.value;
+  }
+
+  private choiceTypes: ReadonlySet<string> | undefined;
+
+  /** A display hint's formula, with `hasChoice` bound. Throws Failure. */
+  evaluateHint(formula: Formula, pack: string, roots: Record<string, unknown>): f.Value {
+    this.choiceTypes ??= new Set(this.choiceList().flatMap((c) => (c.type ? [c.type] : [])));
+    const types = this.choiceTypes;
+    return this.evaluate(formula, pack, roots, {
+      ...this.queries,
+      hasChoice: (type) => {
+        const qid = resolveType(this.ruleset, type, pack);
+        return qid !== undefined && types.has(qid);
+      },
+    });
   }
 
   /** Reads only input fields (saved or default). Throws Failure. */

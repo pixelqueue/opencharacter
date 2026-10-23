@@ -743,6 +743,22 @@ An app's rule: at `count >= max`, Add becomes Replace (when `max` is 1) or is di
 with `perItem` copies is shown as held. A replace is one applyChanges batch, `removeItem` then
 `addItem` reusing the instance ID ([applyChanges](#applychanges)).
 
+### Display
+
+After the values, computeSheet evaluates the display hints
+([display-hints.md](display-hints.md#shown)):
+
+- **`groups`** lists every display group in ruleset order (a later pack's group in place of an
+  earlier one with the same ID) as `{ id, shown, fields? }`. `shown` is the group's `showWhen`,
+  true without one. A fields group's `fields` are its members in ruleset field order, shown or
+  not: the fields whose hint names the group, and those its `members` query matches, `where`
+  seeing `item` as `{ id, type, tags }` with the field's sheet tags.
+- **`values[F].shown`**: F's hint isn't `hidden`, its `showWhen` holds, and F is a member of no
+  fields group or of at least one shown one.
+- A `showWhen` is evaluated in the hint's or group's pack, as a field formula is, with
+  `hasChoice` bound. One that fails to evaluate counts as true; a `where` that fails matches
+  nothing. Neither adds to `errors`.
+
 ### Offers
 
 `offers` lists what the rules offer the character now: its stored ephemeral

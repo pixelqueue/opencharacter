@@ -26,7 +26,10 @@ The spec leaves these to the app. Packs give the app what it needs for each: an 
   ephemeral ones in the file, but never runs or applies one, nor rolls outside an action. The app
   runs an offer, asks first, shows a derived offer later (its "not now"), or dismisses an
   ephemeral one.
-- **Sheet layout and catalogs:** evaluating display hints (`members`, `showWhen`) and listing content that isn't a choice. Engines may offer helpers outside the spec.
+- **Sheet layout and catalogs:** laying out the sheet from the display hints (computeSheet
+  says which groups and fields are shown), the members, sections and order of actions and
+  content groups, and listing content that isn't a choice. Engines may offer helpers outside
+  the spec.
 
 ## The calls
 
@@ -46,11 +49,14 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
 
 ### computeSheet
 
-- `values` maps each qualified field ID to `{ value, base, breakdown, tags? }`, `tags` the field's
-  tags on the sheet, computed ones included. A field that cannot be computed (a loop) has `error`
+- `values` maps each qualified field ID to `{ value, base, breakdown, tags?, shown }`, `tags`
+  the field's tags on the sheet, computed ones included, and `shown` whether the display hints
+  show it ([display-hints.md](display-hints.md#shown)). A field that cannot be computed (a loop) has `error`
   instead of `value`, and **everything else still calculates**.
 - `effects` lists active effects; effects excluded by stacking have `suppressed: true`.
 - `actions` lists the actions available now, with the entry each belongs to.
+- `groups` lists the display groups, each with whether it is shown and a fields group's
+  member fields.
 - `situational` lists the situational choices offered now.
 - `pending` lists the choices that apply and still need picks: the open entries of `choices`.
 - `offers` lists what the rules offer the character now: its stored ephemeral

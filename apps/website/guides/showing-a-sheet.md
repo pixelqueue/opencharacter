@@ -13,7 +13,8 @@ sheet is computed without the broken part.
 
 | Output           | What it is                                                                | Typical UI                                     |
 | ---------------- | ------------------------------------------------------------------------- | ---------------------------------------------- |
-| `values`         | Every field's value, with its base and a breakdown, by qualified field ID | The sheet itself                               |
+| `values`         | Every field's value, with its base, a breakdown and whether it's shown    | The sheet itself                               |
+| `groups`         | Each display group: whether it's shown, and a fields group's fields       | Sections of the sheet                          |
 | `effects`        | Every active effect, with its source; stacked-out ones `suppressed: true` | "Active effects" panel, tooltips               |
 | `actions`        | Actions available now, with the entry each belongs to                     | Roll buttons ([Rolling dice](rolling-dice.md)) |
 | `situational`    | Situational choices offered now (advantage, cover)                        | Toggles next to roll buttons                   |
@@ -38,7 +39,7 @@ or as `spec.*` from the engine.
 
 ## Values and breakdowns
 
-Each entry of `values` is `{ value, base, breakdown }`:
+Each entry of `values` is `{ value, base, breakdown, shown }`:
 
 ```json
 "5e-srd-5.1:combat.ac": {
@@ -47,11 +48,13 @@ Each entry of `values` is `{ value, base, breakdown }`:
   "breakdown": [
     { "op": "set", "value": 15, "source": { "type": "item", "id": "5e-srd-5.1:spells.mage-armor" } },
     { "op": "add", "value": 2, "source": { "type": "item", "id": "5e-srd-5.1:armor.shield", "entry": "inv-3" } }
-  ]
+  ],
+  "shown": true
 }
 ```
 
 - **`value`** is what to show.
+- **`shown`** says whether to show it at all ([below](#laying-out-the-sheet)).
 - **`base`** is the value from the field's own formula or input before any effect (10 + Dex
   modifier here).
 - **`breakdown`** lists each effect that changed it, in the order applied: `set` replaces,
@@ -111,8 +114,9 @@ const { groups, fields: hints, types } = ruleset.rules.display;
 The rules for using them ([Display hints](../../../packages/spec/docs/display-hints.md)):
 
 1. **Groups** are sections of the sheet (`abilities`, `combat`, `skills`). A field belongs to a
-   group if its hint lists the group in `groups`, or if it matches the group's `members` query.
-   A field can be in several groups: AC is in both `combat` and `summary`.
+   group if its hint lists the group in `groups`, or if it matches the group's `members` query;
+   `sheet.groups` lists each fields group's members for you. A field can be in several groups:
+   AC is in both `combat` and `summary`.
 2. **Priority:** 0 is most important, then 1, 2, … Sort groups by priority. Sort fields within a
    group by their own priority. Ties keep their written order (pack load order last), so every app
    shows the same order.
@@ -122,8 +126,8 @@ The rules for using them ([Display hints](../../../packages/spec/docs/display-hi
    views and show when the player edits the sheet. A field without one takes its group's. How
    much a compact view shows within that is your call.
 4. **`hidden: true`** marks in-between helper values. Never show them, not even when editing.
-5. **`showWhen`** is a condition: the Spellcasting group hides itself for a fighter. Hide a group
-   or field whose condition is false.
+5. **`showWhen`** is a condition: the Spellcasting group hides itself for a fighter. The engine
+   evaluates it: hide a group or field whose `shown` is false.
 6. **Fields in no group** still exist. An "Other" section at the end keeps homebrew fields from
    disappearing.
 7. **`unit`** names a unit: show `units.<id>.short` after the value (30 ft). Converting units
@@ -137,7 +141,7 @@ The rules for using them ([Display hints](../../../packages/spec/docs/display-hi
 9. **`with`** puts companion fields in a field's tile, each `{ field, as }`: a `modifier`
    signed after the value ("13 (+1)"), a `max` as "x / y" ("0 / 195"), a `detail` on a small
    second line. In a group where the field has a tile, give its companions none of their own;
-   leave out one whose `showWhen` is false. When editing, you may split the tile into inputs.
+   leave out one whose `shown` is false. When editing, you may split the tile into inputs.
    State hints take the same, naming state keys (`{ key, as }`).
 
 ### Actions and content
@@ -171,64 +175,30 @@ path? }`. `via` says how it was reached (`copy`, `template`, `grant`, `pick`, `a
 whose item is of the group's type, so a Mothership Teamster's skills list shows the two the
 class grants and the two picked, with no walking of grants and choices on your side.
 
-### Evaluating `members` and `showWhen` today
+### Which groups and fields show
 
-Group membership queries and `showWhen` conditions are formulas, and **the engine doesn't
-evaluate them for you yet**.
-Until it does, evaluate them with the engine's exported formula module:
+`computeSheet` evaluates `hidden`, `showWhen` and the fields groups' `members` for you, against
+the character's values, copies and choices ([Display hints](../../../packages/spec/docs/display-hints.md#shown)):
 
 ```ts
-import { computeSheet, formula, resolveId, type Ruleset } from '@opencharacter/engine';
-
-type Sheet = ReturnType<typeof computeSheet>;
-
-function test(text: string, ctx: formula.EvalContext): boolean | undefined {
-  const parsed = formula.parse(text);
-  if (!parsed.ok) return undefined;
-  const result = formula.evaluate(parsed.value, ctx);
-  return result.ok && result.value.kind === 'bool' ? result.value.value : undefined;
-}
-
-/** Whether a group or field hint should show. Errors count as "show". */
-function shows(ruleset: Ruleset, sheet: Sheet, pack: string, showWhen?: string): boolean {
-  if (showWhen === undefined) return true;
-  // Bare field names resolve in the hint's pack, then its dependencies.
-  const scope = ruleset.packs.find((p) => p.id === pack)?.scope ?? [pack];
-  const field = (name: string) => {
-    for (const p of scope) {
-      const v = sheet.values[`${p}:${name}`]?.value;
-      if (v !== undefined) return formula.fromData(v);
-    }
-    return undefined;
-  };
-  // `hasChoice('<type>')`: a choice of the content type, made or pending.
-  const hasChoice = (type: string) =>
-    sheet.choices.some((c) =>
-      type.includes(':') ? c.type === type : scope.some((p) => c.type === `${p}:${type}`),
-    );
-  const character = { hasChoice } as unknown as formula.CharacterQueries;
-  // ID literals (`@spells.eldritch-blast`) resolve in the hint's pack.
-  const id = (text: string) => resolveId(ruleset, text, pack);
-  return test(showWhen, { roots: {}, field, character, id }) ?? true;
-}
-
-/** The fields a group's `members` query matches; `pack` is the pack that declares the group. */
-function members(ruleset: Ruleset, pack: string, where: string): string[] {
-  return Object.entries(ruleset.fields)
-    .filter(([id, f]) =>
-      test(where, {
-        roots: { item: { id, type: f.type, tags: f.tags ?? [] } },
-        field: () => undefined,
-        id: (text) => resolveId(ruleset, text, pack),
-      }),
-    )
-    .map(([id]) => id);
+const sheet = computeSheet(ruleset, character);
+for (const group of sheet.groups) {
+  if (!group.shown || !group.fields) continue; // hidden, or an actions or content group
+  const fields = group.fields.filter((id) => sheet.values[id]?.shown);
+  // Sort them by their hints' priority and lay out the section.
 }
 ```
 
-Field group membership depends only on the ruleset, so compute it once per ruleset. `showWhen`,
-and the members, sections and order of actions and content groups, depend on the character, so
-evaluate them per sheet.
+- **`sheet.groups`** lists every group in ruleset order as `{ id, shown, fields? }`. `shown` is
+  its `showWhen`. A fields group's `fields` are its members, shown or not.
+- **`values[id].shown`** is false for a hidden field, a field whose `showWhen` is false, and a
+  field whose every group is hidden. A field in no group shows in your "Other" section.
+- A `showWhen` that fails to evaluate counts as shown, so a broken hint never hides a value.
+
+The members, sections and order of actions and content groups, and a state hint's `showWhen`, are
+still yours to evaluate with the engine's formula module (`formula.parse`, `formula.evaluate`).
+They read the action or copy (`item`, `self`); bind `id` with `resolveId(ruleset, text, pack)`
+for ID literals, `pack` the pack that declares the group or hint.
 
 ## Effects
 

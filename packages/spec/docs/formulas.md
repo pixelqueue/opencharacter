@@ -446,8 +446,9 @@ included, without naming the items that bring it:
   back into a calculation.
 - **Checks:** the argument is a string (`type-mismatch`). A literal that names no content type
   the pack sees is `unknown-reference` at load.
-- **Apps** evaluating `showWhen` bind it from `sheet.choices`, resolving the argument in the
-  hint's pack scope as they resolve field names.
+- **computeSheet** evaluates field and group `showWhen` itself
+  ([display-hints.md](display-hints.md#shown)). Apps evaluating a state hint's bind it from
+  `sheet.choices`, resolving the argument in the hint's pack scope as they resolve field names.
 
 ### Picks of the owner's choices
 

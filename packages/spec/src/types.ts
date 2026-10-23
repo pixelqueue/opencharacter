@@ -1945,6 +1945,12 @@ export type ComputeSheetOutput = {
   }[];
   /** Every applicable choice, answered or not, in pending order: the rules-level choices first, then each activation's own choices, each followed by those of what it picked, before those of the activations it grants. Inline options' choices and `activate: false` choices are included; a slotted choice is one entry per slot. `pending` is the open ones, in the same order. */
   choices?: ListedChoice[];
+  /** Every display group, in ruleset order (display-hints.md, "Shown"): whether it is shown (its `showWhen` holds; one that fails to evaluate counts as true) and, for a `fields` group, its member fields: those whose hint lists it and those its `members` query matches, in ruleset order, shown or not. */
+  groups?: {
+    id: string;
+    shown: boolean;
+    fields?: string[];
+  }[];
   /** Copy limits: for each content type with `copies`, in ruleset order, its limits and the character's copies of it (standard copies included), so an app shows Replace instead of Add once `count` reaches `max`, and an item with `perItem` copies already as held. */
   copyLimits?: {
     /** The content type, qualified. */
@@ -1985,6 +1991,8 @@ export type FieldValue = {
   tags?: Tag[];
   /** The field's name from its `nameFrom` string field, when that field's value is a non-empty string (a Lore's subject, "Absalom"). The field's text formats it as `{name}`. */
   name?: string;
+  /** Whether the field is shown on the sheet (display-hints.md, "Shown"): its hint isn't `hidden`, its `showWhen` holds, and it is in no `fields` group or in at least one shown one. */
+  shown?: boolean;
   /** Set instead of `value` when this field could not be computed (a loop). Everything else still calculates. */
   error?: EngineError;
 };
