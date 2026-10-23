@@ -137,6 +137,13 @@ and `total` are the kept roll's, its `faces` every face you gave, and `rolls` li
 `{ total, kept, items }`, so show both and mark the kept one. `text.dice(needs.items, needs.repeat)`
 words it: "2d6, rolled twice, keep the lower total".
 
+**Rolling some parts twice.** A rule may roll only some of a roll's dice again (5E's Savage
+Attacker: the weapon's damage dice, not Sneak Attack's). Then `needs.repeat` also has `items`,
+the indices in `needs.items` of the items rolled again, and `needs.dice` lists every die of the
+first roll, then those items' dice for each later roll. Each of the log entry's `rolls` lists
+every item, the ones not rolled again the same in each. `text.dice` words it: "(2d6, rolled
+twice, keep the higher total) + 3d6".
+
 ### Checkpoint policies
 
 Every roll and every in-action choice is a **checkpoint**. The policy decides, for each one,
@@ -345,7 +352,9 @@ you rolled with the answers, or pass a seeded dice function.
   Changes `to: 'self'` go to the acting character; changes `to: 'target'` go to whoever the
   action was aimed at; changes `to: { link }` go to the linked character named by `character`,
   such as a FitD crew ([Other characters](other-characters.md)). `step` is the path of the step
-  that proposed each one, so you can tell the damage (`deal`) from the healing in one list.
+  that proposed each one, so you can tell the damage (`deal`) from the healing in one list. A
+  roll step proposes some too: an effect that ends once a roll used it (5E's Sapped, a +1 to the
+  next check) proposes its own removal or state change with the roll's step.
 - **`log`** lists every checkpoint: its `step` and defining `action`, each roll's `faces`,
   itemized `items`, `total` and result `band`, each choice's `option`, and `by` (`engine` or
   `app`) for who supplied it.

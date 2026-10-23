@@ -6,7 +6,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Action:** something a character can do that needs dice or decisions, defined as a cascade of steps (roll, choice, allocate, branch, group, changes, action, outcome).
 - **Action log:** the record of every die face and choice in an action, and who supplied it; replaying it gives the same result.
 - **Active content:** content whose effects, grants and choices currently apply: owned features, inventory, picked options, granted content, applied effects and templates on active copies.
-- **Aggregate:** a formula macro that counts, sums or takes the highest or lowest of something over the character's copies (`countCopies`), the ruleset's fields (`countFields`) or a list (`countList`), with a root (`copy`, `f`, `x`) bound to each element.
+- **Aggregate:** a formula macro that counts, sums or takes the highest or lowest of something over the character's copies (`countCopies`), its saved picks or active grants (`countPicks`, `countGrants`), the ruleset's fields (`countFields`) or a list (`countList`), with a root (`copy`, `pick`, `grant`, `f`, `x`) bound to each element.
 - **Allocate step:** an action step that spends a budget across fields (FitD's creation dots, 5E point buy) or hands out a list of values, one per field (the standard array); a checkpoint answered with amounts.
 - **App:** the program using the engine; it owns the experience (dice presentation, time, choices, storage, display).
 - **Applied effect:** an entry in the character's `applied` list that turns on the effects of content the character doesn't own (Bless from an ally); the app toggles it, and its own incoming-change effect's `then` can end it (oil that burns away).

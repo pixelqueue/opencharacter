@@ -1293,6 +1293,8 @@ const CHARACTER_FUNCTIONS = new Set([
   'sumCopies',
   'maxCopies',
   'minCopies',
+  'countPicks',
+  'countGrants',
   'countFields',
   'sumFields',
   'maxFields',
@@ -1301,6 +1303,7 @@ const CHARACTER_FUNCTIONS = new Set([
   'countState',
   'sumState',
   'picksOf',
+  'grantedPicksOf',
 ]);
 
 /** Whether a query condition reads only `item`, so it can be resolved at load time. */

@@ -64,7 +64,7 @@ import {
 } from './sheet.ts';
 import { literalTree, type RollSummary, rollSummary } from './roll-summary.ts';
 import { samePath } from './tree.ts';
-import { itemView, outputData, typedValue } from './views.ts';
+import { itemView, outputData, stateDecls, typedValue } from './views.ts';
 
 /** Rolls `count` dice: faces 1..sides, 0..sides-1 when `zero`, or -1..1 for Fate dice. */
 export type DiceFunction = (count: number, sides: number | 'F', zero: boolean) => number[];
@@ -230,8 +230,11 @@ export interface Need {
   items?: RollItem[];
   /** Dice steps: the summary of the roll the pause is for. */
   summary?: RollSummary;
-  /** Dice steps made more than once (`of: roll`): how many whole rolls, and which total is kept. */
-  repeat?: { times: number; keep: 'high' | 'low' };
+  /**
+   * Dice steps made more than once (`of: roll`): how many rolls, and which total is kept; with
+   * `items`, only those items (indices in `items`) are rolled again.
+   */
+  repeat?: Repeat;
   options?: string[];
   recommended?: string;
   /** Choice steps over values: the content the action runs for, which names values first. */
@@ -1138,6 +1141,7 @@ function onSheet(ctx: Ctx, frame: Frame): Frame {
   delete roots.item;
   delete roots.self;
   delete roots[f.OWNER_PICKS];
+  delete roots[f.OWNER_GRANTED];
   return {
     ...frame,
     sheet: ctx.sheet,
@@ -1148,7 +1152,7 @@ function onSheet(ctx: Ctx, frame: Frame): Frame {
 /** The roots an action takes from its owner: `item`, `self` and the picks `picksOf` reads. */
 function ownerRoots(own: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
-  for (const key of ['item', 'self', f.OWNER_PICKS])
+  for (const key of ['item', 'self', f.OWNER_PICKS, f.OWNER_GRANTED])
     if (own[key] !== undefined) out[key] = own[key];
   return out;
 }
@@ -1561,6 +1565,30 @@ const targets = (e: Effect) =>
 
 const DIE_LADDER: readonly number[] = [4, 6, 8, 10, 12];
 
+type Repeat = { times: number; keep: 'high' | 'low'; items?: number[] };
+
+/** How opposing advantage and disadvantage sources combine: the extras and their kind. */
+function netAdvantage(
+  ctx: Ctx,
+  advantage: number,
+  disadvantage: number,
+  path: string,
+): { extra: number; kind: 'advantage' | 'disadvantage' } {
+  const mode = ctx.ruleset.rules.settings.rollModifiers?.advantage ?? 'cancel';
+  if (mode === 'cancel')
+    return advantage > 0 && disadvantage > 0
+      ? { extra: 0, kind: 'advantage' }
+      : { extra: 1, kind: advantage > 0 ? 'advantage' : 'disadvantage' };
+  if (mode === 'net')
+    return {
+      extra: Math.abs(advantage - disadvantage),
+      kind: advantage >= disadvantage ? 'advantage' : 'disadvantage',
+    };
+  if (advantage > 0 && disadvantage > 0)
+    throw new ActionError('conflicting-roll-modifiers', { step: path });
+  return { extra: advantage + disadvantage, kind: advantage > 0 ? 'advantage' : 'disadvantage' };
+}
+
 function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   if (step.of !== undefined) {
     classifyAgain(ctx, frame, step, path, step.of);
@@ -1668,6 +1696,8 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   });
   const onPart = (c: (typeof active)[number], tags: string[]) =>
     (targets(c.effect)?.parts ?? []).some((t) => matchesTag(t, tags));
+  // The effects that changed the roll, whose `then` is proposed after it.
+  const changed = new Set<(typeof active)[number]>();
   // 2a. Replaced parts: matching `set` effects replace a part's items before anything reads them.
   const sets = active.filter((c) => c.effect.op === 'set' && targets(c.effect)?.parts);
   if (sets.length > 0) {
@@ -1694,6 +1724,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
           if (policy === 'highest' ? d > 0 : d < 0) chosen = o;
         }
       const { c, value } = chosen;
+      changed.add(c);
       const tree = typeof c.effect.value === 'string' ? f.parse(c.effect.value) : undefined;
       const fieldRef =
         tree?.ok && tree.value.type === 'name'
@@ -1728,15 +1759,19 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       const term = item.term;
       if (!term || item.part === undefined || term.sides === 'F' || term.zero) continue;
       let steps = 0;
+      const reaching: (typeof active)[number][] = [];
       for (const c of steppers) {
         if (targets(c.effect)?.parts && !onPart(c, item.tags)) continue;
         const formula = (c.effect.value as RollModifier).steps as Formula;
-        steps += integer(sheet.evaluate(formula, c.pack, effectCtx(c)), 'steps');
+        const by = integer(sheet.evaluate(formula, c.pack, effectCtx(c)), 'steps');
+        steps += by;
+        if (by !== 0) reaching.push(c);
       }
       const at = DIE_LADDER.indexOf(term.sides);
       if (steps === 0 || at < 0) continue;
       const sides = DIE_LADDER[Math.max(0, Math.min(DIE_LADDER.length - 1, at + steps))] as number;
       if (sides === term.sides) continue;
+      for (const c of reaching) changed.add(c);
       item.steppedFrom = term.sides;
       term.sides = sides;
     }
@@ -1771,6 +1806,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   }
   for (const c of counted) {
     if ((carried as unknown[]).includes(c)) continue;
+    changed.add(c);
     const value = sheet.evaluate(c.effect.value as Formula, c.pack, effectCtx(c));
     const tags = tagsOf(ctx, c.effect.tags, (fm) => sheet.evaluate(fm, c.pack, effectCtx(c)));
     const added = itemsFromValue(value, c.instance.source, tags);
@@ -1807,6 +1843,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     const target = items.find((i) => i.kind === 'dice' && i.part === partId);
     if (!target?.term) continue;
     const count = num(modifier.count, c, 0);
+    if (count !== 0) changed.add(c);
     target.term.count += count;
     target.pool.push({ source: c.instance.source, count });
   }
@@ -1834,40 +1871,38 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     empty = true;
   }
   // 5. Advantage and disadvantage; `noAdvantage`/`noDisadvantage` remove every counted source.
-  let repeat: { times: number; keep: 'high' | 'low' } | undefined;
+  // Sources on the roll's parts (`of: roll`) are counted apart and roll those parts again.
+  let repeat: Repeat | undefined;
+  let again: Set<BuiltItem> | undefined;
   const has = (kind: string) => modifiers.some((m) => m.modifier.kind === kind);
-  const advantage = has('noAdvantage')
-    ? 0
-    : modifiers.filter((m) => m.modifier.kind === 'advantage').length;
-  const disadvantage = has('noDisadvantage')
-    ? 0
-    : modifiers.filter((m) => m.modifier.kind === 'disadvantage').length;
-  if (advantage + disadvantage > 0) {
-    const mode = ruleset.rules.settings.rollModifiers?.advantage ?? 'cancel';
-    let extra = 0;
-    let kind: 'advantage' | 'disadvantage' = 'advantage';
-    if (mode === 'cancel') {
-      if (advantage > 0 && disadvantage > 0) extra = 0;
-      else {
-        extra = 1;
-        kind = advantage > 0 ? 'advantage' : 'disadvantage';
-      }
-    } else if (mode === 'net') {
-      extra = Math.abs(advantage - disadvantage);
-      kind = advantage >= disadvantage ? 'advantage' : 'disadvantage';
-    } else {
-      if (advantage > 0 && disadvantage > 0)
-        throw new ActionError('conflicting-roll-modifiers', { step: path });
-      extra = advantage + disadvantage;
-      kind = advantage > 0 ? 'advantage' : 'disadvantage';
-    }
+  const sources = (kind: string, onParts: boolean) =>
+    has(kind === 'advantage' ? 'noAdvantage' : 'noDisadvantage')
+      ? []
+      : modifiers.filter(
+          (m) => m.modifier.kind === kind && (targets(m.c.effect)?.parts !== undefined) === onParts,
+        );
+  for (const [no, kind] of [
+    ['noAdvantage', 'advantage'],
+    ['noDisadvantage', 'disadvantage'],
+  ] as const)
+    if (modifiers.some((m) => m.modifier.kind === kind))
+      for (const m of modifiers) if (m.modifier.kind === no) changed.add(m.c);
+  const highBetter = (step.better ?? 'high') === 'high';
+  const keepOf = (kind: 'advantage' | 'disadvantage') =>
+    (kind === 'advantage') === highBetter ? 'high' : 'low';
+  const advantage = sources('advantage', false);
+  const disadvantage = sources('disadvantage', false);
+  if (advantage.length + disadvantage.length > 0) {
+    const { extra, kind } = netAdvantage(ctx, advantage.length, disadvantage.length, path);
     // One source of the kind that applies with `of: roll` makes the extras whole rolls.
-    const whole = modifiers.some((m) => m.modifier.kind === kind && m.modifier.of === 'roll');
-    const highBetter = (step.better ?? 'high') === 'high';
+    const whole = (kind === 'advantage' ? advantage : disadvantage).some(
+      (m) => m.modifier.of === 'roll',
+    );
     const main = items.find((i) => i.kind === 'dice');
+    if (extra > 0 && main?.term)
+      for (const m of kind === 'advantage' ? advantage : disadvantage) changed.add(m.c);
     if (extra > 0 && whole) {
-      const keep = (kind === 'advantage') === highBetter ? 'high' : 'low';
-      if (main) repeat = { times: extra + 1, keep };
+      if (main) repeat = { times: extra + 1, keep: keepOf(kind) };
     } else if (extra > 0 && main?.term) {
       const hasKeep = main.term.modifiers.some((m) =>
         ['keepHighest', 'keepLowest', 'dropHighest', 'dropLowest'].includes(m.type),
@@ -1882,11 +1917,34 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       main.term.count += extra;
     }
   }
+  const partAdvantage = sources('advantage', true);
+  const partDisadvantage = sources('disadvantage', true);
+  // A roll made again whole already rolls its parts again.
+  if (!repeat && partAdvantage.length + partDisadvantage.length > 0) {
+    const { extra, kind } = netAdvantage(ctx, partAdvantage.length, partDisadvantage.length, path);
+    const reaching = kind === 'advantage' ? partAdvantage : partDisadvantage;
+    const group = items.filter(
+      (i) => i.kind === 'dice' && i.part !== undefined && reaching.some((m) => onPart(m.c, i.tags)),
+    );
+    if (extra > 0 && group.length > 0) {
+      for (const m of reaching) if (group.some((i) => onPart(m.c, i.tags))) changed.add(m.c);
+      again = new Set(group);
+      repeat = {
+        times: extra + 1,
+        keep: keepOf(kind),
+        items: group.map((i) => items.indexOf(i)),
+      };
+    }
+  }
   // 6. Multiply dice. 7. Reroll, minimum face, explode.
   for (const { modifier, c } of modifiers) {
     if (modifier.kind === 'multiplyDice') {
       const factor = num(modifier.factor, c, 1);
-      for (const item of items) if (item.term && !item.unmultiplied) item.term.count *= factor;
+      for (const item of items)
+        if (item.term && !item.unmultiplied) {
+          if (factor !== 1 && item.term.count > 0) changed.add(c);
+          item.term.count *= factor;
+        }
     }
   }
   for (const { modifier, c } of modifiers) {
@@ -1910,6 +1968,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     if (!add) continue;
     for (const item of items) {
       if (!item.term || item.term.modifiers.some((m) => m.type === add.type)) continue;
+      changed.add(c);
       item.term.modifiers = [...item.term.modifiers, add].toSorted(
         (a, b) => MODIFIER_ORDER.indexOf(a.type) - MODIFIER_ORDER.indexOf(b.type),
       );
@@ -1928,6 +1987,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     );
     const term = item?.term;
     if (!item || !term || item.preset) continue;
+    changed.add(c);
     const [lo, hi] =
       term.sides === 'F' ? [-1, 1] : term.zero ? [0, term.sides - 1] : [1, term.sides];
     item.preset = (modifier.faces ?? []).slice(0, term.count).map((formula) => {
@@ -1941,12 +2001,19 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   }
 
   // A roll with no dice items is not a checkpoint: it never pauses and records no answer.
-  // A whole roll made again (`of: roll`) is a copy of the built items, without given faces.
+  // A roll made again (`of: roll`) is a copy of the built items, without given faces; on parts,
+  // only the parts' items are copied and the others are shared, rolled once.
   const rolls: BuiltItem[][] = [items];
   for (let k = 1; k < (repeat?.times ?? 1); k++)
-    rolls.push(items.map(({ preset: _preset, ...i }) => structuredClone(i)));
+    rolls.push(
+      items.map((item) => {
+        if (again && !again.has(item)) return item;
+        const { preset: _preset, ...i } = item;
+        return structuredClone(i);
+      }),
+    );
   const diceOf = (list: BuiltItem[]) => list.filter((i) => i.term && i.term.count >= 0);
-  const allDice = rolls.flatMap(diceOf);
+  const allDice = [...new Set(rolls.flatMap(diceOf))];
   const checkpoint = items.some((i) => i.kind === 'dice');
   const asked = (i: BuiltItem) =>
     Math.max(0, (i.term as f.DiceTerm).count - (i.preset?.length ?? 0));
@@ -2047,8 +2114,9 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     if (modifier.kind !== 'multiply') continue;
     const factor = num(modifier.factor, c, 1);
     const mode = c.effect.rounding ?? ruleset.rules.settings.rounding ?? 'floor';
-    for (const item of rolls.flat()) {
+    for (const item of new Set(rolls.flat())) {
       if (item.unmultiplied) continue;
+      if (factor !== 1) changed.add(c);
       const before = itemValue(item);
       const raw = before * factor;
       let value = Number.isInteger(before) ? roundNumber(raw, mode) : raw;
@@ -2072,13 +2140,14 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     active.filter((c) => targets(c.effect)?.tally === undefined),
     effectCtx,
     unbounded,
+    changed,
   );
   const total = bounds.at(-1)?.value ?? unbounded;
   const allFaces = diceItems.flatMap((i) => (i.rolled?.faces ?? []).map((face) => face.value));
   const kept = diceItems.flatMap((i) =>
     (i.rolled?.faces ?? []).filter((face) => face.kept && !face.rerolled).map((face) => face.value),
   );
-  const tallies = rollTallies(ctx, frame, active, effectCtx);
+  const tallies = rollTallies(ctx, frame, active, effectCtx, changed);
   const result: Record<string, unknown> = {
     total,
     faces: allFaces,
@@ -2117,6 +2186,67 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     ...(bounds.length ? { bounds } : {}),
     ...(result.rolls ? { rolls: result.rolls as RollLog[] } : {}),
   });
+  // Each effect that changed the roll proposes its `then` once, in effect order.
+  for (const c of [...changed].toSorted((a, b) => a.instance.order - b.instance.order))
+    for (const then of c.effect.then ?? []) {
+      const change = rollThen(ruleset, c.instance, then, (formula) =>
+        outputData(sheet.evaluate(formula, c.pack, effectCtx(c))),
+      );
+      if (change) ctx.proposed.push({ to: 'self', step: path, change });
+    }
+}
+
+/**
+ * A roll effect's `then` change, aimed at what it names: `entry: self` the state its `self`
+ * reads the key from (its pick's or grant's for picked or held granted content declaring it, else
+ * its applied entry or copy); `pick: owner` and `grant: owner` the pick or holder grant that
+ * activated its content. Undefined when `entry: self` names nothing.
+ */
+function rollThen(
+  ruleset: Ruleset,
+  i: EffectInstance,
+  then: NonNullable<Effect['then']>[number],
+  value: (formula: Formula) => unknown,
+): Change | undefined {
+  const entry = i.applied ?? i.source.entry;
+  if (then.type === 'removeEffect')
+    return i.applied === undefined
+      ? undefined
+      : ({ type: 'removeEffect', id: i.applied } as Change);
+  const out: Record<string, unknown> = { type: then.type, key: then.key };
+  const a = i.own;
+  const pick = () => {
+    const option = a?.kind === 'pick' ? a.path.choice.at(-1) : undefined;
+    if (!a || option === undefined) return undefined;
+    return { path: { ...a.path, choice: a.path.choice.slice(0, -1) }, option };
+  };
+  const grant = () => {
+    if (!a?.item || a.kind !== 'grant' || a.scope !== 'holder' || a.node === undefined)
+      return undefined;
+    const node =
+      a.path.choice.length === 0
+        ? { entry: a.path.entry }
+        : { path: { ...a.path, choice: a.path.choice.slice(0, -1) }, option: a.path.choice.at(-1) };
+    return { ...node, grant: a.item.qid };
+  };
+  if (then.pick === 'owner') {
+    const at = pick();
+    if (!at) throw new ActionError('unknown-reference', { kind: 'pick', id: 'owner' });
+    Object.assign(out, at);
+  } else if (then.grant === 'owner') {
+    const at = grant();
+    if (!at) throw new ActionError('unknown-reference', { kind: 'grant', id: 'owner' });
+    Object.assign(out, at);
+  } else {
+    const declares = a?.item !== undefined && then.key in stateDecls(ruleset, a.item, []);
+    const own = declares ? (pick() ?? grant()) : undefined;
+    if (own) Object.assign(out, own);
+    else if (entry !== undefined) out.entry = entry;
+    else return undefined;
+  }
+  if (then.value !== undefined) out.value = value(then.value);
+  if (then.by !== undefined) out.by = value(then.by);
+  return out as Change;
 }
 
 /** A set's `value` is evaluated once, before its bands, which read it as `roll.value`. */
@@ -2190,6 +2320,7 @@ function rollBounds<T extends { instance: EffectInstance; effect: Effect; pack: 
   active: T[],
   roots: (c: T) => Record<string, unknown>,
   total: number,
+  changed?: Set<T>,
 ): BoundLog[] {
   const out: BoundLog[] = [];
   let value = total;
@@ -2207,6 +2338,7 @@ function rollBounds<T extends { instance: EffectInstance; effect: Effect; pack: 
     }
     if (bound && (op === 'atLeast' ? bound.v > value : bound.v < value)) {
       value = bound.v;
+      changed?.add(bound.c);
       out.push({ source: bound.c.instance.source, op, value: bound.v });
     }
   }
@@ -2219,6 +2351,7 @@ function rollTallies<T extends { instance: EffectInstance; effect: Effect; pack:
   frame: Frame,
   active: T[],
   roots: (c: T) => Record<string, unknown>,
+  changed?: Set<T>,
 ): TallyLog[] {
   const scope = ctx.ruleset.packs.find((p) => p.id === frame.pack)?.scope ?? [frame.pack];
   const out: TallyLog[] = [];
@@ -2240,6 +2373,7 @@ function rollTallies<T extends { instance: EffectInstance; effect: Effect; pack:
       )) {
         const v = amount(c);
         log.value += v;
+        if (v !== 0) changed?.add(c);
         log.sources.push({ source: c.instance.source, op: 'add', value: v });
       }
       for (const op of ['atLeast', 'atMost'] as const) {
@@ -2254,6 +2388,7 @@ function rollTallies<T extends { instance: EffectInstance; effect: Effect; pack:
         }
         if (bound && (op === 'atLeast' ? bound.v > log.value : bound.v < log.value)) {
           log.value = bound.v;
+          changed?.add(bound.c);
           log.sources.push({ source: bound.c.instance.source, op, value: bound.v });
         }
       }

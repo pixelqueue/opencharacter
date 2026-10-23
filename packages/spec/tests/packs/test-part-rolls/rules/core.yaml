@@ -1,0 +1,41 @@
+tags: [damage, weapon, sneak]
+
+fields:
+  # The weapon's dice rolled twice, the better kept (savage), or the worse (feeble).
+  savage: { type: boolean, input: true, default: false }
+  feeble: { type: boolean, input: true, default: false }
+  # The whole roll made twice, the better kept.
+  steady: { type: boolean, input: true, default: false }
+  # No advantage on damage, a part's included.
+  elusive: { type: boolean, input: true, default: false }
+
+effects:
+  - target: { rolls: [damage], parts: [weapon] }
+    op: rollModifier
+    value: { kind: advantage, of: roll }
+    when: savage
+  - target: { rolls: [damage], parts: [weapon] }
+    op: rollModifier
+    value: { kind: disadvantage, of: roll }
+    when: feeble
+  - target: { rolls: [damage] }
+    op: rollModifier
+    value: { kind: advantage, of: roll }
+    when: steady
+  - target: { rolls: [damage] }
+    op: rollModifier
+    value: { kind: noAdvantage }
+    when: elusive
+
+actions:
+  # 2d6 weapon damage, 1d6 sneak attack and 2.
+  - id: damage
+    steps:
+      - id: roll
+        kind: roll
+        tags: [damage]
+        parts:
+          - { dice: 2d6, tags: [weapon] }
+          - { dice: 1d6, tags: [sneak] }
+          - { value: 2 }
+      - { id: result, kind: outcome, data: { total: steps.roll.total } }

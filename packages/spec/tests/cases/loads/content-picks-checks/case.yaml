@@ -1,0 +1,46 @@
+description: "`picksOf(content, choice)` is bound wherever a character is but activation conditions, and `grantedPicksOf` where a formula has an owner, activation conditions included; both take string literals naming content the pack sees and one of its choices. A grant's `when` reading `picksOf(content, choice)` is `unknown-function`, as is a field formula calling `grantedPicksOf`; an unknown content or choice is `unknown-reference`; a computed argument `type-mismatch`. A field formula, a slot's key and a grant's `when` reading `grantedPicksOf` pass"
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          lores: { type: integer, formula: "size(picksOf('feats.lore', 'topic'))" }
+          slotted: { type: integer, formula: "size(picksOf('feats.slotted', 'gift-2'))" }
+          granted: { type: integer, formula: "size(grantedPicksOf('feats.lore', 'topic'))" }
+          topic: { type: string, input: true, default: topic }
+        contentTypes:
+          feat: {}
+      content:
+        - id: feats.lore
+          type: feat
+          choices:
+            - { id: topic, from: { values: [a, b] } }
+        - id: feats.slotted
+          type: feat
+          choices:
+            - { id: gift, slots: [1, 2], from: { values: [a, b] } }
+        - id: feats.fine
+          type: feat
+          grants:
+            - { item: feats.lore }
+            - { item: feats.slotted, when: "size(grantedPicksOf('feats.lore', 'topic')) > 0" }
+        - id: feats.loop
+          type: feat
+          grants:
+            - { item: feats.slotted, when: "size(picksOf('feats.lore', 'topic')) > 0" }
+        - id: feats.typo
+          type: feat
+          grants:
+            - { item: feats.slotted, when: "size(grantedPicksOf('feats.lore', 'topics')) > 0" }
+            - { item: feats.lore, when: "size(grantedPicksOf('feats.missing', 'topic')) > 0" }
+        - id: feats.computed
+          type: feat
+          grants:
+            - { item: feats.lore, when: "size(grantedPicksOf('feats.lore', topic)) > 0" }

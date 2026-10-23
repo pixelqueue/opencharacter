@@ -93,7 +93,7 @@ function actionIds(def: { actions?: ActionOrUse[] }): Set<string> {
 function targetKind(
   target: Effect['target'],
 ): 'field' | 'fields' | 'roll' | 'incoming' | 'choice' | 'step' {
-  if (typeof target === 'string') return 'field';
+  if (typeof target === 'string' || 'formula' in target) return 'field';
   if ('fields' in target) return 'fields';
   if ('choices' in target) return 'choice';
   if ('steps' in target) return 'step';
@@ -1429,6 +1429,10 @@ export class PackChecker {
       if (effect.op === 'grant' && field) {
         this.grantValue(effect.value as GrantValue, field.def.of, file, label, field.def);
       }
+    } else if ('formula' in effect.target) {
+      // The field is known only on the sheet, which checks the op takes it.
+      if (effect.op === 'grant')
+        this.grantValue(effect.value as GrantValue, undefined, file, label);
     } else if ('fields' in effect.target) {
       // A grant into a set of set fields: the members each field takes are checked by the engine
       // when it applies.

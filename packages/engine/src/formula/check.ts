@@ -44,6 +44,8 @@ export interface CheckContext {
   character: boolean;
   /** Whether `hasChoice` is bound (display hints' `showWhen`). */
   choices?: boolean;
+  /** An activation condition: what activation decides (`countGrants`) isn't bound. */
+  activation?: boolean;
   /** Whether `picksOf` is bound: the formula has an owner whose choices it can read. */
   picks?: boolean;
   /** Inside an aggregate's argument, where no aggregate is bound again. */
@@ -70,6 +72,17 @@ export const COPY: ObjectType = {
     fields: 'dyn',
   },
   open: true,
+};
+
+/** A saved pick or an active grant, as `countPicks` and `countGrants` see it. */
+export const PICK_ROOT: ObjectType = {
+  object: {
+    item: 'string',
+    type: 'string',
+    tags: { list: 'string' },
+    state: 'dyn',
+    fields: 'dyn',
+  },
 };
 
 export const FIELD_ROOT: ObjectType = {
@@ -392,13 +405,36 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
       wants(types()[0] as FType, (t) => t === 'string', 'a string');
       return 'bool';
     case 'picksOf': {
+      if (args.length === 2) {
+        if (!ctx.character || ctx.activation)
+          return fail(
+            'unknown-function',
+            'picksOf(content, choice) is not bound in activation conditions or without a character',
+            { function: fn },
+          );
+        if (args.some((a) => a.type !== 'string'))
+          return mismatch('picksOf() takes a content ID and a choice ID, string literals');
+        return { list: 'dyn' };
+      }
       if (!ctx.picks)
         return fail('unknown-function', 'picksOf() is bound only where the formula has an owner', {
           function: fn,
         });
-      arity(1);
+      arity(1, 2);
       if (args[0]?.type !== 'string')
         return mismatch('picksOf() takes a choice ID, a string literal');
+      return { list: 'dyn' };
+    }
+    case 'grantedPicksOf': {
+      if (!ctx.picks)
+        return fail(
+          'unknown-function',
+          'grantedPicksOf() is bound only where the formula has an owner',
+          { function: fn },
+        );
+      arity(2);
+      if (args.some((a) => a.type !== 'string'))
+        return mismatch('grantedPicksOf() takes a content ID and a choice ID, string literals');
       return { list: 'dyn' };
     }
     case 'indexOf':
@@ -464,9 +500,14 @@ function checkAggregate(fn: string, over: Over, args: Node[], ctx: CheckContext)
     const why = ctx.inAggregate ? 'inside another aggregate' : 'without a character';
     return fail('unknown-function', `${fn}() is not bound ${why}`, { function: fn });
   }
+  if (over === 'grants' && ctx.activation)
+    return fail('unknown-function', `${fn}() is not bound in activation conditions`, {
+      function: fn,
+    });
   const parts = aggregateArgs(fn, over, args);
   const inner: CheckContext = { ...ctx, inAggregate: true };
-  let rootType: FType = over === 'copies' ? COPY : FIELD_ROOT;
+  let rootType: FType =
+    over === 'copies' ? COPY : over === 'picks' || over === 'grants' ? PICK_ROOT : FIELD_ROOT;
   if (parts.list) {
     // Evaluated once, outside the per-element context, so it may be an aggregate.
     const list = checkTree(parts.list, ctx);

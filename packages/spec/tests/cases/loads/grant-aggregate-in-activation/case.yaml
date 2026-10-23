@@ -1,0 +1,29 @@
+description: '`countGrants` reads what activation decides, so an activation condition calling it is `unknown-function`; `countPicks` reads saved picks, which an activation condition may read, and both are bound in effects'
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          bonus: { type: integer, formula: 0 }
+        contentTypes:
+          feat: {}
+          gift: {}
+      content:
+        - id: feats.loop
+          type: feat
+          grants:
+            - { item: gifts.ember, when: countGrants(grant.type == 'gift') == 0 }
+        - id: feats.fine
+          type: feat
+          grants:
+            - { item: gifts.ember, when: countPicks(pick.type == 'feat') > 0 }
+          effects:
+            - { target: bonus, op: add, value: countGrants(true) + countPicks(true) }
+        - { id: gifts.ember, type: gift }

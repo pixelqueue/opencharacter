@@ -69,7 +69,7 @@
       "type": "boolean"
     },
     "then": {
-      "description": "Incoming-change effects only: changes to the effect's own entry, applied by applyChanges right after the adjust is routed, when the effect counted (its `when` held and stacking kept it). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), whose `value` and `by` are formulas seeing `item`, `self` and `incoming`, or, on an `applied` effect, a `removeEffect` with `entry: self`, which ends the entry (a ward that triggers once). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`).",
+      "description": "Incoming-change and roll effects only: changes to the effect's own entry once it counted. On an incoming-change effect, applyChanges applies them right after the adjust is routed, when the effect counted (its `when` held and stacking kept it); on a roll effect, the action proposes them `to: self` after the roll step, once, when the effect changed the roll (effects.md, \"Roll effects that end themselves\"). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), or with `pick: owner` or `grant: owner`, the pick or holder grant that activated the effect's content; their `value` and `by` are formulas seeing `item`, `self` and `incoming` (on a roll effect, the roll effect's context). On an `applied` effect, a `removeEffect` with `entry: self` ends the entry (a ward that triggers once, a condition that lasts one roll). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`).",
       "type": "array",
       "items": {
         "$ref": "#/$defs/thenChange"
@@ -236,7 +236,7 @@
       }
     },
     "thenTarget": {
-      "description": "`then` is only for incoming-change effects, and only an `applied` effect's may remove its entry.",
+      "description": "`then` is only for incoming-change and roll effects, and only an `applied` effect's may remove its entry.",
       "if": {
         "required": ["then"],
         "type": "object"
@@ -244,7 +244,14 @@
       "then": {
         "properties": {
           "target": {
-            "$ref": "#/$defs/incomingTarget"
+            "anyOf": [
+              {
+                "$ref": "#/$defs/incomingTarget"
+              },
+              {
+                "$ref": "#/$defs/rollTarget"
+              }
+            ]
           }
         },
         "if": {
@@ -276,15 +283,23 @@
       }
     },
     "thenChange": {
-      "description": "A change an incoming-change effect makes to its own entry after the adjust is routed: `setState` with `value`, `adjustState` with `by`, or `removeEffect` (an `applied` effect only), always `entry: self`.",
+      "description": "A change an incoming-change or roll effect makes after it counted: `setState` with `value`, `adjustState` with `by`, or `removeEffect` (an `applied` effect only, `entry: self`). It names `entry: self` (the state the effect's `self` reads the key from), `pick: owner` (the pick that activated the effect's content) or `grant: owner` (the holder grant that did).",
       "type": "object",
-      "required": ["type", "entry"],
+      "required": ["type"],
       "properties": {
         "type": {
           "enum": ["setState", "adjustState", "removeEffect"]
         },
         "entry": {
           "const": "self"
+        },
+        "pick": {
+          "description": "setState and adjustState: `owner`, the pick that activated the effect's content, whose state changes. Content that isn't picked has none: `unknown-reference`.",
+          "const": "owner"
+        },
+        "grant": {
+          "description": "setState and adjustState: `owner`, the holder grant that activated the effect's content, whose saved state changes. Content no holder grant activates has none: `unknown-reference`.",
+          "const": "owner"
         },
         "key": {
           "$ref": "common.schema.json#/$defs/name"
@@ -350,7 +365,18 @@
           }
         }
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": ["entry"]
+        },
+        {
+          "required": ["pick"]
+        },
+        {
+          "required": ["grant"]
+        }
+      ]
     },
     "tallyOps": {
       "description": "An effect on a roll tally uses add, atLeast or atMost.",
@@ -453,7 +479,7 @@
       "additionalProperties": false
     },
     "target": {
-      "description": "A character field (by ID), a set of fields (by a static query over their tags), rolls as they happen (by tag), incoming changes (by field and tag), an action's choice steps (by tag), or an action's changes steps (by tag).",
+      "description": "A character field (by ID, or a string formula giving one), a set of fields (by a static query over their tags), rolls as they happen (by tag), incoming changes (by field and tag), an action's choice steps (by tag), or an action's changes steps (by tag).",
       "anyOf": [
         {
           "$ref": "common.schema.json#/$defs/fieldRef"
@@ -472,6 +498,9 @@
         },
         {
           "$ref": "#/$defs/fieldsTarget"
+        },
+        {
+          "$ref": "#/$defs/formulaTarget"
         }
       ]
     },
@@ -538,7 +567,7 @@
           "$ref": "common.schema.json#/$defs/name"
         },
         "parts": {
-          "description": "The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part) and the roll modifiers `stepDie` and `setFaces`. Not with `tally`.",
+          "description": "The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part) and the roll modifiers `stepDie`, `setFaces`, and `advantage` and `disadvantage` with `of: roll` (roll the matching parts again as a group, keeping the better or worse subtotal). Not with `tally`.",
           "$ref": "common.schema.json#/$defs/tags",
           "minItems": 1,
           "type": "array"
@@ -650,7 +679,7 @@
           "$ref": "formula.schema.json"
         },
         "of": {
-          "description": "advantage, disadvantage: `die` (default) rolls extra dice for the roll's main dice item and keeps the better or worse ones; `roll` makes the whole roll again and keeps the better or worse total. One counted source of the kind that applies with `roll` makes every extra a whole roll.",
+          "description": "advantage, disadvantage: `die` (default) rolls extra dice for the roll's main dice item and keeps the better or worse ones; `roll` makes the whole roll again and keeps the better or worse total. One counted source of the kind that applies with `roll` makes every extra a whole roll. On a `parts` target, `roll` is required: the matching parts' items are rolled again as a group and the better or worse total kept, the roll's other items rolled once.",
           "enum": ["die", "roll"]
         },
         "faces": {
@@ -769,6 +798,17 @@
       },
       "additionalProperties": false
     },
+    "formulaTarget": {
+      "description": "One field, named by a string formula evaluated as an activation condition when the effect becomes active: `self`, `item`, `pick` and `slot` where bound, the character functions, the owner's picks, and input fields only (`'skills.lore.' + pick.value + '.granted'`). A local ID resolves in the effect's pack. The effect is then exactly as if written with that field as its `target`. An empty string targets nothing; a value naming no field is a sheet error (`unknown-field`), as is a field whose type the op doesn't take (`type-mismatch`). Ops: add, set, multiply, atLeast, atMost, grant.",
+      "type": "object",
+      "required": ["formula"],
+      "properties": {
+        "formula": {
+          "$ref": "formula.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
     "fieldsOps": {
       "description": "An effect on a set of fields uses add, multiply, atLeast or atMost, or grant into set fields.",
       "if": {
@@ -791,7 +831,7 @@
       }
     },
     "partsOps": {
-      "description": "An effect on a roll's parts uses `set`, or a `stepDie` or `setFaces` roll modifier, and has no tally.",
+      "description": "An effect on a roll's parts uses `set`, or a `stepDie`, `setFaces`, `advantage` or `disadvantage` roll modifier, and has no tally. Advantage and disadvantage there say `of: roll`: the matching parts are rolled again as a group.",
       "if": {
         "properties": {
           "target": {
@@ -821,10 +861,28 @@
             "then": {
               "properties": {
                 "kind": {
-                  "enum": ["stepDie", "setFaces"]
+                  "enum": ["stepDie", "setFaces", "advantage", "disadvantage"]
                 }
               },
-              "type": "object"
+              "type": "object",
+              "if": {
+                "properties": {
+                  "kind": {
+                    "enum": ["advantage", "disadvantage"]
+                  }
+                },
+                "required": ["kind"],
+                "type": "object"
+              },
+              "then": {
+                "required": ["of"],
+                "properties": {
+                  "of": {
+                    "const": "roll"
+                  }
+                },
+                "type": "object"
+              }
             }
           }
         },

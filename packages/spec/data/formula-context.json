@@ -21,7 +21,7 @@
     },
     {
       "id": "pick",
-      "description": "In a choice's effects: the picked option (`pick.id` or `pick.value`), also in a set of fields' `where` there."
+      "description": "In a choice's effects: the picked option (`pick.id` or `pick.value`), also in a set of fields' `where` there. Inside the arguments of `countPicks`: the saved pick being evaluated, a closed object: `item` (the picked content's qualified ID), `type` (its content type name), `tags`, `fields` (its item fields, as in `item`) and `state` (each declared state key, the pick's saved value or the default). `state` and `fields` are `dyn`."
     },
     {
       "id": "slot",
@@ -102,6 +102,10 @@
     {
       "id": "copy",
       "description": "Inside the arguments of `countCopies`, `sumCopies`, `maxCopies` and `minCopies`: the copy being evaluated: `copy.id`, `copy.item` (qualified item ID), `copy.type` (content type name), `copy.tags`, `copy.equipped`, `copy.quantity`, `copy.templates`, `copy.state.<key>` (declared state keys, saved value or default) and `copy.fields.<field>` (item fields as in `item`: the templates' values, else the item's, else the declared default). `state` and `fields` are `dyn`."
+    },
+    {
+      "id": "grant",
+      "description": "Inside the arguments of `countGrants`: the active holder grant being evaluated, a closed object as `pick` is in `countPicks`: `item`, `type`, `tags`, `fields` and `state` (each declared state key: the grant's saved value, else the grant's `state` value, else the default)."
     },
     {
       "id": "entry",
@@ -207,6 +211,18 @@
       "signature": "minCopies(number value, bool cond?) -> int | decimal",
       "character": true,
       "description": "Macro: the lowest `value` over the character's copies for which `cond` holds, with `copy` bound as in `sumCopies`. 0 when no copy is kept."
+    },
+    {
+      "id": "countPicks",
+      "signature": "countPicks(bool cond) -> int",
+      "character": true,
+      "description": "Macro: the character's saved picks of content for which `cond` holds, in file order (each copy's choice tree, features then inventory, then the rules-level tree, depth first), evaluated once per pick with `pick` bound. Picks of values and of content not in the ruleset are skipped. Bound wherever a character is, activation conditions included. No aggregate is bound inside its arguments."
+    },
+    {
+      "id": "countGrants",
+      "signature": "countGrants(bool cond) -> int",
+      "character": true,
+      "description": "Macro: the character's active holder grants for which `cond` holds, in activation order (an item once per node), evaluated once per grant with `grant` bound. Unbound in activation conditions, which decide the grants (`unknown-function`). No aggregate is bound inside its arguments."
     },
     {
       "id": "countFields",
@@ -336,9 +352,15 @@
     },
     {
       "id": "picksOf",
-      "signature": "picksOf(string choice) -> list",
+      "signature": "picksOf(string choice) -> list; picksOf(string content, string choice) -> list",
       "character": true,
-      "description": "The saved picks of a choice of the formula's owner (the content or rules declaring the formula, as activated: a copy's item, a template or granted content on it, picked content or an inline option, the rules), as content IDs or values in saved order, `[]` when none; saved picks whether or not the choice applies or they are eligible, so it adds no dependency and can't loop. The choice is a string literal, a choice ID or a slot's key (`class-feat-2`); a literal naming none of the owner's choices is `unknown-reference` at load where the owner is known (an item's, a template's, an inline option's formulas), else `no-such-key` when evaluated. A content type's formulas, and a rules action a copy uses, see that copy's item's choices; a rules action with no copy, and the rules' effects, follow-ups and choices, the rules-level ones. Bound in content formulas (effects, grants, prerequisites, choices, computed values, actions, follow-ups, `keepsTemplates` queries and `params`) and the rules' choices, effects, follow-ups and actions; elsewhere `unknown-function`. A query `where` calling it reads the character."
+      "description": "The saved picks of a choice of the formula's owner (the content or rules declaring the formula, as activated: a copy's item, a template or granted content on it, picked content or an inline option, the rules), as content IDs or values in saved order, `[]` when none; saved picks whether or not the choice applies or they are eligible, so it adds no dependency and can't loop. The choice is a string literal, a choice ID or a slot's key (`class-feat-2`); a literal naming none of the owner's choices is `unknown-reference` at load where the owner is known (an item's, a template's, an inline option's formulas), else `no-such-key` when evaluated. A content type's formulas, and a rules action a copy uses, see that copy's item's choices; a rules action with no copy, and the rules' effects, follow-ups and choices, the rules-level ones. Bound in content formulas (effects, grants, prerequisites, choices, computed values, actions, follow-ups, `keepsTemplates` queries and `params`) and the rules' choices, effects, follow-ups and actions; elsewhere `unknown-function`. A query `where` calling it reads the character. With two arguments, `picksOf(content, choice)`: the picks of that content's choice on every activation of it (copies, templates, picks and grants, holder and applied), in activation order, concatenated, `[]` for none; on each, a grant's preset picks where it presets the choice, else the saved ones. Both string literals; the content resolves in the formula's pack; content the pack doesn't see, or a choice it doesn't declare, is `unknown-reference` at load. Bound wherever a character is but activation conditions (field formulas, constraints, display hints and situational choices included)."
+    },
+    {
+      "id": "grantedPicksOf",
+      "signature": "grantedPicksOf(string content, string choice) -> list",
+      "character": true,
+      "description": "The saved picks of a choice of content the formula's owner grants, as the owner's node keeps them under the granted content's prefixed key (`<content>/<choice>`), `[]` for none; a grant's preset picks aren't saved, so they aren't read. Both string literals; the content resolves in the formula's pack; content the pack doesn't see, or a choice it doesn't declare, is `unknown-reference` at load. Bound where `picksOf(choice)` is, activation conditions included: saved picks are input, so it adds no dependency."
     }
   ]
 }

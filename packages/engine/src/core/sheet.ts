@@ -492,6 +492,8 @@ export class Sheet {
   private readonly inputQueries!: f.CharacterQueries;
   private readonly characterRoot!: Record<string, unknown>;
   private copyData: Record<string, unknown>[] | undefined;
+  private pickData: Record<string, unknown>[] | undefined;
+  private grantData: Record<string, unknown>[] | undefined;
   private readonly inputs = new Map<string, f.Value>();
   /** Plain item views (no templates): they read input fields only, so they're fixed per sheet. */
   private readonly queryViews = new Map<LoadedItem, Record<string, unknown>>();
@@ -552,12 +554,17 @@ export class Sheet {
         );
         return this.copyData;
       }),
+      picks: () => (this.pickData ??= this.savedPicks()),
+      contentPicks: (content, choice) => this.contentPicks(content, choice),
+      grants: () => (this.grantData ??= this.grantViews()),
       fields: () => fieldViews(ruleset),
       fieldValue: (qid) => this.fieldValue(qid),
     };
-    // Activation conditions read input fields only, through the field functions too.
+    // Activation conditions read input fields only, through the field functions too, and not
+    // what activation decides.
+    const { grants: _grants, contentPicks: _picks, ...beforeActivation } = this.queries;
     this.inputQueries = {
-      ...this.queries,
+      ...beforeActivation,
       fieldValue: (qid) => {
         const value = this.inputValue(qid);
         if (value === undefined)
@@ -1130,7 +1137,10 @@ export class Sheet {
       kind: 'rules',
       scope: 'holder',
       pack: '',
-      roots: { [f.OWNER_PICKS]: ownerPicks(rulesChoices, rulesTree, '') },
+      roots: {
+        [f.OWNER_PICKS]: ownerPicks(rulesChoices, rulesTree, ''),
+        [f.OWNER_GRANTED]: grantedPicks(rulesTree),
+      },
       source: { type: 'rules' },
       sourceId: 'rules',
       key: this.freeKey('rules'),
@@ -1646,6 +1656,7 @@ export class Sheet {
     activation.roots = {
       ...activation.roots,
       [f.OWNER_PICKS]: ownerPicks(declared, activation.tree, activation.keyPrefix ?? ''),
+      [f.OWNER_GRANTED]: grantedPicks(activation.tree),
     };
     this.activations.push(activation);
     this.childOf(this.walking.at(-1), activation);
@@ -1980,6 +1991,27 @@ export class Sheet {
       ...(owner === undefined ? {} : { own: owner }),
     };
     const target = effect.target;
+    if (typeof target === 'object' && 'formula' in target) {
+      const qid = this.targetField(
+        effect,
+        target.formula as Formula,
+        pack,
+        roots,
+        `${sourceId} effect`,
+      );
+      if (qid)
+        this.instance(
+          { ...effect, target: qid },
+          pack,
+          roots,
+          source,
+          sourceId,
+          key,
+          applied,
+          owner,
+        );
+      return;
+    }
     if (typeof target === 'object' && 'fields' in target) {
       // One instance per matching field, as if written with that field as its target. A field whose
       // tags are computed is matched on this sheet, when its effects are gathered.
@@ -2015,6 +2047,53 @@ export class Sheet {
       order: this.order++,
       ...own,
     });
+  }
+
+  /**
+   * A formula target's field, evaluated as an activation condition and resolved in the effect's
+   * pack: '' targets nothing; a value naming no field, or a field the op doesn't take, is an error.
+   */
+  private targetField(
+    effect: Effect,
+    formula: Formula,
+    pack: string,
+    roots: Record<string, unknown>,
+    where: string,
+  ): string | undefined {
+    let id: string;
+    try {
+      const value = this.evaluateActivation(formula, pack, roots);
+      if (value.kind !== 'string')
+        throw new Failure({ code: 'type-mismatch', message: 'a target formula is a string' });
+      id = value.value;
+    } catch (error) {
+      if (!(error instanceof Failure)) throw error;
+      this.errors.push({
+        code: error.error.code,
+        data: { where: `${where} target`, message: error.error.message, ...error.error.data },
+      });
+      return undefined;
+    }
+    if (id === '') return undefined;
+    const qid = resolveField(this.ruleset, id, pack);
+    if (!qid) {
+      this.errors.push({ code: 'unknown-field', data: { field: id, where: `${where} target` } });
+      return undefined;
+    }
+    const type = (this.ruleset.fields[qid] as FieldDef).type;
+    const numeric =
+      type === 'integer' || type === 'decimal' || (type === 'dice' && effect.op === 'add');
+    if (effect.op === 'grant' ? type !== 'set' : effect.op !== 'set' && !numeric) {
+      this.errors.push({
+        code: 'type-mismatch',
+        data: {
+          where: `${where} target`,
+          message: `${effect.op} can't target ${qid}, a ${type} field`,
+        },
+      });
+      return undefined;
+    }
+    return qid;
   }
 
   /** A field's keyed `add` instances that counted: what a roll part reading it carries. */
@@ -3095,6 +3174,7 @@ export class Sheet {
           item: a.roots.item,
           self: { ...(a.roots.self as Record<string, unknown>), ...earlier },
           [f.OWNER_PICKS]: a.roots[f.OWNER_PICKS],
+          [f.OWNER_GRANTED]: a.roots[f.OWNER_GRANTED],
         });
         const typed = computedValue(decl.type, value);
         if (typed) out[name] = typed;
@@ -3224,6 +3304,73 @@ export class Sheet {
     return out;
   }
 
+  /** A pick's or grant's view in `countPicks` and `countGrants`: its plain item and its state. */
+  private pickView(item: LoadedItem, state: Record<string, unknown>): Record<string, unknown> {
+    const { id, type, tags, ...fields } = itemView(this.ruleset, item, [], (n, p) =>
+      this.inputByName(n, p),
+    );
+    return { item: id, type, tags, state, fields };
+  }
+
+  /** Saved picks of content in file order: each copy's tree, then the rules', depth first. */
+  private savedPicks(): Record<string, unknown>[] {
+    const out: Record<string, unknown>[] = [];
+    const walk = (tree: ChoiceTree | undefined) => {
+      for (const picks of Object.values(tree ?? {}))
+        for (const pick of picks) {
+          const item =
+            typeof pick.option === 'string' ? this.ruleset.content[pick.option] : undefined;
+          if (item) out.push(this.pickView(item, pickState(this.ruleset, item, pick.state)));
+          walk(pick.choices);
+        }
+    };
+    for (const entry of [...(this.character.features ?? []), ...(this.character.inventory ?? [])])
+      walk(entry.choices);
+    walk(this.character.choices);
+    return out;
+  }
+
+  private choicesOf: Map<Activation, ChoiceRecord[]> | undefined;
+
+  /** A choice's picks on every activation of the content, in activation order. */
+  private contentPicks(content: string, choice: string): (string | number)[] {
+    if (!this.choicesOf) {
+      this.choicesOf = new Map();
+      for (const record of this.choices) {
+        const list = this.choicesOf.get(record.owner) ?? [];
+        list.push(record);
+        this.choicesOf.set(record.owner, list);
+      }
+    }
+    const out: (string | number)[] = [];
+    for (const a of this.activations) {
+      if (a.item?.qid !== content) continue;
+      for (const record of this.choicesOf.get(a) ?? [])
+        if (record.choice.id === choice) out.push(...record.picks.map((p) => p.option));
+    }
+    return out;
+  }
+
+  /** The active holder grants in activation order, each item once per node. */
+  private grantViews(): Record<string, unknown>[] {
+    const seen = new Set<string>();
+    const out: Record<string, unknown>[] = [];
+    for (const a of this.activations) {
+      if (a.kind !== 'grant' || a.scope !== 'holder' || !a.item) continue;
+      const key = JSON.stringify([a.path, a.item.qid]);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const self = (a.roots.self ?? {}) as Record<string, unknown>;
+      const state = Object.fromEntries(
+        Object.keys(stateDecls(this.ruleset, a.item, [])).flatMap((k) =>
+          k in self ? [[k, self[k]]] : [],
+        ),
+      );
+      out.push(this.pickView(a.item, state));
+    }
+    return out;
+  }
+
   /** The rules' roots: `picksOf` reads the rules' own choices there. */
   rulesRoots(): Record<string, unknown> {
     return (this.activations[0] as Activation).roots;
@@ -3345,6 +3492,20 @@ function ownerPicks(
   for (const declared of choices)
     for (const { choice } of expandSlots(declared))
       out[choice.id] = (tree[`${prefix}${choice.id}`] ?? []).map((p) => p.option);
+  return out;
+}
+
+/**
+ * The saved picks the tree holds under prefixed keys (`<content>/<choice key>`), by content: the
+ * choices of content the owner grants, as `grantedPicksOf` reads them.
+ */
+function grantedPicks(tree: ChoiceTree): Record<string, Record<string, (string | number)[]>> {
+  const out: Record<string, Record<string, (string | number)[]>> = {};
+  for (const [key, picks] of Object.entries(tree)) {
+    const at = key.indexOf('/');
+    if (at < 0) continue;
+    (out[key.slice(0, at)] ??= {})[key.slice(at + 1)] = picks.map((p) => p.option);
+  }
   return out;
 }
 

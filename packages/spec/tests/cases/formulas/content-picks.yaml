@@ -1,0 +1,55 @@
+description: "picksOf(content, choice) and grantedPicksOf: the picks of a content's choice, merged over its activations or on the content the owner grants"
+specVersion: 0.2.0
+cases:
+  # `character.contentPicks` is each content's choices' picks over its activations; `granted`
+  # binds `grantedPicksOf`, the picks of content the owner grants.
+  # A content's picks, merged over its activations.
+  - name: a content's choice, merged over its activations
+    evaluate: picksOf('feats.lore', 'topic')
+    character: { contentPicks: { feats.lore: { topic: [history, academia] } } }
+    value: [history, academia]
+    valueType: list
+  - name: content with no activation has no picks
+    evaluate: picksOf('feats.lore', 'topic')
+    character: {}
+    value: []
+    valueType: list
+  - name: bound without an owner
+    check: size(picksOf('feats.lore', 'topic'))
+    type: int
+  - name: not bound in activation conditions
+    evaluate: picksOf('feats.lore', 'topic')
+    activation: true
+    character: {}
+    error: unknown-function
+  - name: not bound in activation conditions, when checking
+    check: picksOf('feats.lore', 'topic')
+    activation: true
+    error: unknown-function
+  - name: the content and choice are string literals
+    check: picksOf(name, 'topic')
+    roots: [name]
+    error: type-mismatch
+  # The picks of content the owner grants.
+  - name: a granted content's choice
+    evaluate: grantedPicksOf('feats.lore', 'topic')
+    granted: { feats.lore: { topic: [academia] } }
+    value: [academia]
+    valueType: list
+  - name: granted content with no saved picks
+    evaluate: grantedPicksOf('feats.lore', 'topic')
+    granted: {}
+    value: []
+    valueType: list
+  - name: grantedPicksOf is bound in activation conditions
+    check: size(grantedPicksOf('feats.lore', 'topic')) > 0
+    granted: {}
+    activation: true
+    type: bool
+  - name: grantedPicksOf is not bound without an owner
+    check: grantedPicksOf('feats.lore', 'topic')
+    error: unknown-function
+  - name: grantedPicksOf takes two arguments
+    check: grantedPicksOf('feats.lore')
+    granted: {}
+    error: wrong-arity

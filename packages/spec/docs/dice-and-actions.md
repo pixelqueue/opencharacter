@@ -1078,6 +1078,22 @@ the proposed sheet shows), and 5E's point buy and standard array:
     value: { kind: disadvantage, of: roll }
   ```
 
+  On a `parts` target ([effects.md](effects.md#replacing-a-rolls-part)), `of: roll` is required
+  and only the matching parts are made again: their items, as a group, are rolled once more per
+  extra and the better or worse total of the group is kept, while the roll's other items (other
+  parts, items effects add) are rolled once and count the same in every roll. Part sources are
+  counted apart from the roll's own, combined by the same setting; `noAdvantage` and
+  `noDisadvantage` remove them too. A roll made again whole already rolls its parts again, so
+  part sources add nothing to it. 5E's Savage Attacker rolls the weapon's damage dice twice,
+  not Sneak Attack's:
+
+  ```yaml
+  - target: { rolls: [damage], parts: [damage.weapon] }
+    op: rollModifier
+    value: { kind: advantage, of: roll }
+    when: situational.savageAttacker
+  ```
+
 - **`noAdvantage` / `noDisadvantage`**: once the advantage and disadvantage sources are counted, set the count of that kind to 0, before `settings.rollModifiers.advantage` combines them. The player's situational advantage is a source like any other, so it is removed too. 5E's Elusive: no attack roll against the rogue has advantage, and disadvantage still applies.
 - **`reroll`** (`below`, `once`, `count`), **`minimumFace`** (`value`), **`explode`** (`at`).
   `reroll`'s optional `count` (an integer formula) rerolls at most that many of the
@@ -1218,7 +1234,7 @@ policy:
 - A paused result (`status: paused`) says what it `needs` (dice with `count`/`sides`; a choice with `options` and `recommended`, `#done` ending a repeated choice; an allocation with its fields, budget or values; or a handoff with `participant` and `run`), at which `step`, and which `action` defines that step, and carries `state`. The state is plain JSON, so the app can continue minutes later, from another request, or on another machine, by passing it to `continueAction`. The shape of `state` is **PROVISIONAL** (engine-defined).
 - Every action keeps a **log** of every die face, choice, allocation and handoff outcome, which step and `action` it belongs to, and who supplied it (`engine` or `app`). Each pick of a repeated choice step is its own entry, numbered by `index`; a handoff's entry names its `participant` and `outcome`. Replaying an action from its inputs and answers MUST give the same result: startAction's `answers` takes the answers, one per pause, as continueAction does.
 - Reactions after a roll (Lucky, Inspiration, pushing a roll) are choice checkpoints.
-- A finished action (`status: finished`) returns its `outcome`, `proposedChanges` (`{ to, character?, step, change }`, fully resolved, with the path of the `changes` step that proposed each) and `log`. The engine never applies changes itself: the app applies `to: self` changes with `applyChanges`, applies a change for a role or a link to the character named by `character`, and routes a `to: target` change without one to the right character.
+- A finished action (`status: finished`) returns its `outcome`, `proposedChanges` (`{ to, character?, step, change }`, fully resolved, with the path of the `changes` step that proposed each, or of the roll step whose effects' `then` did) and `log`. The engine never applies changes itself: the app applies `to: self` changes with `applyChanges`, applies a change for a role or a link to the character named by `character`, and routes a `to: target` change without one to the right character.
 
 ## Safety limits
 

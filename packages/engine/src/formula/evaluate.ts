@@ -35,9 +35,21 @@ export interface CharacterQueries {
   sumState(type: string, key: string): number;
   /** Every copy as the `copy` root sees it: inventory first, then features, each in file order. */
   copies(): readonly unknown[];
+  /** Every saved pick of content as the `pick` root sees it: each copy's tree, then the rules'. */
+  picks(): readonly unknown[];
+  /**
+   * Every active holder grant as the `grant` root sees it, in activation order. Unbound during
+   * activation, which decides the grants.
+   */
+  grants?(): readonly unknown[];
   /** Every field in ruleset order, as the static filter sees it; the same array on every call. */
   fields(): readonly FieldView[];
   fieldValue(id: string): Value;
+  /**
+   * The picks of a choice on every activation of the content, in activation order: a grant's
+   * preset picks, else the saved ones. Unbound during activation.
+   */
+  contentPicks?(content: string, choice: string): readonly (string | number)[];
   /** Whether a listed choice draws from the content type; bound only in display hints. */
   hasChoice?(type: string): boolean;
 }
@@ -47,6 +59,12 @@ export interface CharacterQueries {
  * reads. Not an identifier, so no formula can name it.
  */
 export const OWNER_PICKS = '#picks';
+
+/**
+ * The roots key holding the saved picks of content the owner's tree holds under prefixed keys,
+ * `{ <content>: { <choice key>: picks } }`, which `grantedPicksOf` reads.
+ */
+export const OWNER_GRANTED = '#granted';
 
 export interface EvalContext {
   /** The value of a visible field, or undefined when no field has this ID. */
@@ -427,6 +445,20 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
       return bool(hasChoice(stringArg(fn, values()[0] as Value)));
     }
     case 'picksOf': {
+      if (args.length === 2) {
+        const contentPicks = ctx.character?.contentPicks;
+        if (!contentPicks)
+          return fail(
+            'unknown-function',
+            'picksOf(content, choice) is not bound in activation conditions or without a character',
+            { function: fn },
+          );
+        const [content, choice] = args;
+        if (content?.type !== 'string' || choice?.type !== 'string')
+          return fail('type-mismatch', 'picksOf() takes a content ID and a choice ID');
+        const qid = ctx.id?.(content.value) ?? content.value;
+        return fromData(contentPicks(qid, choice.value));
+      }
       const owner = ctx.roots[OWNER_PICKS] as Record<string, unknown> | undefined;
       if (!owner)
         return fail('unknown-function', 'picksOf() is bound only where the formula has an owner', {
@@ -438,6 +470,23 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
       if (!Object.hasOwn(owner, name.value))
         return fail('no-such-key', `the owner has no choice "${name.value}"`, { key: name.value });
       return fromData(owner[name.value]);
+    }
+    case 'grantedPicksOf': {
+      const granted = ctx.roots[OWNER_GRANTED] as
+        | Record<string, Record<string, unknown>>
+        | undefined;
+      if (!granted)
+        return fail(
+          'unknown-function',
+          'grantedPicksOf() is bound only where the formula has an owner',
+          { function: fn },
+        );
+      arity(fn, args, 2);
+      const [content, choice] = args;
+      if (content?.type !== 'string' || choice?.type !== 'string')
+        return fail('type-mismatch', 'grantedPicksOf() takes a content ID and a choice ID');
+      const qid = ctx.id?.(content.value) ?? content.value;
+      return fromData(granted[qid]?.[choice.value] ?? []);
     }
     case 'indexOf': {
       arity(fn, args, 2);
@@ -607,7 +656,14 @@ function aggregate(fn: string, over: Over, args: Node[], ctx: EvalContext): Valu
   let elements: unknown[];
   let cond = parts.cond;
   if (over === 'copies') elements = [...character.copies()];
-  else if (over === 'fields') {
+  else if (over === 'picks') elements = [...character.picks()];
+  else if (over === 'grants') {
+    if (!character.grants)
+      return fail('unknown-function', `${fn}() is not bound in activation conditions`, {
+        function: fn,
+      });
+    elements = [...character.grants()];
+  } else if (over === 'fields') {
     elements = keptFields(fn, cond, character.fields()).map((view) => fieldRoot(view, character));
     cond = undefined;
   } else {

@@ -1,0 +1,71 @@
+description: 'Aggregates over saved picks and active grants: countPicks, countGrants and the pick and grant roots'
+specVersion: 0.2.0
+cases:
+  - name: countPicks counts the picks whose condition holds
+    evaluate: countPicks(pick.type == 'invocation' && pick.state.used)
+    character: &picks
+      copies: []
+      picks:
+        - { type: invocation, state: { used: true } }
+        - { type: invocation, state: { used: false } }
+        - { type: trait, tags: [draconic], fields: { damage: fire }, state: { used: true } }
+    value: 1
+    valueType: int
+  - name: countPicks reads the picked item's tags and fields
+    evaluate: "countPicks('draconic' in pick.tags && pick.fields.damage == 'fire')"
+    character: *picks
+    value: 1
+    valueType: int
+  - name: countPicks with no picks
+    evaluate: countPicks(true)
+    character: { picks: [] }
+    value: 0
+    valueType: int
+  - name: inside countGrants the root is grant, not pick
+    evaluate: countGrants(pick.type == 'gift')
+    character:
+      grants: [{ type: gift }]
+    error: unknown-name
+  - name: countGrants binds grant
+    evaluate: countGrants(grant.type == 'gift' && grant.state.committed > 0)
+    character:
+      grants:
+        - { type: gift, state: { committed: 1 } }
+        - { type: gift, state: { committed: 0 } }
+        - { type: trait, state: { committed: 2 } }
+    value: 1
+    valueType: int
+  - name: countGrants is unbound in activation conditions
+    evaluate: countGrants(true) > 0
+    activation: true
+    character: { grants: [{ type: gift }] }
+    error: unknown-function
+  - name: countPicks is bound in activation conditions
+    evaluate: countPicks(true) > 0
+    activation: true
+    character: *picks
+    value: true
+    valueType: bool
+
+  - name: countPicks is an int
+    check: countPicks(pick.state.used)
+    roots: []
+    type: int
+  - name: the pick root is closed
+    check: countPicks(pick.level > 1)
+    roots: []
+    error: unknown-name
+  - name: countGrants is not bound in activation conditions
+    check: countGrants(grant.state.used)
+    roots: []
+    activation: true
+    error: unknown-function
+  - name: countPicks is not bound without a character
+    check: countPicks(true)
+    roots: []
+    character: false
+    error: unknown-function
+  - name: no aggregate inside countPicks
+    check: countPicks(countCopies(true) > 0)
+    roots: []
+    error: unknown-function

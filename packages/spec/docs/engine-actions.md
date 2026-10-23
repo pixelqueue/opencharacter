@@ -233,6 +233,13 @@ A roll step is built, then rolled, then classified.
    are whole rolls instead of dice: the roll is made once more per extra (below), and nothing is
    added to the main dice item. A roll with no dice items is made once.
 
+   **Parts rolled again.** The sources whose target has `parts` (always `of: roll`) are counted
+   apart, after the roll's own, `noAdvantage` and `noDisadvantage` removing them too, and
+   combined by the same setting. Unless the roll is made again whole, their extras roll a
+   **group** again: the dice items from the parts that a counted source of the kind that
+   applies matches. The roll is then made once more per extra, as for whole rolls, but only the
+   group's items are copied; the other items are the same in every roll and rolled once.
+
 6. **Multiply dice:** each `multiplyDice` multiplies the count of every dice item except those
    marked `multiplied: false`.
 7. **Reroll, minimum face, explode:** each adds its dice modifier (`reroll`/`rerollOnce` at
@@ -250,7 +257,9 @@ Dice items are rolled in order, each by the formula language's rules
   rolled that many times, each a copy of the built items rolled in full in turn, the first
   roll's dice first. Only the first roll has given faces; the later ones ask for every die. A
   pause's `dice` lists every roll's dice in that order, and `repeat: { times, keep }` says how
-  many rolls and which total is kept (`high` or `low`). Each roll's items are multiplied as
+  many rolls and which total is kept (`high` or `low`). With parts rolled again, `repeat.items`
+  lists the group's items by index in `items`, and `dice` lists every die of the first roll, then
+  the group's dice for each later roll; the shared items' faces are asked for once. Each roll's items are multiplied as
   below and summed; the roll whose sum is better (higher, or lower with `better: low`; worse
   for disadvantage) is kept, the first among equal sums. The kept roll's items are the roll's
   items from here on: its total, faces, bounds and band.
@@ -476,7 +485,9 @@ roll.
   A `split` adjust becomes one change per tag group; its field is always written out (a computed
   one is a load error, `formula-error` with cause `type-mismatch`). The result is appended to
   `proposedChanges` as `{ to, step, change }`, where `step` is the path of the `changes` step
-  (`deal`, `panic/stress`); the changes of one split adjust share it.
+  (`deal`, `panic/stress`); the changes of one split adjust share it. A roll step proposes too:
+  after it, each roll effect that changed the roll proposes its `then` changes, `to: self`, with
+  the roll step's path ([effects.md](effects.md#targets), "Roll effects that end themselves").
 
   **Releasing held changes**. A step with `release` first proposes changes `hold`
   action steps hold, then its own `changes`, if any. For each step in `release.steps`, in order,

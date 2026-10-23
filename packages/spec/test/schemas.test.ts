@@ -120,6 +120,12 @@ const appliedGroup = (kind: string, type: string) => ({
   members: { type, from: 'applied' },
 });
 
+const partEffect = (value: unknown) => ({
+  target: { rolls: ['damage'], parts: ['weapon'] },
+  op: 'rollModifier',
+  value,
+});
+
 describe('display, template and change shapes', () => {
   const ajv = compileAll();
   const valid = (ref: string, data: unknown) => {
@@ -195,6 +201,50 @@ describe('display, template and change shapes', () => {
     expect(
       valid('effect.schema.json', ward('applied', [{ type: 'setState', entry: 'self' }])),
     ).toBe(false);
+  });
+
+  it('takes a formula naming a field as an effect target, for field ops only', () => {
+    const target = { formula: "'lore.' + pick.value" };
+    expect(valid('effect.schema.json', { target, op: 'add', value: 1 })).toBe(true);
+    expect(valid('effect.schema.json', { target, op: 'grant', value: { formula: 'x' } })).toBe(
+      true,
+    );
+    const modifier = { kind: 'advantage' };
+    expect(valid('effect.schema.json', { target, op: 'rollModifier', value: modifier })).toBe(
+      false,
+    );
+    expect(valid('effect.schema.json', { target: { formula: 'x', fields: {} }, op: 'add' })).toBe(
+      false,
+    );
+  });
+
+  it("lets advantage and disadvantage on a roll's parts say only of: roll", () => {
+    expect(valid('effect.schema.json', partEffect({ kind: 'advantage', of: 'roll' }))).toBe(true);
+    expect(valid('effect.schema.json', partEffect({ kind: 'disadvantage', of: 'roll' }))).toBe(
+      true,
+    );
+    expect(valid('effect.schema.json', partEffect({ kind: 'advantage' }))).toBe(false);
+    expect(valid('effect.schema.json', partEffect({ kind: 'advantage', of: 'die' }))).toBe(false);
+    expect(valid('effect.schema.json', partEffect({ kind: 'reroll', below: 1 }))).toBe(false);
+  });
+
+  it('lets roll effects carry then, naming their entry, pick or grant; not field effects', () => {
+    const roll = (target: unknown, changes: object[]) => ({
+      ...ward('applied', changes),
+      target,
+    });
+    const rolls = { rolls: ['attack'] };
+    const remove = [{ type: 'removeEffect', entry: 'self' }];
+    expect(valid('effect.schema.json', roll(rolls, remove))).toBe(true);
+    expect(valid('effect.schema.json', roll('hp', remove))).toBe(false);
+    const spend = { type: 'adjustState', key: 'uses', by: '-1' };
+    expect(valid('effect.schema.json', ward('holder', [{ ...spend, pick: 'owner' }]))).toBe(true);
+    expect(valid('effect.schema.json', ward('holder', [{ ...spend, grant: 'owner' }]))).toBe(true);
+    expect(valid('effect.schema.json', ward('holder', [spend]))).toBe(false);
+    expect(
+      valid('effect.schema.json', ward('holder', [{ ...spend, entry: 'self', pick: 'owner' }])),
+    ).toBe(false);
+    expect(valid('effect.schema.json', ward('holder', [{ ...spend, pick: 'self' }]))).toBe(false);
   });
 
   it('lets unchoose leave out its option, but not choose', () => {

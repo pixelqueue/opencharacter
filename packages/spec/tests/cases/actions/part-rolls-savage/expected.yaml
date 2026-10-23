@@ -1,0 +1,14 @@
+# 1 + 2 + 4 + 2 = 9 against 5 + 6 + 4 + 2 = 17: the second weapon roll is kept.
+status: finished
+outcome:
+  data: { total: 17 }
+log:
+  - step: roll
+    action: 'test-part-rolls:damage'
+    kind: dice
+    by: engine
+    faces: [1, 2, 4, 5, 6]
+    total: 17
+    rolls:
+      - { total: 9, kept: false }
+      - { total: 17, kept: true }

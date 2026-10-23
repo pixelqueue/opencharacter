@@ -135,13 +135,15 @@ compare.eq: 'exactly {value}'
 # `compare.<code>` text or the face itself), added with `dice.modified`; items are joined with
 # `dice.plus` and `dice.minus`, and a subtracted first item is `dice.negative`. A roll made more
 # than once (a dice pause's `repeat`) is `dice.repeat`: `dice` (the roll's words), `times` and
-# `keep` (`high` or `low`).
+# `keep` (`high` or `low`). When only some items are rolled again (`repeat.items`), they are
+# worded together with `dice.repeat`, in `dice.grouped` (`dice`) when anything else is rolled.
 dice.dice: '{count}d{sides}'
 dice.fate: '{count}dF'
 dice.modified: '{dice}, {modifier}'
 dice.plus: '{first} + {second}'
 dice.minus: '{first} - {second}'
 dice.negative: '-{dice}'
+dice.grouped: '({dice})'
 dice.repeat: '{dice}, rolled {times, plural, =2 {twice} other {# times}}, keep the {keep, select, high {{times, plural, =2 {higher} other {highest}}} other {{times, plural, =2 {lower} other {lowest}}}} total'
 dice.keepHighest: '{count, plural, =1 {keep highest} other {keep highest #}}'
 dice.keepLowest: '{count, plural, =1 {keep lowest} other {keep lowest #}}'

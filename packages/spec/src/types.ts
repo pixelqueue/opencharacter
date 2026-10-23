@@ -1388,16 +1388,20 @@ export type Effect = {
   tags?: TagList;
   /** Rolls with op `add` only: `false` leaves the roll items the effect adds, dice or flat, alone when `multiplyDice` multiplies the roll's dice or `multiply` its items (5E's Savage Attacks: an extra die rolled once on a critical hit, not doubled; orc-2e's deadly die, added after doubling). Default `true`. */
   multiplied?: boolean;
-  /** Incoming-change effects only: changes to the effect's own entry, applied by applyChanges right after the adjust is routed, when the effect counted (its `when` held and stacking kept it). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), whose `value` and `by` are formulas seeing `item`, `self` and `incoming`, or, on an `applied` effect, a `removeEffect` with `entry: self`, which ends the entry (a ward that triggers once). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`). */
+  /** Incoming-change and roll effects only: changes to the effect's own entry once it counted. On an incoming-change effect, applyChanges applies them right after the adjust is routed, when the effect counted (its `when` held and stacking kept it); on a roll effect, the action proposes them `to: self` after the roll step, once, when the effect changed the roll (effects.md, "Roll effects that end themselves"). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), or with `pick: owner` or `grant: owner`, the pick or holder grant that activated the effect's content; their `value` and `by` are formulas seeing `item`, `self` and `incoming` (on a roll effect, the roll effect's context). On an `applied` effect, a `removeEffect` with `entry: self` ends the entry (a ward that triggers once, a condition that lasts one roll). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`). */
   then?: ThenChange[];
   /** Who the effect applies to. `holder` (default): a character who has the content active (features, inventory, picks, grants). `applied`: a character the content is applied to (its `applied` list: cast on them, a condition). Content in `applied` runs only its `applied` effects; held content runs only its `holder` effects. */
   scope?: 'holder' | 'applied';
 };
 
-/** A change an incoming-change effect makes to its own entry after the adjust is routed: `setState` with `value`, `adjustState` with `by`, or `removeEffect` (an `applied` effect only), always `entry: self`. */
+/** A change an incoming-change or roll effect makes after it counted: `setState` with `value`, `adjustState` with `by`, or `removeEffect` (an `applied` effect only, `entry: self`). It names `entry: self` (the state the effect's `self` reads the key from), `pick: owner` (the pick that activated the effect's content) or `grant: owner` (the holder grant that did). */
 export type ThenChange = {
   type: 'setState' | 'adjustState' | 'removeEffect';
-  entry: 'self';
+  entry?: 'self';
+  /** setState and adjustState: `owner`, the pick that activated the effect's content, whose state changes. Content that isn't picked has none: `unknown-reference`. */
+  pick?: 'owner';
+  /** setState and adjustState: `owner`, the holder grant that activated the effect's content, whose saved state changes. Content no holder grant activates has none: `unknown-reference`. */
+  grant?: 'owner';
   key?: Name;
   value?: Formula;
   by?: Formula;
@@ -1418,14 +1422,15 @@ export type StepChanges = {
   to?: Destination;
 };
 
-/** A character field (by ID), a set of fields (by a static query over their tags), rolls as they happen (by tag), incoming changes (by field and tag), an action's choice steps (by tag), or an action's changes steps (by tag). */
+/** A character field (by ID, or a string formula giving one), a set of fields (by a static query over their tags), rolls as they happen (by tag), incoming changes (by field and tag), an action's choice steps (by tag), or an action's changes steps (by tag). */
 export type EffectTarget =
   | FieldRef
   | RollTarget
   | IncomingTarget
   | ChoiceTarget
   | StepTarget
-  | FieldsTarget;
+  | FieldsTarget
+  | FormulaTarget;
 
 /** Choice steps of actions as they run, by tag. Only op `option`. */
 export type ChoiceTarget = {
@@ -1452,7 +1457,7 @@ export type RollTarget = {
   from?: 'self' | 'any';
   /** A declared roll tally (`rollTallies`) the effect adds to instead of the roll's total. Ops: `add`, `atLeast`, `atMost`, with an integer value. Without it, `atLeast` and `atMost` bound the roll's total once it is rolled. */
   tally?: Name;
-  /** The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part) and the roll modifiers `stepDie` and `setFaces`. Not with `tally`. */
+  /** The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part) and the roll modifiers `stepDie`, `setFaces`, and `advantage` and `disadvantage` with `of: roll` (roll the matching parts again as a group, keeping the better or worse subtotal). Not with `tally`. */
   parts?: Tags;
 };
 
@@ -1504,7 +1509,7 @@ export type RollModifier = {
   part?: Slug;
   /** stepDie: how many steps along d4, d6, d8, d10, d12 each matching die moves (negative for smaller); an integer formula. */
   steps?: Formula;
-  /** advantage, disadvantage: `die` (default) rolls extra dice for the roll's main dice item and keeps the better or worse ones; `roll` makes the whole roll again and keeps the better or worse total. One counted source of the kind that applies with `roll` makes every extra a whole roll. */
+  /** advantage, disadvantage: `die` (default) rolls extra dice for the roll's main dice item and keeps the better or worse ones; `roll` makes the whole roll again and keeps the better or worse total. One counted source of the kind that applies with `roll` makes every extra a whole roll. On a `parts` target, `roll` is required: the matching parts' items are rolled again as a group and the better or worse total kept, the roll's other items rolled once. */
   of?: 'die' | 'roll';
   /** setFaces: the dice item's first faces, as integer formulas, used instead of asking for them. */
   faces?: Formula[];
@@ -1516,6 +1521,11 @@ export type FieldsTarget = {
     /** A condition over each field's view as `item`: `id` (qualified), `type` and `tags`. It may read nothing else (`unknown-name` at load), so the set is fixed: `'attr.dex' in item.tags`. */
     where: Condition;
   };
+};
+
+/** One field, named by a string formula evaluated as an activation condition when the effect becomes active: `self`, `item`, `pick` and `slot` where bound, the character functions, the owner's picks, and input fields only (`'skills.lore.' + pick.value + '.granted'`). A local ID resolves in the effect's pack. The effect is then exactly as if written with that field as its `target`. An empty string targets nothing; a value naming no field is a sheet error (`unknown-field`), as is a field whose type the op doesn't take (`type-mismatch`). Ops: add, set, multiply, atLeast, atMost, grant. */
+export type FormulaTarget = {
+  formula: Formula;
 };
 
 /** The qualified ID of the action whose step this is (`mothership-1e:panic-check`); for an action defined inline on an item, the qualified item ID plus `#<action id>`. Apps build the step's text keys from it. */
@@ -1636,7 +1646,7 @@ export type LogEntry = {
     op: 'atLeast' | 'atMost';
     value: number;
   }[];
-  /** Roll steps made more than once (advantage or disadvantage `of: roll`): every whole roll, in roll order, with its total before bounds; `kept` marks the one kept, whose items are `items`. `faces` lists every roll's faces. Absent for a roll made once. */
+  /** Roll steps made more than once (advantage or disadvantage `of: roll`): every roll, in roll order, with its total before bounds; `kept` marks the one kept, whose items are `items`. On a roll's parts, the items not rolled again are the same in every roll. `faces` lists every die rolled once each. Absent for a roll made once. */
   rolls?: {
     total: number;
     kept: boolean;
@@ -1672,10 +1682,12 @@ export type ActionNeed = {
   draw?: Draw;
   /** The itemized roll so far, for display while waiting. */
   items?: RollItem[];
-  /** Dice steps made more than once (advantage or disadvantage `of: roll`): `times` whole rolls of `items`, whose dice `dice` lists roll after roll, and the total kept: `high` or `low`. Absent for a roll made once. */
+  /** Dice steps made more than once (advantage or disadvantage `of: roll`): `times` rolls of `items`, whose dice `dice` lists roll after roll, and the total kept: `high` or `low`. With `items` (on a roll's parts), only those items, by index in `items`, are rolled again: `dice` lists every die once, then those items' dice for each later roll. Absent for a roll made once. */
   repeat?: {
     times: number;
     keep: 'high' | 'low';
+    /** The items rolled again, by index in `items`; the others are rolled once and count in every roll. Absent when the whole roll is made again. */
+    items?: number[];
   };
   /** Dice steps: the summary of the roll the pause is for; a pause for more dice mid-roll carries the same one. To preview a roll, an app starts the action with `dice: 'pause'`, reads this and drops the result. */
   summary?: RollSummary;

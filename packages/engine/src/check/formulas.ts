@@ -130,7 +130,7 @@ function readsRoot(formula: Formula, roots: string[]): boolean {
 }
 
 function targetKind(target: Effect['target']): 'field' | 'roll' | 'incoming' | 'choice' | 'step' {
-  if (typeof target === 'string' || 'fields' in target) return 'field';
+  if (typeof target === 'string' || 'fields' in target || 'formula' in target) return 'field';
   if ('choices' in target) return 'choice';
   if ('steps' in target) return 'step';
   return 'rolls' in target ? 'roll' : 'incoming';
@@ -672,6 +672,10 @@ class FormulaChecker<L> {
       if (effect.op === 'grant') this.grantValue(effect.value as GrantValue, at, label);
     } else if ('fields' in effect.target) {
       this.fieldSet(effect.target.fields.where, at, label);
+      if (effect.op === 'grant') this.grantValue(effect.value as GrantValue, at, label);
+    } else if ('formula' in effect.target) {
+      const formula = effect.target.formula as Formula;
+      this.activation(() => this.formula(formula, at, `${label} target`, ['string']));
       if (effect.op === 'grant') this.grantValue(effect.value as GrantValue, at, label);
     } else if ('rolls' in effect.target) {
       this.tagList(effect.target.rolls, at, label);
@@ -1580,7 +1584,7 @@ class FormulaChecker<L> {
     const tree = formulaTree(formula);
     if (!tree.ok) return;
     const visit = (node: Node): void => {
-      if (node.type === 'call' && node.fn === 'picksOf') {
+      if (node.type === 'call' && node.fn === 'picksOf' && node.args.length === 1) {
         const [arg] = node.args;
         if (arg?.type === 'string' && !choices.includes(arg.value))
           this.problems.push({
@@ -1590,6 +1594,37 @@ class FormulaChecker<L> {
             code: 'unknown-reference',
             message: `picksOf('${arg.value}') names no choice of the formula's owner (${choices.join(', ') || 'none'})`,
           });
+      }
+      for (const child of children(node)) visit(child);
+    };
+    visit(tree.value);
+  }
+
+  /**
+   * `picksOf(content, choice)` and `grantedPicksOf(content, choice)` name content the pack sees and
+   * one of its choices.
+   */
+  private contentChoices(formula: Formula, at: L, where: string): void {
+    const tree = formulaTree(formula);
+    if (!tree.ok) return;
+    const visit = (node: Node): void => {
+      if (
+        node.type === 'call' &&
+        (node.fn === 'grantedPicksOf' || node.fn === 'picksOf') &&
+        node.args.length === 2
+      ) {
+        const [content, choice] = node.args;
+        if (content?.type === 'string' && choice?.type === 'string') {
+          const entry = this.set.item(content.value, this.scope);
+          const doc = entry?.item;
+          const problem = !entry
+            ? `${node.fn}('${content.value}', …) names no content visible from the pack`
+            : doc?.override || doc?.extends || choiceKeys(doc?.choices).includes(choice.value)
+              ? undefined
+              : `${node.fn}('${content.value}', '${choice.value}') names no choice of that content (${choiceKeys(doc?.choices).join(', ') || 'none'})`;
+          if (problem)
+            this.problems.push({ at, where, formula, code: 'unknown-reference', message: problem });
+        }
       }
       for (const child of children(node)) visit(child);
     };
@@ -1633,6 +1668,7 @@ class FormulaChecker<L> {
       roots: new Set([...rootsFor(this.place), ...this.extraRoots]),
       rootTypes: this.types,
       character: this.place !== 'itemField' && this.place !== 'query',
+      ...(this.inputOnly ? { activation: true } : {}),
       ...(this.choicesBound ? { choices: true } : {}),
       ...(this.ownerChoices !== undefined && this.place !== 'itemField' && this.place !== 'query'
         ? { picks: true }
@@ -1688,6 +1724,7 @@ class FormulaChecker<L> {
     const problem = checkFormula(formula, nullable ? { ...context, nullable } : context, expect);
     if (!problem) {
       if (context.picks) this.ownerPicks(formula, at, where);
+      this.contentChoices(formula, at, where);
       return;
     }
     const hint =
@@ -1700,6 +1737,9 @@ class FormulaChecker<L> {
   private effectValueType(effect: Effect): Expect {
     if (typeof effect.target !== 'string') {
       if ('fields' in effect.target) return NUMBER;
+      // The field is known only on the sheet.
+      if ('formula' in effect.target)
+        return effect.op === 'set' ? ANY : effect.op === 'add' ? ['dice', 'decimal'] : NUMBER;
       if ('rolls' in effect.target && effect.target.tally !== undefined) return ['int'];
       // A roll's `add`, and a `set` replacing a part, may be dice.
       if ('rolls' in effect.target)

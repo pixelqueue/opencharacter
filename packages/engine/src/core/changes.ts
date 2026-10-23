@@ -1666,12 +1666,19 @@ function ownTarget(
   ruleset: Ruleset,
   i: EffectInstance,
   key: string,
+  named?: 'pick' | 'grant',
 ):
   | { pick: { path: ChoicePath; option: string | number } }
   | { grant: Record<string, unknown> }
   | undefined {
   const a = i.own;
-  if (!a?.item || stateDecls(ruleset, a.item, [])[key] === undefined) return undefined;
+  if (named !== undefined) {
+    // `pick: owner` and `grant: owner` name the activation whatever keys it declares.
+    const kind = named === 'pick' ? 'pick' : 'grant';
+    if (a?.kind !== kind || (kind === 'grant' && a.scope !== 'holder'))
+      throw new ChangeError('unknown-reference', { kind, id: 'owner' });
+  } else if (!a?.item || stateDecls(ruleset, a.item, [])[key] === undefined) return undefined;
+  if (!a?.item) return undefined;
   if (a.kind === 'pick') {
     const option = a.path.choice.at(-1);
     if (option === undefined) return undefined;
@@ -1722,7 +1729,12 @@ function applyThen(
         adjustments.push({ entry, removed: true, source });
         continue;
       }
-      const own = ownTarget(ruleset, i, then.key);
+      const own = ownTarget(
+        ruleset,
+        i,
+        then.key,
+        then.pick === 'owner' ? 'pick' : then.grant === 'owner' ? 'grant' : undefined,
+      );
       if (own === undefined && entry === undefined) continue;
       const one: AnyChange = { type: then.type, key: then.key };
       if (then.value !== undefined) one.value = evaluate(then.value);
