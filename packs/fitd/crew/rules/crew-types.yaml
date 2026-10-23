@@ -9,7 +9,6 @@ contentTypes:
         { type: enum, values: [none, adepts, rooks, rovers, skulks, thugs], default: none }
       claims: { type: set, of: claim, default: [] }
     effects:
-      - { id: id, target: crewType.id, op: set, value: item.id }
       - { id: upgrades, target: crewType.upgrades, op: set, value: item.upgrades }
       - { id: claims, target: crewType.claims, op: set, value: item.claims }
       - id: starting
@@ -29,7 +28,6 @@ contentTypes:
       favorite: { type: boolean, default: false }
 
 fields:
-  crewType.id: { type: string, formula: "''" }
   crewType.upgrades: { type: set, of: field, formula: '[]' }
   crewType.claims: { type: set, of: claim, formula: '[]' }
   abilities.crew: { type: set, of: crewAbility }
@@ -55,7 +53,6 @@ display:
     - id: crew-type
       priority: 0
   fields:
-    crewType.id: { hidden: true }
     crewType.upgrades: { hidden: true }
     crewType.claims: { hidden: true }
     abilities.crew: { hidden: true }
