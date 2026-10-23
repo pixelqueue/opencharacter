@@ -273,7 +273,9 @@ actions:
         changes:
           - type: adjust
             field: stress.current
-            by: 'expertise.action == params.rating.id ? 1 : flags.count'
+            by: >-
+              params.rating.id in mapList(picksOf('special-abilities.expertise', 'action'),
+                'fitd-scoundrel:ratings.' + x) ? 1 : flags.count
       - id: result
         kind: outcome
         result: >-
