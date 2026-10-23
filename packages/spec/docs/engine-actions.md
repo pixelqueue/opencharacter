@@ -25,7 +25,8 @@ shape, an optional **dice function**.
      such a pick) is named by `source` alone, with no `entry`; it runs with that content's
      `item` and no `self`.
    - The action must appear in `computeSheet`'s `actions` for this character, with the same
-     `entry` and `source`; otherwise the result is `unknown-action`.
+     `entry` and `source`, or be one it leaves out only for `listed: false`; otherwise the
+     result is `unknown-action`.
    - **`followUp`**: the offer the run takes up, an `id` from computeSheet's
      `offers` for this character, as the offer's `action` gives it; otherwise the result is
      `unknown-follow-up`. For an ephemeral offer, the finished run's `proposedChanges` end with
@@ -545,10 +546,12 @@ roll.
     defines). The step reads `computeSheet`'s `actions` for the character on the step's sheet
     and takes the listing with that action and that `source`, the one with the parent's
     `entry` first; it runs as `startAction` would run that listing, with its `entry` and
-    `source`. No such listing is `unknown-action` (data: `action`, `source`), so the used
+    `source`. The listings here include actions with `listed: false`, which `computeSheet`
+    leaves out. No such listing is `unknown-action` (data: `action`, `source`), so the used
     action's `available` must hold. Without `source` (or `entry`), the used action runs with the
     parent's entry and source, as before, and its `available` isn't checked: a helper action only
-    other actions run declares `available: false`, so `computeSheet` never offers it.
+    other actions run declares `listed: false` (or `available: false`), so `computeSheet` never
+    offers it.
   - **`entry`**. Evaluated to a string, an instance ID (`type-mismatch`
     otherwise). The step takes the listing of `computeSheet`'s `actions`, for the character on
     the step's sheet, with the action `use` (as above) and that `entry`, and with that `source`

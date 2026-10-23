@@ -16,6 +16,10 @@
       "description": "When the action is offered, e.g. `self.equipped`.",
       "$ref": "formula.schema.json#/$defs/condition"
     },
+    "listed": {
+      "description": "`false`: computeSheet doesn't list the action and apps don't show it, but an `action` step with `source` or `entry` still runs it (while `available` holds), and so does `startAction`. For an action only other actions run: a class's part of a shared rules action. Default `true`.",
+      "type": "boolean"
+    },
     "params": {
       "description": "Values the app supplies when starting the action (a target's AC, which stat to test).",
       "type": "object",
@@ -91,6 +95,10 @@
           "properties": {
             "use": {
               "$ref": "common.schema.json#/$defs/ref"
+            },
+            "listed": {
+              "description": "`false`: this use isn't listed by computeSheet, as an action's own `listed: false`. Default: the used action's.",
+              "type": "boolean"
             },
             "params": {
               "type": "object",

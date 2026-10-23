@@ -7,6 +7,8 @@ export type Action = {
   tags?: Tags;
   /** When the action is offered, e.g. `self.equipped`. */
   available?: Condition;
+  /** `false`: computeSheet doesn't list the action and apps don't show it, but an `action` step with `source` or `entry` still runs it (while `available` holds), and so does `startAction`. For an action only other actions run: a class's part of a shared rules action. Default `true`. */
+  listed?: boolean;
   /** Values the app supplies when starting the action (a target's AC, which stat to test). */
   params?: Record<string, ValueDecl>;
   /** Other characters the action involves, by role: a target, a helper. `startAction` takes each role's characters as views (`{ id, values }`) that the app takes from their own sheets; formulas read them as `participants.<role>`, a list in input order. A role the action doesn't declare, or a count outside `min`/`max`, is `invalid-participants`. Text: `<actionKey>.participants.<role>.name` (optional). */
@@ -30,6 +32,8 @@ export type ActionOrUse =
   | Action
   | {
       use: Ref;
+      /** `false`: this use isn't listed by computeSheet, as an action's own `listed: false`. Default: the used action's. */
+      listed?: boolean;
       params?: Record<string, Formula>;
       scope?: ActionScope;
     };

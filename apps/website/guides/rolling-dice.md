@@ -26,7 +26,8 @@ how they look, and when to ask the player something.
 - **`source`** names the content the action comes from when it isn't the entry's own item (a
   class feature, a picked ability). Pass it back as is.
 - Actions without an entry are the rules' own: saving throws, checks, rests.
-- An action whose `available` condition is false (an unequipped sword) isn't listed.
+- An action whose `available` condition is false (an unequipped sword) isn't listed, and
+  neither is one the pack marks `listed: false`: a step that only other actions run.
 
 Name them with `actions.<id>.name`, or `<item>.actions.<action>.name` for an ID with a `#`
 ([Text and translation](text-and-translation.md#from-an-id-to-a-key)).

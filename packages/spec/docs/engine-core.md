@@ -584,8 +584,10 @@ in ruleset order, a type's `max` issue before its items' in the order of their f
 
 ### Actions
 
-An action is available when its `available` formula (if any) is true. Two kinds of action are
-listed in `actions`:
+An action is available when its `available` formula (if any) is true. An available action with
+`listed: false` (on the action, or on the `use` that names it) is left out of `actions`: only
+`startAction` and other actions' `action` steps run it. Two kinds of action are listed in
+`actions`:
 
 - **Content actions:** the actions of each activation that has an item: its content type's
   actions, then the item's own, then its templates'. A holder activation lists those with

@@ -51,6 +51,7 @@ An **action** ([`action.schema.json`](../schemas/action.schema.json)) is a casca
 | Property       | Meaning                                                                                                                                                                  |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `available`    | When the action is offered (`self.equipped`)                                                                                                                             |
+| `listed`       | `false`: computeSheet doesn't list it, so only other actions (and `startAction`) run it (below)                                                                          |
 | `params`       | Values the app supplies (a target's AC, which stat to test), declared like state; `min`/`max` are enforced as the action starts ([engine-actions.md](engine-actions.md)) |
 | `participants` | Roles other characters fill (a target, a helper), each with `min`, `max` and declared `fields`                                                                           |
 | `steps`        | The cascade                                                                                                                                                              |
@@ -587,6 +588,33 @@ change that (with `as: participant`, only `participants`):
   gore's own `charge` with `use: charge`. No such listing (no such copy, the copy doesn't list
   the action, or its `available` is false) is `unknown-action`. A feat that is a Strike with a
   weapon the player picks picks the weapon, then runs that copy's Strike (below).
+
+**Actions only other actions run.** An action with `listed: false` (on the action, or on a
+`use` of a rules action) isn't in computeSheet's `actions`, so apps never show it, in a display
+group or in "Other". An `action` step with `source` or `entry` still finds it, while its
+`available` holds, and `startAction` still runs it. So content adds its own part to a shared
+rules action: MÖRK BORG's getting better runs the class's own step, which only some classes
+have.
+
+```yaml
+# rules: getting better runs the part a class adds, if any.
+- id: class
+  kind: choice
+  options: { copies: { type: class, where: item.betterPart } }
+  recommend: options[0]
+- id: classPart
+  kind: action
+  when: has(steps.class)
+  entry: steps.class.picked
+  use: better-part # classes.gutterborn-scum#better-part
+# content/classes/gutterborn-scum.yaml
+fields: { betterPart: true }
+actions:
+  - id: better-part
+    listed: false
+    steps: [{ id: second, kind: choice, options: [{ id: cowards-jab }, { id: gob-lobber }] }]
+```
+
 - **`participants`** maps the used action's roles to formulas giving lists of participant IDs of
   this action, in any role, or of their views, mixed or not: each view is passed
   on by its `id`, so `target: participants.target` passes on every target, and

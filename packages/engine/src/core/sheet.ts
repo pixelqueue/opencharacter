@@ -2921,12 +2921,13 @@ export class Sheet {
     return out;
   }
 
-  actions(): ListedAction[] {
-    return this.actionList().map((a) => a.listed);
+  /** With `unlisted`, also the available actions computeSheet leaves out (`listed: false`). */
+  actions(unlisted = false): ListedAction[] {
+    return this.actionList(unlisted).map((a) => a.listed);
   }
 
   /** The actions available now, each with its tags. */
-  actionList(): { listed: ListedAction; tags: readonly string[] }[] {
+  actionList(unlisted = false): { listed: ListedAction; tags: readonly string[] }[] {
     const out: { listed: ListedAction; tags: readonly string[] }[] = [];
     const seen = new Set<string>();
     const used = new Set<string>();
@@ -2957,6 +2958,8 @@ export class Sheet {
           'use' in action ? (this.ruleset.rules.actions[action.use]?.pack ?? a.pack) : a.pack;
         const key = `${id} ${entry ?? ''} ${source ?? ''}`;
         if (!def || seen.has(key)) continue;
+        if (!unlisted && (('use' in action ? action.listed : undefined) ?? def.listed) === false)
+          continue;
         let available = false;
         try {
           available = this.test(def.available, pack, this.actionRoots(a));
@@ -2976,7 +2979,7 @@ export class Sheet {
       }
     }
     for (const [qid, def] of Object.entries(this.ruleset.rules.actions)) {
-      if (used.has(qid)) continue;
+      if (used.has(qid) || (!unlisted && def.listed === false)) continue;
       let available = false;
       try {
         available = this.test(def.available, def.pack, {});

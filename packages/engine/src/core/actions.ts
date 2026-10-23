@@ -646,7 +646,7 @@ function startFrame(
       throw new ActionError('situational-unavailable', { situational: qid });
     }
     const available = sheet
-      .actions()
+      .actions(true)
       .some((a) => a.action === id && a.entry === entry && a.source === source);
     if (!available)
       throw new ActionError('unknown-action', {
@@ -1282,7 +1282,7 @@ function nestedRun(
       ctx.sheet.activations.find((a) => a.item && ownsEntry(a) && entryOf(a) === entry)?.item?.qid);
   const action = owner === undefined ? use : `${owner}#${use}`;
   const listed = ctx.sheet
-    .actions()
+    .actions(true)
     .filter(
       (a) =>
         a.action === action && a.source === source && (entry === undefined || a.entry === entry),

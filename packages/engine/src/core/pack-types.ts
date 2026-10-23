@@ -394,6 +394,7 @@ export interface ActionDef {
   id: string;
   tags?: string[];
   available?: Formula;
+  listed?: boolean;
   params?: Record<string, ValueDecl>;
   participants?: Record<string, Role>;
   steps: Step[];
@@ -404,6 +405,7 @@ export interface ActionDef {
 
 export interface ActionUse {
   use: string;
+  listed?: boolean;
   params?: Record<string, Formula>;
   scope?: 'holder' | 'applied';
 }
