@@ -1007,7 +1007,11 @@ An `adjust` on field F with amount `by`, `tags` and optional `situational` choic
 4. **Overflow.** If the result passes the bound of one of F's `overflow` entries (`at: max`:
    above `max`; `at: min`: below `min`; or reaches it, when `inclusive`), the engine adjusts
    `into` by `by` (default 1), and F is set to `reset`. The adjust on `into` is routed in turn
-   (without incoming-change effects), up to `maxOverflowChain` adjusts in all.
+   (without incoming-change effects), up to `maxOverflowChain` adjusts in all. The entry
+   doesn't fire when clamping would take all of that adjust: on the values stored so far, its
+   `by` isn't 0, no absorbing field of `into` can take any of it (for a negative `by`), no
+   overflow of `into` fires (by this same test), and `into` is already at the bound it moves
+   toward. F is then clamped (step 5).
 5. **Clamping.** Otherwise the result is clamped to `min`/`max`.
 6. **`then`.** After the adjust is fully routed, each instance that counted in step 1 applies its
    `then` changes, in instance order, to its own entry, before the next change in the batch: for

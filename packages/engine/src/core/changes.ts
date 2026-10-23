@@ -1423,17 +1423,44 @@ function route(
     ...(rolledOn.length > 0 ? { rolled: rolledOn } : {}),
   };
   entryTags.set(entry, tags);
-  const overflow = (def.overflow ?? []).find((o) => {
-    if (o.at === 'max' && max !== undefined) return o.inclusive ? after >= max : after > max;
-    if (o.at === 'min' && min !== undefined) return o.inclusive ? after <= min : after < min;
-    return false;
-  });
+  const firing = (field: string, value: number) => {
+    const d = ruleset.fields[field];
+    const lo = bound(field, 'min');
+    const hi = bound(field, 'max');
+    return (d?.overflow ?? []).find((o) => {
+      if (o.at === 'max' && hi !== undefined) return o.inclusive ? value >= hi : value > hi;
+      if (o.at === 'min' && lo !== undefined) return o.inclusive ? value <= lo : value < lo;
+      return false;
+    });
+  };
+  const intoAmount = (o: NonNullable<typeof def.overflow>[number], pack: string) =>
+    o.by === undefined ? 1 : (num(sheet.evaluate(o.by, pack, {})) ?? 1);
+  // An overflow fires only if its adjust on `into` would change something; otherwise F clamps.
+  const changes = (field: string, delta: number, depth: number): boolean => {
+    if (delta === 0 || depth > MAX_OVERFLOW) return true;
+    const d = ruleset.fields[field];
+    if (!d) return true;
+    if (delta < 0)
+      for (const absorber of d.absorbedBy ?? [])
+        if (current(absorber) > (bound(absorber, 'min') ?? Number.NEGATIVE_INFINITY)) return true;
+    const value = sixPlaces(current(field) + delta);
+    const next = firing(field, value);
+    if (next && changes(next.into, intoAmount(next, d.pack), depth + 1)) return true;
+    const lo = bound(field, 'min');
+    const hi = bound(field, 'max');
+    const clamped = Math.min(Math.max(value, lo ?? value), hi ?? value);
+    return clamped !== current(field);
+  };
+  const candidate = firing(qid, after);
+  const overflow =
+    candidate && changes(candidate.into, intoAmount(candidate, def.pack), 0)
+      ? candidate
+      : undefined;
   if (overflow) {
     adjustments.push(entry);
     if (++chain.n > MAX_OVERFLOW)
       throw new ChangeError('safety-limit-exceeded', { limit: 'maxOverflowChain' });
-    const intoBy =
-      overflow.by === undefined ? 1 : (num(sheet.evaluate(overflow.by, def.pack, {})) ?? 1);
+    const intoBy = intoAmount(overflow, def.pack);
     route(
       ruleset,
       sheet,

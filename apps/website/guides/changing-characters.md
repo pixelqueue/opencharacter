@@ -151,7 +151,8 @@ itself**; it sends the damage with its type and the engine works out the rest:
 - incoming-change effects (resistance, vulnerability, damage reduction, thresholds such as
   Mothership armor points, which also break the armor);
 - absorbing fields (temporary hit points take damage first);
-- overflow (FitD stress past its maximum becomes trauma, then resets);
+- overflow (FitD stress past its maximum becomes trauma, then resets; once trauma is full,
+  stress clamps instead);
 - clamping to the field's bounds (HP doesn't go below 0).
 
 `adjustments` lists what actually happened, step by step: each entry has the `field`, the amount
