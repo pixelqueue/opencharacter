@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.2/spec-upgrade.schema.json",
+  "title": "Spec upgrade",
+  "description": "Data, not code: moves a character file across a spec version that changed the file's shape. The spec's own upgrades are the items of `data/spec-upgrades.json`; `upgrade` runs each one between a character's `specVersion` and the engine's on the character, before the packs' upgrade scripts.",
+  "type": "object",
+  "required": ["id", "steps"],
+  "properties": {
+    "id": {
+      "description": "The spec version that made the change. A character written against an earlier version gets the steps.",
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "description": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/step"
+      },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "path": {
+      "description": "A JSON Pointer into the character file, where a `*` segment matches every member of an array or object.",
+      "type": "string",
+      "pattern": "^(/[^/]*)+$"
+    },
+    "step": {
+      "type": "object",
+      "required": ["op"],
+      "properties": {
+        "op": {
+          "enum": ["move", "remove", "add"]
+        },
+        "from": {
+          "description": "move: where the value is.",
+          "$ref": "#/$defs/path"
+        },
+        "to": {
+          "description": "move: where it goes. Its `*` segments take, in order, the members `from`'s matched.",
+          "$ref": "#/$defs/path"
+        },
+        "path": {
+          "description": "remove, add: the value's place.",
+          "$ref": "#/$defs/path"
+        },
+        "value": {
+          "description": "add: the value to write where there is none."
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "op": { "const": "move" } } },
+          "then": { "required": ["from", "to"] }
+        },
+        {
+          "if": { "properties": { "op": { "const": "remove" } } },
+          "then": { "required": ["path"] }
+        },
+        {
+          "if": { "properties": { "op": { "const": "add" } } },
+          "then": { "required": ["path", "value"] }
+        }
+      ]
+    }
+  }
+}

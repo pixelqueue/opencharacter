@@ -1,4 +1,4 @@
-description: "A content display group may list applied entries (`from: applied`): its `where`, `sectionBy` and `sortBy` see the source's item and the entry as `self`. Groups are evaluated by apps; the pack loads and the sheet computes"
+description: "A content display group may list applied entries (`from: applied`), in file order with inactive ones: its `where`, `sectionBy` and `sortBy` see the source's item and the entry as `self`. computeSheet sorts the members by section, then `sortBy`, then instance order; each names its applied entry and, when listed, its activation"
 specVersion: 0.1.0
 call: computeSheet
 packs:
@@ -33,3 +33,5 @@ packs:
       content:
         - { id: conditions.dazed, type: condition }
         - { id: conditions.hexed, type: condition, tags: [curse], fields: { severity: 2 } }
+        - { id: conditions.blinded, type: condition }
+        - { id: conditions.stunned, type: condition, fields: { severity: 3 } }

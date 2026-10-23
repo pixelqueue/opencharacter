@@ -42,6 +42,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Entry (copy):** the character's copy of a content item: base item, templates, equipped flag, quantity, state, picks, and the state of content it grants.
 - **Ephemeral offer:** a follow-up (`on`, `becomes`) that a batch fired, stored in the character file until it is acted on or dismissed (a `becomes` one also until its condition is false): a concentration check after damage.
 - **Exclusivity group:** choices sharing a `unique` key; an option picked in one is ineligible (`already-picked`) in the others.
+- **Export:** a file of one or more characters with every pack version they pin, each by reference (ID, version, optional URL and integrity hash) or embedded as a release; one that embeds every pack is a bundle, which opens anywhere with nothing else.
 - **Extends:** a pack author's permanent variant of an item, inheriting everything and overriding parts.
 - **Extension (character):** app-specific data in a character file under the app's own namespace, carried along untouched.
 - **Field:** one value on a character, keyed by a permanent field ID.
@@ -92,6 +93,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Shape error:** input that doesn't match the spec's JSON Schema, rejected before running.
 - **Situational choice:** a roll-time choice declared in game data (advantage, cover, push yourself), or a choice the receiving player makes on one incoming change (Uncanny Dodge).
 - **Source:** where a value, roll item or issue came from (field, item, entry, template, effect, situational, rules, step, app).
+- **Spec upgrade:** data shipped with the spec that moves a character file across a spec version that changed the file's shape; `upgrade` runs the ones between the character's `specVersion` and the engine's, then writes the engine's version.
 - **Spec version:** the version of the OCF formats and behavior, which is the `@opencharacter/spec` package version; packs declare the minimum they need, and an engine lists the major.minor versions it implements (`IMPLEMENTS_SPEC`).
 - **Split (typed damage):** a proposed adjust split into one change per tag group of a roll's items, so resistances apply per damage type.
 - **Stacking key:** a label on an effect grouping it with others for the stacking policy; `source` means the effect's content item.

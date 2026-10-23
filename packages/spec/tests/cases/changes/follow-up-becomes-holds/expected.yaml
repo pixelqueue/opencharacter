@@ -1,9 +1,13 @@
-# Wounds are already 2 of 2: the overflow's wound is clamped to 0, so no wound roll, and the
-# death save was due before this batch. Health carries the 2 past 0 over (14 - 2).
+# Wounds are already 2 of 2: the overflow's wound would be clamped to no change, so the overflow
+# doesn't fire and health clamps at 0. No wound roll, and the death save was due before this batch.
 ok: true
 adjustments:
-  - { field: mothership-1e:health.current, by: -5, requested: -5, taken: -5, reason: requested }
-  - { field: mothership-1e:wounds.current, by: 0, reason: overflow, clamped: true }
-  - { field: mothership-1e:health.current, by: 16, reason: reset }
-  - { field: mothership-1e:health.current, by: -2, reason: carry }
+  - {
+      field: mothership-1e:health.current,
+      by: -3,
+      requested: -5,
+      taken: -5,
+      reason: requested,
+      clamped: true,
+    }
 followUps: []

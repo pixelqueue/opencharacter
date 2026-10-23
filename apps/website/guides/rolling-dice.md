@@ -59,7 +59,9 @@ The result is one of three things:
 
 Some actions take parameters: a target's AC, which skill to check, which rating to roll. They're
 declared on the action (`ruleset.rules.actions[id].params` for rules actions), each with a type
-and whether it's `optional`. A missing required one is the error `missing-param`.
+and whether it's `optional`. A missing required one is the error `missing-param`; a number
+outside its `min`/`max` is `out-of-range` (the bounds may read the character: at most the Effort
+it has free).
 
 A **field parameter** (`type: id, of: field`) takes a field ID: a FitD action roll takes the
 rating to roll (`{ rating: 'ratings.skirmish' }`), and its `where` says which fields are allowed

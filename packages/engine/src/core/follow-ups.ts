@@ -546,7 +546,11 @@ function resolveChange(
     out.entry = newEntry(ruleset, sheet, change.entry, pack, evaluate, linked);
   else if (change.entry === 'self') {
     if (!activation?.entry)
-      throw new Failure({ code: 'unknown-name', message: 'entry: self needs a copy' });
+      throw new Failure({
+        code: 'unknown-name',
+        message: 'entry: self needs a copy',
+        data: { name: 'self' },
+      });
     out.entry = activation.entry.id;
   } else if (change.entry !== undefined) out.entry = change.entry;
   if (change.key !== undefined) out.key = change.key;
@@ -562,7 +566,11 @@ function resolveChange(
             : undefined
           : resolveContent(ruleset, ref.value, pack);
     if (!qid || (!linked && ruleset.content[qid]?.type === 'template'))
-      throw new Failure({ code: 'unknown-name', message: 'unknown content' });
+      throw new Failure({
+        code: 'unknown-name',
+        message: 'unknown content',
+        data: { name: String(f.toData(ref)) },
+      });
     out.source = qid;
   }
   if (change.active !== undefined) {
@@ -588,7 +596,11 @@ function resolveChange(
             : undefined
           : resolveContent(ruleset, ref.value, pack);
     if (!qid || (!linked && ruleset.content[qid]?.type !== 'template'))
-      throw new Failure({ code: 'unknown-name', message: 'unknown template' });
+      throw new Failure({
+        code: 'unknown-name',
+        message: 'unknown template',
+        data: { name: String(f.toData(ref)) },
+      });
     out.template = qid;
   }
   if (change.state)
@@ -608,7 +620,11 @@ function resolveChange(
       entry = id.value;
     } else if (at === 'self') {
       if (!activation?.entry)
-        throw new Failure({ code: 'unknown-name', message: 'entry: self needs a copy' });
+        throw new Failure({
+          code: 'unknown-name',
+          message: 'entry: self needs a copy',
+          data: { name: 'self' },
+        });
       entry = activation.entry.id;
     } else entry = at;
     const choice = Array.isArray(change.path.choice)
@@ -623,13 +639,21 @@ function resolveChange(
   if (change.pick === 'self') {
     const option = activation?.kind === 'pick' ? activation.path.choice.at(-1) : undefined;
     if (!activation || option === undefined)
-      throw new Failure({ code: 'unknown-name', message: 'pick: self needs picked content' });
+      throw new Failure({
+        code: 'unknown-name',
+        message: 'pick: self needs picked content',
+        data: { name: 'self' },
+      });
     out.path = { ...activation.path, choice: activation.path.choice.slice(0, -1) };
     out.option = option;
   }
   if (change.grant === 'self') {
     if (!activation?.item || activation.kind !== 'grant' || activation.scope !== 'holder')
-      throw new Failure({ code: 'unknown-name', message: 'grant: self needs granted content' });
+      throw new Failure({
+        code: 'unknown-name',
+        message: 'grant: self needs granted content',
+        data: { name: 'self' },
+      });
     const at = activation.path;
     if (at.choice.length === 0) out.entry = at.entry;
     else {
@@ -668,12 +692,25 @@ function computedField(ruleset: Ruleset, value: f.Value, pack: string, linked: b
   const ref = value.value;
   if (linked) {
     if (ref.includes(':')) return ref;
-    throw new Failure({ code: 'unknown-name', message: `unknown field "${ref}"` });
+    throw new Failure({
+      code: 'unknown-name',
+      message: `unknown field "${ref}"`,
+      data: { name: ref },
+    });
   }
   const qid = resolveField(ruleset, ref, pack);
-  if (!qid) throw new Failure({ code: 'unknown-name', message: `unknown field "${ref}"` });
+  if (!qid)
+    throw new Failure({
+      code: 'unknown-name',
+      message: `unknown field "${ref}"`,
+      data: { name: ref },
+    });
   if (!ruleset.fields[qid]?.input)
-    throw new Failure({ code: 'unknown-name', message: `"${qid}" is not an input field` });
+    throw new Failure({
+      code: 'unknown-name',
+      message: `"${qid}" is not an input field`,
+      data: { name: qid },
+    });
   return qid;
 }
 
@@ -734,7 +771,11 @@ function newEntry(
           : undefined
         : resolveContent(ruleset, ref.value, pack);
   if (!qid || (!linked && ruleset.content[qid]?.type === 'template'))
-    throw new Failure({ code: 'unknown-name', message: 'unknown item' });
+    throw new Failure({
+      code: 'unknown-name',
+      message: 'unknown item',
+      data: { name: String(f.toData(ref)) },
+    });
   let id = decl.id;
   if (id === undefined) {
     const character = sheet.character;

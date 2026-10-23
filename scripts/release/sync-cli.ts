@@ -51,3 +51,8 @@ console.log(
     ? `spec version ${spec.bump.from} → ${spec.bump.to}: updated ${spec.files.length} file(s).`
     : 'spec version already matches @opencharacter/spec.',
 );
+for (const id of spec?.upgrades ?? []) {
+  console.warn(
+    `spec ${id} changes the character file: upgrade the example characters and expected outputs (re-stamped, not migrated).`,
+  );
+}

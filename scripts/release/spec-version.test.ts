@@ -32,9 +32,14 @@ describe('the repo states one spec version', () => {
     expect(stale(/shields\.io\/badge\/spec-(\d+\.\d+\.\d+)-/g, SPEC_VERSION)).toEqual([]);
   });
 
-  it(`writes ${SPEC_VERSION} in the docs' samples and the example characters`, () => {
+  it(`writes ${SPEC_VERSION} in the docs' samples, the example characters and expected outputs`, () => {
     const re = /['"]?specVersion['"]?: *['"]?(\d+\.\d+\.\d+)/g;
     expect(stale(re, SPEC_VERSION, (file) => /\.mdx?$/.test(file))).toEqual([]);
-    expect(stale(re, SPEC_VERSION, (file) => file.startsWith('examples/characters/'))).toEqual([]);
+    expect(stale(re, SPEC_VERSION, (file) => file.startsWith('examples/'))).toEqual([]);
+    expect(
+      stale(/^ *specVersion: *['"]?(\d+\.\d+\.\d+)/gm, SPEC_VERSION, (file) =>
+        /^packages\/spec\/tests\/cases\/.*\/expected\.yaml$/.test(file),
+      ),
+    ).toEqual([]);
   });
 });

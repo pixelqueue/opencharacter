@@ -450,6 +450,14 @@ describe('syncSpecVersion', () => {
       'specVersion: 0.1.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
       'specVersion: 0.2.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
     ],
+    'packages/spec/tests/cases/upgrades/sample/expected.yaml': [
+      'ok: true\ncharacter:\n  specVersion: 0.1.0\nreport:\n  spec: { from: 0.1.0 }\n',
+      'ok: true\ncharacter:\n  specVersion: 0.2.0\nreport:\n  spec: { from: 0.1.0 }\n',
+    ],
+    'packages/spec/tests/cases/upgrades/sample/character.yaml': [
+      'specVersion: 0.1.0\n',
+      'specVersion: 0.1.0\n',
+    ],
     'character.yaml': [
       'specVersion: 0.1.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
       'specVersion: 0.1.0\npacks:\n  - { id: demo, version: 0.1.0 }\n',
@@ -477,6 +485,7 @@ describe('syncSpecVersion', () => {
     const dir = setup('0.2.0');
     const result = syncSpecVersion(dir, Object.keys(files));
     expect(result?.bump).toEqual({ from: '0.1.0', to: '0.2.0' });
+    expect(result?.upgrades).toEqual([]);
     expect(result?.files.toSorted()).toEqual([
       'README.md',
       'docs/README.md',
@@ -485,11 +494,24 @@ describe('syncSpecVersion', () => {
       'guides/sample.md',
       'packages/spec/schemas/pack.schema.json',
       'packages/spec/src/index.ts',
+      'packages/spec/tests/cases/upgrades/sample/expected.yaml',
     ]);
     for (const [name, [, after]] of Object.entries(files)) {
       expect(readFileSync(join(dir, name), 'utf8')).toBe(after);
     }
     expect(syncSpecVersion(dir, Object.keys(files))).toBeUndefined();
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('lists the spec upgrades the bump crosses', () => {
+    const dir = setup('0.3.0');
+    const items = ['0.1.0', '0.2.0', '0.3.0', '0.4.0'].map((id) => ({ id, steps: [] }));
+    mkdirSync(join(dir, 'packages', 'spec', 'data'));
+    writeFileSync(
+      join(dir, 'packages', 'spec', 'data', 'spec-upgrades.json'),
+      JSON.stringify({ items }),
+    );
+    expect(syncSpecVersion(dir, Object.keys(files))?.upgrades).toEqual(['0.2.0', '0.3.0']);
     rmSync(dir, { recursive: true, force: true });
   });
 
@@ -502,6 +524,7 @@ describe('syncSpecVersion', () => {
       'examples/characters/sample.yaml',
       'guides/sample.md',
       'packages/spec/src/index.ts',
+      'packages/spec/tests/cases/upgrades/sample/expected.yaml',
     ]);
     const schema = 'packages/spec/schemas/pack.schema.json';
     expect(readFileSync(join(dir, schema), 'utf8')).toBe(files[schema]?.[0]);

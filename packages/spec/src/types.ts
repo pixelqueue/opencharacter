@@ -1144,9 +1144,9 @@ export type ValueDecl = {
   label?: I18nKey;
   /** The value when none is given. For integer, decimal, boolean and dice declarations a string is a formula: on a state key it is evaluated with `item` bound when the copy is added, and the result is written into the character file (`shots: item.magazine`); on an item field it is read as an item's own value is, over input fields. For string, enum and id declarations a string is a literal. An item field's default applies in `item` when the item doesn't set the field; an id or set default of content or `field` is qualified in the content type's pack. */
   default?: Literal;
-  /** The lowest allowed value. On a state key, a number formula with `item` bound (the copy's item with its templates) that reads input fields only, evaluated by `addItem` for a formula default and by `setState` and `adjustState` (`shots: { max: item.magazine }`). */
+  /** The lowest allowed value. On a state key, a number formula with `item` bound (the copy's item with its templates) that reads input fields only, evaluated by `addItem` for a formula default and by `setState` and `adjustState` (`shots: { max: item.magazine }`). On an action parameter of type `integer` or `decimal`, a number formula evaluated as the action starts, with the action's `item` and `self`, `situational` and the character's fields (`max: effort.free`); a value outside it is `out-of-range`. */
   min?: Formula;
-  /** The highest allowed value. On a state key, read like `min`. */
+  /** The highest allowed value. On a state key or a parameter, read like `min`. */
   max?: Formula;
   /** Parameters of type `id` with `of: field`: which fields the app may pass (a condition over each field as `item`: `id`, `type`, `tags`). The action reads the field as `params.<name>.value`, its ID as `params.<name>.id`, its type as `params.<name>.type` and its declared tags as `params.<name>.tags`. Parameters of type `id` with `of` a content type: which items the app may pass, a condition with `item` the candidate item, the character's fields, and the action's own item and copy as `action.item` and `action.self`; the action reads the item's qualified ID. A value outside it is `invalid-option` when the action starts. */
   where?: Condition;
@@ -1878,6 +1878,21 @@ export type CheckReleaseOutput = {
   errors: EngineError[];
 };
 
+/** A member of a `content` group: an activation (`from: own`), or an applied entry (`from: applied`). */
+export type ContentMember = {
+  /** Its index in `activations`. Always set for a `from: own` member; for an applied entry, set when it is listed there (active and not blocked). */
+  activation?: number;
+  /** A `from: applied` member's applied entry. */
+  entry?: InstanceId;
+  /** Its `sectionBy` key; absent when the group has none, or the formula fails or gives neither a whole number nor a string. */
+  section?: number | string;
+  /** An applied entry with no activation: its state keys not shown, as on an activation. */
+  hiddenState?: HiddenState;
+};
+
+/** The state keys the content declares that aren't shown (display-hints.md, "Shown"): its type's state hint is `hidden`, or its `showWhen` doesn't hold, seeing the copy or pick as `self` and its item as `item`. Absent when every key is shown. */
+export type HiddenState = Name[];
+
 export type ComputeSheetInput = {
   ruleset: Ruleset;
   character: CharacterFile;
@@ -1942,9 +1957,21 @@ export type ComputeSheetOutput = {
     keptBy?: number;
     /** Picks: the choice path of the pick, the picked option last. Holder grants whose node is a pick (content granted by picked content or an inline option): that pick's path, which a grant's `setState` names with `path`, `option` and `grant`. */
     path?: ChoicePath;
+    hiddenState?: HiddenState;
   }[];
   /** Every applicable choice, answered or not, in pending order: the rules-level choices first, then each activation's own choices, each followed by those of what it picked, before those of the activations it grants. Inline options' choices and `activate: false` choices are included; a slotted choice is one entry per slot. `pending` is the open ones, in the same order. */
   choices?: ListedChoice[];
+  /** Every display group, in ruleset order (display-hints.md, "Shown"): whether it is shown (its `showWhen` holds; one that fails to evaluate counts as true) and its members, listed whether the group is shown or not: a `fields` group's `fields`, an `actions` group's `actions`, a `content` group's `items`. */
+  groups?: {
+    id: string;
+    shown: boolean;
+    /** A `fields` group's member fields: those whose hint lists it and those its `members` query matches, in ruleset order, shown or not. */
+    fields?: string[];
+    /** An `actions` group's members: the index in `actions` of each listing its `members` query matches, in that list's order. */
+    actions?: number[];
+    /** A `content` group's members, sorted: by section (numbers ascending, then strings in code-point order, then members without one), then by `sortBy` (the same order), then by instance order. */
+    items?: ContentMember[];
+  }[];
   /** Copy limits: for each content type with `copies`, in ruleset order, its limits and the character's copies of it (standard copies included), so an app shows Replace instead of Add once `count` reaches `max`, and an item with `perItem` copies already as held. */
   copyLimits?: {
     /** The content type, qualified. */
@@ -1985,6 +2012,8 @@ export type FieldValue = {
   tags?: Tag[];
   /** The field's name from its `nameFrom` string field, when that field's value is a non-empty string (a Lore's subject, "Absalom"). The field's text formats it as `{name}`. */
   name?: string;
+  /** Whether the field is shown on the sheet (display-hints.md, "Shown"): its hint isn't `hidden`, its `showWhen` holds, and it is in no `fields` group or in at least one shown one. */
+  shown?: boolean;
   /** Set instead of `value` when this field could not be computed (a loop). Everything else still calculates. */
   error?: EngineError;
 };
@@ -2208,6 +2237,10 @@ export type UpgradeOutput =
           field: string;
           before?: Literal;
           after?: Literal;
+          /** Whether the field was shown on the old sheet (computeSheet's `shown`); present with `before`. */
+          shownBefore?: boolean;
+          /** Whether the field is shown on the new sheet; present with `after`. */
+          shownAfter?: boolean;
         }[];
         /** Upgrade steps that changed this character, with the script each came from. */
         steps?: {
@@ -2216,6 +2249,15 @@ export type UpgradeOutput =
           to: string;
           step: UpgradeStep;
         }[];
+        /** Present when the character's `specVersion` moved to the engine's: the version it had, and each spec upgrade step that changed the character. */
+        spec?: {
+          from: Semver;
+          steps: {
+            /** The spec upgrade's `id`: the version that changed the shape. */
+            version: Semver;
+            step: SpecUpgradeStep;
+          }[];
+        };
         /** The upgraded character's computeSheet errors (references no script handled). */
         errors?: EngineError[];
         /** Each place in the character's homebrew a step rewrote, in order. */
@@ -2227,6 +2269,37 @@ export type UpgradeOutput =
       };
     }
   | EngineFailure;
+
+/** Characters moving between apps, with the packs they pin: one file for a roster, or for linked characters (a crew, a companion). Each pack is a reference by ID and version, which the receiving app supplies, or an embedded release, so the file opens with nothing else (a bundle). It carries only data: no engine and no sheet, which is derived. */
+export type ExportFile = {
+  /** The OCF spec version this file was written against. */
+  specVersion: Semver;
+  /** One or more character files, extensions and homebrew included. Their `id`s are unique within the export. */
+  characters: CharacterFile[];
+  /** Every pack version a character pins, once each. */
+  packs: ExportPack[];
+  extensions?: Record<string, unknown>;
+};
+
+export type ExportPack = ExportPackReference | ExportEmbeddedPack;
+
+/** A pack by ID and version, for the receiving app to supply. */
+export type ExportPackReference = {
+  id: PackId;
+  version: Semver;
+  /** Where the pack release can be fetched. */
+  url?: string;
+  integrity?: PackIntegrity;
+};
+
+/** A pack release carried in the file. */
+export type ExportEmbeddedPack = {
+  release: PackRelease;
+  integrity?: PackIntegrity;
+};
+
+/** The release's hash: `sha256-` and the base64 SHA-256 of its canonical JSON (RFC 8785). Decides whether the receiving app's own copy of the same ID and version is this release. */
+export type PackIntegrity = string;
 
 /** A character field declared by the rules. Input fields are base state the player supplies and the character file saves; all other fields are derived (formula, effects, grants) and never saved. Text: `fields.<id>.name`, `fields.<id>.short`. */
 export type Field = {
@@ -2695,6 +2768,29 @@ export type SituationalChoice = {
   label?: I18nKey;
 };
 
+/** Data, not code: moves a character file across a spec version that changed the file's shape. The spec's own upgrades are the items of `data/spec-upgrades.json`; `upgrade` runs each one between a character's `specVersion` and the engine's on the character, before the packs' upgrade scripts. */
+export type SpecUpgrade = {
+  /** The spec version that made the change. A character written against an earlier version gets the steps. */
+  id: Semver;
+  description?: string;
+  steps: SpecUpgradeStep[];
+};
+
+/** A JSON Pointer into the character file, where a `*` segment matches every member of an array or object. */
+export type SpecUpgradePath = string;
+
+export type SpecUpgradeStep = {
+  op: 'move' | 'remove' | 'add';
+  /** move: where the value is. */
+  from?: SpecUpgradePath;
+  /** move: where it goes. Its `*` segments take, in order, the members `from`'s matched. */
+  to?: SpecUpgradePath;
+  /** remove, add: the value's place. */
+  path?: SpecUpgradePath;
+  /** add: the value to write where there is none. */
+  value?: unknown;
+};
+
 /** Data, not code: moves saved characters from one pack version to the next when the saved state's shape changes. Scripts chain one version at a time. Steps are a fixed set kept in sync with `data/upgrade-steps.json`; computed defaults are formulas. */
 export type UpgradeScript = {
   pack: PackId;
@@ -2795,6 +2891,7 @@ export type ErrorCode =
   | 'invalid-create-offer'
   | 'invalid-family'
   | 'link-start-mismatch'
+  | 'invalid-item-field'
   | 'template-field-mismatch'
   | 'unknown-role'
   | 'circular-extends'
@@ -2819,6 +2916,7 @@ export type ErrorCode =
   | 'unknown-tag'
   | 'conflicting-roll-modifiers'
   | 'no-upgrade-path'
+  | 'character-spec-unsupported'
   | 'version-not-increased'
   | 'version-bump-too-small'
   | 'missing-upgrade-script'

@@ -1,0 +1,58 @@
+description: "computeSheet evaluates display hints: each group's `showWhen`, a fields group's members (its own hints and its `members` query), and whether each field is shown: not `hidden`, its `showWhen` holding (copy aggregates and `hasChoice` bound), in no group or in a shown one"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [skill]
+        fields:
+          stats.power: { type: integer, input: true, default: 2 }
+          stats.helper: { type: integer, formula: stats.power * 2 }
+          hunt.prey: { type: integer, input: true }
+          magic.level: { type: integer, input: true }
+          magic.slots: { type: integer, formula: magic.level }
+          magic.dc: { type: integer, formula: 8 + magic.level }
+          skills.climb: { type: integer, input: true, tags: [skill] }
+          style.points: { type: integer, input: true }
+          misc.notes: { type: string, input: true }
+        contentTypes:
+          gear: { carried: true }
+          class: { carried: false }
+          style: { carried: false }
+        display:
+          groups:
+            - id: summary
+              priority: 0
+            - id: magic
+              priority: 1
+              showWhen: magic.level > 0
+            - id: skills
+              priority: 2
+              members: { type: field, where: "'skill' in item.tags" }
+            - id: styles
+              kind: content
+              priority: 3
+              showWhen: hasChoice('style')
+              members: { type: style }
+          fields:
+            stats.power: { groups: [summary] }
+            stats.helper: { hidden: true }
+            hunt.prey: { showWhen: countCopies(copy.item == @gear.bow) > 0 }
+            magic.slots: { groups: [magic] }
+            magic.dc: { groups: [magic, summary] }
+            style.points: { showWhen: hasChoice('style') }
+      content:
+        - { id: gear.bow, type: gear }
+        - { id: gear.rope, type: gear }
+        - id: classes.knight
+          type: class
+          choices:
+            - id: style
+              from: { type: style }
+        - { id: styles.guard, type: style }

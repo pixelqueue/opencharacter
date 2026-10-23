@@ -186,6 +186,7 @@ errors.wrong-type: '"{target}" needs a value of type {expected}.'
 errors.not-owned: 'The character does not have "{entry}".'
 issues.too-many-picks: 'Too many options are picked (at most {max}).'
 issues.prerequisite-not-met: 'A requirement is not met.'
+issues.prerequisite-not-met.owner: '{owner} requires: {requirement}'
 ```
 
 Fill the placeholders from the error's or issue's `data`. For example:
@@ -201,6 +202,11 @@ Fill the placeholders from the error's or issue's `data`. For example:
 `target` is a field ID here, so a good message replaces it with the field's name before
 formatting.
 
+A few codes have text by their data: `out-of-range` with only a `min` or a `max` uses
+`errors.out-of-range.min` or `.max`, and `safety-limit-exceeded` uses
+`errors.safety-limit-exceeded.<limit>` when there is one. If a message still misses an argument,
+show `errors.other` rather than the template.
+
 **Prefer the pack's text for an issue when there is one.** `prerequisite-not-met` and
 `constraint-failed` carry an `id`, and the pack has a specific message for it (the keys in the
 table above). The spec's generic text is the fallback:
@@ -211,7 +217,12 @@ function issueText(issue: { code: string; id?: string; data?: Record<string, unk
     const [pack, local] = split(issue.id);
     const [owner, prerequisite] = local.split('/');
     const own = message(pack, `${owner}.prerequisites.${prerequisite}`);
-    if (own) return own; // Multiclassing into fighter needs Strength 13 or Dexterity 13.
+    // The pack's text is the requirement alone; the spec's text names the owner.
+    if (own)
+      return format(specText['issues.prerequisite-not-met.owner'], {
+        owner: message(pack, `${owner}.name`) ?? owner,
+        requirement: own,
+      }); // Terrain Scout requires: Scout Dedication
   }
   if (issue.id && issue.code === 'constraint-failed') {
     const [pack, local] = split(issue.id);

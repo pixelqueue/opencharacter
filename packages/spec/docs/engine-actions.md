@@ -36,6 +36,11 @@ shape, an optional **dice function**.
 2. **Parameters.** Each declared parameter takes the app's value. A `use` that fixes a parameter
    wins over the app's value. Missing required parameters are `missing-param`; wrong types are
    `wrong-type`.
+   - A number parameter (`integer`, `decimal`) outside its `min`/`max`, once a `use`'s fixed
+     value or the default is in, is `out-of-range` (data: `target`, the parameter's name, and the
+     evaluated `min` and `max`). The bounds are number formulas evaluated here, as the action
+     starts: they see the action's `item` and `self`, `situational` and the character's fields,
+     but no `params`, `steps` or `flags` (`amount: { type: integer, min: 1, max: effort.free }`).
    - A **field parameter** (`type: id, of: field`) takes a field ID, qualified or local to the
      action's pack. A field outside its `where` set is `invalid-option`. Formulas see
      `params.<name>` as `{ id, type, tags, value }`: the field view its `where` sees (the qualified
@@ -616,7 +621,9 @@ participant runs the used action on its own character, and the engine doesn't ru
 
 1. Its `params` are evaluated in the actor's context. The used action (`use`, qualified at
    load) must exist in the ruleset (`unknown-action`), and types them: a missing required one
-   is `missing-param`, a wrong type `wrong-type`.
+   is `missing-param`, a wrong type `wrong-type`, a number outside a number-literal `min` or
+   `max` `out-of-range`. A bound written as a formula reads the participant's character, so it
+   is checked when the participant's action starts.
 2. Its `participants`, when given, are evaluated as an `action` step's
    ([above](#other-steps)), except that an ID may also be the running character's own `id`
    (`character.id`). The used action's roles check them: an undeclared role, a count outside
@@ -989,7 +996,7 @@ These follow from the rules above; they are spelled out because engines have to 
 ## Errors and limits
 
 - **Errors:** the result is `{ ok: false, errors }` with:
-  - `unknown-action`, `missing-param`, `wrong-type`, `invalid-option`;
+  - `unknown-action`, `missing-param`, `wrong-type`, `out-of-range`, `invalid-option`;
   - `invalid-participants`, `duplicate-id`, `invalid-link-value` (participants);
   - `undeclared-result`;
   - `unknown-field`, `not-input-field` (a computed field; a roll part's `field`);

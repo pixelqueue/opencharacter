@@ -36,7 +36,7 @@
     {
       "id": "out-of-range",
       "kind": "runtime",
-      "description": "A value is outside its field's min and max."
+      "description": "A value is outside the `min` and `max` of its field, state key or action parameter (for a quantity, below 0). Data: `target` (the field ID, state key, parameter name or `quantity`), and `min`, `max` or both: only the bounds the target declares."
     },
     {
       "id": "not-owned",
@@ -209,6 +209,11 @@
       "description": "A follow-up's `create` names a creation start from a pack that a character using the slot's `pack` wouldn't load: neither that pack nor one of its dependencies. Checked when the slot's pack is loaded too; `pnpm validate` checks it always. Data: `link`, `start`, `pack`."
     },
     {
+      "id": "invalid-item-field",
+      "kind": "load",
+      "description": "A content item's `fields` don't match its content type: a required field is missing (after `extends`), a name the type doesn't declare, or a value of the wrong shape (a list for a number, boolean or dice field; not a string for a `string` or `id` field; not one of an enum's values; not a list for a `set` field). Data: `item`, `field`, `reason` (`missing`, `undeclared` or `wrong-type`), `pack`; `path` points to the field."
+    },
+    {
       "id": "template-field-mismatch",
       "kind": "load",
       "description": "Two packs declare a template field (`templateFields`) with the same name and a different `type`, `of` or `values`. Data: `field`, `packs` (the earlier pack, then the later)."
@@ -226,7 +231,7 @@
     {
       "id": "safety-limit-exceeded",
       "kind": "action",
-      "description": "A safety limit (exploding dice, nesting depth, checkpoint steps) was reached."
+      "description": "A safety limit (`safety-limits.json`) was reached. Data: `limit`, the limit's ID."
     },
     {
       "id": "unknown-action",
@@ -327,6 +332,11 @@
       "id": "no-upgrade-path",
       "kind": "runtime",
       "description": "upgrade: the target version is below the character's pinned version."
+    },
+    {
+      "id": "character-spec-unsupported",
+      "kind": "runtime",
+      "description": "upgrade: the character was written against a newer spec than this engine implements (its `specVersion`). Data: `specVersion`, the character's, and `implements`, the engine's `SPEC_VERSION`."
     },
     {
       "id": "version-not-increased",

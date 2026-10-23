@@ -84,6 +84,7 @@ const expectedKeys: Record<string, string[]> = {
     'pendingSlots',
     'activations',
     'choices',
+    'groups',
     'offers',
   ],
   listOptions: ['options', 'min', 'max', 'errors'],
@@ -140,6 +141,15 @@ function run(dir: string): void {
         result.report.steps.map((s) => ({ pack: s.pack, from: s.from, to: s.to, op: s.step.op })),
       ).toEqual(report.steps);
     }
+    if (report.spec !== undefined) {
+      const got = result.report.spec;
+      expect(
+        got && {
+          from: got.from,
+          steps: got.steps.map((s) => ({ version: s.version, op: s.step.op })),
+        },
+      ).toEqual(report.spec ?? undefined);
+    }
     if (report.errors) expect(result.report.errors.map((e) => e.code)).toEqual(report.errors);
     if (report.homebrew) {
       expect(result.report.homebrew.map((h) => ({ path: h.path, op: h.step.op }))).toEqual(
@@ -190,18 +200,28 @@ function run(dir: string): void {
       breakdown?: unknown;
       tags?: unknown;
       name?: unknown;
+      shown?: unknown;
       error?: { code: string };
     };
     for (const [field, want] of Object.entries((expected.values ?? {}) as Record<string, Value>)) {
-      checkKeys(`values.${field}`, want, ['value', 'base', 'breakdown', 'tags', 'name', 'error']);
+      checkKeys(`values.${field}`, want, [
+        'value',
+        'base',
+        'breakdown',
+        'tags',
+        'name',
+        'shown',
+        'error',
+      ]);
       const got = sheet.values[field] as Value | undefined;
       expect(got, field).toBeDefined();
       if (want.error) expect(got?.error?.code, field).toBe(want.error.code);
-      else expect(got?.value, field).toEqual(want.value);
+      else if ('value' in want || !('shown' in want)) expect(got?.value, field).toEqual(want.value);
       if ('base' in want) expect(got?.base, `${field} base`).toEqual(want.base);
       if ('breakdown' in want) expect(got?.breakdown, `${field} breakdown`).toEqual(want.breakdown);
       if ('tags' in want) expect(got?.tags ?? [], `${field} tags`).toEqual(want.tags);
       if ('name' in want) expect(got?.name ?? null, `${field} name`).toEqual(want.name);
+      if ('shown' in want) expect(got?.shown, `${field} shown`).toBe(want.shown);
     }
     if (expected.effects) expect(sheet.effects).toEqual(expected.effects);
     if (expected.pending) expect(sheet.pending.map((p) => p.path)).toEqual(expected.pending);
@@ -216,6 +236,7 @@ function run(dir: string): void {
     if (expected.standardCopies) expect(sheet.standardCopies).toEqual(expected.standardCopies);
     if (expected.activations) expect(sheet.activations).toEqual(expected.activations);
     if (expected.choices) expect(sheet.choices).toEqual(expected.choices);
+    if (expected.groups) expect(sheet.groups).toEqual(expected.groups);
     if (expected.copyLimits) expect(sheet.copyLimits).toEqual(expected.copyLimits);
     if (expected.offers) expect(sheet.offers).toEqual(expected.offers);
     if (expected.errors) expect(sheet.errors.map((e) => e.code)).toEqual(expected.errors);

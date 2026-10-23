@@ -26,7 +26,7 @@ import type {
   StepChanges,
   ValueDecl,
 } from './pack-types.ts';
-import { appliesQueries, keptQuery } from './pack-types.ts';
+import { appliesQueries, fitsItemField, keptQuery } from './pack-types.ts';
 import { bandSet } from './pack-types.ts';
 import type { PackRelease } from './release.ts';
 import { expandFamilies } from './families.ts';
@@ -976,6 +976,32 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       else unknown('content', hidden, pid);
     }
   }
+  // Item fields against their content type: the item's own values, then the required ones on the
+  // merged item.
+  [...byId.values()].forEach((pack, i) => {
+    pack.content.forEach((raw, j) => {
+      const qid =
+        raw.override ?? (raw.id === undefined ? undefined : `${pack.manifest.id}:${raw.id}`);
+      const item = qid ? resolved.get(qid) : undefined;
+      const type = item ? ruleset.contentTypes[item.type] : undefined;
+      if (!item || !type) return;
+      const decls = type.fields ?? {};
+      const bad = (field: string, reason: string) =>
+        err(
+          'invalid-item-field',
+          { item: item.qid, field, reason, pack: pack.manifest.id },
+          `/packs/${i}/content/${j}/fields/${field}`,
+        );
+      for (const [name, value] of Object.entries(raw.fields ?? {})) {
+        const decl = decls[name];
+        if (!decl) bad(name, 'undeclared');
+        else if (!fitsItemField(value, decl)) bad(name, 'wrong-type');
+      }
+      if (raw.override) return;
+      for (const [name, decl] of Object.entries(decls))
+        if (decl.required && item.fields?.[name] === undefined) bad(name, 'missing');
+    });
+  });
   for (const [qid, item] of resolved) {
     if (!item.fields) continue;
     const decls = itemFieldDeclsOf(ruleset, item);
@@ -1115,7 +1141,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       const decl = state[key];
       if (!decl) err('unknown-state-key', { item: item.qid, key });
       else if (reapply.state[key] === 'add' && !['integer', 'decimal'].includes(decl.type))
-        err('wrong-type', { item: item.qid, key, expected: 'integer or decimal' });
+        err('wrong-type', { item: item.qid, target: key, expected: 'integer or decimal' });
     }
   }
 
@@ -1160,7 +1186,12 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
   const grantChecks = (grants: readonly Grant[] | undefined, owner: string, pack: string) => {
     for (const grant of grants ?? []) {
       if (grant.choices && grant.scope === 'applied')
-        err('unknown-reference', { kind: 'choice', item: owner, scope: 'applied' });
+        err('unknown-reference', {
+          kind: 'choice',
+          id: Object.keys(grant.choices).join(', '),
+          item: owner,
+          scope: 'applied',
+        });
       if (typeof grant.item !== 'string') continue;
       const granted = ruleset.content[grant.item];
       if (!granted) continue;

@@ -150,11 +150,11 @@
           "$ref": "common.schema.json#/$defs/literal"
         },
         "min": {
-          "description": "The lowest allowed value. On a state key, a number formula with `item` bound (the copy's item with its templates) that reads input fields only, evaluated by `addItem` for a formula default and by `setState` and `adjustState` (`shots: { max: item.magazine }`).",
+          "description": "The lowest allowed value. On a state key, a number formula with `item` bound (the copy's item with its templates) that reads input fields only, evaluated by `addItem` for a formula default and by `setState` and `adjustState` (`shots: { max: item.magazine }`). On an action parameter of type `integer` or `decimal`, a number formula evaluated as the action starts, with the action's `item` and `self`, `situational` and the character's fields (`max: effort.free`); a value outside it is `out-of-range`.",
           "$ref": "formula.schema.json"
         },
         "max": {
-          "description": "The highest allowed value. On a state key, read like `min`.",
+          "description": "The highest allowed value. On a state key or a parameter, read like `min`.",
           "$ref": "formula.schema.json"
         },
         "where": {

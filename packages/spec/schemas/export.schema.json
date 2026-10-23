@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.2/export.schema.json",
+  "title": "Export file",
+  "description": "Characters moving between apps, with the packs they pin: one file for a roster, or for linked characters (a crew, a companion). Each pack is a reference by ID and version, which the receiving app supplies, or an embedded release, so the file opens with nothing else (a bundle). It carries only data: no engine and no sheet, which is derived.",
+  "type": "object",
+  "required": ["specVersion", "characters", "packs"],
+  "properties": {
+    "specVersion": {
+      "description": "The OCF spec version this file was written against.",
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "characters": {
+      "description": "One or more character files, extensions and homebrew included. Their `id`s are unique within the export.",
+      "type": "array",
+      "items": {
+        "$ref": "character.schema.json"
+      },
+      "minItems": 1
+    },
+    "packs": {
+      "description": "Every pack version a character pins, once each.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/pack"
+      }
+    },
+    "extensions": {
+      "$ref": "character.schema.json#/properties/extensions"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "pack": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/reference"
+        },
+        {
+          "$ref": "#/$defs/embedded"
+        }
+      ]
+    },
+    "reference": {
+      "description": "A pack by ID and version, for the receiving app to supply.",
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/packId"
+        },
+        "version": {
+          "$ref": "common.schema.json#/$defs/semver"
+        },
+        "url": {
+          "description": "Where the pack release can be fetched.",
+          "type": "string",
+          "format": "uri"
+        },
+        "integrity": {
+          "$ref": "#/$defs/integrity"
+        }
+      },
+      "additionalProperties": false
+    },
+    "embedded": {
+      "description": "A pack release carried in the file.",
+      "type": "object",
+      "required": ["release"],
+      "properties": {
+        "release": {
+          "$ref": "pack-release.schema.json"
+        },
+        "integrity": {
+          "$ref": "#/$defs/integrity"
+        }
+      },
+      "additionalProperties": false
+    },
+    "integrity": {
+      "description": "The release's hash: `sha256-` and the base64 SHA-256 of its canonical JSON (RFC 8785). Decides whether the receiving app's own copy of the same ID and version is this release.",
+      "type": "string",
+      "pattern": "^sha256-[A-Za-z0-9+/]{43}=$"
+    }
+  }
+}

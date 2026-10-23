@@ -55,6 +55,14 @@
                       },
                       "after": {
                         "$ref": "../common.schema.json#/$defs/literal"
+                      },
+                      "shownBefore": {
+                        "description": "Whether the field was shown on the old sheet (computeSheet's `shown`); present with `before`.",
+                        "type": "boolean"
+                      },
+                      "shownAfter": {
+                        "description": "Whether the field is shown on the new sheet; present with `after`.",
+                        "type": "boolean"
                       }
                     }
                   }
@@ -81,6 +89,34 @@
                     },
                     "additionalProperties": false
                   }
+                },
+                "spec": {
+                  "description": "Present when the character's `specVersion` moved to the engine's: the version it had, and each spec upgrade step that changed the character.",
+                  "type": "object",
+                  "required": ["from", "steps"],
+                  "properties": {
+                    "from": {
+                      "$ref": "../common.schema.json#/$defs/semver"
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["version", "step"],
+                        "properties": {
+                          "version": {
+                            "description": "The spec upgrade's `id`: the version that changed the shape.",
+                            "$ref": "../common.schema.json#/$defs/semver"
+                          },
+                          "step": {
+                            "$ref": "../spec-upgrade.schema.json#/$defs/step"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "additionalProperties": false
                 },
                 "errors": {
                   "description": "The upgraded character's computeSheet errors (references no script handled).",

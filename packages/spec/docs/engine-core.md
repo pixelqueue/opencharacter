@@ -60,6 +60,13 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
      two packs override the same property of the same item, the later one wins and the pair is
      reported in `conflicts`.
    - **`hides`:** hidden items stay in the ruleset, marked `hidden: true`. Queries skip them.
+   - **Item fields:** each item's own `fields` (an override's too) must be declared by its
+     content type and have the declared shape: no list for an `integer`, `decimal`, `boolean` or
+     `dice` field (a string there is a formula, checked in step 5), a string for a `string` or
+     `id` field, one of the values for an `enum`, a list for a `set`. After `extends`, every
+     `required` field must have a value. Otherwise `invalid-item-field` (data: `item`, `field`,
+     `reason`: `missing`, `undeclared` or `wrong-type`, `pack`; `path`:
+     `/packs/<i>/content/<j>/fields/<field>`). Templates' fields are checked by the build only.
    - **Destinations:** a `to: { link }` names a slot visible from the pack, qualified at load.
      Changes sent to a link are the linked character's, so their fields and copy types must be
      qualified IDs already (`unknown-reference` otherwise) and are not resolved in the ruleset.
@@ -108,9 +115,10 @@ given, then works on the result. A character without `homebrew` uses the ruleset
    formulas written as text count against `maxHomebrewFormulas`.
 3. **Errors.** If anything fails, the call returns `homebrew-error` and computes nothing: one
    error per load error, with `data.cause` the load code (`unknown-reference`, `formula-error`,
-   `homebrew-not-allowed`, `safety-limit-exceeded`, …), `data.detail` that error's data, and
-   `path` pointing into the character (`/homebrew/content/0`, `/homebrew/rules`; `/homebrew`
-   when the load error has no document). computeSheet returns empty values with the errors;
+   `invalid-item-field`, `homebrew-not-allowed`, `safety-limit-exceeded`, …), `data.detail`
+   that error's data, and `path` pointing into the character (`/homebrew/content/0`,
+   `/homebrew/content/0/fields/twoDots`, `/homebrew/rules`; `/homebrew` when the load error has
+   no document). computeSheet returns empty values with the errors;
    the other calls return their failure.
 
 Engines MAY cache the layered ruleset by the homebrew's content and the pins; the result must
@@ -743,6 +751,38 @@ An app's rule: at `count >= max`, Add becomes Replace (when `max` is 1) or is di
 with `perItem` copies is shown as held. A replace is one applyChanges batch, `removeItem` then
 `addItem` reusing the instance ID ([applyChanges](#applychanges)).
 
+### Display
+
+After the values, computeSheet evaluates the display hints
+([display-hints.md](display-hints.md#shown)):
+
+- **`groups`** lists every display group in ruleset order (a later pack's group in place of an
+  earlier one with the same ID) as `{ id, shown, fields?, actions?, items? }`. `shown` is the
+  group's `showWhen`, true without one. Members are listed shown or not:
+  - a fields group's `fields`, in ruleset field order: the fields whose hint names the group,
+    and those its `members` query matches, `where` seeing `item` as `{ id, type, tags }` with
+    the field's sheet tags;
+  - an actions group's `actions`: the index in `actions` of each listing its `where` matches,
+    seeing `item` as `{ id, tags, entry?, source? }`, in list order;
+  - a content group's `items`: for `from: own`, `{ activation, section? }` for each holder
+    activation of the group's type in `activations` (templates aren't members); for
+    `from: applied`, `{ entry, activation?, section?, hiddenState? }` for each applied entry of
+    the type in file order, `activation` when it is listed (active and not blocked) and
+    `hiddenState` when it isn't. `where`, `sectionBy` and `sortBy` see the activation's `item`
+    and `self`, or for an unlisted entry its source's item and the entry. Members are sorted by
+    `section`, then the `sortBy` key, then instance order; numbers come before strings, and a
+    member without a key after both.
+- **`values[F].shown`**: F's hint isn't `hidden`, its `showWhen` holds, and F is a member of no
+  fields group or of at least one shown one.
+- **`activations[i].hiddenState`**: the state keys its content declares (with a copy's
+  templates) whose type's state hint is `hidden` or has a `showWhen` that doesn't hold, seeing
+  the activation's `item` and `self`; absent when there are none. Templates have none: their
+  keys are their copy's.
+- Every formula is evaluated in the hint's or group's pack, as a field formula is; a
+  `showWhen` with `hasChoice` bound. A `showWhen` that fails to evaluate counts as true; a `where` that fails
+  matches nothing; a `sectionBy` or `sortBy` that fails, or gives a value of another kind (a
+  whole number or a string; a number or a string), gives no key. None adds to `errors`.
+
 ### Offers
 
 `offers` lists what the rules offer the character now: its stored ephemeral
@@ -1007,7 +1047,11 @@ An `adjust` on field F with amount `by`, `tags` and optional `situational` choic
 4. **Overflow.** If the result passes the bound of one of F's `overflow` entries (`at: max`:
    above `max`; `at: min`: below `min`; or reaches it, when `inclusive`), the engine adjusts
    `into` by `by` (default 1), and F is set to `reset`. The adjust on `into` is routed in turn
-   (without incoming-change effects), up to `maxOverflowChain` adjusts in all.
+   (without incoming-change effects), up to `maxOverflowChain` adjusts in all. The entry
+   doesn't fire when clamping would take all of that adjust: on the values stored so far, its
+   `by` isn't 0, no absorbing field of `into` can take any of it (for a negative `by`), no
+   overflow of `into` fires (by this same test), and `into` is already at the bound it moves
+   toward. F is then clamped (step 5).
 5. **Clamping.** Otherwise the result is clamped to `min`/`max`.
 6. **`then`.** After the adjust is fully routed, each instance that counted in step 1 applies its
    `then` changes, in instance order, to its own entry, before the next change in the batch: for

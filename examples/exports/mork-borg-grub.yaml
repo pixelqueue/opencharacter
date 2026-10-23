@@ -1,0 +1,42 @@
+# Grub and the Ancient Gore-Hound that is his companion, exported together: a roster of two linked
+# characters (Grub's `hound` link names the hound by its id). The pack is a reference, for the
+# receiving app to supply; `pnpm validate` checks that every pinned version is listed.
+specVersion: 0.2.0
+characters:
+  - specVersion: 0.2.0
+    id: example-mork-borg-grub
+    packs:
+      - { id: mork-borg-core, version: 0.1.1 }
+    values:
+      mork-borg-core:abilities.strength: 2
+      mork-borg-core:abilities.agility: -1
+      mork-borg-core:abilities.presence: -1
+      mork-borg-core:abilities.toughness: 1
+      mork-borg-core:hp.max: 9
+      mork-borg-core:hp.current: 9
+      mork-borg-core:omens.max: 1
+      mork-borg-core:omens.current: 1
+      mork-borg-core:silver.current: 70
+    features:
+      - id: class
+        item: mork-borg-core:classes.fanged-deserter
+        choices:
+          feature:
+            - option: ancient-gore-hound
+    inventory:
+      - { id: flail, item: mork-borg-core:weapons.flail, equipped: true, state: { broken: false } }
+      - { id: armor, item: mork-borg-core:armor.light, equipped: true, state: { damage: 0 } }
+    links:
+      mork-borg-core:hound: example-mork-borg-grub-hound
+  - specVersion: 0.2.0
+    id: example-mork-borg-grub-hound
+    packs:
+      - { id: mork-borg-core, version: 0.1.1 }
+    values:
+      mork-borg-core:hp.max: 10
+      mork-borg-core:hp.current: 7
+    features:
+      - id: companion
+        item: mork-borg-core:companions.ancient-gore-hound
+packs:
+  - { id: mork-borg-core, version: 0.1.1 }

@@ -41,6 +41,7 @@ import {
   resolveContent,
   resolveField,
   resolveId,
+  resolveType,
   familyIn,
   familyFieldPack,
   type Ruleset,
@@ -162,6 +163,14 @@ export interface ListedActivation {
   parent?: number;
   keptBy?: number;
   path?: ChoicePath;
+  /** Its declared state keys not shown (display-hints.md, "Shown"); absent when none. */
+  hiddenState?: string[];
+}
+
+export interface ListedAction {
+  action: string;
+  entry?: string;
+  source?: string;
 }
 
 export interface ListedChoice {
@@ -659,7 +668,12 @@ export class Sheet {
   }
 
   /** Throws Failure. */
-  evaluate(formula: Formula, pack: string, roots: Record<string, unknown>): f.Value {
+  evaluate(
+    formula: Formula,
+    pack: string,
+    roots: Record<string, unknown>,
+    queries: f.CharacterQueries = this.queries,
+  ): f.Value {
     const result = f.evaluate(this.parse(formula), {
       field: (name) => {
         const qid = resolveField(this.ruleset, name, pack);
@@ -672,10 +686,25 @@ export class Sheet {
         const qid = resolveField(this.ruleset, id, familyFieldPack(this.ruleset, name, key, pack));
         return qid ? this.fieldValue(qid) : undefined;
       },
-      character: this.queries,
+      character: queries,
     });
     if (!result.ok) throw new Failure(result.error);
     return result.value;
+  }
+
+  private choiceTypes: ReadonlySet<string> | undefined;
+
+  /** A display hint's formula, with `hasChoice` bound. Throws Failure. */
+  evaluateHint(formula: Formula, pack: string, roots: Record<string, unknown>): f.Value {
+    this.choiceTypes ??= new Set(this.choiceList().flatMap((c) => (c.type ? [c.type] : [])));
+    const types = this.choiceTypes;
+    return this.evaluate(formula, pack, roots, {
+      ...this.queries,
+      hasChoice: (type) => {
+        const qid = resolveType(this.ruleset, type, pack);
+        return qid !== undefined && types.has(qid);
+      },
+    });
   }
 
   /** Reads only input fields (saved or default). Throws Failure. */
@@ -1982,7 +2011,8 @@ export class Sheet {
     const known = this.tagResults.get(qid);
     if (known) return known;
     const def = this.ruleset.fields[qid];
-    if (!def) throw new Failure({ code: 'unknown-name', message: `no field ${qid}` });
+    if (!def)
+      throw new Failure({ code: 'unknown-name', message: `no field ${qid}`, data: { name: qid } });
     const result = evaluateTags(this.ruleset, def.tags, (formula) =>
       this.evaluate(formula, def.pack, {}),
     );
@@ -2019,7 +2049,11 @@ export class Sheet {
     const done = this.results.get(qid);
     if (done) return done;
     const def = this.ruleset.fields[qid];
-    if (!def) return { breakdown: [], error: { code: 'unknown-name', message: `no field ${qid}` } };
+    if (!def)
+      return {
+        breakdown: [],
+        error: { code: 'unknown-name', message: `no field ${qid}`, data: { name: qid } },
+      };
     if (this.stack.includes(qid)) {
       const loop = this.stack.slice(this.stack.indexOf(qid));
       throw new Failure({
@@ -2887,8 +2921,13 @@ export class Sheet {
     return out;
   }
 
-  actions(): { action: string; entry?: string; source?: string }[] {
-    const out: { action: string; entry?: string; source?: string }[] = [];
+  actions(): ListedAction[] {
+    return this.actionList().map((a) => a.listed);
+  }
+
+  /** The actions available now, each with its tags. */
+  actionList(): { listed: ListedAction; tags: readonly string[] }[] {
+    const out: { listed: ListedAction; tags: readonly string[] }[] = [];
     const seen = new Set<string>();
     const used = new Set<string>();
     const collectUses = (list: ActionOrUse[] | undefined) => {
@@ -2927,9 +2966,12 @@ export class Sheet {
         if (!available) continue;
         seen.add(key);
         out.push({
-          action: id,
-          ...(entry !== undefined ? { entry } : {}),
-          ...(source ? { source } : {}),
+          listed: {
+            action: id,
+            ...(entry !== undefined ? { entry } : {}),
+            ...(source ? { source } : {}),
+          },
+          tags: def.tags ?? [],
         });
       }
     }
@@ -2941,7 +2983,7 @@ export class Sheet {
       } catch (error) {
         if (!(error instanceof Failure)) throw error;
       }
-      if (available) out.push({ action: qid });
+      if (available) out.push({ listed: { action: qid }, tags: def.tags ?? [] });
     }
     return out;
   }
@@ -2990,13 +3032,18 @@ export class Sheet {
     return out;
   }
 
+  /** The activations `activationList` lists, in its order. */
+  listedActivations(): Activation[] {
+    return this.activations.filter((a) => a.kind !== 'rules' && a.kind !== 'inline');
+  }
+
   /**
    * Every content activation in instance order, with its parent: the nearest listed activation that
    * granted it, owns the choice it was picked in, or keeps the template. Rules and inline options
    * aren't listed.
    */
   activationList(): ListedActivation[] {
-    const listed = this.activations.filter((a) => a.kind !== 'rules' && a.kind !== 'inline');
+    const listed = this.listedActivations();
     const index = new Map(listed.map((a, i) => [a, i]));
     // A kept template's keeper: the first activation that keeps it on the copy.
     const keepers = new Map<string, Activation>();

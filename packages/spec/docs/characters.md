@@ -65,7 +65,7 @@ extensions:
 
 | Property      | Meaning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `specVersion` | The spec version the file was written against                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `specVersion` | The spec version the file was written against. `upgrade` moves it to the engine's, running any spec upgrades between ([versioning.md](versioning.md#character-files))                                                                                                                                                                                                                                                                                                                                                  |
 | `id`          | Character ID, up to 2048 characters. A UUID is fine for an ID unique within the app or campaign; a URL (IRI, `https://example.com/characters/tamsin`) makes it global, so the character keeps one identity across apps and other files can link to it by that URL                                                                                                                                                                                                                                                      |
 | `packs`       | Pinned exact pack versions, in load order. The app decides when, or whether, to upgrade ([upgrades.md](upgrades.md)).                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `creating`    | Whether the character is being created. Default false: see [Creating a character](#creating-a-character)                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -273,6 +273,53 @@ extensions:
     portrait: https://example.com/portraits/tamsin.png
     tokenSize: 2
 ```
+
+## Exports
+
+An **export** ([`export.schema.json`](../schemas/export.schema.json)) moves characters to another
+app, which may not have every pack they pin: one character, a roster, or linked characters (a crew
+and its scoundrels, a companion) in one file. It carries only data: no engine, since any
+conforming engine runs any pack, and no sheet, which is derived.
+
+```yaml
+specVersion: 0.2.0
+characters: # one or more character files, extensions and homebrew included
+  - { specVersion: 0.2.0, id: https://example.com/characters/vex, packs: [...], ... }
+  - { specVersion: 0.2.0, id: https://example.com/characters/the-ravens, ... } # linked
+packs: # every pack version a character pins, once each
+  # By reference: the receiving app supplies it. `url` and `integrity` are optional.
+  - id: fitd-scoundrel
+    version: 0.2.0
+    url: https://example.com/packs/fitd-scoundrel.json
+    integrity: sha256-…
+  - release: { manifest: { ... }, rules: { ... }, content: [...] } # embedded
+    integrity: sha256-…
+extensions: {} # app extras, as in a character file
+```
+
+- **Packs** are listed once per ID and version, by **reference** (`id`, `version`, optionally
+  `url` and `integrity`) or **embedded** (`release`, a [pack release](../schemas/pack-release.schema.json),
+  what `loadRuleset` takes). Every version a character pins MUST be listed; a pack no character
+  pins SHOULD NOT be. A file may mix the two: an export references every pack, a **bundle** embeds
+  every pack so it opens anywhere with nothing else, and a file can embed only the packs the
+  receiver is unlikely to have (third-party ones).
+- **Characters** are whole character files. Their `id`s are unique within the export, and a
+  character's `links` may name another character in the file.
+- **Integrity** is `sha256-` and the base64 SHA-256 of the release's canonical JSON
+  ([RFC 8785](https://www.rfc-editor.org/rfc/rfc8785): keys sorted, no whitespace), so it doesn't
+  depend on how the release was written out.
+- **Which copy is used.** For each listed pack, the receiving app may use its own copy of that ID
+  and version, unless the entry has `integrity` and the copy doesn't match it. Otherwise it uses
+  the embedded release, or fetches `url` and checks it against `integrity`. A pack it can't get
+  leaves the characters that pin it unloadable; the app says which.
+- **Spec version.** The export's `specVersion` is the version it was written against, as a
+  character file's is. Each character keeps its own, and an app brings an older one up to date
+  with `upgrade` ([versioning.md](versioning.md#character-files)).
+
+The reference engine has helpers outside conformance: `createExport(characters, releases,
+{ embed?, url? })` builds one with every pinned version and its integrity, `readExport(file,
+available)` returns the releases to load (the app's matching copies, else the embedded ones) and
+the packs still `missing`, and `releaseIntegrity(release)` hashes a release.
 
 ## Legality
 

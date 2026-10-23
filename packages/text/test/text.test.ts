@@ -65,6 +65,43 @@ describe('Mothership', () => {
       condition: 'Roll under 34 (90+ always fails)',
     });
   });
+
+  it("words a creation roll's dice and the whole roll", () => {
+    const blank: CharacterDoc = {
+      specVersion: '0.1.0',
+      id: 'new',
+      packs: [{ id: 'mothership-1e', version: '0.1.1' }],
+      creating: true,
+    };
+    const need = paused(
+      startAction(ruleset, blank, {
+        action: { id: 'mothership-1e:roll-character' },
+        params: { choose: true },
+        policy: { dice: 'pause', choices: 'pause', allocations: 'pause' },
+      }),
+    ).needs;
+    const worded = describeNeed(ruleset, text, need);
+    expect(worded.dice).toBe('2d10');
+    expect(worded.roll).toBe('2d10 + 25');
+  });
+});
+
+const d = (count: number, sides: number) => ({ kind: 'dice' as const, count, sides });
+const flat = (value: number) => ({ kind: 'flat' as const, value });
+
+describe('whole rolls', () => {
+  const { text } = load('mothership/1e');
+
+  it('sums the flat items after the dice', () => {
+    expect(text.roll([d(2, 10), flat(25)])).toBe('2d10 + 25');
+    expect(text.roll([flat(3), d(1, 20), flat(-5)])).toBe('1d20 - 2');
+    expect(text.roll([d(1, 20), flat(2), flat(-2)])).toBe('1d20');
+    expect(text.roll([flat(4)])).toBe('4');
+    expect(text.roll([])).toBe('');
+    expect(text.roll([d(2, 6), flat(1)], { times: 2, keep: 'low' })).toBe(
+      '2d6 + 1, rolled twice, keep the lower total',
+    );
+  });
 });
 
 describe('5E', () => {
@@ -561,6 +598,80 @@ describe('codes never reach players bare', () => {
     expect(text.issue(error as never)).toBe(worded);
     expect(text.issue({ code: 'not-a-code', data: {} } as never)).toBe(
       'Something went wrong (not-a-code).',
+    );
+  });
+
+  it('falls back to errors.other when the data misses an argument', () => {
+    expect(text.error({ code: 'not-owned', data: {} })).toBe('Something went wrong (not-owned).');
+  });
+});
+
+describe('error text by its data', () => {
+  const { text } = load('mork-borg/core');
+  const target = 'mork-borg-core:hp.max';
+
+  it('words a range with one bound or both', () => {
+    expect(text.error({ code: 'out-of-range', data: { target, min: 1 } })).toBe(
+      '"Maximum HP" must be at least 1.',
+    );
+    expect(text.error({ code: 'out-of-range', data: { target, max: 5 } })).toBe(
+      '"Maximum HP" must be at most 5.',
+    );
+    expect(text.error({ code: 'out-of-range', data: { target, min: 1, max: 5 } })).toBe(
+      '"Maximum HP" must be between 1 and 5.',
+    );
+  });
+
+  it('words each safety limit', () => {
+    expect(text.error({ code: 'safety-limit-exceeded', data: { limit: 'maxOverflowChain' } })).toBe(
+      'Too many overflows from one change.',
+    );
+    expect(text.error({ code: 'safety-limit-exceeded', data: { limit: 'maxNew' } })).toBe(
+      'A safety limit was reached (maxNew).',
+    );
+  });
+
+  it('words a family key that is not there', () => {
+    const awn = load('awn/core');
+    const hollis = parse(
+      readFileSync(join(root, 'examples', 'characters', 'awn-core-hollis.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const result = startAction(awn.ruleset, hollis, {
+      action: { id: 'awn-core:gain-benefit' },
+      params: { entry: 'x' },
+    });
+    const error = 'errors' in result ? result.errors?.[0] : undefined;
+    expect(error?.data).toMatchObject({ key: 'x', family: 'skill' });
+    expect(awn.text.error(error!)).toBe('A formula refers to "x", which is not there.');
+  });
+});
+
+describe('prerequisite text', () => {
+  const spec = load('mothership/1e').spec;
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        p: {
+          'feats.terrain-scout.name': 'Terrain Scout',
+          'feats.terrain-scout.prerequisites.dedication': 'Scout Dedication',
+          'feats.asi.choices.increase.options.str.name': 'Strength',
+          'feats.asi.choices.increase.options.str.prerequisites.max': 'Strength below 20',
+        },
+      },
+    },
+    spec: { en: spec },
+  });
+
+  it("wraps the requirement with its owner's name", () => {
+    expect(
+      text.issue({ code: 'prerequisite-not-met', id: 'p:feats.terrain-scout/dedication' } as never),
+    ).toBe('Terrain Scout requires: Scout Dedication');
+    expect(
+      text.issue({ code: 'prerequisite-not-met', id: 'p:feats.asi/increase/str/max' } as never),
+    ).toBe('Strength requires: Strength below 20');
+    expect(text.issue({ code: 'prerequisite-not-met', id: 'p:feats.other/missing' } as never)).toBe(
+      'A requirement is not met.',
     );
   });
 });

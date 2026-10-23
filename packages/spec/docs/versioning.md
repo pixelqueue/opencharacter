@@ -109,4 +109,22 @@ publishes a real version by hand.
 
 ## Character files
 
-A character file records the `specVersion` it was written against, and the exact pack versions it uses.
+A character file records the `specVersion` it was written against, and the exact pack versions it
+uses. Both move only through `upgrade` ([upgrades.md](upgrades.md#the-upgrade-call)), which the
+app runs when it chooses:
+
+- **Spec upgrades.** A spec version that changes the character file's shape (a renamed or
+  reshaped property, allowed before 1.0) ships a **spec upgrade**: data, like a pack's upgrade
+  script, in [`data/spec-upgrades.json`](../data/spec-upgrades.json)
+  ([upgrades.md](upgrades.md#spec-upgrades)). A version that only adds needs none.
+- **Re-stamping.** Every upgrade runs the spec upgrades between the character's `specVersion` and
+  the engine's `SPEC_VERSION`, then writes `SPEC_VERSION`, whether or not any pack moves. So
+  `upgrade` with the character's own ruleset on both sides brings just the file up to date.
+- **Newer files.** A character written against a newer spec than the engine's is refused
+  (`character-spec-unsupported`): an older engine can't know what changed.
+- **Other calls** read a character of an earlier spec as it is, and keep its `specVersion`. Bring
+  it up to date with `upgrade` before relying on anything an upgrade changes.
+
+The version sync (`pnpm version-packages`) re-stamps the repo's example characters and the test
+cases' expected output, which follow the current spec. It only re-stamps: when the bump crosses a
+spec upgrade, it says so, and those files are upgraded by hand in the same change.

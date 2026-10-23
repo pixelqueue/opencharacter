@@ -24,6 +24,7 @@ import type {
   StepOption,
   ValueSource,
   TagOrFormula,
+  ValueDecl,
 } from './pack-types.ts';
 import { optionQuery, pendingSource, valueSource, writtenOptions } from './pack-types.ts';
 import {
@@ -868,9 +869,29 @@ function params(
         if (!admitsTag(decl.members, tag))
           throw new ActionError('invalid-option', { param: name, option: tag });
     }
+    paramRange(name, decl, typed, (bound) => {
+      const v = ctx.sheet.evaluate(bound, frame.pack, frame.roots);
+      return v.kind === 'int' || v.kind === 'decimal' ? v.value : undefined;
+    });
     out[name] = rootValue(typed);
   }
   return out;
+}
+
+/** A number parameter outside its `min`/`max`, evaluated as the action starts, is out-of-range. */
+function paramRange(
+  name: string,
+  decl: ValueDecl,
+  value: f.Value,
+  boundOf: (bound: Formula) => number | undefined,
+): void {
+  if (value.kind !== 'int' && value.kind !== 'decimal') return;
+  const bound = (formula: Formula | undefined) =>
+    formula === undefined ? undefined : boundOf(formula);
+  const min = bound(decl.min);
+  const max = bound(decl.max);
+  if ((min !== undefined && value.value < min) || (max !== undefined && value.value > max))
+    throw new ActionError('out-of-range', { target: name, min, max });
 }
 
 function fieldIdOf(value: unknown): unknown {
@@ -1356,6 +1377,9 @@ function handoff(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     const typed = decl.type === 'id' && decl.of === 'field' ? undefined : typedValue(decl, value);
     if (typeof typed === 'string')
       throw new ActionError('wrong-type', { target: name, expected: typed });
+    // A bound that reads the participant's character is checked when its action starts.
+    if (typed)
+      paramRange(name, decl, typed, (bound) => (typeof bound === 'number' ? bound : undefined));
   }
   const passed = handoffParticipants(ctx, frame, step, used);
   const participant = { role: each.role, id: each.view.id as string };
@@ -3225,7 +3249,7 @@ function offerFollowUp(
     if (def) id = qid;
   }
   if (!id || !def || def.while !== undefined)
-    throw new ActionError('unknown-reference', { followUp: ref });
+    throw new ActionError('unknown-reference', { kind: 'follow-up', id: ref });
   const values = Object.fromEntries(
     Object.entries(change.params ?? {}).flatMap(([name, formula]) => {
       const value = evaluate(ctx, frame, formula, bound);
@@ -3364,7 +3388,8 @@ function proposeOne(
     if (change.pick === 'self') {
       const a = frame.activation;
       const option = a?.kind === 'pick' ? a.path.choice.at(-1) : undefined;
-      if (!a || option === undefined) throw new ActionError('unknown-reference', { pick: 'self' });
+      if (!a || option === undefined)
+        throw new ActionError('unknown-reference', { kind: 'pick', id: 'self' });
       out.path = { ...a.path, choice: a.path.choice.slice(0, -1) };
       out.option = option;
     }
@@ -3373,7 +3398,7 @@ function proposeOne(
       // path ends at) and the granted item.
       const a = frame.activation;
       if (!a?.item || a.kind !== 'grant' || a.scope !== 'holder')
-        throw new ActionError('unknown-reference', { grant: 'self' });
+        throw new ActionError('unknown-reference', { kind: 'grant', id: 'self' });
       if (a.path.choice.length === 0) out.entry = a.path.entry;
       else {
         out.path = { ...a.path, choice: a.path.choice.slice(0, -1) };

@@ -24,6 +24,7 @@ import { familyPattern, patternIds } from '../../packages/engine/src/formula/eva
 
 const KEYWORDS = new Set(['true', 'false', 'null', 'in']);
 import {
+  fitsItemField,
   optionQuery,
   pendingSource,
   valueSource,
@@ -121,6 +122,7 @@ export class PackChecker {
   readonly optionalKeys = new Set<string>();
   readonly optionalPrefixes = new Set<string>();
   readonly slotPrompts = new Set<string>();
+  readonly prerequisiteKeys = new Set<string>();
   private readonly blocks = new Map<string, BlockScope>();
   private contentOwner: string | undefined;
   private offerable: FollowUp[] | undefined;
@@ -924,8 +926,7 @@ export class PackChecker {
           `keepsFields: "${name}" is not an item field of the kept copies or content`,
         );
     }
-    for (const prerequisite of item.prerequisites ?? [])
-      this.requiredKeys.add(`${owner}.prerequisites.${prerequisite.id}`);
+    for (const prerequisite of item.prerequisites ?? []) this.prerequisite(owner, prerequisite.id);
   }
 
   private itemActionIds(item: ContentItem, depth = 0): Set<string> {
@@ -1019,32 +1020,21 @@ export class PackChecker {
   }
 
   private itemFieldValue(value: Literal, decl: ValueDecl, file: string, where: string): void {
-    const bad = (expected: string) =>
-      this.report.error(file, `${where}: expected ${expected}, got ${JSON.stringify(value)}`);
-    switch (decl.type) {
-      case 'integer':
-      case 'decimal':
-      case 'boolean':
-      case 'dice':
-        if (Array.isArray(value)) bad(`a ${decl.type} formula`);
-        break;
-      case 'string':
-        if (typeof value !== 'string') bad('a string');
-        break;
-      case 'enum':
-        if (typeof value !== 'string' || !decl.values?.includes(value)) {
-          bad(`one of ${decl.values?.join(', ')}`);
-        }
-        break;
-      case 'id':
-        if (typeof value !== 'string') bad('an id');
-        else this.member(value, decl.of, file, where, decl);
-        break;
-      case 'set':
-        if (!Array.isArray(value)) bad('a list');
-        else for (const member of value) this.member(String(member), decl.of, file, where, decl);
-        break;
-    }
+    if (!fitsItemField(value, decl)) {
+      const expected: Record<string, string> = {
+        string: 'a string',
+        enum: `one of ${decl.values?.join(', ')}`,
+        id: 'an id',
+        set: 'a list',
+      };
+      this.report.error(
+        file,
+        `${where}: expected ${expected[decl.type] ?? `a ${decl.type} formula`}, got ${JSON.stringify(value)}`,
+      );
+    } else if (decl.type === 'id') this.member(value as string, decl.of, file, where, decl);
+    else if (decl.type === 'set')
+      for (const member of value as Literal[])
+        this.member(String(member), decl.of, file, where, decl);
   }
 
   private member(
@@ -1578,7 +1568,7 @@ export class PackChecker {
       for (const effect of option.effects ?? []) this.effect(effect, file, owner);
       this.grants(option.grants, file, `${owner}: `);
       for (const prerequisite of option.prerequisites ?? [])
-        this.requiredKeys.add(`${owner}.prerequisites.${prerequisite.id}`);
+        this.prerequisite(owner, prerequisite.id);
       this.choices(option.choices ?? [], file, owner);
     }
   }
@@ -2102,9 +2092,24 @@ export class PackChecker {
     for (const problem of problems) this.report.error(problem.at, describeProblem(problem));
   }
 
+  private prerequisite(owner: string, id: string): void {
+    const key = `${owner}.prerequisites.${id}`;
+    this.requiredKeys.add(key);
+    this.prerequisiteKeys.add(key);
+  }
+
   private message(file: string, key: string, text: string, names?: Map<string, string>): void {
     if (!balancedBraces(text))
       this.report.error(file, `"${key}": unbalanced braces in ICU message`);
+    // The standard text wraps it: "Terrain Scout requires: Scout Dedication".
+    if (
+      this.prerequisiteKeys.has(key) &&
+      (/\.\s*$/.test(text) || /^\s*(requires|needs)\b/i.test(text))
+    )
+      this.report.warn(
+        file,
+        `"${key}": prerequisite text is a phrase, the requirement alone: no final period, no "Requires" or "Needs"`,
+      );
     // One prompt serves every slot of a slotted choice.
     if (this.slotPrompts.has(key) && !/\{\s*slot\s*[,}]/.test(text))
       this.report.warn(file, `"${key}": a slotted choice's prompt should name its slot as {slot}`);

@@ -1,0 +1,33 @@
+description: "Parameter bounds are number formulas evaluated as the action starts, with the action's item and the character's fields: 2 is within the floor of 1 and the pool of 2"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          pool.current: { type: integer, input: true, default: 0, min: 0 }
+        contentTypes:
+          wand:
+            fields:
+              floor: { type: integer, default: 0 }
+            actions:
+              # At least the wand's floor, at most the pool.
+              - id: spend
+                params:
+                  amount: { type: integer, min: item.floor, max: pool.current }
+                steps:
+                  - id: spend
+                    kind: changes
+                    changes:
+                      - { type: adjust, field: pool.current, by: -params.amount }
+      content:
+        - { id: wands.oak, type: wand, fields: { floor: 1 } }
+input:
+  action: { id: 'test-pack:wands.oak#spend', entry: wand }
+  params: { amount: 2 }

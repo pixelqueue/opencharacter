@@ -446,8 +446,9 @@ included, without naming the items that bring it:
   back into a calculation.
 - **Checks:** the argument is a string (`type-mismatch`). A literal that names no content type
   the pack sees is `unknown-reference` at load.
-- **Apps** evaluating `showWhen` bind it from `sheet.choices`, resolving the argument in the
-  hint's pack scope as they resolve field names.
+- **computeSheet** evaluates every `showWhen` itself
+  ([display-hints.md](display-hints.md#shown)): true while `choices` has an entry whose `type`
+  is the argument, resolved in the hint's pack scope.
 
 ### Picks of the owner's choices
 
@@ -706,13 +707,13 @@ need, so an error there doesn't matter.
 | Code                    | When                                                                                                              |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `formula-syntax`        | Text doesn't parse (data: `offset`, `expected`)                                                                   |
-| `unknown-name`          | A name is neither a bound root nor a visible field                                                                |
-| `unknown-function`      | A function isn't in the standard library, or isn't bound here                                                     |
+| `unknown-name`          | A name is neither a bound root nor a visible field (data: `name`)                                                 |
+| `unknown-function`      | A function isn't in the standard library, or isn't bound here (data: `function`)                                  |
 | `wrong-arity`           | Wrong number of arguments                                                                                         |
 | `type-mismatch`         | An operator, function or place gets a type it doesn't accept                                                      |
 | `division-by-zero`      | `/` or `%` by zero                                                                                                |
 | `overflow`              | An int result outside ±(2^53 − 1), or a decimal result that isn't finite                                          |
-| `no-such-key`           | A path under a root names something absent (use `has()`)                                                          |
+| `no-such-key`           | A path under a root names something absent (use `has()`; data: `key`, and `family` for a `fieldOf()` key)         |
 | `index-out-of-range`    | `xs[i]` with `i` outside the list                                                                                 |
 | `circular-formula`      | Fields that depend on each other in a loop                                                                        |
 | `safety-limit-exceeded` | Text longer than `maxFormulaLength`, nesting deeper than `maxFormulaDepth`, or a dice count over `maxDicePerItem` |

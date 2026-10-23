@@ -1,0 +1,17 @@
+# Lists a pack twice and at the wrong version, misses a pin, and reuses a character id.
+specVersion: 0.2.0
+characters:
+  - specVersion: 0.2.0
+    id: twin
+    packs:
+      - { id: broken, version: 0.1.0 }
+      - { id: test-orc, version: 0.1.0 }
+  - specVersion: 0.2.0
+    id: twin
+    packs:
+      - { id: broken, version: 0.1.0 }
+packs:
+  - { id: broken, version: 0.1.0 }
+  - { id: broken, version: 0.1.0 }
+  - { id: test-orc, version: 0.2.0 }
+  - { id: test-missing, version: 1.0.0 }

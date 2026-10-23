@@ -162,6 +162,39 @@ display:
   error). A value the player edits but doesn't read in play is `background`, not `hidden`.
 - `showWhen` is independent: an irrelevant field or group isn't shown at any visibility.
 
+## Shown
+
+computeSheet evaluates `hidden`, `showWhen`, `members`, `sectionBy` and `sortBy` for the app
+([engine-core.md](engine-core.md#display)), so every app shows the same sheet:
+
+- **A group is shown** when its `showWhen` holds, or it has none. This holds for groups of every
+  kind.
+- **A fields group's members** are the fields whose hint lists it in `groups` and those its
+  `members` query matches. The query's `where` sees `item` as `{ id, type, tags }`, the field's
+  tags on the sheet (computed ones included), and the character's fields and copies.
+- **A field is shown** when its hint isn't `hidden`, its `showWhen` holds, and it is in no
+  fields group (it shows in "Other") or in at least one shown group. A field in a hidden group
+  and a shown one shows in the shown one only.
+- **An actions group's members** are the listed actions its `where` matches, in list order;
+  **a content group's**, the activations or applied entries its query matches, sorted by
+  section, then `sortBy`, then instance order ([Sections and order](#sections-and-order)). A
+  member whose `sectionBy` fails, or gives neither a whole number nor a string, has no section
+  and comes after the sections; one whose `sortBy` fails, or gives neither a number nor a string,
+  comes after the sorted ones. An action or content item no group lists is "Other"; one only a
+  hidden group lists isn't shown.
+- **A state key is shown** when its state hint isn't `hidden` and its `showWhen` holds, seeing
+  the copy or pick as `self` and its item as `item`.
+- **Failures:** a `showWhen` that fails to evaluate counts as true, so a broken hint never hides
+  a value; a `where` that fails matches nothing. Neither is an error on the sheet.
+- `showWhen`, `where`, `sectionBy` and `sortBy` are evaluated like field formulas, in the hint's
+  or group's pack; `showWhen` with `hasChoice` bound
+  ([formulas.md](formulas.md#choices-in-display-hints)).
+
+The result is `groups` (each group's `shown` and its members: `fields`, `actions` or `items`),
+`values[<field>].shown`, and each activation's `hiddenState`. Members are listed whether their
+group is shown or not. Priority, `visibility` and layout stay the app's: priorities are fixed
+numbers in the hints, so sorting groups and fields by them needs no evaluation.
+
 ## Field hints
 
 ```yaml
@@ -194,7 +227,7 @@ result band set the field's pack sees (an unknown one is the load error `unknown
 app names the value by the first band of the set whose `when` holds with `roll.total` the value
 (`roll.faces` and `roll.kept` empty, every tally 0, and `roll.value` the set's `value` evaluated
 so first, when it has one), and shows `bands.<set>.<band>.name` beside or
-instead of the number. Like every hint, the engine never evaluates it. Fate's skills are rungs of
+instead of the number. The engine doesn't evaluate it. Fate's skills are rungs of
 its ladder, shown "Great (+4)":
 
 ```yaml
@@ -276,8 +309,8 @@ display:
   elsewhere they show as usual. A companion needn't be in the field's groups.
 - **`visibility`:** a companion shows in the tile whatever its own, which still applies to its
   own tiles elsewhere. A compact view may drop a `detail`.
-- **`showWhen`:** a field not shown leaves its companions to show as usual; a companion whose
-  condition is false is left out of the tile.
+- **`showWhen`:** a field not shown leaves its companions to show as usual; a companion not
+  shown ([Shown](#shown)) is left out of the tile.
 - **`hidden`:** a hidden field has no companions, and a companion isn't hidden.
 - **Editing:** an app may split the tile into an input per field.
 - **No chains:** a companion has no companions of its own and isn't the field itself. A field
@@ -328,7 +361,7 @@ display:
   template ([i18n.md](i18n.md#headlines)), not a hint: the template names the
   fields and content types it reads.
 - A state hint's `showWhen` sees the copy as `self` and its item as `item`, with the
-  character's fields.
+  character's fields; computeSheet evaluates it ([Shown](#shown)).
 - The type must be a content type visible from the pack; each state key must be declared by the
   type or by an item of it, and each item field by the type (`pnpm validate`).
 - A pack can hint another pack's type; per type, one rules document per pack holds its hints.

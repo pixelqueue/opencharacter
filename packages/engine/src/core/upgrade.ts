@@ -1,4 +1,11 @@
-import type { FieldValue, Literal, PendingChoice, UpgradeStep } from '@opencharacter/spec';
+import {
+  type FieldValue,
+  type Literal,
+  type PendingChoice,
+  SPEC_VERSION,
+  type SpecUpgradeStep,
+  type UpgradeStep,
+} from '@opencharacter/spec';
 import semver from 'semver';
 import * as f from '../formula/index.ts';
 import type { EngineError } from './load.ts';
@@ -17,16 +24,26 @@ import type { PackRelease } from './release.ts';
 import type { Ruleset } from './ruleset.ts';
 import { homebrewFormulas, withHomebrew } from './homebrew.ts';
 import { HomebrewRewriter } from './homebrew-upgrade.ts';
+import { display } from './display.ts';
 import { loadRuleset } from './load.ts';
 import { itemStandard, rulesStandard, standardId } from './ruleset.ts';
+import { upgradeSpec } from './spec-upgrade.ts';
 import { expandSlots, Sheet } from './sheet.ts';
 import { stateDecls } from './views.ts';
 
 type Step = UpgradeStep;
 
 export interface UpgradeReport {
-  values: { field: string; before?: Literal; after?: Literal }[];
+  values: {
+    field: string;
+    before?: Literal;
+    after?: Literal;
+    shownBefore?: boolean;
+    shownAfter?: boolean;
+  }[];
   steps: { pack: string; from: string; to: string; step: Step }[];
+  /** Present when the character's `specVersion` moved: the version it had, and the spec steps that changed it. */
+  spec?: { from: string; steps: { version: string; step: SpecUpgradeStep }[] };
   errors: EngineError[];
   /** Each place in the homebrew a step rewrote. */
   homebrew: { path: string; step: Step }[];
@@ -46,14 +63,37 @@ function valueChange(
     field,
     ...(b?.value === undefined ? {} : { before: b.value }),
     ...(a?.value === undefined ? {} : { after: a.value }),
+    ...(b?.value === undefined ? {} : { shownBefore: b.shown ?? true }),
+    ...(a?.value === undefined ? {} : { shownAfter: a.shown ?? true }),
   };
 }
 
+function shownValues(sheet: Sheet): Record<string, FieldValue> {
+  const values = sheet.values();
+  const shown = display(sheet).fields;
+  return Object.fromEntries(
+    Object.entries(values).map(([id, v]) => [id, { ...v, shown: shown[id] ?? true }]),
+  );
+}
+
 /** upgrade: moves a character from the ruleset it was saved with to another. */
-export function upgrade(from: Ruleset, to: Ruleset, character: CharacterDoc): UpgradeResult {
-  for (const pin of character.packs) {
+export function upgrade(from: Ruleset, to: Ruleset, saved: CharacterDoc): UpgradeResult {
+  if (semver.gt(saved.specVersion, SPEC_VERSION)) {
+    return {
+      ok: false,
+      errors: [
+        {
+          code: 'character-spec-unsupported',
+          data: { specVersion: saved.specVersion, implements: SPEC_VERSION },
+          path: '/specVersion',
+        },
+      ],
+    };
+  }
+  for (const pin of saved.packs) {
     const target = to.packs.find((p) => p.id === pin.id);
-    if (!target) return { ok: false, errors: [{ code: 'unknown-id', data: { pack: pin.id } }] };
+    if (!target)
+      return { ok: false, errors: [{ code: 'unknown-id', data: { id: pin.id, pack: pin.id } }] };
     if (semver.lt(target.version, pin.version)) {
       return {
         ok: false,
@@ -66,6 +106,10 @@ export function upgrade(from: Ruleset, to: Ruleset, character: CharacterDoc): Up
       };
     }
   }
+  // The spec's own upgrades come first, so the packs' scripts and both sheets read the file in
+  // the engine's shape.
+  const spec = upgradeSpec(saved);
+  const character = spec.character;
   // The character's homebrew is loaded on both sides. On the new ruleset, a
   // homebrew that no longer loads is reported, and the character is still upgraded.
   const layeredFrom = withHomebrew(from, character);
@@ -73,7 +117,15 @@ export function upgrade(from: Ruleset, to: Ruleset, character: CharacterDoc): Up
   from = layeredFrom.ruleset;
   const old = new Sheet(from, character);
   const next: CharacterDoc = structuredClone(character);
-  const report: UpgradeReport = { values: [], steps: [], errors: [], homebrew: [] };
+  const report: UpgradeReport = {
+    values: [],
+    steps: [],
+    ...(saved.specVersion === SPEC_VERSION
+      ? {}
+      : { spec: { from: saved.specVersion, steps: spec.steps } }),
+    errors: [],
+    homebrew: [],
+  };
   const renamedFields = new Map<string, string>();
   const rewriter = new HomebrewRewriter(next, from, to, homebrewFormulas(from));
 
@@ -107,8 +159,8 @@ export function upgrade(from: Ruleset, to: Ruleset, character: CharacterDoc): Up
 
   const layeredTo = withHomebrew(to, next);
   const after = new Sheet(layeredTo.ok ? layeredTo.ruleset : to, next);
-  const before = old.values();
-  const now = after.values();
+  const before = shownValues(old);
+  const now = shownValues(after);
   const oldIdFor = new Map([...renamedFields].map(([o, n]) => [n, o]));
   const seenOld = new Set<string>();
   for (const id of Object.keys(now)) {

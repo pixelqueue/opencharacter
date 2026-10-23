@@ -1,0 +1,17 @@
+# A character with rope, no class and no magic: the bow-only field, the magic group and the
+# style hints are irrelevant; magic.dc still shows in summary.
+values:
+  test-pack:stats.power: { value: 2, shown: true }
+  test-pack:stats.helper: { value: 4, shown: false }
+  test-pack:hunt.prey: { shown: false }
+  test-pack:magic.slots: { shown: false }
+  test-pack:magic.dc: { shown: true }
+  test-pack:skills.climb: { shown: true }
+  test-pack:style.points: { shown: false }
+  test-pack:misc.notes: { shown: true }
+groups:
+  - { id: summary, shown: true, fields: [test-pack:stats.power, test-pack:magic.dc] }
+  - { id: magic, shown: false, fields: [test-pack:magic.slots, test-pack:magic.dc] }
+  - { id: skills, shown: true, fields: [test-pack:skills.climb] }
+  - { id: styles, shown: false, items: [] }
+errors: []

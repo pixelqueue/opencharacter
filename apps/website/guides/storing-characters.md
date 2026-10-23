@@ -136,9 +136,11 @@ inventory:
 - **It can add, not change.** Homebrew can't override or hide the packs' content or change
   settings. A table rule that changes the official rules belongs in a standalone pack that the
   whole table loads ([packs and rulesets](packs-and-rulesets.md)).
-- **Errors.** If the homebrew doesn't load (a typo in a type, a formula naming a missing field),
-  every call returns `homebrew-error`, with the load error as `data.cause` and a `path` into the
-  file (`/homebrew/content/0`). Show it so the player can fix the item. Its size is capped by
+- **Errors.** If the homebrew doesn't load (a typo in a type, a formula naming a missing field,
+  an item field missing, undeclared or of the wrong type), every call returns `homebrew-error`,
+  with the load error as `data.cause` and a `path` into the file (`/homebrew/content/0`, or
+  `/homebrew/content/0/fields/twoDots` for `invalid-item-field`). Show it so the player can fix
+  the item, on the custom-item form's input when the path names a field. Its size is capped by
   the safety limits `maxHomebrewItems` and `maxHomebrewFormulas`.
 - **Editing it** is the change `setHomebrew`, which replaces the section (`null` removes it). It
   is refused while the file still uses an item it removes, so remove the item's copies and picks
@@ -179,6 +181,49 @@ Whatever you choose, validate imported files against
 published with the spec package and at `schemas/0.2/` on this site). Then compute the sheet:
 `computeSheet` never fails, and it lists anything in the file that doesn't resolve (an unknown
 item, a value for a field that no longer exists) in `errors`, computing the rest.
+
+## Moving characters between apps: exports
+
+A character file names its packs only by ID and version. The app receiving it may not have them,
+a third-party pack least of all. An **export** carries characters together with the packs they
+pin: one character, a roster, or linked characters (a crew and its scoundrels, a companion) in one
+file ([Characters](../../../packages/spec/docs/characters.md#exports)):
+
+```yaml
+specVersion: 0.2.0
+characters: [...] # whole character files
+packs:
+  # A reference: the receiving app supplies it.
+  - { id: mork-borg-core, version: 0.1.1 }
+  - release: { manifest: { ... }, rules: { ... }, content: [...] } # embedded
+    integrity: sha256-…
+```
+
+Each pinned pack version is listed once, either **by reference** (small: for moving between
+apps that have the common packs) or **embedded** (a **bundle** that opens anywhere with nothing
+else: for archives, offline use, homebrew packs). Mix them freely, say embed only the third-party
+packs. The engine builds and reads them:
+
+```ts
+// Export: every pinned version, each with its integrity hash; embed the ones you choose.
+const made = createExport([vex, ravens], releases, {
+  embed: (r) => !r.manifest.id.startsWith('fitd-'),
+  url: (r) => `https://cdn.example.com/${r.manifest.id}-${r.manifest.version}.json`,
+});
+if (made.ok) save(made.export);
+
+// Import: your own copies where they match, else the embedded releases.
+const { releases, missing } = readExport(file, myReleases);
+// missing: references you have no matching copy of. Fetch each `url`, and keep it only if
+// releaseIntegrity(release) equals the entry's `integrity`. Then load each character's pins.
+```
+
+An entry's `integrity` decides whether your own copy of that ID and version is the same release,
+so a different pack that happens to share the ID isn't used by mistake. Then validate each
+character and bring an older one up to date with `upgrade`
+([Upgrading characters](upgrading-characters.md#the-spec-version)).
+[`examples/exports/mork-borg-grub.yaml`](../../../examples/exports/mork-borg-grub.yaml) is a
+roster of Grub and his gore-hound, by reference.
 
 ## Change logs, undo and sync
 
