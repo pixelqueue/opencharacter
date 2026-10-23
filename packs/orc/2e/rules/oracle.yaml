@@ -19,8 +19,7 @@ situational:
     rolls: [save]
     available: >-
       oracle.mystery == 'battle' || countCopies(copy.type == 'shield' && copy.equipped
-        && copy.item in [@shields.specific.spellguard-shield,
-          @shields.specific.reflecting-shield]) > 0
+        && 'shield.against-spells' in copy.tags) > 0
   - id: divineAegis
     type: enum
     values: [none, nondivine, divine]
