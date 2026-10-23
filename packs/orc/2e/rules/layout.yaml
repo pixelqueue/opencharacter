@@ -9,12 +9,10 @@ display:
       priority: 0
     - id: saves
       priority: 0
+    # A skill's rank is its modifier's companion, so it has no tile of its own here.
     - id: skills
       priority: 1
-      members: { type: field, where: "'skill' in item.tags" }
-    - id: skill-ranks
-      priority: 2
-      members: { type: field, where: "'skill-rank' in item.tags" }
+      members: { type: field, where: "'skill' in item.tags || 'skill-rank' in item.tags" }
     - id: skill-increases
       priority: 3
       visibility: background
@@ -192,8 +190,15 @@ display:
     defenses.medium.rank: { groups: [proficiencies], priority: 2, format: { bands: rank } }
     defenses.heavy.rank: { groups: [proficiencies], priority: 2, format: { bands: rank } }
     attacks.masterGroups: { groups: [proficiencies], priority: 2 }
-    attacks.favoredWeapons: { groups: [proficiencies], priority: 2 }
-    attacks.favoredRank: { groups: [proficiencies], priority: 2, format: { bands: rank } }
+    attacks.favoredWeapons:
+      { groups: [proficiencies], priority: 2, showWhen: attacks.favoredRank > 0 }
+    attacks.favoredRank:
+      {
+        groups: [proficiencies],
+        priority: 2,
+        format: { bands: rank },
+        showWhen: attacks.favoredRank > 0,
+      }
     attacks.legendGroups: { groups: [proficiencies], priority: 2 }
     weapons.specialization: { groups: [proficiencies], priority: 2 }
     bulk.carried: { groups: [bulk], priority: 0, with: [{ field: bulk.max, as: max }] }
@@ -246,6 +251,12 @@ display:
     conditions.doomed: { hidden: true }
     conditions.slowed: { hidden: true }
     conditions.stunned: { hidden: true }
+    conditions.drainedOffset: { hidden: true }
+    runes.invalid: { hidden: true }
+    fan.activations: { groups: [summary], priority: 2, showWhen: fan.activations > 0 }
+    immunities.damage: { groups: [defenses], priority: 2, showWhen: size(immunities.damage) > 0 }
+    parry.weapon:
+      { groups: [defenses], priority: 2, input: { widget: checkbox }, showWhen: parry.weapon }
 
   types:
     weapon:

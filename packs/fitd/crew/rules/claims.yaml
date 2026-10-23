@@ -302,19 +302,19 @@ display:
       priority: 1
   fields:
     lair.lost: { groups: [claims], priority: 1, input: { widget: checkbox } }
-    payoff.heat: { groups: [claims], priority: 2 }
-    payoff.rep: { groups: [claims], priority: 2 }
+    payoff.heat: { groups: [claims], priority: 2, showWhen: payoff.heat != 0 }
+    payoff.rep: { groups: [claims], priority: 2, showWhen: payoff.rep != 0 }
     rep.quiet: { hidden: true }
     heat.killing: { groups: [heat], priority: 2 }
-    engagement.assault: { groups: [claims], priority: 2 }
-    engagement.deception: { groups: [claims], priority: 2 }
-    engagement.occult: { groups: [claims], priority: 2 }
-    engagement.social: { groups: [claims], priority: 2 }
-    engagement.stealth: { groups: [claims], priority: 2 }
-    engagement.transport: { groups: [claims], priority: 2 }
-    engagement.murder: { groups: [claims], priority: 2 }
-    cohorts.trained: { groups: [cohorts], priority: 2 }
-    prison.dice: { groups: [claims], priority: 2 }
-    prison.noTrauma: { groups: [claims], priority: 2 }
-    prison.parole: { groups: [claims], priority: 2 }
-    develop.discount: { groups: [claims], priority: 2 }
+    engagement.assault: { groups: [claims], priority: 2, showWhen: engagement.assault != 0 }
+    engagement.deception: { groups: [claims], priority: 2, showWhen: engagement.deception != 0 }
+    engagement.occult: { groups: [claims], priority: 2, showWhen: engagement.occult != 0 }
+    engagement.social: { groups: [claims], priority: 2, showWhen: engagement.social != 0 }
+    engagement.stealth: { groups: [claims], priority: 2, showWhen: engagement.stealth != 0 }
+    engagement.transport: { groups: [claims], priority: 2, showWhen: engagement.transport != 0 }
+    engagement.murder: { groups: [claims], priority: 2, showWhen: engagement.murder != 0 }
+    cohorts.trained: { groups: [cohorts], priority: 2, showWhen: size(cohorts.trained) > 0 }
+    prison.dice: { groups: [claims], priority: 2, showWhen: prison.dice != 0 }
+    prison.noTrauma: { groups: [claims], priority: 2, showWhen: prison.noTrauma }
+    prison.parole: { groups: [claims], priority: 2, showWhen: prison.parole != 0 }
+    develop.discount: { groups: [claims], priority: 2, showWhen: develop.discount != 0 }

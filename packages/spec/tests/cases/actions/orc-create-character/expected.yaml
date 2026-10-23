@@ -35,7 +35,7 @@ proposedChanges:
     step: ancestryPicks
     change:
       type: choose
-      path: &a1
+      path:
         entry: ancestry
         choice:
           - heritage
@@ -46,7 +46,7 @@ proposedChanges:
     step: ancestryPicks
     change:
       type: choose
-      path: &a2
+      path:
         entry: ancestry
         choice:
           - boosts
@@ -55,7 +55,7 @@ proposedChanges:
     step: ancestryPicks
     change:
       type: choose
-      path: &a3
+      path:
         entry: ancestry
         choice:
           - boosts
@@ -64,7 +64,7 @@ proposedChanges:
     step: backgroundPicks
     change:
       type: choose
-      path: &a4
+      path:
         entry: background
         choice:
           - boost
@@ -73,16 +73,48 @@ proposedChanges:
     step: backgroundPicks
     change:
       type: choose
-      path: &a5
+      path:
         entry: background
         choice:
           - free-boost
       option: orc-2e:boosts.dex
   - to: self
+    step: freeBoosts
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.str
+  - to: self
+    step: freeBoosts
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.dex
+  - to: self
+    step: freeBoosts
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.con
+  - to: self
+    step: freeBoosts
+    change:
+      type: choose
+      path:
+        choice:
+          - free-boosts
+      option: orc-2e:boosts.wis
+  - to: self
     step: classPicks
     change:
       type: choose
-      path: &a6
+      path:
         entry: class
         choice:
           - key-attribute
@@ -91,7 +123,7 @@ proposedChanges:
     step: classPicks
     change:
       type: choose
-      path: &a7
+      path:
         entry: class
         choice:
           - class-skill
@@ -100,7 +132,7 @@ proposedChanges:
     step: classPicks
     change:
       type: choose
-      path: &a8
+      path:
         entry: class
         choice:
           - skills
@@ -109,7 +141,7 @@ proposedChanges:
     step: classPicks
     change:
       type: choose
-      path: &a9
+      path:
         entry: class
         choice:
           - skills
@@ -118,7 +150,7 @@ proposedChanges:
     step: classPicks
     change:
       type: choose
-      path: &a10
+      path:
         entry: class
         choice:
           - skills
@@ -127,7 +159,7 @@ proposedChanges:
     step: classPicks
     change:
       type: choose
-      path: &a11
+      path:
         entry: class
         choice:
           - class-feat-1
@@ -136,39 +168,7 @@ proposedChanges:
     step: picks
     change:
       type: choose
-      path: &a12
-        choice:
-          - free-boosts
-      option: orc-2e:boosts.str
-  - to: self
-    step: picks
-    change:
-      type: choose
-      path: &a13
-        choice:
-          - free-boosts
-      option: orc-2e:boosts.dex
-  - to: self
-    step: picks
-    change:
-      type: choose
-      path: &a14
-        choice:
-          - free-boosts
-      option: orc-2e:boosts.con
-  - to: self
-    step: picks
-    change:
-      type: choose
-      path: &a15
-        choice:
-          - free-boosts
-      option: orc-2e:boosts.wis
-  - to: self
-    step: picks
-    change:
-      type: choose
-      path: &a16
+      path:
         choice:
           - ancestry-feat-1
       option: orc-2e:feats.ancestry.natural-ambition
@@ -176,7 +176,7 @@ proposedChanges:
     step: picks
     change:
       type: choose
-      path: &a17
+      path:
         choice:
           - ancestry-feat-1
           - orc-2e:feats.ancestry.natural-ambition
@@ -186,7 +186,7 @@ proposedChanges:
     step: picks
     change:
       type: choose
-      path: &a18
+      path:
         choice:
           - languages
       option: orc-2e:languages.dwarven
@@ -227,123 +227,162 @@ log:
     by: app
     option: orc-2e:feats.general.toughness
     index: 0
-    choice: *a1
+    choice:
+      entry: ancestry
+      choice:
+        - heritage
+        - orc-2e:heritages.versatile-human
+        - feat
   - step: ancestryPicks
     action: orc-2e:create-character
     kind: choice
     by: app
     option: orc-2e:boosts.str
     index: 1
-    choice: *a2
+    choice:
+      entry: ancestry
+      choice:
+        - boosts
   - step: ancestryPicks
     action: orc-2e:create-character
     kind: choice
     by: app
     option: orc-2e:boosts.con
     index: 2
-    choice: *a3
+    choice:
+      entry: ancestry
+      choice:
+        - boosts
   - step: backgroundPicks
     action: orc-2e:create-character
     kind: choice
     by: app
     option: orc-2e:boosts.str
     index: 0
-    choice: *a4
+    choice:
+      entry: background
+      choice:
+        - boost
   - step: backgroundPicks
     action: orc-2e:create-character
     kind: choice
     by: app
     option: orc-2e:boosts.dex
     index: 1
-    choice: *a5
+    choice:
+      entry: background
+      choice:
+        - free-boost
+  - step: freeBoosts
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:boosts.str
+    index: 0
+  - step: freeBoosts
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:boosts.dex
+    index: 1
+  - step: freeBoosts
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:boosts.con
+    index: 2
+  - step: freeBoosts
+    action: orc-2e:create-character
+    kind: choice
+    by: app
+    option: orc-2e:boosts.wis
+    index: 3
   - step: classPicks
     action: orc-2e:create-character
     kind: choice
     by: app
     option: str
     index: 0
-    choice: *a6
+    choice:
+      entry: class
+      choice:
+        - key-attribute
   - step: classPicks
     action: orc-2e:create-character
     kind: choice
     by: app
     option: skill.athletics
     index: 1
-    choice: *a7
+    choice:
+      entry: class
+      choice:
+        - class-skill
   - step: classPicks
     action: orc-2e:create-character
     kind: choice
     by: app
     option: skill.acrobatics
     index: 2
-    choice: *a8
+    choice:
+      entry: class
+      choice:
+        - skills
   - step: classPicks
     action: orc-2e:create-character
     kind: choice
     by: app
     option: skill.diplomacy
     index: 3
-    choice: *a9
+    choice:
+      entry: class
+      choice:
+        - skills
   - step: classPicks
     action: orc-2e:create-character
     kind: choice
     by: app
     option: skill.survival
     index: 4
-    choice: *a10
+    choice:
+      entry: class
+      choice:
+        - skills
   - step: classPicks
     action: orc-2e:create-character
     kind: choice
     by: app
     option: orc-2e:feats.fighter.vicious-swing
     index: 5
-    choice: *a11
-  - step: picks
-    action: orc-2e:create-character
-    kind: choice
-    by: app
-    option: orc-2e:boosts.str
-    index: 0
-    choice: *a12
-  - step: picks
-    action: orc-2e:create-character
-    kind: choice
-    by: app
-    option: orc-2e:boosts.dex
-    index: 1
-    choice: *a13
-  - step: picks
-    action: orc-2e:create-character
-    kind: choice
-    by: app
-    option: orc-2e:boosts.con
-    index: 2
-    choice: *a14
-  - step: picks
-    action: orc-2e:create-character
-    kind: choice
-    by: app
-    option: orc-2e:boosts.wis
-    index: 3
-    choice: *a15
+    choice:
+      entry: class
+      choice:
+        - class-feat-1
   - step: picks
     action: orc-2e:create-character
     kind: choice
     by: app
     option: orc-2e:feats.ancestry.natural-ambition
-    index: 4
-    choice: *a16
+    index: 0
+    choice:
+      choice:
+        - ancestry-feat-1
   - step: picks
     action: orc-2e:create-character
     kind: choice
     by: app
     option: orc-2e:feats.fighter.sudden-charge
-    index: 5
-    choice: *a17
+    index: 1
+    choice:
+      choice:
+        - ancestry-feat-1
+        - orc-2e:feats.ancestry.natural-ambition
+        - feat
   - step: picks
     action: orc-2e:create-character
     kind: choice
     by: app
     option: orc-2e:languages.dwarven
-    index: 6
-    choice: *a18
+    index: 2
+    choice:
+      choice:
+        - languages

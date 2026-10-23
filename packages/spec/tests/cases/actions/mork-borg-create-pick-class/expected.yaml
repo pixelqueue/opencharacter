@@ -1,14 +1,11 @@
 # No class die: the class is the player's pick. Every die shows 2: the Deserter's Strength 3d6 + 2
 # = 8 (−1), the other abilities 3d6 = 6 (−2), HP max(1, −2 + 2) = 1. The feature is the player's
-# pick, the gore-hound, and creation finishes though the hound's sheet isn't linked yet.
+# pick, the gore-hound, and creation finishes though the hound's sheet isn't linked yet. The
+# equipment tables: the d6 2 nothing, the d12 2 Presence + 4 = 2 torches, the second d12 2 a
+# sacred scroll (d10 2, Grace for a Sinner).
 status: finished
 outcome:
   result: rolled
-  data:
-    food: 2
-    equipment1: 2
-    equipment2: 2
-    equipment3: 2
 proposedChanges:
   - to: self
     step: class
@@ -99,6 +96,30 @@ proposedChanges:
         id: armor-light-1
         item: mork-borg-core:armor.light
         equipped: true
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry: { id: equipment-waterskin-1, item: mork-borg-core:equipment.waterskin }
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry: { id: equipment-food-1, item: mork-borg-core:equipment.food, quantity: 2 }
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry: { id: equipment-torch-1, item: mork-borg-core:equipment.torch, quantity: 2 }
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry:
+        {
+          id: scrolls-sacred-grace-for-a-sinner-1,
+          item: mork-borg-core:scrolls.sacred.grace-for-a-sinner,
+        }
   - to: self
     step: features
     change:

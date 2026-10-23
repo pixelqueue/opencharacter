@@ -2,9 +2,10 @@
 # are master, expert, trained and bonus. No Master or Expert skill is eligible at first, so trained
 # is asked (a Trained skill on the way to a Master one); Archaeology allows Mysticism (expert),
 # which allows Hyperspace (master); then the bonus Trained skill, Archaeology no longer eligible.
-# The first option is recommended each time.
+# Each pick is drawn (a d1 when only one skill is eligible isn't rolled): the dice give the
+# first option each time.
 status: finished
-outcome: { result: rolled, data: { loadout: true } }
+outcome: { result: rolled }
 log:
   - { step: classRoll, kind: dice, faces: [3], total: 3 }
   - { step: strength, kind: dice, faces: [3, 4], total: 32 }
@@ -18,6 +19,7 @@ log:
   - { step: health, kind: dice, faces: [7], total: 17 }
   - { step: statRoll, kind: dice, faces: [3], total: 3 }
   - { step: stat, kind: choice, by: engine, option: intellect }
+  - { step: skills, kind: dice, by: engine, faces: [1] }
   - step: skills
     kind: choice
     by: engine
@@ -30,12 +32,14 @@ log:
     option: mothership-1e:skills.mysticism
     index: 1
     choice: { entry: classes-scientist-1, choice: [expert] }
+  - { step: skills, kind: dice, by: engine, faces: [1] }
   - step: skills
     kind: choice
     by: engine
     option: mothership-1e:skills.hyperspace
     index: 2
     choice: { entry: classes-scientist-1, choice: [master] }
+  - { step: skills, kind: dice, by: engine, faces: [1] }
   - step: skills
     kind: choice
     by: engine

@@ -31,21 +31,7 @@ display:
     swashbuckler.styleSkill: { hidden: true }
     swashbuckler.trickSkills: { hidden: true }
     swashbuckler.trickIncreases: { hidden: true }
-    panache.active:
-      {
-        groups: [turn],
-        priority: 0,
-        showWhen: 'countCopies(copy.item == @classes.swashbuckler) > 0',
-      }
-    swashbuckler.style:
-      {
-        groups: [summary],
-        priority: 2,
-        showWhen: 'countCopies(copy.item == @classes.swashbuckler) > 0',
-      }
+    panache.active: { groups: [turn], priority: 0, showWhen: class.has.swashbuckler }
+    swashbuckler.style: { groups: [summary], priority: 2, showWhen: class.has.swashbuckler }
     swashbuckler.preciseStrike:
-      {
-        groups: [proficiencies],
-        priority: 2,
-        showWhen: 'countCopies(copy.item == @classes.swashbuckler) > 0',
-      }
+      { groups: [proficiencies], priority: 2, showWhen: class.has.swashbuckler }

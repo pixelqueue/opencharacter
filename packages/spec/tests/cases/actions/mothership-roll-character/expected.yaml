@@ -5,7 +5,6 @@
 status: finished
 outcome:
   result: rolled
-  data: { loadout: true }
 proposedChanges:
   - to: self
     step: class
@@ -34,6 +33,7 @@ proposedChanges:
       step: save,
       change: { type: set, field: mothership-1e:credits.current, value: 170 },
     }
+  - { to: self, step: save, change: { type: set, field: mothership-1e:loadout.owed, value: true } }
   - { to: self, step: save, change: { type: finishCreation } }
 log:
   - {
@@ -53,12 +53,14 @@ log:
   - { step: body, kind: dice, faces: [5, 6], total: 21 }
   - { step: class, kind: choice, by: engine, option: mothership-1e:classes.marine }
   - { step: health, kind: dice, faces: [7], total: 17 }
+  - { step: skills, kind: dice, by: engine, faces: [1] }
   - step: skills
     kind: choice
     by: engine
     option: expert
     index: 0
     choice: { entry: classes-marine-1, choice: [bonus-skills] }
+  - { step: skills, kind: dice, by: engine, faces: [1] }
   - step: skills
     kind: choice
     by: engine

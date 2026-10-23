@@ -16,10 +16,16 @@ display:
         groups: [summary],
         priority: 1,
         visibility: secondary,
+        showWhen: '!sheet.monster',
         with: [{ field: xp.nextLevel, as: max }],
       }
     xp.nextLevel:
-      { groups: [summary], priority: 2, visibility: secondary, showWhen: xp.nextLevel > 0 }
+      {
+        groups: [summary],
+        priority: 2,
+        visibility: secondary,
+        showWhen: '!sheet.monster && xp.nextLevel > 0',
+      }
     xp.levelUp: { hidden: true }
     multiclass.qualified: { hidden: true }
 

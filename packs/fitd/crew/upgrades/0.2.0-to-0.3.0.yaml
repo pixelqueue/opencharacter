@@ -1,0 +1,6 @@
+pack: fitd-crew
+from: 0.2.0
+to: 0.3.0
+steps:
+  # A crew type's starting cohort is an enum now: no starting gang is `none`, not ''.
+  - { op: mapItemValues, type: crewType, field: startingCohort, map: { '': none } }

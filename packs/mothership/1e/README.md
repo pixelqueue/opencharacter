@@ -87,10 +87,12 @@ for the player's choices and other characters.
     so an automatic run finishes the character.
   - `guided`: no die is rolled for those; the player picks, the first option recommended.
   - Each stat is 2d10+25, each save 2d10+10, maximum health 1d10+10, credits 2d10×10 with a
-    class loadout (recommended; the app adds the loadout) or 2d10×100 without one (the `kit`
-    choice; the outcome's `loadout` says which).
+    class loadout (recommended) or 2d10×100 without one (the `kit` choice). Taking the loadout
+    sets `loadout.owed` on the sheet: the pack has no item lists, so the app, the player or a gear
+    pack adds the class's loadout and clears it.
   - Then the class's skill picks, one at a time with their eligible options, so an Expert or
-    Master skill is asked once its prerequisite is picked. There's no `#done` while the
+    Master skill is asked once its prerequisite is picked. The random start draws each pick
+    uniformly over the eligible options; the guided one recommends the first. There's no `#done` while the
     character is being created, so every pick is made before the run finishes it.
   - A character being created needs a class (`creation-class`), on a sheet filled in by hand
     too, and never has more than one, so an app offers Replace once a class is held.
@@ -175,7 +177,8 @@ for the player's choices and other characters.
 
 ## Text only, or the app's
 
-- **No items.** Weapon and armor lists, loadouts, trinkets and patches stay out of this pack.
+- **No items.** Weapon and armor lists, loadouts, trinkets and patches stay out of this pack (a
+  loadout taken at creation is recorded as `loadout.owed`).
   The item shapes are here, so apps and homebrew can add items.
 - **Tables.** The panic, wound and death save tables are text. The actions return the roll for
   the app to look up. The shore leave port table (each port class's cost and conversion die) is

@@ -25,6 +25,8 @@ fields:
   bleeding.current: { type: integer, input: true, default: 0, min: 0 }
 
   credits.current: { type: integer, input: true, default: 0, min: 0 }
+  # The class loadout taken at creation, until its gear is on the sheet: the pack has no item lists.
+  loadout.owed: { type: boolean, input: true, default: false }
   highScore.current: { type: integer, input: true, default: 0, min: 0 }
 
   skills.known: { type: set, of: skill, input: true, default: [] }
@@ -169,6 +171,8 @@ display:
     stress.minimum: { groups: [condition], priority: 1 }
     bleeding.current: { groups: [condition], priority: 1 }
     credits.current: { groups: [record], priority: 0 }
+    loadout.owed:
+      { groups: [record], priority: 0, showWhen: loadout.owed, input: { widget: checkbox } }
     highScore.current: { groups: [record], priority: 0 }
     skills.known: { hidden: true }
     stats.strength: { rolls: [{ action: stat-check, params: { stat: stats.strength } }] }

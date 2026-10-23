@@ -350,25 +350,55 @@ effects:
 
 display:
   fields:
-    attacks.familiar: { groups: [proficiencies], priority: 2 }
+    attacks.familiar: { groups: [proficiencies], priority: 2, showWhen: size(attacks.familiar) > 0 }
     conditions.mistChild: { hidden: true }
     conditions.obfuscated: { hidden: true }
     bounceBack.ready: { hidden: true }
-    skills.lore.dwarf.rank: { format: { bands: rank } }
+    skills.lore.dwarf.rank: { format: { bands: rank }, showWhen: skills.lore.dwarf.rank > 0 }
     skills.lore.dwarf.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.dwarf.mod } }] }
-    skills.lore.elf.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.dwarf.mod } }],
+        with: [{ field: skills.lore.dwarf.rank, as: detail }],
+        showWhen: skills.lore.dwarf.rank > 0,
+      }
+    skills.lore.elf.rank: { format: { bands: rank }, showWhen: skills.lore.elf.rank > 0 }
     skills.lore.elf.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.elf.mod } }] }
-    skills.lore.goblin.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.elf.mod } }],
+        with: [{ field: skills.lore.elf.rank, as: detail }],
+        showWhen: skills.lore.elf.rank > 0,
+      }
+    skills.lore.goblin.rank: { format: { bands: rank }, showWhen: skills.lore.goblin.rank > 0 }
     skills.lore.goblin.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.goblin.mod } }] }
-    skills.lore.halfling.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.goblin.mod } }],
+        with: [{ field: skills.lore.goblin.rank, as: detail }],
+        showWhen: skills.lore.goblin.rank > 0,
+      }
+    skills.lore.halfling.rank: { format: { bands: rank }, showWhen: skills.lore.halfling.rank > 0 }
     skills.lore.halfling.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.halfling.mod } }] }
-    skills.lore.leshy.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.halfling.mod } }],
+        with: [{ field: skills.lore.halfling.rank, as: detail }],
+        showWhen: skills.lore.halfling.rank > 0,
+      }
+    skills.lore.leshy.rank: { format: { bands: rank }, showWhen: skills.lore.leshy.rank > 0 }
     skills.lore.leshy.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.leshy.mod } }] }
-    skills.lore.orc.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.leshy.mod } }],
+        with: [{ field: skills.lore.leshy.rank, as: detail }],
+        showWhen: skills.lore.leshy.rank > 0,
+      }
+    skills.lore.orc.rank: { format: { bands: rank }, showWhen: skills.lore.orc.rank > 0 }
     skills.lore.orc.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.orc.mod } }] }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.orc.mod } }],
+        with: [{ field: skills.lore.orc.rank, as: detail }],
+        showWhen: skills.lore.orc.rank > 0,
+      }

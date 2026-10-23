@@ -1,0 +1,28 @@
+# A 0.2.0 crew with the table's own crew type and no starting gang (`startingCohort: ''`). 0.3.0's
+# startingCohort is an enum, so no starting gang is `none`, and the type still adds no boxes.
+pack: fitd-crew
+from: 0.2.0
+to: 0.3.0
+expect:
+  - at: /homebrew/content/0/fields/startingCohort
+    value: none
+values:
+  fitd-crew:upgrades.starting: 2
+character:
+  specVersion: 0.2.0
+  id: upgrade-fitd-crew-type
+  homebrew:
+    content:
+      - id: crew-types.wardens
+        type: crewType
+        fields:
+          upgrades: [fitd-crew:upgrades.composed]
+          startingUpgrades: [fitd-crew:upgrades.lair.hidden, fitd-crew:upgrades.training.prowess]
+          startingCohort: ''
+  values:
+    fitd-crew:tier: 1
+    fitd-crew:upgrades.lair.hidden: 1
+    fitd-crew:upgrades.training.prowess: 1
+  choices:
+    crew-type:
+      - option: homebrew:crew-types.wardens

@@ -65,9 +65,5 @@ tags:
 display:
   fields:
     stance.current:
-      {
-        groups: [turn],
-        priority: 1,
-        showWhen: "stance.current != 'none' || countCopies(copy.item == @classes.monk) > 0",
-      }
+      { groups: [turn], priority: 1, showWhen: "stance.current != 'none' || class.has.monk" }
     monk.paths: { hidden: true }

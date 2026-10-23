@@ -137,13 +137,13 @@ the player's choices and other characters.
     gives one. Full defense is the situational choice `fullDefense` (+2).
 - **Teamwork:** every rolling action takes `helper` participants; each helper's app runs
   `assist-check` on its own sheet, and each helper with the skill at Average (+1) or better adds
-  +1. Without participants, the situational choice `teamwork` adds the same.
+  +1. Without participants, `skill-roll`'s `helpers` parameter adds the same.
 - **Contests:** `contest-exchange` rolls one exchange against `opponent` participants or an
   `opposition`. The best result scores a victory, two when it beats every other by 3 or more; a
   tie for the best is a twist. Three victories win; `end-contest` and the end of a scene clear
   them. **Challenges** are `overcome` rolls, one per task.
 - **Conflicts:** turn order (`turnOrder.physical`: Notice, then Athletics, then Physique;
-  `turnOrder.mental`: Empathy, Rapport, Will) as one number each for the app to sort by; `move`
+  `turnOrder.mental`: Empathy, Rapport, Will) as one hidden number each for the app to sort by; `move`
   (one zone free, more or past an obstacle with an Athletics overcome); `concede` (a fate point
   plus one per consequence taken in the conflict).
 - **Stress:** physical and mental tracks of boxes worth 1 to 4 shifts: the 1 and 2 for everyone;

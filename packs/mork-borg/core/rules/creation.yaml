@@ -17,7 +17,6 @@ actions:
     params:
       classless: { type: boolean, default: false }
       choose: { type: boolean, default: false }
-      scroll: { type: boolean, default: false }
     results: [rolled]
     steps:
       # The d6 picks one of the six classes in the ruleset's content order.
@@ -47,6 +46,7 @@ actions:
           - { id: presence, when: picks == 0 }
           - { id: toughness, when: picks == 0 }
         repeat: { max: steps.class.item.bestOf, min: steps.class.item.bestOf }
+        random: '!params.choose'
         recommend: options[0]
       - id: strength
         kind: roll
@@ -102,23 +102,52 @@ actions:
       - { id: powers, kind: roll, tags: [creation], parts: [{ dice: 1d4 }] }
       - { id: silver, kind: roll, tags: [creation], parts: [{ dice: steps.class.item.silver }] }
       - { id: food, kind: roll, tags: [creation], parts: [{ dice: 1d4 }] }
+      # The equipment tables come before the weapon and armor: a classless character with a scroll
+      # from them rolls the smaller dice.
+      - { id: equipment1, kind: roll, tags: [creation], parts: [{ dice: 1d6 }] }
+      - { id: equipment2, kind: roll, tags: [creation], parts: [{ dice: 1d12 }] }
+      - { id: equipment3, kind: roll, tags: [creation], parts: [{ dice: 1d12 }] }
+      - id: uncleanScroll
+        kind: roll
+        tags: [creation]
+        when: steps.equipment2.total == 5
+        parts: [{ dice: 1d10 }]
+      - id: poisonDoses
+        kind: roll
+        tags: [creation]
+        when: steps.equipment2.total == 11
+        parts: [{ dice: 1d4 }]
+      - id: elixirDoses
+        kind: roll
+        tags: [creation]
+        when: steps.equipment3.total == 1
+        parts: [{ dice: 1d4 }]
+      - id: sacredScroll
+        kind: roll
+        tags: [creation]
+        when: steps.equipment3.total == 2
+        parts: [{ dice: 1d10 }]
+      - id: monkeys
+        kind: roll
+        tags: [creation]
+        when: steps.equipment3.total == 4
+        parts: [{ dice: 1d2 }]
       - id: weapon
         kind: roll
         tags: [creation]
         parts:
           - dice: >-
-              params.scroll && has(steps.class.item.scrollWeaponDie)
+              (has(steps.uncleanScroll) || has(steps.sacredScroll))
+                && has(steps.class.item.scrollWeaponDie)
                 ? steps.class.item.scrollWeaponDie : steps.class.item.weaponDie
       - id: armor
         kind: roll
         tags: [creation]
         parts:
           - dice: >-
-              params.scroll && has(steps.class.item.scrollArmorDie)
+              (has(steps.uncleanScroll) || has(steps.sacredScroll))
+                && has(steps.class.item.scrollArmorDie)
                 ? steps.class.item.scrollArmorDie : steps.class.item.armorDie
-      - { id: equipment1, kind: roll, tags: [creation], parts: [{ dice: 1d6 }] }
-      - { id: equipment2, kind: roll, tags: [creation], parts: [{ dice: 1d12 }] }
-      - { id: equipment3, kind: roll, tags: [creation], parts: [{ dice: 1d12 }] }
       # A d2 for the kind (1 unclean, 2 sacred), then a d10 on that kind's table in the book's
       # order.
       - id: scrollKind
@@ -207,6 +236,83 @@ actions:
                 @scrolls.sacred.roskoes-consuming-glare,
                 @scrolls.sacred.enochian-syntax
                 ])[steps.hermitScroll.total - 1]
+      # The waterskin and food, then the three equipment tables in the book's order. The scrolls
+      # are drawn from their kind's table in the book's order, as the Hermit's is.
+      - id: equipment
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: '@equipment.waterskin' } }
+          - { type: addItem, entry: { item: '@equipment.food', quantity: steps.food.total } }
+          - type: addItem
+            when: steps.equipment1.total >= 3
+            entry:
+              item: >-
+                [@equipment.backpack, @equipment.sack, @equipment.small-wagon,
+                @equipment.donkey][steps.equipment1.total - 3]
+          - type: addItem
+            when: steps.equipment2.total in [1, 4, 6, 8, 9, 10, 12]
+            entry:
+              item: >-
+                [@equipment.rope, '', '', @equipment.magnesium-strip, '', @equipment.sharp-needle,
+                '', @equipment.lockpicks, @equipment.bear-trap, @equipment.bomb, '',
+                @equipment.silver-crucifix][steps.equipment2.total - 1]
+          - type: addItem
+            when: steps.equipment2.total == 2
+            entry: { item: '@equipment.torch', quantity: flags.presence + 4 }
+          - type: addItem
+            when: steps.equipment2.total == 3
+            entry: { item: '@equipment.lantern', state: { hours: flags.presence + 6 } }
+          - type: addItem
+            when: steps.equipment2.total == 7
+            entry: { item: '@equipment.medicine-chest', state: { uses: flags.presence + 4 } }
+          - type: addItem
+            when: has(steps.uncleanScroll)
+            entry:
+              item: >-
+                [
+                @scrolls.unclean.palms-open-the-southern-gate,
+                @scrolls.unclean.tongue-of-eris,
+                @scrolls.unclean.te-le-kin-esis,
+                @scrolls.unclean.lucy-fires-levitation,
+                @scrolls.unclean.daemon-of-capillaries,
+                @scrolls.unclean.nine-violet-signs-unknot-the-storm,
+                @scrolls.unclean.metzhuotl-blind-your-eye,
+                @scrolls.unclean.eyelid-blinds-the-mind,
+                @scrolls.unclean.death,
+                @scrolls.unclean.foul-psychopomp
+                ][steps.uncleanScroll.total - 1]
+          - type: addItem
+            when: has(steps.poisonDoses)
+            entry: { item: '@decoctions.red-poison', quantity: steps.poisonDoses.total }
+          - type: addItem
+            when: has(steps.elixirDoses)
+            entry: { item: '@decoctions.elixir-vitalis', quantity: steps.elixirDoses.total }
+          - type: addItem
+            when: has(steps.sacredScroll)
+            entry:
+              item: >-
+                [
+                @scrolls.sacred.grace-of-a-dead-saint,
+                @scrolls.sacred.grace-for-a-sinner,
+                @scrolls.sacred.whispers-pass-the-gate,
+                @scrolls.sacred.aegis-of-sorrow,
+                @scrolls.sacred.unmet-fate,
+                @scrolls.sacred.bestial-speech,
+                @scrolls.sacred.false-dawn-nights-chariot,
+                @scrolls.sacred.hermetic-step,
+                @scrolls.sacred.roskoes-consuming-glare,
+                @scrolls.sacred.enochian-syntax
+                ][steps.sacredScroll.total - 1]
+          - type: addItem
+            when: has(steps.monkeys)
+            entry: { item: '@equipment.monkey', quantity: steps.monkeys.total }
+          - type: addItem
+            when: steps.equipment3.total >= 3 && steps.equipment3.total != 4
+            entry:
+              item: >-
+                ['', '', @equipment.dog, '', @equipment.perfume, @equipment.toolbox,
+                @equipment.chain, @equipment.grappling-hook, @shields.shield, @equipment.crowbar,
+                @equipment.lard, @equipment.tent][steps.equipment3.total - 1]
       # A picked option isn't offered again, so the Royalty's second pick's five are the others: the
       # d5 counts on from the first.
       - id: features
@@ -232,11 +338,4 @@ actions:
         kind: changes
         changes:
           - { type: finishCreation }
-      - id: result
-        kind: outcome
-        result: "'rolled'"
-        data:
-          food: steps.food.total
-          equipment1: steps.equipment1.total
-          equipment2: steps.equipment2.total
-          equipment3: steps.equipment3.total
+      - { id: result, kind: outcome, result: "'rolled'" }

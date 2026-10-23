@@ -229,8 +229,10 @@ display:
       }
     upgrades.workshop: { hidden: true }
     upgrades.mastery: { hidden: true }
-    members.trauma.bonus: { groups: [special-upgrades], priority: 2 }
-    members.stress.bonus: { groups: [special-upgrades], priority: 2 }
+    members.trauma.bonus:
+      { groups: [special-upgrades], priority: 2, showWhen: members.trauma.bonus != 0 }
+    members.stress.bonus:
+      { groups: [special-upgrades], priority: 2, showWhen: members.stress.bonus != 0 }
     upgrades.marked: { groups: [advancement], priority: 1, visibility: background }
     upgrades.earned: { groups: [advancement], priority: 1, visibility: background }
     upgrades.starting: { hidden: true }

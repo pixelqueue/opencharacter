@@ -1,7 +1,7 @@
 # The SRD creates crews by choice, so the random start's odds are the pack's: every pick is uniform
 # over what the guided start offers, the upgrade boxes go one at a time to an upgrade with a box
 # free (Mastery and the three-box upgrades left out, since two boxes can't finish them), and the
-# faction steps always record a faction.
+# faction steps always record a status: on a faction named or on the sheet, else in the outcome.
 creation:
   - { id: crew, action: create-crew }
   - { id: random, action: create-crew, params: { random: true }, random: true }
@@ -16,6 +16,13 @@ actions:
       lair: { type: string, default: '' }
       huntingGrounds: { type: string, default: '' }
       contact: { type: string, default: '' }
+      # The factions' names, for a crew whose GM hasn't added them: each name given adds a new
+      # faction with the status the step brings, in place of picking one already on the sheet.
+      groundsFaction: { type: string, default: '' }
+      helpedFaction: { type: string, default: '' }
+      harmedFaction: { type: string, default: '' }
+      friendFaction: { type: string, default: '' }
+      enemyFaction: { type: string, default: '' }
     results: [created]
     steps:
       - id: type
@@ -50,7 +57,7 @@ actions:
             field: { formula: x }
             by: 1
           - type: addItem
-            when: "has(steps.type) && steps.type.item.startingCohort != ''"
+            when: "has(steps.type) && steps.type.item.startingCohort != 'none'"
             entry:
               item: "'cohorts.gang'"
               state: { gangType: steps.type.item.startingCohort }
@@ -67,7 +74,7 @@ actions:
         recommend: { upgrades.training.prowess: 1, upgrades.lair.secure: 1 }
       - id: startEdge
         kind: choice
-        when: "has(steps.type) && steps.type.item.startingCohort != ''"
+        when: "has(steps.type) && steps.type.item.startingCohort != 'none'"
         options:
           content: { type: cohortTrait, where: "'edge' in item.tags && 'cohort' in item.tags" }
         random: params.random
@@ -80,7 +87,7 @@ actions:
             }
       - id: startFlaw
         kind: choice
-        when: "has(steps.type) && steps.type.item.startingCohort != ''"
+        when: "has(steps.type) && steps.type.item.startingCohort != 'none'"
         options:
           content: { type: cohortTrait, where: "'flaw' in item.tags && 'cohort' in item.tags" }
         random: params.random
@@ -105,7 +112,9 @@ actions:
         recommend: "'room'"
       - id: groundsFaction
         kind: choice
-        when: "steps.huntingGrounds.picked != 'room' && countCopies(copy.type == 'faction') > 0"
+        when: >-
+          steps.huntingGrounds.picked != 'room' && params.groundsFaction == ''
+            && countCopies(copy.type == 'faction') > 0
         options: { copies: { type: faction } }
         random: params.random
         recommend: options[0]
@@ -114,6 +123,16 @@ actions:
             entry: picked
             key: status
             value: "max(-3, min(3, picked.self.status + (steps.huntingGrounds.picked == 'favor' ? 1 : -1)))"
+      - id: groundsNamed
+        kind: changes
+        when: "steps.huntingGrounds.picked != 'room' && params.groundsFaction != ''"
+        changes:
+          - type: addItem
+            entry:
+              item: "'factions.faction'"
+              state:
+                label: params.groundsFaction
+                status: "steps.huntingGrounds.picked == 'favor' ? 1 : -1"
       - id: more
         kind: choice
         options:
@@ -199,7 +218,9 @@ actions:
       - id: helpedBy
         kind: choice
         sheet: proposed
-        when: "steps.helped.picked != 'none' && countCopies(copy.type == 'faction') > 0"
+        when: >-
+          steps.helped.picked != 'none' && params.helpedFaction == ''
+            && countCopies(copy.type == 'faction') > 0
         options: { copies: { type: faction } }
         random: params.random
         recommend: options[0]
@@ -208,6 +229,16 @@ actions:
             entry: picked
             key: status
             value: "min(3, picked.self.status + (steps.helped.picked == 'plus2' ? 2 : 1))"
+      - id: helpedNamed
+        kind: changes
+        when: "steps.helped.picked != 'none' && params.helpedFaction != ''"
+        changes:
+          - type: addItem
+            entry:
+              item: "'factions.faction'"
+              state:
+                label: params.helpedFaction
+                status: "steps.helped.picked == 'plus2' ? 2 : 1"
       - id: harmed
         kind: choice
         sheet: proposed
@@ -223,7 +254,9 @@ actions:
       - id: harmedBy
         kind: choice
         sheet: proposed
-        when: "steps.harmed.picked != 'none' && countCopies(copy.type == 'faction') > 0"
+        when: >-
+          steps.harmed.picked != 'none' && params.harmedFaction == ''
+            && countCopies(copy.type == 'faction') > 0
         options: { copies: { type: faction } }
         random: params.random
         recommend: options[0]
@@ -232,6 +265,16 @@ actions:
             entry: picked
             key: status
             value: "max(-3, picked.self.status - (steps.harmed.picked == 'minus2' ? 2 : 1))"
+      - id: harmedNamed
+        kind: changes
+        when: "steps.harmed.picked != 'none' && params.harmedFaction != ''"
+        changes:
+          - type: addItem
+            entry:
+              item: "'factions.faction'"
+              state:
+                label: params.harmedFaction
+                status: "steps.harmed.picked == 'minus2' ? -2 : -1"
       - id: contact
         kind: choice
         options:
@@ -243,7 +286,9 @@ actions:
       - id: contactFriend
         kind: choice
         sheet: proposed
-        when: "steps.contact.picked != 'none' && countCopies(copy.type == 'faction') > 0"
+        when: >-
+          steps.contact.picked != 'none' && params.friendFaction == ''
+            && countCopies(copy.type == 'faction') > 0
         options: { copies: { type: faction } }
         random: params.random
         recommend: options[0]
@@ -252,11 +297,30 @@ actions:
             entry: picked
             key: status
             value: "min(3, picked.self.status + (steps.contact.picked == 'closer' ? 2 : 1))"
+      - id: friendNamed
+        kind: changes
+        when: "steps.contact.picked != 'none' && params.friendFaction != ''"
+        changes:
+          - type: addItem
+            entry:
+              item: "'factions.faction'"
+              state:
+                label: params.friendFaction
+                status: "steps.contact.picked == 'closer' ? 2 : 1"
+      # Any faction but the friendly one, picked or named above.
       - id: contactEnemy
         kind: choice
         sheet: proposed
-        when: "steps.contact.picked != 'none' && countCopies(copy.type == 'faction') > 1"
-        options: { copies: { type: faction, where: 'self.id != steps.contactFriend.picked' } }
+        when: >-
+          steps.contact.picked != 'none' && params.enemyFaction == ''
+            && countCopies(copy.type == 'faction')
+              > (has(steps.contactFriend) || has(steps.friendNamed) ? 1 : 0)
+        options:
+          copies:
+            type: faction
+            where: >-
+              self.id != (has(steps.contactFriend) ? steps.contactFriend.picked
+                : has(steps.friendNamed) ? steps.friendNamed.added[0] : '')
         random: params.random
         recommend: options[0]
         changes:
@@ -264,6 +328,16 @@ actions:
             entry: picked
             key: status
             value: "max(-3, picked.self.status - (steps.contact.picked == 'closer' ? 2 : 1))"
+      - id: enemyNamed
+        kind: changes
+        when: "steps.contact.picked != 'none' && params.enemyFaction != ''"
+        changes:
+          - type: addItem
+            entry:
+              item: "'factions.faction'"
+              state:
+                label: params.enemyFaction
+                status: "steps.contact.picked == 'closer' ? -2 : -1"
       - id: picks
         kind: choice
         options: { pending: {} }
@@ -301,17 +375,17 @@ actions:
         result: "'created'"
         data:
           groundsStatus: >-
-            has(steps.groundsFaction) || steps.huntingGrounds.picked == 'room' ? 0
+            has(steps.groundsFaction) || has(steps.groundsNamed) || steps.huntingGrounds.picked == 'room' ? 0
               : steps.huntingGrounds.picked == 'favor' ? 1 : -1
           helpedStatus: >-
-            has(steps.helpedBy) || steps.helped.picked == 'none' ? 0
+            has(steps.helpedBy) || has(steps.helpedNamed) || steps.helped.picked == 'none' ? 0
               : steps.helped.picked == 'plus2' ? 2 : 1
           harmedStatus: >-
-            has(steps.harmedBy) || steps.harmed.picked == 'none' ? 0
+            has(steps.harmedBy) || has(steps.harmedNamed) || steps.harmed.picked == 'none' ? 0
               : steps.harmed.picked == 'minus2' ? -2 : -1
           friendStatus: >-
-            has(steps.contactFriend) || steps.contact.picked == 'none' ? 0
+            has(steps.contactFriend) || has(steps.friendNamed) || steps.contact.picked == 'none' ? 0
               : steps.contact.picked == 'closer' ? 2 : 1
           enemyStatus: >-
-            has(steps.contactEnemy) || steps.contact.picked == 'none' ? 0
+            has(steps.contactEnemy) || has(steps.enemyNamed) || steps.contact.picked == 'none' ? 0
               : steps.contact.picked == 'closer' ? -2 : -1

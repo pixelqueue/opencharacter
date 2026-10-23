@@ -140,6 +140,9 @@ constraints:
           <= (consequences.mildPhysicalSlot ? 1 : 0)
         && countCopies(copy.type == 'consequence' && copy.state.slot == 'mild-mental')
           <= (consequences.mildMentalSlot ? 1 : 0)
+  # A consequence is an aspect, so it needs its words.
+  - id: consequence-label
+    check: "countCopies(copy.type == 'consequence' && copy.state.label == '') == 0"
   - id: stress-boxes
     check: >-
       (stress.physical.boxes >= 1 || !stress.physical.box1)

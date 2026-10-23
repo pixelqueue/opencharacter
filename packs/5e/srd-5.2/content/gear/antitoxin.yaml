@@ -12,6 +12,7 @@ actions:
   - id: drink
     tags: [item]
     available: self.quantity > 0
+    results: [drunk]
     steps:
       - id: drink
         kind: changes
@@ -19,3 +20,6 @@ actions:
           - { type: applyEffect, source: "'gear.antitoxin'" }
           - { type: adjustQuantity, entry: self, by: -1, when: self.quantity > 1 }
           - { type: removeItem, entry: self, when: self.quantity <= 1 }
+      - id: result
+        kind: outcome
+        result: "'drunk'"

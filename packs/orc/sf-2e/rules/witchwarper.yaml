@@ -9,12 +9,7 @@ fields:
 display:
   fields:
     witchwarper.paradox: { hidden: true }
-    quantum.active:
-      {
-        groups: [turn],
-        priority: 0,
-        showWhen: 'countCopies(copy.item == @classes.witchwarper) > 0',
-      }
+    quantum.active: { groups: [turn], priority: 0, showWhen: class.has.witchwarper }
     witchwarper.memorySkill: { hidden: true }
     witchwarper.otherLife: { hidden: true }
     quantum.radius: { groups: [turn], priority: 1, showWhen: quantum.active }

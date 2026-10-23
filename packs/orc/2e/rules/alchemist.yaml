@@ -254,7 +254,11 @@ actions:
 display:
   fields:
     attacks.bomb.rank:
-      { groups: [proficiencies], format: { bands: rank }, showWhen: attacks.bomb.rank > 0 }
+      {
+        groups: [proficiencies],
+        format: { bands: rank },
+        showWhen: attacks.bomb.rank > attacks.martial.rank,
+      }
     attacks.bomb.proficiency: { hidden: true }
     attacks.bomb.specialization: { hidden: true }
     alchemist.field: { groups: [summary], priority: 2, showWhen: "alchemist.field != 'none'" }

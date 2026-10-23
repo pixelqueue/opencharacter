@@ -21,7 +21,9 @@ fields:
   load.capacity: { type: integer, formula: abilities.strength + 8, min: 0 }
   load.items:
     type: integer
-    formula: "countCopies(copy.type in ['weapon', 'armor', 'shield', 'ammo', 'scroll', 'decoction']) + load.extra"
+    formula: >-
+      countCopies(copy.type in ['weapon', 'armor', 'shield', 'ammo', 'scroll', 'decoction'])
+        + countCopies(copy.type == 'equipment' && copy.fields.load) + load.extra
   load.extra: { type: integer, input: true, default: 0, min: 0 }
   load.encumbered: { type: boolean, formula: load.items > load.capacity }
 

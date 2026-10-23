@@ -160,12 +160,9 @@ actions:
           stage: flags.stage
           damage: 'has(steps.damage) ? steps.damage.total : 0'
 
+# The pack has no afflictions of its own, so no group holds them: a homebrew affliction applied to
+# the character shows in "Other".
 display:
-  groups:
-    - id: afflictions
-      kind: content
-      priority: 1
-      members: { type: affliction, from: applied }
   types:
     affliction:
       state:

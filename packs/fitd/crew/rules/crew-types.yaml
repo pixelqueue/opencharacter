@@ -5,7 +5,8 @@ contentTypes:
     fields:
       upgrades: { type: set, of: field, required: true }
       startingUpgrades: { type: set, of: field, required: true }
-      startingCohort: { type: string, default: '' }
+      startingCohort:
+        { type: enum, values: [none, adepts, rooks, rovers, skulks, thugs], default: none }
       claims: { type: set, of: claim, default: [] }
     effects:
       - { id: id, target: crewType.id, op: set, value: item.id }
@@ -14,7 +15,7 @@ contentTypes:
       - id: starting
         target: upgrades.starting
         op: set
-        value: "size(item.startingUpgrades) + (item.startingCohort != '' ? 2 : 0)"
+        value: "size(item.startingUpgrades) + (item.startingCohort != 'none' ? 2 : 0)"
   crewAbility:
     effects:
       - target: abilities.crew

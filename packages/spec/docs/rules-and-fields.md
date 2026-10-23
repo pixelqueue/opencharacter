@@ -644,6 +644,13 @@ by proposing `finishCreation`, which clears `creating` once nothing is missing
 ([characters.md](characters.md#creating-a-character)). A pack without starts supports manual
 creation only.
 
+A creation action puts everything it decides on the sheet through its changes. Its outcome is a
+report of the run: `data` keys have no text ([i18n.md](i18n.md)), and nothing keeps it after the
+run, so a result the player keeps never goes only in outcome data. What no mode decides, the
+player's words (a name, a background), is the action's string `params` and the pack's text input
+fields: a random start passes none and leaves them blank, a rules issue only where the pack has
+a constraint for one.
+
 ## Always-on effects and character-level choices
 
 - `effects` in a rules document are always active: a critical hit doubling damage dice, for example.

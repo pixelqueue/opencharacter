@@ -177,6 +177,19 @@ describe('orc-2e', () => {
   });
 });
 
+describe('orc-sf-2e', () => {
+  const headline = headlines('orc/sf-2e');
+  it('words the example characters', () => {
+    expect(headline(example('orc-sf-kade'))).toBe('Level 1 Vesk Soldier');
+    expect(headline(example('orc-sf-ilia'))).toBe('Level 5 Lashunta Mystic');
+  });
+  it('words a partial character', () => {
+    const vesk = { id: 'ancestry', item: 'orc-sf-2e:ancestries.vesk' };
+    const doc = character('orc-sf-2e', { creating: true, features: [vesk] });
+    expect(headline(doc)).toBe('Vesk');
+  });
+});
+
 describe('Forged in the Dark', () => {
   const headline = headlines('fitd/scoundrel', 'fitd/crew');
   it('words nothing for a scoundrel without a playbook', () => {

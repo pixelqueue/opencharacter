@@ -267,7 +267,7 @@ display:
     combat.highJump: { unit: ft, groups: [combat], priority: 2 }
     combat.critRange: { groups: [combat], priority: 3 }
     proficiency.bonus: { groups: [combat, summary], priority: 1, format: signed }
-    level.total: { groups: [summary], priority: 0 }
+    level.total: { groups: [summary], priority: 0, showWhen: '!sheet.monster || level.total > 0' }
     challenge.rating:
       { groups: [summary], priority: 2, format: fraction, showWhen: level.total == 0 }
     proficiencies.weapons: { groups: [proficiencies] }
@@ -319,6 +319,7 @@ display:
         groups: [combat],
         priority: 2,
         input: { min: 0, max: 3, widget: dots },
+        showWhen: '!sheet.monster',
         rolls: [{ action: death-save }],
       }
     deathSaves.failures:
@@ -326,6 +327,7 @@ display:
         groups: [combat],
         priority: 2,
         input: { min: 0, max: 3, widget: dots },
+        showWhen: '!sheet.monster',
         rolls: [{ action: death-save }],
       }
     proficiencies.languages: { groups: [proficiencies], visibility: background }
@@ -336,15 +338,24 @@ display:
     creature.type: { groups: [summary], priority: 2 }
     senses.darkvision: { unit: ft, groups: [summary], priority: 2, showWhen: senses.darkvision > 0 }
     senses.blindsense: { unit: ft, groups: [summary], priority: 2, showWhen: senses.blindsense > 0 }
+    # A monster carries only what it was given, so its carrying shows once it has some.
     carrying.weight:
       {
         unit: lb,
         groups: [summary],
         priority: 2,
         visibility: secondary,
+        showWhen: '!sheet.monster || carrying.weight > 0',
         with: [{ field: carrying.capacity, as: max }],
       }
-    carrying.capacity: { unit: lb, groups: [summary], priority: 2, visibility: secondary }
+    carrying.capacity:
+      {
+        unit: lb,
+        groups: [summary],
+        priority: 2,
+        visibility: secondary,
+        showWhen: '!sheet.monster || carrying.weight > 0',
+      }
     carrying.stowed:
       {
         unit: lb,

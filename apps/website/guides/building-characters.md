@@ -64,7 +64,10 @@ the whole step, not just this choice: every choice still pending is left for lat
 "Skip the rest" (`actions.options.done.pending.name`).
 
 The finished run proposes the changes that build the character, ending with `finishCreation`.
-Applying them is the player's confirmation. `finishCreation` clears `creating`, unless something
+A creation action puts everything it decides on the sheet through those changes: the rolled gear,
+the statuses paid for, the loadout taken. Its outcome is only a report of the run: its `data` keys
+have no text, and nothing keeps it after the run, so don't look there for anything the player
+keeps. Applying the changes is the player's confirmation. `finishCreation` clears `creating`, unless something
 is still missing: then the batch fails with `creation-incomplete`, and the result's `issues`
 list what's missing (a pending choice as `too-few-picks`). Apply the other changes on their own,
 let the player resolve what's listed (often the picks the added class or race brings), and apply
@@ -73,7 +76,7 @@ let the player resolve what's listed (often the picks the added class or race br
 While `creating` is true, the pack's creation-only rules apply as ordinary rules issues (FitD:
 no action above 2; Fate: the skill pyramid), so a manual builder shows them like any other.
 
-## Two kinds of input
+## Three kinds of input
 
 - **Numbers the player supplies** (ability scores, rolled hit points): `set` them. On a sheet
   filled in by hand, the engine checks only that the value fits the field (a whole number from 1
@@ -81,6 +84,16 @@ no action above 2; Fate: the skill pyramid), so a manual builder shows them like
   generation methods (5E's offers 4d6 drop lowest, point buy and the standard array); your app
   can offer others ("my GM said 18").
 - **Content choices** (a class, skills, a feat): go through the engine, as below.
+- **The player's words** (a name, a look, a background, a rival): text no mode draws. A creation
+  action takes them as string `params` (in `ruleset.rules.actions[id].params`, each named by
+  `<actionKey>.params.<param>.name`), and the pack's text input fields hold them on the sheet.
+  A random start passes none, so it leaves them blank: ask for them before the run and pass them
+  as `params`, or show the fields after it. A blank one is a rules issue only when the pack has a
+  constraint for it (Fate's high concept). Forged in the Dark is the example: its scoundrel's
+  heritage, background, alias, look, friend, rival and vice purveyor, and its crew's reputation,
+  lair, hunting grounds, favorite contact and factions, are all params of the creation action,
+  and the SRD names no playbook or crew type, so neither is asked unless the table adds its own
+  as homebrew.
 
 Input fields, with their types and bounds, are in `ruleset.fields` (`input: true`). The pack's
 display hints often give an `input` widget too ([Showing a sheet](showing-a-sheet.md#value-types-and-formats)).

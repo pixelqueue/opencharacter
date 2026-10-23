@@ -1,11 +1,13 @@
 # Strength 4d6 drop lowest = 18 (+3); Agility 3d6 = 5 (-2); Presence 17 (+3); Toughness 4d6
 # drop lowest = 15 (+2). HP 1d8 = 7 + 2 = 9. Omens 1d2 = 2. Powers 1d4 = 3 + 3 = 6. Silver
-# 2d6 = 8, x10. With a scroll the weapon die is d6 and the armor die d2: weapon 5 is a warhammer,
-# armor 1 is none. The classless class has no feature table.
+# 2d6 = 8, x10. The two 4d6 abilities are drawn (d4 1 strength, d3 3 toughness), the answers
+# confirming them. Food d4 2 days; the equipment tables: the d6 3 a backpack, the d12 5 an unclean
+# scroll (d10 3, Te-le-kin-esis), the second d12 11 lard. With that scroll the weapon die is d6 and
+# the armor die d2: weapon 5 is a warhammer, armor 1 is none. The classless class has no feature
+# table.
 status: finished
 outcome:
   result: rolled
-  data: { food: 2, equipment1: 3, equipment2: 9, equipment3: 11 }
 proposedChanges:
   - to: self
     step: class
@@ -43,10 +45,41 @@ proposedChanges:
     change:
       type: addItem
       entry: { id: weapons-warhammer-1, item: mork-borg-core:weapons.warhammer, equipped: true }
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry: { id: equipment-waterskin-1, item: mork-borg-core:equipment.waterskin }
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry: { id: equipment-food-1, item: mork-borg-core:equipment.food, quantity: 2 }
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry: { id: equipment-backpack-1, item: mork-borg-core:equipment.backpack }
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry:
+        {
+          id: scrolls-unclean-te-le-kin-esis-1,
+          item: mork-borg-core:scrolls.unclean.te-le-kin-esis,
+        }
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry: { id: equipment-lard-1, item: mork-borg-core:equipment.lard }
   - { to: self, step: finish, change: { type: finishCreation } }
 log:
   - { step: class, kind: choice, by: app, option: mork-borg-core:classes.classless }
+  - { step: best, kind: dice, by: engine, faces: [1] }
   - { step: best, kind: choice, by: app, option: strength, index: 0 }
+  - { step: best, kind: dice, by: engine, faces: [3] }
   - { step: best, kind: choice, by: app, option: toughness, index: 1 }
   - {
       step: strength,
@@ -64,8 +97,9 @@ log:
   - { step: powers, kind: dice, faces: [3], total: 3 }
   - { step: silver, kind: dice, faces: [4, 4], total: 8 }
   - { step: food, kind: dice, faces: [2], total: 2 }
+  - { step: equipment1, kind: dice, faces: [3], total: 3 }
+  - { step: equipment2, kind: dice, faces: [5], total: 5 }
+  - { step: equipment3, kind: dice, faces: [11], total: 11 }
+  - { step: uncleanScroll, kind: dice, faces: [3], total: 3 }
   - { step: weapon, kind: dice, faces: [5], total: 5 }
   - { step: armor, kind: dice, faces: [1], total: 1 }
-  - { step: equipment1, kind: dice, faces: [3], total: 3 }
-  - { step: equipment2, kind: dice, faces: [9], total: 9 }
-  - { step: equipment3, kind: dice, faces: [11], total: 11 }
