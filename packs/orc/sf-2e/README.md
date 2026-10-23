@@ -213,7 +213,11 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
 - **Mystic:** Transfer Vitality moves as many Hit Points as the target is missing, up to the
   limit and what the network holds, unless the player gives an amount; the mystic archetype's
   network regains Hit Points each turn and on Refocus as the class's does; the rhythm
-  connection's 9th-rank spell (_unfathomable song_) is the fantasy core's.
+  connection's 9th-rank spell (_unfathomable song_) is the fantasy core's. Elemental weapon and
+  elemental barrier are applied to the caster with their element (Cast a Spell's `element`), the
+  record of the active spell; what they give the target is text. While one is active, the
+  elemental connection's wall of fire and absolute zero take its element's trait and first damage
+  type (electricity, bludgeoning, fire, acid, cold, poison), a kept template per element.
 - **Witchwarper:** the spellcasting attribute is the key attribute chosen; Core Memories'
   Assurance skill and In Another Life's ancestry feat are set by an action and kept until the
   player sets them again (the book's "during daily preparations").

@@ -379,6 +379,7 @@ contentTypes:
         default: fire
       copy: { type: string, default: '' }
       form: { type: string, default: '' }
+      element: { type: string, default: '' }
     actions:
       - use: cast-spell
 
@@ -391,6 +392,7 @@ actions:
       ac: { type: integer, optional: true }
       copy: { type: string, optional: true }
       form: { type: string, optional: true }
+      element: { type: enum, optional: true, values: [air, earth, fire, metal, water, wood] }
       source: { type: string, optional: true }
       damageType:
         type: enum
@@ -891,6 +893,7 @@ actions:
               damageType: flags.damageType
               copy: flags.copy
               form: "has(params.form) ? params.form : ''"
+              element: "has(params.element) ? params.element : ''"
       - id: onCaster
         kind: changes
         tags: [spell.caster]
