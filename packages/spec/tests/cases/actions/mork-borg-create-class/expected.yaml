@@ -4,11 +4,12 @@
 # arrows. Armor d3 3 is medium. The character already has a copy `weapons-bow-1`, so the bow is
 # `weapons-bow-2`. Features, asked over the class's pending choice: the d6 4 recommends Hamfund;
 # the d5 3 counts on from it to the 1st option, the blade, the 1st of the five left. Each
-# feature that is a weapon is added: Hamfund brings Eurekia, then the blade itself.
+# feature that is a weapon is added: Hamfund brings Eurekia, then the blade itself. Before the
+# weapon, food (d4 2 days) and the equipment tables: the d6 3 a backpack, the d12 2 Presence + 4 = 7
+# torches, the second d12 9 a shield (not equipped).
 status: finished
 outcome:
   result: rolled
-  data: { food: 2, equipment1: 1, equipment2: 1, equipment3: 1 }
 proposedChanges:
   - to: self
     step: class
@@ -60,6 +61,31 @@ proposedChanges:
       type: addItem
       entry: { id: armor-medium-1, item: mork-borg-core:armor.medium, equipped: true }
   - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry: { id: equipment-waterskin-1, item: mork-borg-core:equipment.waterskin }
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry: { id: equipment-food-1, item: mork-borg-core:equipment.food, quantity: 2 }
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry: { id: equipment-backpack-1, item: mork-borg-core:equipment.backpack }
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry: { id: equipment-torch-1, item: mork-borg-core:equipment.torch, quantity: 7 }
+  - to: self
+    step: equipment
+    change:
+      type: addItem
+      entry: { id: shields-shield-1, item: mork-borg-core:shields.shield }
+  - to: self
     step: features
     change:
       {
@@ -100,11 +126,11 @@ log:
   - { step: powers, kind: dice, faces: [3], total: 3 }
   - { step: silver, kind: dice, faces: [1, 2, 2, 1], total: 6 }
   - { step: food, kind: dice, faces: [2], total: 2 }
+  - { step: equipment1, kind: dice, faces: [3], total: 3 }
+  - { step: equipment2, kind: dice, faces: [2], total: 2 }
+  - { step: equipment3, kind: dice, faces: [9], total: 9 }
   - { step: weapon, kind: dice, faces: [7], total: 7 }
   - { step: armor, kind: dice, faces: [3], total: 3 }
-  - { step: equipment1, kind: dice, faces: [1], total: 1 }
-  - { step: equipment2, kind: dice, faces: [1], total: 1 }
-  - { step: equipment3, kind: dice, faces: [1], total: 1 }
   - { step: feature, kind: dice, faces: [4], total: 4 }
   - { step: feature2, kind: dice, faces: [3], total: 3 }
   - step: features

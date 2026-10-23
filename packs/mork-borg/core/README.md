@@ -171,8 +171,9 @@ start a character with `creating: true` and run one of the creation starts below
     instead of the d6; everything else is rolled as below, and the feature's roll is the
     recommendation the player may change.
   - `classless` adds `classes.classless`, whose character rolls two abilities of the player's
-    choice on 4d6 dropping the lowest (the automatic run takes the first two), and starts with
-    smaller weapon and armor dice when it has a scroll (`scroll`).
+    choice on 4d6 dropping the lowest (drawn at random in the random start; the guided one recommends
+    the first two), and starts with smaller weapon and armor dice when the equipment tables give
+    it a scroll.
   - `class` rolls a d6 for one of the six classes (in the ruleset's content order) and adds it.
   - Both roll each ability and read the ability table; roll HP (Toughness + hit die, at least
     1), omens, powers (Presence + d4) and silver (×10), and save them as input values.
@@ -184,8 +185,15 @@ start a character with `creating: true` and run one of the creation starts below
     choices, the roll recommending the option in table order: two different
     ones for the Royalty (a picked one isn't offered again, and a d5 counts on from the first),
     one now for the Scum. An automatic run takes the rolls; a guided one may pick otherwise.
-  - Food (d4 days) and the three equipment-table rolls come back as outcome data. The action
-    ends by proposing `finishCreation`.
+  - Before the weapon and armor, they roll food and the three starting-equipment tables, and add
+    what they give: a waterskin and d4 days of food (a copy's quantity); the d6 table's
+    container, beast or wagon; and the two d12 tables' entries. Entries the pack already has are
+    those copies: a random unclean or sacred scroll (a d10 on its table in the book's order, as the
+    Hermit's), red poison and the life elixir (`decoctions.elixir-vitalis`) with d4 doses, and the
+    shield (not equipped). The rest are `equipment` copies, names only, with the tables' numbers:
+    Presence + 4 torches, the lantern's Presence + 6 hours of oil and the medicine chest's
+    Presence + 4 uses (state), d2 monkeys, the bear trap's, bomb's and crowbar's damage, the perfume's
+    price. The action ends by proposing `finishCreation`; its outcome carries no data.
   - While the character is being created, it needs a class, `classes.classless` included
     (`creation-class`), on a sheet filled in by hand too. It never has more than one class or
     companion (`one-class`), created or not: a limit across two types, so a constraint
@@ -272,7 +280,7 @@ start a character with `creating: true` and run one of the creation starts below
   (combat, hit points, Broken only at exactly 0 HP or, for a scum with Dodging Death, below it,
   tests with the class features' tests and Escaping Fate, powers and decoctions, days and rest,
   getting better, character creation) and the inventory (class, weapons, armor, shields, ammunition,
-  scrolls by unclean and sacred, decoctions, companions). Content-type hints show dice as dice,
+  scrolls by unclean and sacred, equipment, decoctions, companions). Content-type hints show dice as dice,
   armor damage as dots, a broken weapon or shield only when broken, and prices in silver
   (`units.silver`); quantity is hidden except where it counts (ammunition, scrolls, weapons).
 
@@ -293,8 +301,8 @@ The sheet and the core rules are modeled. What's missing is left to the app or t
 
 ## Omitted
 
-- **Items beyond the starting lists.** Equipment and other gear from the price list are left
-  out, and so are the weapons beyond the d10 starting table: battle axe, mace, handaxe, club,
+- **Items beyond the starting lists.** Gear from the price list beyond the starting-equipment
+  tables is left out, and so are the weapons beyond the d10 starting table: battle axe, mace, handaxe, club,
   whip, shortbow and sling. Arrow and bolt prices are left out because the sources'
   bundle sizes disagree. The tablets from the supplements are left out too.
 - **Scroll effects in words:** what a scroll does besides its numbers (confusion, invisibility,
@@ -305,7 +313,7 @@ The sheet and the core rules are modeled. What's missing is left to the app or t
   side's DR16 test) and the Bard's +d4 on reaction rolls (the GM's roll). The Stolen Mitre's
   stealth test names no ability, so it isn't an action. The origin tables are left out too.
 - **The Occult Herbmaster's first brew** isn't part of creation: the herbmaster runs `brew`.
-- **Tables:** equipment, arcane catastrophes, terrible traits, broken bodies, bad habits. The
+- **Tables:** arcane catastrophes, terrible traits, broken bodies, bad habits. The
   actions return the rolls for the app to look up.
 - **Behavior decided at the table or by the app:**
   - Being dizzy for an hour after a failed power.
@@ -332,6 +340,10 @@ Where the book leaves a rule open, the pack reads it this way:
   on from the first in table order, as the Royalty's second starting item does. Later rerolls are
   the table's.
 - **The Stolen Mitre** is read as worn: defense DR10.
+- **Starting equipment:** the tables are rolled before the weapon and armor, so a classless
+  character knows whether it has a scroll. The donkey, the wagon, the dog and the monkeys don't
+  count toward load (`load: false`); the containers don't raise it. What the dog and monkeys do
+  in a fight is the GM's.
 
 ## Sources
 
