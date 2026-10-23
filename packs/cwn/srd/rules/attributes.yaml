@@ -34,9 +34,13 @@ fields:
       max(-3, min(max(attributes.{attribute}.modCap, attributes.{attribute}.scoreMod),
         attributes.{attribute}.scoreMod + attributes.{attribute}.modBonus))
 
-  # The Underdog Rule reads the sum of the six modifiers.
+  # The Underdog Rule reads the sum of the modifiers the six rolled scores give, before Edges,
+  # Foci and cyber (so its own bonus Edge can't undo it).
   attributes.modTotal:
     type: integer
     formula: >-
-      attributes.str.mod + attributes.dex.mod + attributes.con.mod + attributes.int.mod
-        + attributes.wis.mod + attributes.cha.mod
+      sumList(['str', 'dex', 'con', 'int', 'wis', 'cha'],
+        fieldOf('attributes.{attribute}.base', x) >= 18 ? 2
+          : fieldOf('attributes.{attribute}.base', x) >= 14 ? 1
+          : fieldOf('attributes.{attribute}.base', x) >= 8 ? 0
+          : fieldOf('attributes.{attribute}.base', x) >= 4 ? -1 : -2)

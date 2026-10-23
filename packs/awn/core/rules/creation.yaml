@@ -297,7 +297,7 @@ actions:
         kind: choice
         sheet: proposed
         when: encumbrance.overload > 2
-        repeat: { max: 20 }
+        repeat: { max: 20, min: 20 }
         options:
           copies:
             type: gear
@@ -312,7 +312,7 @@ actions:
         kind: choice
         sheet: proposed
         when: encumbrance.overload > 2
-        repeat: { max: 20 }
+        repeat: { max: 20, min: 20 }
         options:
           copies:
             type: weapon
@@ -326,7 +326,7 @@ actions:
         kind: choice
         sheet: proposed
         when: encumbrance.overload > 2
-        repeat: { max: 20 }
+        repeat: { max: 20, min: 20 }
         options:
           copies:
             type: armor
@@ -340,7 +340,7 @@ actions:
         kind: choice
         sheet: proposed
         when: encumbrance.overload > 2
-        repeat: { max: 20 }
+        repeat: { max: 20, min: 20 }
         options:
           copies:
             type: gear
@@ -354,7 +354,7 @@ actions:
         kind: choice
         sheet: proposed
         when: encumbrance.overload > 2
-        repeat: { max: 20 }
+        repeat: { max: 20, min: 20 }
         options:
           copies:
             type: weapon
@@ -368,7 +368,7 @@ actions:
         kind: choice
         sheet: proposed
         when: encumbrance.overload > 2
-        repeat: { max: 20 }
+        repeat: { max: 20, min: 20 }
         options:
           copies:
             type: armor
@@ -392,7 +392,35 @@ actions:
   # an attribute bonus, which the highest attribute that can take it all is recommended.
   - id: gain-benefit
     params:
-      entry: { type: string }
+      entry:
+        type: enum
+        values:
+          [
+            administer,
+            connect,
+            drive,
+            exert,
+            fix,
+            heal,
+            know,
+            lead,
+            notice,
+            perform,
+            program,
+            punch,
+            shoot,
+            sneak,
+            stab,
+            survive,
+            talk,
+            trade,
+            work,
+            any-combat,
+            any-skill,
+            any-stat-1,
+            physical2,
+            mental2,
+          ]
       prefer: { type: set, of: string, default: [] }
       random: { type: boolean, default: false }
     results: [gained]

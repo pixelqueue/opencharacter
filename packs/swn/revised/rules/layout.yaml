@@ -118,7 +118,7 @@ display:
       with: [{ field: hp.max, as: max }]
       rolls: [{ action: take-damage }, { action: heal }]
     hp.max: { groups: [condition], priority: 1 }
-    hp.rolled: { groups: [condition], priority: 2 }
+    hp.rolled: { groups: [condition], priority: 2, visibility: background }
     hp.perLevel: { hidden: true }
     strain.current:
       groups: [condition]
@@ -159,7 +159,8 @@ display:
     effort.active: { groups: [psionics], priority: 1, showWhen: effort.active > 0 }
     effort.torched: { groups: [psionics], priority: 2 }
     psionics.access: { groups: [psionics], priority: 1 }
-    psionics.discipline: { groups: [psionics], priority: 1, showWhen: "psionics.discipline != ''" }
+    psionics.discipline:
+      { groups: [psionics], priority: 1, showWhen: "psionics.discipline != 'none'" }
     psionics.training: { hidden: true }
     effort.bonus: { hidden: true }
     effort.wild: { hidden: true }

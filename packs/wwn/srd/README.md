@@ -87,7 +87,7 @@ computeSheet(ruleset, made.character).values['wwn-srd:saves.physical']?.value; /
 - **Gear:** the SRD's weapons, armor, adventuring gear, gear bundles and beasts, with
   encumbrance in Readied and Stowed items, bundles, worn clothing, coins and movement. A new
   character rolls 3d6 x 10 silver and buys a weapon, armor and up to six pieces of gear at list
-  price.
+  price; gear it couldn't carry isn't offered.
 - **Creation:** two starts running `create-character`, in the book's order.
   - `random`: attributes, three rolls split between Growth and Learning, and silver are rolled;
     the background, class, partial classes, Foci, arts, spells and purchases are drawn evenly

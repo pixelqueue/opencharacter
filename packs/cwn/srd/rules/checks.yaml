@@ -101,6 +101,7 @@ actions:
   # The end of a fight or scene: Damage Soak and deck Shielding refresh, scene Effort returns.
   - id: end-scene
     tags: [rest]
+    results: [ended]
     steps:
       - id: refresh
         kind: changes
@@ -115,11 +116,13 @@ actions:
             value: 0
           - { type: set, field: effort.mage.scene, value: 0 }
           - { type: set, field: effort.summoner.scene, value: 0 }
+      - { id: result, kind: outcome, result: "'ended'" }
 
   # A night's rest, warm and fed: hit points equal to the level (none while Frail), one point of
   # System Strain, all Effort Committed for the day, the day's Access and Martial Instinct's rolls.
   - id: rest
     tags: [rest]
+    results: [rested]
     steps:
       - id: recover
         kind: changes
@@ -132,6 +135,7 @@ actions:
           - { type: set, field: effort.summoner.scene, value: 0 }
           - { type: set, field: hacking.access.spent, value: 0 }
           - { type: set, field: arts.bonusRolls.used, value: 0 }
+      - { id: result, kind: outcome, result: "'rested'" }
 
   # First aid from a medic: 1d6 plus their Heal skill (1d6-1 without one), and one System
   # Strain. It can't be applied past the System Strain maximum.
@@ -140,6 +144,7 @@ actions:
     available: strain.total + 1 <= strain.max
     params:
       healerSkill: { type: integer, min: -1, max: 4 }
+    results: [healed]
     steps:
       - id: heal
         kind: roll
@@ -152,6 +157,12 @@ actions:
         changes:
           - { type: adjust, field: hp.current, by: 'max(0, steps.heal.total)' }
           - { type: adjust, field: strain.temporary, by: 1 }
+      - {
+          id: result,
+          kind: outcome,
+          result: "'healed'",
+          data: { healed: 'max(0, steps.heal.total)' },
+        }
 
   # A Major Injury: after a failed Physical save at zero hit points in a scene with a Traumatic
   # Hit, roll 1d12 on the table.

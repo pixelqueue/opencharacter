@@ -244,8 +244,10 @@ actions:
   - id: reload
     tags: [reload]
     available: has(item.magazine) && self.loaded < item.magazine
+    results: [reloaded]
     steps:
       - id: fill
         kind: changes
         changes:
           - { type: setState, entry: self, key: loaded, value: item.magazine }
+      - { id: result, kind: outcome, result: "'reloaded'" }

@@ -6,15 +6,28 @@ fields:
   core: true
 actions:
   # Heals by Biopsionics level (level-0 only stabilizes) and adds System Strain to the target:
-  # two points if they were mortally wounded. The Effort is the app's to Commit.
+  # two points if they were mortally wounded. The Effort is the app's to Commit. A target whose
+  # System Strain can't take it isn't helped.
   - id: succor
     tags: [psionics]
     params:
       mortallyWounded: { type: boolean, default: false }
     participants:
-      target: { max: 1 }
-    results: [healed]
+      target:
+        max: 1
+        fields:
+          strain.total: { type: integer }
+          strain.max: { type: integer }
+    results: [healed, failed]
     steps:
+      - id: strained
+        kind: outcome
+        when: >-
+          size(participants.target) > 0 && has(participants.target[0].strain.total)
+            && has(participants.target[0].strain.max)
+            && participants.target[0].strain.total + (params.mortallyWounded ? 2 : 1)
+              > participants.target[0].strain.max
+        result: "'failed'"
       - id: heal
         kind: roll
         when: skills.biopsionics.level >= 1

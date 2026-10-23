@@ -309,6 +309,13 @@ display:
       showWhen: magic.graced
       with: [{ field: arts.points, as: max }]
     magic.cyberPenalty: { groups: [magic], priority: 8, showWhen: magic.cyberPenalty > 0 }
+    arts.bonusRolls.used:
+      groups: [magic]
+      priority: 9
+      showWhen: arts.bonusRolls.max > 0
+      with: [{ field: arts.bonusRolls.max, as: max }]
+    arts.bonusRolls.max:
+      { groups: [magic], priority: 9, visibility: background, showWhen: arts.bonusRolls.max > 0 }
     magic.mage: { hidden: true }
     magic.summoner: { hidden: true }
     magic.graced: { hidden: true }

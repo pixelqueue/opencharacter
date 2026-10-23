@@ -130,7 +130,7 @@ actions:
             any-skill,
           ]
       random: { type: boolean, default: false }
-    results: [spent]
+    results: [spent, none]
     steps:
       - id: start
         kind: branch
@@ -145,7 +145,11 @@ actions:
                     ? filterList(keysOf('psychic'), psionics.access == 'unrestricted'
                       || x == psionics.discipline)
                   : params.entry == 'any-skill' ? keysOf('general') + keysOf('combat')
+                  : params.entry in keysOf('psychic') && psionics.access != 'unrestricted'
+                    && params.entry != psionics.discipline ? []
                   : [params.entry]
+      # A psychic skill the character can't learn: nothing to raise.
+      - { id: none, kind: outcome, when: size(flags.open) == 0, result: "'none'" }
       - id: choose
         kind: choice
         when: size(flags.open) > 1

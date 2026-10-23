@@ -181,9 +181,9 @@ actions:
                   || (item.requires == 'non-mage' && class.mage == 0)
                   || (item.requires == 'expert' && class.expert > 0)
                   || (item.requires == 'invoker' && tradition.invoker.tier > 0)
-                  || (item.requires == 'low-attribute' && min(attributes.str.mod,
-                    attributes.dex.mod, attributes.con.mod, attributes.int.mod,
-                    attributes.wis.mod, attributes.cha.mod) <= -1))
+                  || (item.requires == 'low-attribute' && min(attributes.str.score,
+                    attributes.dex.score, attributes.con.score, attributes.int.score,
+                    attributes.wis.score, attributes.cha.score) <= 7))
         recommend: options[0]
       - id: held
         kind: branch

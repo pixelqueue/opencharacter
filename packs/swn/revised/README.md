@@ -118,11 +118,14 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
 - **Combat:** attack bonus, `attack` (d20 + attack bonus + combat skill, −2 untrained, +
   modifier, +1 for energy weapons, +2 for burst fire) against the target's AC, damage, Shock on
   a miss, ammunition and `reload`; Armor Class from the best armor, a shield and Dexterity.
-- **System Strain:** permanent from cyberware, temporary from drugs; `use-drug` and
-  `trigger-cyberware` refuse what would pass Constitution. `rest` restores hit points, Strain,
+- **System Strain:** permanent from cyberware, temporary from drugs; `use-drug`,
+  `trigger-cyberware` and Psychic Succor (given the target's `strain.total` and `strain.max`)
+  refuse what would pass Constitution. `rest` restores hit points, Strain,
   Effort and the once-a-scene abilities.
 - **Encumbrance:** Readied (equipped) items up to half Strength, Stowed up to Strength, and the
-  lightly and heavily encumbered bands.
+  lightly and heavily encumbered bands. An equipment package readies its items, then stows
+  readied gear and all but one weapon while they fit, so a weak character starts within the
+  limits where the package allows; armor stays worn.
 - **Equipment:** every armor, ranged, melee and heavy weapon, general equipment and
   pharmaceutical, and cyberware item of the free edition, with the equipment packages.
 
