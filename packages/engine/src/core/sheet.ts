@@ -135,6 +135,11 @@ export interface Activation {
   source: Source;
   /** Used for stacking (`source`), competing option IDs and prerequisite IDs. */
   sourceId: string;
+  /**
+   * Names the activation by how it was reached (its parent's key, then the grant or pick), the same
+   * on every probe: what templates kept on content without a copy are kept by.
+   */
+  key?: string;
   tree: ChoiceTree;
   path: ChoicePath;
   /** Prefix of its choice keys in `tree`: '' for the tree's own item, else `<qid>/`. */
@@ -195,8 +200,12 @@ function isOpen(record: ChoiceRecord, min: number): boolean {
  * a choice in an inline option the owner's root plus `.choices.<choice>.options.<option>`.
  */
 export function ownerKey(choice: Choice, owner: Activation): string {
+  return ownerRoot(owner, (choice as Choice & { pack?: string }).pack ?? owner.pack);
+}
+
+/** An activation's qualified key root, the rules' in `pack`. */
+function ownerRoot(owner: Activation, pack: string): string {
   const [base, ...rest] = (owner.textId ?? owner.sourceId).split('/');
-  const pack = (choice as Choice & { pack?: string }).pack ?? owner.pack;
   let key = base === 'rules' ? `${pack}:rules` : (base as string);
   for (let i = 0; i + 1 < rest.length; i += 2)
     key += `.choices.${rest[i] as string}.options.${rest[i + 1] as string}`;
@@ -319,9 +328,13 @@ export class Failure extends Error {
 
 const MAX_DEPTH = 16;
 
-/** An item as merged with its templates: a copy's (`entry`), or content's without a copy. */
+/**
+ * An item as merged with its templates: a copy's (`entry`), or an activation's of content without
+ * a copy (`activation`, its index in `activations`).
+ */
 export interface TemplatedItem {
   entry?: string;
+  activation?: number;
   item: string;
   templates: string[];
   tags: string[];
@@ -382,7 +395,7 @@ export interface Rounds {
   standard: readonly string[];
   /** Kept templates by copy instance ID. */
   kept: ReadonlyMap<string, readonly KeptOn[]>;
-  /** Kept templates by the qualified ID of content without a copy. */
+  /** Kept templates on content without a copy, by its activation's key. */
   content: ReadonlyMap<string, readonly KeptOn[]>;
 }
 
@@ -881,7 +894,13 @@ export class Sheet {
    * Whether a kept template's query matches a base item: resolved at load when it reads only
    * `item`, else an activation condition with the keeper's roots and the candidate as `item`.
    */
-  private keptMatches(query: Query, pack: string, keeper: Activation, base: LoadedItem): boolean {
+  private keptMatches(
+    query: Query,
+    pack: string,
+    keeper: Activation,
+    base: LoadedItem,
+    extra: Record<string, unknown> = {},
+  ): boolean {
     if (base.type !== query.type) return false;
     const stored = this.ruleset.queries[queryKey(pack, query.type, query.where)];
     if (stored) return stored.includes(base.qid);
@@ -894,7 +913,7 @@ export class Sheet {
     return this.condition(
       query.where,
       pack,
-      { ...keeper.roots, item: view },
+      { ...keeper.roots, ...extra, item: view },
       `${keeper.sourceId} keepsTemplates`,
     );
   }
@@ -957,13 +976,13 @@ export class Sheet {
 
   /**
    * Templates kept on content without a copy: for each holder activation picked or granted whose
-   * item an active keeper's `content` query matches, by item.
+   * item an active keeper's `content` query matches, with the activation's `owner`, by its key.
    */
   private keptContentWanted(): { id: string; kept: KeptOn }[] {
     const out: { id: string; kept: KeptOn }[] = [];
-    const reached = this.activations.filter(
-      (a) => (a.kind === 'pick' || a.kind === 'grant') && a.scope === 'holder' && a.item,
-    );
+    const reached = this.activations
+      .filter((a) => (a.kind === 'pick' || a.kind === 'grant') && a.scope === 'holder' && a.item)
+      .map((a) => ({ a, owner: this.ownerView(a) }));
     for (const a of this.activations) {
       const item = a.item;
       if (!item?.keepsTemplates?.length) continue;
@@ -974,26 +993,40 @@ export class Sheet {
         const template = this.ruleset.content[kept.template];
         if (template?.type !== 'template') continue;
         let values: KeptOn | undefined;
-        for (const r of reached) {
+        for (const { a: r, owner } of reached) {
           const base = r.item as LoadedItem;
-          if (!this.keptMatches(kept.content, pack, a, base)) continue;
+          if (!this.keptMatches(kept.content, pack, a, base, { owner })) continue;
           if (!this.appliesTo(template, base)) continue;
           values ??= this.keptParams(kept, template, pack, a);
-          out.push({ id: base.qid, kept: values });
+          out.push({ id: r.key as string, kept: values });
         }
       }
     }
     return out;
   }
 
+  /**
+   * Picked or granted content's `owner`: the activation that owns the choice it was picked in, or
+   * granted it, as its key root (`choice.owner`'s) and its `item`.
+   */
+  private ownerView(a: Activation): Record<string, unknown> | undefined {
+    const parent = this.parentOf.get(a);
+    if (!parent) return undefined;
+    const record = this.pickedIn.get(a);
+    return {
+      id: record ? ownerKey(record.choice, record.owner) : ownerRoot(parent, parent.pack),
+      ...(parent.roots.item === undefined ? {} : { item: parent.roots.item }),
+    };
+  }
+
   private readonly keptContent!: ReadonlyMap<string, readonly KeptOn[]>;
 
   /**
-   * The templates content keeps on an item without a copy, its keepers' `keepsFields` left out
-   * and their `params` given.
+   * The templates content keeps on an activation without a copy (by its key), its keepers'
+   * `keepsFields` left out and their `params` given.
    */
-  contentTemplates(item: LoadedItem): LoadedItem[] {
-    const kept = this.keptContent.get(item.qid);
+  contentTemplates(key: string, item: LoadedItem): LoadedItem[] {
+    const kept = this.keptContent.get(key);
     if (!kept?.length) return [];
     return kept.map((k) =>
       keptTemplate(
@@ -1006,10 +1039,20 @@ export class Sheet {
   }
 
   /** Picked or granted content's `item`: the item with the templates content keeps on it. */
-  private contentView(item: LoadedItem): Record<string, unknown> {
-    return itemView(this.ruleset, item, this.contentTemplates(item), (n, p) =>
+  private contentView(key: string, item: LoadedItem): Record<string, unknown> {
+    return itemView(this.ruleset, item, this.contentTemplates(key, item), (n, p) =>
       this.inputByName(n, p),
     );
+  }
+
+  private readonly keys = new Set<string>();
+
+  /** `key`, or with `#<n>` the first free one: two activations reached the same way. */
+  private freeKey(key: string): string {
+    let out = key;
+    for (let n = 2; this.keys.has(out); n++) out = `${key}#${n}`;
+    this.keys.add(out);
+    return out;
   }
 
   /** The item's type and `where` (input fields only); a failing condition doesn't match. */
@@ -1086,6 +1129,7 @@ export class Sheet {
       roots: { [f.OWNER_PICKS]: ownerPicks(rulesChoices, rulesTree, '') },
       source: { type: 'rules' },
       sourceId: 'rules',
+      key: this.freeKey('rules'),
       tree: rulesTree,
       path: { choice: [] },
     };
@@ -1161,6 +1205,7 @@ export class Sheet {
             entry,
             source: { type: 'item', id: item.qid, entry: entry.id },
             sourceId: item.qid,
+            key: this.freeKey(`copy:${entry.id}`),
             tree,
             path,
             node: entry,
@@ -1179,6 +1224,7 @@ export class Sheet {
               entry,
               source: { type: 'template', id: template.qid, entry: entry.id },
               sourceId: template.qid,
+              key: this.freeKey(`copy:${entry.id}/template:${template.qid}`),
               tree,
               path,
               node: entry,
@@ -1223,6 +1269,7 @@ export class Sheet {
           roots: { item: view, self },
           source: { type: 'item', id: item.qid },
           sourceId: item.qid,
+          key: this.freeKey(`applied:${applied.id}`),
           tree: {},
           path: { choice: [] },
         },
@@ -1309,7 +1356,7 @@ export class Sheet {
       ...(type?.grants ?? []).map((grant) => ({ grant, pack: type?.pack ?? grantPack })),
       ...(item.grants ?? []).map((grant) => ({ grant, pack: grantPack })),
     ];
-    for (const { grant, pack } of grants) {
+    for (const [at, { grant, pack }] of grants.entries()) {
       if ((grant.scope ?? 'holder') !== 'applied') continue;
       if (!this.condition(grant.when, pack, a.roots, `${a.sourceId} grant`)) continue;
       const granted = this.grantedItem(grant, pack, a.roots, `${a.sourceId} grant`);
@@ -1328,6 +1375,7 @@ export class Sheet {
         presets: undefined,
         source: { type: 'item', id: granted.qid },
         sourceId: granted.qid,
+        key: this.freeKey(`${a.key}/grant:${at}:${granted.qid}`),
         keyPrefix: `${granted.qid}/`,
       });
     }
@@ -1700,7 +1748,7 @@ export class Sheet {
         pack: grantPack,
       })),
     ];
-    for (const { grant, pack } of grants) {
+    for (const [at, { grant, pack }] of grants.entries()) {
       if ((grant.scope ?? 'holder') !== 'holder') continue;
       if (!this.condition(grant.when, pack, activation.roots, `${activation.sourceId} grant`))
         continue;
@@ -1719,6 +1767,7 @@ export class Sheet {
       const presets = grant.choices
         ? { tree: this.evaluatePresets(grant.choices, pack, activation.roots, where), pack }
         : undefined;
+      const key = this.freeKey(`${activation.key}/grant:${at}:${granted.qid}`);
       this.content(
         {
           ...activation,
@@ -1729,7 +1778,7 @@ export class Sheet {
           pack: granted.pack,
           roots: {
             ...activation.roots,
-            item: this.contentView(granted),
+            item: this.contentView(key, granted),
             self,
           },
           presets,
@@ -1740,6 +1789,7 @@ export class Sheet {
             ...(activation.entry ? { entry: activation.entry.id } : {}),
           },
           sourceId: granted.qid,
+          key,
           keyPrefix: `${granted.qid}/`,
         },
         depth + 1,
@@ -1838,6 +1888,7 @@ export class Sheet {
               roots,
               source: owner.source,
               sourceId,
+              key: this.freeKey(`${owner.key}/${key}=${inline.id}`),
               textId,
               tree: nested,
               path: pickPath,
@@ -1852,6 +1903,7 @@ export class Sheet {
           this.ruleset.content[pick.option]
         ) {
           const picked = this.ruleset.content[pick.option] as LoadedItem;
+          const pickKey = this.freeKey(`${owner.key}/${key}=${picked.qid}`);
           this.pickedContent(
             record,
             {
@@ -1863,7 +1915,7 @@ export class Sheet {
               pack: picked.pack,
               roots: {
                 ...owner.roots,
-                item: this.contentView(picked),
+                item: this.contentView(pickKey, picked),
                 // Content that declares state reads it from its pick, over the owner's copy.
                 ...(Object.keys(stateDecls(this.ruleset, picked, [])).length > 0
                   ? {
@@ -1880,6 +1932,7 @@ export class Sheet {
                 ...(owner.entry ? { entry: owner.entry.id } : {}),
               },
               sourceId: picked.qid,
+              key: pickKey,
               tree: nested,
               path: pickPath,
               keyPrefix: '',
@@ -3105,7 +3158,7 @@ export class Sheet {
 
   /**
    * Every item the character has with templates, as merged: each copy with a saved or kept
-   * template, then each content item without a copy that content keeps templates on.
+   * template, then each activation of content without a copy that content keeps templates on.
    */
   templated(): TemplatedItem[] {
     const out: TemplatedItem[] = [];
@@ -3121,17 +3174,15 @@ export class Sheet {
         ...mergedData(view),
       });
     }
-    const seen = new Set<string>();
-    for (const a of this.activations) {
+    for (const [activation, a] of this.listedActivations().entries()) {
       if ((a.kind !== 'pick' && a.kind !== 'grant') || a.scope !== 'holder' || !a.item) continue;
-      const qid = a.item.qid;
-      const kept = this.keptContent.get(qid);
-      if (!kept?.length || seen.has(qid)) continue;
-      seen.add(qid);
+      const kept = this.keptContent.get(a.key as string);
+      if (!kept?.length) continue;
       out.push({
-        item: qid,
+        activation,
+        item: a.item.qid,
         templates: kept.map((k) => k.template),
-        ...mergedData(this.contentView(a.item)),
+        ...mergedData(a.roots.item as Record<string, unknown>),
       });
     }
     return out;

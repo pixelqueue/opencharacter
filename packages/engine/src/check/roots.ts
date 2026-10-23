@@ -102,6 +102,7 @@ export const ALL_ROOTS = new Set([
   'picked',
   'options',
   'choice',
+  'owner',
   'incoming',
   'participants',
   'participant',
@@ -210,6 +211,9 @@ export const PENDING_CHOICE: ObjectType = {
     slot: { object: { choice: 'string', number: 'int' } },
   },
 };
+
+/** A kept template's candidate's owner: its key root and its item, of any content type. */
+export const KEPT_OWNER: ObjectType = { object: { id: 'string', item: 'dyn' } };
 
 export const ALLOCATED_FIELD: ObjectType = { object: { id: 'string', value: 'int' } };
 

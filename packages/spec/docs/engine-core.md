@@ -185,9 +185,9 @@ take tags away in template order before its `tags` are added. The templates are
 the copy's saved ones, then those content keeps on it ([content.md](content.md#kept-templates)).
 
 Content picked or granted, which has no copy, is merged the same way with the templates content
-keeps on its item ([content.md](content.md#on-content-without-a-copy)): its `item` in its own
-effects, grants, choices, actions and follow-ups is that merged item. Without such templates it
-is the base item.
+keeps on its activation ([content.md](content.md#on-content-without-a-copy)): its `item` in its
+own effects, grants, choices, actions and follow-ups is that merged item, so two activations of
+one item may read different fields. Without such templates it is the base item.
 
 ### `character`
 
@@ -648,12 +648,14 @@ are left out.
 
 `templated` lists every item the character has with templates, as the rules read it, so an app
 shows a Longsword +1's bonus or a cantrip's longer range without merging templates itself. Each
-is `{ entry?, item, templates, tags, fields }`:
+is `{ entry?, activation?, item, templates, tags, fields }`:
 
 - First each copy with a saved or kept template, in instance order, with `entry` its instance
-  ID; then each item picked or granted that content keeps templates on
-  ([content.md](content.md#on-content-without-a-copy)), in activation order, once per item,
-  with no `entry`. Content without templates isn't listed: its item is the ruleset's.
+  ID; then each activation of content picked or granted that content keeps templates on
+  ([content.md](content.md#on-content-without-a-copy)), in activation order, with `activation`
+  its index in [`activations`](#the-activation-list) and no `entry`. The same item reached twice
+  (a spell known through two classes) is listed per activation, each with its own templates.
+  Content without templates isn't listed: its item is the ruleset's.
 - `item` is the base item's qualified ID and `templates` the templates in the order they apply
   (saved, then kept).
 - `tags` is the merged `item.tags`, and `fields` each item field as the merged `item` reads it

@@ -69,6 +69,7 @@ import {
   formulaTree,
   INCOMING,
   itemType,
+  KEPT_OWNER,
   linksType,
   NUMBER,
   PART,
@@ -456,6 +457,13 @@ class FormulaChecker<L> {
     const where = `${owner} keepsTemplates`;
     const query = keptQuery(kept);
     if (isContentOnly(query.where)) this.standardQuery(query, at, where);
+    // On content without a copy, the candidate activation's `owner` too.
+    else if (kept.content)
+      this.activation(() =>
+        this.typed({ owner: KEPT_OWNER }, () =>
+          this.withRoots(['owner'], () => this.query(query, at, where)),
+        ),
+      );
     else this.activation(() => this.query(query, at, where));
     this.activation(() => this.formula(kept.when, at, where, BOOL));
     if (!kept.params) return;

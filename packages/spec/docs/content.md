@@ -598,10 +598,25 @@ fields: { range: 'prior.range + 300' }
 
 - **Which content.** Every holder activation reached by a pick or a grant (at any depth, under
   a copy or the rules) whose item the query matches and the template's `appliesTo` admits keeps
-  it, while the keeping item is active and its `when` holds. The templates are kept by item: two
-  activations of one spell have the same templates, in instance order of the content keeping
-  them, each once. Copies, applied entries and the content applied entries grant are not
-  reached.
+  it, while the keeping item is active and its `when` holds. The templates are kept per
+  activation, in instance order of the content keeping them, each once: a spell known through
+  two classes is two activations, and each has the templates kept on it. Copies, applied
+  entries and the content applied entries grant are not reached.
+- **Whose content.** A `content` query that reads the keeper also sees `owner`, the candidate
+  activation's owner: the activation that owns the choice it was picked in, or granted it.
+  `owner.id` is its qualified key root, as a choice's `owner` is ([engine-core.md](engine-core.md#the-choice-list)):
+  the content ID, `<pack>:rules` for a rules-level pick; `owner.item` is its item (absent for
+  the rules). So a feature reaches a cantrip only where one class knows it:
+
+  ```yaml
+  # Eldritch Spear: one Warlock cantrip, not the same cantrip known through a feat.
+  keepsTemplates:
+    - template: templates.eldritch-spear
+      content:
+        type: spell
+        where: "item.id in picksOf('cantrip') && owner.id == @classes.warlock"
+  ```
+
 - **What it changes.** The item only: its fields (with `base`, `prior` and `null` as on a copy)
   and its tags (`tags` and `removeTags`), merged into the content's `item` wherever that
   activation reads it: its effects, grants, choices, prerequisites, actions (their `available`
@@ -613,9 +628,9 @@ fields: { range: 'prior.range + 300' }
   (with `appliesTo`); giving state, computed values, effects, actions, follow-ups, choices,
   grants, immunities, prerequisites or the other copy properties is the load error
   `template-without-copy`.
-- **Shown.** computeSheet's `templated` lists each such item as merged, after the copies with
-  templates ([engine-core.md](engine-core.md#merged-items)), so an app's card shows the far
-  range.
+- **Shown.** computeSheet's `templated` lists each such activation's item as merged, by its
+  index in `activations`, after the copies with templates
+  ([engine-core.md](engine-core.md#merged-items)), so an app's card shows the far range.
 
 #### From the keeper
 
@@ -688,8 +703,8 @@ fields: { range: 'prior.range + params.feet' }
   effects target a character field instead.
 - **Each keeper its own.** Each activation of the keeper evaluates its own query and params,
   so two Eldritch Spears on two cantrips keep the template on each with its own range. A copy
-  or item keeps a template once: when two keepers keep the same template on it, the first in
-  activation order gives the params, and its fields apply once. Two features that stack give
+  or an activation keeps a template once: when two keepers keep the same template on it, the
+  first in activation order gives the params, and its fields apply once. Two features that stack give
   two templates, each building on `prior`.
 - **Shown.** The template's fields are merged with the params, so `templated`
   ([engine-core.md](engine-core.md#merged-items)) shows the cantrip's range for this character.
