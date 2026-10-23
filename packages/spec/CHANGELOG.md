@@ -1,5 +1,54 @@
 # @opencharacter/spec
 
+## 0.3.0
+
+### Minor Changes
+
+- a26226f: computeSheet lists the members of actions and content groups: `groups[].actions` (indices in
+  `actions` its `where` matches) and `groups[].items` (activations or applied entries, sorted by
+  `sectionBy`, then `sortBy`, then instance order, each with its `section`). Each activation's
+  `hiddenState` names its state keys not shown (`hidden`, or a state hint's `showWhen` false), so
+  apps evaluate no display formula themselves.
+- a26226f: computeSheet evaluates display visibility: each value has `shown` (not `hidden`, its `showWhen`
+  holds, and it is in no fields group or a shown one), and `groups` lists every display group with
+  `shown` and a fields group's member fields. `showWhen` sees the copy aggregates and `hasChoice`,
+  so a `countCopies` condition no longer needs an app-side evaluator.
+- a26226f: Exports: `export.schema.json` is one file of characters with every pack version they pin, each by
+  reference (`id`, `version`, optional `url` and `integrity`) or embedded as a pack release (a
+  bundle). `integrity` is the SHA-256 of the release's canonical JSON, and decides whether the
+  receiving app's own copy is the same release. The engine adds `createExport`, `readExport` and
+  `releaseIntegrity`.
+- a26226f: Loading checks content items' `fields` against their content type: a missing required field
+  (after `extends`), an undeclared name or a value of the wrong shape is the new load error
+  `invalid-item-field` (data: `item`, `field`, `reason`, `pack`), with a path to the field. A
+  character's homebrew gets it as `homebrew-error` at `/homebrew/content/<i>/fields/<field>`, so
+  an app can show it on its custom-item form (#104).
+- a26226f: Prerequisite text is a phrase, the requirement alone ("Scout Dedication"); the new standard text `issues.prerequisite-not-met.owner` (`{owner} requires: {requirement}`) names its owner. `text.issue` wraps a pack's prerequisite text with the owner's name, content or inline option, and `keys.issueKey` finds an inline option's prerequisite text (`<item>.choices.<choice>.options.<option>.prerequisites.<id>`). `pnpm validate` warns on prerequisite text that ends with a period or starts with "Requires" or "Needs".
+- a26226f: Characters get spec-level upgrades. A spec version that changes the character file's shape ships
+  a spec upgrade (`spec-upgrade.schema.json`, listed in `data/spec-upgrades.json`; none yet).
+  `upgrade` runs the ones between the character's `specVersion` and the engine's, before the packs'
+  scripts, then writes the engine's `SPEC_VERSION`, so an upgraded character no longer keeps a stale
+  stamp. The report's `spec` gives the old version and the steps that changed the file. A character
+  from a newer spec is refused with the new error `character-spec-unsupported`.
+- a26226f: Standard text by an error's data: `errors.out-of-range.min` and `errors.out-of-range.max` for an `out-of-range` with only one bound, and `errors.safety-limit-exceeded.<limit>` for each safety limit. `text.error` and `text.issue` use them, and show `errors.other` instead of the raw template when a message misses an argument. The `safety-limit-exceeded` and `out-of-range` descriptions in `error-codes.json` say what their data holds.
+- a26226f: The upgrade report's values add `shownBefore` and `shownAfter`: whether the field was shown on
+  the old sheet and is shown on the new one (computeSheet's `shown`), each present with its side,
+  so an app can leave hidden or irrelevant values out of "what changed".
+
+### Patch Changes
+
+- a26226f: Action parameters' `min` and `max` are enforced: a number parameter outside them is
+  `out-of-range` (data: `target`, `min`, `max`) when the action starts or is handed off. The bounds
+  are number formulas evaluated as the action starts, with its `item`, `self`, `situational` and
+  the character's fields (`max: effort.free`), and are type-checked at load (#111).
+- a26226f: Engine errors carry the data their standard text names: `unknown-name` gives `name` (formula checks no longer give `id`), `unknown-function` gives `function`, `fieldOf()`'s `no-such-key` gives `key` and `family`, `unknown-reference` from actions gives `kind` and `id` (no more `followUp`, `pick` or `grant`), a scope-applied grant's preset choices give `id`, a reapply state key's `wrong-type` gives `target` (was `key`), and `offerFollowUp`'s `unknown-follow-up` gives `id` (was `followUp`). The formula error table says which data each code carries.
+- a26226f: An overflow whose adjust on `into` would be clamped to no change (its target at its bound, nothing
+  absorbed, no overflow of its own) no longer fires: the field clamps instead. Carried overflow
+  stops cycling once its target is full, so more damage never leaves more health and large
+  amounts no longer reach `maxOverflowChain` (#100).
+- f44f66c: Creation docs say a creation action puts everything it decides on the sheet, its outcome being only a report, and that a random start leaves the player's words (string params, text input fields) blank. The conformance suite follows this round's fitd, Mörk Borg and Mothership pack fixes, with new cases for named factions at crew creation and a homebrew cohort's roll.
+- f44f66c: Conformance suite: the `orc-create-character` case answers orc-2e's free boosts before the class's choices, as its guided start now asks them, and the `fate-mara` and `fate-extras` sheets no longer list fate-core's removed `teamwork` situational choice.
+
 ## 0.2.0
 
 ### Minor Changes

@@ -14,7 +14,7 @@ const HP = 'mork-borg-core:hp.current';
 const character: CharacterDoc = {
   specVersion: '0.1.0',
   id: 'test',
-  packs: [{ id: 'mork-borg-core', version: '0.1.1' }],
+  packs: [{ id: 'mork-borg-core', version: '0.2.0' }],
   values: { 'mork-borg-core:hp.max': 10, [HP]: 8 },
   inventory: [
     { id: 'worn', item: 'mork-borg-core:armor.heavy', equipped: true, state: { damage: 0 } },

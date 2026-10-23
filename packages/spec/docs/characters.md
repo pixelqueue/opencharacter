@@ -20,10 +20,10 @@ Derived values are **never** saved, so a character can never disagree with the r
 ## Structure
 
 ```yaml
-specVersion: 0.2.0
+specVersion: 0.3.0
 id: 7f1c... # unique within the app or campaign, or a URL to make it global
 packs: # exact versions, in load order
-  - { id: 5e-srd-5.1, version: 0.2.0 }
+  - { id: 5e-srd-5.1, version: 0.2.1 }
 creating: false # true while the character is being created (the default is false)
 values: # input fields, qualified IDs
   5e-srd-5.1:abilities.str.base: 16
@@ -205,10 +205,10 @@ weapon, a custom skill or feat, a table's own special ability. It is a small pac
 to the character, so the character file stays self-contained when it is shared.
 
 ```yaml
-specVersion: 0.2.0
+specVersion: 0.3.0
 id: example-mothership-reyes
 packs:
-  - { id: mothership-1e, version: 0.1.1 }
+  - { id: mothership-1e, version: 0.2.0 }
 homebrew:
   defaultLanguage: en
   rules: # optional: a rules document, without settings
@@ -282,14 +282,14 @@ and its scoundrels, a companion) in one file. It carries only data: no engine, s
 conforming engine runs any pack, and no sheet, which is derived.
 
 ```yaml
-specVersion: 0.2.0
+specVersion: 0.3.0
 characters: # one or more character files, extensions and homebrew included
-  - { specVersion: 0.2.0, id: https://example.com/characters/vex, packs: [...], ... }
-  - { specVersion: 0.2.0, id: https://example.com/characters/the-ravens, ... } # linked
+  - { specVersion: 0.3.0, id: https://example.com/characters/vex, packs: [...], ... }
+  - { specVersion: 0.3.0, id: https://example.com/characters/the-ravens, ... } # linked
 packs: # every pack version a character pins, once each
   # By reference: the receiving app supplies it. `url` and `integrity` are optional.
   - id: fitd-scoundrel
-    version: 0.2.0
+    version: 0.3.0
     url: https://example.com/packs/fitd-scoundrel.json
     integrity: sha256-…
   - release: { manifest: { ... }, rules: { ... }, content: [...] } # embedded

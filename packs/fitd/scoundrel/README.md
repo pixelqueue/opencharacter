@@ -28,9 +28,9 @@ const { ruleset } = loaded;
 
 // A new scoundrel: the random start draws every pick.
 const blank = {
-  specVersion: '0.2.0',
+  specVersion: '0.3.0',
   id: 'new-scoundrel',
-  packs: [{ id: 'fitd-scoundrel', version: '0.2.0' }],
+  packs: [{ id: 'fitd-scoundrel', version: '0.3.0' }],
   creating: true,
 };
 const created = startAction(ruleset, blank, {
