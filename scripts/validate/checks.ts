@@ -121,6 +121,7 @@ export class PackChecker {
   readonly optionalKeys = new Set<string>();
   readonly optionalPrefixes = new Set<string>();
   readonly slotPrompts = new Set<string>();
+  readonly prerequisiteKeys = new Set<string>();
   private readonly blocks = new Map<string, BlockScope>();
   private contentOwner: string | undefined;
   private offerable: FollowUp[] | undefined;
@@ -924,8 +925,7 @@ export class PackChecker {
           `keepsFields: "${name}" is not an item field of the kept copies or content`,
         );
     }
-    for (const prerequisite of item.prerequisites ?? [])
-      this.requiredKeys.add(`${owner}.prerequisites.${prerequisite.id}`);
+    for (const prerequisite of item.prerequisites ?? []) this.prerequisite(owner, prerequisite.id);
   }
 
   private itemActionIds(item: ContentItem, depth = 0): Set<string> {
@@ -1578,7 +1578,7 @@ export class PackChecker {
       for (const effect of option.effects ?? []) this.effect(effect, file, owner);
       this.grants(option.grants, file, `${owner}: `);
       for (const prerequisite of option.prerequisites ?? [])
-        this.requiredKeys.add(`${owner}.prerequisites.${prerequisite.id}`);
+        this.prerequisite(owner, prerequisite.id);
       this.choices(option.choices ?? [], file, owner);
     }
   }
@@ -2102,9 +2102,24 @@ export class PackChecker {
     for (const problem of problems) this.report.error(problem.at, describeProblem(problem));
   }
 
+  private prerequisite(owner: string, id: string): void {
+    const key = `${owner}.prerequisites.${id}`;
+    this.requiredKeys.add(key);
+    this.prerequisiteKeys.add(key);
+  }
+
   private message(file: string, key: string, text: string, names?: Map<string, string>): void {
     if (!balancedBraces(text))
       this.report.error(file, `"${key}": unbalanced braces in ICU message`);
+    // The standard text wraps it: "Terrain Scout requires: Scout Dedication".
+    if (
+      this.prerequisiteKeys.has(key) &&
+      (/\.\s*$/.test(text) || /^\s*(requires|needs)\b/i.test(text))
+    )
+      this.report.warn(
+        file,
+        `"${key}": prerequisite text is a phrase, the requirement alone: no final period, no "Requires" or "Needs"`,
+      );
     // One prompt serves every slot of a slotted choice.
     if (this.slotPrompts.has(key) && !/\{\s*slot\s*[,}]/.test(text))
       this.report.warn(file, `"${key}": a slotted choice's prompt should name its slot as {slot}`);

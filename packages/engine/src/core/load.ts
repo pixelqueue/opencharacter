@@ -1115,7 +1115,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       const decl = state[key];
       if (!decl) err('unknown-state-key', { item: item.qid, key });
       else if (reapply.state[key] === 'add' && !['integer', 'decimal'].includes(decl.type))
-        err('wrong-type', { item: item.qid, key, expected: 'integer or decimal' });
+        err('wrong-type', { item: item.qid, target: key, expected: 'integer or decimal' });
     }
   }
 
@@ -1160,7 +1160,12 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
   const grantChecks = (grants: readonly Grant[] | undefined, owner: string, pack: string) => {
     for (const grant of grants ?? []) {
       if (grant.choices && grant.scope === 'applied')
-        err('unknown-reference', { kind: 'choice', item: owner, scope: 'applied' });
+        err('unknown-reference', {
+          kind: 'choice',
+          id: Object.keys(grant.choices).join(', '),
+          item: owner,
+          scope: 'applied',
+        });
       if (typeof grant.item !== 'string') continue;
       const granted = ruleset.content[grant.item];
       if (!granted) continue;

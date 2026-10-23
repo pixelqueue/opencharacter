@@ -735,7 +735,7 @@ never be valid, and `pnpm validate` reports them.
   prerequisites are waived; what it grants or picks in turn is checked as usual. A deep orc gets
   Terrain Expertise whether or not it is trained in Survival:
   `grants: [{ item: feats.skill.terrain-expertise, waivePrerequisites: true }]`.
-- `prerequisites: [{ id, when }]`: a false prerequisite is the rules issue `prerequisite-not-met`, carrying the qualified owner and prerequisite ID. It is checked against the current character, so a feat whose prerequisite held when it was taken but doesn't now is flagged the same as one taken illegally. `listOptions` reports the same issue as the reason an option is ineligible. Text: `<owner>.prerequisites.<id>`.
+- `prerequisites: [{ id, when }]`: a false prerequisite is the rules issue `prerequisite-not-met`, carrying the qualified owner and prerequisite ID. It is checked against the current character, so a feat whose prerequisite held when it was taken but doesn't now is flagged the same as one taken illegally. `listOptions` reports the same issue as the reason an option is ineligible. Text: `<owner>.prerequisites.<id>`, the requirement alone as a phrase ("Scout Dedication", "Wisdom 13 to multiclass"); the standard text names the owner ([i18n.md](i18n.md#engine-output)).
 - **A choice that requires an option**: a choice may say `requiresOption: true`.
   While it is pending and none of its options is eligible, its owner has the rules issue
   `no-eligible-option` (`id` the owner plus the choice ID, data `{ path }`), and `listOptions`,

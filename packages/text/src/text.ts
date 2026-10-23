@@ -27,6 +27,7 @@ import {
   inlineOptionKey,
   issueKey,
   packKey,
+  prerequisiteOwner,
   paramKey,
   paramValueKey,
   situationalKey,
@@ -214,6 +215,8 @@ export interface Text {
    * roll made more than once: "2d6, rolled twice, keep the lower total".
    */
   dice(items: readonly DiceLike[], repeat?: Repeat): string;
+  /** The whole roll: the dice, then the flat items' sum, "2d10 + 25"; `repeat` as for `dice`. */
+  roll(items: readonly DiceLike[], repeat?: Repeat): string;
   value(type: string, name: string, value: string, of?: 'fields' | 'state'): string;
   /** The item's own state value names first, else its `type`'s. */
   stateValue(item: string, key: string, value: string, type?: string): string;
@@ -236,9 +239,17 @@ export interface Text {
     character?: HeadlineCharacter,
     options?: HeadlineOptions,
   ): string | undefined;
-  /** The pack's own text, else the spec's; an engine error words as the error, else `errors.other`. */
+  /**
+   * The pack's own text, else the spec's; an engine error words as the error, else `errors.other`.
+   * A prerequisite's own text, a phrase, is wrapped with its owner's name
+   * (`issues.prerequisite-not-met.owner`): "Terrain Scout requires: Scout Dedication".
+   */
   issue(issue: RulesIssue | EngineError): string;
-  /** The spec's text; a code without text as `errors.other`. */
+  /**
+   * The spec's text, by the variant its data picks (`errors.out-of-range.min`,
+   * `errors.safety-limit-exceeded.<limit>`); a code without text, or whose text misses an
+   * argument, as `errors.other`.
+   */
   error(error: EngineError | RulesIssue): string;
 }
 
@@ -589,6 +600,29 @@ export function createText(options: TextOptions): Text {
       }),
     );
 
+  // The spec's text for a code, by the variant its data picks; text that misses an argument is
+  // `errors.other`, never the raw template.
+  const standard = (
+    error: EngineError | RulesIssue,
+    first: 'errors' | 'issues',
+    second: 'errors' | 'issues',
+  ): string => {
+    const data: Args = error.data ?? {};
+    const args = named(data);
+    const keys = [
+      ...variants(error.code, data).map((v) => `errors.${error.code}.${v}`),
+      `${first}.${error.code}`,
+      `${second}.${error.code}`,
+    ];
+    for (const key of keys) {
+      const found = findSpec(key);
+      if (!found) continue;
+      const out = format(found, args, true);
+      if (out !== undefined) return out;
+    }
+    return unworded(error.code);
+  };
+
   const text: Text = {
     languages,
     message,
@@ -681,6 +715,7 @@ export function createText(options: TextOptions): Text {
       });
     },
     dice: (items, repeat) => diceText(items, specMessage, repeat),
+    roll: (items, repeat) => diceText(items, specMessage, repeat, numberText),
     value,
     contentBlock,
     headline,
@@ -696,21 +731,42 @@ export function createText(options: TextOptions): Text {
       if (own) {
         // A copy limit's text takes `max` and `count`; an item's limit is `perItem`.
         const args = issue.code === 'too-many-copies' ? { ...data, max: data.limit } : data;
-        const found = lookup(own, args);
+        const found =
+          own.pack === null ? undefined : format(findPack(own.pack, own.key), args, true);
+        const owner =
+          issue.code === 'prerequisite-not-met' && 'id' in issue && issue.id
+            ? prerequisiteOwner(issue.id)
+            : undefined;
+        if (found !== undefined && owner) {
+          const name = owner.inline
+            ? (message(owner.pack, `${owner.root}.name`) ?? owner.root)
+            : content(`${owner.pack}:${owner.root}`);
+          return (
+            format(
+              findSpec('issues.prerequisite-not-met.owner'),
+              { owner: name, requirement: found },
+              true,
+            ) ?? found
+          );
+        }
         if (found !== undefined) return found;
       }
-      return (
-        specMessage(`issues.${issue.code}`, named(data)) ??
-        specMessage(`errors.${issue.code}`, named(data)) ??
-        unworded(issue.code)
-      );
+      return standard(issue, 'issues', 'errors');
     },
-    error: (error) =>
-      specMessage(`errors.${error.code}`, named(error.data)) ??
-      specMessage(`issues.${error.code}`, named(error.data)) ??
-      unworded(error.code),
+    error: (error) => standard(error, 'errors', 'issues'),
   };
   return text;
+}
+
+/** The variants of a code's standard text its data picks, most specific first. */
+function variants(code: string, data: Args): string[] {
+  if (code === 'out-of-range') {
+    const min = data.min !== undefined;
+    const max = data.max !== undefined;
+    return min === max ? [] : [min ? 'min' : 'max'];
+  }
+  if (code === 'safety-limit-exceeded' && typeof data.limit === 'string') return [data.limit];
+  return [];
 }
 
 function icuArgs(args: Args, language: string): Record<string, string | number | boolean> {

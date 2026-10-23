@@ -92,7 +92,8 @@ export function upgrade(from: Ruleset, to: Ruleset, saved: CharacterDoc): Upgrad
   }
   for (const pin of saved.packs) {
     const target = to.packs.find((p) => p.id === pin.id);
-    if (!target) return { ok: false, errors: [{ code: 'unknown-id', data: { pack: pin.id } }] };
+    if (!target)
+      return { ok: false, errors: [{ code: 'unknown-id', data: { id: pin.id, pack: pin.id } }] };
     if (semver.lt(target.version, pin.version)) {
       return {
         ok: false,

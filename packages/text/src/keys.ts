@@ -131,16 +131,35 @@ export function bandKey(
   return { pack, key: `bands.${set}.${band}.${suffix}` };
 }
 
+/**
+ * A prerequisite's owner, from the issue's `<owner>/<prerequisite>` ID: content, or an inline option
+ * (`<item>/<choice>/<option>`), whose key root is `<item>.choices.<choice>.options.<option>`.
+ */
+export function prerequisiteOwner(
+  id: string,
+): { pack: string; root: string; inline: boolean } | undefined {
+  const [pack, local] = split(id);
+  const parts = local.split('/');
+  if (parts.length < 2) return undefined;
+  const [item, ...path] = parts.slice(0, -1);
+  let root = item as string;
+  for (let i = 0; i + 1 < path.length; i += 2)
+    root += `.choices.${path[i] as string}.options.${path[i + 1] as string}`;
+  return { pack, root, inline: path.length > 0 };
+}
+
 /** A rules issue's own key in its pack, or `undefined` when the spec's `issues.<code>` applies. */
 export function issueKey(issue: { code: string; id?: string }): MessageRef | undefined {
   if (!issue.id) return undefined;
   const [pack, local] = split(issue.id);
   switch (issue.code) {
     case 'prerequisite-not-met': {
-      const slash = local.lastIndexOf('/');
-      return slash < 0
-        ? undefined
-        : { pack, key: `${local.slice(0, slash)}.prerequisites.${local.slice(slash + 1)}` };
+      const owner = prerequisiteOwner(issue.id);
+      if (!owner) return undefined;
+      return {
+        pack,
+        key: `${owner.root}.prerequisites.${local.slice(local.lastIndexOf('/') + 1)}`,
+      };
     }
     case 'constraint-failed':
       return { pack, key: `constraints.${local}` };

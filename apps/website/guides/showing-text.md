@@ -200,12 +200,12 @@ if (result.status === 'paused') {
 }
 ```
 
-| `needs.kind` | `title`                                                                | Also                                    |
-| ------------ | ---------------------------------------------------------------------- | --------------------------------------- |
-| `choice`     | the asked choice's prompt over pending choices, else the step's prompt | `options`, each `{ id, label }`         |
-| `allocate`   | the step's prompt                                                      | `fields`, each `{ id, label }`          |
-| `dice`       | the roll step's name, else the action's                                | `dice`, and `targets` for a banded roll |
-| `handoff`    | the name of the action the participant runs                            |                                         |
+| `needs.kind` | `title`                                                                | Also                                            |
+| ------------ | ---------------------------------------------------------------------- | ----------------------------------------------- |
+| `choice`     | the asked choice's prompt over pending choices, else the step's prompt | `options`, each `{ id, label }`                 |
+| `allocate`   | the step's prompt                                                      | `fields`, each `{ id, label }`                  |
+| `dice`       | the roll step's name, else the action's                                | `dice`, `roll`, and `targets` for a banded roll |
+| `handoff`    | the name of the action the participant runs                            |                                                 |
 
 A FitD action roll with a push, for a scoundrel with Battleborn:
 
@@ -247,9 +247,12 @@ A Mothership stat check with advantage, paused for dice:
   comparisons are joined ("10 or higher and under 20"). A band that holds whatever the roll has
   no condition unless its pack words one.
 - **Dice.** `text.dice(items)` words a roll's dice items (or `needs.dice`): "4d6, drop lowest",
-  "2d20, keep highest - 1d4", "4dF", "5d6, exploding on 6". Flat items are left out, and so is a
-  keep or drop that can't change the roll: one die kept highest is "1d6". The words
-  are the spec's `dice.*` text, so they translate like the rest.
+  "2d20, keep highest - 1d4", "4dF", "5d6, exploding on 6": the dice to throw. Flat items are left
+  out, and so is a keep or drop that can't change the roll: one die kept highest is "1d6". The
+  words are the spec's `dice.*` text, so they translate like the rest.
+- **Whole roll.** `text.roll(items)` words the same items with the flat ones summed after the
+  dice, so the player sees what the total adds: a Mothership stat roll is "2d10 + 25", a check
+  "1d20 - 1". `describeNeed` gives both, `dice` and `roll`.
 - **Rolled twice.** Pass a dice pause's `needs.repeat` too, `text.dice(needs.items,
   needs.repeat)`, for a whole roll made more than once: "2d6, rolled twice, keep the lower
   total" (`dice.repeat`). `describeNeed` does it for you.
@@ -261,9 +264,15 @@ text.issue(issue); // the pack's own text when it has one, else the spec's
 text.error(error); // the spec's text, data filled
 ```
 
-- `prerequisite-not-met` uses `<owner>.prerequisites.<id>`, `constraint-failed`
-  `constraints.<id>`, and `too-many-copies` the type's `types.<type>.copies` ("A character has
-  only one race"), each with the issue's `data` as arguments.
+- `prerequisite-not-met` uses `<owner>.prerequisites.<id>`, a phrase, wrapped by the spec's
+  `issues.prerequisite-not-met.owner` with the owner's name: "Terrain Scout requires: Scout
+  Dedication". `constraint-failed` uses `constraints.<id>`, and `too-many-copies` the type's
+  `types.<type>.copies` ("A character has only one race"), each with the issue's `data` as
+  arguments.
+- Some codes have text by their data: an `out-of-range` with only a `min` reads `"Maximum HP"
+  must be at least 1.` (`errors.out-of-range.min`), and a `safety-limit-exceeded` has a sentence
+  per limit (`errors.safety-limit-exceeded.maxOverflowChain`).
+- Text whose data is missing an argument is never shown raw: it falls back to `errors.other`.
 - The spec's generic text gets `data` with IDs replaced by names:
   `{ code: 'not-input-field', data: { field: '5e-srd-5.1:combat.ac' } }` reads
   `"Armor Class" is calculated and cannot be set directly.`
