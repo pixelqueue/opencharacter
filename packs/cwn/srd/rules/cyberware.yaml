@@ -126,17 +126,20 @@ actions:
     tags: [cyber]
     available: >-
       has(item.triggerStrain) && !self.damaged && strain.total + item.triggerStrain <= strain.max
+    results: [triggered]
     steps:
       - id: strain
         kind: changes
         changes:
           - { type: adjust, field: strain.temporary, by: item.triggerStrain }
+      - { id: result, kind: outcome, result: "'triggered'" }
 
   # Pick cyber with the Wired Edge's budget: new systems the character's strain can carry.
   - id: acquire-wired-cyber
     tags: [building]
     params:
       random: { type: boolean, default: false }
+    results: [acquired]
     steps:
       - id: cyber
         kind: choice
@@ -154,3 +157,4 @@ actions:
         changes:
           - type: addItem
             entry: { item: picked.id, state: { wired: true } }
+      - { id: result, kind: outcome, result: "'acquired'" }

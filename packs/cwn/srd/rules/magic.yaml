@@ -190,6 +190,7 @@ actions:
     params:
       # Immediate summonings already made this scene, each adding one point.
       earlier: { type: integer, default: 0, min: 0 }
+    results: [summoned]
     steps:
       - id: commit
         kind: changes
@@ -197,3 +198,4 @@ actions:
           - type: adjust
             field: effort.summoner.day
             by: 'self.cost + (self.ritual ? 0 : params.earlier)'
+      - { id: result, kind: outcome, result: "'summoned'" }

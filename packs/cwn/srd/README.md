@@ -81,7 +81,9 @@ the player's choices and other characters.
   two Acquaintances or a Friend, $500 and an item of up to $1,000. Edges and Foci bring their
   bonus skills, gear budgets, starting cyber, programs, spells and arts.
 - **Edges** (14, and the three magical ones) in rules-level choices: two at creation, the
-  Underdog Rule's, and a third at 5th level. **Foci** (26) are copies with a level, gained at
+  Underdog Rule's, and a third at 5th level. `gain-edge` finishes `closed` for the 5th-level
+  Edge below 5th level and for the Underdog Edge without the rule. The Underdog Rule counts the
+  modifiers of the rolled scores (`attributes.modTotal`), so its bonus Edge can't undo it. **Foci** (26) are copies with a level, gained at
   creation, at 2nd, 5th, 7th and 10th level and with Focused; a Focus's bonus skill during
   advancement is three skill points toward it, banked as credit.
 - **Advancement:** experience on the fast or slow table, a level-up action (hit points rerolled
