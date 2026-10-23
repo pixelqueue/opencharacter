@@ -1031,6 +1031,10 @@ class FormulaChecker<L> {
     );
     const pending = pendingSource(step);
     this.formula(pending?.entry, at, where, ['string']);
+    if (pending?.path && !Array.isArray(pending.path.choice))
+      this.formula(pending.path.choice, at, where, [{ list: 'string' }]);
+    if (pending?.path && typeof pending.path.entry === 'object')
+      this.formula(pending.path.entry.formula, at, where, ['string']);
     this.typed({ options: { list: 'string' }, choice: PENDING_CHOICE }, () =>
       this.withRoots(pending ? ['options', 'choice'] : ['options'], () => {
         this.formula(step.recommend as Formula | undefined, at, where, ['string']);

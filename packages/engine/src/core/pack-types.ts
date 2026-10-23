@@ -308,7 +308,18 @@ export type StepOptions =
   | { content: { type: string; where?: Formula } }
   | { copies: { type: string; where?: Formula } }
   | ValueSource
-  | { pending: { entry?: Formula } };
+  | { pending: PendingSource };
+
+export interface PendingSource {
+  entry?: Formula;
+  path?: ProposedPath;
+}
+
+/** A choice path in an action: `entry` an instance ID, `self`, `picked` or `{ formula }`. */
+export interface ProposedPath {
+  entry?: string | { formula: Formula };
+  choice: string[] | Formula;
+}
 
 export interface ValueSource {
   values: (string | number)[] | { formula: Formula };
@@ -339,7 +350,7 @@ export function valueSource(step: Step): ValueSource | undefined {
   return options && !Array.isArray(options) && 'values' in options ? options : undefined;
 }
 
-export function pendingSource(step: Step): { entry?: Formula } | undefined {
+export function pendingSource(step: Step): PendingSource | undefined {
   const options = step.options;
   return options && !Array.isArray(options) && 'pending' in options ? options.pending : undefined;
 }
@@ -384,7 +395,7 @@ export interface ProposedChange {
   state?: Record<string, Formula>;
   equipped?: Formula;
   template?: Formula;
-  path?: { entry?: string | { formula: Formula }; choice: string[] | Formula };
+  path?: ProposedPath;
   option?: Formula;
   followUp?: string;
   params?: Record<string, Formula>;

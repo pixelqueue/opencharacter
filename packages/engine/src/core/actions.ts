@@ -15,7 +15,9 @@ import type {
   Formula,
   OptionValue,
   StepChanges,
+  PendingSource,
   ProposedChange,
+  ProposedPath,
   ProposedEntry,
   Role,
   RollModifier,
@@ -2707,11 +2709,25 @@ interface Asked {
   options: { id: string; option: string | number; recommended: boolean }[];
 }
 
-function nextPending(ctx: Ctx, entry: string | undefined): Asked | undefined {
+/** A pending choice at or under `under`: the same entry, and a choice path it starts with. */
+function under(path: ChoicePath, prefix: ChoicePath): boolean {
+  return (
+    path.entry === prefix.entry &&
+    prefix.choice.length <= path.choice.length &&
+    prefix.choice.every((segment, i) => path.choice[i] === segment)
+  );
+}
+
+function nextPending(
+  ctx: Ctx,
+  entry: string | undefined,
+  prefix: ChoicePath | undefined,
+): Asked | undefined {
   const { sheet } = ctx;
   const links = ctx.state.links ?? {};
   for (const { path } of sheet.pending().pending) {
     if (entry !== undefined && path.entry !== entry) continue;
+    if (prefix !== undefined && !under(path, prefix)) continue;
     const listed = openOptionsOn(ctx.ruleset, sheet, path, links);
     if ('errors' in listed) continue;
     const open = listed.options.filter((o) => o.eligible && !o.picked);
@@ -2743,10 +2759,11 @@ function nextPending(ctx: Ctx, entry: string | undefined): Asked | undefined {
  */
 function pendingStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
   let frame = given;
-  const source = pendingSource(step) as { entry?: Formula };
+  const source = pendingSource(step) as PendingSource;
   const tags = ownTags(ctx, frame, step);
   const entry =
     source.entry === undefined ? undefined : String(f.toData(evaluate(ctx, frame, source.entry)));
+  const prefix = source.path && resolvePath(ctx, frame, source.path, {});
   const picks: string[] = [];
   const paths: ChoicePath[] = [];
   const first = ctx.proposed.length;
@@ -2758,7 +2775,7 @@ function pendingStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
       ctx.sheet = proposedSheet(ctx, path);
       frame = onSheet(ctx, frame);
     }
-    const asked = nextPending(ctx, entry);
+    const asked = nextPending(ctx, entry, prefix);
     if (!asked) break;
     const { choice } = asked;
     const ids = asked.options.map((o) => o.id);
@@ -3366,23 +3383,7 @@ function proposeOne(
             : outputData(evaluate(ctx, frame, v, extra)),
         ]),
       );
-    if (change.path) {
-      const at = change.path.entry;
-      const owner =
-        typeof at === 'object'
-          ? computedEntry(ctx, frame, at.formula, extra)
-          : at === 'self'
-            ? frame.entry
-            : at === 'picked'
-              ? (entries.picked ?? at)
-              : at;
-      const choice = Array.isArray(change.path.choice)
-        ? change.path.choice
-        : f.toData(evaluate(ctx, frame, change.path.choice, extra));
-      if (!Array.isArray(choice) || choice.some((c) => typeof c !== 'string'))
-        throw new ActionError('type-mismatch', { message: 'a choice path is a list of strings' });
-      out.path = { ...(owner !== undefined ? { entry: owner } : {}), choice };
-    }
+    if (change.path) out.path = resolvePath(ctx, frame, change.path, extra, entries.picked);
     if (change.option !== undefined)
       out.option = outputData(evaluate(ctx, frame, change.option, extra));
     if (change.pick === 'self') {
@@ -3475,6 +3476,31 @@ function proposeOne(
   } else {
     ctx.proposed.push({ ...route, step: path, change: resolve({}, []) });
   }
+}
+
+/** `entry` as a change's (`self`, `picked`, an instance ID or `{ formula }`); `choice` a list. */
+function resolvePath(
+  ctx: Ctx,
+  frame: Frame,
+  path: ProposedPath,
+  extra: Record<string, unknown>,
+  picked?: string,
+): ChoicePath {
+  const at = path.entry;
+  const owner =
+    typeof at === 'object'
+      ? computedEntry(ctx, frame, at.formula, extra)
+      : at === 'self'
+        ? frame.entry
+        : at === 'picked'
+          ? (picked ?? at)
+          : at;
+  const choice = Array.isArray(path.choice)
+    ? path.choice
+    : f.toData(evaluate(ctx, frame, path.choice, extra));
+  if (!Array.isArray(choice) || choice.some((c) => typeof c !== 'string'))
+    throw new ActionError('type-mismatch', { message: 'a choice path is a list of strings' });
+  return { ...(owner !== undefined ? { entry: owner } : {}), choice: choice as string[] };
 }
 
 /** Formulas only applyChanges can evaluate (per copy, or reading `batch`) are passed on. */

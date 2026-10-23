@@ -1,0 +1,35 @@
+status: finished
+outcome:
+  data:
+    picked: [test-pack:abilities.deadly, test-pack:abilities.predators]
+    paths:
+      - { choice: [crew-type, test-pack:crew-types.assassins, abilities] }
+      - { choice: [crew-type, test-pack:crew-types.assassins, abilities] }
+proposedChanges:
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { choice: [crew-type, test-pack:crew-types.assassins, abilities] }
+      option: test-pack:abilities.deadly
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path: { choice: [crew-type, test-pack:crew-types.assassins, abilities] }
+      option: test-pack:abilities.predators
+log:
+  - step: picks
+    action: test-pack:advance
+    kind: choice
+    by: engine
+    option: test-pack:abilities.deadly
+    index: 0
+    choice: { choice: [crew-type, test-pack:crew-types.assassins, abilities] }
+  - step: picks
+    action: test-pack:advance
+    kind: choice
+    by: engine
+    option: test-pack:abilities.predators
+    index: 1
+    choice: { choice: [crew-type, test-pack:crew-types.assassins, abilities] }

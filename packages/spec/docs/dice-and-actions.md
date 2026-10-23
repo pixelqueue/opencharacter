@@ -779,14 +779,15 @@ A choice step's `options` come from one source:
   the value as a string. A formula that fails is an error, as any action formula is. Each value
   is named `<actionKey>.options.<value>.name` when the pack has it; otherwise the app names it (a
   content ID by its item's name, a field ID by the field's).
-- **Pending choices**, `{ pending: { entry? } }`: the choices still pending on
+- **Pending choices**, `{ pending: { entry? } }` or `{ pending: { path } }`: the choices still pending on
   the [proposed character](#steps), in `pending`'s order (each item's own choices before
   those of what it grants, each followed by those of what it picked),
   one per pick, each with its eligible options as
   `listOptions` gives them, then `#done`. Each pick proposes the `choose`; the step goes on until
   nothing more can be picked, so an action asks what the content it adds brings without naming
-  it. `entry` (an instance ID formula) asks only that copy's choices. The app names each pick
-  with the choice's own text (`needs.choice`).
+  it. `entry` (an instance ID formula) asks only that copy's choices; `path` (a choice path, as a
+  `choose`'s) only the choices at it or under it. The app names each pick with the choice's own
+  text (`needs.choice`).
 
 In a query source's `where`, `item` (and for copies `self`) is the candidate, `picks` is how
 many times the step has already picked it, and the action's own item and copy are `action.item`
@@ -857,6 +858,17 @@ a subclass at 3rd level, an Ability Score Improvement at 4th:
 - id: picks
   kind: choice
   options: { pending: {} }
+```
+
+A FitD crew advance spent on an ability asks only the abilities under the crew type the crew
+picked in its rules-level `crew-type` choice, not every other choice still pending:
+
+```yaml
+- id: typeAbility
+  kind: choice
+  options:
+    pending:
+      path: { choice: "['crew-type', steps.type.picked, 'abilities']" }
 ```
 
 **Options added by content**. On a step with `tags`, the character's content

@@ -473,10 +473,15 @@
                   "type": "object",
                   "properties": {
                     "entry": {
-                      "description": "String formula giving an instance ID: only choices whose path starts at that copy are asked. Without it, every pending choice is, rules-level ones included.",
+                      "description": "String formula giving an instance ID: only choices whose path starts at that copy are asked. Without it (and without `path`), every pending choice is, rules-level ones included.",
                       "$ref": "formula.schema.json"
+                    },
+                    "path": {
+                      "description": "A choice path, as a `choose`'s `path`: only the pending choices at it or under it are asked, those with the same `entry` (none for a rules-level choice) whose choice path starts with `choice`. `{ choice: [crew-type, steps.type.picked, abilities] }` written as a formula asks only the abilities of the picked crew type. Not with `entry`.",
+                      "$ref": "change.schema.json#/$defs/proposedPath"
                     }
                   },
+                  "not": { "required": ["entry", "path"] },
                   "additionalProperties": false
                 }
               },

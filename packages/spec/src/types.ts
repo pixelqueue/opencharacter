@@ -135,8 +135,10 @@ export type ChoiceStep = {
     | {
         /** The choices still pending on the proposed sheet, in `computeSheet`'s `pending` order. Each pick answers the first of them with an eligible option not picked yet, offering those options as `listOptions` gives them, then `#done`; it proposes the `choose` for it, then the step's `changes`. The step reads the proposed sheet before each pick and goes on until nothing more can be picked or `#done` is picked. Result: `steps.<id>.picked`, the picked option IDs in order, and `steps.<id>.paths`, their choice paths. */
         pending: {
-          /** String formula giving an instance ID: only choices whose path starts at that copy are asked. Without it, every pending choice is, rules-level ones included. */
+          /** String formula giving an instance ID: only choices whose path starts at that copy are asked. Without it (and without `path`), every pending choice is, rules-level ones included. */
           entry?: Formula;
+          /** A choice path, as a `choose`'s `path`: only the pending choices at it or under it are asked, those with the same `entry` (none for a rules-level choice) whose choice path starts with `choice`. `{ choice: [crew-type, steps.type.picked, abilities] }` written as a formula asks only the abilities of the picked crew type. Not with `entry`. */
+          path?: ProposedPath;
         };
       };
   /** Pick more than once: the step is asked again, each pick its own checkpoint, until it has `max` picks or nothing is offered. After `min` picks the reserved option `#done` is offered last, which ends the step. An option may be picked again unless its `when` or `where` rules it out (they read `picks`). */
@@ -478,6 +480,12 @@ export type Unchoose = {
   option?: string | number;
 };
 
+/** A choice an action names (a `choose` or `unchoose`, a pending choice step's `path`). `entry` is an instance ID, `self` or `picked` as for `entry`; without it the choice is a rules-level one. `choice` is the path as a list of literal segments, or a formula giving the list (`"['playbook', steps.playbook.picked, 'special-ability']"`). */
+export type ProposedPath = {
+  entry?: string | ComputedEntry;
+  choice: string[] | Formula;
+};
+
 /** Where a choice lives: on an entry (or the character's rules-level choices when `entry` is absent), then alternating choice IDs and picked options down to the choice. `["martial-archetype", "5e-srd-5.1:subclasses.champion", "additional-fighting-style"]`. */
 export type ChoicePath = {
   entry?: InstanceId;
@@ -587,11 +595,7 @@ export type ProposedChange = {
     where: Condition;
     limit?: number;
   };
-  /** choose and unchoose: the choice. `entry` is an instance ID, `self` or `picked` as for `entry`; without it the choice is a rules-level one. `choice` is the path as a list of literal segments, or a formula giving the list (`"['playbook', steps.playbook.picked, 'special-ability']"`). */
-  path?: {
-    entry?: string | ComputedEntry;
-    choice: string[] | Formula;
-  };
+  path?: ProposedPath;
   /** choose and unchoose: a formula naming the option (`picked.id`). An unchoose may leave it out to remove every pick of the choice. */
   option?: Formula;
   /** applyEffect: the new entry's instance ID (without it, applyChanges picks one); removeEffect and toggleEffect: the applied entry's. */

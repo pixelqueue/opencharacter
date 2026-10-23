@@ -1,0 +1,52 @@
+description: "With `path`, only the pending choices at or under that choice path are asked: the picked crew type's abilities, not the rules-level `contact` choice or another copy's"
+specVersion: 0.2.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          crewType: {}
+          ability: {}
+          kit:
+            carried: true
+        choices:
+          - id: contact
+            from: { options: [{ id: flint }, { id: marlane }] }
+          - id: crew-type
+            from: { type: crewType }
+        actions:
+          - id: advance
+            steps:
+              - id: picks
+                kind: choice
+                options:
+                  pending:
+                    path: { choice: "['crew-type', crew.type, 'abilities']" }
+                recommend: options[0]
+              - id: done
+                kind: outcome
+                data: { picked: steps.picks.picked, paths: steps.picks.paths }
+        fields:
+          crew.type: { type: string, input: true, default: '' }
+      content:
+        - id: crew-types.assassins
+          type: crewType
+          choices:
+            - id: abilities
+              from: { type: ability }
+              pick: 2
+        - { id: abilities.deadly, type: ability }
+        - { id: abilities.predators, type: ability }
+        - id: kits.box
+          type: kit
+          choices:
+            - id: abilities
+              from: { type: ability }
+input:
+  action: { id: test-pack:advance }

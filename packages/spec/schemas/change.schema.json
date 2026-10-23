@@ -947,6 +947,40 @@
       "additionalProperties": false,
       "type": "object"
     },
+    "proposedPath": {
+      "description": "A choice an action names (a `choose` or `unchoose`, a pending choice step's `path`). `entry` is an instance ID, `self` or `picked` as for `entry`; without it the choice is a rules-level one. `choice` is the path as a list of literal segments, or a formula giving the list (`\"['playbook', steps.playbook.picked, 'special-ability']\"`).",
+      "type": "object",
+      "required": ["choice"],
+      "properties": {
+        "entry": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "$ref": "#/$defs/computedEntry"
+            }
+          ]
+        },
+        "choice": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1
+            },
+            {
+              "$ref": "formula.schema.json"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
     "choicePath": {
       "description": "Where a choice lives: on an entry (or the character's rules-level choices when `entry` is absent), then alternating choice IDs and picked options down to the choice. `[\"martial-archetype\", \"5e-srd-5.1:subclasses.champion\", \"additional-fighting-style\"]`.",
       "type": "object",
@@ -1192,38 +1226,7 @@
           "additionalProperties": false
         },
         "path": {
-          "description": "choose and unchoose: the choice. `entry` is an instance ID, `self` or `picked` as for `entry`; without it the choice is a rules-level one. `choice` is the path as a list of literal segments, or a formula giving the list (`\"['playbook', steps.playbook.picked, 'special-ability']\"`).",
-          "type": "object",
-          "required": ["choice"],
-          "properties": {
-            "entry": {
-              "oneOf": [
-                {
-                  "type": "string",
-                  "minLength": 1
-                },
-                {
-                  "$ref": "#/$defs/computedEntry"
-                }
-              ]
-            },
-            "choice": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "minItems": 1
-                },
-                {
-                  "$ref": "formula.schema.json"
-                }
-              ]
-            }
-          },
-          "additionalProperties": false
+          "$ref": "#/$defs/proposedPath"
         },
         "option": {
           "description": "choose and unchoose: a formula naming the option (`picked.id`). An unchoose may leave it out to remove every pick of the choice.",

@@ -747,13 +747,17 @@ A choice step has one source of options (a fifth, pending choices, is
 
 A choice step with `options: { pending: { entry? } }` asks the choices that
 content brings, without naming them. `entry`, a formula giving an instance ID, limits it to the
-choices whose path starts at that copy; without it, every pending choice is asked, rules-level
-ones included. Each pick is a checkpoint:
+choices whose path starts at that copy. `path` instead (`{ pending: { path } }`) limits it to
+the choices at or under a choice path: it is resolved once, before the first pick, as a
+`choose`'s `path` is (`entry` an instance ID, `self` or `{ formula }`, left out for rules-level
+choices; `choice` a list of segments or a formula giving one), and a pending choice is asked
+when it has the same `entry` and its choice path starts with `choice`. With neither, every
+pending choice is asked, rules-level ones included. Each pick is a checkpoint:
 
 1. The step reads the [proposed sheet](#the-proposed-sheet), built again before each pick, as if
    it had `sheet: proposed`. (`sheet: given`, `repeat` and `prefer` aren't allowed on this
    source.)
-2. Of the sheet's pending choices, in `computeSheet`'s `pending` order and filtered by `entry`,
+2. Of the sheet's pending choices, in `computeSheet`'s `pending` order and filtered by `entry` or `path`,
    **the choice** of this pick is the first with at least one option that `listOptions` calls
    eligible and that isn't picked yet. A choice whose options are all ineligible is passed over
    for now: a pick that makes them eligible brings it back.
