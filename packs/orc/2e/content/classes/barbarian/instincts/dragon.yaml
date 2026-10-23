@@ -2,14 +2,12 @@ id: classes.barbarian.instincts.dragon
 type: feature
 fields: { level: 1 }
 effects:
-  - { target: barbarian.instinct, op: set, value: "'dragon'" }
   - { target: rage.altDamage, op: set, value: 'level >= 15 ? 16 : level >= 7 ? 8 : 4' }
   - { target: rage.resists, op: grant, value: { tag: damage.piercing }, when: level >= 9 }
 choices:
   - id: breath
     from: { values: [bludgeoning, fire, force, mental, poison, spirit] }
     effects:
-      - { target: rage.altType, op: set, value: pick.value }
       - target: rage.resists
         op: grant
         value: { formula: "'damage.' + pick.value" }
