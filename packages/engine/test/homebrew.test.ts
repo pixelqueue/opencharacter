@@ -133,6 +133,10 @@ describe('loading', () => {
 });
 
 const broken = (hb: unknown) => character({ homebrew: hb });
+const fieldCause = (item: string, field: string, reason: string) => ({
+  cause: 'invalid-item-field',
+  detail: { item: `homebrew:${item}`, field, reason, pack: 'homebrew' },
+});
 
 describe('errors', () => {
   it('an unknown type is homebrew-error with the load code as cause; nothing is computed', () => {
@@ -182,6 +186,42 @@ describe('errors', () => {
     );
     expect(formula).toMatchObject([
       { code: 'homebrew-error', path: '/homebrew/content/0', data: { cause: 'formula-error' } },
+    ]);
+  });
+
+  it("item fields that don't match their content type are invalid-item-field, with a path", () => {
+    const sheet = computeSheet(
+      ruleset,
+      broken({
+        content: [
+          { id: 'skills.a', type: 'skill' },
+          { id: 'skills.b', type: 'skill', fields: { tier: 'grand' } },
+          { id: 'gear.c', type: 'weapon', fields: { damage: ['1d6'], bogus: 1 } },
+        ],
+      }),
+    );
+    expect(sheet.values).toEqual({});
+    expect(sheet.errors).toEqual([
+      {
+        code: 'homebrew-error',
+        path: '/homebrew/content/0/fields/tier',
+        data: fieldCause('skills.a', 'tier', 'missing'),
+      },
+      {
+        code: 'homebrew-error',
+        path: '/homebrew/content/1/fields/tier',
+        data: fieldCause('skills.b', 'tier', 'wrong-type'),
+      },
+      {
+        code: 'homebrew-error',
+        path: '/homebrew/content/2/fields/damage',
+        data: fieldCause('gear.c', 'damage', 'wrong-type'),
+      },
+      {
+        code: 'homebrew-error',
+        path: '/homebrew/content/2/fields/bogus',
+        data: fieldCause('gear.c', 'bogus', 'undeclared'),
+      },
     ]);
   });
 

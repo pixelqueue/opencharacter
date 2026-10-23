@@ -625,3 +625,23 @@ export interface Constraint {
   data?: Record<string, Formula>;
   copies?: { type: string; where?: Formula };
 }
+
+/** Whether an item's value has the shape its item field declares (references resolve apart). */
+export function fitsItemField(value: unknown, decl: ValueDecl): boolean {
+  switch (decl.type) {
+    case 'integer':
+    case 'decimal':
+    case 'boolean':
+    case 'dice':
+      return !Array.isArray(value);
+    case 'string':
+    case 'id':
+      return typeof value === 'string';
+    case 'enum':
+      return typeof value === 'string' && (decl.values ?? []).includes(value);
+    case 'set':
+      return Array.isArray(value);
+    default:
+      return true;
+  }
+}

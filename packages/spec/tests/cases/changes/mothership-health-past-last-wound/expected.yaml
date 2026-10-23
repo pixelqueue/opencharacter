@@ -1,0 +1,56 @@
+# Health 3 - 1000 is a wound (wounds 1 -> 2), and health resets to 14 (+1011); the 997 past 0
+# carries over. With wounds at their maximum, the next overflow would change nothing, so it
+# doesn't fire: health clamps at 0 (-14). The wound lists the wound roll, health 0 the death save.
+ok: true
+adjustments:
+  - {
+      field: mothership-1e:health.current,
+      by: -1000,
+      requested: -1000,
+      taken: -1000,
+      reason: requested,
+    }
+  - { field: mothership-1e:wounds.current, by: 1, reason: overflow }
+  - { field: mothership-1e:health.current, by: 1011, reason: reset }
+  - { field: mothership-1e:health.current, by: -14, reason: carry, clamped: true }
+followUps:
+  - id: wound-1
+    kind: ephemeral
+    followUp: mothership-1e:wound
+    to: self
+    required: true
+    action:
+      id: mothership-1e:wound-roll
+      followUp: wound-1
+    params: {}
+    cause:
+      field: mothership-1e:wounds.current
+      by: 1
+      requested: 0
+      taken: 0
+      reason: overflow
+      clamped: false
+      tags: []
+  - id: dying-1
+    kind: ephemeral
+    followUp: mothership-1e:dying
+    to: self
+    required: true
+    action:
+      id: mothership-1e:death-save
+      followUp: dying-1
+    params: {}
+character:
+  values:
+    mothership-1e:stats.strength: 32
+    mothership-1e:stats.speed: 38
+    mothership-1e:stats.intellect: 29
+    mothership-1e:stats.combat: 41
+    mothership-1e:saves.sanity: 24
+    mothership-1e:saves.fear: 31
+    mothership-1e:saves.body: 27
+    mothership-1e:stress.current: 4
+    mothership-1e:health.max: 14
+    mothership-1e:health.current: 0
+    mothership-1e:wounds.max: 2
+    mothership-1e:wounds.current: 2

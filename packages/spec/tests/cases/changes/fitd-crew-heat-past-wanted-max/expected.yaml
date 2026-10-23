@@ -1,0 +1,25 @@
+# 7 + 200 = 207: wanted 1 -> 2, 198 carries; wanted 2 -> 3, 189 carries; wanted 3 -> 4, 180
+# carries. Wanted is at its maximum, so the next overflow would change nothing and doesn't fire:
+# heat clamps at 9 (+9 from 0). Any larger amount ends the same way.
+ok: true
+adjustments:
+  - { field: fitd-crew:heat.current, by: 200, requested: 200, taken: 200, reason: requested }
+  - { field: fitd-crew:wanted.current, by: 1, reason: overflow }
+  - { field: fitd-crew:heat.current, by: -207, reason: reset }
+  - { field: fitd-crew:heat.current, by: 198, reason: carry }
+  - { field: fitd-crew:wanted.current, by: 1, reason: overflow }
+  - { field: fitd-crew:heat.current, by: -198, reason: reset }
+  - { field: fitd-crew:heat.current, by: 189, reason: carry }
+  - { field: fitd-crew:wanted.current, by: 1, reason: overflow }
+  - { field: fitd-crew:heat.current, by: -189, reason: reset }
+  - { field: fitd-crew:heat.current, by: 9, reason: carry, clamped: true }
+followUps: []
+character:
+  values:
+    fitd-crew:tier: 1
+    fitd-crew:rep.current: 4
+    fitd-crew:heat.current: 9
+    fitd-crew:wanted.current: 4
+    fitd-crew:coin.current: 5
+    fitd-crew:upgrades.lair.vault: 1
+    fitd-crew:upgrades.quality.weapons: 1

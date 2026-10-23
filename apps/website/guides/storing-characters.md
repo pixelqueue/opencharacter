@@ -136,9 +136,11 @@ inventory:
 - **It can add, not change.** Homebrew can't override or hide the packs' content or change
   settings. A table rule that changes the official rules belongs in a standalone pack that the
   whole table loads ([packs and rulesets](packs-and-rulesets.md)).
-- **Errors.** If the homebrew doesn't load (a typo in a type, a formula naming a missing field),
-  every call returns `homebrew-error`, with the load error as `data.cause` and a `path` into the
-  file (`/homebrew/content/0`). Show it so the player can fix the item. Its size is capped by
+- **Errors.** If the homebrew doesn't load (a typo in a type, a formula naming a missing field,
+  an item field missing, undeclared or of the wrong type), every call returns `homebrew-error`,
+  with the load error as `data.cause` and a `path` into the file (`/homebrew/content/0`, or
+  `/homebrew/content/0/fields/twoDots` for `invalid-item-field`). Show it so the player can fix
+  the item, on the custom-item form's input when the path names a field. Its size is capped by
   the safety limits `maxHomebrewItems` and `maxHomebrewFormulas`.
 - **Editing it** is the change `setHomebrew`, which replaces the section (`null` removes it). It
   is refused while the file still uses an item it removes, so remove the item's copies and picks

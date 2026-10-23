@@ -24,6 +24,7 @@ import { familyPattern, patternIds } from '../../packages/engine/src/formula/eva
 
 const KEYWORDS = new Set(['true', 'false', 'null', 'in']);
 import {
+  fitsItemField,
   optionQuery,
   pendingSource,
   valueSource,
@@ -1019,32 +1020,21 @@ export class PackChecker {
   }
 
   private itemFieldValue(value: Literal, decl: ValueDecl, file: string, where: string): void {
-    const bad = (expected: string) =>
-      this.report.error(file, `${where}: expected ${expected}, got ${JSON.stringify(value)}`);
-    switch (decl.type) {
-      case 'integer':
-      case 'decimal':
-      case 'boolean':
-      case 'dice':
-        if (Array.isArray(value)) bad(`a ${decl.type} formula`);
-        break;
-      case 'string':
-        if (typeof value !== 'string') bad('a string');
-        break;
-      case 'enum':
-        if (typeof value !== 'string' || !decl.values?.includes(value)) {
-          bad(`one of ${decl.values?.join(', ')}`);
-        }
-        break;
-      case 'id':
-        if (typeof value !== 'string') bad('an id');
-        else this.member(value, decl.of, file, where, decl);
-        break;
-      case 'set':
-        if (!Array.isArray(value)) bad('a list');
-        else for (const member of value) this.member(String(member), decl.of, file, where, decl);
-        break;
-    }
+    if (!fitsItemField(value, decl)) {
+      const expected: Record<string, string> = {
+        string: 'a string',
+        enum: `one of ${decl.values?.join(', ')}`,
+        id: 'an id',
+        set: 'a list',
+      };
+      this.report.error(
+        file,
+        `${where}: expected ${expected[decl.type] ?? `a ${decl.type} formula`}, got ${JSON.stringify(value)}`,
+      );
+    } else if (decl.type === 'id') this.member(value as string, decl.of, file, where, decl);
+    else if (decl.type === 'set')
+      for (const member of value as Literal[])
+        this.member(String(member), decl.of, file, where, decl);
   }
 
   private member(
