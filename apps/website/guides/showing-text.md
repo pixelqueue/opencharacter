@@ -264,9 +264,11 @@ text.issue(issue); // the pack's own text when it has one, else the spec's
 text.error(error); // the spec's text, data filled
 ```
 
-- `prerequisite-not-met` uses `<owner>.prerequisites.<id>`, `constraint-failed`
-  `constraints.<id>`, and `too-many-copies` the type's `types.<type>.copies` ("A character has
-  only one race"), each with the issue's `data` as arguments.
+- `prerequisite-not-met` uses `<owner>.prerequisites.<id>`, a phrase, wrapped by the spec's
+  `issues.prerequisite-not-met.owner` with the owner's name: "Terrain Scout requires: Scout
+  Dedication". `constraint-failed` uses `constraints.<id>`, and `too-many-copies` the type's
+  `types.<type>.copies` ("A character has only one race"), each with the issue's `data` as
+  arguments.
 - Some codes have text by their data: an `out-of-range` with only a `min` reads `"Maximum HP"
   must be at least 1.` (`errors.out-of-range.min`), and a `safety-limit-exceeded` has a sentence
   per limit (`errors.safety-limit-exceeded.maxOverflowChain`).

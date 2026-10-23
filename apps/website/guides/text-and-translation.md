@@ -186,6 +186,7 @@ errors.wrong-type: '"{target}" needs a value of type {expected}.'
 errors.not-owned: 'The character does not have "{entry}".'
 issues.too-many-picks: 'Too many options are picked (at most {max}).'
 issues.prerequisite-not-met: 'A requirement is not met.'
+issues.prerequisite-not-met.owner: '{owner} requires: {requirement}'
 ```
 
 Fill the placeholders from the error's or issue's `data`. For example:
@@ -216,7 +217,12 @@ function issueText(issue: { code: string; id?: string; data?: Record<string, unk
     const [pack, local] = split(issue.id);
     const [owner, prerequisite] = local.split('/');
     const own = message(pack, `${owner}.prerequisites.${prerequisite}`);
-    if (own) return own; // Multiclassing into fighter needs Strength 13 or Dexterity 13.
+    // The pack's text is the requirement alone; the spec's text names the owner.
+    if (own)
+      return format(specText['issues.prerequisite-not-met.owner'], {
+        owner: message(pack, `${owner}.name`) ?? owner,
+        requirement: own,
+      }); // Terrain Scout requires: Scout Dedication
   }
   if (issue.id && issue.code === 'constraint-failed') {
     const [pack, local] = split(issue.id);

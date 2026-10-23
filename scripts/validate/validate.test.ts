@@ -8,6 +8,8 @@ import { validateRepo } from './index.ts';
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 const broken = fileURLToPath(new URL('./fixtures/broken', import.meta.url));
 const unused = (key: string) => `translation key "${key}" does not belong to anything in this pack`;
+const sentence = (key: string) =>
+  `"${key}": prerequisite text is a phrase, the requirement alone: no final period, no "Requires" or "Needs"`;
 
 describe('pnpm validate', () => {
   it('passes on the repository packs and example characters', () => {
@@ -408,6 +410,12 @@ describe('pnpm validate', () => {
       expect(reporter.warnings.map((w) => w.message)).toContain(
         `"rules.choices.perk.prompt": a slotted choice's prompt should name its slot as {slot}`,
       );
+    });
+
+    it('warns about prerequisite text written as a sentence', () => {
+      const warnings = reporter.warnings.map((w) => w.message);
+      expect(warnings).toContain(sentence('tricks.hop.prerequisites.hat'));
+      expect(warnings).not.toContain(sentence('tricks.hop.prerequisites.calm'));
     });
 
     it('warns about translation keys nothing uses', () => {

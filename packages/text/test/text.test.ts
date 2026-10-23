@@ -646,6 +646,36 @@ describe('error text by its data', () => {
   });
 });
 
+describe('prerequisite text', () => {
+  const spec = load('mothership/1e').spec;
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        p: {
+          'feats.terrain-scout.name': 'Terrain Scout',
+          'feats.terrain-scout.prerequisites.dedication': 'Scout Dedication',
+          'feats.asi.choices.increase.options.str.name': 'Strength',
+          'feats.asi.choices.increase.options.str.prerequisites.max': 'Strength below 20',
+        },
+      },
+    },
+    spec: { en: spec },
+  });
+
+  it("wraps the requirement with its owner's name", () => {
+    expect(
+      text.issue({ code: 'prerequisite-not-met', id: 'p:feats.terrain-scout/dedication' } as never),
+    ).toBe('Terrain Scout requires: Scout Dedication');
+    expect(
+      text.issue({ code: 'prerequisite-not-met', id: 'p:feats.asi/increase/str/max' } as never),
+    ).toBe('Strength requires: Strength below 20');
+    expect(text.issue({ code: 'prerequisite-not-met', id: 'p:feats.other/missing' } as never)).toBe(
+      'A requirement is not met.',
+    );
+  });
+});
+
 describe('FitD crew factions', () => {
   const { ruleset, text } = load('fitd/crew');
   const faction = 'fitd-crew:factions.faction';

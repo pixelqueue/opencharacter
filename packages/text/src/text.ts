@@ -27,6 +27,7 @@ import {
   inlineOptionKey,
   issueKey,
   packKey,
+  prerequisiteOwner,
   paramKey,
   paramValueKey,
   situationalKey,
@@ -238,7 +239,11 @@ export interface Text {
     character?: HeadlineCharacter,
     options?: HeadlineOptions,
   ): string | undefined;
-  /** The pack's own text, else the spec's; an engine error words as the error, else `errors.other`. */
+  /**
+   * The pack's own text, else the spec's; an engine error words as the error, else `errors.other`.
+   * A prerequisite's own text, a phrase, is wrapped with its owner's name
+   * (`issues.prerequisite-not-met.owner`): "Terrain Scout requires: Scout Dedication".
+   */
   issue(issue: RulesIssue | EngineError): string;
   /**
    * The spec's text, by the variant its data picks (`errors.out-of-range.min`,
@@ -728,6 +733,22 @@ export function createText(options: TextOptions): Text {
         const args = issue.code === 'too-many-copies' ? { ...data, max: data.limit } : data;
         const found =
           own.pack === null ? undefined : format(findPack(own.pack, own.key), args, true);
+        const owner =
+          issue.code === 'prerequisite-not-met' && 'id' in issue && issue.id
+            ? prerequisiteOwner(issue.id)
+            : undefined;
+        if (found !== undefined && owner) {
+          const name = owner.inline
+            ? (message(owner.pack, `${owner.root}.name`) ?? owner.root)
+            : content(`${owner.pack}:${owner.root}`);
+          return (
+            format(
+              findSpec('issues.prerequisite-not-met.owner'),
+              { owner: name, requirement: found },
+              true,
+            ) ?? found
+          );
+        }
         if (found !== undefined) return found;
       }
       return standard(issue, 'issues', 'errors');

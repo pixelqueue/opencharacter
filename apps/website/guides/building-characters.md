@@ -183,7 +183,7 @@ const result = listOptions(ruleset, character, { entry: 'fighter', choice: ['fig
 
 - **`eligible`** is false when picking it would cause rules issues, and **`reasons`** lists them.
   They're exactly the issues `applyChanges` would report if the player picked it anyway, so
-  "needs Strength 13" reads the same in the picker and on the sheet.
+  "Fighter requires: Strength 13 to multiclass" reads the same in the picker and on the sheet.
 - **`picked`** marks options already picked (useful when re-opening a choice to change it).
 - **`recommended`** marks the option the pack recommends, if any.
 

@@ -1,8 +1,8 @@
 # Standard English text for the spec's own error and rules-issue codes, and for the options the
 # spec itself reserves. Keys: errors.<code>, issues.<code>, actions.options.<option>.name,
 # compare.<code> and dice.*. ICU MessageFormat; placeholders come from the
-# error's `data`. A few codes have variants for their data: errors.out-of-range.min and .max
-# and errors.safety-limit-exceeded.<limit>.
+# error's `data`. A few codes have variants for their data: errors.out-of-range.min and .max,
+# errors.safety-limit-exceeded.<limit>, and issues.prerequisite-not-met.owner.
 
 # A repeated choice step's `#done` option: stop picking.
 actions.options.done.name: 'Done'
@@ -84,6 +84,8 @@ errors.undeclared-result: 'The action finished with "{result}", which it does no
 errors.proposed-changes-failed: 'Before the step "{step}", the action could not apply the changes it had proposed.'
 
 issues.prerequisite-not-met: 'A requirement is not met.'
+# The pack's prerequisite text (`requirement`, a phrase) with its owner's name.
+issues.prerequisite-not-met.owner: '{owner} requires: {requirement}'
 issues.constraint-failed: 'A rule of the game is not met.'
 issues.too-many-picks: 'Too many options are picked (at most {max}).'
 issues.too-few-picks: 'More options need to be picked ({min} needed).'
