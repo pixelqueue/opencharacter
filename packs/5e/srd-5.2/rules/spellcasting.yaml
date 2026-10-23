@@ -288,14 +288,12 @@ actions:
       - id: spellOption
         kind: choice
         each: target
-        tags: [spell-option]
         when: has(item.castOptions)
-        options: [{ id: none, when: 'false' }]
+        options: { values: { formula: item.castOptions } }
       - id: spellOptionSelf
         kind: choice
-        tags: [spell-option]
         when: has(item.castOptions) && size(participants.target) == 0
-        options: [{ id: none, when: 'false' }]
+        options: { values: { formula: item.castOptions } }
       - id: counts
         kind: branch
         cases:
@@ -517,9 +515,7 @@ actions:
               castSlot: flags.effectiveSlot
               castDc: flags.dc
               caster: flags.me
-              option: >-
-                has(steps.spellOption)
-                  ? filterList(item.castOptions, item.id + '#' + x == steps.spellOption.picked)[0] : ''
+              option: "has(steps.spellOption) ? steps.spellOption.value : ''"
           - type: adjust
             when: has(item.maxHp)
             field: hp.current
@@ -538,10 +534,7 @@ actions:
               castSlot: flags.effectiveSlot
               castDc: flags.dc
               caster: flags.me
-              option: >-
-                has(steps.spellOptionSelf)
-                  ? filterList(item.castOptions, item.id + '#' + x == steps.spellOptionSelf.picked)[0]
-                  : ''
+              option: "has(steps.spellOptionSelf) ? steps.spellOptionSelf.value : ''"
           - type: adjust
             when: has(item.maxHp)
             field: hp.current
