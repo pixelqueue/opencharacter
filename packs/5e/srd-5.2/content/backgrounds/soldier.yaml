@@ -1,5 +1,7 @@
 id: backgrounds.soldier
 type: background
+fields:
+  startingKit: true
 effects:
   - { target: proficiencies.skills, op: grant, value: { tag: skill.athletics } }
   - { target: proficiencies.skills, op: grant, value: { tag: skill.intimidation } }
@@ -57,3 +59,41 @@ choices:
     unique: languages
     from: { type: language, where: '!item.rare' }
     eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: soldier
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'weapons.spear'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.shortbow'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.arrows'", quantity: 20 } }
+              - { type: addItem, entry: { item: "'gear.healers-kit'" } }
+              - { type: addItem, entry: { item: "'gear.quiver'" } }
+              - { type: addItem, entry: { item: "'gear.travelers-clothes'" } }
+              - { type: adjust, field: coins.gp, by: 14 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 50 }
+        recommend: "'a'"
+        random: params.random
+      - id: soldierGamingSet
+        kind: choice
+        when: "steps.soldier.picked == 'a'"
+        sheet: proposed
+        options:
+          content:
+            type: tool
+            where: >-
+              item.category in ['gaming-set']
+                && (item.id in proficiencies.tools
+                  || countList(proficiencies.tools, x in [@tools.dice, @tools.dragonchess, @tools.playing-cards, @tools.three-dragon-ante]) == 0)
+        recommend: options[0]
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id } }

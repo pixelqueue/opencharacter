@@ -2,6 +2,7 @@ id: classes.druid
 type: class
 fields:
   hitDie: 1d8
+  startingKit: true
 state:
   wildShapeSpent: { type: integer, default: 0, min: 0 }
   wildResurgenceUsed: { type: boolean, default: false }
@@ -58,3 +59,34 @@ choices:
   - id: subclass
     from: { type: subclass, where: 'item.class == @classes.druid' }
     when: self.level >= 3
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: druid
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+              - { type: addItem, entry: { item: "'armor.shield'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.sickle'", equipped: true } }
+              - {
+                  type: addItem,
+                  entry:
+                    {
+                      item: "'weapons.quarterstaff'",
+                      equipped: true,
+                      templates: ['gear.wooden-staff'],
+                    },
+                }
+              - { type: addItem, entry: { item: "'gear.explorers-pack'" } }
+              - { type: addItem, entry: { item: "'tools.herbalism-kit'" } }
+              - { type: adjust, field: coins.gp, by: 9 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 50 }
+        recommend: "'a'"
+        random: params.random

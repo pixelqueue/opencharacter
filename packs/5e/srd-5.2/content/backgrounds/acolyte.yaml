@@ -1,5 +1,7 @@
 id: backgrounds.acolyte
 type: background
+fields:
+  startingKit: true
 effects:
   - { target: proficiencies.skills, op: grant, value: { tag: skill.insight } }
   - { target: proficiencies.skills, op: grant, value: { tag: skill.religion } }
@@ -53,3 +55,33 @@ choices:
     unique: languages
     from: { type: language, where: '!item.rare' }
     eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: acolyte
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'tools.calligraphers-supplies'" } }
+              - { type: addItem, entry: { item: "'gear.book'" } }
+              - { type: addItem, entry: { item: "'gear.parchment'", quantity: 10 } }
+              - { type: addItem, entry: { item: "'gear.robe'" } }
+              - { type: adjust, field: coins.gp, by: 8 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 50 }
+        recommend: "'a'"
+        random: params.random
+      - id: acolyteHolySymbol
+        kind: choice
+        when: "steps.acolyte.picked == 'a'"
+        sheet: proposed
+        options: { content: { type: gear, where: "item.category == 'holy-symbol'" } }
+        recommend: options[0]
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id } }

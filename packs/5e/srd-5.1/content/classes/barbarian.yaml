@@ -2,6 +2,7 @@ id: classes.barbarian
 type: class
 fields:
   hitDie: 1d12
+  startingKit: true
 state:
   rageSpent: { type: integer, default: 0, min: 0 }
   relentlessRageSpent: { type: integer, default: 0, min: 0 }
@@ -57,3 +58,49 @@ choices:
   - id: primal-path
     from: { type: subclass, where: 'item.class == @classes.barbarian' }
     when: self.level >= 3
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: barbarianWeapon
+        kind: choice
+        options:
+          - id: greataxe
+            changes:
+              - { type: addItem, entry: { item: "'weapons.greataxe'", equipped: true } }
+          - id: martial-melee
+        recommend: options[0]
+        random: params.random
+      - id: barbarianMartial
+        kind: choice
+        when: "steps.barbarianWeapon.picked == 'martial-melee'"
+        options:
+          content: { type: weapon, where: "item.category == 'martial' && item.range == 'melee'" }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: barbarianSecond
+        kind: choice
+        options:
+          - id: two-handaxes
+            changes:
+              - type: addItem
+                entry: { item: "'weapons.handaxe'", quantity: 2, equipped: true }
+          - id: simple
+        recommend: options[0]
+        random: params.random
+      - id: barbarianSimple
+        kind: choice
+        when: "steps.barbarianSecond.picked == 'simple'"
+        options: { content: { type: weapon, where: "item.category == 'simple'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: barbarianKit
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'gear.explorers-pack'" } }
+          - type: addItem
+            entry: { item: "'weapons.javelin'", quantity: 4, equipped: true }

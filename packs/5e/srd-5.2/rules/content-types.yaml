@@ -122,6 +122,8 @@ contentTypes:
     copies: { perItem: 1 }
     fields:
       hitDie: { type: dice, required: true }
+      # Its own kit action gives its starting equipment.
+      startingKit: { type: boolean, default: false }
     state:
       level: { type: integer, default: 1, min: 1, max: 20 }
       startingClass: { type: boolean, default: false }
@@ -276,6 +278,8 @@ contentTypes:
 
   background:
     copies: { max: 1 }
+    fields:
+      startingKit: { type: boolean, default: false }
 
 fields:
   armor.untrained: { type: boolean, formula: false }

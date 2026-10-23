@@ -2,6 +2,7 @@ id: classes.warlock
 type: class
 fields:
   hitDie: 1d8
+  startingKit: true
 state:
   arcanum6Used: { type: boolean, default: false }
   arcanum7Used: { type: boolean, default: false }
@@ -51,3 +52,63 @@ choices:
   - id: otherworldly-patron
     from: { type: subclass, where: 'item.class == @classes.warlock' }
     when: self.level >= 1
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: warlockWeapon
+        kind: choice
+        options:
+          - id: light-crossbow
+            changes:
+              - type: addItem
+                entry: { item: "'weapons.light-crossbow'", equipped: true }
+              - { type: addItem, entry: { item: "'gear.crossbow-bolts'", quantity: 20 } }
+          - id: simple
+        recommend: options[0]
+        random: params.random
+      - id: warlockSimple
+        kind: choice
+        when: "steps.warlockWeapon.picked == 'simple'"
+        options: { content: { type: weapon, where: "item.category == 'simple'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: warlockFocus
+        kind: choice
+        options:
+          - id: component-pouch
+            changes: [{ type: addItem, entry: { item: "'gear.component-pouch'" } }]
+          - id: arcane-focus
+        recommend: options[0]
+        random: params.random
+      - id: warlockArcaneFocus
+        kind: choice
+        when: "steps.warlockFocus.picked == 'arcane-focus'"
+        options: { content: { type: gear, where: "item.category == 'arcane-focus'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id } }
+      - id: warlockPack
+        kind: choice
+        options:
+          - id: scholars-pack
+            changes: [{ type: addItem, entry: { item: "'gear.scholars-pack'" } }]
+          - id: dungeoneers-pack
+            changes: [{ type: addItem, entry: { item: "'gear.dungeoneers-pack'" } }]
+        recommend: options[0]
+        random: params.random
+      - id: warlockExtra
+        kind: choice
+        options: { content: { type: weapon, where: "item.category == 'simple'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: warlockKit
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+          - type: addItem
+            entry: { item: "'weapons.dagger'", quantity: 2, equipped: true }

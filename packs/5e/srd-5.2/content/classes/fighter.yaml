@@ -2,6 +2,7 @@ id: classes.fighter
 type: class
 fields:
   hitDie: 1d10
+  startingKit: true
 state:
   secondWindSpent: { type: integer, default: 0, min: 0 }
   actionSurgeSpent: { type: integer, default: 0, min: 0 }
@@ -62,3 +63,35 @@ choices:
   - id: subclass
     from: { type: subclass, where: 'item.class == @classes.fighter' }
     when: self.level >= 3
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: fighter
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'armor.chain-mail'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.greatsword'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.flail'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.javelin'", quantity: 8, equipped: true } }
+              - { type: addItem, entry: { item: "'gear.dungeoneers-pack'" } }
+              - { type: adjust, field: coins.gp, by: 4 }
+          - id: b
+            changes:
+              - { type: addItem, entry: { item: "'armor.studded-leather'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.scimitar'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.shortsword'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.longbow'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.arrows'", quantity: 20 } }
+              - { type: addItem, entry: { item: "'gear.quiver'" } }
+              - { type: addItem, entry: { item: "'gear.dungeoneers-pack'" } }
+              - { type: adjust, field: coins.gp, by: 11 }
+          - id: c
+            changes:
+              - { type: adjust, field: coins.gp, by: 155 }
+        recommend: "'a'"
+        random: params.random

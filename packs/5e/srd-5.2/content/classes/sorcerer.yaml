@@ -2,6 +2,7 @@ id: classes.sorcerer
 type: class
 fields:
   hitDie: 1d6
+  startingKit: true
 state:
   innateSorceryUsed: { type: integer, default: 0, min: 0 }
   sorceryPointsSpent: { type: integer, default: 0, min: 0 }
@@ -49,3 +50,24 @@ choices:
   - id: subclass
     from: { type: subclass, where: 'item.class == @classes.sorcerer' }
     when: self.level >= 3
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: sorcerer
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'weapons.spear'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.dagger'", quantity: 2, equipped: true } }
+              - { type: addItem, entry: { item: "'gear.crystal'" } }
+              - { type: addItem, entry: { item: "'gear.dungeoneers-pack'" } }
+              - { type: adjust, field: coins.gp, by: 28 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 50 }
+        recommend: "'a'"
+        random: params.random

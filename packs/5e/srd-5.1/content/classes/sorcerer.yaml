@@ -2,6 +2,7 @@ id: classes.sorcerer
 type: class
 fields:
   hitDie: 1d6
+  startingKit: true
 state:
   sorceryPointsSpent: { type: integer, default: 0, min: 0 }
 prerequisites:
@@ -69,3 +70,56 @@ choices:
   - id: sorcerous-origin
     from: { type: subclass, where: 'item.class == @classes.sorcerer' }
     when: self.level >= 1
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: sorcererWeapon
+        kind: choice
+        options:
+          - id: light-crossbow
+            changes:
+              - type: addItem
+                entry: { item: "'weapons.light-crossbow'", equipped: true }
+              - { type: addItem, entry: { item: "'gear.crossbow-bolts'", quantity: 20 } }
+          - id: simple
+        recommend: options[0]
+        random: params.random
+      - id: sorcererSimple
+        kind: choice
+        when: "steps.sorcererWeapon.picked == 'simple'"
+        options: { content: { type: weapon, where: "item.category == 'simple'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: sorcererFocus
+        kind: choice
+        options:
+          - id: component-pouch
+            changes: [{ type: addItem, entry: { item: "'gear.component-pouch'" } }]
+          - id: arcane-focus
+        recommend: options[0]
+        random: params.random
+      - id: sorcererArcaneFocus
+        kind: choice
+        when: "steps.sorcererFocus.picked == 'arcane-focus'"
+        options: { content: { type: gear, where: "item.category == 'arcane-focus'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id } }
+      - id: sorcererPack
+        kind: choice
+        options:
+          - id: dungeoneers-pack
+            changes: [{ type: addItem, entry: { item: "'gear.dungeoneers-pack'" } }]
+          - id: explorers-pack
+            changes: [{ type: addItem, entry: { item: "'gear.explorers-pack'" } }]
+        recommend: options[0]
+        random: params.random
+      - id: sorcererKit
+        kind: changes
+        changes:
+          - type: addItem
+            entry: { item: "'weapons.dagger'", quantity: 2, equipped: true }

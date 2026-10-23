@@ -2,6 +2,7 @@ id: classes.fighter
 type: class
 fields:
   hitDie: 1d10
+  startingKit: true
 state:
   secondWindUsed: { type: boolean, default: false }
   actionSurgeSpent: { type: integer, default: 0, min: 0 }
@@ -57,3 +58,67 @@ choices:
     when: self.startingClass
     effects:
       - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: fighterArmor
+        kind: choice
+        options:
+          - id: chain-mail
+            changes:
+              - { type: addItem, entry: { item: "'armor.chain-mail'", equipped: true } }
+          - id: leather-longbow
+            changes:
+              - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.longbow'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.arrows'", quantity: 20 } }
+        recommend: options[0]
+        random: params.random
+      - id: fighterWeapons
+        kind: choice
+        options:
+          - id: martial-and-shield
+            changes:
+              - { type: addItem, entry: { item: "'armor.shield'", equipped: true } }
+          - id: two-martial
+        recommend: options[0]
+        random: params.random
+      - id: fighterMartial
+        kind: choice
+        options: { content: { type: weapon, where: "item.category == 'martial'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: fighterMartial2
+        kind: choice
+        when: "steps.fighterWeapons.picked == 'two-martial'"
+        options: { content: { type: weapon, where: "item.category == 'martial'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: fighterRanged
+        kind: choice
+        options:
+          - id: light-crossbow
+            changes:
+              - type: addItem
+                entry: { item: "'weapons.light-crossbow'", equipped: true }
+              - { type: addItem, entry: { item: "'gear.crossbow-bolts'", quantity: 20 } }
+          - id: two-handaxes
+            changes:
+              - type: addItem
+                entry: { item: "'weapons.handaxe'", quantity: 2, equipped: true }
+        recommend: options[0]
+        random: params.random
+      - id: fighterPack
+        kind: choice
+        options:
+          - id: dungeoneers-pack
+            changes: [{ type: addItem, entry: { item: "'gear.dungeoneers-pack'" } }]
+          - id: explorers-pack
+            changes: [{ type: addItem, entry: { item: "'gear.explorers-pack'" } }]
+        recommend: options[0]
+        random: params.random

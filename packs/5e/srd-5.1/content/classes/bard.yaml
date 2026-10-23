@@ -2,6 +2,7 @@ id: classes.bard
 type: class
 fields:
   hitDie: 1d8
+  startingKit: true
 state:
   bardicInspirationSpent: { type: integer, default: 0, min: 0 }
 prerequisites:
@@ -132,3 +133,60 @@ choices:
   - id: bard-college
     from: { type: subclass, where: 'item.class == @classes.bard' }
     when: self.level >= 3
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: bardWeapon
+        kind: choice
+        options:
+          - id: rapier
+            changes:
+              - { type: addItem, entry: { item: "'weapons.rapier'", equipped: true } }
+          - id: longsword
+            changes:
+              - { type: addItem, entry: { item: "'weapons.longsword'", equipped: true } }
+          - id: simple
+        recommend: options[0]
+        random: params.random
+      - id: bardSimple
+        kind: choice
+        when: "steps.bardWeapon.picked == 'simple'"
+        options: { content: { type: weapon, where: "item.category == 'simple'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: bardPack
+        kind: choice
+        options:
+          - id: diplomats-pack
+            changes: [{ type: addItem, entry: { item: "'gear.diplomats-pack'" } }]
+          - id: entertainers-pack
+            changes: [{ type: addItem, entry: { item: "'gear.entertainers-pack'" } }]
+        recommend: options[0]
+        random: params.random
+      - id: bardInstrument
+        kind: choice
+        options:
+          - id: lute
+            changes: [{ type: addItem, entry: { item: "'tools.lute'" } }]
+          - id: other-instrument
+        recommend: options[0]
+        random: params.random
+      - id: bardOtherInstrument
+        kind: choice
+        when: "steps.bardInstrument.picked == 'other-instrument'"
+        options:
+          content:
+            type: tool
+            where: "item.category == 'musical-instrument' && item.id != @tools.lute"
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id } }
+      - id: bardKit
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+          - { type: addItem, entry: { item: "'weapons.dagger'", equipped: true } }

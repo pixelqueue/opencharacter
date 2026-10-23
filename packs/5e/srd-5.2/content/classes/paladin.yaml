@@ -2,6 +2,7 @@ id: classes.paladin
 type: class
 fields:
   hitDie: 1d10
+  startingKit: true
 state:
   layOnHandsSpent: { type: integer, default: 0, min: 0 }
   channelDivinitySpent: { type: integer, default: 0, min: 0 }
@@ -62,3 +63,34 @@ choices:
     from: { type: subclass, where: 'item.class == @classes.paladin' }
     when: self.level >= 3
     recommend: '@subclasses.oath-of-devotion'
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: paladin
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'armor.chain-mail'", equipped: true } }
+              - { type: addItem, entry: { item: "'armor.shield'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.longsword'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.javelin'", quantity: 6, equipped: true } }
+              - { type: addItem, entry: { item: "'gear.priests-pack'" } }
+              - { type: adjust, field: coins.gp, by: 9 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 150 }
+        recommend: "'a'"
+        random: params.random
+      - id: paladinHolySymbol
+        kind: choice
+        when: "steps.paladin.picked == 'a'"
+        sheet: proposed
+        options: { content: { type: gear, where: "item.category == 'holy-symbol'" } }
+        recommend: options[0]
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id } }
