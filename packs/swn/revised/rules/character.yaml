@@ -6,7 +6,10 @@ fields:
   # Set by the class and its partial classes.
   psionics.access: { type: enum, values: [none, restricted, unrestricted], formula: "'none'" }
   # A restricted psychic's one discipline, picked with the Partial Psychic option.
-  psionics.discipline: { type: string, formula: "''" }
+  psionics.discipline:
+    type: enum
+    values: [none, biopsionics, metapsionics, precognition, telekinesis, telepathy, teleportation]
+    formula: "'none'"
   # Extra focus levels a new character picks: non-combat (Expert) and combat (Warrior).
   class.focus.noncombat: { type: integer, formula: 0 }
   class.focus.combat: { type: integer, formula: 0 }
