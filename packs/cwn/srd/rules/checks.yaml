@@ -157,7 +157,12 @@ actions:
         changes:
           - { type: adjust, field: hp.current, by: 'max(0, steps.heal.total)' }
           - { type: adjust, field: strain.temporary, by: 1 }
-      - { id: result, kind: outcome, result: "'healed'", data: { healed: 'max(0, steps.heal.total)' } }
+      - {
+          id: result,
+          kind: outcome,
+          result: "'healed'",
+          data: { healed: 'max(0, steps.heal.total)' },
+        }
 
   # A Major Injury: after a failed Physical save at zero hit points in a scene with a Traumatic
   # Hit, roll 1d12 on the table.

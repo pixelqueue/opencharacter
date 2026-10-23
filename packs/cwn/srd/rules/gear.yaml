@@ -104,7 +104,12 @@ actions:
           - { type: adjustQuantity, entry: self, by: -1 }
           - { type: adjust, when: item.strain > 0, field: strain.temporary, by: item.strain }
           - { type: adjust, when: has(steps.heal), field: hp.current, by: steps.heal.total }
-      - { id: result, kind: outcome, result: "'applied'", data: { healed: 'has(steps.heal) ? steps.heal.total : 0' } }
+      - {
+          id: result,
+          kind: outcome,
+          result: "'applied'",
+          data: { healed: 'has(steps.heal) ? steps.heal.total : 0' },
+        }
 
   # Buy vehicles or drones with a Focus's gear budget: the dearest one the budget buys is
   # recommended. More are offered while the budget lasts, the dearest that still fits recommended,
