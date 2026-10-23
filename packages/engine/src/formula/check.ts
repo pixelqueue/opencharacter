@@ -405,13 +405,36 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
       wants(types()[0] as FType, (t) => t === 'string', 'a string');
       return 'bool';
     case 'picksOf': {
+      if (args.length === 2) {
+        if (!ctx.character || ctx.activation)
+          return fail(
+            'unknown-function',
+            'picksOf(content, choice) is not bound in activation conditions or without a character',
+            { function: fn },
+          );
+        if (args.some((a) => a.type !== 'string'))
+          return mismatch('picksOf() takes a content ID and a choice ID, string literals');
+        return { list: 'dyn' };
+      }
       if (!ctx.picks)
         return fail('unknown-function', 'picksOf() is bound only where the formula has an owner', {
           function: fn,
         });
-      arity(1);
+      arity(1, 2);
       if (args[0]?.type !== 'string')
         return mismatch('picksOf() takes a choice ID, a string literal');
+      return { list: 'dyn' };
+    }
+    case 'grantedPicksOf': {
+      if (!ctx.picks)
+        return fail(
+          'unknown-function',
+          'grantedPicksOf() is bound only where the formula has an owner',
+          { function: fn },
+        );
+      arity(2);
+      if (args.some((a) => a.type !== 'string'))
+        return mismatch('grantedPicksOf() takes a content ID and a choice ID, string literals');
       return { list: 'dyn' };
     }
     case 'indexOf':

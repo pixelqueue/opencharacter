@@ -1,0 +1,11 @@
+# Lore in a topic of your choice, and Assurance in that Lore: the second grant presets its pick
+# from the first grant's, read from Fixation's own node, so it holds whatever other Lore the
+# character has.
+id: feats.fixation
+type: feat
+grants:
+  - item: feats.lore
+  - item: feats.assurance
+    when: size(grantedPicksOf('feats.lore', 'topic')) > 0
+    choices:
+      skill: [{ option: { formula: "'lore.' + grantedPicksOf('feats.lore', 'topic')[0]" } }]

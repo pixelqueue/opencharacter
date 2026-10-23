@@ -540,13 +540,14 @@ export class Sheet {
         return this.copyData;
       }),
       picks: () => (this.pickData ??= this.savedPicks()),
+      contentPicks: (content, choice) => this.contentPicks(content, choice),
       grants: () => (this.grantData ??= this.grantViews()),
       fields: () => fieldViews(ruleset),
       fieldValue: (qid) => this.fieldValue(qid),
     };
     // Activation conditions read input fields only, through the field functions too, and not
     // what activation decides.
-    const { grants: _grants, ...beforeActivation } = this.queries;
+    const { grants: _grants, contentPicks: _picks, ...beforeActivation } = this.queries;
     this.inputQueries = {
       ...beforeActivation,
       fieldValue: (qid) => {
@@ -1089,7 +1090,10 @@ export class Sheet {
       kind: 'rules',
       scope: 'holder',
       pack: '',
-      roots: { [f.OWNER_PICKS]: ownerPicks(rulesChoices, rulesTree, '') },
+      roots: {
+        [f.OWNER_PICKS]: ownerPicks(rulesChoices, rulesTree, ''),
+        [f.OWNER_GRANTED]: grantedPicks(rulesTree),
+      },
       source: { type: 'rules' },
       sourceId: 'rules',
       tree: rulesTree,
@@ -1585,6 +1589,7 @@ export class Sheet {
     activation.roots = {
       ...activation.roots,
       [f.OWNER_PICKS]: ownerPicks(declared, activation.tree, activation.keyPrefix ?? ''),
+      [f.OWNER_GRANTED]: grantedPicks(activation.tree),
     };
     this.activations.push(activation);
     this.childOf(this.walking.at(-1), activation);
@@ -3026,6 +3031,7 @@ export class Sheet {
           item: a.roots.item,
           self: { ...(a.roots.self as Record<string, unknown>), ...earlier },
           [f.OWNER_PICKS]: a.roots[f.OWNER_PICKS],
+          [f.OWNER_GRANTED]: a.roots[f.OWNER_GRANTED],
         });
         const typed = computedValue(decl.type, value);
         if (typed) out[name] = typed;
@@ -3182,6 +3188,27 @@ export class Sheet {
     return out;
   }
 
+  private choicesOf: Map<Activation, ChoiceRecord[]> | undefined;
+
+  /** A choice's picks on every activation of the content, in activation order. */
+  private contentPicks(content: string, choice: string): (string | number)[] {
+    if (!this.choicesOf) {
+      this.choicesOf = new Map();
+      for (const record of this.choices) {
+        const list = this.choicesOf.get(record.owner) ?? [];
+        list.push(record);
+        this.choicesOf.set(record.owner, list);
+      }
+    }
+    const out: (string | number)[] = [];
+    for (const a of this.activations) {
+      if (a.item?.qid !== content) continue;
+      for (const record of this.choicesOf.get(a) ?? [])
+        if (record.choice.id === choice) out.push(...record.picks.map((p) => p.option));
+    }
+    return out;
+  }
+
   /** The active holder grants in activation order, each item once per node. */
   private grantViews(): Record<string, unknown>[] {
     const seen = new Set<string>();
@@ -3323,6 +3350,20 @@ function ownerPicks(
   for (const declared of choices)
     for (const { choice } of expandSlots(declared))
       out[choice.id] = (tree[`${prefix}${choice.id}`] ?? []).map((p) => p.option);
+  return out;
+}
+
+/**
+ * The saved picks the tree holds under prefixed keys (`<content>/<choice key>`), by content: the
+ * choices of content the owner grants, as `grantedPicksOf` reads them.
+ */
+function grantedPicks(tree: ChoiceTree): Record<string, Record<string, (string | number)[]>> {
+  const out: Record<string, Record<string, (string | number)[]>> = {};
+  for (const [key, picks] of Object.entries(tree)) {
+    const at = key.indexOf('/');
+    if (at < 0) continue;
+    (out[key.slice(0, at)] ??= {})[key.slice(at + 1)] = picks.map((p) => p.option);
+  }
   return out;
 }
 

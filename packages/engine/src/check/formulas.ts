@@ -1564,7 +1564,7 @@ class FormulaChecker<L> {
     const tree = formulaTree(formula);
     if (!tree.ok) return;
     const visit = (node: Node): void => {
-      if (node.type === 'call' && node.fn === 'picksOf') {
+      if (node.type === 'call' && node.fn === 'picksOf' && node.args.length === 1) {
         const [arg] = node.args;
         if (arg?.type === 'string' && !choices.includes(arg.value))
           this.problems.push({
@@ -1574,6 +1574,37 @@ class FormulaChecker<L> {
             code: 'unknown-reference',
             message: `picksOf('${arg.value}') names no choice of the formula's owner (${choices.join(', ') || 'none'})`,
           });
+      }
+      for (const child of children(node)) visit(child);
+    };
+    visit(tree.value);
+  }
+
+  /**
+   * `picksOf(content, choice)` and `grantedPicksOf(content, choice)` name content the pack sees and
+   * one of its choices.
+   */
+  private contentChoices(formula: Formula, at: L, where: string): void {
+    const tree = formulaTree(formula);
+    if (!tree.ok) return;
+    const visit = (node: Node): void => {
+      if (
+        node.type === 'call' &&
+        (node.fn === 'grantedPicksOf' || node.fn === 'picksOf') &&
+        node.args.length === 2
+      ) {
+        const [content, choice] = node.args;
+        if (content?.type === 'string' && choice?.type === 'string') {
+          const entry = this.set.item(content.value, this.scope);
+          const doc = entry?.item;
+          const problem = !entry
+            ? `${node.fn}('${content.value}', …) names no content visible from the pack`
+            : doc?.override || doc?.extends || choiceKeys(doc?.choices).includes(choice.value)
+              ? undefined
+              : `${node.fn}('${content.value}', '${choice.value}') names no choice of that content (${choiceKeys(doc?.choices).join(', ') || 'none'})`;
+          if (problem)
+            this.problems.push({ at, where, formula, code: 'unknown-reference', message: problem });
+        }
       }
       for (const child of children(node)) visit(child);
     };
@@ -1673,6 +1704,7 @@ class FormulaChecker<L> {
     const problem = checkFormula(formula, nullable ? { ...context, nullable } : context, expect);
     if (!problem) {
       if (context.picks) this.ownerPicks(formula, at, where);
+      this.contentChoices(formula, at, where);
       return;
     }
     const hint =

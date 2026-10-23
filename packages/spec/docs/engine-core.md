@@ -297,10 +297,12 @@ content reads its pick's ([content.md](content.md#when-content-is-active)). An a
 content sees the granting entry with the grant's `state` values in place.
 
 **Activation conditions** decide what is active: grant `when`, choice `when`, and an
-immunity's `when` and query `where`. They are
+immunity's `when` and query `where`. What activation decides (`countGrants`,
+`picksOf(content, choice)`) isn't bound in them. They are
 evaluated before any field is computed, so they may read only `self`, `item`, `character` (its
 `applied` list included, which is raw), `entry` in an immunity's query, the character functions,
-the owner's saved picks (`picksOf`), and the raw values of **input fields** (saved value, or default). Effects
+the owner's saved picks (`picksOf(choice)`, `grantedPicksOf`) and saved picks
+(`countPicks`), and the raw values of **input fields** (saved value, or default). Effects
 are not applied to those values. A condition that reads a derived field is rejected by the build
 (`type-mismatch`). **PROVISIONAL.** This keeps activation free of loops: a class grants features
 by `self.level`, never by a computed field.

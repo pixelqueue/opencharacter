@@ -24,11 +24,20 @@ export interface FormulaCase {
   rootTypes?: Record<string, unknown>;
   character?:
     | false
-    | { copies?: CaseCopy[]; picks?: CasePick[]; grants?: CasePick[]; choices?: string[] };
+    | {
+        copies?: CaseCopy[];
+        picks?: CasePick[];
+        grants?: CasePick[];
+        /** Each content's choices' picks over its activations, for `picksOf(content, choice)`. */
+        contentPicks?: Record<string, Record<string, (string | number)[]>>;
+        choices?: string[];
+      };
   /** An activation condition: what activation decides isn't bound. */
   activation?: boolean;
   /** The formula's owner's choices and their picks; giving it binds `picksOf`. */
   picks?: Record<string, (string | number)[]>;
+  /** The picks of content the owner grants, by content and choice; binds `grantedPicksOf`. */
+  granted?: Record<string, Record<string, (string | number)[]>>;
   value?: unknown;
   valueType?: string;
   expect?: string;
@@ -127,7 +136,13 @@ function characterQueries(c: FormulaCase): f.CharacterQueries | undefined {
       return value;
     },
     picks: () => picks,
-    ...(c.activation ? {} : { grants: () => grants }),
+    ...(c.activation
+      ? {}
+      : {
+          grants: () => grants,
+          contentPicks: (content: string, choice: string) =>
+            c.character ? (c.character.contentPicks?.[content]?.[choice] ?? []) : [],
+        }),
     countEquipped: (type) => copies.filter((copy) => copy.type === type && copy.equipped).length,
     countState: (key) => copies.filter((copy) => copy.state?.[key] === true).length,
     sumState: (type, key) =>
@@ -157,7 +172,11 @@ export function evalContext(c: FormulaCase): f.EvalContext {
   const character = characterQueries(c);
   return {
     field: (id) => (Object.hasOwn(fields, id) ? fieldValue(fields[id] as FieldSpec) : undefined),
-    roots: c.picks ? { ...roots, [f.OWNER_PICKS]: c.picks } : roots,
+    roots: {
+      ...roots,
+      ...(c.picks ? { [f.OWNER_PICKS]: c.picks } : {}),
+      ...(c.granted ? { [f.OWNER_GRANTED]: c.granted } : {}),
+    },
     ...(character ? { character } : {}),
   };
 }
@@ -175,7 +194,7 @@ export function checkContext(c: FormulaCase): f.CheckContext {
     character: c.character !== false,
     ...(c.character && c.character.choices ? { choices: true } : {}),
     ...(c.activation ? { activation: true } : {}),
-    ...(c.picks ? { picks: true } : {}),
+    ...(c.picks || c.granted ? { picks: true } : {}),
   };
 }
 

@@ -416,6 +416,8 @@ define functions.
 | `sortList`                            | (list<T>, key?) → list<T>                   | Macro: the elements in ascending order of `key` (number or string; the element itself without one), equal keys in list order (0114)                                                                                                                                                                                                                                                   |
 | `hasChoice`                           | (string type) → bool                        | Whether the character has a choice of the content type, made or pending. Bound only in display hints' `showWhen`; [below](#choices-in-display-hints)                                                                                                                                                                                                                                  |
 | `picksOf`                             | (string choice) → list                      | The saved picks of a choice of the formula's owner: content IDs or values, in saved order. The ID is a string literal. Bound where a formula has an owner; [below](#picks-of-the-owners-choices)                                                                                                                                                                                      |
+| `picksOf`                             | (string content, string choice) → list      | The picks of a content's choice on every activation of it, in activation order. String literals. Bound where a character is, but activation conditions; [below](#picks-of-other-content)                                                                                                                                                                                              |
+| `grantedPicksOf`                      | (string content, string choice) → list      | The saved picks of a choice of content the formula's owner grants. String literals. Bound where `picksOf(choice)` is; [below](#picks-of-other-content)                                                                                                                                                                                                                                |
 | `countEquipped`                       | (string type) → int                         | **Deprecated:** `countCopies(copy.type == type && copy.equipped)`. The character's equipped copies of a content type                                                                                                                                                                                                                                                                  |
 | `countState`                          | (string key) → int                          | **Deprecated:** `countCopies(has(copy.state.<key>) && copy.state.<key>)`. The copies whose per-copy state `key` is `true`                                                                                                                                                                                                                                                             |
 | `sumState`                            | (string type, string key) → int             | **Deprecated:** `sumCopies(copy.state.<key>, copy.type == type && has(copy.state.<key>))`. Sum of an integer state key over the copies of a type                                                                                                                                                                                                                                      |
@@ -500,6 +502,48 @@ computed:
   Field formulas, constraints, display hints, situational choices, result bands, queries
   resolved at load, item fields, and state defaults and bounds have no owner: there it is
   `unknown-function`.
+
+### Picks of other content
+
+Two forms read the picks of content other than the formula's owner, by its ID:
+
+```yaml
+# The topics of every Lore feat the character has, granted ones included (Starfinder 2e).
+formula: "size(picksOf('feats.skill.additional-lore', 'lore'))"
+# Fixation grants Additional Lore and Assurance in that Lore: the second grant presets its pick
+# from the first grant's, on Fixation's own node, whatever other Lore the character has.
+grants:
+  - item: feats.skill.additional-lore
+  - item: feats.skill.assurance
+    when: size(grantedPicksOf('feats.skill.additional-lore', 'lore')) > 0
+    choices:
+      skill:
+        [
+          {
+            option:
+              {
+                formula: "'skill.lore.' + grantedPicksOf('feats.skill.additional-lore', 'lore')[0]",
+              },
+          },
+        ]
+```
+
+- **`picksOf(content, choice)`** is the picks of the content's choice on every activation of
+  it, in activation order, concatenated: copies, templates, picks and grants, holder and applied,
+  `[]` with none. On each, the picks are a grant's preset picks where a grant presets the choice,
+  else the saved ones, whether or not the choice applies. Two activations of the same content
+  merge, so to tell them apart read the picks from the owner instead. It reads what activation
+  decides, so it is bound wherever a character is but activation conditions (`unknown-function`
+  there, at load and when evaluated), field formulas, constraints, display hints and situational
+  choices included.
+- **`grantedPicksOf(content, choice)`** is the saved picks of a choice of content the formula's
+  owner grants: the picks its node keeps under the granted content's prefixed key
+  ([characters.md](characters.md#choices-tree)), `[]` with none. They are input, so it is
+  bound where `picksOf(choice)` is, activation conditions included, and adds no dependency.
+  A grant's preset picks aren't saved, so it doesn't read them; the granter knows them already.
+- **The IDs** are string literals (`type-mismatch` otherwise). The content resolves in the
+  formula's pack, as an ID literal does. At load, content the pack doesn't see, or a choice key
+  (a choice ID, or a slot's `<id>-<slot>`) it doesn't declare, is `unknown-reference`.
 
 The deprecated functions keep working in this spec version. Each is the `countCopies` or
 `sumCopies` call shown, which official packs use instead. A later major version may remove them.

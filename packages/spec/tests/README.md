@@ -86,6 +86,9 @@ cases:
   and `countGrants` go over, each the `pick` or `grant` root: it gives `type`, and missing keys
   take defaults (`tags` `[]`, `state` and `fields` `{}`, an `item` of the runner's choosing).
   `activation: true` makes the case an activation condition, where `countGrants` is unbound.
+- `character.contentPicks` gives `picksOf(content, choice)` its picks, by content and choice
+  (`contentPicks: { feats.lore: { topic: [history] } }`); a content it doesn't list has none.
+  `granted` binds `grantedPicksOf` the same way, by content and choice.
 - `picks` binds `picksOf`: the formula's owner's choices by key, each a list of its picks
   (`picks: { plus-two: [str], languages: [] }`). Without it, `picksOf` is unbound.
 - The case's `fields` are also the ruleset's fields that `countFields`, `sumFields`,
@@ -124,7 +127,8 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   its params), `test-applied`, actions that apply content and change applied entries,
   `test-roll-twice`, rolls made more than once (`of: roll`), `test-owner-picks`, formulas
   reading their owner's picks with `picksOf`, and `test-pick-aggregates`, formulas counting saved
-  picks and active grants (`countPicks`, `countGrants`).
+  picks and active grants (`countPicks`, `countGrants`), and `test-content-picks`, formulas reading
+  another content's picks (`picksOf(content, choice)`, `grantedPicksOf`).
 - **How outputs compare.** Only what `expected.yaml` lists is compared. A key the call doesn't
   define, in `case.yaml` or `expected.yaml`, is a mistake in the case: runners fail it rather
   than ignore it, so a case never seems to test something it doesn't.

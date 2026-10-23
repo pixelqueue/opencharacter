@@ -1106,6 +1106,7 @@ function onSheet(ctx: Ctx, frame: Frame): Frame {
   delete roots.item;
   delete roots.self;
   delete roots[f.OWNER_PICKS];
+  delete roots[f.OWNER_GRANTED];
   return {
     ...frame,
     sheet: ctx.sheet,
@@ -1116,7 +1117,7 @@ function onSheet(ctx: Ctx, frame: Frame): Frame {
 /** The roots an action takes from its owner: `item`, `self` and the picks `picksOf` reads. */
 function ownerRoots(own: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
-  for (const key of ['item', 'self', f.OWNER_PICKS])
+  for (const key of ['item', 'self', f.OWNER_PICKS, f.OWNER_GRANTED])
     if (own[key] !== undefined) out[key] = own[key];
   return out;
 }
