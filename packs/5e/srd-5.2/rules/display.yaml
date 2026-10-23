@@ -216,7 +216,7 @@ display:
     hp.base: { groups: [combat], priority: 3, visibility: background }
     hp.perLevel: { hidden: true }
     hp.bloodied: { groups: [combat], priority: 2, showWhen: hp.bloodied && hp.current > 0 }
-    heroicInspiration: { groups: [summary], priority: 1 }
+    heroicInspiration: { groups: [summary], priority: 1, showWhen: '!sheet.monster' }
     combat.speed: { unit: ft, groups: [combat, summary], priority: 1 }
     combat.flySpeed: { unit: ft, groups: [combat], priority: 1, showWhen: combat.flySpeed > 0 }
     combat.rangedAc: { groups: [combat], priority: 2, showWhen: combat.rangedAc != combat.ac }
@@ -255,7 +255,7 @@ display:
       { groups: [class-features], priority: 1, format: dice, showWhen: martialArts.known }
     unarmed.dcModifier: { hidden: true }
     proficiency.bonus: { groups: [combat, summary], priority: 1, format: signed }
-    level.total: { groups: [summary], priority: 0 }
+    level.total: { groups: [summary], priority: 0, showWhen: '!sheet.monster || level.total > 0' }
     challenge.rating:
       { groups: [summary], priority: 2, format: fraction, showWhen: level.total == 0 }
     proficiencies.weapons: { groups: [proficiencies] }
@@ -314,6 +314,7 @@ display:
         groups: [combat],
         priority: 2,
         input: { min: 0, max: 3, widget: dots },
+        showWhen: '!sheet.monster',
         rolls: [{ action: death-save }],
       }
     deathSaves.failures:
@@ -321,6 +322,7 @@ display:
         groups: [combat],
         priority: 2,
         input: { min: 0, max: 3, widget: dots },
+        showWhen: '!sheet.monster',
         rolls: [{ action: death-save }],
       }
     hitDice.max: { groups: [combat], priority: 2, showWhen: hitDice.max > 0 }
@@ -345,16 +347,32 @@ display:
     senses.tremorsense:
       { unit: ft, groups: [summary], priority: 2, showWhen: senses.tremorsense > 0 }
     senses.truesight: { unit: ft, groups: [summary], priority: 2, showWhen: senses.truesight > 0 }
+    # A monster carries only what it was given, so its carrying shows once it has some.
     carrying.weight:
       {
         unit: lb,
         groups: [summary],
         priority: 2,
         visibility: secondary,
+        showWhen: '!sheet.monster || carrying.weight > 0',
         with: [{ field: carrying.capacity, as: max }],
       }
-    carrying.capacity: { unit: lb, groups: [summary], priority: 2, visibility: secondary }
-    carrying.dragLiftPush: { unit: lb, groups: [summary], priority: 3, visibility: secondary }
+    carrying.capacity:
+      {
+        unit: lb,
+        groups: [summary],
+        priority: 2,
+        visibility: secondary,
+        showWhen: '!sheet.monster || carrying.weight > 0',
+      }
+    carrying.dragLiftPush:
+      {
+        unit: lb,
+        groups: [summary],
+        priority: 3,
+        visibility: secondary,
+        showWhen: '!sheet.monster || carrying.weight > 0',
+      }
     carrying.sizeSteps: { hidden: true }
     classes.held: { hidden: true }
     sheet.monster: { hidden: true }
@@ -365,10 +383,16 @@ display:
         groups: [summary],
         priority: 1,
         visibility: secondary,
+        showWhen: '!sheet.monster',
         with: [{ field: xp.nextLevel, as: max }],
       }
     xp.nextLevel:
-      { groups: [summary], priority: 2, visibility: secondary, showWhen: xp.nextLevel > 0 }
+      {
+        groups: [summary],
+        priority: 2,
+        visibility: secondary,
+        showWhen: '!sheet.monster && xp.nextLevel > 0',
+      }
     xp.levelUp: { hidden: true }
     multiclass.qualified: { hidden: true }
     coins.cp: { groups: [coins], priority: 2 }

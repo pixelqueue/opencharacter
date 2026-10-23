@@ -241,7 +241,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
   run the attacks they name; legendary actions spend their cost; recharge and per-day actions
   are copies with their own state; Spellcasting and Innate Spellcasting cast with the printed
   numbers; the vampire and the lycanthropes change form. Languages only monsters speak aren't
-  offered to players.
+  offered to players. A monster's sheet leaves out experience points, character level (at 0) and
+  death saves, and shows carrying weight only once it carries something.
 - **Resting:** `death-save`, `spend-hit-die`, `short-rest` and `long-rest` (spent hit dice back
   up to half the total level, the player choosing the classes).
 - **Follow-ups:** concentration checks, a failed death save from damage at 0 hit points,

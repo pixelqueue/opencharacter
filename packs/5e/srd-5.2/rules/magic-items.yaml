@@ -50,7 +50,13 @@ fields:
 
 display:
   fields:
-    attunement.max: { groups: [summary], priority: 3, visibility: secondary }
+    attunement.max:
+      {
+        groups: [summary],
+        priority: 3,
+        visibility: secondary,
+        showWhen: '!sheet.monster || countCopies(has(copy.state.attuned) && copy.state.attuned) > 0',
+      }
 
 constraints:
   - id: attunement-limit

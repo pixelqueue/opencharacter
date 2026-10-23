@@ -282,7 +282,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
   `create-monster` copies a `monster` item's stat block into the sheet, and each trait and action
   becomes its own copy with its uses or recharge. `monster-attack` and `monster-effect` resolve
   attacks and saving throws on each target's sheet; Multiattack, legendary actions (with lair
-  numbers), Legendary Resistance, Magic Resistance and Spellcasting work.
+  numbers), Legendary Resistance, Magic Resistance and Spellcasting work. A monster's sheet
+  leaves out experience points, character level (at 0), Heroic Inspiration and death saves, and
+  shows carrying weight and attunement slots only once it carries or attunes to something.
 - **Sheet layout:** display groups for fields, actions and content, units, and a headline
   ("Level 3 Elf Wizard", "Goblin Warrior, CR 1/4").
 
