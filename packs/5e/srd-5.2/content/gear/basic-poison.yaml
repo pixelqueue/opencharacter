@@ -24,6 +24,7 @@ actions:
   - id: coat
     tags: [item]
     available: self.quantity > 0
+    results: [coated]
     steps:
       - id: coat
         kind: changes
@@ -31,3 +32,6 @@ actions:
           - { type: applyEffect, source: "'gear.basic-poison'" }
           - { type: adjustQuantity, entry: self, by: -1, when: self.quantity > 1 }
           - { type: removeItem, entry: self, when: self.quantity <= 1 }
+      - id: result
+        kind: outcome
+        result: "'coated'"
