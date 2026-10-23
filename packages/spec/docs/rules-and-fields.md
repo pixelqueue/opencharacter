@@ -556,7 +556,7 @@ followUps:
     own, with `params` formulas. Parameters it doesn't fix are the app's to supply. An ephemeral
     offer keeps the parameters as evaluated when it fired.
   - **`changes`**, proposed changes resolved like an action's `changes` step (no `split`);
-    `entry: self` is the content's copy, `pick: self` and `grant: self` the pick or holder
+    `entry: self` is the content's copy, `pick: self` and `grant: self` (or `owner`) the pick or holder
     grant that made the content active (resolved to `path` and `option`, or `grant` with its
     node), and `path`, `option`, `picks` and `grants` are passed on as an action's are. A change
     may compute its field and repeat with

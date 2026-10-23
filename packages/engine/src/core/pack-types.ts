@@ -386,8 +386,8 @@ export interface ProposedChange {
   limit?: number;
   applied?: { where: Formula; limit?: number };
   picks?: { where: Formula; limit?: number };
-  pick?: 'self';
-  grant?: 'self';
+  pick?: 'self' | 'owner';
+  grant?: 'self' | 'owner';
   grants?: { where: Formula; limit?: number };
   id?: string;
   source?: Formula;

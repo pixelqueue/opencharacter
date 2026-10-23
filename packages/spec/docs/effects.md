@@ -77,7 +77,7 @@ change those (a cantrip's range, a weapon that counts as magical), content keeps
 the item: on the character's copies, or on content picked or granted to them, such as a spell
 known ([content.md](content.md#kept-templates)).
 
-**Options added to choice steps.** An `option` effect's `value` is `{ id, changes?, to?, flags? }`. While the effect's `when` holds, a matching choice step offers it after its own options, with the ID `<content id>#<id>` (`fitd-scoundrel:special-abilities.battleborn#special-armor`), named by `<content id>.options.<id>.name`. When it is picked, its `changes` are proposed like a `changes` step's, `to` the option's `to` (default `self`); an option without `changes` is only recorded as the step's pick, for later steps to read (Sculpt Spells' `spare`). Its `flags` are set as the action's flags first, before its `changes`; it may set only flags the action sets elsewhere, in a branch case or a written option, which is checked at load. In its `when`, `flags` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy) and the action's own item, copy and step are `action.item`, `action.self` and `action.step`; the action's `params`, `situational`, `steps` and `flags` are bound too, and `when` sees `picks`. Of the options sharing a `stackKey` on one step, only the first offered counts, whatever the stacking policy; content never makes its option the recommended one. Content items add options, and so do content types: a type's `option` effect acts for each active item of the type as if the item wrote it (`item` and `self` that item and its copy, the ID `<item id>#<id>`), and is named by `<item id>.options.<id>.name` if the item has that text, else by the type's `types.<type>.options.<id>.name`, so one option serves every staff, wand or scroll. An `option` effect in the rules' `effects` or a situational choice's is a build error. See [engine-actions.md](engine-actions.md#choice-steps).
+**Options added to choice steps.** An `option` effect's `value` is `{ id, changes?, to?, flags? }`. While the effect's `when` holds, a matching choice step offers it after its own options, with the ID `<content id>#<id>` (`fitd-scoundrel:special-abilities.battleborn#special-armor`), named by `<content id>.options.<id>.name`. When it is picked, its `changes` are proposed like a `changes` step's, `to` the option's `to` (default `self`); an option without `changes` is only recorded as the step's pick, for later steps to read (Sculpt Spells' `spare`). Its `flags` are set as the action's flags first, before its `changes`; it may set only flags the action sets elsewhere, in a branch case or a written option, which is checked at load. In its `when`, `flags` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy, and `pick: owner` and `grant: owner` its pick or holder grant, below) and the action's own item, copy and step are `action.item`, `action.self` and `action.step`; the action's `params`, `situational`, `steps` and `flags` are bound too, and `when` sees `picks`. Of the options sharing a `stackKey` on one step, only the first offered counts, whatever the stacking policy; content never makes its option the recommended one. Content items add options, and so do content types: a type's `option` effect acts for each active item of the type as if the item wrote it (`item` and `self` that item and its copy, the ID `<item id>#<id>`), and is named by `<item id>.options.<id>.name` if the item has that text, else by the type's `types.<type>.options.<id>.name`, so one option serves every staff, wand or scroll. An `option` effect in the rules' `effects` or a situational choice's is a build error. See [engine-actions.md](engine-actions.md#choice-steps).
 
 ```yaml
 # Battleborn: mark special armor instead of taking stress for a push.
@@ -89,6 +89,24 @@ known ([content.md](content.md#kept-templates)).
     id: special-armor
     changes:
       - { type: set, field: armor.special, value: true }
+```
+
+**The adding content's own pick or grant.** In an added option's `changes` (and a `changes`
+effect's), `pick: self` and `grant: self` still name the pick or grant of the action's content
+(the spell being cast). `pick: owner` and `grant: owner` name those of the content carrying the
+effect, when it is picked or holder-granted content that declares saved state; otherwise they
+are `unknown-reference` when the change is resolved. A 5E invocation spends its own use on the
+spell it casts:
+
+```yaml
+# content/invocations/mire-the-mind.yaml: cast slow once with a pact slot.
+- target: { choices: [spell-cost] }
+  op: option
+  when: "action.item.id == '5e-srd-5.1:spells.slow' && !self.used"
+  value:
+    id: pact
+    changes:
+      - { type: setState, pick: owner, key: used, value: true }
 ```
 
 **The incoming amount, and effects that change their own entry**. An

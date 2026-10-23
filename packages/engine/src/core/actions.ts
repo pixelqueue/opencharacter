@@ -533,6 +533,8 @@ interface Frame {
   added: string[];
   /** Content an added option or changes belong to: its follow-ups are the ones offered there. */
   adder?: Source;
+  /** In an added option or changes: the pick or grant `pick: owner` and `grant: owner` name. */
+  owner?: { activation?: Activation | undefined };
   situational: Record<string, unknown>;
   each?: { role: string; index: number; view: Record<string, unknown>; step: string };
 }
@@ -2395,6 +2397,7 @@ function optionFrame(frame: Frame, instance: EffectInstance): Frame {
     roots: { ...roots, ...instance.roots },
     ...(instance.source.entry !== undefined ? { entry: instance.source.entry } : {}),
     adder: instance.source,
+    owner: { activation: instance.own },
   };
 }
 
@@ -3396,20 +3399,24 @@ function proposeOne(
     if (change.path) out.path = resolvePath(ctx, frame, change.path, extra, entries.picked);
     if (change.option !== undefined)
       out.option = outputData(evaluate(ctx, frame, change.option, extra));
-    if (change.pick === 'self') {
-      const a = frame.activation;
+    // `self` is the action's content; `owner` the content the change is written on, which in an
+    // added option or changes is the effect's.
+    const activationOf = (ref: 'self' | 'owner') =>
+      ref === 'owner' && frame.owner ? frame.owner.activation : frame.activation;
+    if (change.pick !== undefined) {
+      const a = activationOf(change.pick);
       const option = a?.kind === 'pick' ? a.path.choice.at(-1) : undefined;
       if (!a || option === undefined)
-        throw new ActionError('unknown-reference', { kind: 'pick', id: 'self' });
+        throw new ActionError('unknown-reference', { kind: 'pick', id: change.pick });
       out.path = { ...a.path, choice: a.path.choice.slice(0, -1) };
       out.option = option;
     }
-    if (change.grant === 'self') {
-      // The holder grant that activated the action's content: its node (the copy, or the pick its
-      // path ends at) and the granted item.
-      const a = frame.activation;
+    if (change.grant !== undefined) {
+      // The holder grant that activated the content: its node (the copy, or the pick its path
+      // ends at) and the granted item.
+      const a = activationOf(change.grant);
       if (!a?.item || a.kind !== 'grant' || a.scope !== 'holder')
-        throw new ActionError('unknown-reference', { kind: 'grant', id: 'self' });
+        throw new ActionError('unknown-reference', { kind: 'grant', id: change.grant });
       if (a.path.choice.length === 0) out.entry = a.path.entry;
       else {
         out.path = { ...a.path, choice: a.path.choice.slice(0, -1) };

@@ -361,6 +361,13 @@ names granted content by query and is passed on as `picks` is. An artifact's gif
 - { type: adjustState, grant: self, key: committed, by: 1 }
 ```
 
+**The change's own content's pick or grant**. `pick: owner` and `grant: owner` name the
+pick or holder grant of the content the change is written on. In an action's own steps (and a
+follow-up's changes) that is the action's content, as `self`; in an option or `changes` that
+content adds through an effect, it is the effect's content, whose state its `self` reads, while
+`self` stays the action's ([effects.md](effects.md#targets)). An invocation
+that adds a way to pay for a spell marks its own use, not the spell's pick.
+
 **Changes to applied entries by query.** `removeEffect`, `toggleEffect`, `setState` and
 `adjustState` may name applied entries with `applied: { where, limit? }` instead of `id` (or
 `entry`). As for copies, the receiving character resolves it: its applied entries, in file

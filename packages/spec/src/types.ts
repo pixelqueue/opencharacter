@@ -563,11 +563,11 @@ export type ProposedChange = {
   when?: Condition;
   /** Propose the change once per element of this list, in list order, with `x` bound to the element. `when` and the change's other formulas are evaluated per element; an empty list proposes nothing. Each copy counts toward `maxActionSteps` (a follow-up's toward `maxFollowUps`). `x` is not bound in the formulas a change passes on. */
   forEach?: Formula;
-  /** setState and adjustState: `self`, the pick whose content defines the running action, resolved to `path` and `option` in the returned change. In an action that isn't a picked content's, `unknown-reference`. */
-  pick?: 'self';
+  /** setState and adjustState: `self`, the pick whose content defines the running action, resolved to `path` and `option` in the returned change; in an action that isn't a picked content's, `unknown-reference`. `owner`, the pick of the content the change is written on: in an option or `changes` an effect adds, the effect's content (picked content with saved state of its own), else the same as `self`; with no such pick, `unknown-reference`. */
+  pick?: 'self' | 'owner';
   picks?: Picks;
-  /** setState and adjustState: `self`, the grant that activated the running action's granted content (a holder grant), resolved to `entry` (or `path` and `option`, a pick) and `grant` in the returned change. In an action that isn't a granted content's, `unknown-reference`. */
-  grant?: 'self';
+  /** setState and adjustState: `self`, the grant that activated the running action's granted content (a holder grant), resolved to `entry` (or `path` and `option`, a pick) and `grant` in the returned change; in an action that isn't a granted content's, `unknown-reference`. `owner`, the holder grant of the content the change is written on: in an option or `changes` an effect adds, the effect's content (granted content with saved state of its own), else the same as `self`; with no such grant, `unknown-reference`. */
+  grant?: 'self' | 'owner';
   grants?: Grants;
   /** set and adjust may compute it: `{ formula }`, evaluated when the action runs to a field ID and qualified against the action's pack, as a literal one is. For `to: self` or a role it must name an input field (`unknown-field` or `not-input-field`, data: `field`); for a link it must be qualified and is passed on unchecked. A `split` adjust's field is written out. */
   field?: FieldRef | ComputedField;

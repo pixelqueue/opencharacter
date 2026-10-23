@@ -1126,15 +1126,15 @@
           "$ref": "formula.schema.json"
         },
         "pick": {
-          "description": "setState and adjustState: `self`, the pick whose content defines the running action, resolved to `path` and `option` in the returned change. In an action that isn't a picked content's, `unknown-reference`.",
-          "const": "self"
+          "description": "setState and adjustState: `self`, the pick whose content defines the running action, resolved to `path` and `option` in the returned change; in an action that isn't a picked content's, `unknown-reference`. `owner`, the pick of the content the change is written on: in an option or `changes` an effect adds, the effect's content (picked content with saved state of its own), else the same as `self`; with no such pick, `unknown-reference`.",
+          "enum": ["self", "owner"]
         },
         "picks": {
           "$ref": "#/$defs/picks"
         },
         "grant": {
-          "description": "setState and adjustState: `self`, the grant that activated the running action's granted content (a holder grant), resolved to `entry` (or `path` and `option`, a pick) and `grant` in the returned change. In an action that isn't a granted content's, `unknown-reference`.",
-          "const": "self"
+          "description": "setState and adjustState: `self`, the grant that activated the running action's granted content (a holder grant), resolved to `entry` (or `path` and `option`, a pick) and `grant` in the returned change; in an action that isn't a granted content's, `unknown-reference`. `owner`, the holder grant of the content the change is written on: in an option or `changes` an effect adds, the effect's content (granted content with saved state of its own), else the same as `self`; with no such grant, `unknown-reference`.",
+          "enum": ["self", "owner"]
         },
         "grants": {
           "$ref": "#/$defs/grants"

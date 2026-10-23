@@ -407,7 +407,11 @@ roll.
     that activated the action's content, and one with `grant: self` the node (`entry`, or a
     pick's `path` and `option`) and `grant` of the holder grant that did
     ([dice-and-actions.md](dice-and-actions.md#actions)); `picks` and `grants` queries are passed
-    on as written;
+    on as written. `pick: owner` and `grant: owner` resolve the same way for the content the
+    change is written on: in an added option's or a `changes` effect's changes, the pick or
+    holder grant whose content carries the effect (content with saved state of its own: the
+    pick or grant its `self` reads), else `unknown-reference` (data: `kind`, `id: owner`);
+    elsewhere the action's content's, as `self`;
   - an `addItem` entry object is resolved: `item` is evaluated to a content ID and qualified against
     the action's pack; `quantity`, `equipped` and each `state` value are evaluated; `templates` are
     qualified; a pick's `option` given as `{ formula }` is evaluated to a string or number
