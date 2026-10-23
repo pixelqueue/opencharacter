@@ -1,3 +1,6 @@
+contentTypes:
+  boon: {}
+
 fields:
   features.wizardTeeth: { type: boolean, formula: false }
   features.cowardsJab: { type: boolean, formula: false }
@@ -24,9 +27,6 @@ fields:
   daily.horn: { type: boolean, input: true, default: false }
   daily.stones: { type: boolean, input: true, default: false }
 
-  tests.truth: { type: boolean, input: true, default: false }
-  tests.horn: { type: boolean, input: true, default: false }
-
 display:
   fields:
     features.wizardTeeth: { hidden: true }
@@ -52,8 +52,6 @@ display:
     daily.bible: { groups: [resources], priority: 1, showWhen: features.nechrubelBible }
     daily.horn: { groups: [resources], priority: 1, showWhen: features.horn }
     daily.stones: { groups: [resources], priority: 1, showWhen: features.stones }
-    tests.truth: { groups: [condition], priority: 1, showWhen: tests.truth }
-    tests.horn: { groups: [condition], priority: 1, showWhen: tests.horn }
 
 situational:
   - id: teeth
@@ -246,7 +244,7 @@ actions:
         kind: changes
         to: recipient
         changes:
-          - { type: set, field: tests.truth, value: true }
+          - { type: applyEffect, source: "'boons.clarity'" }
       - id: result
         kind: outcome
         result: "'spoken'"
@@ -348,7 +346,7 @@ actions:
         when: "steps.check.result == 'success' || steps.check.result == 'crit'"
         to: recipient
         changes:
-          - { type: set, field: tests.horn, value: true }
+          - { type: applyEffect, source: "'boons.horn'" }
       - id: result
         kind: outcome
         result: steps.check.result

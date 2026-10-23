@@ -80,12 +80,13 @@ start a character with `creating: true` and run one of the creation starts below
     encumbered makes Strength, Agility and defense tests +2. Some classes change these too.
   - In a hemorrhage every test is at least DR16 in the first of two hours and DR18 in the last
     (`condition.hemorrhage`, which the broken roll sets and the app counts down).
-  - From other characters: a Speaker of Truths' clarity (`tests.truth`) makes the next
-    test 4 easier, and the Horn of the Schleswig Lords (`tests.horn`) the next non-combat test a
-    success (a crit stays one); each is used up by the test. The situational choices `invisible`
-    (Metzhuotl Blind Your Eye: attack and defense at DR6) and `grace` (Grace for a Sinner: +d6
-    on one test or damage roll) are offered on every sheet, since a scroll someone else read
-    brings them.
+  - From other characters, as applied `boon` content: a Speaker of Truths' clarity
+    (`boons.clarity`, +4) makes the next test 4 easier, and the Horn of the Schleswig Lords'
+    blare (`boons.horn`, the roll tally `horn`) the next non-combat test a success (a crit stays
+    one); each ends itself on the test it changes, an omen's reroll keeping the clarity. The
+    situational choices `invisible` (Metzhuotl Blind Your Eye: attack and defense at DR6) and
+    `grace` (Grace for a Sinner: +d6 on one test or damage roll) are offered on every sheet,
+    since a scroll someone else read brings them.
 - **Classes:** the six core classes (Fanged Deserter, Gutterborn Scum, Esoteric Hermit, Wretched
   Royalty, Heretical Priest, Occult Herbmaster) and `classes.classless` for a character without
   one. Each carries:
@@ -114,13 +115,13 @@ start a character with `creating: true` and run one of the creation starts below
     the scum is back after 10 rounds with d4 HP).
   - Esoteric Hermit: Master of Fate (`find-the-way`, DR8 Presence), A Book of Boiling Blood
     (`boiling-blood`, once a day: d2 slayers, a d6 of 5–6 turning them; the enemy's DR12 test is
-    the GM's), Speaker of Truths (`speak-truth`, twice a day, to a `recipient`), Initiate of the
-    Invisible College (`invisible-college`, once a day: d2 scrolls of a d4's kind, each a d10
-    on that kind's scroll table in the book's order, added as `summoned` copies that one use or the
-    next `new-day` removes).
+    the GM's), Speaker of Truths (`speak-truth`, twice a day, applies `boons.clarity` to a
+    `recipient`), Initiate of the Invisible College (`invisible-college`, once a day: d2 scrolls
+    of a d4's kind, each a d10 on that kind's scroll table in the book's order, added as
+    `summoned` copies that one use or the next `new-day` removes).
   - Wretched Royalty: the Snake-Skin Dagger kills on a damage roll of 1 (`poison`, the target's
-    HP set below 0); the Horn (`blow-horn`, once a day: DR12 Presence, then the `recipient`'s
-    next non-combat test succeeds).
+    HP set below 0); the Horn (`blow-horn`, once a day: DR12 Presence, then `boons.horn` on the
+    `recipient`: their next non-combat test succeeds).
   - Heretical Priest: the Stolen Mitre's defense DR10 (worn, as the pack assumes), List of Sins
     (`read-sins`, DR10 Presence, and the situational choice `sinner`, +2 to defend against a
     revealed creature), the Nechrubel Bible (`read-bible`, once a day: even, the day's rests heal

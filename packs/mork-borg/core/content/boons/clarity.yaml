@@ -1,0 +1,16 @@
+id: boons.clarity
+type: boon
+# The test's roll ends the boon; an omen's reroll of the same test (after `check`) keeps the +4.
+effects:
+  - target: { rolls: [test] }
+    op: add
+    value: 4
+    when: '!has(steps.check)'
+    scope: applied
+    then:
+      - { type: removeEffect, entry: self }
+  - target: { rolls: [test] }
+    op: add
+    value: 4
+    when: has(steps.check)
+    scope: applied
