@@ -2216,6 +2216,10 @@ export type UpgradeOutput =
           field: string;
           before?: Literal;
           after?: Literal;
+          /** Whether the field was shown on the old sheet (computeSheet's `shown`); present with `before`. */
+          shownBefore?: boolean;
+          /** Whether the field is shown on the new sheet; present with `after`. */
+          shownAfter?: boolean;
         }[];
         /** Upgrade steps that changed this character, with the script each came from. */
         steps?: {

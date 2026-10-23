@@ -58,7 +58,8 @@ The engine computes the character under both versions and reports the difference
 ```json
 "report": {
   "values": [
-    { "field": "5e-srd-5.1:combat.ac", "before": 16, "after": 17 }
+    { "field": "5e-srd-5.1:combat.ac", "before": 16, "after": 17, "shownBefore": true, "shownAfter": true },
+    { "field": "5e-srd-5.1:eldritchBlast.range", "before": 120, "shownBefore": false }
   ],
   "steps": [
     { "pack": "5e-srd-5.1", "from": "0.2.1", "to": "0.3.0",
@@ -70,7 +71,11 @@ The engine computes the character under both versions and reports the difference
 ```
 
 - **`values`**: every field whose value changed, with `before` and `after`. A field that exists on
-  one side only has only one of them.
+  one side only has only one of them. `shownBefore` and `shownAfter` say whether the field was
+  shown on the old sheet and is on the new one (the sheet's `shown`,
+  [Showing a sheet](showing-a-sheet.md#which-groups-and-fields-show)), each present with its side. Leave
+  out of the report a value shown on neither side: a hidden helper, or a value irrelevant to the
+  character (a fighter's eldritch blast range).
 - **`steps`**: each upgrade step that changed this character, and the script it came from. A
   `moveState` may drop a value instead of moving it (the target pick or grant is missing, the
   value equals the target's default, or the target already has one); that's listed as a step too.

@@ -194,7 +194,7 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   - `ok` / `errors`;
   - `character` (listed top-level keys);
   - `pending` (choice paths);
-  - `report.values` (exact list);
+  - `report.values` (exact list, `shownBefore` and `shownAfter` included);
   - `report.steps` (as `{ pack, from, to, op }`);
   - `report.errors` (codes);
   - `report.homebrew` (as `{ path, op }`).

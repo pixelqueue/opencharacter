@@ -17,6 +17,7 @@ import type { PackRelease } from './release.ts';
 import type { Ruleset } from './ruleset.ts';
 import { homebrewFormulas, withHomebrew } from './homebrew.ts';
 import { HomebrewRewriter } from './homebrew-upgrade.ts';
+import { display } from './display.ts';
 import { loadRuleset } from './load.ts';
 import { itemStandard, rulesStandard, standardId } from './ruleset.ts';
 import { expandSlots, Sheet } from './sheet.ts';
@@ -25,7 +26,13 @@ import { stateDecls } from './views.ts';
 type Step = UpgradeStep;
 
 export interface UpgradeReport {
-  values: { field: string; before?: Literal; after?: Literal }[];
+  values: {
+    field: string;
+    before?: Literal;
+    after?: Literal;
+    shownBefore?: boolean;
+    shownAfter?: boolean;
+  }[];
   steps: { pack: string; from: string; to: string; step: Step }[];
   errors: EngineError[];
   /** Each place in the homebrew a step rewrote. */
@@ -46,7 +53,17 @@ function valueChange(
     field,
     ...(b?.value === undefined ? {} : { before: b.value }),
     ...(a?.value === undefined ? {} : { after: a.value }),
+    ...(b?.value === undefined ? {} : { shownBefore: b.shown ?? true }),
+    ...(a?.value === undefined ? {} : { shownAfter: a.shown ?? true }),
   };
+}
+
+function shownValues(sheet: Sheet): Record<string, FieldValue> {
+  const values = sheet.values();
+  const shown = display(sheet).fields;
+  return Object.fromEntries(
+    Object.entries(values).map(([id, v]) => [id, { ...v, shown: shown[id] ?? true }]),
+  );
 }
 
 /** upgrade: moves a character from the ruleset it was saved with to another. */
@@ -107,8 +124,8 @@ export function upgrade(from: Ruleset, to: Ruleset, character: CharacterDoc): Up
 
   const layeredTo = withHomebrew(to, next);
   const after = new Sheet(layeredTo.ok ? layeredTo.ruleset : to, next);
-  const before = old.values();
-  const now = after.values();
+  const before = shownValues(old);
+  const now = shownValues(after);
   const oldIdFor = new Map([...renamedFields].map(([o, n]) => [n, o]));
   const seenOld = new Set<string>();
   for (const id of Object.keys(now)) {

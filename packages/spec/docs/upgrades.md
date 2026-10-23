@@ -227,9 +227,11 @@ ruleset to move it to. See [`engine/upgrade.schema.json`](../schemas/engine/upgr
 3. **Apply each script's steps in order** to a copy of the character, then pin the new version.
 4. **Report.** Compute the sheet under both versions: the original character with `from`, the
    upgraded one with `to`. Then fill in:
-   - **`values`:** every field whose value differs, as `{ field, before, after }`, sorted by field
-     ID. A field renamed by `renameField` is compared under its new ID. A field that exists on one
-     side only has only `before` or `after`.
+   - **`values`:** every field whose value differs, as
+     `{ field, before, after, shownBefore, shownAfter }`, sorted by field ID. A field renamed by
+     `renameField` is compared under its new ID. A field that exists on one side only has only
+     `before` or `after`. `shownBefore` and `shownAfter` are the field's `shown` on each sheet
+     ([display-hints.md](display-hints.md#shown)), each present with `before` or `after`.
    - **`steps`:** each step that changed the character (its homebrew included), with the script
      it came from.
    - **`homebrew`:** each place in the homebrew a step rewrote, in order, as `{ path, step }`

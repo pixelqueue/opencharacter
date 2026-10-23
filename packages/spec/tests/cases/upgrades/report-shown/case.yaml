@@ -1,0 +1,44 @@
+description: 'Each report value says whether the field was shown on the old sheet and is shown on the new one (`shownBefore`, `shownAfter`), each present with its side: a removed hidden helper, a removed field irrelevant to the character, and a field the new version hides'
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might: { type: integer, input: true, default: 1 }
+          stats.helper: { type: integer, formula: stats.might + 1 }
+          spells.range: { type: integer, formula: 120 }
+          stats.bonus: { type: integer, formula: stats.might }
+        contentTypes:
+          spell: { carried: false }
+        display:
+          fields:
+            stats.helper: { hidden: true }
+            spells.range: { showWhen: countCopies(copy.item == @spells.blast) > 0 }
+      content:
+        - { id: spells.blast, type: spell }
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might: { type: integer, input: true, default: 1 }
+          stats.bonus: { type: integer, formula: stats.might * 2 }
+        contentTypes:
+          spell: { carried: false }
+        display:
+          fields:
+            stats.bonus: { hidden: true }
+      content:
+        - { id: spells.blast, type: spell }

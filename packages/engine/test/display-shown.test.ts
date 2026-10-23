@@ -3,7 +3,7 @@ import { join, resolve } from 'node:path';
 import { paths } from '@opencharacter/spec/node';
 import { parse } from 'yaml';
 import { describe, expect, it } from 'vitest';
-import { computeSheet, loadRuleset } from '../src/index.ts';
+import { computeSheet, loadRuleset, upgrade } from '../src/index.ts';
 import type { CharacterDoc, PackRelease } from '../src/index.ts';
 import { readPack } from './packs.ts';
 
@@ -102,5 +102,23 @@ describe('display visibility', { timeout: 30_000 }, () => {
       'test-pack:stone',
     ]);
     expect(big.values['test-pack:stone']?.shown).toBe(false);
+  });
+
+  it('reports shownBefore and shownAfter, each with its side', () => {
+    const from = load(
+      pack('1.0.0', {
+        fields: {
+          might: { type: 'integer', input: true, default: 1 },
+          helper: { type: 'integer', formula: 'might + 1' },
+        },
+        display: { fields: { helper: { hidden: true } } },
+      }),
+    );
+    const to = load(pack('2.0.0', { fields: { might: { type: 'integer', input: true } } }));
+    const result = upgrade(from, to, character());
+    expect(result.ok && result.report.values).toEqual([
+      { field: 'test-pack:helper', before: 2, shownBefore: false },
+      { field: 'test-pack:might', before: 1, after: 0, shownBefore: true, shownAfter: true },
+    ]);
   });
 });
