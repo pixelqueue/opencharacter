@@ -331,6 +331,7 @@ export type Change =
   | EquipChange
   | SetStateChange
   | AdjustStateChange
+  | SetField
   | SetQuantity
   | AdjustQuantity
   | TemplateChange
@@ -424,6 +425,17 @@ export type AdjustStateChange = {
   /** With `entry` (a copy) or `path` and `option` (a pick): the content that node's holder grants name, by qualified ID, whose saved state changes (the node's `grants`). It must be active there (`not-granted`). Its keys and bounds are those the granted content declares; a value equal to its default (the grant's `state` value, else the declared default) is dropped. */
   grant?: QualifiedId;
   grants?: Grants;
+};
+
+/** Set a copy's own value of an item field its content type marks `perCopy` (`key`, the field's name), saved in the entry's `fields`; `null` removes it, so the item's value (or its templates') applies again. Checked as `setState` is: a field that isn't `perCopy` is `not-per-copy`, a value of another type `wrong-type`, an `id` or `set` member naming no content or field `unknown-id`. */
+export type SetField = {
+  type: 'setField';
+  entry?: InstanceId;
+  key: Name;
+  /** The new value, or `null` to remove it; with `copies`, a formula evaluated per copy. */
+  value: Literal | null | Formula;
+  copies?: CopiesQuery;
+  limit?: CopiesLimit;
 };
 
 /** Set a copy's `quantity`. It may not be below 0 (`out-of-range`); a copy at 0 stays. */
@@ -562,6 +574,7 @@ export type ProposedChange = {
     | 'equip'
     | 'setState'
     | 'adjustState'
+    | 'setField'
     | 'setQuantity'
     | 'adjustQuantity'
     | 'applyTemplate'
@@ -742,6 +755,8 @@ export type Entry = {
   equipped?: boolean;
   quantity?: number;
   state?: EntryState;
+  /** The copy's own values for item fields its content type marks `perCopy`, by name: merged into the copy's `item` after its templates, replacing the item's and the templates' values. An `id` or `set` value of content or `field` is qualified. */
+  fields?: Record<string, Literal>;
   /** Picks for the choices declared by this item and its templates. */
   choices?: ChoiceTree;
   /** Saved state of content this copy's item and templates grant (holder grants), by the granted content's qualified ID. */
@@ -1028,8 +1043,15 @@ export type ContentItem = {
   tags?: Tags;
   /** Templates only: tags the copy's item doesn't have. A copy's `item.tags` are the base item's, then for each template in order its `removeTags` taken away and its `tags` added; a later template may add a removed tag again. */
   removeTags?: Tag[];
-  /** Values for the item fields declared by the content type. How a value is read depends on the declared type: `integer`, `decimal`, `boolean` and `dice` values are formulas (a plain literal is a formula with no inputs); `string`, `enum` and `id` values are literal strings; `set` values are lists of literals. A template may set the rules' `templateFields` and the fields of the content type its `appliesTo` names; its values are merged into the copy's `item` in template order, replacing the base item's, and its formulas see the base item as `base`. A template may give `null` for a field: the field is absent from the copy's `item` (no declared default applies), unless a later template sets it again. Only templates may give `null`. */
-  fields?: Record<string, Literal | null>;
+  /** Values for the item fields declared by the content type. How a value is read depends on the declared type: `integer`, `decimal`, `boolean` and `dice` values are formulas (a plain literal is a formula with no inputs); `string`, `enum` and `id` values are literal strings; `set` values are lists of literals. A template may set the rules' `templateFields` and the fields of the content type its `appliesTo` names; its values are merged into the copy's `item` in template order, replacing the base item's, and its formulas see the base item as `base`. A template may give `null` for a field: the field is absent from the copy's `item` (no declared default applies), unless a later template sets it again. Only templates may give `null`. A template's `string`, `enum` or `id` value may be `{ formula }`: a string formula read as its numeric values are (with `base`, `prior` and `params`), so a kept template takes a damage type from its keeper's `params`; a result that isn't a string, or isn't one of an enum's values, leaves the field as it was. Only templates may give `{ formula }`. */
+  fields?: Record<
+    string,
+    | Literal
+    | null
+    | {
+        formula: Formula;
+      }
+  >;
   /** Templates only: values the template's item fields read as `params.<name>`, given by the content keeping it (`keepsTemplates` `params`). A param the keeper doesn't give, or on a saved template, is its `default`, else absent. */
   params?: Record<string, ValueDecl>;
   /** Extra per-copy state keys this item (or template) adds to the character's copy, beyond those its content type declares. */
@@ -1111,7 +1133,7 @@ export type KeptTemplate = {
   copies?: Query;
   /** The content without a copy of its own it is kept on: every holder activation of content picked or granted to the character whose item is of the type and matches the condition, read as `copies`' is. The template may give only fields and tags (`template-without-copy` otherwise). */
   content?: Query;
-  /** Values for the template's `params`, each a formula of the param's type evaluated as an activation condition is, with the keeper's roots (`self`, `item`, `picksOf`, `character`, input fields). The template's item fields read them as `params.<name>`, so a kept template scales with the character. A name the template doesn't declare is `unknown-name` at load. */
+  /** Values for the template's `params`, each a formula of the param's type evaluated as an activation condition is, with the keeper's roots (`self`, `item`, `picksOf`, `character`, input fields). `character.applied` is among them, the saved applied entries with their state, so a param can name the element of an active spell. The template's item fields read them as `params.<name>`, so a kept template scales with the character. A name the template doesn't declare is `unknown-name` at load. */
   params?: Record<string, Formula>;
   /** An activation condition: while it holds, the template is kept. */
   when?: Condition;
@@ -1166,6 +1188,8 @@ export type ValueDecl = {
   required?: boolean;
   /** Parameters: may be omitted. */
   optional?: boolean;
+  /** Item fields: each copy may save its own value, in its entry's `fields` (`addItem`, `setField`): merged into the copy's `item` after its templates, so a custom stunt's skill is the player's. Elsewhere it is an error. */
+  perCopy?: boolean;
   /** Parameters: the label key. Default: `<actionKey>.params.<name>.name`; an optional one-line hint is `<actionKey>.params.<name>.description`. */
   label?: I18nKey;
   /** The value when none is given. For integer, decimal, boolean and dice declarations a string is a formula: on a state key it is evaluated with `item` bound when the copy is added, and the result is written into the character file (`shots: item.magazine`); on an item field it is read as an item's own value is, over input fields. For string, enum and id declarations a string is a literal. An item field's default applies in `item` when the item doesn't set the field; an id or set default of content or `field` is qualified in the content type's pack. */
@@ -1955,10 +1979,13 @@ export type ComputeSheetOutput = {
   copies?: Record<string, Record<string, Literal>>;
   /** Copies named by their state, by instance ID: for each copy whose item or content type has `nameFrom`, the value of that state key when it is a non-empty string. Apps show it as the copy's name in place of the item's (a choice's copy options included). */
   copyNames?: Record<string, string>;
-  /** Every item the character has with templates, as merged, so an app shows the item as the rules read it: each copy with a saved or kept template, in instance order (`entry` its instance ID), then each piece of content without a copy (picked or granted) that content keeps templates on, in activation order, once per item (no `entry`). `templates` lists the templates in the order they apply, `tags` and `fields` are the merged item's (`item.tags` and each item field as `item` reads it; a dice field as canonical dice text). */
+  /** Every item the character has with templates, as merged, so an app shows the item as the rules read it: each copy with a saved or kept template or its own field values (`perCopy` fields), in instance order (`entry` its instance ID), then each activation of content without a copy (picked or granted) that content keeps templates on, in activation order (`activation` its index in `activations`, no `entry`): the same item reached twice is listed per activation, each with its own templates. `templates` lists the templates in the order they apply, `tags` and `fields` are the merged item's (`item.tags` and each item field as `item` reads it; a dice field as canonical dice text). */
   templated?: {
     entry?: InstanceId;
+    /** Content without a copy: its activation's index in `activations`. */
+    activation?: number;
     item: QualifiedId;
+    /** The templates in the order they apply; empty for a copy listed for its own field values alone. */
     templates: QualifiedId[];
     tags: string[];
     fields: Record<string, Literal>;
@@ -2838,6 +2865,7 @@ export type UpgradeStep = {
     | 'renameState'
     | 'removeState'
     | 'moveState'
+    | 'stateToField'
     | 'renameChoice'
     | 'removeChoice'
     | 'renameOption'
@@ -2849,13 +2877,13 @@ export type UpgradeStep = {
     | 'renameTag'
     | 'renameAction'
     | 'adoptStandard';
-  /** The old name. renameContent, renameField, renameContentType, renameItemField, renameTag, renameAction: the ID. renameState, moveState: the state key. renameChoice: the choice ID on `owner`, or a prefixed choice key as saved (`<qualified id>/<choice>`, a granted or template content's choice), whose picks in `owner`'s trees become its choice `to`. renameOption: the picked option. */
+  /** The old name. renameContent, renameField, renameContentType, renameItemField, renameTag, renameAction: the ID. renameState, moveState, stateToField: the state key. renameChoice: the choice ID on `owner`, or a prefixed choice key as saved (`<qualified id>/<choice>`, a granted or template content's choice), whose picks in `owner`'s trees become its choice `to`. renameOption: the picked option. */
   from?: string;
-  /** The new name, as for `from`. moveState: the target's state key (default `from`). renameOption: the replacing option; absent, the pick is removed. */
+  /** The new name, as for `from`. moveState: the target's state key (default `from`). stateToField: the item field (default `from`). renameOption: the replacing option; absent, the pick is removed. */
   to?: string;
   id?: string;
   field?: FieldRef;
-  /** renameState, removeState, moveState: limits the step to content of this content type (with `item`, both must match). renameItemField, removeItemField, mapItemValues: the homebrew items' content type. */
+  /** renameState, removeState, moveState, stateToField: limits the step to content of this content type (with `item`, both must match). renameItemField, removeItemField, mapItemValues: the homebrew items' content type. */
   type?: Name;
   value?: Formula;
   map?: Record<string, Literal>;
@@ -2863,7 +2891,7 @@ export type UpgradeStep = {
   owner?: ChoiceOwner;
   /** removeChoice, renameOption, requireChoice: the choice on `owner`, as saved (a slot is its own key). moveState: the choice whose pick receives the value; a slotted one is searched slot by slot. */
   choice?: Slug;
-  /** adoptStandard: the item whose standard copy an entry becomes. renameState, removeState, moveState: limits the step to content `item` and homebrew items extending it (with `type`, both must match). */
+  /** adoptStandard: the item whose standard copy an entry becomes. renameState, removeState, moveState, stateToField: limits the step to content `item` and homebrew items extending it (with `type`, both must match). */
   item?: Ref;
   /** removeState: the state key to drop. */
   key?: Name;
@@ -2888,6 +2916,7 @@ export type ErrorCode =
   | 'not-owned'
   | 'duplicate-id'
   | 'standard-copy'
+  | 'not-per-copy'
   | 'not-equippable'
   | 'unknown-state-key'
   | 'template-not-applicable'

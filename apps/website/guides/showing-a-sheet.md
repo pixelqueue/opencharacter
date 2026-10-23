@@ -294,11 +294,14 @@ with a `formula-error` in `sheet.errors`. Name each one by
 ## Items with templates
 
 `sheet.templated` lists every item the character has with templates, merged as the rules read
-it, so you never merge templates yourself. Each is `{ entry?, item, templates, tags, fields }`:
-first each copy with a saved or kept template (`entry` its instance ID: a Longsword +1), then
-each picked or granted item that content keeps templates on, with no `entry` (a cantrip a
-feature reaches 300 feet farther). `fields` is each item field as merged. An item that isn't
-listed is the ruleset's own. Pass the entry to the item's card
+it, so you never merge templates yourself. Each is
+`{ entry?, activation?, item, templates, tags, fields }`: first each copy with a saved or kept
+template (`entry` its instance ID: a Longsword +1), then each activation of picked or granted
+content that content keeps templates on, with `activation` its index in `activations` and no
+`entry` (a cantrip a feature reaches 300 feet farther). Templates on content are kept per
+activation: a cantrip known through two classes is two activations, and a Warlock feature may
+lengthen only the Warlock's. `fields` is each item field as merged. An item or activation that
+isn't listed is the ruleset's own. Pass the entry to the item's card
 ([Showing text](showing-text.md#content-cards)).
 
 ## Standard copies

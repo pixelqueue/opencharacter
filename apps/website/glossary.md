@@ -73,6 +73,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Participant:** another character taking part in an action in one of its declared roles (a target, a helper), passed to `startAction` as a view and read as `participants.<role>`.
 - **Paused action:** an action waiting at a checkpoint, returned as plain data so it can be continued later anywhere.
 - **Pending choice:** a choice that applies and still needs picks. A choice step over `{ pending }` asks them one pick at a time.
+- **Per-copy field:** an item field its content type marks `perCopy`, which a copy may set for itself (a Fate custom stunt's skill and limit), saved in the entry's `fields` and merged into its `item` after its templates; `setField` changes it.
 - **Per-copy state:** values tracked on a character's copy of an item (charges, shots, level), declared by its type, item or templates. Picks and granted content keep state of their own the same way.
 - **Pick:** one selected option in a choice, stored in the character's choices tree with its own nested picks, its `state` (a once-a-day feat's `used`) and the saved state of content it grants (`grants`).
 - **Pool dice:** dice an effect adds to a roll's dice part (`poolDice`) before keep and drop, each recording its source.
@@ -103,7 +104,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Strict mode:** an applyChanges option that turns rules issues into a runtime error.
 - **Tag:** a dotted label on content, fields or rolls (`damage.fire`); matches itself and every tag below it.
 - **Tag vocabulary:** the tags a pack declares in its rules' `tags`; every tag the pack uses must be declared there or by a dependency.
-- **Template:** content applied on top of a character's copy of an item during play (+1 weapon, Flame Tongue). Content may also keep one on copies, or on picked or granted content's item (a feature lengthening a spell's range), while it is active.
+- **Template:** content applied on top of a character's copy of an item during play (+1 weapon, Flame Tongue). Content may also keep one on copies, or on an activation of picked or granted content (a feature lengthening one class's cantrip), while it is active.
 - **Template field:** an item field every template may set, declared once in the rules (`templateFields`): a magic weapon's rarity, attunement and bonuses. A copy's `item` merges its templates' values over the base item's.
 - **Test suite:** plain-data cases (inputs, die faces, expected outputs) every engine runs to prove conformance.
 - **Upgrade script:** data shipped with a pack version that moves saved characters from the previous version's state shape.

@@ -108,6 +108,7 @@ describe('templates kept on content without a copy', () => {
     expect(sheet.values['p:price']?.value).toBe(10);
     expect(sheet.templated).toEqual([
       {
+        activation: 1,
         item: 'p:spells.flame',
         templates: ['p:templates.far'],
         tags: ['far'],
@@ -122,12 +123,14 @@ describe('templates kept on content without a copy', () => {
     const sheet = sheetOf(['reach', 'focus'], { 'p:focused': true });
     expect(sheet.templated).toEqual([
       {
+        activation: 1,
         item: 'p:spells.flame',
         templates: ['p:templates.far', 'p:templates.plain'],
         tags: ['far'],
         fields: { range: 120, cost: 5 },
       },
       {
+        activation: 2,
         item: 'p:spells.frost',
         templates: ['p:templates.plain'],
         tags: [],

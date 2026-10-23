@@ -40,6 +40,7 @@
             "renameState",
             "removeState",
             "moveState",
+            "stateToField",
             "renameChoice",
             "removeChoice",
             "renameOption",
@@ -54,11 +55,11 @@
           ]
         },
         "from": {
-          "description": "The old name. renameContent, renameField, renameContentType, renameItemField, renameTag, renameAction: the ID. renameState, moveState: the state key. renameChoice: the choice ID on `owner`, or a prefixed choice key as saved (`<qualified id>/<choice>`, a granted or template content's choice), whose picks in `owner`'s trees become its choice `to`. renameOption: the picked option.",
+          "description": "The old name. renameContent, renameField, renameContentType, renameItemField, renameTag, renameAction: the ID. renameState, moveState, stateToField: the state key. renameChoice: the choice ID on `owner`, or a prefixed choice key as saved (`<qualified id>/<choice>`, a granted or template content's choice), whose picks in `owner`'s trees become its choice `to`. renameOption: the picked option.",
           "type": "string"
         },
         "to": {
-          "description": "The new name, as for `from`. moveState: the target's state key (default `from`). renameOption: the replacing option; absent, the pick is removed.",
+          "description": "The new name, as for `from`. moveState: the target's state key (default `from`). stateToField: the item field (default `from`). renameOption: the replacing option; absent, the pick is removed.",
           "type": "string"
         },
         "id": {
@@ -68,7 +69,7 @@
           "$ref": "common.schema.json#/$defs/fieldRef"
         },
         "type": {
-          "description": "renameState, removeState, moveState: limits the step to content of this content type (with `item`, both must match). renameItemField, removeItemField, mapItemValues: the homebrew items' content type.",
+          "description": "renameState, removeState, moveState, stateToField: limits the step to content of this content type (with `item`, both must match). renameItemField, removeItemField, mapItemValues: the homebrew items' content type.",
           "$ref": "common.schema.json#/$defs/name"
         },
         "value": {
@@ -89,7 +90,7 @@
           "$ref": "common.schema.json#/$defs/slug"
         },
         "item": {
-          "description": "adoptStandard: the item whose standard copy an entry becomes. renameState, removeState, moveState: limits the step to content `item` and homebrew items extending it (with `type`, both must match).",
+          "description": "adoptStandard: the item whose standard copy an entry becomes. renameState, removeState, moveState, stateToField: limits the step to content `item` and homebrew items extending it (with `type`, both must match).",
           "$ref": "common.schema.json#/$defs/ref"
         },
         "key": {
@@ -333,6 +334,20 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "stateToField"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": ["from"]
           }
         },
         {

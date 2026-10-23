@@ -1007,7 +1007,12 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     const scope = item.scopes?.fields ?? item.pack;
     for (const [name, decl] of Object.entries(decls)) {
       const value = fields[name];
-      if (value !== undefined && value !== null) fields[name] = q.members(decl, value, scope);
+      if (
+        value !== undefined &&
+        value !== null &&
+        (typeof value !== 'object' || Array.isArray(value))
+      )
+        fields[name] = q.members(decl, value, scope);
     }
     resolved.set(qid, { ...item, fields });
   }

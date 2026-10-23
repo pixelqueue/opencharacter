@@ -17,7 +17,8 @@ A `valueDecl` has `type` (a value type), plus `values` for enums, `of` for `id`/
 
 Item fields are what an item's author writes, never what changes in play (that is `state`), so
 an app can build a custom-item form from them; each has a name and an optional hint in the
-pack's text (`types.<type>.fields.<field>.name`; [i18n.md](i18n.md#item-fields)).
+pack's text (`types.<type>.fields.<field>.name`; [i18n.md](i18n.md#item-fields)). A field marked
+`perCopy` may also be written by the player for one copy ([below](#per-copy-fields)).
 
 An item field's `default` applies when an item doesn't set the field (or, on a copy, when none
 of its templates does): `item.<field>` and `copy.fields.<field>` read it as if the item had written it (a string on an `integer`,
@@ -371,6 +372,44 @@ Draconic Resistance asks for a damage type only for a physical exemplar), make i
 (`required: false`) and let its options' effects test the computed value; when a grant is
 harmless twice (a feat the heritage may already give), grant it unconditionally.
 
+When content does one thing or another by a computed value ("you become trained in
+Performance, or gain Assurance in it if you're already trained"), make the two a choice whose
+eligibility reads the value, and follow the pick:
+
+- **The choice:** a value choice of the outcomes. Its `eligible` and `recommend` are evaluated on
+  the computed sheet, so they read derived fields: the recommendation is the outcome the rules
+  pick, and a pick the value rules out is the rules issue `option-not-eligible`
+  ([below](#eligibility-and-own-picks)). listOptions marks it the same way.
+- **Its own pick:** the outcome must not change what `eligible` reads, or picking it would rule
+  itself out. Give it through another field than the one the condition tests: here the training
+  goes to the picked skills (`skills.chosen`), and the condition reads the trainings content
+  gives (`skills.trained`).
+- **What follows:** a choice's `effects` run per pick (`when: "pick.value == 'training'"`), and a
+  grant's `when` may read the pick, saved input: `when: "'assurance' in picksOf('harmonic')"`.
+
+```yaml
+choices:
+  - id: harmonic
+    from: { values: [training, assurance] }
+    eligible: >-
+      value == 'assurance' ? 'skill.performance' in skills.trained
+        : !('skill.performance' in skills.trained)
+    recommend: "'skill.performance' in skills.trained ? 'assurance' : 'training'"
+    effects:
+      - target: skills.chosen
+        op: grant
+        value: { tag: skill.performance }
+        when: "pick.value == 'training'"
+grants:
+  - item: feats.skill.assurance
+    when: "'assurance' in picksOf('harmonic')"
+    choices: { skill: [{ option: skill.performance }] }
+```
+
+The player picks what the rules decide, and the sheet says when the pick is wrong: training
+from a background taken later makes the training pick `option-not-eligible` until the player
+picks Assurance.
+
 ### Per-copy state
 
 The character's copy of an item (an **entry**) has:
@@ -380,6 +419,42 @@ The character's copy of an item (an **entry**) has:
 - `choices`.
 
 Formulas see the copy as `self`: `self.equipped`, `self.level`, `self.ignited`. State keys MUST NOT reuse core property names.
+
+### Per-copy fields
+
+An item field its content type marks `perCopy: true` may have a value of the copy's own: an
+item the player shapes once they have it, as Fate's custom stunt is (its skill, action and
+limit differ per copy):
+
+```yaml
+contentTypes:
+  stunt:
+    fields:
+      skill: { type: id, of: field, perCopy: true }
+      limit: { type: enum, values: [none, conflict, scene, session], default: none, perCopy: true }
+# The character file
+features:
+  - id: stunt-1
+    item: fate-core:stunts.custom
+    fields: { skill: fate-core:skills.lore, limit: scene }
+```
+
+- **Saved:** in the entry's `fields`, by name ([characters.md](characters.md#entries)), set by
+  `addItem`'s `entry.fields` and by `setField`; `setField` with `null` removes one
+  ([engine-core.md](engine-core.md#applychanges)). Each is checked as a state value is: a field
+  that isn't declared `perCopy` is `not-per-copy`, a value of another type `wrong-type`, an `id`
+  or `set` member that names nothing `unknown-id`. A value is a literal, never a formula; an `id`
+  or `set` value of content or `field` is qualified.
+- **Read:** merged into the copy's `item` (and `copy.fields`) after its templates, saved and
+  kept, replacing the item's value and theirs; templates' `prior` doesn't see it. So every
+  reader reads `item.limit`, a custom stunt's and an SRD stunt's alike. State defaults and
+  bounds see it too.
+- **Shown:** a copy with own values is in computeSheet's `templated`, merged, even without a
+  template ([engine-core.md](engine-core.md#merged-items)).
+- **Wrong on the sheet:** a saved value that doesn't apply (the type no longer marks the field
+  `perCopy`, or the value has another type) is left out, with that error in `errors`.
+- Only a content type's item fields take `perCopy`; on a state key or a template field it is a
+  validation error.
 
 **A copy named by its state**: a content type or an item may say
 `nameFrom: <state key>`, a string state key the copy has (declared by the type or the item). While
@@ -493,7 +568,11 @@ effects:
   template), and any field of the content type its `appliesTo` names; anything else is a build
   error, as on items. Its values are read as an item's own are (`integer`, `decimal`, `boolean`
   and `dice` values are formulas over input fields), with `base` bound to the base item, in the
-  template's pack.
+  template's pack. A `string`, `enum` or `id` value, a literal on an item, may be `{ formula }`
+  on a template: a string formula read the same way, an `id` qualified in the template's pack. A
+  result that isn't a string, or isn't one of an enum's `values`, leaves the field as it was.
+  Only templates may give it, so a template can take a value from its `params`
+  ([below](#from-the-keeper)).
   - The copy's `item` (and `copy.fields`) is the base item's fields, then each template's in the
     copy's order, a later value replacing an earlier one with the same name: a Sun Blade's
     `damageType: radiant` replaces the longsword's slashing.
@@ -594,10 +673,25 @@ fields: { range: 'prior.range + 300' }
 
 - **Which content.** Every holder activation reached by a pick or a grant (at any depth, under
   a copy or the rules) whose item the query matches and the template's `appliesTo` admits keeps
-  it, while the keeping item is active and its `when` holds. The templates are kept by item: two
-  activations of one spell have the same templates, in instance order of the content keeping
-  them, each once. Copies, applied entries and the content applied entries grant are not
-  reached.
+  it, while the keeping item is active and its `when` holds. The templates are kept per
+  activation, in instance order of the content keeping them, each once: a spell known through
+  two classes is two activations, and each has the templates kept on it. Copies, applied
+  entries and the content applied entries grant are not reached.
+- **Whose content.** A `content` query that reads the keeper also sees `owner`, the candidate
+  activation's owner: the activation that owns the choice it was picked in, or granted it.
+  `owner.id` is its qualified key root, as a choice's `owner` is ([engine-core.md](engine-core.md#the-choice-list)):
+  the content ID, `<pack>:rules` for a rules-level pick; `owner.item` is its item (absent for
+  the rules). So a feature reaches a cantrip only where one class knows it:
+
+  ```yaml
+  # Eldritch Spear: one Warlock cantrip, not the same cantrip known through a feat.
+  keepsTemplates:
+    - template: templates.eldritch-spear
+      content:
+        type: spell
+        where: "item.id in picksOf('cantrip') && owner.id == @classes.warlock"
+  ```
+
 - **What it changes.** The item only: its fields (with `base`, `prior` and `null` as on a copy)
   and its tags (`tags` and `removeTags`), merged into the content's `item` wherever that
   activation reads it: its effects, grants, choices, prerequisites, actions (their `available`
@@ -609,9 +703,9 @@ fields: { range: 'prior.range + 300' }
   (with `appliesTo`); giving state, computed values, effects, actions, follow-ups, choices,
   grants, immunities, prerequisites or the other copy properties is the load error
   `template-without-copy`.
-- **Shown.** computeSheet's `templated` lists each such item as merged, after the copies with
-  templates ([engine-core.md](engine-core.md#merged-items)), so an app's card shows the far
-  range.
+- **Shown.** computeSheet's `templated` lists each such activation's item as merged, by its
+  index in `activations`, after the copies with templates
+  ([engine-core.md](engine-core.md#merged-items)), so an app's card shows the far range.
 
 #### From the keeper
 
@@ -649,17 +743,43 @@ fields: { range: 'prior.range + params.feet' }
   item field values read them as `params.<name>`. A `keepsTemplates` entry gives them, `params:
   { <name>: <formula> }`, each formula of the param's type evaluated as an activation condition
   with the keeper's roots: its `self` (a picked invocation's is the Warlock copy, so
-  `self.level` is the Warlock level), its `item`, `picksOf`, input fields and the character
-  functions. A name the template doesn't declare is `formula-error`, cause `unknown-name`, at
-  load. A param not given, and every param of a saved template, is its declared `default` (a
-  literal), else absent.
-- **Free of loops.** A param reads what an activation condition reads, never a derived field,
-  so the merged item stays what item field values are: fixed before any effect. A template's
-  field that needs a derived value has the keeper's effects target a character field instead.
+  `self.level` is the Warlock level), its `item`, `picksOf`, `character`, input fields and the
+  character functions. A name the template doesn't declare is `formula-error`, cause
+  `unknown-name`, at load. A param not given, and every param of a saved template, is its
+  declared `default` (a literal), else absent.
+- **From what is applied.** `character.applied` is the file's applied entries, each with its
+  `source` and state ([above](#when-content-is-active)), so a param can follow content applied
+  in play: the element of an active elemental weapon, read off its entry. With a string field
+  given as `{ formula }`, the template sets the spell's damage type from it:
+
+  ```yaml
+  # Your absolute zero takes the damage type of your active elemental weapon.
+  keepsTemplates:
+    - template: templates.elemental-connection
+      content: { type: spell, where: 'item.id == @spells.absolute-zero' }
+      when: "countList(character.applied, x.active && x.source == '<pack>:spells.elemental-weapon') > 0"
+      params:
+        element: >-
+          filterList(character.applied,
+            x.active && x.source == '<pack>:spells.elemental-weapon')[0].state.element
+  ---
+  id: templates.elemental-connection
+  type: template
+  appliesTo: { type: spell }
+  params:
+    element: { type: string, default: '' }
+  fields:
+    damageType: { formula: "params.element != '' ? params.element : prior.damageType" }
+  ```
+
+- **Free of loops.** A param reads what an activation condition reads, never a derived field:
+  applied entries are saved input, like picks. So the merged item stays what item field values
+  are: fixed before any effect. A template's field that needs a derived value has the keeper's
+  effects target a character field instead.
 - **Each keeper its own.** Each activation of the keeper evaluates its own query and params,
   so two Eldritch Spears on two cantrips keep the template on each with its own range. A copy
-  or item keeps a template once: when two keepers keep the same template on it, the first in
-  activation order gives the params, and its fields apply once. Two features that stack give
+  or an activation keeps a template once: when two keepers keep the same template on it, the
+  first in activation order gives the params, and its fields apply once. Two features that stack give
   two templates, each building on `prior`.
 - **Shown.** The template's fields are merged with the params, so `templated`
   ([engine-core.md](engine-core.md#merged-items)) shows the cantrip's range for this character.

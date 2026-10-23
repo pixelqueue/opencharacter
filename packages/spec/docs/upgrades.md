@@ -10,17 +10,17 @@ item values just recalculate. A version that changes the **shape** of saved stat
 Between two releases of a pack, these differences are **shape changes**, because a saved
 character could refer to something that no longer means the same:
 
-| Change                                                                           | `kind`                 | Covered by                                  |
-| -------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------- |
-| A content item is removed                                                        | `content-removed`      | `renameContent` or `removeContent`          |
-| An item's content type changes                                                   | `content-type-changed` | `removeContent`                             |
-| An input field is removed, or stops being an input                               | `field-removed`        | `renameField` or `removeField`              |
-| An input field's type changes, or an enum loses values                           | `field-type-changed`   | `mapValues` or `removeField`                |
-| A state key is removed or its type changes (on a content type, item or template) | `state-removed`        | `renameState`, `removeState` or `moveState` |
-| A choice is removed                                                              | `choice-removed`       | `renameChoice` or `removeChoice`            |
-| An option is removed from a `values` or inline-options choice                    | `option-removed`       | `renameOption`                              |
-| A new required choice appears on existing content or in the rules                | `choice-added`         | `requireChoice`                             |
-| An existing item becomes standard (a standard copies query now matches it)       | `standard-copy-added`  | `adoptStandard`                             |
+| Change                                                                           | `kind`                 | Covered by                                                  |
+| -------------------------------------------------------------------------------- | ---------------------- | ----------------------------------------------------------- |
+| A content item is removed                                                        | `content-removed`      | `renameContent` or `removeContent`                          |
+| An item's content type changes                                                   | `content-type-changed` | `removeContent`                                             |
+| An input field is removed, or stops being an input                               | `field-removed`        | `renameField` or `removeField`                              |
+| An input field's type changes, or an enum loses values                           | `field-type-changed`   | `mapValues` or `removeField`                                |
+| A state key is removed or its type changes (on a content type, item or template) | `state-removed`        | `renameState`, `removeState`, `moveState` or `stateToField` |
+| A choice is removed                                                              | `choice-removed`       | `renameChoice` or `removeChoice`                            |
+| An option is removed from a `values` or inline-options choice                    | `option-removed`       | `renameOption`                                              |
+| A new required choice appears on existing content or in the rules                | `choice-added`         | `requireChoice`                                             |
+| An existing item becomes standard (a standard copies query now matches it)       | `standard-copy-added`  | `adoptStandard`                                             |
 
 `standard-copy-added` is for an item of the pack, in both releases with the same
 type, that the standard copies queries ([content.md](content.md#standard-copies)) match in the
@@ -130,6 +130,7 @@ state can refer to what it names:
 | `renameState`   | `item?`, `type?`, `from`, `to`                                                | Renames a state key in the saved state of copies, picks and granted content ([characters.md](characters.md#granted-contents-state)): of content `item`, of content of type `type`, or both when both are given (every one when neither is)                       |
 | `removeState`   | `item?`, `type?`, `key`                                                       | Drops the state key from the same places as `renameState`; a pick's or grant's `state` left empty goes, and a grant entry with it                                                                                                                                |
 | `moveState`     | `item?`, `type?`, `from`, `to?`, and `grant`, or `owner?`, `choice`, `option` | Moves state key `from` off copies (of `item`, of `type`, or both, as for `renameState`) to key `to` (default `from`) of a pick or of granted content's saved state ([below](#moving-state))                                                                      |
+| `stateToField`  | `item?`, `type?`, `from`, `to?`                                               | Moves state key `from` off copies (of `item`, of `type`, or both, as for `renameState`) to the copy's own value of item field `to` (default `from`), a field its type marks `perCopy` on the new release ([below](#state-to-a-copys-field))                      |
 | `renameChoice`  | `owner?`, `from`, `to`                                                        | Renames a choice key on entries holding `owner`, in picks of `owner`, and in prefixed keys (`<owner>/<choice>`). Without `owner`, renames a rules-level choice. A prefixed `from` moves another content's choice onto `owner`'s ([below](#prefixed-choice-keys)) |
 | `removeChoice`  | `owner?`, `choice`                                                            | Removes the choice's picks, with their nested picks, wherever `renameChoice` would rename it                                                                                                                                                                     |
 | `renameOption`  | `owner?`, `choice`, `from`, `to?`                                             | Replaces a picked option of the choice (`from`) with `to`; without `to`, removes the pick and its nested picks                                                                                                                                                   |
@@ -193,6 +194,22 @@ goes. Where items of a type share a key that moves to different content (an elf'
 tiefling's `lineageSpell1Used`, to each one's lineage trait), one step per item with `item`
 moves each; the first step without it would drop the others'. For `state-removed`, a step with
 `item` covers only that item's key.
+
+### State to a copy's field
+
+`stateToField` is for a release that turns per-copy state into an item field a copy may set for
+itself ([content.md](content.md#per-copy-fields)): a custom stunt's `limit`, kept in state
+while every reader branched on it, becomes the field every stunt has. For each copy with a saved
+`from` (of `item`, of `type`, or both; every copy when neither is), the value leaves the copy's
+state and becomes its own value of field `to` (default `from`), in its `fields`. It is dropped
+when the copy's item on the new release has no field `to` its type marks `perCopy`, when the
+value doesn't fit the field (`wrong-type`, or an `id` naming nothing), when the copy already has
+an own value, or when it equals the item's value (else the field's default). A copy's `state`
+left empty goes. Like `moveState`, it covers the key's `state-removed`.
+
+```yaml
+- { op: stateToField, item: stunts.custom, from: limit }
+```
 
 `adoptStandard` is for a release that makes an item standard
 ([content.md](content.md#standard-copies)): entry IDs are the app's choice, so the script names

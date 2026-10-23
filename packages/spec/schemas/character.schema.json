@@ -171,6 +171,16 @@
         "state": {
           "$ref": "#/$defs/state"
         },
+        "fields": {
+          "description": "The copy's own values for item fields its content type marks `perCopy`, by name: merged into the copy's `item` after its templates, replacing the item's and the templates' values. An `id` or `set` value of content or `field` is qualified.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "common.schema.json#/$defs/literal"
+          }
+        },
         "choices": {
           "description": "Picks for the choices declared by this item and its templates.",
           "$ref": "#/$defs/choiceTree"

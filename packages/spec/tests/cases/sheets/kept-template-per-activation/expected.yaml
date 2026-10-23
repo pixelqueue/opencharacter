@@ -1,0 +1,23 @@
+# The warlock's bolt (activation 1) reaches 150; the druid's (activation 3) keeps its 120.
+activations:
+  - { item: test-kept-sources:classes.warlock, entry: warlock, via: copy }
+  - item: test-kept-sources:spells.bolt
+    entry: warlock
+    via: pick
+    parent: 0
+    path: { entry: warlock, choice: [cantrip, test-kept-sources:spells.bolt] }
+  - { item: test-kept-sources:classes.druid, entry: druid, via: copy }
+  - item: test-kept-sources:spells.bolt
+    entry: druid
+    via: pick
+    parent: 2
+    path: { entry: druid, choice: [cantrip, test-kept-sources:spells.bolt] }
+  - { item: test-kept-sources:features.spear, entry: spear, via: copy }
+templated:
+  - activation: 1
+    item: test-kept-sources:spells.bolt
+    templates: [test-kept-sources:templates.spear]
+    tags: []
+    fields: { level: 0, range: 150, damageType: fire }
+issues: []
+errors: []

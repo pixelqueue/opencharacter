@@ -72,6 +72,10 @@
       "description": "In the `recommend` of a choice step over pending choices: the choice being asked, `choice.path` (its choice path), `choice.owner` (the qualified key root of its owner) and `choice.id`, so one step can recommend differently per choice. In a declared choice's own `where` (a query reading the character, or a value choice's), `eligible`, `recommend` and a value choice's `values` formula: the choice itself, the same keys plus `slot` for a slot and `picks`, its own picks (content IDs or values, in saved order), so a choice can leave out what the character has without ruling out its own picks. Other choices' picks, a sibling's included, are `picksOf(<choice>)`."
     },
     {
+      "id": "owner",
+      "description": "In a `keepsTemplates` entry's `content` query that reads the keeper: the candidate activation's owner, the activation that owns the choice it was picked in or granted it. `owner.id` is its qualified key root, as `choice.owner` (a content ID, `<pack>:rules` for a rules-level pick, an inline option's root plus `.choices.<choice>.options.<option>`), and `owner.item` its item (`dyn`; absent for the rules). So a template goes on a cantrip only where one class knows it: `owner.id == @classes.warlock`. Not bound elsewhere (`unknown-name`)."
+    },
+    {
       "id": "field",
       "description": "In an `allocate` step's `limit` and `cost`: the field being allocated to, `field.id` (the qualified field ID) and `field.value` (its computed value before the step)."
     },

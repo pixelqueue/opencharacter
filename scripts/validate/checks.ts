@@ -301,6 +301,9 @@ export class PackChecker {
       for (const decl of [...Object.values(def.fields ?? {}), ...Object.values(def.state ?? {})]) {
         this.memberKind(decl, file, where);
       }
+      for (const [key, decl] of Object.entries(def.state ?? {}))
+        if (decl.perCopy !== undefined)
+          this.report.error(file, `${where}: state ${key}: perCopy is for item fields`);
       for (const [field, decl] of Object.entries(def.fields ?? {}))
         if (decl.default !== undefined)
           this.itemFieldValue(decl.default, decl, file, `${where} field ${field} default`);
@@ -570,7 +573,13 @@ export class PackChecker {
           if (!Object.hasOwn(type?.def.fields ?? {}, step.to))
             this.report.error(file, `${where}: "${step.to}" is not an item field of ${step.type}`);
         }
-        const itemSteps = ['adoptStandard', 'renameState', 'removeState', 'moveState'];
+        const itemSteps = [
+          'adoptStandard',
+          'renameState',
+          'removeState',
+          'moveState',
+          'stateToField',
+        ];
         if (itemSteps.includes(step.op) && step.item && !this.ruleset.item(step.item, own))
           this.report.error(file, `${where}: "${step.item}" is not content of this pack`);
         const target = step.op === 'moveState' && !step.grant;
@@ -580,6 +589,16 @@ export class PackChecker {
             this.report.error(
               file,
               `${where}: no choice "${step.choice}" on ${step.owner ?? 'the rules'}`,
+            );
+        }
+        if (step.op === 'stateToField' && step.type) {
+          // The value moves to an item field the type marks perCopy.
+          const field = step.to ?? step.from ?? '';
+          const type = this.ruleset.contentType(step.type, own);
+          if (!type?.def.fields?.[field]?.perCopy)
+            this.report.error(
+              file,
+              `${where}: "${field}" is not a perCopy item field of ${step.type}`,
             );
         }
         if (step.op === 'moveState') {
@@ -819,6 +838,11 @@ export class PackChecker {
               file,
               `field "${name}" is not declared by content type "${typeName}"`,
             );
+          else if (isFormulaValue(value))
+            this.report.error(
+              file,
+              `${owner}.fields.${name}: only a template's field may be { formula }`,
+            );
           else this.itemFieldValue(value, decl, file, `${owner}.fields.${name}`);
         }
         if (!item.extends) {
@@ -849,12 +873,23 @@ export class PackChecker {
             file,
             `field "${name}" is neither a template field nor a field of ${types.map((t) => `"${t}"`).join(' and ')}`,
           );
-        else if (value !== null) this.itemFieldValue(value, decl, file, `${owner}.fields.${name}`);
+        else if (isFormulaValue(value)) {
+          if (!['string', 'enum', 'id'].includes(decl.type))
+            this.report.error(
+              file,
+              `${owner}.fields.${name}: { formula } is for a string, enum or id field; a ${decl.type} value is a formula as written`,
+            );
+        } else if (value !== null)
+          this.itemFieldValue(value, decl, file, `${owner}.fields.${name}`);
       }
     }
 
     for (const query of appliesQueries(item)) this.query(query, file, `${owner} appliesTo`);
-    for (const decl of Object.values(item.state ?? {})) this.memberKind(decl, file, owner);
+    for (const [key, decl] of Object.entries(item.state ?? {})) {
+      this.memberKind(decl, file, owner);
+      if (decl.perCopy !== undefined)
+        this.report.error(file, `${owner}: state ${key}: perCopy is for item fields`);
+    }
     {
       const ref = item.override ?? item.extends;
       const parent = ref ? this.ruleset.item(ref, this.scope) : undefined;
@@ -1869,12 +1904,15 @@ export class PackChecker {
       this.report.error(file, `${where}: path and option are only for choose and unchoose`);
     if (change.type === 'setQuantity' && change.value === undefined)
       this.report.error(file, `${where}: setQuantity needs a value`);
+    if (change.type === 'setField' && (change.key === undefined || change.value === undefined))
+      this.report.error(file, `${where}: setField needs a key and a value`);
     if (change.type === 'adjustQuantity' && change.by === undefined)
       this.report.error(file, `${where}: adjustQuantity needs a by`);
     if (change.copies) {
       const perCopy = [
         'setState',
         'adjustState',
+        'setField',
         'setQuantity',
         'adjustQuantity',
         'equip',
@@ -2566,4 +2604,8 @@ function hasValues(steps: Step[]): boolean {
   return steps.some(
     (s) => valueSource(s) !== undefined || stepArms(s).some((a) => hasValues(a.steps ?? [])),
   );
+}
+
+function isFormulaValue(value: unknown): value is { formula: Formula } {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

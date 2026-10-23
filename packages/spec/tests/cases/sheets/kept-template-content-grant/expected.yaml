@@ -1,13 +1,20 @@
-# Beacon (30) is 330 and its granted bolt (120) 420; the picked bolt is the same item, so it is
-# listed once.
+# Beacon (30) is 330 and its granted bolt (120) 420; the picked bolt is another activation of the
+# same item, listed on its own.
 values:
   test-kept-templates:range.best: { value: 420 }
 templated:
-  - item: test-kept-templates:spells.beacon
+  - activation: 2
+    item: test-kept-templates:spells.beacon
     templates: [test-kept-templates:templates.far]
     tags: [far]
     fields: { level: 0, range: 330 }
-  - item: test-kept-templates:spells.bolt
+  - activation: 3
+    item: test-kept-templates:spells.bolt
+    templates: [test-kept-templates:templates.far]
+    tags: [far]
+    fields: { level: 0, range: 420 }
+  - activation: 4
+    item: test-kept-templates:spells.bolt
     templates: [test-kept-templates:templates.far]
     tags: [far]
     fields: { level: 0, range: 420 }

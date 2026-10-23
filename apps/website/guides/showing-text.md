@@ -80,8 +80,10 @@ text.value('5e-srd-5.1:spell', 'school', 'evocation'); // 'Evocation'
   pass the copy, `{ templates, tags, fields, state, computed }` (`templates`, `tags` and
   `fields` from computeSheet's `templated` entry for the copy, `computed` from `copies[entry]`),
   so the card names a Longsword +1 and shows its merged fields and the copy's state. A spell
-  known whose item content keeps templates on (a longer range) has a `templated` entry without
-  `entry`: pass its `{ templates, tags, fields }` the same way.
+  known that content keeps templates on (a longer range) has a `templated` entry with its
+  `activation` (its index in `activations`) instead of `entry`: pass its
+  `{ templates, tags, fields }` the same way. The same spell known twice (through two classes) is
+  two activations, each listed with its own templates.
 - **Give the bundle `contentTypes`** (`ruleset.contentTypes`), or pass the item's type as the
   third argument: a field the item leaves out then reads as its declared default (a Fate stunt's
   `action: any`), as the rules read it.
