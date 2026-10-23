@@ -307,8 +307,8 @@ reading is listed under [Rule readings](#rule-readings).
   trained. Demoralize frightens, Trip knocks prone (1d6 bludgeoning on a critical success),
   Grapple grabs or restrains, Escape frees; Treat Wounds (any DC your rank allows, an hour
   doubling it) and Battle Medicine heal, Treat Poison and Treat Disease give the next save a
-  circumstance modifier (an applied effect), Administer First Aid stabilizes; Feint makes the
-  target off-guard to your melee Strikes (`feint.target`, which the Strike reads); a critical
+  circumstance modifier (an applied effect that save removes), Administer First Aid stabilizes;
+  Feint makes the target off-guard to your melee Strikes (`feint.target`, which the Strike reads); a critical
   failure to Trip or Shove is prone, to Disarm off-guard; Subsist's failure is fatigued. Attack-
   trait actions take and count the multiple attack penalty. Actions against several creatures
   (Hide, Sneak, Lie, Coerce, Make an Impression, Seek, …) roll once and give each one's degree
@@ -811,8 +811,10 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
   flanked or in cover (situational choices), when a condition is gained (`applyEffect`), daily
   preparations (the pack's `daily-preparations` and `prepare-spells` say what happens), rests; a
   spell's duration, sustaining and dismissing it, its area and who is in it (an applied spell
-  stays until the app removes it; a spell on "you and your allies" takes the caster as an ally
-  too); summoned creatures; onset, intervals and virulence of afflictions.
+  stays until the app removes it, but one for the next roll, such as guidance, sure strike,
+  true target or weapon surge, ends on the roll it changes; a spell on "you and your allies"
+  takes the caster as an ally too); summoned creatures; onset, intervals and virulence of
+  afflictions.
 - **Text only:** critical specialization, armor specialization, the skill feats that change
   time, other creatures or what the GM tells you (58 of 106), the skill actions' movement,
   attitudes and detection toward one observer, innate spells from heritages, Lunge; the rogue's,

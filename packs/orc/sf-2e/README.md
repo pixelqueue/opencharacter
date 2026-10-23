@@ -232,7 +232,9 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
 - **Left to the app:** turns (it runs `start-turn` and `end-turn`), movement, reach, distances,
   areas and auras (who is in a burst, a quantum field, a harmony's emanation or a bond's range is
   the participants the app passes), cover and flanking (situational choices), when a condition
-  is gained, daily preparations and rests, a spell's duration and sustaining.
+  is gained, daily preparations and rests, a spell's duration and sustaining (a spell or
+  treatment for the next roll, such as guidance, sure strike or Treat Poison, ends on the roll it
+  changes).
 - **Text only:** critical specialization; the feats and features about movement, positions,
   other creatures' sheets, starships and drones; most harmony and quantum field effects; skill
   feats that change time or what the GM tells you; more than half the spells (utility,
