@@ -108,9 +108,9 @@ the player's choices and other characters.
     point of refresh each; fate points equal to the refresh.
   - **Random:** the SRD has players choose, so the odds are the pack's. The pyramid's ten
     ratings go to ten skills drawn without replacement (every skill equally likely, a setting
-    pack's included), and three stunts are drawn from the SRD's 17 example stunts (never the
-    custom one); no stunt is bought, so refresh and fate points are 3. Aspects not passed stay
-    blank.
+    pack's included), and three stunts are drawn from the written stunts: the SRD's 17
+    examples and any an add-on pack adds (never the custom one); no stunt is bought, so refresh
+    and fate points are 3. Aspects not passed stay blank.
 - **Rolling** (`skill-roll`, shared by every rolling action): 4dF plus the skill, or Mediocre
   without one, plus +1 per helper. After the dice the player may invoke aspects: up to three
   rerolls, each after seeing the last (a fate point or a free invocation each; one `rerolling`
