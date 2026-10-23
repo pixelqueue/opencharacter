@@ -1,0 +1,20 @@
+# 2 + 4 fails DR12; the omen's reroll, 9 + 4, succeeds. The clarity ends once, after the first roll.
+status: finished
+outcome:
+  result: success
+  data:
+    total: 13
+    dr: 12
+    omensSpent: 1
+proposedChanges:
+  - to: self
+    step: check
+    change:
+      type: removeEffect
+      id: boons-clarity-1
+  - to: self
+    step: spend
+    change:
+      type: adjust
+      field: mork-borg-core:omens.current
+      by: -1
