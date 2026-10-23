@@ -445,13 +445,6 @@ actions:
           - type: removeEffect
             applied:
               where: 'item.id == @combat-effects.vexed && self.attacker == flags.me'
-      - id: unsap
-        kind: changes
-        when: >-
-          countList(character.applied, x.active && x.source == @combat-effects.sapped) > 0
-        changes:
-          - type: removeEffect
-            applied: { where: 'item.id == @combat-effects.sapped' }
       - id: result
         kind: outcome
         result: "flags.hit ? 'hit' : 'miss'"
@@ -605,13 +598,6 @@ actions:
           - type: removeEffect
             applied:
               where: 'item.id == @combat-effects.vexed && self.attacker == flags.me'
-      - id: unsap
-        kind: changes
-        when: >-
-          countList(character.applied, x.active && x.source == @combat-effects.sapped) > 0
-        changes:
-          - type: removeEffect
-            applied: { where: 'item.id == @combat-effects.sapped' }
       - id: result
         kind: outcome
         result: "flags.hit ? 'hit' : 'miss'"

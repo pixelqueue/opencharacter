@@ -1,0 +1,29 @@
+# Attack 12 and 8 with Disadvantage: 8 + 4 + 3 = 15 hits. Sapped's then removes it after the roll.
+status: finished
+outcome:
+  result: hit
+  data:
+    critical: false
+    attack: 15
+    damage: 11
+    mastery: graze
+    push: 0
+    cleave: false
+proposedChanges:
+  - to: self
+    step: test/roll
+    change: { type: removeEffect, id: sapped-1 }
+  - to: target
+    character: goblin
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -11
+      tags:
+        - damage
+        - attack
+        - weapon
+        - melee
+        - nonmagical
+        - damage.slashing

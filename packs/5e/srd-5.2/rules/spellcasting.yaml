@@ -568,14 +568,6 @@ actions:
         to: target
         changes:
           - { type: adjust, field: hp.current, by: 'max(0, steps.heal.total)', tags: [healing] }
-      - id: unsap
-        kind: changes
-        when: >-
-          has(item.attack)
-            && countList(character.applied, x.active && x.source == @combat-effects.sapped) > 0
-        changes:
-          - type: removeEffect
-            applied: { where: 'item.id == @combat-effects.sapped' }
       - id: result
         kind: outcome
         result: >-
