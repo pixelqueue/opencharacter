@@ -106,7 +106,8 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   `rolls`, the kept one marked, whose items are the entry's `items`
   ([engine-actions.md](engine-actions.md#rolling)).
 - Each of a finished result's `proposedChanges` is `{ to, character?, step, change }`: `step` is
-  the path of the `changes` step that proposed it. `to` is `self`, `target`, a role of the action
+  the path of the `changes` step that proposed it (or of a roll step, for a roll effect's
+  `then`). `to` is `self`, `target`, a role of the action
   or `{ link }` (a qualified slot ID). A change for a link carries the linked character's ID as
   `character`, and one for a role its participant's view `id`. The app applies each change to
   that character.

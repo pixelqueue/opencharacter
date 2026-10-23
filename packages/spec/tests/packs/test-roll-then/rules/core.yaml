@@ -1,0 +1,32 @@
+tags: [attack, check]
+
+fields:
+  # Advantage on attacks from an ally's help.
+  aided: { type: boolean, input: true, default: false }
+
+contentTypes:
+  condition:
+    carried: false
+  feat:
+    state:
+      used: { type: boolean, default: false }
+  class: {}
+  boon:
+    state:
+      uses: { type: integer, default: 1, min: 0 }
+
+effects:
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: aided
+
+actions:
+  - id: attack
+    steps:
+      - { id: roll, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+      - { id: result, kind: outcome, data: { total: steps.roll.total } }
+  - id: check
+    steps:
+      - { id: roll, kind: roll, tags: [check], parts: [{ dice: 1d20 }] }
+      - { id: result, kind: outcome, data: { total: steps.roll.total } }

@@ -115,8 +115,24 @@ export interface OptionValue {
 }
 
 export type ThenChange =
-  | { type: 'setState' | 'adjustState'; entry: 'self'; key: string; value?: Formula; by?: Formula }
-  | { type: 'removeEffect'; entry: 'self'; key?: undefined; value?: undefined; by?: undefined };
+  | {
+      type: 'setState' | 'adjustState';
+      entry?: 'self';
+      pick?: 'owner';
+      grant?: 'owner';
+      key: string;
+      value?: Formula;
+      by?: Formula;
+    }
+  | {
+      type: 'removeEffect';
+      entry: 'self';
+      pick?: undefined;
+      grant?: undefined;
+      key?: undefined;
+      value?: undefined;
+      by?: undefined;
+    };
 
 /** The actor, another character the app picks, an action role, or a link slot's character. */
 export type Destination = string | { link: string };

@@ -23,7 +23,7 @@ effects:
 | `tags`       | `add` on rolls only: tags for the roll item the effect adds (see below)                                                           |
 | `multiplied` | `add` on rolls only: `false` keeps `multiplyDice` and `multiply` off the items the effect adds (see below)                        |
 | `duration`   | Informational only: `{ amount, unit, concentration }`. Time tracking is the app's job; the engine never ends an effect by itself. |
-| `then`       | Incoming changes only: changes to the effect's own entry or state after the adjust is routed (see below)                          |
+| `then`       | Incoming changes and rolls only: changes to the effect's own entry or state once it counted (see below)                           |
 
 ## Targets
 
@@ -131,7 +131,10 @@ kept it), applyChanges applies them right after the adjust is routed, and report
 take (`entry`; `path` and `option`; or `grant` with either), a removal as
 `{ entry, removed: true, source }` ([engine-core.md](engine-core.md#routing-an-adjust)). Their
 `value` and `by` are formulas seeing `item`, `self` and `incoming`. They are not adjusts, so
-nothing routes or triggers on them. Only an effect with an entry can carry `then`: on the rules'
+nothing routes or triggers on them. Instead of `entry: self`, a state change may name
+`pick: owner`, the pick that activated the effect's content, or `grant: owner`, the holder grant
+that did, whatever keys they declare; content that isn't picked or granted that way has none,
+`unknown-reference`. Only an effect with an entry can carry `then`: on the rules'
 `effects`, a situational choice's or a choice's `effects` it is a load error,
 `then-without-copy`. Mothership armor points ignore damage under the armor's AP; damage at or over it breaks the
 armor, and only the excess gets through:
@@ -175,7 +178,42 @@ its target at 1 Hit Point the first time it would drop to 0, and ends:
 ```
 
 Once an entry is removed, the rest of the `then` changes aimed at it on that adjust, its own
-effect's and its other effects', are skipped. An effect that lasts for a number of triggers
+effect's and its other effects', are skipped.
+
+**Roll effects that end themselves**. A roll effect may carry `then` too, with the same changes
+and targets (`entry: self`, `pick: owner`, `grant: owner`; `removeEffect` on an `applied`
+effect). applyChanges never sees a roll, so the action proposes them: after a roll step, each
+effect that **changed the roll** proposes its `then` changes once, `to: self`, as changes of
+that step, in effect order, resolved as a proposed change is (`entry: self` becomes the copy's
+or applied entry's ID, or the pick's `path` and `option`, or the grant's address, as applyChanges
+would route it; `removeEffect` its `id`), with `value` and `by` evaluated in the effect's roll
+context. An effect changed the roll when its `when` held, stacking kept it, and it made a
+difference:
+
+- an `add` counted (on a tally, a non-zero amount); a `set` was the part's chosen replacement;
+  an `atLeast` or `atMost` changed the total (or the tally);
+- `advantage` or `disadvantage` is of the kind that applies once sources combine, and the roll
+  had dice for it: cancelled sources, and those `noAdvantage` or `noDisadvantage` removed,
+  didn't count; `noAdvantage` and `noDisadvantage` count when they removed a source;
+- `multiply` and `multiplyDice` with a factor other than 1, `poolDice` adding dice, `stepDie`
+  moving a die, `setFaces` giving an item faces, and `reroll`, `minimumFace` and `explode`
+  reaching a dice item.
+
+A roll made more than once still proposes each `then` once. The rolling action needn't know
+which effects end: 5E's Sapped gives disadvantage on the target's next attack roll:
+
+```yaml
+# Sapped, applied to its target
+- target: { rolls: [attack] }
+  op: rollModifier
+  value: { kind: disadvantage }
+  scope: applied
+  then:
+    - { type: removeEffect, entry: self }
+```
+
+An effect that ends on something other than a roll it changed (5E's Sanctuary ends when the
+warded creature attacks) is out of reach of `then`. An effect that lasts for a number of triggers
 counts them in a state key: one effect spends a use while more than one is left, and a second,
 for the last use, removes the entry.
 

@@ -228,6 +228,25 @@ describe('display, template and change shapes', () => {
     expect(valid('effect.schema.json', partEffect({ kind: 'reroll', below: 1 }))).toBe(false);
   });
 
+  it('lets roll effects carry then, naming their entry, pick or grant; not field effects', () => {
+    const roll = (target: unknown, changes: object[]) => ({
+      ...ward('applied', changes),
+      target,
+    });
+    const rolls = { rolls: ['attack'] };
+    const remove = [{ type: 'removeEffect', entry: 'self' }];
+    expect(valid('effect.schema.json', roll(rolls, remove))).toBe(true);
+    expect(valid('effect.schema.json', roll('hp', remove))).toBe(false);
+    const spend = { type: 'adjustState', key: 'uses', by: '-1' };
+    expect(valid('effect.schema.json', ward('holder', [{ ...spend, pick: 'owner' }]))).toBe(true);
+    expect(valid('effect.schema.json', ward('holder', [{ ...spend, grant: 'owner' }]))).toBe(true);
+    expect(valid('effect.schema.json', ward('holder', [spend]))).toBe(false);
+    expect(
+      valid('effect.schema.json', ward('holder', [{ ...spend, entry: 'self', pick: 'owner' }])),
+    ).toBe(false);
+    expect(valid('effect.schema.json', ward('holder', [{ ...spend, pick: 'self' }]))).toBe(false);
+  });
+
   it('lets unchoose leave out its option, but not choose', () => {
     const path = { entry: 'x', choice: ['form'] };
     expect(valid('change.schema.json', { type: 'unchoose', path })).toBe(true);

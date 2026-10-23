@@ -480,7 +480,9 @@ roll.
   A `split` adjust becomes one change per tag group; its field is always written out (a computed
   one is a load error, `formula-error` with cause `type-mismatch`). The result is appended to
   `proposedChanges` as `{ to, step, change }`, where `step` is the path of the `changes` step
-  (`deal`, `panic/stress`); the changes of one split adjust share it.
+  (`deal`, `panic/stress`); the changes of one split adjust share it. A roll step proposes too:
+  after it, each roll effect that changed the roll proposes its `then` changes, `to: self`, with
+  the roll step's path ([effects.md](effects.md#targets), "Roll effects that end themselves").
 
   **Releasing held changes**. A step with `release` first proposes changes `hold`
   action steps hold, then its own `changes`, if any. For each step in `release.steps`, in order,
