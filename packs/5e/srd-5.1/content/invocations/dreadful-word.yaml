@@ -19,9 +19,4 @@ effects:
       id: invocation
       changes:
         - { type: adjust, field: pactSlots.used, by: 1 }
-        - {
-            type: setState,
-            picks: { where: 'item.id == @invocations.dreadful-word' },
-            key: used,
-            value: true,
-          }
+        - { type: setState, pick: owner, key: used, value: true }
