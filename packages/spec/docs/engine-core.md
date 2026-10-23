@@ -60,6 +60,13 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
      two packs override the same property of the same item, the later one wins and the pair is
      reported in `conflicts`.
    - **`hides`:** hidden items stay in the ruleset, marked `hidden: true`. Queries skip them.
+   - **Item fields:** each item's own `fields` (an override's too) must be declared by its
+     content type and have the declared shape: no list for an `integer`, `decimal`, `boolean` or
+     `dice` field (a string there is a formula, checked in step 5), a string for a `string` or
+     `id` field, one of the values for an `enum`, a list for a `set`. After `extends`, every
+     `required` field must have a value. Otherwise `invalid-item-field` (data: `item`, `field`,
+     `reason`: `missing`, `undeclared` or `wrong-type`, `pack`; `path`:
+     `/packs/<i>/content/<j>/fields/<field>`). Templates' fields are checked by the build only.
    - **Destinations:** a `to: { link }` names a slot visible from the pack, qualified at load.
      Changes sent to a link are the linked character's, so their fields and copy types must be
      qualified IDs already (`unknown-reference` otherwise) and are not resolved in the ruleset.
@@ -108,9 +115,10 @@ given, then works on the result. A character without `homebrew` uses the ruleset
    formulas written as text count against `maxHomebrewFormulas`.
 3. **Errors.** If anything fails, the call returns `homebrew-error` and computes nothing: one
    error per load error, with `data.cause` the load code (`unknown-reference`, `formula-error`,
-   `homebrew-not-allowed`, `safety-limit-exceeded`, …), `data.detail` that error's data, and
-   `path` pointing into the character (`/homebrew/content/0`, `/homebrew/rules`; `/homebrew`
-   when the load error has no document). computeSheet returns empty values with the errors;
+   `invalid-item-field`, `homebrew-not-allowed`, `safety-limit-exceeded`, …), `data.detail`
+   that error's data, and `path` pointing into the character (`/homebrew/content/0`,
+   `/homebrew/content/0/fields/twoDots`, `/homebrew/rules`; `/homebrew` when the load error has
+   no document). computeSheet returns empty values with the errors;
    the other calls return their failure.
 
 Engines MAY cache the layered ruleset by the homebrew's content and the pins; the result must

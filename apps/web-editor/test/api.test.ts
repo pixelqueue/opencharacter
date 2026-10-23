@@ -237,6 +237,8 @@ describe('the editor API', { timeout: 20_000 }, () => {
       id: 'weapons.test-blade',
     });
     expect(again.status).toBe(409);
+    // A weapon without its required fields doesn't load, so later previews would fail.
+    rmSync(join(root, body.path as string));
   });
 
   it('refuses writes outside packs/', async () => {

@@ -97,7 +97,7 @@ A content item ([`content-item.schema.json`](../schemas/content-item.schema.json
 | `override`       | Instead of `id`/`type`: patch another pack's item ([packs.md](packs.md#overrides-hiding-and-extends))                                                                            |
 | `extends`        | Permanent variant of another item                                                                                                                                                |
 | `tags`           | Free-form tags for queries (`martial`, `sword`, `finesse`)                                                                                                                       |
-| `fields`         | Values for the type's item fields: literals or formulas. They MUST match the declared types; undeclared names and missing required fields are errors.                            |
+| `fields`         | Values for the type's item fields: literals or formulas. They MUST match the declared types; undeclared names and missing required fields are errors (`invalid-item-field`).     |
 | `state`          | Extra per-copy state keys beyond the type's                                                                                                                                      |
 | `effects`        | [effects.md](effects.md)                                                                                                                                                         |
 | `followUps`      | What the rules call for after a change while the character has the item ([rules-and-fields.md](rules-and-fields.md#follow-ups))                                                  |

@@ -2795,6 +2795,7 @@ export type ErrorCode =
   | 'invalid-create-offer'
   | 'invalid-family'
   | 'link-start-mismatch'
+  | 'invalid-item-field'
   | 'template-field-mismatch'
   | 'unknown-role'
   | 'circular-extends'
