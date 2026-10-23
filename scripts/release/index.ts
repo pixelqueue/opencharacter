@@ -338,13 +338,15 @@ const majorMinor = (v: string) => v.split('.').slice(0, 2).join('.');
  * After `changeset version` bumps `@opencharacter/spec`, moves the spec version everywhere it is
  * stated: `SPEC_VERSION` (which `SCHEMA_BASE` derives from), the `schemas/<major.minor>/` path of
  * every schema ID and link, the prose and badge that name the current version, and the `specVersion`
- * of the example characters and the docs' samples (samples follow the current spec). Other minimums and records stay. Returns the
- * bump and the files changed, or undefined when they match.
+ * of the example characters, the docs' samples and the test cases' expected output (they follow
+ * the current spec). Other minimums and records stay. Returns the bump, the files changed and the
+ * spec upgrades the bump crosses (`data/spec-upgrades.json`: those files are re-stamped, not
+ * migrated), or undefined when they match.
  */
 export function syncSpecVersion(
   root: string,
   files: string[],
-): { bump: SpecBump; files: string[] } | undefined {
+): { bump: SpecBump; files: string[]; upgrades: string[] } | undefined {
   const pkg = join(root, 'packages', 'spec', 'package.json');
   const to = (JSON.parse(readFileSync(pkg, 'utf8')) as { version: string }).version;
   const source = readFileSync(join(root, SPEC_SOURCE), 'utf8');
@@ -362,9 +364,10 @@ export function syncSpecVersion(
     ],
     [new RegExp(`(shields\\.io/badge/spec-)${escape(from)}(?=-)`, 'g'), `$1${to}`],
   ];
-  // Example characters and the docs' samples are not records: they follow the current spec.
+  // Example characters, the docs' samples and test cases' expected output are not records: they
+  // follow the current spec.
   const examples: [RegExp, string] = [
-    new RegExp(`^(specVersion: ['"]?)${escape(from)}(['"]?)$`, 'gm'),
+    new RegExp(`^( *(?:- )?specVersion: ['"]?)${escape(from)}(['"]?)$`, 'gm'),
     `$1${to}$2`,
   ];
   const samples: [RegExp, string] = [
@@ -384,14 +387,24 @@ export function syncSpecVersion(
     const text = readFileSync(path, 'utf8');
     let next = text;
     for (const [re, sub] of patterns) next = next.replace(re, sub);
-    if (file.startsWith('examples/characters/')) next = next.replace(examples[0], examples[1]);
+    if (
+      file.startsWith('examples/') ||
+      /^packages\/spec\/tests\/cases\/.*\/expected\.yaml$/.test(file)
+    )
+      next = next.replace(examples[0], examples[1]);
     if (/\.mdx?$/.test(file)) next = next.replace(samples[0], samples[1]);
     if (next !== text) {
       writeFileSync(path, next);
       changed.push(file);
     }
   }
-  return { bump: { from, to }, files: changed };
+  const data = join(root, 'packages', 'spec', 'data', 'spec-upgrades.json');
+  const upgrades = existsSync(data)
+    ? (JSON.parse(readFileSync(data, 'utf8')) as { items: { id: string }[] }).items
+        .map((u) => u.id)
+        .filter((id) => semver.gt(id, from) && semver.lte(id, to))
+    : [];
+  return { bump: { from, to }, files: changed, upgrades };
 }
 
 export function pinFiles(root: string): string[] {

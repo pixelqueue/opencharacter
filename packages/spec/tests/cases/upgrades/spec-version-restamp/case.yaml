@@ -1,0 +1,37 @@
+description: "A character from an earlier spec gets the engine's specVersion, with no spec steps for an additive change"
+specVersion: 0.2.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might:
+            type: integer
+            input: true
+            default: 1
+            min: 0
+            max: 10
+      content: []
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          stats.might:
+            type: integer
+            input: true
+            default: 1
+            min: 0
+            max: 10
+      content: []

@@ -213,6 +213,11 @@ Steps that change only a character's homebrew ([below](#a-characters-homebrew)):
 `upgrade(from, to, character)`: `from` is the ruleset the character was saved with, `to` the
 ruleset to move it to. See [`engine/upgrade.schema.json`](../schemas/engine/upgrade.schema.json).
 
+0. **Bring the file to the engine's spec.** A character whose `specVersion` is newer than the
+   engine's `SPEC_VERSION` is refused (`character-spec-unsupported`, `path` `/specVersion`). Run
+   the [spec upgrades](#spec-upgrades) after its `specVersion` and not after `SPEC_VERSION`, in
+   version order, then write `SPEC_VERSION`. Everything below reads the upgraded file, the old
+   sheet included.
 1. **Every pinned pack must be in `to`** (`unknown-id`). Packs in `to` that the character doesn't
    pin are ignored.
 2. **For each pinned pack, in pin order, find the chain.** Starting at the pinned version, repeat:
@@ -236,6 +241,9 @@ ruleset to move it to. See [`engine/upgrade.schema.json`](../schemas/engine/upgr
      it came from.
    - **`homebrew`:** each place in the homebrew a step rewrote, in order, as `{ path, step }`
      (`path` a JSON Pointer into the upgraded character).
+   - **`spec`:** when the character's `specVersion` changed, `{ from, steps }`: the version it
+     had, and each spec upgrade step that changed it, as `{ version, step }`. Absent for a
+     character already at `SPEC_VERSION`.
    - **`errors`:** the upgraded character's `computeSheet` errors (a reference no script handled).
      For a character with homebrew, `homebrew-error` for each load error of the homebrew on `to`;
      the upgraded character is still returned, so the app can show the report and let the player
@@ -244,6 +252,40 @@ ruleset to move it to. See [`engine/upgrade.schema.json`](../schemas/engine/upgr
 
 Upgrading is deterministic, and it never asks the player anything. New required choices come
 back as pending for the app to put to the player.
+
+## Spec upgrades
+
+A pack's scripts follow the pack's versions; the character file's own shape follows the spec's.
+A spec version that changes it ships a **spec upgrade**
+([`spec-upgrade.schema.json`](../schemas/spec-upgrade.schema.json)), an item of
+[`data/spec-upgrades.json`](../data/spec-upgrades.json): its `id` is the spec version that made
+the change, and its steps move a character written against an earlier version across. The list is
+in version order. A spec version that only adds (0.1 to 0.2) has none: `upgrade` re-stamps the
+file.
+
+```json
+{
+  "id": "0.3.0",
+  "steps": [
+    { "op": "move", "from": "/features/*/qty", "to": "/features/*/quantity" },
+    { "op": "add", "path": "/applied", "value": [] }
+  ]
+}
+```
+
+Paths are JSON Pointers into the character file, where a `*` segment matches every member of an
+array or object. Each step applies at every place its path matches:
+
+| Op       | Params          | Effect                                                                                                                                                            |
+| -------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `move`   | `from`, `to`    | Moves each value at `from` to `to`, replacing what is there and making missing objects on the way. `to`'s `*` segments take, in order, the members `from` matched |
+| `remove` | `path`          | Removes each value at `path`; an array member's removal closes the gap                                                                                            |
+| `add`    | `path`, `value` | Writes `value` at `path` where its parent exists and holds nothing there                                                                                          |
+
+A step that matches nothing changes nothing and isn't reported. Spec upgrades run before the
+packs' scripts, so pack scripts and both sheets always read the engine's shape. A spec upgrade is
+added with the change to the character schema, and applies once the spec's version reaches its
+`id`.
 
 ## A character's homebrew
 

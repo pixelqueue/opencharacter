@@ -36,7 +36,8 @@ if (result.ok) {
   }
 } else {
   // result.errors: unknown-id (a pinned pack isn't in the new ruleset), no-upgrade-path,
-  // homebrew-error (the character's homebrew doesn't load on the old ruleset)
+  // homebrew-error (the character's homebrew doesn't load on the old ruleset),
+  // character-spec-unsupported (the file is from a newer spec than this engine)
 }
 ```
 
@@ -46,6 +47,25 @@ if (result.ok) {
   the character doesn't use are ignored.
 - For each pack, the engine chains the upgrade scripts one version at a time (1.2 → 1.3 → 2.0),
   skipping versions that changed nothing.
+
+## The spec version
+
+A character file also records the `specVersion` it was written against. Every `upgrade` brings
+it to the engine's `SPEC_VERSION`: when a spec release changed the character file's shape, the
+engine moves the file across first, with the spec's own upgrades (data shipped with the spec,
+like a pack's scripts), then runs the packs' scripts. A release that only added to the format
+just re-stamps the file. The report's `spec` says what happened (`{ from, steps }`); it's absent
+for a file that was already current.
+
+```ts
+// Only the file format: the same ruleset on both sides moves no pack.
+const result = upgrade(ruleset, ruleset, imported);
+```
+
+Do this when you import a file from an older app, or after updating the engine. Other calls read
+an older file as it is and keep its `specVersion`. A file from a newer spec than your engine is
+refused with `character-spec-unsupported`: update the engine, since an older one can't know what
+changed.
 
 Upgrading is deterministic and **never asks the player anything**. New required choices come back
 in `pending`, for your app to put to the player the usual way
@@ -65,6 +85,7 @@ The engine computes the character under both versions and reports the difference
     { "pack": "5e-srd-5.1", "from": "0.2.1", "to": "0.3.0",
       "step": { "op": "renameContent", "from": "feats.sharpshooter", "to": "feats.sharp-shooter" } }
   ],
+  "spec": { "from": "0.1.0", "steps": [] },
   "homebrew": [],
   "errors": []
 }
@@ -79,6 +100,8 @@ The engine computes the character under both versions and reports the difference
 - **`steps`**: each upgrade step that changed this character, and the script it came from. A
   `moveState` may drop a value instead of moving it (the target pick or grant is missing, the
   value equals the target's default, or the target already has one); that's listed as a step too.
+- **`spec`**: present when the character's `specVersion` moved, with the version it had and each
+  spec upgrade step that changed the file. There's nothing to show the player for a re-stamp.
 - **`homebrew`**: each place in the character's homebrew a step rewrote, as `{ path, step }`
   (`path` a JSON Pointer into the upgraded character).
 - **`errors`**: anything in the upgraded character that still doesn't resolve (a reference no

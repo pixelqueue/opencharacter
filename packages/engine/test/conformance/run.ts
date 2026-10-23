@@ -141,6 +141,15 @@ function run(dir: string): void {
         result.report.steps.map((s) => ({ pack: s.pack, from: s.from, to: s.to, op: s.step.op })),
       ).toEqual(report.steps);
     }
+    if (report.spec !== undefined) {
+      const got = result.report.spec;
+      expect(
+        got && {
+          from: got.from,
+          steps: got.steps.map((s) => ({ version: s.version, op: s.step.op })),
+        },
+      ).toEqual(report.spec ?? undefined);
+    }
     if (report.errors) expect(result.report.errors.map((e) => e.code)).toEqual(report.errors);
     if (report.homebrew) {
       expect(result.report.homebrew.map((h) => ({ path: h.path, op: h.step.op }))).toEqual(

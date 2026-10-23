@@ -4,7 +4,7 @@ import { Ajv2020 } from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { parse } from 'yaml';
 import { describe, expect, it } from 'vitest';
-import { fixedSetIds, loadSchemas, paths, SCHEMA_BASE } from '../src/node.ts';
+import { fixedSetIds, loadFixedSet, loadSchemas, paths, SCHEMA_BASE } from '../src/node.ts';
 
 function compileAll() {
   const ajv = new Ajv2020({ strict: true, strictRequired: false, allErrors: true });
@@ -52,6 +52,13 @@ describe('schemas', () => {
   });
 });
 
+/** A version as text that sorts as the version does. */
+const versionKey = (id: string) =>
+  id
+    .split(/[.-]/)
+    .map((n) => n.padStart(8, '0'))
+    .join('.');
+
 describe('fixed sets match the schemas', () => {
   const cases: [string, string, string[]][] = [
     ['effect-operations', 'effect.schema.json', ['properties', 'op']],
@@ -70,6 +77,14 @@ describe('fixed sets match the schemas', () => {
   ];
   it.each(cases)('%s', (set, file, pointer) => {
     expect(enumAt(file, pointer).toSorted()).toEqual(fixedSetIds(set).toSorted());
+  });
+
+  it('spec upgrades match spec-upgrade.schema.json, in version order', () => {
+    const validate = compileAll().getSchema(`${SCHEMA_BASE}spec-upgrade.schema.json`);
+    const items = loadFixedSet('spec-upgrades').items;
+    for (const item of items) expect(validate?.(item), item.id).toBe(true);
+    const ids = items.map((item) => versionKey(item.id));
+    expect(ids).toEqual(ids.toSorted());
   });
 
   it('every error and rules-issue code has standard English text', () => {

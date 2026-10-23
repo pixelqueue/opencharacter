@@ -53,6 +53,8 @@ const NAMES: Record<string, string> = {
   'character.schema.json#/$defs/pick': 'ChoicePick',
   'character.schema.json#/$defs/state': 'EntryState',
   'upgrade.schema.json#/$defs/step': 'UpgradeStep',
+  'spec-upgrade.schema.json#/$defs/step': 'SpecUpgradeStep',
+  'spec-upgrade.schema.json#/$defs/path': 'SpecUpgradePath',
   'action.schema.json#/$defs/step': 'Step',
   'action.schema.json#/$defs/steps': 'Steps',
   'formula.schema.json': 'Formula',

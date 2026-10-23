@@ -2228,6 +2228,15 @@ export type UpgradeOutput =
           to: string;
           step: UpgradeStep;
         }[];
+        /** Present when the character's `specVersion` moved to the engine's: the version it had, and each spec upgrade step that changed the character. */
+        spec?: {
+          from: Semver;
+          steps: {
+            /** The spec upgrade's `id`: the version that changed the shape. */
+            version: Semver;
+            step: SpecUpgradeStep;
+          }[];
+        };
         /** The upgraded character's computeSheet errors (references no script handled). */
         errors?: EngineError[];
         /** Each place in the character's homebrew a step rewrote, in order. */
@@ -2707,6 +2716,29 @@ export type SituationalChoice = {
   label?: I18nKey;
 };
 
+/** Data, not code: moves a character file across a spec version that changed the file's shape. The spec's own upgrades are the items of `data/spec-upgrades.json`; `upgrade` runs each one between a character's `specVersion` and the engine's on the character, before the packs' upgrade scripts. */
+export type SpecUpgrade = {
+  /** The spec version that made the change. A character written against an earlier version gets the steps. */
+  id: Semver;
+  description?: string;
+  steps: SpecUpgradeStep[];
+};
+
+/** A JSON Pointer into the character file, where a `*` segment matches every member of an array or object. */
+export type SpecUpgradePath = string;
+
+export type SpecUpgradeStep = {
+  op: 'move' | 'remove' | 'add';
+  /** move: where the value is. */
+  from?: SpecUpgradePath;
+  /** move: where it goes. Its `*` segments take, in order, the members `from`'s matched. */
+  to?: SpecUpgradePath;
+  /** remove, add: the value's place. */
+  path?: SpecUpgradePath;
+  /** add: the value to write where there is none. */
+  value?: unknown;
+};
+
 /** Data, not code: moves saved characters from one pack version to the next when the saved state's shape changes. Scripts chain one version at a time. Steps are a fixed set kept in sync with `data/upgrade-steps.json`; computed defaults are formulas. */
 export type UpgradeScript = {
   pack: PackId;
@@ -2831,6 +2863,7 @@ export type ErrorCode =
   | 'unknown-tag'
   | 'conflicting-roll-modifiers'
   | 'no-upgrade-path'
+  | 'character-spec-unsupported'
   | 'version-not-increased'
   | 'version-bump-too-small'
   | 'missing-upgrade-script'

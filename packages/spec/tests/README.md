@@ -196,6 +196,7 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   - `pending` (choice paths);
   - `report.values` (exact list, `shownBefore` and `shownAfter` included);
   - `report.steps` (as `{ pack, from, to, op }`);
+  - `report.spec` (as `{ from, steps }`, each step as `{ version, op }`; `null` means absent);
   - `report.errors` (codes);
   - `report.homebrew` (as `{ path, op }`).
 - **`checkRelease`** cases give `previous` and `next` (inline releases), and optionally
