@@ -1,0 +1,15 @@
+# Trained in the lore picked, with an extra increase at 3rd and 7th level: one value choice, its
+# effects aimed at the picked lore's fields.
+id: feats.lore
+type: feat
+repeatable: true
+choices:
+  - id: topic
+    from: { values: [academia, history] }
+    effects:
+      - target: lores.trained
+        op: grant
+        value: { formula: pick.value }
+      - target: { formula: "'lore.' + pick.value + '.granted'" }
+        op: add
+        value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0)'

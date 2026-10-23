@@ -127,8 +127,9 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   its params), `test-applied`, actions that apply content and change applied entries,
   `test-roll-twice`, rolls made more than once (`of: roll`), `test-owner-picks`, formulas
   reading their owner's picks with `picksOf`, and `test-pick-aggregates`, formulas counting saved
-  picks and active grants (`countPicks`, `countGrants`), and `test-content-picks`, formulas reading
-  another content's picks (`picksOf(content, choice)`, `grantedPicksOf`).
+  picks and active grants (`countPicks`, `countGrants`), `test-content-picks`, formulas reading
+  another content's picks (`picksOf(content, choice)`, `grantedPicksOf`), and
+  `test-target-formula`, effects whose target is a formula (`target: { formula }`).
 - **How outputs compare.** Only what `expected.yaml` lists is compared. A key the call doesn't
   define, in `case.yaml` or `expected.yaml`, is a mistake in the case: runners fail it rather
   than ignore it, so a case never seems to test something it doesn't.

@@ -129,7 +129,7 @@ function readsRoot(formula: Formula, roots: string[]): boolean {
 }
 
 function targetKind(target: Effect['target']): 'field' | 'roll' | 'incoming' | 'choice' | 'step' {
-  if (typeof target === 'string' || 'fields' in target) return 'field';
+  if (typeof target === 'string' || 'fields' in target || 'formula' in target) return 'field';
   if ('choices' in target) return 'choice';
   if ('steps' in target) return 'step';
   return 'rolls' in target ? 'roll' : 'incoming';
@@ -664,6 +664,10 @@ class FormulaChecker<L> {
       if (effect.op === 'grant') this.grantValue(effect.value as GrantValue, at, label);
     } else if ('fields' in effect.target) {
       this.fieldSet(effect.target.fields.where, at, label);
+      if (effect.op === 'grant') this.grantValue(effect.value as GrantValue, at, label);
+    } else if ('formula' in effect.target) {
+      const formula = effect.target.formula as Formula;
+      this.activation(() => this.formula(formula, at, `${label} target`, ['string']));
       if (effect.op === 'grant') this.grantValue(effect.value as GrantValue, at, label);
     } else if ('rolls' in effect.target) {
       this.tagList(effect.target.rolls, at, label);
@@ -1717,6 +1721,9 @@ class FormulaChecker<L> {
   private effectValueType(effect: Effect): Expect {
     if (typeof effect.target !== 'string') {
       if ('fields' in effect.target) return NUMBER;
+      // The field is known only on the sheet.
+      if ('formula' in effect.target)
+        return effect.op === 'set' ? ANY : effect.op === 'add' ? ['dice', 'decimal'] : NUMBER;
       if ('rolls' in effect.target && effect.target.tally !== undefined) return ['int'];
       // A roll's `add`, and a `set` replacing a part, may be dice.
       if ('rolls' in effect.target)

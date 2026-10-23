@@ -1368,9 +1368,10 @@ export type StepChanges = {
   to?: Destination;
 };
 
-/** A character field (by ID), a set of fields (by a static query over their tags), rolls as they happen (by tag), incoming changes (by field and tag), an action's choice steps (by tag), or an action's changes steps (by tag). */
+/** A character field (by ID, or a string formula giving one), a set of fields (by a static query over their tags), rolls as they happen (by tag), incoming changes (by field and tag), an action's choice steps (by tag), or an action's changes steps (by tag). */
 export type EffectTarget =
   | FieldRef
+  | FormulaTarget
   | RollTarget
   | IncomingTarget
   | ChoiceTarget
@@ -1466,6 +1467,11 @@ export type FieldsTarget = {
     /** A condition over each field's view as `item`: `id` (qualified), `type` and `tags`. It may read nothing else (`unknown-name` at load), so the set is fixed: `'attr.dex' in item.tags`. */
     where: Condition;
   };
+};
+
+/** One field, named by a string formula evaluated as an activation condition when the effect becomes active: `self`, `item`, `pick` and `slot` where bound, the character functions, the owner's picks, and input fields only (`'skills.lore.' + pick.value + '.granted'`). A local ID resolves in the effect's pack. The effect is then exactly as if written with that field as its `target`. An empty string targets nothing; a value naming no field is a sheet error (`unknown-field`), as is a field whose type the op doesn't take (`type-mismatch`). Ops: add, set, multiply, atLeast, atMost, grant. */
+export type FormulaTarget = {
+  formula: Formula;
 };
 
 /** The qualified ID of the action whose step this is (`mothership-1e:panic-check`); for an action defined inline on an item, the qualified item ID plus `#<action id>`. Apps build the step's text keys from it. */

@@ -1919,6 +1919,27 @@ export class Sheet {
       ...(owner === undefined ? {} : { own: owner }),
     };
     const target = effect.target;
+    if (typeof target === 'object' && 'formula' in target) {
+      const qid = this.targetField(
+        effect,
+        target.formula as Formula,
+        pack,
+        roots,
+        `${sourceId} effect`,
+      );
+      if (qid)
+        this.instance(
+          { ...effect, target: qid },
+          pack,
+          roots,
+          source,
+          sourceId,
+          key,
+          applied,
+          owner,
+        );
+      return;
+    }
     if (typeof target === 'object' && 'fields' in target) {
       // One instance per matching field, as if written with that field as its target. A field whose
       // tags are computed is matched on this sheet, when its effects are gathered.
@@ -1954,6 +1975,53 @@ export class Sheet {
       order: this.order++,
       ...own,
     });
+  }
+
+  /**
+   * A formula target's field, evaluated as an activation condition and resolved in the effect's
+   * pack: '' targets nothing; a value naming no field, or a field the op doesn't take, is an error.
+   */
+  private targetField(
+    effect: Effect,
+    formula: Formula,
+    pack: string,
+    roots: Record<string, unknown>,
+    where: string,
+  ): string | undefined {
+    let id: string;
+    try {
+      const value = this.evaluateActivation(formula, pack, roots);
+      if (value.kind !== 'string')
+        throw new Failure({ code: 'type-mismatch', message: 'a target formula is a string' });
+      id = value.value;
+    } catch (error) {
+      if (!(error instanceof Failure)) throw error;
+      this.errors.push({
+        code: error.error.code,
+        data: { where: `${where} target`, message: error.error.message, ...error.error.data },
+      });
+      return undefined;
+    }
+    if (id === '') return undefined;
+    const qid = resolveField(this.ruleset, id, pack);
+    if (!qid) {
+      this.errors.push({ code: 'unknown-field', data: { field: id, where: `${where} target` } });
+      return undefined;
+    }
+    const type = (this.ruleset.fields[qid] as FieldDef).type;
+    const numeric =
+      type === 'integer' || type === 'decimal' || (type === 'dice' && effect.op === 'add');
+    if (effect.op === 'grant' ? type !== 'set' : effect.op !== 'set' && !numeric) {
+      this.errors.push({
+        code: 'type-mismatch',
+        data: {
+          where: `${where} target`,
+          message: `${effect.op} can't target ${qid}, a ${type} field`,
+        },
+      });
+      return undefined;
+    }
+    return qid;
   }
 
   /** A field's keyed `add` instances that counted: what a roll part reading it carries. */

@@ -453,10 +453,13 @@
       "additionalProperties": false
     },
     "target": {
-      "description": "A character field (by ID), a set of fields (by a static query over their tags), rolls as they happen (by tag), incoming changes (by field and tag), an action's choice steps (by tag), or an action's changes steps (by tag).",
+      "description": "A character field (by ID, or a string formula giving one), a set of fields (by a static query over their tags), rolls as they happen (by tag), incoming changes (by field and tag), an action's choice steps (by tag), or an action's changes steps (by tag).",
       "anyOf": [
         {
           "$ref": "common.schema.json#/$defs/fieldRef"
+        },
+        {
+          "$ref": "#/$defs/formulaTarget"
         },
         {
           "$ref": "#/$defs/rollTarget"
@@ -765,6 +768,17 @@
             }
           },
           "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "formulaTarget": {
+      "description": "One field, named by a string formula evaluated as an activation condition when the effect becomes active: `self`, `item`, `pick` and `slot` where bound, the character functions, the owner's picks, and input fields only (`'skills.lore.' + pick.value + '.granted'`). A local ID resolves in the effect's pack. The effect is then exactly as if written with that field as its `target`. An empty string targets nothing; a value naming no field is a sheet error (`unknown-field`), as is a field whose type the op doesn't take (`type-mismatch`). Ops: add, set, multiply, atLeast, atMost, grant.",
+      "type": "object",
+      "required": ["formula"],
+      "properties": {
+        "formula": {
+          "$ref": "formula.schema.json"
         }
       },
       "additionalProperties": false

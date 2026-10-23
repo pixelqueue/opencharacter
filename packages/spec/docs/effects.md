@@ -14,7 +14,7 @@ effects:
 | Property     | Meaning                                                                                                                           |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------- |
 | `id`         | Optional, unique within the item, so apps and issues can point at it                                                              |
-| `target`     | A field, a set of fields, rolls, incoming changes, or choice steps (see below)                                                    |
+| `target`     | A field (by ID or a formula), a set of fields, rolls, incoming changes, or choice steps (see below)                               |
 | `op`         | One of the [effect operations](../data/effect-operations.json)                                                                    |
 | `value`      | A formula, a grant value, a roll modifier, or an option, depending on `op`                                                        |
 | `when`       | Condition. `self` is the copy carrying the effect.                                                                                |
@@ -28,6 +28,29 @@ effects:
 ## Targets
 
 - **A character field**, given by field ID: `target: combat.ac`.
+- **A field a formula names**: `target: { formula: "'skills.lore.' + pick.value + '.granted'" }`.
+  The formula gives a field ID as a string, resolved in the effect's pack. It is evaluated when
+  the effect becomes active, as an activation condition: it reads `self`, `item`, `pick` and
+  `slot` where they are bound, the character functions, the owner's picks and input fields only,
+  never a derived field (`unknown-name` at load), so the field is known before any is computed.
+  The effect is then exactly as if written with that field as its `target`, for its `when`,
+  value, stacking, dependencies and listing. An empty string targets nothing. On the sheet, a
+  value naming no field is `unknown-field` (data `field`, `where`), and a field the op doesn't
+  take (`grant` into a field that isn't a `set`; `add`, `multiply`, `atLeast` or `atMost` on one
+  that isn't a number, or for `add` a dice field) is `type-mismatch`; either way the effect
+  targets nothing. One value choice's effects then reach the field its pick names:
+
+  ```yaml
+  # orc-sf-2e, Additional Lore: trained in the Lore picked, with its extra increases.
+  - id: lore
+    from: { values: [academia, alcohol, android] }
+    effects:
+      - { target: skills.trained, op: grant, value: { formula: "'skill.lore.' + pick.value" } }
+      - target: { formula: "'skills.lore.' + pick.value + '.granted'" }
+        op: add
+        value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+  ```
+
 - **A set of fields**: `target: { fields: { where: "'attr.dex' in item.tags" } }`. `where` is a
   condition over each field's view as `item` (`id`, the qualified ID; `type`; `tags`, its declared
   tags), and it may read nothing else (`unknown-name` at load), so `loadRuleset` resolves it once,
