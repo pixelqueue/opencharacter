@@ -29,6 +29,8 @@ export interface ValueDecl {
   tagOptions?: string[];
   required?: boolean;
   optional?: boolean;
+  /** Item fields: each copy may save its own value. */
+  perCopy?: boolean;
   default?: Literal;
   min?: Formula;
   max?: Formula;

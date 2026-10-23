@@ -38,6 +38,8 @@ import { samePath, treeFor } from './tree.ts';
 import {
   pickState,
   appliedView,
+  copyFieldProblem,
+  copyFields,
   diceText,
   itemView,
   selfView,
@@ -299,6 +301,7 @@ function dropDefaultStandard(ruleset: Ruleset, sheet: Sheet, c: CharacterDoc): b
     if (entry.equipped === true || (entry.quantity ?? 1) !== 1) return false;
     if ((entry.templates ?? []).length > 0 || !noPicks(entry.choices)) return false;
     if (Object.keys(entry.grants ?? {}).length > 0) return false;
+    if (Object.keys(entry.fields ?? {}).length > 0) return false;
     const item = ruleset.content[entry.item];
     if (!item) return false;
     const decls = stateDecls(ruleset, item, []);
@@ -338,6 +341,7 @@ function num(v: f.Value | undefined): number | undefined {
 const PER_COPY = new Set([
   'setState',
   'adjustState',
+  'setField',
   'setQuantity',
   'adjustQuantity',
   'equip',
@@ -394,7 +398,8 @@ function applyToCopies(
     delete one.copies;
     delete one.limit;
     if (change.by !== undefined) one.by = f.toData(evaluate(change.by as Formula, roots));
-    if (change.value !== undefined) one.value = f.toData(evaluate(change.value as Formula, roots));
+    if (change.value !== undefined && change.value !== null)
+      one.value = f.toData(evaluate(change.value as Formula, roots));
     applyOne(ruleset, c, one, adjustments, links);
   }
   adjustments.push({ copies: matches.map((m) => m.id) });
@@ -833,8 +838,18 @@ function applyOne(
       if (entry.equipped !== undefined && !type?.equippable)
         throw new ChangeError('not-equippable', { item: entry.item });
       checkState(ruleset, item, templates, entry.state ?? {});
-      // Formula defaults are evaluated, checked against the key's bounds and saved now.
-      const view = itemView(ruleset, item, templates, (n, p) => sheet.inputValue(`${p}:${n}`));
+      for (const [field, raw] of Object.entries(entry.fields ?? {})) {
+        const problem = copyFieldProblem(ruleset, item, field, raw);
+        if (problem) throw new ChangeError(problem.code, problem.data);
+      }
+      // Formula defaults are evaluated, with the copy's own fields, checked against the key's
+      // bounds and saved now.
+      const view = itemView(
+        ruleset,
+        item,
+        [...templates, ...copyFields(ruleset, entry, item)],
+        (n, p) => sheet.inputValue(`${p}:${n}`),
+      );
       const pack = ruleset.contentTypes[item.type]?.pack ?? item.pack;
       for (const [key, decl] of Object.entries(stateDecls(ruleset, item, templates))) {
         if (entry.state?.[key] !== undefined || typeof decl.default !== 'string') continue;
@@ -926,6 +941,22 @@ function applyOne(
         delete entry.state[key];
         if (Object.keys(entry.state).length === 0) delete entry.state;
       }
+      return;
+    }
+    case 'setField': {
+      const entry = entryOf(str('entry'));
+      const item = ruleset.content[entry.item] as LoadedItem;
+      const field = str('key');
+      if (change.value === null) {
+        const decl = ruleset.contentTypes[item.type]?.fields?.[field];
+        if (!decl?.perCopy) throw new ChangeError('not-per-copy', { field });
+        if (entry.fields) delete entry.fields[field];
+        if (entry.fields && Object.keys(entry.fields).length === 0) delete entry.fields;
+        return;
+      }
+      const problem = copyFieldProblem(ruleset, item, field, change.value);
+      if (problem) throw new ChangeError(problem.code, problem.data);
+      entry.fields = { ...entry.fields, [field]: change.value as Literal };
       return;
     }
     case 'setQuantity':

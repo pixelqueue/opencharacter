@@ -15,6 +15,7 @@
         "equip",
         "setState",
         "adjustState",
+        "setField",
         "setQuantity",
         "adjustQuantity",
         "applyTemplate",
@@ -88,6 +89,14 @@
       },
       "then": {
         "$ref": "#/$defs/adjustState"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/setField"
+      },
+      "then": {
+        "$ref": "#/$defs/setField"
       }
     },
     {
@@ -265,6 +274,14 @@
         "properties": {
           "type": {
             "const": "adjustState"
+          }
+        },
+        "type": "object"
+      },
+      "setField": {
+        "properties": {
+          "type": {
+            "const": "setField"
           }
         },
         "type": "object"
@@ -712,6 +729,51 @@
           }
         ]
       }
+    },
+    "setField": {
+      "description": "Set a copy's own value of an item field its content type marks `perCopy` (`key`, the field's name), saved in the entry's `fields`; `null` removes it, so the item's value (or its templates') applies again. Checked as `setState` is: a field that isn't `perCopy` is `not-per-copy`, a value of another type `wrong-type`, an `id` or `set` member naming no content or field `unknown-id`.",
+      "required": ["key", "value"],
+      "properties": {
+        "type": true,
+        "entry": {
+          "$ref": "common.schema.json#/$defs/instanceId"
+        },
+        "key": {
+          "$ref": "common.schema.json#/$defs/name"
+        },
+        "value": {
+          "description": "The new value, or `null` to remove it; with `copies`, a formula evaluated per copy.",
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/literal"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "formula.schema.json"
+            }
+          ]
+        },
+        "copies": {
+          "$ref": "#/$defs/copies"
+        },
+        "limit": {
+          "$ref": "#/$defs/limit"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "oneOf": [
+        {
+          "required": ["entry"],
+          "type": "object"
+        },
+        {
+          "required": ["copies"],
+          "type": "object"
+        }
+      ]
     },
     "setQuantity": {
       "description": "Set a copy's `quantity`. It may not be below 0 (`out-of-range`); a copy at 0 stays.",

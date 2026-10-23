@@ -17,7 +17,8 @@ A `valueDecl` has `type` (a value type), plus `values` for enums, `of` for `id`/
 
 Item fields are what an item's author writes, never what changes in play (that is `state`), so
 an app can build a custom-item form from them; each has a name and an optional hint in the
-pack's text (`types.<type>.fields.<field>.name`; [i18n.md](i18n.md#item-fields)).
+pack's text (`types.<type>.fields.<field>.name`; [i18n.md](i18n.md#item-fields)). A field marked
+`perCopy` may also be written by the player for one copy ([below](#per-copy-fields)).
 
 An item field's `default` applies when an item doesn't set the field (or, on a copy, when none
 of its templates does): `item.<field>` and `copy.fields.<field>` read it as if the item had written it (a string on an `integer`,
@@ -380,6 +381,42 @@ The character's copy of an item (an **entry**) has:
 - `choices`.
 
 Formulas see the copy as `self`: `self.equipped`, `self.level`, `self.ignited`. State keys MUST NOT reuse core property names.
+
+### Per-copy fields
+
+An item field its content type marks `perCopy: true` may have a value of the copy's own: an
+item the player shapes once they have it, as Fate's custom stunt is (its skill, action and
+limit differ per copy):
+
+```yaml
+contentTypes:
+  stunt:
+    fields:
+      skill: { type: id, of: field, perCopy: true }
+      limit: { type: enum, values: [none, conflict, scene, session], default: none, perCopy: true }
+# The character file
+features:
+  - id: stunt-1
+    item: fate-core:stunts.custom
+    fields: { skill: fate-core:skills.lore, limit: scene }
+```
+
+- **Saved:** in the entry's `fields`, by name ([characters.md](characters.md#entries)), set by
+  `addItem`'s `entry.fields` and by `setField`; `setField` with `null` removes one
+  ([engine-core.md](engine-core.md#applychanges)). Each is checked as a state value is: a field
+  that isn't declared `perCopy` is `not-per-copy`, a value of another type `wrong-type`, an `id`
+  or `set` member that names nothing `unknown-id`. A value is a literal, never a formula; an `id`
+  or `set` value of content or `field` is qualified.
+- **Read:** merged into the copy's `item` (and `copy.fields`) after its templates, saved and
+  kept, replacing the item's value and theirs; templates' `prior` doesn't see it. So every
+  reader reads `item.limit`, a custom stunt's and an SRD stunt's alike. State defaults and
+  bounds see it too.
+- **Shown:** a copy with own values is in computeSheet's `templated`, merged, even without a
+  template ([engine-core.md](engine-core.md#merged-items)).
+- **Wrong on the sheet:** a saved value that doesn't apply (the type no longer marks the field
+  `perCopy`, or the value has another type) is left out, with that error in `errors`.
+- Only a content type's item fields take `perCopy`; on a state key or a template field it is a
+  validation error.
 
 **A copy named by its state**: a content type or an item may say
 `nameFrom: <state key>`, a string state key the copy has (declared by the type or the item). While

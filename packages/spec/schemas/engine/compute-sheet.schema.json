@@ -157,7 +157,7 @@
           }
         },
         "templated": {
-          "description": "Every item the character has with templates, as merged, so an app shows the item as the rules read it: each copy with a saved or kept template, in instance order (`entry` its instance ID), then each activation of content without a copy (picked or granted) that content keeps templates on, in activation order (`activation` its index in `activations`, no `entry`): the same item reached twice is listed per activation, each with its own templates. `templates` lists the templates in the order they apply, `tags` and `fields` are the merged item's (`item.tags` and each item field as `item` reads it; a dice field as canonical dice text).",
+          "description": "Every item the character has with templates, as merged, so an app shows the item as the rules read it: each copy with a saved or kept template or its own field values (`perCopy` fields), in instance order (`entry` its instance ID), then each activation of content without a copy (picked or granted) that content keeps templates on, in activation order (`activation` its index in `activations`, no `entry`): the same item reached twice is listed per activation, each with its own templates. `templates` lists the templates in the order they apply, `tags` and `fields` are the merged item's (`item.tags` and each item field as `item` reads it; a dice field as canonical dice text).",
           "type": "array",
           "items": {
             "type": "object",
@@ -175,11 +175,11 @@
                 "$ref": "../common.schema.json#/$defs/qualifiedId"
               },
               "templates": {
+                "description": "The templates in the order they apply; empty for a copy listed for its own field values alone.",
                 "type": "array",
                 "items": {
                   "$ref": "../common.schema.json#/$defs/qualifiedId"
-                },
-                "minItems": 1
+                }
               },
               "tags": {
                 "type": "array",

@@ -26,26 +26,27 @@ There's a small, fixed set of generic change types
 ([change.schema.json](../../../packages/spec/schemas/change.schema.json)). What's inside a change (does
 this field exist, is 25 in range) is checked against the ruleset.
 
-| Type             | Does                                                             | Example                                                                                         |
-| ---------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `set`            | Sets an input field                                              | `{ type: 'set', field: '5e-srd-5.1:abilities.str.base', value: 16 }`                            |
-| `adjust`         | Adds to a numeric input field, through resistances               | `{ type: 'adjust', field: '5e-srd-5.1:hp.current', by: -10, tags: ['damage.fire'] }`            |
-| `addItem`        | Adds a copy of content to `inventory` or `features`              | `{ type: 'addItem', entry: { id: 'inv-6', item: '5e-srd-5.1:weapons.dagger' } }`                |
-| `removeItem`     | Removes a copy, with its picks                                   | `{ type: 'removeItem', entry: 'inv-6' }`                                                        |
-| `equip`          | Equips or unequips a copy                                        | `{ type: 'equip', entry: 'inv-4', equipped: true }`                                             |
-| `setState`       | Sets a per-copy state value                                      | `{ type: 'setState', entry: 'inv-2', key: 'ignited', value: true }`                             |
-| `adjustState`    | Adds to a numeric per-copy state value                           | `{ type: 'adjustState', entry: 'fighter', key: 'level', by: 1 }`                                |
-| `setQuantity`    | Sets a copy's quantity (not below 0; a copy at 0 stays)          | `{ type: 'setQuantity', entry: 'inv-3', value: 20 }`                                            |
-| `adjustQuantity` | Adds to a copy's quantity (spending an arrow)                    | `{ type: 'adjustQuantity', entry: 'inv-3', by: -1 }`                                            |
-| `applyTemplate`  | Applies a template to a copy                                     | `{ type: 'applyTemplate', entry: 'inv-6', template: '5e-srd-5.1:magic-items.weapon-plus-one' }` |
-| `removeTemplate` | Removes a template from a copy                                   | `{ type: 'removeTemplate', entry: 'inv-6', template: '…' }`                                     |
-| `applyEffect`    | Starts a temporary effect from content not owned                 | `{ type: 'applyEffect', id: 'bless-1', source: '5e-srd-5.1:spells.bless' }`                     |
-| `toggleEffect`   | Turns a temporary effect on or off                               | `{ type: 'toggleEffect', id: 'bless-1', active: false }`                                        |
-| `removeEffect`   | Removes a temporary effect                                       | `{ type: 'removeEffect', id: 'bless-1' }`                                                       |
-| `choose`         | Picks an option for a choice                                     | `{ type: 'choose', path: { entry: 'fighter', choice: ['fighting-style'] }, option: '…' }`       |
-| `unchoose`       | Un-picks an option, and everything nested under it               | `{ type: 'unchoose', path: { entry: 'fighter', choice: ['fighting-style'] }, option: '…' }`     |
-| `setExtension`   | Replaces your app's own data                                     | `{ type: 'setExtension', namespace: 'com.example.vtt', value: { … } }`                          |
-| `setHomebrew`    | Replaces (or, with `null`, removes) the character's own homebrew | `{ type: 'setHomebrew', homebrew: { content: [ … ] } }`                                         |
+| Type             | Does                                                                  | Example                                                                                         |
+| ---------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `set`            | Sets an input field                                                   | `{ type: 'set', field: '5e-srd-5.1:abilities.str.base', value: 16 }`                            |
+| `adjust`         | Adds to a numeric input field, through resistances                    | `{ type: 'adjust', field: '5e-srd-5.1:hp.current', by: -10, tags: ['damage.fire'] }`            |
+| `addItem`        | Adds a copy of content to `inventory` or `features`                   | `{ type: 'addItem', entry: { id: 'inv-6', item: '5e-srd-5.1:weapons.dagger' } }`                |
+| `removeItem`     | Removes a copy, with its picks                                        | `{ type: 'removeItem', entry: 'inv-6' }`                                                        |
+| `equip`          | Equips or unequips a copy                                             | `{ type: 'equip', entry: 'inv-4', equipped: true }`                                             |
+| `setState`       | Sets a per-copy state value                                           | `{ type: 'setState', entry: 'inv-2', key: 'ignited', value: true }`                             |
+| `adjustState`    | Adds to a numeric per-copy state value                                | `{ type: 'adjustState', entry: 'fighter', key: 'level', by: 1 }`                                |
+| `setField`       | Sets a copy's own value of a `perCopy` item field (`null` removes it) | `{ type: 'setField', entry: 'stunt-1', key: 'limit', value: 'scene' }`                          |
+| `setQuantity`    | Sets a copy's quantity (not below 0; a copy at 0 stays)               | `{ type: 'setQuantity', entry: 'inv-3', value: 20 }`                                            |
+| `adjustQuantity` | Adds to a copy's quantity (spending an arrow)                         | `{ type: 'adjustQuantity', entry: 'inv-3', by: -1 }`                                            |
+| `applyTemplate`  | Applies a template to a copy                                          | `{ type: 'applyTemplate', entry: 'inv-6', template: '5e-srd-5.1:magic-items.weapon-plus-one' }` |
+| `removeTemplate` | Removes a template from a copy                                        | `{ type: 'removeTemplate', entry: 'inv-6', template: '…' }`                                     |
+| `applyEffect`    | Starts a temporary effect from content not owned                      | `{ type: 'applyEffect', id: 'bless-1', source: '5e-srd-5.1:spells.bless' }`                     |
+| `toggleEffect`   | Turns a temporary effect on or off                                    | `{ type: 'toggleEffect', id: 'bless-1', active: false }`                                        |
+| `removeEffect`   | Removes a temporary effect                                            | `{ type: 'removeEffect', id: 'bless-1' }`                                                       |
+| `choose`         | Picks an option for a choice                                          | `{ type: 'choose', path: { entry: 'fighter', choice: ['fighting-style'] }, option: '…' }`       |
+| `unchoose`       | Un-picks an option, and everything nested under it                    | `{ type: 'unchoose', path: { entry: 'fighter', choice: ['fighting-style'] }, option: '…' }`     |
+| `setExtension`   | Replaces your app's own data                                          | `{ type: 'setExtension', namespace: 'com.example.vtt', value: { … } }`                          |
+| `setHomebrew`    | Replaces (or, with `null`, removes) the character's own homebrew      | `{ type: 'setHomebrew', homebrew: { content: [ … ] } }`                                         |
 
 Every field and content ID is **qualified** with its pack. Entries (copies) are named by the
 instance `id` you gave them.

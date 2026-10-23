@@ -272,6 +272,10 @@ consult, and that's on purpose.
 - **Equipping** is `equip`. Effects that only apply while equipped (`when: self.equipped`) follow.
 - **Per-copy state** (charges, attunement, a lit Flame Tongue) is `setState`/`adjustState` on the
   entry. The state keys are declared by the content type, the item and its templates.
+- **Shaping a copy** (a Fate custom stunt's skill and limit) is `setField` on the entry, for
+  item fields its content type marks `perCopy` (`ruleset.contentTypes[type].fields`); `null`
+  gives the item's value back. The copy's merged item, with its own values, is its
+  `templated` entry.
 - **Magic properties** like +1 are **templates** applied to a copy (`applyTemplate`). To offer
   them, list the templates in the ruleset (content of type `template`) whose `appliesTo` matches
   the item; `applyChanges` rejects one that doesn't apply with `template-not-applicable`.

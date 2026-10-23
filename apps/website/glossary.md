@@ -72,6 +72,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Participant:** another character taking part in an action in one of its declared roles (a target, a helper), passed to `startAction` as a view and read as `participants.<role>`.
 - **Paused action:** an action waiting at a checkpoint, returned as plain data so it can be continued later anywhere.
 - **Pending choice:** a choice that applies and still needs picks. A choice step over `{ pending }` asks them one pick at a time.
+- **Per-copy field:** an item field its content type marks `perCopy`, which a copy may set for itself (a Fate custom stunt's skill and limit), saved in the entry's `fields` and merged into its `item` after its templates; `setField` changes it.
 - **Per-copy state:** values tracked on a character's copy of an item (charges, shots, level), declared by its type, item or templates. Picks and granted content keep state of their own the same way.
 - **Pick:** one selected option in a choice, stored in the character's choices tree with its own nested picks, its `state` (a once-a-day feat's `used`) and the saved state of content it grants (`grants`).
 - **Pool dice:** dice an effect adds to a roll's dice part (`poolDice`) before keep and drop, each recording its source.

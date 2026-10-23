@@ -1,0 +1,22 @@
+# A custom stunt is shaped per copy (skill, limit, bonus); a written stunt sets them as item
+# fields. The stunt type's effect adds each stunt's bonus to its skill's bonus field, and its uses
+# are bounded by its bonus, and its charges start at it. The mighty template adds 1 to the bonus and makes the limit a session.
+fields:
+  skills.fight: { type: integer, input: true, default: 0 }
+  skills.lore: { type: integer, input: true, default: 0 }
+  stunts.bonus: { type: integer, formula: 0 }
+  stunts.scene:
+    { type: integer, formula: "countCopies(copy.type == 'stunt' && copy.fields.limit == 'scene')" }
+
+contentTypes:
+  stunt:
+    fields:
+      skill: { type: id, of: field, perCopy: true }
+      limit: { type: enum, values: [none, scene, session], default: none, perCopy: true }
+      bonus: { type: integer, default: 2, perCopy: true }
+      cost: { type: integer, default: 0 }
+    state:
+      uses: { type: integer, default: 0, min: 0, max: item.bonus }
+      charges: { type: integer, default: item.bonus }
+    effects:
+      - { target: stunts.bonus, op: add, value: item.bonus }

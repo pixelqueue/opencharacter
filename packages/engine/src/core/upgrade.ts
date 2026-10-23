@@ -29,7 +29,7 @@ import { loadRuleset } from './load.ts';
 import { itemStandard, rulesStandard, standardId } from './ruleset.ts';
 import { upgradeSpec } from './spec-upgrade.ts';
 import { expandSlots, Sheet } from './sheet.ts';
-import { stateDecls } from './views.ts';
+import { copyFieldProblem, stateDecls } from './views.ts';
 
 type Step = UpgradeStep;
 
@@ -592,6 +592,27 @@ function applyStep(
       if (changed) prune(c);
       return changed;
     }
+    case 'stateToField': {
+      // Onto the copy's own value of a perCopy item field, unless it has one, or the value is the
+      // item's own.
+      const key = step.from as string;
+      const field = step.to ?? key;
+      for (const e of allEntries(c)) {
+        if (!holds(e.item)) continue;
+        if (!e.state || !Object.hasOwn(e.state, key)) continue;
+        const value = e.state[key];
+        delete e.state[key];
+        changed = true;
+        const item = to.content[e.item];
+        if (!item || Object.hasOwn(e.fields ?? {}, field)) continue;
+        if (copyFieldProblem(to, item, field, value) !== undefined) continue;
+        const decl = to.contentTypes[item.type]?.fields?.[field];
+        if (sameValue(value, item.fields?.[field] ?? decl?.default)) continue;
+        e.fields = { ...e.fields, [field]: value as Literal };
+      }
+      if (changed) prune(c);
+      return changed;
+    }
     case 'renameChoice':
     case 'renameOption':
     case 'removeChoice': {
@@ -998,7 +1019,8 @@ function covered(
         ref.startsWith(`${pack}:`) ? ref.slice(pack.length + 1) : ref;
       return has(
         (s) =>
-          (((s.op === 'renameState' || s.op === 'moveState') && s.from === key) ||
+          (((s.op === 'renameState' || s.op === 'moveState' || s.op === 'stateToField') &&
+            s.from === key) ||
             (s.op === 'removeState' && s.key === key)) &&
           (s.type === undefined || names.has(s.type)) &&
           (s.item === undefined || local(s.item) === owner),

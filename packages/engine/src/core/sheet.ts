@@ -52,6 +52,8 @@ import {
   characterQueries,
   computedDecls,
   computedRoot,
+  copyFieldProblem,
+  copyFields,
   copyRoots,
   copies,
   diceText,
@@ -1093,7 +1095,8 @@ export class Sheet {
 
   /**
    * A copy's templates as merged: its saved ones (those in the ruleset), then the kept ones,
-   * which leave their keepers' `keepsFields` alone and have their keepers' `params`.
+   * which leave their keepers' `keepsFields` alone and have their keepers' `params`, then its own
+   * field values.
    */
   readonly templateItems = (entry: Entry, item: LoadedItem): LoadedItem[] => {
     const out: LoadedItem[] = [];
@@ -1110,6 +1113,7 @@ export class Sheet {
           k.params,
         ),
       );
+    out.push(...copyFields(this.ruleset, entry, item));
     return out;
   };
 
@@ -1192,7 +1196,22 @@ export class Sheet {
             ),
           );
         const self = selfView(entry, stateDecls(this.ruleset, item, templates), ids);
-        const merged = itemView(this.ruleset, item, templates, (n, p) => this.inputByName(n, p));
+        // The copy's own field values merge last; one that doesn't apply is left out.
+        for (const [field, raw] of Object.entries(entry.fields ?? {})) {
+          const problem = copyFieldProblem(this.ruleset, item, field, raw);
+          if (problem)
+            this.errors.push({
+              code: problem.code,
+              path: `/${list}/${i}/fields/${field}`,
+              data: { entry: entry.id, ...problem.data },
+            });
+        }
+        const merged = itemView(
+          this.ruleset,
+          item,
+          [...templates, ...copyFields(this.ruleset, entry, item)],
+          (n, p) => this.inputByName(n, p),
+        );
         const tree = entry.choices ?? {};
         const path: ChoicePath = { entry: entry.id, choice: [] };
         this.content(
@@ -3165,7 +3184,8 @@ export class Sheet {
     for (const a of this.activations) {
       if ((a.kind !== 'feature' && a.kind !== 'inventory') || !a.entry || !a.item) continue;
       const templates = this.templatesOf(a.entry);
-      if (templates.length === 0) continue;
+      if (templates.length === 0 && copyFields(this.ruleset, a.entry, a.item).length === 0)
+        continue;
       const view = a.roots.item as Record<string, unknown>;
       out.push({
         entry: a.entry.id,

@@ -460,6 +460,49 @@ export function keptTemplate(
   };
 }
 
+type CopyFieldCode = 'not-per-copy' | 'wrong-type' | 'unknown-id';
+
+/** Why a copy's own value of an item field doesn't apply, or undefined when it does. */
+export function copyFieldProblem(
+  ruleset: Ruleset,
+  item: LoadedItem,
+  field: string,
+  raw: unknown,
+): { code: CopyFieldCode; data: Record<string, unknown> } | undefined {
+  const decl = ruleset.contentTypes[item.type]?.fields?.[field];
+  if (!decl?.perCopy) return { code: 'not-per-copy', data: { field } };
+  const value = typedValue(decl, raw);
+  if (typeof value === 'string')
+    return { code: 'wrong-type', data: { target: field, expected: value } };
+  if (decl.type !== 'id' && decl.type !== 'set') return undefined;
+  if (!decl.of || decl.of === 'string' || decl.of === 'tag') return undefined;
+  const ids = (Array.isArray(raw) ? raw : [raw]).map(String);
+  const missing = ids.find(
+    (id) => !(decl.of === 'field' ? ruleset.fields[id] : ruleset.content[id]),
+  );
+  return missing === undefined ? undefined : { code: 'unknown-id', data: { id: missing } };
+}
+
+/**
+ * A copy's own item field values (`fields`, for fields its type marks `perCopy`), as a last
+ * template merged after the others; those that don't apply are left out.
+ */
+export function copyFields(ruleset: Ruleset, entry: Entry, item: LoadedItem): LoadedItem[] {
+  const own = Object.entries(entry.fields ?? {}).filter(
+    ([field, raw]) => copyFieldProblem(ruleset, item, field, raw) === undefined,
+  );
+  if (own.length === 0) return [];
+  return [
+    {
+      id: item.id,
+      qid: item.qid,
+      pack: item.pack,
+      type: 'template',
+      fields: Object.fromEntries(own),
+    } as LoadedItem,
+  ];
+}
+
 export type TemplatesOf = (entry: Entry) => readonly string[];
 
 const savedTemplates: TemplatesOf = (entry) => entry.templates ?? [];

@@ -259,8 +259,8 @@ inside the picked playbook:
       option: picked.id
 ```
 
-**Changes to copies by query.** A proposed `setState`, `adjustState`, `setQuantity`,
-`adjustQuantity`, `equip` or `removeItem` may name its copies with `copies: { type, where }`
+**Changes to copies by query.** A proposed `setState`, `adjustState`, `setField`,
+`setQuantity`, `adjustQuantity`, `equip` or `removeItem` may name its copies with `copies: { type, where }`
 (and `limit`) instead of `entry`. The character receiving the change resolves the query when it
 applies it, so a `to: target` change can reach the target's copies, which the action never
 sees. In `where`, and in a `by` or `value` that reads them, `item` and `self` are each matching
