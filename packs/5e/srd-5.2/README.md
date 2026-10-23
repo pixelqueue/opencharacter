@@ -261,7 +261,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
   A species trait keeps its own uses as its grant's saved state (Breath Weapon, Draconic Flight,
   Stonecunning, the lineage spells, Giant Ancestry, Large Form, Adrenaline Rush, Relentless
   Endurance); Stone's Endurance spends a Giant Ancestry use from its incoming-damage effect's
-  `then`, and `origins.giantAncestryLeft` offers it while one is left.
+  `then`, and is offered while one is left.
 - **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
   prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
   and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with
