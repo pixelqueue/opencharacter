@@ -406,7 +406,15 @@ export function stepsAndFlags(
         type = pendingSource(step)
           ? { object: { picked: { list: 'string' }, paths: { list: 'dyn' }, added: ADDED } }
           : step.repeat
-            ? { object: { picked: { list: 'string' }, added: ADDED } }
+            ? {
+                object: {
+                  picked: { list: 'string' },
+                  ...(views(step).value !== undefined
+                    ? { values: { list: views(step).value as FType } }
+                    : {}),
+                  added: ADDED,
+                },
+              }
             : { object: { picked: 'string', ...views(step), added: ADDED } };
       else if (step.kind === 'changes') type = { object: { added: ADDED } };
       else if (step.kind === 'action') type = { object: { result: 'string', data: 'dyn' } };

@@ -712,8 +712,11 @@ A choice step has one source of options (a fifth, pending choices, is
   order, `#done` left out, updated after each pick. Over content or copies without `repeat`,
   `steps.<id>.item` is the picked content's item view (the view `item` gives an action of that
   content), and over copies `steps.<id>.self` is the picked copy's view; over values without
-  `repeat`, `steps.<id>.value` is the picked value. When an added option is picked, `.item`,
-  `.self` and `.value` are absent.
+  `repeat`, `steps.<id>.value` is the picked value. Over values with `repeat`,
+  `steps.<id>.values` is the list of picked values in pick order, each as the source gave it (a
+  number stays a number), updated after each pick like `picked` (`[]` before the first);
+  added options picked leave nothing in it. When an added option is picked, `.item`, `.self` and
+  `.value` are absent.
   `steps.<id>.added` lists the copies the step's changes add to `self`, every pick's in order,
   as a changes step's does (above); it is updated after each pick's changes, so with `repeat` a
   later pick's changes see the earlier picks' copies.

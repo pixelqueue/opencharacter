@@ -494,15 +494,15 @@ before. The changes name the actor's own fields, as `to: target` changes do.
 
 ### Steps
 
-| Kind       | Does                                                                                                                                                                                                              | Result                                          |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `roll`     | Rolls `parts` (one roll item each); roll effects matching the step's `tags` add items, modify dice or bound the total; an optional `bands` set classifies it; with `of`, classifies an earlier roll again (below) | `steps.<id>.total`, `.faces`, `.band`, `.rolls` |
-| `choice`   | Offers `options` from one source (below); `recommend` or `prefer` names the rules' pick; `repeat` picks more than once                                                                                            | `steps.<id>.picked`, `.item`, `.self`, `.added` |
-| `allocate` | Spends a budget across fields, or hands out a list of values, one per field ([below](#allocate-steps))                                                                                                            | `steps.<id>.amounts`                            |
-| `branch`   | Runs the first case whose `when` is true (else `else`), sets its `flags` and runs its `steps`                                                                                                                     | `flags.<name>`                                  |
-| `changes`  | Proposes changes for the app to apply, `to: self` (default), `to: target`, `to: <role>` or `to: { link: <slot> }`; `release` proposes held ones; content adds to a tagged one (below)                             | `steps.<id>.added`                              |
-| `action`   | Runs another action (`use`, `params`, and `source`, `participants` and `tags` below), e.g. a panic check after a failed save; with `as: participant`, hands it off                                                | `steps.<id>.result`, `.data`                    |
-| `outcome`  | Ends the action with `result` and `data`                                                                                                                                                                          | —                                               |
+| Kind       | Does                                                                                                                                                                                                              | Result                                                               |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `roll`     | Rolls `parts` (one roll item each); roll effects matching the step's `tags` add items, modify dice or bound the total; an optional `bands` set classifies it; with `of`, classifies an earlier roll again (below) | `steps.<id>.total`, `.faces`, `.band`, `.rolls`                      |
+| `choice`   | Offers `options` from one source (below); `recommend` or `prefer` names the rules' pick; `repeat` picks more than once                                                                                            | `steps.<id>.picked`, `.item`, `.self`, `.value`, `.values`, `.added` |
+| `allocate` | Spends a budget across fields, or hands out a list of values, one per field ([below](#allocate-steps))                                                                                                            | `steps.<id>.amounts`                                                 |
+| `branch`   | Runs the first case whose `when` is true (else `else`), sets its `flags` and runs its `steps`                                                                                                                     | `flags.<name>`                                                       |
+| `changes`  | Proposes changes for the app to apply, `to: self` (default), `to: target`, `to: <role>` or `to: { link: <slot> }`; `release` proposes held ones; content adds to a tagged one (below)                             | `steps.<id>.added`                                                   |
+| `action`   | Runs another action (`use`, `params`, and `source`, `participants` and `tags` below), e.g. a panic check after a failed save; with `as: participant`, hands it off                                                | `steps.<id>.result`, `.data`                                         |
+| `outcome`  | Ends the action with `result` and `data`                                                                                                                                                                          | —                                                                    |
 
 Every step may have `when`; a step whose `when` is false is skipped. Roll, choice, changes,
 action and branch steps may have `each: <role>` ([Participants](#participants)).
@@ -907,7 +907,19 @@ effects:
 `steps.<id>.picked` is the option ID, or with `repeat` the list of picks (`#done` left out).
 Over content or copies without `repeat`, `steps.<id>.item` is the picked item and, for copies,
 `steps.<id>.self` the picked copy; over values, `steps.<id>.value` is the picked value (a
-number stays a number). A step with nothing to offer is skipped. 5E's long rest
+number stays a number), and with `repeat` `steps.<id>.values` the picked values in order. 5E's
+Arcane Recovery sums the slot levels picked so far, one level per slot recovered:
+
+```yaml
+- id: slots
+  kind: choice
+  options:
+    values: [1, 2, 3, 4, 5]
+    where: sumList(steps.slots.values, x) + value <= ceil(level.wizard / 2)
+  repeat: { max: 5, min: 1 }
+```
+
+A step with nothing to offer is skipped. 5E's long rest
 regains spent hit dice up to half the total level, one die per pick, from the classes the player
 chooses:
 

@@ -2600,8 +2600,11 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     repeat?.min !== undefined ? integer(evaluate(ctx, frame, repeat.min), 'repeat.min') : 0;
   const counts = new Map<string, number>();
   const picks: string[] = [];
+  // A repeated value step lists its picked values too, a number staying a number.
+  const values: unknown[] | undefined = repeat && valueSource(step) ? [] : undefined;
   const first = ctx.proposed.length;
-  if (repeat) setResult(frame, step.id, { picked: [], added: [] });
+  if (repeat)
+    setResult(frame, step.id, { picked: [], ...(values ? { values: [] } : {}), added: [] });
   for (let index = 0; picks.length < max; index++) {
     // Each pick proposes its changes at once, so the proposed sheet is read afresh per pick.
     if (index > 0 && readsProposed(step)) {
@@ -2651,9 +2654,10 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     if (pick === DONE) break;
     const candidate = candidates.find((c) => c.id === pick) as Candidate;
     picks.push(pick);
+    if (values && candidate.value !== undefined) values.push(candidate.value);
     counts.set(pick, (counts.get(pick) ?? 0) + 1);
     const result: Record<string, unknown> = repeat
-      ? { picked: [...picks] }
+      ? { picked: [...picks], ...(values ? { values: [...values] } : {}) }
       : {
           picked: pick,
           ...(candidate.item !== undefined ? { item: candidate.item } : {}),

@@ -1,0 +1,34 @@
+description: 'A repeated values step lists its picked values in `steps.<id>.values`, numbers staying numbers, so its `where` sums the levels picked so far'
+specVersion: 0.2.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: recover
+            steps:
+              - id: slots
+                kind: choice
+                options:
+                  values: [1, 2, 3, 4, 5]
+                  where: sumList(steps.slots.values, x) + value <= 4
+                repeat: { max: 5, min: 1 }
+              - id: done
+                kind: outcome
+                data:
+                  picked: steps.slots.picked
+                  values: steps.slots.values
+                  total: sumList(steps.slots.values, x)
+      content: []
+input:
+  action: { id: test-pack:recover }
+  policy: { choices: pause }
+answers:
+  - { option: '3' }
+  - { option: '1' }
