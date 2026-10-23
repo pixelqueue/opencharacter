@@ -372,6 +372,44 @@ Draconic Resistance asks for a damage type only for a physical exemplar), make i
 (`required: false`) and let its options' effects test the computed value; when a grant is
 harmless twice (a feat the heritage may already give), grant it unconditionally.
 
+When content does one thing or another by a computed value ("you become trained in
+Performance, or gain Assurance in it if you're already trained"), make the two a choice whose
+eligibility reads the value, and follow the pick:
+
+- **The choice:** a value choice of the outcomes. Its `eligible` and `recommend` are evaluated on
+  the computed sheet, so they read derived fields: the recommendation is the outcome the rules
+  pick, and a pick the value rules out is the rules issue `option-not-eligible`
+  ([below](#eligibility-and-own-picks)). listOptions marks it the same way.
+- **Its own pick:** the outcome must not change what `eligible` reads, or picking it would rule
+  itself out. Give it through another field than the one the condition tests: here the training
+  goes to the picked skills (`skills.chosen`), and the condition reads the trainings content
+  gives (`skills.trained`).
+- **What follows:** a choice's `effects` run per pick (`when: "pick.value == 'training'"`), and a
+  grant's `when` may read the pick, saved input: `when: "'assurance' in picksOf('harmonic')"`.
+
+```yaml
+choices:
+  - id: harmonic
+    from: { values: [training, assurance] }
+    eligible: >-
+      value == 'assurance' ? 'skill.performance' in skills.trained
+        : !('skill.performance' in skills.trained)
+    recommend: "'skill.performance' in skills.trained ? 'assurance' : 'training'"
+    effects:
+      - target: skills.chosen
+        op: grant
+        value: { tag: skill.performance }
+        when: "pick.value == 'training'"
+grants:
+  - item: feats.skill.assurance
+    when: "'assurance' in picksOf('harmonic')"
+    choices: { skill: [{ option: skill.performance }] }
+```
+
+The player picks what the rules decide, and the sheet says when the pick is wrong: training
+from a background taken later makes the training pick `option-not-eligible` until the player
+picks Assurance.
+
 ### Per-copy state
 
 The character's copy of an item (an **entry**) has:

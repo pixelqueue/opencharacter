@@ -1,0 +1,15 @@
+# Performance is trained by content (`skills.trained`) or by a pick (`skills.chosen`). Harmonic
+# trains it, or gives Assurance in it if it is already trained: its choice's eligibility reads the
+# derived `skills.trained`, its training goes to `skills.chosen` so its own pick doesn't change
+# what eligibility reads, and a grant follows the pick (`picksOf`).
+fields:
+  skills.trained: { type: set, of: string }
+  skills.chosen: { type: set, of: string }
+  performance.rank:
+    type: integer
+    formula: "'performance' in skills.trained || 'performance' in skills.chosen ? 1 : 0"
+  assured: { type: set, of: string }
+
+contentTypes:
+  background: {}
+  feat: {}
