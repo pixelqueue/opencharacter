@@ -146,7 +146,7 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
     - `activations`: the exact list.
     - `choices`: the exact list of `{ path, owner, id, slot, min, max, picks, open }`.
     - `copyLimits`: the exact list of `{ type, max, perItem, count, entries }`.
-    - `groups`: the exact list of `{ id, shown, fields }`.
+    - `groups`: the exact list of `{ id, shown, fields, actions, items }`.
     - `offers`: the exact list.
   - **`listOptions`:**
     - `options`: the exact list, in order. Each is compared as

@@ -749,15 +749,31 @@ After the values, computeSheet evaluates the display hints
 ([display-hints.md](display-hints.md#shown)):
 
 - **`groups`** lists every display group in ruleset order (a later pack's group in place of an
-  earlier one with the same ID) as `{ id, shown, fields? }`. `shown` is the group's `showWhen`,
-  true without one. A fields group's `fields` are its members in ruleset field order, shown or
-  not: the fields whose hint names the group, and those its `members` query matches, `where`
-  seeing `item` as `{ id, type, tags }` with the field's sheet tags.
+  earlier one with the same ID) as `{ id, shown, fields?, actions?, items? }`. `shown` is the
+  group's `showWhen`, true without one. Members are listed shown or not:
+  - a fields group's `fields`, in ruleset field order: the fields whose hint names the group,
+    and those its `members` query matches, `where` seeing `item` as `{ id, type, tags }` with
+    the field's sheet tags;
+  - an actions group's `actions`: the index in `actions` of each listing its `where` matches,
+    seeing `item` as `{ id, tags, entry?, source? }`, in list order;
+  - a content group's `items`: for `from: own`, `{ activation, section? }` for each holder
+    activation of the group's type in `activations` (templates aren't members); for
+    `from: applied`, `{ entry, activation?, section?, hiddenState? }` for each applied entry of
+    the type in file order, `activation` when it is listed (active and not blocked) and
+    `hiddenState` when it isn't. `where`, `sectionBy` and `sortBy` see the activation's `item`
+    and `self`, or for an unlisted entry its source's item and the entry. Members are sorted by
+    `section`, then the `sortBy` key, then instance order; numbers come before strings, and a
+    member without a key after both.
 - **`values[F].shown`**: F's hint isn't `hidden`, its `showWhen` holds, and F is a member of no
   fields group or of at least one shown one.
-- A `showWhen` is evaluated in the hint's or group's pack, as a field formula is, with
-  `hasChoice` bound. One that fails to evaluate counts as true; a `where` that fails matches
-  nothing. Neither adds to `errors`.
+- **`activations[i].hiddenState`**: the state keys its content declares (with a copy's
+  templates) whose type's state hint is `hidden` or has a `showWhen` that doesn't hold, seeing
+  the activation's `item` and `self`; absent when there are none. Templates have none: their
+  keys are their copy's.
+- Every formula is evaluated in the hint's or group's pack, as a field formula is; a
+  `showWhen` with `hasChoice` bound. A `showWhen` that fails to evaluate counts as true; a `where` that fails
+  matches nothing; a `sectionBy` or `sortBy` that fails, or gives a value of another kind (a
+  whole number or a string; a number or a string), gives no key. None adds to `errors`.
 
 ### Offers
 

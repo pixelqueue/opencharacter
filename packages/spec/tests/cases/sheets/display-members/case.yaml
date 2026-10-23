@@ -1,0 +1,65 @@
+description: "computeSheet lists the members of actions and content groups: an actions group's listed actions its `where` matches (`item` as `{ id, tags, entry?, source? }`), by index in `actions`; a content group's activations, sorted by `sectionBy`, then `sortBy`, then instance order. A group's `showWhen` sees the copy aggregates, and each activation names its state keys not shown (`hidden`, or a state hint's `showWhen` false, seeing `item` and `self`)"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack, rest, ranged]
+        fields:
+          hp: { type: integer, input: true, default: 5 }
+        contentTypes:
+          weapon:
+            carried: true
+            fields:
+              reach: { type: integer, default: 1 }
+            state:
+              loaded: { type: boolean, default: false }
+              mark: { type: string, default: '' }
+            actions:
+              - id: strike
+                tags: [attack]
+                steps:
+                  - { id: done, kind: outcome }
+        actions:
+          - id: rest
+            tags: [rest]
+            steps:
+              - { id: done, kind: outcome }
+          - id: last-stand
+            tags: [attack]
+            available: hp <= 0
+            steps:
+              - { id: done, kind: outcome }
+        display:
+          groups:
+            - id: attacks
+              kind: actions
+              showWhen: countCopies('ranged' in copy.tags) > 0
+              members: { type: action, where: "'attack' in item.tags && has(item.entry)" }
+            - id: rests
+              kind: actions
+              showWhen: hp > 10
+              members: { type: action, where: "'rest' in item.tags" }
+            - id: weapons
+              kind: content
+              members: { type: weapon }
+              sectionBy: item.reach
+              sortBy: self.mark
+            - id: ranged
+              kind: content
+              members: { type: weapon, where: "'ranged' in item.tags" }
+          types:
+            weapon:
+              state:
+                loaded: { showWhen: "'ranged' in item.tags" }
+                mark: { hidden: true }
+      content:
+        - { id: weapons.sword, type: weapon }
+        - { id: weapons.spear, type: weapon, fields: { reach: 2 } }
+        - { id: weapons.bow, type: weapon, tags: [ranged], fields: { reach: 2 } }

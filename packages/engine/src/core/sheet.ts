@@ -163,6 +163,14 @@ export interface ListedActivation {
   parent?: number;
   keptBy?: number;
   path?: ChoicePath;
+  /** Its declared state keys not shown (display-hints.md, "Shown"); absent when none. */
+  hiddenState?: string[];
+}
+
+export interface ListedAction {
+  action: string;
+  entry?: string;
+  source?: string;
 }
 
 export interface ListedChoice {
@@ -2908,8 +2916,13 @@ export class Sheet {
     return out;
   }
 
-  actions(): { action: string; entry?: string; source?: string }[] {
-    const out: { action: string; entry?: string; source?: string }[] = [];
+  actions(): ListedAction[] {
+    return this.actionList().map((a) => a.listed);
+  }
+
+  /** The actions available now, each with its tags. */
+  actionList(): { listed: ListedAction; tags: readonly string[] }[] {
+    const out: { listed: ListedAction; tags: readonly string[] }[] = [];
     const seen = new Set<string>();
     const used = new Set<string>();
     const collectUses = (list: ActionOrUse[] | undefined) => {
@@ -2948,9 +2961,12 @@ export class Sheet {
         if (!available) continue;
         seen.add(key);
         out.push({
-          action: id,
-          ...(entry !== undefined ? { entry } : {}),
-          ...(source ? { source } : {}),
+          listed: {
+            action: id,
+            ...(entry !== undefined ? { entry } : {}),
+            ...(source ? { source } : {}),
+          },
+          tags: def.tags ?? [],
         });
       }
     }
@@ -2962,7 +2978,7 @@ export class Sheet {
       } catch (error) {
         if (!(error instanceof Failure)) throw error;
       }
-      if (available) out.push({ action: qid });
+      if (available) out.push({ listed: { action: qid }, tags: def.tags ?? [] });
     }
     return out;
   }
@@ -3011,13 +3027,18 @@ export class Sheet {
     return out;
   }
 
+  /** The activations `activationList` lists, in its order. */
+  listedActivations(): Activation[] {
+    return this.activations.filter((a) => a.kind !== 'rules' && a.kind !== 'inline');
+  }
+
   /**
    * Every content activation in instance order, with its parent: the nearest listed activation that
    * granted it, owns the choice it was picked in, or keeps the template. Rules and inline options
    * aren't listed.
    */
   activationList(): ListedActivation[] {
-    const listed = this.activations.filter((a) => a.kind !== 'rules' && a.kind !== 'inline');
+    const listed = this.listedActivations();
     const index = new Map(listed.map((a, i) => [a, i]));
     // A kept template's keeper: the first activation that keeps it on the copy.
     const keepers = new Map<string, Activation>();

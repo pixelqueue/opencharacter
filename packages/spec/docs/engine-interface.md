@@ -27,9 +27,9 @@ The spec leaves these to the app. Packs give the app what it needs for each: an 
   runs an offer, asks first, shows a derived offer later (its "not now"), or dismisses an
   ephemeral one.
 - **Sheet layout and catalogs:** laying out the sheet from the display hints (computeSheet
-  says which groups and fields are shown), the members, sections and order of actions and
-  content groups, and listing content that isn't a choice. Engines may offer helpers outside
-  the spec.
+  gives each group's members, sorted, and says which groups, fields and state keys are shown;
+  priority and visibility are the app's), and listing content that isn't a choice. Engines may
+  offer helpers outside the spec.
 
 ## The calls
 
@@ -55,8 +55,10 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   instead of `value`, and **everything else still calculates**.
 - `effects` lists active effects; effects excluded by stacking have `suppressed: true`.
 - `actions` lists the actions available now, with the entry each belongs to.
-- `groups` lists the display groups, each with whether it is shown and a fields group's
-  member fields.
+- `groups` lists the display groups, each with whether it is shown and its members: a fields
+  group's fields, an actions group's `actions` indices, a content group's `items` (activations
+  or applied entries, in section and sort order). Each entry of `activations` names its state
+  keys not shown in `hiddenState`.
 - `situational` lists the situational choices offered now.
 - `pending` lists the choices that apply and still need picks: the open entries of `choices`.
 - `offers` lists what the rules offer the character now: its stored ephemeral

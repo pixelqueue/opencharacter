@@ -3,6 +3,37 @@
   "$id": "https://opencharacterformat.org/schemas/0.2/engine/compute-sheet.schema.json",
   "title": "computeSheet",
   "$defs": {
+    "contentMember": {
+      "description": "A member of a `content` group: an activation (`from: own`), or an applied entry (`from: applied`).",
+      "type": "object",
+      "properties": {
+        "activation": {
+          "description": "Its index in `activations`. Always set for a `from: own` member; for an applied entry, set when it is listed there (active and not blocked).",
+          "type": "integer",
+          "minimum": 0
+        },
+        "entry": {
+          "description": "A `from: applied` member's applied entry.",
+          "$ref": "../common.schema.json#/$defs/instanceId"
+        },
+        "section": {
+          "description": "Its `sectionBy` key; absent when the group has none, or the formula fails or gives neither a whole number nor a string.",
+          "type": ["integer", "string"]
+        },
+        "hiddenState": {
+          "description": "An applied entry with no activation: its state keys not shown, as on an activation.",
+          "$ref": "#/$defs/hiddenState"
+        }
+      },
+      "additionalProperties": false
+    },
+    "hiddenState": {
+      "description": "The state keys the content declares that aren't shown (display-hints.md, \"Shown\"): its type's state hint is `hidden`, or its `showWhen` doesn't hold, seeing the copy or pick as `self` and its item as `item`. Absent when every key is shown.",
+      "type": "array",
+      "items": {
+        "$ref": "../common.schema.json#/$defs/name"
+      }
+    },
     "input": {
       "type": "object",
       "required": ["ruleset", "character"],
@@ -220,6 +251,9 @@
               "path": {
                 "description": "Picks: the choice path of the pick, the picked option last. Holder grants whose node is a pick (content granted by picked content or an inline option): that pick's path, which a grant's `setState` names with `path`, `option` and `grant`.",
                 "$ref": "../change.schema.json#/$defs/choicePath"
+              },
+              "hiddenState": {
+                "$ref": "#/$defs/hiddenState"
               }
             },
             "additionalProperties": false
@@ -233,7 +267,7 @@
           }
         },
         "groups": {
-          "description": "Every display group, in ruleset order (display-hints.md, \"Shown\"): whether it is shown (its `showWhen` holds; one that fails to evaluate counts as true) and, for a `fields` group, its member fields: those whose hint lists it and those its `members` query matches, in ruleset order, shown or not.",
+          "description": "Every display group, in ruleset order (display-hints.md, \"Shown\"): whether it is shown (its `showWhen` holds; one that fails to evaluate counts as true) and its members, listed whether the group is shown or not: a `fields` group's `fields`, an `actions` group's `actions`, a `content` group's `items`.",
           "type": "array",
           "items": {
             "type": "object",
@@ -246,9 +280,25 @@
                 "type": "boolean"
               },
               "fields": {
+                "description": "A `fields` group's member fields: those whose hint lists it and those its `members` query matches, in ruleset order, shown or not.",
                 "type": "array",
                 "items": {
                   "type": "string"
+                }
+              },
+              "actions": {
+                "description": "An `actions` group's members: the index in `actions` of each listing its `members` query matches, in that list's order.",
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "items": {
+                "description": "A `content` group's members, sorted: by section (numbers ascending, then strings in code-point order, then members without one), then by `sortBy` (the same order), then by instance order.",
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/contentMember"
                 }
               }
             },

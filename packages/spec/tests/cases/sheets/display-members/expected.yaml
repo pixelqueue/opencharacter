@@ -1,0 +1,22 @@
+# At 5 HP last-stand isn't listed and the rests group isn't shown; it still lists its member.
+# The weapons sort by reach (the sword first), then by mark (the bow's "a" before the spear's "b").
+actions:
+  - { action: 'test-pack:weapons.spear#strike', entry: spear-1 }
+  - { action: 'test-pack:weapons.sword#strike', entry: sword-1 }
+  - { action: 'test-pack:weapons.bow#strike', entry: bow-1 }
+  - { action: 'test-pack:rest' }
+activations:
+  - { item: 'test-pack:weapons.spear', entry: spear-1, via: copy, hiddenState: [loaded, mark] }
+  - { item: 'test-pack:weapons.sword', entry: sword-1, via: copy, hiddenState: [loaded, mark] }
+  - { item: 'test-pack:weapons.bow', entry: bow-1, via: copy, hiddenState: [mark] }
+groups:
+  - { id: attacks, shown: true, actions: [0, 1, 2] }
+  - { id: rests, shown: false, actions: [3] }
+  - id: weapons
+    shown: true
+    items:
+      - { activation: 1, section: 1 }
+      - { activation: 2, section: 2 }
+      - { activation: 0, section: 2 }
+  - { id: ranged, shown: true, items: [{ activation: 2 }] }
+errors: []

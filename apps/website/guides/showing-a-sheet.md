@@ -14,7 +14,7 @@ sheet is computed without the broken part.
 | Output           | What it is                                                                | Typical UI                                     |
 | ---------------- | ------------------------------------------------------------------------- | ---------------------------------------------- |
 | `values`         | Every field's value, with its base, a breakdown and whether it's shown    | The sheet itself                               |
-| `groups`         | Each display group: whether it's shown, and a fields group's fields       | Sections of the sheet                          |
+| `groups`         | Each display group: whether it's shown, and its members, sorted           | Sections of the sheet                          |
 | `effects`        | Every active effect, with its source; stacked-out ones `suppressed: true` | "Active effects" panel, tooltips               |
 | `actions`        | Actions available now, with the entry each belongs to                     | Roll buttons ([Rolling dice](rolling-dice.md)) |
 | `situational`    | Situational choices offered now (advantage, cover)                        | Toggles next to roll buttons                   |
@@ -149,56 +149,67 @@ The rules for using them ([Display hints](../../../packages/spec/docs/display-hi
 Groups also lay out the rest of the sheet. A group's `kind` is `fields` (the default),
 `actions` or `content`:
 
-- **An actions group** holds actions from `sheet.actions`. Its `members` query is
-  `type: action`; test its `where` against each listed action, with `item` set to
-  `{ id: listed.action, tags: <the action's tags>, entry?, source? }`. 5E puts attacks and
-  spells up front, death saves only at 0 HP, and rests on a menu; FitD keeps downtime
-  apart.
+- **An actions group** holds actions from `sheet.actions`: its `actions` are their indices in
+  that list. 5E puts attacks and spells up front, death saves only at 0 HP, and rests on a
+  menu; FitD keeps downtime apart.
 - **A content group** holds the character's copies of one content type (and content picked
-  onto them). Test `where` with `item` as the copy's item and `self` as the copy. A content
-  group may split its members into **sections** with `sectionBy` (5E spells by level: numbers
-  ascending, cantrips first) and sort them with `sortBy`, then by instance order. A section's
-  label is `groups.<id>.sections.<key>.name` if the pack has it, else the key.
+  onto them): its `items` are `{ activation, section? }`, an index in `sheet.activations`, or
+  for a group of applied entries `{ entry, activation?, section? }`. They come sorted: by
+  section (5E spells by level, cantrips first), then by the group's `sortBy`, then by instance
+  order. A section's label is `groups.<id>.sections.<key>.name` if the pack has it, else the
+  key.
 - **Content-type hints** (`types.<type>`) say how to show a copy: `state.<key>` takes the same
   hints as a field (a class's `level` first, its `startingClass` flag hidden), `fields.<name>`
   a `format`, `unit` or `hidden` (a weapon's damage as dice, its weight in lb), and
-  `quantity.hidden` drops the count where it never matters.
+  `quantity.hidden` drops the count where it never matters. Each activation's `hiddenState`
+  lists the state keys to leave out (hidden, or their `showWhen` false: a mundane sword's
+  attunement).
 
 Only content the character has is listed. A shop or a class's spell list is your catalog to
 build from the ruleset.
 
 `sheet.activations` lists that content for you: every copy, template, granted and picked piece
 of content, and applied content, in instance order, as `{ item, entry?, via, scope?, parent?,
-path? }`. `via` says how it was reached (`copy`, `template`, `grant`, `pick`, `applied`),
-`parent` is the index of what granted it or owns the choice it was picked in, and a pick's
-`path` is its choice path. A content group's members are the entries without `scope: applied`
-whose item is of the group's type, so a Mothership Teamster's skills list shows the two the
-class grants and the two picked, with no walking of grants and choices on your side.
+path?, hiddenState? }`. `via` says how it was reached (`copy`, `template`, `grant`, `pick`,
+`applied`), `parent` is the index of what granted it or owns the choice it was picked in, and a
+pick's `path` is its choice path. A content group's `items` point into this list, so a
+Mothership Teamster's skills list shows the two the class grants and the two picked, with no
+walking of grants and choices on your side.
 
 ### Which groups and fields show
 
-`computeSheet` evaluates `hidden`, `showWhen` and the fields groups' `members` for you, against
-the character's values, copies and choices ([Display hints](../../../packages/spec/docs/display-hints.md#shown)):
+`computeSheet` evaluates every display formula for you (`hidden`, `showWhen`, `members`,
+`sectionBy`, `sortBy`), against the character's values, copies and choices
+([Display hints](../../../packages/spec/docs/display-hints.md#shown)). You never evaluate one:
 
 ```ts
 const sheet = computeSheet(ruleset, character);
 for (const group of sheet.groups) {
-  if (!group.shown || !group.fields) continue; // hidden, or an actions or content group
-  const fields = group.fields.filter((id) => sheet.values[id]?.shown);
-  // Sort them by their hints' priority and lay out the section.
+  if (!group.shown) continue;
+  if (group.fields) {
+    const fields = group.fields.filter((id) => sheet.values[id]?.shown);
+    // Sort them by their hints' priority and lay out the section.
+  } else if (group.actions) {
+    const actions = group.actions.map((i) => sheet.actions[i]);
+  } else {
+    for (const { activation, entry, section } of group.items ?? []) {
+      // Already in order; start a new section when `section` changes.
+    }
+  }
 }
 ```
 
-- **`sheet.groups`** lists every group in ruleset order as `{ id, shown, fields? }`. `shown` is
-  its `showWhen`. A fields group's `fields` are its members, shown or not.
+- **`sheet.groups`** lists every group in ruleset order as `{ id, shown, fields?, actions?,
+  items? }`. `shown` is its `showWhen`. The members are listed whether the group is shown or
+  not.
 - **`values[id].shown`** is false for a hidden field, a field whose `showWhen` is false, and a
   field whose every group is hidden. A field in no group shows in your "Other" section.
+- **Actions and content in no group** (no group's `actions` or `items` names them) go in
+  "Other" too; leave out those only hidden groups name.
+- **`activations[i].hiddenState`** lists the copy's or pick's state keys not to show.
 - A `showWhen` that fails to evaluate counts as shown, so a broken hint never hides a value.
-
-The members, sections and order of actions and content groups, and a state hint's `showWhen`, are
-still yours to evaluate with the engine's formula module (`formula.parse`, `formula.evaluate`).
-They read the action or copy (`item`, `self`); bind `id` with `resolveId(ruleset, text, pack)`
-for ID literals, `pack` the pack that declares the group or hint.
+- Sorting groups and fields by `priority` and applying `visibility` stay yours: they're fixed
+  numbers and words in the hints, nothing to evaluate.
 
 ## Effects
 
