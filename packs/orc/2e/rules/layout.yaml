@@ -192,8 +192,15 @@ display:
     defenses.medium.rank: { groups: [proficiencies], priority: 2, format: { bands: rank } }
     defenses.heavy.rank: { groups: [proficiencies], priority: 2, format: { bands: rank } }
     attacks.masterGroups: { groups: [proficiencies], priority: 2 }
-    attacks.favoredWeapons: { groups: [proficiencies], priority: 2 }
-    attacks.favoredRank: { groups: [proficiencies], priority: 2, format: { bands: rank } }
+    attacks.favoredWeapons:
+      { groups: [proficiencies], priority: 2, showWhen: attacks.favoredRank > 0 }
+    attacks.favoredRank:
+      {
+        groups: [proficiencies],
+        priority: 2,
+        format: { bands: rank },
+        showWhen: attacks.favoredRank > 0,
+      }
     attacks.legendGroups: { groups: [proficiencies], priority: 2 }
     weapons.specialization: { groups: [proficiencies], priority: 2 }
     bulk.carried: { groups: [bulk], priority: 0, with: [{ field: bulk.max, as: max }] }

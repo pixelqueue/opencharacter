@@ -129,22 +129,12 @@ display:
     - id: rage
       kind: actions
       priority: 0
-      showWhen: 'countCopies(copy.item == @classes.barbarian) > 0'
+      showWhen: class.has.barbarian
       members: { type: action, where: "'rage' in item.tags" }
   fields:
-    rage.active:
-      {
-        groups: [summary],
-        priority: 1,
-        showWhen: 'countCopies(copy.item == @classes.barbarian) > 0',
-      }
+    rage.active: { groups: [summary], priority: 1, showWhen: class.has.barbarian }
     rage.tempHpBlocked:
-      {
-        groups: [turn],
-        priority: 2,
-        input: { widget: checkbox },
-        showWhen: 'countCopies(copy.item == @classes.barbarian) > 0',
-      }
+      { groups: [turn], priority: 2, input: { widget: checkbox }, showWhen: class.has.barbarian }
     rage.largerWeapon:
       {
         groups: [turn],

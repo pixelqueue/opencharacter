@@ -39,10 +39,21 @@ tags:
 
 display:
   fields:
-    sorcerer.bloodline: { groups: [summary], priority: 2 }
-    sorcerer.element: { groups: [summary], priority: 2 }
+    sorcerer.bloodline: { groups: [summary], priority: 2, showWhen: class.has.sorcerer }
+    sorcerer.element:
+      { groups: [summary], priority: 2, showWhen: "sorcerer.bloodline == 'elemental'" }
     sorcerer.elementDamage: { hidden: true }
     sorcerer.gifts: { hidden: true }
-    sorcerer.evolutionSignature: { groups: [spellcasting], priority: 2 }
-    sorcerer.evolutionSpell: { groups: [spellcasting], priority: 2 }
+    sorcerer.evolutionSignature:
+      {
+        groups: [spellcasting],
+        priority: 2,
+        showWhen: '@feats.sorcerer.arcane-evolution in feats.held',
+      }
+    sorcerer.evolutionSpell:
+      {
+        groups: [spellcasting],
+        priority: 2,
+        showWhen: '@feats.sorcerer.occult-evolution in feats.held',
+      }
     sorcerer.evolutionRank: { hidden: true }

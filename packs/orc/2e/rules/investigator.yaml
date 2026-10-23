@@ -27,14 +27,5 @@ tags:
 display:
   fields:
     investigator.leadBonus:
-      {
-        groups: [proficiencies],
-        priority: 2,
-        showWhen: 'countCopies(copy.item == @classes.investigator) > 0',
-      }
-    investigator.methodology:
-      {
-        groups: [summary],
-        priority: 2,
-        showWhen: 'countCopies(copy.item == @classes.investigator) > 0',
-      }
+      { groups: [proficiencies], priority: 2, showWhen: class.has.investigator }
+    investigator.methodology: { groups: [summary], priority: 2, showWhen: class.has.investigator }
