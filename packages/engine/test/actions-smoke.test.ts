@@ -113,7 +113,7 @@ describe('monsters with innate spells', () => {
     const blank = {
       specVersion: '0.1.0',
       id: 'monster',
-      packs: [{ id: '5e-srd-5.1', version: '0.2.0' }],
+      packs: [{ id: '5e-srd-5.1', version: '0.2.1' }],
       creating: true,
     };
     const result = startAction(
@@ -152,7 +152,7 @@ describe('shapechangers', () => {
       const blank = {
         specVersion: '0.1.0',
         id: 'monster',
-        packs: [{ id: '5e-srd-5.1', version: '0.2.0' }],
+        packs: [{ id: '5e-srd-5.1', version: '0.2.1' }],
         creating: true,
       };
       const result = startAction(

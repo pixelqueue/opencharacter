@@ -38,7 +38,7 @@ const { ruleset } = loaded;
 let character: CharacterFile = {
   specVersion: SPEC_VERSION,
   id: 'quick-start',
-  packs: [{ id: '5e-srd-5.1', version: '0.2.0' }],
+  packs: [{ id: '5e-srd-5.1', version: '0.2.1' }],
   values: {
     '5e-srd-5.1:abilities.str.base': 16,
     '5e-srd-5.1:abilities.dex.base': 12,

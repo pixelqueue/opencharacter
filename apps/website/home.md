@@ -75,7 +75,7 @@ player, and how it all looks.
   characters, showing a sheet, changes, choices, dice and upgrades.
 - **[The specification](spec/):** pack and character formats, the formula language, effects,
   dice and actions, and the engine calls, for anyone implementing OCF.
-- **JSON Schemas** for every file format and engine call, at [`schemas/0.2/`](schemas/0.2/pack.schema.json).
+- **JSON Schemas** for every file format and engine call, at [`schemas/0.3/`](schemas/0.3/pack.schema.json).
 - **A shared conformance test suite:** plain-data cases any port can run.
 
 </div>

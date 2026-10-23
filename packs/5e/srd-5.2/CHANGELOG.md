@@ -1,5 +1,13 @@
 # @opencharacter/5e-srd-5.2
 
+## 0.2.1
+
+### Patch Changes
+
+- f44f66c: Basic poison's Coat a weapon and Antitoxin's Drink finish with a result.
+- f44f66c: A monster's sheet leaves out experience points, a character level of 0, Heroic Inspiration and death saves, and shows carrying weight and attunement slots only once it carries or attunes to something. The monster start's average hit points option reads "Use the average".
+- f44f66c: Prerequisite texts are phrases naming only the requirement ("Wisdom 13 to multiclass", "Character level 4", "Fighting Style feature"), for the standard text to wrap with the owner's name.
+
 ## 0.2.0
 
 ### Minor Changes

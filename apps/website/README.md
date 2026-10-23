@@ -25,7 +25,7 @@ the repo before every `dev` and `build`, so the Markdown in the repo stays the o
 | `data/ecosystem.yaml` (in this app); every pack      | The home page's verified apps; its official packs                    |
 | Each `@opencharacter/*` package's `package.json`     | `project/packages`, except the apps                                  |
 | `CONTRIBUTING.md`, `AGENTS.md`, `CODE_OF_CONDUCT.md` | `project/contributing`, `…/working-in-the-repo`, `…/code-of-conduct` |
-| `packages/spec/schemas/`                             | Served as-is under `schemas/0.2/`                                    |
+| `packages/spec/schemas/`                             | Served as-is under `schemas/0.3/`                                    |
 
 Each page's title is its first `#` heading. Links between synced documents become site links;
 links to anything else in the repo (schemas, packs, code) point at the file on GitHub.

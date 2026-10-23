@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://opencharacterformat.org/schemas/0.2/action.schema.json",
+  "$id": "https://opencharacterformat.org/schemas/0.3/action.schema.json",
   "title": "Action",
   "description": "Something a character can do that needs dice or decisions: a cascade of steps. Each roll or choice step is a checkpoint where, per the app's policy, the engine continues automatically or pauses. Later steps see earlier results as `steps.<id>.*` and branch flags as `flags.<name>`; the item making the action is `item` (base plus templates) and its copy is `self`; app-supplied parameters are `params.<name>`; situational choices are `situational.<id>`; other characters taking part are `participants.<role>` (and, in an `each` step, `participant`). Where `item` and `self` are rebound (a choice step's candidates, a formula a change passes on), the action's own are `action.item` and `action.self`, and the current step is `action.step`.",
   "type": "object",

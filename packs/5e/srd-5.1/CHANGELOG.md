@@ -1,5 +1,12 @@
 # @opencharacter/5e-srd-5.1
 
+## 0.2.1
+
+### Patch Changes
+
+- f44f66c: A monster's sheet leaves out experience points, a character level of 0 and death saves, and shows carrying weight only once it carries something. A monster's XP is labelled "XP".
+- f44f66c: Prerequisite texts are phrases naming only the requirement ("Wisdom 13 to multiclass", "Warlock level 9", "Pact of the Blade"), for the standard text to wrap with the owner's name.
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,5 +1,53 @@
 # @opencharacter/packs
 
+## 0.5.0
+
+### Minor Changes
+
+- f44f66c: Carry the breaking releases of fitd-crew, fitd-scoundrel, mork-borg-core and mothership-1e.
+
+### Patch Changes
+
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [153b36f]
+- Updated dependencies [153b36f]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [153b36f]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [153b36f]
+- Updated dependencies [153b36f]
+  - @opencharacter/5e-srd-5.1@0.2.1
+  - @opencharacter/5e-srd-5.2@0.2.1
+  - @opencharacter/awn-core@0.1.1
+  - @opencharacter/cwn-srd@0.1.1
+  - @opencharacter/fate-core@0.1.2
+  - @opencharacter/fitd-crew@0.3.0
+  - @opencharacter/fitd-scoundrel@0.3.0
+  - @opencharacter/godbound-core@0.1.1
+  - @opencharacter/mork-borg-core@0.2.0
+  - @opencharacter/mothership-1e@0.2.0
+  - @opencharacter/orc-2e@0.2.1
+  - @opencharacter/orc-sf-2e@0.2.1
+  - @opencharacter/swn-revised@0.1.1
+  - @opencharacter/wwn-srd@0.1.1
+
 ## 0.4.0
 
 ### Minor Changes
