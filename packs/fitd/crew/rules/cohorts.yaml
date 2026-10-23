@@ -15,8 +15,8 @@ contentTypes:
       scale:
         type: integer
         formula: >-
-          item.kind == 'gang' ? tier + (self.gangType in cohorts.trained
-            || self.extraGangType in cohorts.trained ? 1 : 0) : 0
+          item.kind == 'gang' ? tier + ((has(self.gangType) && self.gangType in cohorts.trained)
+            || (has(self.extraGangType) && self.extraGangType in cohorts.trained) ? 1 : 0) : 0
     actions:
       - use: cohort-roll
       - use: cohort-recover
@@ -63,10 +63,13 @@ actions:
                   @fitd-scoundrel:special-abilities.leader in x.abilities.special) > 0
               typed: >-
                 params.type == 'main' || (params.type == 'extra' && (item.kind == 'gang'
-                  ? self.extraGangType != 'none' : self.extraType != ''))
+                  ? has(self.extraGangType) && self.extraGangType != 'none'
+                  : has(self.extraType) && self.extraType != ''))
               elite: >-
-                item.kind == 'gang' && params.type != 'none'
-                  && (params.type == 'main' ? self.gangType : self.extraGangType) in cohorts.elite
+                item.kind == 'gang' && (params.type == 'main'
+                  ? has(self.gangType) && self.gangType in cohorts.elite
+                  : params.type == 'extra' && has(self.extraGangType)
+                    && self.extraGangType in cohorts.elite)
       - id: broken
         kind: outcome
         when: self.harm >= 3 && !flags.leader
@@ -120,4 +123,4 @@ display:
       priority: 1
   fields:
     cohorts.elite: { hidden: true }
-    cohorts.boxes: { groups: [cohorts], priority: 2 }
+    cohorts.boxes: { groups: [cohorts], priority: 2, visibility: background }

@@ -99,7 +99,7 @@ It names no factions, people or places: the GM defines the factions.
   two starting upgrades, two more at creation, two per upgrade advance). A found Hidden lair
   moves for the tier in coin (`relocate-lair`).
 - **A table's own crew type** (homebrew, of the `crewType` type): it lists its own upgrades
-  (`upgrades`), its starting upgrades and starting gang (counted in the boxes earned), its claim
+  (`upgrades`), its starting upgrades and starting gang (`startingCohort`: a gang type, or `none`; counted in the boxes earned), its claim
   map (`claims`), and its own `special-ability` and `operation` choices. With one, another type's upgrades are a rules issue (`special-upgrades`);
   without one, every crew-specific upgrade is open.
 - **Cohorts** as copies: a gang (one of five types, and an optional second type) or an expert
@@ -141,10 +141,9 @@ It names no factions, people or places: the GM defines the factions.
 - **Factions the GM defines:** `add-faction` adds a copy of the generic faction with the GM's
   name for it, its tier, hold and the crew's status; a homebrew item of type `faction` is a
   standard copy on every crew. Each copy's `status` (−3 to +3) is changed with `faction-status`;
-  its `tier` and `weakHold` follow the faction in play. Every step that picks a faction is
-  skipped when there is none: creation then reports the statuses for the GM to record
-  (`groundsStatus` and the rest), and `payoff` and `resolve-entanglement` take the faction's tier
-  as a parameter. **War** with any faction: +1 heat per score, half income from claims, a hold
+  its `tier` and `weakHold` follow the faction in play. Creation picks a faction already on the
+  sheet, or adds one by the name the players give it (below). `payoff` and
+  `resolve-entanglement` take the faction's tier as a parameter when there is none. **War** with any faction: +1 heat per score, half income from claims, a hold
   lost and, with weak hold, a tier, and one downtime activity per member (War Dogs keeps the
   hold, the tier and two activities).
 - **Entanglements:** `entanglement-roll` (the wanted level in dice, read in the heat column; the
@@ -171,11 +170,19 @@ It names no factions, people or places: the GM defines the factions.
   picks. Then 2 coin; the hunting grounds (1 coin for room to work, 2 for +1 status, or nothing
   and −1 status); two more upgrade boxes or a new gang or expert; the statuses the upgrades and
   the favorite contact bring; the pending picks (a type's choices, the Rigging's kinds); the
-  players' words; and `finishCreation`. Without factions defined, the statuses are the
-  outcome's. The SRD creates crews by choice, so the random start's odds are the pack's: every
-  pick uniform over what the guided start offers, the upgrade boxes one at a time to an upgrade
-  with a box free (leaving out Mastery and the three-box upgrades), and every faction status
-  drawn (on a faction the GM has defined, when there is one).
+  players' words; and `finishCreation`.
+  - **Factions at creation:** run `add-faction` first for each faction the GM has defined, or
+    pass the factions' names as `create-crew`'s params (`groundsFaction`, `helpedFaction`,
+    `harmedFaction`, `friendFaction`, `enemyFaction`). A step whose name is given adds a new
+    faction with that name and the status the step brings (its tier and hold for the GM to set);
+    a step without one picks a faction on the sheet, factions the earlier steps added included.
+    A status with neither (no faction on the sheet and no name, as in a random start on a blank
+    crew) is only reported in the outcome (`groundsStatus`, `helpedStatus`, `harmedStatus`,
+    `friendStatus`, `enemyStatus`) for the GM to record.
+  - The SRD creates crews by choice, so the random start's odds are the pack's: every pick
+    uniform over what the guided start offers, the upgrade boxes one at a time to an upgrade with
+    a box free (leaving out Mastery and the three-box upgrades), and every faction status drawn
+    (on a faction named or on the sheet, when there is one).
 - **Sheet layout:** display groups for actions (crew rolls, after the score, crew downtime,
   factions, crew creation) and content (crew type, abilities, claims with turf first, cohorts by
   kind, cohort traits, contacts with the favorite first, operations, factions). The crew-specific

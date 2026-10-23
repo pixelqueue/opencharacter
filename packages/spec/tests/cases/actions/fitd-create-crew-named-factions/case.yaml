@@ -1,0 +1,15 @@
+description: "FitD crew creation's random start with the factions named: no faction is on the sheet, so each faction step adds a new faction with the name given and the status the step drew, and the outcome reports none"
+specVersion: 0.2.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fitd/crew
+input:
+  action: { id: fitd-crew:create-crew }
+  params:
+    random: true
+    groundsFaction: The Lampblacks
+    helpedFaction: The Bluecoats
+    harmedFaction: The Red Sashes
+    friendFaction: The Church of Ecstasy
+    enemyFaction: The Crows
+  policy: { dice: auto, choices: auto, allocations: auto }

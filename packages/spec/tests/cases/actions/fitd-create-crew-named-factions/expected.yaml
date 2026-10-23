@@ -1,0 +1,128 @@
+# As fitd-create-crew-random up to the hunting grounds: Deadly, Robbery, the Rigging and the
+# Carriage. The d3 3 pays nothing for the hunting grounds: the Lampblacks are added at -1. The d3
+# 1 two upgrade boxes: the Workshop and Underground Maps. With 2 coin, the d2 2 +2 status for 1
+# coin: the Bluecoats at +2. With 1 coin left, the d2 1 -2 status: the Red Sashes at -2. The d2 1
+# a close contact: the Church of Ecstasy at +1 and the Crows at -1. Every status is on the sheet,
+# so the outcome reports none. The Rigging's kinds: weapons, then documents.
+status: finished
+outcome:
+  result: created
+  data:
+    groundsStatus: 0
+    helpedStatus: 0
+    harmedStatus: 0
+    friendStatus: 0
+    enemyStatus: 0
+proposedChanges:
+  - to: self
+    step: ability
+    change:
+      type: choose
+      path:
+        choice:
+          - crew-abilities
+      option: fitd-crew:crew-abilities.deadly
+  - to: self
+    step: operation
+    change:
+      type: choose
+      path:
+        choice:
+          - operation
+      option: fitd-crew:operations.robbery
+  - to: self
+    step: start
+    change:
+      type: adjust
+      field: fitd-crew:coin.current
+      by: 2
+  - to: self
+    step: startingUpgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.lair.carriage
+      by: 1
+  - to: self
+    step: startingUpgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.rigging
+      by: 1
+  - to: self
+    step: groundsNamed
+    change:
+      type: addItem
+      entry:
+        id: factions-faction-1
+        item: fitd-crew:factions.faction
+        state: { label: The Lampblacks, status: -1 }
+  - to: self
+    step: upgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.lair.workshop
+      by: 1
+  - to: self
+    step: upgrades
+    change:
+      type: adjust
+      field: fitd-crew:upgrades.undergroundMaps
+      by: 1
+  - to: self
+    step: helped
+    change:
+      type: adjust
+      field: fitd-crew:coin.current
+      by: -1
+  - to: self
+    step: helpedNamed
+    change:
+      type: addItem
+      entry:
+        id: factions-faction-2
+        item: fitd-crew:factions.faction
+        state: { label: The Bluecoats, status: 2 }
+  - to: self
+    step: harmedNamed
+    change:
+      type: addItem
+      entry:
+        id: factions-faction-3
+        item: fitd-crew:factions.faction
+        state: { label: The Red Sashes, status: -2 }
+  - to: self
+    step: friendNamed
+    change:
+      type: addItem
+      entry:
+        id: factions-faction-4
+        item: fitd-crew:factions.faction
+        state: { label: The Church of Ecstasy, status: 1 }
+  - to: self
+    step: enemyNamed
+    change:
+      type: addItem
+      entry:
+        id: factions-faction-5
+        item: fitd-crew:factions.faction
+        state: { label: The Crows, status: -1 }
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - rigging
+      option: weapons
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - rigging
+      option: documents
+  - to: self
+    step: finish
+    change:
+      type: finishCreation
