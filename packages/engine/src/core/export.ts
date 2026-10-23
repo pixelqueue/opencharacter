@@ -115,7 +115,7 @@ export function createExport(
       if (!release) {
         errors.push({
           code: 'unknown-id',
-          data: { pack: pin.id, version: pin.version },
+          data: { id: pin.id, pack: pin.id, version: pin.version },
           path: `/characters/${i}/packs/${j}`,
         });
         return;

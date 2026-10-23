@@ -120,7 +120,7 @@ describe('createExport', () => {
     expect(!result.ok && result.errors).toEqual([
       {
         code: 'unknown-id',
-        data: { pack: 'test-a', version: '1.0.1' },
+        data: { id: 'test-a', pack: 'test-a', version: '1.0.1' },
         path: '/characters/0/packs/0',
       },
     ]);
