@@ -136,6 +136,13 @@ and `total` are the kept roll's, its `faces` every face you gave, and `rolls` li
 `{ total, kept, items }`, so show both and mark the kept one. `text.dice(needs.items, needs.repeat)`
 words it: "2d6, rolled twice, keep the lower total".
 
+**Rolling some parts twice.** A rule may roll only some of a roll's dice again (5E's Savage
+Attacker: the weapon's damage dice, not Sneak Attack's). Then `needs.repeat` also has `items`,
+the indices in `needs.items` of the items rolled again, and `needs.dice` lists every die of the
+first roll, then those items' dice for each later roll. Each of the log entry's `rolls` lists
+every item, the ones not rolled again the same in each. `text.dice` words it: "(2d6, rolled
+twice, keep the higher total) + 3d6".
+
 ### Checkpoint policies
 
 Every roll and every in-action choice is a **checkpoint**. The policy decides, for each one,

@@ -309,7 +309,9 @@ rather than adding an item that offsets it:
 - **The record:** the first new item lists the part's items as built before in `replaces`
   (unrolled roll items), so a breakdown shows "Intelligence +4 (instead of Dexterity +3)".
 
-`set` on rolls needs `parts` (a schema error otherwise), and `parts` takes only `set`, `stepDie`
+`set` on rolls needs `parts` (a schema error otherwise), and `parts` takes only `set`,
+`advantage` and `disadvantage` with `of: roll` (the matching parts rolled again as a group,
+[dice-and-actions.md](dice-and-actions.md#roll-modifiers)), `stepDie`
 and `setFaces`, never a tally.
 
 ### Roll tallies

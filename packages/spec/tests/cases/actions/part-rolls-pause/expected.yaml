@@ -1,0 +1,11 @@
+status: paused
+needs:
+  step: roll
+  action: 'test-part-rolls:damage'
+  kind: dice
+  dice:
+    - { count: 2, sides: 6, tags: [weapon] }
+    - { count: 1, sides: 6, tags: [sneak] }
+    - { count: 2, sides: 6, tags: [weapon] }
+  repeat: { times: 2, keep: high, items: [0] }
+log: []

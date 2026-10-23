@@ -222,8 +222,11 @@ export interface Need {
   items?: RollItem[];
   /** Dice steps: the summary of the roll the pause is for. */
   summary?: RollSummary;
-  /** Dice steps made more than once (`of: roll`): how many whole rolls, and which total is kept. */
-  repeat?: { times: number; keep: 'high' | 'low' };
+  /**
+   * Dice steps made more than once (`of: roll`): how many rolls, and which total is kept; with
+   * `items`, only those items (indices in `items`) are rolled again.
+   */
+  repeat?: Repeat;
   options?: string[];
   recommended?: string;
   /** Choice steps over pending choices: the choice being asked. */
@@ -1490,6 +1493,30 @@ const targets = (e: Effect) =>
 
 const DIE_LADDER: readonly number[] = [4, 6, 8, 10, 12];
 
+type Repeat = { times: number; keep: 'high' | 'low'; items?: number[] };
+
+/** How opposing advantage and disadvantage sources combine: the extras and their kind. */
+function netAdvantage(
+  ctx: Ctx,
+  advantage: number,
+  disadvantage: number,
+  path: string,
+): { extra: number; kind: 'advantage' | 'disadvantage' } {
+  const mode = ctx.ruleset.rules.settings.rollModifiers?.advantage ?? 'cancel';
+  if (mode === 'cancel')
+    return advantage > 0 && disadvantage > 0
+      ? { extra: 0, kind: 'advantage' }
+      : { extra: 1, kind: advantage > 0 ? 'advantage' : 'disadvantage' };
+  if (mode === 'net')
+    return {
+      extra: Math.abs(advantage - disadvantage),
+      kind: advantage >= disadvantage ? 'advantage' : 'disadvantage',
+    };
+  if (advantage > 0 && disadvantage > 0)
+    throw new ActionError('conflicting-roll-modifiers', { step: path });
+  return { extra: advantage + disadvantage, kind: advantage > 0 ? 'advantage' : 'disadvantage' };
+}
+
 function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   if (step.of !== undefined) {
     classifyAgain(ctx, frame, step, path, step.of);
@@ -1763,40 +1790,30 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     empty = true;
   }
   // 5. Advantage and disadvantage; `noAdvantage`/`noDisadvantage` remove every counted source.
-  let repeat: { times: number; keep: 'high' | 'low' } | undefined;
+  // Sources on the roll's parts (`of: roll`) are counted apart and roll those parts again.
+  let repeat: Repeat | undefined;
+  let again: Set<BuiltItem> | undefined;
   const has = (kind: string) => modifiers.some((m) => m.modifier.kind === kind);
-  const advantage = has('noAdvantage')
-    ? 0
-    : modifiers.filter((m) => m.modifier.kind === 'advantage').length;
-  const disadvantage = has('noDisadvantage')
-    ? 0
-    : modifiers.filter((m) => m.modifier.kind === 'disadvantage').length;
-  if (advantage + disadvantage > 0) {
-    const mode = ruleset.rules.settings.rollModifiers?.advantage ?? 'cancel';
-    let extra = 0;
-    let kind: 'advantage' | 'disadvantage' = 'advantage';
-    if (mode === 'cancel') {
-      if (advantage > 0 && disadvantage > 0) extra = 0;
-      else {
-        extra = 1;
-        kind = advantage > 0 ? 'advantage' : 'disadvantage';
-      }
-    } else if (mode === 'net') {
-      extra = Math.abs(advantage - disadvantage);
-      kind = advantage >= disadvantage ? 'advantage' : 'disadvantage';
-    } else {
-      if (advantage > 0 && disadvantage > 0)
-        throw new ActionError('conflicting-roll-modifiers', { step: path });
-      extra = advantage + disadvantage;
-      kind = advantage > 0 ? 'advantage' : 'disadvantage';
-    }
+  const sources = (kind: string, onParts: boolean) =>
+    has(kind === 'advantage' ? 'noAdvantage' : 'noDisadvantage')
+      ? []
+      : modifiers.filter(
+          (m) => m.modifier.kind === kind && (targets(m.c.effect)?.parts !== undefined) === onParts,
+        );
+  const highBetter = (step.better ?? 'high') === 'high';
+  const keepOf = (kind: 'advantage' | 'disadvantage') =>
+    (kind === 'advantage') === highBetter ? 'high' : 'low';
+  const advantage = sources('advantage', false);
+  const disadvantage = sources('disadvantage', false);
+  if (advantage.length + disadvantage.length > 0) {
+    const { extra, kind } = netAdvantage(ctx, advantage.length, disadvantage.length, path);
     // One source of the kind that applies with `of: roll` makes the extras whole rolls.
-    const whole = modifiers.some((m) => m.modifier.kind === kind && m.modifier.of === 'roll');
-    const highBetter = (step.better ?? 'high') === 'high';
+    const whole = (kind === 'advantage' ? advantage : disadvantage).some(
+      (m) => m.modifier.of === 'roll',
+    );
     const main = items.find((i) => i.kind === 'dice');
     if (extra > 0 && whole) {
-      const keep = (kind === 'advantage') === highBetter ? 'high' : 'low';
-      if (main) repeat = { times: extra + 1, keep };
+      if (main) repeat = { times: extra + 1, keep: keepOf(kind) };
     } else if (extra > 0 && main?.term) {
       const hasKeep = main.term.modifiers.some((m) =>
         ['keepHighest', 'keepLowest', 'dropHighest', 'dropLowest'].includes(m.type),
@@ -1809,6 +1826,24 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
         });
       }
       main.term.count += extra;
+    }
+  }
+  const partAdvantage = sources('advantage', true);
+  const partDisadvantage = sources('disadvantage', true);
+  // A roll made again whole already rolls its parts again.
+  if (!repeat && partAdvantage.length + partDisadvantage.length > 0) {
+    const { extra, kind } = netAdvantage(ctx, partAdvantage.length, partDisadvantage.length, path);
+    const reaching = kind === 'advantage' ? partAdvantage : partDisadvantage;
+    const group = items.filter(
+      (i) => i.kind === 'dice' && i.part !== undefined && reaching.some((m) => onPart(m.c, i.tags)),
+    );
+    if (extra > 0 && group.length > 0) {
+      again = new Set(group);
+      repeat = {
+        times: extra + 1,
+        keep: keepOf(kind),
+        items: group.map((i) => items.indexOf(i)),
+      };
     }
   }
   // 6. Multiply dice. 7. Reroll, minimum face, explode.
@@ -1870,12 +1905,19 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   }
 
   // A roll with no dice items is not a checkpoint: it never pauses and records no answer.
-  // A whole roll made again (`of: roll`) is a copy of the built items, without given faces.
+  // A roll made again (`of: roll`) is a copy of the built items, without given faces; on parts,
+  // only the parts' items are copied and the others are shared, rolled once.
   const rolls: BuiltItem[][] = [items];
   for (let k = 1; k < (repeat?.times ?? 1); k++)
-    rolls.push(items.map(({ preset: _preset, ...i }) => structuredClone(i)));
+    rolls.push(
+      items.map((item) => {
+        if (again && !again.has(item)) return item;
+        const { preset: _preset, ...i } = item;
+        return structuredClone(i);
+      }),
+    );
   const diceOf = (list: BuiltItem[]) => list.filter((i) => i.term && i.term.count >= 0);
-  const allDice = rolls.flatMap(diceOf);
+  const allDice = [...new Set(rolls.flatMap(diceOf))];
   const checkpoint = items.some((i) => i.kind === 'dice');
   const asked = (i: BuiltItem) =>
     Math.max(0, (i.term as f.DiceTerm).count - (i.preset?.length ?? 0));
@@ -1976,7 +2018,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     if (modifier.kind !== 'multiply') continue;
     const factor = num(modifier.factor, c, 1);
     const mode = c.effect.rounding ?? ruleset.rules.settings.rounding ?? 'floor';
-    for (const item of rolls.flat()) {
+    for (const item of new Set(rolls.flat())) {
       if (item.unmultiplied) continue;
       const before = itemValue(item);
       const raw = before * factor;

@@ -101,7 +101,8 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   starting the action with `dice: 'pause'` and reading `needs.summary`
   ([engine-actions.md](engine-actions.md#the-roll-summary)).
 - A roll made more than once (advantage or disadvantage `of: roll`) pauses with `needs.repeat`
-  (`{ times, keep }`) and `dice` for every roll in turn; its log entry lists every roll as
+  (`{ times, keep }`, with `items` when only those items are rolled again) and `dice` for every
+  roll in turn; its log entry lists every roll as
   `rolls`, the kept one marked, whose items are the entry's `items`
   ([engine-actions.md](engine-actions.md#rolling)).
 - Each of a finished result's `proposedChanges` is `{ to, character?, step, change }`: `step` is

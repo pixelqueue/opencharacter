@@ -1403,7 +1403,7 @@ export type RollTarget = {
   from?: 'self' | 'any';
   /** A declared roll tally (`rollTallies`) the effect adds to instead of the roll's total. Ops: `add`, `atLeast`, `atMost`, with an integer value. Without it, `atLeast` and `atMost` bound the roll's total once it is rolled. */
   tally?: Name;
-  /** The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part) and the roll modifiers `stepDie` and `setFaces`. Not with `tally`. */
+  /** The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part) and the roll modifiers `stepDie`, `setFaces`, and `advantage` and `disadvantage` with `of: roll` (roll the matching parts again as a group, keeping the better or worse subtotal). Not with `tally`. */
   parts?: Tags;
 };
 
@@ -1455,7 +1455,7 @@ export type RollModifier = {
   part?: Slug;
   /** stepDie: how many steps along d4, d6, d8, d10, d12 each matching die moves (negative for smaller); an integer formula. */
   steps?: Formula;
-  /** advantage, disadvantage: `die` (default) rolls extra dice for the roll's main dice item and keeps the better or worse ones; `roll` makes the whole roll again and keeps the better or worse total. One counted source of the kind that applies with `roll` makes every extra a whole roll. */
+  /** advantage, disadvantage: `die` (default) rolls extra dice for the roll's main dice item and keeps the better or worse ones; `roll` makes the whole roll again and keeps the better or worse total. One counted source of the kind that applies with `roll` makes every extra a whole roll. On a `parts` target, `roll` is required: the matching parts' items are rolled again as a group and the better or worse total kept, the roll's other items rolled once. */
   of?: 'die' | 'roll';
   /** setFaces: the dice item's first faces, as integer formulas, used instead of asking for them. */
   faces?: Formula[];
@@ -1592,7 +1592,7 @@ export type LogEntry = {
     op: 'atLeast' | 'atMost';
     value: number;
   }[];
-  /** Roll steps made more than once (advantage or disadvantage `of: roll`): every whole roll, in roll order, with its total before bounds; `kept` marks the one kept, whose items are `items`. `faces` lists every roll's faces. Absent for a roll made once. */
+  /** Roll steps made more than once (advantage or disadvantage `of: roll`): every roll, in roll order, with its total before bounds; `kept` marks the one kept, whose items are `items`. On a roll's parts, the items not rolled again are the same in every roll. `faces` lists every die rolled once each. Absent for a roll made once. */
   rolls?: {
     total: number;
     kept: boolean;
@@ -1628,10 +1628,12 @@ export type ActionNeed = {
   draw?: Draw;
   /** The itemized roll so far, for display while waiting. */
   items?: RollItem[];
-  /** Dice steps made more than once (advantage or disadvantage `of: roll`): `times` whole rolls of `items`, whose dice `dice` lists roll after roll, and the total kept: `high` or `low`. Absent for a roll made once. */
+  /** Dice steps made more than once (advantage or disadvantage `of: roll`): `times` rolls of `items`, whose dice `dice` lists roll after roll, and the total kept: `high` or `low`. With `items` (on a roll's parts), only those items, by index in `items`, are rolled again: `dice` lists every die once, then those items' dice for each later roll. Absent for a roll made once. */
   repeat?: {
     times: number;
     keep: 'high' | 'low';
+    /** The items rolled again, by index in `items`; the others are rolled once and count in every roll. Absent when the whole roll is made again. */
+    items?: number[];
   };
   /** Dice steps: the summary of the roll the pause is for; a pause for more dice mid-roll carries the same one. To preview a roll, an app starts the action with `dice: 'pause'`, reads this and drops the result. */
   summary?: RollSummary;

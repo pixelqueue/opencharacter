@@ -102,6 +102,19 @@ describe('whole rolls', () => {
       '2d6 + 1, rolled twice, keep the lower total',
     );
   });
+
+  it('words the items rolled again together, where the first of them is', () => {
+    const repeat = { times: 2, keep: 'high' as const, items: [1] };
+    expect(text.roll([flat(2), d(2, 6), d(1, 6)], repeat)).toBe(
+      '(2d6, rolled twice, keep the higher total) + 1d6 + 2',
+    );
+    expect(text.dice([d(1, 6), d(2, 6)], repeat)).toBe(
+      '1d6 + (2d6, rolled twice, keep the higher total)',
+    );
+    expect(text.dice([d(2, 6), flat(2)], { ...repeat, items: [0] })).toBe(
+      '2d6, rolled twice, keep the higher total',
+    );
+  });
 });
 
 describe('5E', () => {

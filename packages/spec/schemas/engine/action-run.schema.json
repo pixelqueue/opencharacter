@@ -301,7 +301,7 @@
           }
         },
         "rolls": {
-          "description": "Roll steps made more than once (advantage or disadvantage `of: roll`): every whole roll, in roll order, with its total before bounds; `kept` marks the one kept, whose items are `items`. `faces` lists every roll's faces. Absent for a roll made once.",
+          "description": "Roll steps made more than once (advantage or disadvantage `of: roll`): every roll, in roll order, with its total before bounds; `kept` marks the one kept, whose items are `items`. On a roll's parts, the items not rolled again are the same in every roll. `faces` lists every die rolled once each. Absent for a roll made once.",
           "type": "array",
           "minItems": 2,
           "items": {
@@ -422,7 +422,7 @@
           }
         },
         "repeat": {
-          "description": "Dice steps made more than once (advantage or disadvantage `of: roll`): `times` whole rolls of `items`, whose dice `dice` lists roll after roll, and the total kept: `high` or `low`. Absent for a roll made once.",
+          "description": "Dice steps made more than once (advantage or disadvantage `of: roll`): `times` rolls of `items`, whose dice `dice` lists roll after roll, and the total kept: `high` or `low`. With `items` (on a roll's parts), only those items, by index in `items`, are rolled again: `dice` lists every die once, then those items' dice for each later roll. Absent for a roll made once.",
           "type": "object",
           "required": ["times", "keep"],
           "properties": {
@@ -432,6 +432,15 @@
             },
             "keep": {
               "enum": ["high", "low"]
+            },
+            "items": {
+              "description": "The items rolled again, by index in `items`; the others are rolled once and count in every roll. Absent when the whole roll is made again.",
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "minItems": 1
             }
           },
           "additionalProperties": false

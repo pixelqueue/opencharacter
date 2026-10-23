@@ -541,7 +541,7 @@
           "$ref": "common.schema.json#/$defs/name"
         },
         "parts": {
-          "description": "The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part) and the roll modifiers `stepDie` and `setFaces`. Not with `tally`.",
+          "description": "The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part) and the roll modifiers `stepDie`, `setFaces`, and `advantage` and `disadvantage` with `of: roll` (roll the matching parts again as a group, keeping the better or worse subtotal). Not with `tally`.",
           "$ref": "common.schema.json#/$defs/tags",
           "minItems": 1,
           "type": "array"
@@ -653,7 +653,7 @@
           "$ref": "formula.schema.json"
         },
         "of": {
-          "description": "advantage, disadvantage: `die` (default) rolls extra dice for the roll's main dice item and keeps the better or worse ones; `roll` makes the whole roll again and keeps the better or worse total. One counted source of the kind that applies with `roll` makes every extra a whole roll.",
+          "description": "advantage, disadvantage: `die` (default) rolls extra dice for the roll's main dice item and keeps the better or worse ones; `roll` makes the whole roll again and keeps the better or worse total. One counted source of the kind that applies with `roll` makes every extra a whole roll. On a `parts` target, `roll` is required: the matching parts' items are rolled again as a group and the better or worse total kept, the roll's other items rolled once.",
           "enum": ["die", "roll"]
         },
         "faces": {
@@ -805,7 +805,7 @@
       }
     },
     "partsOps": {
-      "description": "An effect on a roll's parts uses `set`, or a `stepDie` or `setFaces` roll modifier, and has no tally.",
+      "description": "An effect on a roll's parts uses `set`, or a `stepDie`, `setFaces`, `advantage` or `disadvantage` roll modifier, and has no tally. Advantage and disadvantage there say `of: roll`: the matching parts are rolled again as a group.",
       "if": {
         "properties": {
           "target": {
@@ -835,10 +835,28 @@
             "then": {
               "properties": {
                 "kind": {
-                  "enum": ["stepDie", "setFaces"]
+                  "enum": ["stepDie", "setFaces", "advantage", "disadvantage"]
                 }
               },
-              "type": "object"
+              "type": "object",
+              "if": {
+                "properties": {
+                  "kind": {
+                    "enum": ["advantage", "disadvantage"]
+                  }
+                },
+                "required": ["kind"],
+                "type": "object"
+              },
+              "then": {
+                "required": ["of"],
+                "properties": {
+                  "of": {
+                    "const": "roll"
+                  }
+                },
+                "type": "object"
+              }
             }
           }
         },

@@ -255,7 +255,9 @@ A Mothership stat check with advantage, paused for dice:
   "1d20 - 1". `describeNeed` gives both, `dice` and `roll`.
 - **Rolled twice.** Pass a dice pause's `needs.repeat` too, `text.dice(needs.items,
   needs.repeat)`, for a whole roll made more than once: "2d6, rolled twice, keep the lower
-  total" (`dice.repeat`). `describeNeed` does it for you.
+  total" (`dice.repeat`). When only some items are rolled again (`repeat.items`), they are worded
+  together in `dice.grouped`: "(2d6, rolled twice, keep the higher total) + 3d6". `describeNeed`
+  does it for you.
 
 ## Issues and errors
 

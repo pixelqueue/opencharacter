@@ -975,6 +975,22 @@ the proposed sheet shows), and 5E's point buy and standard array:
     value: { kind: disadvantage, of: roll }
   ```
 
+  On a `parts` target ([effects.md](effects.md#replacing-a-rolls-part)), `of: roll` is required
+  and only the matching parts are made again: their items, as a group, are rolled once more per
+  extra and the better or worse total of the group is kept, while the roll's other items (other
+  parts, items effects add) are rolled once and count the same in every roll. Part sources are
+  counted apart from the roll's own, combined by the same setting; `noAdvantage` and
+  `noDisadvantage` remove them too. A roll made again whole already rolls its parts again, so
+  part sources add nothing to it. 5E's Savage Attacker rolls the weapon's damage dice twice,
+  not Sneak Attack's:
+
+  ```yaml
+  - target: { rolls: [damage], parts: [damage.weapon] }
+    op: rollModifier
+    value: { kind: advantage, of: roll }
+    when: situational.savageAttacker
+  ```
+
 - **`noAdvantage` / `noDisadvantage`**: once the advantage and disadvantage sources are counted, set the count of that kind to 0, before `settings.rollModifiers.advantage` combines them. The player's situational advantage is a source like any other, so it is removed too. 5E's Elusive: no attack roll against the rogue has advantage, and disadvantage still applies.
 - **`reroll`** (`below`, `once`, `count`), **`minimumFace`** (`value`), **`explode`** (`at`).
   `reroll`'s optional `count` (an integer formula) rerolls at most that many of the
