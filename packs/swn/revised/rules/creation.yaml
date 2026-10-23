@@ -630,4 +630,39 @@ actions:
             field: credits.current
             value: >-
               steps.kit.picked == 'barbarian' ? 500 : steps.kit.picked == 'blade' ? 50 : steps.kit.picked == 'thief' ? 25 : steps.kit.picked == 'hacker' ? 100 : steps.kit.picked == 'gunslinger' ? 100 : steps.kit.picked == 'soldier' ? 100 : steps.kit.picked == 'scout' ? 25 : steps.kit.picked == 'medic' ? 25 : steps.kit.picked == 'civilian' ? 700 : steps.kit.picked == 'technician' ? 200 : steps.credits.total * 100
+      # A kit may ready more than half Strength. Readied gear, then all but one weapon (the
+      # weakest first), are stowed while they fit within Strength, so play starts within the
+      # limits where the kit allows; armor stays worn.
+      - id: stowGear
+        kind: choice
+        sheet: proposed
+        repeat: { max: 20, min: 20 }
+        options:
+          copies:
+            type: gear
+            where: >-
+              self.equipped && has(item.enc) && item.enc > 0
+                && encumbrance.readied > encumbrance.readiedLimit
+                && encumbrance.stowed + item.enc * ceil(self.quantity / item.bundle)
+                  <= encumbrance.stowedLimit
+        prefer: item.enc
+        changes:
+          - { type: equip, entry: picked, equipped: false }
+      - id: stowWeapon
+        kind: choice
+        sheet: proposed
+        repeat: { max: 20, min: 20 }
+        options:
+          copies:
+            type: weapon
+            where: >-
+              self.equipped && has(item.enc) && item.enc > 0
+                && countCopies(copy.type == 'weapon' && copy.equipped && has(copy.fields.enc)
+                  && copy.fields.enc > 0) > 1
+                && encumbrance.readied > encumbrance.readiedLimit
+                && encumbrance.stowed + item.enc * ceil(self.quantity / item.bundle)
+                  <= encumbrance.stowedLimit
+        prefer: -maxOf(item.damage)
+        changes:
+          - { type: equip, entry: picked, equipped: false }
       - { id: result, kind: outcome, result: "'equipped'" }

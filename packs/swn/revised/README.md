@@ -123,7 +123,9 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
   refuse what would pass Constitution. `rest` restores hit points, Strain,
   Effort and the once-a-scene abilities.
 - **Encumbrance:** Readied (equipped) items up to half Strength, Stowed up to Strength, and the
-  lightly and heavily encumbered bands.
+  lightly and heavily encumbered bands. An equipment package readies its items, then stows
+  readied gear and all but one weapon while they fit, so a weak character starts within the
+  limits where the package allows; armor stays worn.
 - **Equipment:** every armor, ranged, melee and heavy weapon, general equipment and
   pharmaceutical, and cyberware item of the free edition, with the equipment packages.
 
