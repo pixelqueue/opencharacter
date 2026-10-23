@@ -95,9 +95,12 @@ start a character with `creating: true` and run one of the creation starts below
     easier Presence and Agility tests; the Priest's powers in medium armor;
   - its d6 feature table as a choice (`feature`) of named options: one pick, two different
     picks for the Royalty, and one or two for the Scum, which rolls a second specialty the first
-    time it gets better (`get-better`, below). Features that are weapons (the Brown Scimitar, Old Sigûrd's Sling, the
-    Shoe of Death's Horse, the Blade of Your Ancestors, Eurekia, the Snake-Skin Dagger, the
-    Sacred Shepherd's Crook) are items in `content/weapons`, which creation adds with the pick.
+    time it gets better (`get-better`, below). Features that are weapons (the Brown Scimitar,
+    Old Sigûrd's Sling, the Shoe of Death's Horse, the Blade of Your Ancestors, Eurekia, the
+    Snake-Skin Dagger, the Sacred Shepherd's Crook) are items in `content/weapons`
+    (`fromFeature`, off the starting table); the option grants its weapon into the hidden
+    `features.weapons`, and creation adds what that holds, so an add-on class's feature brings
+    its own weapon.
     Features that are companions are below.
 - **Class features in numbers** (`rules/features.yaml`): each feature's option sets a
   hidden flag, and its actions are offered while it is set. Uses per day come back with
@@ -169,23 +172,26 @@ start a character with `creating: true` and run one of the creation starts below
   class or companion yet (it adds one, so it can't run twice). The creation actions are kept
   out of play views (`visibility: background`).
   - `guided` (`choose: true`): the player picks the class, `classes.classless` included,
-    instead of the d6; everything else is rolled as below, and the feature's roll is the
-    recommendation the player may change.
+    instead of the d6; everything else is rolled as below, and the feature's draw is the
+    recommendation the player may change. Each item the tables give (weapon, armor, a scroll,
+    the shield, a plain `equipment` entry) is also offered as a pick among the content of its
+    type, add-on packs' included, with the table's item recommended.
   - `classless` adds `classes.classless`, whose character rolls two abilities of the player's
     choice on 4d6 dropping the lowest (drawn at random in the random start; the guided one recommends
     the first two), and starts with smaller weapon and armor dice when the equipment tables give
     it a scroll.
-  - `class` rolls a d6 for one of the six classes (in the ruleset's content order) and adds it.
+  - `class` draws the class among the classes offered (`random`), a d6 over the six core ones
+    in the ruleset's content order, so an add-on pack's class is drawn too, and adds it.
   - Both roll each ability and read the ability table; roll HP (Toughness + hit die, at least
     1), omens, powers (Presence + d4) and silver (×10), and save them as input values.
   - They add the starting weapon and armor the rolls pick from the starting lists below (armor
     1 is none), equipped, and Presence + 10 arrows or bolts with a bow or crossbow. The Esoteric
     Hermit also gets its random scroll: a d2 for the kind, then a d10 on that kind's table in the
     book's order.
-  - They roll the class's d6 feature and ask the class's own `feature` choice over its pending
-    choices, the roll recommending the option in table order: two different
-    ones for the Royalty (a picked one isn't offered again, and a d5 counts on from the first),
-    one now for the Scum. An automatic run takes the rolls; a guided one may pick otherwise.
+  - They ask the class's own `feature` choice over its pending choices, each pick drawn among
+    the class's options (a d6 for the core classes, in table order): two different ones for the
+    Royalty (a picked one isn't offered again, so the second is a d5 over the five left), one
+    now for the Scum. An automatic run takes the draws; a guided one may pick otherwise.
   - Before the weapon and armor, they roll food and the three starting-equipment tables, and add
     what they give: a waterskin and d4 days of food (a copy's quantity); the d6 table's
     container, beast or wagon; and the two d12 tables' entries. Entries the pack already has are

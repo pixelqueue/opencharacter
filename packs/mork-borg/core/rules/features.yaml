@@ -17,6 +17,8 @@ fields:
   features.nechrubelBible: { type: boolean, formula: false }
   features.stones: { type: boolean, formula: false }
   features.horn: { type: boolean, formula: false }
+  # The weapons the class's features bring, which creation adds.
+  features.weapons: { type: set, of: weapon }
 
   teeth.charges: { type: integer, input: true, default: 0, min: 0, max: 4 }
 
@@ -44,6 +46,7 @@ display:
     features.nechrubelBible: { hidden: true }
     features.stones: { hidden: true }
     features.horn: { hidden: true }
+    features.weapons: { hidden: true }
     teeth.charges:
       { groups: [resources], priority: 1, showWhen: features.wizardTeeth, input: { widget: track } }
     daily.boilingBlood: { groups: [resources], priority: 1, showWhen: features.bookOfBoilingBlood }
