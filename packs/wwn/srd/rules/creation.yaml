@@ -416,7 +416,7 @@ actions:
           - { type: addItem, entry: { item: picked.id, equipped: true } }
           - *pay
           - *change
-      # Up to six pieces of gear, one of each.
+      # Up to six pieces of gear, one of each, no more than the character can carry.
       - id: gear
         kind: choice
         sheet: proposed
@@ -428,6 +428,8 @@ actions:
             where: >-
               picks == 0
                 && (item.costUnit == 'cp' ? ceil(item.cost / 10) : item.cost) <= coins.silver
+                && (item.id == @gear.backpack ? enc.readied + item.enc <= enc.readiedLimit + 4
+                  : enc.stowed + item.enc <= enc.stowedLimit + 8)
         recommend: >-
           filterList([@gear.backpack, @gear.rations, @gear.waterskin, @gear.tinder-box,
             @gear.torch, @gear.rope, options[0]], x in options)[0]

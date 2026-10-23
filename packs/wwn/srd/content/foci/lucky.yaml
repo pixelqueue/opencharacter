@@ -5,6 +5,7 @@ fields:
   requires: low-attribute
 prerequisites:
   - id: low-attribute
+    # A score that gives -1 or less, whatever later bonuses (Xenoblooded) do to the modifier.
     when: >-
-      min(attributes.str.mod, attributes.dex.mod, attributes.con.mod, attributes.int.mod,
-        attributes.wis.mod, attributes.cha.mod) <= -1
+      min(attributes.str.score, attributes.dex.score, attributes.con.score, attributes.int.score,
+        attributes.wis.score, attributes.cha.score) <= 7
