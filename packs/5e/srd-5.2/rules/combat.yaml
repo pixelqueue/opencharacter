@@ -357,7 +357,7 @@ actions:
         parts:
           - dice: >-
               flags.monk && maxOf(martialArts.die) > maxOf(flags.dice) ? martialArts.die : flags.dice
-            tags: [{ formula: "'damage.' + flags.damageType" }]
+            tags: [part.weapon-dice, { formula: "'damage.' + flags.damageType" }]
           - field: "'abilities.' + flags.ability + '.mod'"
             when: >-
               !(params.offHand || params.cleave) || (params.offHand && combat.offHandModifier)

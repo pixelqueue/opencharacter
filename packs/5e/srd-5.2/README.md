@@ -133,8 +133,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Paladin and Ranger** each round up their own half levels for the Multiclass Spellcaster
   table; Pact Magic stays separate.
 - **Feats:** a feat that isn't repeatable is taken once, whether a background granted it or a
-  level picked it. Savage Attacker is Advantage on the weapon's damage dice (exact for one die;
-  for 2d6 it keeps the best two of three). A lineage's level 3 spell is a level 1 spell and its
+  level picked it. Savage Attacker rolls the weapon's damage dice twice and keeps the better
+  total. A lineage's level 3 spell is a level 1 spell and its
   level 5 spell a level 2 one for its free casts.
 - **Class features:**
   - Rage Damage, Reckless Attack and Brutal Strike count any attack using Strength, thrown
