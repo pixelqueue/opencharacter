@@ -437,6 +437,12 @@ describe('pnpm validate', () => {
       );
     });
 
+    it("accepts an item's own text for the values of its actions' values steps", () => {
+      const warnings = reporter.warnings.map((w) => w.message);
+      expect(warnings).not.toContain(unused('tricks.hop.options.left.name'));
+      expect(warnings).toContain(unused('tricks.spin.options.left.name'));
+    });
+
     it('warns about named texts and tags the pack does not declare', () => {
       const warnings = reporter.warnings.map((w) => w.message);
       expect(warnings).toContain(unused('weapons.mace.texts.motto'));

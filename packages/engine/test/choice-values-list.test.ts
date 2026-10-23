@@ -61,3 +61,51 @@ describe("a repeated values step's values", () => {
     expect(run([1, 2], "steps.picks.values[0] && 'x'")).toEqual(['formula-error']);
   });
 });
+
+describe("a values step's content", () => {
+  const loaded = loadRuleset([
+    {
+      manifest: {
+        id: 'test-pack',
+        version: '1.0.0',
+        specVersion: '0.2.0',
+        license: 'CC0-1.0',
+        defaultLanguage: 'en',
+      },
+      rules: {
+        contentTypes: { spell: { actions: [{ use: 'cast' }] } },
+        actions: [
+          {
+            id: 'cast',
+            steps: [
+              { id: 'option', kind: 'choice', options: { values: ['a', 'b'] }, random: 'true' },
+            ],
+          },
+          {
+            id: 'plain',
+            steps: [{ id: 'option', kind: 'choice', options: { values: ['a', 'b'] } }],
+          },
+        ],
+      },
+      content: [{ id: 'spells.hex', type: 'spell' }],
+    } as never,
+  ]);
+  if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
+  const caster: CharacterDoc = {
+    ...character,
+    features: [{ id: 'hex', item: 'test-pack:spells.hex' }],
+  };
+
+  it("is on a random draw's pause, and absent for an action without content", () => {
+    const drawn = startAction(loaded.ruleset, caster, {
+      action: { id: 'test-pack:cast', entry: 'hex' },
+      policy: { dice: 'pause' },
+    });
+    expect(drawn).toMatchObject({
+      needs: { kind: 'dice', draw: { among: ['a', 'b'] }, content: 'test-pack:spells.hex' },
+    });
+    const plain = startAction(loaded.ruleset, caster, { action: { id: 'test-pack:plain' } });
+    expect(plain).toMatchObject({ needs: { kind: 'choice' } });
+    expect((plain as { needs: object }).needs).not.toHaveProperty('content');
+  });
+});

@@ -41,6 +41,7 @@ import {
   typeKey,
   valueKey,
   writtenOptionKey,
+  contentOptionKey,
   type ChoiceRef,
   split,
   type MessageRef,
@@ -147,6 +148,8 @@ export interface BlockType {
 export interface OptionContext {
   /** `needs.action`: its written options' key root. */
   action?: string;
+  /** `needs.content`: the content whose own text names a value first. */
+  content?: string;
   /** `needs.choice`: its inline options' and values' key root. */
   choice?: ChoiceRef;
   /** The character's copies by instance ID, for a step over copies. */
@@ -678,6 +681,7 @@ export function createText(options: TextOptions): Text {
         );
       if (context.action)
         return (
+          (context.content ? lookup(contentOptionKey(context.content, option)) : undefined) ??
           lookup(writtenOptionKey(context.action, option)) ??
           setMember(option, split(context.action)[0])
         );

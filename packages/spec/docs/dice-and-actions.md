@@ -777,8 +777,12 @@ A choice step's `options` come from one source:
   giving a list, evaluated before each pick with the action's roots, so it can read `item`,
   `self` and earlier steps. Each value is offered once, in the list's order; its option ID is
   the value as a string. A formula that fails is an error, as any action formula is. Each value
-  is named `<actionKey>.options.<value>.name` when the pack has it; otherwise the app names it (a
-  content ID by its item's name, a field ID by the field's).
+  is named `<contentId>.options.<value>.name` when the action runs for content (its `item`) and
+  the content's pack has it, else `<actionKey>.options.<value>.name` when the action's pack has
+  it; otherwise the app names it (a content ID by its item's name, a field ID by the field's).
+  So a shared action's values take per-content text: one `cast-spell` step with
+  `{ values: { formula: item.castOptions } }` names Hex's `str` "Strength" and Bestow Curse's
+  "Disadvantage with Strength" ([i18n.md](i18n.md#key-conventions)).
 - **Pending choices**, `{ pending: { entry? } }` or `{ pending: { path } }`: the choices still pending on
   the [proposed character](#steps), in `pending`'s order (each item's own choices before
   those of what it grants, each followed by those of what it picked),

@@ -7,3 +7,7 @@ state:
 prerequisites:
   - { id: hat, when: 'true' }
   - { id: calm, when: 'true' }
+# A values step of its own action: the item's own value text is optional.
+actions:
+  - id: pick
+    steps: [{ id: side, kind: choice, options: { values: [left, right] } }]

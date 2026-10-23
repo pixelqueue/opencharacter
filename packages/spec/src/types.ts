@@ -1641,6 +1641,8 @@ export type ActionNeed = {
   options?: string[];
   /** The recommended option, if any; never `#done`. */
   recommended?: string;
+  /** Choice steps over values, and their random draws: the qualified ID of the content the action runs for (its `item`: the copy's item, the picked or granted content, an applied entry's source); absent for an action run without content. The app names each value `<content>.options.<value>.name` when the content's pack has it, else `<actionKey>.options.<value>.name`, else as it names a plain value. */
+  content?: string;
   /** Choice steps over pending choices: the choice being asked, also on a random draw's dice pause there. The app names it with the choice's own text (`<owner>.choices.<id>.prompt`) and its options as it names `listOptions` results. */
   choice?: {
     path: ChoicePath;

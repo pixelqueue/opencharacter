@@ -228,6 +228,8 @@ export interface Need {
   repeat?: { times: number; keep: 'high' | 'low' };
   options?: string[];
   recommended?: string;
+  /** Choice steps over values: the content the action runs for, which names values first. */
+  content?: string;
   /** Choice steps over pending choices: the choice being asked. */
   choice?: PendingChoice;
   allocate?: AllocateNeed;
@@ -2305,7 +2307,7 @@ function draw(
   path: string,
   tags: string[],
   among: string[],
-  choice?: PendingChoice,
+  named: Pick<Need, 'choice' | 'content'> = {},
 ): number {
   if (among.length <= 1) return 0;
   const sides = among.length;
@@ -2327,7 +2329,7 @@ function draw(
       kind: 'dice',
       dice: [{ count: 1, sides }],
       draw: { among: [...among] },
-      ...(choice ? { choice } : {}),
+      ...named,
     });
   }
   if (!Number.isInteger(face) || face < 1 || face > sides)
@@ -2598,6 +2600,9 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
   const max = repeat ? integer(evaluate(ctx, frame, repeat.max), 'repeat.max') : 1;
   const min =
     repeat?.min !== undefined ? integer(evaluate(ctx, frame, repeat.min), 'repeat.min') : 0;
+  // Values are named by the content the action runs for first.
+  const content = valueSource(step) ? frame.activation?.item?.qid : undefined;
+  const named = content !== undefined ? { content } : {};
   const counts = new Map<string, number>();
   const picks: string[] = [];
   // A repeated value step lists its picked values too, a number staying a number.
@@ -2621,7 +2626,7 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     const ownIds = own.map((c) => c.id);
     const recommended =
       own.length > 0 && randomHolds(ctx, frame, step, { options: ownIds })
-        ? ownIds[draw(ctx, frame, path, tags, ownIds)]
+        ? ownIds[draw(ctx, frame, path, tags, ownIds, named)]
         : recommendation(ctx, frame, step, own, counts, action);
     const [answer] = takeAnswers(ctx, path, 'choice');
     let pick: string;
@@ -2641,6 +2646,7 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
         kind: 'choice',
         options,
         ...(recommended !== undefined ? { recommended } : {}),
+        ...named,
       });
     }
     ctx.log.push({
@@ -2796,7 +2802,7 @@ function pendingStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
       },
     };
     if (randomHolds(ctx, frame, step, bound))
-      recommended = ids[draw(ctx, frame, path, tags, ids, choice)];
+      recommended = ids[draw(ctx, frame, path, tags, ids, { choice })];
     else if (step.recommend !== undefined) {
       const v = f.toData(evaluate(ctx, frame, step.recommend as Formula, bound));
       recommended = typeof v === 'string' && ids.includes(v) ? v : undefined;

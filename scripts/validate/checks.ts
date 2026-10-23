@@ -899,6 +899,8 @@ export class PackChecker {
       true,
     );
     for (const action of item.actions ?? []) this.actionOrUse(action, file, `${owner}.actions`);
+    // A values step of an action run for the item names its values by the item's text first.
+    if (item.id && this.valueStepFor(item)) this.optionalPrefixes.add(`${item.id}.options.`);
     this.choices(item.choices ?? [], file, owner);
     this.offerable = undefined;
     this.grants(item.grants, file, '');
@@ -1571,6 +1573,15 @@ export class PackChecker {
         this.prerequisite(owner, prerequisite.id);
       this.choices(option.choices ?? [], file, owner);
     }
+  }
+
+  /** Whether an action the item or its type lists (a `use` resolved) has a values step. */
+  private valueStepFor(item: ContentItem): boolean {
+    const type = item.type ? this.ruleset.contentType(item.type, this.scope)?.def : undefined;
+    return [...(type?.actions ?? []), ...(item.actions ?? [])].some((a) => {
+      const def = 'use' in a ? this.ruleset.action(a.use, this.scope)?.def : a;
+      return def !== undefined && hasValues(def.steps);
+    });
   }
 
   private actionOrUse(action: ActionOrUse, file: string, keyPrefix: string): void {
@@ -2552,4 +2563,12 @@ function familyFields(tree: Node): { text: string; names: string[] }[] {
   };
   visit(tree);
   return out;
+}
+
+function hasValues(steps: Step[]): boolean {
+  return steps.some(
+    (s) =>
+      valueSource(s) !== undefined ||
+      [...(s.cases ?? []), ...(s.else ? [s.else] : [])].some((a) => hasValues(a.steps ?? [])),
+  );
 }

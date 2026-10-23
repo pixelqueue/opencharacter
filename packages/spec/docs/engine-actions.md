@@ -903,7 +903,10 @@ against ([The roll summary](#the-roll-summary)).
 **Pausing for a choice.** `needs.options` (with `#done` last once a repeated step has its `min`
 picks, and on every pick over pending choices) and `needs.recommended`, present only when the
 step recommends an option (above); over pending choices,
-`needs.choice` (above). The app answers with one option; an option not offered
+`needs.choice` (above); over values, `needs.content`, the qualified ID of the content the action
+runs for (its `item`: the copy's item, the picked or granted content, an applied entry's
+source), absent when it runs for none, also on the step's random draws. The app names each
+value by `<content>.options.<value>.name` first ([i18n.md](i18n.md)). The app answers with one option; an option not offered
 (`#done` before `min` picks included) is `answer-mismatch`.
 
 **Pausing for an allocation.** `needs.allocate` (above). The app answers with `{ amounts }`; amounts

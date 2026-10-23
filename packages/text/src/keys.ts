@@ -97,6 +97,12 @@ export function writtenOptionKey(action: string, option: string): MessageRef {
   return { pack: root.pack, key: `${root.key}.options.${option}.name` };
 }
 
+/** A value of a step run for content: `<content>.options.<value>.name`, before the action's. */
+export function contentOptionKey(content: string, option: string): MessageRef {
+  const [pack, local] = split(content);
+  return { pack, key: `${local}.options.${option}.name` };
+}
+
 export function addedOptionKey(option: string): MessageRef {
   const hash = option.lastIndexOf('#');
   const [pack, local] = split(option.slice(0, hash));

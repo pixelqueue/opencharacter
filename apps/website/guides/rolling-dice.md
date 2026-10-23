@@ -200,9 +200,13 @@ content option (a qualified content ID) by that item's name, and `#done` by the 
 `actions.options.done.name`.
 
 A choice can also offer plain values (a modular weapon's damage types, the character's trained
-skills). Each option is the value as a string. Name it by `<actionKey>.options.<value>.name`
-when the pack has that key; otherwise name it as a set member: a content ID by its item's name,
-a field ID by the field's, a tag by the tag's (`text.option(id, { action: needs.action })` does this).
+skills). Each option is the value as a string. When the pause has `needs.content` (the action
+runs for content, such as a spell cast through a shared action), name it by
+`<content>.options.<value>.name` when that pack has the key; else by
+`<actionKey>.options.<value>.name` when the pack has that key; otherwise name it as a set member:
+a content ID by its item's name, a field ID by the field's, a tag by the tag's
+(`text.option(id, { action: needs.action, content: needs.content })` does this, and
+`describeNeed` passes both).
 
 A character's abilities and items can add their own options to a choice. In FitD, pushing
 yourself costs 2 stress, and a scoundrel with Battleborn may mark special armor instead:

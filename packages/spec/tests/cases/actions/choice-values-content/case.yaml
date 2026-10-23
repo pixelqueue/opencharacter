@@ -1,0 +1,29 @@
+description: "A values step of a shared action run for content names that content in `needs.content`, so its values take the content's own text first"
+specVersion: 0.2.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          spell:
+            fields:
+              castOptions: { type: set, of: string }
+            actions: [{ use: cast }]
+        actions:
+          - id: cast
+            steps:
+              - id: option
+                kind: choice
+                options: { values: { formula: item.castOptions } }
+      content:
+        - id: spells.hex
+          type: spell
+          fields: { castOptions: [str, dex] }
+input:
+  action: { id: test-pack:cast, entry: hex }
