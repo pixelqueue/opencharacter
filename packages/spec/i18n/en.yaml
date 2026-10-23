@@ -1,7 +1,8 @@
 # Standard English text for the spec's own error and rules-issue codes, and for the options the
 # spec itself reserves. Keys: errors.<code>, issues.<code>, actions.options.<option>.name,
 # compare.<code> and dice.*. ICU MessageFormat; placeholders come from the
-# error's `data`.
+# error's `data`. A few codes have variants for their data: errors.out-of-range.min and .max
+# and errors.safety-limit-exceeded.<limit>.
 
 # A repeated choice step's `#done` option: stop picking.
 actions.options.done.name: 'Done'
@@ -20,6 +21,9 @@ errors.unknown-field: 'There is no field "{field}" in this ruleset.'
 errors.not-input-field: '"{field}" is calculated and cannot be set directly.'
 errors.wrong-type: '"{target}" needs a value of type {expected}.'
 errors.out-of-range: '"{target}" must be between {min} and {max}.'
+# `out-of-range` with only one bound in its data.
+errors.out-of-range.min: '"{target}" must be at least {min}.'
+errors.out-of-range.max: '"{target}" must be at most {max}.'
 errors.not-owned: 'The character does not have "{entry}".'
 errors.duplicate-id: '"{id}" is already used on this character.'
 errors.standard-copy: '"{entry}" is standard: every character has it.'
@@ -57,6 +61,20 @@ errors.template-field-mismatch: 'Two packs declare the template field "{field}" 
 errors.unknown-role: 'An action step names a role the action does not declare, or hands off outside a step over a role.'
 errors.circular-extends: 'These items extend each other in a loop.'
 errors.safety-limit-exceeded: 'A safety limit was reached ({limit}).'
+# `safety-limit-exceeded` by its `limit` (data/safety-limits.json).
+errors.safety-limit-exceeded.maxExplosions: 'A die exploded too many times.'
+errors.safety-limit-exceeded.maxRerolls: 'A die was rerolled too many times.'
+errors.safety-limit-exceeded.maxDicePerItem: 'A roll asks for too many dice.'
+errors.safety-limit-exceeded.maxFormulaDepth: 'A formula is nested too deeply.'
+errors.safety-limit-exceeded.maxFormulaLength: 'A formula is too long.'
+errors.safety-limit-exceeded.maxChoiceDepth: 'Choices are nested too deeply.'
+errors.safety-limit-exceeded.maxActionSteps: 'An action ran too many steps.'
+errors.safety-limit-exceeded.maxActionDepth: 'Actions run other actions too deeply.'
+errors.safety-limit-exceeded.maxExtendsDepth: 'Content extends other content too deeply.'
+errors.safety-limit-exceeded.maxOverflowChain: 'Too many overflows from one change.'
+errors.safety-limit-exceeded.maxFollowUps: 'One change offers too many follow-ups.'
+errors.safety-limit-exceeded.maxHomebrewItems: "The character's homebrew defines too many things."
+errors.safety-limit-exceeded.maxHomebrewFormulas: "The character's homebrew has too many formulas."
 errors.unknown-action: 'That action is not available.'
 errors.situational-unavailable: 'That situational choice is not available to this character.'
 errors.missing-param: 'The action needs "{param}".'

@@ -201,6 +201,11 @@ Fill the placeholders from the error's or issue's `data`. For example:
 `target` is a field ID here, so a good message replaces it with the field's name before
 formatting.
 
+A few codes have text by their data: `out-of-range` with only a `min` or a `max` uses
+`errors.out-of-range.min` or `.max`, and `safety-limit-exceeded` uses
+`errors.safety-limit-exceeded.<limit>` when there is one. If a message still misses an argument,
+show `errors.other` rather than the template.
+
 **Prefer the pack's text for an issue when there is one.** `prerequisite-not-met` and
 `constraint-failed` carry an `id`, and the pack has a specific message for it (the keys in the
 table above). The spec's generic text is the fallback:

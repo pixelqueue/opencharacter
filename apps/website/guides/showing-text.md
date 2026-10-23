@@ -264,6 +264,10 @@ text.error(error); // the spec's text, data filled
 - `prerequisite-not-met` uses `<owner>.prerequisites.<id>`, `constraint-failed`
   `constraints.<id>`, and `too-many-copies` the type's `types.<type>.copies` ("A character has
   only one race"), each with the issue's `data` as arguments.
+- Some codes have text by their data: an `out-of-range` with only a `min` reads `"Maximum HP"
+  must be at least 1.` (`errors.out-of-range.min`), and a `safety-limit-exceeded` has a sentence
+  per limit (`errors.safety-limit-exceeded.maxOverflowChain`).
+- Text whose data is missing an argument is never shown raw: it falls back to `errors.other`.
 - The spec's generic text gets `data` with IDs replaced by names:
   `{ code: 'not-input-field', data: { field: '5e-srd-5.1:combat.ac' } }` reads
   `"Armor Class" is calculated and cannot be set directly.`
