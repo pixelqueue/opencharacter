@@ -15,7 +15,7 @@ effects:
       flags: { slot: 1, castAbility: "'species'" }
       changes:
         - type: setState
-          grants: { where: 'item.id == @traits.fiendish-legacy' }
+          grant: owner
           key: lineageSpell1Used
           value: true
   - target: { choices: [spell-cost] }
@@ -29,7 +29,7 @@ effects:
       flags: { slot: 2, castAbility: "'species'" }
       changes:
         - type: setState
-          grants: { where: 'item.id == @traits.fiendish-legacy' }
+          grant: owner
           key: lineageSpell2Used
           value: true
   - target: { steps: [rest.long] }
@@ -38,10 +38,10 @@ effects:
     value:
       changes:
         - type: setState
-          grants: { where: 'item.id == @traits.fiendish-legacy' }
+          grant: owner
           key: lineageSpell1Used
           value: false
         - type: setState
-          grants: { where: 'item.id == @traits.fiendish-legacy' }
+          grant: owner
           key: lineageSpell2Used
           value: false
