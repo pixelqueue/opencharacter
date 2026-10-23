@@ -1152,36 +1152,96 @@ display:
       }
     spells.autoRank: { groups: [spellcasting], priority: 2 }
     spellcasting.maxRank: { groups: [spell-slots], priority: 1 }
-    spellSlots.rank1.max: { groups: [spell-slots], priority: 0 }
+    spellSlots.rank1.max: { groups: [spell-slots], priority: 0, showWhen: spellSlots.rank1.max > 0 }
     spellSlots.rank1.used:
-      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank1.max, as: max }] }
-    spellSlots.rank2.max: { groups: [spell-slots], priority: 0 }
+      {
+        groups: [spell-slots],
+        priority: 0,
+        showWhen: spellSlots.rank1.max > 0,
+        with: [{ field: spellSlots.rank1.max, as: max }],
+      }
+    spellSlots.rank2.max: { groups: [spell-slots], priority: 0, showWhen: spellSlots.rank2.max > 0 }
     spellSlots.rank2.used:
-      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank2.max, as: max }] }
-    spellSlots.rank3.max: { groups: [spell-slots], priority: 0 }
+      {
+        groups: [spell-slots],
+        priority: 0,
+        showWhen: spellSlots.rank2.max > 0,
+        with: [{ field: spellSlots.rank2.max, as: max }],
+      }
+    spellSlots.rank3.max: { groups: [spell-slots], priority: 0, showWhen: spellSlots.rank3.max > 0 }
     spellSlots.rank3.used:
-      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank3.max, as: max }] }
-    spellSlots.rank4.max: { groups: [spell-slots], priority: 0 }
+      {
+        groups: [spell-slots],
+        priority: 0,
+        showWhen: spellSlots.rank3.max > 0,
+        with: [{ field: spellSlots.rank3.max, as: max }],
+      }
+    spellSlots.rank4.max: { groups: [spell-slots], priority: 0, showWhen: spellSlots.rank4.max > 0 }
     spellSlots.rank4.used:
-      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank4.max, as: max }] }
-    spellSlots.rank5.max: { groups: [spell-slots], priority: 0 }
+      {
+        groups: [spell-slots],
+        priority: 0,
+        showWhen: spellSlots.rank4.max > 0,
+        with: [{ field: spellSlots.rank4.max, as: max }],
+      }
+    spellSlots.rank5.max: { groups: [spell-slots], priority: 0, showWhen: spellSlots.rank5.max > 0 }
     spellSlots.rank5.used:
-      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank5.max, as: max }] }
-    spellSlots.rank6.max: { groups: [spell-slots], priority: 0 }
+      {
+        groups: [spell-slots],
+        priority: 0,
+        showWhen: spellSlots.rank5.max > 0,
+        with: [{ field: spellSlots.rank5.max, as: max }],
+      }
+    spellSlots.rank6.max: { groups: [spell-slots], priority: 0, showWhen: spellSlots.rank6.max > 0 }
     spellSlots.rank6.used:
-      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank6.max, as: max }] }
-    spellSlots.rank7.max: { groups: [spell-slots], priority: 0 }
+      {
+        groups: [spell-slots],
+        priority: 0,
+        showWhen: spellSlots.rank6.max > 0,
+        with: [{ field: spellSlots.rank6.max, as: max }],
+      }
+    spellSlots.rank7.max: { groups: [spell-slots], priority: 0, showWhen: spellSlots.rank7.max > 0 }
     spellSlots.rank7.used:
-      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank7.max, as: max }] }
-    spellSlots.rank8.max: { groups: [spell-slots], priority: 0 }
+      {
+        groups: [spell-slots],
+        priority: 0,
+        showWhen: spellSlots.rank7.max > 0,
+        with: [{ field: spellSlots.rank7.max, as: max }],
+      }
+    spellSlots.rank8.max: { groups: [spell-slots], priority: 0, showWhen: spellSlots.rank8.max > 0 }
     spellSlots.rank8.used:
-      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank8.max, as: max }] }
-    spellSlots.rank9.max: { groups: [spell-slots], priority: 0 }
+      {
+        groups: [spell-slots],
+        priority: 0,
+        showWhen: spellSlots.rank8.max > 0,
+        with: [{ field: spellSlots.rank8.max, as: max }],
+      }
+    spellSlots.rank9.max: { groups: [spell-slots], priority: 0, showWhen: spellSlots.rank9.max > 0 }
     spellSlots.rank9.used:
-      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank9.max, as: max }] }
-    spellSlots.rank10.max: { groups: [spell-slots], priority: 0 }
+      {
+        groups: [spell-slots],
+        priority: 0,
+        showWhen: spellSlots.rank9.max > 0,
+        with: [{ field: spellSlots.rank9.max, as: max }],
+      }
+    spellSlots.rank10.max:
+      { groups: [spell-slots], priority: 0, showWhen: spellSlots.rank10.max > 0 }
     spellSlots.rank10.used:
-      { groups: [spell-slots], priority: 0, with: [{ field: spellSlots.rank10.max, as: max }] }
+      {
+        groups: [spell-slots],
+        priority: 0,
+        showWhen: spellSlots.rank10.max > 0,
+        with: [{ field: spellSlots.rank10.max, as: max }],
+      }
+    spellSlots.extra.max: { groups: [spell-slots], priority: 1, showWhen: spellSlots.extra.max > 0 }
+    spellSlots.extra.used:
+      {
+        groups: [spell-slots],
+        priority: 1,
+        showWhen: spellSlots.extra.max > 0,
+        with: [{ field: spellSlots.extra.max, as: max }, { field: spells.extraSlot, as: detail }],
+      }
+    spells.extraSlot: { groups: [spell-slots], priority: 1, showWhen: spellSlots.extra.max > 0 }
     spellcasting.attribute: { hidden: true }
     spellcasting.proficiency: { hidden: true }
     spellcasting.attributeMod: { hidden: true }

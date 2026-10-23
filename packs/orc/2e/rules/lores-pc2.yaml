@@ -842,60 +842,160 @@ effects:
 
 display:
   fields:
-    skills.lore.accounting.rank: { format: { bands: rank } }
+    skills.lore.accounting.rank:
+      { format: { bands: rank }, showWhen: skills.lore.accounting.rank > 0 }
     skills.lore.accounting.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.accounting.mod } }] }
-    skills.lore.astrology.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.accounting.mod } }],
+        with: [{ field: skills.lore.accounting.rank, as: detail }],
+        showWhen: skills.lore.accounting.rank > 0,
+      }
+    skills.lore.astrology.rank:
+      { format: { bands: rank }, showWhen: skills.lore.astrology.rank > 0 }
     skills.lore.astrology.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.astrology.mod } }] }
-    skills.lore.afterlife.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.astrology.mod } }],
+        with: [{ field: skills.lore.astrology.rank, as: detail }],
+        showWhen: skills.lore.astrology.rank > 0,
+      }
+    skills.lore.afterlife.rank:
+      { format: { bands: rank }, showWhen: skills.lore.afterlife.rank > 0 }
     skills.lore.afterlife.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.afterlife.mod } }] }
-    skills.lore.curse.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.afterlife.mod } }],
+        with: [{ field: skills.lore.afterlife.rank, as: detail }],
+        showWhen: skills.lore.afterlife.rank > 0,
+      }
+    skills.lore.curse.rank: { format: { bands: rank }, showWhen: skills.lore.curse.rank > 0 }
     skills.lore.curse.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.curse.mod } }] }
-    skills.lore.driving.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.curse.mod } }],
+        with: [{ field: skills.lore.curse.rank, as: detail }],
+        showWhen: skills.lore.curse.rank > 0,
+      }
+    skills.lore.driving.rank: { format: { bands: rank }, showWhen: skills.lore.driving.rank > 0 }
     skills.lore.driving.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.driving.mod } }] }
-    skills.lore.fey.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.driving.mod } }],
+        with: [{ field: skills.lore.driving.rank, as: detail }],
+        showWhen: skills.lore.driving.rank > 0,
+      }
+    skills.lore.fey.rank: { format: { bands: rank }, showWhen: skills.lore.fey.rank > 0 }
     skills.lore.fey.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.fey.mod } }] }
-    skills.lore.piloting.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.fey.mod } }],
+        with: [{ field: skills.lore.fey.rank, as: detail }],
+        showWhen: skills.lore.fey.rank > 0,
+      }
+    skills.lore.piloting.rank: { format: { bands: rank }, showWhen: skills.lore.piloting.rank > 0 }
     skills.lore.piloting.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.piloting.mod } }] }
-    skills.lore.surgery.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.piloting.mod } }],
+        with: [{ field: skills.lore.piloting.rank, as: detail }],
+        showWhen: skills.lore.piloting.rank > 0,
+      }
+    skills.lore.surgery.rank: { format: { bands: rank }, showWhen: skills.lore.surgery.rank > 0 }
     skills.lore.surgery.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.surgery.mod } }] }
-    skills.lore.catfolk.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.surgery.mod } }],
+        with: [{ field: skills.lore.surgery.rank, as: detail }],
+        showWhen: skills.lore.surgery.rank > 0,
+      }
+    skills.lore.catfolk.rank: { format: { bands: rank }, showWhen: skills.lore.catfolk.rank > 0 }
     skills.lore.catfolk.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.catfolk.mod } }] }
-    skills.lore.dragon.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.catfolk.mod } }],
+        with: [{ field: skills.lore.catfolk.rank, as: detail }],
+        showWhen: skills.lore.catfolk.rank > 0,
+      }
+    skills.lore.dragon.rank: { format: { bands: rank }, showWhen: skills.lore.dragon.rank > 0 }
     skills.lore.dragon.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.dragon.mod } }] }
-    skills.lore.hobgoblin.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.dragon.mod } }],
+        with: [{ field: skills.lore.dragon.rank, as: detail }],
+        showWhen: skills.lore.dragon.rank > 0,
+      }
+    skills.lore.hobgoblin.rank:
+      { format: { bands: rank }, showWhen: skills.lore.hobgoblin.rank > 0 }
     skills.lore.hobgoblin.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.hobgoblin.mod } }] }
-    skills.lore.kholo.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.hobgoblin.mod } }],
+        with: [{ field: skills.lore.hobgoblin.rank, as: detail }],
+        showWhen: skills.lore.hobgoblin.rank > 0,
+      }
+    skills.lore.kholo.rank: { format: { bands: rank }, showWhen: skills.lore.kholo.rank > 0 }
     skills.lore.kholo.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.kholo.mod } }] }
-    skills.lore.kobold.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.kholo.mod } }],
+        with: [{ field: skills.lore.kholo.rank, as: detail }],
+        showWhen: skills.lore.kholo.rank > 0,
+      }
+    skills.lore.kobold.rank: { format: { bands: rank }, showWhen: skills.lore.kobold.rank > 0 }
     skills.lore.kobold.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.kobold.mod } }] }
-    skills.lore.lizardfolk.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.kobold.mod } }],
+        with: [{ field: skills.lore.kobold.rank, as: detail }],
+        showWhen: skills.lore.kobold.rank > 0,
+      }
+    skills.lore.lizardfolk.rank:
+      { format: { bands: rank }, showWhen: skills.lore.lizardfolk.rank > 0 }
     skills.lore.lizardfolk.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.lizardfolk.mod } }] }
-    skills.lore.ratfolk.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.lizardfolk.mod } }],
+        with: [{ field: skills.lore.lizardfolk.rank, as: detail }],
+        showWhen: skills.lore.lizardfolk.rank > 0,
+      }
+    skills.lore.ratfolk.rank: { format: { bands: rank }, showWhen: skills.lore.ratfolk.rank > 0 }
     skills.lore.ratfolk.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.ratfolk.mod } }] }
-    skills.lore.tengu.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.ratfolk.mod } }],
+        with: [{ field: skills.lore.ratfolk.rank, as: detail }],
+        showWhen: skills.lore.ratfolk.rank > 0,
+      }
+    skills.lore.tengu.rank: { format: { bands: rank }, showWhen: skills.lore.tengu.rank > 0 }
     skills.lore.tengu.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.tengu.mod } }] }
-    skills.lore.tripkee.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.tengu.mod } }],
+        with: [{ field: skills.lore.tengu.rank, as: detail }],
+        showWhen: skills.lore.tengu.rank > 0,
+      }
+    skills.lore.tripkee.rank: { format: { bands: rank }, showWhen: skills.lore.tripkee.rank > 0 }
     skills.lore.tripkee.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.tripkee.mod } }] }
-    skills.lore.vampire.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.tripkee.mod } }],
+        with: [{ field: skills.lore.tripkee.rank, as: detail }],
+        showWhen: skills.lore.tripkee.rank > 0,
+      }
+    skills.lore.vampire.rank: { format: { bands: rank }, showWhen: skills.lore.vampire.rank > 0 }
     skills.lore.vampire.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.vampire.mod } }] }
-    skills.lore.hag.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.vampire.mod } }],
+        with: [{ field: skills.lore.vampire.rank, as: detail }],
+        showWhen: skills.lore.vampire.rank > 0,
+      }
+    skills.lore.hag.rank: { format: { bands: rank }, showWhen: skills.lore.hag.rank > 0 }
     skills.lore.hag.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.hag.mod } }] }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.hag.mod } }],
+        with: [{ field: skills.lore.hag.rank, as: detail }],
+        showWhen: skills.lore.hag.rank > 0,
+      }

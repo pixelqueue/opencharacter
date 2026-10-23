@@ -45,10 +45,10 @@ display:
     bard.muse: { groups: [summary], priority: 2, showWhen: class.has.bard }
     bard.muses: { hidden: true }
     bard.grantedFeats: { hidden: true }
-    skills.lore.bardic.rank:
-      { groups: [skill-ranks], format: { bands: rank }, showWhen: skills.lore.bardic.rank > 0 }
+    skills.lore.bardic.rank: { format: { bands: rank }, showWhen: skills.lore.bardic.rank > 0 }
     skills.lore.bardic.mod:
       groups: [skills]
       format: signed
       showWhen: skills.lore.bardic.rank > 0
       rolls: [{ action: check, params: { check: skills.lore.bardic.mod } }]
+      with: [{ field: skills.lore.bardic.rank, as: detail }]

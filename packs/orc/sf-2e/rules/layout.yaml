@@ -9,12 +9,10 @@ display:
       priority: 0
     - id: saves
       priority: 0
+    # A skill's rank is its modifier's companion, so it has no tile of its own here.
     - id: skills
       priority: 1
-      members: { type: field, where: "'skill' in item.tags" }
-    - id: skill-ranks
-      priority: 2
-      members: { type: field, where: "'skill-rank' in item.tags" }
+      members: { type: field, where: "'skill' in item.tags || 'skill-rank' in item.tags" }
     - id: skill-increases
       priority: 3
       visibility: background
@@ -233,6 +231,64 @@ display:
     conditions.doomed: { hidden: true }
     conditions.slowed: { hidden: true }
     conditions.stunned: { hidden: true }
+    conditions.drainedOffset: { hidden: true }
+    conditions.suppressed: { hidden: true }
+    features.held: { hidden: true }
+    heritage.size: { hidden: true }
+    proficiency.level: { hidden: true }
+    proficiency.untrained: { hidden: true }
+    armor.strength: { hidden: true }
+    armor.bulwark: { hidden: true }
+    armor.allBulwark: { hidden: true }
+    attacks.trainedWeapons: { hidden: true }
+    attacks.areaDc: { hidden: true }
+    attacks.kickbackStrength: { hidden: true }
+    immunities.damage: { groups: [defenses], priority: 2, showWhen: size(immunities.damage) > 0 }
+    parry.weapon:
+      { groups: [defenses], priority: 2, input: { widget: checkbox }, showWhen: parry.weapon }
+    attacks.simpleGun.rank:
+      {
+        groups: [proficiencies],
+        priority: 1,
+        format: { bands: rank },
+        showWhen: attacks.simpleGun.rank > 0,
+      }
+    attacks.martialGun.rank:
+      {
+        groups: [proficiencies],
+        priority: 1,
+        format: { bands: rank },
+        showWhen: attacks.martialGun.rank > 0,
+      }
+    attacks.advancedGun.rank:
+      {
+        groups: [proficiencies],
+        priority: 1,
+        format: { bands: rank },
+        showWhen: attacks.advancedGun.rank > 0,
+      }
+    attacks.agileMelee.rank:
+      {
+        groups: [proficiencies],
+        priority: 1,
+        format: { bands: rank },
+        showWhen: attacks.agileMelee.rank > 0,
+      }
+    attacks.solar.rank:
+      {
+        groups: [proficiencies],
+        priority: 1,
+        format: { bands: rank },
+        showWhen: attacks.solar.rank > 0,
+      }
+    attacks.familiar: { groups: [proficiencies], priority: 2, showWhen: size(attacks.familiar) > 0 }
+    augmentations.count:
+      {
+        groups: [bulk],
+        priority: 2,
+        showWhen: augmentations.count > 0,
+        with: [{ field: augmentations.limit, as: max }],
+      }
 
   types:
     weapon:

@@ -1164,7 +1164,10 @@ effects:
 display:
   fields:
     skills.lore.custom1.subject:
-      { showWhen: "skills.lore.custom1.subject != '' || skills.lore.custom1.rank > 0" }
+      {
+        groups: [skills],
+        showWhen: "skills.lore.custom1.subject != '' || skills.lore.custom1.rank > 0",
+      }
     skills.lore.custom1.rank:
       {
         format: { bands: rank },
@@ -1175,9 +1178,13 @@ display:
         format: signed,
         showWhen: "skills.lore.custom1.subject != '' || skills.lore.custom1.rank > 0",
         rolls: [{ action: check, params: { check: skills.lore.custom1.mod } }],
+        with: [{ field: skills.lore.custom1.rank, as: detail }],
       }
     skills.lore.custom2.subject:
-      { showWhen: "skills.lore.custom2.subject != '' || skills.lore.custom2.rank > 0" }
+      {
+        groups: [skills],
+        showWhen: "skills.lore.custom2.subject != '' || skills.lore.custom2.rank > 0",
+      }
     skills.lore.custom2.rank:
       {
         format: { bands: rank },
@@ -1188,9 +1195,13 @@ display:
         format: signed,
         showWhen: "skills.lore.custom2.subject != '' || skills.lore.custom2.rank > 0",
         rolls: [{ action: check, params: { check: skills.lore.custom2.mod } }],
+        with: [{ field: skills.lore.custom2.rank, as: detail }],
       }
     skills.lore.custom3.subject:
-      { showWhen: "skills.lore.custom3.subject != '' || skills.lore.custom3.rank > 0" }
+      {
+        groups: [skills],
+        showWhen: "skills.lore.custom3.subject != '' || skills.lore.custom3.rank > 0",
+      }
     skills.lore.custom3.rank:
       {
         format: { bands: rank },
@@ -1201,79 +1212,195 @@ display:
         format: signed,
         showWhen: "skills.lore.custom3.subject != '' || skills.lore.custom3.rank > 0",
         rolls: [{ action: check, params: { check: skills.lore.custom3.mod } }],
+        with: [{ field: skills.lore.custom3.rank, as: detail }],
       }
-    skills.lore.alcohol.rank: { format: { bands: rank } }
+    skills.lore.alcohol.rank: { format: { bands: rank }, showWhen: skills.lore.alcohol.rank > 0 }
     skills.lore.alcohol.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.alcohol.mod } }] }
-    skills.lore.art.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.alcohol.mod } }],
+        with: [{ field: skills.lore.alcohol.rank, as: detail }],
+        showWhen: skills.lore.alcohol.rank > 0,
+      }
+    skills.lore.art.rank: { format: { bands: rank }, showWhen: skills.lore.art.rank > 0 }
     skills.lore.art.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.art.mod } }] }
-    skills.lore.cooking.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.art.mod } }],
+        with: [{ field: skills.lore.art.rank, as: detail }],
+        showWhen: skills.lore.art.rank > 0,
+      }
+    skills.lore.cooking.rank: { format: { bands: rank }, showWhen: skills.lore.cooking.rank > 0 }
     skills.lore.cooking.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.cooking.mod } }] }
-    skills.lore.engineering.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.cooking.mod } }],
+        with: [{ field: skills.lore.cooking.rank, as: detail }],
+        showWhen: skills.lore.cooking.rank > 0,
+      }
+    skills.lore.engineering.rank:
+      { format: { bands: rank }, showWhen: skills.lore.engineering.rank > 0 }
     skills.lore.engineering.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.engineering.mod } }] }
-    skills.lore.fortuneTelling.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.engineering.mod } }],
+        with: [{ field: skills.lore.engineering.rank, as: detail }],
+        showWhen: skills.lore.engineering.rank > 0,
+      }
+    skills.lore.fortuneTelling.rank:
+      { format: { bands: rank }, showWhen: skills.lore.fortuneTelling.rank > 0 }
     skills.lore.fortuneTelling.mod:
       {
         format: signed,
         rolls: [{ action: check, params: { check: skills.lore.fortuneTelling.mod } }],
+        with: [{ field: skills.lore.fortuneTelling.rank, as: detail }],
+        showWhen: skills.lore.fortuneTelling.rank > 0,
       }
-    skills.lore.games.rank: { format: { bands: rank } }
+    skills.lore.games.rank: { format: { bands: rank }, showWhen: skills.lore.games.rank > 0 }
     skills.lore.games.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.games.mod } }] }
-    skills.lore.genealogy.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.games.mod } }],
+        with: [{ field: skills.lore.games.rank, as: detail }],
+        showWhen: skills.lore.games.rank > 0,
+      }
+    skills.lore.genealogy.rank:
+      { format: { bands: rank }, showWhen: skills.lore.genealogy.rank > 0 }
     skills.lore.genealogy.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.genealogy.mod } }] }
-    skills.lore.gladiatorial.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.genealogy.mod } }],
+        with: [{ field: skills.lore.genealogy.rank, as: detail }],
+        showWhen: skills.lore.genealogy.rank > 0,
+      }
+    skills.lore.gladiatorial.rank:
+      { format: { bands: rank }, showWhen: skills.lore.gladiatorial.rank > 0 }
     skills.lore.gladiatorial.mod:
       {
         format: signed,
         rolls: [{ action: check, params: { check: skills.lore.gladiatorial.mod } }],
+        with: [{ field: skills.lore.gladiatorial.rank, as: detail }],
+        showWhen: skills.lore.gladiatorial.rank > 0,
       }
-    skills.lore.guild.rank: { format: { bands: rank } }
+    skills.lore.guild.rank: { format: { bands: rank }, showWhen: skills.lore.guild.rank > 0 }
     skills.lore.guild.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.guild.mod } }] }
-    skills.lore.heraldry.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.guild.mod } }],
+        with: [{ field: skills.lore.guild.rank, as: detail }],
+        showWhen: skills.lore.guild.rank > 0,
+      }
+    skills.lore.heraldry.rank: { format: { bands: rank }, showWhen: skills.lore.heraldry.rank > 0 }
     skills.lore.heraldry.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.heraldry.mod } }] }
-    skills.lore.herbalism.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.heraldry.mod } }],
+        with: [{ field: skills.lore.heraldry.rank, as: detail }],
+        showWhen: skills.lore.heraldry.rank > 0,
+      }
+    skills.lore.herbalism.rank:
+      { format: { bands: rank }, showWhen: skills.lore.herbalism.rank > 0 }
     skills.lore.herbalism.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.herbalism.mod } }] }
-    skills.lore.labor.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.herbalism.mod } }],
+        with: [{ field: skills.lore.herbalism.rank, as: detail }],
+        showWhen: skills.lore.herbalism.rank > 0,
+      }
+    skills.lore.labor.rank: { format: { bands: rank }, showWhen: skills.lore.labor.rank > 0 }
     skills.lore.labor.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.labor.mod } }] }
-    skills.lore.mercantile.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.labor.mod } }],
+        with: [{ field: skills.lore.labor.rank, as: detail }],
+        showWhen: skills.lore.labor.rank > 0,
+      }
+    skills.lore.mercantile.rank:
+      { format: { bands: rank }, showWhen: skills.lore.mercantile.rank > 0 }
     skills.lore.mercantile.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.mercantile.mod } }] }
-    skills.lore.mining.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.mercantile.mod } }],
+        with: [{ field: skills.lore.mercantile.rank, as: detail }],
+        showWhen: skills.lore.mercantile.rank > 0,
+      }
+    skills.lore.mining.rank: { format: { bands: rank }, showWhen: skills.lore.mining.rank > 0 }
     skills.lore.mining.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.mining.mod } }] }
-    skills.lore.sailing.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.mining.mod } }],
+        with: [{ field: skills.lore.mining.rank, as: detail }],
+        showWhen: skills.lore.mining.rank > 0,
+      }
+    skills.lore.sailing.rank: { format: { bands: rank }, showWhen: skills.lore.sailing.rank > 0 }
     skills.lore.sailing.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.sailing.mod } }] }
-    skills.lore.tanning.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.sailing.mod } }],
+        with: [{ field: skills.lore.sailing.rank, as: detail }],
+        showWhen: skills.lore.sailing.rank > 0,
+      }
+    skills.lore.tanning.rank: { format: { bands: rank }, showWhen: skills.lore.tanning.rank > 0 }
     skills.lore.tanning.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.tanning.mod } }] }
-    skills.lore.theater.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.tanning.mod } }],
+        with: [{ field: skills.lore.tanning.rank, as: detail }],
+        showWhen: skills.lore.tanning.rank > 0,
+      }
+    skills.lore.theater.rank: { format: { bands: rank }, showWhen: skills.lore.theater.rank > 0 }
     skills.lore.theater.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.theater.mod } }] }
-    skills.lore.cave.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.theater.mod } }],
+        with: [{ field: skills.lore.theater.rank, as: detail }],
+        showWhen: skills.lore.theater.rank > 0,
+      }
+    skills.lore.cave.rank: { format: { bands: rank }, showWhen: skills.lore.cave.rank > 0 }
     skills.lore.cave.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.cave.mod } }] }
-    skills.lore.desert.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.cave.mod } }],
+        with: [{ field: skills.lore.cave.rank, as: detail }],
+        showWhen: skills.lore.cave.rank > 0,
+      }
+    skills.lore.desert.rank: { format: { bands: rank }, showWhen: skills.lore.desert.rank > 0 }
     skills.lore.desert.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.desert.mod } }] }
-    skills.lore.forest.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.desert.mod } }],
+        with: [{ field: skills.lore.desert.rank, as: detail }],
+        showWhen: skills.lore.desert.rank > 0,
+      }
+    skills.lore.forest.rank: { format: { bands: rank }, showWhen: skills.lore.forest.rank > 0 }
     skills.lore.forest.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.forest.mod } }] }
-    skills.lore.mountain.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.forest.mod } }],
+        with: [{ field: skills.lore.forest.rank, as: detail }],
+        showWhen: skills.lore.forest.rank > 0,
+      }
+    skills.lore.mountain.rank: { format: { bands: rank }, showWhen: skills.lore.mountain.rank > 0 }
     skills.lore.mountain.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.mountain.mod } }] }
-    skills.lore.plains.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.mountain.mod } }],
+        with: [{ field: skills.lore.mountain.rank, as: detail }],
+        showWhen: skills.lore.mountain.rank > 0,
+      }
+    skills.lore.plains.rank: { format: { bands: rank }, showWhen: skills.lore.plains.rank > 0 }
     skills.lore.plains.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.plains.mod } }] }
-    skills.lore.swamp.rank: { format: { bands: rank } }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.plains.mod } }],
+        with: [{ field: skills.lore.plains.rank, as: detail }],
+        showWhen: skills.lore.plains.rank > 0,
+      }
+    skills.lore.swamp.rank: { format: { bands: rank }, showWhen: skills.lore.swamp.rank > 0 }
     skills.lore.swamp.mod:
-      { format: signed, rolls: [{ action: check, params: { check: skills.lore.swamp.mod } }] }
+      {
+        format: signed,
+        rolls: [{ action: check, params: { check: skills.lore.swamp.mod } }],
+        with: [{ field: skills.lore.swamp.rank, as: detail }],
+        showWhen: skills.lore.swamp.rank > 0,
+      }
