@@ -121,8 +121,7 @@ choices:
     effects:
       - { target: attacks.favoredWeapons, op: grant, value: { formula: pick.id } }
   - id: doctrine
-    from:
-      items: [classes.cleric.doctrines.cloistered-cleric, classes.cleric.doctrines.warpriest]
+    from: { type: feature, where: "item.classOption == 'cleric.doctrine'" }
   - id: skills
     unique: skill-training
     pick: 2 + max(0, attributes.int.mod)

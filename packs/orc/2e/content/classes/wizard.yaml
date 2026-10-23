@@ -47,17 +47,7 @@ grants:
 choices:
   # The curriculum is asked next, before the rest of the spellbook.
   - id: school
-    from:
-      items:
-        [
-          classes.wizard.schools.ars-grammatica,
-          classes.wizard.schools.battle-magic,
-          classes.wizard.schools.boundary,
-          classes.wizard.schools.civic-wizardry,
-          classes.wizard.schools.mentalism,
-          classes.wizard.schools.protean-form,
-          classes.wizard.schools.unified-magical-theory,
-        ]
+    from: { type: feature, where: "item.classOption == 'wizard.school'" }
   - id: curriculum-cantrip
     unique: spellbook
     pick: "wizard.school == 'unified-magical-theory' ? 0 : 1"
@@ -89,15 +79,7 @@ choices:
     effects:
       - { target: spells.book, op: grant, value: { formula: pick.id } }
   - id: thesis
-    from:
-      items:
-        [
-          classes.wizard.theses.experimental-spellshaping,
-          classes.wizard.theses.improved-familiar-attunement,
-          classes.wizard.theses.spell-blending,
-          classes.wizard.theses.spell-substitution,
-          classes.wizard.theses.staff-nexus,
-        ]
+    from: { type: feature, where: "item.classOption == 'wizard.thesis'" }
   - id: skills
     unique: skill-training
     pick: 2 + max(0, attributes.int.mod)

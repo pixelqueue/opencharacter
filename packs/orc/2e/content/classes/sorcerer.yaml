@@ -42,20 +42,7 @@ choices:
   # Asked first, so the repertoire's picks see the tradition and the free skills the bloodline's
   # trainings.
   - id: bloodline
-    from:
-      items:
-        [
-          classes.sorcerer.bloodlines.aberrant,
-          classes.sorcerer.bloodlines.angelic,
-          classes.sorcerer.bloodlines.demonic,
-          classes.sorcerer.bloodlines.diabolic,
-          classes.sorcerer.bloodlines.draconic,
-          classes.sorcerer.bloodlines.elemental,
-          classes.sorcerer.bloodlines.fey,
-          classes.sorcerer.bloodlines.hag,
-          classes.sorcerer.bloodlines.imperial,
-          classes.sorcerer.bloodlines.undead,
-        ]
+    from: { type: feature, where: "item.classOption == 'sorcerer.bloodline'" }
   - id: skills
     unique: skill-training
     pick: 2 + max(0, attributes.int.mod)
