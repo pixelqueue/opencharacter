@@ -1291,6 +1291,8 @@ const CHARACTER_FUNCTIONS = new Set([
   'sumCopies',
   'maxCopies',
   'minCopies',
+  'countPicks',
+  'countGrants',
   'countFields',
   'sumFields',
   'maxFields',

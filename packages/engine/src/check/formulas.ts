@@ -1617,6 +1617,7 @@ class FormulaChecker<L> {
       roots: new Set([...rootsFor(this.place), ...this.extraRoots]),
       rootTypes: this.types,
       character: this.place !== 'itemField' && this.place !== 'query',
+      ...(this.inputOnly ? { activation: true } : {}),
       ...(this.choicesBound ? { choices: true } : {}),
       ...(this.ownerChoices !== undefined && this.place !== 'itemField' && this.place !== 'query'
         ? { picks: true }

@@ -96,6 +96,7 @@ export const ALL_ROOTS = new Set([
   'character',
   'links',
   'copy',
+  'grant',
   'entry',
   'action',
   'picks',

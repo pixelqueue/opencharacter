@@ -477,6 +477,8 @@ export class Sheet {
   private readonly inputQueries!: f.CharacterQueries;
   private readonly characterRoot!: Record<string, unknown>;
   private copyData: Record<string, unknown>[] | undefined;
+  private pickData: Record<string, unknown>[] | undefined;
+  private grantData: Record<string, unknown>[] | undefined;
   private readonly inputs = new Map<string, f.Value>();
   /** Plain item views (no templates): they read input fields only, so they're fixed per sheet. */
   private readonly queryViews = new Map<LoadedItem, Record<string, unknown>>();
@@ -537,12 +539,16 @@ export class Sheet {
         );
         return this.copyData;
       }),
+      picks: () => (this.pickData ??= this.savedPicks()),
+      grants: () => (this.grantData ??= this.grantViews()),
       fields: () => fieldViews(ruleset),
       fieldValue: (qid) => this.fieldValue(qid),
     };
-    // Activation conditions read input fields only, through the field functions too.
+    // Activation conditions read input fields only, through the field functions too, and not
+    // what activation decides.
+    const { grants: _grants, ...beforeActivation } = this.queries;
     this.inputQueries = {
-      ...this.queries,
+      ...beforeActivation,
       fieldValue: (qid) => {
         const value = this.inputValue(qid);
         if (value === undefined)
@@ -3146,6 +3152,52 @@ export class Sheet {
       if (key === undefined) continue;
       const value = (a.roots.self as Record<string, unknown> | undefined)?.[key];
       if (typeof value === 'string' && value.trim() !== '') out[a.entry.id] = value;
+    }
+    return out;
+  }
+
+  /** A pick's or grant's view in `countPicks` and `countGrants`: its plain item and its state. */
+  private pickView(item: LoadedItem, state: Record<string, unknown>): Record<string, unknown> {
+    const { id, type, tags, ...fields } = itemView(this.ruleset, item, [], (n, p) =>
+      this.inputByName(n, p),
+    );
+    return { item: id, type, tags, state, fields };
+  }
+
+  /** Saved picks of content in file order: each copy's tree, then the rules', depth first. */
+  private savedPicks(): Record<string, unknown>[] {
+    const out: Record<string, unknown>[] = [];
+    const walk = (tree: ChoiceTree | undefined) => {
+      for (const picks of Object.values(tree ?? {}))
+        for (const pick of picks) {
+          const item =
+            typeof pick.option === 'string' ? this.ruleset.content[pick.option] : undefined;
+          if (item) out.push(this.pickView(item, pickState(this.ruleset, item, pick.state)));
+          walk(pick.choices);
+        }
+    };
+    for (const entry of [...(this.character.features ?? []), ...(this.character.inventory ?? [])])
+      walk(entry.choices);
+    walk(this.character.choices);
+    return out;
+  }
+
+  /** The active holder grants in activation order, each item once per node. */
+  private grantViews(): Record<string, unknown>[] {
+    const seen = new Set<string>();
+    const out: Record<string, unknown>[] = [];
+    for (const a of this.activations) {
+      if (a.kind !== 'grant' || a.scope !== 'holder' || !a.item) continue;
+      const key = JSON.stringify([a.path, a.item.qid]);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const self = (a.roots.self ?? {}) as Record<string, unknown>;
+      const state = Object.fromEntries(
+        Object.keys(stateDecls(this.ruleset, a.item, [])).flatMap((k) =>
+          k in self ? [[k, self[k]]] : [],
+        ),
+      );
+      out.push(this.pickView(a.item, state));
     }
     return out;
   }

@@ -35,6 +35,13 @@ export interface CharacterQueries {
   sumState(type: string, key: string): number;
   /** Every copy as the `copy` root sees it: inventory first, then features, each in file order. */
   copies(): readonly unknown[];
+  /** Every saved pick of content as the `pick` root sees it: each copy's tree, then the rules'. */
+  picks(): readonly unknown[];
+  /**
+   * Every active holder grant as the `grant` root sees it, in activation order. Unbound during
+   * activation, which decides the grants.
+   */
+  grants?(): readonly unknown[];
   /** Every field in ruleset order, as the static filter sees it; the same array on every call. */
   fields(): readonly FieldView[];
   fieldValue(id: string): Value;
@@ -607,7 +614,14 @@ function aggregate(fn: string, over: Over, args: Node[], ctx: EvalContext): Valu
   let elements: unknown[];
   let cond = parts.cond;
   if (over === 'copies') elements = [...character.copies()];
-  else if (over === 'fields') {
+  else if (over === 'picks') elements = [...character.picks()];
+  else if (over === 'grants') {
+    if (!character.grants)
+      return fail('unknown-function', `${fn}() is not bound in activation conditions`, {
+        function: fn,
+      });
+    elements = [...character.grants()];
+  } else if (over === 'fields') {
     elements = keptFields(fn, cond, character.fields()).map((view) => fieldRoot(view, character));
     cond = undefined;
   } else {

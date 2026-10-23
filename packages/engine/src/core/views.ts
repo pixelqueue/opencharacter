@@ -502,7 +502,7 @@ const plain = (v: unknown) => f.fromData(v);
 export function characterQueries(
   all: CopyView[],
   copyData: () => readonly unknown[],
-): Omit<f.CharacterQueries, 'fields' | 'fieldValue'> {
+): Omit<f.CharacterQueries, 'fields' | 'fieldValue' | 'picks' | 'grants'> {
   return {
     copies: copyData,
     countEquipped: (type) => all.filter((c) => c.type === type && c.equipped).length,
