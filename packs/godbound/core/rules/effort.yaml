@@ -24,7 +24,7 @@ actions:
     available: effort.free > 0
     params:
       duration: { type: enum, values: [scene, day], default: day }
-      amount: { type: integer, default: 1, min: 1 }
+      amount: { type: integer, default: 1, min: 1, max: effort.free }
     results: [committed]
     steps:
       - id: commit
@@ -143,7 +143,7 @@ actions:
     tags: [influence]
     available: influence.free > 0
     params:
-      amount: { type: integer, default: 1, min: 1 }
+      amount: { type: integer, default: 1, min: 1, max: influence.free }
     results: [committed]
     steps:
       - id: commit
@@ -158,7 +158,7 @@ actions:
     tags: [influence]
     available: influence.committed > 0
     params:
-      amount: { type: integer, default: 1, min: 1 }
+      amount: { type: integer, default: 1, min: 1, max: influence.committed }
     results: [reclaimed]
     steps:
       - id: reclaim
