@@ -3,7 +3,9 @@ contentTypes:
     nameFrom: label
     fields:
       segments: { type: integer, required: true, min: 1 }
-      learns: { type: string }
+      # What the project teaches when its clock fills: a ritual, a design, or both.
+      learnsRitual: { type: id, of: ritual }
+      learnsDesign: { type: id, of: design }
     state:
       label: { type: string, default: '' }
       progress: { type: integer, default: 0, min: 0, max: item.segments }
@@ -159,10 +161,17 @@ actions:
           - { type: adjustState, entry: self, key: progress, by: flags.ticks }
       - id: learn
         kind: changes
-        when: has(item.learns) && self.progress + flags.ticks >= item.segments
+        when: >-
+          (has(item.learnsRitual) || has(item.learnsDesign))
+            && self.progress + flags.ticks >= item.segments
         to: self
         changes:
-          - { type: addItem, entry: { item: item.learns, state: { label: self.label } } }
+          - type: addItem
+            when: has(item.learnsRitual)
+            entry: { item: item.learnsRitual, state: { label: self.label } }
+          - type: addItem
+            when: has(item.learnsDesign)
+            entry: { item: item.learnsDesign, state: { label: self.label } }
       - id: result
         kind: outcome
         result: "self.progress + flags.ticks >= item.segments ? 'complete' : 'progress'"
@@ -269,10 +278,17 @@ actions:
           - { type: adjustState, entry: self, key: progress, by: flags.ticks }
       - id: learn
         kind: changes
-        when: has(item.learns) && self.progress + flags.ticks >= item.segments
+        when: >-
+          (has(item.learnsRitual) || has(item.learnsDesign))
+            && self.progress + flags.ticks >= item.segments
         to: self
         changes:
-          - { type: addItem, entry: { item: item.learns, state: { label: self.label } } }
+          - type: addItem
+            when: has(item.learnsRitual)
+            entry: { item: item.learnsRitual, state: { label: self.label } }
+          - type: addItem
+            when: has(item.learnsDesign)
+            entry: { item: item.learnsDesign, state: { label: self.label } }
       - id: result
         kind: outcome
         result: "self.progress + flags.ticks >= item.segments ? 'complete' : 'progress'"

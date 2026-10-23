@@ -130,7 +130,8 @@ defines one.
   call: attract trouble, brag for +2 heat to the linked crew, lost, tapped). **Ignore your
   vice:** stress equal to trauma.
 - **Train** (1 xp, 2 with the crew's Training upgrade), **long-term projects** (4-, 6-, 8- or
-  12-segment clocks ticked by an action roll), **reduce heat** (5, 3, 2 or 1 off the linked
+  12-segment clocks ticked by an action roll; a project that teaches names its ritual or design
+  in `learnsRitual` or `learnsDesign`, added when its clock fills), **reduce heat** (5, 3, 2 or 1 off the linked
   crew), **acquire an asset** (a roll of the crew's tier for its quality, +1d for the same asset
   again, +2 heat for a restricted item), **recover**. Each coin after the roll raises the result a
   level; a friend or contact who helps adds a die.
