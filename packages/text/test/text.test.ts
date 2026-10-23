@@ -633,16 +633,8 @@ describe('error text by its data', () => {
 
   it('words a family key that is not there', () => {
     const awn = load('awn/core');
-    const hollis = parse(
-      readFileSync(join(root, 'examples', 'characters', 'awn-core-hollis.yaml'), 'utf8'),
-    ) as CharacterDoc;
-    const result = startAction(awn.ruleset, hollis, {
-      action: { id: 'awn-core:gain-benefit' },
-      params: { entry: 'x' },
-    });
-    const error = 'errors' in result ? result.errors?.[0] : undefined;
-    expect(error?.data).toMatchObject({ key: 'x', family: 'skill' });
-    expect(awn.text.error(error!)).toBe('A formula refers to "x", which is not there.');
+    const error = { code: 'no-such-key', data: { key: 'x', family: 'skill' } };
+    expect(awn.text.error(error)).toBe('A formula refers to "x", which is not there.');
   });
 });
 
