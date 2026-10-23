@@ -168,7 +168,8 @@ the player's choices and other characters.
   bring fate points up to the refresh (a session) or reset them to it (a scenario).
 - **Stunts:** a `stunt` content type with a `shape`: a +2 `bonus` (skill and action, applied
   when the situational choice `stunt` is on), a skill `swap`, a rules `exception`, or a `custom`
-  stunt the player writes. Stunts limited per conflict, scene or session, or costing a fate
+  stunt the player writes (its skill, action, limit, uses and fate point cost are the copy's own
+  field values, `setField`). Stunts limited per conflict, scene or session, or costing a fate
   point, have a `use` action. The 17 SRD example stunts, plus `custom`:
   - bonus: Hardcore Parkour, Rumormonger, Lie Whisperer, Specialist (its field is the copy's
     label), Grappler, Indomitable;

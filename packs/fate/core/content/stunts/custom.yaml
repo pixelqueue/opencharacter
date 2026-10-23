@@ -1,14 +1,6 @@
-# The limit, uses and fate-point cost live in the copy's state because a copy can't set item fields;
-# `use` and the end-of-conflict, scene and session actions read them as they read an SRD stunt's
-# fields.
 id: stunts.custom
 type: stunt
 fields: { shape: custom }
 nameFrom: label
 state:
   bonus: { type: boolean, default: false }
-  skill: { type: string, default: '' }
-  action: { type: enum, values: [any, overcome, advantage, attack, defend], default: any }
-  limit: { type: enum, values: [none, conflict, scene, session], default: none }
-  uses: { type: integer, default: 1, min: 1 }
-  fatePoint: { type: boolean, default: false }

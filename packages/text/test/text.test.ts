@@ -407,18 +407,6 @@ describe('Fate', () => {
     // A band that holds whatever the roll: no tests, no text.
     expect(worded.targets?.at(-1)).toEqual({ band: 'terrible', name: 'Terrible (−2)' });
   });
-
-  it("names an item's own state values", () => {
-    expect(text.stateValue('fate-core:stunts.custom', 'limit', 'scene')).toBe('scene');
-    expect(text.stateValue('fate-core:stunts.custom', 'action', 'advantage')).toBe(
-      'Create an advantage',
-    );
-    expect(text.stateValue('fate-core:stunts.custom', 'action', 'unknown')).toBe('unknown');
-    expect(keys.stateValueKey('fate-core:stunts.custom', 'limit', 'scene')).toEqual({
-      pack: 'fate-core',
-      key: 'stunts.custom.state.limit.values.scene.name',
-    });
-  });
 });
 
 describe('orc-2e', () => {
@@ -683,6 +671,16 @@ describe('prerequisite text', () => {
 
 describe('FitD crew factions', () => {
   const { ruleset, text } = load('fitd/crew');
+
+  it("names an item's own state values", () => {
+    expect(text.stateValue('fitd-crew:cohorts.gang', 'gangType', 'rooks')).toBe('Rooks');
+    expect(text.stateValue('fitd-crew:cohorts.gang', 'extraGangType', 'none')).toBe('None');
+    expect(text.stateValue('fitd-crew:cohorts.gang', 'gangType', 'unknown')).toBe('unknown');
+    expect(keys.stateValueKey('fitd-crew:cohorts.gang', 'gangType', 'rooks')).toEqual({
+      pack: 'fitd-crew',
+      key: 'cohorts.gang.state.gangType.values.rooks.name',
+    });
+  });
   const faction = 'fitd-crew:factions.faction';
 
   it("names a faction copy by the GM's label", () => {
