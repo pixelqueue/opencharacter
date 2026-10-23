@@ -164,8 +164,8 @@ display:
 
 ## Shown
 
-computeSheet evaluates `hidden`, `showWhen` and the fields groups' `members` for the app
-([engine-core.md](engine-core.md#display)), so every app shows the same fields:
+computeSheet evaluates `hidden`, `showWhen`, `members`, `sectionBy` and `sortBy` for the app
+([engine-core.md](engine-core.md#display)), so every app shows the same sheet:
 
 - **A group is shown** when its `showWhen` holds, or it has none. This holds for groups of every
   kind.
@@ -175,15 +175,25 @@ computeSheet evaluates `hidden`, `showWhen` and the fields groups' `members` for
 - **A field is shown** when its hint isn't `hidden`, its `showWhen` holds, and it is in no
   fields group (it shows in "Other") or in at least one shown group. A field in a hidden group
   and a shown one shows in the shown one only.
+- **An actions group's members** are the listed actions its `where` matches, in list order;
+  **a content group's**, the activations or applied entries its query matches, sorted by
+  section, then `sortBy`, then instance order ([Sections and order](#sections-and-order)). A
+  member whose `sectionBy` fails, or gives neither a whole number nor a string, has no section
+  and comes after the sections; one whose `sortBy` fails, or gives neither a number nor a string,
+  comes after the sorted ones. An action or content item no group lists is "Other"; one only a
+  hidden group lists isn't shown.
+- **A state key is shown** when its state hint isn't `hidden` and its `showWhen` holds, seeing
+  the copy or pick as `self` and its item as `item`.
 - **Failures:** a `showWhen` that fails to evaluate counts as true, so a broken hint never hides
   a value; a `where` that fails matches nothing. Neither is an error on the sheet.
-- `showWhen` is evaluated like a field formula, in the hint's pack, with `hasChoice` bound
+- `showWhen`, `where`, `sectionBy` and `sortBy` are evaluated like field formulas, in the hint's
+  or group's pack; `showWhen` with `hasChoice` bound
   ([formulas.md](formulas.md#choices-in-display-hints)).
 
-The result is `groups` (each group's `shown` and, for a fields group, its `fields`) and
-`values[<field>].shown`. Priority, `visibility` and layout stay the app's. The members, sections
-and order of actions and content groups, and state hints' `showWhen`, are still evaluated by the
-app.
+The result is `groups` (each group's `shown` and its members: `fields`, `actions` or `items`),
+`values[<field>].shown`, and each activation's `hiddenState`. Members are listed whether their
+group is shown or not. Priority, `visibility` and layout stay the app's: priorities are fixed
+numbers in the hints, so sorting groups and fields by them needs no evaluation.
 
 ## Field hints
 
@@ -351,7 +361,7 @@ display:
   template ([i18n.md](i18n.md#headlines)), not a hint: the template names the
   fields and content types it reads.
 - A state hint's `showWhen` sees the copy as `self` and its item as `item`, with the
-  character's fields.
+  character's fields; computeSheet evaluates it ([Shown](#shown)).
 - The type must be a content type visible from the pack; each state key must be declared by the
   type or by an item of it, and each item field by the type (`pnpm validate`).
 - A pack can hint another pack's type; per type, one rules document per pack holds its hints.

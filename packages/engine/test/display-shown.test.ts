@@ -32,6 +32,8 @@ function load(...packs: PackRelease[]) {
 const character = (version = '1.0.0', extra: object = {}): CharacterDoc =>
   ({ specVersion: '0.1.0', id: 'test', packs: [{ id: 'test-pack', version }], ...extra }) as never;
 
+const option = (id: string, state?: object) => ({ option: `test-pack:spells.${id}`, state });
+
 describe('display visibility', { timeout: 30_000 }, () => {
   it('binds the copy aggregates in showWhen (orc-2e prey.target)', () => {
     const orc = load(readPack(join(root, 'packs', 'orc/2e')));
@@ -102,6 +104,151 @@ describe('display visibility', { timeout: 30_000 }, () => {
       'test-pack:stone',
     ]);
     expect(big.values['test-pack:stone']?.shown).toBe(false);
+  });
+
+  it('lists picks as content members and their state keys not shown', () => {
+    const r = load(
+      pack(
+        '1.0.0',
+        {
+          contentTypes: {
+            class: { carried: false, state: { level: { type: 'integer', default: 1 } } },
+            spell: {
+              carried: false,
+              fields: { level: { type: 'integer', default: 1 } },
+              state: { prepared: { type: 'boolean', default: false } },
+            },
+          },
+          display: {
+            groups: [
+              {
+                id: 'spells',
+                kind: 'content',
+                members: { type: 'spell' },
+                sectionBy: 'item.level == 9 ? floor(1 / 0) : item.level',
+                sortBy: 'self.prepared ? 0 : self.level > 1 ? 2 : 1 / 0',
+              },
+            ],
+            types: {
+              spell: { state: { prepared: { showWhen: 'item.level > 0 && self.level > 1' } } },
+            },
+          },
+        },
+        [
+          {
+            id: 'classes.wizard',
+            type: 'class',
+            choices: [{ id: 'spells', pick: 5, from: { type: 'spell' } }],
+          },
+          { id: 'spells.a', type: 'spell', fields: { level: 0 } },
+          { id: 'spells.b', type: 'spell' },
+          { id: 'spells.c', type: 'spell' },
+          { id: 'spells.d', type: 'spell', fields: { level: 9 } },
+        ],
+      ),
+    );
+    const picks = [option('a'), option('b'), option('c', { prepared: true }), option('d')];
+    const wizard = (level: number) =>
+      computeSheet(
+        r,
+        character('1.0.0', {
+          features: [
+            {
+              id: 'wiz',
+              item: 'test-pack:classes.wizard',
+              state: { level },
+              choices: { spells: picks },
+            },
+          ],
+        }),
+      );
+    const low = wizard(1);
+    expect(low.activations.map((a) => [a.item, a.hiddenState])).toEqual([
+      ['test-pack:classes.wizard', undefined],
+      ['test-pack:spells.a', ['prepared']],
+      ['test-pack:spells.b', ['prepared']],
+      ['test-pack:spells.c', ['prepared']],
+      ['test-pack:spells.d', ['prepared']],
+    ]);
+    // a in section 0; b and c in section 1, c first (sorted 0), b's sortBy failing; d's
+    // failing sectionBy last.
+    expect(low.groups[0]?.items).toEqual([
+      { activation: 1, section: 0 },
+      { activation: 3, section: 1 },
+      { activation: 2, section: 1 },
+      { activation: 4 },
+    ]);
+    const high = wizard(2);
+    expect(high.activations[2]?.hiddenState).toBeUndefined();
+    expect(high.activations[1]?.hiddenState).toEqual(['prepared']);
+    // At level 2 b's sortBy is 2, after c's 0.
+    expect(high.groups[0]?.items?.slice(1, 3)).toEqual([
+      { activation: 3, section: 1 },
+      { activation: 2, section: 1 },
+    ]);
+    expect(high.errors).toEqual([]);
+  });
+
+  it('gives an unlisted applied entry its state keys not shown, and hides an action group', () => {
+    const r = load(
+      pack(
+        '1.0.0',
+        {
+          tags: ['attack'],
+          contentTypes: {
+            weapon: { carried: true },
+            condition: { carried: false, state: { by: { type: 'string', default: '' } } },
+          },
+          actions: [{ id: 'swing', tags: ['attack'], steps: [{ id: 'done', kind: 'outcome' }] }],
+          display: {
+            groups: [
+              {
+                id: 'attacks',
+                kind: 'actions',
+                showWhen: 'countCopies(copy.item == @weapons.axe) > 0',
+                members: { type: 'action', where: "'attack' in item.tags" },
+              },
+              {
+                id: 'conditions',
+                kind: 'content',
+                members: { type: 'condition', from: 'applied' },
+              },
+            ],
+            types: { condition: { state: { by: { showWhen: "self.by != ''" } } } },
+          },
+        },
+        [
+          { id: 'weapons.axe', type: 'weapon' },
+          { id: 'conditions.dazed', type: 'condition' },
+        ],
+      ),
+    );
+    const sheet = computeSheet(
+      r,
+      character('1.0.0', {
+        applied: [
+          { id: 'd1', source: 'test-pack:conditions.dazed', active: false },
+          { id: 'd2', source: 'test-pack:conditions.dazed', state: { by: 'ogre' } },
+        ],
+      }),
+    );
+    expect(sheet.groups).toEqual([
+      { id: 'attacks', shown: false, actions: [0] },
+      {
+        id: 'conditions',
+        shown: true,
+        items: [
+          { entry: 'd1', hiddenState: ['by'] },
+          { entry: 'd2', activation: 0 },
+        ],
+      },
+    ]);
+    expect(sheet.activations[0]?.hiddenState).toBeUndefined();
+    const armed = computeSheet(
+      r,
+      character('1.0.0', { inventory: [{ id: 'axe', item: 'test-pack:weapons.axe' }] }),
+    );
+    expect(armed.groups[0]).toEqual({ id: 'attacks', shown: true, actions: [0] });
   });
 
   it('reports shownBefore and shownAfter, each with its side', () => {

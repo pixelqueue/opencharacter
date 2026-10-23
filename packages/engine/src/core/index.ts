@@ -23,7 +23,7 @@ export type {
 } from './actions.ts';
 export { continueAction, diceFrom, randomDice, startAction } from './actions.ts';
 export type { Adjustment, ApplyResult, Change } from './changes.ts';
-export type { ShownGroup } from './display.ts';
+export type { ContentMember, ShownGroup } from './display.ts';
 export type { ListedFollowUp, StoredFollowUp } from './follow-ups.ts';
 export type {
   CheckReleaseResult,
@@ -100,20 +100,26 @@ export function computeSheet(
   // Computed values on copies come after every field.
   const copies = sheet.copies();
   const { pending } = sheet.pending();
-  const shown = display(sheet);
+  const actions = sheet.actionList();
+  const shown = display(sheet, actions);
   for (const [qid, value] of Object.entries(values)) value.shown = shown.fields[qid] ?? true;
+  const activations = sheet.activationList();
+  activations.forEach((a, i) => {
+    const hidden = shown.hiddenState[i];
+    if (hidden) a.hiddenState = hidden;
+  });
   return {
     values,
     copies,
     copyNames: sheet.copyNames(),
     templated: sheet.templated(),
     standardCopies: sheet.standard,
-    activations: sheet.activationList(),
+    activations,
     choices: sheet.choiceList(),
     groups: shown.groups,
     copyLimits: sheet.copyLimits(),
     effects: sheet.activeEffects(),
-    actions: sheet.actions(),
+    actions: actions.map((a) => a.listed),
     situational: sheet.situational(),
     pending,
     offers: offers(layered.ruleset, sheet),

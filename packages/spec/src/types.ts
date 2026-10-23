@@ -1878,6 +1878,21 @@ export type CheckReleaseOutput = {
   errors: EngineError[];
 };
 
+/** A member of a `content` group: an activation (`from: own`), or an applied entry (`from: applied`). */
+export type ContentMember = {
+  /** Its index in `activations`. Always set for a `from: own` member; for an applied entry, set when it is listed there (active and not blocked). */
+  activation?: number;
+  /** A `from: applied` member's applied entry. */
+  entry?: InstanceId;
+  /** Its `sectionBy` key; absent when the group has none, or the formula fails or gives neither a whole number nor a string. */
+  section?: number | string;
+  /** An applied entry with no activation: its state keys not shown, as on an activation. */
+  hiddenState?: HiddenState;
+};
+
+/** The state keys the content declares that aren't shown (display-hints.md, "Shown"): its type's state hint is `hidden`, or its `showWhen` doesn't hold, seeing the copy or pick as `self` and its item as `item`. Absent when every key is shown. */
+export type HiddenState = Name[];
+
 export type ComputeSheetInput = {
   ruleset: Ruleset;
   character: CharacterFile;
@@ -1942,14 +1957,20 @@ export type ComputeSheetOutput = {
     keptBy?: number;
     /** Picks: the choice path of the pick, the picked option last. Holder grants whose node is a pick (content granted by picked content or an inline option): that pick's path, which a grant's `setState` names with `path`, `option` and `grant`. */
     path?: ChoicePath;
+    hiddenState?: HiddenState;
   }[];
   /** Every applicable choice, answered or not, in pending order: the rules-level choices first, then each activation's own choices, each followed by those of what it picked, before those of the activations it grants. Inline options' choices and `activate: false` choices are included; a slotted choice is one entry per slot. `pending` is the open ones, in the same order. */
   choices?: ListedChoice[];
-  /** Every display group, in ruleset order (display-hints.md, "Shown"): whether it is shown (its `showWhen` holds; one that fails to evaluate counts as true) and, for a `fields` group, its member fields: those whose hint lists it and those its `members` query matches, in ruleset order, shown or not. */
+  /** Every display group, in ruleset order (display-hints.md, "Shown"): whether it is shown (its `showWhen` holds; one that fails to evaluate counts as true) and its members, listed whether the group is shown or not: a `fields` group's `fields`, an `actions` group's `actions`, a `content` group's `items`. */
   groups?: {
     id: string;
     shown: boolean;
+    /** A `fields` group's member fields: those whose hint lists it and those its `members` query matches, in ruleset order, shown or not. */
     fields?: string[];
+    /** An `actions` group's members: the index in `actions` of each listing its `members` query matches, in that list's order. */
+    actions?: number[];
+    /** A `content` group's members, sorted: by section (numbers ascending, then strings in code-point order, then members without one), then by `sortBy` (the same order), then by instance order. */
+    items?: ContentMember[];
   }[];
   /** Copy limits: for each content type with `copies`, in ruleset order, its limits and the character's copies of it (standard copies included), so an app shows Replace instead of Add once `count` reaches `max`, and an item with `perItem` copies already as held. */
   copyLimits?: {
