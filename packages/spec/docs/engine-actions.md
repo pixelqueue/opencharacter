@@ -621,6 +621,32 @@ A `roll`, `choice`, `changes`, `action` or `branch` step with `each: <role>` run
   own (`unknown-role` at load). Cast-spell's outcome per target is one such flag.
 - `outcome` steps don't take `each`; `maxActionSteps` counts each run.
 
+## Group steps
+
+A `group` step runs its `steps` in **passes**:
+
+1. If its `when` holds, `repeat.max` is evaluated once, to an integer (`type-mismatch`
+   otherwise). With a `max` of 0 or less, no pass runs and `steps.<id>` is `[]`.
+2. **A pass.** Before pass `n` (from 0), the results of every step the group holds, at any
+   depth, are cleared, so each reads as absent until it runs in this pass. The steps then run as
+   any steps do, with paths `<id>[<n>]/<step id>`; a branch in the group nests under it
+   (`reroll[1]/hit/damage`). `steps.<id>` is the list of finished passes before it.
+3. **The pass's result.** Once its steps have run, the pass is the map of the results its steps
+   set (a step that didn't run is left out), appended to `steps.<id>`.
+4. **Again?** `repeat.while` is evaluated, with this pass's results as `steps.<step id>`.
+   Another pass runs while it holds and fewer than `max` passes have run. A pass past the
+   safety limit `maxGroupPasses` fails the action with `safety-limit-exceeded` (data: `limit`);
+   each pass after the first counts toward `maxActionSteps` too.
+5. **Afterwards**, each step the group holds reads as its latest result, from the last pass that
+   ran it, or is absent when none did; a roll step's `of` naming one (`of: again`) takes that
+   run, and inside a pass it takes this pass's.
+
+Checkpoints in a pass are matched by the policy's `step` rules at their pass path, and replay
+consumes answers in order, as for any step. `outcome` inside a group ends the whole action. A
+group holds no other group (`pnpm validate` reports one at any depth) and has no `each` or
+`sheet`; inside an `each` branch's case its passes run per participant, its result a list per
+participant as the case's steps' are.
+
 ## Handoffs
 
 An `action` step with `each: <role>` and `as: participant` is **handed off**: the
@@ -1005,7 +1031,8 @@ These follow from the rules above; they are spelled out because engines have to 
   among the roll's items.
 - **Paths:** a step inside a branch is `<branch>/<step>` (`hit/confirm`); a nested action's step
   is `<action step>/<its step>` (`check/check`); an `each` step's run for participant `i` is
-  `<step>[<i>]` (`saves[1]`).
+  `<step>[<i>]` (`saves[1]`); a step in a group's pass `n` is `<group>[<n>]/<step>`
+  (`reroll[1]/again`).
 - **Outcomes:** an outcome step without `data` gives `{ result }` only.
 - **Log `by`:** faces supplied by the dice function stay `by: engine` when the action is replayed
   after a pause.
@@ -1020,7 +1047,7 @@ These follow from the rules above; they are spelled out because engines have to 
   - `answer-mismatch` (from replayed `answers`, with `index` and `needs`);
   - `proposed-changes-failed` ([the proposed sheet](#the-proposed-sheet));
   - `conflicting-roll-modifiers`;
-  - `safety-limit-exceeded` (`maxActionSteps`, `maxActionDepth`, dice limits);
+  - `safety-limit-exceeded` (`maxActionSteps`, `maxActionDepth`, `maxGroupPasses`, dice limits);
   - a formula's error code.
 - **Other characters:** the engine computes one character per call. Another
   character taking part is a participant, passed as a view (`participants`), and anything that

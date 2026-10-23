@@ -45,6 +45,7 @@ export type Step =
   | ChoiceStep
   | AllocateStep
   | BranchStep
+  | GroupStep
   | ChangesStep
   | ActionStep
   | OutcomeStep;
@@ -210,6 +211,23 @@ export type BranchStep = {
     when: Condition;
   } & BranchArm)[];
   else?: BranchArm;
+};
+
+/** Runs its steps as a sequence, again and again: one pass, then another while `repeat.while` holds, up to `repeat.max` passes (Fate's invoke-and-reroll). A step in a pass has the path `<id>[<n>]/<step id>`. Inside a pass, `steps.<step id>` is this pass's result (absent until it runs) and `steps.<id>` the list of earlier passes; after the group, `steps.<step id>` is its latest result, from the last pass that ran it, and `steps.<id>` every pass, each a map of its steps' results by ID. A group holds no other group, at any depth. */
+export type GroupStep = {
+  /** Step ID, unique within the action; so are the IDs of the steps it holds. */
+  id: Name;
+  kind: 'group';
+  /** Whether the first pass runs; with `false` the group is skipped and `steps.<id>` is absent. */
+  when?: Condition;
+  /** The steps each pass runs, in order. No `group` step, here or nested in a branch. */
+  steps: Step[];
+  repeat: {
+    /** Evaluated after each pass, with that pass's results as `steps.<step id>`: another pass runs while it holds and fewer than `max` have run. */
+    while: Condition;
+    /** Integer formula: the most passes, evaluated once before the first. Reaching the safety limit `maxGroupPasses` is `safety-limit-exceeded`. */
+    max: Formula;
+  };
 };
 
 /** Flags a choice option sets when picked: flag name to formula. */

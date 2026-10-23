@@ -28,7 +28,13 @@ import type {
   TagOrFormula,
   ValueDecl,
 } from './pack-types.ts';
-import { optionQuery, pendingSource, valueSource, writtenOptions } from './pack-types.ts';
+import {
+  innerSteps,
+  optionQuery,
+  pendingSource,
+  valueSource,
+  writtenOptions,
+} from './pack-types.ts';
 import {
   admitsTag,
   evaluateTags,
@@ -305,6 +311,7 @@ class Finish extends Error {
 
 const MAX_STEPS = 1000;
 const MAX_DEPTH = 16;
+const MAX_PASSES = 100;
 
 /** The engine's own dice function (the default). Not seeded; pass one for reproducible rolls. */
 export const randomDice: DiceFunction = (count, sides, zero) =>
@@ -527,6 +534,8 @@ interface Frame {
   depth: number;
   rollItems: Map<string, BuiltItem[]>;
   eachOf: Map<string, string>;
+  /** A step a group holds: the path prefix of the group's latest pass (`reroll[2]/`). */
+  passOf: Map<string, string>;
   flagsEach: Map<string, string>;
   held: Map<string, Proposed[]>;
   views: Map<string, View>;
@@ -731,6 +740,7 @@ function startFrame(
     depth,
     rollItems: new Map(),
     eachOf: new Map(),
+    passOf: new Map(),
     flagsEach: new Map(),
     held: new Map(),
     views: new Map(),
@@ -968,6 +978,22 @@ function setFlag(frame: Frame, name: string, value: unknown, perParticipant = fa
   (frame.flags[name] as unknown[])[each.index] = value;
 }
 
+/** A step's result as the current participant's in an `each` over its role; else its own. */
+function resultOf(frame: Frame, id: string): unknown {
+  const each = frame.each;
+  if (each && frame.eachOf.get(id) === each.role)
+    return (frame.steps[id] as unknown[] | undefined)?.[each.index];
+  return frame.steps[id];
+}
+
+function clearResult(frame: Frame, id: string): void {
+  const each = frame.each;
+  if (each && frame.eachOf.get(id) === each.role) {
+    const list = frame.steps[id] as unknown[] | undefined;
+    if (list) list[each.index] = null;
+  } else delete frame.steps[id];
+}
+
 function setResult(frame: Frame, id: string, value: unknown): void {
   const each = frame.each;
   if (each && frame.eachOf.get(id) === each.role)
@@ -1168,6 +1194,9 @@ function runStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     case 'changes':
       changesStep(ctx, frame, step, path);
       break;
+    case 'group':
+      groupStep(ctx, frame, step, path);
+      break;
     case 'action': {
       if (step.as === 'participant') {
         handoff(ctx, frame, step, path);
@@ -1219,6 +1248,43 @@ function runStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
         ...(step.data ? { data } : {}),
       });
     }
+  }
+}
+
+/**
+ * Runs its steps once per pass at `<path>[<n>]/`, again while `while` holds, up to `max`. Each
+ * pass starts without the inner steps' results; `steps.<group>` lists the finished passes.
+ */
+function groupStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
+  const repeat = step.repeat as { max: Formula; while: Formula };
+  const max = integer(evaluate(ctx, frame, repeat.max), 'repeat.max');
+  const inner = innerSteps(step).map((s) => s.id);
+  const passes: Record<string, unknown>[] = [];
+  setResult(frame, step.id, []);
+  for (let n = 0; n < max; n++) {
+    if (n >= MAX_PASSES)
+      throw new ActionError('safety-limit-exceeded', { limit: 'maxGroupPasses' });
+    if (n > 0 && ++ctx.stepsRun > MAX_STEPS)
+      throw new ActionError('safety-limit-exceeded', { limit: 'maxActionSteps' });
+    const prefix = `${path}[${n}]/`;
+    for (const id of inner) clearResult(frame, id);
+    for (const own of step.steps ?? []) frame.passOf.set(own.id, prefix);
+    runSteps(ctx, { ...frame, prefix }, step.steps ?? []);
+    const pass: Record<string, unknown> = {};
+    for (const id of inner) {
+      const value = resultOf(frame, id);
+      if (value !== undefined && value !== null) pass[id] = value;
+    }
+    passes.push(pass);
+    setResult(frame, step.id, [...passes]);
+    if (!test(ctx, frame, repeat.while)) break;
+  }
+  // Afterwards each step reads its latest run, whichever pass made it.
+  for (const id of inner) {
+    const last = passes.findLastIndex((pass) => Object.hasOwn(pass, id));
+    if (last < 0) continue;
+    setResult(frame, id, passes[last]?.[id]);
+    if (frame.passOf.has(id)) frame.passOf.set(id, `${path}[${last}]/`);
   }
 }
 
@@ -2089,7 +2155,9 @@ function classifyAgain(ctx: Ctx, frame: Frame, step: Step, path: string, of: str
   const [first, ...rest] = of.split('/');
   const each = frame.each;
   const index = each && frame.eachOf.get(first as string) === each.role ? `[${each.index}]` : '';
-  const named = `${frame.prefix}${first}${index}${rest.length ? `/${rest.join('/')}` : ''}`;
+  // A group's inner step names its latest pass's run.
+  const prefix = frame.passOf.get(first as string) ?? frame.prefix;
+  const named = `${prefix}${first}${index}${rest.length ? `/${rest.join('/')}` : ''}`;
   const earlier = ctx.rolls.get(named);
   if (!earlier) return;
   const { band: _band, bandSet: _set, bandValue: _value, ...rolled } = earlier.result;

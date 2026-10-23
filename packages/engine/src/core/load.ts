@@ -27,7 +27,7 @@ import type {
   ValueDecl,
 } from './pack-types.ts';
 import { appliesQueries, fitsItemField, keptQuery } from './pack-types.ts';
-import { bandSet } from './pack-types.ts';
+import { bandSet, stepArms } from './pack-types.ts';
 import type { PackRelease } from './release.ts';
 import { expandFamilies } from './families.ts';
 import {
@@ -587,12 +587,10 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
           for (const inner of list) {
             if (inner.each !== undefined)
               err('unknown-role', { role: inner.each, step: inner.id, pack });
-            for (const arm of [...(inner.cases ?? []), ...(inner.else ? [inner.else] : [])])
-              nested(arm.steps ?? []);
+            for (const arm of stepArms(inner)) nested(arm.steps ?? []);
           }
         };
-        for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])])
-          nested(arm.steps ?? []);
+        for (const arm of stepArms(step)) nested(arm.steps ?? []);
       }
     },
     steps(steps: Step[], pack: string, roles: Record<string, Role> = {}): Step[] {
@@ -659,6 +657,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
               },
             }
           : {}),
+        ...(step.kind === 'group' && step.steps ? { steps: q.steps(step.steps, pack, roles) } : {}),
       }));
     },
     /** `release` and a roll step's `of` name steps anywhere in the same action's tree. */
@@ -667,8 +666,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       const walk = (list: Step[]) => {
         for (const step of list) {
           all.push(step);
-          for (const arm of step.cases ?? []) walk(arm.steps ?? []);
-          walk(step.else?.steps ?? []);
+          for (const arm of stepArms(step)) walk(arm.steps ?? []);
         }
       };
       walk(steps);
@@ -1237,8 +1235,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
             formula,
           ]),
         );
-      for (const arm of step.cases ?? []) situationalSteps(arm.steps ?? [], pack);
-      situationalSteps(step.else?.steps ?? [], pack);
+      for (const arm of stepArms(step)) situationalSteps(arm.steps ?? [], pack);
     }
   };
   const situationalActions = (list: ActionOrUse[] | undefined, pack: string): void => {

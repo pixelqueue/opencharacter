@@ -507,6 +507,7 @@ before. The changes name the actor's own fields, as `to: target` changes do.
 | `choice`   | Offers `options` from one source (below); `recommend` or `prefer` names the rules' pick; `repeat` picks more than once                                                                                            | `steps.<id>.picked`, `.item`, `.self`, `.value`, `.values`, `.added` |
 | `allocate` | Spends a budget across fields, or hands out a list of values, one per field ([below](#allocate-steps))                                                                                                            | `steps.<id>.amounts`                                                 |
 | `branch`   | Runs the first case whose `when` is true (else `else`), sets its `flags` and runs its `steps`                                                                                                                     | `flags.<name>`                                                       |
+| `group`    | Runs its `steps` once per pass, again while `repeat.while` holds, up to `repeat.max` passes ([below](#repeating-steps))                                                                                           | `steps.<id>[<n>].<step id>`                                          |
 | `changes`  | Proposes changes for the app to apply, `to: self` (default), `to: target`, `to: <role>` or `to: { link: <slot> }`; `release` proposes held ones; content adds to a tagged one (below)                             | `steps.<id>.added`                                                   |
 | `action`   | Runs another action (`use`, `params`, and `source`, `participants` and `tags` below), e.g. a panic check after a failed save; with `as: participant`, hands it off                                                | `steps.<id>.result`, `.data`                                         |
 | `outcome`  | Ends the action with `result` and `data`                                                                                                                                                                          | —                                                                    |
@@ -767,6 +768,45 @@ A roll **part** is exactly one of:
 - `field`: a formula that evaluates to a field ID. The item's value is that field's value and its source is that field (Strength or Dexterity for a finesse weapon).
 
 A `value` that is a single field reference gets that field as its source. Otherwise the default source is the item, or the rules, the action belongs to.
+
+### Repeating steps
+
+A `group` step runs a sequence of steps again and again: one **pass** of its `steps`, then
+another while `repeat.while` holds (evaluated after each pass), up to `repeat.max` passes (an
+integer formula, evaluated once). Its `when` decides whether the first pass runs. Fate's
+invoke-and-reroll: after the dice, pay to reroll, see the result, and maybe reroll again:
+
+```yaml
+- { id: roll, kind: roll, parts: [{ dice: 4dF }, { field: params.skill.id }] }
+- id: reroll
+  kind: group
+  repeat: { while: "steps.invoke.picked != 'keep'", max: 5 }
+  steps:
+    - id: invoke
+      kind: choice
+      options: [{ id: keep }, { id: fate-point }, { id: free-invoke }]
+      recommend: "'keep'"
+    - id: again
+      kind: roll
+      when: "steps.invoke.picked != 'keep'"
+      parts: [{ dice: 4dF }, { field: params.skill.id }]
+- id: done
+  kind: outcome
+  data: { total: 'has(steps.again) ? steps.again.total : steps.roll.total' }
+```
+
+- **Inside a pass**, `steps.<step id>` is this pass's result, absent until the step runs in it
+  (as a skipped step's is), and `steps.<group>` lists the passes before it.
+- **After the group**, `steps.<group>` lists every pass, each a map of the results of the steps
+  that ran in it by step ID (`steps.reroll[0].again.total`), and `steps.<step id>` is the step's
+  latest result, whichever pass made it: `steps.again` is the last reroll, though the last pass
+  kept it.
+- **Paths.** A step in pass `n` is at `<group>[<n>]/<step id>` (`reroll[1]/again`): its
+  checkpoints, log entries, proposed changes and the policy rules that name it. A roll step's
+  `of` names a step of the group as `<step id>`: inside a pass, this pass's run; after the
+  group, its latest.
+- A group holds no other group, at any depth, nor takes `each` or `sheet`; each pass counts
+  toward `maxActionSteps`, and more passes than `maxGroupPasses` is `safety-limit-exceeded`.
 
 ### Choice steps
 
@@ -1182,4 +1222,4 @@ policy:
 
 ## Safety limits
 
-Packs are untrusted, so every implementation enforces the [safety limits](../data/safety-limits.json): `maxExplosions`, `maxRerolls`, `maxDicePerItem`, `maxFormulaDepth`, `maxFormulaLength`, `maxChoiceDepth`, `maxActionSteps`, `maxActionDepth`, `maxExtendsDepth` and `maxOverflowChain`. Reaching one is the error `safety-limit-exceeded`. The values are **PROVISIONAL**.
+Packs are untrusted, so every implementation enforces the [safety limits](../data/safety-limits.json): `maxExplosions`, `maxRerolls`, `maxDicePerItem`, `maxFormulaDepth`, `maxFormulaLength`, `maxChoiceDepth`, `maxActionSteps`, `maxActionDepth`, `maxGroupPasses`, `maxExtendsDepth` and `maxOverflowChain`. Reaching one is the error `safety-limit-exceeded`. The values are **PROVISIONAL**.

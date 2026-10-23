@@ -30,7 +30,7 @@ import {
   valueSource,
   writtenOptions,
 } from '../../packages/engine/src/core/pack-types.ts';
-import { appliesQueries } from '../../packages/engine/src/core/pack-types.ts';
+import { appliesQueries, innerSteps, stepArms } from '../../packages/engine/src/core/pack-types.ts';
 import { HOMEBREW } from '../../packages/engine/src/core/homebrew.ts';
 import {
   blockArgument,
@@ -82,11 +82,7 @@ const COPY_CORE = new Set(['id', 'item', 'templates', 'equipped', 'quantity', 'c
 
 function hasOutcome(steps: Step[]): boolean {
   return steps.some(
-    (step) =>
-      step.kind === 'outcome' ||
-      [...(step.cases ?? []), ...(step.else ? [step.else] : [])].some((arm) =>
-        hasOutcome(arm.steps ?? []),
-      ),
+    (step) => step.kind === 'outcome' || stepArms(step).some((arm) => hasOutcome(arm.steps ?? [])),
   );
 }
 
@@ -469,8 +465,7 @@ export class PackChecker {
           for (const step of steps) {
             if (step.kind === 'roll' && !step.label)
               this.requiredKeys.add(`actions.${target.def.id}.steps.${step.id}.name`);
-            for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])])
-              walk(arm.steps ?? []);
+            for (const arm of stepArms(step)) walk(arm.steps ?? []);
           }
         };
         walk(target.def.steps);
@@ -510,8 +505,7 @@ export class PackChecker {
             file,
             `${where}: step "${path}" of ${qid} has no recommend, so a random run pauses there`,
           );
-        for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])])
-          walk(arm.steps ?? [], `${path}/`);
+        for (const arm of stepArms(step)) walk(arm.steps ?? [], `${path}/`);
         if (step.kind === 'action' && step.use && step.as !== 'participant') {
           const used = this.ruleset.action(step.use, this.scope);
           if (used) this.randomRun(used.def, used.qid, file, where, seen);
@@ -1668,8 +1662,7 @@ export class PackChecker {
     const collect = (steps: Step[]) => {
       for (const step of steps) {
         if (step.kind === 'roll') rollSteps.add(step.id);
-        for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])])
-          collect(arm.steps ?? []);
+        for (const arm of stepArms(step)) collect(arm.steps ?? []);
       }
     };
     collect(action.steps);
@@ -1704,8 +1697,7 @@ export class PackChecker {
           if (step.label) this.requiredKeys.add(step.label);
           else this.optionalKeys.add(`${key}.steps.${step.id}.name`);
         }
-        for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])])
-          walk(arm.steps ?? []);
+        for (const arm of stepArms(step)) walk(arm.steps ?? []);
         const copies = query?.source === 'copies';
         for (const option of writtenOptions(step))
           for (const change of option.changes ?? [])
@@ -1728,6 +1720,13 @@ export class PackChecker {
           this.report.error(file, `${where}: each names undeclared role "${step.each}"`);
         if (step.as === 'participant' && step.each === undefined)
           this.report.error(file, `${where}: as: participant is only for an each step`);
+        if (step.kind === 'group')
+          for (const inner of innerSteps(step))
+            if (inner.kind === 'group')
+              this.report.error(
+                file,
+                `${where}: group step "${inner.id}" inside the group step "${step.id}"`,
+              );
         // An `each` branch step's case steps already run per participant.
         if (step.kind === 'branch' && step.each !== undefined) {
           const nested = (list: Step[]): void => {
@@ -1737,12 +1736,10 @@ export class PackChecker {
                   file,
                   `${where}: step "${inner.id}" has an each inside the each branch step "${step.id}"`,
                 );
-              for (const arm of [...(inner.cases ?? []), ...(inner.else ? [inner.else] : [])])
-                nested(arm.steps ?? []);
+              for (const arm of stepArms(inner)) nested(arm.steps ?? []);
             }
           };
-          for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])])
-            nested(arm.steps ?? []);
+          for (const arm of stepArms(step)) nested(arm.steps ?? []);
         }
         for (const ref of Object.keys(step.situational ?? {}))
           if (!this.ruleset.situational(ref, this.scope))
@@ -2567,8 +2564,6 @@ function familyFields(tree: Node): { text: string; names: string[] }[] {
 
 function hasValues(steps: Step[]): boolean {
   return steps.some(
-    (s) =>
-      valueSource(s) !== undefined ||
-      [...(s.cases ?? []), ...(s.else ? [s.else] : [])].some((a) => hasValues(a.steps ?? [])),
+    (s) => valueSource(s) !== undefined || stepArms(s).some((a) => hasValues(a.steps ?? [])),
   );
 }

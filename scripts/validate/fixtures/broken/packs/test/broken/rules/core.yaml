@@ -66,6 +66,22 @@ actions:
       - { id: lunge, kind: action, use: lunge, source: "'tricks.spin'" }
       - { id: spin, kind: action, use: whirl, entry: "'trick'" }
       - { id: hop, kind: action, use: hop, entry: "'trick'" }
+  # A group holds no group, at any depth.
+  - id: nest
+    steps:
+      - id: outer
+        kind: group
+        repeat: { while: 'false', max: 2 }
+        steps:
+          - id: fork
+            kind: branch
+            cases:
+              - when: 'true'
+                steps:
+                  - id: inner
+                    kind: group
+                    repeat: { while: 'false', max: 2 }
+                    steps: [{ id: die, kind: roll, parts: [{ dice: 1d6 }] }]
   - id: needs-kind
     params:
       kind: { type: string }

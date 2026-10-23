@@ -295,6 +295,7 @@ describe('pnpm validate', () => {
         /followUps.crew-roll: creation start "roll"'s action has no parameter "size"/,
       ],
       ['a source that defines no such action', /step lunge: unknown action "lunge"/],
+      ['a group inside a group', /step outer: group step "inner" inside the group step "outer"/],
       ['an entry no content defines the action for', /step hop: unknown action "hop"/],
       [
         'a creation start missing a parameter',
