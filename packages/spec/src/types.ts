@@ -1375,12 +1375,12 @@ export type StepChanges = {
 /** A character field (by ID, or a string formula giving one), a set of fields (by a static query over their tags), rolls as they happen (by tag), incoming changes (by field and tag), an action's choice steps (by tag), or an action's changes steps (by tag). */
 export type EffectTarget =
   | FieldRef
-  | FormulaTarget
   | RollTarget
   | IncomingTarget
   | ChoiceTarget
   | StepTarget
-  | FieldsTarget;
+  | FieldsTarget
+  | FormulaTarget;
 
 /** Choice steps of actions as they run, by tag. Only op `option`. */
 export type ChoiceTarget = {
