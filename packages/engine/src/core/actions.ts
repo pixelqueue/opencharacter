@@ -24,6 +24,7 @@ import type {
   StepOption,
   ValueSource,
   TagOrFormula,
+  ValueDecl,
 } from './pack-types.ts';
 import { optionQuery, pendingSource, valueSource, writtenOptions } from './pack-types.ts';
 import {
@@ -868,9 +869,29 @@ function params(
         if (!admitsTag(decl.members, tag))
           throw new ActionError('invalid-option', { param: name, option: tag });
     }
+    paramRange(name, decl, typed, (bound) => {
+      const v = ctx.sheet.evaluate(bound, frame.pack, frame.roots);
+      return v.kind === 'int' || v.kind === 'decimal' ? v.value : undefined;
+    });
     out[name] = rootValue(typed);
   }
   return out;
+}
+
+/** A number parameter outside its `min`/`max`, evaluated as the action starts, is out-of-range. */
+function paramRange(
+  name: string,
+  decl: ValueDecl,
+  value: f.Value,
+  boundOf: (bound: Formula) => number | undefined,
+): void {
+  if (value.kind !== 'int' && value.kind !== 'decimal') return;
+  const bound = (formula: Formula | undefined) =>
+    formula === undefined ? undefined : boundOf(formula);
+  const min = bound(decl.min);
+  const max = bound(decl.max);
+  if ((min !== undefined && value.value < min) || (max !== undefined && value.value > max))
+    throw new ActionError('out-of-range', { target: name, min, max });
 }
 
 function fieldIdOf(value: unknown): unknown {
@@ -1356,6 +1377,9 @@ function handoff(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     const typed = decl.type === 'id' && decl.of === 'field' ? undefined : typedValue(decl, value);
     if (typeof typed === 'string')
       throw new ActionError('wrong-type', { target: name, expected: typed });
+    // A bound that reads the participant's character is checked when its action starts.
+    if (typed)
+      paramRange(name, decl, typed, (bound) => (typeof bound === 'number' ? bound : undefined));
   }
   const passed = handoffParticipants(ctx, frame, step, used);
   const participant = { role: each.role, id: each.view.id as string };

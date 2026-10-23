@@ -1144,9 +1144,9 @@ export type ValueDecl = {
   label?: I18nKey;
   /** The value when none is given. For integer, decimal, boolean and dice declarations a string is a formula: on a state key it is evaluated with `item` bound when the copy is added, and the result is written into the character file (`shots: item.magazine`); on an item field it is read as an item's own value is, over input fields. For string, enum and id declarations a string is a literal. An item field's default applies in `item` when the item doesn't set the field; an id or set default of content or `field` is qualified in the content type's pack. */
   default?: Literal;
-  /** The lowest allowed value. On a state key, a number formula with `item` bound (the copy's item with its templates) that reads input fields only, evaluated by `addItem` for a formula default and by `setState` and `adjustState` (`shots: { max: item.magazine }`). */
+  /** The lowest allowed value. On a state key, a number formula with `item` bound (the copy's item with its templates) that reads input fields only, evaluated by `addItem` for a formula default and by `setState` and `adjustState` (`shots: { max: item.magazine }`). On an action parameter of type `integer` or `decimal`, a number formula evaluated as the action starts, with the action's `item` and `self`, `situational` and the character's fields (`max: effort.free`); a value outside it is `out-of-range`. */
   min?: Formula;
-  /** The highest allowed value. On a state key, read like `min`. */
+  /** The highest allowed value. On a state key or a parameter, read like `min`. */
   max?: Formula;
   /** Parameters of type `id` with `of: field`: which fields the app may pass (a condition over each field as `item`: `id`, `type`, `tags`). The action reads the field as `params.<name>.value`, its ID as `params.<name>.id`, its type as `params.<name>.type` and its declared tags as `params.<name>.tags`. Parameters of type `id` with `of` a content type: which items the app may pass, a condition with `item` the candidate item, the character's fields, and the action's own item and copy as `action.item` and `action.self`; the action reads the item's qualified ID. A value outside it is `invalid-option` when the action starts. */
   where?: Condition;

@@ -887,6 +887,16 @@ class FormulaChecker<L> {
         ),
       );
     }
+    // Parameter bounds are evaluated as the action starts: no steps, flags or params yet.
+    for (const [name, decl] of Object.entries(action.params ?? {}))
+      this.typed({ ...own, situational: types.situational as FType }, () =>
+        this.at('content', () =>
+          this.onlyRoots(['situational'], () => {
+            this.formula(decl.min, at, `${key} param ${name} min`, NUMBER);
+            this.formula(decl.max, at, `${key} param ${name} max`, NUMBER);
+          }),
+        ),
+      );
     this.typed(types, () => this.actionBody(action, at, key, each));
   }
 

@@ -48,13 +48,13 @@ A roll is a list of **roll items**. Each item is structured data, not a display 
 
 An **action** ([`action.schema.json`](../schemas/action.schema.json)) is a cascade of steps, such as attack roll → hit or miss → damage. Actions are declared on content types (every item of the type gets them), on items, or in the rules as shared actions that items `use` (optionally fixing `params`).
 
-| Property       | Meaning                                                                                        |
-| -------------- | ---------------------------------------------------------------------------------------------- |
-| `available`    | When the action is offered (`self.equipped`)                                                   |
-| `params`       | Values the app supplies (a target's AC, which stat to test), declared like state               |
-| `participants` | Roles other characters fill (a target, a helper), each with `min`, `max` and declared `fields` |
-| `steps`        | The cascade                                                                                    |
-| `results`      | The results its outcome can have: a list of IDs, or `{ bands: <set> }` for a band set's bands  |
+| Property       | Meaning                                                                                                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `available`    | When the action is offered (`self.equipped`)                                                                                                                             |
+| `params`       | Values the app supplies (a target's AC, which stat to test), declared like state; `min`/`max` are enforced as the action starts ([engine-actions.md](engine-actions.md)) |
+| `participants` | Roles other characters fill (a target, a helper), each with `min`, `max` and declared `fields`                                                                           |
+| `steps`        | The cascade                                                                                                                                                              |
+| `results`      | The results its outcome can have: a list of IDs, or `{ bands: <set> }` for a band set's bands                                                                            |
 
 Formulas in an action see `item`, `self`, `params.<name>`, `situational.<id>`, `participants.<role>`, `steps.<id>.*` and `flags.<name>`. Where `item` and `self` mean something else (a choice step's candidates, a formula a change passes on), the action's own are `action.item` and `action.self`, and the current step is `action.step` (`id`, `tags`).
 
