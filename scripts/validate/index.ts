@@ -7,6 +7,7 @@ import {
   loadPack,
   SchemaValidator,
   visibleFamilies,
+  readYaml,
   walkYaml,
   YamlCache,
   type LoadedPack,
@@ -14,6 +15,7 @@ import {
 import { HOMEBREW, homebrewItems } from '../../packages/engine/src/core/homebrew.ts';
 import { LIMITS } from '../../packages/engine/src/formula/limits.ts';
 import { Reporter } from './report.ts';
+import type { ExportFile } from '../../packages/spec/src/index.ts';
 import type { CharacterDoc, ContentItem, RulesDoc } from './types.ts';
 import { Ruleset } from './ruleset.ts';
 import { pendingVersions } from '../release/pending.ts';
@@ -29,6 +31,8 @@ export interface ValidateOptions {
   packs?: string;
   /** Folder holding character files. Default `<root>/examples/characters`. */
   characters?: string;
+  /** Folder holding export files. Default `<root>/examples/exports`. */
+  exports?: string;
   /** Called with each pack's formulas as the validator reaches them (used by the pack build). */
   onFormula?: (packId: string, text: string) => void;
   /**
@@ -45,6 +49,7 @@ export interface ValidateResult {
   /** Translation keys each pack's default language must have. */
   requiredKeys: Map<string, Set<string>>;
   characters: string[];
+  exports: string[];
 }
 
 /**
@@ -102,6 +107,51 @@ function checkHomebrew(
   new CharacterChecker(ruleset, reporter).run(character, file);
 }
 
+/**
+ * An export: each character is checked as a character file, and the packs it lists are exactly
+ * the versions they pin, once each, each a repo pack at that version.
+ */
+function checkExport(
+  packs: LoadedPack[],
+  ruleset: Ruleset,
+  file: ExportFile,
+  at: string,
+  reporter: Reporter,
+): void {
+  const listed = new Map<string, string>();
+  file.packs.forEach((entry, i) => {
+    const { id, version } = 'release' in entry ? entry.release.manifest : entry;
+    const where = `${at}#/packs/${i}`;
+    const key = `${id}@${version}`;
+    if (listed.has(key)) reporter.error(where, `lists ${id} ${version} twice`);
+    listed.set(key, where);
+    const pack = ruleset.packs.get(id);
+    if (!pack) reporter.error(where, `lists unknown pack "${id}"`);
+    else if (pack.manifest.version !== version)
+      reporter.error(where, `lists ${id} ${version}, but the pack is ${pack.manifest.version}`);
+  });
+  const ids = new Set<string>();
+  const pinned = new Set<string>();
+  const checker = new CharacterChecker(ruleset, reporter);
+  file.characters.forEach((character, i) => {
+    const where = `${at}#/characters/${i}`;
+    if (ids.has(character.id))
+      reporter.error(where, `character id "${character.id}" is used twice`);
+    ids.add(character.id);
+    for (const { id, version } of character.packs) {
+      pinned.add(`${id}@${version}`);
+      if (!listed.has(`${id}@${version}`))
+        reporter.error(where, `pins ${id} ${version}, which the export does not list`);
+    }
+    const doc = character as CharacterDoc;
+    if (doc.homebrew) checkHomebrew(packs, doc, where, reporter);
+    else checker.run(doc, where);
+  });
+  for (const [key, where] of listed)
+    if (!pinned.has(key))
+      reporter.warn(where, `lists ${key.replace('@', ' ')}, which no character pins`);
+}
+
 /** Compiled once: the schemas don't change while a process runs. */
 let schemaValidator: SchemaValidator | undefined;
 
@@ -157,6 +207,7 @@ function copy(result: ValidateResult): ValidateResult {
     })),
     requiredKeys: new Map([...result.requiredKeys].map(([id, keys]) => [id, new Set(keys)])),
     characters: [...result.characters],
+    exports: [...result.exports],
   };
 }
 
@@ -172,13 +223,16 @@ export function validateRepo(root: string, options: ValidateOptions = {}): Valid
   const absRoot = resolve(root);
   const packsDir = options.packs ?? join(absRoot, 'packs');
   const charactersDir = options.characters ?? join(absRoot, 'examples', 'characters');
+  const exportsDir = options.exports ?? join(absRoot, 'examples', 'exports');
   const pending = options.pending ?? pendingVersions(absRoot);
-  options = { ...options, pending };
-  const key = [absRoot, packsDir, charactersDir, JSON.stringify([...pending])].join('\0');
+  options = { ...options, pending, exports: exportsDir };
+  const key = [absRoot, packsDir, charactersDir, exportsDir, JSON.stringify([...pending])].join(
+    '\0',
+  );
   let memo = memos.get(key);
   if (!memo) memos.set(key, (memo = { cache: new YamlCache() }));
   if (options.onFormula) return run(absRoot, packsDir, charactersDir, options, memo.cache);
-  const print = fingerprint([packsDir, charactersDir]);
+  const print = fingerprint([packsDir, charactersDir, exportsDir]);
   if (memo.last?.fingerprint === print) return copy(memo.last.result);
   const result = run(absRoot, packsDir, charactersDir, options, memo.cache);
   memo.last = { fingerprint: print, result: copy(result) };
@@ -248,6 +302,14 @@ function run(
     else if (character) characterChecker.run(character.doc, character.file);
     characters.push(file);
   }
+  const exports: string[] = [];
+  for (const file of walkYaml(options.exports as string)) {
+    const doc = readYaml(file, reporter, absRoot, cache);
+    const rel = relative(absRoot, file);
+    if (schemas.check('export', doc, rel, reporter))
+      checkExport(packs, ruleset, doc as ExportFile, rel, reporter);
+    exports.push(file);
+  }
   cache.prune();
 
   return {
@@ -256,5 +318,6 @@ function run(
     loaded: packs,
     requiredKeys,
     characters,
+    exports,
   };
 }

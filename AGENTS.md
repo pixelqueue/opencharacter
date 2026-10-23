@@ -25,7 +25,7 @@ The documentation website (https://opencharacterformat.org/) is built from these
 | `apps/web-editor/`       | Local pack editor (`pnpm editor`); private, never published                                                                                                            |
 | `apps/website/`          | Documentation website (Astro Starlight, GitHub Pages): guides, glossary, and the spec synced in; private, never published                                              |
 | `packs/<game>/<pack>/`   | One pack (ID `<game>-<pack>`, version from 0.1.0): `pack.yaml`, `rules/`, `content/`, `i18n/`, `upgrades/`. A game folder holds that game's editions and content packs |
-| `examples/characters/`   | Example character files                                                                                                                                                |
+| `examples/`              | Example character files (`characters/`) and exports (`exports/`)                                                                                                       |
 | `scripts/`               | `validate`, `build:packs`, `release:check`, `release:setup` and `types`                                                                                                |
 
 ## Commands
@@ -37,7 +37,7 @@ The documentation website (https://opencharacterformat.org/) is built from these
 | `pnpm format`           | Format everything with oxfmt (TS, JSON, YAML, Markdown)                                                                                                                                                                                 |
 | `pnpm typecheck`        | TypeScript, strict                                                                                                                                                                                                                      |
 | `pnpm test`             | Vitest: schemas, fixed sets, validator, engine, conformance suite, release scripts; the upgrade-fixture test needs git tags                                                                                                             |
-| `pnpm validate`         | Check every pack and example character against the schemas and check every reference                                                                                                                                                    |
+| `pnpm validate`         | Check every pack, example character and example export against the schemas and check every reference                                                                                                                                    |
 | `pnpm types`            | Regenerate the TypeScript types in `packages/spec/src/types.ts` from the schemas (run after changing a schema)                                                                                                                          |
 | `pnpm editor`           | Start the local pack editor (`apps/web-editor`) at http://127.0.0.1:5173                                                                                                                                                                |
 | `pnpm website`          | Start the documentation website (`apps/website`) at http://localhost:4321/                                                                                                                                                              |

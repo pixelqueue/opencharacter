@@ -2249,6 +2249,37 @@ export type UpgradeOutput =
     }
   | EngineFailure;
 
+/** Characters moving between apps, with the packs they pin: one file for a roster, or for linked characters (a crew, a companion). Each pack is a reference by ID and version, which the receiving app supplies, or an embedded release, so the file opens with nothing else (a bundle). It carries only data: no engine and no sheet, which is derived. */
+export type ExportFile = {
+  /** The OCF spec version this file was written against. */
+  specVersion: Semver;
+  /** One or more character files, extensions and homebrew included. Their `id`s are unique within the export. */
+  characters: CharacterFile[];
+  /** Every pack version a character pins, once each. */
+  packs: ExportPack[];
+  extensions?: Record<string, unknown>;
+};
+
+export type ExportPack = ExportPackReference | ExportEmbeddedPack;
+
+/** A pack by ID and version, for the receiving app to supply. */
+export type ExportPackReference = {
+  id: PackId;
+  version: Semver;
+  /** Where the pack release can be fetched. */
+  url?: string;
+  integrity?: PackIntegrity;
+};
+
+/** A pack release carried in the file. */
+export type ExportEmbeddedPack = {
+  release: PackRelease;
+  integrity?: PackIntegrity;
+};
+
+/** The release's hash: `sha256-` and the base64 SHA-256 of its canonical JSON (RFC 8785). Decides whether the receiving app's own copy of the same ID and version is this release. */
+export type PackIntegrity = string;
+
 /** A character field declared by the rules. Input fields are base state the player supplies and the character file saves; all other fields are derived (formula, effects, grants) and never saved. Text: `fields.<id>.name`, `fields.<id>.short`. */
 export type Field = {
   type: ValueType;

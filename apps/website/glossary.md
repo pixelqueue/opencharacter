@@ -42,6 +42,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Entry (copy):** the character's copy of a content item: base item, templates, equipped flag, quantity, state, picks, and the state of content it grants.
 - **Ephemeral offer:** a follow-up (`on`, `becomes`) that a batch fired, stored in the character file until it is acted on or dismissed (a `becomes` one also until its condition is false): a concentration check after damage.
 - **Exclusivity group:** choices sharing a `unique` key; an option picked in one is ineligible (`already-picked`) in the others.
+- **Export:** a file of one or more characters with every pack version they pin, each by reference (ID, version, optional URL and integrity hash) or embedded as a release; one that embeds every pack is a bundle, which opens anywhere with nothing else.
 - **Extends:** a pack author's permanent variant of an item, inheriting everything and overriding parts.
 - **Extension (character):** app-specific data in a character file under the app's own namespace, carried along untouched.
 - **Field:** one value on a character, keyed by a permanent field ID.

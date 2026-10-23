@@ -80,6 +80,7 @@ export type SchemaName =
   | 'i18n'
   | 'upgrade'
   | 'character'
+  | 'export'
   | 'change';
 
 export class SchemaValidator {
@@ -96,6 +97,7 @@ export class SchemaValidator {
       'i18n',
       'upgrade',
       'character',
+      'export',
       'change',
     ] as const) {
       const fn = ajv.getSchema(`${SCHEMA_BASE}${name}.schema.json`);

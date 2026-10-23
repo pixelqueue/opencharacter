@@ -22,7 +22,7 @@ Core principle: **the engine knows the rules; the app owns the experience.** The
 | [effects.md](effects.md)                   | Effect targets, operations and their order, competition, stacking, rounding, loops                                            |
 | [formulas.md](formulas.md)                 | The formula language: grammar, tree, types, functions, dice, errors                                                           |
 | [dice-and-actions.md](dice-and-actions.md) | Dice notation and modifiers, roll items, actions, checkpoints, logs, safety limits                                            |
-| [characters.md](characters.md)             | The character file, a character's own homebrew, and creating a character                                                      |
+| [characters.md](characters.md)             | The character file, a character's own homebrew, creating a character, and exports                                             |
 | [engine-interface.md](engine-interface.md) | The calls, errors, rules issues, strict mode                                                                                  |
 | [engine-core.md](engine-core.md)           | How loadRuleset, computeSheet, listOptions and applyChanges behave: activation, field computation, stacking, issues, routing  |
 | [engine-actions.md](engine-actions.md)     | How startAction and continueAction run actions: building and rolling rolls, checkpoints, the log and replay                   |
@@ -43,6 +43,7 @@ Core principle: **the engine knows the rules; the app owns the experience.** The
 
 - A **pack** conforms if every file validates against its schema and every reference resolves (see [packs.md](packs.md)).
 - A **character file** conforms if it validates against [`character.schema.json`](../schemas/character.schema.json) and every reference resolves in the pinned pack versions.
+- An **export** conforms if it validates against [`export.schema.json`](../schemas/export.schema.json), each of its characters conforms, and it lists every pack version they pin, once each ([characters.md](characters.md#exports)).
 - An **engine** conforms to a spec version if it implements the calls in [engine-interface.md](engine-interface.md) and passes that version's test suite. Ports in other languages prove conformance the same way; there is no other certification.
 - When the reference engine and the spec disagree, **the spec wins**.
 

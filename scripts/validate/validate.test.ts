@@ -11,8 +11,9 @@ const unused = (key: string) => `translation key "${key}" does not belong to any
 
 describe('pnpm validate', () => {
   it('passes on the repository packs and example characters', () => {
-    const { reporter, packs, characters } = validateRepo(repoRoot);
+    const { reporter, packs, characters, exports } = validateRepo(repoRoot);
     expect(reporter.errors).toEqual([]);
+    expect(exports.length).toBeGreaterThanOrEqual(1);
     expect(packs).toEqual([
       '5e-srd-5.1',
       '5e-srd-5.2',
@@ -37,6 +38,7 @@ describe('pnpm validate', () => {
     const { reporter } = validateRepo(broken, {
       packs: `${broken}/packs`,
       characters: `${broken}/characters`,
+      exports: `${broken}/exports`,
     });
     const messages = reporter.errors.map((e) => e.message);
     const expectError = (pattern: RegExp) =>
@@ -58,6 +60,17 @@ describe('pnpm validate', () => {
         /grant of "tricks.hop" sets state key "shots", which it doesn't declare/,
       ],
       ['a missing required item field', /missing required field "damage"/],
+      ['an export listing a pack version twice', /lists broken 0\.1\.0 twice/],
+      [
+        'an export listing a version the repo lacks',
+        /lists test-orc 0\.2\.0, but the pack is 0\.1\.0/,
+      ],
+      ['an export listing an unknown pack', /lists unknown pack "test-missing"/],
+      [
+        'an export missing a pinned version',
+        /pins test-orc 0\.1\.0, which the export does not list/,
+      ],
+      ['an export reusing a character id', /character id "twin" is used twice/],
       ['an effect on an unknown field', /unknown target field "combat.armor"/],
       ['an op that cannot target rolls', /op "multiply" cannot target rolls/],
       [

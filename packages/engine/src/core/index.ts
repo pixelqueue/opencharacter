@@ -34,6 +34,8 @@ export type {
 } from './upgrade.ts';
 export { checkRelease, upgrade } from './upgrade.ts';
 export { applyChanges } from './changes.ts';
+export type { CreateExportOptions, CreateExportResult, ReadExportResult } from './export.ts';
+export { createExport, readExport, releaseIntegrity } from './export.ts';
 export type { HomebrewResult } from './homebrew.ts';
 export { withHomebrew } from './homebrew.ts';
 export type { EngineError, LoadResult, LoadRulesetOptions } from './load.ts';
@@ -58,7 +60,7 @@ export type {
   TemplatedItem,
   View,
 } from './sheet.ts';
-export type { CharacterFile, FieldValue } from '@opencharacter/spec';
+export type { CharacterFile, ExportFile, ExportPack, FieldValue } from '@opencharacter/spec';
 
 /**
  * computeSheet: every value with its breakdown and whether it is shown, display groups, effects,
