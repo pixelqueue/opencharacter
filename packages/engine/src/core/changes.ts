@@ -172,7 +172,7 @@ export function applyBatch(
             {
               code: 'unknown-follow-up',
               path: `/changes/${index}`,
-              data: { followUp: offer.followUp },
+              data: { id: offer.followUp },
             },
           ],
         };

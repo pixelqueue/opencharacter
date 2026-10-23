@@ -74,7 +74,8 @@ export function evaluateTree(node: Node, ctx: EvalContext): Value {
     case 'ref': {
       if (!ctx.id) return str(node.id);
       const id = ctx.id(node.id);
-      if (id === undefined) return fail('unknown-name', `no content or field @${node.id}`);
+      if (id === undefined)
+        return fail('unknown-name', `no content or field @${node.id}`, { name: `@${node.id}` });
       return str(id);
     }
     case 'bool':
@@ -449,7 +450,8 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
       const [name] = args;
       if (name?.type !== 'string') return fail('type-mismatch', 'keysOf() takes a family name');
       const keys = ctx.family?.(name.value);
-      if (!keys) return fail('unknown-name', `no family named "${name.value}"`);
+      if (!keys)
+        return fail('unknown-name', `no family named "${name.value}"`, { name: name.value });
       // A family of whole numbers (spell ranks) gives ints.
       return {
         kind: 'list',
@@ -468,18 +470,21 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
       let origin: { name: string; key: string } | undefined;
       for (const [i, name] of family.names.entries()) {
         const keys = ctx.family?.(name);
-        if (!keys) return fail('unknown-name', `no family named "${name}"`);
+        if (!keys) return fail('unknown-name', `no family named "${name}"`, { name });
         const key = evaluateTree(keyArgs[i] as Node, ctx);
         if (key.kind !== 'string' && key.kind !== 'int')
           return fail('type-mismatch', 'fieldOf() needs a string or int key');
         if (!keys.includes(String(key.value)))
-          return fail('no-such-key', `"${key.value}" is not a value of the family ${name}`);
+          return fail('no-such-key', `"${key.value}" is not a value of the family ${name}`, {
+            key: String(key.value),
+            family: name,
+          });
         id = id.replace(`{${name}}`, String(key.value));
         origin ??= { name, key: String(key.value) };
       }
       const value =
         ctx.familyField && origin ? ctx.familyField(origin.name, origin.key, id) : ctx.field(id);
-      if (value === undefined) return fail('unknown-name', `no field ${id}`);
+      if (value === undefined) return fail('unknown-name', `no field ${id}`, { name: id });
       return value;
     }
     case 'countOf': {

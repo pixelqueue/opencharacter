@@ -3225,7 +3225,7 @@ function offerFollowUp(
     if (def) id = qid;
   }
   if (!id || !def || def.while !== undefined)
-    throw new ActionError('unknown-reference', { followUp: ref });
+    throw new ActionError('unknown-reference', { kind: 'follow-up', id: ref });
   const values = Object.fromEntries(
     Object.entries(change.params ?? {}).flatMap(([name, formula]) => {
       const value = evaluate(ctx, frame, formula, bound);
@@ -3364,7 +3364,8 @@ function proposeOne(
     if (change.pick === 'self') {
       const a = frame.activation;
       const option = a?.kind === 'pick' ? a.path.choice.at(-1) : undefined;
-      if (!a || option === undefined) throw new ActionError('unknown-reference', { pick: 'self' });
+      if (!a || option === undefined)
+        throw new ActionError('unknown-reference', { kind: 'pick', id: 'self' });
       out.path = { ...a.path, choice: a.path.choice.slice(0, -1) };
       out.option = option;
     }
@@ -3373,7 +3374,7 @@ function proposeOne(
       // path ends at) and the granted item.
       const a = frame.activation;
       if (!a?.item || a.kind !== 'grant' || a.scope !== 'holder')
-        throw new ActionError('unknown-reference', { grant: 'self' });
+        throw new ActionError('unknown-reference', { kind: 'grant', id: 'self' });
       if (a.path.choice.length === 0) out.entry = a.path.entry;
       else {
         out.path = { ...a.path, choice: a.path.choice.slice(0, -1) };

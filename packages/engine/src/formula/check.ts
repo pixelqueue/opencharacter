@@ -147,7 +147,7 @@ export function checkTree(node: Node, ctx: CheckContext): FType {
       return node.type;
     case 'ref':
       if (ctx.id && !ctx.id(node.id))
-        return fail('unknown-name', `no content or field @${node.id}`, { id: node.id });
+        return fail('unknown-name', `no content or field @${node.id}`, { name: `@${node.id}` });
       return 'string';
     case 'bool':
       return 'bool';
@@ -328,6 +328,7 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
         return fail(
           'unknown-name',
           `"${arg.path.join('.')}" is not a bound root or a visible field`,
+          { name: arg.path.join('.') },
         );
       }
       // On typed roots, the path must name something that can exist (it may be absent).
@@ -368,7 +369,9 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
     case 'countState':
     case 'sumState':
       if (!ctx.character)
-        return fail('unknown-function', `${fn}() needs a character and is not bound here`);
+        return fail('unknown-function', `${fn}() needs a character and is not bound here`, {
+          function: fn,
+        });
       arity(fn === 'sumState' ? 2 : 1);
       for (const t of types()) wants(t, (x) => x === 'string', 'strings');
       return 'int';
@@ -382,13 +385,17 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
       return 'string';
     case 'hasChoice':
       if (!ctx.choices)
-        return fail('unknown-function', 'hasChoice() is bound only in display hints');
+        return fail('unknown-function', 'hasChoice() is bound only in display hints', {
+          function: fn,
+        });
       arity(1);
       wants(types()[0] as FType, (t) => t === 'string', 'a string');
       return 'bool';
     case 'picksOf': {
       if (!ctx.picks)
-        return fail('unknown-function', 'picksOf() is bound only where the formula has an owner');
+        return fail('unknown-function', 'picksOf() is bound only where the formula has an owner', {
+          function: fn,
+        });
       arity(1);
       if (args[0]?.type !== 'string')
         return mismatch('picksOf() takes a choice ID, a string literal');
@@ -405,7 +412,7 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
         return mismatch('keysOf() takes a family name, a string literal');
       const keys = ctx.family?.(name.value);
       if (ctx.family && !keys)
-        return fail('unknown-name', `no family named "${name.value}"`, { id: name.value });
+        return fail('unknown-name', `no family named "${name.value}"`, { name: name.value });
       if (!keys) return 'dyn';
       return { list: keys.every((k) => /^\d+$/.test(k)) ? 'int' : 'string' };
     }
@@ -420,11 +427,11 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
       if (!ctx.family) return 'dyn';
       const ids = patternIds(family, (name) => ctx.family?.(name));
       if (!Array.isArray(ids))
-        return fail('unknown-name', `no family named "${ids.unknown}"`, { id: ids.unknown });
+        return fail('unknown-name', `no family named "${ids.unknown}"`, { name: ids.unknown });
       let type: FType | undefined;
       for (const id of ids) {
         const t = ctx.field(id);
-        if (t === undefined) return fail('unknown-name', `no field ${id}`, { id });
+        if (t === undefined) return fail('unknown-name', `no field ${id}`, { name: id });
         if (type !== undefined && typeName(t) !== typeName(type))
           return mismatch(`fieldOf() fields have different types (${id})`);
         type = t;

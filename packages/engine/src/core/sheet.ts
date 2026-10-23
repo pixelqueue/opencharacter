@@ -1982,7 +1982,8 @@ export class Sheet {
     const known = this.tagResults.get(qid);
     if (known) return known;
     const def = this.ruleset.fields[qid];
-    if (!def) throw new Failure({ code: 'unknown-name', message: `no field ${qid}` });
+    if (!def)
+      throw new Failure({ code: 'unknown-name', message: `no field ${qid}`, data: { name: qid } });
     const result = evaluateTags(this.ruleset, def.tags, (formula) =>
       this.evaluate(formula, def.pack, {}),
     );
@@ -2019,7 +2020,11 @@ export class Sheet {
     const done = this.results.get(qid);
     if (done) return done;
     const def = this.ruleset.fields[qid];
-    if (!def) return { breakdown: [], error: { code: 'unknown-name', message: `no field ${qid}` } };
+    if (!def)
+      return {
+        breakdown: [],
+        error: { code: 'unknown-name', message: `no field ${qid}`, data: { name: qid } },
+      };
     if (this.stack.includes(qid)) {
       const loop = this.stack.slice(this.stack.indexOf(qid));
       throw new Failure({
