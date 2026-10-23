@@ -1,0 +1,21 @@
+# A 0.2.0 scoundrel with the table's own project that teaches a ritual (`learns`, free text). 0.3.0
+# names it by reference in `learnsRitual`.
+pack: fitd-scoundrel
+from: 0.2.0
+to: 0.3.0
+expect:
+  - at: /homebrew/content/0/fields/learnsRitual
+    value: rituals.ritual
+  - { at: /homebrew/content/0/fields/learns, absent: true }
+character:
+  specVersion: 0.2.0
+  id: upgrade-fitd-scoundrel-project
+  homebrew:
+    content:
+      - id: projects.long-ritual
+        type: project
+        fields: { segments: 12, learns: rituals.ritual }
+  inventory:
+    - id: project-1
+      item: homebrew:projects.long-ritual
+      state: { label: The drowned rite, progress: 3 }

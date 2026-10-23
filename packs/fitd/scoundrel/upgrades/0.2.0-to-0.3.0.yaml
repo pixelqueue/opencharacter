@@ -1,0 +1,8 @@
+pack: fitd-scoundrel
+from: 0.2.0
+to: 0.3.0
+steps:
+  # A project's free-text `learns` is a reference now, one field per kind. It moves to
+  # `learnsRitual`; a homebrew project that taught a design is reported (the homebrew no longer
+  # loads) and moves to `learnsDesign` by hand.
+  - { op: renameItemField, type: project, from: learns, to: learnsRitual }
