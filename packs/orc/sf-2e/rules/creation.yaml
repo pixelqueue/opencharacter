@@ -49,6 +49,14 @@ actions:
       - id: backgroundPicks
         kind: choice
         options: { pending: { entry: "'background'" } }
+      # The four free boosts come before the class's choices, whose trained skills count the final
+      # Intelligence modifier.
+      - id: freeBoosts
+        kind: choice
+        options: { content: { type: boost, where: picks == 0 } }
+        repeat: { max: 4, min: 4 }
+        changes:
+          - { type: choose, path: { choice: [free-boosts] }, option: picked.id }
       - id: classPicks
         kind: choice
         options: { pending: { entry: "'class'" } }

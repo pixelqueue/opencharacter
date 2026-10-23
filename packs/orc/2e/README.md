@@ -648,16 +648,19 @@ reading is listed under [Rule readings](#rule-readings).
 - **Hero Points**: an input, 1 to start, at most 3; spending them is the app's.
 - **Creation**: a guided start, `standard`, and a random one,
   `random`. Guided: an ancestry and its heritage, a background and a class, then what each brings in the book's order: the ancestry's
-  boosts and the heritage's choices, the background's boosts (and a scholar's skill), the class's
-  key attribute, its skill, its trained skills (3 + Intelligence, each one not trained yet) and
-  its feat; then the rest (four free boosts, the ancestry feat, languages, a training freed by a
-  skill trained twice), and full Hit Points. While being created the character needs an
+  boosts and the heritage's choices, the background's boosts (and a scholar's skill), the four
+  free boosts, the class's key attribute, its skill, its trained skills (3 + Intelligence, each
+  one not trained yet, counted with the free boosts in) and its feat; then the rest (the ancestry
+  feat, languages, a training freed by a skill trained twice), and full Hit Points. While being created the character needs an
   ancestry, a background and a class (`creation-ancestry-background-class`); it never has more
   than one of each (the content types' `copies: { max: 1 }`), created or not.
   - **Random** (`random-character`): the rules have players choose, so the odds are the pack's. The same picks in the same order, each drawn by the engine uniformly among the
     options eligible then (`random`): the ancestry, its heritage, the background
     and the class, then every pick they bring (heritage feats, the key attribute, trained
-    skills, feats, languages, a freed training). Boosts follow a priority instead. An ancestry
+    skills, feats, languages, a freed training). One difference: the four free boosts come
+    after the class's picks, so a choice that sets the key attribute (a rogue's racket) is made
+    before they're placed; a trained skill the final Intelligence adds is drawn with the rest.
+    Boosts follow a priority instead. An ancestry
     takes its standard boosts (the book's default). The key attribute is planned with the
     class: the class's own (a barbarian's Strength), else Strength or Dexterity, a d2 deciding;
     the class's key attribute pick takes the planned one when it is offered (a rogue other than
@@ -744,7 +747,8 @@ Where the books leave a rule open, or the format needs a choice the books don't 
 reads it as below. These are the pack's provisional calls; a table may rule otherwise.
 
 - **Random start:** the books have players choose, so the odds are the pack's. Each pick is
-  drawn uniformly among the options eligible then, in the guided start's order. Boosts follow a
+  drawn uniformly among the options eligible then, in the guided start's order, except that
+  the free boosts follow the class's picks, once the key attribute is known. Boosts follow a
   priority instead: an ancestry takes its standard boosts; the key attribute is planned with the
   class (its own, else Strength or Dexterity on a d2); every boost goes to the first offered of
   the key attribute, Constitution, Dexterity, Wisdom, Strength, Intelligence and Charisma.

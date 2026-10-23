@@ -198,7 +198,8 @@ Where the book leaves a rule open, or the format needs a choice the book doesn't
 reads it as below. These are the pack's provisional calls; a table may rule otherwise.
 
 - **Random start:** the book has players choose, so the odds are the pack's, as in `orc-2e`:
-  each pick is drawn uniformly among the options eligible then, in the guided start's order, and
+  each pick is drawn uniformly among the options eligible then, in the guided start's order
+  (except that the free boosts follow the class's picks, once the key attribute is known), and
   boosts follow the planned key attribute, then Constitution, Dexterity, Wisdom, Strength,
   Intelligence and Charisma.
 - **Specialized Skill Set:** a slot can find no eligible feat (the specialization's skill has few
