@@ -34,6 +34,7 @@ proposedChanges:
       step: save,
       change: { type: set, field: mothership-1e:credits.current, value: 170 },
     }
+  - { to: self, step: save, change: { type: set, field: mothership-1e:loadout.owed, value: true } }
   - { to: self, step: save, change: { type: finishCreation } }
 log:
   - { step: classRoll, kind: dice, faces: [1], total: 1 }
@@ -48,12 +49,14 @@ log:
   - { step: health, kind: dice, faces: [7], total: 17 }
   - { step: statRoll, kind: dice, faces: [2], total: 2 }
   - { step: stat, kind: choice, by: engine, option: speed }
+  - { step: skills, kind: dice, by: engine, faces: [1] }
   - step: skills
     kind: choice
     by: engine
     option: expert
     index: 0
     choice: { entry: classes-android-1, choice: [bonus-skills] }
+  - { step: skills, kind: dice, by: engine, faces: [1] }
   - step: skills
     kind: choice
     by: engine

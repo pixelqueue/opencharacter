@@ -57,6 +57,7 @@ actions:
       - id: skills
         kind: choice
         options: { pending: { entry: 'steps.class.added[0]' } }
+        random: '!params.choose'
         recommend: options[0]
       - { id: credits, kind: roll, tags: [creation], parts: [{ dice: 2d10 }] }
       - id: kit
@@ -80,9 +81,6 @@ actions:
               field: credits.current,
               value: "steps.credits.total * (steps.kit.picked == 'credits' ? 100 : 10)",
             }
+          - { type: set, field: loadout.owed, value: "steps.kit.picked == 'loadout'" }
           - { type: finishCreation }
-      - id: result
-        kind: outcome
-        result: "'rolled'"
-        data:
-          loadout: "steps.kit.picked == 'loadout'"
+      - { id: result, kind: outcome, result: "'rolled'" }
