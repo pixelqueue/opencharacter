@@ -7,6 +7,8 @@ export type Action = {
   tags?: Tags;
   /** When the action is offered, e.g. `self.equipped`. */
   available?: Condition;
+  /** `false`: computeSheet doesn't list the action and apps don't show it, but an `action` step with `source` or `entry` still runs it (while `available` holds), and so does `startAction`. For an action only other actions run: a class's part of a shared rules action. Default `true`. */
+  listed?: boolean;
   /** Values the app supplies when starting the action (a target's AC, which stat to test). */
   params?: Record<string, ValueDecl>;
   /** Other characters the action involves, by role: a target, a helper. `startAction` takes each role's characters as views (`{ id, values }`) that the app takes from their own sheets; formulas read them as `participants.<role>`, a list in input order. A role the action doesn't declare, or a count outside `min`/`max`, is `invalid-participants`. Text: `<actionKey>.participants.<role>.name` (optional). */
@@ -30,6 +32,8 @@ export type ActionOrUse =
   | Action
   | {
       use: Ref;
+      /** `false`: this use isn't listed by computeSheet, as an action's own `listed: false`. Default: the used action's. */
+      listed?: boolean;
       params?: Record<string, Formula>;
       scope?: ActionScope;
     };
@@ -41,6 +45,7 @@ export type Step =
   | ChoiceStep
   | AllocateStep
   | BranchStep
+  | GroupStep
   | ChangesStep
   | ActionStep
   | OutcomeStep;
@@ -88,7 +93,7 @@ export type RollPart = {
   multiplied?: false;
 };
 
-/** A choice checkpoint (hit or miss, use a reaction, push the roll, which class regains a hit die). Its options come from one source: a written list, the ruleset's content of a type (`{ content }`), the character's copies of a type (`{ copies }`), a list of values (`{ values }`), or the choices pending on the proposed sheet (`{ pending }`). Active content adds options to a step with `tags` through `option` effects; an added option's ID is `<content id>#<option id>`. Result: `steps.<id>.picked`, the option ID (with `repeat`, the list of picked IDs); for content and copies without `repeat`, also `steps.<id>.item` (and `.self` for copies); for values without `repeat`, `steps.<id>.value`. */
+/** A choice checkpoint (hit or miss, use a reaction, push the roll, which class regains a hit die). Its options come from one source: a written list, the ruleset's content of a type (`{ content }`), the character's copies of a type (`{ copies }`), a list of values (`{ values }`), or the choices pending on the proposed sheet (`{ pending }`). Active content adds options to a step with `tags` through `option` effects; an added option's ID is `<content id>#<option id>`. Result: `steps.<id>.picked`, the option ID (with `repeat`, the list of picked IDs); for content and copies without `repeat`, also `steps.<id>.item` (and `.self` for copies); for values without `repeat`, `steps.<id>.value`, and with `repeat`, `steps.<id>.values`, the picked values in order (numbers stay numbers). */
 export type ChoiceStep = {
   /** Step ID, unique within the action. Identifier-safe because formulas read results as `steps.<id>`. */
   id: Name;
@@ -131,8 +136,10 @@ export type ChoiceStep = {
     | {
         /** The choices still pending on the proposed sheet, in `computeSheet`'s `pending` order. Each pick answers the first of them with an eligible option not picked yet, offering those options as `listOptions` gives them, then `#done`; it proposes the `choose` for it, then the step's `changes`. The step reads the proposed sheet before each pick and goes on until nothing more can be picked or `#done` is picked. Result: `steps.<id>.picked`, the picked option IDs in order, and `steps.<id>.paths`, their choice paths. */
         pending: {
-          /** String formula giving an instance ID: only choices whose path starts at that copy are asked. Without it, every pending choice is, rules-level ones included. */
+          /** String formula giving an instance ID: only choices whose path starts at that copy are asked. Without it (and without `path`), every pending choice is, rules-level ones included. */
           entry?: Formula;
+          /** A choice path, as a `choose`'s `path`: only the pending choices at it or under it are asked, those with the same `entry` (none for a rules-level choice) whose choice path starts with `choice`. `{ choice: [crew-type, steps.type.picked, abilities] }` written as a formula asks only the abilities of the picked crew type. Not with `entry`. */
+          path?: ProposedPath;
         };
       };
   /** Pick more than once: the step is asked again, each pick its own checkpoint, until it has `max` picks or nothing is offered. After `min` picks the reserved option `#done` is offered last, which ends the step. An option may be picked again unless its `when` or `where` rules it out (they read `picks`). */
@@ -204,6 +211,23 @@ export type BranchStep = {
     when: Condition;
   } & BranchArm)[];
   else?: BranchArm;
+};
+
+/** Runs its steps as a sequence, again and again: one pass, then another while `repeat.while` holds, up to `repeat.max` passes (Fate's invoke-and-reroll). A step in a pass has the path `<id>[<n>]/<step id>`. Inside a pass, `steps.<step id>` is this pass's result (absent until it runs) and `steps.<id>` the list of earlier passes; after the group, `steps.<step id>` is its latest result, from the last pass that ran it, and `steps.<id>` every pass, each a map of its steps' results by ID. A group holds no other group, at any depth. */
+export type GroupStep = {
+  /** Step ID, unique within the action; so are the IDs of the steps it holds. */
+  id: Name;
+  kind: 'group';
+  /** Whether the first pass runs; with `false` the group is skipped and `steps.<id>` is absent. */
+  when?: Condition;
+  /** The steps each pass runs, in order. No `group` step, here or nested in a branch. */
+  steps: Step[];
+  repeat: {
+    /** Evaluated after each pass, with that pass's results as `steps.<step id>`: another pass runs while it holds and fewer than `max` have run. */
+    while: Condition;
+    /** Integer formula: the most passes, evaluated once before the first. Reaching the safety limit `maxGroupPasses` is `safety-limit-exceeded`. */
+    max: Formula;
+  };
 };
 
 /** Flags a choice option sets when picked: flag name to formula. */
@@ -474,6 +498,12 @@ export type Unchoose = {
   option?: string | number;
 };
 
+/** A choice an action names (a `choose` or `unchoose`, a pending choice step's `path`). `entry` is an instance ID, `self` or `picked` as for `entry`; without it the choice is a rules-level one. `choice` is the path as a list of literal segments, or a formula giving the list (`"['playbook', steps.playbook.picked, 'special-ability']"`). */
+export type ProposedPath = {
+  entry?: string | ComputedEntry;
+  choice: string[] | Formula;
+};
+
 /** Where a choice lives: on an entry (or the character's rules-level choices when `entry` is absent), then alternating choice IDs and picked options down to the choice. `["martial-archetype", "5e-srd-5.1:subclasses.champion", "additional-fighting-style"]`. */
 export type ChoicePath = {
   entry?: InstanceId;
@@ -551,11 +581,11 @@ export type ProposedChange = {
   when?: Condition;
   /** Propose the change once per element of this list, in list order, with `x` bound to the element. `when` and the change's other formulas are evaluated per element; an empty list proposes nothing. Each copy counts toward `maxActionSteps` (a follow-up's toward `maxFollowUps`). `x` is not bound in the formulas a change passes on. */
   forEach?: Formula;
-  /** setState and adjustState: `self`, the pick whose content defines the running action, resolved to `path` and `option` in the returned change. In an action that isn't a picked content's, `unknown-reference`. */
-  pick?: 'self';
+  /** setState and adjustState: `self`, the pick whose content defines the running action, resolved to `path` and `option` in the returned change; in an action that isn't a picked content's, `unknown-reference`. `owner`, the pick of the content the change is written on: in an option or `changes` an effect adds, the effect's content (picked content with saved state of its own), else the same as `self`; with no such pick, `unknown-reference`. */
+  pick?: 'self' | 'owner';
   picks?: Picks;
-  /** setState and adjustState: `self`, the grant that activated the running action's granted content (a holder grant), resolved to `entry` (or `path` and `option`, a pick) and `grant` in the returned change. In an action that isn't a granted content's, `unknown-reference`. */
-  grant?: 'self';
+  /** setState and adjustState: `self`, the grant that activated the running action's granted content (a holder grant), resolved to `entry` (or `path` and `option`, a pick) and `grant` in the returned change; in an action that isn't a granted content's, `unknown-reference`. `owner`, the holder grant of the content the change is written on: in an option or `changes` an effect adds, the effect's content (granted content with saved state of its own), else the same as `self`; with no such grant, `unknown-reference`. */
+  grant?: 'self' | 'owner';
   grants?: Grants;
   /** set and adjust may compute it: `{ formula }`, evaluated when the action runs to a field ID and qualified against the action's pack, as a literal one is. For `to: self` or a role it must name an input field (`unknown-field` or `not-input-field`, data: `field`); for a link it must be qualified and is passed on unchecked. A `split` adjust's field is written out. */
   field?: FieldRef | ComputedField;
@@ -583,11 +613,7 @@ export type ProposedChange = {
     where: Condition;
     limit?: number;
   };
-  /** choose and unchoose: the choice. `entry` is an instance ID, `self` or `picked` as for `entry`; without it the choice is a rules-level one. `choice` is the path as a list of literal segments, or a formula giving the list (`"['playbook', steps.playbook.picked, 'special-ability']"`). */
-  path?: {
-    entry?: string | ComputedEntry;
-    choice: string[] | Formula;
-  };
+  path?: ProposedPath;
   /** choose and unchoose: a formula naming the option (`picked.id`). An unchoose may leave it out to remove every pick of the choice. */
   option?: Formula;
   /** applyEffect: the new entry's instance ID (without it, applyChanges picks one); removeEffect and toggleEffect: the applied entry's. */
@@ -1633,6 +1659,8 @@ export type ActionNeed = {
   options?: string[];
   /** The recommended option, if any; never `#done`. */
   recommended?: string;
+  /** Choice steps over values, and their random draws: the qualified ID of the content the action runs for (its `item`: the copy's item, the picked or granted content, an applied entry's source); absent for an action run without content. The app names each value `<content>.options.<value>.name` when the content's pack has it, else `<actionKey>.options.<value>.name`, else as it names a plain value. */
+  content?: string;
   /** Choice steps over pending choices: the choice being asked, also on a random draw's dice pause there. The app names it with the choice's own text (`<owner>.choices.<id>.prompt`) and its options as it names `listOptions` results. */
   choice?: {
     path: ChoicePath;

@@ -704,3 +704,43 @@ describe('FitD crew factions', () => {
     expect(text.copy({ item: faction, name: ' ' })).toBe(text.content(faction));
   });
 });
+
+describe('values named by the content an action runs for', () => {
+  const spec = load('mothership/1e').spec;
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        p: {
+          'spells.hex.options.str.name': 'Strength',
+          'spells.curse.options.str.name': 'Disadvantage with Strength',
+          'actions.cast.options.dex.name': 'Dexterity',
+        },
+      },
+    },
+    spec: { en: spec },
+  });
+
+  it("takes the content's text first, then the action's", () => {
+    expect(text.option('str', { action: 'p:cast', content: 'p:spells.hex' })).toBe('Strength');
+    expect(text.option('str', { action: 'p:cast', content: 'p:spells.curse' })).toBe(
+      'Disadvantage with Strength',
+    );
+    expect(text.option('dex', { action: 'p:cast', content: 'p:spells.hex' })).toBe('Dexterity');
+    expect(keys.contentOptionKey('p:spells.hex', 'str')).toEqual({
+      pack: 'p',
+      key: 'spells.hex.options.str.name',
+    });
+  });
+
+  it('reads needs.content in describeNeed', () => {
+    const worded = describeNeed({ content: {}, fields: {} } as never, text, {
+      kind: 'choice',
+      action: 'p:cast',
+      step: 'option',
+      options: ['str'],
+      content: 'p:spells.curse',
+    });
+    expect(worded.options).toEqual([{ id: 'str', label: 'Disadvantage with Strength' }]);
+  });
+});

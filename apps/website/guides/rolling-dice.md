@@ -26,7 +26,8 @@ how they look, and when to ask the player something.
 - **`source`** names the content the action comes from when it isn't the entry's own item (a
   class feature, a picked ability). Pass it back as is.
 - Actions without an entry are the rules' own: saving throws, checks, rests.
-- An action whose `available` condition is false (an unequipped sword) isn't listed.
+- An action whose `available` condition is false (an unequipped sword) isn't listed, and
+  neither is one the pack marks `listed: false`: a step that only other actions run.
 
 Name them with `actions.<id>.name`, or `<item>.actions.<action>.name` for an ID with a `#`
 ([Text and translation](text-and-translation.md#from-an-id-to-a-key)).
@@ -199,9 +200,13 @@ content option (a qualified content ID) by that item's name, and `#done` by the 
 `actions.options.done.name`.
 
 A choice can also offer plain values (a modular weapon's damage types, the character's trained
-skills). Each option is the value as a string. Name it by `<actionKey>.options.<value>.name`
-when the pack has that key; otherwise name it as a set member: a content ID by its item's name,
-a field ID by the field's, a tag by the tag's (`text.option(id, { action: needs.action })` does this).
+skills). Each option is the value as a string. When the pause has `needs.content` (the action
+runs for content, such as a spell cast through a shared action), name it by
+`<content>.options.<value>.name` when that pack has the key; else by
+`<actionKey>.options.<value>.name` when the pack has that key; otherwise name it as a set member:
+a content ID by its item's name, a field ID by the field's, a tag by the tag's
+(`text.option(id, { action: needs.action, content: needs.content })` does this, and
+`describeNeed` passes both).
 
 A character's abilities and items can add their own options to a choice. In FitD, pushing
 yourself costs 2 stress, and a scoundrel with Battleborn may mark special armor instead:

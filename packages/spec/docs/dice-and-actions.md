@@ -51,6 +51,7 @@ An **action** ([`action.schema.json`](../schemas/action.schema.json)) is a casca
 | Property       | Meaning                                                                                                                                                                  |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `available`    | When the action is offered (`self.equipped`)                                                                                                                             |
+| `listed`       | `false`: computeSheet doesn't list it, so only other actions (and `startAction`) run it (below)                                                                          |
 | `params`       | Values the app supplies (a target's AC, which stat to test), declared like state; `min`/`max` are enforced as the action starts ([engine-actions.md](engine-actions.md)) |
 | `participants` | Roles other characters fill (a target, a helper), each with `min`, `max` and declared `fields`                                                                           |
 | `steps`        | The cascade                                                                                                                                                              |
@@ -360,6 +361,13 @@ names granted content by query and is passed on as `picks` is. An artifact's gif
 - { type: adjustState, grant: self, key: committed, by: 1 }
 ```
 
+**The change's own content's pick or grant**. `pick: owner` and `grant: owner` name the
+pick or holder grant of the content the change is written on. In an action's own steps (and a
+follow-up's changes) that is the action's content, as `self`; in an option or `changes` that
+content adds through an effect, it is the effect's content, whose state its `self` reads, while
+`self` stays the action's ([effects.md](effects.md#targets)). An invocation
+that adds a way to pay for a spell marks its own use, not the spell's pick.
+
 **Changes to applied entries by query.** `removeEffect`, `toggleEffect`, `setState` and
 `adjustState` may name applied entries with `applied: { where, limit? }` instead of `id` (or
 `entry`). As for copies, the receiving character resolves it: its applied entries, in file
@@ -493,15 +501,16 @@ before. The changes name the actor's own fields, as `to: target` changes do.
 
 ### Steps
 
-| Kind       | Does                                                                                                                                                                                                              | Result                                          |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `roll`     | Rolls `parts` (one roll item each); roll effects matching the step's `tags` add items, modify dice or bound the total; an optional `bands` set classifies it; with `of`, classifies an earlier roll again (below) | `steps.<id>.total`, `.faces`, `.band`, `.rolls` |
-| `choice`   | Offers `options` from one source (below); `recommend` or `prefer` names the rules' pick; `repeat` picks more than once                                                                                            | `steps.<id>.picked`, `.item`, `.self`, `.added` |
-| `allocate` | Spends a budget across fields, or hands out a list of values, one per field ([below](#allocate-steps))                                                                                                            | `steps.<id>.amounts`                            |
-| `branch`   | Runs the first case whose `when` is true (else `else`), sets its `flags` and runs its `steps`                                                                                                                     | `flags.<name>`                                  |
-| `changes`  | Proposes changes for the app to apply, `to: self` (default), `to: target`, `to: <role>` or `to: { link: <slot> }`; `release` proposes held ones; content adds to a tagged one (below)                             | `steps.<id>.added`                              |
-| `action`   | Runs another action (`use`, `params`, and `source`, `participants` and `tags` below), e.g. a panic check after a failed save; with `as: participant`, hands it off                                                | `steps.<id>.result`, `.data`                    |
-| `outcome`  | Ends the action with `result` and `data`                                                                                                                                                                          | —                                               |
+| Kind       | Does                                                                                                                                                                                                              | Result                                                               |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `roll`     | Rolls `parts` (one roll item each); roll effects matching the step's `tags` add items, modify dice or bound the total; an optional `bands` set classifies it; with `of`, classifies an earlier roll again (below) | `steps.<id>.total`, `.faces`, `.band`, `.rolls`                      |
+| `choice`   | Offers `options` from one source (below); `recommend` or `prefer` names the rules' pick; `repeat` picks more than once                                                                                            | `steps.<id>.picked`, `.item`, `.self`, `.value`, `.values`, `.added` |
+| `allocate` | Spends a budget across fields, or hands out a list of values, one per field ([below](#allocate-steps))                                                                                                            | `steps.<id>.amounts`                                                 |
+| `branch`   | Runs the first case whose `when` is true (else `else`), sets its `flags` and runs its `steps`                                                                                                                     | `flags.<name>`                                                       |
+| `group`    | Runs its `steps` once per pass, again while `repeat.while` holds, up to `repeat.max` passes ([below](#repeating-steps))                                                                                           | `steps.<id>[<n>].<step id>`                                          |
+| `changes`  | Proposes changes for the app to apply, `to: self` (default), `to: target`, `to: <role>` or `to: { link: <slot> }`; `release` proposes held ones; content adds to a tagged one (below)                             | `steps.<id>.added`                                                   |
+| `action`   | Runs another action (`use`, `params`, and `source`, `participants` and `tags` below), e.g. a panic check after a failed save; with `as: participant`, hands it off                                                | `steps.<id>.result`, `.data`                                         |
+| `outcome`  | Ends the action with `result` and `data`                                                                                                                                                                          | —                                                                    |
 
 Every step may have `when`; a step whose `when` is false is skipped. Roll, choice, changes,
 action and branch steps may have `each: <role>` ([Participants](#participants)).
@@ -587,6 +596,33 @@ change that (with `as: participant`, only `participants`):
   gore's own `charge` with `use: charge`. No such listing (no such copy, the copy doesn't list
   the action, or its `available` is false) is `unknown-action`. A feat that is a Strike with a
   weapon the player picks picks the weapon, then runs that copy's Strike (below).
+
+**Actions only other actions run.** An action with `listed: false` (on the action, or on a
+`use` of a rules action) isn't in computeSheet's `actions`, so apps never show it, in a display
+group or in "Other". An `action` step with `source` or `entry` still finds it, while its
+`available` holds, and `startAction` still runs it. So content adds its own part to a shared
+rules action: MÖRK BORG's getting better runs the class's own step, which only some classes
+have.
+
+```yaml
+# rules: getting better runs the part a class adds, if any.
+- id: class
+  kind: choice
+  options: { copies: { type: class, where: item.betterPart } }
+  recommend: options[0]
+- id: classPart
+  kind: action
+  when: has(steps.class)
+  entry: steps.class.picked
+  use: better-part # classes.gutterborn-scum#better-part
+# content/classes/gutterborn-scum.yaml
+fields: { betterPart: true }
+actions:
+  - id: better-part
+    listed: false
+    steps: [{ id: second, kind: choice, options: [{ id: cowards-jab }, { id: gob-lobber }] }]
+```
+
 - **`participants`** maps the used action's roles to formulas giving lists of participant IDs of
   this action, in any role, or of their views, mixed or not: each view is passed
   on by its `id`, so `target: participants.target` passes on every target, and
@@ -733,6 +769,45 @@ A roll **part** is exactly one of:
 
 A `value` that is a single field reference gets that field as its source. Otherwise the default source is the item, or the rules, the action belongs to.
 
+### Repeating steps
+
+A `group` step runs a sequence of steps again and again: one **pass** of its `steps`, then
+another while `repeat.while` holds (evaluated after each pass), up to `repeat.max` passes (an
+integer formula, evaluated once). Its `when` decides whether the first pass runs. Fate's
+invoke-and-reroll: after the dice, pay to reroll, see the result, and maybe reroll again:
+
+```yaml
+- { id: roll, kind: roll, parts: [{ dice: 4dF }, { field: params.skill.id }] }
+- id: reroll
+  kind: group
+  repeat: { while: "steps.invoke.picked != 'keep'", max: 5 }
+  steps:
+    - id: invoke
+      kind: choice
+      options: [{ id: keep }, { id: fate-point }, { id: free-invoke }]
+      recommend: "'keep'"
+    - id: again
+      kind: roll
+      when: "steps.invoke.picked != 'keep'"
+      parts: [{ dice: 4dF }, { field: params.skill.id }]
+- id: done
+  kind: outcome
+  data: { total: 'has(steps.again) ? steps.again.total : steps.roll.total' }
+```
+
+- **Inside a pass**, `steps.<step id>` is this pass's result, absent until the step runs in it
+  (as a skipped step's is), and `steps.<group>` lists the passes before it.
+- **After the group**, `steps.<group>` lists every pass, each a map of the results of the steps
+  that ran in it by step ID (`steps.reroll[0].again.total`), and `steps.<step id>` is the step's
+  latest result, whichever pass made it: `steps.again` is the last reroll, though the last pass
+  kept it.
+- **Paths.** A step in pass `n` is at `<group>[<n>]/<step id>` (`reroll[1]/again`): its
+  checkpoints, log entries, proposed changes and the policy rules that name it. A roll step's
+  `of` names a step of the group as `<step id>`: inside a pass, this pass's run; after the
+  group, its latest.
+- A group holds no other group, at any depth, nor takes `each` or `sheet`; each pass counts
+  toward `maxActionSteps`, and more passes than `maxGroupPasses` is `safety-limit-exceeded`.
+
 ### Choice steps
 
 A choice step's `options` come from one source:
@@ -749,16 +824,21 @@ A choice step's `options` come from one source:
   giving a list, evaluated before each pick with the action's roots, so it can read `item`,
   `self` and earlier steps. Each value is offered once, in the list's order; its option ID is
   the value as a string. A formula that fails is an error, as any action formula is. Each value
-  is named `<actionKey>.options.<value>.name` when the pack has it; otherwise the app names it (a
-  content ID by its item's name, a field ID by the field's).
-- **Pending choices**, `{ pending: { entry? } }`: the choices still pending on
+  is named `<contentId>.options.<value>.name` when the action runs for content (its `item`) and
+  the content's pack has it, else `<actionKey>.options.<value>.name` when the action's pack has
+  it; otherwise the app names it (a content ID by its item's name, a field ID by the field's).
+  So a shared action's values take per-content text: one `cast-spell` step with
+  `{ values: { formula: item.castOptions } }` names Hex's `str` "Strength" and Bestow Curse's
+  "Disadvantage with Strength" ([i18n.md](i18n.md#key-conventions)).
+- **Pending choices**, `{ pending: { entry? } }` or `{ pending: { path } }`: the choices still pending on
   the [proposed character](#steps), in `pending`'s order (each item's own choices before
   those of what it grants, each followed by those of what it picked),
   one per pick, each with its eligible options as
   `listOptions` gives them, then `#done`. Each pick proposes the `choose`; the step goes on until
   nothing more can be picked, so an action asks what the content it adds brings without naming
-  it. `entry` (an instance ID formula) asks only that copy's choices. The app names each pick
-  with the choice's own text (`needs.choice`).
+  it. `entry` (an instance ID formula) asks only that copy's choices; `path` (a choice path, as a
+  `choose`'s) only the choices at it or under it. The app names each pick with the choice's own
+  text (`needs.choice`).
 
 In a query source's `where`, `item` (and for copies `self`) is the candidate, `picks` is how
 many times the step has already picked it, and the action's own item and copy are `action.item`
@@ -831,6 +911,17 @@ a subclass at 3rd level, an Ability Score Improvement at 4th:
   options: { pending: {} }
 ```
 
+A FitD crew advance spent on an ability asks only the abilities under the crew type the crew
+picked in its rules-level `crew-type` choice, not every other choice still pending:
+
+```yaml
+- id: typeAbility
+  kind: choice
+  options:
+    pending:
+      path: { choice: "['crew-type', steps.type.picked, 'abilities']" }
+```
+
 **Options added by content**. On a step with `tags`, the character's content
 adds options with `option` effects aimed at `{ choices: [<tag>] }` ([effects.md](effects.md#targets)),
 offered after the source's options as `<content id>#<option id>` and named
@@ -867,7 +958,19 @@ effects:
 `steps.<id>.picked` is the option ID, or with `repeat` the list of picks (`#done` left out).
 Over content or copies without `repeat`, `steps.<id>.item` is the picked item and, for copies,
 `steps.<id>.self` the picked copy; over values, `steps.<id>.value` is the picked value (a
-number stays a number). A step with nothing to offer is skipped. 5E's long rest
+number stays a number), and with `repeat` `steps.<id>.values` the picked values in order. 5E's
+Arcane Recovery sums the slot levels picked so far, one level per slot recovered:
+
+```yaml
+- id: slots
+  kind: choice
+  options:
+    values: [1, 2, 3, 4, 5]
+    where: sumList(steps.slots.values, x) + value <= ceil(level.wizard / 2)
+  repeat: { max: 5, min: 1 }
+```
+
+A step with nothing to offer is skipped. 5E's long rest
 regains spent hit dice up to half the total level, one die per pick, from the classes the player
 chooses:
 
@@ -1119,4 +1222,4 @@ policy:
 
 ## Safety limits
 
-Packs are untrusted, so every implementation enforces the [safety limits](../data/safety-limits.json): `maxExplosions`, `maxRerolls`, `maxDicePerItem`, `maxFormulaDepth`, `maxFormulaLength`, `maxChoiceDepth`, `maxActionSteps`, `maxActionDepth`, `maxExtendsDepth` and `maxOverflowChain`. Reaching one is the error `safety-limit-exceeded`. The values are **PROVISIONAL**.
+Packs are untrusted, so every implementation enforces the [safety limits](../data/safety-limits.json): `maxExplosions`, `maxRerolls`, `maxDicePerItem`, `maxFormulaDepth`, `maxFormulaLength`, `maxChoiceDepth`, `maxActionSteps`, `maxActionDepth`, `maxGroupPasses`, `maxExtendsDepth` and `maxOverflowChain`. Reaching one is the error `safety-limit-exceeded`. The values are **PROVISIONAL**.

@@ -171,14 +171,14 @@ six 1st-level spells for your spellbook", then "Choose two spells for your spell
 
 An option is labeled by `text.option(id, context)`, whatever its kind:
 
-| Option ID                                                 | Label from                                                                                                                                     |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `#done`                                                   | the spec's `actions.options.done.name` ("Done"); over pending choices (`context.choice`) `actions.options.done.pending.name` ("Skip the rest") |
-| `<content id>#<option>` (added by content)                | `<content>.options.<option>.name` in the content's pack                                                                                        |
-| a content ID                                              | the item's name                                                                                                                                |
-| a copy's instance ID (`context.copies`)                   | the copy's name                                                                                                                                |
-| an inline option or value (`context.choice`)              | `<owner>.choices.<choice>.options.<id>.name`, else as a set member (`skill.arcana` is "Arcana")                                                |
-| a written option or value of an action (`context.action`) | `<actionKey>.options.<id>.name`, else as a set member                                                                                          |
+| Option ID                                                 | Label from                                                                                                                                             |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `#done`                                                   | the spec's `actions.options.done.name` ("Done"); over pending choices (`context.choice`) `actions.options.done.pending.name` ("Skip the rest")         |
+| `<content id>#<option>` (added by content)                | `<content>.options.<option>.name` in the content's pack                                                                                                |
+| a content ID                                              | the item's name                                                                                                                                        |
+| a copy's instance ID (`context.copies`)                   | the copy's name                                                                                                                                        |
+| an inline option or value (`context.choice`)              | `<owner>.choices.<choice>.options.<id>.name`, else as a set member (`skill.arcana` is "Arcana")                                                        |
+| a written option or value of an action (`context.action`) | for a value, `<content>.options.<id>.name` first (`context.content`, a pause's `needs.content`); `<actionKey>.options.<id>.name`, else as a set member |
 
 ```ts
 const bonus = sheet.choices[0];

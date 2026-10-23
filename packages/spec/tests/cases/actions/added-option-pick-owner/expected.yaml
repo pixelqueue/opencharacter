@@ -1,0 +1,19 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: cost
+    change:
+      type: setState
+      path: { choice: [invocations] }
+      option: test-pack:invocations.mire
+      key: used
+      value: true
+  - to: self
+    step: cost
+    change:
+      type: adjustState
+      path: { choice: [spells] }
+      option: test-pack:spells.slow
+      key: casts
+      by: 1

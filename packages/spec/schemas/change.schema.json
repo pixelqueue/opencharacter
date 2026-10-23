@@ -947,6 +947,40 @@
       "additionalProperties": false,
       "type": "object"
     },
+    "proposedPath": {
+      "description": "A choice an action names (a `choose` or `unchoose`, a pending choice step's `path`). `entry` is an instance ID, `self` or `picked` as for `entry`; without it the choice is a rules-level one. `choice` is the path as a list of literal segments, or a formula giving the list (`\"['playbook', steps.playbook.picked, 'special-ability']\"`).",
+      "type": "object",
+      "required": ["choice"],
+      "properties": {
+        "entry": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "$ref": "#/$defs/computedEntry"
+            }
+          ]
+        },
+        "choice": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1
+            },
+            {
+              "$ref": "formula.schema.json"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
     "choicePath": {
       "description": "Where a choice lives: on an entry (or the character's rules-level choices when `entry` is absent), then alternating choice IDs and picked options down to the choice. `[\"martial-archetype\", \"5e-srd-5.1:subclasses.champion\", \"additional-fighting-style\"]`.",
       "type": "object",
@@ -1092,15 +1126,15 @@
           "$ref": "formula.schema.json"
         },
         "pick": {
-          "description": "setState and adjustState: `self`, the pick whose content defines the running action, resolved to `path` and `option` in the returned change. In an action that isn't a picked content's, `unknown-reference`.",
-          "const": "self"
+          "description": "setState and adjustState: `self`, the pick whose content defines the running action, resolved to `path` and `option` in the returned change; in an action that isn't a picked content's, `unknown-reference`. `owner`, the pick of the content the change is written on: in an option or `changes` an effect adds, the effect's content (picked content with saved state of its own), else the same as `self`; with no such pick, `unknown-reference`.",
+          "enum": ["self", "owner"]
         },
         "picks": {
           "$ref": "#/$defs/picks"
         },
         "grant": {
-          "description": "setState and adjustState: `self`, the grant that activated the running action's granted content (a holder grant), resolved to `entry` (or `path` and `option`, a pick) and `grant` in the returned change. In an action that isn't a granted content's, `unknown-reference`.",
-          "const": "self"
+          "description": "setState and adjustState: `self`, the grant that activated the running action's granted content (a holder grant), resolved to `entry` (or `path` and `option`, a pick) and `grant` in the returned change; in an action that isn't a granted content's, `unknown-reference`. `owner`, the holder grant of the content the change is written on: in an option or `changes` an effect adds, the effect's content (granted content with saved state of its own), else the same as `self`; with no such grant, `unknown-reference`.",
+          "enum": ["self", "owner"]
         },
         "grants": {
           "$ref": "#/$defs/grants"
@@ -1192,38 +1226,7 @@
           "additionalProperties": false
         },
         "path": {
-          "description": "choose and unchoose: the choice. `entry` is an instance ID, `self` or `picked` as for `entry`; without it the choice is a rules-level one. `choice` is the path as a list of literal segments, or a formula giving the list (`\"['playbook', steps.playbook.picked, 'special-ability']\"`).",
-          "type": "object",
-          "required": ["choice"],
-          "properties": {
-            "entry": {
-              "oneOf": [
-                {
-                  "type": "string",
-                  "minLength": 1
-                },
-                {
-                  "$ref": "#/$defs/computedEntry"
-                }
-              ]
-            },
-            "choice": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "minItems": 1
-                },
-                {
-                  "$ref": "formula.schema.json"
-                }
-              ]
-            }
-          },
-          "additionalProperties": false
+          "$ref": "#/$defs/proposedPath"
         },
         "option": {
           "description": "choose and unchoose: a formula naming the option (`picked.id`). An unchoose may leave it out to remove every pick of the choice.",

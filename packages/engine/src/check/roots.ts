@@ -20,7 +20,7 @@ import type {
   Step,
   ValueDecl,
 } from '../core/pack-types.ts';
-import { pendingSource, writtenOptions } from '../core/pack-types.ts';
+import { innerSteps, pendingSource, stepArms, writtenOptions } from '../core/pack-types.ts';
 
 /** Where a formula appears, which decides the context roots bound there. */
 export type Place =
@@ -406,7 +406,15 @@ export function stepsAndFlags(
         type = pendingSource(step)
           ? { object: { picked: { list: 'string' }, paths: { list: 'dyn' }, added: ADDED } }
           : step.repeat
-            ? { object: { picked: { list: 'string' }, added: ADDED } }
+            ? {
+                object: {
+                  picked: { list: 'string' },
+                  ...(views(step).value !== undefined
+                    ? { values: { list: views(step).value as FType } }
+                    : {}),
+                  added: ADDED,
+                },
+              }
             : { object: { picked: 'string', ...views(step), added: ADDED } };
       else if (step.kind === 'changes') type = { object: { added: ADDED } };
       else if (step.kind === 'action') type = { object: { result: 'string', data: 'dyn' } };
@@ -417,9 +425,17 @@ export function stepsAndFlags(
       if (step.kind === 'choice')
         for (const option of writtenOptions(step))
           for (const name of Object.keys(option.flags ?? {})) flags[name] = 'dyn';
-      for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])]) {
+      for (const arm of stepArms(step)) {
         for (const name of Object.keys(arm.flags ?? {})) flags[name] = 'dyn';
         walk(arm.steps ?? [], step.kind === 'branch' ? role : inherited);
+      }
+      // A group's passes: each a map of the results of the steps it holds.
+      if (step.kind === 'group') {
+        const pass: Record<string, FType> = {};
+        for (const inner of innerSteps(step)) pass[inner.id] = stepTypes[inner.id] as FType;
+        const passes: FType = { list: { object: pass } };
+        stepTypes[step.id] =
+          role === undefined || (role === eachRole && step.id !== own) ? passes : { list: passes };
       }
     }
   };

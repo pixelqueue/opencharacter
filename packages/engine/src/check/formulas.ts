@@ -1,4 +1,4 @@
-import { appliesQueries } from '../core/pack-types.ts';
+import { appliesQueries, stepArms } from '../core/pack-types.ts';
 import {
   type CheckContext,
   check,
@@ -182,9 +182,7 @@ function reachesChoice(steps: Step[], tags: string[]): boolean {
       tags.some((target) => own.some((t) => t === target || t.startsWith(`${target}.`)))
     )
       return true;
-    return [...(step.cases ?? []), ...(step.else ? [step.else] : [])].some((arm) =>
-      reachesChoice(arm.steps ?? [], tags),
-    );
+    return stepArms(step).some((arm) => reachesChoice(arm.steps ?? [], tags));
   });
 }
 
@@ -960,7 +958,11 @@ class FormulaChecker<L> {
     }
     if (step.kind === 'choice') this.choiceStep(step, at, where);
     if (step.kind === 'allocate') this.allocateStep(step, at, where);
-    for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])]) {
+    if (step.kind === 'group') {
+      this.formula(step.repeat?.while, at, where, BOOL);
+      this.formula(step.repeat?.max, at, where, ['int']);
+    }
+    for (const arm of stepArms(step)) {
       if ('when' in arm) this.formula(arm.when as Formula, at, where, BOOL);
       for (const [name, value] of Object.entries(arm.flags ?? {}))
         this.flagFormula(name, value, at, where);
@@ -1031,6 +1033,10 @@ class FormulaChecker<L> {
     );
     const pending = pendingSource(step);
     this.formula(pending?.entry, at, where, ['string']);
+    if (pending?.path && !Array.isArray(pending.path.choice))
+      this.formula(pending.path.choice, at, where, [{ list: 'string' }]);
+    if (pending?.path && typeof pending.path.entry === 'object')
+      this.formula(pending.path.entry.formula, at, where, ['string']);
     this.typed({ options: { list: 'string' }, choice: PENDING_CHOICE }, () =>
       this.withRoots(pending ? ['options', 'choice'] : ['options'], () => {
         this.formula(step.recommend as Formula | undefined, at, where, ['string']);

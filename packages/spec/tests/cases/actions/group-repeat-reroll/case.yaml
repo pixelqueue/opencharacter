@@ -1,0 +1,48 @@
+description: "A group step repeats its steps while `repeat.while` holds: reroll, see the result, reroll again; each pass's steps are at `reroll[<n>]/`, `steps.reroll` lists the passes, and afterwards `steps.rerolled` is the latest reroll"
+specVersion: 0.2.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: skill-roll
+            steps:
+              - { id: roll, kind: roll, parts: [{ dice: 1d6 }] }
+              - id: reroll
+                kind: group
+                repeat: { while: "steps.again.picked == 'yes'", max: 3 }
+                steps:
+                  - id: again
+                    kind: choice
+                    options: [{ id: 'yes' }, { id: 'no' }]
+                  - id: rerolled
+                    kind: roll
+                    when: "steps.again.picked == 'yes'"
+                    parts: [{ dice: 1d6 }]
+                  - id: earlier
+                    kind: changes
+                    when: has(steps.rerolled)
+                    changes:
+                      - { type: adjust, field: rerolls, by: 'size(steps.reroll) + 1' }
+              - id: done
+                kind: outcome
+                data:
+                  total: 'has(steps.rerolled) ? steps.rerolled.total : steps.roll.total'
+                  passes: size(steps.reroll)
+                  first: steps.reroll[0].rerolled.total
+                  last: steps.again.picked
+        fields:
+          rerolls: { type: integer, input: true, default: 0 }
+      content: []
+input:
+  action: { id: test-pack:skill-roll }
+answers:
+  - { option: 'yes' }
+  - { option: 'yes' }
+  - { option: 'no' }

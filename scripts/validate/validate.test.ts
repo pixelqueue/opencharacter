@@ -295,6 +295,7 @@ describe('pnpm validate', () => {
         /followUps.crew-roll: creation start "roll"'s action has no parameter "size"/,
       ],
       ['a source that defines no such action', /step lunge: unknown action "lunge"/],
+      ['a group inside a group', /step outer: group step "inner" inside the group step "outer"/],
       ['an entry no content defines the action for', /step hop: unknown action "hop"/],
       [
         'a creation start missing a parameter',
@@ -435,6 +436,12 @@ describe('pnpm validate', () => {
       expect(reporter.warnings.map((w) => w.message)).toContain(
         'translation key "stray.key" does not belong to anything in this pack',
       );
+    });
+
+    it("accepts an item's own text for the values of its actions' values steps", () => {
+      const warnings = reporter.warnings.map((w) => w.message);
+      expect(warnings).not.toContain(unused('tricks.hop.options.left.name'));
+      expect(warnings).toContain(unused('tricks.spin.options.left.name'));
     });
 
     it('warns about named texts and tags the pack does not declare', () => {

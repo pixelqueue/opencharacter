@@ -3,7 +3,7 @@
 One-line definitions of OCF terms, consistent with the [specification](../../packages/spec/docs/README.md).
 
 - **absorbedBy:** fields that drain first when a numeric input field takes an incoming decrease (temporary hit points before hit points).
-- **Action:** something a character can do that needs dice or decisions, defined as a cascade of steps (roll, choice, branch, changes, action, outcome).
+- **Action:** something a character can do that needs dice or decisions, defined as a cascade of steps (roll, choice, allocate, branch, group, changes, action, outcome).
 - **Action log:** the record of every die face and choice in an action, and who supplied it; replaying it gives the same result.
 - **Active content:** content whose effects, grants and choices currently apply: owned features, inventory, picked options, granted content, applied effects and templates on active copies.
 - **Aggregate:** a formula macro that counts, sums or takes the highest or lowest of something over the character's copies (`countCopies`), the ruleset's fields (`countFields`) or a list (`countList`), with a root (`copy`, `f`, `x`) bound to each element.
@@ -51,6 +51,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Follow-up:** what the rules call for on a character: a derived offer (`while`) or an ephemeral one (`on`, an adjustment, with `once` the batch's matching adjustments summed; `becomes`, a condition becoming true), with an action to run, changes to apply or (a derived one) a linked character to make. computeSheet lists them in `offers`; the engine never runs or applies one.
 - **Formula:** an expression in OCF's CEL-like language with dice notation; safe, finite and deterministic.
 - **Grant:** an effect operation that adds a member (proficiency, tag, action) to a set field; also an item's `grants` list making other content active.
+- **Group step:** an action step that runs its steps again and again, one pass at a time, while its `repeat.while` holds and up to `repeat.max` passes (a reroll, see the result, reroll again). Each pass's steps are at `<group>[<n>]/<step>`.
 - **Handoff:** an action step (`as: participant`) run on a participant's own character by the app, which answers the paused action with that run's outcome.
 - **Homebrew:** a character's own content and rules additions, saved in its file and loaded on top of its pinned packs as the pack `homebrew` (`homebrew:<id>`); it may add, never override, and upgrades rewrite it with the saved state.
 - **I18n key:** the permanent key under which player-facing text is looked up in translation files.

@@ -252,7 +252,7 @@ prompt.
   that fails, or changes you never apply, clear nothing.
 - **Apply it.** `changes` are ready for a new `applyChanges` batch (5E: damage at 0 hit points is
   a failed death save), and for an ephemeral offer they already end with the clear. They keep the
-  addresses of picks and granted content (`pick: self` and `grant: self` resolved to `path`,
+  addresses of picks and granted content (`pick` and `grant`, `self` or `owner`, resolved to `path`,
   `option` and `grant`; `picks` and `grants` queries passed on), so a change to a pick's state
   lands there. That batch may store follow-ups of its own.
 - **Make a linked character.** An offer with `create` (a MÖRK BORG companion's sheet) asks for a

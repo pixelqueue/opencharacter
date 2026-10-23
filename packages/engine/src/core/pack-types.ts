@@ -266,9 +266,12 @@ export interface Step {
   /** Choice and allocate steps: draw the recommendation at random while it holds. */
   random?: Formula;
   prefer?: Formula;
-  repeat?: { max: Formula; min?: Formula };
+  /** Choice steps: `max` and `min` picks. Group steps: passes while `while` holds, up to `max`. */
+  repeat?: { max: Formula; min?: Formula; while?: Formula };
   cases?: (BranchArm & { when: Formula })[];
   else?: BranchArm;
+  /** Group steps: the steps each pass runs. */
+  steps?: Step[];
   changes?: ProposedChange[];
   to?: Destination;
   /** Roll, choice, changes, action and branch steps: once per participant of a role. */
@@ -308,7 +311,18 @@ export type StepOptions =
   | { content: { type: string; where?: Formula } }
   | { copies: { type: string; where?: Formula } }
   | ValueSource
-  | { pending: { entry?: Formula } };
+  | { pending: PendingSource };
+
+export interface PendingSource {
+  entry?: Formula;
+  path?: ProposedPath;
+}
+
+/** A choice path in an action: `entry` an instance ID, `self`, `picked` or `{ formula }`. */
+export interface ProposedPath {
+  entry?: string | { formula: Formula };
+  choice: string[] | Formula;
+}
 
 export interface ValueSource {
   values: (string | number)[] | { formula: Formula };
@@ -339,9 +353,25 @@ export function valueSource(step: Step): ValueSource | undefined {
   return options && !Array.isArray(options) && 'values' in options ? options : undefined;
 }
 
-export function pendingSource(step: Step): { entry?: Formula } | undefined {
+export function pendingSource(step: Step): PendingSource | undefined {
   const options = step.options;
   return options && !Array.isArray(options) && 'pending' in options ? options.pending : undefined;
+}
+
+/** A branch step's cases and `else`, or a group step's steps as one arm: the steps it holds. */
+export function stepArms(step: Step): BranchArm[] {
+  return [
+    ...(step.cases ?? []),
+    ...(step.else ? [step.else] : []),
+    ...(step.steps ? [{ steps: step.steps }] : []),
+  ];
+}
+
+/** Every step a step holds, at any depth, in order. */
+export function innerSteps(step: Step): Step[] {
+  return stepArms(step).flatMap((arm) =>
+    (arm.steps ?? []).flatMap((inner) => [inner, ...innerSteps(inner)]),
+  );
 }
 
 export interface BranchArm {
@@ -375,8 +405,8 @@ export interface ProposedChange {
   limit?: number;
   applied?: { where: Formula; limit?: number };
   picks?: { where: Formula; limit?: number };
-  pick?: 'self';
-  grant?: 'self';
+  pick?: 'self' | 'owner';
+  grant?: 'self' | 'owner';
   grants?: { where: Formula; limit?: number };
   id?: string;
   source?: Formula;
@@ -384,7 +414,7 @@ export interface ProposedChange {
   state?: Record<string, Formula>;
   equipped?: Formula;
   template?: Formula;
-  path?: { entry?: string | { formula: Formula }; choice: string[] | Formula };
+  path?: ProposedPath;
   option?: Formula;
   followUp?: string;
   params?: Record<string, Formula>;
@@ -394,6 +424,7 @@ export interface ActionDef {
   id: string;
   tags?: string[];
   available?: Formula;
+  listed?: boolean;
   params?: Record<string, ValueDecl>;
   participants?: Record<string, Role>;
   steps: Step[];
@@ -404,6 +435,7 @@ export interface ActionDef {
 
 export interface ActionUse {
   use: string;
+  listed?: boolean;
   params?: Record<string, Formula>;
   scope?: 'holder' | 'applied';
 }
