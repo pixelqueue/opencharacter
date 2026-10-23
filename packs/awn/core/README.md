@@ -83,7 +83,7 @@ const run = startAction(ruleset, blank, {
 - **Encumbrance:** Readied (equipped) and Stowed loads against Strength, small items bundled
   three to one when stowed, and the slower moves of pushing past the limits. A start that brings
   more than its Strength can haul stows Readied items, then leaves Stowed ones behind, heaviest
-  first, until it is within the limits.
+  first, until it is within the limits. A guided player picks which, but can't stop early.
 - **Rolled twice:** Weak Heart's Exert checks keep the worse of two 2d6 rolls; Constant
   Secretions (the `grapple` situational choice) and Survivalist (`foraging`) keep the better. An
   attack given its target's view (`participants.target`) rolls laser damage twice against Light
