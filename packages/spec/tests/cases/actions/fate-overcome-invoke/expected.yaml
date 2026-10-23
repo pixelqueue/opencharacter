@@ -8,7 +8,7 @@ outcome:
     boost: true
 proposedChanges:
   - to: self
-    step: roll/reroll
+    step: roll/rerolling[0]/reroll
     change:
       type: adjust
       field: fate-core:fatePoints.current
@@ -41,12 +41,12 @@ log:
     total: 3
     band: good
     bandSet: fate-core:ladder
-  - step: roll/reroll
+  - step: roll/rerolling[0]/reroll
     action: fate-core:skill-roll
     kind: choice
     by: app
     option: invoke
-  - step: roll/again
+  - step: roll/rerolling[0]/again
     action: fate-core:skill-roll
     kind: dice
     by: engine
@@ -58,7 +58,7 @@ log:
     total: 6
     band: fantastic
     bandSet: fate-core:ladder
-  - step: roll/reroll2
+  - step: roll/rerolling[1]/reroll
     action: fate-core:skill-roll
     kind: choice
     by: app

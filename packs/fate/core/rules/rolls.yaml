@@ -49,93 +49,39 @@ actions:
           - { id: dice, dice: 4dF }
           - { id: skill, field: params.skill.id, when: has(params.skill) }
           - { id: helpers, value: params.helpers, when: params.helpers > 0 }
-      - id: reroll
-        kind: choice
-        options:
-          - { id: keep }
-          - id: invoke
-            when: fatePoints.current > 0
+      - id: rerolling
+        kind: group
+        repeat: { while: "steps.reroll.picked != 'keep'", max: 3 }
+        steps:
+          - id: reroll
+            kind: choice
+            sheet: proposed
+            options:
+              - { id: keep }
+              - id: invoke
+                when: fatePoints.current > 0
+                changes:
+                  - { type: adjust, field: fatePoints.current, by: -1 }
+              - { id: free }
+            recommend: "'keep'"
+          - id: rerollFrom
+            kind: choice
+            sheet: proposed
+            when: "steps.reroll.picked == 'free'"
+            options: { copies: { type: advantage, where: self.invokes > 0 } }
+            repeat: { max: 1, min: 0 }
+            prefer: "self.kind == 'boost' ? 1 : 0"
             changes:
-              - { type: adjust, field: fatePoints.current, by: -1 }
-          - { id: free }
-        recommend: "'keep'"
-      - id: rerollFrom
-        kind: choice
-        when: "steps.reroll.picked == 'free'"
-        options: { copies: { type: advantage, where: self.invokes > 0 } }
-        repeat: { max: 1, min: 0 }
-        prefer: "self.kind == 'boost' ? 1 : 0"
-        changes:
-          - { type: adjustState, entry: picked, key: invokes, by: -1 }
-      - id: again
-        kind: roll
-        when: steps.reroll.picked != 'keep'
-        tags: [skill-roll, { formula: "'action.' + params.action" }]
-        bands: ladder
-        parts:
-          - { id: dice, dice: 4dF }
-          - { id: skill, field: params.skill.id, when: has(params.skill) }
-          - { id: helpers, value: params.helpers, when: params.helpers > 0 }
-      - id: reroll2
-        kind: choice
-        sheet: proposed
-        when: has(steps.again)
-        options:
-          - { id: keep }
-          - id: invoke
-            when: fatePoints.current > 0
-            changes:
-              - { type: adjust, field: fatePoints.current, by: -1 }
-          - { id: free }
-        recommend: "'keep'"
-      - id: rerollFrom2
-        kind: choice
-        sheet: proposed
-        when: "has(steps.reroll2) && steps.reroll2.picked == 'free'"
-        options: { copies: { type: advantage, where: self.invokes > 0 } }
-        repeat: { max: 1, min: 0 }
-        prefer: "self.kind == 'boost' ? 1 : 0"
-        changes:
-          - { type: adjustState, entry: picked, key: invokes, by: -1 }
-      - id: again2
-        kind: roll
-        when: "has(steps.reroll2) && steps.reroll2.picked != 'keep'"
-        tags: [skill-roll, { formula: "'action.' + params.action" }]
-        bands: ladder
-        parts:
-          - { id: dice, dice: 4dF }
-          - { id: skill, field: params.skill.id, when: has(params.skill) }
-          - { id: helpers, value: params.helpers, when: params.helpers > 0 }
-      - id: reroll3
-        kind: choice
-        sheet: proposed
-        when: has(steps.again2)
-        options:
-          - { id: keep }
-          - id: invoke
-            when: fatePoints.current > 0
-            changes:
-              - { type: adjust, field: fatePoints.current, by: -1 }
-          - { id: free }
-        recommend: "'keep'"
-      - id: rerollFrom3
-        kind: choice
-        sheet: proposed
-        when: "has(steps.reroll3) && steps.reroll3.picked == 'free'"
-        options: { copies: { type: advantage, where: self.invokes > 0 } }
-        repeat: { max: 1, min: 0 }
-        prefer: "self.kind == 'boost' ? 1 : 0"
-        changes:
-          - { type: adjustState, entry: picked, key: invokes, by: -1 }
-      - id: again3
-        kind: roll
-        when: "has(steps.reroll3) && steps.reroll3.picked != 'keep'"
-        tags: [skill-roll, { formula: "'action.' + params.action" }]
-        bands: ladder
-        parts:
-          - { id: dice, dice: 4dF }
-          - { id: skill, field: params.skill.id, when: has(params.skill) }
-          - { id: helpers, value: params.helpers, when: params.helpers > 0 }
+              - { type: adjustState, entry: picked, key: invokes, by: -1 }
+          - id: again
+            kind: roll
+            when: steps.reroll.picked != 'keep'
+            tags: [skill-roll, { formula: "'action.' + params.action" }]
+            bands: ladder
+            parts:
+              - { id: dice, dice: 4dF }
+              - { id: skill, field: params.skill.id, when: has(params.skill) }
+              - { id: helpers, value: params.helpers, when: params.helpers > 0 }
       - id: invokes
         kind: choice
         sheet: proposed
@@ -159,9 +105,7 @@ actions:
       - id: spentOut
         kind: changes
         when: >-
-          (has(steps.rerollFrom) && size(steps.rerollFrom.picked) > 0)
-            || (has(steps.rerollFrom2) && size(steps.rerollFrom2.picked) > 0)
-            || (has(steps.rerollFrom3) && size(steps.rerollFrom3.picked) > 0)
+          countList(steps.rerolling, has(x.rerollFrom) && size(x.rerollFrom.picked) > 0) > 0
             || (has(steps.freeFrom) && size(steps.freeFrom.picked) > 0)
         changes:
           - type: removeItem
@@ -171,23 +115,11 @@ actions:
         cases:
           - when: true
             flags:
-              total: >-
-                has(steps.again3) ? steps.again3.total : has(steps.again2) ? steps.again2.total
-                  : has(steps.again) ? steps.again.total : steps.roll.total
-              rung: >-
-                has(steps.again3) ? steps.again3.band : has(steps.again2) ? steps.again2.band
-                  : has(steps.again) ? steps.again.band : steps.roll.band
-              rerolls: >-
-                (has(steps.again) ? 1 : 0) + (has(steps.again2) ? 1 : 0)
-                  + (has(steps.again3) ? 1 : 0)
-              paidRerolls: >-
-                (steps.reroll.picked == 'invoke' ? 1 : 0)
-                  + (has(steps.reroll2) && steps.reroll2.picked == 'invoke' ? 1 : 0)
-                  + (has(steps.reroll3) && steps.reroll3.picked == 'invoke' ? 1 : 0)
-              freeRerolls: >-
-                (steps.reroll.picked == 'free' ? 1 : 0)
-                  + (has(steps.reroll2) && steps.reroll2.picked == 'free' ? 1 : 0)
-                  + (has(steps.reroll3) && steps.reroll3.picked == 'free' ? 1 : 0)
+              total: 'has(steps.again) ? steps.again.total : steps.roll.total'
+              rung: 'has(steps.again) ? steps.again.band : steps.roll.band'
+              rerolls: countList(steps.rerolling, has(x.again))
+              paidRerolls: "countList(steps.rerolling, x.reroll.picked == 'invoke')"
+              freeRerolls: "countList(steps.rerolling, x.reroll.picked == 'free')"
       - id: result
         kind: outcome
         result: "'rolled'"

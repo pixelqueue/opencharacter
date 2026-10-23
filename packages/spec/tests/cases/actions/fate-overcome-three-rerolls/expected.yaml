@@ -10,19 +10,19 @@ outcome:
     boost: false
 proposedChanges:
   - to: self
-    step: roll/reroll
+    step: roll/rerolling[0]/reroll
     change:
       type: adjust
       field: fate-core:fatePoints.current
       by: -1
   - to: self
-    step: roll/reroll2
+    step: roll/rerolling[1]/reroll
     change:
       type: adjust
       field: fate-core:fatePoints.current
       by: -1
   - to: self
-    step: roll/rerollFrom3
+    step: roll/rerolling[2]/rerollFrom
     change:
       type: adjustState
       entry: a-balance
@@ -47,12 +47,12 @@ log:
       - 0
     total: 0
     band: mediocre
-  - step: roll/reroll
+  - step: roll/rerolling[0]/reroll
     action: fate-core:skill-roll
     kind: choice
     by: app
     option: invoke
-  - step: roll/again
+  - step: roll/rerolling[0]/again
     action: fate-core:skill-roll
     kind: dice
     by: engine
@@ -63,12 +63,12 @@ log:
       - 0
     total: 2
     band: fair
-  - step: roll/reroll2
+  - step: roll/rerolling[1]/reroll
     action: fate-core:skill-roll
     kind: choice
     by: app
     option: invoke
-  - step: roll/again2
+  - step: roll/rerolling[1]/again
     action: fate-core:skill-roll
     kind: dice
     by: engine
@@ -79,18 +79,18 @@ log:
       - -1
     total: 2
     band: fair
-  - step: roll/reroll3
+  - step: roll/rerolling[2]/reroll
     action: fate-core:skill-roll
     kind: choice
     by: app
     option: free
-  - step: roll/rerollFrom3
+  - step: roll/rerolling[2]/rerollFrom
     action: fate-core:skill-roll
     kind: choice
     by: app
     option: a-balance
     index: 0
-  - step: roll/again3
+  - step: roll/rerolling[2]/again
     action: fate-core:skill-roll
     kind: dice
     by: engine
