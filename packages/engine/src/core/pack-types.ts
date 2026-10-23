@@ -441,7 +441,8 @@ export interface ContentItem {
   extends?: string;
   tags?: string[];
   removeTags?: string[];
-  fields?: Record<string, Literal>;
+  /** A template's string, enum or id value may be `{ formula }`. */
+  fields?: Record<string, Literal | { formula: Formula }>;
   /** Templates only: values its item fields read as `params.<name>`, given by a keeper. */
   params?: Record<string, ValueDecl>;
   state?: Record<string, ValueDecl>;
@@ -633,7 +634,7 @@ export function fitsItemField(value: unknown, decl: ValueDecl): boolean {
     case 'decimal':
     case 'boolean':
     case 'dice':
-      return !Array.isArray(value);
+      return !Array.isArray(value) && (typeof value !== 'object' || value === null);
     case 'string':
     case 'id':
       return typeof value === 'string';

@@ -4,12 +4,21 @@ import type {
   ComputedDecl,
   Entry,
   FieldDef,
+  Formula,
   Literal,
   TagOrFormula,
   ValueDecl,
 } from './pack-types.ts';
 import { appliesQueries, keptQuery } from './pack-types.ts';
-import { type LoadedItem, localPart, queryKey, resolveId, type Ruleset } from './ruleset.ts';
+import {
+  type LoadedItem,
+  localPart,
+  queryKey,
+  resolveContent,
+  resolveField,
+  resolveId,
+  type Ruleset,
+} from './ruleset.ts';
 
 /** undefined when the name isn't visible from the pack. */
 export type FieldLookup = (name: string, pack: string) => f.Value | undefined;
@@ -236,11 +245,30 @@ export function mergedTags(item: LoadedItem, templates: readonly LoadedItem[]): 
 function fieldValue(
   ruleset: Ruleset,
   decl: ValueDecl,
-  raw: Literal,
+  raw: Literal | { formula: Formula },
   pack: string,
   inputField: FieldLookup,
   roots: Record<string, unknown> = {},
 ): f.Value | undefined {
+  // A template's `{ formula }` gives a string, an enum's one of its values, an id qualified in the
+  // template's pack.
+  if (typeof raw === 'object' && !Array.isArray(raw)) {
+    if (!['string', 'enum', 'id'].includes(decl.type)) return undefined;
+    const value =
+      typeof raw.formula === 'string'
+        ? itemFormula(ruleset, raw.formula, pack, inputField, roots)
+        : undefined;
+    if (value?.kind !== 'string') return undefined;
+    if (decl.type === 'enum' && !decl.values?.includes(value.value)) return undefined;
+    if (decl.type === 'id' && decl.of && decl.of !== 'tag' && decl.of !== 'string') {
+      const qid =
+        decl.of === 'field'
+          ? resolveField(ruleset, value.value, pack)
+          : resolveContent(ruleset, value.value, pack);
+      return qid === undefined ? undefined : { kind: 'string', value: qid };
+    }
+    return value;
+  }
   if (['string', 'enum', 'id', 'set'].includes(decl.type)) {
     const value = typedValue(decl, raw);
     return typeof value === 'string' ? undefined : value;
@@ -250,17 +278,27 @@ function fieldValue(
     return typeof value === 'string' ? undefined : value;
   }
   if (typeof raw !== 'string') return undefined;
-  const tree = f.parseCached(raw);
+  const value = itemFormula(ruleset, raw, pack, inputField, roots);
+  if (value && decl.type === 'decimal' && value.kind === 'int')
+    return { kind: 'decimal', value: value.value };
+  return value;
+}
+
+function itemFormula(
+  ruleset: Ruleset,
+  formula: string,
+  pack: string,
+  inputField: FieldLookup,
+  roots: Record<string, unknown>,
+): f.Value | undefined {
+  const tree = f.parseCached(formula);
   if (!tree.ok) return undefined;
   const result = f.evaluate(tree.value, {
     field: (name) => inputField(name, pack),
     roots,
     id: (text) => resolveId(ruleset, text, pack),
   });
-  if (!result.ok) return undefined;
-  if (decl.type === 'decimal' && result.value.kind === 'int')
-    return { kind: 'decimal', value: result.value.value };
-  return result.value;
+  return result.ok ? result.value : undefined;
 }
 
 export function stateDecls(

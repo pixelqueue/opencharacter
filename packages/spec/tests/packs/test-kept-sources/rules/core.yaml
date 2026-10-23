@@ -1,0 +1,29 @@
+# Connection grants frost and keeps the attuned template on it while an elemental weapon is
+# applied: its damage type is the weapon's element (params from character.applied). Spear keeps
+# the spear template on a cantrip only where the warlock knows it (the candidate's owner).
+contentTypes:
+  spell:
+    fields:
+      level: { type: integer, default: 0 }
+      range: { type: integer, default: 0 }
+      damageType: { type: enum, values: [cold, fire, acid], default: cold }
+    actions:
+      - use: cast
+  class:
+    state:
+      level: { type: integer, default: 1 }
+  feature: {}
+  boon:
+    state:
+      element: { type: string, default: '' }
+
+actions:
+  # A spell's cast: its range and damage type, as its item reads them.
+  - id: cast
+    steps:
+      - id: result
+        kind: outcome
+        result: item.id
+        data:
+          range: item.range
+          damageType: item.damageType

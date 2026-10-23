@@ -168,7 +168,9 @@ The item a copy holds, as `item`, is the base item merged with the copy's templa
 A template's `fields` are merged over the base item's: each template in
 the copy's order replaces the values it gives, a field of the base item's content type or a
 template field. Its values are read like an item's own, with `base` bound to the base item
-alone, in the template's pack. A template's `null` removes the field: it is
+alone, in the template's pack; a `string`, `enum` or `id` value given as `{ formula }` is a
+string formula read the same way (a result that isn't a string, or isn't one of an enum's
+values, leaves the field as it was). A template's `null` removes the field: it is
 absent (no `default` applies) unless a later template sets it again. A template field the
 content type doesn't declare and no template sets takes its declaration's `default` (read in the declaring pack), else is absent;
 this holds for every item's `item`, with or without templates. Everywhere a copy's `item` is

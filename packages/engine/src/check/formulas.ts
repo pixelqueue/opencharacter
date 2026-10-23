@@ -399,21 +399,23 @@ class FormulaChecker<L> {
     const type = this.contentTypeDef(template ? appliesQueries(item)[0]?.type : item.type);
     for (const [name, value] of Object.entries(item.fields ?? {})) {
       const decl = type?.fields?.[name] ?? (template ? this.templateFields[name] : undefined);
-      if (
-        decl &&
-        value !== null &&
-        !Array.isArray(value) &&
-        ['integer', 'decimal', 'boolean', 'dice'].includes(decl.type)
-      )
-        this.at('itemField', () =>
-          this.typed(template && item.params ? { params: paramsType(item.params) } : {}, () =>
-            this.withRoots(
-              template ? ['base', 'prior', ...(item.params ? ['params'] : [])] : [],
-              () =>
-                this.formula(value, at, `${owner}.fields.${name}`, [fieldFormulaType(decl.type)]),
-            ),
+      if (!decl || value === null || Array.isArray(value)) continue;
+      // A template's string, enum or id value may be `{ formula }`, a string formula.
+      const formula = typeof value === 'object' ? value.formula : value;
+      const numeric = ['integer', 'decimal', 'boolean', 'dice'].includes(decl.type);
+      if (typeof value === 'object' ? !['string', 'enum', 'id'].includes(decl.type) : !numeric)
+        continue;
+      this.at('itemField', () =>
+        this.typed(template && item.params ? { params: paramsType(item.params) } : {}, () =>
+          this.withRoots(
+            template ? ['base', 'prior', ...(item.params ? ['params'] : [])] : [],
+            () =>
+              this.formula(formula, at, `${owner}.fields.${name}`, [
+                numeric ? fieldFormulaType(decl.type) : 'string',
+              ]),
           ),
-        );
+        ),
+      );
     }
     for (const query of appliesQueries(item))
       this.at('query', () => this.query(query, at, `${owner} appliesTo`));

@@ -825,6 +825,11 @@ export class PackChecker {
               file,
               `field "${name}" is not declared by content type "${typeName}"`,
             );
+          else if (isFormulaValue(value))
+            this.report.error(
+              file,
+              `${owner}.fields.${name}: only a template's field may be { formula }`,
+            );
           else this.itemFieldValue(value, decl, file, `${owner}.fields.${name}`);
         }
         if (!item.extends) {
@@ -855,7 +860,14 @@ export class PackChecker {
             file,
             `field "${name}" is neither a template field nor a field of ${types.map((t) => `"${t}"`).join(' and ')}`,
           );
-        else if (value !== null) this.itemFieldValue(value, decl, file, `${owner}.fields.${name}`);
+        else if (isFormulaValue(value)) {
+          if (!['string', 'enum', 'id'].includes(decl.type))
+            this.report.error(
+              file,
+              `${owner}.fields.${name}: { formula } is for a string, enum or id field; a ${decl.type} value is a formula as written`,
+            );
+        } else if (value !== null)
+          this.itemFieldValue(value, decl, file, `${owner}.fields.${name}`);
       }
     }
 
@@ -2552,4 +2564,8 @@ function familyFields(tree: Node): { text: string; names: string[] }[] {
   };
   visit(tree);
   return out;
+}
+
+function isFormulaValue(value: unknown): value is { formula: Formula } {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

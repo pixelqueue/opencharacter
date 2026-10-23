@@ -755,7 +755,7 @@ Everything else still calculates.
 | Action step `params`                                                                                 | any (`null` leaves it out)                |
 | Action step `source`; each of `participants`                                                         | string; list of strings                   |
 | Computed tag (`{ formula }` in a tags list)                                                          | string or list of strings (declared tags) |
-| Item field values                                                                                    | the declared type                         |
+| Item field values (a template's `{ formula }` on a string, enum or id field: string)                 | the declared type                         |
 | State key `default`                                                                                  | the key's type                            |
 | State key `min`, `max`                                                                               | number                                    |
 

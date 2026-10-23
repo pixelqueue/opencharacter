@@ -493,7 +493,11 @@ effects:
   template), and any field of the content type its `appliesTo` names; anything else is a build
   error, as on items. Its values are read as an item's own are (`integer`, `decimal`, `boolean`
   and `dice` values are formulas over input fields), with `base` bound to the base item, in the
-  template's pack.
+  template's pack. A `string`, `enum` or `id` value, a literal on an item, may be `{ formula }`
+  on a template: a string formula read the same way, an `id` qualified in the template's pack. A
+  result that isn't a string, or isn't one of an enum's `values`, leaves the field as it was.
+  Only templates may give it, so a template can take a value from its `params`
+  ([below](#from-the-keeper)).
   - The copy's `item` (and `copy.fields`) is the base item's fields, then each template's in the
     copy's order, a later value replacing an earlier one with the same name: a Sun Blade's
     `damageType: radiant` replaces the longsword's slashing.
@@ -649,13 +653,39 @@ fields: { range: 'prior.range + params.feet' }
   item field values read them as `params.<name>`. A `keepsTemplates` entry gives them, `params:
   { <name>: <formula> }`, each formula of the param's type evaluated as an activation condition
   with the keeper's roots: its `self` (a picked invocation's is the Warlock copy, so
-  `self.level` is the Warlock level), its `item`, `picksOf`, input fields and the character
-  functions. A name the template doesn't declare is `formula-error`, cause `unknown-name`, at
-  load. A param not given, and every param of a saved template, is its declared `default` (a
-  literal), else absent.
-- **Free of loops.** A param reads what an activation condition reads, never a derived field,
-  so the merged item stays what item field values are: fixed before any effect. A template's
-  field that needs a derived value has the keeper's effects target a character field instead.
+  `self.level` is the Warlock level), its `item`, `picksOf`, `character`, input fields and the
+  character functions. A name the template doesn't declare is `formula-error`, cause
+  `unknown-name`, at load. A param not given, and every param of a saved template, is its
+  declared `default` (a literal), else absent.
+- **From what is applied.** `character.applied` is the file's applied entries, each with its
+  `source` and state ([above](#when-content-is-active)), so a param can follow content applied
+  in play: the element of an active elemental weapon, read off its entry. With a string field
+  given as `{ formula }`, the template sets the spell's damage type from it:
+
+  ```yaml
+  # Your absolute zero takes the damage type of your active elemental weapon.
+  keepsTemplates:
+    - template: templates.elemental-connection
+      content: { type: spell, where: 'item.id == @spells.absolute-zero' }
+      when: "countList(character.applied, x.active && x.source == '<pack>:spells.elemental-weapon') > 0"
+      params:
+        element: >-
+          filterList(character.applied,
+            x.active && x.source == '<pack>:spells.elemental-weapon')[0].state.element
+  ---
+  id: templates.elemental-connection
+  type: template
+  appliesTo: { type: spell }
+  params:
+    element: { type: string, default: '' }
+  fields:
+    damageType: { formula: "params.element != '' ? params.element : prior.damageType" }
+  ```
+
+- **Free of loops.** A param reads what an activation condition reads, never a derived field:
+  applied entries are saved input, like picks. So the merged item stays what item field values
+  are: fixed before any effect. A template's field that needs a derived value has the keeper's
+  effects target a character field instead.
 - **Each keeper its own.** Each activation of the keeper evaluates its own query and params,
   so two Eldritch Spears on two cantrips keep the template on each with its own range. A copy
   or item keeps a template once: when two keepers keep the same template on it, the first in

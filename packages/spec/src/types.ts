@@ -1002,8 +1002,15 @@ export type ContentItem = {
   tags?: Tags;
   /** Templates only: tags the copy's item doesn't have. A copy's `item.tags` are the base item's, then for each template in order its `removeTags` taken away and its `tags` added; a later template may add a removed tag again. */
   removeTags?: Tag[];
-  /** Values for the item fields declared by the content type. How a value is read depends on the declared type: `integer`, `decimal`, `boolean` and `dice` values are formulas (a plain literal is a formula with no inputs); `string`, `enum` and `id` values are literal strings; `set` values are lists of literals. A template may set the rules' `templateFields` and the fields of the content type its `appliesTo` names; its values are merged into the copy's `item` in template order, replacing the base item's, and its formulas see the base item as `base`. A template may give `null` for a field: the field is absent from the copy's `item` (no declared default applies), unless a later template sets it again. Only templates may give `null`. */
-  fields?: Record<string, Literal | null>;
+  /** Values for the item fields declared by the content type. How a value is read depends on the declared type: `integer`, `decimal`, `boolean` and `dice` values are formulas (a plain literal is a formula with no inputs); `string`, `enum` and `id` values are literal strings; `set` values are lists of literals. A template may set the rules' `templateFields` and the fields of the content type its `appliesTo` names; its values are merged into the copy's `item` in template order, replacing the base item's, and its formulas see the base item as `base`. A template may give `null` for a field: the field is absent from the copy's `item` (no declared default applies), unless a later template sets it again. Only templates may give `null`. A template's `string`, `enum` or `id` value may be `{ formula }`: a string formula read as its numeric values are (with `base`, `prior` and `params`), so a kept template takes a damage type from its keeper's `params`; a result that isn't a string, or isn't one of an enum's values, leaves the field as it was. Only templates may give `{ formula }`. */
+  fields?: Record<
+    string,
+    | Literal
+    | null
+    | {
+        formula: Formula;
+      }
+  >;
   /** Templates only: values the template's item fields read as `params.<name>`, given by the content keeping it (`keepsTemplates` `params`). A param the keeper doesn't give, or on a saved template, is its `default`, else absent. */
   params?: Record<string, ValueDecl>;
   /** Extra per-copy state keys this item (or template) adds to the character's copy, beyond those its content type declares. */
@@ -1085,7 +1092,7 @@ export type KeptTemplate = {
   copies?: Query;
   /** The content without a copy of its own it is kept on: every holder activation of content picked or granted to the character whose item is of the type and matches the condition, read as `copies`' is. The template may give only fields and tags (`template-without-copy` otherwise). */
   content?: Query;
-  /** Values for the template's `params`, each a formula of the param's type evaluated as an activation condition is, with the keeper's roots (`self`, `item`, `picksOf`, `character`, input fields). The template's item fields read them as `params.<name>`, so a kept template scales with the character. A name the template doesn't declare is `unknown-name` at load. */
+  /** Values for the template's `params`, each a formula of the param's type evaluated as an activation condition is, with the keeper's roots (`self`, `item`, `picksOf`, `character`, input fields). `character.applied` is among them, the saved applied entries with their state, so a param can name the element of an active spell. The template's item fields read them as `params.<name>`, so a kept template scales with the character. A name the template doesn't declare is `unknown-name` at load. */
   params?: Record<string, Formula>;
   /** An activation condition: while it holds, the template is kept. */
   when?: Condition;
