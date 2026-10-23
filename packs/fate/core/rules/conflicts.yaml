@@ -52,10 +52,8 @@ actions:
           opponentAdvantage: "flags.band == 'tie'"
 
 display:
-  groups:
-    - id: conflict
-      priority: 2
   fields:
-    turnOrder.physical: { groups: [conflict], priority: 1 }
-    turnOrder.mental: { groups: [conflict], priority: 2 }
+    # Sort keys for apps ordering turns; Notice and Empathy are on the sheet already.
+    turnOrder.physical: { hidden: true }
+    turnOrder.mental: { hidden: true }
     turnOrder.first: { hidden: true }
