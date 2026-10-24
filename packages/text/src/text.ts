@@ -753,15 +753,25 @@ export function createText(options: TextOptions): Text {
       if (own) {
         // A copy limit's text takes `max` and `count`; an item's limit is `perItem`.
         const args = issue.code === 'too-many-copies' ? { ...data, max: data.limit } : data;
-        const found =
-          own.pack === null ? undefined : format(findPack(own.pack, own.key), args, true);
         const owner =
           issue.code === 'prerequisite-not-met' && 'id' in issue && issue.id
             ? prerequisiteOwner(issue.id)
             : undefined;
+        // An inline option a dependent pack added keeps its text in that pack.
+        const origin = owner?.choice
+          ? options.optionOrigins?.[owner.choice.key]?.[owner.choice.option]
+          : undefined;
+        const found =
+          own.pack === null
+            ? undefined
+            : (format(findPack(own.pack, own.key), args, true) ??
+              (origin === undefined ? undefined : format(findPack(origin, own.key), args, true)));
         if (found !== undefined && owner) {
+          const nameKey = `${owner.root}.name`;
           const name = owner.inline
-            ? (message(owner.pack, `${owner.root}.name`) ?? owner.root)
+            ? (message(owner.pack, nameKey) ??
+              (origin === undefined ? undefined : message(origin, nameKey)) ??
+              owner.root)
             : content(`${owner.pack}:${owner.root}`);
           return (
             format(

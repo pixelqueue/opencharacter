@@ -814,3 +814,28 @@ describe('options an add-on adds to a choice', () => {
     expect(text.option('addon:rules#meditate')).toBe('Meditate');
   });
 });
+
+describe("an added option's prerequisite", () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        addon: {
+          'classes.warden.choices.knack.options.hexing.name': 'Hexing',
+          'classes.warden.choices.knack.options.hexing.prerequisites.wits': 'Wits 2 or more',
+        },
+      },
+    },
+    spec: { en: load('mothership/1e').spec },
+    optionOrigins: { 'core:classes.warden/knack': { hexing: 'addon' } },
+  });
+
+  it("is read from the adding pack's text", () => {
+    expect(
+      text.issue({
+        code: 'prerequisite-not-met',
+        id: 'core:classes.warden/knack/hexing/wits',
+      } as never),
+    ).toBe('Hexing requires: Wits 2 or more');
+  });
+});
