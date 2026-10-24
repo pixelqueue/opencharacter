@@ -95,6 +95,21 @@ computeSheet(ruleset, made.character).values['wwn-srd:saves.physical']?.value; /
     finishes.
   - `guided`: the player picks, each pick recommended.
 
+## Add-on packs
+
+A pack that depends on `wwn-srd` can add content of its types, and creation and advancement offer
+it with the core's, in the guided picks and the random draws: classes, partial classes,
+backgrounds, foci, arts, spells, weapons, armor and gear.
+
+- **A Mage's tradition** is `tradition` content: its `key` is a key of the `trad` family, which
+  the add-on extends (`families: { 'wwn-srd:trad': [<key>] }`) and declares the fields for
+  (`tradition.<key>.tier`, counting the picks as the core's do, and `tradition.<key>.skill`, the
+  bonus skill at creation, set by an effect of the content that brings the tradition). A
+  tradition that casts from the spell lists joins `spellTrad` too; its spells are those of the
+  list named by its key, and the High Magic list.
+- A spell's `list` and an art's `tradition` are written lists (enums), so an add-on can't add a
+  spell list or arts for a new tradition yet.
+
 ## Left to the app or the table
 
 - **Text effects.** Most arts, Foci and spells change no number on the sheet; their names are

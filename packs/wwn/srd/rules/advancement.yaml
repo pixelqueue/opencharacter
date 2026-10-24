@@ -77,7 +77,7 @@ actions:
         sheet: proposed
         random: params.random
         options:
-          values: [highmage, elementalist, necromancer, invoker]
+          values: { formula: "keysOf('spellTrad') + ['invoker']" }
           where: "fieldOf('tradition.{trad}.tier', value) > 0"
         recommend: options[0]
       - id: newSpells
@@ -97,11 +97,8 @@ actions:
             type: spell
             where: >-
               item.level <= spells.maxLevel && countCopies(copy.item == item.id) == 0
-                && (item.list == 'high'
-                  || (item.list == 'elementalist' && (steps.spellTradition.picked == 'elementalist'
-                    || (steps.spellTradition.picked == 'invoker' && invoker.education == 'elementalist')))
-                  || (item.list == 'necromancer' && (steps.spellTradition.picked == 'necromancer'
-                    || (steps.spellTradition.picked == 'invoker' && invoker.education == 'necromancer'))))
+                && (item.list == 'high' || item.list == steps.spellTradition.picked
+                  || (steps.spellTradition.picked == 'invoker' && invoker.education == item.list))
         recommend: options[0]
         changes:
           - type: addItem
