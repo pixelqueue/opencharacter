@@ -61,6 +61,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Input field:** a field whose value the player supplies and the character file saves.
 - **Interface change:** a difference between two pack releases that can break a character's homebrew (a removed derived field, content type, item field, enum value, tag or rules action); it needs a breaking bump but no upgrade script.
 - **Item field:** a typed property declared by a content type and set on each item (damage, weight).
+- **List item field:** an item field of type `list`: members in the order written (a spell's cast options, a class's ability priority), duplicates allowed unless `unique`; a `set` is sorted instead.
 - **Limits:** bounds on a field's final value, after effects; a value outside them is the rules issue `out-of-limits`.
 - **Link slot:** a named place in the rules for another character (a scoundrel's crew), saved in the character file as that character's `id` (up to 2048 characters, so a URL works) and read by formulas as `links.<slot>`, a view.
 - **Load order:** the order the app passes packs to loadRuleset; dependencies first, later packs win.

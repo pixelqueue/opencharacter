@@ -67,7 +67,7 @@ describe('fixed sets match the schemas', () => {
     ['change-types', 'change.schema.json', ['properties', 'type']],
     ['stacking-policies', 'rules.schema.json', ['$defs', 'stackingPolicy']],
     ['upgrade-steps', 'upgrade.schema.json', ['$defs', 'step', 'properties', 'op']],
-    ['value-types', 'common.schema.json', ['$defs', 'valueType']],
+    ['value-types', 'common.schema.json', ['$defs', 'declValueType']],
     ['rounding-modes', 'common.schema.json', ['$defs', 'rounding']],
     [
       'display-formats',
@@ -125,6 +125,8 @@ const partEffect = (value: unknown) => ({
   op: 'rollModifier',
   value,
 });
+
+const typeWith = (decl: object) => ({ fields: { order: decl } });
 
 describe('display, template and change shapes', () => {
   const ajv = compileAll();
@@ -226,6 +228,17 @@ describe('display, template and change shapes', () => {
     expect(valid('effect.schema.json', partEffect({ kind: 'advantage' }))).toBe(false);
     expect(valid('effect.schema.json', partEffect({ kind: 'advantage', of: 'die' }))).toBe(false);
     expect(valid('effect.schema.json', partEffect({ kind: 'reroll', below: 1 }))).toBe(false);
+  });
+
+  it('takes list item fields, unique only on a list; a field is never a list', () => {
+    const list = { type: 'list', of: 'string' };
+    expect(valid('content-type.schema.json', typeWith(list))).toBe(true);
+    expect(valid('content-type.schema.json', typeWith({ ...list, unique: true }))).toBe(true);
+    expect(valid('content-type.schema.json', typeWith({ type: 'list' }))).toBe(false);
+    expect(
+      valid('content-type.schema.json', typeWith({ type: 'set', of: 'string', unique: true })),
+    ).toBe(false);
+    expect(valid('field.schema.json', { type: 'list', of: 'string' })).toBe(false);
   });
 
   it('lets roll effects carry then, naming their entry, pick or grant; not field effects', () => {

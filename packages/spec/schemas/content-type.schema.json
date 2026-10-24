@@ -115,7 +115,7 @@
       "required": ["type"],
       "properties": {
         "type": {
-          "$ref": "common.schema.json#/$defs/valueType"
+          "$ref": "common.schema.json#/$defs/declValueType"
         },
         "values": {
           "description": "enum: allowed values.",
@@ -127,12 +127,16 @@
           "uniqueItems": true
         },
         "of": {
-          "description": "id/set: the content type (or `field`, `tag`, `string`) of the members.",
+          "description": "id/set/list: the content type (or `field`, `tag`, `string`) of the members.",
           "$ref": "common.schema.json#/$defs/name"
         },
         "members": {
-          "description": "id/set of `tag`: which tags it takes. Without it, any declared tag.",
+          "description": "id/set/list of `tag`: which tags it takes. Without it, any declared tag.",
           "$ref": "common.schema.json#/$defs/tagMembers"
+        },
+        "unique": {
+          "description": "list: no member may appear twice (an item's value with a duplicate is `invalid-item-field`, `wrong-type`). Default false: a list may repeat a member.",
+          "type": "boolean"
         },
         "required": {
           "type": "boolean"
@@ -150,7 +154,7 @@
           "$ref": "common.schema.json#/$defs/i18nKey"
         },
         "default": {
-          "description": "The value when none is given. For integer, decimal, boolean and dice declarations a string is a formula: on a state key it is evaluated with `item` bound when the copy is added, and the result is written into the character file (`shots: item.magazine`); on an item field it is read as an item's own value is, over input fields. For string, enum and id declarations a string is a literal. An item field's default applies in `item` when the item doesn't set the field; an id or set default of content or `field` is qualified in the content type's pack.",
+          "description": "The value when none is given. For integer, decimal, boolean and dice declarations a string is a formula: on a state key it is evaluated with `item` bound when the copy is added, and the result is written into the character file (`shots: item.magazine`); on an item field it is read as an item's own value is, over input fields. For string, enum and id declarations a string is a literal. An item field's default applies in `item` when the item doesn't set the field; an id, set or list default of content or `field` is qualified in the content type's pack.",
           "$ref": "common.schema.json#/$defs/literal"
         },
         "min": {
@@ -185,7 +189,7 @@
           "if": {
             "properties": {
               "type": {
-                "enum": ["id", "set"]
+                "enum": ["id", "set", "list"]
               }
             },
             "type": "object"
@@ -197,13 +201,27 @@
         },
         {
           "if": {
+            "required": ["unique"],
+            "type": "object"
+          },
+          "then": {
+            "properties": {
+              "type": {
+                "const": "list"
+              }
+            },
+            "type": "object"
+          }
+        },
+        {
+          "if": {
             "required": ["members"],
             "type": "object"
           },
           "then": {
             "properties": {
               "type": {
-                "enum": ["id", "set"]
+                "enum": ["id", "set", "list"]
               },
               "of": {
                 "const": "tag"

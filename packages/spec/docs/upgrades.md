@@ -312,13 +312,13 @@ upgraded), and on `to` for the report. Each step rewrites the homebrew too, afte
 
 **Where a step looks.** The homebrew's `rules` and `content` (never `i18n`), by kind:
 
-| Kind         | Places                                                                                                                                                                                                   |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Content      | `extends` and `item` values; members of `items` lists; item field values of `id` or `set` item fields whose `of` is a content type; string literals in formulas equal to the qualified ID (see below)    |
-| Field        | `target`, `field` and `into` values; members of `fields` and `absorbedBy` lists; keys of `recommend` and of the rules' display `fields`; item field values of `of: field` item fields; names in formulas |
-| Content type | `type` and `of` values; string literals in formulas equal to the qualified ID                                                                                                                            |
-| Action       | `use` and `action` values                                                                                                                                                                                |
-| Tag          | members of `tags` lists and of effect targets' `choices`; item field values of `of: tag` item fields; string literals in formulas equal to the tag                                                       |
+| Kind         | Places                                                                                                                                                                                                        |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Content      | `extends` and `item` values; members of `items` lists; item field values of `id`, `set` or `list` item fields whose `of` is a content type; string literals in formulas equal to the qualified ID (see below) |
+| Field        | `target`, `field` and `into` values; members of `fields` and `absorbedBy` lists; keys of `recommend` and of the rules' display `fields`; item field values of `of: field` item fields; names in formulas      |
+| Content type | `type` and `of` values; string literals in formulas equal to the qualified ID                                                                                                                                 |
+| Action       | `use` and `action` values                                                                                                                                                                                     |
+| Tag          | members of `tags` lists and of effect targets' `choices`; item field values of `of: tag` item fields; string literals in formulas equal to the tag                                                            |
 
 - **Matching.** A reference matches a renamed `<pack>:<id>` when it is that qualified ID, or is
   `<id>` unqualified and the homebrew's scope doesn't resolve it to something else on `from`.

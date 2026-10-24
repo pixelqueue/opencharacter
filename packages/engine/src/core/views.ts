@@ -25,7 +25,7 @@ export type FieldLookup = (name: string, pack: string) => f.Value | undefined;
 
 /** A value of a declared type, or a reason it doesn't fit. */
 export function typedValue(
-  decl: { type: string; values?: string[] },
+  decl: { type: string; values?: string[]; unique?: boolean },
   raw: unknown,
 ): f.Value | string {
   switch (decl.type) {
@@ -51,6 +51,13 @@ export function typedValue(
               .map((v) => ({ kind: 'string', value: v }) as f.Value),
           }
         : 'a list';
+    case 'list': {
+      if (!Array.isArray(raw)) return 'a list';
+      const members = raw.map(String);
+      if (decl.unique && new Set(members).size !== members.length)
+        return 'a list without duplicates';
+      return { kind: 'list', value: members.map((v) => ({ kind: 'string', value: v }) as f.Value) };
+    }
     case 'dice': {
       if (typeof raw !== 'string' && typeof raw !== 'number') return 'dice';
       const tree =
@@ -269,7 +276,7 @@ function fieldValue(
     }
     return value;
   }
-  if (['string', 'enum', 'id', 'set'].includes(decl.type)) {
+  if (['string', 'enum', 'id', 'set', 'list'].includes(decl.type)) {
     const value = typedValue(decl, raw);
     return typeof value === 'string' ? undefined : value;
   }
@@ -474,7 +481,7 @@ export function copyFieldProblem(
   const value = typedValue(decl, raw);
   if (typeof value === 'string')
     return { code: 'wrong-type', data: { target: field, expected: value } };
-  if (decl.type !== 'id' && decl.type !== 'set') return undefined;
+  if (decl.type !== 'id' && decl.type !== 'set' && decl.type !== 'list') return undefined;
   if (!decl.of || decl.of === 'string' || decl.of === 'tag') return undefined;
   const ids = (Array.isArray(raw) ? raw : [raw]).map(String);
   const missing = ids.find(

@@ -151,8 +151,9 @@ inventory:
   `homebrew`. What can't be migrated is in the report's `errors`, for the player to fix.
 - **A custom-item form** builds its inputs from the content type's `fields`
   (`ruleset.contentTypes[type].fields`): the declaration gives each input's kind (`dice`,
-  `integer`, `enum` with its `values`, `id` or `set` with `of`), `required`, `default`, `min`
-  and `max`, and the pack's text its label, hint and value names (`text.typeField`,
+  `integer`, `enum` with its `values`, `id` or `set` with `of`, and `list` with `of`, an
+  ordered input that keeps the player's order and, with `unique`, refuses a repeat),
+  `required`, `default`, `min` and `max`, and the pack's text its label, hint and value names (`text.typeField`,
   `text.typeFieldDescription`, `text.value`; [showing text](showing-text.md)). Ask for every
   field: they are all the item author's, and what changes in play is the copy's `state`, set on
   the sheet after `addItem`. A field's display hint `hidden` keeps it off the item's card, not

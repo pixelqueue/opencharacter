@@ -180,7 +180,7 @@ Source files may be written in any layout; releases carry the canonical text.
 | `bool`    | `true`, `false`                                                                                   |
 | `string`  | Unicode text                                                                                      |
 | `null`    | `null` (only from data: optional values that are absent are not null, they are missing)           |
-| `list<T>` | Ordered lists; `set` fields are lists without duplicates                                          |
+| `list<T>` | Ordered lists; `set` fields are sorted lists without duplicates, `list` item fields as written    |
 | `dice`    | An unrolled dice expression: dice terms plus a flat integer (`2d6 + 3`)                           |
 | `dyn`     | Not known until evaluation (context data the checker can't type yet)                              |
 
@@ -220,7 +220,7 @@ make 1, fifty coins of 0.02 lb make 1, and `0.1 + 0.2 == 0.3`.
 | `boolean`              | `bool`         |
 | `string`, `enum`, `id` | `string`       |
 | `dice`                 | `dice`         |
-| `set`                  | `list<string>` |
+| `set`, `list`          | `list<string>` |
 
 `int` is assignable wherever `decimal` is expected, and `int` is assignable wherever `dice` is
 expected. Nothing else converts implicitly.

@@ -31,6 +31,8 @@ export interface ValueDecl {
   optional?: boolean;
   /** Item fields: each copy may save its own value. */
   perCopy?: boolean;
+  /** list: no member twice. */
+  unique?: boolean;
   default?: Literal;
   min?: Formula;
   max?: Formula;
@@ -692,6 +694,10 @@ export function fitsItemField(value: unknown, decl: ValueDecl): boolean {
       return typeof value === 'string' && (decl.values ?? []).includes(value);
     case 'set':
       return Array.isArray(value);
+    case 'list':
+      return (
+        Array.isArray(value) && (!decl.unique || new Set(value.map(String)).size === value.length)
+      );
     default:
       return true;
   }

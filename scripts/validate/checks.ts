@@ -269,7 +269,7 @@ export class PackChecker {
       // Named for a custom template's form, in each pack that declares it.
       this.requiredKeys.add(`templateFields.${name}.name`);
       this.optionalKeys.add(`templateFields.${name}.description`);
-      this.memberKind(def, file, where);
+      this.memberKind(def, file, where, true);
       if (def.default !== undefined)
         this.itemFieldValue(def.default, def, file, `${where} default`);
       const earlier = this.ruleset.templateFields(this.scope.slice(1)).get(name);
@@ -298,9 +298,8 @@ export class PackChecker {
         this.requiredKeys.add(`types.${name}.fields.${field}.name`);
         this.optionalKeys.add(`types.${name}.fields.${field}.description`);
       }
-      for (const decl of [...Object.values(def.fields ?? {}), ...Object.values(def.state ?? {})]) {
-        this.memberKind(decl, file, where);
-      }
+      for (const decl of Object.values(def.fields ?? {})) this.memberKind(decl, file, where, true);
+      for (const decl of Object.values(def.state ?? {})) this.memberKind(decl, file, where);
       for (const [key, decl] of Object.entries(def.state ?? {}))
         if (decl.perCopy !== undefined)
           this.report.error(file, `${where}: state ${key}: perCopy is for item fields`);
@@ -885,6 +884,7 @@ export class PackChecker {
     }
 
     for (const query of appliesQueries(item)) this.query(query, file, `${owner} appliesTo`);
+    for (const decl of Object.values(item.params ?? {})) this.memberKind(decl, file, owner);
     for (const [key, decl] of Object.entries(item.state ?? {})) {
       this.memberKind(decl, file, owner);
       if (decl.perCopy !== undefined)
@@ -1057,13 +1057,14 @@ export class PackChecker {
         enum: `one of ${decl.values?.join(', ')}`,
         id: 'an id',
         set: 'a list',
+        list: decl.unique ? 'a list without duplicates' : 'a list',
       };
       this.report.error(
         file,
         `${where}: expected ${expected[decl.type] ?? `a ${decl.type} formula`}, got ${JSON.stringify(value)}`,
       );
     } else if (decl.type === 'id') this.member(value as string, decl.of, file, where, decl);
-    else if (decl.type === 'set')
+    else if (decl.type === 'set' || decl.type === 'list')
       for (const member of value as Literal[])
         this.member(String(member), decl.of, file, where, decl);
   }
@@ -1101,7 +1102,9 @@ export class PackChecker {
       this.report.error(file, `${where}: "${tag}" is not one of its members`);
   }
 
-  private memberKind(decl: ValueDecl, file: string, where: string): void {
+  private memberKind(decl: ValueDecl, file: string, where: string, itemField = false): void {
+    if (decl.type === 'list' && !itemField)
+      this.report.error(file, `${where}: type list is for item fields`);
     const { under = [], tags = [], except = [] } = decl.members ?? {};
     for (const tag of [...under, ...tags, ...except]) this.tag(tag, file, `${where} members`);
     if (!decl.of || MEMBER_KINDS.has(decl.of)) return;

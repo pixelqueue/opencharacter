@@ -116,6 +116,7 @@ export function fieldFormulaType(declared: string): FType {
     case 'dice':
       return 'dice';
     case 'set':
+    case 'list':
       return { list: 'string' };
     default:
       return 'string';

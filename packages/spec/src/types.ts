@@ -953,6 +953,18 @@ export type ValueType =
   | 'id'
   | 'set';
 
+/** The value types a declared value can hold: the value types, and `list` on item fields only (a content type's `fields` and the rules' `templateFields`; elsewhere a validation error). Kept in sync with `data/value-types.json`. */
+export type DeclValueType =
+  | 'integer'
+  | 'decimal'
+  | 'boolean'
+  | 'string'
+  | 'enum'
+  | 'dice'
+  | 'id'
+  | 'set'
+  | 'list';
+
 /** How a decimal result becomes whole. Kept in sync with `data/rounding-modes.json`. */
 export type Rounding = 'floor' | 'ceil' | 'round' | 'truncate';
 
@@ -1178,13 +1190,15 @@ export type ComputedDecl = {
 
 /** Declares a typed value: an item field, a state key or an action parameter. */
 export type ValueDecl = {
-  type: ValueType;
+  type: DeclValueType;
   /** enum: allowed values. */
   values?: Slug[];
-  /** id/set: the content type (or `field`, `tag`, `string`) of the members. */
+  /** id/set/list: the content type (or `field`, `tag`, `string`) of the members. */
   of?: Name;
-  /** id/set of `tag`: which tags it takes. Without it, any declared tag. */
+  /** id/set/list of `tag`: which tags it takes. Without it, any declared tag. */
   members?: TagMembers;
+  /** list: no member may appear twice (an item's value with a duplicate is `invalid-item-field`, `wrong-type`). Default false: a list may repeat a member. */
+  unique?: boolean;
   required?: boolean;
   /** Parameters: may be omitted. */
   optional?: boolean;
@@ -1192,7 +1206,7 @@ export type ValueDecl = {
   perCopy?: boolean;
   /** Parameters: the label key. Default: `<actionKey>.params.<name>.name`; an optional one-line hint is `<actionKey>.params.<name>.description`. */
   label?: I18nKey;
-  /** The value when none is given. For integer, decimal, boolean and dice declarations a string is a formula: on a state key it is evaluated with `item` bound when the copy is added, and the result is written into the character file (`shots: item.magazine`); on an item field it is read as an item's own value is, over input fields. For string, enum and id declarations a string is a literal. An item field's default applies in `item` when the item doesn't set the field; an id or set default of content or `field` is qualified in the content type's pack. */
+  /** The value when none is given. For integer, decimal, boolean and dice declarations a string is a formula: on a state key it is evaluated with `item` bound when the copy is added, and the result is written into the character file (`shots: item.magazine`); on an item field it is read as an item's own value is, over input fields. For string, enum and id declarations a string is a literal. An item field's default applies in `item` when the item doesn't set the field; an id, set or list default of content or `field` is qualified in the content type's pack. */
   default?: Literal;
   /** The lowest allowed value. On a state key, a number formula with `item` bound (the copy's item with its templates) that reads input fields only, evaluated by `addItem` for a formula default and by `setState` and `adjustState` (`shots: { max: item.magazine }`). On an action parameter of type `integer` or `decimal`, a number formula evaluated as the action starts, with the action's `item` and `self`, `situational` and the character's fields (`max: effort.free`); a value outside it is `out-of-range`. */
   min?: Formula;

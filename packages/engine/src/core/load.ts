@@ -370,7 +370,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       if (!decl.of || decl.of === 'tag' || decl.of === 'string') return value;
       const one = (v: string) => (decl.of === 'field' ? q.field(v, pack) : q.content(v, pack));
       if (decl.type === 'id' && typeof value === 'string') return one(value);
-      if (decl.type === 'set' && Array.isArray(value)) return value.map((v) => one(String(v)));
+      if ((decl.type === 'set' || decl.type === 'list') && Array.isArray(value))
+        return value.map((v) => one(String(v)));
       return value;
     },
     decls(decls: Record<string, ValueDecl> | undefined, pack: string) {

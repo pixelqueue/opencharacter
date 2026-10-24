@@ -13,7 +13,7 @@ A content type's interface has four parts:
 | Actions | `actions` on the type (every item gets them) and on items | What rolls can it make?                                |
 | State   | `state: { <name>: valueDecl }`                            | What's tracked on _your_ copy? (charges, shots, level) |
 
-A `valueDecl` has `type` (a value type), plus `values` for enums, `of` for `id`/`set`, `members` for an `id` or `set` of `tag` ([rules-and-fields.md](rules-and-fields.md#which-tags-a-field-takes)), `required`, `default`, and `min`/`max`.
+A `valueDecl` has `type` (a value type), plus `values` for enums, `of` for `id`/`set`/`list`, `members` for an `id`, `set` or `list` of `tag` ([rules-and-fields.md](rules-and-fields.md#which-tags-a-field-takes)), `unique` for a `list`, `required`, `default`, and `min`/`max`.
 
 Item fields are what an item's author writes, never what changes in play (that is `state`), so
 an app can build a custom-item form from them; each has a name and an optional hint in the
@@ -22,10 +22,35 @@ pack's text (`types.<type>.fields.<field>.name`; [i18n.md](i18n.md#item-fields))
 
 An item field's `default` applies when an item doesn't set the field (or, on a copy, when none
 of its templates does): `item.<field>` and `copy.fields.<field>` read it as if the item had written it (a string on an `integer`,
-`decimal`, `boolean` or `dice` field is a formula, as an item's own value is). An `id` or `set`
-item field of a content type or of `field` holds qualified IDs: a value resolves in the item's
+`decimal`, `boolean` or `dice` field is a formula, as an item's own value is). An `id`, `set`
+or `list` item field of a content type or of `field` holds qualified IDs: a value resolves in the item's
 pack, a default in the content type's pack, so a stunt's `skill: skills.lore` equals a field
 parameter's `params.skill.id`.
+
+**Ordered item fields.** A `set` comes out sorted and without duplicates. Where the order is
+data, an item field is a `list` instead: its members (`of`, as for a `set`) in the order
+written, and duplicates allowed unless the declaration says `unique: true`. Formulas see a
+`list<string>` in that order:
+
+```yaml
+contentTypes:
+  spell:
+    fields:
+      castOptions: { type: list, of: string, unique: true } # the book's order
+  class:
+    fields:
+      abilityPriority: { type: list, of: field, unique: true } # a random start's best first
+# An item:
+fields: { abilityPriority: [abilities.str, abilities.con, abilities.dex] }
+# A formula: item.abilityPriority[0], indexOf(item.abilityPriority, x)
+```
+
+- **Item fields only:** a content type's `fields` and the rules' `templateFields`. A `list`
+  state key, action parameter or template parameter is a validation error.
+- **Checked** as a `set` is: a value that isn't a list, or a `unique` list with a member twice,
+  is `invalid-item-field` (`wrong-type`) at load, and the validator checks each member against
+  `of`. A per-copy value is checked the same way (`wrong-type`, `unknown-id`).
+- `unique` is for a `list` only (a schema error elsewhere).
 
 Two flags control where copies live:
 
@@ -442,9 +467,9 @@ features:
 - **Saved:** in the entry's `fields`, by name ([characters.md](characters.md#entries)), set by
   `addItem`'s `entry.fields` and by `setField`; `setField` with `null` removes one
   ([engine-core.md](engine-core.md#applychanges)). Each is checked as a state value is: a field
-  that isn't declared `perCopy` is `not-per-copy`, a value of another type `wrong-type`, an `id`
-  or `set` member that names nothing `unknown-id`. A value is a literal, never a formula; an `id`
-  or `set` value of content or `field` is qualified.
+  that isn't declared `perCopy` is `not-per-copy`, a value of another type `wrong-type`, an `id`,
+  `set` or `list` member that names nothing `unknown-id`. A value is a literal, never a formula; an
+  `id`, `set` or `list` value of content or `field` is qualified.
 - **Read:** merged into the copy's `item` (and `copy.fields`) after its templates, saved and
   kept, replacing the item's value and theirs; templates' `prior` doesn't see it. So every
   reader reads `item.limit`, a custom stunt's and an SRD stunt's alike. State defaults and
