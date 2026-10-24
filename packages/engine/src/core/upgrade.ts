@@ -266,6 +266,27 @@ function ownerTrees(scope: TreeAt[], rules: ChoiceTree | undefined, path: OwnerP
   return at;
 }
 
+/**
+ * Whether the character holds a choice owner: a copy or a pick of its content, or a pick of its
+ * inline option, saved picks of its own choices or not.
+ */
+function holdsOwner(c: CharacterDoc, path: OwnerPath): boolean {
+  const last = path.pairs.at(-1);
+  if (!last) {
+    if (path.head === null) return true;
+    return (
+      allEntries(c).some((e) => e.item === path.head) ||
+      trees(c).some(({ tree }) =>
+        Object.values(tree).some((picks) => picks.some((p) => p.option === path.head)),
+      )
+    );
+  }
+  const parents = ownerTrees(trees(c), c.choices, { ...path, pairs: path.pairs.slice(0, -1) });
+  return parents.some(({ tree, prefix }) =>
+    (tree[`${prefix}${last[0]}`] ?? []).some((p) => String(p.option) === last[1]),
+  );
+}
+
 const sameValue = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 /** A saved state map and its content: copies, content picks and granted content. */
@@ -666,9 +687,7 @@ function applyStep(
       // Informational: the upgraded character reports the choice as pending. Listed when the
       // character holds the owner (or for a rules-level choice).
       if (step.owner === undefined) return true;
-      const path = ownerPath(step.owner, q);
-      if (path.pairs.length === 0) return trees(c).some((t) => t.owner === path.head);
-      return ownerTrees(trees(c), c.choices, path).length > 0;
+      return holdsOwner(c, ownerPath(step.owner, q));
     }
     default:
       return false;
