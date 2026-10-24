@@ -484,7 +484,14 @@ export function keptTemplate(
   };
 }
 
-type CopyFieldCode = 'not-per-copy' | 'wrong-type' | 'unknown-id';
+type CopyFieldCode = 'not-per-copy' | 'wrong-type' | 'unknown-id' | 'invalid-option';
+
+/** The first member of a value its declaration's `where` doesn't take (`options`), if any. */
+export function outsideOptions(decl: ValueDecl, raw: unknown): string | undefined {
+  const options = decl.options;
+  if (!options) return undefined;
+  return (Array.isArray(raw) ? raw : [raw]).map(String).find((id) => !options.includes(id));
+}
 
 /** Why a copy's own value of an item field doesn't apply, or undefined when it does. */
 export function copyFieldProblem(
@@ -504,7 +511,11 @@ export function copyFieldProblem(
   const missing = ids.find(
     (id) => !(decl.of === 'field' ? ruleset.fields[id] : ruleset.content[id]),
   );
-  return missing === undefined ? undefined : { code: 'unknown-id', data: { id: missing } };
+  if (missing !== undefined) return { code: 'unknown-id', data: { id: missing } };
+  const option = outsideOptions(decl, raw);
+  return option === undefined
+    ? undefined
+    : { code: 'invalid-option', data: { target: field, option } };
 }
 
 /**

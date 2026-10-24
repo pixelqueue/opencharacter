@@ -232,7 +232,9 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   list of the ruleset's conflicts, `creation` (when listed) the exact list of its creation
   starts, and `packs` (when listed) the exact list of its packs' `id`,
   `version`, `license`, `credit` and `notices`, the notices in order, and `enumOrigins` and `familyOrigins` (when
-  listed) its `enumOrigins` and `familyOrigins`, exactly.
+  listed) its `enumOrigins` and `familyOrigins`, exactly, and `contentTypes` (when listed) the
+  `options` of each listed item field and state key, by content type, `fields` and `state` (`{}`
+  for a declaration without them).
 - **Dice** are always given as individual faces (`dice.yaml`: a list of face lists, one per pause, or a flat list consumed in order by a seeded dice function). Cases never depend on random numbers.
 - **Expected outputs** (`expected.yaml`) are compared as data. For example, `computeSheet` cases may list only the fields they check (`values: { 5e-srd-5.1:combat.ac: { value: 17 } }`); unlisted output is not compared. Errors and rules issues are compared by `code` (and `id`), never by text.
 - A case for a call that should fail lists the expected `errors` codes.

@@ -274,7 +274,8 @@ consult, and that's on purpose.
   entry. The state keys are declared by the content type, the item and its templates.
 - **Shaping a copy** (a Fate custom stunt's skill and limit) is `setField` on the entry, for
   item fields its content type marks `perCopy` (`ruleset.contentTypes[type].fields`); `null`
-  gives the item's value back. The copy's merged item, with its own values, is its
+  gives the item's value back. A field with `where` lists what it takes as `options` (the
+  custom stunt's skills): offer those. The copy's merged item, with its own values, is its
   `templated` entry.
 - **Magic properties** like +1 are **templates** applied to a copy (`applyTemplate`). To offer
   them, list the templates in the ruleset (content of type `template`) whose `appliesTo` matches

@@ -55,7 +55,7 @@ import {
   resolveType,
   type Ruleset,
 } from './ruleset.ts';
-import { itemFieldDeclsOf, itemView } from './views.ts';
+import { itemFieldDeclsOf, itemView, writtenTags } from './views.ts';
 
 import type { EngineError } from '@opencharacter/spec';
 
@@ -1064,6 +1064,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
   }
   extendEnums(ruleset, byId.values(), scopeOf, err, resolved);
   followOpenViews(ruleset, resolved, (id) => byId.has(id));
+  const takes = declTakes(ruleset, (qid) => resolved.get(qid));
   // Item fields against their content type: the item's own values, then the required ones on the
   // merged item.
   [...byId.values()].forEach((pack, i) => {
@@ -1084,6 +1085,15 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         const decl = decls[name];
         if (!decl) bad(name, 'undeclared');
         else if (!fitsItemField(value, decl)) bad(name, 'wrong-type');
+        else if (decl.where !== undefined && (typeof value !== 'object' || Array.isArray(value))) {
+          const ids = membersOf(value).map(
+            (v) =>
+              (decl.of === 'field'
+                ? resolveField(ruleset, v, pack.manifest.id)
+                : resolveContent(ruleset, v, pack.manifest.id)) ?? v,
+          );
+          if (!ids.every((id) => takes(decl, type.pack, id))) bad(name, 'not-allowed');
+        }
       }
       if (raw.override) return;
       for (const [name, decl] of Object.entries(decls))
@@ -1110,6 +1120,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
   ruleset.content = Object.fromEntries(
     Object.keys(ruleset.content).map((qid) => [qid, resolved.get(qid) as LoadedItem]),
   );
+  declOptions(ruleset, takes);
 
   // The start by its ID, or `<pack>:<id>`; from the slot's pack or a dependency of it, when that
   // pack is loaded too.
@@ -1451,6 +1462,82 @@ function childrenOf(n: f.Node): f.Node[] {
       return typeof n.count === 'number' ? [] : [n.count];
     default:
       return [];
+  }
+}
+
+/** Whether an id, set or list declaration's `where` admits the field or content ID. */
+type Takes = (decl: ValueDecl, pack: string, id: string) => boolean;
+
+/**
+ * An item field's or state key's `where` reads only `item`: a field's `id`, `type` and written
+ * tags, or an item as a query's candidate. An ID naming nothing passes: it is reported as such.
+ */
+function declTakes(ruleset: Ruleset, itemOf: (qid: string) => LoadedItem | undefined): Takes {
+  return (decl, pack, id) => {
+    if (decl.where === undefined || !takesWhere(decl)) return true;
+    const tree = conditionTree(decl.where);
+    if (!tree.ok) return true;
+    let view: Record<string, unknown>;
+    if (decl.of === 'field') {
+      const def = ruleset.fields[id];
+      if (!def) return true;
+      view = { id, type: def.type, tags: writtenTags(def.tags) };
+    } else {
+      const item = itemOf(id);
+      if (!item) return true;
+      if (item.type !== decl.of) return false;
+      view = itemView(ruleset, item, [], () => undefined);
+    }
+    return matchesQuery(view, tree.value, (text) => resolveId(ruleset, text, pack));
+  };
+}
+
+/** An id, set or list of fields or content, whose `where` lists what it takes. */
+function takesWhere(decl: ValueDecl): boolean {
+  return (
+    ['id', 'set', 'list'].includes(decl.type) &&
+    decl.of !== undefined &&
+    decl.of !== 'tag' &&
+    decl.of !== 'string'
+  );
+}
+
+function membersOf(value: unknown): string[] {
+  if (typeof value === 'string') return [value];
+  return Array.isArray(value) ? value.map(String) : [];
+}
+
+/** Item fields and state keys with `where` get `options`: the IDs they take, in ruleset order. */
+function declOptions(ruleset: Ruleset, takes: Takes): void {
+  const withOptions = <T extends ValueDecl>(decl: T, pack: string): T => {
+    if (decl.where === undefined || !takesWhere(decl)) return decl;
+    const ids =
+      decl.of === 'field'
+        ? Object.keys(ruleset.fields)
+        : Object.values(ruleset.content)
+            .filter((item) => !item.hidden && item.type === decl.of)
+            .map((item) => item.qid);
+    return { ...decl, options: ids.filter((id) => takes(decl, pack, id)) };
+  };
+  const all = (decls: Record<string, ValueDecl> | undefined, pack: string) =>
+    decls && Object.values(decls).some((d) => d.where !== undefined)
+      ? Object.fromEntries(Object.entries(decls).map(([k, d]) => [k, withOptions(d, pack)]))
+      : decls;
+  for (const [name, type] of Object.entries(ruleset.contentTypes)) {
+    const fields = all(type.fields, type.pack);
+    const state = all(type.state, type.pack);
+    if (fields !== type.fields || state !== type.state)
+      ruleset.contentTypes[name] = {
+        ...type,
+        ...(fields ? { fields } : {}),
+        ...(state ? { state } : {}),
+      };
+  }
+  for (const [name, def] of Object.entries(ruleset.rules.templateFields))
+    ruleset.rules.templateFields[name] = withOptions(def, def.pack);
+  for (const [qid, item] of Object.entries(ruleset.content)) {
+    const state = all(item.state, item.scopes?.state ?? item.pack);
+    if (state && state !== item.state) ruleset.content[qid] = { ...item, state };
   }
 }
 

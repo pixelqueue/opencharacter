@@ -1,0 +1,42 @@
+description: 'An item field or state key with `where` lists the IDs it takes in the ruleset (`options`): fields in ruleset order, content in content order without hidden items'
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [skill]
+        fields:
+          skills.fight: { type: integer, input: true, default: 0, tags: [skill] }
+          stats.might: { type: integer, input: true, default: 0 }
+          skills.lore: { type: integer, input: true, default: 0, tags: [skill] }
+        contentTypes:
+          stunt:
+            fields:
+              skill: { type: id, of: field, where: "'skill' in item.tags" }
+              rival: { type: id, of: stunt, where: 'item.cost > 0' }
+              cost: { type: integer, default: 0 }
+            state:
+              focus: { type: id, of: field, where: "'skill' in item.tags" }
+              uses: { type: integer, default: 0 }
+      content:
+        - { id: stunts.strong, type: stunt, fields: { cost: 1 } }
+        - { id: stunts.wise, type: stunt }
+        - { id: stunts.keen, type: stunt, fields: { cost: 2 } }
+        - { id: stunts.lost, type: stunt, fields: { cost: 3 } }
+  - inline:
+      manifest:
+        id: test-hide
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { test-pack: ^1.0.0 }
+        hides: [test-pack:stunts.lost]
+      rules: {}
+      content: []

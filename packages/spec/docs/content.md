@@ -52,6 +52,27 @@ fields: { abilityPriority: [abilities.str, abilities.con, abilities.dex] }
   `of`. A per-copy value is checked the same way (`wrong-type`, `unknown-id`).
 - `unique` is for a `list` only (a schema error elsewhere).
 
+**What an `id` field takes.** An `id`, `set` or `list` item field (a content type's or a
+`templateFields` one) or state key of a content type or of `field` may say `where`: a condition
+over each candidate as `item`, as a query's (for a field, its `id`, `type` and written `tags`).
+It reads only `item`, so loadRuleset resolves it once (a formula reading anything else is a
+`formula-error`):
+
+```yaml
+contentTypes:
+  stunt:
+    fields:
+      skill: { type: id, of: field, where: "'skill' in item.tags", perCopy: true }
+```
+
+- **Checked:** an item's own value naming something outside it is `invalid-item-field`
+  (`not-allowed`) at load; a copy's own value (`addItem`, `setField`) or a state value
+  (`addItem`, `setState`, `applyEffect`) outside it is `invalid-option` (data: `target`, the
+  item field or state key, and `option`).
+- **Listed:** the declaration has `options` in the ruleset, every ID it takes: content in content
+  order (hidden items left out), fields in ruleset order. An app builds a custom-item form or a
+  copy's picker from it ([engine-interface.md](engine-interface.md#item-field-options)).
+
 Two flags control where copies live:
 
 - `carried: true`: copies go in the character's `inventory`. Otherwise they go in `features`.
@@ -482,7 +503,7 @@ limit differ per copy):
 contentTypes:
   stunt:
     fields:
-      skill: { type: id, of: field, perCopy: true }
+      skill: { type: id, of: field, where: "'skill' in item.tags", perCopy: true }
       limit: { type: enum, values: [none, conflict, scene, session], default: none, perCopy: true }
 # The character file
 features:
@@ -495,7 +516,8 @@ features:
   `addItem`'s `entry.fields` and by `setField`; `setField` with `null` removes one
   ([engine-core.md](engine-core.md#applychanges)). Each is checked as a state value is: a field
   that isn't declared `perCopy` is `not-per-copy`, a value of another type `wrong-type`, an `id`,
-  `set` or `list` member that names nothing `unknown-id`. A value is a literal, never a formula; an
+  `set` or `list` member that names nothing `unknown-id`, one outside the field's `where`
+  `invalid-option`. A value is a literal, never a formula; an
   `id`, `set` or `list` value of content or `field` is qualified.
 - **Read:** merged into the copy's `item` (and `copy.fields`) after its templates, saved and
   kept, replacing the item's value and theirs; templates' `prior` doesn't see it. So every
@@ -504,7 +526,8 @@ features:
 - **Shown:** a copy with own values is in computeSheet's `templated`, merged, even without a
   template ([engine-core.md](engine-core.md#merged-items)).
 - **Wrong on the sheet:** a saved value that doesn't apply (the type no longer marks the field
-  `perCopy`, or the value has another type) is left out, with that error in `errors`.
+  `perCopy`, the value has another type, or it is outside the field's `where`) is left out, with
+  that error in `errors`.
 - Only a content type's item fields take `perCopy`; on a state key or a template field it is a
   validation error.
 

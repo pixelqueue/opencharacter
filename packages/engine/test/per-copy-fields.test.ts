@@ -138,3 +138,73 @@ describe('per-copy item fields', () => {
     ]);
   });
 });
+
+describe('item fields and state keys with where', () => {
+  const stunt = ruleset.contentTypes['test-per-copy:stunt'];
+
+  it('list what they take', () => {
+    const skills = ['test-per-copy:skills.fight', 'test-per-copy:skills.lore'];
+    expect(stunt?.fields?.skill?.options).toEqual(skills);
+    expect(stunt?.state?.focus?.options).toEqual(skills);
+    expect(stunt?.fields?.limit?.options).toBeUndefined();
+  });
+
+  it('refuse a copy’s own value or a state value outside it', () => {
+    const c = character([{ id: 's', item: custom }]);
+    const outside = 'test-per-copy:stunts.bonus';
+    const codes = (changes: Parameters<typeof applyChanges>[2]) => {
+      const result = applyChanges(ruleset, c, changes);
+      return result.ok ? [] : result.errors.map((e) => [e.code, e.data]);
+    };
+    expect(codes([{ type: 'setField', entry: 's', key: 'skill', value: outside }])).toEqual([
+      ['invalid-option', { target: 'skill', option: outside }],
+    ]);
+    expect(codes([{ type: 'setState', entry: 's', key: 'focus', value: outside }])).toEqual([
+      ['invalid-option', { target: 'focus', option: outside }],
+    ]);
+    expect(
+      codes([{ type: 'addItem', entry: { id: 't', item: custom, fields: { skill: outside } } }]),
+    ).toEqual([['invalid-option', { target: 'skill', option: outside }]]);
+    expect(
+      codes([
+        { type: 'setField', entry: 's', key: 'skill', value: 'test-per-copy:skills.lore' },
+        { type: 'setState', entry: 's', key: 'focus', value: 'test-per-copy:skills.lore' },
+      ]),
+    ).toEqual([]);
+  });
+
+  it('report a saved value outside it and leave it out', () => {
+    const sheet = computeSheet(
+      ruleset,
+      character([{ id: 's', item: custom, fields: { skill: 'test-per-copy:stunts.bonus' } }]),
+    );
+    expect(sheet.errors).toMatchObject([
+      { code: 'invalid-option', path: '/features/0/fields/skill', data: { entry: 's' } },
+    ]);
+  });
+
+  it('read only item, so loadRuleset resolves them', () => {
+    const source = {
+      manifest: {
+        id: 'p',
+        version: '1.0.0',
+        specVersion: '0.1.0',
+        license: 'CC0-1.0',
+        defaultLanguage: 'en',
+      },
+      rules: [
+        {
+          fields: { level: { type: 'integer', input: true, default: 1 } },
+          contentTypes: {
+            stunt: { fields: { skill: { type: 'id', of: 'field', where: 'level > 1' } } },
+          },
+        },
+      ],
+      content: [],
+    } as unknown as PackSource;
+    const set = loadRuleset([buildRelease(source)]);
+    expect(set.ok ? [] : set.errors.map((e) => [e.code, e.data?.cause])).toEqual([
+      ['formula-error', 'unknown-name'],
+    ]);
+  });
+});

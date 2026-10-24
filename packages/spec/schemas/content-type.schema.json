@@ -170,7 +170,7 @@
           "$ref": "formula.schema.json"
         },
         "where": {
-          "description": "Parameters of type `id` with `of: field`: which fields the app may pass (a condition over each field as `item`: `id`, `type`, `tags`). The action reads the field as `params.<name>.value`, its ID as `params.<name>.id`, its type as `params.<name>.type` and its declared tags as `params.<name>.tags`. Parameters of type `id` with `of` a content type: which items the app may pass, a condition with `item` the candidate item, the character's fields, and the action's own item and copy as `action.item` and `action.self`; the action reads the item's qualified ID. A value outside it is `invalid-option` when the action starts.",
+          "description": "Parameters of type `id` with `of: field`: which fields the app may pass (a condition over each field as `item`: `id`, `type`, `tags`). The action reads the field as `params.<name>.value`, its ID as `params.<name>.id`, its type as `params.<name>.type` and its declared tags as `params.<name>.tags`. Parameters of type `id` with `of` a content type: which items the app may pass, a condition with `item` the candidate item, the character's fields, and the action's own item and copy as `action.item` and `action.self`; the action reads the item's qualified ID. A value outside it is `invalid-option` when the action starts. Item fields (a content type's, or `templateFields`) and state keys of type `id`, `set` or `list` with `of` a content type or `field`: which members they take, a condition over each candidate as `item` (a field's `id`, `type` and written `tags`; an item as a query's candidate) that reads only `item`, so loadRuleset resolves it and gives the declaration `options`, the IDs it takes. An item's own value outside it is `invalid-item-field` (`not-allowed`); a copy's own value (`addItem`, `setField`) or a state value (`addItem`, `setState`, `applyEffect`) outside `options` is `invalid-option`.",
           "$ref": "formula.schema.json#/$defs/condition"
         }
       },
@@ -212,6 +212,25 @@
             "properties": {
               "type": {
                 "const": "list"
+              }
+            },
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "required": ["where"],
+            "type": "object"
+          },
+          "then": {
+            "properties": {
+              "type": {
+                "enum": ["id", "set", "list"]
+              },
+              "of": {
+                "not": {
+                  "enum": ["tag", "string"]
+                }
               }
             },
             "type": "object"

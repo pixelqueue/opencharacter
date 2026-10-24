@@ -172,6 +172,16 @@ the definition, wherever it lives: a rules action, one inline on an item or on i
   sorted. `of: string` has none.
 - `participants` lists the roles as `{ role, min, max?, pack? }`; `min` defaults to 0.
 
+### Item field options
+
+An `id`, `set` or `list` item field or state key with `where` reads only `item`, so its valid
+values don't depend on the character: loadRuleset lists them on the declaration in the ruleset
+as `options` (`ruleset.contentTypes[<type>].fields.<field>.options`, `.state.<key>.options`;
+`rules.templateFields` and items' own `state` the same), content in content order without hidden
+items, fields in ruleset order ([content.md](content.md#content-types)). An app builds a
+custom-item form or a copy's picker from it, and `setField`, `addItem` and `setState` refuse a
+value outside it (`invalid-option`).
+
 ## Three kinds of problem
 
 | Kind              | When it's caught                                                                               | Example                                                                               | Result                                         |
