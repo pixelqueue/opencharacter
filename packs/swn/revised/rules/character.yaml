@@ -22,9 +22,26 @@ fields:
 contentTypes:
   class:
     copies: { max: 1 }
+    fields:
+      # The starting package recommended for the class.
+      kit: { type: id, of: kit }
   # Picked, two of them, by the Adventurer.
   partialClass:
     copies: { max: 0 }
+  # A quick character's class and style: the class, the attribute scores and, for the book's
+  # styles, the style's column of the quick foci table (0-7).
+  style:
+    carried: false
+    copies: { max: 0 }
+    fields:
+      class: { type: id, of: class, required: true }
+      str: { type: integer, required: true }
+      dex: { type: integer, required: true }
+      con: { type: integer, required: true }
+      int: { type: integer, required: true }
+      wis: { type: integer, required: true }
+      cha: { type: integer, required: true }
+      table: { type: integer, min: 0, max: 7 }
   background:
     copies: { max: 1 }
     fields:

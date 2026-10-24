@@ -1,0 +1,11 @@
+id: kits.credits
+type: kit
+actions:
+  - id: unpack
+    listed: false
+    steps:
+      - { id: credits, kind: roll, tags: [creation], parts: [{ dice: 2d6 }] }
+      - id: gear
+        kind: changes
+        changes:
+          - { type: set, field: credits.current, value: steps.credits.total * 100 }
