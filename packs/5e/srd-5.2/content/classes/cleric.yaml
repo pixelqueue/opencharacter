@@ -3,12 +3,15 @@ type: class
 fields:
   hitDie: 1d8
   startingKit: true
-  abilityPriority1: wis
-  abilityPriority2: str
-  abilityPriority3: con
-  abilityPriority4: cha
-  abilityPriority5: int
-  abilityPriority6: dex
+  abilityPriority:
+    [
+      abilities.wis.score,
+      abilities.str.score,
+      abilities.con.score,
+      abilities.cha.score,
+      abilities.int.score,
+      abilities.dex.score,
+    ]
   multiclassAll: [wis]
 state:
   channelDivinitySpent: { type: integer, default: 0, min: 0 }

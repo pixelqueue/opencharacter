@@ -3,12 +3,15 @@ type: class
 fields:
   hitDie: 1d8
   startingKit: true
-  abilityPriority1: cha
-  abilityPriority2: dex
-  abilityPriority3: int
-  abilityPriority4: con
-  abilityPriority5: wis
-  abilityPriority6: str
+  abilityPriority:
+    [
+      abilities.cha.score,
+      abilities.dex.score,
+      abilities.int.score,
+      abilities.con.score,
+      abilities.wis.score,
+      abilities.str.score,
+    ]
   multiclassAll: [cha]
 state:
   bardicInspirationSpent: { type: integer, default: 0, min: 0 }

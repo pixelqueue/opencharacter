@@ -3,12 +3,15 @@ type: class
 fields:
   hitDie: 1d12
   startingKit: true
-  abilityPriority1: str
-  abilityPriority2: con
-  abilityPriority3: dex
-  abilityPriority4: wis
-  abilityPriority5: int
-  abilityPriority6: cha
+  abilityPriority:
+    [
+      abilities.str.score,
+      abilities.con.score,
+      abilities.dex.score,
+      abilities.wis.score,
+      abilities.int.score,
+      abilities.cha.score,
+    ]
   multiclassAll: [str]
 state:
   rageSpent: { type: integer, default: 0, min: 0 }

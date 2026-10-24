@@ -10,7 +10,7 @@ invocations, Draconic Ancestry, Infernal Legacy and Relentless Endurance only wh
 the hidden `hunter.colossusSlayer` field is removed.
 
 Open to add-on packs: each class and background carries its own starting `kit` action
-(`startingKit`), a class orders a random start's abilities (`abilityPriority1`–`6`) and names its
+(`startingKit`), a class orders a random start's abilities (`abilityPriority`, an ordered list of ability scores) and names its
 multiclass requirements (`multiclassAll`, `multiclassAny`), magic items name the classes that can
 attune (`attunementClasses`, replacing the `attunement.<class>` tags), containers add their own
 capacity, rests carry `rest.long` and `rest.short` for content to reset its uses, and Metamagic
