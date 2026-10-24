@@ -333,9 +333,9 @@ actions:
   - id: gain-edge
     tags: [building]
     available: >-
-      size(picksOf('rules', 'edge-1')) == 0 || size(picksOf('rules', 'edge-2')) == 0
-        || (level >= 5 && size(picksOf('rules', 'edge-5')) == 0)
-        || (underdog && size(picksOf('rules', 'underdog-edge')) == 0)
+      size(picksOf('edge-1')) == 0 || size(picksOf('edge-2')) == 0
+        || (level >= 5 && size(picksOf('edge-5')) == 0)
+        || (underdog && size(picksOf('underdog-edge')) == 0)
     params:
       choice: { type: enum, values: [edge-1, edge-2, edge-5, underdog-edge] }
       random: { type: boolean, default: false }
@@ -348,10 +348,10 @@ actions:
         sheet: proposed
         when: >-
           (params.choice == 'edge-5' && level < 5) || (params.choice == 'underdog-edge' && !underdog)
-            || (params.choice == 'edge-1' && size(picksOf('rules', 'edge-1')) > 0)
-            || (params.choice == 'edge-2' && size(picksOf('rules', 'edge-2')) > 0)
-            || (params.choice == 'edge-5' && size(picksOf('rules', 'edge-5')) > 0)
-            || (params.choice == 'underdog-edge' && size(picksOf('rules', 'underdog-edge')) > 0)
+            || (params.choice == 'edge-1' && size(picksOf('edge-1')) > 0)
+            || (params.choice == 'edge-2' && size(picksOf('edge-2')) > 0)
+            || (params.choice == 'edge-5' && size(picksOf('edge-5')) > 0)
+            || (params.choice == 'underdog-edge' && size(picksOf('underdog-edge')) > 0)
         result: "'closed'"
       - id: edge
         kind: choice
