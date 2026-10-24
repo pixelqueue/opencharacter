@@ -13,112 +13,32 @@ actions:
         kind: choice
         options: [{ id: innocents }, { id: prepared }, { id: near-future }, { id: wasteland }]
         recommend: "'wasteland'"
+      # Four different picks from the list (`prepared` content, an add-on pack's too).
       - id: prepared
         kind: choice
         when: "steps.kit.picked == 'prepared'"
         repeat: { max: 4, min: 4 }
         random: params.random
         recommend: >-
-          size(filterList(['knife', 'first-aid-kit', 'preserved-food', 'backpack'], x in options)) > 0
-            ? filterList(['knife', 'first-aid-kit', 'preserved-food', 'backpack'], x in options)[0]
+          size(filterList([@prepared.knife, @prepared.first-aid-kit, @prepared.preserved-food,
+            @prepared.backpack], x in options)) > 0
+            ? filterList([@prepared.knife, @prepared.first-aid-kit, @prepared.preserved-food,
+              @prepared.backpack], x in options)[0]
             : options[0]
-        options:
-          - id: light-pistol
-            when: picks == 0
-            changes:
-              - { type: addItem, entry: { item: "'weapons.light-pistol'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.magazine'", quantity: 2 } }
-          - id: heavy-pistol
-            when: picks == 0
-            changes:
-              - { type: addItem, entry: { item: "'weapons.heavy-pistol'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.magazine'", quantity: 2 } }
-          - id: rifle
-            when: picks == 0
-            changes:
-              - { type: addItem, entry: { item: "'weapons.rifle'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.magazine'", quantity: 2 } }
-          - id: shotgun
-            when: picks == 0
-            changes:
-              - { type: addItem, entry: { item: "'weapons.shotgun'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.ammo'", quantity: 2 } }
-          # A criminal's non-military firearm: the semi-auto shotgun stands for any of them.
-          - id: criminal-firearm
-            when: picks == 0
-            changes:
-              - { type: addItem, entry: { item: "'weapons.semi-auto-shotgun'", equipped: true } }
-              - { type: addItem, entry: { item: "'gear.magazine'", quantity: 2 } }
-          - id: knife
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'weapons.knife'", equipped: true } }]
-          - id: smartphone
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.smartphone'" } }]
-          - id: preserved-food
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.preserved-food'" } }]
-          - id: camping-kit
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.camping-kit'" } }]
-          - id: first-aid-kit
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.first-aid-kit'" } }]
-          - id: tent
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.tent'" } }]
-          - id: toolkit
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.toolkit'" } }]
-          - id: flashlight
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.flashlight'" } }]
-          - id: cold-weather-clothes
-            when: picks == 0
-            changes:
-              [{ type: addItem, entry: { item: "'gear.clothes-cold-weather'", equipped: true } }]
-          - id: sleeping-bag
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.sleeping-bag'" } }]
-          - id: cash
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.cash'" } }]
-          - id: laptop
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.laptop'" } }]
-          - id: walkie-talkies
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.walkie-talkie'", quantity: 2 } }]
-          - id: solar-charger
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.solar-charger'" } }]
-          - id: radio
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.radio'" } }]
-          - id: lockpick-kit
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.lockpick-kit'" } }]
-          - id: lighters
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.lighters'" } }]
-          - id: purification-tablets
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.purification-tablets'" } }]
-          - id: profession-item
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.profession-item'" } }]
-          - id: backpack
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.backpack'", equipped: true } }]
-          - id: binoculars
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.binoculars'" } }]
-          - id: water-purifier
-            when: picks == 0
-            changes: [{ type: addItem, entry: { item: "'gear.water-purifier'" } }]
+        options: { content: { type: prepared, where: picks == 0 } }
+        changes:
+          - type: addItem
+            entry:
+              item: picked.item.gear
+              quantity: picked.item.quantity
+              equipped: picked.item.equipped
+          - type: addItem
+            when: has(picked.item.extra)
+            entry: { item: picked.item.extra, quantity: picked.item.extraQuantity }
 
-      # The warrior's kit: a primitive melee weapon or a primitive bow with 20 arrows, a knife,
-      # backpack, sleeping bag, tinderbox, three torches, clothes and 1d4 days of food.
+      # The warrior's kit: a primitive melee weapon or a primitive bow with 20 arrows (a primitive
+      # missile weapon with its `kitAmmo`), a knife, backpack, sleeping bag, tinderbox, three
+      # torches, clothes and 1d4 days of food.
       - id: weapon
         kind: choice
         when: "steps.kit.picked == 'near-future' || steps.kit.picked == 'wasteland'"
@@ -127,14 +47,14 @@ actions:
             type: weapon
             where: >-
               has(item.techLevel) && item.techLevel <= 1 && !('grenade' in item.tags)
-                && ('stab' in item.skills || item.id == @weapons.primitive-bow)
+                && ('stab' in item.skills || has(item.kitAmmo))
         random: params.random
         recommend: options[0]
         changes:
           - { type: addItem, entry: { item: picked.id, equipped: true } }
           - type: addItem
-            when: picked.id == @weapons.primitive-bow
-            entry: { item: "'gear.arrows'" }
+            when: has(picked.item.kitAmmo)
+            entry: { item: picked.item.kitAmmo }
       - id: food
         kind: roll
         tags: [creation]

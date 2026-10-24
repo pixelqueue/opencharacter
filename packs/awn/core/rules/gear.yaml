@@ -20,6 +20,8 @@ contentTypes:
       techLevel: { type: integer, min: 0, max: 5 }
       traumaDie: { type: dice }
       traumaRating: { type: integer, min: 1 }
+      # The ammunition a primitive missile weapon starts with in a wasteland warrior's kit.
+      kitAmmo: { type: id, of: gear }
     state:
       shots: { type: integer, min: 0, default: 'has(item.magazine) ? item.magazine : 0' }
     computed:
@@ -100,6 +102,18 @@ contentTypes:
       techLevel: { type: integer, min: 0, max: 5 }
       # Drugs and stims: the Heal level applying it needs.
       healSkill: { type: integer, min: 0 }
+
+  # A pick on the prepared survivors' list: the item (`gear`, a weapon, armor or gear ID; another
+  # pack's qualified), how many, readied or not, and what comes with it (a firearm's magazines).
+  prepared:
+    carried: false
+    copies: { max: 0 }
+    fields:
+      gear: { type: string, required: true }
+      quantity: { type: integer, default: 1, min: 1 }
+      equipped: { type: boolean, default: false }
+      extra: { type: string }
+      extraQuantity: { type: integer, default: 1, min: 1 }
 
 # Everyone has fists.
 standardCopies:
