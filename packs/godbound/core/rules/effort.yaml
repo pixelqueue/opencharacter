@@ -55,8 +55,12 @@ actions:
         values: [effect, mimic-day-gift, armor, hurt-one, hurt-several]
         default: effect
       straight: { type: boolean, default: false }
-    results: [invoked]
+    results: [invoked, no-effort]
     steps:
+      - id: noEffort
+        kind: outcome
+        when: "params.kind == 'mimic-day-gift' && effort.free < 2"
+        result: "'no-effort'"
       - id: commit
         kind: changes
         changes:
