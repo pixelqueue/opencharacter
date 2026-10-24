@@ -52,18 +52,7 @@ grants:
 choices:
   # Asked first, so the free skills leave its skill out.
   - id: mystery
-    from:
-      items:
-        [
-          classes.oracle.mysteries.ancestors,
-          classes.oracle.mysteries.battle,
-          classes.oracle.mysteries.bones,
-          classes.oracle.mysteries.cosmos,
-          classes.oracle.mysteries.flames,
-          classes.oracle.mysteries.life,
-          classes.oracle.mysteries.lore,
-          classes.oracle.mysteries.tempest,
-        ]
+    from: { type: feature, where: "item.classOption == 'oracle.mystery'" }
   - id: skills
     unique: skill-training
     pick: 3 + max(0, attributes.int.mod)

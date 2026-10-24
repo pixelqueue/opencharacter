@@ -75,6 +75,24 @@ reading is listed under [Rule readings](#rule-readings).
   GM Core's relics and vehicles, the setting's proper nouns, and anything from the pre-Remaster
   (OGL) books, such as Ancestry Paragon and dual-class characters; GM Core's level 0 characters.
 
+## Add-on packs
+
+A pack that depends on `orc-2e` can add to what it offers:
+
+- **Subclasses:** a feature whose `classOption` names a class's choice (`barbarian.instinct`,
+  `bard.muse`, `cleric.doctrine`, `wizard.school`, …) joins that choice, and Champion's Reaction
+  for causes.
+- **Domains:** a `domain` item joins Domain Initiate and Domain Acumen (an advanced one, with
+  `advanced: true`, Advanced Domain); an initial domain spell names its domain in its `domain`
+  field for Deity's Domain; a mystery grants its domains into `oracle.domains`.
+- **Gear:** tags, not IDs, mark Force Open's crowbar (`tool.crowbar`), Sense Direction's compass
+  (`tool.compass`) and shields against spells (`shield.against-spells`).
+- **Archetypes:** a new archetype declares its own `archetypes.<name>.feats` field tagged
+  `archetype-feats`; a feat for an existing archetype adds 1 to that archetype's field.
+- **Not yet:** the identity enums (`barbarian.instinct`, `bard.muse`, `oracle.mystery`, …, which
+  feats' prerequisites and the dedications' value choices read), weapon and armor groups and
+  damage types wait for open enums; the skill and Lore lists are written out.
+
 ## License
 
 - **License:** the ORC License. Its four notices (Article III) are in the manifest, which apps
@@ -307,8 +325,8 @@ reading is listed under [Rule readings](#rule-readings).
   trained. Demoralize frightens, Trip knocks prone (1d6 bludgeoning on a critical success),
   Grapple grabs or restrains, Escape frees; Treat Wounds (any DC your rank allows, an hour
   doubling it) and Battle Medicine heal, Treat Poison and Treat Disease give the next save a
-  circumstance modifier (an applied effect), Administer First Aid stabilizes; Feint makes the
-  target off-guard to your melee Strikes (`feint.target`, which the Strike reads); a critical
+  circumstance modifier (an applied effect that save removes), Administer First Aid stabilizes;
+  Feint makes the target off-guard to your melee Strikes (`feint.target`, which the Strike reads); a critical
   failure to Trip or Shove is prone, to Disarm off-guard; Subsist's failure is fatigued. Attack-
   trait actions take and count the multiple attack penalty. Actions against several creatures
   (Hide, Sneak, Lie, Coerce, Make an Impression, Seek, …) roll once and give each one's degree
@@ -811,8 +829,10 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
   flanked or in cover (situational choices), when a condition is gained (`applyEffect`), daily
   preparations (the pack's `daily-preparations` and `prepare-spells` say what happens), rests; a
   spell's duration, sustaining and dismissing it, its area and who is in it (an applied spell
-  stays until the app removes it; a spell on "you and your allies" takes the caster as an ally
-  too); summoned creatures; onset, intervals and virulence of afflictions.
+  stays until the app removes it, but one for the next roll, such as guidance, sure strike,
+  true target or weapon surge, ends on the roll it changes; a spell on "you and your allies"
+  takes the caster as an ally too); summoned creatures; onset, intervals and virulence of
+  afflictions.
 - **Text only:** critical specialization, armor specialization, the skill feats that change
   time, other creatures or what the GM tells you (58 of 106), the skill actions' movement,
   attitudes and detection toward one observer, innate spells from heritages, Lunge; the rogue's,

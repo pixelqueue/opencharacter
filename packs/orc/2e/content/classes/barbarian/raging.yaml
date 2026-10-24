@@ -14,7 +14,9 @@ effects:
         / ('trait.agile' in roll.item.tags ? 2 : 1))
     tags:
       - formula: >-
-          self.alternate && rage.altDamage > 0 ? 'damage.' + rage.altType
+          self.alternate && barbarian.instinct == 'spirit' ? 'damage.spirit'
+            : self.alternate && size(picksOf('classes.barbarian.instincts.dragon', 'breath')) > 0
+              ? 'damage.' + picksOf('classes.barbarian.instincts.dragon', 'breath')[0]
             : 'damage.' + roll.item.damageType
     when: >-
       roll.item.range == 0 && (!(has(flags.thrown) && flags.thrown) || rage.thrown)

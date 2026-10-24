@@ -49,14 +49,7 @@ grants:
   - { item: features.druid.primal-hierophant, when: level >= 19 }
 choices:
   - id: order
-    from:
-      items:
-        [
-          classes.druid.orders.animal,
-          classes.druid.orders.leaf,
-          classes.druid.orders.storm,
-          classes.druid.orders.untamed,
-        ]
+    from: { type: feature, where: "item.classOption == 'druid.order'" }
   - id: voice-of-nature
     unique: feats
     from: { items: [feats.druid.animal-empathy, feats.druid.plant-empathy] }

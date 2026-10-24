@@ -6,6 +6,14 @@ fields:
   cleric.doctrine: { type: enum, values: [none, cloistered, warpriest], formula: "'none'" }
   cleric.domainSpells: { type: set, of: spell }
 
+# A domain is picked by Domain Initiate (its initial domain spell) or Advanced Domain (its advanced
+# one); Domain Acumen picks the initial domains of the oracle's mystery.
+contentTypes:
+  domain:
+    copies: { max: 0 }
+    fields:
+      advanced: { type: boolean, default: false }
+
 tags:
   - trait.shadow
   - trait.consecration

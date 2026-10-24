@@ -299,6 +299,8 @@ contentTypes:
   spell:
     texts: [trigger, requirements]
     fields:
+      # An initial domain spell's domain.
+      domain: { type: id, of: domain }
       rank: { type: integer, required: true, min: 1, max: 10 }
       cast:
         type: enum

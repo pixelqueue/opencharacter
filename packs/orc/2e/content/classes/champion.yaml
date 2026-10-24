@@ -140,17 +140,7 @@ choices:
     effects:
       - { target: attacks.favoredWeapons, op: grant, value: { formula: pick.id } }
   - id: cause
-    from:
-      items:
-        [
-          classes.champion.causes.desecration,
-          classes.champion.causes.grandeur,
-          classes.champion.causes.iniquity,
-          classes.champion.causes.justice,
-          classes.champion.causes.liberation,
-          classes.champion.causes.obedience,
-          classes.champion.causes.redemption,
-        ]
+    from: { type: feature, where: "item.classOption == 'champion.cause'" }
   - id: devotion-spell
     from:
       options:
