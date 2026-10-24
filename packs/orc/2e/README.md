@@ -97,7 +97,9 @@ A pack that depends on `orc-2e` can add to what it offers:
   value: "'thunder'" }`), as the core's do; weapon `group` and `damageType`, armor `group`,
   consumable `category`, `damageType` and `persistentType`, spell damage types (`damageType`,
   `damage2Type`, `persistentType` and the cast's `damageType` state), affliction and persistent
-  damage condition damage types, and feat `category`. A new damage type or group also needs its
+  damage condition damage types, feat `category`, and the damage type parameters of `cast-spell`
+  (`damageType`) and `bomb-strike` (`damageType`, `persistentType`), so an added bomb or spell
+  deals its type (`orc-2e:actions.bomb-strike.params.damageType`). A new damage type or group also needs its
   tag (`damage.sonic`, `group.firearm`), declared and named in the add-on.
 - **Choices** (`extendChoices`): written value and inline option choices take additions: the
   dedications' identity picks (Barbarian Dedication's `instinct`), the follow-up feats' inline
@@ -111,8 +113,7 @@ A pack that depends on `orc-2e` can add to what it offers:
 
 Still closed: attributes, proficiency ranks, saves, spell traditions (and a staff's
 `tradition`), weapon and armor categories, and physical damage types for `versatile` and
-`modular`, the game's fixed sets; action parameters (an alchemist's bomb damage type) can't be
-open.
+`modular`, the game's fixed sets.
 
 ## License
 
