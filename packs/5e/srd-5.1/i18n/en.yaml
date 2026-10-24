@@ -7443,20 +7443,26 @@ subclasses.way-of-the-open-hand.description: 'Monks of the Way of the Open Hand 
 subclasses.oath-of-devotion.name: 'Oath of Devotion'
 subclasses.oath-of-devotion.description: "The Oath of Devotion binds a paladin to the loftiest ideals of justice, virtue, and order. Sometimes called cavaliers, white knights, or holy warriors, these paladins meet the ideal of the knight in shining armor, acting with honor in pursuit of justice and the greater good. They hold themselves to the highest standards of conduct, and some, for better or worse, hold the rest of the world to the same standards. Many who swear this oath are devoted to gods of law and good and use their gods' tenets as the measure of their devotion. They hold angels—the perfect servants of good—as their ideals, and incorporate images of angelic wings into their helmets or coats of arms."
 subclasses.hunter.choices.hunters-prey.prompt: "Choose a Hunter's Prey option"
-subclasses.hunter.choices.hunters-prey.options.colossus-slayer.name: 'Colossus Slayer'
-subclasses.hunter.choices.hunters-prey.options.giant-killer.name: 'Giant Killer'
-subclasses.hunter.choices.hunters-prey.options.horde-breaker.name: 'Horde Breaker'
 subclasses.hunter.choices.defensive-tactics.prompt: 'Choose a Defensive Tactics option'
-subclasses.hunter.choices.defensive-tactics.options.escape-the-horde.name: 'Escape the Horde'
-subclasses.hunter.choices.defensive-tactics.options.multiattack-defense.name: 'Multiattack Defense'
-subclasses.hunter.choices.defensive-tactics.options.steel-will.name: 'Steel Will'
 subclasses.hunter.choices.multiattack.prompt: 'Choose a Multiattack option'
-subclasses.hunter.choices.multiattack.options.volley.name: 'Volley'
-subclasses.hunter.choices.multiattack.options.whirlwind-attack.name: 'Whirlwind Attack'
 subclasses.hunter.choices.superior-hunters-defense.prompt: "Choose a Superior Hunter's Defense option"
-subclasses.hunter.choices.superior-hunters-defense.options.evasion.name: 'Evasion'
-subclasses.hunter.choices.superior-hunters-defense.options.stand-against-the-tide.name: 'Stand Against the Tide'
-subclasses.hunter.choices.superior-hunters-defense.options.uncanny-dodge.name: 'Uncanny Dodge'
+types.hunterTactic.name: "Hunter's option"
+types.hunterTactic.fields.feature.name: 'Feature'
+types.hunterTactic.fields.feature.values.hunters-prey.name: "Hunter's Prey"
+types.hunterTactic.fields.feature.values.defensive-tactics.name: 'Defensive Tactics'
+types.hunterTactic.fields.feature.values.multiattack.name: 'Multiattack'
+types.hunterTactic.fields.feature.values.superior-hunters-defense.name: "Superior Hunter's Defense"
+hunter-tactics.colossus-slayer.name: 'Colossus Slayer'
+hunter-tactics.giant-killer.name: 'Giant Killer'
+hunter-tactics.horde-breaker.name: 'Horde Breaker'
+hunter-tactics.escape-the-horde.name: 'Escape the Horde'
+hunter-tactics.multiattack-defense.name: 'Multiattack Defense'
+hunter-tactics.steel-will.name: 'Steel Will'
+hunter-tactics.volley.name: 'Volley'
+hunter-tactics.whirlwind-attack.name: 'Whirlwind Attack'
+hunter-tactics.evasion.name: 'Evasion'
+hunter-tactics.stand-against-the-tide.name: 'Stand Against the Tide'
+hunter-tactics.uncanny-dodge.name: 'Uncanny Dodge'
 subclasses.hunter.name: 'Hunter'
 subclasses.hunter.description: "Emulating the Hunter archetype means accepting your place as a bulwark between civilization and the terrors of the wilderness. As you walk the Hunter's path, you learn specialized techniques for fighting the threats you face, from rampaging ogres and hordes of orcs to towering giants and terrifying dragons."
 subclasses.thief.name: 'Thief'
@@ -8386,61 +8392,46 @@ features.sorcerer.metamagic.description: |-
   At 3rd level, you gain the ability to twist your spells to suit your needs. You gain two of the following Metamagic options of your choice. You gain another one at 10th and 17th level.
 
   You can use only one Metamagic option on a spell when you cast it, unless otherwise noted.
-
-  **Careful Spell**
-
+features.sorcerer.metamagic.choices.options.prompt: 'Choose Metamagic options'
+types.metamagic.name: 'Metamagic option'
+metamagic.careful-spell.name: 'Careful Spell'
+metamagic.careful-spell.description: |-
   When you cast a spell that forces other creatures to make a saving throw, you can protect some of those creatures from the spell's full force. To do so, you spend 1 sorcery point and choose a number of those creatures up to your Charisma modifier (minimum of one creature). A chosen creature automatically succeeds on its saving throw against the spell.
-
-  **Distant Spell**
-
+metamagic.careful-spell.options.careful.name: 'Careful Spell (1 sorcery point)'
+metamagic.distant-spell.name: 'Distant Spell'
+metamagic.distant-spell.description: |-
   When you cast a spell that has a range of 5 feet or greater, you can spend 1 sorcery point to double the range of the spell.
 
   When you cast a spell that has a range of touch, you can spend 1 sorcery point to make the range of the spell 30 feet.
-
-  **Empowered Spell**
-
+metamagic.distant-spell.options.distant.name: 'Distant Spell (1 sorcery point)'
+metamagic.empowered-spell.name: 'Empowered Spell'
+metamagic.empowered-spell.description: |-
   When you roll damage for a spell, you can spend 1 sorcery point to reroll a number of the damage dice up to your Charisma modifier (minimum of one). You must use the new rolls.
 
   You can use Empowered Spell even if you have already used a different Metamagic option during the casting of the spell.
-
-  **Extended Spell**
-
+metamagic.empowered-spell.options.empowered.name: 'Empowered Spell (1 sorcery point)'
+metamagic.extended-spell.name: 'Extended Spell'
+metamagic.extended-spell.description: |-
   When you cast a spell that has a duration of 1 minute or longer, you can spend 1 sorcery point to double its duration, to a maximum duration of 24 hours.
-
-  **Heightened Spell**
-
+metamagic.extended-spell.options.extended.name: 'Extended Spell (1 sorcery point)'
+metamagic.heightened-spell.name: 'Heightened Spell'
+metamagic.heightened-spell.description: |-
   When you cast a spell that forces a creature to make a saving throw to resist its effects, you can spend 3 sorcery points to give one target of the spell disadvantage on its first saving throw made against the spell.
-
-  **Quickened Spell**
-
+metamagic.heightened-spell.options.heightened.name: 'Heightened Spell (3 sorcery points)'
+metamagic.quickened-spell.name: 'Quickened Spell'
+metamagic.quickened-spell.description: |-
   When you cast a spell that has a casting time of 1 action, you can spend 2 sorcery points to change the casting time to 1 bonus action for this casting.
-
-  **Subtle Spell**
-
+metamagic.quickened-spell.options.quickened.name: 'Quickened Spell (2 sorcery points)'
+metamagic.subtle-spell.name: 'Subtle Spell'
+metamagic.subtle-spell.description: |-
   When you cast a spell, you can spend 1 sorcery point to cast it without any somatic or verbal components.
-
-  **Twinned Spell**
-
+metamagic.subtle-spell.options.subtle.name: 'Subtle Spell (1 sorcery point)'
+metamagic.twinned-spell.name: 'Twinned Spell'
+metamagic.twinned-spell.description: |-
   When you cast a spell that targets only one creature and doesn't have a range of self, you can spend a number of sorcery points equal to the spell's level to target a second creature in range with the same spell (1 sorcery point if the spell is a cantrip).
 
   To be eligible, a spell must be incapable of targeting more than one creature at the spell's current level. For example, *magic missile* and *scorching ray* aren't eligible, but *ray of frost* is.
-features.sorcerer.metamagic.choices.options.prompt: 'Choose Metamagic options'
-features.sorcerer.metamagic.choices.options.options.careful-spell.name: 'Careful Spell'
-features.sorcerer.metamagic.choices.options.options.distant-spell.name: 'Distant Spell'
-features.sorcerer.metamagic.choices.options.options.empowered-spell.name: 'Empowered Spell'
-features.sorcerer.metamagic.choices.options.options.extended-spell.name: 'Extended Spell'
-features.sorcerer.metamagic.choices.options.options.heightened-spell.name: 'Heightened Spell'
-features.sorcerer.metamagic.choices.options.options.quickened-spell.name: 'Quickened Spell'
-features.sorcerer.metamagic.choices.options.options.subtle-spell.name: 'Subtle Spell'
-features.sorcerer.metamagic.choices.options.options.twinned-spell.name: 'Twinned Spell'
-features.sorcerer.metamagic.options.careful.name: 'Careful Spell (1 sorcery point)'
-features.sorcerer.metamagic.options.distant.name: 'Distant Spell (1 sorcery point)'
-features.sorcerer.metamagic.options.empowered.name: 'Empowered Spell (1 sorcery point)'
-features.sorcerer.metamagic.options.extended.name: 'Extended Spell (1 sorcery point)'
-features.sorcerer.metamagic.options.heightened.name: 'Heightened Spell (3 sorcery points)'
-features.sorcerer.metamagic.options.quickened.name: 'Quickened Spell (2 sorcery points)'
-features.sorcerer.metamagic.options.subtle.name: 'Subtle Spell (1 sorcery point)'
-features.sorcerer.metamagic.options.twinned.name: "Twinned Spell (the spell's level in sorcery points, 1 for a cantrip)"
+metamagic.twinned-spell.options.twinned.name: "Twinned Spell (the spell's level in sorcery points, 1 for a cantrip)"
 features.sorcerer.sorcerous-restoration.name: 'Sorcerous Restoration'
 features.sorcerer.sorcerous-restoration.description: 'At 20th level, you regain 4 expended sorcery points whenever you finish a short rest.'
 features.sorcerer.dragon-ancestor.name: 'Dragon Ancestor'
