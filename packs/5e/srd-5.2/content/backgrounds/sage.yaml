@@ -1,5 +1,7 @@
 id: backgrounds.sage
 type: background
+fields:
+  startingKit: true
 effects:
   - { target: proficiencies.skills, op: grant, value: { tag: skill.arcana } }
   - { target: proficiencies.skills, op: grant, value: { tag: skill.history } }
@@ -53,3 +55,25 @@ choices:
     unique: languages
     from: { type: language, where: '!item.rare' }
     eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: sage
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'weapons.quarterstaff'", equipped: true } }
+              - { type: addItem, entry: { item: "'tools.calligraphers-supplies'" } }
+              - { type: addItem, entry: { item: "'gear.book'" } }
+              - { type: addItem, entry: { item: "'gear.parchment'", quantity: 8 } }
+              - { type: addItem, entry: { item: "'gear.robe'" } }
+              - { type: adjust, field: coins.gp, by: 8 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 50 }
+        recommend: "'a'"
+        random: params.random

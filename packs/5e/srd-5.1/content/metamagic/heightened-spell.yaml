@@ -1,0 +1,11 @@
+id: metamagic.heightened-spell
+type: metamagic
+effects:
+  - target: { choices: [metamagic] }
+    op: option
+    when: 'has(action.item.save) && sorcery.left >= 3'
+    value:
+      id: heightened
+      flags: { metamagic: "'heightened'" }
+      changes:
+        - { type: adjustState, entry: self, key: sorceryPointsSpent, by: 3 }

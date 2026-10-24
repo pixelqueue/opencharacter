@@ -16,9 +16,9 @@ actions:
         options:
           values: [1, 2, 3, 4, 5]
           where: >-
-            picks < fieldOf('spellSlots.level{slot}.used', value)
-              && value + sumList(steps.slots.picked, indexOf(['1', '2', '3', '4', '5'], x) + 1)
-                <= ceil(self.level / 2)
+            countList(steps.slots.values, x == value)
+                < fieldOf('spellSlots.level{slot}.used', value)
+              && sumList(steps.slots.values, x) + value <= ceil(self.level / 2)
         repeat: { max: ceil(self.level / 2), min: 1 }
         prefer: value
         changes:
@@ -33,4 +33,4 @@ actions:
         kind: outcome
         result: "'recovered'"
         data:
-          levels: sumList(steps.slots.picked, indexOf(['1', '2', '3', '4', '5'], x) + 1)
+          levels: sumList(steps.slots.values, x)

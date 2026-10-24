@@ -1,8 +1,15 @@
 id: magic-items.holy-avenger
 type: template
-tags: [magic, attunement.paladin]
+tags: [magic]
 appliesTo: { type: weapon }
-fields: { rarity: legendary, requiresAttunement: true, attackBonus: 3, damageBonus: 3 }
+fields:
+  {
+    attunementClasses: [classes.paladin],
+    rarity: legendary,
+    requiresAttunement: true,
+    attackBonus: 3,
+    damageBonus: 3,
+  }
 effects:
   - target: { rolls: [damage.weapon], from: self }
     op: add

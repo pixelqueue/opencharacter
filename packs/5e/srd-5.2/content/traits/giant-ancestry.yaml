@@ -6,9 +6,6 @@ type: trait
 state:
   giantAncestryUsed: { type: integer, default: 0, min: 0 }
 effects:
-  - target: origins.giantAncestryLeft
-    op: set
-    value: max(0, proficiency.bonus - self.giantAncestryUsed)
   - target: { incoming: { fields: [hp.current], tags: [damage] } }
     op: add
     value: 1d12 + abilities.con.mod
@@ -25,13 +22,15 @@ effects:
     value:
       changes:
         - type: setState
-          grants: { where: 'item.id == @traits.giant-ancestry' }
+          grant: owner
           key: giantAncestryUsed
           value: 0
 actions:
   - id: clouds-jaunt
     tags: [feature]
-    available: origins.giantAncestry == 'cloud' && self.giantAncestryUsed < proficiency.bonus
+    available: >-
+      @lineages.cloud-giant in picksOf('species.goliath', 'lineage')
+        && self.giantAncestryUsed < proficiency.bonus
     results: [teleported]
     steps:
       - id: spend
@@ -45,7 +44,9 @@ actions:
           distance: 30
   - id: fires-burn
     tags: [feature]
-    available: origins.giantAncestry == 'fire' && self.giantAncestryUsed < proficiency.bonus
+    available: >-
+      @lineages.fire-giant in picksOf('species.goliath', 'lineage')
+        && self.giantAncestryUsed < proficiency.bonus
     params:
       critical: { type: boolean, default: false }
     participants:
@@ -85,7 +86,9 @@ actions:
           damage: steps.damage.total
   - id: frosts-chill
     tags: [feature]
-    available: origins.giantAncestry == 'frost' && self.giantAncestryUsed < proficiency.bonus
+    available: >-
+      @lineages.frost-giant in picksOf('species.goliath', 'lineage')
+        && self.giantAncestryUsed < proficiency.bonus
     params:
       critical: { type: boolean, default: false }
     participants:
@@ -127,7 +130,9 @@ actions:
           damage: steps.damage.total
   - id: hills-tumble
     tags: [feature]
-    available: origins.giantAncestry == 'hill' && self.giantAncestryUsed < proficiency.bonus
+    available: >-
+      @lineages.hill-giant in picksOf('species.goliath', 'lineage')
+        && self.giantAncestryUsed < proficiency.bonus
     participants:
       target:
         max: 1
@@ -156,7 +161,9 @@ actions:
         result: "'toppled'"
   - id: storms-thunder
     tags: [feature]
-    available: origins.giantAncestry == 'storm' && self.giantAncestryUsed < proficiency.bonus
+    available: >-
+      @lineages.storm-giant in picksOf('species.goliath', 'lineage')
+        && self.giantAncestryUsed < proficiency.bonus
     participants:
       target:
         max: 1

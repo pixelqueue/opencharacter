@@ -14,7 +14,7 @@ effects:
       flags: { slot: 1, castAbility: "'species'" }
       changes:
         - type: adjustState
-          grants: { where: 'item.id == @traits.gnomish-lineage' }
+          grant: owner
           key: speakWithAnimalsUsed
           by: 1
   - target: { steps: [rest.long] }
@@ -23,6 +23,6 @@ effects:
     value:
       changes:
         - type: setState
-          grants: { where: 'item.id == @traits.gnomish-lineage' }
+          grant: owner
           key: speakWithAnimalsUsed
           value: 0

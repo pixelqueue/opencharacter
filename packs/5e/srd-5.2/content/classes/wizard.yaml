@@ -2,6 +2,14 @@ id: classes.wizard
 type: class
 fields:
   hitDie: 1d6
+  startingKit: true
+  abilityPriority1: int
+  abilityPriority2: wis
+  abilityPriority3: con
+  abilityPriority4: dex
+  abilityPriority5: cha
+  abilityPriority6: str
+  multiclassAll: [int]
 state:
   arcaneRecoveryUsed: { type: boolean, default: false }
   overchannelUses: { type: integer, default: 0, min: 0 }
@@ -49,3 +57,29 @@ choices:
   - id: subclass
     from: { type: subclass, where: 'item.class == @classes.wizard' }
     when: self.level >= 3
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: wizard
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'weapons.dagger'", quantity: 2, equipped: true } }
+              - {
+                  type: addItem,
+                  entry:
+                    { item: "'weapons.quarterstaff'", equipped: true, templates: ['gear.staff'] },
+                }
+              - { type: addItem, entry: { item: "'gear.robe'" } }
+              - { type: addItem, entry: { item: "'gear.spellbook'" } }
+              - { type: addItem, entry: { item: "'gear.scholars-pack'" } }
+              - { type: adjust, field: coins.gp, by: 5 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 55 }
+        recommend: "'a'"
+        random: params.random

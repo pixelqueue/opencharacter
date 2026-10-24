@@ -2,6 +2,14 @@ id: classes.druid
 type: class
 fields:
   hitDie: 1d8
+  startingKit: true
+  abilityPriority1: wis
+  abilityPriority2: con
+  abilityPriority3: dex
+  abilityPriority4: int
+  abilityPriority5: cha
+  abilityPriority6: str
+  multiclassAll: [wis]
 state:
   wildShapeSpent: { type: integer, default: 0, min: 0 }
   naturalRecoveryUsed: { type: boolean, default: false }
@@ -113,3 +121,53 @@ choices:
   - id: druid-circle
     from: { type: subclass, where: 'item.class == @classes.druid' }
     when: self.level >= 2
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: druidFirst
+        kind: choice
+        options:
+          - id: wooden-shield
+            changes:
+              - { type: addItem, entry: { item: "'armor.shield'", equipped: true } }
+          - id: simple
+        recommend: options[0]
+        random: params.random
+      - id: druidSimple
+        kind: choice
+        when: "steps.druidFirst.picked == 'simple'"
+        options: { content: { type: weapon, where: "item.category == 'simple'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: druidWeapon
+        kind: choice
+        options:
+          - id: scimitar
+            changes:
+              - { type: addItem, entry: { item: "'weapons.scimitar'", equipped: true } }
+          - id: simple-melee
+        recommend: options[0]
+        random: params.random
+      - id: druidSimpleMelee
+        kind: choice
+        when: "steps.druidWeapon.picked == 'simple-melee'"
+        options:
+          content: { type: weapon, where: "item.category == 'simple' && item.range == 'melee'" }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: druidFocus
+        kind: choice
+        options: { content: { type: gear, where: "item.category == 'druidic-focus'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id } }
+      - id: druidKit
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+          - { type: addItem, entry: { item: "'gear.explorers-pack'" } }

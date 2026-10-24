@@ -9,6 +9,9 @@ fields:
     type: integer
     formula: "'performance' in skills.trained || 'performance' in skills.chosen ? 1 : 0"
   assured: { type: set, of: string }
+  # The result an assured skill takes, by the formula target of Assurance's pick.
+  performance.assured: { type: integer, formula: 0 }
+  athletics.assured: { type: integer, formula: 0 }
 
 contentTypes:
   background: {}

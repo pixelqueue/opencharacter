@@ -119,8 +119,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Prone targets:** "within 5 feet" is read as a melee attack, beyond it as a ranged one; a
   Paralyzed or Unconscious target's automatic Critical Hits likewise.
 - **Weapon mastery** is offered after the attack roll (recommended). Sap ends with the target's
-  next attack, Vex with the attacker's next attack against that target, and two Slows don't
-  stack; their other timing is the app's. Push and Cleave are reported in the outcome (`push`,
+  next attack roll it gives Disadvantage (one where Advantage cancels it leaves it), Vex with the
+  attacker's next attack against that target, and two Slows don't stack; their other timing is
+  the app's. Push and Cleave are reported in the outcome (`push`,
   `cleave`) for the app to resolve; Cleave's attack runs the weapon's attack with `cleave` set.
 - **Grapple and Shove:** the target saves with the better of Strength and Dexterity (its
   player's choice).
@@ -133,8 +134,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Paladin and Ranger** each round up their own half levels for the Multiclass Spellcaster
   table; Pact Magic stays separate.
 - **Feats:** a feat that isn't repeatable is taken once, whether a background granted it or a
-  level picked it. Savage Attacker is Advantage on the weapon's damage dice (exact for one die;
-  for 2d6 it keeps the best two of three). A lineage's level 3 spell is a level 1 spell and its
+  level picked it. Savage Attacker rolls the weapon's damage dice twice and keeps the better
+  total. A lineage's level 3 spell is a level 1 spell and its
   level 5 spell a level 2 one for its free casts.
 - **Class features:**
   - Rage Damage, Reckless Attack and Brutal Strike count any attack using Strength, thrown
@@ -154,9 +155,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
     weapon. Pact of the Blade binds a weapon kind, which may attack with Charisma and deal Necrotic,
     Psychic or Radiant damage (picked on the attack, as Empowered Strikes' Force is); damage a
     feature or item adds in the weapon's type (Rage, Sneak Attack, a magic weapon's bonus) takes the
-    picked type. Eldritch Spear's range, and Improved Elemental Fury's for a cantrip on the Druid
-    list, go on the spell wherever the character knows it (another class's copy of the cantrip
-    included).
+    picked type.
   - A created spell slot (Font of Magic, Wild Resurgence, Nature Magician, Rod of Absorption)
     only refills an expended slot; Sorcery Points never pass their maximum.
   - Empowered Spell rerolls the lowest dice; Overchannel maximizes the spell's first damage die
@@ -263,7 +262,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
   A species trait keeps its own uses as its grant's saved state (Breath Weapon, Draconic Flight,
   Stonecunning, the lineage spells, Giant Ancestry, Large Form, Adrenaline Rush, Relentless
   Endurance); Stone's Endurance spends a Giant Ancestry use from its incoming-damage effect's
-  `then`, and `origins.giantAncestryLeft` offers it while one is left.
+  `then`, and is offered while one is left.
 - **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
   prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
   and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with
@@ -287,6 +286,27 @@ Where the SRD is unclear or silent, the pack reads it this way:
   shows carrying weight and attunement slots only once it carries or attunes to something.
 - **Sheet layout:** display groups for fields, actions and content, units, and a headline
   ("Level 3 Elf Wizard", "Goblin Warrior, CR 1/4").
+
+## Add-on packs
+
+A pack that depends on this one can add content of its types, and it flows into the same
+processes:
+
+- **Classes** take part in creation, random starts and multiclassing through item fields: a
+  `kit` action (`listed: false`, a `random` parameter) with `startingKit: true` gives the
+  starting equipment; `abilityPriority1`–`abilityPriority6` order a random start's scores;
+  `multiclassAll` and `multiclassAny` name the abilities multiclassing into it needs 13 in. Like a
+  core class, it carries the `multiclass` prerequisite
+  (`(self.startingClass && self.level == level.total) || item.id in multiclass.qualified`).
+- **Backgrounds** bring their starting equipment the same way (`startingKit` and a `kit` action).
+- **Magic items** and magic weapon or armor templates restricted to classes list them in
+  `attunementClasses`.
+- **Metamagic options** are `metamagic` content; containers add to `items.stowCapacity` or
+  `items.stowUnlimited`, and content resets its uses with a `changes` effect on `rest.long`.
+
+Still closed: the enums of weapon `ammunition` and `mastery`, feat `category`, gear and tool
+`category`, until content types can open them; Hunter's Prey's two options are written in the
+feature.
 
 ## Limitations
 

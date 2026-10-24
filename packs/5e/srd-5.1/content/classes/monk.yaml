@@ -2,6 +2,14 @@ id: classes.monk
 type: class
 fields:
   hitDie: 1d8
+  startingKit: true
+  abilityPriority1: dex
+  abilityPriority2: wis
+  abilityPriority3: con
+  abilityPriority4: str
+  abilityPriority5: int
+  abilityPriority6: cha
+  multiclassAll: [dex, wis]
 state:
   kiSpent: { type: integer, default: 0, min: 0 }
   wholenessUsed: { type: boolean, default: false }
@@ -66,3 +74,39 @@ choices:
   - id: monastic-tradition
     from: { type: subclass, where: 'item.class == @classes.monk' }
     when: self.level >= 3
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: monkWeapon
+        kind: choice
+        options:
+          - id: shortsword
+            changes:
+              - { type: addItem, entry: { item: "'weapons.shortsword'", equipped: true } }
+          - id: simple
+        recommend: options[0]
+        random: params.random
+      - id: monkSimple
+        kind: choice
+        when: "steps.monkWeapon.picked == 'simple'"
+        options: { content: { type: weapon, where: "item.category == 'simple'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: monkPack
+        kind: choice
+        options:
+          - id: dungeoneers-pack
+            changes: [{ type: addItem, entry: { item: "'gear.dungeoneers-pack'" } }]
+          - id: explorers-pack
+            changes: [{ type: addItem, entry: { item: "'gear.explorers-pack'" } }]
+        recommend: options[0]
+        random: params.random
+      - id: monkKit
+        kind: changes
+        changes:
+          - type: addItem
+            entry: { item: "'weapons.dart'", quantity: 10, equipped: true }
