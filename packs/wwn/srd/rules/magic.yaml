@@ -422,7 +422,10 @@ actions:
         kind: changes
         changes:
           - type: adjust
-            field: { formula: "'effort.' + item.tradition + '.' + item.effort" }
+            field:
+              {
+                formula: "fieldId('effort.{effortTrad}.{effortSpan}', item.tradition, item.effort)",
+              }
             by: 1
           # A copy keeps its state; an art a class grants, its grant's saved state.
           - type: setState
@@ -450,7 +453,7 @@ actions:
         changes:
           - type: adjust
             when: "fieldOf('effort.{effortTrad}.ongoing', item.tradition) > 0"
-            field: { formula: "'effort.' + item.tradition + '.ongoing'" }
+            field: { formula: "fieldId('effort.{effortTrad}.ongoing', item.tradition)" }
             by: -1
           - type: setState
             when: "!('granted' in item.tags)"

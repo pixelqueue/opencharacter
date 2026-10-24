@@ -112,10 +112,14 @@ backgrounds, foci, arts, spells, weapons, armor and gear.
   `arts.<key>.allowed`, `.taken` and `.owed`, which the art picks and `arts.owed` read. Joining
   `armorTrad` (armor and shields stop its arts, as they stop spells) or `heavyArmorTrad` (medium
   or heavy armor or a large shield do, as for the Duelist) sets when `commit-effort` is offered.
-- **Effort:** the core's `commit-effort`, `release-effort` and rests change a tradition's
-  `effort.<key>.*` fields by key, which resolve in this pack only, so an added tradition doesn't
-  join `effortTrad` yet. It keeps its own Effort fields, its arts' own actions commit it, and a
-  `changes` effect on the tagged rest steps clears it.
+- **Effort:** a tradition with Effort joins `effortTrad` and declares `effort.<key>.max`,
+  `.scene`, `.day`, `.ongoing` and `.free`; the core's `commit-effort` and `release-effort` change
+  them for its arts, and a night's rest and a scene's end clear them, as the core's.
+- **Skills:** a skill joins the `skill` family (`families: { 'wwn-srd:skill': [<key>] }`) and
+  declares `skills.<key>` (tagged `skill`) and `skillCredit.<key>`; creation and `improve` gain
+  and raise it as the core's. A background's table entries (`types.background.fields.freeSkill`,
+  `growth1`–`growth6`, `learning1`–`learning8`), a focus's `bonusSkill` and a weapon's `skill`
+  are open enums that take its key.
 - **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.purse`
   (the starting silver), `creation.finish` (the last step of creation), `advancement.level` (each
   new level's level and skill points), `rest.night` (a night's rest) and `rest.scene` (the end of
