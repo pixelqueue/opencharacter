@@ -133,6 +133,16 @@ inventory:
 - **Nothing else changes.** Pass the same ruleset to every call; the engine loads the
   character's homebrew on top of it (and may cache that). A homebrew skill joins the class's
   skill picks, and prerequisites can name it.
+- **Grant-only types** (a class feature, a subclass, a playbook: `grantOnly` on the type) take
+  homebrew too, two ways:
+  - **Picked:** define the item with `setHomebrew` and it joins the matching choice's options
+    (a subclass in the class's subclass pick, a feat in a feat pick); the player picks it there,
+    with `choose` or the choice's action, as they would an official one.
+  - **Added on its own:** give the homebrew item `grantOnly: false` (a feat the GM hands out
+    outside any pick), and `addItem` takes it like any other item.
+
+  A custom-item form for such a type asks which the player means, or offers only the first.
+
 - **It can add, not change.** Homebrew can't override or hide the packs' content or change
   settings. A table rule that changes the official rules belongs in a standalone pack that the
   whole table loads ([packs and rulesets](packs-and-rulesets.md)).
