@@ -10,11 +10,37 @@ contentTypes:
       payoffCoin: { type: integer, default: 0 }
       payoffTargets: { type: enum, values: [none, lower-class, high-class], default: none }
       payoffOperations: { type: set, of: operation, default: [] }
-      scaleGang: { type: enum, values: [none, adepts, rooks, rovers, skulks, thugs], default: none }
+      scaleGang:
+        {
+          type: enum,
+          values: [none, adepts, rooks, rovers, skulks, thugs],
+          default: none,
+          open: true,
+        }
+      # The crew picks the gang type it trains (Training Rooms), on its copy's `trainedGang`.
+      trainsGang: { type: boolean, default: false }
     state:
       label: { type: string, default: '' }
       faction: { type: string, default: '' }
       allied: { type: boolean, default: false }
+      trainedGang:
+        {
+          type: enum,
+          values: [none, adepts, rooks, rovers, skulks, thugs],
+          default: none,
+          open: true,
+        }
+    effects:
+      - id: scale-gang
+        target: cohorts.claimed
+        op: grant
+        value: { formula: item.scaleGang }
+        when: "item.scaleGang != 'none'"
+      - id: trained-gang
+        target: cohorts.claimed
+        op: grant
+        value: { formula: self.trainedGang }
+        when: "self.trainedGang != 'none'"
     actions:
       - use: claim-income
 
@@ -38,17 +64,9 @@ fields:
     type: set
     of: string
     formula: >-
-      lair.lost ? [] :
-        (countCopies(copy.type == 'claim' && (copy.fields.scaleGang == 'adepts'
-          || has(copy.state.trainedGang) && copy.state.trainedGang == 'adepts')) > 0 ? ['adepts'] : [])
-        + (countCopies(copy.type == 'claim' && (copy.fields.scaleGang == 'rooks'
-          || has(copy.state.trainedGang) && copy.state.trainedGang == 'rooks')) > 0 ? ['rooks'] : [])
-        + (countCopies(copy.type == 'claim' && (copy.fields.scaleGang == 'rovers'
-          || has(copy.state.trainedGang) && copy.state.trainedGang == 'rovers')) > 0 ? ['rovers'] : [])
-        + (countCopies(copy.type == 'claim' && (copy.fields.scaleGang == 'skulks'
-          || has(copy.state.trainedGang) && copy.state.trainedGang == 'skulks')) > 0 ? ['skulks'] : [])
-        + (countCopies(copy.type == 'claim' && (copy.fields.scaleGang == 'thugs'
-          || has(copy.state.trainedGang) && copy.state.trainedGang == 'thugs')) > 0 ? ['thugs'] : [])
+      lair.lost ? [] : filterList(keysOf('gang'), x in cohorts.claimed)
+  # The gang types the crew's claims give +1 scale, lair or not.
+  cohorts.claimed: { type: set, of: string }
 
   prison.dice: { type: integer, formula: 0 }
   prison.noTrauma: { type: boolean, formula: false }
@@ -314,6 +332,7 @@ display:
     engagement.transport: { groups: [claims], priority: 2, showWhen: engagement.transport != 0 }
     engagement.murder: { groups: [claims], priority: 2, showWhen: engagement.murder != 0 }
     cohorts.trained: { groups: [cohorts], priority: 2, showWhen: size(cohorts.trained) > 0 }
+    cohorts.claimed: { hidden: true }
     prison.dice: { groups: [claims], priority: 2, showWhen: prison.dice != 0 }
     prison.noTrauma: { groups: [claims], priority: 2, showWhen: prison.noTrauma }
     prison.parole: { groups: [claims], priority: 2, showWhen: prison.parole != 0 }

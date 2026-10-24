@@ -6,7 +6,12 @@ contentTypes:
       upgrades: { type: set, of: field, required: true }
       startingUpgrades: { type: set, of: field, required: true }
       startingCohort:
-        { type: enum, values: [none, adepts, rooks, rovers, skulks, thugs], default: none }
+        {
+          type: enum,
+          values: [none, adepts, rooks, rovers, skulks, thugs],
+          default: none,
+          open: true,
+        }
       claims: { type: set, of: claim, default: [] }
     effects:
       - { id: upgrades, target: crewType.upgrades, op: set, value: item.upgrades }

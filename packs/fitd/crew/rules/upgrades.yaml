@@ -49,15 +49,7 @@ fields:
     { type: integer, input: true, default: 0, min: 0, max: 1, tags: [upgrade.special] }
   upgrades.camouflage:
     { type: integer, input: true, default: 0, min: 0, max: 1, tags: [upgrade.special] }
-  upgrades.elite.adepts:
-    { type: integer, input: true, default: 0, min: 0, max: 1, tags: [upgrade.special] }
-  upgrades.elite.rooks:
-    { type: integer, input: true, default: 0, min: 0, max: 1, tags: [upgrade.special] }
-  upgrades.elite.rovers:
-    { type: integer, input: true, default: 0, min: 0, max: 1, tags: [upgrade.special] }
-  upgrades.elite.skulks:
-    { type: integer, input: true, default: 0, min: 0, max: 1, tags: [upgrade.special] }
-  upgrades.elite.thugs:
+  'upgrades.elite.{gang}':
     { type: integer, input: true, default: 0, min: 0, max: 1, tags: [upgrade.special] }
 
   upgrades.workshop: { type: boolean, formula: upgrades.lair.workshop >= 1 }
@@ -192,40 +184,12 @@ display:
         input: { widget: track },
         showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.camouflage in crewType.upgrades",
       }
-    upgrades.elite.adepts:
+    'upgrades.elite.{gang}':
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.elite.adepts in crewType.upgrades",
-      }
-    upgrades.elite.rooks:
-      {
-        groups: [special-upgrades],
-        priority: 0,
-        input: { widget: track },
-        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.elite.rooks in crewType.upgrades",
-      }
-    upgrades.elite.rovers:
-      {
-        groups: [special-upgrades],
-        priority: 0,
-        input: { widget: track },
-        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.elite.rovers in crewType.upgrades",
-      }
-    upgrades.elite.skulks:
-      {
-        groups: [special-upgrades],
-        priority: 0,
-        input: { widget: track },
-        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.elite.skulks in crewType.upgrades",
-      }
-    upgrades.elite.thugs:
-      {
-        groups: [special-upgrades],
-        priority: 0,
-        input: { widget: track },
-        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.elite.thugs in crewType.upgrades",
+        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.elite.{gang} in crewType.upgrades",
       }
     upgrades.workshop: { hidden: true }
     upgrades.mastery: { hidden: true }

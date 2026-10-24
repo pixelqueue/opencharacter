@@ -189,6 +189,29 @@ It names no factions, people or places: the GM defines the factions.
   kind, cohort traits, contacts with the favorite first, operations, factions). The crew-specific
   upgrades show all of them without a crew type, a homebrew type's own with one.
 
+## Add-on packs
+
+A pack that depends on `fitd-crew` (a crew-type or setting pack) adds content of its types:
+crew types, crew abilities, operations, claims, cohort traits, contacts and factions join the
+creation picks, the random start's draws and the advance's picks as the core's do (the SRD has
+no crew types, so a crew-type pack's are the ones offered).
+
+- **Gang types** are the family `fitd-crew:gang` (adepts, rooks, rovers, skulks, thugs). An
+  add-on adds one by adding it to the family (`families: { 'fitd-crew:gang': [sappers] }`),
+  declaring its `upgrades.elite.<type>` field (tagged `upgrade.special`), and adding the value to
+  the open enums that hold a gang type: `fitd-crew:types.crewType.fields.startingCohort`,
+  `fitd-crew:types.claim.fields.scaleGang`, `fitd-crew:types.cohort.state.gangType`,
+  `fitd-crew:types.cohort.state.extraGangType` and `fitd-crew:types.claim.state.trainedGang`,
+  named in its text under the core's keys. The creation's gang pick offers the family's types,
+  and elite and claim scale read them by key. A claim like Training Rooms sets `trainsGang` to
+  show its `trainedGang` pick.
+- **Tagged steps**, for an add-on's rules-level `option` effects: `creation.crew-type`,
+  `creation.ability`, `creation.operation`, `creation.more` (two upgrades or a cohort) and
+  `creation.gang` of `create-crew`, and `advance.crew` (`crew-advance`'s pick); for its
+  `changes` effects, `creation.start` (starting coin, upgrades and cohort).
+- **Closed:** a cohort's `kind` (gang or expert), a faction's hold, the six plans and the
+  payoff targets, which the core's rules read.
+
 ## Text only
 
 - All Hands: the SRD doesn't say what the cohort rolls, and downtime activities are
