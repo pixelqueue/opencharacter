@@ -3,8 +3,8 @@ contentTypes:
     fields:
       shape: { type: enum, values: [bonus, swap, exception, custom], required: true }
       # The loader qualifies these (`fate-core:skills.lore`), as an action's `params.skill.id` is.
-      skill: { type: id, of: field, perCopy: true }
-      replaces: { type: id, of: field }
+      skill: { type: id, of: field, where: "'skill' in item.tags", perCopy: true }
+      replaces: { type: id, of: field, where: "'skill' in item.tags" }
       action:
         type: enum
         values: [any, overcome, advantage, attack, defend]
