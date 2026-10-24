@@ -2,7 +2,8 @@
 # spec itself reserves. Keys: errors.<code>, issues.<code>, actions.options.<option>.name,
 # compare.<code> and dice.*. ICU MessageFormat; placeholders come from the
 # error's `data`. A few codes have variants for their data: errors.out-of-range.min and .max,
-# errors.safety-limit-exceeded.<limit>, and issues.prerequisite-not-met.owner.
+# errors.safety-limit-exceeded.<limit>, issues.prerequisite-not-met.owner and
+# issues.too-many-copies.item.
 
 # A repeated choice step's `#done` option: stop picking.
 actions.options.done.name: 'Done'
@@ -113,7 +114,8 @@ errors.then-without-copy: 'An effect changes its own entry, but nothing gives it
 errors.template-without-copy: 'A template is kept on content without a copy, but gives more than fields and tags.'
 issues.already-picked: 'This option is already picked elsewhere.'
 issues.out-of-limits: 'This value is past its limit ({bound}).'
-issues.too-many-copies: 'Too many of these are held (at most {limit}).'
+issues.too-many-copies: '{type}: too many are held (at most {limit}).'
+issues.too-many-copies.item: '{item}: too many copies are held (at most {limit}).'
 errors.conflicting-roll-modifiers: 'This roll has both advantage and disadvantage, which this game does not allow.'
 errors.no-upgrade-path: 'This character cannot be moved to an older version of {pack}.'
 errors.character-spec-unsupported: 'This character was saved with OCF spec {specVersion}, newer than this app supports ({implements}).'

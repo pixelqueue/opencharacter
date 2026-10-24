@@ -239,6 +239,31 @@ describe('5E', () => {
     expect(bare.issue(issue!)).toBe('At most 1.');
   });
 
+  it('words too many copies by the type’s or item’s name without its own text', () => {
+    const type = '5e-srd-5.1:trait';
+    expect(
+      text.issue({
+        code: 'too-many-copies',
+        id: type,
+        data: { type, max: 0, count: 1, entries: ['t'], limit: 0 },
+      }),
+    ).toBe('Trait: too many are held (at most 0).');
+    expect(
+      text.issue({
+        code: 'too-many-copies',
+        id: type,
+        data: {
+          type,
+          item: '5e-srd-5.1:weapons.dagger',
+          perItem: 1,
+          count: 2,
+          entries: ['a', 'b'],
+          limit: 1,
+        },
+      }),
+    ).toBe('Dagger: too many copies are held (at most 1).');
+  });
+
   it('words a constraint and an error, ids named', () => {
     expect(
       text.issue({
