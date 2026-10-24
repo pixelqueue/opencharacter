@@ -431,6 +431,27 @@ describe('Fate', () => {
     // A band that holds whatever the roll: no tests, no text.
     expect(worded.targets?.at(-1)).toEqual({ band: 'terrible', name: 'Terrible (−2)' });
   });
+
+  it("words an overcome's dice against a known opposition", () => {
+    const mara = parse(
+      readFileSync(join(root, 'examples', 'characters', 'fate-mara.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const need = paused(
+      startAction(ruleset, mara, {
+        action: { id: 'fate-core:overcome' },
+        params: { skill: 'fate-core:skills.athletics', opposition: 2 },
+        policy: { dice: 'pause' },
+      }),
+    ).needs;
+    const worded = describeNeed(ruleset, text, need);
+    expect(worded.targets?.map((t) => t.band)).toEqual(['style', 'succeed', 'tie', 'fail']);
+    expect(worded.targets?.find((t) => t.success)).toEqual({
+      band: 'succeed',
+      name: 'Succeed',
+      success: true,
+      condition: 'Beat 2',
+    });
+  });
 });
 
 describe('orc-2e', () => {

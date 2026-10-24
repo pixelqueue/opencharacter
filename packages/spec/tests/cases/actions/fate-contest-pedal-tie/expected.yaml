@@ -25,8 +25,8 @@ log:
       - 0
       - 0
     total: 1
-    band: average
-    bandSet: fate-core:ladder
+    band: tie
+    bandSet: fate-core:check
   - step: roll/rerolling[0]/reroll
     action: fate-core:skill-roll
     kind: choice
@@ -42,6 +42,7 @@ log:
     kind: choice
     by: engine
     option: '0'
+  - { step: roll/rung, action: fate-core:skill-roll, kind: dice, total: 1, band: average }
   - step: final
     action: fate-core:contest-exchange
     kind: dice

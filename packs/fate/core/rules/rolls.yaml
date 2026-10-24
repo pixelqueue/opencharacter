@@ -16,6 +16,23 @@ resultBands:
     - { id: succeed, when: roll.total > flags.opposition, success: true }
     - { id: tie, when: roll.total == flags.opposition }
     - { id: fail, when: true }
+  # skill-roll's dice: the outcome against an opposition known before the roll, else the ladder.
+  check:
+    - { id: style, when: flags.against && roll.total - flags.opposition >= 3 }
+    - { id: succeed, when: flags.against && roll.total > flags.opposition, success: true }
+    - { id: tie, when: flags.against && roll.total == flags.opposition }
+    - { id: fail, when: flags.against }
+    - { id: legendary, when: roll.total >= 8 }
+    - { id: epic, when: roll.total == 7 }
+    - { id: fantastic, when: roll.total == 6 }
+    - { id: superb, when: roll.total == 5 }
+    - { id: great, when: roll.total == 4 }
+    - { id: good, when: roll.total == 3 }
+    - { id: fair, when: roll.total == 2 }
+    - { id: average, when: roll.total == 1 }
+    - { id: mediocre, when: roll.total == 0 }
+    - { id: poor, when: roll.total == -1 }
+    - { id: terrible, when: true }
 
 situational:
   - id: stunt
@@ -39,12 +56,19 @@ actions:
       skill: { type: id, of: field, where: "'skill' in item.tags", optional: true }
       action: { type: enum, values: [overcome, advantage, attack, defend, oppose] }
       helpers: { type: integer, default: 0, min: 0 }
+      against: { type: boolean, default: false }
+      opposition: { type: integer, default: 0 }
     results: [rolled]
     steps:
+      - id: target
+        kind: branch
+        cases:
+          - when: true
+            flags: { against: params.against, opposition: params.opposition }
       - id: roll
         kind: roll
         tags: [skill-roll, { formula: "'action.' + params.action" }]
-        bands: ladder
+        bands: check
         parts:
           - { id: dice, dice: 4dF }
           - { id: skill, field: params.skill.id, when: has(params.skill) }
@@ -77,7 +101,7 @@ actions:
             kind: roll
             when: steps.reroll.picked != 'keep'
             tags: [skill-roll, { formula: "'action.' + params.action" }]
-            bands: ladder
+            bands: check
             parts:
               - { id: dice, dice: 4dF }
               - { id: skill, field: params.skill.id, when: has(params.skill) }
@@ -116,16 +140,20 @@ actions:
           - when: true
             flags:
               total: 'has(steps.again) ? steps.again.total : steps.roll.total'
-              rung: 'has(steps.again) ? steps.again.band : steps.roll.band'
               rerolls: countList(steps.rerolling, has(x.again))
               paidRerolls: "countList(steps.rerolling, x.reroll.picked == 'invoke')"
               freeRerolls: "countList(steps.rerolling, x.reroll.picked == 'free')"
+      - id: rung
+        kind: roll
+        bands: ladder
+        parts:
+          - { id: total, value: flags.total }
       - id: result
         kind: outcome
         result: "'rolled'"
         data:
           total: flags.total + 2 * (steps.invokes.value + steps.freeInvokes.value)
-          rung: flags.rung
+          rung: steps.rung.band
           rerolled: flags.rerolls > 0
           rerolls: flags.rerolls
           fatePoints: steps.invokes.value + flags.paidRerolls
@@ -169,11 +197,16 @@ actions:
           skill: params.skill.id
           action: "'overcome'"
           helpers: 'has(steps.assist) ? countList(steps.assist, x.data.helps) : 0'
+          against: size(participants.opponent) == 0
+          opposition: params.opposition
       - id: mediocre
         kind: action
         when: '!has(params.skill)'
         use: skill-roll
-        params: { action: "'overcome'" }
+        params:
+          action: "'overcome'"
+          against: size(participants.opponent) == 0
+          opposition: params.opposition
       - id: opposed
         kind: action
         each: opponent
@@ -239,11 +272,16 @@ actions:
           skill: params.skill.id
           action: "'advantage'"
           helpers: 'has(steps.assist) ? countList(steps.assist, x.data.helps) : 0'
+          against: size(participants.target) == 0
+          opposition: params.opposition
       - id: mediocre
         kind: action
         when: '!has(params.skill)'
         use: skill-roll
-        params: { action: "'advantage'" }
+        params:
+          action: "'advantage'"
+          against: size(participants.target) == 0
+          opposition: params.opposition
       - id: defense
         kind: action
         each: target
@@ -354,11 +392,16 @@ actions:
           skill: params.skill.id
           action: "'attack'"
           helpers: 'has(steps.assist) ? countList(steps.assist, x.data.helps) : 0'
+          against: size(participants.target) == 0
+          opposition: params.opposition
       - id: mediocre
         kind: action
         when: '!has(params.skill)'
         use: skill-roll
-        params: { action: "'attack'" }
+        params:
+          action: "'attack'"
+          against: size(participants.target) == 0
+          opposition: params.opposition
       - id: weapon
         kind: branch
         cases:
@@ -531,11 +574,16 @@ actions:
           skill: params.skill.id
           action: "'defend'"
           helpers: 'has(steps.assist) ? countList(steps.assist, x.data.helps) : 0'
+          against: true
+          opposition: params.opposition
       - id: mediocre
         kind: action
         when: '!has(params.skill)'
         use: skill-roll
-        params: { action: "'defend'" }
+        params:
+          action: "'defend'"
+          against: true
+          opposition: params.opposition
       - id: against
         kind: branch
         cases:
@@ -636,11 +684,16 @@ actions:
           skill: params.skill.id
           action: "'oppose'"
           helpers: 'has(steps.assist) ? countList(steps.assist, x.data.helps) : 0'
+          against: true
+          opposition: params.opposition
       - id: mediocre
         kind: action
         when: '!has(params.skill)'
         use: skill-roll
-        params: { action: "'oppose'" }
+        params:
+          action: "'oppose'"
+          against: true
+          opposition: params.opposition
       - id: against
         kind: branch
         cases:
