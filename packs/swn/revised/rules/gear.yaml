@@ -98,7 +98,7 @@ contentTypes:
       range: { type: integer, min: 0 }
       maxRange: { type: integer, min: 0 }
       magazine: { type: integer, min: 1 }
-      ammo: { type: enum, values: [rounds, cell-a, cell-b, missile] }
+      ammo: { type: enum, values: [rounds, cell-a, cell-b, missile], open: true }
       shock: { type: integer, min: 0 }
       shockAc: { type: integer, min: 0 }
       burst: { type: boolean, default: false }
@@ -128,7 +128,8 @@ contentTypes:
     equippable: true
     fields:
       ac: { type: integer, required: true, min: 10 }
-      category: { type: enum, values: [primitive, street, combat, powered], required: true }
+      category:
+        { type: enum, values: [primitive, street, combat, powered], required: true, open: true }
       shield: { type: boolean, default: false }
       # Strength counted higher for encumbrance while worn.
       strength: { type: integer, default: 0, min: 0 }
@@ -151,9 +152,10 @@ contentTypes:
       category:
         type: enum
         required: true
+        open: true
         values: [ammo-power, communications, computing, field, pharmaceutical, tools-medical]
       # What a weapon reloads with.
-      kind: { type: enum, values: [rounds, cell-a, cell-b, missile] }
+      kind: { type: enum, values: [rounds, cell-a, cell-b, missile], open: true }
       # A drug: the Heal skill needed to apply it, the System Strain it adds and what it heals.
       healSkill: { type: integer, min: 0 }
       strain: { type: integer, default: 0, min: 0 }
