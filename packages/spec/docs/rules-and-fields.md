@@ -29,6 +29,8 @@ The engine does not model how inputs were arrived at (point buy, rolled stats, "
 | `set`     | an unordered set of references | `of` (required); for `tag`, `members` ([below](#which-tags-a-field-takes))        |
 
 `set` fields hold proficiencies, character tags and granted actions. Members come from input values and from `grant` effects ([effects.md](effects.md)).
+Item fields may also be a `list`, ordered as written ([content.md](content.md#content-types)); a
+field can't.
 
 ### Range and defaults
 

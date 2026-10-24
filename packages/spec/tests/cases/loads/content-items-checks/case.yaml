@@ -1,0 +1,34 @@
+description: "`itemField` names an item field some content type the pack sees declares, and a literal ID names content the pack sees whose type declares it; `itemTags` a literal ID that content. An undeclared name, an unknown literal ID or one whose type lacks the field is `unknown-reference`; an item field formula calling `itemField` is `unknown-function`. A computed ID with a declared name, and a grant's `when`, pass"
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          pick: { type: string, input: true, default: lineages.red }
+          fine: { type: string, formula: "itemField(pick, 'damageType', '')" }
+          typo: { type: string, formula: "itemField(pick, 'damageTyp', '')" }
+        contentTypes:
+          lineage:
+            fields:
+              damageType: { type: string }
+              cost: { type: integer }
+          feat: {}
+      content:
+        - { id: lineages.red, type: lineage, fields: { damageType: fire, cost: 1 } }
+        - id: feats.reader
+          type: feat
+          grants:
+            - { item: feats.plain, when: "itemField('lineages.red', 'damageType') == 'fire'" }
+            - { item: feats.plain, when: "'x' in itemTags('lineages.blue')" }
+            - { item: feats.plain, when: "itemField('feats.plain', 'damageType') == 'fire'" }
+        - { id: feats.plain, type: feat }
+        - id: lineages.copy
+          type: lineage
+          fields: { cost: "size(itemTags('lineages.red'))" }

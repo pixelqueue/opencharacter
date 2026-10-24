@@ -23,7 +23,7 @@ effects:
 | `tags`       | `add` on rolls only: tags for the roll item the effect adds (see below)                                                           |
 | `multiplied` | `add` on rolls only: `false` keeps `multiplyDice` and `multiply` off the items the effect adds (see below)                        |
 | `duration`   | Informational only: `{ amount, unit, concentration }`. Time tracking is the app's job; the engine never ends an effect by itself. |
-| `then`       | Incoming changes and rolls only: changes to the effect's own entry or state once it counted (see below)                           |
+| `then`       | Incoming changes and rolls only: changes to the effect's own entry or state once it counted, or on rolls a rule (see below)       |
 
 ## Targets
 
@@ -234,10 +234,55 @@ know which effects end: 5E's Sapped gives disadvantage on the target's next atta
     - { type: removeEffect, entry: self }
 ```
 
-An effect that ends on something other than a roll it changed (5E's Sanctuary ends when the
-warded creature attacks) is out of reach of `then`. An effect that lasts for a number of triggers
-counts them in a state key: one effect spends a use while more than one is left, and a second,
-for the last use, removes the entry.
+**When `then` fires.** A roll effect's `then` may instead be a rule, `{ changes, when, once,
+to }`, the list being its `changes`:
+
+| Property | Meaning                                                                                                                                                                                                                                                                                                                |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `when`   | `changed` (default): the effect changed the roll, as above. `applied`: the effect was in play on the roll, its target matched the roll (on a `parts` target, a part of it) and its `when` held, whether or not stacking kept it, an opposite kind cancelled it or it made a difference                                 |
+| `once`   | `action` (default): at most once per action run, as above. `roll`: once per roll step run that fires it, each pass of a group its own, so a boon that helps each attack of a volley spends a use for each; dice rolled again within the step (advantage, rerolled dice, a whole roll made more than once) are one roll |
+| `to`     | Who the changes are for, as a `changes` step's `to`. Default `self`, with the changes above. To another character (a role, `target`, `{ link }`), they are any proposed changes, resolved as a `changes` step's for that `to`, with `item` and `self` the content carrying the effect and the roll effect's context    |
+
+The 5E rule ends Sapped on the next attack roll even when advantage cancels its disadvantage:
+
+```yaml
+then:
+  when: applied
+  changes: [{ type: removeEffect, entry: self }]
+```
+
+**Effects that end on another character.** An action sees the characters it is used on only
+as views ([engine-actions.md](engine-actions.md#starting-an-action)), never their effects, so
+an effect on the target can't change the attacker's roll. The attacker's effect that reads the
+target's view does, and its `then` goes `to` the target: 5E's Vexed gives advantage on the
+attacker's next attack against the vexed creature, and ends there. A `then` with a `to` other
+than `self` changes no entry of the effect's own, so it may sit on the rules' effects, a
+situational choice's or a choice's (not `then-without-copy`):
+
+```yaml
+# rules: advantage against a target this character vexed, which ends that Vexed. The `where`
+# is the target's to evaluate: action roots (`flags.me`, the attack's flag of the attacker's
+# ID) are filled in when it is proposed, `self` is then the target's entry.
+- target: { rolls: [attack] }
+  op: rollModifier
+  value: { kind: advantage }
+  when: size(participants.target) > 0 && character.id in participants.target[0].mastery.vexedBy
+  then:
+    to: target
+    when: applied
+    changes:
+      - type: removeEffect
+        applied: { where: 'item.id == @combat-effects.vexed && self.attacker == flags.me' }
+```
+
+The rule form is for roll effects; an incoming-change effect's `then` is a list (a schema
+error otherwise). A roll effect's `then` changes aren't held by a `hold` action step
+([dice-and-actions.md](dice-and-actions.md#actions)): they record a roll that was made.
+
+An effect that ends on something other than a roll it was in play on (5E's Sanctuary ends when
+the warded creature attacks) is out of reach of `then`. An effect that lasts for a number of
+triggers counts them in a state key: one effect spends a use while more than one is left, and a
+second, for the last use, removes the entry.
 
 **Dice on incoming changes**. An incoming-change `add` may be dice; `set`,
 `multiply`, `atLeast` and `atMost` stay numbers. applyChanges rolls it when it routes the adjust,

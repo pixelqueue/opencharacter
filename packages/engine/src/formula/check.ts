@@ -116,6 +116,7 @@ export function fieldFormulaType(declared: string): FType {
     case 'dice':
       return 'dice';
     case 'set':
+    case 'list':
       return { list: 'string' };
     default:
       return 'string';
@@ -424,6 +425,22 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
       if (args[0]?.type !== 'string')
         return mismatch('picksOf() takes a choice ID, a string literal');
       return { list: 'dyn' };
+    }
+    case 'itemField':
+    case 'itemTags': {
+      if (!ctx.character)
+        return fail('unknown-function', `${fn}() is bound only where a character is`, {
+          function: fn,
+        });
+      const tags = fn === 'itemTags';
+      if (tags) arity(1);
+      else arity(2, 3);
+      const ts = types();
+      wants(ts[0] as FType, (t) => t === 'string', 'a content ID');
+      if (tags) return { list: 'string' };
+      if (args[1]?.type !== 'string')
+        return mismatch('itemField() takes an item field name, a string literal');
+      return ts[2] ?? 'dyn';
     }
     case 'grantedPicksOf': {
       if (!ctx.picks)

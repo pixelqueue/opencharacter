@@ -26,12 +26,14 @@ import type {
   StepOption,
   ValueSource,
   TagOrFormula,
+  ThenChange,
   ValueDecl,
 } from './pack-types.ts';
 import {
   innerSteps,
   optionQuery,
   pendingSource,
+  thenRule,
   valueSource,
   writtenOptions,
 } from './pack-types.ts';
@@ -520,6 +522,8 @@ interface Ctx {
   rolls: Map<string, { result: Record<string, unknown>; items: BuiltItem[] }>;
   /** The effects whose `then` the run has proposed: each proposes it at most once. */
   ended: Set<string>;
+  /** Changes a roll effect's `then` proposed: a record of rolls made, which `hold` leaves alone. */
+  fromThen: WeakSet<Proposed>;
 }
 
 interface Frame {
@@ -575,6 +579,7 @@ function run(
     stepsRun: 0,
     rolls: new Map(),
     ended: new Set(),
+    fromThen: new WeakSet(),
   };
   // An ephemeral offer is cleared by the changes of the run that takes it up.
   const takenUp = state.action.followUp;
@@ -1360,11 +1365,23 @@ function nestedRun(
     : (source ??
       ctx.sheet.activations.find((a) => a.item && ownsEntry(a) && entryOf(a) === entry)?.item?.qid);
   const action = owner === undefined ? use : `${owner}#${use}`;
+  // `source` alone also names content that is a copy's own item, listed by the copy's entry.
+  const owners =
+    source !== undefined && entry === undefined
+      ? new Set(
+          ctx.sheet.activations
+            .filter((a) => a.item?.qid === source && ownsEntry(a))
+            .map((a) => entryOf(a)),
+        )
+      : undefined;
   const listed = ctx.sheet
     .actions(true)
     .filter(
       (a) =>
-        a.action === action && a.source === source && (entry === undefined || a.entry === entry),
+        a.action === action &&
+        (a.source === source ||
+          (a.source === undefined && a.entry !== undefined && owners?.has(a.entry) === true)) &&
+        (entry === undefined || a.entry === entry),
     );
   const found = listed.find((a) => a.entry === frame.entry) ?? listed[0];
   if (!found)
@@ -2189,18 +2206,44 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     ...(bounds.length ? { bounds } : {}),
     ...(result.rolls ? { rolls: result.rolls as RollLog[] } : {}),
   });
-  // Each effect that changed the roll proposes its `then`, in effect order, once per run.
-  for (const c of [...changed].toSorted((a, b) => a.instance.order - b.instance.order)) {
+  // Each effect that changed the roll (or, `when: applied`, was in play on it) proposes its
+  // `then`, in effect order, once per run (or, `once: roll`, per roll step run).
+  const inPlay = (c: (typeof active)[number]) =>
+    !targets(c.effect)?.parts || items.some((i) => i.part !== undefined && onPart(c, i.tags));
+  const fired = active.filter((c) => {
+    const rule = thenRule(c.effect);
+    return rule !== undefined && (rule.when === 'applied' ? inPlay(c) : changed.has(c));
+  });
+  for (const c of fired.toSorted((a, b) => a.instance.order - b.instance.order)) {
     const i = c.instance;
-    const key = JSON.stringify([i.optionId, i.applied ?? null, i.source.entry ?? null]);
-    if (!c.effect.then?.length || ctx.ended.has(key)) continue;
+    const rule = thenRule(c.effect) as NonNullable<ReturnType<typeof thenRule>>;
+    const key = JSON.stringify([
+      i.optionId,
+      i.applied ?? null,
+      i.source.entry ?? null,
+      rule.once === 'roll' ? path : null,
+    ]);
+    if (ctx.ended.has(key)) continue;
     ctx.ended.add(key);
-    for (const then of c.effect.then) {
-      const change = rollThen(ruleset, c.instance, then, (formula) =>
-        outputData(sheet.evaluate(formula, c.pack, effectCtx(c))),
+    const first = ctx.proposed.length;
+    if (rule.to !== 'self')
+      proposeChanges(
+        ctx,
+        optionFrame(frame, i),
+        step,
+        path,
+        rule.to,
+        rule.changes as ProposedChange[],
+        { action, roll: rollRoot },
       );
-      if (change) ctx.proposed.push({ to: 'self', step: path, change });
-    }
+    else
+      for (const then of rule.changes as ThenChange[]) {
+        const change = rollThen(ruleset, i, then, (formula) =>
+          outputData(sheet.evaluate(formula, c.pack, effectCtx(c))),
+        );
+        if (change) ctx.proposed.push({ to: 'self', step: path, change });
+      }
+    for (const p of ctx.proposed.slice(first)) ctx.fromThen.add(p);
   }
 }
 
@@ -2213,7 +2256,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
 function rollThen(
   ruleset: Ruleset,
   i: EffectInstance,
-  then: NonNullable<Effect['then']>[number],
+  then: ThenChange,
   value: (formula: Formula) => unknown,
 ): Change | undefined {
   const entry = i.applied ?? i.source.entry;
@@ -3361,7 +3404,9 @@ function addedChanges(ctx: Ctx, frame: Frame, step: Step, path: string): void {
  * until they are released.
  */
 function hold(ctx: Ctx, frame: Frame, id: string, first: number): void {
-  const taken = ctx.proposed.splice(first);
+  const after = ctx.proposed.splice(first);
+  const taken = after.filter((p) => !ctx.fromThen.has(p));
+  ctx.proposed.push(...after.filter((p) => ctx.fromThen.has(p)));
   // The proposed sheet is cached by the count of changes; taking some back invalidates it.
   delete ctx.cached;
   const list = frame.held.get(id);

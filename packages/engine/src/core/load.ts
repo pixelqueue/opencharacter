@@ -26,7 +26,7 @@ import type {
   StepChanges,
   ValueDecl,
 } from './pack-types.ts';
-import { appliesQueries, fitsItemField, keptQuery } from './pack-types.ts';
+import { appliesQueries, fitsItemField, keptQuery, thenToSelf } from './pack-types.ts';
 import { bandSet, stepArms } from './pack-types.ts';
 import type { PackRelease } from './release.ts';
 import { expandFamilies } from './families.ts';
@@ -373,7 +373,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       if (!decl.of || decl.of === 'tag' || decl.of === 'string') return value;
       const one = (v: string) => (decl.of === 'field' ? q.field(v, pack) : q.content(v, pack));
       if (decl.type === 'id' && typeof value === 'string') return one(value);
-      if (decl.type === 'set' && Array.isArray(value)) return value.map((v) => one(String(v)));
+      if ((decl.type === 'set' || decl.type === 'list') && Array.isArray(value))
+        return value.map((v) => one(String(v)));
       return value;
     },
     decls(decls: Record<string, ValueDecl> | undefined, pack: string) {
@@ -441,7 +442,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     },
     /** An effect with `then` changes its own entry (a copy or an applied entry), so it must have one. */
     copyless(effect: Effect, pack: string): void {
-      if (effect.then)
+      if (effect.then && thenToSelf(effect))
         err('then-without-copy', {
           ...(effect.id !== undefined ? { effect: effect.id } : {}),
           pack,
@@ -449,6 +450,15 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     },
     effect(effect: Effect, pack: string): Effect {
       const out: Effect = { ...effect };
+      if (effect.then && !Array.isArray(effect.then) && !thenToSelf(effect)) {
+        const then = effect.then;
+        // oxlint-disable-next-line unicorn/no-thenable
+        out.then = {
+          ...then,
+          changes: q.changes(then.changes as ProposedChange[], pack, then.to),
+          ...q.to(then.to, pack),
+        };
+      }
       if (typeof effect.target === 'string') out.target = q.field(effect.target, pack);
       else if ('rolls' in effect.target && effect.target.tally !== undefined) {
         const ref = effect.target.tally;
@@ -1374,6 +1384,8 @@ const CHARACTER_FUNCTIONS = new Set([
   'sumState',
   'picksOf',
   'grantedPicksOf',
+  'itemField',
+  'itemTags',
 ]);
 
 /** Whether a query condition reads only `item`, so it can be resolved at load time. */

@@ -62,6 +62,7 @@ describe('pnpm validate', () => {
         /grant of "tricks.hop" sets state key "shots", which it doesn't declare/,
       ],
       ['a missing required item field', /missing required field "damage"/],
+      ['a list state key', /type list is for item fields/],
       ['an export listing a pack version twice', /lists broken 0\.1\.0 twice/],
       [
         'an export listing a version the repo lacks',

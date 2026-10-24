@@ -62,6 +62,7 @@ import {
   fieldSetMatches,
   fieldViews,
   hasComputedTags,
+  itemFieldDeclsOf,
   itemView,
   outputData,
   appliedList,
@@ -556,6 +557,7 @@ export class Sheet {
       }),
       picks: () => (this.pickData ??= this.savedPicks()),
       contentPicks: (content, choice) => this.contentPicks(content, choice),
+      contentItem: (qid) => this.contentItem(qid),
       grants: () => (this.grantData ??= this.grantViews()),
       fields: () => fieldViews(ruleset),
       fieldValue: (qid) => this.fieldValue(qid),
@@ -3329,6 +3331,24 @@ export class Sheet {
       walk(entry.choices);
     walk(this.character.choices);
     return out;
+  }
+
+  /** A content item as `itemField` and `itemTags` read it: merged at load, no copy's templates. */
+  private contentItem(
+    qid: string,
+  ): { tags: readonly string[]; fields: Record<string, unknown> } | undefined {
+    const item = this.ruleset.content[qid];
+    if (!item) return undefined;
+    const {
+      id: _id,
+      type: _type,
+      tags,
+      ...view
+    } = itemView(this.ruleset, item, [], (n, p) => this.inputByName(n, p));
+    const decls = itemFieldDeclsOf(this.ruleset, item);
+    const fields: Record<string, unknown> = {};
+    for (const [name, value] of Object.entries(view)) if (decls[name]) fields[name] = value;
+    return { tags: tags as string[], fields };
   }
 
   private choicesOf: Map<Activation, ChoiceRecord[]> | undefined;

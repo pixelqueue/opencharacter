@@ -63,6 +63,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Input field:** a field whose value the player supplies and the character file saves.
 - **Interface change:** a difference between two pack releases that can break a character's homebrew (a removed derived field, content type, item field, enum value, tag or rules action); it needs a breaking bump but no upgrade script.
 - **Item field:** a typed property declared by a content type and set on each item (damage, weight).
+- **List item field:** an item field of type `list`: members in the order written (a spell's cast options, a class's ability priority), duplicates allowed unless `unique`; a `set` is sorted instead.
 - **Limits:** bounds on a field's final value, after effects; a value outside them is the rules issue `out-of-limits`.
 - **Link slot:** a named place in the rules for another character (a scoundrel's crew), saved in the character file as that character's `id` (up to 2048 characters, so a URL works) and read by formulas as `links.<slot>`, a view.
 - **Load order:** the order the app passes packs to loadRuleset; dependencies first, later packs win.
@@ -93,6 +94,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Rules issue:** an objection by the game's rules to a valid character; reported, not blocking, unless strict mode is on.
 - **Ruleset:** the output of loadRuleset: all packs merged and resolved, passed to every other call.
 - **Runtime error:** a change rejected because the result wouldn't be a valid character file; the character is unchanged.
+- **Roll effect `then`:** changes a roll effect proposes after a roll step it changed (or, with `when: applied`, was in play on), once per action run or, with `once: roll`, per roll: ending a condition, spending a use, or, `to` another character, ending the target's entry.
 - **Safety limit:** a spec-defined cap (exploding dice, nesting depth, action steps) protecting engines from untrusted packs.
 - **Shape change:** a difference between two pack releases that changes what saved state means (removed content, field, state key, choice or option; a new required choice); it needs a breaking bump and an upgrade script that covers it.
 - **Shape error:** input that doesn't match the spec's JSON Schema, rejected before running.

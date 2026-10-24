@@ -953,6 +953,18 @@ export type ValueType =
   | 'id'
   | 'set';
 
+/** The value types a declared value can hold: the value types, and `list` on item fields only (a content type's `fields` and the rules' `templateFields`; elsewhere a validation error). Kept in sync with `data/value-types.json`. */
+export type DeclValueType =
+  | 'integer'
+  | 'decimal'
+  | 'boolean'
+  | 'string'
+  | 'enum'
+  | 'dice'
+  | 'id'
+  | 'set'
+  | 'list';
+
 /** How a decimal result becomes whole. Kept in sync with `data/rounding-modes.json`. */
 export type Rounding = 'floor' | 'ceil' | 'round' | 'truncate';
 
@@ -1178,15 +1190,17 @@ export type ComputedDecl = {
 
 /** Declares a typed value: an item field, a state key or an action parameter. */
 export type ValueDecl = {
-  type: ValueType;
+  type: DeclValueType;
   /** enum: allowed values. */
   values?: Slug[];
   /** An enum item field or state key of a content type: packs that depend on this one may add values, in their rules' `extendEnums` (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`). Items, copies and formulas see the merged list. Elsewhere it is an error. */
   open?: boolean;
-  /** id/set: the content type (or `field`, `tag`, `string`) of the members. */
+  /** id/set/list: the content type (or `field`, `tag`, `string`) of the members. */
   of?: Name;
-  /** id/set of `tag`: which tags it takes. Without it, any declared tag. */
+  /** id/set/list of `tag`: which tags it takes. Without it, any declared tag. */
   members?: TagMembers;
+  /** list: no member may appear twice (an item's value with a duplicate is `invalid-item-field`, `wrong-type`). Default false: a list may repeat a member. */
+  unique?: boolean;
   required?: boolean;
   /** Parameters: may be omitted. */
   optional?: boolean;
@@ -1194,7 +1208,7 @@ export type ValueDecl = {
   perCopy?: boolean;
   /** Parameters: the label key. Default: `<actionKey>.params.<name>.name`; an optional one-line hint is `<actionKey>.params.<name>.description`. */
   label?: I18nKey;
-  /** The value when none is given. For integer, decimal, boolean and dice declarations a string is a formula: on a state key it is evaluated with `item` bound when the copy is added, and the result is written into the character file (`shots: item.magazine`); on an item field it is read as an item's own value is, over input fields. For string, enum and id declarations a string is a literal. An item field's default applies in `item` when the item doesn't set the field; an id or set default of content or `field` is qualified in the content type's pack. */
+  /** The value when none is given. For integer, decimal, boolean and dice declarations a string is a formula: on a state key it is evaluated with `item` bound when the copy is added, and the result is written into the character file (`shots: item.magazine`); on an item field it is read as an item's own value is, over input fields. For string, enum and id declarations a string is a literal. An item field's default applies in `item` when the item doesn't set the field; an id, set or list default of content or `field` is qualified in the content type's pack. */
   default?: Literal;
   /** The lowest allowed value. On a state key, a number formula with `item` bound (the copy's item with its templates) that reads input fields only, evaluated by `addItem` for a formula default and by `setState` and `adjustState` (`shots: { max: item.magazine }`). On an action parameter of type `integer` or `decimal`, a number formula evaluated as the action starts, with the action's `item` and `self`, `situational` and the character's fields (`max: effort.free`); a value outside it is `out-of-range`. */
   min?: Formula;
@@ -1390,10 +1404,22 @@ export type Effect = {
   tags?: TagList;
   /** Rolls with op `add` only: `false` leaves the roll items the effect adds, dice or flat, alone when `multiplyDice` multiplies the roll's dice or `multiply` its items (5E's Savage Attacks: an extra die rolled once on a critical hit, not doubled; orc-2e's deadly die, added after doubling). Default `true`. */
   multiplied?: boolean;
-  /** Incoming-change and roll effects only: changes to the effect's own entry once it counted. On an incoming-change effect, applyChanges applies them right after the adjust is routed, when the effect counted (its `when` held and stacking kept it); on a roll effect, the action proposes them `to: self` after the first roll step of the run that the effect changed, at most once per action run (effects.md, "Roll effects that end themselves"). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), or with `pick: owner` or `grant: owner`, the pick or holder grant that activated the effect's content; their `value` and `by` are formulas seeing `item`, `self` and `incoming` (on a roll effect, the roll effect's context). On an `applied` effect, a `removeEffect` with `entry: self` ends the entry (a ward that triggers once, a condition that lasts one roll). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`). */
-  then?: ThenChange[];
+  /** Incoming-change and roll effects only: changes to the effect's own entry once it counted, a list, or on a roll effect `{ changes, when, once, to }` (`thenRule`). On an incoming-change effect, applyChanges applies them right after the adjust is routed, when the effect counted (its `when` held and stacking kept it); on a roll effect, the action proposes them after a roll step the effect changed (or, with `when: applied`, was in play on), once per action run (or, with `once: roll`, per roll) (effects.md, "Roll effects that end themselves"). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), or with `pick: owner` or `grant: owner`, the pick or holder grant that activated the effect's content; their `value` and `by` are formulas seeing `item`, `self` and `incoming` (on a roll effect, the roll effect's context). On an `applied` effect, a `removeEffect` with `entry: self` ends the entry (a ward that triggers once, a condition that lasts one roll). Only for effects with an entry, unless a roll effect's `then` goes `to` another character: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`). */
+  then?: ThenChange[] | ThenRule;
   /** Who the effect applies to. `holder` (default): a character who has the content active (features, inventory, picks, grants). `applied`: a character the content is applied to (its `applied` list: cast on them, a condition). Content in `applied` runs only its `applied` effects; held content runs only its `holder` effects. */
   scope?: 'holder' | 'applied';
+};
+
+/** A roll effect's `then` with its firing rule: `changes`, proposed after a roll step when the effect counted as `when` says, as often as `once` says, for `to`. */
+export type ThenRule = {
+  /** The changes: `thenChange`s for `to: self` (the default); for another character, proposed changes as a `changes` step's, with `item` and `self` the content carrying the effect and the roll effect's context. */
+  changes: Record<string, unknown>[];
+  /** `changed` (default): the effect changed the roll. `applied`: the effect was in play on the roll (its target matched it and its `when` held), whether or not stacking kept it, an opposite kind cancelled it or it made a difference. */
+  when?: 'changed' | 'applied';
+  /** `action` (default): proposed at most once per action run, at the first roll step that fires it. `roll`: once per roll step that fires it, each pass of a group its own; dice rolled again within a step (advantage, rerolled dice, a whole roll made more than once) are one roll. */
+  once?: 'action' | 'roll';
+  /** Who the changes are for, as a `changes` step's `to`. Default `self`. To another character (a role, a link), the changes are any proposed changes, so an attacker's effect that reads its target's view can end the target's entry. */
+  to?: Destination;
 };
 
 /** A change an incoming-change or roll effect makes after it counted: `setState` with `value`, `adjustState` with `by`, or `removeEffect` (an `applied` effect only, `entry: self`). It names `entry: self` (the state the effect's `self` reads the key from), `pick: owner` (the pick that activated the effect's content) or `grant: owner` (the holder grant that did). */

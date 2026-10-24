@@ -69,12 +69,19 @@
       "type": "boolean"
     },
     "then": {
-      "description": "Incoming-change and roll effects only: changes to the effect's own entry once it counted. On an incoming-change effect, applyChanges applies them right after the adjust is routed, when the effect counted (its `when` held and stacking kept it); on a roll effect, the action proposes them `to: self` after the first roll step of the run that the effect changed, at most once per action run (effects.md, \"Roll effects that end themselves\"). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), or with `pick: owner` or `grant: owner`, the pick or holder grant that activated the effect's content; their `value` and `by` are formulas seeing `item`, `self` and `incoming` (on a roll effect, the roll effect's context). On an `applied` effect, a `removeEffect` with `entry: self` ends the entry (a ward that triggers once, a condition that lasts one roll). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`).",
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/thenChange"
-      },
-      "minItems": 1
+      "description": "Incoming-change and roll effects only: changes to the effect's own entry once it counted, a list, or on a roll effect `{ changes, when, once, to }` (`thenRule`). On an incoming-change effect, applyChanges applies them right after the adjust is routed, when the effect counted (its `when` held and stacking kept it); on a roll effect, the action proposes them after a roll step the effect changed (or, with `when: applied`, was in play on), once per action run (or, with `once: roll`, per roll) (effects.md, \"Roll effects that end themselves\"). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), or with `pick: owner` or `grant: owner`, the pick or holder grant that activated the effect's content; their `value` and `by` are formulas seeing `item`, `self` and `incoming` (on a roll effect, the roll effect's context). On an `applied` effect, a `removeEffect` with `entry: self` ends the entry (a ward that triggers once, a condition that lasts one roll). Only for effects with an entry, unless a roll effect's `then` goes `to` another character: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`).",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/thenChange"
+          },
+          "minItems": 1
+        },
+        {
+          "$ref": "#/$defs/thenRule"
+        }
+      ]
     },
     "scope": {
       "description": "Who the effect applies to. `holder` (default): a character who has the content active (features, inventory, picks, grants). `applied`: a character the content is applied to (its `applied` list: cast on them, a condition). Content in `applied` runs only its `applied` effects; held content runs only its `holder` effects.",
@@ -236,7 +243,7 @@
       }
     },
     "thenTarget": {
-      "description": "`then` is only for incoming-change and roll effects, and only an `applied` effect's may remove its entry.",
+      "description": "`then` is only for incoming-change and roll effects, its rule form for roll effects only, and only an `applied` effect's may remove its entry.",
       "if": {
         "required": ["then"],
         "type": "object"
@@ -254,30 +261,144 @@
             ]
           }
         },
-        "if": {
-          "required": ["scope"],
-          "properties": {
-            "scope": {
-              "const": "applied"
-            }
-          },
-          "type": "object"
-        },
-        "else": {
-          "properties": {
-            "then": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "enum": ["setState", "adjustState"]
-                  }
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "then": {
+                  "type": "object"
                 }
-              }
+              },
+              "type": "object"
+            },
+            "then": {
+              "properties": {
+                "target": {
+                  "$ref": "#/$defs/rollTarget"
+                }
+              },
+              "type": "object"
             }
           },
-          "type": "object"
+          {
+            "if": {
+              "required": ["scope"],
+              "properties": {
+                "scope": {
+                  "const": "applied"
+                }
+              },
+              "type": "object"
+            },
+            "else": {
+              "properties": {
+                "then": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "enum": ["setState", "adjustState"]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": ["to"],
+                      "properties": {
+                        "to": {
+                          "not": {
+                            "const": "self"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "changes": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "enum": ["setState", "adjustState"]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "type": "object"
+            }
+          }
+        ],
+        "type": "object"
+      }
+    },
+    "thenRule": {
+      "description": "A roll effect's `then` with its firing rule: `changes`, proposed after a roll step when the effect counted as `when` says, as often as `once` says, for `to`.",
+      "type": "object",
+      "required": ["changes"],
+      "properties": {
+        "changes": {
+          "description": "The changes: `thenChange`s for `to: self` (the default); for another character, proposed changes as a `changes` step's, with `item` and `self` the content carrying the effect and the roll effect's context.",
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 1
+        },
+        "when": {
+          "description": "`changed` (default): the effect changed the roll. `applied`: the effect was in play on the roll (its target matched it and its `when` held), whether or not stacking kept it, an opposite kind cancelled it or it made a difference.",
+          "enum": ["changed", "applied"]
+        },
+        "once": {
+          "description": "`action` (default): proposed at most once per action run, at the first roll step that fires it. `roll`: once per roll step that fires it, each pass of a group its own; dice rolled again within a step (advantage, rerolled dice, a whole roll made more than once) are one roll.",
+          "enum": ["action", "roll"]
+        },
+        "to": {
+          "description": "Who the changes are for, as a `changes` step's `to`. Default `self`. To another character (a role, a link), the changes are any proposed changes, so an attacker's effect that reads its target's view can end the target's entry.",
+          "$ref": "action.schema.json#/$defs/destination"
+        }
+      },
+      "additionalProperties": false,
+      "if": {
+        "required": ["to"],
+        "properties": {
+          "to": {
+            "not": {
+              "const": "self"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "change.schema.json#/$defs/proposed"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "else": {
+        "properties": {
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/thenChange"
+            }
+          }
         },
         "type": "object"
       }

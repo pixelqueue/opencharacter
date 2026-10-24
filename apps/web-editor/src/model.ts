@@ -14,6 +14,7 @@ export function controlFor(decl: ValueDecl): Control {
     case 'dice':
       return 'formula';
     case 'set':
+    case 'list':
       return 'list';
     default:
       return 'text';
@@ -25,7 +26,7 @@ export function toValue(decl: ValueDecl, input: string | boolean): unknown {
   if (typeof input === 'boolean') return input;
   const text = input.trim();
   if (text === '') return null;
-  if (decl.type === 'set')
+  if (decl.type === 'set' || decl.type === 'list')
     return text
       .split(',')
       .map((s) => s.trim())

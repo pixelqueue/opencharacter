@@ -30,7 +30,13 @@ import {
   valueSource,
   writtenOptions,
 } from '../../packages/engine/src/core/pack-types.ts';
-import { appliesQueries, innerSteps, stepArms } from '../../packages/engine/src/core/pack-types.ts';
+import {
+  appliesQueries,
+  innerSteps,
+  stepArms,
+  thenRule,
+  thenToSelf,
+} from '../../packages/engine/src/core/pack-types.ts';
 import { HOMEBREW } from '../../packages/engine/src/core/homebrew.ts';
 import {
   blockArgument,
@@ -220,7 +226,7 @@ export class PackChecker {
           `${where}: field IDs cannot start with the context root "${id.split('.')[0]}"`,
         );
       }
-      this.memberKind(def, file, where, true);
+      this.memberKind(def, file, where, { canOpen: true });
       if (def.members && def.default !== undefined)
         for (const tag of [def.default].flat())
           this.memberTag(String(tag), def, file, `${where} default`);
@@ -275,7 +281,7 @@ export class PackChecker {
       // Named for a custom template's form, in each pack that declares it.
       this.requiredKeys.add(`templateFields.${name}.name`);
       this.optionalKeys.add(`templateFields.${name}.description`);
-      this.memberKind(def, file, where);
+      this.memberKind(def, file, where, { itemField: true });
       if (def.default !== undefined)
         this.itemFieldValue(def.default, def, file, `${where} default`);
       const earlier = this.ruleset.templateFields(this.scope.slice(1)).get(name);
@@ -304,9 +310,10 @@ export class PackChecker {
         this.requiredKeys.add(`types.${name}.fields.${field}.name`);
         this.optionalKeys.add(`types.${name}.fields.${field}.description`);
       }
-      for (const decl of [...Object.values(def.fields ?? {}), ...Object.values(def.state ?? {})]) {
-        this.memberKind(decl, file, where, true);
-      }
+      for (const decl of Object.values(def.fields ?? {}))
+        this.memberKind(decl, file, where, { canOpen: true, itemField: true });
+      for (const decl of Object.values(def.state ?? {}))
+        this.memberKind(decl, file, where, { canOpen: true });
       for (const [key, decl] of Object.entries(def.state ?? {}))
         if (decl.perCopy !== undefined)
           this.report.error(file, `${where}: state ${key}: perCopy is for item fields`);
@@ -894,6 +901,7 @@ export class PackChecker {
     }
 
     for (const query of appliesQueries(item)) this.query(query, file, `${owner} appliesTo`);
+    for (const decl of Object.values(item.params ?? {})) this.memberKind(decl, file, owner);
     for (const [key, decl] of Object.entries(item.state ?? {})) {
       this.memberKind(decl, file, owner);
       if (decl.perCopy !== undefined)
@@ -1178,13 +1186,14 @@ export class PackChecker {
         enum: `one of ${decl.values?.join(', ')}`,
         id: 'an id',
         set: 'a list',
+        list: decl.unique ? 'a list without duplicates' : 'a list',
       };
       this.report.error(
         file,
         `${where}: expected ${expected[decl.type] ?? `a ${decl.type} formula`}, got ${JSON.stringify(value)}`,
       );
     } else if (decl.type === 'id') this.member(value as string, decl.of, file, where, decl);
-    else if (decl.type === 'set')
+    else if (decl.type === 'set' || decl.type === 'list')
       for (const member of value as Literal[])
         this.member(String(member), decl.of, file, where, decl);
   }
@@ -1222,8 +1231,18 @@ export class PackChecker {
       this.report.error(file, `${where}: "${tag}" is not one of its members`);
   }
 
-  /** `canOpen`: a rules field's or a content type's declaration, which `open` may mark. */
-  private memberKind(decl: ValueDecl, file: string, where: string, canOpen = false): void {
+  /**
+   * `canOpen`: a rules field's or a content type's declaration, which `open` may mark;
+   * `itemField`: an item field, which may be a `list`.
+   */
+  private memberKind(
+    decl: ValueDecl,
+    file: string,
+    where: string,
+    { canOpen = false, itemField = false } = {},
+  ): void {
+    if (decl.type === 'list' && !itemField)
+      this.report.error(file, `${where}: type list is for item fields`);
     if (decl.open !== undefined && (!canOpen || decl.type !== 'enum'))
       this.report.error(
         file,
@@ -1536,7 +1555,11 @@ export class PackChecker {
   private effect(effect: Effect, file: string, where: string, copy = true): void {
     const kind = targetKind(effect.target);
     const label = `${where} effect${effect.id ? ` ${effect.id}` : ''}`;
-    if (effect.then && !copy)
+    const then = thenRule(effect);
+    if (then && then.to !== 'self')
+      for (const change of then.changes as ProposedChange[])
+        this.proposedChange(change, file, `${label} then`, false, new Set(), then.to);
+    if (effect.then && !copy && thenToSelf(effect))
       this.report.error(
         file,
         `${label}: then-without-copy: only an effect with an entry (content's, not the rules', a situational choice's or a choice's) can change its entry`,

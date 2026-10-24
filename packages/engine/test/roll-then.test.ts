@@ -70,3 +70,43 @@ describe('then on roll effects', () => {
     expect(run(15)).toMatchObject({ status: 'finished', proposedChanges: [] });
   });
 });
+
+describe('then with when: applied', () => {
+  const applied = loadRuleset([
+    {
+      ...pack,
+      content: [
+        {
+          id: 'feats.steady',
+          type: 'feat',
+          effects: [
+            {
+              target: { rolls: ['check'] },
+              op: 'atLeast',
+              value: 10,
+              // oxlint-disable-next-line unicorn/no-thenable
+              then: {
+                when: 'applied',
+                changes: [{ type: 'setState', entry: 'self', key: 'used', value: true }],
+              },
+            },
+          ],
+        },
+      ],
+    } as unknown as PackRelease,
+  ]);
+
+  it("proposes the change though the bound didn't move the total", () => {
+    if (!applied.ok) throw new Error(JSON.stringify(applied.errors));
+    const result = startAction(
+      applied.ruleset,
+      character,
+      { action: { id: 'test-pack:check' } },
+      diceFrom([15]),
+    );
+    expect(result).toMatchObject({
+      status: 'finished',
+      proposedChanges: [{ step: 'roll', change: { type: 'setState', key: 'used' } }],
+    });
+  });
+});

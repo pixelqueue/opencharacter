@@ -64,3 +64,54 @@ describe('an action step from granted content', () => {
     });
   });
 });
+
+describe("an action step naming a copy's own item by source", () => {
+  it('runs the action the copy lists, with the copy as self', () => {
+    const character = {
+      specVersion: '0.1.0',
+      id: 'c',
+      packs: [{ id: 'test-pack', version: '1.0.0' }],
+      features: [{ id: 'zapper', item: 'test-pack:powers.zap' }],
+    };
+    const bySource = loadRuleset([
+      {
+        manifest: {
+          id: 'test-pack',
+          version: '1.0.0',
+          specVersion: '0.1.0',
+          license: 'CC0-1.0',
+          defaultLanguage: 'en',
+        },
+        rules: {
+          contentTypes: { power: {} },
+          actions: [
+            {
+              id: 'run',
+              steps: [
+                { id: 'inner', kind: 'action', source: "'powers.zap'", use: 'zap' },
+                { id: 'result', kind: 'outcome', data: { copy: 'steps.inner.data.copy' } },
+              ],
+            },
+          ],
+        },
+        content: [
+          {
+            id: 'powers.zap',
+            type: 'power',
+            actions: [
+              {
+                id: 'zap',
+                listed: false,
+                steps: [{ id: 'result', kind: 'outcome', data: { copy: 'self.id' } }],
+              },
+            ],
+          },
+        ],
+      } as never,
+    ]);
+    if (!bySource.ok) throw new Error(JSON.stringify(bySource.errors));
+    expect(
+      startAction(bySource.ruleset, character as never, { action: { id: 'test-pack:run' } }),
+    ).toMatchObject({ status: 'finished', outcome: { data: { copy: 'zapper' } } });
+  });
+});

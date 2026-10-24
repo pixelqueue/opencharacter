@@ -262,6 +262,8 @@ contentTypes:
     state:
       ammo: { type: integer, default: item.magazinee }
       charge: { type: integer, min: 0, max: item.chargee }
+      # A list is for item fields only.
+      order: { type: list, of: string }
     # Computed values can't reuse a state key or a core property.
     computed:
       ammo: { type: integer, formula: 1 }

@@ -89,6 +89,9 @@ cases:
 - `character.contentPicks` gives `picksOf(content, choice)` its picks, by content and choice
   (`contentPicks: { feats.lore: { topic: [history] } }`); a content it doesn't list has none.
   `granted` binds `grantedPicksOf` the same way, by content and choice.
+- `character.content` gives `itemField` and `itemTags` their content items, by ID, each with
+  `tags` and `fields` (`content: { lineages.red: { fields: { damageType: fire } } }`); an ID it
+  doesn't list names no content.
 - `picks` binds `picksOf`: the formula's owner's choices by key, each a list of its picks
   (`picks: { plus-two: [str], languages: [] }`). Without it, `picksOf` is unbound.
 - The case's `fields` are also the ruleset's fields that `countFields`, `sumFields`,
@@ -128,7 +131,8 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   `test-roll-twice`, rolls made more than once (`of: roll`), `test-owner-picks`, formulas
   reading their owner's picks with `picksOf`, `test-pick-aggregates`, formulas counting saved
   picks and active grants (`countPicks`, `countGrants`), `test-content-picks`, formulas reading
-  another content's picks (`picksOf(content, choice)`, `grantedPicksOf`),
+  another content's picks (`picksOf(content, choice)`, `grantedPicksOf`), `test-content-items`,
+  formulas reading a picked item's fields and tags by ID (`itemField`, `itemTags`),
   `test-target-formula`, effects whose target is a formula (`target: { formula }`),
   `test-part-rolls`, advantage and disadvantage on a roll's parts (`of: roll`), and
   `test-roll-then`, roll effects that end themselves or spend a use once a roll used them

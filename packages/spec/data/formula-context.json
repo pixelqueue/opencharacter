@@ -361,6 +361,18 @@
       "signature": "grantedPicksOf(string content, string choice) -> list",
       "character": true,
       "description": "The saved picks of a choice of content the formula's owner grants, as the owner's node keeps them under the granted content's prefixed key (`<content>/<choice>`), `[]` for none; a grant's preset picks aren't saved, so they aren't read. Both string literals; the content resolves in the formula's pack; content the pack doesn't see, or a choice it doesn't declare, is `unknown-reference` at load. Bound where `picksOf(choice)` is, activation conditions included: saved picks are input, so it adds no dependency."
+    },
+    {
+      "id": "itemField",
+      "signature": "itemField(string id, string name) -> any; itemField(string id, string name, any default) -> any",
+      "character": true,
+      "description": "An item field of a content item by its ID (a pick, a field's value, a literal): the item as merged at load (`extends` and overrides, its content type's defaults; no copy's templates or own values), its value as `item.<name>` would read it, a formula field reading input fields. `default` when the item doesn't have the field, or the ID names no content; without one, either is `no-such-key`. The ID resolves in the formula's pack; `name` is a string literal. At load, a name no content type the pack sees declares (nor a template field), a literal ID naming no content the pack sees, or one whose content type doesn't declare the name, is `unknown-reference`. Bound wherever a character is, activation conditions included; not in item fields or queries resolved at load (`unknown-function`)."
+    },
+    {
+      "id": "itemTags",
+      "signature": "itemTags(string id) -> list",
+      "character": true,
+      "description": "A content item's tags by its ID, as merged at load (no copy's templates); an ID naming no content is `no-such-key`. Bound where `itemField` is; a literal ID naming no content the pack sees is `unknown-reference` at load."
     }
   ]
 }

@@ -94,7 +94,7 @@ An entry ([`character.schema.json#/$defs/entry`](../schemas/character.schema.jso
   at 0 stays until removed.
 - `state`: values for keys declared by the content type, the item, or its templates.
 - `fields`: the copy's own values for item fields its content type marks `perCopy`
-  ([content.md](content.md#per-copy-fields)), by name; an `id` or `set` value of content or
+  ([content.md](content.md#per-copy-fields)), by name; an `id`, `set` or `list` value of content or
   `field` is qualified. `addItem`'s `entry.fields` and `setField` set them.
 - `choices`: picks for choices declared by the item and its templates.
 - `grants`: saved state of content the item and its templates grant

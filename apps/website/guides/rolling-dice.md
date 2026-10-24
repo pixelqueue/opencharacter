@@ -354,7 +354,9 @@ you rolled with the answers, or pass a seeded dice function.
   such as a FitD crew ([Other characters](other-characters.md)). `step` is the path of the step
   that proposed each one, so you can tell the damage (`deal`) from the healing in one list. A
   roll step proposes some too: an effect that ends once a roll used it (5E's Sapped, a +1 to the
-  next check) proposes its own removal or state change with the roll's step.
+  next check) proposes its own removal or state change with the roll's step, and an attacker's
+  effect against a target (5E's Vexed) may propose the target's change, `to: 'target'` with its
+  `character`. Apply them like any other: they are the bookkeeping of a roll that was made.
 - **`log`** lists every checkpoint: its `step` and defining `action`, each roll's `faces`,
   itemized `items`, `total` and result `band`, each choice's `option`, and `by` (`engine` or
   `app`) for who supplied it.

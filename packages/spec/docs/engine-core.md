@@ -41,7 +41,7 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
    - Template fields are keyed by name. A name another pack declared
      earlier must have the same `type`, `of` and `values`, else `template-field-mismatch` (data:
      `field`, `packs`: the earlier pack, then the later); the later declaration replaces the
-     earlier. Their `id` and `set` defaults are qualified in the declaring pack.
+     earlier. Their `id`, `set` and `list` defaults are qualified in the declaring pack.
    - Link slots are keyed by qualified ID. A slot whose `pack` is loaded too must declare only
      fields of that pack and its dependencies, each with the same type, else
      `link-field-mismatch` (data: `link`, `field`, `pack`).
@@ -55,7 +55,7 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
 3. **Resolve content.** Every reference in a pack resolves in that pack, then its dependencies,
    nearest first (`unknown-reference` if nothing matches). After loading, every content ID,
    type name, field ID and action ID in the ruleset is qualified. This includes the values of
-   `id` and `set` item fields of a content type or of `field`, and their declared defaults
+   `id`, `set` and `list` item fields of a content type or of `field`, and their declared defaults
    (resolved in the content type's pack). A template's values for its base type's fields and
    for template fields resolve in the template's pack.
    - **`extends`:** start from the parent item (itself resolved first; `circular-extends` on a
@@ -76,7 +76,8 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
    - **Item fields:** each item's own `fields` (an override's too) must be declared by its
      content type and have the declared shape: no list for an `integer`, `decimal`, `boolean` or
      `dice` field (a string there is a formula, checked in step 5), a string for a `string` or
-     `id` field, one of the values for an `enum` (an open enum's merged list), a list for a `set`. After `extends`, every
+     `id` field, one of the values for an `enum` (an open enum's merged list), a list for a `set`
+     or `list` (no member twice for a `unique` list). After `extends`, every
      `required` field must have a value. Otherwise `invalid-item-field` (data: `item`, `field`,
      `reason`: `missing`, `undeclared` or `wrong-type`, `pack`; `path`:
      `/packs/<i>/content/<j>/fields/<field>`). Templates' fields are checked by the build only.
@@ -319,7 +320,7 @@ immunity's `when` and query `where`. What activation decides (`countGrants`,
 evaluated before any field is computed, so they may read only `self`, `item`, `character` (its
 `applied` list included, which is raw), `entry` in an immunity's query, the character functions,
 the owner's saved picks (`picksOf(choice)`, `grantedPicksOf`) and saved picks
-(`countPicks`), and the raw values of **input fields** (saved value, or default). Effects
+(`countPicks`), content by ID (`itemField`, `itemTags`), and the raw values of **input fields** (saved value, or default). Effects
 are not applied to those values. A condition that reads a derived field is rejected by the build
 (`type-mismatch`). **PROVISIONAL.** This keeps activation free of loops: a class grants features
 by `self.level`, never by a computed field.
