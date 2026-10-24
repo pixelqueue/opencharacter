@@ -708,7 +708,7 @@ describe('Mörk Borg tests', () => {
 });
 
 describe('error text by its data', () => {
-  const { text } = load('mork-borg/core');
+  const { ruleset, text } = load('mork-borg/core');
   const target = 'mork-borg-core:hp.max';
 
   it('words a range with one bound or both', () => {
@@ -721,6 +721,26 @@ describe('error text by its data', () => {
     expect(text.error({ code: 'out-of-range', data: { target, min: 1, max: 5 } })).toBe(
       '"Maximum HP" must be between 1 and 5.',
     );
+    expect(text.error({ code: 'out-of-range', data: { target, min: 1, max: 1 } })).toBe(
+      '"Maximum HP" must be exactly 1.',
+    );
+  });
+
+  it("names an enum's values, joined as alternatives", () => {
+    const mork = parse(
+      readFileSync(join(root, 'examples', 'characters', 'mork-borg-agnes.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const result = startAction(ruleset, mork, {
+      action: { id: 'mork-borg-core:rest' },
+      params: { length: 'nap' },
+    });
+    if (!('errors' in result) || 'status' in result) throw new Error(JSON.stringify(result));
+    const [error] = result.errors;
+    expect(error).toMatchObject({ code: 'wrong-type', data: { values: ['short', 'long'] } });
+    expect(text.error(error!)).toBe('"Rest length" must be Short rest or Night\'s rest.');
+    expect(
+      text.error({ code: 'wrong-type', data: { target: 'kind', values: ['a', 'b', 'c'] } }),
+    ).toBe('"kind" must be a, b, or c.');
   });
 
   it("names an item's action parameter by its label", () => {

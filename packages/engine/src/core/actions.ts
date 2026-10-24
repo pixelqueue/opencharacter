@@ -66,7 +66,7 @@ import {
 } from './sheet.ts';
 import { literalTree, type RollSummary, rollSummary } from './roll-summary.ts';
 import { samePath } from './tree.ts';
-import { itemView, outputData, stateDecls, typedValue } from './views.ts';
+import { expectedData, itemView, outputData, stateDecls, typedValue } from './views.ts';
 
 /** Rolls `count` dice: faces 1..sides, 0..sides-1 when `zero`, or -1..1 for Fate dice. */
 export type DiceFunction = (count: number, sides: number | 'F', zero: boolean) => number[];
@@ -893,7 +893,7 @@ function params(
     }
     const typed = typedValue(decl, value);
     if (typeof typed === 'string')
-      throw new ActionError('wrong-type', { target: name, expected: typed, ...at });
+      throw new ActionError('wrong-type', { target: name, ...expectedData(decl, typed), ...at });
     if (decl.type === 'id' && decl.of !== undefined && decl.where !== undefined) {
       const qid = resolveContent(ctx.ruleset, value as string, frame.pack);
       const item = qid ? ctx.ruleset.content[qid] : undefined;
@@ -1387,7 +1387,7 @@ function stepSituational(ctx: Ctx, frame: Frame, step: Step): Record<string, unk
         : def.type === 'integer'
           ? Number.isInteger(value)
           : typeof value === 'string' && (def.values ?? []).includes(value));
-    if (!ok) throw new ActionError('wrong-type', { target: qid, expected: def?.type });
+    if (!ok) throw new ActionError('wrong-type', { target: qid, ...expectedData(def, def?.type) });
     out[qid] = value;
   }
   return out;
@@ -1537,7 +1537,11 @@ function handoff(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     }
     const typed = decl.type === 'id' && decl.of === 'field' ? undefined : typedValue(decl, value);
     if (typeof typed === 'string')
-      throw new ActionError('wrong-type', { target: name, expected: typed, action: qid });
+      throw new ActionError('wrong-type', {
+        target: name,
+        ...expectedData(decl, typed),
+        action: qid,
+      });
     // A bound that reads the participant's character is checked when its action starts.
     if (typed)
       paramRange(name, { action: qid }, decl, typed, (bound) =>

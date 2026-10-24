@@ -1,8 +1,9 @@
 # Standard English text for the spec's own error and rules-issue codes, and for the options the
 # spec itself reserves. Keys: errors.<code>, issues.<code>, actions.options.<option>.name,
 # compare.<code> and dice.*. ICU MessageFormat; placeholders come from the
-# error's `data`. A few codes have variants for their data: errors.out-of-range.min and .max,
-# errors.safety-limit-exceeded.<limit>, and issues.prerequisite-not-met.owner.
+# error's `data`. A few codes have variants for their data: errors.out-of-range.min, .max and
+# .exact, errors.wrong-type.values, errors.safety-limit-exceeded.<limit>, and
+# issues.prerequisite-not-met.owner.
 
 # A repeated choice step's `#done` option: stop picking.
 actions.options.done.name: 'Done'
@@ -20,10 +21,14 @@ errors.unknown-id: '"{id}" is not part of this game: the character may use somet
 errors.unknown-field: 'There is no field "{field}" in this ruleset.'
 errors.not-input-field: '"{field}" is calculated and cannot be set directly.'
 errors.wrong-type: '"{target}" needs a value of type {expected}.'
+# `wrong-type` for an enum: `{values}` its values, named and joined ("Scene or Day").
+errors.wrong-type.values: '"{target}" must be {values}.'
 errors.out-of-range: '"{target}" must be between {min} and {max}.'
 # `out-of-range` with only one bound in its data.
 errors.out-of-range.min: '"{target}" must be at least {min}.'
 errors.out-of-range.max: '"{target}" must be at most {max}.'
+# `out-of-range` whose two bounds are equal.
+errors.out-of-range.exact: '"{target}" must be exactly {min}.'
 errors.not-owned: 'The character does not have "{entry}".'
 errors.duplicate-id: '"{id}" is already used on this character.'
 errors.standard-copy: '"{entry}" is standard: every character has it.'

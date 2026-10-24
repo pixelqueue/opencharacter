@@ -26,6 +26,17 @@ import {
 export type FieldLookup = (name: string, pack: string) => f.Value | undefined;
 
 /** A value of a declared type, or a reason it doesn't fit. */
+/** wrong-type's data past `target`: what was expected, and an enum's values. */
+export function expectedData(
+  decl: { type?: string; values?: string[] } | undefined,
+  expected: string | undefined,
+): { expected?: string; values?: string[] } {
+  return {
+    ...(expected !== undefined ? { expected } : {}),
+    ...(decl?.type === 'enum' ? { values: [...(decl.values ?? [])] } : {}),
+  };
+}
+
 export function typedValue(
   decl: { type: string; values?: string[]; unique?: boolean },
   raw: unknown,
@@ -486,7 +497,7 @@ export function copyFieldProblem(
   if (!decl?.perCopy) return { code: 'not-per-copy', data: { field } };
   const value = typedValue(decl, raw);
   if (typeof value === 'string')
-    return { code: 'wrong-type', data: { target: field, expected: value } };
+    return { code: 'wrong-type', data: { target: field, ...expectedData(decl, value) } };
   if (decl.type !== 'id' && decl.type !== 'set' && decl.type !== 'list') return undefined;
   if (!decl.of || decl.of === 'string' || decl.of === 'tag') return undefined;
   const ids = (Array.isArray(raw) ? raw : [raw]).map(String);

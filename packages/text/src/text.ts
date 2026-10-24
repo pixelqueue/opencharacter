@@ -264,7 +264,7 @@ export interface Text {
   issue(issue: RulesIssue | EngineError): string;
   /**
    * The spec's text, by the variant its data picks (`errors.out-of-range.min`,
-   * `errors.safety-limit-exceeded.<limit>`); a code without text, or whose text misses an
+   * `errors.out-of-range.exact`, `errors.wrong-type.values`, `errors.safety-limit-exceeded.<limit>`); a code without text, or whose text misses an
    * argument, as its `data.message` when it has one, else `errors.other`. Neither names the code:
    * log `code` and `data` for developers.
    */
@@ -668,6 +668,23 @@ export function createText(options: TextOptions): Text {
     return out;
   };
 
+  // An enum's values, each by its name (a parameter's, a field's or a situational choice's),
+  // joined as alternatives.
+  const enumNames = (data: Args): Args => {
+    const values = data.values;
+    const target = data.target;
+    if (!Array.isArray(values) || typeof target !== 'string') return {};
+    const owner = data.action;
+    const name = (v: string): string =>
+      (typeof owner === 'string' && !target.includes(':')
+        ? enumValue(paramValueKey(owner, target, v), v)
+        : target.includes(':')
+          ? (enumValue(fieldValueKey(target, v), v) ?? lookup(situationalValueKey(target, v)))
+          : undefined) ?? v;
+    const list = new Intl.ListFormat(locale, { type: 'disjunction' });
+    return { values: list.format(values.map((v) => name(String(v)))) };
+  };
+
   // The spec's text for a code, by the variant its data picks; text that misses an argument is
   // unworded, never the raw template.
   const standard = (
@@ -676,7 +693,7 @@ export function createText(options: TextOptions): Text {
     second: 'errors' | 'issues',
   ): string => {
     const data: Args = error.data ?? {};
-    const args = { ...named(data), ...paramLabel(data) };
+    const args = { ...named(data), ...paramLabel(data), ...enumNames(data) };
     const keys = [
       ...variants(error.code, data).map((v) => `errors.${error.code}.${v}`),
       `${first}.${error.code}`,
@@ -864,8 +881,10 @@ function variants(code: string, data: Args): string[] {
   if (code === 'out-of-range') {
     const min = data.min !== undefined;
     const max = data.max !== undefined;
+    if (min && max) return data.min === data.max ? ['exact'] : [];
     return min === max ? [] : [min ? 'min' : 'max'];
   }
+  if (code === 'wrong-type' && Array.isArray(data.values)) return ['values'];
   if (code === 'safety-limit-exceeded' && typeof data.limit === 'string') return [data.limit];
   return [];
 }

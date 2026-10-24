@@ -67,6 +67,7 @@ import {
   outputData,
   appliedList,
   appliedView,
+  expectedData,
   selfView,
   keptTemplate,
   pickState,
@@ -626,7 +627,11 @@ export class Sheet {
       else {
         const value = typedValue(def, raw);
         if (typeof value === 'string')
-          this.errors.push({ code: 'wrong-type', path, data: { target: qid, expected: value } });
+          this.errors.push({
+            code: 'wrong-type',
+            path,
+            data: { target: qid, ...expectedData(def, value) },
+          });
         else this.inputs.set(qid, value);
       }
     }
