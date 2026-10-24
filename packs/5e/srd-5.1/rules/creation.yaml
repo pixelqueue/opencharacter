@@ -14,12 +14,14 @@ actions:
     available: character.creating
     steps:
       - id: race
+        tags: [creation.race]
         kind: choice
         options: { content: { type: race } }
         changes:
           - type: addItem
             entry: { id: race, item: picked.id }
       - id: subrace
+        tags: [creation.subrace]
         kind: choice
         options: { content: { type: subrace, where: item.race == steps.race.picked } }
         changes:
@@ -27,18 +29,21 @@ actions:
             path: { entry: { formula: 'steps.race.added[0]' }, choice: [subrace] }
             option: picked.id
       - id: class
+        tags: [creation.class]
         kind: choice
         options: { content: { type: class } }
         changes:
           - type: addItem
             entry: { id: class, item: picked.id, state: { level: 1, startingClass: true } }
       - id: background
+        tags: [creation.background]
         kind: choice
         options: { content: { type: background } }
         changes:
           - type: addItem
             entry: { id: background, item: picked.id }
       - id: method
+        tags: [creation.method]
         kind: choice
         options: [{ id: roll }, { id: point-buy }, { id: standard-array }]
         recommend: "'standard-array'"
@@ -100,6 +105,7 @@ actions:
         changes:
           - { type: set, field: hp.base, value: maxOf(steps.class.item.hitDie) }
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:
@@ -119,6 +125,7 @@ actions:
       - { id: roll5, kind: roll, tags: [creation], parts: [{ dice: 4d6dl1 }] }
       - { id: roll6, kind: roll, tags: [creation], parts: [{ dice: 4d6dl1 }] }
       - id: race
+        tags: [creation.race]
         kind: choice
         options: { content: { type: race } }
         random: true
@@ -126,6 +133,7 @@ actions:
           - type: addItem
             entry: { id: race, item: picked.id }
       - id: subrace
+        tags: [creation.subrace]
         kind: choice
         options: { content: { type: subrace, where: item.race == steps.race.picked } }
         random: true
@@ -134,6 +142,7 @@ actions:
             path: { entry: { formula: 'steps.race.added[0]' }, choice: [subrace] }
             option: picked.id
       - id: class
+        tags: [creation.class]
         kind: choice
         options: { content: { type: class } }
         random: true
@@ -141,6 +150,7 @@ actions:
           - type: addItem
             entry: { id: class, item: picked.id, state: { level: 1, startingClass: true } }
       - id: background
+        tags: [creation.background]
         kind: choice
         options: { content: { type: background } }
         random: true
@@ -187,6 +197,7 @@ actions:
         changes:
           - { type: set, field: hp.base, value: maxOf(steps.class.item.hitDie) }
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:
