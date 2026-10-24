@@ -50,7 +50,7 @@ describe('the choice list', { timeout: 20_000 }, () => {
     const marine: CharacterDoc = {
       specVersion: '0.1.0',
       id: 'test',
-      packs: [{ id: 'mothership-1e', version: '0.1.1' }],
+      packs: [{ id: 'mothership-1e', version: '0.2.0' }],
       features: [{ id: 'class', item: 'mothership-1e:classes.marine' }],
     };
     const keys = (c: CharacterDoc) =>

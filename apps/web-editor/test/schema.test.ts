@@ -11,7 +11,7 @@ import {
 } from '../src/schema.ts';
 
 const reg = new Registry(Object.fromEntries([...loadSchemas().values()].map((s) => [s.$id, s])));
-const BASE = 'https://opencharacterformat.org/schemas/0.2/';
+const BASE = 'https://opencharacterformat.org/schemas/0.3/';
 const effect = reg.doc(`${BASE}effect.schema.json`);
 
 describe('schema forms', () => {

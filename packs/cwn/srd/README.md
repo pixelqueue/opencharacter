@@ -34,9 +34,9 @@ const { ruleset } = loaded;
 // A random character: attributes rolled in order, the background's skills rolled, every other
 // pick drawn.
 const blank = {
-  specVersion: '0.2.0',
+  specVersion: '0.3.0',
   id: 'new-operator',
-  packs: [{ id: 'cwn-srd', version: '0.1.0' }],
+  packs: [{ id: 'cwn-srd', version: '0.2.0' }],
   creating: true,
 };
 const run = startAction(ruleset, blank, {

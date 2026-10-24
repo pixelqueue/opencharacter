@@ -1,5 +1,147 @@
 # @opencharacter/packs
 
+## 0.5.0
+
+### Minor Changes
+
+- 033d16d: Carry the breaking release of fate-core.
+- f44f66c: Carry the breaking releases of fitd-crew, fitd-scoundrel, mork-borg-core and mothership-1e.
+
+### Patch Changes
+
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [153b36f]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [153b36f]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [153b36f]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [f44f66c]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [153b36f]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [153b36f]
+- Updated dependencies [033d16d]
+  - @opencharacter/5e-srd-5.1@0.3.0
+  - @opencharacter/5e-srd-5.2@0.3.0
+  - @opencharacter/awn-core@0.2.0
+  - @opencharacter/swn-revised@0.2.0
+  - @opencharacter/cwn-srd@0.2.0
+  - @opencharacter/fate-core@0.2.0
+  - @opencharacter/fitd-scoundrel@0.3.0
+  - @opencharacter/godbound-core@0.2.0
+  - @opencharacter/mork-borg-core@0.2.0
+  - @opencharacter/mothership-1e@0.2.0
+  - @opencharacter/orc-2e@0.3.0
+  - @opencharacter/orc-sf-2e@0.3.0
+  - @opencharacter/wwn-srd@0.2.0
+  - @opencharacter/fitd-crew@0.3.0
+
 ## 0.4.0
 
 ### Minor Changes

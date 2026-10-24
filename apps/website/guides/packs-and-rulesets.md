@@ -212,7 +212,7 @@ A character file pins the **exact versions** of the packs it uses, in load order
 
 ```yaml
 packs:
-  - { id: 5e-srd-5.1, version: 0.2.0 }
+  - { id: 5e-srd-5.1, version: 0.3.0 }
   - { id: my-table-homebrew, version: 2.3.0 }
 ```
 

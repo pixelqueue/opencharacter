@@ -23,7 +23,7 @@ describe('Mothership', () => {
   const marine: CharacterDoc = {
     specVersion: '0.1.0',
     id: 'marine',
-    packs: [{ id: 'mothership-1e', version: '0.1.1' }],
+    packs: [{ id: 'mothership-1e', version: '0.2.0' }],
     values: { 'mothership-1e:stats.strength': 34 },
     features: [
       {
@@ -71,7 +71,7 @@ describe('Mothership', () => {
     const blank: CharacterDoc = {
       specVersion: '0.1.0',
       id: 'new',
-      packs: [{ id: 'mothership-1e', version: '0.1.1' }],
+      packs: [{ id: 'mothership-1e', version: '0.2.0' }],
       creating: true,
     };
     const need = paused(
@@ -205,7 +205,7 @@ describe('5E', () => {
     const wizard: CharacterDoc = {
       specVersion: '0.1.0',
       id: 'wizard',
-      packs: [{ id: '5e-srd-5.1', version: '0.2.0' }],
+      packs: [{ id: '5e-srd-5.1', version: '0.3.0' }],
       inventory: [],
       features: [{ id: 'class', item: '5e-srd-5.1:classes.wizard', state: { level: 2 } }],
     };
@@ -222,7 +222,7 @@ describe('5E', () => {
     const twoRaces: CharacterDoc = {
       specVersion: '0.1.0',
       id: 'two-races',
-      packs: [{ id: '5e-srd-5.1', version: '0.2.0' }],
+      packs: [{ id: '5e-srd-5.1', version: '0.3.0' }],
       features: [
         { id: 'race1', item: '5e-srd-5.1:races.elf' },
         { id: 'race2', item: '5e-srd-5.1:races.dwarf' },
@@ -284,7 +284,7 @@ describe('5E', () => {
     const blank: CharacterDoc = {
       specVersion: '0.1.0',
       id: 'new',
-      packs: [{ id: '5e-srd-5.1', version: '0.2.0' }],
+      packs: [{ id: '5e-srd-5.1', version: '0.3.0' }],
       creating: true,
     };
     let result = paused(
@@ -339,7 +339,7 @@ describe('Forged in the Dark', () => {
     const scoundrel: CharacterDoc = {
       specVersion: '0.1.0',
       id: 'new',
-      packs: [{ id: 'fitd-scoundrel', version: '0.2.0' }],
+      packs: [{ id: 'fitd-scoundrel', version: '0.3.0' }],
       creating: true,
     };
     const need = paused(
@@ -365,7 +365,7 @@ describe('Forged in the Dark', () => {
     const cutter: CharacterDoc = {
       specVersion: '0.1.0',
       id: 'kit',
-      packs: [{ id: 'fitd-scoundrel', version: '0.2.0' }],
+      packs: [{ id: 'fitd-scoundrel', version: '0.3.0' }],
       values: {
         'fitd-scoundrel:stress.current': 3,
         'fitd-scoundrel:ratings.skirmish': 2,
@@ -497,7 +497,7 @@ describe('orc-2e', () => {
     const sheet = computeSheet(ruleset, {
       specVersion: '0.1.0',
       id: 'urchin',
-      packs: [{ id: 'orc-2e', version: '0.2.0' }],
+      packs: [{ id: 'orc-2e', version: '0.3.0' }],
       values: { 'orc-2e:skills.lore.custom1.subject': 'Absalom' },
       features: [{ id: 'background', item: 'orc-2e:backgrounds.street-urchin' }],
     });
@@ -670,7 +670,7 @@ describe('codes never reach players bare', () => {
     const sheet = computeSheet(ruleset, {
       specVersion: '0.1.0',
       id: 'old',
-      packs: [{ id: 'fitd-scoundrel', version: '0.2.0' }],
+      packs: [{ id: 'fitd-scoundrel', version: '0.3.0' }],
       features: [{ id: 'gone', item: 'fitd-scoundrel:removed.thing' }],
     });
     const error = sheet.errors.find((e) => e.code === 'unknown-id');

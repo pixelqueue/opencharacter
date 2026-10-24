@@ -31,9 +31,9 @@ const { ruleset } = loaded;
 
 // A new character, made by the random creation start: every pick is drawn, so it finishes.
 const blank = {
-  specVersion: '0.2.0',
+  specVersion: '0.3.0',
   id: 'new-character',
-  packs: [{ id: 'orc-sf-2e', version: '0.2.0' }],
+  packs: [{ id: 'orc-sf-2e', version: '0.3.0' }],
   creating: true,
 };
 const created = startAction(ruleset, blank, {

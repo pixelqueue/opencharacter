@@ -32,9 +32,9 @@ const { ruleset } = loaded;
 
 // A random character from the quick creation tables: every table is rolled.
 const blank = {
-  specVersion: '0.2.0',
+  specVersion: '0.3.0',
   id: 'basil',
-  packs: [{ id: 'swn-revised', version: '0.1.0' }],
+  packs: [{ id: 'swn-revised', version: '0.2.0' }],
   creating: true,
 };
 const run = startAction(ruleset, blank, {

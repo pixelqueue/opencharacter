@@ -44,7 +44,7 @@ const character = (extra: Record<string, unknown> = {}): CharacterDoc =>
   ({
     specVersion: '0.1.0',
     id: 'okafor',
-    packs: [{ id: 'mothership-1e', version: '0.1.1' }],
+    packs: [{ id: 'mothership-1e', version: '0.2.0' }],
     values: { 'mothership-1e:stats.combat': 41 },
     features: [
       {
