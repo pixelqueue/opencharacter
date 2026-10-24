@@ -650,7 +650,9 @@ actions:
   every change it (and the actions it runs) proposes is resolved as usual and held under the
   step, in order (with `each`, every run's). The nested action's own steps see its changes, as
   always; the parent's later steps, a `sheet: proposed` one included, don't until they are
-  released. A later `changes` step's **`release`** proposes held changes:
+  released. A roll effect's `then` changes aren't held: they record a roll the used action made,
+  whether or not its other changes are ever released, so Sapped still ends.
+  A later `changes` step's **`release`** proposes held changes:
 
   | Property  | Meaning                                                                                                                       |
   | --------- | ----------------------------------------------------------------------------------------------------------------------------- |

@@ -522,6 +522,8 @@ interface Ctx {
   rolls: Map<string, { result: Record<string, unknown>; items: BuiltItem[] }>;
   /** The effects whose `then` the run has proposed: each proposes it at most once. */
   ended: Set<string>;
+  /** Changes a roll effect's `then` proposed: a record of rolls made, which `hold` leaves alone. */
+  fromThen: WeakSet<Proposed>;
 }
 
 interface Frame {
@@ -577,6 +579,7 @@ function run(
     stepsRun: 0,
     rolls: new Map(),
     ended: new Set(),
+    fromThen: new WeakSet(),
   };
   // An ephemeral offer is cleared by the changes of the run that takes it up.
   const takenUp = state.action.followUp;
@@ -2222,6 +2225,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     ]);
     if (ctx.ended.has(key)) continue;
     ctx.ended.add(key);
+    const first = ctx.proposed.length;
     if (rule.to !== 'self')
       proposeChanges(
         ctx,
@@ -2239,6 +2243,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
         );
         if (change) ctx.proposed.push({ to: 'self', step: path, change });
       }
+    for (const p of ctx.proposed.slice(first)) ctx.fromThen.add(p);
   }
 }
 
@@ -3399,7 +3404,9 @@ function addedChanges(ctx: Ctx, frame: Frame, step: Step, path: string): void {
  * until they are released.
  */
 function hold(ctx: Ctx, frame: Frame, id: string, first: number): void {
-  const taken = ctx.proposed.splice(first);
+  const after = ctx.proposed.splice(first);
+  const taken = after.filter((p) => !ctx.fromThen.has(p));
+  ctx.proposed.push(...after.filter((p) => ctx.fromThen.has(p)));
   // The proposed sheet is cached by the count of changes; taking some back invalidates it.
   delete ctx.cached;
   const list = frame.held.get(id);

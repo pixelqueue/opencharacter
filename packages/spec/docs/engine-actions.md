@@ -491,7 +491,8 @@ roll.
   unless an earlier roll step of the run (a used action's included) already proposed that
   effect's; with `once: roll`, unless this roll step's run did. Changes for `to: self` are
   resolved as below; for another character, as a `changes` step's for that `to`, in the
-  effect's context ([effects.md](effects.md#targets), "Roll effects that end themselves").
+  effect's context. They aren't held by a `hold` action step: they record a roll that was made
+  ([effects.md](effects.md#targets), "Roll effects that end themselves").
 
   **Releasing held changes**. A step with `release` first proposes changes `hold`
   action steps hold, then its own `changes`, if any. For each step in `release.steps`, in order,

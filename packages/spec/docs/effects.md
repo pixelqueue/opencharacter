@@ -276,7 +276,8 @@ situational choice's or a choice's (not `then-without-copy`):
 ```
 
 The rule form is for roll effects; an incoming-change effect's `then` is a list (a schema
-error otherwise).
+error otherwise). A roll effect's `then` changes aren't held by a `hold` action step
+([dice-and-actions.md](dice-and-actions.md#actions)): they record a roll that was made.
 
 An effect that ends on something other than a roll it was in play on (5E's Sanctuary ends when
 the warded creature attacks) is out of reach of `then`. An effect that lasts for a number of
