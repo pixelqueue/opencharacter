@@ -21,7 +21,7 @@ actions:
   # spells. Saves and attack bonus follow the level.
   - id: level-up
     tags: [advancement]
-    available: '!character.creating && level < 10'
+    available: '!character.creating && level < 10 && xp.levelUp'
     params:
       random: { type: boolean, default: false }
     results: [advanced]

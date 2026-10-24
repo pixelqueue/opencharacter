@@ -3,7 +3,7 @@ actions:
   # points, and skill points to spend.
   - id: level-up
     tags: [advancement]
-    available: '!character.creating && level < 10'
+    available: '!character.creating && level < 10 && xp.current >= xp.next'
     params:
       random: { type: boolean, default: false }
     results: [raised]
@@ -59,7 +59,8 @@ actions:
   # 3rd level), level-3 4 (from 6th) and level-4 5 (from 9th). Banked credit is spent first.
   - id: improve-skill
     tags: [advancement]
-    available: '!character.creating'
+    available: >-
+      !character.creating && (skillPoints.unspent > 0 || maxList(keysOf('skill'), fieldOf('skills.{skill}.credit', x)) > 0)
     params:
       skill:
         type: enum
@@ -130,7 +131,10 @@ actions:
   # all. Not for characters who took the Underdog Rule.
   - id: improve-attribute
     tags: [advancement]
-    available: '!character.creating && !underdog && advancement.attributeBoosts < 5'
+    available: >-
+      !character.creating && !underdog && advancement.attributeBoosts < 5
+        && skillPoints.unspent > advancement.attributeBoosts
+        && level >= [1, 1, 3, 6, 9][advancement.attributeBoosts]
     params:
       attribute: { type: enum, values: [str, dex, con, int, wis, cha] }
     results: [improved, refused]
