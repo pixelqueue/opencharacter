@@ -70,6 +70,8 @@ export interface TextOptions {
   enumOrigins?: Readonly<Record<string, Readonly<Record<string, string>>>>;
   /** `ruleset.optionOrigins`: the pack whose text names an option another pack's choice gained. */
   optionOrigins?: Readonly<Record<string, Readonly<Record<string, string>>>>;
+  /** `ruleset.familyOrigins`: the pack whose text names a value another pack's family gained. */
+  familyOrigins?: Readonly<Record<string, Readonly<Record<string, string>>>>;
 }
 
 export interface HeadlineItem {
@@ -329,6 +331,15 @@ export function createText(options: TextOptions): Text {
     const origin = at ? options.enumOrigins?.[`${ref.pack}:${at}`]?.[value] : undefined;
     return origin === undefined ? undefined : message(origin, ref.key);
   };
+  // A value another pack added to a family is named by that pack, under the action's own key.
+  const familyValue = (key: string, value: string): string | undefined => {
+    for (const origins of Object.values(options.familyOrigins ?? {})) {
+      const origin = origins[value];
+      const found = origin === undefined ? undefined : message(origin, key);
+      if (found !== undefined) return found;
+    }
+    return undefined;
+  };
   // `<item>#<option>` a content type adds: named by the type, found through `options.content`.
   const lookupTypeOption = (option: string) => {
     const hash = option.lastIndexOf('#');
@@ -384,8 +395,9 @@ export function createText(options: TextOptions): Text {
       const own =
         v === undefined || v === null
           ? undefined
-          : ((of === 'state' ? lookup(stateValueKey(qid, name, String(v))) : undefined) ??
-            enumValue(valueKey(typeId, name, String(v), of), String(v)));
+          : ((of === 'state'
+              ? enumValue(stateValueKey(qid, name, String(v)), String(v))
+              : undefined) ?? enumValue(valueKey(typeId, name, String(v), of), String(v)));
       if (own !== undefined || typeof v !== 'string') return own ?? v;
       return setMember(v, pack);
     };
@@ -655,9 +667,9 @@ export function createText(options: TextOptions): Text {
     fieldValue: (id, v) => enumValue(fieldValueKey(id, v), v) ?? v,
     param: (actionId, param) => lookup(paramKey(actionId, param)) ?? param,
     paramDescription: (actionId, param) => lookup(paramKey(actionId, param, 'description')),
-    paramValue: (actionId, param, v) => lookup(paramValueKey(actionId, param, v)) ?? v,
+    paramValue: (actionId, param, v) => enumValue(paramValueKey(actionId, param, v), v) ?? v,
     stateValue: (item, key, v, typeId) =>
-      lookup(stateValueKey(item, key, v)) ??
+      enumValue(stateValueKey(item, key, v), v) ??
       (typeId ? enumValue(valueKey(typeId, key, v, 'state'), v) : undefined) ??
       v,
     situational: (id) => lookup(situationalKey(id)) ?? id,
@@ -697,12 +709,15 @@ export function createText(options: TextOptions): Text {
           setMember(option, origin ?? split(owner)[0])
         );
       }
-      if (context.action)
+      if (context.action) {
+        const written = writtenOptionKey(context.action, option);
         return (
           (context.content ? lookup(contentOptionKey(context.content, option)) : undefined) ??
-          lookup(writtenOptionKey(context.action, option)) ??
+          lookup(written) ??
+          familyValue(written.key, option) ??
           setMember(option, split(context.action)[0])
         );
+      }
       return option;
     },
     band: (bandSet, band) => lookup(bandKey(bandSet, band)) ?? band,

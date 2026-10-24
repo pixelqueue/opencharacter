@@ -32,6 +32,7 @@ import {
 } from '../../packages/engine/src/core/pack-types.ts';
 import {
   appliesQueries,
+  enumAddress,
   innerSteps,
   stepArms,
   thenRule,
@@ -54,6 +55,7 @@ import type {
   Choice,
   ChoiceAddition,
   CreationStart,
+  DeclaredField,
   ChoiceTree,
   ContentItem,
   Destination,
@@ -245,6 +247,15 @@ export class PackChecker {
       this.enumExtension(target, values, file);
     for (const [target, { def: choices, at: file }] of rules.extendChoices)
       this.choiceExtension(target, choices, file);
+    // A value added to a family, offered by a dependency's values step, is named under its key.
+    for (const [name, values] of rules.families) {
+      if (!name.includes(':')) continue;
+      for (const pid of this.scope.slice(1))
+        for (const { def } of this.ruleset.rules.get(pid)?.actions.values() ?? [])
+          if (hasValues(def.steps))
+            for (const value of values)
+              this.optionalKeys.add(`actions.${def.id}.options.${value}.name`);
+    }
 
     this.calculationOrder();
 
@@ -258,6 +269,7 @@ export class PackChecker {
             file,
             `link ${name}: "${id}" is also the start of another declared field`,
           );
+      this.openViewFields(def.fields, def.pack, file, `link ${name}`);
       if (def.pack === undefined) continue;
       if (!this.ruleset.packs.has(def.pack)) {
         this.report.error(file, `link ${name}: unknown pack "${def.pack}"`);
@@ -903,7 +915,7 @@ export class PackChecker {
     for (const query of appliesQueries(item)) this.query(query, file, `${owner} appliesTo`);
     for (const decl of Object.values(item.params ?? {})) this.memberKind(decl, file, owner);
     for (const [key, decl] of Object.entries(item.state ?? {})) {
-      this.memberKind(decl, file, owner);
+      this.memberKind(decl, file, owner, { canOpen: true });
       if (decl.perCopy !== undefined)
         this.report.error(file, `${owner}: state ${key}: perCopy is for item fields`);
     }
@@ -1082,18 +1094,41 @@ export class PackChecker {
     }
     // The enum as this pack's dependencies leave it: values one of them adds need no name here.
     const scope = this.scope.slice(1);
-    const field = /^fields\.(.+)$/.exec(address);
-    const typed = /^types\.([^.]+)\.(fields|state)\.([^.]+)$/.exec(address);
+    const at = enumAddress(address);
     let decl: ValueDecl | undefined;
     let required = true;
-    if (field) {
-      const found = this.ruleset.field(`${owner}:${field[1]}`, scope);
-      decl = found?.def;
-      required = this.ruleset.rules.get(owner)?.fieldHints.get(field[1] ?? '')?.def.hidden !== true;
-    } else if (typed) {
-      const type = this.ruleset.contentType(`${owner}:${typed[1]}`, scope);
-      decl = type?.def[typed[2] as 'fields' | 'state']?.[typed[3] ?? ''];
-      required = typed[2] === 'state';
+    if (at?.kind === 'field') {
+      decl = this.ruleset.field(`${owner}:${at.field}`, scope)?.def;
+      required = this.ruleset.rules.get(owner)?.fieldHints.get(at.field)?.def.hidden !== true;
+    } else if (at?.kind === 'type') {
+      decl = this.ruleset.contentType(`${owner}:${at.type}`, scope)?.def[at.of]?.[at.key];
+      required = at.of === 'state';
+    } else if (at?.kind === 'action') {
+      decl = this.ruleset.action(`${owner}:${at.action}`, scope)?.def.params?.[at.param];
+    } else if (at?.kind === 'item-state' || at?.kind === 'item-action') {
+      let entry = this.ruleset.item(`${owner}:${at.item}`, scope);
+      // An item inherits what it doesn't declare from the item it extends.
+      const declares = (item: ContentItem) =>
+        at.kind === 'item-state'
+          ? Object.hasOwn(item.state ?? {}, at.key)
+          : (item.actions ?? []).some((a) => !('use' in a) && a.id === at.action);
+      const seen = new Set<string>();
+      while (entry && !declares(entry.item) && entry.item.extends && !seen.has(entry.qid)) {
+        seen.add(entry.qid);
+        entry = this.ruleset.item(entry.item.extends, this.ruleset.scope(entry.pack));
+      }
+      if (at.kind === 'item-state') {
+        decl = entry?.item.state?.[at.key];
+        // An item's value falls back to its type's name when the type declares the key too.
+        const type = entry ? this.ruleset.typeOf(entry) : undefined;
+        const typeDef = type
+          ? this.ruleset.contentType(type, this.ruleset.scope(owner))
+          : undefined;
+        required = !Object.hasOwn(typeDef?.def.state ?? {}, at.key);
+      } else {
+        const def = entry?.item.actions?.find((a) => !('use' in a) && a.id === at.action);
+        decl = def && !('use' in def) ? def.params?.[at.param] : undefined;
+      }
     }
     if (decl?.type !== 'enum') {
       this.report.error(file, `${where}: invalid-extension: not an enum of ${owner}`);
@@ -1246,7 +1281,7 @@ export class PackChecker {
     if (decl.open !== undefined && (!canOpen || decl.type !== 'enum'))
       this.report.error(
         file,
-        `${where}: open is for the enums of rules fields and of content types' item fields and state keys`,
+        `${where}: open is for the enums of rules fields, content types' item fields and state keys, items' own state keys and the parameters of rules and items' actions`,
       );
     const { under = [], tags = [], except = [] } = decl.members ?? {};
     for (const tag of [...under, ...tags, ...except]) this.tag(tag, file, `${where} members`);
@@ -1810,6 +1845,8 @@ export class PackChecker {
         this.report.error(file, `${where}: unknown pack "${def.pack}"`);
         continue;
       }
+      if (def.fields && typeof def.fields === 'object')
+        this.openViewFields(def.fields, def.pack, file, where);
       const scope = def.pack !== undefined ? this.ruleset.scope(def.pack) : this.scope;
       const pack = def.pack ?? this.packId;
       for (const [field, decl] of Object.entries(def.fields ?? {})) {
@@ -1821,6 +1858,25 @@ export class PackChecker {
             `${where}: "${field}" is ${found.def.type} in ${pack}, declared ${decl.type}`,
           );
       }
+    }
+  }
+
+  /** A view field marked `open` follows the open enum field of its ID, in `pack` or this scope. */
+  private openViewFields(
+    fields: Record<string, DeclaredField>,
+    pack: string | undefined,
+    file: string,
+    where: string,
+  ): void {
+    for (const [id, decl] of Object.entries(fields)) {
+      if (decl.open === undefined) continue;
+      if (pack !== undefined && !this.ruleset.packs.has(pack)) continue;
+      const found = this.ruleset.field(
+        id,
+        pack === undefined ? this.scope : this.ruleset.scope(pack),
+      );
+      if (decl.type !== 'enum' || found?.def.type !== 'enum' || found.def.open !== true)
+        this.report.error(file, `${where}: "${id}": open follows an open enum field of that ID`);
     }
   }
 
@@ -1845,7 +1901,8 @@ export class PackChecker {
     this.optionalKeys.add(`${key}.description`);
     this.tagList(action.tags, file, key);
     for (const [name, decl] of Object.entries(action.params ?? {})) {
-      this.memberKind(decl, file, key);
+      // A content type's action is named per item, so its parameters stay closed.
+      this.memberKind(decl, file, key, { canOpen: !key.startsWith('types.') });
       this.requiredKeys.add(decl.label ?? `${key}.params.${name}.name`);
       this.optionalKeys.add(`${key}.params.${name}.description`);
       if (decl.type === 'enum')

@@ -182,8 +182,21 @@ export class PackSet<L> {
     return out;
   }
 
+  /** With the values the scope's packs add to its open parameters. */
   action(ref: string, scope: string[]) {
-    return this.find(ref, scope, (r) => r.actions);
+    const hit = this.find(ref, scope, (r) => r.actions);
+    if (!hit) return hit;
+    let def = hit.def;
+    for (const [name, decl] of Object.entries(def.params ?? {})) {
+      if (decl.type !== 'enum' || decl.open !== true) continue;
+      const values = this.enumValues(
+        decl.values,
+        `${hit.pack}:actions.${def.id}.params.${name}`,
+        scope,
+      );
+      if (values) def = { ...def, params: { ...def.params, [name]: { ...decl, values } } };
+    }
+    return def === hit.def ? hit : { ...hit, def };
   }
 
   bands(ref: string, scope: string[]) {

@@ -26,7 +26,15 @@ import type {
   StepChanges,
   ValueDecl,
 } from './pack-types.ts';
-import { appliesQueries, fitsItemField, keptQuery, thenToSelf } from './pack-types.ts';
+import {
+  appliesQueries,
+  type DeclaredField,
+  enumAddress,
+  fitsItemField,
+  keptQuery,
+  thenToSelf,
+  type EnumAddress,
+} from './pack-types.ts';
 import { bandSet, stepArms } from './pack-types.ts';
 import type { PackRelease } from './release.ts';
 import { expandFamilies } from './families.ts';
@@ -1053,6 +1061,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       else for (const c of roots) ruleset.rules.choices[`${owner}:${c.id}`] = c as never;
     }
   }
+  extendEnums(ruleset, byId.values(), scopeOf, err, resolved);
+  followOpenViews(ruleset, resolved, (id) => byId.has(id));
   // Item fields against their content type: the item's own values, then the required ones on the
   // merged item.
   [...byId.values()].forEach((pack, i) => {
@@ -1451,45 +1461,34 @@ function matchesQuery(
 export type { FormulaError };
 
 /**
- * A dependent pack's values for an open enum, after the enum's own, in load order, each once:
- * `<pack>:fields.<field>`, `<pack>:types.<type>.fields.<field>` or `<pack>:types.<type>.state.<key>`.
+ * A dependent pack's values for an open enum, after the enum's own, in load order, each once.
+ * Without `items`, the rules' enums (fields, content types, rules actions' parameters); with the
+ * resolved content, items' own state keys and their inline actions' parameters.
  */
 function extendEnums(
   ruleset: Ruleset,
   packs: Iterable<PackRelease>,
   scopeOf: (id: string) => string[],
   err: (code: string, data: Record<string, unknown>) => void,
+  items?: Map<string, LoadedItem>,
 ): void {
   for (const pack of packs) {
     const pid = pack.manifest.id;
     for (const [target, values] of Object.entries(pack.rules.extendEnums ?? {})) {
-      const bad = (message: string) => err('invalid-extension', { pack: pid, target, message });
       const colon = target.indexOf(':');
       const owner = target.slice(0, colon);
       const address = target.slice(colon + 1);
+      const parsed = enumAddress(address);
+      const onItem = parsed?.kind === 'item-state' || parsed?.kind === 'item-action';
+      if (onItem !== (items !== undefined)) continue;
+      const bad = (message: string) => err('invalid-extension', { pack: pid, target, message });
       if (owner === pid || !scopeOf(pid).includes(owner)) {
         bad(`${owner} is not a dependency of ${pid}`);
         continue;
       }
-      const field = /^fields\.(.+)$/.exec(address);
-      const typed = /^types\.([^.]+)\.(fields|state)\.([^.]+)$/.exec(address);
-      let decl: ValueDecl | undefined;
-      let replace: ((next: ValueDecl) => void) | undefined;
-      if (field) {
-        const qid = `${owner}:${field[1]}`;
-        decl = ruleset.fields[qid];
-        replace = (next) => (ruleset.fields[qid] = { ...ruleset.fields[qid]!, ...next });
-      } else if (typed) {
-        const [, name, of, key] = typed as unknown as [string, string, 'fields' | 'state', string];
-        const qid = `${owner}:${name}`;
-        const type = ruleset.contentTypes[qid];
-        decl = type?.[of]?.[key];
-        replace = (next) => {
-          const def = ruleset.contentTypes[qid]!;
-          ruleset.contentTypes[qid] = { ...def, [of]: { ...def[of], [key]: next } };
-        };
-      }
-      if (!decl || !replace || decl.type !== 'enum') {
+      const slot = parsed ? enumSlot(ruleset, owner, parsed, items) : undefined;
+      const decl = slot?.decl;
+      if (!slot || !decl || decl.type !== 'enum') {
         bad(`${address} is not an enum of ${owner}`);
         continue;
       }
@@ -1503,7 +1502,116 @@ function extendEnums(
         merged.push(value);
         (ruleset.enumOrigins[target] ??= {})[value] = pid;
       }
-      replace({ ...decl, values: merged });
+      slot.replace({ ...decl, values: merged });
     }
   }
+}
+
+function enumSlot(
+  ruleset: Ruleset,
+  owner: string,
+  at: EnumAddress,
+  items: Map<string, LoadedItem> | undefined,
+): { decl: ValueDecl | undefined; replace: (next: ValueDecl) => void } | undefined {
+  switch (at.kind) {
+    case 'field': {
+      const qid = `${owner}:${at.field}`;
+      return {
+        decl: ruleset.fields[qid],
+        replace: (next) => (ruleset.fields[qid] = { ...ruleset.fields[qid]!, ...next }),
+      };
+    }
+    case 'type': {
+      const qid = `${owner}:${at.type}`;
+      return {
+        decl: ruleset.contentTypes[qid]?.[at.of]?.[at.key],
+        replace: (next) => {
+          const def = ruleset.contentTypes[qid]!;
+          ruleset.contentTypes[qid] = { ...def, [at.of]: { ...def[at.of], [at.key]: next } };
+        },
+      };
+    }
+    case 'action': {
+      const qid = `${owner}:${at.action}`;
+      const def = ruleset.rules.actions[qid];
+      return {
+        decl: def?.params?.[at.param],
+        replace: (next) =>
+          (ruleset.rules.actions[qid] = { ...def!, params: { ...def!.params, [at.param]: next } }),
+      };
+    }
+    case 'item-state': {
+      const qid = `${owner}:${at.item}`;
+      const item = items?.get(qid);
+      return {
+        decl: item?.state?.[at.key],
+        replace: (next) => items?.set(qid, { ...item!, state: { ...item!.state, [at.key]: next } }),
+      };
+    }
+    case 'item-action': {
+      const qid = `${owner}:${at.item}`;
+      const item = items?.get(qid);
+      const i = (item?.actions ?? []).findIndex((a) => !('use' in a) && a.id === at.action);
+      const def = i < 0 ? undefined : (item?.actions?.[i] as ActionDef);
+      return {
+        decl: def?.params?.[at.param],
+        replace: (next) => {
+          const actions = [...item!.actions!];
+          actions[i] = { ...def!, params: { ...def!.params, [at.param]: next } };
+          items?.set(qid, { ...item!, actions });
+        },
+      };
+    }
+  }
+}
+
+/**
+ * Declared view fields marked `open` take the merged values of the open enum field they name:
+ * in the role's or slot's expected pack when it is loaded, else in the declaring pack's scope.
+ */
+function followOpenViews(
+  ruleset: Ruleset,
+  items: Map<string, LoadedItem>,
+  loaded: (pack: string) => boolean,
+): void {
+  const follow = (
+    fields: Record<string, DeclaredField>,
+    expects: string | undefined,
+    home: string,
+  ): Record<string, DeclaredField> => {
+    let out = fields;
+    for (const [id, decl] of Object.entries(fields)) {
+      if (decl.type !== 'enum' || decl.open !== true) continue;
+      const qid =
+        expects === undefined
+          ? resolveField(ruleset, id, home)
+          : loaded(expects)
+            ? `${expects}:${id}`
+            : undefined;
+      const field = qid ? ruleset.fields[qid] : undefined;
+      if (field?.type !== 'enum' || field.open !== true || !field.values) continue;
+      out = { ...out, [id]: { ...decl, values: field.values } };
+    }
+    return out;
+  };
+  const roles = <T extends ActionDef>(def: T, home: string): T => {
+    let participants = def.participants;
+    for (const [name, role] of Object.entries(def.participants ?? {})) {
+      if (!role.fields || typeof role.fields !== 'object') continue;
+      const fields = follow(role.fields, role.pack, home);
+      if (fields !== role.fields) participants = { ...participants, [name]: { ...role, fields } };
+    }
+    return participants === def.participants ? def : { ...def, participants };
+  };
+  const inline = (actions: ActionOrUse[], home: string) =>
+    actions.map((a) => ('use' in a ? a : roles(a, home)));
+  for (const [qid, def] of Object.entries(ruleset.rules.actions))
+    ruleset.rules.actions[qid] = roles(def, def.pack);
+  for (const link of Object.values(ruleset.rules.links))
+    link.fields = follow(link.fields, link.expects, link.pack);
+  for (const [qid, type] of Object.entries(ruleset.contentTypes))
+    if (type.actions)
+      ruleset.contentTypes[qid] = { ...type, actions: inline(type.actions, type.pack) };
+  for (const [qid, item] of items)
+    if (item.actions) items.set(qid, { ...item, actions: inline(item.actions, item.pack) });
 }

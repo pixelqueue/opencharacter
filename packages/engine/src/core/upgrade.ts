@@ -10,6 +10,7 @@ import semver from 'semver';
 import * as f from '../formula/index.ts';
 import type { EngineError } from './load.ts';
 import type {
+  ActionOrUse,
   CharacterDoc,
   Choice,
   ChoiceAddition,
@@ -943,6 +944,9 @@ export function checkRelease(
       for (const [key, decl] of Object.entries(def[of] ?? {}) as [string, ValueDecl][])
         if (decl.open === true && nextTypes[name]?.[of]?.[key]?.open !== true)
           interfaceChanges.push({ kind: 'enum-closed', id: `types.${name}.${of}.${key}` });
+  const nextOpen = openDecls(next);
+  for (const address of openDecls(previous))
+    if (!nextOpen.has(address)) interfaceChanges.push({ kind: 'enum-closed', id: address });
   for (const [target, values] of Object.entries(previous.rules.extendEnums ?? {})) {
     const kept = new Set(next.rules.extendEnums?.[target] ?? []);
     for (const value of values)
@@ -1126,4 +1130,22 @@ function covered(
     default:
       return true;
   }
+}
+
+/** The addresses of a release's open action parameters and items' own open enums. */
+function openDecls(release: PackRelease): Set<string> {
+  const out = new Set<string>();
+  const params = (key: string, def: ActionOrUse) => {
+    if ('use' in def) return;
+    for (const [name, decl] of Object.entries(def.params ?? {}))
+      if (decl.open === true) out.add(`${key}.${def.id}.params.${name}`);
+  };
+  for (const def of release.rules.actions ?? []) params('actions', def);
+  for (const item of release.content) {
+    if (item.id === undefined) continue;
+    for (const [key, decl] of Object.entries(item.state ?? {}) as [string, ValueDecl][])
+      if (decl.open === true) out.add(`${item.id}.state.${key}`);
+    for (const def of item.actions ?? []) params(`${item.id}.actions`, def);
+  }
+  return out;
 }

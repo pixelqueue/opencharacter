@@ -97,7 +97,17 @@
       }
     },
     "enumOrigins": {
-      "description": "Values packs add to other packs' open enums (`extendEnums`): by the enum's address (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`, `<pack>:fields.<field>`), each added value's pack, whose text names it under the key the enum's pack would use.",
+      "description": "Values packs add to other packs' open enums (`extendEnums`): by the enum's address (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`, `<pack>:fields.<field>`, `<pack>:actions.<action>.params.<param>`, `<pack>:<item>.state.<key>`, `<pack>:<item>.actions.<action>.params.<param>`), each added value's pack, whose text names it under the key the enum's pack would use.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "familyOrigins": {
+      "description": "Values packs add to other packs' families (`families: { '<pack>:<family>': [...] }`): by qualified family, each added value's pack, whose fields `fieldOf` reads for it and whose text names it in a values step (`<actionKey>.options.<value>.name`) when the action's pack has no such key.",
       "type": "object",
       "additionalProperties": {
         "type": "object",

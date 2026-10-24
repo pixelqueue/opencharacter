@@ -114,11 +114,60 @@ describe('pnpm validate on an add-on pack', () => {
         "classes.alchemist.name: 'Alchemist'",
         "weapons.tuning-fork.name: 'Tuning fork'",
         "oaths.storm.name: 'Storm oath'",
+        "actions.strike.params.mode.values.feint.name: 'Feint'",
+        "weapons.club.state.grip.values.none.name: 'Bare'",
       ].join('\n'),
     });
     expect(errors.toSorted()).toEqual([
       'missing translation key "classes.warden.choices.knack.options.hexing.name"',
       'missing translation key "rules.options.meditate.name"',
     ]);
+  });
+
+  it("needs names for values added to an action's parameter and an item's own state key", () => {
+    const { errors, warnings } = validateAddon({
+      'i18n/en.yaml': [
+        "pack.name: 'Test add-on'",
+        "fields.hexes.name: 'Hexes'",
+        "fields.hexPower.name: 'Hex power'",
+        "fields.stance.values.floating.name: 'Floating'",
+        "types.weapon.fields.damageType.values.sonic.name: 'Sonic'",
+        "types.weapon.state.edge.values.humming.name: 'Humming'",
+        "classes.alchemist.name: 'Alchemist'",
+        "weapons.tuning-fork.name: 'Tuning fork'",
+        "oaths.storm.name: 'Storm oath'",
+        "classes.warden.choices.knack.options.hexing.name: 'Hexing'",
+        "rules.options.meditate.name: 'Meditate'",
+        "actions.pick-ward.options.storm.name: 'Storm'",
+      ].join('\n'),
+    });
+    expect(errors.toSorted()).toEqual([
+      'missing translation key "actions.strike.params.mode.values.feint.name"',
+      'missing translation key "weapons.club.state.grip.values.none.name"',
+    ]);
+    // A family key's name under the core action's values step belongs to the add-on.
+    expect(warnings.filter((w) => w.includes('pick-ward'))).toEqual([]);
+  });
+
+  it('rejects additions to a closed parameter or item state key, and open view fields of no open enum', () => {
+    const { errors } = validateAddon({
+      'rules/core.yaml': [
+        'extendEnums:',
+        "  'test-core:actions.train.params.mode': [feint]",
+        "  'test-core:oaths.iron.state.grip': [none]",
+        'actions:',
+        '  - id: gauge',
+        '    results: [gauged]',
+        '    participants:',
+        '      target: { fields: { stamina: { type: enum, values: [low], open: true } } }',
+        '    steps:',
+        '      - { id: result, kind: outcome, result: "\'gauged\'" }',
+      ].join('\n'),
+    });
+    expect(
+      errors.filter((m) => m.includes('invalid-extension')),
+      errors.join('\n'),
+    ).toHaveLength(2);
+    expect(errors.some((m) => /"stamina": open follows an open enum field/.test(m))).toBe(true);
   });
 });

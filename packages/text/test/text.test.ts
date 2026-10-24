@@ -839,3 +839,39 @@ describe("an added option's prerequisite", () => {
     ).toBe('Hexing requires: Wits 2 or more');
   });
 });
+
+describe("values an add-on adds to parameters, items' state and families", () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        core: {
+          'actions.strike.params.mode.values.quick.name': 'Quick',
+          'weapons.club.state.grip.values.one.name': 'One-handed',
+          'actions.pick-ward.options.fire.name': 'Fire',
+        },
+        addon: {
+          'actions.strike.params.mode.values.feint.name': 'Feint',
+          'weapons.club.state.grip.values.none.name': 'Bare',
+          'actions.pick-ward.options.storm.name': 'Storm',
+        },
+      },
+    },
+    spec: {},
+    enumOrigins: {
+      'core:actions.strike.params.mode': { feint: 'addon' },
+      'core:weapons.club.state.grip': { none: 'addon' },
+    },
+    familyOrigins: { 'core:ward': { storm: 'addon' } },
+  });
+
+  it("are named by the adding pack's text, under the core's own key", () => {
+    expect(text.paramValue('core:strike', 'mode', 'feint')).toBe('Feint');
+    expect(text.paramValue('core:strike', 'mode', 'quick')).toBe('Quick');
+    expect(text.stateValue('core:weapons.club', 'grip', 'none')).toBe('Bare');
+    expect(text.stateValue('core:weapons.club', 'grip', 'one')).toBe('One-handed');
+    expect(text.option('storm', { action: 'core:pick-ward' })).toBe('Storm');
+    expect(text.option('fire', { action: 'core:pick-ward' })).toBe('Fire');
+    expect(text.option('gale', { action: 'core:pick-ward' })).toBe('gale');
+  });
+});
