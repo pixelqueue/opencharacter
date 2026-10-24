@@ -559,9 +559,11 @@ roll.
     action's pack as a content ID (kept as written when nothing matches). The action is `use`
     if it names a rules action, else `<source>#<use>` (an action the content or its type
     defines). The step reads `computeSheet`'s `actions` for the character on the step's sheet
-    and takes the listing with that action and that `source`, the one with the parent's
-    `entry` first; it runs as `startAction` would run that listing, with its `entry` and
-    `source`. The listings here include actions with `listed: false`, which `computeSheet`
+    and takes the listing with that action and that `source`, or a listing with no `source`
+    whose `entry` is a copy of that content (the content is its own item), the one with the
+    parent's `entry` first, else the first in listing order; it runs as `startAction` would run
+    that listing, with its `entry` and `source`. So a step finds a class added earlier in the
+    run by its ID, as `entry` finds it by the new copy's ID. The listings here include actions with `listed: false`, which `computeSheet`
     leaves out. No such listing is `unknown-action` (data: `action`, `source`), so the used
     action's `available` must hold. Without `source` (or `entry`), the used action runs with the
     parent's entry and source, as before, and its `available` isn't checked: a helper action only

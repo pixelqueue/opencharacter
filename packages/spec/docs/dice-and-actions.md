@@ -586,7 +586,8 @@ change that (with `as: participant`, only `participants`):
 - **`source`**, a formula giving a content ID (qualified against the action's pack), runs `use`
   as `computeSheet` lists it for this character with that `source`: that content is `item` and
   the listing's `entry` is `self`, so a monster's granted bite runs its `monster-attack` as the
-  app would. With `source`, `use` may also be the local ID of an action the content's type or the
+  app would. The content may be a copy's own item too (a class the run added): then that copy
+  is `self`, the parent's entry first if it is one. With `source`, `use` may also be the local ID of an action the content's type or the
   content itself defines. Nothing listed (the action not available included) is `unknown-action`.
 - **`entry`**, a formula giving an instance ID (a choice step's
   `steps.weapon.picked`), runs `use` as `computeSheet` lists it with that `entry`, and with that

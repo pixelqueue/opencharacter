@@ -1357,11 +1357,23 @@ function nestedRun(
     : (source ??
       ctx.sheet.activations.find((a) => a.item && ownsEntry(a) && entryOf(a) === entry)?.item?.qid);
   const action = owner === undefined ? use : `${owner}#${use}`;
+  // `source` alone also names content that is a copy's own item, listed by the copy's entry.
+  const owners =
+    source !== undefined && entry === undefined
+      ? new Set(
+          ctx.sheet.activations
+            .filter((a) => a.item?.qid === source && ownsEntry(a))
+            .map((a) => entryOf(a)),
+        )
+      : undefined;
   const listed = ctx.sheet
     .actions(true)
     .filter(
       (a) =>
-        a.action === action && a.source === source && (entry === undefined || a.entry === entry),
+        a.action === action &&
+        (a.source === source ||
+          (a.source === undefined && a.entry !== undefined && owners?.has(a.entry) === true)) &&
+        (entry === undefined || a.entry === entry),
     );
   const found = listed.find((a) => a.entry === frame.entry) ?? listed[0];
   if (!found)
