@@ -18,7 +18,7 @@ contentTypes:
       damage: { type: dice, required: true }
       ranged: { type: boolean }
       twoHanded: { type: boolean }
-      ammo: { type: enum, values: [arrows, bolts] }
+      ammo: { type: enum, values: [arrows, bolts], open: true }
       blocksPowers: { type: boolean }
       price: { type: integer, min: 0 }
       attackDrModifier: { type: integer }
@@ -115,7 +115,7 @@ contentTypes:
   ammo:
     carried: true
     fields:
-      kind: { type: enum, values: [arrows, bolts], required: true }
+      kind: { type: enum, values: [arrows, bolts], required: true, open: true }
 
 actions:
   - id: attack

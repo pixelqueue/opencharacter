@@ -22,6 +22,7 @@ actions:
       # The random starts draw the class among those offered: a d6 over the six core classes.
       - id: class
         kind: choice
+        tags: [creation.class]
         options:
           content:
             type: class
@@ -34,6 +35,7 @@ actions:
             entry: { item: picked.id }
       - id: best
         kind: choice
+        tags: [creation.abilities]
         when: has(steps.class.item.bestOf)
         options:
           - { id: strength, when: picks == 0 }
@@ -157,6 +159,7 @@ actions:
         parts: [{ dice: 1d10 }]
       - id: save
         kind: changes
+        tags: [creation.scores]
         changes:
           - { type: set, field: abilities.strength, value: flags.strength }
           - { type: set, field: abilities.agility, value: flags.agility }
@@ -211,16 +214,19 @@ actions:
                 @equipment.lard, @equipment.tent][steps.equipment3.total - 1]
       - id: weaponPick
         kind: choice
+        tags: [creation.weapon]
         when: params.choose
         options: { content: { type: weapon, where: '!item.fromFeature' } }
         recommend: flags.weapon
       - id: armorPick
         kind: choice
+        tags: [creation.armor]
         when: "params.choose && flags.armor != ''"
         options: { content: { type: armor } }
         recommend: flags.armor
       - id: hermitScrollPick
         kind: choice
+        tags: [creation.scroll]
         when: params.choose && has(steps.hermitScroll)
         options:
           content:
@@ -230,31 +236,37 @@ actions:
           (steps.scrollKind.total == 1 ? flags.unclean : flags.sacred)[steps.hermitScroll.total - 1]
       - id: equipment1Pick
         kind: choice
+        tags: [creation.equipment]
         when: "params.choose && flags.equipment1 != ''"
         options: { content: { type: equipment } }
         recommend: flags.equipment1
       - id: equipment2Pick
         kind: choice
+        tags: [creation.equipment]
         when: "params.choose && flags.equipment2 != ''"
         options: { content: { type: equipment } }
         recommend: flags.equipment2
       - id: uncleanScrollPick
         kind: choice
+        tags: [creation.scroll]
         when: params.choose && has(steps.uncleanScroll)
         options: { content: { type: scroll, where: "item.kind == 'unclean'" } }
         recommend: flags.unclean[steps.uncleanScroll.total - 1]
       - id: sacredScrollPick
         kind: choice
+        tags: [creation.scroll]
         when: params.choose && has(steps.sacredScroll)
         options: { content: { type: scroll, where: "item.kind == 'sacred'" } }
         recommend: flags.sacred[steps.sacredScroll.total - 1]
       - id: equipment3Pick
         kind: choice
+        tags: [creation.equipment]
         when: "params.choose && flags.equipment3 != ''"
         options: { content: { type: equipment } }
         recommend: flags.equipment3
       - id: shieldPick
         kind: choice
+        tags: [creation.shield]
         when: params.choose && steps.equipment3.total == 9
         options: { content: { type: shield } }
         recommend: '@shields.shield'
@@ -266,15 +278,26 @@ actions:
               ammo: >-
                 has(steps.weaponPick) ? (has(steps.weaponPick.item.ammo) ? steps.weaponPick.item.ammo : '')
                   : steps.weapon.total == 7 ? 'arrows' : steps.weapon.total == 9 ? 'bolts' : ''
+      # An added weapon's ammunition: the picks among the ammo of its kind.
+      - id: ammoPick
+        kind: choice
+        tags: [creation.ammo]
+        when: "params.choose && flags.ammo != ''"
+        options: { content: { type: ammo, where: item.kind == flags.ammo } }
+        recommend: options[0]
       - id: gear
         kind: changes
+        tags: [creation.gear]
         changes:
           - type: addItem
             entry:
               item: 'has(steps.weaponPick) ? steps.weaponPick.picked : flags.weapon'
               equipped: true
           - type: addItem
-            when: "flags.ammo != ''"
+            when: has(steps.ammoPick)
+            entry: { item: steps.ammoPick.picked, quantity: flags.presence + 10 }
+          - type: addItem
+            when: "!has(steps.ammoPick) && !params.choose && flags.ammo != ''"
             entry: { item: "'ammo.' + flags.ammo", quantity: flags.presence + 10 }
           - type: addItem
             when: "flags.armor != ''"
@@ -290,6 +313,7 @@ actions:
       # The waterskin and food, then the three equipment tables in the book's order.
       - id: equipment
         kind: changes
+        tags: [creation.gear]
         changes:
           - { type: addItem, entry: { item: '@equipment.waterskin' } }
           - { type: addItem, entry: { item: '@equipment.food', quantity: steps.food.total } }
@@ -342,6 +366,7 @@ actions:
       # isn't offered again, so the Royalty's second is a d5 among the other five.
       - id: features
         kind: choice
+        tags: [creation.features]
         options: { pending: { entry: 'steps.class.added[0]' } }
         random: true
       # The weapons the picked features bring.
