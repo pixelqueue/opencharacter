@@ -292,7 +292,8 @@ summary:
 To show a tile before the player rolls, start the action with `policy: { dice: 'pause' }`, read
 `needs.summary` and throw the result away; nothing has changed. The first pause is the first
 roll the action reaches, which may be a nested action's (`needs.action` names it). A target set
-after the dice (Fate's opposition) is only in that later step's log entry.
+after the dice (Fate's opposition from an opponent's own roll) is only in that later step's log
+entry.
 
 ### Paused actions are data
 
