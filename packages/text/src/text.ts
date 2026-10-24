@@ -167,6 +167,8 @@ export interface OptionContext {
 export interface RollTarget {
   band: string;
   name: string;
+  /** The band is the roll's success threshold: what the roll needs. */
+  success?: true;
   /**
    * The pack's band condition, else the spec's `compare.<code>` text per test. Absent when the
    * condition isn't plain comparisons, or the band holds regardless of the roll.
@@ -743,18 +745,24 @@ export function createText(options: TextOptions): Text {
     rollTargets(summary) {
       const set = summary.bandSet;
       if (!set) return [];
-      return (summary.bands ?? []).map(({ band, tests }) => {
+      return (summary.bands ?? []).map(({ band, tests, success }) => {
         const args: Record<string, number> = {};
         (tests ?? []).forEach((t, i) => {
           if (i === 0) args.value = t.value;
           args[`value${i + 1}`] = t.value;
         });
         // A band that compares nothing (`tests: []`: it holds regardless of the roll) has no
-        // condition text; one whose condition isn't plain comparisons (no `tests`) keeps the pack's.
+        // condition text; one whose condition isn't plain comparisons (no `tests`) keeps the pack's,
+        // unless that text needs a test's value.
+        const ref = bandKey(set, band, 'condition');
         const own =
           tests !== undefined && tests.length === 0
             ? undefined
-            : lookup(bandKey(set, band, 'condition'), args);
+            : format(
+                ref.pack === null ? findSpec(ref.key) : findPack(ref.pack, ref.key),
+                args,
+                true,
+              );
         const parts = (tests ?? []).map(
           (t) => specMessage(`compare.${t.compare}`, { value: t.value }) ?? '',
         );
@@ -766,6 +774,7 @@ export function createText(options: TextOptions): Text {
         return {
           band,
           name: lookup(bandKey(set, band)) ?? band,
+          ...(success ? { success } : {}),
           ...(condition === undefined ? {} : { condition }),
         };
       });

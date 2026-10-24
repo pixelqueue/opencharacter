@@ -325,8 +325,14 @@
   "additionalProperties": false,
   "$defs": {
     "bandList": {
-      "description": "Result bands, checked in order.",
+      "description": "Result bands, checked in order. At most one band is the set's `success` threshold.",
       "type": "array",
+      "contains": {
+        "type": "object",
+        "required": ["success"]
+      },
+      "minContains": 0,
+      "maxContains": 1,
       "items": {
         "type": "object",
         "required": ["id", "when"],
@@ -339,6 +345,10 @@
           },
           "tags": {
             "$ref": "common.schema.json#/$defs/tags"
+          },
+          "success": {
+            "description": "This band is the roll's success threshold: what an app shows as what the roll needs (\"what you need\"). A set without one has no threshold to show (a ladder, a table).",
+            "const": true
           }
         },
         "additionalProperties": false

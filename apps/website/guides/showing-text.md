@@ -250,7 +250,8 @@ A Mothership stat check with advantage, paused for dice:
   `needs.summary`, a log entry's `summary`): each band the roll can still reach with its name and
   what it needs. The pack's `bands.<set>.<band>.condition` text wins; without it, the spec's
   comparisons are joined ("10 or higher and under 20"). A band that holds whatever the roll has
-  no condition unless its pack words one.
+  no condition unless its pack words one. The success threshold's target has `success: true`:
+  `targets.find((t) => t.success)` is "what you need", when the roll has one.
 - **Dice.** `text.dice(items)` words a roll's dice items (or `needs.dice`): "4d6, drop lowest",
   "2d20, keep highest - 1d4", "4dF", "5d6, exploding on 6": the dice to throw. Flat items are left
   out, and so is a keep or drop that can't change the roll: one die kept highest is "1d6". The

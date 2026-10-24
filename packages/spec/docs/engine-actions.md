@@ -345,6 +345,7 @@ summary:
   value: <text> # a set with `value`: that formula, resolved
   bands: # the bands that can still hold, in the set's order
     - band: success
+      success: true # the set's success threshold, when the band marks it
       when: roll.total < 34 && roll.total < 90 # the condition, resolved
       tests: # when it's a conjunction of plain comparisons of the roll
         - { of: roll.total, compare: lt, value: 34 }
@@ -364,6 +365,8 @@ summary:
   (it can't hold) and stopping after the first whose resolved condition is `true` (no later band
   can be reached). A set whose first band holds regardless of the roll (a `rolled` band when
   there's no DC) is summarized as that one band.
+- **Success.** A band its set marks `success: true` has `success: true`: what the roll needs
+  ([result bands](rules-and-fields.md#result-bands)).
 - **Structured tests.** When a band's resolved condition is `true`, `tests` is `[]`. When it is
   a conjunction (`&&`) of comparisons each between a roll path (`roll.total`, `roll.value`,
   `roll.unbounded` or `roll.kept[<int>]`) and a number literal, `tests` lists them in order,

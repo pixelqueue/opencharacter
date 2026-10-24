@@ -59,9 +59,10 @@ describe('Mothership', () => {
     const worded = describeNeed(ruleset, text, need);
     expect(worded.title).toBe('Stat check');
     expect(worded.dice).toBe('2d100, keep lowest');
-    expect(worded.targets?.find((t) => t.band === 'success')).toEqual({
+    expect(worded.targets?.find((t) => t.success)).toEqual({
       band: 'success',
       name: 'Success',
+      success: true,
       condition: 'Roll under 34 (90+ always fails)',
     });
   });
@@ -637,6 +638,28 @@ describe('codes never reach players bare', () => {
     expect(text.error({ code: 'no-such-key', data: { key: 'x', family: 'skill', message } })).toBe(
       'A formula refers to "x", which is not there.',
     );
+  });
+});
+
+describe('Mörk Borg tests', () => {
+  const { ruleset, text } = load('mork-borg/core');
+
+  it('marks the band a test needs, not the crit listed first', () => {
+    const agnes = parse(
+      readFileSync(join(root, 'examples', 'characters', 'mork-borg-agnes.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const need = paused(
+      startAction(ruleset, agnes, {
+        action: { id: 'mork-borg-core:test' },
+        params: { ability: 'mork-borg-core:abilities.strength', dr: 12 },
+        policy: { dice: 'pause' },
+      }),
+    ).needs;
+    const targets = describeNeed(ruleset, text, need).targets ?? [];
+    expect(targets[0]?.band).toBe('crit');
+    expect(targets.filter((t) => t.success)).toEqual([
+      { band: 'success', name: 'Success', success: true, condition: 'DR 12 or higher' },
+    ]);
   });
 });
 

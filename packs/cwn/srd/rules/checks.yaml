@@ -6,12 +6,12 @@ settings:
 
 resultBands:
   check:
-    - { id: success, when: roll.total >= flags.dc }
+    - { id: success, when: roll.total >= flags.dc, success: true }
     - { id: failure, when: true }
   # A natural 1 always fails a save and a natural 20 always succeeds.
   save:
     - { id: failure, when: 'roll.kept[0] == 1' }
-    - { id: success, when: 'roll.kept[0] == 20 || roll.total >= flags.target' }
+    - { id: success, when: 'roll.kept[0] == 20 || roll.total >= flags.target', success: true }
     - { id: failure, when: true }
   major-injury:
     - { id: death, when: roll.total <= 1 }
