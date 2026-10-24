@@ -114,8 +114,19 @@ monster starts) offer it beside the core's own:
   types.weapon.fields.damageType.values.sonic.name: Sonic
   ```
 
-  The ruleset's `enumOrigins` says which pack added each value; pass it to `createText`
-  ([Showing text](showing-text.md)) so added values get their names.
+  The same goes for a rules action's parameter (`'mothership-1e:actions.wound-roll.params.woundType'`,
+  named `actions.wound-roll.params.woundType.values.<v>.name`) and a state key an item declares
+  itself (`'fitd-crew:cohorts.gang.state.gangType'`). The ruleset's `enumOrigins` says which pack
+  added each value; pass it to `createText` ([Showing text](showing-text.md)) so added values get
+  their names.
+
+- **Families.** A core family (`families: { gang: [...] }`) takes keys from the add-on
+  (`families: { 'fitd-crew:gang': [wreckers] }`), with the fields the core's patterns name for
+  them. A core step offering `keysOf('gang')` offers the add-on's keys; the add-on names them
+  under the core action's key (`actions.create-crew.options.wreckers.name`), found through
+  `ruleset.familyOrigins`, which `createText` takes too. A core change to a field built from a
+  key writes `fieldId('<pattern>', key)` rather than concatenating the ID, so it reaches the
+  add-on's field.
 
 - **Choice options.** A core choice over listed items, written values or inline options (a
   class's subclass pick) takes options from the add-on's rules' `extendChoices`, after the core's

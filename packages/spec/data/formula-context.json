@@ -331,6 +331,11 @@
       "description": "The field a family pattern names for its keys: the pattern, a string literal with one or more `{family}` placeholders (each family once), takes one key per placeholder, in order, each put in its placeholder's place. Every field of the pattern must exist for the families' declared values and share a type, the result's; the formula reads all of them. A value another pack added is read from that pack's own field (the first added key's pack). A key that isn't a value of its family is `no-such-key`; a wrong number of keys `wrong-arity`. Bound where the formula belongs to a pack."
     },
     {
+      "id": "fieldId",
+      "signature": "fieldId(string pattern, string | int key, ...) -> string",
+      "description": "The qualified ID of the field a family pattern names for its keys, as `fieldOf` finds it, without reading it: for a computed field ID (a change's or an effect's `{ formula }` target, an `id` field parameter). A value another pack added names that pack's field (the first added key's pack). Every field of the pattern must exist for the families' declared values. A key that isn't a value of its family is `no-such-key`; a wrong number of keys `wrong-arity`. Bound where the formula belongs to a pack."
+    },
+    {
       "id": "keysOf",
       "signature": "keysOf(string family) -> list<string> | list<int>",
       "description": "A family's values, in order, with every loaded pack's additions: ints when each is a whole number, else strings. The name is a string literal; an unknown family is `unknown-name`."

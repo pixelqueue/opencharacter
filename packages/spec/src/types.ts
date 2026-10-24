@@ -1019,6 +1019,8 @@ export type DeclaredField = {
   type: ValueType;
   /** enum: allowed values. */
   values?: Slug[];
+  /** enum: follows the open enum field of the same ID (in the slot's or role's `pack` when it is loaded, else in the declaring pack's scope): with that field loaded, the view's value may be any of its merged values, the ones dependent packs add (`extendEnums`) included. `values` lists the field's own, for type-checking without it. Naming a field that isn't an open enum is a build error. */
+  open?: boolean;
   /** set: what the members are; only `string`. The view's value is a list of strings, read as is (not qualified). */
   of?: 'string';
   /** The value when the view lacks the field: a literal, never a formula. */
@@ -1193,7 +1195,7 @@ export type ValueDecl = {
   type: DeclValueType;
   /** enum: allowed values. */
   values?: Slug[];
-  /** An enum item field or state key of a content type: packs that depend on this one may add values, in their rules' `extendEnums` (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`). Items, copies and formulas see the merged list. Elsewhere it is an error. */
+  /** An enum item field or state key of a content type, an item's own state key, or a parameter of a rules action or an item's inline action: packs that depend on this one may add values, in their rules' `extendEnums` (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`, `<pack>:<item>.state.<key>`, `<pack>:actions.<action>.params.<param>`, `<pack>:<item>.actions.<action>.params.<param>`). Items, copies, actions and formulas see the merged list. Elsewhere (a content type's actions, roles, views) it is an error. */
   open?: boolean;
   /** id/set/list: the content type (or `field`, `tag`, `string`) of the members. */
   of?: Name;
@@ -2285,8 +2287,10 @@ export type Ruleset = {
     random: boolean;
     pack: PackId;
   }[];
-  /** Values packs add to other packs' open enums (`extendEnums`): by the enum's address (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`, `<pack>:fields.<field>`), each added value's pack, whose text names it under the key the enum's pack would use. */
+  /** Values packs add to other packs' open enums (`extendEnums`): by the enum's address (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`, `<pack>:fields.<field>`, `<pack>:actions.<action>.params.<param>`, `<pack>:<item>.state.<key>`, `<pack>:<item>.actions.<action>.params.<param>`), each added value's pack, whose text names it under the key the enum's pack would use. */
   enumOrigins?: Record<string, Record<string, string>>;
+  /** Values packs add to other packs' families (`families: { '<pack>:<family>': [...] }`): by qualified family, each added value's pack, whose fields `fieldOf` reads for it and whose text names it in a values step (`<actionKey>.options.<value>.name`) when the action's pack has no such key. */
+  familyOrigins?: Record<string, Record<string, string>>;
   /** Values and inline options packs add to other packs' choices (`extendChoices`): by `<owner>/<choice>`, the choice's owner key root as a choice names it (`<pack>:<content id>`, `<pack>:rules`, plus `.choices.<choice>.options.<option>` for an inline option's) and its declared ID, each added option's pack, whose text names it. */
   optionOrigins?: Record<string, Record<string, string>>;
   /** Overrides of the same property by two packs; the later pack won. */
@@ -2749,7 +2753,7 @@ export type RolledFace = {
 export type RulesDocument = {
   /** Named lists of keys: any mapping key of the pack's rules documents that holds `{<name>}` stands for one entry per value, with `{<name>}` replaced in the key and in every string of the entry. Declared once per pack, in any rules document; seen by the pack and the packs that depend on it. A qualified name (`<pack>:<name>`) adds values to that pack's family. Expanded by the engine with the packs loaded together; a built release keeps it as written. */
   families?: Record<string, (string | number)[]>;
-  /** Values this pack adds to a dependency's open enums (`open: true`), by the enum's address: `<pack>:fields.<field>` (a rules field), `<pack>:types.<type>.fields.<field>` (an item field) or `<pack>:types.<type>.state.<key>` (a state key). Each value is named in this pack's text under the key the enum's own pack would use (`types.weapon.fields.damageType.values.sonic.name`). Added after the enum's own values, in load order, each once (rules-and-fields.md, "Open enums"). */
+  /** Values this pack adds to a dependency's open enums (`open: true`), by the enum's address, its text key root qualified with its pack: `<pack>:fields.<field>` (a rules field), `<pack>:types.<type>.fields.<field>` (an item field), `<pack>:types.<type>.state.<key>` (a state key), `<pack>:actions.<action>.params.<param>` (a rules action's parameter), `<pack>:<item>.state.<key>` (an item's own state key) or `<pack>:<item>.actions.<action>.params.<param>` (an item's inline action's parameter). Each value is named in this pack's text under the key the enum's own pack would use (`types.weapon.fields.damageType.values.sonic.name`). Added after the enum's own values, in load order, each once (rules-and-fields.md, "Open enums"). */
   extendEnums?: Record<string, Slug[]>;
   /** Options this pack adds to a dependency's choices, without overriding the item: by owner, `<pack>:<content id>` or `<pack>:rules` (a rules-level choice), then by choice ID (`<choice>/<option>/<choice>` for a choice of an inline option; a slotted choice's declared ID, for every slot). An addition is the choice's own kind: `items` for an items choice, `values` for written values, `options` (inline options) for inline options. The added options come after the choice's own, then each loaded pack's in load order; a repeated item or value is offered once, an inline option ID that's there already is `duplicate-id`. Added inline options read this pack's fields, and are named in this pack's text under the key the owner's pack would use (`<owner>.choices.<choice>.options.<id>.name`). Applied after every override (content.md, "Adding options to a dependency's choices"). */
   extendChoices?: Record<

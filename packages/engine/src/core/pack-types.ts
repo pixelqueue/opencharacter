@@ -33,7 +33,10 @@ export interface ValueDecl {
   perCopy?: boolean;
   /** list: no member twice. */
   unique?: boolean;
-  /** Enums of a content type or rules field: dependent packs may add values (`extendEnums`). */
+  /**
+   * Enums of a rules field, a content type, an item's own state or an action's parameter:
+   * dependent packs may add values (`extendEnums`).
+   */
   open?: boolean;
   default?: Literal;
   min?: Formula;
@@ -629,6 +632,8 @@ export interface Settings {
 export interface DeclaredField {
   type: string;
   values?: string[];
+  /** An enum that follows the open enum field of the same ID: its merged values, when loaded. */
+  open?: boolean;
   of?: string;
   default?: Literal;
 }
@@ -725,6 +730,28 @@ export interface Constraint {
 }
 
 /** Whether an item's value has the shape its item field declares (references resolve apart). */
+/** What an `extendEnums` address names, the enum's text key root without its pack. */
+export type EnumAddress =
+  | { kind: 'field'; field: string }
+  | { kind: 'type'; type: string; of: 'fields' | 'state'; key: string }
+  | { kind: 'action'; action: string; param: string }
+  | { kind: 'item-state'; item: string; key: string }
+  | { kind: 'item-action'; item: string; action: string; param: string };
+
+export function enumAddress(address: string): EnumAddress | undefined {
+  let m = /^fields\.(.+)$/.exec(address);
+  if (m) return { kind: 'field', field: m[1]! };
+  m = /^types\.([^.]+)\.(fields|state)\.([^.]+)$/.exec(address);
+  if (m) return { kind: 'type', type: m[1]!, of: m[2] as 'fields' | 'state', key: m[3]! };
+  m = /^actions\.([^.]+)\.params\.([^.]+)$/.exec(address);
+  if (m) return { kind: 'action', action: m[1]!, param: m[2]! };
+  m = /^(.+)\.actions\.([^.]+)\.params\.([^.]+)$/.exec(address);
+  if (m) return { kind: 'item-action', item: m[1]!, action: m[2]!, param: m[3]! };
+  m = /^(.+)\.state\.([^.]+)$/.exec(address);
+  if (m) return { kind: 'item-state', item: m[1]!, key: m[2]! };
+  return undefined;
+}
+
 export function fitsItemField(value: unknown, decl: ValueDecl): boolean {
   switch (decl.type) {
     case 'integer':

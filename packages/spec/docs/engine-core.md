@@ -19,14 +19,16 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
      values, by name, its own first): family keys, and `fields` that name a `viewFields` set.
      Each family's values for formulas are its pack's, then each loaded pack's additions (a
      qualified family name) in load order; `fieldOf` reads an added value's fields in the pack
-     that added it. Problems are `invalid-family`.
+     that added it, and `fieldId` names them there. The ruleset's `familyOrigins` maps each
+     added value to its pack. Problems are `invalid-family`.
 2. **Merge the rules.**
    - Fields, content types, situational choices, result bands, actions, rules-level choices and
      constraints are keyed by qualified ID (`pack:id`), so packs never collide. Content type names
      are qualified too, and a type name resolves like any reference.
    - Tags are the union of all packs' tags.
    - **Open enums:** each pack's `extendEnums` values are appended to the enum it names, in
-     load order, each once, before anything reads the declarations; the ruleset's `enumOrigins`
+     load order, each once, before anything reads the declarations (an item's own state key's
+     or inline action's parameter's once content is resolved, step 3); the ruleset's `enumOrigins`
      maps each added value to its pack. A pack that isn't a dependency of the adding one, an
      address naming no enum, or one not `open`, is `invalid-extension` (data: `pack`, `target`,
      `message`) ([rules-and-fields.md](rules-and-fields.md#open-enums)).

@@ -1,0 +1,11 @@
+description: 'An open view field takes only the stances the loaded packs give: one nobody adds is invalid-link-value'
+specVersion: 0.2.0
+call: startAction
+packs:
+  - path: ../../../packs/test-core
+  - path: ../../../packs/test-addon
+input:
+  action: { id: test-core:size-up }
+  participants:
+    target:
+      - { id: foe, values: { test-core:stance: lofty } }

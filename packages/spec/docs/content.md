@@ -13,7 +13,7 @@ A content type's interface has four parts:
 | Actions | `actions` on the type (every item gets them) and on items | What rolls can it make?                                |
 | State   | `state: { <name>: valueDecl }`                            | What's tracked on _your_ copy? (charges, shots, level) |
 
-A `valueDecl` has `type` (a value type), plus `values` for enums (and `open: true` for a content type's enum that dependent packs may add values to, [rules-and-fields.md](rules-and-fields.md#open-enums)), `of` for `id`/`set`/`list`, `members` for an `id`, `set` or `list` of `tag` ([rules-and-fields.md](rules-and-fields.md#which-tags-a-field-takes)), `unique` for a `list`, `required`, `default`, and `min`/`max`.
+A `valueDecl` has `type` (a value type), plus `values` for enums (and `open: true` for a content type's or an item's own enum, or an action parameter's, that dependent packs may add values to, [rules-and-fields.md](rules-and-fields.md#open-enums)), `of` for `id`/`set`/`list`, `members` for an `id`, `set` or `list` of `tag` ([rules-and-fields.md](rules-and-fields.md#which-tags-a-field-takes)), `unique` for a `list`, `required`, `default`, and `min`/`max`.
 
 Item fields are what an item's author writes, never what changes in play (that is `state`), so
 an app can build a custom-item form from them; each has a name and an optional hint in the

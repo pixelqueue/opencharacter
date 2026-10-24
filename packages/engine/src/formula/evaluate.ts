@@ -86,6 +86,8 @@ export interface EvalContext {
   family?(name: string): readonly string[] | undefined;
   /** A family field's value, from the pack that added `key` to the family when another did. */
   familyField?(name: string, key: string, id: string): Value | undefined;
+  /** A family field's qualified ID, in the pack that added `key` to the family when another did. */
+  familyFieldId?(name: string, key: string, id: string): string | undefined;
 }
 
 export function evaluateTree(node: Node, ctx: EvalContext): Value {
@@ -542,11 +544,12 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
           : keys.map((k) => str(k)),
       };
     }
-    case 'fieldOf': {
+    case 'fieldOf':
+    case 'fieldId': {
       const [pattern, ...keyArgs] = args as [Node, ...Node[]];
       const family = familyPattern(pattern as Node);
       if (!family)
-        return fail('type-mismatch', 'fieldOf() takes a pattern with {family} placeholders');
+        return fail('type-mismatch', `${fn}() takes a pattern with {family} placeholders`);
       arity(fn, args, family.names.length + 1);
       let id = family.text;
       let origin: { name: string; key: string } | undefined;
@@ -555,7 +558,7 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
         if (!keys) return fail('unknown-name', `no family named "${name}"`, { name });
         const key = evaluateTree(keyArgs[i] as Node, ctx);
         if (key.kind !== 'string' && key.kind !== 'int')
-          return fail('type-mismatch', 'fieldOf() needs a string or int key');
+          return fail('type-mismatch', `${fn}() needs a string or int key`);
         if (!keys.includes(String(key.value)))
           return fail('no-such-key', `"${key.value}" is not a value of the family ${name}`, {
             key: String(key.value),
@@ -563,6 +566,12 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
           });
         id = id.replace(`{${name}}`, String(key.value));
         origin ??= { name, key: String(key.value) };
+      }
+      if (fn === 'fieldId') {
+        const qid =
+          ctx.familyFieldId && origin ? ctx.familyFieldId(origin.name, origin.key, id) : id;
+        if (qid === undefined) return fail('unknown-name', `no field ${id}`, { name: id });
+        return str(qid);
       }
       const value =
         ctx.familyField && origin ? ctx.familyField(origin.name, origin.key, id) : ctx.field(id);

@@ -1,4 +1,4 @@
-description: "An open enum that is no longer open (a field's, an item field's, a state key's) is an interface change: packs that add to it no longer load. Opening one is no change"
+description: "An open enum that is no longer open (a field's, an item field's, a state key's, an action parameter's, an item's own state key's) is an interface change: packs that add to it no longer load. Opening one is no change"
 specVersion: 0.2.0
 call: checkRelease
 previous:
@@ -15,7 +15,18 @@ previous:
             damageType: { type: enum, values: [blunt, edged], open: true }
           state:
             edge: { type: enum, values: [keen, dull], default: keen, open: true }
-    content: []
+      actions:
+        - id: strike
+          params:
+            mode: { type: enum, values: [quick, heavy], required: true, open: true }
+          steps:
+            - { id: result, kind: outcome, data: { mode: params.mode } }
+    content:
+      - id: weapons.club
+        type: weapon
+        fields: { damageType: blunt }
+        state:
+          grip: { type: enum, values: [one, two], default: one, open: true }
 next:
   inline:
     manifest:
@@ -30,4 +41,15 @@ next:
             damageType: { type: enum, values: [blunt, edged] }
           state:
             edge: { type: enum, values: [keen, dull], default: keen }
-    content: []
+      actions:
+        - id: strike
+          params:
+            mode: { type: enum, values: [quick, heavy], required: true }
+          steps:
+            - { id: result, kind: outcome, data: { mode: params.mode } }
+    content:
+      - id: weapons.club
+        type: weapon
+        fields: { damageType: blunt }
+        state:
+          grip: { type: enum, values: [one, two], default: one }

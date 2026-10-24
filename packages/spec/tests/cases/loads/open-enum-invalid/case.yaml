@@ -1,4 +1,4 @@
-description: "extendEnums must name an open enum of a dependency: a closed enum, a field that isn't an enum, an unknown type and a pack that isn't a dependency are each invalid-extension"
+description: "extendEnums must name an open enum of a dependency: a closed enum, a field that isn't an enum, an unknown type, a pack that isn't a dependency, a closed action parameter, an unknown action, a closed item state key and an unknown item are each invalid-extension"
 specVersion: 0.2.0
 call: loadRuleset
 packs:
@@ -16,7 +16,17 @@ packs:
           weapon:
             fields:
               reach: { type: enum, values: [close, far] }
-      content: []
+        actions:
+          - id: swing
+            params:
+              style: { type: enum, values: [wide, low], required: true }
+            steps:
+              - { id: result, kind: outcome, data: { style: params.style } }
+      content:
+        - id: weapons.axe
+          type: weapon
+          state:
+            grip: { type: enum, values: [one, two], default: one }
   - inline:
       manifest:
         id: other-pack
@@ -42,4 +52,8 @@ packs:
           'base-pack:fields.might': [lots]
           'base-pack:types.shield.fields.reach': [touch]
           'other-pack:fields.mood': [giddy]
+          'base-pack:actions.swing.params.style': [high]
+          'base-pack:actions.chop.params.style': [high]
+          'base-pack:weapons.axe.state.grip': [none]
+          'base-pack:weapons.mace.state.grip': [none]
       content: []

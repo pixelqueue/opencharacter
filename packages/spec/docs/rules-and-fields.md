@@ -191,6 +191,12 @@ fields:
   pack that added it, so a content pack's class casts through the core pack's `cast-spell`
   without editing it. Family keys expand over the declared values only. A pack sees its own
   families and its dependencies' by name, its own first.
+- **Computed field IDs.** A field ID a formula builds from a key (`'effort.' + x + '.day'`)
+  resolves in the formula's pack and its dependencies only, so it misses the field an add-on
+  declared for a key it added. `fieldId('<pattern>', key)` gives the qualified ID of the field
+  `fieldOf` would read, for a change's, an effect's or an `id` field's `{ formula }` target:
+  `field: { formula: "fieldId('effort.{tradition}.day', x)" }` over `forEach: keysOf('tradition')`
+  reaches every tradition's field, the add-on's too.
 - **Reading by key.** `fieldOf('<pattern>', key)` reads the field a family pattern names for a key
   (`fieldOf('spellcasting.{caster}.dc', flags.cls)`); a pattern with two placeholders takes two
   keys, in order (`fieldOf('slots.{caster}.rank{rank}', flags.cls, 3)`). `keysOf('<family>')` lists
@@ -203,7 +209,11 @@ fields:
 - **Errors:** a placeholder naming no family, a view-field name naming no set, an addition to a
   family that doesn't exist, a key that comes out twice, a family or set declared twice:
   `invalid-family` (data: `pack`, `message`).
-- **Text** is per expanded field (`fields.abilities.str.mod.name`); i18n has no families.
+- **Text** is per expanded field (`fields.abilities.str.mod.name`); i18n has no families. A
+  family's values offered in an action's values step (`options: { values: { formula: "keysOf('gang')" } }`) are
+  named as any value is, `<actionKey>.options.<value>.name`; an added value by the adding pack
+  under that key ([i18n.md](i18n.md#key-conventions)). The ruleset's `familyOrigins` maps each added value
+  to its pack.
 - The build expands a pack's families, so a release has no family keys and no `viewFields`; it
   keeps `families` for `fieldOf`, `keysOf` and additions. An engine given an unexpanded pack
   (inline, homebrew) expands it before merging ([engine-core.md](engine-core.md#loadruleset)).
@@ -212,15 +222,23 @@ fields:
 
 An enum is closed: its declaration lists every value. A declaration may mark it `open: true`, and
 then a pack that depends on the declaring one may add values, the way it adds values to a family.
-Open enums are a rules field's, and a content type's item fields and state keys; `open` elsewhere
-is a build error. An add-on pack lists its values in a rules document's `extendEnums`, keyed by
-the enum's address, qualified with the declaring pack:
+Open enums are a rules field's, a content type's item fields and state keys, an item's own state
+keys, and the parameters of rules actions and of an item's inline actions; `open` elsewhere (a
+content type's actions, which items name, roles, link fields) is a build error. An add-on pack
+lists its values in a rules document's `extendEnums`, keyed by the enum's address: its text key
+root, qualified with the declaring pack:
 
-| Address                              | The enum                    |
-| ------------------------------------ | --------------------------- |
-| `<pack>:fields.<field>`              | a rules field's             |
-| `<pack>:types.<type>.fields.<field>` | a content type's item field |
-| `<pack>:types.<type>.state.<key>`    | a content type's state key  |
+| Address                                         | The enum                                   |
+| ----------------------------------------------- | ------------------------------------------ |
+| `<pack>:fields.<field>`                         | a rules field's                            |
+| `<pack>:types.<type>.fields.<field>`            | a content type's item field                |
+| `<pack>:types.<type>.state.<key>`               | a content type's state key                 |
+| `<pack>:<item>.state.<key>`                     | a state key an item (or template) declares |
+| `<pack>:actions.<action>.params.<param>`        | a rules action's parameter                 |
+| `<pack>:<item>.actions.<action>.params.<param>` | an item's inline action's parameter        |
+
+An item's address names the item as loaded, its `extends` parent's declarations included, after
+overrides; items that extend it keep their own copy of the declaration.
 
 ```yaml
 # orc-2e, rules/strikes.yaml: the core marks the damage type open
@@ -239,17 +257,25 @@ types.weapon.fields.damageType.values.sonic.name: Sonic
 - **Merged list.** With both packs loaded, the enum's values are its own, then each loaded pack's
   additions in load order, each once (two add-ons may add the same value). Everything that reads
   the enum sees the merged list: item fields at load (`invalid-item-field`), a template's
-  `{ formula }` value, saved input values and state, and changes. `pnpm validate` checks each
+  `{ formula }` value, saved input values and state, changes, and an action's parameters
+  (`startAction`, a `use` step's, a field hint's roll). `pnpm validate` checks each
   pack's content against the enum as the pack's dependencies and its own additions leave it, so
   the add-on's content may use its values and the core's, or another add-on's, may not.
 - **Text.** The adding pack names each value it adds, under the key the declaring pack would use
   (`types.weapon.fields.damageType.values.sonic.name`), required as the declaring pack's are: a
-  field's unless it's hidden, a state key's, not an item field's. The ruleset's `enumOrigins` maps
+  field's unless it's hidden, a state key's (an item's own one only when its type doesn't declare
+  the key), a parameter's, not an item field's. The ruleset's `enumOrigins` maps
   each added value to its pack, so an app (and the wording helper) looks the name up there.
+- **View fields.** A declared field read from another character (a link slot's, a participant
+  role's, a `viewFields` set's) may be marked `open: true` to follow the open enum field of its
+  ID, in the slot's or role's `pack` when that pack is loaded, else in the declaring pack's scope:
+  a view's value may then be any of that field's merged values (5E's `creature.type` of an
+  attack's target, with a monster pack's added types). Its `values` lists the field's own, for
+  type-checking without the other pack; naming a field that isn't an open enum is a build error.
 - **Errors.** An address whose pack isn't one of the adding pack's dependencies, that names no
   enum, or an enum that isn't open, is `invalid-extension` (data: `pack`, `target`, `message`).
-- **Releases.** Marking an enum open is not a breaking change; closing one again is an interface
-  change (`enum-closed`), and so is an add-on dropping a value it added (`extension-removed`), see
+- **Releases.** Marking an enum open is not a breaking change; closing one again (or removing it) is
+  an interface change (`enum-closed`), and so is an add-on dropping a value it added (`extension-removed`), see
   [upgrades.md](upgrades.md#a-packs-interface).
 
 ## Tags
