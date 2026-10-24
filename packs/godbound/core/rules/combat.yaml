@@ -339,8 +339,12 @@ actions:
     params:
       amount: { type: integer, min: 0 }
       magical: { type: boolean, default: false }
-    results: [healed]
+    results: [healed, no-effort]
     steps:
+      - id: noEffort
+        kind: outcome
+        when: params.magical && effort.free < 1
+        result: "'no-effort'"
       - id: restore
         kind: changes
         changes:

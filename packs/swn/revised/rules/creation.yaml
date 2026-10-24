@@ -11,6 +11,7 @@ actions:
   # One skill pick at creation: a skill's first pick is level-0, the second level-1, and a third
   # is any other non-psychic skill below level-1. Also the attribute picks of the Growth table.
   - id: gain-skill
+    available: character.creating
     tags: [creation]
     params:
       entry:
@@ -204,6 +205,7 @@ actions:
   # A focus level: a new focus, or the next level of one already held. A new focus's bonus skill
   # is a skill pick at creation and three skill points on advancement.
   - id: gain-focus
+    listed: false
     tags: [creation, level-up]
     params:
       kind: { type: enum, values: [any, combat, noncombat], default: any }
@@ -269,6 +271,7 @@ actions:
       - { id: result, kind: outcome, result: "'gained'" }
 
   - id: starting-gear
+    available: character.creating
     tags: [creation]
     params:
       random: { type: boolean, default: false }

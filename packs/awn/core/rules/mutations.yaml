@@ -157,6 +157,7 @@ actions:
   # The random start rolls a d4 for 0-3 negative mutations and spends every point on single
   # random rolls; the guided one recommends no negative mutation and the same rolls.
   - id: mutate
+    available: character.creating
     tags: [creation]
     params:
       random: { type: boolean, default: false }
@@ -295,6 +296,7 @@ actions:
   # The stigma suggestions: a d6 body part (on a 6, two parts), a d6 nature, and a d12 detail
   # from the column that matches the nature (texture for size, amorphous and mineral changes).
   - id: roll-stigma
+    available: character.creating
     tags: [creation]
     results: [rolled]
     steps:
@@ -353,6 +355,7 @@ actions:
   # (or a second lightly touched result) is rolled again, twice; after that a uniform draw among
   # the ones left stands in for rolling until something new comes up.
   - id: roll-negative-mutation
+    available: character.creating
     tags: [creation]
     params:
       random: { type: boolean, default: false }
@@ -524,6 +527,7 @@ actions:
   # Spending mutation points: one to roll a positive mutation, three to roll two in a category,
   # three to choose one.
   - id: buy-mutation
+    available: character.creating
     tags: [creation]
     params:
       random: { type: boolean, default: false }
@@ -589,6 +593,7 @@ actions:
   # it. A result the character can't take (held already, or barred by a negative mutation) is
   # rolled again; a uniform draw among those it can take stands in for rolling until one fits.
   - id: roll-mutation
+    available: character.creating
     tags: [creation]
     params:
       origin: { type: enum, values: [random, category, chosen, free, unstable], default: random }
@@ -662,6 +667,7 @@ actions:
   # Levels past a skill's cap (a skill a negative mutation forbids, or Slow Development's lower
   # maximum) go to other skills, a pick per level: the skill drops to its cap.
   - id: reassign-barred-skills
+    available: character.creating
     tags: [creation]
     params:
       random: { type: boolean, default: false }
