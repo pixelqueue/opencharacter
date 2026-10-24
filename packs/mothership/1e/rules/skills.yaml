@@ -3,6 +3,8 @@ contentTypes:
     carried: false
     fields:
       tier: { type: enum, values: [trained, expert, master], required: true }
+      # On the way to some Master skill: the Scientist's Expert and first Trained picks.
+      towardMaster: { type: boolean, default: false }
     effects:
       - target: skills.known
         op: grant
