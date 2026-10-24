@@ -123,6 +123,9 @@ contentTypes:
       hitDie: { type: dice, required: true }
       # Its own starting-equipment action gives its starting kit.
       startingKit: { type: boolean, default: false }
+      # The abilities multiclassing into it needs 13 in: all of these, and one of those.
+      multiclassAll: { type: set, of: string, default: [] }
+      multiclassAny: { type: set, of: string, default: [] }
       # The abilities a random start raises first, in order.
       abilityPriority1: { type: enum, values: [str, dex, con, int, wis, cha], default: str }
       abilityPriority2: { type: enum, values: [str, dex, con, int, wis, cha], default: con }
