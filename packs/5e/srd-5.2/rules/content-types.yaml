@@ -41,6 +41,13 @@ contentTypes:
     actions:
       - use: weapon-attack
     effects:
+      # An attuned item for other classes than the character's (attunementClasses).
+      - target: attunement.classUnmet
+        op: add
+        value: 1
+        when: >-
+          self.attuned && has(item.attunementClasses) && size(item.attunementClasses) > 0
+            && countList(item.attunementClasses, x in classes.held) == 0
       - id: magic-attack
         target: { rolls: [attack.melee, attack.ranged], from: self }
         op: add
@@ -74,6 +81,13 @@ contentTypes:
       attuned: { type: boolean, default: false }
       stowed: { type: boolean, default: false }
     effects:
+      # An attuned item for other classes than the character's (attunementClasses).
+      - target: attunement.classUnmet
+        op: add
+        value: 1
+        when: >-
+          self.attuned && has(item.attunementClasses) && size(item.attunementClasses) > 0
+            && countList(item.attunementClasses, x in classes.held) == 0
       - id: base-ac
         target: combat.ac
         op: set

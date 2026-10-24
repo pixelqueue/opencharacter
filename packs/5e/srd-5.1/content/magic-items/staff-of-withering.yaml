@@ -1,8 +1,15 @@
 id: magic-items.staff-of-withering
 type: template
-tags: [magic, staff, attunement.cleric, attunement.druid, attunement.warlock]
+tags: [magic, staff]
 appliesTo: { type: weapon, where: 'item.id == @weapons.quarterstaff' }
-fields: { rarity: rare, requiresAttunement: true, maxCharges: 3, recharge: 1d3 }
+fields:
+  {
+    attunementClasses: [classes.cleric, classes.druid, classes.warlock],
+    rarity: rare,
+    requiresAttunement: true,
+    maxCharges: 3,
+    recharge: 1d3,
+  }
 state:
   charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
 effects:
