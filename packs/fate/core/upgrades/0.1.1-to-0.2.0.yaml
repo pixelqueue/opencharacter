@@ -1,0 +1,10 @@
+pack: fate-core
+from: 0.1.1
+to: 0.2.0
+steps:
+  # A custom stunt's skill, action, limit, uses and fate point cost are its copy's own fields now.
+  - { op: stateToField, item: stunts.custom, from: skill }
+  - { op: stateToField, item: stunts.custom, from: action }
+  - { op: stateToField, item: stunts.custom, from: limit }
+  - { op: stateToField, item: stunts.custom, from: uses }
+  - { op: stateToField, item: stunts.custom, from: fatePoint }

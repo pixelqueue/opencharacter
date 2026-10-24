@@ -112,8 +112,9 @@ It names no factions, people or places: the GM defines the factions.
     Leader (+1 effect).
   - `cohort-recover` heals a level of harm in downtime, two with a scoundrel's help;
     `replace-cohort` replaces a dead one for the tier + 2 coin.
-- **Advancement:** crew xp (8). A full track offers `crew-advance`: a new special ability or two
-  upgrade boxes; xp clears, and the outcome's `stash` (tier + 2) is for each member's sheet.
+- **Advancement:** crew xp (8). A full track offers `crew-advance`: a new special ability (with a
+  crew type, asked in its own `special-ability` choice only) or two upgrade boxes; xp clears, and
+  the outcome's `stash` (tier + 2) is for each member's sheet.
   `develop` on a full rep track: weak hold becomes strong, or strong hold pays the new tier × 8
   coin (half with Patron, 2 less with Hardcase) to raise the tier and drops to weak; rep clears.
 - `tier-roll`: a fortune roll of the tier (a Secure lair against an intruder).

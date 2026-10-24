@@ -108,14 +108,15 @@ the player's choices and other characters.
     point of refresh each; fate points equal to the refresh.
   - **Random:** the SRD has players choose, so the odds are the pack's. The pyramid's ten
     ratings go to ten skills drawn without replacement (every skill equally likely, a setting
-    pack's included), and three stunts are drawn from the SRD's 17 example stunts (never the
-    custom one); no stunt is bought, so refresh and fate points are 3. Aspects not passed stay
-    blank.
+    pack's included), and three stunts are drawn from the written stunts: the SRD's 17
+    examples and any an add-on pack adds (never the custom one); no stunt is bought, so refresh
+    and fate points are 3. Aspects not passed stay blank.
 - **Rolling** (`skill-roll`, shared by every rolling action): 4dF plus the skill, or Mediocre
   without one, plus +1 per helper. After the dice the player may invoke aspects: up to three
-  rerolls, each after seeing the last (a fate point or a free invocation each), then up to four
-  +2s paid with fate points and four with free invocations. A free invocation held on the sheet is picked
-  by its copy, and a copy with none left goes. Keeping the roll is recommended, so an automatic
+  rerolls, each after seeing the last (a fate point or a free invocation each; one `rerolling`
+  group step, its passes at `rerolling[<n>]/reroll`), then up to four +2s paid with fate points
+  and four with free invocations. A free invocation held on the sheet is picked by its copy, and
+  a copy with none left goes. Keeping the roll is recommended, so an automatic
   run spends nothing. A fourth reroll isn't offered: the SRD sets no limit, but each invocation
   needs a different aspect.
 - **Free invocations:** an `advantages.advantage` copy per aspect the character holds free
@@ -168,7 +169,8 @@ the player's choices and other characters.
   bring fate points up to the refresh (a session) or reset them to it (a scenario).
 - **Stunts:** a `stunt` content type with a `shape`: a +2 `bonus` (skill and action, applied
   when the situational choice `stunt` is on), a skill `swap`, a rules `exception`, or a `custom`
-  stunt the player writes. Stunts limited per conflict, scene or session, or costing a fate
+  stunt the player writes (its skill, action, limit, uses and fate point cost are the copy's own
+  field values, `setField`). Stunts limited per conflict, scene or session, or costing a fate
   point, have a `use` action. The 17 SRD example stunts, plus `custom`:
   - bonus: Hardcore Parkour, Rumormonger, Lie Whisperer, Specialist (its field is the copy's
     label), Grappler, Indomitable;

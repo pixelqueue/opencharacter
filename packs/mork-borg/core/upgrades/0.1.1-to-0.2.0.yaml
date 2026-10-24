@@ -1,0 +1,9 @@
+pack: mork-borg-core
+from: 0.1.1
+to: 0.2.0
+steps:
+  # A Speaker of Truths' clarity and the Horn's blare are applied boons now (boons.clarity,
+  # boons.horn), each ending itself on the test it changes. A flag still set is dropped: the app
+  # applies the boon again if the test is still to come.
+  - { op: removeField, field: tests.truth }
+  - { op: removeField, field: tests.horn }

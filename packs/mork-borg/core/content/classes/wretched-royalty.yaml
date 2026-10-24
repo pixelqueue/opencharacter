@@ -16,12 +16,24 @@ choices:
     from:
       options:
         - id: blade-of-your-ancestors
+          effects:
+            [
+              {
+                target: features.weapons,
+                op: grant,
+                value: { item: weapons.blade-of-your-ancestors },
+              },
+            ]
         - id: poltroon
           effects: [{ target: companions.poltroon, op: set, value: true }]
         - id: barbarister
           effects: [{ target: companions.barbarister, op: set, value: true }]
         - id: hamfund
-          effects: [{ target: companions.hamfund, op: set, value: true }]
+          effects:
+            - { target: features.weapons, op: grant, value: { item: weapons.eurekia } }
+            - { target: companions.hamfund, op: set, value: true }
         - id: snake-skin-gift
+          effects:
+            [{ target: features.weapons, op: grant, value: { item: weapons.snake-skin-dagger } }]
         - id: horn-of-the-schleswig-lords
           effects: [{ target: features.horn, op: set, value: true }]

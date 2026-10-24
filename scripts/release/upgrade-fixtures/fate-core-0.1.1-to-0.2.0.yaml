@@ -1,0 +1,33 @@
+# Two 0.1.1 custom stunts, their shape in state: a +2 to attack with Shoot, and one twice per scene
+# for a fate point, used once. 0.2.0 keeps them as the copies' own fields; the label, bonus and
+# uses spent stay state, and the empty skill of the second is dropped.
+pack: fate-core
+from: 0.1.1
+to: 0.2.0
+expect:
+  - at: /features/0/fields
+    value: { skill: fate-core:skills.shoot, action: attack }
+  - at: /features/0/state
+    value: { label: Two-Gun Mojo, bonus: true }
+  - at: /features/1/fields
+    value: { limit: scene, uses: 2, fatePoint: true }
+  - at: /features/1/state
+    value: { label: Hidden Compartments, used: 1 }
+character:
+  specVersion: 0.2.0
+  id: upgrade-fate-custom-stunts
+  values:
+    fate-core:aspects.highConcept: Smuggler Queen of the Outer Rim
+  features:
+    - id: s-mojo
+      item: fate-core:stunts.custom
+      state: { label: Two-Gun Mojo, bonus: true, skill: fate-core:skills.shoot, action: attack }
+    - id: s-hidden
+      item: fate-core:stunts.custom
+      state:
+        label: Hidden Compartments
+        skill: ''
+        limit: scene
+        uses: 2
+        fatePoint: true
+        used: 1

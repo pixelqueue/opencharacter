@@ -60,11 +60,10 @@ actions:
           - type: setState
             when: >-
               countCopies(copy.type == 'stunt' && has(copy.state.used) && copy.state.used > 0
-                && (copy.fields.shape == 'custom' ? has(copy.state.limit) && copy.state.limit == 'conflict'
-                  : copy.fields.limit == 'conflict')) > 0
+                && copy.fields.limit == 'conflict') > 0
             copies:
               type: stunt
-              where: "(item.shape == 'custom' ? self.limit : item.limit) == 'conflict' && self.used > 0"
+              where: "item.limit == 'conflict' && self.used > 0"
             key: used
             value: 0
           - type: setState
@@ -112,11 +111,10 @@ actions:
           - type: setState
             when: >-
               countCopies(copy.type == 'stunt' && has(copy.state.used) && copy.state.used > 0
-                && (copy.fields.shape == 'custom' ? has(copy.state.limit) && copy.state.limit == 'scene'
-                  : copy.fields.limit == 'scene')) > 0
+                && copy.fields.limit == 'scene') > 0
             copies:
               type: stunt
-              where: "(item.shape == 'custom' ? self.limit : item.limit) == 'scene' && self.used > 0"
+              where: "item.limit == 'scene' && self.used > 0"
             key: used
             value: 0
           - { type: set, field: contest.victories, value: 0, when: contest.victories > 0 }
@@ -168,11 +166,10 @@ actions:
           - type: setState
             when: >-
               countCopies(copy.type == 'stunt' && has(copy.state.used) && copy.state.used > 0
-                && (copy.fields.shape == 'custom' ? has(copy.state.limit) && copy.state.limit == 'session'
-                  : copy.fields.limit == 'session')) > 0
+                && copy.fields.limit == 'session') > 0
             copies:
               type: stunt
-              where: "(item.shape == 'custom' ? self.limit : item.limit) == 'session' && self.used > 0"
+              where: "item.limit == 'session' && self.used > 0"
             key: used
             value: 0
       - id: result

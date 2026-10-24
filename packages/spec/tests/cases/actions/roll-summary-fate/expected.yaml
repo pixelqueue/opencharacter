@@ -48,7 +48,7 @@ log:
           tests: [{ of: roll.total, compare: eq, value: -1 }]
         - { band: terrible, when: 'true', tests: [] }
       flags: {}
-  - { step: roll/reroll, kind: choice, option: keep }
+  - { step: 'roll/rerolling[0]/reroll', kind: choice, option: keep }
   - { step: roll/invokes, kind: choice, option: '0' }
   - { step: roll/freeInvokes, kind: choice, option: '0' }
   - step: final

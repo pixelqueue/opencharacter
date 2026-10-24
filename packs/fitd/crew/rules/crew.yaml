@@ -82,7 +82,9 @@ actions:
       - id: typeAbility
         kind: choice
         when: "steps.advance.picked == 'ability' && size(picksOf('crew-type')) > 0"
-        options: { pending: {} }
+        options:
+          pending:
+            path: { choice: "['crew-type', picksOf('crew-type')[0], 'special-ability']" }
         recommend: options[0]
       - id: upgrades
         kind: allocate
@@ -90,7 +92,7 @@ actions:
         fields:
           type: field
           where: >-
-            'upgrade' in item.tags || (crewType.id == '' ? 'upgrade.special' in item.tags
+            'upgrade' in item.tags || (countPicks(pick.type == 'crewType') == 0 ? 'upgrade.special' in item.tags
               : item.id in crewType.upgrades)
         budget: 2
       - id: clear

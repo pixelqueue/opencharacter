@@ -19,12 +19,7 @@ actions:
       choose: { type: boolean, default: false }
     results: [rolled]
     steps:
-      # The d6 picks one of the six classes in the ruleset's content order.
-      - id: classRoll
-        kind: roll
-        tags: [creation]
-        when: '!params.classless && !params.choose'
-        parts: [{ dice: 1d6 }]
+      # The random starts draw the class among those offered: a d6 over the six core classes.
       - id: class
         kind: choice
         options:
@@ -32,8 +27,8 @@ actions:
             type: class
             where: >-
               params.choose || params.classless == (item.id == @classes.classless)
-        recommend: >-
-          !has(steps.classRoll) ? options[0] : options[(steps.classRoll.total - 1) % size(options)]
+        random: '!params.choose'
+        recommend: options[0]
         changes:
           - type: addItem
             entry: { item: picked.id }
@@ -148,28 +143,18 @@ actions:
               (has(steps.uncleanScroll) || has(steps.sacredScroll))
                 && has(steps.class.item.scrollArmorDie)
                 ? steps.class.item.scrollArmorDie : steps.class.item.armorDie
-      # A d2 for the kind (1 unclean, 2 sacred), then a d10 on that kind's table in the book's
-      # order.
+      # A class with a starting scroll (the Hermit): a d2 for the kind (1 unclean, 2 sacred), then a
+      # d10 on that kind's table in the book's order.
       - id: scrollKind
         kind: roll
         tags: [creation]
-        when: 'steps.class.picked == @classes.esoteric-hermit'
+        when: steps.class.item.startingScroll
         parts: [{ dice: 1d2 }]
       - id: hermitScroll
         kind: roll
         tags: [creation]
         when: has(steps.scrollKind)
         parts: [{ dice: 1d10 }]
-      - id: feature
-        kind: roll
-        tags: [creation]
-        when: 'steps.class.picked != @classes.classless && steps.class.picked != @classes.occult-herbmaster'
-        parts: [{ dice: 1d6 }]
-      - id: feature2
-        kind: roll
-        tags: [creation]
-        when: 'steps.class.picked == @classes.wretched-royalty'
-        parts: [{ dice: 1d5 }]
       - id: save
         kind: changes
         changes:
@@ -188,74 +173,134 @@ actions:
               value: 'max(0, flags.presence + steps.powers.total)',
             }
           - { type: set, field: silver.current, value: steps.silver.total * 10 }
+      # The tables' results, in the book's order. A guided start offers each item the tables give as
+      # a pick among the content of its type (an add-on pack's too), recommending the table's.
+      - id: tables
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              weapon: >-
+                [@weapons.femur, @weapons.staff, @weapons.shortsword, @weapons.knife,
+                @weapons.warhammer, @weapons.sword, @weapons.bow, @weapons.flail, @weapons.crossbow,
+                @weapons.zweihander][steps.weapon.total - 1]
+              armor: "steps.armor.total >= 2 ? [@armor.light, @armor.medium, @armor.heavy][steps.armor.total - 2] : ''"
+              unclean: >-
+                [@scrolls.unclean.palms-open-the-southern-gate, @scrolls.unclean.tongue-of-eris,
+                @scrolls.unclean.te-le-kin-esis, @scrolls.unclean.lucy-fires-levitation,
+                @scrolls.unclean.daemon-of-capillaries,
+                @scrolls.unclean.nine-violet-signs-unknot-the-storm,
+                @scrolls.unclean.metzhuotl-blind-your-eye, @scrolls.unclean.eyelid-blinds-the-mind,
+                @scrolls.unclean.death, @scrolls.unclean.foul-psychopomp]
+              sacred: >-
+                [@scrolls.sacred.grace-of-a-dead-saint, @scrolls.sacred.grace-for-a-sinner,
+                @scrolls.sacred.whispers-pass-the-gate, @scrolls.sacred.aegis-of-sorrow,
+                @scrolls.sacred.unmet-fate, @scrolls.sacred.bestial-speech,
+                @scrolls.sacred.false-dawn-nights-chariot, @scrolls.sacred.hermetic-step,
+                @scrolls.sacred.roskoes-consuming-glare, @scrolls.sacred.enochian-syntax]
+              equipment1: >-
+                steps.equipment1.total >= 3 ? [@equipment.backpack, @equipment.sack,
+                @equipment.small-wagon, @equipment.donkey][steps.equipment1.total - 3] : ''
+              equipment2: >-
+                [@equipment.rope, '', '', @equipment.magnesium-strip, '', @equipment.sharp-needle,
+                '', @equipment.lockpicks, @equipment.bear-trap, @equipment.bomb, '',
+                @equipment.silver-crucifix][steps.equipment2.total - 1]
+              equipment3: >-
+                ['', '', @equipment.dog, '', @equipment.perfume, @equipment.toolbox,
+                @equipment.chain, @equipment.grappling-hook, '', @equipment.crowbar,
+                @equipment.lard, @equipment.tent][steps.equipment3.total - 1]
+      - id: weaponPick
+        kind: choice
+        when: params.choose
+        options: { content: { type: weapon, where: '!item.fromFeature' } }
+        recommend: flags.weapon
+      - id: armorPick
+        kind: choice
+        when: "params.choose && flags.armor != ''"
+        options: { content: { type: armor } }
+        recommend: flags.armor
+      - id: hermitScrollPick
+        kind: choice
+        when: params.choose && has(steps.hermitScroll)
+        options:
+          content:
+            type: scroll
+            where: "item.kind == (steps.scrollKind.total == 1 ? 'unclean' : 'sacred')"
+        recommend: >-
+          (steps.scrollKind.total == 1 ? flags.unclean : flags.sacred)[steps.hermitScroll.total - 1]
+      - id: equipment1Pick
+        kind: choice
+        when: "params.choose && flags.equipment1 != ''"
+        options: { content: { type: equipment } }
+        recommend: flags.equipment1
+      - id: equipment2Pick
+        kind: choice
+        when: "params.choose && flags.equipment2 != ''"
+        options: { content: { type: equipment } }
+        recommend: flags.equipment2
+      - id: uncleanScrollPick
+        kind: choice
+        when: params.choose && has(steps.uncleanScroll)
+        options: { content: { type: scroll, where: "item.kind == 'unclean'" } }
+        recommend: flags.unclean[steps.uncleanScroll.total - 1]
+      - id: sacredScrollPick
+        kind: choice
+        when: params.choose && has(steps.sacredScroll)
+        options: { content: { type: scroll, where: "item.kind == 'sacred'" } }
+        recommend: flags.sacred[steps.sacredScroll.total - 1]
+      - id: equipment3Pick
+        kind: choice
+        when: "params.choose && flags.equipment3 != ''"
+        options: { content: { type: equipment } }
+        recommend: flags.equipment3
+      - id: shieldPick
+        kind: choice
+        when: params.choose && steps.equipment3.total == 9
+        options: { content: { type: shield } }
+        recommend: '@shields.shield'
+      - id: ammo
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              ammo: >-
+                has(steps.weaponPick) ? (has(steps.weaponPick.item.ammo) ? steps.weaponPick.item.ammo : '')
+                  : steps.weapon.total == 7 ? 'arrows' : steps.weapon.total == 9 ? 'bolts' : ''
       - id: gear
         kind: changes
         changes:
           - type: addItem
             entry:
-              item: >-
-                [@weapons.femur, @weapons.staff, @weapons.shortsword, @weapons.knife,
-                @weapons.warhammer, @weapons.sword, @weapons.bow, @weapons.flail, @weapons.crossbow,
-                @weapons.zweihander][steps.weapon.total - 1]
+              item: 'has(steps.weaponPick) ? steps.weaponPick.picked : flags.weapon'
               equipped: true
           - type: addItem
-            when: steps.weapon.total == 7
-            entry: { item: '@ammo.arrows', quantity: flags.presence + 10 }
+            when: "flags.ammo != ''"
+            entry: { item: "'ammo.' + flags.ammo", quantity: flags.presence + 10 }
           - type: addItem
-            when: steps.weapon.total == 9
-            entry: { item: '@ammo.bolts', quantity: flags.presence + 10 }
-          - type: addItem
-            when: steps.armor.total >= 2
+            when: "flags.armor != ''"
             entry:
-              item: '[@armor.light, @armor.medium, @armor.heavy][steps.armor.total - 2]'
+              item: 'has(steps.armorPick) ? steps.armorPick.picked : flags.armor'
               equipped: true
           - type: addItem
             when: has(steps.hermitScroll)
             entry:
               item: >-
-                (steps.scrollKind.total == 1 ? [
-                @scrolls.unclean.palms-open-the-southern-gate,
-                @scrolls.unclean.tongue-of-eris,
-                @scrolls.unclean.te-le-kin-esis,
-                @scrolls.unclean.lucy-fires-levitation,
-                @scrolls.unclean.daemon-of-capillaries,
-                @scrolls.unclean.nine-violet-signs-unknot-the-storm,
-                @scrolls.unclean.metzhuotl-blind-your-eye,
-                @scrolls.unclean.eyelid-blinds-the-mind,
-                @scrolls.unclean.death,
-                @scrolls.unclean.foul-psychopomp
-                ] : [
-                @scrolls.sacred.grace-of-a-dead-saint,
-                @scrolls.sacred.grace-for-a-sinner,
-                @scrolls.sacred.whispers-pass-the-gate,
-                @scrolls.sacred.aegis-of-sorrow,
-                @scrolls.sacred.unmet-fate,
-                @scrolls.sacred.bestial-speech,
-                @scrolls.sacred.false-dawn-nights-chariot,
-                @scrolls.sacred.hermetic-step,
-                @scrolls.sacred.roskoes-consuming-glare,
-                @scrolls.sacred.enochian-syntax
-                ])[steps.hermitScroll.total - 1]
-      # The waterskin and food, then the three equipment tables in the book's order. The scrolls
-      # are drawn from their kind's table in the book's order, as the Hermit's is.
+                has(steps.hermitScrollPick) ? steps.hermitScrollPick.picked
+                  : (steps.scrollKind.total == 1 ? flags.unclean : flags.sacred)[steps.hermitScroll.total - 1]
+      # The waterskin and food, then the three equipment tables in the book's order.
       - id: equipment
         kind: changes
         changes:
           - { type: addItem, entry: { item: '@equipment.waterskin' } }
           - { type: addItem, entry: { item: '@equipment.food', quantity: steps.food.total } }
           - type: addItem
-            when: steps.equipment1.total >= 3
+            when: "flags.equipment1 != ''"
             entry:
-              item: >-
-                [@equipment.backpack, @equipment.sack, @equipment.small-wagon,
-                @equipment.donkey][steps.equipment1.total - 3]
+              { item: 'has(steps.equipment1Pick) ? steps.equipment1Pick.picked : flags.equipment1' }
           - type: addItem
-            when: steps.equipment2.total in [1, 4, 6, 8, 9, 10, 12]
+            when: "flags.equipment2 != ''"
             entry:
-              item: >-
-                [@equipment.rope, '', '', @equipment.magnesium-strip, '', @equipment.sharp-needle,
-                '', @equipment.lockpicks, @equipment.bear-trap, @equipment.bomb, '',
-                @equipment.silver-crucifix][steps.equipment2.total - 1]
+              { item: 'has(steps.equipment2Pick) ? steps.equipment2Pick.picked : flags.equipment2' }
           - type: addItem
             when: steps.equipment2.total == 2
             entry: { item: '@equipment.torch', quantity: flags.presence + 4 }
@@ -269,18 +314,8 @@ actions:
             when: has(steps.uncleanScroll)
             entry:
               item: >-
-                [
-                @scrolls.unclean.palms-open-the-southern-gate,
-                @scrolls.unclean.tongue-of-eris,
-                @scrolls.unclean.te-le-kin-esis,
-                @scrolls.unclean.lucy-fires-levitation,
-                @scrolls.unclean.daemon-of-capillaries,
-                @scrolls.unclean.nine-violet-signs-unknot-the-storm,
-                @scrolls.unclean.metzhuotl-blind-your-eye,
-                @scrolls.unclean.eyelid-blinds-the-mind,
-                @scrolls.unclean.death,
-                @scrolls.unclean.foul-psychopomp
-                ][steps.uncleanScroll.total - 1]
+                has(steps.uncleanScrollPick) ? steps.uncleanScrollPick.picked
+                  : flags.unclean[steps.uncleanScroll.total - 1]
           - type: addItem
             when: has(steps.poisonDoses)
             entry: { item: '@decoctions.red-poison', quantity: steps.poisonDoses.total }
@@ -291,49 +326,35 @@ actions:
             when: has(steps.sacredScroll)
             entry:
               item: >-
-                [
-                @scrolls.sacred.grace-of-a-dead-saint,
-                @scrolls.sacred.grace-for-a-sinner,
-                @scrolls.sacred.whispers-pass-the-gate,
-                @scrolls.sacred.aegis-of-sorrow,
-                @scrolls.sacred.unmet-fate,
-                @scrolls.sacred.bestial-speech,
-                @scrolls.sacred.false-dawn-nights-chariot,
-                @scrolls.sacred.hermetic-step,
-                @scrolls.sacred.roskoes-consuming-glare,
-                @scrolls.sacred.enochian-syntax
-                ][steps.sacredScroll.total - 1]
+                has(steps.sacredScrollPick) ? steps.sacredScrollPick.picked
+                  : flags.sacred[steps.sacredScroll.total - 1]
           - type: addItem
             when: has(steps.monkeys)
             entry: { item: '@equipment.monkey', quantity: steps.monkeys.total }
           - type: addItem
-            when: steps.equipment3.total >= 3 && steps.equipment3.total != 4
+            when: steps.equipment3.total == 9
+            entry: { item: 'has(steps.shieldPick) ? steps.shieldPick.picked : @shields.shield' }
+          - type: addItem
+            when: "flags.equipment3 != ''"
             entry:
-              item: >-
-                ['', '', @equipment.dog, '', @equipment.perfume, @equipment.toolbox,
-                @equipment.chain, @equipment.grappling-hook, @shields.shield, @equipment.crowbar,
-                @equipment.lard, @equipment.tent][steps.equipment3.total - 1]
-      # A picked option isn't offered again, so the Royalty's second pick's five are the others: the
-      # d5 counts on from the first.
+              { item: 'has(steps.equipment3Pick) ? steps.equipment3Pick.picked : flags.equipment3' }
+      # Each feature is drawn among the class's options, a d6 for the core classes; a picked option
+      # isn't offered again, so the Royalty's second is a d5 among the other five.
       - id: features
         kind: choice
         options: { pending: { entry: 'steps.class.added[0]' } }
-        recommend: >-
-          !has(steps.feature) ? '' : size(options) == 6 ? options[steps.feature.total - 1]
-            : has(steps.feature2) && size(options) == 5
-              ? options[(steps.feature.total + steps.feature2.total - 2) % 5] : ''
+        random: true
+      # The weapons the picked features bring.
+      - id: featureWeapons
+        kind: changes
+        sheet: proposed
         changes:
           - type: addItem
-            when: >-
-              picked.id in ['brown-scimitar', 'old-sigurds-sling', 'shoe-of-deaths-horse',
-              'blade-of-your-ancestors', 'hamfund', 'snake-skin-gift', 'sacred-shepherds-crook']
-            entry:
-              item: >-
-                [@weapons.brown-scimitar, @weapons.old-sigurds-sling, @weapons.shoe-of-deaths-horse,
-                @weapons.blade-of-your-ancestors, @weapons.eurekia, @weapons.snake-skin-dagger,
-                @weapons.shepherds-crook][indexOf(['brown-scimitar', 'old-sigurds-sling',
-                'shoe-of-deaths-horse', 'blade-of-your-ancestors', 'hamfund', 'snake-skin-gift',
-                'sacred-shepherds-crook'], picked.id)]
+            when: size(features.weapons) > 0
+            entry: { item: 'features.weapons[0]' }
+          - type: addItem
+            when: size(features.weapons) > 1
+            entry: { item: 'features.weapons[1]' }
       - id: finish
         kind: changes
         changes:
