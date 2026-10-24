@@ -27,6 +27,7 @@ actions:
     steps:
       - id: type
         kind: choice
+        tags: [creation.crew-type]
         options: { content: { type: crewType } }
         random: params.random
         recommend: options[0]
@@ -34,6 +35,7 @@ actions:
           - { type: choose, path: { choice: [crew-type] }, option: picked.id }
       - id: ability
         kind: choice
+        tags: [creation.ability]
         when: '!has(steps.type)'
         options: { content: { type: crewAbility } }
         random: params.random
@@ -42,6 +44,7 @@ actions:
           - { type: choose, path: { choice: [crew-abilities] }, option: picked.id }
       - id: operation
         kind: choice
+        tags: [creation.operation]
         when: '!has(steps.type)'
         options: { content: { type: operation } }
         random: params.random
@@ -50,6 +53,7 @@ actions:
           - { type: choose, path: { choice: [operation] }, option: picked.id }
       - id: start
         kind: changes
+        tags: [creation.start]
         changes:
           - { type: adjust, field: coin.current, by: 2 }
           - type: adjust
@@ -135,6 +139,7 @@ actions:
                 status: "steps.huntingGrounds.picked == 'favor' ? 1 : -1"
       - id: more
         kind: choice
+        tags: [creation.more]
         options:
           - id: upgrades
           - id: gang
@@ -159,8 +164,9 @@ actions:
         recommend: { upgrades.lair.quarters: 1, upgrades.lair.vault: 1 }
       - id: gangType
         kind: choice
+        tags: [creation.gang]
         when: "steps.more.picked == 'gang'"
-        options: [{ id: adepts }, { id: rooks }, { id: rovers }, { id: skulks }, { id: thugs }]
+        options: { values: { formula: "keysOf('gang')" } }
         random: params.random
         recommend: "''"
       - id: cohort

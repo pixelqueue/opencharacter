@@ -69,6 +69,7 @@ actions:
       # Psychic Training's second level: a point each level, and the levels before it when it is
       # taken late.
       - id: points
+        tags: [level-up.level]
         kind: changes
         sheet: proposed
         changes:
@@ -92,10 +93,12 @@ actions:
   # doesn't buy a level is saved as credit toward the skill; on a skill at level-4 it goes to the
   # general pool.
   - id: focus-skill-points
+    listed: false
     tags: [level-up]
     params:
       entry:
         type: enum
+        open: true
         required: true
         values:
           [
@@ -195,11 +198,11 @@ actions:
         changes:
           - type: set
             when: flags.level != flags.from
-            field: { formula: "'skills.' + flags.skill + '.level'" }
+            field: { formula: "fieldId('skills.{skill}.level', flags.skill)" }
             value: flags.level
           - type: set
             when: '(flags.level >= 4 ? 0 : flags.pool) != flags.had'
-            field: { formula: "'skills.' + flags.skill + '.credit'" }
+            field: { formula: "fieldId('skills.{skill}.credit', flags.skill)" }
             value: 'flags.level >= 4 ? 0 : flags.pool'
           - type: adjust
             when: flags.level >= 4 && flags.pool > 0
@@ -220,10 +223,12 @@ actions:
 
   # A technique of the discipline at or below its skill level, free with a new skill level.
   - id: pick-technique
+    listed: false
     tags: [level-up]
     params:
       discipline:
         type: enum
+        open: true
         required: true
         values: [biopsionics, metapsionics, precognition, telekinesis, telepathy, teleportation]
       random: { type: boolean, default: false }
@@ -253,6 +258,7 @@ actions:
     params:
       skill:
         type: enum
+        open: true
         required: true
         values:
           [
@@ -331,7 +337,7 @@ actions:
         changes:
           - type: adjust
             when: flags.fromCredit > 0
-            field: { formula: "'skills.' + params.skill + '.credit'" }
+            field: { formula: "fieldId('skills.{skill}.credit', params.skill)" }
             by: -flags.fromCredit
           - {
               type: adjust,
@@ -357,7 +363,11 @@ actions:
               by: -flags.fromGeneral,
               when: flags.fromGeneral > 0,
             }
-          - { type: adjust, field: { formula: "'skills.' + params.skill + '.level'" }, by: 1 }
+          - {
+              type: adjust,
+              field: { formula: "fieldId('skills.{skill}.level', params.skill)" },
+              by: 1,
+            }
       - id: technique
         kind: action
         when: >-

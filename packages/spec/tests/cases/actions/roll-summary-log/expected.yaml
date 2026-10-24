@@ -17,6 +17,7 @@ log:
         - band: critical-success
           when: 'roll.total < 54 && roll.total < 90 && roll.total % 11 == 0'
         - band: success
+          success: true
           when: 'roll.total < 54 && roll.total < 90'
           tests:
             - { of: roll.total, compare: lt, value: 54 }

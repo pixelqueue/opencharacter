@@ -4,19 +4,41 @@ import type {
   ComputedDecl,
   Entry,
   FieldDef,
+  Formula,
   Literal,
   TagOrFormula,
   ValueDecl,
 } from './pack-types.ts';
 import { appliesQueries, keptQuery } from './pack-types.ts';
-import { type LoadedItem, localPart, queryKey, resolveId, type Ruleset } from './ruleset.ts';
+import {
+  familyFieldPack,
+  familyIn,
+  type LoadedItem,
+  localPart,
+  queryKey,
+  resolveContent,
+  resolveField,
+  resolveId,
+  type Ruleset,
+} from './ruleset.ts';
 
 /** undefined when the name isn't visible from the pack. */
 export type FieldLookup = (name: string, pack: string) => f.Value | undefined;
 
 /** A value of a declared type, or a reason it doesn't fit. */
+/** wrong-type's data past `target`: what was expected, and an enum's values. */
+export function expectedData(
+  decl: { type?: string; values?: string[] } | undefined,
+  expected: string | undefined,
+): { expected?: string; values?: string[] } {
+  return {
+    ...(expected !== undefined ? { expected } : {}),
+    ...(decl?.type === 'enum' ? { values: [...(decl.values ?? [])] } : {}),
+  };
+}
+
 export function typedValue(
-  decl: { type: string; values?: string[] },
+  decl: { type: string; values?: string[]; unique?: boolean },
   raw: unknown,
 ): f.Value | string {
   switch (decl.type) {
@@ -42,6 +64,13 @@ export function typedValue(
               .map((v) => ({ kind: 'string', value: v }) as f.Value),
           }
         : 'a list';
+    case 'list': {
+      if (!Array.isArray(raw)) return 'a list';
+      const members = raw.map(String);
+      if (decl.unique && new Set(members).size !== members.length)
+        return 'a list without duplicates';
+      return { kind: 'list', value: members.map((v) => ({ kind: 'string', value: v }) as f.Value) };
+    }
     case 'dice': {
       if (typeof raw !== 'string' && typeof raw !== 'number') return 'dice';
       const tree =
@@ -236,12 +265,31 @@ export function mergedTags(item: LoadedItem, templates: readonly LoadedItem[]): 
 function fieldValue(
   ruleset: Ruleset,
   decl: ValueDecl,
-  raw: Literal,
+  raw: Literal | { formula: Formula },
   pack: string,
   inputField: FieldLookup,
   roots: Record<string, unknown> = {},
 ): f.Value | undefined {
-  if (['string', 'enum', 'id', 'set'].includes(decl.type)) {
+  // A template's `{ formula }` gives a string, an enum's one of its values, an id qualified in the
+  // template's pack.
+  if (typeof raw === 'object' && !Array.isArray(raw)) {
+    if (!['string', 'enum', 'id'].includes(decl.type)) return undefined;
+    const value =
+      typeof raw.formula === 'string'
+        ? itemFormula(ruleset, raw.formula, pack, inputField, roots)
+        : undefined;
+    if (value?.kind !== 'string') return undefined;
+    if (decl.type === 'enum' && !decl.values?.includes(value.value)) return undefined;
+    if (decl.type === 'id' && decl.of && decl.of !== 'tag' && decl.of !== 'string') {
+      const qid =
+        decl.of === 'field'
+          ? resolveField(ruleset, value.value, pack)
+          : resolveContent(ruleset, value.value, pack);
+      return qid === undefined ? undefined : { kind: 'string', value: qid };
+    }
+    return value;
+  }
+  if (['string', 'enum', 'id', 'set', 'list'].includes(decl.type)) {
     const value = typedValue(decl, raw);
     return typeof value === 'string' ? undefined : value;
   }
@@ -250,17 +298,31 @@ function fieldValue(
     return typeof value === 'string' ? undefined : value;
   }
   if (typeof raw !== 'string') return undefined;
-  const tree = f.parseCached(raw);
+  const value = itemFormula(ruleset, raw, pack, inputField, roots);
+  if (value && decl.type === 'decimal' && value.kind === 'int')
+    return { kind: 'decimal', value: value.value };
+  return value;
+}
+
+function itemFormula(
+  ruleset: Ruleset,
+  formula: string,
+  pack: string,
+  inputField: FieldLookup,
+  roots: Record<string, unknown>,
+): f.Value | undefined {
+  const tree = f.parseCached(formula);
   if (!tree.ok) return undefined;
   const result = f.evaluate(tree.value, {
     field: (name) => inputField(name, pack),
     roots,
     id: (text) => resolveId(ruleset, text, pack),
+    family: (name) => familyIn(ruleset, name, pack),
+    familyField: (name, key, id) => inputField(id, familyFieldPack(ruleset, name, key, pack)),
+    familyFieldId: (name, key, id) =>
+      resolveField(ruleset, id, familyFieldPack(ruleset, name, key, pack)),
   });
-  if (!result.ok) return undefined;
-  if (decl.type === 'decimal' && result.value.kind === 'int')
-    return { kind: 'decimal', value: result.value.value };
-  return result.value;
+  return result.ok ? result.value : undefined;
 }
 
 export function stateDecls(
@@ -422,6 +484,60 @@ export function keptTemplate(
   };
 }
 
+type CopyFieldCode = 'not-per-copy' | 'wrong-type' | 'unknown-id' | 'invalid-option';
+
+/** The first member of a value its declaration's `where` doesn't take (`options`), if any. */
+export function outsideOptions(decl: ValueDecl, raw: unknown): string | undefined {
+  const options = decl.options;
+  if (!options) return undefined;
+  return (Array.isArray(raw) ? raw : [raw]).map(String).find((id) => !options.includes(id));
+}
+
+/** Why a copy's own value of an item field doesn't apply, or undefined when it does. */
+export function copyFieldProblem(
+  ruleset: Ruleset,
+  item: LoadedItem,
+  field: string,
+  raw: unknown,
+): { code: CopyFieldCode; data: Record<string, unknown> } | undefined {
+  const decl = ruleset.contentTypes[item.type]?.fields?.[field];
+  if (!decl?.perCopy) return { code: 'not-per-copy', data: { field } };
+  const value = typedValue(decl, raw);
+  if (typeof value === 'string')
+    return { code: 'wrong-type', data: { target: field, ...expectedData(decl, value) } };
+  if (decl.type !== 'id' && decl.type !== 'set' && decl.type !== 'list') return undefined;
+  if (!decl.of || decl.of === 'string' || decl.of === 'tag') return undefined;
+  const ids = (Array.isArray(raw) ? raw : [raw]).map(String);
+  const missing = ids.find(
+    (id) => !(decl.of === 'field' ? ruleset.fields[id] : ruleset.content[id]),
+  );
+  if (missing !== undefined) return { code: 'unknown-id', data: { id: missing } };
+  const option = outsideOptions(decl, raw);
+  return option === undefined
+    ? undefined
+    : { code: 'invalid-option', data: { target: field, option } };
+}
+
+/**
+ * A copy's own item field values (`fields`, for fields its type marks `perCopy`), as a last
+ * template merged after the others; those that don't apply are left out.
+ */
+export function copyFields(ruleset: Ruleset, entry: Entry, item: LoadedItem): LoadedItem[] {
+  const own = Object.entries(entry.fields ?? {}).filter(
+    ([field, raw]) => copyFieldProblem(ruleset, item, field, raw) === undefined,
+  );
+  if (own.length === 0) return [];
+  return [
+    {
+      id: item.id,
+      qid: item.qid,
+      pack: item.pack,
+      type: 'template',
+      fields: Object.fromEntries(own),
+    } as LoadedItem,
+  ];
+}
+
 export type TemplatesOf = (entry: Entry) => readonly string[];
 
 const savedTemplates: TemplatesOf = (entry) => entry.templates ?? [];
@@ -502,7 +618,7 @@ const plain = (v: unknown) => f.fromData(v);
 export function characterQueries(
   all: CopyView[],
   copyData: () => readonly unknown[],
-): Omit<f.CharacterQueries, 'fields' | 'fieldValue'> {
+): Omit<f.CharacterQueries, 'fields' | 'fieldValue' | 'picks' | 'grants'> {
   return {
     copies: copyData,
     countEquipped: (type) => all.filter((c) => c.type === type && c.equipped).length,

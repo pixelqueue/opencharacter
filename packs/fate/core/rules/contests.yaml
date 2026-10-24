@@ -28,11 +28,16 @@ actions:
           skill: params.skill.id
           action: "'overcome'"
           helpers: 'has(steps.assist) ? countList(steps.assist, x.data.helps) : 0'
+          against: size(participants.opponent) == 0
+          opposition: params.opposition
       - id: mediocre
         kind: action
         when: '!has(params.skill)'
         use: skill-roll
-        params: { action: "'overcome'" }
+        params:
+          action: "'overcome'"
+          against: size(participants.opponent) == 0
+          opposition: params.opposition
       - id: opposed
         kind: action
         each: opponent

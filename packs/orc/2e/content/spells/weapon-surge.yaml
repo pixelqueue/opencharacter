@@ -2,6 +2,7 @@ id: spells.weapon-surge
 type: spell
 tags: [trait.cleric, trait.focus, trait.manipulate, trait.sanctified, trait.uncommon]
 fields:
+  domain: domains.zeal
   rank: 1
   cast: one
   range: 0
@@ -14,6 +15,8 @@ effects:
     value: 1
     stackKey: status-bonus
     scope: applied
+    then:
+      - { type: removeEffect, entry: self }
   - target: { rolls: [damage.strike] }
     op: add
     value: 'dieOf(1d6, self.rank >= 9 ? 3 : self.rank >= 5 ? 2 : 1)'

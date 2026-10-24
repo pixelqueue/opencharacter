@@ -1,0 +1,9 @@
+id: traditions.invoker
+type: tradition
+fields:
+  key: invoker
+prerequisites:
+  - id: no-other-caster
+    when: tradition.highmage.tier + tradition.elementalist.tier + tradition.necromancer.tier == 0
+effects:
+  - { target: tradition.invoker.skill, op: set, value: "'magic'" }

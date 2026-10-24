@@ -126,6 +126,13 @@ export interface Ruleset {
   families: Record<string, string[]>;
   /** By qualified family: the pack each added value comes from, whose fields `fieldOf` reads. */
   familyOrigins: Record<string, Record<string, string>>;
+  /** By `<pack>:<enum>` address: the pack each added value comes from, whose text names it. */
+  enumOrigins: Record<string, Record<string, string>>;
+  /**
+   * By `<owner key root>/<choice>`: the pack each value or inline option another pack added to
+   * the choice comes from, whose text names it.
+   */
+  optionOrigins: Record<string, Record<string, string>>;
   conflicts: Conflict[];
   /** The releases loaded, so a character's homebrew can be layered wherever the ruleset is sent. */
   sources: PackRelease[];
@@ -204,7 +211,7 @@ export function standardId(qid: string): string {
   return qid.replaceAll(/[:.]/g, '-');
 }
 
-/** The items standard copies queries match: in query order, each query's sorted, each once. */
+/** The items standard copies queries match: in query order, each query's in content order, each once. */
 function standardMatches(
   ruleset: Ruleset,
   queries: readonly { query: Query; pack: string }[],

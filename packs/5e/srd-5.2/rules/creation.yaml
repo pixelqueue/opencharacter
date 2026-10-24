@@ -25,6 +25,7 @@ actions:
       trinket: { type: boolean, default: true }
     steps:
       - id: class
+        tags: [creation.class]
         kind: choice
         options: { content: { type: class } }
         random: params.random
@@ -37,35 +38,9 @@ actions:
         cases:
           - when: true
             flags:
-              priority: >-
-                [
-                  ['str', 'con', 'dex', 'wis', 'int', 'cha'],
-                  ['cha', 'dex', 'int', 'con', 'wis', 'str'],
-                  ['wis', 'str', 'con', 'cha', 'int', 'dex'],
-                  ['wis', 'con', 'int', 'dex', 'cha', 'str'],
-                  ['str', 'dex', 'con', 'cha', 'wis', 'int'],
-                  ['dex', 'wis', 'con', 'str', 'int', 'cha'],
-                  ['str', 'cha', 'con', 'wis', 'dex', 'int'],
-                  ['dex', 'wis', 'con', 'str', 'cha', 'int'],
-                  ['dex', 'int', 'con', 'str', 'wis', 'cha'],
-                  ['cha', 'con', 'dex', 'wis', 'str', 'int'],
-                  ['cha', 'dex', 'con', 'int', 'wis', 'str'],
-                  ['int', 'wis', 'con', 'dex', 'cha', 'str']
-                ][max(0, indexOf([
-                  @classes.barbarian,
-                  @classes.bard,
-                  @classes.cleric,
-                  @classes.druid,
-                  @classes.fighter,
-                  @classes.monk,
-                  @classes.paladin,
-                  @classes.ranger,
-                  @classes.rogue,
-                  @classes.sorcerer,
-                  @classes.warlock,
-                  @classes.wizard
-                ], steps.class.picked))]
+              priority: steps.class.item.abilityPriority
       - id: background
+        tags: [creation.background]
         kind: choice
         options: { content: { type: background } }
         random: params.random
@@ -74,6 +49,7 @@ actions:
           - type: addItem
             entry: { id: background, item: picked.id }
       - id: species
+        tags: [creation.species]
         kind: choice
         options: { content: { type: species } }
         random: params.random
@@ -82,6 +58,7 @@ actions:
           - type: addItem
             entry: { id: species, item: picked.id }
       - id: method
+        tags: [creation.method]
         kind: choice
         when: '!params.random'
         options: [{ id: standard-array }, { id: point-buy }, { id: roll }]
@@ -116,7 +93,7 @@ actions:
                   - steps.roll5.total
                   - steps.roll6.total
                 recommend:
-                  'abilities.{ability}.base': flags.sorted[indexOf(flags.priority, '{ability}')]
+                  'abilities.{ability}.base': flags.sorted[indexOf(flags.priority, @abilities.{ability}.score)]
           - when: "steps.method.picked == 'point-buy'"
             steps:
               - id: eights
@@ -137,7 +114,7 @@ actions:
                 limit: 7
                 cost: '[0, 1, 2, 3, 4, 5, 7, 9][amount]'
                 recommend:
-                  'abilities.{ability}.base': "[7, 6, 5, 4, 2, 0][indexOf(flags.priority, '{ability}')]"
+                  'abilities.{ability}.base': '[7, 6, 5, 4, 2, 0][indexOf(flags.priority, @abilities.{ability}.score)]'
           - when: "steps.method.picked == 'standard-array'"
             steps:
               - id: array
@@ -145,7 +122,7 @@ actions:
                 fields: { type: field, where: "'ability-base' in item.tags" }
                 values: [15, 14, 13, 12, 10, 8]
                 recommend:
-                  'abilities.{ability}.base': "[15, 14, 13, 12, 10, 8][indexOf(flags.priority, '{ability}')]"
+                  'abilities.{ability}.base': '[15, 14, 13, 12, 10, 8][indexOf(flags.priority, @abilities.{ability}.score)]'
       - id: picks
         kind: choice
         options: { pending: {} }
@@ -153,11 +130,9 @@ actions:
       - id: equipment
         kind: action
         use: starting-equipment
-        params:
-          class: steps.class.picked
-          background: steps.background.picked
-          random: params.random
+        params: { random: params.random }
       - id: trinket
+        tags: [creation.trinket]
         kind: choice
         when: params.trinket
         options: { content: { type: trinket } }
@@ -190,6 +165,7 @@ actions:
                 : params.level >= 11 ? 5000 + steps.gold.total * 250
                 : 500 + steps.gold.total * 25
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:

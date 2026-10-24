@@ -2,6 +2,17 @@ id: classes.barbarian
 type: class
 fields:
   hitDie: 1d12
+  startingKit: true
+  abilityPriority:
+    [
+      abilities.str.score,
+      abilities.con.score,
+      abilities.dex.score,
+      abilities.wis.score,
+      abilities.int.score,
+      abilities.cha.score,
+    ]
+  multiclassAll: [str]
 state:
   rageSpent: { type: integer, default: 0, min: 0 }
   relentlessRageSpent: { type: integer, default: 0, min: 0 }
@@ -64,3 +75,23 @@ choices:
   - id: subclass
     from: { type: subclass, where: 'item.class == @classes.barbarian' }
     when: self.level >= 3
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: barbarian
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'weapons.greataxe'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.handaxe'", quantity: 4, equipped: true } }
+              - { type: addItem, entry: { item: "'gear.explorers-pack'" } }
+              - { type: adjust, field: coins.gp, by: 15 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 75 }
+        recommend: "'a'"
+        random: params.random

@@ -1,0 +1,53 @@
+description: "`picksOf('rules', choice)` reads a rules-level choice's picks where a formula has no owner: a field formula, a constraint, a display hint, and the item fields of the picked content by `itemField`; a content grant's `when`, an activation condition, reads it too"
+specVersion: 0.2.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          crewType:
+            fields:
+              upgrades: { type: set, of: field, default: [] }
+          perk: {}
+          gift: {}
+        fields:
+          upgrades.boat: { type: integer, input: true, default: 0, tags: [special] }
+          upgrades.maps: { type: integer, input: true, default: 0, tags: [special] }
+          crewTypes: { type: integer, formula: "size(picksOf('rules', 'crew-type'))" }
+        choices:
+          - id: crew-type
+            pick: { min: 0, max: 1 }
+            required: false
+            from: { type: crewType }
+          - id: perk
+            from: { type: perk }
+        constraints:
+          # Only the picked crew type's special upgrades.
+          - id: special-upgrades
+            check: >-
+              size(picksOf('rules', 'crew-type')) == 0
+                || sumFields(f.id in itemField(picksOf('rules', 'crew-type')[0], 'upgrades') ? 0 : f.value,
+                  'special' in f.tags) == 0
+        display:
+          fields:
+            upgrades.boat:
+              showWhen: "size(picksOf('rules', 'crew-type')) == 0 || @upgrades.boat in itemField(picksOf('rules', 'crew-type')[0], 'upgrades')"
+            upgrades.maps:
+              showWhen: "size(picksOf('test-pack:rules', 'crew-type')) == 0 || @upgrades.maps in itemField(picksOf('test-pack:rules', 'crew-type')[0], 'upgrades')"
+      content:
+        - { id: crew-types.smugglers, type: crewType, fields: { upgrades: [upgrades.boat] } }
+        - { id: crew-types.shadows, type: crewType, fields: { upgrades: [upgrades.maps] } }
+        - id: perks.network
+          type: perk
+          grants:
+            - {
+                item: gifts.contacts,
+                when: "@crew-types.smugglers in picksOf('rules', 'crew-type')",
+              }
+        - { id: gifts.contacts, type: gift }

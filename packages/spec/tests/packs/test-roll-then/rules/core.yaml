@@ -1,0 +1,74 @@
+tags: [attack, check]
+
+fields:
+  # Advantage on attacks from an ally's help.
+  aided: { type: boolean, input: true, default: false }
+
+contentTypes:
+  condition:
+    carried: false
+  feat:
+    state:
+      used: { type: boolean, default: false }
+  class: {}
+  boon:
+    state:
+      uses: { type: integer, default: 1, min: 0 }
+
+effects:
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: aided
+  # Advantage against a marked target, which ends the target's mark.
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: has(participants.target) && size(participants.target) > 0 && participants.target[0].marked
+    then:
+      to: target
+      when: applied
+      changes:
+        - { type: removeEffect, applied: { where: 'item.id == @conditions.marked' } }
+
+actions:
+  - id: attack
+    steps:
+      - { id: roll, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+      - { id: result, kind: outcome, data: { total: steps.roll.total } }
+  - id: check
+    steps:
+      - { id: roll, kind: roll, tags: [check], parts: [{ dice: 1d20 }] }
+      - { id: result, kind: outcome, data: { total: steps.roll.total } }
+  # Two attacks, one per pass of a group.
+  - id: volley
+    steps:
+      - id: shots
+        kind: group
+        repeat: { while: 'true', max: 2 }
+        steps:
+          - { id: roll, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+      - id: result
+        kind: outcome
+        data: { first: 'steps.shots[0].roll.total', last: steps.roll.total }
+  # An attack rolled again in the same run: the second roll replaces the first.
+  - id: reroll-attack
+    steps:
+      - { id: roll, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+      - { id: again, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+      - { id: result, kind: outcome, data: { total: steps.again.total } }
+  # An attack at one target, whose view says whether it is marked.
+  - id: strike
+    participants:
+      target:
+        max: 1
+        fields:
+          marked: { type: boolean, default: false }
+    steps:
+      - { id: roll, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+      - { id: result, kind: outcome, data: { total: steps.roll.total } }
+  # An attack whose changes are held and never released.
+  - id: held-attack
+    steps:
+      - { id: inner, kind: action, use: attack, hold: true }
+      - { id: result, kind: outcome, data: { total: steps.inner.data.total } }

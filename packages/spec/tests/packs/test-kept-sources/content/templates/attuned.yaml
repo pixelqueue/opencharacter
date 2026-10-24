@@ -1,0 +1,8 @@
+# The spell's damage type is its keeper's element, when that is one.
+id: templates.attuned
+type: template
+appliesTo: { type: spell }
+params:
+  element: { type: string, default: '' }
+fields:
+  damageType: { formula: "params.element != '' ? params.element : prior.damageType" }

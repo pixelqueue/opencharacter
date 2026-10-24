@@ -14,7 +14,7 @@ effects:
 | Property     | Meaning                                                                                                                           |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------- |
 | `id`         | Optional, unique within the item, so apps and issues can point at it                                                              |
-| `target`     | A field, a set of fields, rolls, incoming changes, or choice steps (see below)                                                    |
+| `target`     | A field (by ID or a formula), a set of fields, rolls, incoming changes, or choice steps (see below)                               |
 | `op`         | One of the [effect operations](../data/effect-operations.json)                                                                    |
 | `value`      | A formula, a grant value, a roll modifier, or an option, depending on `op`                                                        |
 | `when`       | Condition. `self` is the copy carrying the effect.                                                                                |
@@ -23,11 +23,34 @@ effects:
 | `tags`       | `add` on rolls only: tags for the roll item the effect adds (see below)                                                           |
 | `multiplied` | `add` on rolls only: `false` keeps `multiplyDice` and `multiply` off the items the effect adds (see below)                        |
 | `duration`   | Informational only: `{ amount, unit, concentration }`. Time tracking is the app's job; the engine never ends an effect by itself. |
-| `then`       | Incoming changes only: changes to the effect's own entry or state after the adjust is routed (see below)                          |
+| `then`       | Incoming changes and rolls only: changes to the effect's own entry or state once it counted, or on rolls a rule (see below)       |
 
 ## Targets
 
 - **A character field**, given by field ID: `target: combat.ac`.
+- **A field a formula names**: `target: { formula: "'skills.lore.' + pick.value + '.granted'" }`.
+  The formula gives a field ID as a string, resolved in the effect's pack. It is evaluated when
+  the effect becomes active, as an activation condition: it reads `self`, `item`, `pick` and
+  `slot` where they are bound, the character functions, the owner's picks and input fields only,
+  never a derived field (`unknown-name` at load), so the field is known before any is computed.
+  The effect is then exactly as if written with that field as its `target`, for its `when`,
+  value, stacking, dependencies and listing. An empty string targets nothing. On the sheet, a
+  value naming no field is `unknown-field` (data `field`, `where`), and a field the op doesn't
+  take (`grant` into a field that isn't a `set`; `add`, `multiply`, `atLeast` or `atMost` on one
+  that isn't a number, or for `add` a dice field) is `type-mismatch`; either way the effect
+  targets nothing. One value choice's effects then reach the field its pick names:
+
+  ```yaml
+  # orc-sf-2e, Additional Lore: trained in the Lore picked, with its extra increases.
+  - id: lore
+    from: { values: [academia, alcohol, android] }
+    effects:
+      - { target: skills.trained, op: grant, value: { formula: "'skill.lore.' + pick.value" } }
+      - target: { formula: "'skills.lore.' + pick.value + '.granted'" }
+        op: add
+        value: '(level >= 3 ? 1 : 0) + (level >= 7 ? 1 : 0) + (level >= 15 ? 1 : 0)'
+  ```
+
 - **A set of fields**: `target: { fields: { where: "'attr.dex' in item.tags" } }`. `where` is a
   condition over each field's view as `item` (`id`, the qualified ID; `type`; `tags`, its declared
   tags), and it may read nothing else (`unknown-name` at load), so `loadRuleset` resolves it once,
@@ -70,14 +93,14 @@ effects:
 - **Rolls as they happen:** `target: { rolls: [attack, damage], from: self }`. The effect applies to any roll carrying one of the tags. `from: self` limits it to rolls made by the item carrying the effect (a +1 weapon); `from: any` (the default) covers every matching roll the character makes (Bless). Roll effects add items to the itemized roll or modify its dice, and `atLeast` and `atMost` bound its total once it is rolled (see below). With `tally: <name>`, the effect adds to one of the roll's tallies instead (see below). With `parts: [<tag>]`, it reaches the roll's own parts carrying a matching tag instead of the whole roll: a `set` replaces them, and a `stepDie` or `setFaces` roll modifier changes only their dice (see [Replacing a roll's part](#replacing-a-rolls-part)). Its formulas see `item` and `self` as the content carrying the effect, the roll as `roll` and the action's own item and copy as `action.item` and `action.self`, so Bracers of Archery test their own copy while a bow attacks.
 - **Incoming changes:** `target: { incoming: { fields: [hp.current], tags: [damage.fire] } }`. The effect modifies the amount of an `adjust` change aimed at this character before it is applied, so apps don't apply resistances themselves. Both filters are optional; omitting both matches every incoming adjustment. After these effects, the change is routed through absorbing fields and overflow ([rules-and-fields.md](rules-and-fields.md#absorbing-and-overflow)). How a multiplied incoming amount rounds is a game setting (`settings.roundIncoming`). The effect's `when`, `value` and `then` see the change as `incoming` (see below), and the receiving player's [situational choices](rules-and-fields.md#choices-on-incoming-changes) on the change as `situational`. A situational choice's own incoming-change effects apply only to a change that selects it.
 - **Choice steps as actions run:** `target: { choices: [push-cost], from: self }`. The effect adds an option to every choice step of the character's actions that carries a matching tag; `from: self` limits it to the actions of the item carrying the effect. The only op is `option`.
-- **Changes steps as actions run:** `target: { steps: [strike.hit], from: self }`. The effect adds changes to every `changes` step of the character's actions that carries a matching tag, after the step's own, each time it runs (per participant in an `each` step); `from: self` limits it to the actions of the item carrying the effect. The only op is `changes`, whose value is `{ changes, to? }` (`to` defaults to the step's). Its `when` and changes see what an added option's do, with the action's `participants` (and `participant` in an `each` step) and no `picks`. Content items, templates and content types (for each active item of the type) add changes, as for options (a build error on the rules' effects or a situational choice's). See [engine-actions.md](engine-actions.md#other-steps).
+- **Changes steps as actions run:** `target: { steps: [strike.hit], from: self }`. The effect adds changes to every `changes` step of the character's actions that carries a matching tag, after the step's own, each time it runs (per participant in an `each` step); `from: self` limits it to the actions of the item carrying the effect. The only op is `changes`, whose value is `{ changes, to? }` (`to` defaults to the step's). Its `when` and changes see what an added option's do, with the action's `participants` (and `participant` in an `each` step) and no `picks`. Content items, templates, content types (for each active item of the type) and the rules' effects add changes, as for options (a build error on a situational choice's or a choice's). See [engine-actions.md](engine-actions.md#other-steps).
 
 **Another item's fields.** An effect targets the character, never a content item's fields. To
 change those (a cantrip's range, a weapon that counts as magical), content keeps a template on
 the item: on the character's copies, or on content picked or granted to them, such as a spell
 known ([content.md](content.md#kept-templates)).
 
-**Options added to choice steps.** An `option` effect's `value` is `{ id, changes?, to?, flags? }`. While the effect's `when` holds, a matching choice step offers it after its own options, with the ID `<content id>#<id>` (`fitd-scoundrel:special-abilities.battleborn#special-armor`), named by `<content id>.options.<id>.name`. When it is picked, its `changes` are proposed like a `changes` step's, `to` the option's `to` (default `self`); an option without `changes` is only recorded as the step's pick, for later steps to read (Sculpt Spells' `spare`). Its `flags` are set as the action's flags first, before its `changes`; it may set only flags the action sets elsewhere, in a branch case or a written option, which is checked at load. In its `when`, `flags` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy) and the action's own item, copy and step are `action.item`, `action.self` and `action.step`; the action's `params`, `situational`, `steps` and `flags` are bound too, and `when` sees `picks`. Of the options sharing a `stackKey` on one step, only the first offered counts, whatever the stacking policy; content never makes its option the recommended one. Content items add options, and so do content types: a type's `option` effect acts for each active item of the type as if the item wrote it (`item` and `self` that item and its copy, the ID `<item id>#<id>`), and is named by `<item id>.options.<id>.name` if the item has that text, else by the type's `types.<type>.options.<id>.name`, so one option serves every staff, wand or scroll. An `option` effect in the rules' `effects` or a situational choice's is a build error. See [engine-actions.md](engine-actions.md#choice-steps).
+**Options added to choice steps.** An `option` effect's `value` is `{ id, changes?, to?, flags? }`. While the effect's `when` holds, a matching choice step offers it after its own options, with the ID `<content id>#<id>` (`fitd-scoundrel:special-abilities.battleborn#special-armor`), named by `<content id>.options.<id>.name`. When it is picked, its `changes` are proposed like a `changes` step's, `to` the option's `to` (default `self`); an option without `changes` is only recorded as the step's pick, for later steps to read (Sculpt Spells' `spare`). Its `flags` are set as the action's flags first, before its `changes`; it may set only flags the action sets elsewhere, in a branch case or a written option, which is checked at load. In its `when`, `flags` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy, and `pick: owner` and `grant: owner` its pick or holder grant, below) and the action's own item, copy and step are `action.item`, `action.self` and `action.step`; the action's `params`, `situational`, `steps` and `flags` are bound too, and `when` sees `picks`. Of the options sharing a `stackKey` on one step, only the first offered counts, whatever the stacking policy; content never makes its option the recommended one. Content items add options, and so do content types: a type's `option` effect acts for each active item of the type as if the item wrote it (`item` and `self` that item and its copy, the ID `<item id>#<id>`), and is named by `<item id>.options.<id>.name` if the item has that text, else by the type's `types.<type>.options.<id>.name`, so one option serves every staff, wand or scroll. The rules' `effects` add options too, so a pack reaches its dependencies' tagged steps (an add-on's extra option in the core's creation): the ID is `<pack>:rules#<id>`, named by `rules.options.<id>.name` in the pack, `item` and `self` are unbound (and so are `entry: self`, `pick: owner` and `grant: owner`), and `from: self` is a build error, the rules having no item. An `option` effect of a situational choice or a choice is a build error. See [engine-actions.md](engine-actions.md#choice-steps).
 
 ```yaml
 # Battleborn: mark special armor instead of taking stress for a push.
@@ -89,6 +112,24 @@ known ([content.md](content.md#kept-templates)).
     id: special-armor
     changes:
       - { type: set, field: armor.special, value: true }
+```
+
+**The adding content's own pick or grant.** In an added option's `changes` (and a `changes`
+effect's), `pick: self` and `grant: self` still name the pick or grant of the action's content
+(the spell being cast). `pick: owner` and `grant: owner` name those of the content carrying the
+effect, when it is picked or holder-granted content that declares saved state; otherwise they
+are `unknown-reference` when the change is resolved. A 5E invocation spends its own use on the
+spell it casts:
+
+```yaml
+# content/invocations/mire-the-mind.yaml: cast slow once with a pact slot.
+- target: { choices: [spell-cost] }
+  op: option
+  when: "action.item.id == '5e-srd-5.1:spells.slow' && !self.used"
+  value:
+    id: pact
+    changes:
+      - { type: setState, pick: owner, key: used, value: true }
 ```
 
 **The incoming amount, and effects that change their own entry**. An
@@ -108,7 +149,10 @@ kept it), applyChanges applies them right after the adjust is routed, and report
 take (`entry`; `path` and `option`; or `grant` with either), a removal as
 `{ entry, removed: true, source }` ([engine-core.md](engine-core.md#routing-an-adjust)). Their
 `value` and `by` are formulas seeing `item`, `self` and `incoming`. They are not adjusts, so
-nothing routes or triggers on them. Only an effect with an entry can carry `then`: on the rules'
+nothing routes or triggers on them. Instead of `entry: self`, a state change may name
+`pick: owner`, the pick that activated the effect's content, or `grant: owner`, the holder grant
+that did, whatever keys they declare; content that isn't picked or granted that way has none,
+`unknown-reference`. Only an effect with an entry can carry `then`: on the rules'
 `effects`, a situational choice's or a choice's `effects` it is a load error,
 `then-without-copy`. Mothership armor points ignore damage under the armor's AP; damage at or over it breaks the
 armor, and only the excess gets through:
@@ -152,9 +196,93 @@ its target at 1 Hit Point the first time it would drop to 0, and ends:
 ```
 
 Once an entry is removed, the rest of the `then` changes aimed at it on that adjust, its own
-effect's and its other effects', are skipped. An effect that lasts for a number of triggers
-counts them in a state key: one effect spends a use while more than one is left, and a second,
-for the last use, removes the entry.
+effect's and its other effects', are skipped.
+
+**Roll effects that end themselves**. A roll effect may carry `then` too, with the same changes
+and targets (`entry: self`, `pick: owner`, `grant: owner`; `removeEffect` on an `applied`
+effect). applyChanges never sees a roll, so the action proposes them: after a roll step, each
+effect that **changed the roll** proposes its `then` changes, `to: self`, as changes of
+that step, in effect order, resolved as a proposed change is (`entry: self` becomes the copy's
+or applied entry's ID, or the pick's `path` and `option`, or the grant's address, as applyChanges
+would route it; `removeEffect` its `id`), with `value` and `by` evaluated in the effect's roll
+context. An effect changed the roll when its `when` held, stacking kept it, and it made a
+difference:
+
+- an `add` counted (on a tally, a non-zero amount); a `set` was the part's chosen replacement;
+  an `atLeast` or `atMost` changed the total (or the tally);
+- `advantage` or `disadvantage` is of the kind that applies once sources combine, and the roll
+  had dice for it: cancelled sources, and those `noAdvantage` or `noDisadvantage` removed,
+  didn't count; `noAdvantage` and `noDisadvantage` count when they removed a source;
+- `multiply` and `multiplyDice` with a factor other than 1, `poolDice` adding dice, `stepDie`
+  moving a die, `setFaces` giving an item faces, and `reroll`, `minimumFace` and `explode`
+  reaching a dice item.
+
+An effect proposes its `then` **at most once per action run**: the first roll step it changed
+proposes it, and a later roll in the run (a roll made more than once, a reroll step, a used
+action's roll) that it changes too proposes nothing more, so a condition that ends after a roll
+is removed once and a boon spends one use, however often the run rolls. An effect is one effect
+of one source: its entry's (an applied entry, a copy) or its pick's. The rolling action needn't
+know which effects end: 5E's Sapped gives disadvantage on the target's next attack roll:
+
+```yaml
+# Sapped, applied to its target
+- target: { rolls: [attack] }
+  op: rollModifier
+  value: { kind: disadvantage }
+  scope: applied
+  then:
+    - { type: removeEffect, entry: self }
+```
+
+**When `then` fires.** A roll effect's `then` may instead be a rule, `{ changes, when, once,
+to }`, the list being its `changes`:
+
+| Property | Meaning                                                                                                                                                                                                                                                                                                                |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `when`   | `changed` (default): the effect changed the roll, as above. `applied`: the effect was in play on the roll, its target matched the roll (on a `parts` target, a part of it) and its `when` held, whether or not stacking kept it, an opposite kind cancelled it or it made a difference                                 |
+| `once`   | `action` (default): at most once per action run, as above. `roll`: once per roll step run that fires it, each pass of a group its own, so a boon that helps each attack of a volley spends a use for each; dice rolled again within the step (advantage, rerolled dice, a whole roll made more than once) are one roll |
+| `to`     | Who the changes are for, as a `changes` step's `to`. Default `self`, with the changes above. To another character (a role, `target`, `{ link }`), they are any proposed changes, resolved as a `changes` step's for that `to`, with `item` and `self` the content carrying the effect and the roll effect's context    |
+
+The 5E rule ends Sapped on the next attack roll even when advantage cancels its disadvantage:
+
+```yaml
+then:
+  when: applied
+  changes: [{ type: removeEffect, entry: self }]
+```
+
+**Effects that end on another character.** An action sees the characters it is used on only
+as views ([engine-actions.md](engine-actions.md#starting-an-action)), never their effects, so
+an effect on the target can't change the attacker's roll. The attacker's effect that reads the
+target's view does, and its `then` goes `to` the target: 5E's Vexed gives advantage on the
+attacker's next attack against the vexed creature, and ends there. A `then` with a `to` other
+than `self` changes no entry of the effect's own, so it may sit on the rules' effects, a
+situational choice's or a choice's (not `then-without-copy`):
+
+```yaml
+# rules: advantage against a target this character vexed, which ends that Vexed. The `where`
+# is the target's to evaluate: action roots (`flags.me`, the attack's flag of the attacker's
+# ID) are filled in when it is proposed, `self` is then the target's entry.
+- target: { rolls: [attack] }
+  op: rollModifier
+  value: { kind: advantage }
+  when: size(participants.target) > 0 && character.id in participants.target[0].mastery.vexedBy
+  then:
+    to: target
+    when: applied
+    changes:
+      - type: removeEffect
+        applied: { where: 'item.id == @combat-effects.vexed && self.attacker == flags.me' }
+```
+
+The rule form is for roll effects; an incoming-change effect's `then` is a list (a schema
+error otherwise). A roll effect's `then` changes aren't held by a `hold` action step
+([dice-and-actions.md](dice-and-actions.md#actions)): they record a roll that was made.
+
+An effect that ends on something other than a roll it was in play on (5E's Sanctuary ends when
+the warded creature attacks) is out of reach of `then`. An effect that lasts for a number of
+triggers counts them in a state key: one effect spends a use while more than one is left, and a
+second, for the last use, removes the entry.
 
 **Dice on incoming changes**. An incoming-change `add` may be dice; `set`,
 `multiply`, `atLeast` and `atMost` stay numbers. applyChanges rolls it when it routes the adjust,
@@ -286,7 +414,9 @@ rather than adding an item that offsets it:
 - **The record:** the first new item lists the part's items as built before in `replaces`
   (unrolled roll items), so a breakdown shows "Intelligence +4 (instead of Dexterity +3)".
 
-`set` on rolls needs `parts` (a schema error otherwise), and `parts` takes only `set`, `stepDie`
+`set` on rolls needs `parts` (a schema error otherwise), and `parts` takes only `set`,
+`advantage` and `disadvantage` with `of: roll` (the matching parts rolled again as a group,
+[dice-and-actions.md](dice-and-actions.md#roll-modifiers)), `stepDie`
 and `setFaces`, never a tally.
 
 ### Roll tallies

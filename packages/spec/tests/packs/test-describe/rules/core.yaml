@@ -1,0 +1,55 @@
+tags: [check, skill, ward, ward.fire, ward.ice]
+
+fields:
+  skills.climb: { type: integer, input: true, default: 1, tags: [skill] }
+  skills.sneak: { type: integer, input: true, default: 2, tags: [skill] }
+  effort: { type: integer, input: true, default: 3, min: 0 }
+
+contentTypes:
+  charm:
+    fields:
+      lucky: { type: boolean, default: false }
+  # Every tool offers `swing`, inline on the type; a tool may add its own.
+  tool:
+    fields:
+      weight: { type: integer, default: 1 }
+    actions:
+      - id: swing
+        results: [hit, miss]
+        params:
+          skill: { type: id, of: field, where: "'skill' in item.tags" }
+          effort: { type: integer, default: 1, min: 1, max: effort + item.weight }
+        participants:
+          target: { max: 1 }
+        steps:
+          - { id: result, kind: outcome, result: "'hit'" }
+      - use: check
+        params: { skill: "'skills.climb'" }
+
+actions:
+  - id: check
+    tags: [check]
+    results: { bands: check }
+    params:
+      skill: { type: id, of: field, where: "'skill' in item.tags" }
+      mode: { type: enum, values: [calm, rushed], optional: true }
+    steps:
+      - id: roll
+        kind: roll
+        bands: check
+        parts: [{ dice: 1d6 }, { field: params.skill.id }]
+      - { id: result, kind: outcome, result: steps.roll.band }
+  - id: bless
+    results: [blessed]
+    params:
+      charm: { type: id, of: charm, where: item.lucky }
+      wards: { type: set, of: tag, members: { under: [ward] } }
+    participants:
+      recipient: { min: 1, max: 1 }
+    steps:
+      - { id: result, kind: outcome, result: "'blessed'" }
+
+resultBands:
+  check:
+    - { id: success, when: roll.total >= 5 }
+    - { id: failure, when: 'true' }

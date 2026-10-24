@@ -50,6 +50,10 @@
     "copies": {
       "$ref": "#/$defs/copies"
     },
+    "grantOnly": {
+      "description": "Items of this type are held only through grants and picks (class features, subclasses, ancestry traits), never as copies of their own: `addItem` of one is `not-addable`, and apps leave them out of add-item catalogs. An item's own `grantOnly` replaces it. Homebrew items of the type follow it. Default false.",
+      "type": "boolean"
+    },
     "actions": {
       "description": "Actions every item of this type has, in addition to the item's own.",
       "type": "array",
@@ -115,7 +119,7 @@
       "required": ["type"],
       "properties": {
         "type": {
-          "$ref": "common.schema.json#/$defs/valueType"
+          "$ref": "common.schema.json#/$defs/declValueType"
         },
         "values": {
           "description": "enum: allowed values.",
@@ -126,13 +130,21 @@
           "minItems": 1,
           "uniqueItems": true
         },
+        "open": {
+          "description": "An enum item field or state key of a content type, an item's own state key, or a parameter of a rules action or an item's inline action: packs that depend on this one may add values, in their rules' `extendEnums` (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`, `<pack>:<item>.state.<key>`, `<pack>:actions.<action>.params.<param>`, `<pack>:<item>.actions.<action>.params.<param>`). Items, copies, actions and formulas see the merged list. Elsewhere (a content type's actions, roles, views) it is an error.",
+          "type": "boolean"
+        },
         "of": {
-          "description": "id/set: the content type (or `field`, `tag`, `string`) of the members.",
+          "description": "id/set/list: the content type (or `field`, `tag`, `string`) of the members.",
           "$ref": "common.schema.json#/$defs/name"
         },
         "members": {
-          "description": "id/set of `tag`: which tags it takes. Without it, any declared tag.",
+          "description": "id/set/list of `tag`: which tags it takes. Without it, any declared tag.",
           "$ref": "common.schema.json#/$defs/tagMembers"
+        },
+        "unique": {
+          "description": "list: no member may appear twice (an item's value with a duplicate is `invalid-item-field`, `wrong-type`). Default false: a list may repeat a member.",
+          "type": "boolean"
         },
         "required": {
           "type": "boolean"
@@ -141,12 +153,16 @@
           "description": "Parameters: may be omitted.",
           "type": "boolean"
         },
+        "perCopy": {
+          "description": "Item fields: each copy may save its own value, in its entry's `fields` (`addItem`, `setField`): merged into the copy's `item` after its templates, so a custom stunt's skill is the player's. Elsewhere it is an error.",
+          "type": "boolean"
+        },
         "label": {
           "description": "Parameters: the label key. Default: `<actionKey>.params.<name>.name`; an optional one-line hint is `<actionKey>.params.<name>.description`.",
           "$ref": "common.schema.json#/$defs/i18nKey"
         },
         "default": {
-          "description": "The value when none is given. For integer, decimal, boolean and dice declarations a string is a formula: on a state key it is evaluated with `item` bound when the copy is added, and the result is written into the character file (`shots: item.magazine`); on an item field it is read as an item's own value is, over input fields. For string, enum and id declarations a string is a literal. An item field's default applies in `item` when the item doesn't set the field; an id or set default of content or `field` is qualified in the content type's pack.",
+          "description": "The value when none is given. For integer, decimal, boolean and dice declarations a string is a formula: on a state key it is evaluated with `item` bound when the copy is added, and the result is written into the character file (`shots: item.magazine`); on an item field it is read as an item's own value is, over input fields. For string, enum and id declarations a string is a literal. An item field's default applies in `item` when the item doesn't set the field; an id, set or list default of content or `field` is qualified in the content type's pack.",
           "$ref": "common.schema.json#/$defs/literal"
         },
         "min": {
@@ -158,7 +174,7 @@
           "$ref": "formula.schema.json"
         },
         "where": {
-          "description": "Parameters of type `id` with `of: field`: which fields the app may pass (a condition over each field as `item`: `id`, `type`, `tags`). The action reads the field as `params.<name>.value`, its ID as `params.<name>.id`, its type as `params.<name>.type` and its declared tags as `params.<name>.tags`. Parameters of type `id` with `of` a content type: which items the app may pass, a condition with `item` the candidate item, the character's fields, and the action's own item and copy as `action.item` and `action.self`; the action reads the item's qualified ID. A value outside it is `invalid-option` when the action starts.",
+          "description": "Parameters of type `id` with `of: field`: which fields the app may pass (a condition over each field as `item`: `id`, `type`, `tags`). The action reads the field as `params.<name>.value`, its ID as `params.<name>.id`, its type as `params.<name>.type` and its declared tags as `params.<name>.tags`. Parameters of type `id` with `of` a content type: which items the app may pass, a condition with `item` the candidate item, the character's fields, and the action's own item and copy as `action.item` and `action.self`; the action reads the item's qualified ID. A value outside it is `invalid-option` when the action starts. Item fields (a content type's, or `templateFields`) and state keys of type `id`, `set` or `list` with `of` a content type or `field`: which members they take, a condition over each candidate as `item` (a field's `id`, `type` and written `tags`; an item as a query's candidate) that reads only `item`, so loadRuleset resolves it and gives the declaration `options`, the IDs it takes. An item's own value outside it is `invalid-item-field` (`not-allowed`); a copy's own value (`addItem`, `setField`) or a state value (`addItem`, `setState`, `applyEffect`) outside `options` is `invalid-option`.",
           "$ref": "formula.schema.json#/$defs/condition"
         }
       },
@@ -181,7 +197,7 @@
           "if": {
             "properties": {
               "type": {
-                "enum": ["id", "set"]
+                "enum": ["id", "set", "list"]
               }
             },
             "type": "object"
@@ -193,13 +209,27 @@
         },
         {
           "if": {
+            "required": ["unique"],
+            "type": "object"
+          },
+          "then": {
+            "properties": {
+              "type": {
+                "const": "list"
+              }
+            },
+            "type": "object"
+          }
+        },
+        {
+          "if": {
             "required": ["members"],
             "type": "object"
           },
           "then": {
             "properties": {
               "type": {
-                "enum": ["id", "set"]
+                "enum": ["id", "set", "list"]
               },
               "of": {
                 "const": "tag"

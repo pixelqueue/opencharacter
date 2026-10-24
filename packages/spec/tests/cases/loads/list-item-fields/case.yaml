@@ -1,0 +1,21 @@
+description: 'A `list` item field takes a list, and a `unique` one no member twice: a string value and a duplicate in a `unique` list are `invalid-item-field` (`wrong-type`); a duplicate in a list without `unique` loads'
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          spell:
+            fields:
+              options: { type: list, of: string, unique: true }
+              beats: { type: list, of: string }
+      content:
+        - { id: spells.fine, type: spell, fields: { options: [b, a], beats: [x, x] } }
+        - { id: spells.text, type: spell, fields: { options: a } }
+        - { id: spells.twice, type: spell, fields: { options: [a, a] } }

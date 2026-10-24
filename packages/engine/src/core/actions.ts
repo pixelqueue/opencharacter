@@ -15,7 +15,9 @@ import type {
   Formula,
   OptionValue,
   StepChanges,
+  PendingSource,
   ProposedChange,
+  ProposedPath,
   ProposedEntry,
   Role,
   RollModifier,
@@ -24,9 +26,17 @@ import type {
   StepOption,
   ValueSource,
   TagOrFormula,
+  ThenChange,
   ValueDecl,
 } from './pack-types.ts';
-import { optionQuery, pendingSource, valueSource, writtenOptions } from './pack-types.ts';
+import {
+  innerSteps,
+  optionQuery,
+  pendingSource,
+  thenRule,
+  valueSource,
+  writtenOptions,
+} from './pack-types.ts';
 import {
   admitsTag,
   evaluateTags,
@@ -56,7 +66,7 @@ import {
 } from './sheet.ts';
 import { literalTree, type RollSummary, rollSummary } from './roll-summary.ts';
 import { samePath } from './tree.ts';
-import { itemView, outputData, typedValue } from './views.ts';
+import { expectedData, itemView, outputData, stateDecls, typedValue } from './views.ts';
 
 /** Rolls `count` dice: faces 1..sides, 0..sides-1 when `zero`, or -1..1 for Fate dice. */
 export type DiceFunction = (count: number, sides: number | 'F', zero: boolean) => number[];
@@ -222,10 +232,15 @@ export interface Need {
   items?: RollItem[];
   /** Dice steps: the summary of the roll the pause is for. */
   summary?: RollSummary;
-  /** Dice steps made more than once (`of: roll`): how many whole rolls, and which total is kept. */
-  repeat?: { times: number; keep: 'high' | 'low' };
+  /**
+   * Dice steps made more than once (`of: roll`): how many rolls, and which total is kept; with
+   * `items`, only those items (indices in `items`) are rolled again.
+   */
+  repeat?: Repeat;
   options?: string[];
   recommended?: string;
+  /** Choice steps over values: the content the action runs for, which names values first. */
+  content?: string;
   /** Choice steps over pending choices: the choice being asked. */
   choice?: PendingChoice;
   allocate?: AllocateNeed;
@@ -301,6 +316,7 @@ class Finish extends Error {
 
 const MAX_STEPS = 1000;
 const MAX_DEPTH = 16;
+const MAX_PASSES = 100;
 
 /** The engine's own dice function (the default). Not seeded; pass one for reproducible rolls. */
 export const randomDice: DiceFunction = (count, sides, zero) =>
@@ -504,6 +520,10 @@ interface Ctx {
   proposed: Proposed[];
   stepsRun: number;
   rolls: Map<string, { result: Record<string, unknown>; items: BuiltItem[] }>;
+  /** The effects whose `then` the run has proposed: each proposes it at most once. */
+  ended: Set<string>;
+  /** Changes a roll effect's `then` proposed: a record of rolls made, which `hold` leaves alone. */
+  fromThen: WeakSet<Proposed>;
 }
 
 interface Frame {
@@ -523,12 +543,16 @@ interface Frame {
   depth: number;
   rollItems: Map<string, BuiltItem[]>;
   eachOf: Map<string, string>;
+  /** A step a group holds: the path prefix of the group's latest pass (`reroll[2]/`). */
+  passOf: Map<string, string>;
   flagsEach: Map<string, string>;
   held: Map<string, Proposed[]>;
   views: Map<string, View>;
   added: string[];
   /** Content an added option or changes belong to: its follow-ups are the ones offered there. */
   adder?: Source;
+  /** In an added option or changes: the pick or grant `pick: owner` and `grant: owner` name. */
+  owner?: { activation?: Activation | undefined };
   situational: Record<string, unknown>;
   each?: { role: string; index: number; view: Record<string, unknown>; step: string };
 }
@@ -554,6 +578,8 @@ function run(
     proposed: [],
     stepsRun: 0,
     rolls: new Map(),
+    ended: new Set(),
+    fromThen: new WeakSet(),
   };
   // An ephemeral offer is cleared by the changes of the run that takes it up.
   const takenUp = state.action.followUp;
@@ -646,7 +672,7 @@ function startFrame(
       throw new ActionError('situational-unavailable', { situational: qid });
     }
     const available = sheet
-      .actions()
+      .actions(true)
       .some((a) => a.action === id && a.entry === entry && a.source === source);
     if (!available)
       throw new ActionError('unknown-action', {
@@ -655,6 +681,71 @@ function startFrame(
         ...(source ? { source } : {}),
       });
   }
+  const found = findAction(sheet, ruleset, id, entry, source);
+  if (found) ({ def, definedBy, pack, activation, fixed } = found);
+  if (!def) throw new ActionError('unknown-action', { action: id });
+
+  const ownerSource: Source = activation?.item
+    ? { type: 'item', id: activation.item.qid, ...(entry !== undefined ? { entry } : {}) }
+    : { type: 'rules', id };
+  const own = activation ? sheet.actionRoots(activation) : sheet.rulesRoots();
+  const base: Record<string, unknown> = ownerRoots(own);
+  const given = nested.situational ?? ctx.state.situational;
+  const situational = situationalRoot(ruleset, pack, given);
+  const frame: Frame = {
+    def,
+    qid: definedBy,
+    pack,
+    ...(activation ? { activation } : {}),
+    sheet,
+    ...(entry !== undefined ? { entry } : {}),
+    ...(source !== undefined ? { source } : {}),
+    ownerSource,
+    roots: { ...base, situational },
+    steps: {},
+    flags: {},
+    prefix,
+    depth,
+    rollItems: new Map(),
+    eachOf: new Map(),
+    passOf: new Map(),
+    flagsEach: new Map(),
+    held: new Map(),
+    views: new Map(),
+    added: nested.added,
+    situational: given,
+  };
+  frame.roots.params = params(ctx, frame, rawParams, fixed);
+  const roles = def.participants ?? {};
+  const passed = depth === 0 ? (ctx.state.participants ?? {}) : (nested.participants ?? {});
+  frame.roots.participants = participantsRoot(roles, passed);
+  for (const list of Object.values(passed)) for (const view of list) frame.views.set(view.id, view);
+  return frame;
+}
+
+/** An action as computeSheet lists it: its definition, the action defining it, its pack and owner. */
+export interface FoundAction {
+  def: ActionDef;
+  /** The rules action, or `<item id>#<action id>` for an inline one. */
+  definedBy: string;
+  pack: string;
+  activation?: Activation;
+  /** The parameters a `use` fixes. */
+  fixed: Record<string, Formula>;
+}
+
+export function findAction(
+  sheet: Sheet,
+  ruleset: Ruleset,
+  id: string,
+  entry: string | undefined,
+  source: string | undefined,
+): FoundAction | undefined {
+  let def: ActionDef | undefined;
+  let definedBy = id;
+  let pack = '';
+  let activation: Activation | undefined;
+  let fixed: Record<string, Formula> = {};
   if (entry !== undefined || source !== undefined) {
     // An entry's own item is named by `entry`; content on it by `entry` and `source`; content
     // with no owning copy by `source` alone. An applied entry's source is named by the entry's ID.
@@ -700,43 +791,8 @@ function startFrame(
     def = ruleset.rules.actions[id];
     pack = def ? (ruleset.rules.actions[id]?.pack ?? '') : '';
   }
-  if (!def) throw new ActionError('unknown-action', { action: id });
-
-  const ownerSource: Source = activation?.item
-    ? { type: 'item', id: activation.item.qid, ...(entry !== undefined ? { entry } : {}) }
-    : { type: 'rules', id };
-  const own = activation ? sheet.actionRoots(activation) : sheet.rulesRoots();
-  const base: Record<string, unknown> = ownerRoots(own);
-  const given = nested.situational ?? ctx.state.situational;
-  const situational = situationalRoot(ctx, pack, given);
-  const frame: Frame = {
-    def,
-    qid: definedBy,
-    pack,
-    ...(activation ? { activation } : {}),
-    sheet,
-    ...(entry !== undefined ? { entry } : {}),
-    ...(source !== undefined ? { source } : {}),
-    ownerSource,
-    roots: { ...base, situational },
-    steps: {},
-    flags: {},
-    prefix,
-    depth,
-    rollItems: new Map(),
-    eachOf: new Map(),
-    flagsEach: new Map(),
-    held: new Map(),
-    views: new Map(),
-    added: nested.added,
-    situational: given,
-  };
-  frame.roots.params = params(ctx, frame, rawParams, fixed);
-  const roles = def.participants ?? {};
-  const passed = depth === 0 ? (ctx.state.participants ?? {}) : (nested.participants ?? {});
-  frame.roots.participants = participantsRoot(roles, passed);
-  for (const list of Object.values(passed)) for (const view of list) frame.views.set(view.id, view);
-  return frame;
+  if (!def) return undefined;
+  return { def, definedBy, pack, ...(activation ? { activation } : {}), fixed };
 }
 
 /**
@@ -766,14 +822,14 @@ function participantsRoot(
   return out;
 }
 
-function situationalRoot(
-  ctx: Ctx,
+export function situationalRoot(
+  ruleset: Ruleset,
   pack: string,
   values: Record<string, unknown>,
 ): Record<string, unknown> {
-  const scope = ctx.ruleset.packs.find((p) => p.id === pack)?.scope ?? [];
+  const scope = ruleset.packs.find((p) => p.id === pack)?.scope ?? [];
   const out: Record<string, unknown> = {};
-  for (const [qid, def] of Object.entries(ctx.ruleset.rules.situational)) {
+  for (const [qid, def] of Object.entries(ruleset.rules.situational)) {
     if (!scope.includes(def.pack)) continue;
     const given = values[qid];
     out[def.id] = given !== undefined ? given : situationalDefault(def);
@@ -800,6 +856,7 @@ function params(
   fixed: Record<string, Formula>,
 ): Record<string, unknown> {
   const out: Record<string, unknown> = {};
+  const at = paramAction(frame);
   for (const [name, decl] of Object.entries(frame.def.params ?? {})) {
     let value: unknown = raw[name];
     if (fixed[name] !== undefined) {
@@ -814,52 +871,37 @@ function params(
     if (value === undefined && decl.default !== undefined) value = decl.default;
     if (value === undefined) {
       if (decl.optional) continue;
-      throw new ActionError('missing-param', { param: name });
+      throw new ActionError('missing-param', { param: name, ...at });
     }
     if (decl.type === 'id' && decl.of === 'field') {
       value = fieldIdOf(value);
       if (typeof value !== 'string')
-        throw new ActionError('wrong-type', { target: name, expected: 'a field ID' });
+        throw new ActionError('wrong-type', { target: name, expected: 'a field ID', ...at });
       const qid = resolveField(ctx.ruleset, value, frame.pack);
       const field = qid ? ctx.ruleset.fields[qid] : undefined;
-      if (!qid || !field) throw new ActionError('invalid-option', { param: name, option: value });
-      const tags = ctx.sheet.fieldTags(qid);
-      if (decl.where !== undefined) {
-        const ok = ctx.sheet.evaluate(decl.where, frame.pack, {
-          item: { id: qid, type: field.type, tags },
-        });
-        if (ok.kind !== 'bool' || !ok.value)
-          throw new ActionError('invalid-option', { param: name, option: value });
-      }
+      if (!qid || !field)
+        throw new ActionError('invalid-option', { param: name, option: value, ...at });
+      if (!fieldParamTakes(ctx.sheet, ctx.ruleset, decl, frame.pack, qid))
+        throw new ActionError('invalid-option', { param: name, option: value, ...at });
       out[name] = {
         id: qid,
         type: field.type,
-        tags,
+        tags: ctx.sheet.fieldTags(qid),
         value: rootValue(ctx.sheet.fieldValue(qid)),
       };
       continue;
     }
     const typed = typedValue(decl, value);
     if (typeof typed === 'string')
-      throw new ActionError('wrong-type', { target: name, expected: typed });
+      throw new ActionError('wrong-type', { target: name, ...expectedData(decl, typed), ...at });
     if (decl.type === 'id' && decl.of !== undefined && decl.where !== undefined) {
       const qid = resolveContent(ctx.ruleset, value as string, frame.pack);
       const item = qid ? ctx.ruleset.content[qid] : undefined;
       const type = resolveType(ctx.ruleset, decl.of, frame.pack);
       if (!qid || !item || item.type !== type)
-        throw new ActionError('invalid-option', { param: name, option: value });
-      const ok = ctx.sheet.evaluate(decl.where, frame.pack, {
-        item: itemView(ctx.ruleset, item, [], (field, pack) => {
-          const id = resolveField(ctx.ruleset, field, pack);
-          return id ? ctx.sheet.inputValue(id) : undefined;
-        }),
-        action: {
-          ...(frame.roots.item !== undefined ? { item: frame.roots.item } : {}),
-          ...(frame.roots.self !== undefined ? { self: frame.roots.self } : {}),
-        },
-      });
-      if (ok.kind !== 'bool' || !ok.value)
-        throw new ActionError('invalid-option', { param: name, option: value });
+        throw new ActionError('invalid-option', { param: name, option: value, ...at });
+      if (!contentParamTakes(ctx.sheet, ctx.ruleset, decl, frame.pack, item, frame.roots))
+        throw new ActionError('invalid-option', { param: name, option: value, ...at });
       out[name] = qid;
       continue;
     }
@@ -867,9 +909,9 @@ function params(
       const list = Array.isArray(value) ? value : [value];
       for (const tag of list.map(String))
         if (!admitsTag(decl.members, tag))
-          throw new ActionError('invalid-option', { param: name, option: tag });
+          throw new ActionError('invalid-option', { param: name, option: tag, ...at });
     }
-    paramRange(name, decl, typed, (bound) => {
+    paramRange(name, at, decl, typed, (bound) => {
       const v = ctx.sheet.evaluate(bound, frame.pack, frame.roots);
       return v.kind === 'int' || v.kind === 'decimal' ? v.value : undefined;
     });
@@ -878,9 +920,59 @@ function params(
   return out;
 }
 
+/** The action a parameter error names, and the entry and source it was started on. */
+function paramAction(frame: Frame): Record<string, string> {
+  return {
+    action: frame.qid,
+    ...(frame.entry !== undefined ? { entry: frame.entry } : {}),
+    ...(frame.source !== undefined ? { source: frame.source } : {}),
+  };
+}
+
+/** Whether a field parameter takes the field: its `where` over the field's `id`, `type` and `tags`. */
+export function fieldParamTakes(
+  sheet: Sheet,
+  ruleset: Ruleset,
+  decl: ValueDecl,
+  pack: string,
+  qid: string,
+): boolean {
+  const field = ruleset.fields[qid];
+  if (!field) return false;
+  if (decl.where === undefined) return true;
+  const ok = sheet.evaluate(decl.where, pack, {
+    item: { id: qid, type: field.type, tags: sheet.fieldTags(qid) },
+  });
+  return ok.kind === 'bool' && ok.value;
+}
+
+/** Whether a content parameter's `where` takes the item, with the action's own `item` and `self`. */
+export function contentParamTakes(
+  sheet: Sheet,
+  ruleset: Ruleset,
+  decl: ValueDecl,
+  pack: string,
+  item: LoadedItem,
+  roots: Record<string, unknown>,
+): boolean {
+  if (decl.where === undefined) return true;
+  const ok = sheet.evaluate(decl.where, pack, {
+    item: itemView(ruleset, item, [], (field, at) => {
+      const id = resolveField(ruleset, field, at);
+      return id ? sheet.inputValue(id) : undefined;
+    }),
+    action: {
+      ...(roots.item !== undefined ? { item: roots.item } : {}),
+      ...(roots.self !== undefined ? { self: roots.self } : {}),
+    },
+  });
+  return ok.kind === 'bool' && ok.value;
+}
+
 /** A number parameter outside its `min`/`max`, evaluated as the action starts, is out-of-range. */
 function paramRange(
   name: string,
+  at: Record<string, string>,
   decl: ValueDecl,
   value: f.Value,
   boundOf: (bound: Formula) => number | undefined,
@@ -891,7 +983,7 @@ function paramRange(
   const min = bound(decl.min);
   const max = bound(decl.max);
   if ((min !== undefined && value.value < min) || (max !== undefined && value.value > max))
-    throw new ActionError('out-of-range', { target: name, min, max });
+    throw new ActionError('out-of-range', { target: name, min, max, ...at });
 }
 
 function fieldIdOf(value: unknown): unknown {
@@ -960,6 +1052,22 @@ function setFlag(frame: Frame, name: string, value: unknown, perParticipant = fa
     frame.flags[name] = Array.from({ length: count }, () => null);
   frame.flagsEach.set(name, each.role);
   (frame.flags[name] as unknown[])[each.index] = value;
+}
+
+/** A step's result as the current participant's in an `each` over its role; else its own. */
+function resultOf(frame: Frame, id: string): unknown {
+  const each = frame.each;
+  if (each && frame.eachOf.get(id) === each.role)
+    return (frame.steps[id] as unknown[] | undefined)?.[each.index];
+  return frame.steps[id];
+}
+
+function clearResult(frame: Frame, id: string): void {
+  const each = frame.each;
+  if (each && frame.eachOf.get(id) === each.role) {
+    const list = frame.steps[id] as unknown[] | undefined;
+    if (list) list[each.index] = null;
+  } else delete frame.steps[id];
 }
 
 function setResult(frame: Frame, id: string, value: unknown): void {
@@ -1106,6 +1214,7 @@ function onSheet(ctx: Ctx, frame: Frame): Frame {
   delete roots.item;
   delete roots.self;
   delete roots[f.OWNER_PICKS];
+  delete roots[f.OWNER_GRANTED];
   return {
     ...frame,
     sheet: ctx.sheet,
@@ -1114,9 +1223,9 @@ function onSheet(ctx: Ctx, frame: Frame): Frame {
 }
 
 /** The roots an action takes from its owner: `item`, `self` and the picks `picksOf` reads. */
-function ownerRoots(own: Record<string, unknown>): Record<string, unknown> {
+export function ownerRoots(own: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
-  for (const key of ['item', 'self', f.OWNER_PICKS])
+  for (const key of ['item', 'self', f.OWNER_PICKS, f.OWNER_GRANTED])
     if (own[key] !== undefined) out[key] = own[key];
   return out;
 }
@@ -1161,6 +1270,9 @@ function runStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     }
     case 'changes':
       changesStep(ctx, frame, step, path);
+      break;
+    case 'group':
+      groupStep(ctx, frame, step, path);
       break;
     case 'action': {
       if (step.as === 'participant') {
@@ -1216,6 +1328,43 @@ function runStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   }
 }
 
+/**
+ * Runs its steps once per pass at `<path>[<n>]/`, again while `while` holds, up to `max`. Each
+ * pass starts without the inner steps' results; `steps.<group>` lists the finished passes.
+ */
+function groupStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
+  const repeat = step.repeat as { max: Formula; while: Formula };
+  const max = integer(evaluate(ctx, frame, repeat.max), 'repeat.max');
+  const inner = innerSteps(step).map((s) => s.id);
+  const passes: Record<string, unknown>[] = [];
+  setResult(frame, step.id, []);
+  for (let n = 0; n < max; n++) {
+    if (n >= MAX_PASSES)
+      throw new ActionError('safety-limit-exceeded', { limit: 'maxGroupPasses' });
+    if (n > 0 && ++ctx.stepsRun > MAX_STEPS)
+      throw new ActionError('safety-limit-exceeded', { limit: 'maxActionSteps' });
+    const prefix = `${path}[${n}]/`;
+    for (const id of inner) clearResult(frame, id);
+    for (const own of step.steps ?? []) frame.passOf.set(own.id, prefix);
+    runSteps(ctx, { ...frame, prefix }, step.steps ?? []);
+    const pass: Record<string, unknown> = {};
+    for (const id of inner) {
+      const value = resultOf(frame, id);
+      if (value !== undefined && value !== null) pass[id] = value;
+    }
+    passes.push(pass);
+    setResult(frame, step.id, [...passes]);
+    if (!test(ctx, frame, repeat.while)) break;
+  }
+  // Afterwards each step reads its latest run, whichever pass made it.
+  for (const id of inner) {
+    const last = passes.findLastIndex((pass) => Object.hasOwn(pass, id));
+    if (last < 0) continue;
+    setResult(frame, id, passes[last]?.[id]);
+    if (frame.passOf.has(id)) frame.passOf.set(id, `${path}[${last}]/`);
+  }
+}
+
 /** A formula giving `null` leaves its parameter out. */
 function stepParams(ctx: Ctx, frame: Frame, step: Step): Record<string, unknown> {
   const raw: Record<string, unknown> = {};
@@ -1238,7 +1387,7 @@ function stepSituational(ctx: Ctx, frame: Frame, step: Step): Record<string, unk
         : def.type === 'integer'
           ? Number.isInteger(value)
           : typeof value === 'string' && (def.values ?? []).includes(value));
-    if (!ok) throw new ActionError('wrong-type', { target: qid, expected: def?.type });
+    if (!ok) throw new ActionError('wrong-type', { target: qid, ...expectedData(def, def?.type) });
     out[qid] = value;
   }
   return out;
@@ -1281,11 +1430,23 @@ function nestedRun(
     : (source ??
       ctx.sheet.activations.find((a) => a.item && ownsEntry(a) && entryOf(a) === entry)?.item?.qid);
   const action = owner === undefined ? use : `${owner}#${use}`;
+  // `source` alone also names content that is a copy's own item, listed by the copy's entry.
+  const owners =
+    source !== undefined && entry === undefined
+      ? new Set(
+          ctx.sheet.activations
+            .filter((a) => a.item?.qid === source && ownsEntry(a))
+            .map((a) => entryOf(a)),
+        )
+      : undefined;
   const listed = ctx.sheet
-    .actions()
+    .actions(true)
     .filter(
       (a) =>
-        a.action === action && a.source === source && (entry === undefined || a.entry === entry),
+        a.action === action &&
+        (a.source === source ||
+          (a.source === undefined && a.entry !== undefined && owners?.has(a.entry) === true)) &&
+        (entry === undefined || a.entry === entry),
     );
   const found = listed.find((a) => a.entry === frame.entry) ?? listed[0];
   if (!found)
@@ -1372,14 +1533,20 @@ function handoff(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     const value = given[name];
     if (value === undefined) {
       if (decl.optional || decl.default !== undefined) continue;
-      throw new ActionError('missing-param', { param: name });
+      throw new ActionError('missing-param', { param: name, action: qid });
     }
     const typed = decl.type === 'id' && decl.of === 'field' ? undefined : typedValue(decl, value);
     if (typeof typed === 'string')
-      throw new ActionError('wrong-type', { target: name, expected: typed });
+      throw new ActionError('wrong-type', {
+        target: name,
+        ...expectedData(decl, typed),
+        action: qid,
+      });
     // A bound that reads the participant's character is checked when its action starts.
     if (typed)
-      paramRange(name, decl, typed, (bound) => (typeof bound === 'number' ? bound : undefined));
+      paramRange(name, { action: qid }, decl, typed, (bound) =>
+        typeof bound === 'number' ? bound : undefined,
+      );
   }
   const passed = handoffParticipants(ctx, frame, step, used);
   const participant = { role: each.role, id: each.view.id as string };
@@ -1489,6 +1656,30 @@ const targets = (e: Effect) =>
 
 const DIE_LADDER: readonly number[] = [4, 6, 8, 10, 12];
 
+type Repeat = { times: number; keep: 'high' | 'low'; items?: number[] };
+
+/** How opposing advantage and disadvantage sources combine: the extras and their kind. */
+function netAdvantage(
+  ctx: Ctx,
+  advantage: number,
+  disadvantage: number,
+  path: string,
+): { extra: number; kind: 'advantage' | 'disadvantage' } {
+  const mode = ctx.ruleset.rules.settings.rollModifiers?.advantage ?? 'cancel';
+  if (mode === 'cancel')
+    return advantage > 0 && disadvantage > 0
+      ? { extra: 0, kind: 'advantage' }
+      : { extra: 1, kind: advantage > 0 ? 'advantage' : 'disadvantage' };
+  if (mode === 'net')
+    return {
+      extra: Math.abs(advantage - disadvantage),
+      kind: advantage >= disadvantage ? 'advantage' : 'disadvantage',
+    };
+  if (advantage > 0 && disadvantage > 0)
+    throw new ActionError('conflicting-roll-modifiers', { step: path });
+  return { extra: advantage + disadvantage, kind: advantage > 0 ? 'advantage' : 'disadvantage' };
+}
+
 function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   if (step.of !== undefined) {
     classifyAgain(ctx, frame, step, path, step.of);
@@ -1596,6 +1787,8 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   });
   const onPart = (c: (typeof active)[number], tags: string[]) =>
     (targets(c.effect)?.parts ?? []).some((t) => matchesTag(t, tags));
+  // The effects that changed the roll, whose `then` is proposed after it.
+  const changed = new Set<(typeof active)[number]>();
   // 2a. Replaced parts: matching `set` effects replace a part's items before anything reads them.
   const sets = active.filter((c) => c.effect.op === 'set' && targets(c.effect)?.parts);
   if (sets.length > 0) {
@@ -1622,6 +1815,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
           if (policy === 'highest' ? d > 0 : d < 0) chosen = o;
         }
       const { c, value } = chosen;
+      changed.add(c);
       const tree = typeof c.effect.value === 'string' ? f.parse(c.effect.value) : undefined;
       const fieldRef =
         tree?.ok && tree.value.type === 'name'
@@ -1656,15 +1850,19 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       const term = item.term;
       if (!term || item.part === undefined || term.sides === 'F' || term.zero) continue;
       let steps = 0;
+      const reaching: (typeof active)[number][] = [];
       for (const c of steppers) {
         if (targets(c.effect)?.parts && !onPart(c, item.tags)) continue;
         const formula = (c.effect.value as RollModifier).steps as Formula;
-        steps += integer(sheet.evaluate(formula, c.pack, effectCtx(c)), 'steps');
+        const by = integer(sheet.evaluate(formula, c.pack, effectCtx(c)), 'steps');
+        steps += by;
+        if (by !== 0) reaching.push(c);
       }
       const at = DIE_LADDER.indexOf(term.sides);
       if (steps === 0 || at < 0) continue;
       const sides = DIE_LADDER[Math.max(0, Math.min(DIE_LADDER.length - 1, at + steps))] as number;
       if (sides === term.sides) continue;
+      for (const c of reaching) changed.add(c);
       item.steppedFrom = term.sides;
       term.sides = sides;
     }
@@ -1699,6 +1897,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   }
   for (const c of counted) {
     if ((carried as unknown[]).includes(c)) continue;
+    changed.add(c);
     const value = sheet.evaluate(c.effect.value as Formula, c.pack, effectCtx(c));
     const tags = tagsOf(ctx, c.effect.tags, (fm) => sheet.evaluate(fm, c.pack, effectCtx(c)));
     const added = itemsFromValue(value, c.instance.source, tags);
@@ -1735,6 +1934,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     const target = items.find((i) => i.kind === 'dice' && i.part === partId);
     if (!target?.term) continue;
     const count = num(modifier.count, c, 0);
+    if (count !== 0) changed.add(c);
     target.term.count += count;
     target.pool.push({ source: c.instance.source, count });
   }
@@ -1762,40 +1962,38 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     empty = true;
   }
   // 5. Advantage and disadvantage; `noAdvantage`/`noDisadvantage` remove every counted source.
-  let repeat: { times: number; keep: 'high' | 'low' } | undefined;
+  // Sources on the roll's parts (`of: roll`) are counted apart and roll those parts again.
+  let repeat: Repeat | undefined;
+  let again: Set<BuiltItem> | undefined;
   const has = (kind: string) => modifiers.some((m) => m.modifier.kind === kind);
-  const advantage = has('noAdvantage')
-    ? 0
-    : modifiers.filter((m) => m.modifier.kind === 'advantage').length;
-  const disadvantage = has('noDisadvantage')
-    ? 0
-    : modifiers.filter((m) => m.modifier.kind === 'disadvantage').length;
-  if (advantage + disadvantage > 0) {
-    const mode = ruleset.rules.settings.rollModifiers?.advantage ?? 'cancel';
-    let extra = 0;
-    let kind: 'advantage' | 'disadvantage' = 'advantage';
-    if (mode === 'cancel') {
-      if (advantage > 0 && disadvantage > 0) extra = 0;
-      else {
-        extra = 1;
-        kind = advantage > 0 ? 'advantage' : 'disadvantage';
-      }
-    } else if (mode === 'net') {
-      extra = Math.abs(advantage - disadvantage);
-      kind = advantage >= disadvantage ? 'advantage' : 'disadvantage';
-    } else {
-      if (advantage > 0 && disadvantage > 0)
-        throw new ActionError('conflicting-roll-modifiers', { step: path });
-      extra = advantage + disadvantage;
-      kind = advantage > 0 ? 'advantage' : 'disadvantage';
-    }
+  const sources = (kind: string, onParts: boolean) =>
+    has(kind === 'advantage' ? 'noAdvantage' : 'noDisadvantage')
+      ? []
+      : modifiers.filter(
+          (m) => m.modifier.kind === kind && (targets(m.c.effect)?.parts !== undefined) === onParts,
+        );
+  for (const [no, kind] of [
+    ['noAdvantage', 'advantage'],
+    ['noDisadvantage', 'disadvantage'],
+  ] as const)
+    if (modifiers.some((m) => m.modifier.kind === kind))
+      for (const m of modifiers) if (m.modifier.kind === no) changed.add(m.c);
+  const highBetter = (step.better ?? 'high') === 'high';
+  const keepOf = (kind: 'advantage' | 'disadvantage') =>
+    (kind === 'advantage') === highBetter ? 'high' : 'low';
+  const advantage = sources('advantage', false);
+  const disadvantage = sources('disadvantage', false);
+  if (advantage.length + disadvantage.length > 0) {
+    const { extra, kind } = netAdvantage(ctx, advantage.length, disadvantage.length, path);
     // One source of the kind that applies with `of: roll` makes the extras whole rolls.
-    const whole = modifiers.some((m) => m.modifier.kind === kind && m.modifier.of === 'roll');
-    const highBetter = (step.better ?? 'high') === 'high';
+    const whole = (kind === 'advantage' ? advantage : disadvantage).some(
+      (m) => m.modifier.of === 'roll',
+    );
     const main = items.find((i) => i.kind === 'dice');
+    if (extra > 0 && main?.term)
+      for (const m of kind === 'advantage' ? advantage : disadvantage) changed.add(m.c);
     if (extra > 0 && whole) {
-      const keep = (kind === 'advantage') === highBetter ? 'high' : 'low';
-      if (main) repeat = { times: extra + 1, keep };
+      if (main) repeat = { times: extra + 1, keep: keepOf(kind) };
     } else if (extra > 0 && main?.term) {
       const hasKeep = main.term.modifiers.some((m) =>
         ['keepHighest', 'keepLowest', 'dropHighest', 'dropLowest'].includes(m.type),
@@ -1810,11 +2008,34 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       main.term.count += extra;
     }
   }
+  const partAdvantage = sources('advantage', true);
+  const partDisadvantage = sources('disadvantage', true);
+  // A roll made again whole already rolls its parts again.
+  if (!repeat && partAdvantage.length + partDisadvantage.length > 0) {
+    const { extra, kind } = netAdvantage(ctx, partAdvantage.length, partDisadvantage.length, path);
+    const reaching = kind === 'advantage' ? partAdvantage : partDisadvantage;
+    const group = items.filter(
+      (i) => i.kind === 'dice' && i.part !== undefined && reaching.some((m) => onPart(m.c, i.tags)),
+    );
+    if (extra > 0 && group.length > 0) {
+      for (const m of reaching) if (group.some((i) => onPart(m.c, i.tags))) changed.add(m.c);
+      again = new Set(group);
+      repeat = {
+        times: extra + 1,
+        keep: keepOf(kind),
+        items: group.map((i) => items.indexOf(i)),
+      };
+    }
+  }
   // 6. Multiply dice. 7. Reroll, minimum face, explode.
   for (const { modifier, c } of modifiers) {
     if (modifier.kind === 'multiplyDice') {
       const factor = num(modifier.factor, c, 1);
-      for (const item of items) if (item.term && !item.unmultiplied) item.term.count *= factor;
+      for (const item of items)
+        if (item.term && !item.unmultiplied) {
+          if (factor !== 1 && item.term.count > 0) changed.add(c);
+          item.term.count *= factor;
+        }
     }
   }
   for (const { modifier, c } of modifiers) {
@@ -1838,6 +2059,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     if (!add) continue;
     for (const item of items) {
       if (!item.term || item.term.modifiers.some((m) => m.type === add.type)) continue;
+      changed.add(c);
       item.term.modifiers = [...item.term.modifiers, add].toSorted(
         (a, b) => MODIFIER_ORDER.indexOf(a.type) - MODIFIER_ORDER.indexOf(b.type),
       );
@@ -1856,6 +2078,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     );
     const term = item?.term;
     if (!item || !term || item.preset) continue;
+    changed.add(c);
     const [lo, hi] =
       term.sides === 'F' ? [-1, 1] : term.zero ? [0, term.sides - 1] : [1, term.sides];
     item.preset = (modifier.faces ?? []).slice(0, term.count).map((formula) => {
@@ -1869,12 +2092,19 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   }
 
   // A roll with no dice items is not a checkpoint: it never pauses and records no answer.
-  // A whole roll made again (`of: roll`) is a copy of the built items, without given faces.
+  // A roll made again (`of: roll`) is a copy of the built items, without given faces; on parts,
+  // only the parts' items are copied and the others are shared, rolled once.
   const rolls: BuiltItem[][] = [items];
   for (let k = 1; k < (repeat?.times ?? 1); k++)
-    rolls.push(items.map(({ preset: _preset, ...i }) => structuredClone(i)));
+    rolls.push(
+      items.map((item) => {
+        if (again && !again.has(item)) return item;
+        const { preset: _preset, ...i } = item;
+        return structuredClone(i);
+      }),
+    );
   const diceOf = (list: BuiltItem[]) => list.filter((i) => i.term && i.term.count >= 0);
-  const allDice = rolls.flatMap(diceOf);
+  const allDice = [...new Set(rolls.flatMap(diceOf))];
   const checkpoint = items.some((i) => i.kind === 'dice');
   const asked = (i: BuiltItem) =>
     Math.max(0, (i.term as f.DiceTerm).count - (i.preset?.length ?? 0));
@@ -1975,8 +2205,9 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     if (modifier.kind !== 'multiply') continue;
     const factor = num(modifier.factor, c, 1);
     const mode = c.effect.rounding ?? ruleset.rules.settings.rounding ?? 'floor';
-    for (const item of rolls.flat()) {
+    for (const item of new Set(rolls.flat())) {
       if (item.unmultiplied) continue;
+      if (factor !== 1) changed.add(c);
       const before = itemValue(item);
       const raw = before * factor;
       let value = Number.isInteger(before) ? roundNumber(raw, mode) : raw;
@@ -2000,13 +2231,14 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     active.filter((c) => targets(c.effect)?.tally === undefined),
     effectCtx,
     unbounded,
+    changed,
   );
   const total = bounds.at(-1)?.value ?? unbounded;
   const allFaces = diceItems.flatMap((i) => (i.rolled?.faces ?? []).map((face) => face.value));
   const kept = diceItems.flatMap((i) =>
     (i.rolled?.faces ?? []).filter((face) => face.kept && !face.rerolled).map((face) => face.value),
   );
-  const tallies = rollTallies(ctx, frame, active, effectCtx);
+  const tallies = rollTallies(ctx, frame, active, effectCtx, changed);
   const result: Record<string, unknown> = {
     total,
     faces: allFaces,
@@ -2045,6 +2277,98 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     ...(bounds.length ? { bounds } : {}),
     ...(result.rolls ? { rolls: result.rolls as RollLog[] } : {}),
   });
+  // Each effect that changed the roll (or, `when: applied`, was in play on it) proposes its
+  // `then`, in effect order, once per run (or, `once: roll`, per roll step run).
+  const inPlay = (c: (typeof active)[number]) =>
+    !targets(c.effect)?.parts || items.some((i) => i.part !== undefined && onPart(c, i.tags));
+  const fired = active.filter((c) => {
+    const rule = thenRule(c.effect);
+    return rule !== undefined && (rule.when === 'applied' ? inPlay(c) : changed.has(c));
+  });
+  for (const c of fired.toSorted((a, b) => a.instance.order - b.instance.order)) {
+    const i = c.instance;
+    const rule = thenRule(c.effect) as NonNullable<ReturnType<typeof thenRule>>;
+    const key = JSON.stringify([
+      i.optionId,
+      i.applied ?? null,
+      i.source.entry ?? null,
+      rule.once === 'roll' ? path : null,
+    ]);
+    if (ctx.ended.has(key)) continue;
+    ctx.ended.add(key);
+    const first = ctx.proposed.length;
+    if (rule.to !== 'self')
+      proposeChanges(
+        ctx,
+        optionFrame(frame, i),
+        step,
+        path,
+        rule.to,
+        rule.changes as ProposedChange[],
+        { action, roll: rollRoot },
+      );
+    else
+      for (const then of rule.changes as ThenChange[]) {
+        const change = rollThen(ruleset, i, then, (formula) =>
+          outputData(sheet.evaluate(formula, c.pack, effectCtx(c))),
+        );
+        if (change) ctx.proposed.push({ to: 'self', step: path, change });
+      }
+    for (const p of ctx.proposed.slice(first)) ctx.fromThen.add(p);
+  }
+}
+
+/**
+ * A roll effect's `then` change, aimed at what it names: `entry: self` the state its `self`
+ * reads the key from (its pick's or grant's for picked or held granted content declaring it, else
+ * its applied entry or copy); `pick: owner` and `grant: owner` the pick or holder grant that
+ * activated its content. Undefined when `entry: self` names nothing.
+ */
+function rollThen(
+  ruleset: Ruleset,
+  i: EffectInstance,
+  then: ThenChange,
+  value: (formula: Formula) => unknown,
+): Change | undefined {
+  const entry = i.applied ?? i.source.entry;
+  if (then.type === 'removeEffect')
+    return i.applied === undefined
+      ? undefined
+      : ({ type: 'removeEffect', id: i.applied } as Change);
+  const out: Record<string, unknown> = { type: then.type, key: then.key };
+  const a = i.own;
+  const pick = () => {
+    const option = a?.kind === 'pick' ? a.path.choice.at(-1) : undefined;
+    if (!a || option === undefined) return undefined;
+    return { path: { ...a.path, choice: a.path.choice.slice(0, -1) }, option };
+  };
+  const grant = () => {
+    if (!a?.item || a.kind !== 'grant' || a.scope !== 'holder' || a.node === undefined)
+      return undefined;
+    const node =
+      a.path.choice.length === 0
+        ? { entry: a.path.entry }
+        : { path: { ...a.path, choice: a.path.choice.slice(0, -1) }, option: a.path.choice.at(-1) };
+    return { ...node, grant: a.item.qid };
+  };
+  if (then.pick === 'owner') {
+    const at = pick();
+    if (!at) throw new ActionError('unknown-reference', { kind: 'pick', id: 'owner' });
+    Object.assign(out, at);
+  } else if (then.grant === 'owner') {
+    const at = grant();
+    if (!at) throw new ActionError('unknown-reference', { kind: 'grant', id: 'owner' });
+    Object.assign(out, at);
+  } else {
+    const declares = a?.item !== undefined && then.key in stateDecls(ruleset, a.item, []);
+    const own = declares ? (pick() ?? grant()) : undefined;
+    if (own) Object.assign(out, own);
+    else if (entry !== undefined) out.entry = entry;
+    else return undefined;
+  }
+  if (then.value !== undefined) out.value = value(then.value);
+  if (then.by !== undefined) out.by = value(then.by);
+  return out as Change;
 }
 
 /** A set's `value` is evaluated once, before its bands, which read it as `roll.value`. */
@@ -2083,7 +2407,9 @@ function classifyAgain(ctx: Ctx, frame: Frame, step: Step, path: string, of: str
   const [first, ...rest] = of.split('/');
   const each = frame.each;
   const index = each && frame.eachOf.get(first as string) === each.role ? `[${each.index}]` : '';
-  const named = `${frame.prefix}${first}${index}${rest.length ? `/${rest.join('/')}` : ''}`;
+  // A group's inner step names its latest pass's run.
+  const prefix = frame.passOf.get(first as string) ?? frame.prefix;
+  const named = `${prefix}${first}${index}${rest.length ? `/${rest.join('/')}` : ''}`;
   const earlier = ctx.rolls.get(named);
   if (!earlier) return;
   const { band: _band, bandSet: _set, bandValue: _value, ...rolled } = earlier.result;
@@ -2116,6 +2442,7 @@ function rollBounds<T extends { instance: EffectInstance; effect: Effect; pack: 
   active: T[],
   roots: (c: T) => Record<string, unknown>,
   total: number,
+  changed?: Set<T>,
 ): BoundLog[] {
   const out: BoundLog[] = [];
   let value = total;
@@ -2133,6 +2460,7 @@ function rollBounds<T extends { instance: EffectInstance; effect: Effect; pack: 
     }
     if (bound && (op === 'atLeast' ? bound.v > value : bound.v < value)) {
       value = bound.v;
+      changed?.add(bound.c);
       out.push({ source: bound.c.instance.source, op, value: bound.v });
     }
   }
@@ -2145,6 +2473,7 @@ function rollTallies<T extends { instance: EffectInstance; effect: Effect; pack:
   frame: Frame,
   active: T[],
   roots: (c: T) => Record<string, unknown>,
+  changed?: Set<T>,
 ): TallyLog[] {
   const scope = ctx.ruleset.packs.find((p) => p.id === frame.pack)?.scope ?? [frame.pack];
   const out: TallyLog[] = [];
@@ -2166,6 +2495,7 @@ function rollTallies<T extends { instance: EffectInstance; effect: Effect; pack:
       )) {
         const v = amount(c);
         log.value += v;
+        if (v !== 0) changed?.add(c);
         log.sources.push({ source: c.instance.source, op: 'add', value: v });
       }
       for (const op of ['atLeast', 'atMost'] as const) {
@@ -2180,6 +2510,7 @@ function rollTallies<T extends { instance: EffectInstance; effect: Effect; pack:
         }
         if (bound && (op === 'atLeast' ? bound.v > log.value : bound.v < log.value)) {
           log.value = bound.v;
+          changed?.add(bound.c);
           log.sources.push({ source: bound.c.instance.source, op, value: bound.v });
         }
       }
@@ -2303,7 +2634,7 @@ function draw(
   path: string,
   tags: string[],
   among: string[],
-  choice?: PendingChoice,
+  named: Pick<Need, 'choice' | 'content'> = {},
 ): number {
   if (among.length <= 1) return 0;
   const sides = among.length;
@@ -2325,7 +2656,7 @@ function draw(
       kind: 'dice',
       dice: [{ count: 1, sides }],
       draw: { among: [...among] },
-      ...(choice ? { choice } : {}),
+      ...named,
     });
   }
   if (!Number.isInteger(face) || face < 1 || face > sides)
@@ -2391,7 +2722,19 @@ function optionFrame(frame: Frame, instance: EffectInstance): Frame {
     roots: { ...roots, ...instance.roots },
     ...(instance.source.entry !== undefined ? { entry: instance.source.entry } : {}),
     adder: instance.source,
+    owner: { activation: instance.own },
   };
+}
+
+/**
+ * Content items, templates and the rules add options and changes to steps; `from: self`, only a
+ * copy's to its own actions.
+ */
+function addsToSteps(instance: EffectInstance, frame: Frame, from: string | undefined): boolean {
+  const { type, id, entry } = instance.source;
+  if (type === 'rules') return from !== 'self' && id !== undefined;
+  if (type !== 'item' && type !== 'template') return false;
+  return id !== undefined && (from !== 'self' || entry === frame.entry);
 }
 
 /** Of instances sharing a `stackKey` or an ID, only the first is offered. */
@@ -2410,9 +2753,7 @@ function addedOptions(
     const target = effect.target;
     if (effect.op !== 'option' || typeof target !== 'object' || !('choices' in target)) continue;
     if (!target.choices.some((tag) => matchesTag(tag, tags))) continue;
-    if (target.from === 'self' && instance.source.entry !== frame.entry) continue;
-    if (instance.source.type !== 'item' && instance.source.type !== 'template') continue;
-    if (instance.source.id === undefined) continue;
+    if (!addsToSteps(instance, frame, target.from)) continue;
     const value = effect.value as OptionValue;
     const id = `${instance.source.id}#${value.id}`;
     if (out.some((c) => c.id === id)) continue;
@@ -2459,7 +2800,7 @@ const contentOrder = new WeakMap<Ruleset['content'], LoadedItem[]>();
 function contentInOrder(ruleset: Ruleset): LoadedItem[] {
   let items = contentOrder.get(ruleset.content);
   if (!items) {
-    items = Object.values(ruleset.content).toSorted((a, b) => (a.qid < b.qid ? -1 : 1));
+    items = Object.values(ruleset.content);
     contentOrder.set(ruleset.content, items);
   }
   return items;
@@ -2596,10 +2937,16 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
   const max = repeat ? integer(evaluate(ctx, frame, repeat.max), 'repeat.max') : 1;
   const min =
     repeat?.min !== undefined ? integer(evaluate(ctx, frame, repeat.min), 'repeat.min') : 0;
+  // Values are named by the content the action runs for first.
+  const content = valueSource(step) ? frame.activation?.item?.qid : undefined;
+  const named = content !== undefined ? { content } : {};
   const counts = new Map<string, number>();
   const picks: string[] = [];
+  // A repeated value step lists its picked values too, a number staying a number.
+  const values: unknown[] | undefined = repeat && valueSource(step) ? [] : undefined;
   const first = ctx.proposed.length;
-  if (repeat) setResult(frame, step.id, { picked: [], added: [] });
+  if (repeat)
+    setResult(frame, step.id, { picked: [], ...(values ? { values: [] } : {}), added: [] });
   for (let index = 0; picks.length < max; index++) {
     // Each pick proposes its changes at once, so the proposed sheet is read afresh per pick.
     if (index > 0 && readsProposed(step)) {
@@ -2616,7 +2963,7 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     const ownIds = own.map((c) => c.id);
     const recommended =
       own.length > 0 && randomHolds(ctx, frame, step, { options: ownIds })
-        ? ownIds[draw(ctx, frame, path, tags, ownIds)]
+        ? ownIds[draw(ctx, frame, path, tags, ownIds, named)]
         : recommendation(ctx, frame, step, own, counts, action);
     const [answer] = takeAnswers(ctx, path, 'choice');
     let pick: string;
@@ -2636,6 +2983,7 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
         kind: 'choice',
         options,
         ...(recommended !== undefined ? { recommended } : {}),
+        ...named,
       });
     }
     ctx.log.push({
@@ -2649,9 +2997,10 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     if (pick === DONE) break;
     const candidate = candidates.find((c) => c.id === pick) as Candidate;
     picks.push(pick);
+    if (values && candidate.value !== undefined) values.push(candidate.value);
     counts.set(pick, (counts.get(pick) ?? 0) + 1);
     const result: Record<string, unknown> = repeat
-      ? { picked: [...picks] }
+      ? { picked: [...picks], ...(values ? { values: [...values] } : {}) }
       : {
           picked: pick,
           ...(candidate.item !== undefined ? { item: candidate.item } : {}),
@@ -2707,11 +3056,25 @@ interface Asked {
   options: { id: string; option: string | number; recommended: boolean }[];
 }
 
-function nextPending(ctx: Ctx, entry: string | undefined): Asked | undefined {
+/** A pending choice at or under `under`: the same entry, and a choice path it starts with. */
+function under(path: ChoicePath, prefix: ChoicePath): boolean {
+  return (
+    path.entry === prefix.entry &&
+    prefix.choice.length <= path.choice.length &&
+    prefix.choice.every((segment, i) => path.choice[i] === segment)
+  );
+}
+
+function nextPending(
+  ctx: Ctx,
+  entry: string | undefined,
+  prefix: ChoicePath | undefined,
+): Asked | undefined {
   const { sheet } = ctx;
   const links = ctx.state.links ?? {};
   for (const { path } of sheet.pending().pending) {
     if (entry !== undefined && path.entry !== entry) continue;
+    if (prefix !== undefined && !under(path, prefix)) continue;
     const listed = openOptionsOn(ctx.ruleset, sheet, path, links);
     if ('errors' in listed) continue;
     const open = listed.options.filter((o) => o.eligible && !o.picked);
@@ -2743,10 +3106,11 @@ function nextPending(ctx: Ctx, entry: string | undefined): Asked | undefined {
  */
 function pendingStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
   let frame = given;
-  const source = pendingSource(step) as { entry?: Formula };
+  const source = pendingSource(step) as PendingSource;
   const tags = ownTags(ctx, frame, step);
   const entry =
     source.entry === undefined ? undefined : String(f.toData(evaluate(ctx, frame, source.entry)));
+  const prefix = source.path && resolvePath(ctx, frame, source.path, {});
   const picks: string[] = [];
   const paths: ChoicePath[] = [];
   const first = ctx.proposed.length;
@@ -2758,7 +3122,7 @@ function pendingStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
       ctx.sheet = proposedSheet(ctx, path);
       frame = onSheet(ctx, frame);
     }
-    const asked = nextPending(ctx, entry);
+    const asked = nextPending(ctx, entry, prefix);
     if (!asked) break;
     const { choice } = asked;
     const ids = asked.options.map((o) => o.id);
@@ -2775,7 +3139,7 @@ function pendingStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
       },
     };
     if (randomHolds(ctx, frame, step, bound))
-      recommended = ids[draw(ctx, frame, path, tags, ids, choice)];
+      recommended = ids[draw(ctx, frame, path, tags, ids, { choice })];
     else if (step.recommend !== undefined) {
       const v = f.toData(evaluate(ctx, frame, step.recommend as Formula, bound));
       recommended = typeof v === 'string' && ids.includes(v) ? v : undefined;
@@ -3093,8 +3457,7 @@ function addedChanges(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     const target = effect.target;
     if (effect.op !== 'changes' || typeof target !== 'object' || !('steps' in target)) continue;
     if (!target.steps.some((tag) => matchesTag(tag, tags))) continue;
-    if (target.from === 'self' && instance.source.entry !== frame.entry) continue;
-    if (instance.source.type !== 'item' && instance.source.type !== 'template') continue;
+    if (!addsToSteps(instance, frame, target.from)) continue;
     const added = optionFrame(frame, instance);
     if (effect.when !== undefined) {
       const v = ctx.sheet.evaluate(effect.when, instance.pack, context(added, { action }));
@@ -3112,7 +3475,9 @@ function addedChanges(ctx: Ctx, frame: Frame, step: Step, path: string): void {
  * until they are released.
  */
 function hold(ctx: Ctx, frame: Frame, id: string, first: number): void {
-  const taken = ctx.proposed.splice(first);
+  const after = ctx.proposed.splice(first);
+  const taken = after.filter((p) => !ctx.fromThen.has(p));
+  ctx.proposed.push(...after.filter((p) => ctx.fromThen.has(p)));
   // The proposed sheet is cached by the count of changes; taking some back invalidates it.
   delete ctx.cached;
   const list = frame.held.get(id);
@@ -3366,39 +3731,27 @@ function proposeOne(
             : outputData(evaluate(ctx, frame, v, extra)),
         ]),
       );
-    if (change.path) {
-      const at = change.path.entry;
-      const owner =
-        typeof at === 'object'
-          ? computedEntry(ctx, frame, at.formula, extra)
-          : at === 'self'
-            ? frame.entry
-            : at === 'picked'
-              ? (entries.picked ?? at)
-              : at;
-      const choice = Array.isArray(change.path.choice)
-        ? change.path.choice
-        : f.toData(evaluate(ctx, frame, change.path.choice, extra));
-      if (!Array.isArray(choice) || choice.some((c) => typeof c !== 'string'))
-        throw new ActionError('type-mismatch', { message: 'a choice path is a list of strings' });
-      out.path = { ...(owner !== undefined ? { entry: owner } : {}), choice };
-    }
+    if (change.path) out.path = resolvePath(ctx, frame, change.path, extra, entries.picked);
     if (change.option !== undefined)
       out.option = outputData(evaluate(ctx, frame, change.option, extra));
-    if (change.pick === 'self') {
-      const a = frame.activation;
+    // `self` is the action's content; `owner` the content the change is written on, which in an
+    // added option or changes is the effect's.
+    const activationOf = (ref: 'self' | 'owner') =>
+      ref === 'owner' && frame.owner ? frame.owner.activation : frame.activation;
+    if (change.pick !== undefined) {
+      const a = activationOf(change.pick);
       const option = a?.kind === 'pick' ? a.path.choice.at(-1) : undefined;
       if (!a || option === undefined)
-        throw new ActionError('unknown-reference', { kind: 'pick', id: 'self' });
+        throw new ActionError('unknown-reference', { kind: 'pick', id: change.pick });
       out.path = { ...a.path, choice: a.path.choice.slice(0, -1) };
       out.option = option;
     }
-    if (change.grant === 'self') {
-      // The holder grant that activated the action's content: its node (the copy, or the pick its
-      // path ends at) and the granted item.
-      const a = frame.activation;
+    if (change.grant !== undefined) {
+      // The holder grant that activated the content: its node (the copy, or the pick its path
+      // ends at) and the granted item.
+      const a = activationOf(change.grant);
       if (!a?.item || a.kind !== 'grant' || a.scope !== 'holder')
-        throw new ActionError('unknown-reference', { kind: 'grant', id: 'self' });
+        throw new ActionError('unknown-reference', { kind: 'grant', id: change.grant });
       if (a.path.choice.length === 0) out.entry = a.path.entry;
       else {
         out.path = { ...a.path, choice: a.path.choice.slice(0, -1) };
@@ -3475,6 +3828,31 @@ function proposeOne(
   } else {
     ctx.proposed.push({ ...route, step: path, change: resolve({}, []) });
   }
+}
+
+/** `entry` as a change's (`self`, `picked`, an instance ID or `{ formula }`); `choice` a list. */
+function resolvePath(
+  ctx: Ctx,
+  frame: Frame,
+  path: ProposedPath,
+  extra: Record<string, unknown>,
+  picked?: string,
+): ChoicePath {
+  const at = path.entry;
+  const owner =
+    typeof at === 'object'
+      ? computedEntry(ctx, frame, at.formula, extra)
+      : at === 'self'
+        ? frame.entry
+        : at === 'picked'
+          ? (picked ?? at)
+          : at;
+  const choice = Array.isArray(path.choice)
+    ? path.choice
+    : f.toData(evaluate(ctx, frame, path.choice, extra));
+  if (!Array.isArray(choice) || choice.some((c) => typeof c !== 'string'))
+    throw new ActionError('type-mismatch', { message: 'a choice path is a list of strings' });
+  return { ...(owner !== undefined ? { entry: owner } : {}), choice: choice as string[] };
 }
 
 /** Formulas only applyChanges can evaluate (per copy, or reading `batch`) are passed on. */
@@ -3647,6 +4025,8 @@ function proposedEntry(
 ): Record<string, unknown> {
   const qid = contentRef(ctx, frame, decl.item, bound, linked, other);
   const foreign = linked || unloadedPack(ctx.ruleset, qid);
+  if (!foreign && ctx.ruleset.content[qid]?.grantOnly)
+    throw new ActionError('not-addable', { item: qid });
   let id = decl.id;
   if (id === undefined) {
     const used = new Set(

@@ -518,7 +518,7 @@ function startable(
     if (!available(def.available, def.pack, sheet.actionRoots(activation))) return undefined;
     return fromContent(ref);
   }
-  return available(def.available, def.pack, {}) ? { id: ref } : undefined;
+  return available(def.available, def.pack, sheet.rulesRoots()) ? { id: ref } : undefined;
 }
 
 /** Like an action's `changes` step; a change aimed at copies passes its formulas on unchanged. */
@@ -635,8 +635,9 @@ function resolveChange(
     out.path = { ...(entry !== undefined ? { entry } : {}), choice };
   }
   if (change.option !== undefined) out.option = outputData(evaluate(change.option));
-  // `pick: self` and `grant: self` name the pick or holder grant that made the content active.
-  if (change.pick === 'self') {
+  // `pick: self` and `grant: self` name the pick or holder grant that made the content active;
+  // `owner`, the content the change is written on, is the same one here.
+  if (change.pick !== undefined) {
     const option = activation?.kind === 'pick' ? activation.path.choice.at(-1) : undefined;
     if (!activation || option === undefined)
       throw new Failure({
@@ -647,7 +648,7 @@ function resolveChange(
     out.path = { ...activation.path, choice: activation.path.choice.slice(0, -1) };
     out.option = option;
   }
-  if (change.grant === 'self') {
+  if (change.grant !== undefined) {
     if (!activation?.item || activation.kind !== 'grant' || activation.scope !== 'holder')
       throw new Failure({
         code: 'unknown-name',

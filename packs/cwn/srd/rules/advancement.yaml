@@ -9,6 +9,7 @@ actions:
     results: [raised]
     steps:
       - id: raise
+        tags: [advancement.level]
         kind: changes
         changes:
           - { type: adjust, field: level, by: 1 }
@@ -62,6 +63,7 @@ actions:
     params:
       skill:
         type: enum
+        open: true
         values:
           [
             administer,
@@ -111,10 +113,10 @@ actions:
         when: flags.allowed
         changes:
           - type: set
-            field: { formula: "'skills.' + params.skill + '.base'" }
+            field: { formula: "fieldId('skills.{skill}.base', params.skill)" }
             value: flags.level + 1
           - type: set
-            field: { formula: "'skills.' + params.skill + '.credit'" }
+            field: { formula: "fieldId('skills.{skill}.credit', params.skill)" }
             value: max(0, flags.credit - flags.cost)
           - type: adjust
             field: skillPoints.unspent

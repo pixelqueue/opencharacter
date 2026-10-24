@@ -164,6 +164,10 @@
       "description": "The value types a field, item field, state key or parameter can hold. Kept in sync with `data/value-types.json`.",
       "enum": ["integer", "decimal", "boolean", "string", "enum", "dice", "id", "set"]
     },
+    "declValueType": {
+      "description": "The value types a declared value can hold: the value types, and `list` on item fields only (a content type's `fields` and the rules' `templateFields`; elsewhere a validation error). Kept in sync with `data/value-types.json`.",
+      "enum": ["integer", "decimal", "boolean", "string", "enum", "dice", "id", "set", "list"]
+    },
     "rounding": {
       "description": "How a decimal result becomes whole. Kept in sync with `data/rounding-modes.json`.",
       "enum": ["floor", "ceil", "round", "truncate"]
@@ -292,6 +296,10 @@
           },
           "minItems": 1,
           "uniqueItems": true
+        },
+        "open": {
+          "description": "enum: follows the open enum field of the same ID (in the slot's or role's `pack` when it is loaded, else in the declaring pack's scope): with that field loaded, the view's value may be any of its merged values, the ones dependent packs add (`extendEnums`) included. `values` lists the field's own, for type-checking without it. Naming a field that isn't an open enum is a build error.",
+          "type": "boolean"
         },
         "of": {
           "description": "set: what the members are; only `string`. The view's value is a list of strings, read as is (not qualified).",

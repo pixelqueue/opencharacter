@@ -17,6 +17,9 @@ short descriptions written for the pack.
 pnpm add @opencharacter/engine @opencharacter/fitd-scoundrel
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 ```ts
 import { applyChanges, computeSheet, loadRuleset, startAction } from '@opencharacter/engine';
 import blades from '@opencharacter/fitd-scoundrel'; // the pack release
@@ -185,6 +188,28 @@ parameters and the player sets `crew.mastery`.
 Display groups for actions (action rolls, resistance, on the score, harm and healing, downtime,
 creation) and content (playbook, abilities, harm worst first, trauma, items, vice, creations,
 projects, rituals, designs).
+
+## Add-on packs
+
+A pack that depends on `fitd-scoundrel` (a playbook or setting pack) adds content of its types:
+playbooks, special abilities, vices, gear, rituals and the rest join the creation picks, the
+random start's draws and the sheet's groups as the core's do.
+
+- **Open enum:** `fitd-scoundrel:types.gear.fields.kind`, a gear item's kind (values in the
+  add-on's rules' `extendEnums`, named in its text under the core's key). An added kind's
+  quality is the crew's tier: the crew's quality upgrades are the SRD's six.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `charms` added to `fitd-scoundrel:types.gear.fields.kind` is
+  `types.gear.fields.kind.values.charms.name: Charms` (through `enumOrigins`).
+- **Tagged creation steps** of `create-scoundrel`, for an add-on's rules-level `option` effects:
+  `creation.playbook`, `creation.ability` (the special ability without a playbook),
+  `creation.vice` and `creation.picks` (the pending picks); for its `changes` effects:
+  `creation.finish`. The push's cost step is tagged `push-cost`, as Battleborn uses.
+- **Closed:** the twelve action ratings and three attributes (the SRD's fixed set; Expertise's
+  options are those twelve), load levels, and the crafting kinds and downtime tracks the core's
+  rules read.
 
 ## Out of scope
 

@@ -2,6 +2,8 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SPEC_VERSION } from '../../packages/spec/src/index.ts';
+import { buildPacks } from '../build/index.ts';
 import {
   bumpDependencyRanges,
   pinFiles,
@@ -10,6 +12,7 @@ import {
   syncPinnedVersions,
   syncSpecVersion,
 } from './index.ts';
+import { specReleasesFromGit, syncPackSpecVersions } from './spec-minimum.ts';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const bumps = syncPackVersions(fileURLToPath(new URL('../../packs', import.meta.url)));
@@ -45,7 +48,30 @@ if (bumps.length === 0) {
     }
   }
 }
+// Before the spec version moves: the validator checks example characters against SPEC_VERSION.
+const specTo = (
+  JSON.parse(readFileSync(join(root, 'packages/spec/package.json'), 'utf8')) as { version: string }
+).version;
+const specSync =
+  specTo === SPEC_VERSION
+    ? []
+    : (() => {
+        const { reporter, built } = buildPacks(root);
+        if (reporter.errors.length > 0) {
+          console.error('The packs are not valid (see pnpm validate); specVersions not checked.');
+          process.exit(1);
+        }
+        const specs = specReleasesFromGit(root);
+        if (specs.length === 0)
+          console.warn('no spec release tags: pack specVersions not checked.');
+        return syncPackSpecVersions(built, specs, specTo);
+      })();
 const spec = syncSpecVersion(root, pinFiles(root));
+if (specSync.length > 0) {
+  console.log(
+    `pack specVersions updated: ${specSync.map((s) => `${s.id} ${s.from} → ${s.to}`).join(', ')}`,
+  );
+}
 console.log(
   spec
     ? `spec version ${spec.bump.from} → ${spec.bump.to}: updated ${spec.files.length} file(s).`

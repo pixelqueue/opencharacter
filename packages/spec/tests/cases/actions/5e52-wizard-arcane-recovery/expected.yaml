@@ -1,0 +1,14 @@
+status: finished
+outcome:
+  result: recovered
+  data: { levels: 4 }
+proposedChanges:
+  - to: self
+    step: slots
+    change: { type: adjust, field: 5e-srd-5.2:spellSlots.level3.used, by: -1 }
+  - to: self
+    step: slots
+    change: { type: adjust, field: 5e-srd-5.2:spellSlots.level1.used, by: -1 }
+  - to: self
+    step: recover
+    change: { type: setState, entry: class, key: arcaneRecoveryUsed, value: true }

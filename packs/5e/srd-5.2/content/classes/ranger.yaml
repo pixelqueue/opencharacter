@@ -2,6 +2,17 @@ id: classes.ranger
 type: class
 fields:
   hitDie: 1d10
+  startingKit: true
+  abilityPriority:
+    [
+      abilities.dex.score,
+      abilities.wis.score,
+      abilities.con.score,
+      abilities.str.score,
+      abilities.cha.score,
+      abilities.int.score,
+    ]
+  multiclassAll: [dex, wis]
 state:
   favoredEnemySpent: { type: integer, default: 0, min: 0 }
   tirelessSpent: { type: integer, default: 0, min: 0 }
@@ -69,3 +80,28 @@ choices:
     from: { type: subclass, where: 'item.class == @classes.ranger' }
     when: self.level >= 3
     recommend: '@subclasses.hunter'
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: ranger
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'armor.studded-leather'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.scimitar'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.shortsword'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.longbow'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.arrows'", quantity: 20 } }
+              - { type: addItem, entry: { item: "'gear.quiver'" } }
+              - { type: addItem, entry: { item: "'gear.sprig-of-mistletoe'" } }
+              - { type: addItem, entry: { item: "'gear.explorers-pack'" } }
+              - { type: adjust, field: coins.gp, by: 7 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 150 }
+        recommend: "'a'"
+        random: params.random

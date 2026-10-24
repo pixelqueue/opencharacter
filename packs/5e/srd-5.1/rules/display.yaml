@@ -365,6 +365,7 @@ display:
         showWhen: carrying.stowed > 0,
       }
     carrying.stowCapacity: { hidden: true }
+    carrying.stowUnlimited: { hidden: true }
     combat.featherFall: { hidden: true }
     carrying.quivers: { hidden: true }
     carrying.quiveredAmmunition: { hidden: true }
@@ -372,6 +373,7 @@ display:
     carrying.quiveredLong: { hidden: true }
     combat.ignoreArmorStrength: { hidden: true }
     classes.held: { hidden: true }
+    attunement.classUnmet: { hidden: true }
     creature.race: { hidden: true }
     magicItems.ignoreRequirements: { hidden: true }
     combat.missToHit: { hidden: true }
@@ -448,7 +450,6 @@ display:
     hideInPlainSight.active:
       { groups: [class-features], priority: 0, showWhen: hideInPlainSight.active }
     foeSlayer.bonus: { hidden: true }
-    hunter.colossusSlayer: { hidden: true }
     sneakAttack.dice: { groups: [class-features], priority: 1, showWhen: sneakAttack.dice > 0 }
     sorcery.points: { groups: [class-features], priority: 1, showWhen: sorcery.points > 0 }
     eldritchBlast.beams:
@@ -461,11 +462,14 @@ display:
     sorcery.left: { groups: [class-features], priority: 1, showWhen: sorcery.points > 0 }
     sorcery.shortRestRegain: { hidden: true }
     sorcery.metamagic: { hidden: true }
-    draconic.damageType: { hidden: true }
     elementalAffinity.resistant:
       { groups: [class-features], priority: 0, showWhen: elementalAffinity.resistant }
     dragonWings.active:
-      { groups: [class-features], priority: 0, showWhen: draconic.damageType != 'none' }
+      {
+        groups: [class-features],
+        priority: 0,
+        showWhen: "size(picksOf('features.sorcerer.dragon-ancestor', 'dragon')) > 0",
+      }
     warlock.boons: { groups: [class-features], priority: 1, showWhen: size(warlock.boons) > 0 }
     spellcasting.bard.dc:
       { groups: [spellcasting], priority: 0, showWhen: spellcasting.bard.dc > 0 }

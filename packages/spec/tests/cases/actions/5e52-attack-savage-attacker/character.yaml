@@ -1,0 +1,107 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - id: 5e-srd-5.2
+    version: 0.2.0
+features:
+  - id: class
+    item: 5e-srd-5.2:classes.fighter
+    state:
+      level: 5
+      startingClass: true
+    choices:
+      skills:
+        - option: skill.acrobatics
+        - option: skill.animal-handling
+      5e-srd-5.2:features.fighter.fighting-style/style:
+        - option: 5e-srd-5.2:feats.defense
+      5e-srd-5.2:features.fighter.weapon-mastery/weapons:
+        - option: 5e-srd-5.2:weapons.greatsword
+        - option: 5e-srd-5.2:weapons.flail
+        - option: 5e-srd-5.2:weapons.javelin
+        - option: 5e-srd-5.2:weapons.longsword
+      subclass:
+        - option: 5e-srd-5.2:subclasses.champion
+      5e-srd-5.2:features.fighter.ability-score-improvement/feat-4:
+        - option: 5e-srd-5.2:feats.ability-score-improvement
+          choices:
+            increase:
+              - option: plus-two
+                choices:
+                  ability:
+                    - option: str
+  - id: background
+    item: 5e-srd-5.2:backgrounds.soldier
+    choices:
+      ability-increase:
+        - option: two-and-one
+          choices:
+            plus-two:
+              - option: str
+            plus-one:
+              - option: dex
+      gaming-set:
+        - option: 5e-srd-5.2:tools.dice
+      languages:
+        - option: 5e-srd-5.2:languages.common-sign-language
+        - option: 5e-srd-5.2:languages.draconic
+  - id: species
+    item: 5e-srd-5.2:species.human
+    choices:
+      size:
+        - option: medium
+      5e-srd-5.2:traits.skillful/skill:
+        - option: skill.perception
+      5e-srd-5.2:traits.versatile/feat:
+        - option: 5e-srd-5.2:feats.skilled
+          choices:
+            proficiencies:
+              - option: skill.arcana
+              - option: skill.deception
+              - option: skill.history
+values:
+  5e-srd-5.2:abilities.str.base: 15
+  5e-srd-5.2:abilities.dex.base: 14
+  5e-srd-5.2:abilities.con.base: 13
+  5e-srd-5.2:abilities.int.base: 8
+  5e-srd-5.2:abilities.wis.base: 10
+  5e-srd-5.2:abilities.cha.base: 12
+  5e-srd-5.2:coins.gp: 718
+  5e-srd-5.2:hp.base: 34
+  5e-srd-5.2:xp.current: 6500
+  5e-srd-5.2:hp.current: 39
+inventory:
+  - id: armor-chain-mail-1
+    item: 5e-srd-5.2:armor.chain-mail
+    equipped: true
+  - id: weapons-greatsword-1
+    item: 5e-srd-5.2:weapons.greatsword
+    equipped: true
+  - id: weapons-flail-1
+    item: 5e-srd-5.2:weapons.flail
+    equipped: true
+  - id: weapons-javelin-1
+    item: 5e-srd-5.2:weapons.javelin
+    equipped: true
+    quantity: 8
+  - id: gear-dungeoneers-pack-1
+    item: 5e-srd-5.2:gear.dungeoneers-pack
+  - id: weapons-spear-1
+    item: 5e-srd-5.2:weapons.spear
+    equipped: true
+  - id: weapons-shortbow-1
+    item: 5e-srd-5.2:weapons.shortbow
+    equipped: true
+  - id: gear-arrows-1
+    item: 5e-srd-5.2:gear.arrows
+    quantity: 20
+  - id: gear-healers-kit-1
+    item: 5e-srd-5.2:gear.healers-kit
+  - id: gear-quiver-1
+    item: 5e-srd-5.2:gear.quiver
+  - id: gear-travelers-clothes-1
+    item: 5e-srd-5.2:gear.travelers-clothes
+  - id: tools-dice-1
+    item: 5e-srd-5.2:tools.dice
+  - id: trinkets-divination-card-1
+    item: 5e-srd-5.2:trinkets.divination-card

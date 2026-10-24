@@ -1,0 +1,9 @@
+# +1 to the next check, once: its copy's `used` is set by the roll that took it.
+id: feats.guidance
+type: feat
+effects:
+  - target: { rolls: [check] }
+    op: add
+    value: 1
+    when: '!self.used'
+    then: [{ type: setState, entry: self, key: used, value: true }]

@@ -2,15 +2,17 @@ import type { Node } from './ast.ts';
 import { fail } from './errors.ts';
 import { children } from './parser.ts';
 
-// Aggregates: macros evaluating their arguments once per copy, field or list element.
+// Aggregates: macros evaluating their arguments once per copy, pick, grant, field or list element.
 
-export type Over = 'copies' | 'fields' | 'list';
+export type Over = 'copies' | 'picks' | 'grants' | 'fields' | 'list';
 
 const OVER: Readonly<Record<string, Over>> = {
   countCopies: 'copies',
   sumCopies: 'copies',
   maxCopies: 'copies',
   minCopies: 'copies',
+  countPicks: 'picks',
+  countGrants: 'grants',
   countFields: 'fields',
   sumFields: 'fields',
   maxFields: 'fields',
@@ -26,6 +28,8 @@ const OVER: Readonly<Record<string, Over>> = {
 
 export const AGGREGATE_ROOT: Readonly<Record<Over, string>> = {
   copies: 'copy',
+  picks: 'pick',
+  grants: 'grant',
   fields: 'f',
   list: 'x',
 };
@@ -36,6 +40,16 @@ export function aggregateOver(fn: string): Over | undefined {
 
 export function readsCharacter(over: Over): boolean {
   return over !== 'list';
+}
+
+/** Inside an aggregate, `countPicks` and `countGrants` nest one level, bound per outer element. */
+export function unboundAggregate(
+  over: Over,
+  ctx: { inAggregate?: boolean; nestedAggregate?: boolean },
+): string | undefined {
+  if (!ctx.inAggregate) return undefined;
+  if (ctx.nestedAggregate) return 'inside a nested aggregate';
+  return over === 'picks' || over === 'grants' ? undefined : 'inside another aggregate';
 }
 
 export type Reduce = 'count' | 'sum' | 'max' | 'min' | 'filter' | 'map' | 'sort';

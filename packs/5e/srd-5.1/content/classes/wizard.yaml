@@ -2,6 +2,17 @@ id: classes.wizard
 type: class
 fields:
   hitDie: 1d6
+  startingKit: true
+  abilityPriority:
+    [
+      abilities.int.score,
+      abilities.con.score,
+      abilities.dex.score,
+      abilities.wis.score,
+      abilities.cha.score,
+      abilities.str.score,
+    ]
+  multiclassAll: [int]
 state:
   arcaneRecoveryUsed: { type: boolean, default: false }
   overchannelUses: { type: integer, default: 0, min: 0 }
@@ -72,3 +83,48 @@ choices:
   - id: arcane-tradition
     from: { type: subclass, where: 'item.class == @classes.wizard' }
     when: self.level >= 2
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: wizardWeapon
+        kind: choice
+        options:
+          - id: quarterstaff
+            changes:
+              - { type: addItem, entry: { item: "'weapons.quarterstaff'", equipped: true } }
+          - id: dagger
+            changes:
+              - { type: addItem, entry: { item: "'weapons.dagger'", equipped: true } }
+        recommend: options[0]
+        random: params.random
+      - id: wizardFocus
+        kind: choice
+        options:
+          - id: component-pouch
+            changes: [{ type: addItem, entry: { item: "'gear.component-pouch'" } }]
+          - id: arcane-focus
+        recommend: options[0]
+        random: params.random
+      - id: wizardArcaneFocus
+        kind: choice
+        when: "steps.wizardFocus.picked == 'arcane-focus'"
+        options: { content: { type: gear, where: "item.category == 'arcane-focus'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id } }
+      - id: wizardPack
+        kind: choice
+        options:
+          - id: scholars-pack
+            changes: [{ type: addItem, entry: { item: "'gear.scholars-pack'" } }]
+          - id: explorers-pack
+            changes: [{ type: addItem, entry: { item: "'gear.explorers-pack'" } }]
+        recommend: options[0]
+        random: params.random
+      - id: wizardKit
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'gear.spellbook'" } }

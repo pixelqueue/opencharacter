@@ -1,3 +1,6 @@
+contentTypes:
+  boon: {}
+
 fields:
   features.wizardTeeth: { type: boolean, formula: false }
   features.cowardsJab: { type: boolean, formula: false }
@@ -14,6 +17,8 @@ fields:
   features.nechrubelBible: { type: boolean, formula: false }
   features.stones: { type: boolean, formula: false }
   features.horn: { type: boolean, formula: false }
+  # The weapons the class's features bring, which creation adds.
+  features.weapons: { type: set, of: weapon }
 
   teeth.charges: { type: integer, input: true, default: 0, min: 0, max: 4 }
 
@@ -23,9 +28,6 @@ fields:
   daily.bible: { type: boolean, input: true, default: false }
   daily.horn: { type: boolean, input: true, default: false }
   daily.stones: { type: boolean, input: true, default: false }
-
-  tests.truth: { type: boolean, input: true, default: false }
-  tests.horn: { type: boolean, input: true, default: false }
 
 display:
   fields:
@@ -44,6 +46,7 @@ display:
     features.nechrubelBible: { hidden: true }
     features.stones: { hidden: true }
     features.horn: { hidden: true }
+    features.weapons: { hidden: true }
     teeth.charges:
       { groups: [resources], priority: 1, showWhen: features.wizardTeeth, input: { widget: track } }
     daily.boilingBlood: { groups: [resources], priority: 1, showWhen: features.bookOfBoilingBlood }
@@ -52,8 +55,6 @@ display:
     daily.bible: { groups: [resources], priority: 1, showWhen: features.nechrubelBible }
     daily.horn: { groups: [resources], priority: 1, showWhen: features.horn }
     daily.stones: { groups: [resources], priority: 1, showWhen: features.stones }
-    tests.truth: { groups: [condition], priority: 1, showWhen: tests.truth }
-    tests.horn: { groups: [condition], priority: 1, showWhen: tests.horn }
 
 situational:
   - id: teeth
@@ -246,7 +247,7 @@ actions:
         kind: changes
         to: recipient
         changes:
-          - { type: set, field: tests.truth, value: true }
+          - { type: applyEffect, source: "'boons.clarity'" }
       - id: result
         kind: outcome
         result: "'spoken'"
@@ -348,7 +349,7 @@ actions:
         when: "steps.check.result == 'success' || steps.check.result == 'crit'"
         to: recipient
         changes:
-          - { type: set, field: tests.horn, value: true }
+          - { type: applyEffect, source: "'boons.horn'" }
       - id: result
         kind: outcome
         result: steps.check.result

@@ -48,6 +48,7 @@ resultBands:
     - id: critical-success
       when: 'roll.total < flags.target && roll.total < 90 && roll.total % 11 == 0'
     - id: success
+      success: true
       when: 'roll.total < flags.target && roll.total < 90'
     - id: critical-failure
       when: 'roll.total % 11 == 0'
@@ -55,6 +56,7 @@ resultBands:
       when: true
   panic:
     - id: pass
+      success: true
       when: 'roll.total > stress.current'
     - id: panic
       when: true
@@ -376,8 +378,9 @@ actions:
   - id: wound-roll
     tags: [wound]
     params:
-      woundType: { type: enum, values: [blunt, bleeding, gunshot, fire, gore], required: true }
-    results: [blunt, bleeding, gunshot, fire, gore]
+      woundType:
+        { type: enum, values: [blunt, bleeding, gunshot, fire, gore], required: true, open: true }
+    results: [rolled]
     steps:
       - id: wound
         kind: roll
@@ -387,6 +390,7 @@ actions:
           - dice: 1d10z
       - id: result
         kind: outcome
-        result: params.woundType
+        result: "'rolled'"
         data:
+          woundType: params.woundType
           roll: steps.wound.total

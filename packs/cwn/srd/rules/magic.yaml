@@ -10,6 +10,7 @@ contentTypes:
       effort: { type: enum, values: [day, scene, either, none], required: true }
       duration:
         type: enum
+        open: true
         values: [instant, scene, concentration, rounds]
         required: true
     state:
@@ -25,6 +26,9 @@ contentTypes:
   # A spirit the summoner has called: its manifestation, how it was summoned and its powers.
   spirit:
     nameFrom: label
+    fields:
+      # The item has a `powers` choice of spirit powers (a homebrew spirit may not).
+      hasPowers: { type: boolean, default: false }
     state:
       label: { type: string, default: '' }
       form:
@@ -38,12 +42,14 @@ contentTypes:
       cost:
         type: integer
         formula: >-
-          max(1, size(picksOf('powers')) - (self.ritual ? 1 : 0) - max(0, skills.summon.level))
+          max(1, (item.hasPowers ? size(picksOf('powers')) : 0) - (self.ritual ? 1 : 0)
+            - max(0, skills.summon.level))
     actions:
       - use: summon-spirit
 
   # A spirit power: each adds one point to a spirit's cost.
   spiritPower:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       minLevel: { type: integer, default: 1, min: 1 }

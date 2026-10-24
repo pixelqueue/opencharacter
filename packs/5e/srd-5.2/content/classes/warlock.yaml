@@ -2,6 +2,17 @@ id: classes.warlock
 type: class
 fields:
   hitDie: 1d8
+  startingKit: true
+  abilityPriority:
+    [
+      abilities.cha.score,
+      abilities.dex.score,
+      abilities.con.score,
+      abilities.int.score,
+      abilities.wis.score,
+      abilities.str.score,
+    ]
+  multiclassAll: [cha]
 state:
   magicalCunningUsed: { type: boolean, default: false }
   contactPatronUsed: { type: boolean, default: false }
@@ -53,3 +64,26 @@ choices:
   - id: subclass
     from: { type: subclass, where: 'item.class == @classes.warlock' }
     when: self.level >= 3
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: warlock
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.sickle'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.dagger'", quantity: 2, equipped: true } }
+              - { type: addItem, entry: { item: "'gear.orb'" } }
+              - { type: addItem, entry: { item: "'gear.book'" } }
+              - { type: addItem, entry: { item: "'gear.scholars-pack'" } }
+              - { type: adjust, field: coins.gp, by: 15 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 100 }
+        recommend: "'a'"
+        random: params.random

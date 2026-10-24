@@ -353,8 +353,7 @@ actions:
           - when: true
             flags:
               compass: >-
-                countCopies(copy.item == @gear.compass
-                  || copy.item == @gear.compass-lensatic) > 0
+                countCopies('tool.compass' in copy.tags) > 0
       - id: check
         kind: action
         use: check

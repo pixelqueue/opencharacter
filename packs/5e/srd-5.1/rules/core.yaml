@@ -49,6 +49,7 @@ fields:
   creature.type:
     {
       type: enum,
+      open: true,
       values:
         [
           aberration,
@@ -110,6 +111,7 @@ fields:
         : creature.size == 'huge' ? 4 : creature.size == 'gargantuan' ? 8 : 1)
 
   classes.held: { type: set, of: class }
+  attunement.classUnmet: { type: integer, formula: 0 }
   creature.race: { type: string, formula: "''" }
   magicItems.ignoreRequirements: { type: boolean, formula: false }
 
@@ -118,22 +120,10 @@ fields:
 constraints:
   - id: attunement-requirement
     check: >-
-      magicItems.ignoreRequirements || countCopies(has(copy.state.attuned) && copy.state.attuned
-        && (('attunement.spellcaster' in copy.tags && spellcasting.casterLevel == 0 && pactSlots.max == 0)
-          || ('attunement.dwarf' in copy.tags && creature.race != @races.dwarf)
-          || (('attunement.barbarian' in copy.tags || 'attunement.bard' in copy.tags || 'attunement.cleric' in copy.tags || 'attunement.druid' in copy.tags || 'attunement.fighter' in copy.tags || 'attunement.monk' in copy.tags || 'attunement.paladin' in copy.tags || 'attunement.ranger' in copy.tags || 'attunement.rogue' in copy.tags || 'attunement.sorcerer' in copy.tags || 'attunement.warlock' in copy.tags || 'attunement.wizard' in copy.tags)
-            && !(('attunement.barbarian' in copy.tags && @classes.barbarian in classes.held)
-          || ('attunement.bard' in copy.tags && @classes.bard in classes.held)
-          || ('attunement.cleric' in copy.tags && @classes.cleric in classes.held)
-          || ('attunement.druid' in copy.tags && @classes.druid in classes.held)
-          || ('attunement.fighter' in copy.tags && @classes.fighter in classes.held)
-          || ('attunement.monk' in copy.tags && @classes.monk in classes.held)
-          || ('attunement.paladin' in copy.tags && @classes.paladin in classes.held)
-          || ('attunement.ranger' in copy.tags && @classes.ranger in classes.held)
-          || ('attunement.rogue' in copy.tags && @classes.rogue in classes.held)
-          || ('attunement.sorcerer' in copy.tags && @classes.sorcerer in classes.held)
-          || ('attunement.warlock' in copy.tags && @classes.warlock in classes.held)
-          || ('attunement.wizard' in copy.tags && @classes.wizard in classes.held))))) == 0
+      magicItems.ignoreRequirements || (attunement.classUnmet == 0
+        && countCopies(has(copy.state.attuned) && copy.state.attuned
+          && (('attunement.spellcaster' in copy.tags && spellcasting.casterLevel == 0 && pactSlots.max == 0)
+            || ('attunement.dwarf' in copy.tags && creature.race != @races.dwarf))) == 0)
   - id: attunement-limit
     check: countCopies(has(copy.state.attuned) && copy.state.attuned) <= 3
     data:

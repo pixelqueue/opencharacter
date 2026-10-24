@@ -30,7 +30,14 @@ import {
   valueSource,
   writtenOptions,
 } from '../../packages/engine/src/core/pack-types.ts';
-import { appliesQueries } from '../../packages/engine/src/core/pack-types.ts';
+import {
+  appliesQueries,
+  enumAddress,
+  innerSteps,
+  stepArms,
+  thenRule,
+  thenToSelf,
+} from '../../packages/engine/src/core/pack-types.ts';
 import { HOMEBREW } from '../../packages/engine/src/core/homebrew.ts';
 import {
   blockArgument,
@@ -46,7 +53,9 @@ import type {
   ActionOrUse,
   CharacterDoc,
   Choice,
+  ChoiceAddition,
   CreationStart,
+  DeclaredField,
   ChoiceTree,
   ContentItem,
   Destination,
@@ -82,11 +91,7 @@ const COPY_CORE = new Set(['id', 'item', 'templates', 'equipped', 'quantity', 'c
 
 function hasOutcome(steps: Step[]): boolean {
   return steps.some(
-    (step) =>
-      step.kind === 'outcome' ||
-      [...(step.cases ?? []), ...(step.else ? [step.else] : [])].some((arm) =>
-        hasOutcome(arm.steps ?? []),
-      ),
+    (step) => step.kind === 'outcome' || stepArms(step).some((arm) => hasOutcome(arm.steps ?? [])),
   );
 }
 
@@ -97,7 +102,7 @@ function actionIds(def: { actions?: ActionOrUse[] }): Set<string> {
 function targetKind(
   target: Effect['target'],
 ): 'field' | 'fields' | 'roll' | 'incoming' | 'choice' | 'step' {
-  if (typeof target === 'string') return 'field';
+  if (typeof target === 'string' || 'formula' in target) return 'field';
   if ('fields' in target) return 'fields';
   if ('choices' in target) return 'choice';
   if ('steps' in target) return 'step';
@@ -223,7 +228,7 @@ export class PackChecker {
           `${where}: field IDs cannot start with the context root "${id.split('.')[0]}"`,
         );
       }
-      this.memberKind(def, file, where);
+      this.memberKind(def, file, where, { canOpen: true });
       if (def.members && def.default !== undefined)
         for (const tag of [def.default].flat())
           this.memberTag(String(tag), def, file, `${where} default`);
@@ -238,6 +243,20 @@ export class PackChecker {
           (hidden ? this.optionalKeys : this.requiredKeys).add(`fields.${id}.values.${value}.name`);
     }
 
+    for (const [target, { def: values, at: file }] of rules.extendEnums)
+      this.enumExtension(target, values, file);
+    for (const [target, { def: choices, at: file }] of rules.extendChoices)
+      this.choiceExtension(target, choices, file);
+    // A value added to a family, offered by a dependency's values step, is named under its key.
+    for (const [name, values] of rules.families) {
+      if (!name.includes(':')) continue;
+      for (const pid of this.scope.slice(1))
+        for (const { def } of this.ruleset.rules.get(pid)?.actions.values() ?? [])
+          if (hasValues(def.steps))
+            for (const value of values)
+              this.optionalKeys.add(`actions.${def.id}.options.${value}.name`);
+    }
+
     this.calculationOrder();
 
     for (const [name, { def, at: file }] of rules.links) {
@@ -250,6 +269,7 @@ export class PackChecker {
             file,
             `link ${name}: "${id}" is also the start of another declared field`,
           );
+      this.openViewFields(def.fields, def.pack, file, `link ${name}`);
       if (def.pack === undefined) continue;
       if (!this.ruleset.packs.has(def.pack)) {
         this.report.error(file, `link ${name}: unknown pack "${def.pack}"`);
@@ -273,7 +293,7 @@ export class PackChecker {
       // Named for a custom template's form, in each pack that declares it.
       this.requiredKeys.add(`templateFields.${name}.name`);
       this.optionalKeys.add(`templateFields.${name}.description`);
-      this.memberKind(def, file, where);
+      this.memberKind(def, file, where, { itemField: true, takesWhere: true });
       if (def.default !== undefined)
         this.itemFieldValue(def.default, def, file, `${where} default`);
       const earlier = this.ruleset.templateFields(this.scope.slice(1)).get(name);
@@ -302,9 +322,13 @@ export class PackChecker {
         this.requiredKeys.add(`types.${name}.fields.${field}.name`);
         this.optionalKeys.add(`types.${name}.fields.${field}.description`);
       }
-      for (const decl of [...Object.values(def.fields ?? {}), ...Object.values(def.state ?? {})]) {
-        this.memberKind(decl, file, where);
-      }
+      for (const decl of Object.values(def.fields ?? {}))
+        this.memberKind(decl, file, where, { canOpen: true, itemField: true, takesWhere: true });
+      for (const decl of Object.values(def.state ?? {}))
+        this.memberKind(decl, file, where, { canOpen: true, takesWhere: true });
+      for (const [key, decl] of Object.entries(def.state ?? {}))
+        if (decl.perCopy !== undefined)
+          this.report.error(file, `${where}: state ${key}: perCopy is for item fields`);
       for (const [field, decl] of Object.entries(def.fields ?? {}))
         if (decl.default !== undefined)
           this.itemFieldValue(decl.default, decl, file, `${where} field ${field} default`);
@@ -363,7 +387,10 @@ export class PackChecker {
     for (const [, { def, at: file }] of rules.actions) this.action(def, file, `actions.${def.id}`);
     this.offerable = undefined;
     this.creation(rules.creation);
+    // The rules' option and changes effects add to tagged steps, their options named `rules.options.<id>`.
+    this.contentOwner = 'rules';
     for (const { def, at: file } of rules.effects) this.effect(def, file, 'rules effect', false);
+    this.contentOwner = undefined;
     this.followUps(
       rules.followUps.map(({ def, at }) => ({ def, file: at })),
       'followUps',
@@ -469,8 +496,7 @@ export class PackChecker {
           for (const step of steps) {
             if (step.kind === 'roll' && !step.label)
               this.requiredKeys.add(`actions.${target.def.id}.steps.${step.id}.name`);
-            for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])])
-              walk(arm.steps ?? []);
+            for (const arm of stepArms(step)) walk(arm.steps ?? []);
           }
         };
         walk(target.def.steps);
@@ -510,8 +536,7 @@ export class PackChecker {
             file,
             `${where}: step "${path}" of ${qid} has no recommend, so a random run pauses there`,
           );
-        for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])])
-          walk(arm.steps ?? [], `${path}/`);
+        for (const arm of stepArms(step)) walk(arm.steps ?? [], `${path}/`);
         if (step.kind === 'action' && step.use && step.as !== 'participant') {
           const used = this.ruleset.action(step.use, this.scope);
           if (used) this.randomRun(used.def, used.qid, file, where, seen);
@@ -576,7 +601,13 @@ export class PackChecker {
           if (!Object.hasOwn(type?.def.fields ?? {}, step.to))
             this.report.error(file, `${where}: "${step.to}" is not an item field of ${step.type}`);
         }
-        const itemSteps = ['adoptStandard', 'renameState', 'removeState', 'moveState'];
+        const itemSteps = [
+          'adoptStandard',
+          'renameState',
+          'removeState',
+          'moveState',
+          'stateToField',
+        ];
         if (itemSteps.includes(step.op) && step.item && !this.ruleset.item(step.item, own))
           this.report.error(file, `${where}: "${step.item}" is not content of this pack`);
         const target = step.op === 'moveState' && !step.grant;
@@ -586,6 +617,16 @@ export class PackChecker {
             this.report.error(
               file,
               `${where}: no choice "${step.choice}" on ${step.owner ?? 'the rules'}`,
+            );
+        }
+        if (step.op === 'stateToField' && step.type) {
+          // The value moves to an item field the type marks perCopy.
+          const field = step.to ?? step.from ?? '';
+          const type = this.ruleset.contentType(step.type, own);
+          if (!type?.def.fields?.[field]?.perCopy)
+            this.report.error(
+              file,
+              `${where}: "${field}" is not a perCopy item field of ${step.type}`,
             );
         }
         if (step.op === 'moveState') {
@@ -825,6 +866,11 @@ export class PackChecker {
               file,
               `field "${name}" is not declared by content type "${typeName}"`,
             );
+          else if (isFormulaValue(value))
+            this.report.error(
+              file,
+              `${owner}.fields.${name}: only a template's field may be { formula }`,
+            );
           else this.itemFieldValue(value, decl, file, `${owner}.fields.${name}`);
         }
         if (!item.extends) {
@@ -855,12 +901,24 @@ export class PackChecker {
             file,
             `field "${name}" is neither a template field nor a field of ${types.map((t) => `"${t}"`).join(' and ')}`,
           );
-        else if (value !== null) this.itemFieldValue(value, decl, file, `${owner}.fields.${name}`);
+        else if (isFormulaValue(value)) {
+          if (!['string', 'enum', 'id'].includes(decl.type))
+            this.report.error(
+              file,
+              `${owner}.fields.${name}: { formula } is for a string, enum or id field; a ${decl.type} value is a formula as written`,
+            );
+        } else if (value !== null)
+          this.itemFieldValue(value, decl, file, `${owner}.fields.${name}`);
       }
     }
 
     for (const query of appliesQueries(item)) this.query(query, file, `${owner} appliesTo`);
-    for (const decl of Object.values(item.state ?? {})) this.memberKind(decl, file, owner);
+    for (const decl of Object.values(item.params ?? {})) this.memberKind(decl, file, owner);
+    for (const [key, decl] of Object.entries(item.state ?? {})) {
+      this.memberKind(decl, file, owner, { canOpen: true, takesWhere: true });
+      if (decl.perCopy !== undefined)
+        this.report.error(file, `${owner}: state ${key}: perCopy is for item fields`);
+    }
     {
       const ref = item.override ?? item.extends;
       const parent = ref ? this.ruleset.item(ref, this.scope) : undefined;
@@ -899,6 +957,8 @@ export class PackChecker {
       true,
     );
     for (const action of item.actions ?? []) this.actionOrUse(action, file, `${owner}.actions`);
+    // A values step of an action run for the item names its values by the item's text first.
+    if (item.id && this.valueStepFor(item)) this.optionalPrefixes.add(`${item.id}.options.`);
     this.choices(item.choices ?? [], file, owner);
     this.offerable = undefined;
     this.grants(item.grants, file, '');
@@ -1019,6 +1079,141 @@ export class PackChecker {
         );
   }
 
+  /**
+   * Values for a dependency's open enum: named in this pack's text by the key the enum's own pack
+   * would use, required as that pack's values are (an item field's are optional).
+   */
+  private enumExtension(target: string, values: string[], file: string): void {
+    const where = `extendEnums ${target}`;
+    const colon = target.indexOf(':');
+    const owner = target.slice(0, colon);
+    const address = target.slice(colon + 1);
+    if (owner === this.packId || !this.scope.includes(owner)) {
+      this.report.error(file, `${where}: invalid-extension: ${owner} is not a dependency`);
+      return;
+    }
+    // The enum as this pack's dependencies leave it: values one of them adds need no name here.
+    const scope = this.scope.slice(1);
+    const at = enumAddress(address);
+    let decl: ValueDecl | undefined;
+    let required = true;
+    if (at?.kind === 'field') {
+      decl = this.ruleset.field(`${owner}:${at.field}`, scope)?.def;
+      required = this.ruleset.rules.get(owner)?.fieldHints.get(at.field)?.def.hidden !== true;
+    } else if (at?.kind === 'type') {
+      decl = this.ruleset.contentType(`${owner}:${at.type}`, scope)?.def[at.of]?.[at.key];
+      required = at.of === 'state';
+    } else if (at?.kind === 'action') {
+      decl = this.ruleset.action(`${owner}:${at.action}`, scope)?.def.params?.[at.param];
+    } else if (at?.kind === 'item-state' || at?.kind === 'item-action') {
+      let entry = this.ruleset.item(`${owner}:${at.item}`, scope);
+      // An item inherits what it doesn't declare from the item it extends.
+      const declares = (item: ContentItem) =>
+        at.kind === 'item-state'
+          ? Object.hasOwn(item.state ?? {}, at.key)
+          : (item.actions ?? []).some((a) => !('use' in a) && a.id === at.action);
+      const seen = new Set<string>();
+      while (entry && !declares(entry.item) && entry.item.extends && !seen.has(entry.qid)) {
+        seen.add(entry.qid);
+        entry = this.ruleset.item(entry.item.extends, this.ruleset.scope(entry.pack));
+      }
+      if (at.kind === 'item-state') {
+        decl = entry?.item.state?.[at.key];
+        // An item's value falls back to its type's name when the type declares the key too.
+        const type = entry ? this.ruleset.typeOf(entry) : undefined;
+        const typeDef = type
+          ? this.ruleset.contentType(type, this.ruleset.scope(owner))
+          : undefined;
+        required = !Object.hasOwn(typeDef?.def.state ?? {}, at.key);
+      } else {
+        const def = entry?.item.actions?.find((a) => !('use' in a) && a.id === at.action);
+        decl = def && !('use' in def) ? def.params?.[at.param] : undefined;
+      }
+    }
+    if (decl?.type !== 'enum') {
+      this.report.error(file, `${where}: invalid-extension: not an enum of ${owner}`);
+      return;
+    }
+    if (decl.open !== true) {
+      this.report.error(file, `${where}: invalid-extension: the enum is not open`);
+      return;
+    }
+    for (const value of values) {
+      if (decl.values?.includes(value)) continue;
+      (required ? this.requiredKeys : this.optionalKeys).add(`${address}.values.${value}.name`);
+    }
+  }
+
+  /**
+   * Options for a dependency's choice, of the choice's kind: named in this pack's text by the key
+   * the choice's own pack would use.
+   */
+  private choiceExtension(
+    target: string,
+    choices: Record<string, ChoiceAddition>,
+    file: string,
+  ): void {
+    const where = `extendChoices ${target}`;
+    const colon = target.indexOf(':');
+    const owner = target.slice(0, colon);
+    const local = target.slice(colon + 1);
+    if (owner === this.packId || !this.scope.includes(owner)) {
+      this.report.error(file, `${where}: invalid-extension: ${owner} is not a dependency`);
+      return;
+    }
+    let roots: Choice[] | undefined;
+    if (local === 'rules')
+      roots = [...(this.ruleset.rules.get(owner)?.choices.values() ?? [])].map((c) => c.def);
+    else {
+      // An item without choices of its own takes its parent's.
+      let entry = this.ruleset.item(target, this.ruleset.scope(owner));
+      const seen = new Set<string>();
+      while (entry && !entry.item.choices && entry.item.extends && !seen.has(entry.qid)) {
+        seen.add(entry.qid);
+        entry = this.ruleset.item(entry.item.extends, this.ruleset.scope(entry.pack));
+      }
+      if (!entry) {
+        this.report.error(file, `${where}: unknown content "${target}"`);
+        return;
+      }
+      roots = entry.item.choices ?? [];
+    }
+    for (const [path, addition] of Object.entries(choices)) {
+      const parts = path.split('/');
+      let choice = roots.find((c) => c.id === parts[0]);
+      let key = `${local}.choices.${parts[0]}`;
+      for (let at = 1; choice && at < parts.length; at += 2) {
+        const from = choice.from;
+        const option = 'options' in from ? from.options.find((o) => o.id === parts[at]) : undefined;
+        choice = option?.choices?.find((c) => c.id === parts[at + 1]);
+        key = `${key}.options.${parts[at]}.choices.${parts[at + 1]}`;
+      }
+      const label = `${where} ${path}`;
+      if (!choice) {
+        this.report.error(file, `${label}: invalid-extension: no such choice`);
+        continue;
+      }
+      const from = choice.from;
+      if ('items' in addition && 'items' in from) {
+        for (const ref of addition.items)
+          if (!this.ruleset.item(ref, this.scope))
+            this.report.error(file, `${label}: unknown option "${ref}"`);
+      } else if ('values' in addition && 'values' in from && Array.isArray(from.values)) {
+        this.optionalPrefixes.add(`${key}.options.`);
+      } else if ('options' in addition && 'options' in from) {
+        for (const option of addition.options)
+          if (from.options.some((o) => o.id === option.id))
+            this.report.error(file, `${label}: duplicate option id "${option.id}"`);
+        this.inlineOptions(addition.options, file, key);
+      } else {
+        this.report.error(
+          file,
+          `${label}: invalid-extension: the choice doesn't take ${Object.keys(addition)[0]}`,
+        );
+      }
+    }
+  }
+
   private itemFieldValue(value: Literal, decl: ValueDecl, file: string, where: string): void {
     if (!fitsItemField(value, decl)) {
       const expected: Record<string, string> = {
@@ -1026,13 +1221,14 @@ export class PackChecker {
         enum: `one of ${decl.values?.join(', ')}`,
         id: 'an id',
         set: 'a list',
+        list: decl.unique ? 'a list without duplicates' : 'a list',
       };
       this.report.error(
         file,
         `${where}: expected ${expected[decl.type] ?? `a ${decl.type} formula`}, got ${JSON.stringify(value)}`,
       );
     } else if (decl.type === 'id') this.member(value as string, decl.of, file, where, decl);
-    else if (decl.type === 'set')
+    else if (decl.type === 'set' || decl.type === 'list')
       for (const member of value as Literal[])
         this.member(String(member), decl.of, file, where, decl);
   }
@@ -1070,7 +1266,33 @@ export class PackChecker {
       this.report.error(file, `${where}: "${tag}" is not one of its members`);
   }
 
-  private memberKind(decl: ValueDecl, file: string, where: string): void {
+  /**
+   * `canOpen`: a rules field's or a content type's declaration, which `open` may mark;
+   * `itemField`: an item field, which may be a `list`.
+   */
+  private memberKind(
+    decl: ValueDecl,
+    file: string,
+    where: string,
+    { canOpen = false, itemField = false, takesWhere = false } = {},
+  ): void {
+    const refs =
+      ['id', 'set', 'list'].includes(decl.type) &&
+      decl.of !== undefined &&
+      decl.of !== 'tag' &&
+      decl.of !== 'string';
+    if (takesWhere && decl.where !== undefined && !refs)
+      this.report.error(
+        file,
+        `${where}: where is only for an id, set or list of fields or content`,
+      );
+    if (decl.type === 'list' && !itemField)
+      this.report.error(file, `${where}: type list is for item fields`);
+    if (decl.open !== undefined && (!canOpen || decl.type !== 'enum'))
+      this.report.error(
+        file,
+        `${where}: open is for the enums of rules fields, content types' item fields and state keys, items' own state keys and the parameters of rules and items' actions`,
+      );
     const { under = [], tags = [], except = [] } = decl.members ?? {};
     for (const tag of [...under, ...tags, ...except]) this.tag(tag, file, `${where} members`);
     if (!decl.of || MEMBER_KINDS.has(decl.of)) return;
@@ -1378,7 +1600,11 @@ export class PackChecker {
   private effect(effect: Effect, file: string, where: string, copy = true): void {
     const kind = targetKind(effect.target);
     const label = `${where} effect${effect.id ? ` ${effect.id}` : ''}`;
-    if (effect.then && !copy)
+    const then = thenRule(effect);
+    if (then && then.to !== 'self')
+      for (const change of then.changes as ProposedChange[])
+        this.proposedChange(change, file, `${label} then`, false, new Set(), then.to);
+    if (effect.then && !copy && thenToSelf(effect))
       this.report.error(
         file,
         `${label}: then-without-copy: only an effect with an entry (content's, not the rules', a situational choice's or a choice's) can change its entry`,
@@ -1398,6 +1624,10 @@ export class PackChecker {
       if (effect.op === 'grant' && field) {
         this.grantValue(effect.value as GrantValue, field.def.of, file, label, field.def);
       }
+    } else if ('formula' in effect.target) {
+      // The field is known only on the sheet, which checks the op takes it.
+      if (effect.op === 'grant')
+        this.grantValue(effect.value as GrantValue, undefined, file, label);
     } else if ('fields' in effect.target) {
       // A grant into a set of set fields: the members each field takes are checked by the engine
       // when it applies.
@@ -1427,6 +1657,13 @@ export class PackChecker {
     } else if ('steps' in effect.target) {
       this.tagList(effect.target.steps, file, label);
     }
+    if (
+      this.contentOwner === 'rules' &&
+      typeof effect.target === 'object' &&
+      ('choices' in effect.target || 'steps' in effect.target) &&
+      effect.target.from === 'self'
+    )
+      this.report.error(file, `${label}: from: self is for content's effects, not the rules'`);
     // A changes effect adds to a step the way an option effect does, so it too belongs on a content
     // item.
     if (effect.op === 'changes') {
@@ -1434,7 +1671,7 @@ export class PackChecker {
       if (this.contentOwner === undefined)
         this.report.error(
           file,
-          `${label}: changes effects are only for content items and types (their effects, choices and inline options)`,
+          `${label}: changes effects are only for the rules' effects and content items and types (their effects, choices and inline options)`,
         );
       for (const change of value.changes ?? [])
         this.proposedChange(change, file, label, false, new Set(), value.to);
@@ -1446,7 +1683,7 @@ export class PackChecker {
       if (this.contentOwner === undefined)
         this.report.error(
           file,
-          `${label}: option effects are only for content items and types (their effects, choices and inline options)`,
+          `${label}: option effects are only for the rules' effects and content items and types (their effects, choices and inline options)`,
         );
       else this.requiredKeys.add(`${this.contentOwner}.options.${value.id}.name`);
       for (const change of value.changes ?? [])
@@ -1573,6 +1810,15 @@ export class PackChecker {
     }
   }
 
+  /** Whether an action the item or its type lists (a `use` resolved) has a values step. */
+  private valueStepFor(item: ContentItem): boolean {
+    const type = item.type ? this.ruleset.contentType(item.type, this.scope)?.def : undefined;
+    return [...(type?.actions ?? []), ...(item.actions ?? [])].some((a) => {
+      const def = 'use' in a ? this.ruleset.action(a.use, this.scope)?.def : a;
+      return def !== undefined && hasValues(def.steps);
+    });
+  }
+
   private actionOrUse(action: ActionOrUse, file: string, keyPrefix: string): void {
     if ('use' in action) {
       const target = this.ruleset.action(action.use, this.scope);
@@ -1609,6 +1855,8 @@ export class PackChecker {
         this.report.error(file, `${where}: unknown pack "${def.pack}"`);
         continue;
       }
+      if (def.fields && typeof def.fields === 'object')
+        this.openViewFields(def.fields, def.pack, file, where);
       const scope = def.pack !== undefined ? this.ruleset.scope(def.pack) : this.scope;
       const pack = def.pack ?? this.packId;
       for (const [field, decl] of Object.entries(def.fields ?? {})) {
@@ -1620,6 +1868,25 @@ export class PackChecker {
             `${where}: "${field}" is ${found.def.type} in ${pack}, declared ${decl.type}`,
           );
       }
+    }
+  }
+
+  /** A view field marked `open` follows the open enum field of its ID, in `pack` or this scope. */
+  private openViewFields(
+    fields: Record<string, DeclaredField>,
+    pack: string | undefined,
+    file: string,
+    where: string,
+  ): void {
+    for (const [id, decl] of Object.entries(fields)) {
+      if (decl.open === undefined) continue;
+      if (pack !== undefined && !this.ruleset.packs.has(pack)) continue;
+      const found = this.ruleset.field(
+        id,
+        pack === undefined ? this.scope : this.ruleset.scope(pack),
+      );
+      if (decl.type !== 'enum' || found?.def.type !== 'enum' || found.def.open !== true)
+        this.report.error(file, `${where}: "${id}": open follows an open enum field of that ID`);
     }
   }
 
@@ -1644,7 +1911,8 @@ export class PackChecker {
     this.optionalKeys.add(`${key}.description`);
     this.tagList(action.tags, file, key);
     for (const [name, decl] of Object.entries(action.params ?? {})) {
-      this.memberKind(decl, file, key);
+      // A content type's action is named per item, so its parameters stay closed.
+      this.memberKind(decl, file, key, { canOpen: !key.startsWith('types.') });
       this.requiredKeys.add(decl.label ?? `${key}.params.${name}.name`);
       this.optionalKeys.add(`${key}.params.${name}.description`);
       if (decl.type === 'enum')
@@ -1657,8 +1925,7 @@ export class PackChecker {
     const collect = (steps: Step[]) => {
       for (const step of steps) {
         if (step.kind === 'roll') rollSteps.add(step.id);
-        for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])])
-          collect(arm.steps ?? []);
+        for (const arm of stepArms(step)) collect(arm.steps ?? []);
       }
     };
     collect(action.steps);
@@ -1693,8 +1960,7 @@ export class PackChecker {
           if (step.label) this.requiredKeys.add(step.label);
           else this.optionalKeys.add(`${key}.steps.${step.id}.name`);
         }
-        for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])])
-          walk(arm.steps ?? []);
+        for (const arm of stepArms(step)) walk(arm.steps ?? []);
         const copies = query?.source === 'copies';
         for (const option of writtenOptions(step))
           for (const change of option.changes ?? [])
@@ -1717,6 +1983,13 @@ export class PackChecker {
           this.report.error(file, `${where}: each names undeclared role "${step.each}"`);
         if (step.as === 'participant' && step.each === undefined)
           this.report.error(file, `${where}: as: participant is only for an each step`);
+        if (step.kind === 'group')
+          for (const inner of innerSteps(step))
+            if (inner.kind === 'group')
+              this.report.error(
+                file,
+                `${where}: group step "${inner.id}" inside the group step "${step.id}"`,
+              );
         // An `each` branch step's case steps already run per participant.
         if (step.kind === 'branch' && step.each !== undefined) {
           const nested = (list: Step[]): void => {
@@ -1726,12 +1999,10 @@ export class PackChecker {
                   file,
                   `${where}: step "${inner.id}" has an each inside the each branch step "${step.id}"`,
                 );
-              for (const arm of [...(inner.cases ?? []), ...(inner.else ? [inner.else] : [])])
-                nested(arm.steps ?? []);
+              for (const arm of stepArms(inner)) nested(arm.steps ?? []);
             }
           };
-          for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])])
-            nested(arm.steps ?? []);
+          for (const arm of stepArms(step)) nested(arm.steps ?? []);
         }
         for (const ref of Object.keys(step.situational ?? {}))
           if (!this.ruleset.situational(ref, this.scope))
@@ -1861,12 +2132,15 @@ export class PackChecker {
       this.report.error(file, `${where}: path and option are only for choose and unchoose`);
     if (change.type === 'setQuantity' && change.value === undefined)
       this.report.error(file, `${where}: setQuantity needs a value`);
+    if (change.type === 'setField' && (change.key === undefined || change.value === undefined))
+      this.report.error(file, `${where}: setField needs a key and a value`);
     if (change.type === 'adjustQuantity' && change.by === undefined)
       this.report.error(file, `${where}: adjustQuantity needs a by`);
     if (change.copies) {
       const perCopy = [
         'setState',
         'adjustState',
+        'setField',
         'setQuantity',
         'adjustQuantity',
         'equip',
@@ -1969,6 +2243,14 @@ export class PackChecker {
         if (!hit) this.report.error(file, `${where}: unknown content "${tree.value.value}"`);
         else if (hit.item.type === 'template')
           this.report.error(file, `${where}: "${tree.value.value}" is a template`);
+        else {
+          const typeName = this.ruleset.typeOf(hit);
+          const typeDef = typeName
+            ? this.ruleset.contentType(typeName, this.ruleset.scope(hit.pack))?.def
+            : undefined;
+          if ((hit.item.grantOnly ?? typeDef?.grantOnly) === true)
+            this.report.error(file, `${where}: "${tree.value.value}" is grant-only`);
+        }
       }
       for (const ref of typeof to === 'object' ? [] : (change.entry.templates ?? []))
         if (!this.ruleset.item(ref, this.scope))
@@ -2552,4 +2834,14 @@ function familyFields(tree: Node): { text: string; names: string[] }[] {
   };
   visit(tree);
   return out;
+}
+
+function hasValues(steps: Step[]): boolean {
+  return steps.some(
+    (s) => valueSource(s) !== undefined || stepArms(s).some((a) => hasValues(a.steps ?? [])),
+  );
+}
+
+function isFormulaValue(value: unknown): value is { formula: Formula } {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

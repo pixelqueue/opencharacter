@@ -1,0 +1,37 @@
+# A ward for test-core's family, with the ward field its pattern names.
+families:
+  'test-core:ward': [storm]
+
+fields:
+  wards.storm: { type: integer, input: true, default: 0 }
+  hexes: { type: integer, formula: 0 }
+  hexPower: { type: integer, formula: 2 }
+
+# Values for test-core's open enums.
+extendEnums:
+  'test-core:types.weapon.fields.damageType': [sonic]
+  'test-core:types.weapon.state.edge': [humming]
+  'test-core:fields.stance': [floating]
+  'test-core:actions.strike.params.mode': [feint]
+  'test-core:weapons.club.state.grip': [none]
+
+# Options for test-core's choices, beside the core's own.
+extendChoices:
+  'test-core:classes.warden':
+    oath: { items: [oaths.storm] }
+    knack:
+      options:
+        - id: hexing
+          effects: [{ target: hexes, op: add, value: hexPower }]
+    skills: { values: [fly] }
+  'test-core:rules':
+    boon: { values: [grace] }
+
+# A rules option for test-core's training, and a change after it.
+effects:
+  - target: { choices: [train] }
+    op: option
+    value: { id: meditate, changes: [{ type: adjust, field: test-core:stamina, by: 1 }] }
+  - target: { steps: [train.done] }
+    op: changes
+    value: { changes: [{ type: adjust, field: test-core:stamina, by: 2 }] }

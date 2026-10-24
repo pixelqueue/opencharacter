@@ -1,0 +1,49 @@
+description: "In an added option's changes, `pick: owner` names the pick of the content carrying the effect (the invocation) and `pick: self` still the action's (the spell)"
+specVersion: 0.2.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [spell-cost]
+        contentTypes:
+          invocation:
+            state:
+              used: { type: boolean, default: false }
+          spell:
+            state:
+              casts: { type: integer, default: 0 }
+            actions: [{ use: cast }]
+        choices:
+          - { id: invocations, from: { type: invocation }, required: false }
+          - { id: spells, from: { type: spell }, required: false }
+        actions:
+          - id: cast
+            steps:
+              - id: cost
+                kind: choice
+                tags: [spell-cost]
+                options: [{ id: slot }]
+      content:
+        - id: spells.slow
+          type: spell
+        - id: invocations.mire
+          type: invocation
+          effects:
+            - target: { choices: [spell-cost] }
+              op: option
+              when: "action.item.id == 'test-pack:spells.slow' && !self.used"
+              value:
+                id: pact
+                changes:
+                  - { type: setState, pick: owner, key: used, value: true }
+                  - { type: adjustState, pick: self, key: casts, by: 1 }
+input:
+  action: { id: test-pack:cast, source: test-pack:spells.slow }
+answers:
+  - { option: 'test-pack:invocations.mire#pact' }

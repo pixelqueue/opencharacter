@@ -169,10 +169,12 @@ Only content the character has is listed. A shop or a class's spell list is your
 build from the ruleset.
 
 `sheet.activations` lists that content for you: every copy, template, granted and picked piece
-of content, and applied content, in instance order, as `{ item, entry?, via, scope?, parent?,
-path?, hiddenState? }`. `via` says how it was reached (`copy`, `template`, `grant`, `pick`,
-`applied`), `parent` is the index of what granted it or owns the choice it was picked in, and a
-pick's `path` is its choice path. A content group's `items` point into this list, so a
+of content, and applied content, in instance order, as `{ item, entry?, via, standard?, scope?,
+parent?, path?, hiddenState? }`. `via` says how it was reached (`copy`, `template`, `grant`,
+`pick`, `applied`), `standard` marks a [standard copy](#standard-copies) (the Fist of every
+`orc-2e` character, a ysoki's jaws), `parent` is the index of what granted it or owns the choice
+it was picked in, and a pick's `path` is its choice path. Offer Remove only for a `copy` without
+`standard`: that is an entry the file saves. A content group's `items` point into this list, so a
 Mothership Teamster's skills list shows the two the class grants and the two picked, with no
 walking of grants and choices on your side.
 
@@ -294,11 +296,14 @@ with a `formula-error` in `sheet.errors`. Name each one by
 ## Items with templates
 
 `sheet.templated` lists every item the character has with templates, merged as the rules read
-it, so you never merge templates yourself. Each is `{ entry?, item, templates, tags, fields }`:
-first each copy with a saved or kept template (`entry` its instance ID: a Longsword +1), then
-each picked or granted item that content keeps templates on, with no `entry` (a cantrip a
-feature reaches 300 feet farther). `fields` is each item field as merged. An item that isn't
-listed is the ruleset's own. Pass the entry to the item's card
+it, so you never merge templates yourself. Each is
+`{ entry?, activation?, item, templates, tags, fields }`: first each copy with a saved or kept
+template (`entry` its instance ID: a Longsword +1), then each activation of picked or granted
+content that content keeps templates on, with `activation` its index in `activations` and no
+`entry` (a cantrip a feature reaches 300 feet farther). Templates on content are kept per
+activation: a cantrip known through two classes is two activations, and a Warlock feature may
+lengthen only the Warlock's. `fields` is each item field as merged. An item or activation that
+isn't listed is the ruleset's own. Pass the entry to the item's card
 ([Showing text](showing-text.md#content-cards)).
 
 ## Standard copies
@@ -309,7 +314,8 @@ copies, so the file doesn't list them until the player changes one. They appear 
 `sheet.values`' formulas, in `actions` and in the inventory like any copy, and
 `sheet.standardCopies` lists them as `{ entry, item, saved }`. Send changes to them by their
 `entry` (`equip homebrew-gear-lantern`, a table's own standard lantern): the engine writes the copy to the file
-when it changes, and drops it again once it's back at its defaults. They can't be removed.
+when it changes, and drops it again once it's back at its defaults. They can't be removed, saved
+or not: their activations carry `standard: true`, so offer no Remove for them.
 
 ## Rules issues
 

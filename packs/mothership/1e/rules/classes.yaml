@@ -16,8 +16,11 @@ contentTypes:
     carried: false
     copies: { max: 1 }
     fields:
+      # Open: an add-on class brings its own response and the rules that read it.
       trauma:
-        { type: enum, values: [panic-fear, fear-disadvantage, sanity-stress, panic-advantage] }
+        type: enum
+        values: [panic-fear, fear-disadvantage, sanity-stress, panic-advantage]
+        open: true
     effects:
       - id: trauma
         target: trauma.response

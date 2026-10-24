@@ -1,5 +1,7 @@
 id: backgrounds.criminal
 type: background
+fields:
+  startingKit: true
 effects:
   - { target: proficiencies.skills, op: grant, value: { tag: skill.sleight-of-hand } }
   - { target: proficiencies.skills, op: grant, value: { tag: skill.stealth } }
@@ -52,3 +54,25 @@ choices:
     unique: languages
     from: { type: language, where: '!item.rare' }
     eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: criminal
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'weapons.dagger'", quantity: 2, equipped: true } }
+              - { type: addItem, entry: { item: "'tools.thieves-tools'" } }
+              - { type: addItem, entry: { item: "'gear.crowbar'" } }
+              - { type: addItem, entry: { item: "'gear.pouch'", quantity: 2 } }
+              - { type: addItem, entry: { item: "'gear.travelers-clothes'" } }
+              - { type: adjust, field: coins.gp, by: 16 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 50 }
+        recommend: "'a'"
+        random: params.random

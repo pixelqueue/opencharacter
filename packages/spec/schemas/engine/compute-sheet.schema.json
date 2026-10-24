@@ -157,7 +157,7 @@
           }
         },
         "templated": {
-          "description": "Every item the character has with templates, as merged, so an app shows the item as the rules read it: each copy with a saved or kept template, in instance order (`entry` its instance ID), then each piece of content without a copy (picked or granted) that content keeps templates on, in activation order, once per item (no `entry`). `templates` lists the templates in the order they apply, `tags` and `fields` are the merged item's (`item.tags` and each item field as `item` reads it; a dice field as canonical dice text).",
+          "description": "Every item the character has with templates, as merged, so an app shows the item as the rules read it: each copy with a saved or kept template or its own field values (`perCopy` fields), in instance order (`entry` its instance ID), then each activation of content without a copy (picked or granted) that content keeps templates on, in activation order (`activation` its index in `activations`, no `entry`): the same item reached twice is listed per activation, each with its own templates. `templates` lists the templates in the order they apply, `tags` and `fields` are the merged item's (`item.tags` and each item field as `item` reads it; a dice field as canonical dice text).",
           "type": "array",
           "items": {
             "type": "object",
@@ -166,15 +166,20 @@
               "entry": {
                 "$ref": "../common.schema.json#/$defs/instanceId"
               },
+              "activation": {
+                "description": "Content without a copy: its activation's index in `activations`.",
+                "type": "integer",
+                "minimum": 0
+              },
               "item": {
                 "$ref": "../common.schema.json#/$defs/qualifiedId"
               },
               "templates": {
+                "description": "The templates in the order they apply; empty for a copy listed for its own field values alone.",
                 "type": "array",
                 "items": {
                   "$ref": "../common.schema.json#/$defs/qualifiedId"
-                },
-                "minItems": 1
+                }
               },
               "tags": {
                 "type": "array",
@@ -233,6 +238,10 @@
               "via": {
                 "description": "How it was reached: `copy` (a `features` or `inventory` entry), `template` (applied to a copy), `grant` (granted by active content, its `when` holding), `pick` (picked in an applicable choice that activates its content) or `applied` (an `applied` entry, or a `scope: applied` grant of one).",
                 "enum": ["copy", "template", "grant", "pick", "applied"]
+              },
+              "standard": {
+                "description": "`true` for a copy that is a standard copy, saved or not: one the rules or an active item give every character, which `removeItem` can't remove (`standard-copy`). Absent for every other activation. A `copy` without it is an entry the file saves, which an app may offer to remove.",
+                "const": true
               },
               "scope": {
                 "description": "`applied` for applied activations; absent for holder ones.",

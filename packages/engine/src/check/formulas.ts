@@ -1,4 +1,4 @@
-import { appliesQueries } from '../core/pack-types.ts';
+import { appliesQueries, stepArms } from '../core/pack-types.ts';
 import {
   type CheckContext,
   check,
@@ -6,6 +6,7 @@ import {
   evaluate,
   fieldFormulaType,
   type FType,
+  isRulesId,
   type Node,
   print,
   references,
@@ -35,11 +36,13 @@ import type {
   Query,
   RollModifier,
   Step,
+  ThenChange,
   ValueDecl,
   ValueOptions,
 } from '../core/pack-types.ts';
 import {
   keptQuery,
+  thenRule,
   optionQuery,
   pendingSource,
   valueSource,
@@ -69,6 +72,7 @@ import {
   formulaTree,
   INCOMING,
   itemType,
+  KEPT_OWNER,
   linksType,
   NUMBER,
   PART,
@@ -129,7 +133,7 @@ function readsRoot(formula: Formula, roots: string[]): boolean {
 }
 
 function targetKind(target: Effect['target']): 'field' | 'roll' | 'incoming' | 'choice' | 'step' {
-  if (typeof target === 'string' || 'fields' in target) return 'field';
+  if (typeof target === 'string' || 'fields' in target || 'formula' in target) return 'field';
   if ('choices' in target) return 'choice';
   if ('steps' in target) return 'step';
   return 'rolls' in target ? 'roll' : 'incoming';
@@ -182,9 +186,7 @@ function reachesChoice(steps: Step[], tags: string[]): boolean {
       tags.some((target) => own.some((t) => t === target || t.startsWith(`${target}.`)))
     )
       return true;
-    return [...(step.cases ?? []), ...(step.else ? [step.else] : [])].some((arm) =>
-      reachesChoice(arm.steps ?? [], tags),
-    );
+    return stepArms(step).some((arm) => reachesChoice(arm.steps ?? [], tags));
   });
 }
 
@@ -243,6 +245,8 @@ class FormulaChecker<L> {
     }
 
     for (const [name, { def, at }] of rules.templateFields)
+      this.declWhere(def, at, `template field ${name}`);
+    for (const [name, { def, at }] of rules.templateFields)
       if (
         typeof def.default === 'string' &&
         ['integer', 'decimal', 'boolean', 'dice'].includes(def.type)
@@ -258,8 +262,12 @@ class FormulaChecker<L> {
       for (const key of ['max', 'perItem'] as const)
         if (typeof def.copies?.[key] === 'string')
           this.formula(def.copies[key] as string, at, `${where} copies ${key}`, ['int']);
-      for (const [key, decl] of Object.entries(def.state ?? {}))
+      for (const [key, decl] of Object.entries(def.state ?? {})) {
         this.stateDefault(decl, def, at, `${where} state ${key}`);
+        this.declWhere(decl, at, `${where} state ${key}`);
+      }
+      for (const [field, decl] of Object.entries(def.fields ?? {}))
+        this.declWhere(decl, at, `${where} field ${field}`);
       this.typed({ item: this.itemOf(def), self: selfType(def) }, () =>
         this.at('content', () => {
           for (const [field, decl] of Object.entries(def.fields ?? {}))
@@ -338,6 +346,24 @@ class FormulaChecker<L> {
       this.standardQuery(def, at, 'rules standardCopies');
     for (const { def, at } of rules.choices.values())
       this.owned(ANY_CHOICE, () => this.choices([def], at, 'rules'));
+    // Options added to a dependency's choices read what that choice's own options do: the owning
+    // item and its copy, or the rules'.
+    for (const [target, { def, at }] of rules.extendChoices) {
+      const local = target.slice(target.indexOf(':') + 1);
+      const owner = local === 'rules' ? undefined : this.set.item(target, this.scope);
+      const typeDef = owner ? this.contentTypeDef(this.set.typeOf(owner)) : undefined;
+      const options = () =>
+        this.owned(ANY_CHOICE, () => {
+          for (const [path, addition] of Object.entries(def))
+            if ('options' in addition)
+              this.inlineOptions(addition.options, at, `${local}.choices.${path}`);
+        });
+      if (local === 'rules') options();
+      else
+        this.typed({ item: this.itemOf(typeDef), self: selfType(typeDef) }, () =>
+          this.at('content', options),
+        );
+    }
 
     for (const [id, { def, at }] of rules.constraints) {
       const constraintFormulas = () => {
@@ -399,21 +425,23 @@ class FormulaChecker<L> {
     const type = this.contentTypeDef(template ? appliesQueries(item)[0]?.type : item.type);
     for (const [name, value] of Object.entries(item.fields ?? {})) {
       const decl = type?.fields?.[name] ?? (template ? this.templateFields[name] : undefined);
-      if (
-        decl &&
-        value !== null &&
-        !Array.isArray(value) &&
-        ['integer', 'decimal', 'boolean', 'dice'].includes(decl.type)
-      )
-        this.at('itemField', () =>
-          this.typed(template && item.params ? { params: paramsType(item.params) } : {}, () =>
-            this.withRoots(
-              template ? ['base', 'prior', ...(item.params ? ['params'] : [])] : [],
-              () =>
-                this.formula(value, at, `${owner}.fields.${name}`, [fieldFormulaType(decl.type)]),
-            ),
+      if (!decl || value === null || Array.isArray(value)) continue;
+      // A template's string, enum or id value may be `{ formula }`, a string formula.
+      const formula = typeof value === 'object' ? value.formula : value;
+      const numeric = ['integer', 'decimal', 'boolean', 'dice'].includes(decl.type);
+      if (typeof value === 'object' ? !['string', 'enum', 'id'].includes(decl.type) : !numeric)
+        continue;
+      this.at('itemField', () =>
+        this.typed(template && item.params ? { params: paramsType(item.params) } : {}, () =>
+          this.withRoots(
+            template ? ['base', 'prior', ...(item.params ? ['params'] : [])] : [],
+            () =>
+              this.formula(formula, at, `${owner}.fields.${name}`, [
+                numeric ? fieldFormulaType(decl.type) : 'string',
+              ]),
           ),
-        );
+        ),
+      );
     }
     for (const query of appliesQueries(item))
       this.at('query', () => this.query(query, at, `${owner} appliesTo`));
@@ -422,8 +450,10 @@ class FormulaChecker<L> {
         ? appliesQueries(item)[0]?.type
         : (item.type ?? this.typeOfParent(item)),
     );
-    for (const [key, decl] of Object.entries(item.state ?? {}))
+    for (const [key, decl] of Object.entries(item.state ?? {})) {
       this.stateDefault(decl, ownType, at, `${owner} state ${key}`);
+      this.declWhere(decl, at, `${owner} state ${key}`);
+    }
     this.computed(item.computed, at, owner, ownType?.computed);
     for (const effect of item.effects ?? []) this.effect(effect, at, owner);
     for (const fu of item.followUps ?? []) this.followUp(fu, at, `${owner} follow-up ${fu.id}`);
@@ -454,6 +484,13 @@ class FormulaChecker<L> {
     const where = `${owner} keepsTemplates`;
     const query = keptQuery(kept);
     if (isContentOnly(query.where)) this.standardQuery(query, at, where);
+    // On content without a copy, the candidate activation's `owner` too.
+    else if (kept.content)
+      this.activation(() =>
+        this.typed({ owner: KEPT_OWNER }, () =>
+          this.withRoots(['owner'], () => this.query(query, at, where)),
+        ),
+      );
     else this.activation(() => this.query(query, at, where));
     this.activation(() => this.formula(kept.when, at, where, BOOL));
     if (!kept.params) return;
@@ -565,6 +602,22 @@ class FormulaChecker<L> {
     });
   }
 
+  /** An item field's or state key's `where` is resolved by loadRuleset: it reads only `item`. */
+  private declWhere(decl: ValueDecl, at: L, where: string): void {
+    const { of, where: condition } = decl;
+    if (condition === undefined || !of || of === 'tag' || of === 'string') return;
+    const before = this.problems.length;
+    this.at('query', () => this.query({ type: of, where: condition }, at, `${where} where`));
+    if (this.problems.length > before || isContentOnly(condition)) return;
+    this.problems.push({
+      at,
+      where: `${where} where`,
+      formula: condition,
+      code: 'unknown-name',
+      message: "an item field's or state key's `where` reads only `item`",
+    });
+  }
+
   /** Resolved by loadRuleset, so `where` may read only `item`. */
   private standardQuery(query: Query, at: L, where: string): void {
     const before = this.problems.length;
@@ -665,6 +718,10 @@ class FormulaChecker<L> {
     } else if ('fields' in effect.target) {
       this.fieldSet(effect.target.fields.where, at, label);
       if (effect.op === 'grant') this.grantValue(effect.value as GrantValue, at, label);
+    } else if ('formula' in effect.target) {
+      const formula = effect.target.formula as Formula;
+      this.activation(() => this.formula(formula, at, `${label} target`, ['string']));
+      if (effect.op === 'grant') this.grantValue(effect.value as GrantValue, at, label);
     } else if ('rolls' in effect.target) {
       this.tagList(effect.target.rolls, at, label);
       this.tagList(effect.target.parts, at, label);
@@ -699,10 +756,15 @@ class FormulaChecker<L> {
     if (effect.tags && kind === 'roll') this.tagList(effect.tags, at, label);
     this.formula(effect.when, at, label, BOOL);
     this.formula(effect.duration?.amount, at, label, NUMBER);
-    for (const then of effect.then ?? []) {
-      this.formula(then.value, at, `${label} then`, ANY);
-      this.formula(then.by, at, `${label} then`, NUMBER);
-    }
+    const then = thenRule(effect);
+    if (then && then.to !== 'self')
+      for (const change of then.changes as ProposedChange[])
+        this.proposedChange(change, at, `${label} then`);
+    else
+      for (const change of (then?.changes ?? []) as ThenChange[]) {
+        this.formula(change.value, at, `${label} then`, ANY);
+        this.formula(change.by, at, `${label} then`, NUMBER);
+      }
   }
 
   private grantValue(value: GrantValue, at: L, where: string): void {
@@ -781,27 +843,38 @@ class FormulaChecker<L> {
     );
   }
 
-  /** A grant's `when` and `state` are activation formulas: `self`, `item` and input fields. */
+  /**
+   * A grant's formulas are activation formulas: `self`, `item` and input fields; `x` under
+   * `forEach`, and in an item query's `where` the candidate as `item`.
+   */
   private grant(grant: Grant, at: L, where: string): void {
-    this.activation(() => {
-      this.formula(grant.when, at, where, BOOL);
-      if (typeof grant.item !== 'string')
-        this.formula(grant.item.formula, at, `${where} item`, ['string']);
-      for (const [key, value] of Object.entries(grant.state ?? {}))
-        this.formula(value, at, `${where} state ${key}`, ANY);
-      const presets = (tree: PresetTree | undefined) => {
-        for (const [choice, picks] of Object.entries(tree ?? {}))
-          for (const pick of picks) {
-            if (typeof pick.option === 'object')
-              this.formula(pick.option.formula, at, `${where} choices ${choice}`, [
-                'string',
-                'decimal',
-              ]);
-            presets(pick.choices);
-          }
-      };
-      presets(grant.choices);
-    });
+    this.activation(() =>
+      this.forEach(grant.forEach, at, `${where} forEach`, () => {
+        this.formula(grant.when, at, where, BOOL);
+        if (typeof grant.item !== 'string' && 'formula' in grant.item)
+          this.formula(grant.item.formula, at, `${where} item`, ['string']);
+        else if (typeof grant.item !== 'string') {
+          const query = grant.item.query;
+          this.typed({ item: this.itemOf(this.contentTypeDef(query.type)) }, () =>
+            this.withRoots(['item'], () => this.formula(query.where, at, `${where} item`, BOOL)),
+          );
+        }
+        for (const [key, value] of Object.entries(grant.state ?? {}))
+          this.formula(value, at, `${where} state ${key}`, ANY);
+        const presets = (tree: PresetTree | undefined) => {
+          for (const [choice, picks] of Object.entries(tree ?? {}))
+            for (const pick of picks) {
+              if (typeof pick.option === 'object')
+                this.formula(pick.option.formula, at, `${where} choices ${choice}`, [
+                  'string',
+                  'decimal',
+                ]);
+              presets(pick.choices);
+            }
+        };
+        presets(grant.choices);
+      }),
+    );
   }
 
   private inlineOptions(options: InlineOption[], at: L, key: string): void {
@@ -960,7 +1033,11 @@ class FormulaChecker<L> {
     }
     if (step.kind === 'choice') this.choiceStep(step, at, where);
     if (step.kind === 'allocate') this.allocateStep(step, at, where);
-    for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])]) {
+    if (step.kind === 'group') {
+      this.formula(step.repeat?.while, at, where, BOOL);
+      this.formula(step.repeat?.max, at, where, ['int']);
+    }
+    for (const arm of stepArms(step)) {
       if ('when' in arm) this.formula(arm.when as Formula, at, where, BOOL);
       for (const [name, value] of Object.entries(arm.flags ?? {}))
         this.flagFormula(name, value, at, where);
@@ -1031,6 +1108,10 @@ class FormulaChecker<L> {
     );
     const pending = pendingSource(step);
     this.formula(pending?.entry, at, where, ['string']);
+    if (pending?.path && !Array.isArray(pending.path.choice))
+      this.formula(pending.path.choice, at, where, [{ list: 'string' }]);
+    if (pending?.path && typeof pending.path.entry === 'object')
+      this.formula(pending.path.entry.formula, at, where, ['string']);
     this.typed({ options: { list: 'string' }, choice: PENDING_CHOICE }, () =>
       this.withRoots(pending ? ['options', 'choice'] : ['options'], () => {
         this.formula(step.recommend as Formula | undefined, at, where, ['string']);
@@ -1564,7 +1645,7 @@ class FormulaChecker<L> {
     const tree = formulaTree(formula);
     if (!tree.ok) return;
     const visit = (node: Node): void => {
-      if (node.type === 'call' && node.fn === 'picksOf') {
+      if (node.type === 'call' && node.fn === 'picksOf' && node.args.length === 1) {
         const [arg] = node.args;
         if (arg?.type === 'string' && !choices.includes(arg.value))
           this.problems.push({
@@ -1574,6 +1655,99 @@ class FormulaChecker<L> {
             code: 'unknown-reference',
             message: `picksOf('${arg.value}') names no choice of the formula's owner (${choices.join(', ') || 'none'})`,
           });
+      }
+      for (const child of children(node)) visit(child);
+    };
+    visit(tree.value);
+  }
+
+  /**
+   * `picksOf(content, choice)` and `grantedPicksOf(content, choice)` name content the pack sees and
+   * one of its choices.
+   */
+  private contentChoices(formula: Formula, at: L, where: string): void {
+    const tree = formulaTree(formula);
+    if (!tree.ok) return;
+    const visit = (node: Node): void => {
+      if (
+        node.type === 'call' &&
+        (node.fn === 'grantedPicksOf' || node.fn === 'picksOf') &&
+        node.args.length === 2
+      ) {
+        const [content, choice] = node.args;
+        if (content?.type === 'string' && choice?.type === 'string' && isRulesId(content.value)) {
+          const problem = this.rulesChoice(node.fn, content.value, choice.value);
+          if (problem)
+            this.problems.push({ at, where, formula, code: 'unknown-reference', message: problem });
+        } else if (content?.type === 'string' && choice?.type === 'string') {
+          const entry = this.set.item(content.value, this.scope);
+          const doc = entry?.item;
+          const problem = !entry
+            ? `${node.fn}('${content.value}', …) names no content visible from the pack`
+            : doc?.override || doc?.extends || choiceKeys(doc?.choices).includes(choice.value)
+              ? undefined
+              : `${node.fn}('${content.value}', '${choice.value}') names no choice of that content (${choiceKeys(doc?.choices).join(', ') || 'none'})`;
+          if (problem)
+            this.problems.push({ at, where, formula, code: 'unknown-reference', message: problem });
+        }
+      }
+      for (const child of children(node)) visit(child);
+    };
+    visit(tree.value);
+  }
+
+  /** `rules` is the formula's pack's rules, `<pack>:rules` a visible pack's: a choice they declare. */
+  private rulesChoice(fn: string, content: string, choice: string): string | undefined {
+    if (fn === 'grantedPicksOf')
+      return `grantedPicksOf('${content}', …) names no content: the rules aren't granted`;
+    const pack = content === 'rules' ? this.packId : content.slice(0, content.lastIndexOf(':'));
+    if (!this.scope.includes(pack))
+      return `picksOf('${content}', …) names the rules of a pack not visible from the pack`;
+    const keys = choiceKeys(
+      [...(this.set.rules.get(pack)?.choices.values() ?? [])].map((c) => c.def),
+    );
+    return keys.includes(choice)
+      ? undefined
+      : `picksOf('${content}', '${choice}') names no rules-level choice of ${pack} (${keys.join(', ') || 'none'})`;
+  }
+
+  /**
+   * `itemField(id, name)` names an item field some content type the pack sees (or the template
+   * fields) declares; a literal ID names content the pack sees, whose type declares it.
+   */
+  private contentItems(formula: Formula, at: L, where: string): void {
+    const tree = formulaTree(formula);
+    if (!tree.ok) return;
+    const problem = (message: string) =>
+      this.problems.push({ at, where, formula, code: 'unknown-reference', message });
+    const declares = (type: string | undefined, name: string, scope: string[]) => {
+      if (type !== undefined && type !== 'template')
+        return this.set.contentType(type, scope)?.def.fields?.[name] !== undefined;
+      return (
+        this.set.templateFields(scope).has(name) ||
+        scope.some((pid) =>
+          [...(this.set.rules.get(pid)?.contentTypes.values() ?? [])].some(
+            (t) => t.def.fields?.[name] !== undefined,
+          ),
+        )
+      );
+    };
+    const visit = (node: Node): void => {
+      if (node.type === 'call' && (node.fn === 'itemField' || node.fn === 'itemTags')) {
+        const [id, name] = node.args;
+        const entry = id?.type === 'string' ? this.set.item(id.value, this.scope) : undefined;
+        if (id?.type === 'string' && !entry)
+          problem(`${node.fn}('${id.value}', …) names no content visible from the pack`);
+        if (node.fn === 'itemField' && name?.type === 'string') {
+          const type = entry ? this.set.typeOf(entry) : undefined;
+          const scope = entry ? this.set.scope(entry.pack) : this.scope;
+          if (!declares(type, name.value, scope))
+            problem(
+              entry
+                ? `itemField('${entry.qid}', '${name.value}'): its content type declares no item field "${name.value}"`
+                : `itemField(…, '${name.value}'): no content type declares an item field "${name.value}"`,
+            );
+        }
       }
       for (const child of children(node)) visit(child);
     };
@@ -1617,6 +1791,7 @@ class FormulaChecker<L> {
       roots: new Set([...rootsFor(this.place), ...this.extraRoots]),
       rootTypes: this.types,
       character: this.place !== 'itemField' && this.place !== 'query',
+      ...(this.inputOnly ? { activation: true } : {}),
       ...(this.choicesBound ? { choices: true } : {}),
       ...(this.ownerChoices !== undefined && this.place !== 'itemField' && this.place !== 'query'
         ? { picks: true }
@@ -1672,6 +1847,8 @@ class FormulaChecker<L> {
     const problem = checkFormula(formula, nullable ? { ...context, nullable } : context, expect);
     if (!problem) {
       if (context.picks) this.ownerPicks(formula, at, where);
+      this.contentChoices(formula, at, where);
+      this.contentItems(formula, at, where);
       return;
     }
     const hint =
@@ -1684,6 +1861,9 @@ class FormulaChecker<L> {
   private effectValueType(effect: Effect): Expect {
     if (typeof effect.target !== 'string') {
       if ('fields' in effect.target) return NUMBER;
+      // The field is known only on the sheet.
+      if ('formula' in effect.target)
+        return effect.op === 'set' ? ANY : effect.op === 'add' ? ['dice', 'decimal'] : NUMBER;
       if ('rolls' in effect.target && effect.target.tally !== undefined) return ['int'];
       // A roll's `add`, and a `set` replacing a part, may be dice.
       if ('rolls' in effect.target)

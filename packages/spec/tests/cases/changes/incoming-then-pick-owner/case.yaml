@@ -1,0 +1,37 @@
+description: "`pick: owner` in an incoming-change effect's `then` names the pick that activated the effect's content, as `entry: self` does for a key the pick's content declares"
+specVersion: 0.2.0
+call: applyChanges
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp.current: { type: integer, input: true, default: 20, min: 0, max: 20 }
+        contentTypes:
+          class:
+            state:
+              uses: { type: integer, default: 5, min: 0 }
+          # A made-up talent that shrugs off 1 damage per hit, twice.
+          talent:
+            state:
+              uses: { type: integer, default: 2, min: 0 }
+            effects:
+              - id: shrug
+                target: { incoming: { fields: [hp.current], tags: [damage] } }
+                op: add
+                value: 1
+                when: self.uses > 0 && incoming.amount < 0
+                then:
+                  - { type: adjustState, pick: owner, key: uses, by: -1 }
+      content:
+        - id: classes.warrior
+          type: class
+          choices:
+            - { id: talent, from: { type: talent } }
+        - { id: talents.tough, type: talent }

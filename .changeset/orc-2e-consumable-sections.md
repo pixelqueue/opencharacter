@@ -1,0 +1,5 @@
+---
+'@opencharacter/orc-2e': patch
+---
+
+The consumables list's sections are named by category: Potions, Elixirs, Bombs, …

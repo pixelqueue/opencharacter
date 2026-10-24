@@ -1,11 +1,11 @@
 id: classes.psychic
 type: class
+fields:
+  kit: kits.medic
 effects:
   - { target: psionics.access, op: set, value: "'unrestricted'" }
 grants:
-  - { item: techniques.psychic-succor, when: skills.biopsionics.level >= 0 }
-  - { item: techniques.psychic-refinement, when: skills.metapsionics.level >= 0 }
-  - { item: techniques.oracle, when: skills.precognition.level >= 0 }
-  - { item: techniques.telekinetic-manipulation, when: skills.telekinesis.level >= 0 }
-  - { item: techniques.telepathic-contact, when: skills.telepathy.level >= 0 }
-  - { item: techniques.personal-apportation, when: skills.teleportation.level >= 0 }
+  # Each discipline the psychic has grants its core technique, an add-on's discipline too.
+  - forEach: keysOf('psychic')
+    when: "fieldOf('skills.{psychic}.level', x) >= 0"
+    item: { query: { type: technique, where: item.core && item.discipline == x } }

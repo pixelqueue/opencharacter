@@ -1,0 +1,18 @@
+# Bonuses 3, 4 (its own over mighty's 3), 1 and 2 (costly's default: cost isn't per copy, so its
+# value is left out). Lore stunt and strong are per scene; mighty's limit is the template's.
+values:
+  test-per-copy:stunts.bonus: { value: 10 }
+  test-per-copy:stunts.scene: { value: 2 }
+templated:
+  - entry: lore-stunt
+    item: test-per-copy:stunts.custom
+    templates: []
+    tags: []
+    fields: { skill: test-per-copy:skills.lore, limit: scene, bonus: 3, cost: 0 }
+  - entry: mighty-stunt
+    item: test-per-copy:stunts.custom
+    templates: [test-per-copy:templates.mighty]
+    tags: []
+    fields: { limit: session, bonus: 4, cost: 0 }
+issues: []
+errors: [not-per-copy]

@@ -1,0 +1,61 @@
+# A 0.2.0 skittermander with Fixation: its topic presets Additional Lore and Assurance. 0.3.0 has
+# the granted Additional Lore pick the Lore, which presets Assurance.
+pack: orc-sf-2e
+from: 0.2.0
+to: 0.3.0
+expect:
+  - at: /choices/ancestry-feat-1/0/choices
+    value: { orc-sf-2e:feats.skill.additional-lore/lore: [{ option: games }] }
+values:
+  orc-sf-2e:assurance.skills: [skill.lore.games]
+  orc-sf-2e:skills.lore.games.rank: 1
+character:
+  specVersion: 0.2.0
+  id: upgrade-orc-sf-2e-fixation
+  values:
+    orc-sf-2e:hp.current: 19
+  features:
+    - id: ancestry
+      item: orc-sf-2e:ancestries.skittermander
+      choices:
+        heritage:
+          - option: orc-sf-2e:heritages.scrabbler-skittermander
+        boosts:
+          - option: standard
+            choices:
+              free:
+                - option: orc-sf-2e:boosts.dex
+    - id: background
+      item: orc-sf-2e:backgrounds.trooper
+      choices:
+        boost:
+          - option: orc-sf-2e:boosts.con
+        free-boost:
+          - option: orc-sf-2e:boosts.str
+    - id: class
+      item: orc-sf-2e:classes.soldier
+      choices:
+        fighting-style:
+          - option: orc-sf-2e:features.soldier.style.bombard
+        skills:
+          - option: skill.survival
+          - option: skill.piloting
+          - option: skill.medicine
+        class-feat-1:
+          - option: orc-sf-2e:feats.soldier.pin-down
+  inventory:
+    - { id: scattergun, item: orc-sf-2e:weapons.scattergun, equipped: true }
+    - { id: armor, item: orc-sf-2e:armor.defiance-series, equipped: true }
+    - { id: rounds, item: orc-sf-2e:ammunition.projectile-ammo, quantity: 20 }
+  choices:
+    free-boosts:
+      - option: orc-sf-2e:boosts.str
+      - option: orc-sf-2e:boosts.dex
+      - option: orc-sf-2e:boosts.con
+      - option: orc-sf-2e:boosts.wis
+    ancestry-feat-1:
+      - option: orc-sf-2e:feats.ancestry.fixation
+        choices:
+          topic: [{ option: games }]
+    languages:
+      - option: orc-sf-2e:languages.kasatha

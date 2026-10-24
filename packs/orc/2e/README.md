@@ -14,6 +14,9 @@ planes and characters) is left out.
 pnpm add @opencharacter/engine @opencharacter/orc-2e
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the built pack (a `PackRelease`), and `i18n/en` its English
 text:
 
@@ -74,6 +77,54 @@ reading is listed under [Rule readings](#rule-readings).
 - **Out of scope:** animal companions, familiars, eidolons and mounts as creatures of their own,
   GM Core's relics and vehicles, the setting's proper nouns, and anything from the pre-Remaster
   (OGL) books, such as Ancestry Paragon and dual-class characters; GM Core's level 0 characters.
+
+## Add-on packs
+
+A pack that depends on `orc-2e` can add to what it offers:
+
+- **Subclasses:** a feature whose `classOption` names a class's choice (`barbarian.instinct`,
+  `bard.muse`, `cleric.doctrine`, `wizard.school`, …) joins that choice, and Champion's Reaction
+  for causes.
+- **Domains:** a `domain` item joins Domain Initiate and Domain Acumen (an advanced one, with
+  `advanced: true`, Advanced Domain); an initial domain spell names its domain in its `domain`
+  field for Deity's Domain; a mystery grants its domains into `oracle.domains`.
+- **Gear:** tags, not IDs, mark Force Open's crowbar (`tool.crowbar`), Sense Direction's compass
+  (`tool.compass`) and shields against spells (`shield.against-spells`).
+- **Archetypes:** a new archetype declares its own `archetypes.<name>.feats` field tagged
+  `archetype-feats`; a feat for an existing archetype adds 1 to that archetype's field.
+- **Open enums** (`extendEnums`): the identity fields (`barbarian.instinct`, `bard.muse`,
+  `champion.cause`, `cleric.doctrine`, `druid.order`, `investigator.methodology`,
+  `oracle.mystery`, `ranger.edge`, `rogue.racket`, `sorcerer.bloodline`, `swashbuckler.style`,
+  `wizard.school`, `wizard.thesis`, `witch.patron`, `alchemist.field`, `stance.current`), which
+  a new subclass feature sets with its own effect (`{ target: barbarian.instinct, op: set,
+  value: "'thunder'" }`), as the core's do; weapon `group` and `damageType`, armor `group`,
+  consumable `category`, `damageType` and `persistentType`, spell damage types (`damageType`,
+  `damage2Type`, `persistentType` and the cast's `damageType` state), affliction and persistent
+  damage condition damage types, feat `category`, and the damage type parameters of `cast-spell`
+  (`damageType`) and `bomb-strike` (`damageType`, `persistentType`), so an added bomb or spell
+  deals its type (`orc-2e:actions.bomb-strike.params.damageType`). A new damage type or group also needs its
+  tag (`damage.sonic`, `group.firearm`), declared and named in the add-on.
+- **Choices** (`extendChoices`): written value and inline option choices take additions: the
+  dedications' identity picks (Barbarian Dedication's `instinct`), the follow-up feats' inline
+  options (Order Explorer's `order`, Additional Lore's `lore`), and the 15- and 16-skill lists.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `sonic` added to `orc-2e:types.weapon.fields.damageType` is
+  `types.weapon.fields.damageType.values.sonic.name: Sonic` (through `enumOrigins`), and an
+  Order Explorer option `stone` is
+  `feats.druid.order-explorer.choices.order.options.stone.name: Stone` (through
+  `optionOrigins`).
+- **Skills and Lores:** a choice of any skill reads `skills.offered` and one of any Lore
+  `skills.lores`; an add-on's Lore declares its fields (`skills.lore.<name>.rank`, `.mod`, …,
+  as `rules/lores.yaml` does) and grants its tag into both with a rules effect.
+- **Step tags** for rules-level `option` and `changes` effects: `creation.ancestry`,
+  `creation.heritage`, `creation.background`, `creation.class` and `creation.finish` (guided and
+  random creation), `level-up.gain`, and the actions' own (`strike.hit`, …).
+
+Still closed: attributes, proficiency ranks, saves, spell traditions (and a staff's
+`tradition`), weapon and armor categories, and physical damage types for `versatile` and
+`modular`, the game's fixed sets.
 
 ## License
 
@@ -307,8 +358,8 @@ reading is listed under [Rule readings](#rule-readings).
   trained. Demoralize frightens, Trip knocks prone (1d6 bludgeoning on a critical success),
   Grapple grabs or restrains, Escape frees; Treat Wounds (any DC your rank allows, an hour
   doubling it) and Battle Medicine heal, Treat Poison and Treat Disease give the next save a
-  circumstance modifier (an applied effect), Administer First Aid stabilizes; Feint makes the
-  target off-guard to your melee Strikes (`feint.target`, which the Strike reads); a critical
+  circumstance modifier (an applied effect that save removes), Administer First Aid stabilizes;
+  Feint makes the target off-guard to your melee Strikes (`feint.target`, which the Strike reads); a critical
   failure to Trip or Shove is prone, to Disarm off-guard; Subsist's failure is fatigued. Attack-
   trait actions take and count the multiple attack penalty. Actions against several creatures
   (Hide, Sneak, Lie, Coerce, Make an Impression, Seek, …) roll once and give each one's degree
@@ -811,8 +862,10 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
   flanked or in cover (situational choices), when a condition is gained (`applyEffect`), daily
   preparations (the pack's `daily-preparations` and `prepare-spells` say what happens), rests; a
   spell's duration, sustaining and dismissing it, its area and who is in it (an applied spell
-  stays until the app removes it; a spell on "you and your allies" takes the caster as an ally
-  too); summoned creatures; onset, intervals and virulence of afflictions.
+  stays until the app removes it, but one for the next roll, such as guidance, sure strike,
+  true target or weapon surge, ends on the roll it changes; a spell on "you and your allies"
+  takes the caster as an ally too); summoned creatures; onset, intervals and virulence of
+  afflictions.
 - **Text only:** critical specialization, armor specialization, the skill feats that change
   time, other creatures or what the GM tells you (58 of 106), the skill actions' movement,
   attitudes and detection toward one observer, innate spells from heritages, Lunge; the rogue's,

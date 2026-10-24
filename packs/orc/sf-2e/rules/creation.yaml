@@ -18,12 +18,14 @@ actions:
     available: character.creating
     steps:
       - id: ancestry
+        tags: [creation.ancestry]
         kind: choice
         options: { content: { type: ancestry } }
         changes:
           - type: addItem
             entry: { id: ancestry, item: picked.id }
       - id: heritage
+        tags: [creation.heritage]
         kind: choice
         options:
           content:
@@ -32,12 +34,14 @@ actions:
         changes:
           - { type: choose, path: { entry: ancestry, choice: [heritage] }, option: picked.id }
       - id: background
+        tags: [creation.background]
         kind: choice
         options: { content: { type: background } }
         changes:
           - type: addItem
             entry: { id: background, item: picked.id }
       - id: class
+        tags: [creation.class]
         kind: choice
         options: { content: { type: class } }
         changes:
@@ -64,6 +68,7 @@ actions:
         kind: choice
         options: { pending: {} }
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:
@@ -75,6 +80,7 @@ actions:
     available: character.creating
     steps:
       - id: ancestry
+        tags: [creation.ancestry]
         kind: choice
         options: { content: { type: ancestry } }
         random: true
@@ -82,6 +88,7 @@ actions:
           - type: addItem
             entry: { id: ancestry, item: picked.id }
       - id: heritage
+        tags: [creation.heritage]
         kind: choice
         options:
           content:
@@ -91,6 +98,7 @@ actions:
         changes:
           - { type: choose, path: { entry: ancestry, choice: [heritage] }, option: picked.id }
       - id: background
+        tags: [creation.background]
         kind: choice
         options: { content: { type: background } }
         random: true
@@ -98,6 +106,7 @@ actions:
           - type: addItem
             entry: { id: background, item: picked.id }
       - id: class
+        tags: [creation.class]
         kind: choice
         options: { content: { type: class } }
         random: true
@@ -148,6 +157,7 @@ actions:
         random: *random
         recommend: *pick
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:

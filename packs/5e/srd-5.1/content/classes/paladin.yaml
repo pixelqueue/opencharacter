@@ -2,6 +2,17 @@ id: classes.paladin
 type: class
 fields:
   hitDie: 1d10
+  startingKit: true
+  abilityPriority:
+    [
+      abilities.str.score,
+      abilities.cha.score,
+      abilities.con.score,
+      abilities.wis.score,
+      abilities.dex.score,
+      abilities.int.score,
+    ]
+  multiclassAll: [str, cha]
 state:
   divineSenseSpent: { type: integer, default: 0, min: 0 }
   layOnHandsSpent: { type: integer, default: 0, min: 0 }
@@ -74,3 +85,68 @@ choices:
   - id: sacred-oath
     from: { type: subclass, where: 'item.class == @classes.paladin' }
     when: self.level >= 3
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: paladinWeapons
+        kind: choice
+        options:
+          - id: martial-and-shield
+            changes:
+              - { type: addItem, entry: { item: "'armor.shield'", equipped: true } }
+          - id: two-martial
+        recommend: options[0]
+        random: params.random
+      - id: paladinMartial
+        kind: choice
+        options: { content: { type: weapon, where: "item.category == 'martial'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: paladinMartial2
+        kind: choice
+        when: "steps.paladinWeapons.picked == 'two-martial'"
+        options: { content: { type: weapon, where: "item.category == 'martial'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: paladinSecond
+        kind: choice
+        options:
+          - id: five-javelins
+            changes:
+              - type: addItem
+                entry: { item: "'weapons.javelin'", quantity: 5, equipped: true }
+          - id: simple-melee
+        recommend: options[0]
+        random: params.random
+      - id: paladinSimpleMelee
+        kind: choice
+        when: "steps.paladinSecond.picked == 'simple-melee'"
+        options:
+          content: { type: weapon, where: "item.category == 'simple' && item.range == 'melee'" }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: paladinPack
+        kind: choice
+        options:
+          - id: priests-pack
+            changes: [{ type: addItem, entry: { item: "'gear.priests-pack'" } }]
+          - id: explorers-pack
+            changes: [{ type: addItem, entry: { item: "'gear.explorers-pack'" } }]
+        recommend: options[0]
+        random: params.random
+      - id: paladinSymbol
+        kind: choice
+        options: { content: { type: gear, where: "item.category == 'holy-symbol'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id } }
+      - id: paladinKit
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'armor.chain-mail'", equipped: true } }

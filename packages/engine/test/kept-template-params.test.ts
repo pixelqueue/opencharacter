@@ -117,6 +117,7 @@ describe('templates kept from the keeper', () => {
     const sheet = sheetOf([aim(3, 'frost')], { 'p:empowered': true });
     expect(sheet.templated).toEqual([
       {
+        activation: 2,
         item: 'p:spells.frost',
         templates: ['p:templates.longer'],
         tags: [],
@@ -140,18 +141,20 @@ describe('templates kept from the keeper', () => {
     expect(sheet.errors).toEqual([]);
   });
 
-  it('keep a template once per item, with its first keeper’s params', () => {
+  it('keep a template once per activation, with its first keeper’s params', () => {
     const sheet = sheetOf([aim(1, 'flame'), { id: 'lensed', item: 'p:features.lensed' }], {
       'p:empowered': true,
     });
     expect(sheet.templated).toEqual([
       {
+        activation: 1,
         item: 'p:spells.flame',
         templates: ['p:templates.longer'],
         tags: [],
         fields: { range: 80, scale: 2 },
       },
       {
+        activation: 2,
         item: 'p:spells.frost',
         templates: ['p:templates.longer'],
         tags: [],

@@ -73,7 +73,7 @@ resultBands:
   d20:
     value: 'roll.kept[0] == 20 || (roll.kept[0] != 1 && roll.total >= flags.target) ? 1 : 0'
     bands:
-      - { id: success, when: roll.value == 1 }
+      - { id: success, when: roll.value == 1, success: true }
       - { id: failure, when: true }
   # To hit: d20 + attack bonus + modifier + the target's AC reaches 20. Without a target's AC the
   # roll is only reported.
@@ -82,7 +82,7 @@ resultBands:
       roll.kept[0] == 20 ? 2 : roll.kept[0] == 1 ? 0 : !flags.known ? 1
         : roll.total + flags.ac >= 20 ? 2 : 0
     bands:
-      - { id: hit, when: roll.value == 2 }
+      - { id: hit, when: roll.value == 2, success: true }
       - { id: rolled, when: roll.value == 1 }
       - { id: miss, when: true }
 
@@ -339,8 +339,12 @@ actions:
     params:
       amount: { type: integer, min: 0 }
       magical: { type: boolean, default: false }
-    results: [healed]
+    results: [healed, no-effort]
     steps:
+      - id: noEffort
+        kind: outcome
+        when: params.magical && effort.free < 1
+        result: "'no-effort'"
       - id: restore
         kind: changes
         changes:

@@ -9,7 +9,7 @@ prerequisites:
 choices:
   # The specialist tradition whose spells and first-level arts the Invoker gains.
   - id: tradition
-    from: { values: [highmage, elementalist, necromancer] }
+    from: { values: { formula: "keysOf('spellTrad')" } }
     recommend: "'elementalist'"
     effects:
       - { target: invoker.education, op: set, value: pick.value }

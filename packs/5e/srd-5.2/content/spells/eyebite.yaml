@@ -23,18 +23,6 @@ grants:
   - { item: conditions.frightened, scope: applied, when: "self.option == 'panicked'" }
   - { item: conditions.poisoned, scope: applied, when: "self.option == 'sickened'" }
 effects:
-  - target: { choices: [spell-option] }
-    op: option
-    when: action.item.id == item.id
-    value: { id: asleep }
-  - target: { choices: [spell-option] }
-    op: option
-    when: action.item.id == item.id
-    value: { id: panicked }
-  - target: { choices: [spell-option] }
-    op: option
-    when: action.item.id == item.id
-    value: { id: sickened }
   - target: { incoming: { fields: [hp.current], tags: [damage] } }
     op: add
     value: 0

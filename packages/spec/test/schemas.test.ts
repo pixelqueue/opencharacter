@@ -67,7 +67,7 @@ describe('fixed sets match the schemas', () => {
     ['change-types', 'change.schema.json', ['properties', 'type']],
     ['stacking-policies', 'rules.schema.json', ['$defs', 'stackingPolicy']],
     ['upgrade-steps', 'upgrade.schema.json', ['$defs', 'step', 'properties', 'op']],
-    ['value-types', 'common.schema.json', ['$defs', 'valueType']],
+    ['value-types', 'common.schema.json', ['$defs', 'declValueType']],
     ['rounding-modes', 'common.schema.json', ['$defs', 'rounding']],
     [
       'display-formats',
@@ -119,6 +119,23 @@ const appliedGroup = (kind: string, type: string) => ({
   kind,
   members: { type, from: 'applied' },
 });
+
+const partEffect = (value: unknown) => ({
+  target: { rolls: ['damage'], parts: ['weapon'] },
+  op: 'rollModifier',
+  value,
+});
+
+const rollThen = (scope: string | undefined, then: object) => ({
+  target: { rolls: ['attack'] },
+  op: 'add',
+  value: '1',
+  ...(scope ? { scope } : {}),
+  // oxlint-disable-next-line unicorn/no-thenable
+  then,
+});
+
+const typeWith = (decl: object) => ({ fields: { order: decl } });
 
 describe('display, template and change shapes', () => {
   const ajv = compileAll();
@@ -197,6 +214,76 @@ describe('display, template and change shapes', () => {
     ).toBe(false);
   });
 
+  it('takes a formula naming a field as an effect target, for field ops only', () => {
+    const target = { formula: "'lore.' + pick.value" };
+    expect(valid('effect.schema.json', { target, op: 'add', value: 1 })).toBe(true);
+    expect(valid('effect.schema.json', { target, op: 'grant', value: { formula: 'x' } })).toBe(
+      true,
+    );
+    const modifier = { kind: 'advantage' };
+    expect(valid('effect.schema.json', { target, op: 'rollModifier', value: modifier })).toBe(
+      false,
+    );
+    expect(valid('effect.schema.json', { target: { formula: 'x', fields: {} }, op: 'add' })).toBe(
+      false,
+    );
+  });
+
+  it("lets advantage and disadvantage on a roll's parts say only of: roll", () => {
+    expect(valid('effect.schema.json', partEffect({ kind: 'advantage', of: 'roll' }))).toBe(true);
+    expect(valid('effect.schema.json', partEffect({ kind: 'disadvantage', of: 'roll' }))).toBe(
+      true,
+    );
+    expect(valid('effect.schema.json', partEffect({ kind: 'advantage' }))).toBe(false);
+    expect(valid('effect.schema.json', partEffect({ kind: 'advantage', of: 'die' }))).toBe(false);
+    expect(valid('effect.schema.json', partEffect({ kind: 'reroll', below: 1 }))).toBe(false);
+  });
+
+  it('takes list item fields, unique only on a list; a field is never a list', () => {
+    const list = { type: 'list', of: 'string' };
+    expect(valid('content-type.schema.json', typeWith(list))).toBe(true);
+    expect(valid('content-type.schema.json', typeWith({ ...list, unique: true }))).toBe(true);
+    expect(valid('content-type.schema.json', typeWith({ type: 'list' }))).toBe(false);
+    expect(
+      valid('content-type.schema.json', typeWith({ type: 'set', of: 'string', unique: true })),
+    ).toBe(false);
+    expect(valid('field.schema.json', { type: 'list', of: 'string' })).toBe(false);
+  });
+
+  it('gives roll effects a then rule: when, once and to; not incoming-change effects', () => {
+    const remove = [{ type: 'removeEffect', entry: 'self' }];
+    const spend = [{ type: 'adjustState', entry: 'self', key: 'uses', by: '-1' }];
+    const effect = 'effect.schema.json';
+    expect(valid(effect, rollThen('applied', { when: 'applied', changes: remove }))).toBe(true);
+    expect(valid(effect, rollThen(undefined, { once: 'roll', changes: spend }))).toBe(true);
+    expect(valid(effect, rollThen(undefined, { changes: remove }))).toBe(false);
+    expect(valid(effect, rollThen(undefined, { when: 'counted', changes: spend }))).toBe(false);
+    const unmark = [{ type: 'removeEffect', applied: { where: 'true' } }];
+    expect(valid(effect, rollThen(undefined, { to: 'target', changes: unmark }))).toBe(true);
+    expect(valid(effect, rollThen(undefined, { changes: unmark }))).toBe(false);
+    // oxlint-disable-next-line unicorn/no-thenable
+    expect(valid(effect, { ...ward('holder', spend), then: { changes: spend } })).toBe(false);
+  });
+
+  it('lets roll effects carry then, naming their entry, pick or grant; not field effects', () => {
+    const roll = (target: unknown, changes: object[]) => ({
+      ...ward('applied', changes),
+      target,
+    });
+    const rolls = { rolls: ['attack'] };
+    const remove = [{ type: 'removeEffect', entry: 'self' }];
+    expect(valid('effect.schema.json', roll(rolls, remove))).toBe(true);
+    expect(valid('effect.schema.json', roll('hp', remove))).toBe(false);
+    const spend = { type: 'adjustState', key: 'uses', by: '-1' };
+    expect(valid('effect.schema.json', ward('holder', [{ ...spend, pick: 'owner' }]))).toBe(true);
+    expect(valid('effect.schema.json', ward('holder', [{ ...spend, grant: 'owner' }]))).toBe(true);
+    expect(valid('effect.schema.json', ward('holder', [spend]))).toBe(false);
+    expect(
+      valid('effect.schema.json', ward('holder', [{ ...spend, entry: 'self', pick: 'owner' }])),
+    ).toBe(false);
+    expect(valid('effect.schema.json', ward('holder', [{ ...spend, pick: 'self' }]))).toBe(false);
+  });
+
   it('lets unchoose leave out its option, but not choose', () => {
     const path = { entry: 'x', choice: ['form'] };
     expect(valid('change.schema.json', { type: 'unchoose', path })).toBe(true);
@@ -240,6 +327,26 @@ describe('field tag and held-change shapes', () => {
     expect(step({ id: 'a', kind: 'changes', release, changes })).toBe(true);
     expect(step({ id: 'a', kind: 'changes' })).toBe(false);
     expect(step({ id: 'a', kind: 'changes', release, each: 'target' })).toBe(false);
+  });
+
+  it('lets a band set mark at most one success threshold', () => {
+    const set = (bands: object[]) => valid('rules.schema.json', { resultBands: { check: bands } });
+    const hit = { id: 'hit', when: 'roll.total >= 10' };
+    const miss = { id: 'miss', when: true };
+    expect(set([hit, miss])).toBe(true);
+    expect(set([{ ...hit, success: true }, miss])).toBe(true);
+    expect(
+      set([
+        { ...hit, success: true },
+        { ...miss, success: true },
+      ]),
+    ).toBe(false);
+    expect(set([{ ...hit, success: false }, miss])).toBe(false);
+    expect(
+      valid('rules.schema.json', {
+        resultBands: { check: { value: 'roll.total', bands: [{ ...hit, success: true }, miss] } },
+      }),
+    ).toBe(true);
   });
 
   it('lets an action step hold, but not a handoff', () => {

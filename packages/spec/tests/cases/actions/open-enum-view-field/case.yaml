@@ -1,0 +1,11 @@
+description: "A view field marked open follows the core's open stance: a target's view may hold a stance the add-on adds"
+specVersion: 0.2.0
+call: startAction
+packs:
+  - path: ../../../packs/test-core
+  - path: ../../../packs/test-addon
+input:
+  action: { id: test-core:size-up }
+  participants:
+    target:
+      - { id: foe, values: { test-core:stance: floating } }

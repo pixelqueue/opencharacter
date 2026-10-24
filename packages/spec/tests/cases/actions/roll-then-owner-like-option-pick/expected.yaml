@@ -1,0 +1,21 @@
+# The option's change (at cost) and the roll effect's then (at roll) name the same pick.
+status: finished
+outcome:
+  data: { total: 11 }
+proposedChanges:
+  - to: self
+    step: cost
+    change:
+      type: adjustState
+      path: { choice: [invocations] }
+      option: test-pack:invocations.mire
+      key: uses
+      by: -1
+  - to: self
+    step: roll
+    change:
+      type: adjustState
+      path: { choice: [invocations] }
+      option: test-pack:invocations.mire
+      key: uses
+      by: -1

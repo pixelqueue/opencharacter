@@ -26,6 +26,9 @@ situational:
     rolls: [damage.weapon]
     available: omens.current > 0
 
+# The Horn of the Schleswig Lords' blare (boons.horn) makes a test a success.
+rollTallies: [horn]
+
 effects:
   - id: crit-damage
     target: { rolls: [damage] }
@@ -43,9 +46,13 @@ resultBands:
     - id: crit
       when: roll.kept[0] == 20
     - id: fumble
-      when: roll.kept[0] == 1
+      when: roll.kept[0] == 1 && roll.tallies.horn == 0
     - id: success
+      success: true
       when: roll.total >= flags.dr
+    # The horn's tally succeeds whatever the DR; apart, so the DR band's summary is a plain test.
+    - id: success
+      when: roll.tallies.horn > 0
     - id: failure
       when: true
 
@@ -64,7 +71,6 @@ actions:
         cases:
           - when: true
             flags:
-              horn: tests.horn && !params.defense && !params.combat
               dr: >-
                 (condition.hemorrhage >= 2 ? max(params.dr, 16)
                   : condition.hemorrhage == 1 ? max(params.dr, 18) : params.dr)
@@ -75,14 +81,6 @@ actions:
                 : tests.toughnessDr)
                 - (situational.barbarister
                   && params.ability.id == @abilities.presence ? 2 : 0)
-                - (tests.truth ? 4 : 0)
-      - id: clarity
-        kind: changes
-        when: tests.truth || flags.horn
-        to: self
-        changes:
-          - { type: set, field: tests.truth, value: false, when: tests.truth }
-          - { type: set, field: tests.horn, value: false, when: flags.horn }
       - id: omen
         kind: changes
         when: situational.omen
@@ -100,8 +98,7 @@ actions:
         kind: choice
         sheet: proposed
         when: >-
-          !flags.horn && omens.current > 0
-            && (steps.check.band == 'failure' || steps.check.band == 'fumble')
+          omens.current > 0 && (steps.check.band == 'failure' || steps.check.band == 'fumble')
         options:
           - id: keep
           - id: reroll
@@ -125,8 +122,7 @@ actions:
       - id: result
         kind: outcome
         result: >-
-          flags.horn && steps.check.band != 'crit' ? 'success'
-            : has(steps.reroll) ? steps.reroll.band
+          has(steps.reroll) ? steps.reroll.band
             : has(steps.fate) && steps.fate.picked == 'cancel' ? 'failure' : steps.check.band
         data:
           total: 'has(steps.reroll) ? steps.reroll.total : steps.check.total'

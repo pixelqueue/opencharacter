@@ -1,0 +1,15 @@
+# How many lores the character picked, wherever Lore came from, and an action listing them.
+fields:
+  loreCount: { type: integer, formula: "size(picksOf('feats.lore', 'topic'))" }
+
+contentTypes:
+  feat: {}
+
+actions:
+  - id: list
+    steps:
+      - id: done
+        kind: outcome
+        data:
+          lores: picksOf('feats.lore', 'topic')
+          assured: picksOf('feats.assurance', 'skill')

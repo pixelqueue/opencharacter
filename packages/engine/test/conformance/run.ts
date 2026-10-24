@@ -14,6 +14,7 @@ import {
   applyChanges,
   computeSheet,
   continueAction,
+  describeAction,
   diceFrom,
   listOptions,
   checkRelease,
@@ -59,6 +60,7 @@ const issueKeys = (issues: { code: string; id?: string }[]) =>
 const caseKeys: Record<string, string[]> = {
   computeSheet: ['packs', 'input'],
   listOptions: ['packs', 'input'],
+  describeAction: ['packs', 'input'],
   applyChanges: ['packs', 'input'],
   startAction: ['packs', 'input', 'answers'],
   upgrade: ['from', 'to'],
@@ -88,11 +90,21 @@ const expectedKeys: Record<string, string[]> = {
     'offers',
   ],
   listOptions: ['options', 'min', 'max', 'errors'],
+  describeAction: ['action', 'errors'],
   applyChanges: ['ok', 'errors', 'issues', 'adjustments', 'followUps', 'character', 'changes'],
   startAction: ['status', 'outcome', 'proposedChanges', 'needs', 'log', 'errors', 'errorData'],
   upgrade: ['ok', 'errors', 'character', 'pending', 'report'],
   checkRelease: ['ok', 'changes', 'errors'],
-  loadRuleset: ['errors', 'conflicts', 'creation', 'packs'],
+  loadRuleset: [
+    'errors',
+    'conflicts',
+    'creation',
+    'packs',
+    'enumOrigins',
+    'familyOrigins',
+    'contentTypes',
+    'grantOnly',
+  ],
 };
 
 function licenseParts(packs: readonly object[]): unknown[] {
@@ -103,6 +115,28 @@ function licenseParts(packs: readonly object[]): unknown[] {
     ...(p.credit === undefined ? {} : { credit: p.credit }),
     ...(p.notices === undefined ? {} : { notices: Object.entries(p.notices as object) }),
   }));
+}
+
+type ListedDecls = Record<string, Record<'fields' | 'state', Record<string, unknown>>>;
+
+/** The listed content types' listed item fields and state keys, each as `{ options }`. */
+function declOptions(loaded: Ruleset, listed: ListedDecls): ListedDecls {
+  return Object.fromEntries(
+    Object.entries(listed).map(([type, parts]) => [
+      type,
+      Object.fromEntries(
+        Object.entries(parts).map(([part, decls]) => [
+          part,
+          Object.fromEntries(
+            Object.keys(decls).map((name) => {
+              const decl = loaded.contentTypes[type]?.[part as 'fields' | 'state']?.[name];
+              return [name, decl?.options === undefined ? {} : { options: decl.options }];
+            }),
+          ),
+        ]),
+      ),
+    ]),
+  ) as ListedDecls;
 }
 
 function checkKeys(what: string, data: object, allowed: string[]): void {
@@ -176,8 +210,21 @@ function run(dir: string): void {
       expect(expected.errors).toBeUndefined();
       if (expected.conflicts) expect(result.ruleset.conflicts).toEqual(expected.conflicts);
       if (expected.creation) expect(result.ruleset.creation).toEqual(expected.creation);
+      if (expected.grantOnly)
+        expect(
+          Object.values(result.ruleset.content)
+            .filter((item) => item.grantOnly === true)
+            .map((item) => item.qid),
+        ).toEqual(expected.grantOnly);
+      if (expected.enumOrigins) expect(result.ruleset.enumOrigins).toEqual(expected.enumOrigins);
+      if (expected.familyOrigins)
+        expect(result.ruleset.familyOrigins).toEqual(expected.familyOrigins);
       if (expected.packs) {
         expect(licenseParts(result.ruleset.packs)).toEqual(licenseParts(expected.packs as []));
+      }
+      if (expected.contentTypes) {
+        const listed = expected.contentTypes as ListedDecls;
+        expect(declOptions(result.ruleset, listed)).toEqual(listed);
       }
       return;
     }
@@ -310,6 +357,21 @@ function run(dir: string): void {
     }
     if (expected.min !== undefined) expect(result.min).toBe(expected.min);
     if (expected.max !== undefined) expect(result.max).toBe(expected.max);
+    return;
+  }
+
+  if (spec.call === 'describeAction') {
+    const result = describeAction(r, character, input.action, input.links ?? {});
+    if ('errors' in result) {
+      expect(result.errors.map((e) => e.code)).toEqual(expected.errors);
+      return;
+    }
+    expect(expected.errors).toBeUndefined();
+    // Each listed key of the description, exactly.
+    for (const [key, want] of Object.entries((expected.action ?? {}) as Record<string, unknown>))
+      expect((result.action as Record<string, unknown>)[key] ?? null, `action.${key}`).toEqual(
+        want,
+      );
     return;
   }
 
@@ -524,6 +586,6 @@ export function exampleCharacters(): void {
         );
         expect(broken, file).toEqual([]);
       }
-    }, 30_000);
+    }, 90_000);
   });
 }

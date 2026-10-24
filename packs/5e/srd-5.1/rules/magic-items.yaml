@@ -3,6 +3,8 @@
 templateFields:
   rarity: { type: enum, values: [common, uncommon, rare, very-rare, legendary, artifact] }
   requiresAttunement: { type: boolean, default: false }
+  # Only a character with one of these classes can attune to it.
+  attunementClasses: { type: set, of: class }
   maxCharges: { type: integer, min: 1 }
   recharge: { type: dice }
   attackBonus: { type: integer, default: 0 }
@@ -15,7 +17,12 @@ contentTypes:
     equippable: true
     fields:
       category:
-        { type: enum, values: [potion, ring, rod, scroll, wand, wondrous-item], required: true }
+        {
+          type: enum,
+          values: [potion, ring, rod, scroll, wand, wondrous-item],
+          required: true,
+          open: true,
+        }
       rarity:
         {
           type: enum,
@@ -23,6 +30,7 @@ contentTypes:
           required: true,
         }
       requiresAttunement: { type: boolean }
+      attunementClasses: { type: set, of: class }
       cost: { type: decimal } # gold pieces, where the SRD gives one
       weight: { type: decimal } # pounds, where the SRD gives one
       maxCharges: { type: integer, min: 1 }
@@ -40,6 +48,15 @@ contentTypes:
     state:
       attuned: { type: boolean, default: false }
       stowed: { type: boolean, default: false } # in an extradimensional container (equipment.yaml)
+      usedToday: { type: set, of: string, default: [] }
+    effects:
+      # An attuned item for other classes than the character's (attunementClasses).
+      - target: attunement.classUnmet
+        op: add
+        value: 1
+        when: >-
+          self.attuned && has(item.attunementClasses) && size(item.attunementClasses) > 0
+            && countList(item.attunementClasses, x in classes.held) == 0
 
   storedSpell:
     carried: false
@@ -341,6 +358,7 @@ actions:
       dice: { type: dice, optional: true }
       damageType:
         type: enum
+        open: true
         optional: true
         values:
           [

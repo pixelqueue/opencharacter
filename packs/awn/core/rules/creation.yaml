@@ -380,6 +380,7 @@ actions:
           - { type: removeItem, entry: picked }
 
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:
@@ -391,9 +392,11 @@ actions:
   # One entry of a background's tables: a skill (`any-combat`, `any-skill` or a skill key), or
   # an attribute bonus, which the highest attribute that can take it all is recommended.
   - id: gain-benefit
+    available: character.creating
     params:
       entry:
         type: enum
+        open: true
         values:
           [
             administer,
@@ -423,7 +426,7 @@ actions:
           ]
       prefer: { type: set, of: string, default: [] }
       random: { type: boolean, default: false }
-    results: [gained]
+    results: [gained, none]
     steps:
       - id: skill
         kind: action
@@ -474,4 +477,4 @@ actions:
             by: 1
       - id: result
         kind: outcome
-        result: "'gained'"
+        result: "has(steps.skill) && steps.skill.result == 'none' ? 'none' : 'gained'"

@@ -2,6 +2,12 @@ id: feats.ancestry.lashunta-lore
 type: feat
 tags: [trait.lashunta]
 fields: { level: 1, category: ancestry, ancestry: ancestries.lashunta }
+# Its Additional Lore can't repeat one the character already took for Lashunta Lore.
+prerequisites:
+  - id: lore
+    when: >-
+      countList(picksOf('feats.skill.additional-lore', 'lore'), x == 'lashunta')
+        <= (@feats.ancestry.lashunta-lore in feats.held ? 1 : 0)
 effects:
   - target: skills.trained
     op: grant

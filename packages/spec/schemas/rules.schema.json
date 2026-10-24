@@ -37,6 +37,78 @@
         "uniqueItems": true
       }
     },
+    "extendEnums": {
+      "description": "Values this pack adds to a dependency's open enums (`open: true`), by the enum's address, its text key root qualified with its pack: `<pack>:fields.<field>` (a rules field), `<pack>:types.<type>.fields.<field>` (an item field), `<pack>:types.<type>.state.<key>` (a state key), `<pack>:actions.<action>.params.<param>` (a rules action's parameter), `<pack>:<item>.state.<key>` (an item's own state key) or `<pack>:<item>.actions.<action>.params.<param>` (an item's inline action's parameter). Each value is named in this pack's text under the key the enum's own pack would use (`types.weapon.fields.damageType.values.sonic.name`). Added after the enum's own values, in load order, each once (rules-and-fields.md, \"Open enums\").",
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*:(fields\\.[a-z][a-zA-Z0-9_]*(\\.[a-z][a-zA-Z0-9_]*)*|types\\.[a-z][a-zA-Z0-9_]*\\.(fields|state)\\.[a-z][a-zA-Z0-9_]*|actions\\.[a-z0-9]+(-[a-z0-9]+)*\\.params\\.[a-z][a-zA-Z0-9_]*|[a-z0-9]+(-[a-z0-9]+)*(\\.[a-z0-9]+(-[a-z0-9]+)*)*(\\.actions\\.[a-z0-9]+(-[a-z0-9]+)*\\.params\\.[a-z][a-zA-Z0-9_]*|\\.state\\.[a-z][a-zA-Z0-9_]*))$"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "minItems": 1,
+        "uniqueItems": true
+      }
+    },
+    "extendChoices": {
+      "description": "Options this pack adds to a dependency's choices, without overriding the item: by owner, `<pack>:<content id>` or `<pack>:rules` (a rules-level choice), then by choice ID (`<choice>/<option>/<choice>` for a choice of an inline option; a slotted choice's declared ID, for every slot). An addition is the choice's own kind: `items` for an items choice, `values` for written values, `options` (inline options) for inline options. The added options come after the choice's own, then each loaded pack's in load order; a repeated item or value is offered once, an inline option ID that's there already is `duplicate-id`. Added inline options read this pack's fields, and are named in this pack's text under the key the owner's pack would use (`<owner>.choices.<choice>.options.<id>.name`). Applied after every override (content.md, \"Adding options to a dependency's choices\").",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/qualifiedId"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*(/[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*)*$"
+        },
+        "additionalProperties": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["items"],
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": { "$ref": "common.schema.json#/$defs/ref" },
+                  "minItems": 1,
+                  "uniqueItems": true
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "required": ["values"],
+              "properties": {
+                "values": {
+                  "type": "array",
+                  "items": { "anyOf": [{ "type": "string" }, { "type": "number" }] },
+                  "minItems": 1,
+                  "uniqueItems": true
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "required": ["options"],
+              "properties": {
+                "options": {
+                  "type": "array",
+                  "items": { "$ref": "choice.schema.json#/$defs/inlineOption" },
+                  "minItems": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        }
+      }
+    },
     "viewFields": {
       "description": "Named sets of declared fields read from other characters: a link slot's or a participant role's `fields` may name one instead of declaring them again. Expanded before the pack loads.",
       "type": "object",
@@ -253,8 +325,14 @@
   "additionalProperties": false,
   "$defs": {
     "bandList": {
-      "description": "Result bands, checked in order.",
+      "description": "Result bands, checked in order. At most one band is the set's `success` threshold.",
       "type": "array",
+      "contains": {
+        "type": "object",
+        "required": ["success"]
+      },
+      "minContains": 0,
+      "maxContains": 1,
       "items": {
         "type": "object",
         "required": ["id", "when"],
@@ -267,6 +345,10 @@
           },
           "tags": {
             "$ref": "common.schema.json#/$defs/tags"
+          },
+          "success": {
+            "description": "This band is the roll's success threshold: what an app shows as what the roll needs (\"what you need\"). A set without one has no threshold to show (a ladder, a table).",
+            "const": true
           }
         },
         "additionalProperties": false

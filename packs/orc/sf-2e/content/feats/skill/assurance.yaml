@@ -8,63 +8,9 @@ choices:
   - id: skill
     from:
       values:
-        - skill.acrobatics
-        - skill.arcana
-        - skill.athletics
-        - skill.computers
-        - skill.crafting
-        - skill.deception
-        - skill.diplomacy
-        - skill.intimidation
-        - skill.medicine
-        - skill.nature
-        - skill.occultism
-        - skill.performance
-        - skill.piloting
-        - skill.religion
-        - skill.society
-        - skill.stealth
-        - skill.survival
-        - skill.thievery
-        - skill.lore.academia
-        - skill.lore.alcohol
-        - skill.lore.android
-        - skill.lore.animal
-        - skill.lore.art
-        - skill.lore.augmentation
-        - skill.lore.barathu
-        - skill.lore.borai
-        - skill.lore.business
-        - skill.lore.cooking
-        - skill.lore.corporate
-        - skill.lore.games
-        - skill.lore.genealogy
-        - skill.lore.history
-        - skill.lore.hyperspace
-        - skill.lore.infosphere
-        - skill.lore.kasatha
-        - skill.lore.labor
-        - skill.lore.lashunta
-        - skill.lore.legal
-        - skill.lore.life-science
-        - skill.lore.media
-        - skill.lore.mining
-        - skill.lore.pahtra
-        - skill.lore.physical-science
-        - skill.lore.piracy
-        - skill.lore.plant
-        - skill.lore.prismeni
-        - skill.lore.shirren
-        - skill.lore.skittermander
-        - skill.lore.sports
-        - skill.lore.underworld
-        - skill.lore.vesk
-        - skill.lore.vidgame
-        - skill.lore.warfare
-        - skill.lore.ysoki
-        - skill.lore.custom1
-        - skill.lore.custom2
-        - skill.lore.custom3
+        {
+          formula: "skills.offered + skills.lores + ['skill.lore.custom1', 'skill.lore.custom2', 'skill.lore.custom3']",
+        }
     effects:
       - { target: assurance.skills, op: grant, value: { formula: pick.value } }
 

@@ -5,6 +5,7 @@ contentTypes:
       cost: { type: integer, default: 0, min: 0 }
       category:
         type: enum
+        open: true
         values: [body, head, skin, limb, sensory, medical, nerve]
         required: true
       concealment: { type: enum, values: [medical, touch, sight], required: true }
@@ -136,6 +137,7 @@ actions:
 
   # Pick cyber with the Wired Edge's budget: new systems the character's strain can carry.
   - id: acquire-wired-cyber
+    listed: false
     tags: [building]
     params:
       random: { type: boolean, default: false }

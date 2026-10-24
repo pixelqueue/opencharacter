@@ -1,0 +1,16 @@
+# effort.max is `effort + item.weight`: 3 + the rope's 2.
+action:
+  action: test-describe:tools.rope#swing
+  entry: rope
+  definedBy: test-describe:tools.rope#swing
+  tags: []
+  results: [hit, miss]
+  params:
+    - name: skill
+      type: id
+      of: field
+      required: true
+      options: [test-describe:skills.climb, test-describe:skills.sneak]
+    - { name: effort, type: integer, required: false, default: 1, min: 1, max: 5 }
+  participants:
+    - { role: target, min: 0, max: 1 }

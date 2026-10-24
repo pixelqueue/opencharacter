@@ -34,6 +34,9 @@ with Ockult Örtmästare Games or Stockholm Kartell. It is published under the
 pnpm add @opencharacter/engine @opencharacter/mork-borg-core
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 ```ts
 import { computeSheet, loadRuleset, type CharacterFile } from '@opencharacter/engine';
 import morkBorg from '@opencharacter/mork-borg-core';
@@ -80,12 +83,13 @@ start a character with `creating: true` and run one of the creation starts below
     encumbered makes Strength, Agility and defense tests +2. Some classes change these too.
   - In a hemorrhage every test is at least DR16 in the first of two hours and DR18 in the last
     (`condition.hemorrhage`, which the broken roll sets and the app counts down).
-  - From other characters: a Speaker of Truths' clarity (`tests.truth`) makes the next
-    test 4 easier, and the Horn of the Schleswig Lords (`tests.horn`) the next non-combat test a
-    success (a crit stays one); each is used up by the test. The situational choices `invisible`
-    (Metzhuotl Blind Your Eye: attack and defense at DR6) and `grace` (Grace for a Sinner: +d6
-    on one test or damage roll) are offered on every sheet, since a scroll someone else read
-    brings them.
+  - From other characters, as applied `boon` content: a Speaker of Truths' clarity
+    (`boons.clarity`, +4) makes the next test 4 easier, and the Horn of the Schleswig Lords'
+    blare (`boons.horn`, the roll tally `horn`) the next non-combat test a success (a crit stays
+    one); each ends itself on the test it changes, an omen's reroll keeping the clarity. The
+    situational choices `invisible` (Metzhuotl Blind Your Eye: attack and defense at DR6) and
+    `grace` (Grace for a Sinner: +d6 on one test or damage roll) are offered on every sheet,
+    since a scroll someone else read brings them.
 - **Classes:** the six core classes (Fanged Deserter, Gutterborn Scum, Esoteric Hermit, Wretched
   Royalty, Heretical Priest, Occult Herbmaster) and `classes.classless` for a character without
   one. Each carries:
@@ -94,9 +98,12 @@ start a character with `creating: true` and run one of the creation starts below
     easier Presence and Agility tests; the Priest's powers in medium armor;
   - its d6 feature table as a choice (`feature`) of named options: one pick, two different
     picks for the Royalty, and one or two for the Scum, which rolls a second specialty the first
-    time it gets better (`get-better`, below). Features that are weapons (the Brown Scimitar, Old Sigûrd's Sling, the
-    Shoe of Death's Horse, the Blade of Your Ancestors, Eurekia, the Snake-Skin Dagger, the
-    Sacred Shepherd's Crook) are items in `content/weapons`, which creation adds with the pick.
+    time it gets better (`get-better`, below). Features that are weapons (the Brown Scimitar,
+    Old Sigûrd's Sling, the Shoe of Death's Horse, the Blade of Your Ancestors, Eurekia, the
+    Snake-Skin Dagger, the Sacred Shepherd's Crook) are items in `content/weapons`
+    (`fromFeature`, off the starting table); the option grants its weapon into the hidden
+    `features.weapons`, and creation adds what that holds, so an add-on class's feature brings
+    its own weapon.
     Features that are companions are below.
 - **Class features in numbers** (`rules/features.yaml`): each feature's option sets a
   hidden flag, and its actions are offered while it is set. Uses per day come back with
@@ -114,13 +121,13 @@ start a character with `creating: true` and run one of the creation starts below
     the scum is back after 10 rounds with d4 HP).
   - Esoteric Hermit: Master of Fate (`find-the-way`, DR8 Presence), A Book of Boiling Blood
     (`boiling-blood`, once a day: d2 slayers, a d6 of 5–6 turning them; the enemy's DR12 test is
-    the GM's), Speaker of Truths (`speak-truth`, twice a day, to a `recipient`), Initiate of the
-    Invisible College (`invisible-college`, once a day: d2 scrolls of a d4's kind, each a d10
-    on that kind's scroll table in the book's order, added as `summoned` copies that one use or the
-    next `new-day` removes).
+    the GM's), Speaker of Truths (`speak-truth`, twice a day, applies `boons.clarity` to a
+    `recipient`), Initiate of the Invisible College (`invisible-college`, once a day: d2 scrolls
+    of a d4's kind, each a d10 on that kind's scroll table in the book's order, added as
+    `summoned` copies that one use or the next `new-day` removes).
   - Wretched Royalty: the Snake-Skin Dagger kills on a damage roll of 1 (`poison`, the target's
-    HP set below 0); the Horn (`blow-horn`, once a day: DR12 Presence, then the `recipient`'s
-    next non-combat test succeeds).
+    HP set below 0); the Horn (`blow-horn`, once a day: DR12 Presence, then `boons.horn` on the
+    `recipient`: their next non-combat test succeeds).
   - Heretical Priest: the Stolen Mitre's defense DR10 (worn, as the pack assumes), List of Sins
     (`read-sins`, DR10 Presence, and the situational choice `sinner`, +2 to defend against a
     revealed creature), the Nechrubel Bible (`read-bible`, once a day: even, the day's rests heal
@@ -168,23 +175,26 @@ start a character with `creating: true` and run one of the creation starts below
   class or companion yet (it adds one, so it can't run twice). The creation actions are kept
   out of play views (`visibility: background`).
   - `guided` (`choose: true`): the player picks the class, `classes.classless` included,
-    instead of the d6; everything else is rolled as below, and the feature's roll is the
-    recommendation the player may change.
+    instead of the d6; everything else is rolled as below, and the feature's draw is the
+    recommendation the player may change. Each item the tables give (weapon, armor, a scroll,
+    the shield, a plain `equipment` entry) is also offered as a pick among the content of its
+    type, add-on packs' included, with the table's item recommended.
   - `classless` adds `classes.classless`, whose character rolls two abilities of the player's
     choice on 4d6 dropping the lowest (drawn at random in the random start; the guided one recommends
     the first two), and starts with smaller weapon and armor dice when the equipment tables give
     it a scroll.
-  - `class` rolls a d6 for one of the six classes (in the ruleset's content order) and adds it.
+  - `class` draws the class among the classes offered (`random`), a d6 over the six core ones
+    in the ruleset's content order, so an add-on pack's class is drawn too, and adds it.
   - Both roll each ability and read the ability table; roll HP (Toughness + hit die, at least
     1), omens, powers (Presence + d4) and silver (×10), and save them as input values.
   - They add the starting weapon and armor the rolls pick from the starting lists below (armor
-    1 is none), equipped, and Presence + 10 arrows or bolts with a bow or crossbow. The Esoteric
-    Hermit also gets its random scroll: a d2 for the kind, then a d10 on that kind's table in the
-    book's order.
-  - They roll the class's d6 feature and ask the class's own `feature` choice over its pending
-    choices, the roll recommending the option in table order: two different
-    ones for the Royalty (a picked one isn't offered again, and a d5 counts on from the first),
-    one now for the Scum. An automatic run takes the rolls; a guided one may pick otherwise.
+    1 is none), equipped, and Presence + 10 arrows or bolts with a bow or crossbow (the
+    weapon's `ammo`). The Esoteric Hermit (a class whose `startingScroll` is set) also gets its
+    random scroll: a d2 for the kind, then a d10 on that kind's table in the book's order.
+  - They ask the class's own `feature` choice over its pending choices, each pick drawn among
+    the class's options (a d6 for the core classes, in table order): two different ones for the
+    Royalty (a picked one isn't offered again, so the second is a d5 over the five left), one
+    now for the Scum. An automatic run takes the draws; a guided one may pick otherwise.
   - Before the weapon and armor, they roll food and the three starting-equipment tables, and add
     what they give: a waterskin and d4 days of food (a copy's quantity); the d6 table's
     container, beast or wagon; and the two d12 tables' entries. Entries the pack already has are
@@ -275,7 +285,9 @@ start a character with `creating: true` and run one of the creation starts below
   - A d6 for what's found: 3d10 silver is added; a scroll is outcome data.
   - A Gutterborn Scum with one specialty rolls its second: a d5 counting on from the first in
     table order, recommending the option the player confirms or changes. Rerolling them
-    on later advancements is the table's.
+    on later advancements is the table's. This is the class's own part: a class whose
+    `getsBetter` is set has an unlisted `get-better-part` action, which `get-better` runs, so a
+    homebrew class can add one too.
 - **Sheet layout** (`rules/layout.yaml`): display groups for actions
   (combat, hit points, Broken only at exactly 0 HP or, for a scum with Dodging Death, below it,
   tests with the class features' tests and Escaping Fate, powers and decoctions, days and rest,
@@ -283,6 +295,43 @@ start a character with `creating: true` and run one of the creation starts below
   scrolls by unclean and sacred, equipment, decoctions, companions). Content-type hints show dice as dice,
   armor damage as dots, a broken weapon or shield only when broken, and prices in silver
   (`units.silver`); quantity is hidden except where it counts (ammunition, scrolls, weapons).
+
+## Add-on packs
+
+A pack that depends on `mork-borg-core` can add content of its types, and it joins the core's:
+
+- **Classes:** the random `class` start draws among every class offered (a d6 with the core six)
+  and the guided one lists them; a class's `feature` choice is drawn among its options, its
+  features' weapons go through `features.weapons`, a class with `startingScroll` gets the random
+  scroll, one with `getsBetter` runs its own `get-better-part`, and one with `brews` shows the
+  decoctions group.
+- **Gear:** the guided start offers each item the tables give as a pick among its type's
+  content, add-on gear included; a picked weapon with `ammo` is followed by a pick among the
+  ammunition of that kind (Presence + 10 of it). The random starts keep the book's tables.
+- **Open enums** (values in the add-on's rules' `extendEnums`, named in its text under the
+  core's key): `mork-borg-core:types.weapon.fields.ammo` and `mork-borg-core:types.ammo.fields.kind`
+  (a new kind of ammunition, added to both), and `mork-borg-core:types.scroll.fields.kind` (a
+  new kind of scroll; the sheet sections scrolls by kind, and the book's tables, the Hermit's
+  scroll and the Invisible College keep to unclean and sacred).
+- **Extendable choices:** each core class's `feature` takes inline options from the add-on's
+  `extendChoices` (`'mork-borg-core:classes.fanged-deserter': { feature: { options: [...] } }`),
+  drawn with the class's own (a d7 with one added).
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `profane` added to `mork-borg-core:types.scroll.fields.kind` is
+  `types.scroll.fields.kind.values.profane.name: Profane` (through `enumOrigins`), and a Fanged
+  Deserter `feature` option `rusted-hook` is
+  `classes.fanged-deserter.choices.feature.options.rusted-hook.name: Rusted Hook` (through
+  `optionOrigins`).
+- **Tagged creation steps** of `create-character`, for an add-on's rules-level `option` effects:
+  `creation.class`, `creation.abilities` (the classless best abilities), `creation.weapon`,
+  `creation.armor`, `creation.scroll`, `creation.equipment`, `creation.shield`, `creation.ammo`
+  and `creation.features`; for its `changes` effects: `creation.scores` (saving the rolls) and
+  `creation.gear` (adding the starting gear).
+
+Still closed: a scroll's and a decoction's `amountKind`, `durationUnit` and a decoction's
+`state`, which the core's actions read.
 
 ## Coverage
 

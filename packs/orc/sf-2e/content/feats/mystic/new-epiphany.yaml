@@ -4,7 +4,7 @@ tags: [trait.mystic]
 fields: { level: 6, category: class, class: classes.mystic }
 prerequisites:
   - id: expert
-    when: "mystic.connection != 'akashic' && skills.occultism.rank >= 2 || mystic.connection != 'elemental' && skills.nature.rank >= 2 || mystic.connection != 'healing' && skills.medicine.rank >= 2 || mystic.connection != 'rhythm' && skills.performance.rank >= 2 || mystic.connection != 'shadow' && skills.stealth.rank >= 2"
+    when: mystic.otherExpertConnections > 0
 effects: [{ target: focus.points, op: add, value: 1 }]
 choices:
   - id: spell

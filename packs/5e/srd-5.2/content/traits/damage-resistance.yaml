@@ -1,7 +1,9 @@
 id: traits.damage-resistance
 type: trait
+state:
+  damageType: { type: string, default: '' }
 effects:
   - target: damage.resistances
     op: grant
-    value: { formula: "'damage.' + origins.draconicDamage" }
-    when: origins.draconicDamage != ''
+    value: { formula: "'damage.' + self.damageType" }
+    when: self.damageType != ''

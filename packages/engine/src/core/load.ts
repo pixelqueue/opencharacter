@@ -26,8 +26,16 @@ import type {
   StepChanges,
   ValueDecl,
 } from './pack-types.ts';
-import { appliesQueries, fitsItemField, keptQuery } from './pack-types.ts';
-import { bandSet } from './pack-types.ts';
+import {
+  appliesQueries,
+  type DeclaredField,
+  enumAddress,
+  fitsItemField,
+  keptQuery,
+  thenToSelf,
+  type EnumAddress,
+} from './pack-types.ts';
+import { bandSet, stepArms } from './pack-types.ts';
 import type { PackRelease } from './release.ts';
 import { expandFamilies } from './families.ts';
 import {
@@ -47,7 +55,7 @@ import {
   resolveType,
   type Ruleset,
 } from './ruleset.ts';
-import { itemFieldDeclsOf, itemView } from './views.ts';
+import { itemFieldDeclsOf, itemView, writtenTags } from './views.ts';
 
 import type { EngineError } from '@opencharacter/spec';
 
@@ -257,6 +265,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     queries: {},
     families: Object.fromEntries(families),
     familyOrigins,
+    enumOrigins: {},
+    optionOrigins: {},
     conflicts: [],
     sources: packs,
   };
@@ -304,6 +314,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     }
   }
   ruleset.tags = [...tags].toSorted();
+  extendEnums(ruleset, byId.values(), scopeOf, err);
   const declaredByPack = new Map<string, Set<string>>();
   const declaredTags = (pack: string): Set<string> => {
     let set = declaredByPack.get(pack);
@@ -334,7 +345,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     },
     /** A formula item is resolved per sheet. */
     grant(g: Grant, pack: string): Grant {
-      return typeof g.item === 'string' ? { ...g, item: q.content(g.item, pack) } : g;
+      if (typeof g.item === 'string') return { ...g, item: q.content(g.item, pack) };
+      return 'query' in g.item ? { ...g, item: { query: q.query(g.item.query, pack) } } : g;
     },
     content(ref: string, pack: string): string {
       return resolveContent(ruleset, ref, pack) ?? (unknown('content', ref, pack), ref);
@@ -370,7 +382,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       if (!decl.of || decl.of === 'tag' || decl.of === 'string') return value;
       const one = (v: string) => (decl.of === 'field' ? q.field(v, pack) : q.content(v, pack));
       if (decl.type === 'id' && typeof value === 'string') return one(value);
-      if (decl.type === 'set' && Array.isArray(value)) return value.map((v) => one(String(v)));
+      if ((decl.type === 'set' || decl.type === 'list') && Array.isArray(value))
+        return value.map((v) => one(String(v)));
       return value;
     },
     decls(decls: Record<string, ValueDecl> | undefined, pack: string) {
@@ -438,7 +451,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     },
     /** An effect with `then` changes its own entry (a copy or an applied entry), so it must have one. */
     copyless(effect: Effect, pack: string): void {
-      if (effect.then)
+      if (effect.then && thenToSelf(effect))
         err('then-without-copy', {
           ...(effect.id !== undefined ? { effect: effect.id } : {}),
           pack,
@@ -446,6 +459,15 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     },
     effect(effect: Effect, pack: string): Effect {
       const out: Effect = { ...effect };
+      if (effect.then && !Array.isArray(effect.then) && !thenToSelf(effect)) {
+        const then = effect.then;
+        // oxlint-disable-next-line unicorn/no-thenable
+        out.then = {
+          ...then,
+          changes: q.changes(then.changes as ProposedChange[], pack, then.to),
+          ...q.to(then.to, pack),
+        };
+      }
       if (typeof effect.target === 'string') out.target = q.field(effect.target, pack);
       else if ('rolls' in effect.target && effect.target.tally !== undefined) {
         const ref = effect.target.tally;
@@ -587,12 +609,10 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
           for (const inner of list) {
             if (inner.each !== undefined)
               err('unknown-role', { role: inner.each, step: inner.id, pack });
-            for (const arm of [...(inner.cases ?? []), ...(inner.else ? [inner.else] : [])])
-              nested(arm.steps ?? []);
+            for (const arm of stepArms(inner)) nested(arm.steps ?? []);
           }
         };
-        for (const arm of [...(step.cases ?? []), ...(step.else ? [step.else] : [])])
-          nested(arm.steps ?? []);
+        for (const arm of stepArms(step)) nested(arm.steps ?? []);
       }
     },
     steps(steps: Step[], pack: string, roles: Record<string, Role> = {}): Step[] {
@@ -659,6 +679,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
               },
             }
           : {}),
+        ...(step.kind === 'group' && step.steps ? { steps: q.steps(step.steps, pack, roles) } : {}),
       }));
     },
     /** `release` and a roll step's `of` name steps anywhere in the same action's tree. */
@@ -667,8 +688,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       const walk = (list: Step[]) => {
         for (const step of list) {
           all.push(step);
-          for (const arm of step.cases ?? []) walk(arm.steps ?? []);
-          walk(step.else?.steps ?? []);
+          for (const arm of stepArms(step)) walk(arm.steps ?? []);
         }
       };
       walk(steps);
@@ -976,6 +996,75 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       else unknown('content', hidden, pid);
     }
   }
+  // Options packs add to their dependencies' choices, after every override, in load order.
+  for (const pack of byId.values()) {
+    const pid = pack.manifest.id;
+    for (const [target, choices] of Object.entries(pack.rules.extendChoices ?? {})) {
+      const bad = (message: string) => err('invalid-extension', { pack: pid, target, message });
+      const owner = target.slice(0, target.indexOf(':'));
+      if (owner === pid || !scopeOf(pid).includes(owner)) {
+        bad(`${owner} is not a dependency of ${pid}`);
+        continue;
+      }
+      const rulesLevel = target === `${owner}:rules`;
+      const item = rulesLevel ? undefined : resolved.get(target);
+      if (!rulesLevel && !item) {
+        unknown('content', target, pid);
+        continue;
+      }
+      const roots: Choice[] = rulesLevel
+        ? Object.values(ruleset.rules.choices)
+            .filter((c) => c.pack === owner)
+            .map((c) => structuredClone(c))
+        : structuredClone(item?.choices ?? []);
+      for (const [path, addition] of Object.entries(choices)) {
+        const parts = path.split('/');
+        let choice = roots.find((c) => c.id === parts[0]);
+        let keyRoot = target;
+        for (let at = 1; choice && at < parts.length; at += 2) {
+          const from = choice.from;
+          const option =
+            'options' in from ? from.options.find((o) => o.id === parts[at]) : undefined;
+          keyRoot = `${keyRoot}.choices.${choice.id}.options.${parts[at]}`;
+          choice = option?.choices?.find((c) => c.id === parts[at + 1]);
+        }
+        if (!choice) {
+          bad(`no choice "${path}"`);
+          continue;
+        }
+        const origins = (ruleset.optionOrigins[`${keyRoot}/${choice.id}`] ??= {});
+        const from = choice.from;
+        if ('items' in addition && 'items' in from) {
+          for (const ref of addition.items) {
+            const qid = q.content(ref, pid);
+            if (!from.items.includes(qid)) from.items.push(qid);
+          }
+        } else if ('values' in addition && 'values' in from && Array.isArray(from.values)) {
+          for (const value of addition.values) {
+            if (from.values.includes(value)) continue;
+            from.values.push(value);
+            origins[String(value)] = pid;
+          }
+        } else if ('options' in addition && 'options' in from) {
+          for (const option of addition.options) {
+            if (from.options.some((o) => o.id === option.id)) {
+              err('duplicate-id', { id: option.id, owner: `${target}/${path}`, pack: pid });
+              continue;
+            }
+            from.options.push({ ...q.option(option, pid), pack: pid });
+            origins[option.id] = pid;
+          }
+        } else {
+          bad(`"${path}" doesn't take ${Object.keys(addition)[0]}`);
+        }
+      }
+      if (item) resolved.set(target, { ...item, choices: roots });
+      else for (const c of roots) ruleset.rules.choices[`${owner}:${c.id}`] = c as never;
+    }
+  }
+  extendEnums(ruleset, byId.values(), scopeOf, err, resolved);
+  followOpenViews(ruleset, resolved, (id) => byId.has(id));
+  const takes = declTakes(ruleset, (qid) => resolved.get(qid));
   // Item fields against their content type: the item's own values, then the required ones on the
   // merged item.
   [...byId.values()].forEach((pack, i) => {
@@ -996,6 +1085,15 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         const decl = decls[name];
         if (!decl) bad(name, 'undeclared');
         else if (!fitsItemField(value, decl)) bad(name, 'wrong-type');
+        else if (decl.where !== undefined && (typeof value !== 'object' || Array.isArray(value))) {
+          const ids = membersOf(value).map(
+            (v) =>
+              (decl.of === 'field'
+                ? resolveField(ruleset, v, pack.manifest.id)
+                : resolveContent(ruleset, v, pack.manifest.id)) ?? v,
+          );
+          if (!ids.every((id) => takes(decl, type.pack, id))) bad(name, 'not-allowed');
+        }
       }
       if (raw.override) return;
       for (const [name, decl] of Object.entries(decls))
@@ -1009,13 +1107,25 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     const scope = item.scopes?.fields ?? item.pack;
     for (const [name, decl] of Object.entries(decls)) {
       const value = fields[name];
-      if (value !== undefined && value !== null) fields[name] = q.members(decl, value, scope);
+      if (
+        value !== undefined &&
+        value !== null &&
+        (typeof value !== 'object' || Array.isArray(value))
+      )
+        fields[name] = q.members(decl, value, scope);
     }
     resolved.set(qid, { ...item, fields });
   }
+  // Content order: the load order, then each pack's content order.
   ruleset.content = Object.fromEntries(
-    [...resolved.entries()].toSorted(([a], [b]) => (a < b ? -1 : 1)),
+    Object.keys(ruleset.content).map((qid) => {
+      const item = resolved.get(qid) as LoadedItem;
+      return item.grantOnly === undefined && ruleset.contentTypes[item.type]?.grantOnly
+        ? [qid, { ...item, grantOnly: true }]
+        : [qid, item];
+    }),
   );
+  declOptions(ruleset, takes);
 
   // The start by its ID, or `<pack>:<id>`; from the slot's pack or a dependency of it, when that
   // pack is loaded too.
@@ -1043,7 +1153,10 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     for (const choice of choices ?? []) {
       if ('type' in choice.from) queries.push({ query: choice.from, pack });
       if ('options' in choice.from)
-        for (const o of choice.from.options) collectChoices(o.choices, pack);
+        for (const o of choice.from.options) {
+          collectChoices(o.choices, pack);
+          collectGrants(o.grants, pack);
+        }
       collectEffects(choice.effects, pack);
     }
   };
@@ -1053,8 +1166,15 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       if (e.op === 'grant' && v?.query) queries.push({ query: v.query, pack });
     }
   };
+  const collectGrants = (grants: readonly Grant[] | undefined, pack: string) => {
+    for (const g of grants ?? [])
+      if (typeof g.item === 'object' && 'query' in g.item)
+        queries.push({ query: g.item.query, pack });
+  };
+  for (const type of Object.values(ruleset.contentTypes)) collectGrants(type.grants, type.pack);
   for (const item of Object.values(ruleset.content)) {
     const pack = item.pack;
+    collectGrants(item.grants, item.scopes?.grants ?? pack);
     collectChoices(item.choices, item.scopes?.choices ?? pack);
     collectEffects(item.effects, item.scopes?.effects ?? pack);
     for (const query of appliesQueries(item))
@@ -1237,8 +1357,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
             formula,
           ]),
         );
-      for (const arm of step.cases ?? []) situationalSteps(arm.steps ?? [], pack);
-      situationalSteps(step.else?.steps ?? [], pack);
+      for (const arm of stepArms(step)) situationalSteps(arm.steps ?? [], pack);
     }
   };
   const situationalActions = (list: ActionOrUse[] | undefined, pack: string): void => {
@@ -1291,6 +1410,8 @@ const CHARACTER_FUNCTIONS = new Set([
   'sumCopies',
   'maxCopies',
   'minCopies',
+  'countPicks',
+  'countGrants',
   'countFields',
   'sumFields',
   'maxFields',
@@ -1299,6 +1420,9 @@ const CHARACTER_FUNCTIONS = new Set([
   'countState',
   'sumState',
   'picksOf',
+  'grantedPicksOf',
+  'itemField',
+  'itemTags',
 ]);
 
 /** Whether a query condition reads only `item`, so it can be resolved at load time. */
@@ -1346,6 +1470,82 @@ function childrenOf(n: f.Node): f.Node[] {
   }
 }
 
+/** Whether an id, set or list declaration's `where` admits the field or content ID. */
+type Takes = (decl: ValueDecl, pack: string, id: string) => boolean;
+
+/**
+ * An item field's or state key's `where` reads only `item`: a field's `id`, `type` and written
+ * tags, or an item as a query's candidate. An ID naming nothing passes: it is reported as such.
+ */
+function declTakes(ruleset: Ruleset, itemOf: (qid: string) => LoadedItem | undefined): Takes {
+  return (decl, pack, id) => {
+    if (decl.where === undefined || !takesWhere(decl)) return true;
+    const tree = conditionTree(decl.where);
+    if (!tree.ok) return true;
+    let view: Record<string, unknown>;
+    if (decl.of === 'field') {
+      const def = ruleset.fields[id];
+      if (!def) return true;
+      view = { id, type: def.type, tags: writtenTags(def.tags) };
+    } else {
+      const item = itemOf(id);
+      if (!item) return true;
+      if (item.type !== decl.of) return false;
+      view = itemView(ruleset, item, [], () => undefined);
+    }
+    return matchesQuery(view, tree.value, (text) => resolveId(ruleset, text, pack));
+  };
+}
+
+/** An id, set or list of fields or content, whose `where` lists what it takes. */
+function takesWhere(decl: ValueDecl): boolean {
+  return (
+    ['id', 'set', 'list'].includes(decl.type) &&
+    decl.of !== undefined &&
+    decl.of !== 'tag' &&
+    decl.of !== 'string'
+  );
+}
+
+function membersOf(value: unknown): string[] {
+  if (typeof value === 'string') return [value];
+  return Array.isArray(value) ? value.map(String) : [];
+}
+
+/** Item fields and state keys with `where` get `options`: the IDs they take, in ruleset order. */
+function declOptions(ruleset: Ruleset, takes: Takes): void {
+  const withOptions = <T extends ValueDecl>(decl: T, pack: string): T => {
+    if (decl.where === undefined || !takesWhere(decl)) return decl;
+    const ids =
+      decl.of === 'field'
+        ? Object.keys(ruleset.fields)
+        : Object.values(ruleset.content)
+            .filter((item) => !item.hidden && item.type === decl.of)
+            .map((item) => item.qid);
+    return { ...decl, options: ids.filter((id) => takes(decl, pack, id)) };
+  };
+  const all = (decls: Record<string, ValueDecl> | undefined, pack: string) =>
+    decls && Object.values(decls).some((d) => d.where !== undefined)
+      ? Object.fromEntries(Object.entries(decls).map(([k, d]) => [k, withOptions(d, pack)]))
+      : decls;
+  for (const [name, type] of Object.entries(ruleset.contentTypes)) {
+    const fields = all(type.fields, type.pack);
+    const state = all(type.state, type.pack);
+    if (fields !== type.fields || state !== type.state)
+      ruleset.contentTypes[name] = {
+        ...type,
+        ...(fields ? { fields } : {}),
+        ...(state ? { state } : {}),
+      };
+  }
+  for (const [name, def] of Object.entries(ruleset.rules.templateFields))
+    ruleset.rules.templateFields[name] = withOptions(def, def.pack);
+  for (const [qid, item] of Object.entries(ruleset.content)) {
+    const state = all(item.state, item.scopes?.state ?? item.pack);
+    if (state && state !== item.state) ruleset.content[qid] = { ...item, state };
+  }
+}
+
 function conditionTree(where: string | number | boolean): ReturnType<typeof f.parse> {
   return typeof where === 'string'
     ? f.parseCached(where)
@@ -1362,3 +1562,159 @@ function matchesQuery(
 }
 
 export type { FormulaError };
+
+/**
+ * A dependent pack's values for an open enum, after the enum's own, in load order, each once.
+ * Without `items`, the rules' enums (fields, content types, rules actions' parameters); with the
+ * resolved content, items' own state keys and their inline actions' parameters.
+ */
+function extendEnums(
+  ruleset: Ruleset,
+  packs: Iterable<PackRelease>,
+  scopeOf: (id: string) => string[],
+  err: (code: string, data: Record<string, unknown>) => void,
+  items?: Map<string, LoadedItem>,
+): void {
+  for (const pack of packs) {
+    const pid = pack.manifest.id;
+    for (const [target, values] of Object.entries(pack.rules.extendEnums ?? {})) {
+      const colon = target.indexOf(':');
+      const owner = target.slice(0, colon);
+      const address = target.slice(colon + 1);
+      const parsed = enumAddress(address);
+      const onItem = parsed?.kind === 'item-state' || parsed?.kind === 'item-action';
+      if (onItem !== (items !== undefined)) continue;
+      const bad = (message: string) => err('invalid-extension', { pack: pid, target, message });
+      if (owner === pid || !scopeOf(pid).includes(owner)) {
+        bad(`${owner} is not a dependency of ${pid}`);
+        continue;
+      }
+      const slot = parsed ? enumSlot(ruleset, owner, parsed, items) : undefined;
+      const decl = slot?.decl;
+      if (!slot || !decl || decl.type !== 'enum') {
+        bad(`${address} is not an enum of ${owner}`);
+        continue;
+      }
+      if (decl.open !== true) {
+        bad(`${address} is not open`);
+        continue;
+      }
+      const merged = [...(decl.values ?? [])];
+      for (const value of values) {
+        if (merged.includes(value)) continue;
+        merged.push(value);
+        (ruleset.enumOrigins[target] ??= {})[value] = pid;
+      }
+      slot.replace({ ...decl, values: merged });
+    }
+  }
+}
+
+function enumSlot(
+  ruleset: Ruleset,
+  owner: string,
+  at: EnumAddress,
+  items: Map<string, LoadedItem> | undefined,
+): { decl: ValueDecl | undefined; replace: (next: ValueDecl) => void } | undefined {
+  switch (at.kind) {
+    case 'field': {
+      const qid = `${owner}:${at.field}`;
+      return {
+        decl: ruleset.fields[qid],
+        replace: (next) => (ruleset.fields[qid] = { ...ruleset.fields[qid]!, ...next }),
+      };
+    }
+    case 'type': {
+      const qid = `${owner}:${at.type}`;
+      return {
+        decl: ruleset.contentTypes[qid]?.[at.of]?.[at.key],
+        replace: (next) => {
+          const def = ruleset.contentTypes[qid]!;
+          ruleset.contentTypes[qid] = { ...def, [at.of]: { ...def[at.of], [at.key]: next } };
+        },
+      };
+    }
+    case 'action': {
+      const qid = `${owner}:${at.action}`;
+      const def = ruleset.rules.actions[qid];
+      return {
+        decl: def?.params?.[at.param],
+        replace: (next) =>
+          (ruleset.rules.actions[qid] = { ...def!, params: { ...def!.params, [at.param]: next } }),
+      };
+    }
+    case 'item-state': {
+      const qid = `${owner}:${at.item}`;
+      const item = items?.get(qid);
+      return {
+        decl: item?.state?.[at.key],
+        replace: (next) => items?.set(qid, { ...item!, state: { ...item!.state, [at.key]: next } }),
+      };
+    }
+    case 'item-action': {
+      const qid = `${owner}:${at.item}`;
+      const item = items?.get(qid);
+      const i = (item?.actions ?? []).findIndex((a) => !('use' in a) && a.id === at.action);
+      const def = i < 0 ? undefined : (item?.actions?.[i] as ActionDef);
+      return {
+        decl: def?.params?.[at.param],
+        replace: (next) => {
+          const actions = [...item!.actions!];
+          actions[i] = { ...def!, params: { ...def!.params, [at.param]: next } };
+          items?.set(qid, { ...item!, actions });
+        },
+      };
+    }
+  }
+}
+
+/**
+ * Declared view fields marked `open` take the merged values of the open enum field they name:
+ * in the role's or slot's expected pack when it is loaded, else in the declaring pack's scope.
+ */
+function followOpenViews(
+  ruleset: Ruleset,
+  items: Map<string, LoadedItem>,
+  loaded: (pack: string) => boolean,
+): void {
+  const follow = (
+    fields: Record<string, DeclaredField>,
+    expects: string | undefined,
+    home: string,
+  ): Record<string, DeclaredField> => {
+    let out = fields;
+    for (const [id, decl] of Object.entries(fields)) {
+      if (decl.type !== 'enum' || decl.open !== true) continue;
+      const qid =
+        expects === undefined
+          ? resolveField(ruleset, id, home)
+          : loaded(expects)
+            ? `${expects}:${id}`
+            : undefined;
+      const field = qid ? ruleset.fields[qid] : undefined;
+      if (field?.type !== 'enum' || field.open !== true || !field.values) continue;
+      out = { ...out, [id]: { ...decl, values: field.values } };
+    }
+    return out;
+  };
+  const roles = <T extends ActionDef>(def: T, home: string): T => {
+    let participants = def.participants;
+    for (const [name, role] of Object.entries(def.participants ?? {})) {
+      if (!role.fields || typeof role.fields !== 'object') continue;
+      const fields = follow(role.fields, role.pack, home);
+      if (fields !== role.fields) participants = { ...participants, [name]: { ...role, fields } };
+    }
+    return participants === def.participants ? def : { ...def, participants };
+  };
+  const inline = (actions: ActionOrUse[], home: string) =>
+    actions.map((a) => ('use' in a ? a : roles(a, home)));
+  for (const [qid, def] of Object.entries(ruleset.rules.actions))
+    ruleset.rules.actions[qid] = roles(def, def.pack);
+  for (const link of Object.values(ruleset.rules.links))
+    link.fields = follow(link.fields, link.expects, link.pack);
+  for (const [qid, type] of Object.entries(ruleset.contentTypes))
+    if (type.actions)
+      ruleset.contentTypes[qid] = { ...type, actions: inline(type.actions, type.pack) };
+  for (const [qid, item] of items)
+    if (item.actions) items.set(qid, { ...item, actions: inline(item.actions, item.pack) });
+}

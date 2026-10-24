@@ -5,7 +5,7 @@
   "roots": [
     {
       "id": "item",
-      "description": "The candidate in a query `where` (and in a choice step's `where` and `prefer`); the item (base plus templates) in effects, actions, templates, item fields, and state defaults and bounds: `item.id`, `item.type`, `item.tags`, `item.<field>` (with the template fields its content type doesn't declare: the templates' values in order, replacing the base item's, else the declared default). In an actions display group's `where`, the listed action: `item.id` (its qualified ID as computeSheet lists it), `item.tags`, and `item.entry` and `item.source`, absent when the listing has none. In a content display group's `where`, `sectionBy` and `sortBy`, and a content-type state hint's `showWhen`, the member's item. In an effect's set-of-fields target (`target: { fields: { where } }`), each numeric field's view (each `set` field's, for a `grant`): `item.id` (qualified), `item.type` and `item.tags` (a field's tags on the sheet, computed ones included); the condition reads nothing else, except in a choice's effects, where it may read the pick (`pick`, and `slot` in a slotted choice), resolved for each pick."
+      "description": "The candidate in a query `where` (and in a choice step's `where` and `prefer`); the item (base plus templates) in effects, actions, templates, item fields, and state defaults and bounds: `item.id`, `item.type`, `item.tags`, `item.<field>` (with the template fields its content type doesn't declare: the templates' values in order, replacing the base item's, else the declared default). In an item field's or state key's `where`, the candidate: an item as a query's, or a field's `id`, `type` and written `tags`; the condition reads nothing else. In an actions display group's `where`, the listed action: `item.id` (its qualified ID as computeSheet lists it), `item.tags`, and `item.entry` and `item.source`, absent when the listing has none. In a content display group's `where`, `sectionBy` and `sortBy`, and a content-type state hint's `showWhen`, the member's item. In an effect's set-of-fields target (`target: { fields: { where } }`), each numeric field's view (each `set` field's, for a `grant`): `item.id` (qualified), `item.type` and `item.tags` (a field's tags on the sheet, computed ones included); the condition reads nothing else, except in a choice's effects, where it may read the pick (`pick`, and `slot` in a slotted choice), resolved for each pick."
     },
     {
       "id": "base",
@@ -21,7 +21,7 @@
     },
     {
       "id": "pick",
-      "description": "In a choice's effects: the picked option (`pick.id` or `pick.value`), also in a set of fields' `where` there."
+      "description": "In a choice's effects: the picked option (`pick.id` or `pick.value`), also in a set of fields' `where` there. Inside the arguments of `countPicks`: the saved pick being evaluated, a closed object: `item` (the picked content's qualified ID), `type` (its content type name), `tags`, `fields` (its item fields, as in `item`) and `state` (each declared state key, the pick's saved value or the default). `state` and `fields` are `dyn`."
     },
     {
       "id": "slot",
@@ -33,7 +33,7 @@
     },
     {
       "id": "steps",
-      "description": "In an action: results of earlier steps: roll steps `steps.<id>.total`, `.faces`, `.kept`, `.empty` (the part's `ifEmpty` dice were rolled), `.band` and `.bandSet` (the band set's qualified ID), `.bandValue` (the band set's `value`, when it has one), `.tallies.<name>` (each declared roll tally, 0 when nothing added to it), `.bounds` (each `atLeast` or `atMost` roll effect that changed the total, `{ source, op, value }`), `.unbounded` (the total before them) and `.rolls` (for a roll made more than once, every whole roll, `{ total, kept, items }`); choice steps `.picked` (the option ID, or with `repeat` the list of picked IDs; over pending choices the list of picked IDs, with `.paths` their choice paths), and over content or copies without `repeat` `.item` (the picked content's item view) and, over copies, `.self` (the picked copy), and over values without `repeat` `.value` (the picked value); choice and changes steps `.added` (the instance IDs of the copies the step's `addItem` changes add to the actor, in order, engine-picked IDs included); action steps `.result` (the nested action's outcome). Use `has(steps.<id>)` for a step that may not have run. An `each` step's result is the list of per-participant results in participant order (null where its `when` skipped one); inside a later `each` step over the same role it is the current participant's result, absent when skipped, and inside the step's own run for participant `i` the list of runs `0` to `i - 1` (absent in the first run). A handoff's result is `.result` and `.data` from the app's answer. In a formula a proposed change passes on (`copies.where`, `applied.where`, a per-copy or per-entry `by` or `value`), the action replaces each path with its value as a literal."
+      "description": "In an action: results of earlier steps: roll steps `steps.<id>.total`, `.faces`, `.kept`, `.empty` (the part's `ifEmpty` dice were rolled), `.band` and `.bandSet` (the band set's qualified ID), `.bandValue` (the band set's `value`, when it has one), `.tallies.<name>` (each declared roll tally, 0 when nothing added to it), `.bounds` (each `atLeast` or `atMost` roll effect that changed the total, `{ source, op, value }`), `.unbounded` (the total before them) and `.rolls` (for a roll made more than once, every whole roll, `{ total, kept, items }`); choice steps `.picked` (the option ID, or with `repeat` the list of picked IDs; over pending choices the list of picked IDs, with `.paths` their choice paths), and over content or copies without `repeat` `.item` (the picked content's item view) and, over copies, `.self` (the picked copy), and over values `.value` (without `repeat`, the picked value) or `.values` (with `repeat`, the picked values in order, numbers staying numbers); choice and changes steps `.added` (the instance IDs of the copies the step's `addItem` changes add to the actor, in order, engine-picked IDs included); action steps `.result` (the nested action's outcome); group steps the list of their passes, each a map of the results of the steps that ran in it by step ID (inside a pass, the passes before it; a step the group holds reads as this pass's result inside it, its latest afterwards). Use `has(steps.<id>)` for a step that may not have run. An `each` step's result is the list of per-participant results in participant order (null where its `when` skipped one); inside a later `each` step over the same role it is the current participant's result, absent when skipped, and inside the step's own run for participant `i` the list of runs `0` to `i - 1` (absent in the first run). A handoff's result is `.result` and `.data` from the app's answer. In a formula a proposed change passes on (`copies.where`, `applied.where`, a per-copy or per-entry `by` or `value`), the action replaces each path with its value as a literal."
     },
     {
       "id": "flags",
@@ -72,6 +72,10 @@
       "description": "In the `recommend` of a choice step over pending choices: the choice being asked, `choice.path` (its choice path), `choice.owner` (the qualified key root of its owner) and `choice.id`, so one step can recommend differently per choice. In a declared choice's own `where` (a query reading the character, or a value choice's), `eligible`, `recommend` and a value choice's `values` formula: the choice itself, the same keys plus `slot` for a slot and `picks`, its own picks (content IDs or values, in saved order), so a choice can leave out what the character has without ruling out its own picks. Other choices' picks, a sibling's included, are `picksOf(<choice>)`."
     },
     {
+      "id": "owner",
+      "description": "In a `keepsTemplates` entry's `content` query that reads the keeper: the candidate activation's owner, the activation that owns the choice it was picked in or granted it. `owner.id` is its qualified key root, as `choice.owner` (a content ID, `<pack>:rules` for a rules-level pick, an inline option's root plus `.choices.<choice>.options.<option>`), and `owner.item` its item (`dyn`; absent for the rules). So a template goes on a cantrip only where one class knows it: `owner.id == @classes.warlock`. Not bound elsewhere (`unknown-name`)."
+    },
+    {
       "id": "field",
       "description": "In an `allocate` step's `limit` and `cost`: the field being allocated to, `field.id` (the qualified field ID) and `field.value` (its computed value before the step)."
     },
@@ -100,6 +104,10 @@
       "description": "Inside the arguments of `countCopies`, `sumCopies`, `maxCopies` and `minCopies`: the copy being evaluated: `copy.id`, `copy.item` (qualified item ID), `copy.type` (content type name), `copy.tags`, `copy.equipped`, `copy.quantity`, `copy.templates`, `copy.state.<key>` (declared state keys, saved value or default) and `copy.fields.<field>` (item fields as in `item`: the templates' values, else the item's, else the declared default). `state` and `fields` are `dyn`."
     },
     {
+      "id": "grant",
+      "description": "Inside the arguments of `countGrants`: the active holder grant being evaluated, a closed object as `pick` is in `countPicks`: `item`, `type`, `tags`, `fields` and `state` (each declared state key: the grant's saved value, else the grant's `state` value, else the default)."
+    },
+    {
       "id": "entry",
       "description": "In an immunity query's `where`: the candidate applied entry, `entry.id` and its state keys (`entry.<key>`, the saved value or the declared default), as its `self`; `item` is its source's item. State keys the query's content type declares are typed; the view is open. Not bound elsewhere (`unknown-name`)."
     },
@@ -109,7 +117,7 @@
     },
     {
       "id": "x",
-      "description": "Inside the arguments of the list functions (`countList`, `sumList`, `maxList`, `minList`, and `filterList`, `mapList`, `sortList`) after the list: the list element being evaluated, typed as the list's element type (`dyn` for a `dyn` list). Null elements are skipped. Also in a proposed change with `forEach`, in an action or a follow-up: the element the change is being proposed for, typed as the `forEach` list's element type, in every formula of the change except those it passes on to applyChanges."
+      "description": "Inside the arguments of the list functions (`countList`, `sumList`, `maxList`, `minList`, and `filterList`, `mapList`, `sortList`) after the list: the list element being evaluated, typed as the list's element type (`dyn` for a `dyn` list). Null elements are skipped. Also in a proposed change with `forEach`, in an action or a follow-up: the element the change is being proposed for, typed as the `forEach` list's element type, in every formula of the change except those it passes on to applyChanges. And in a grant with `forEach`: the element the grant is made for, in its `when`, `item` (a query's `where` too), `state` and `choices`, not in the `forEach` list itself."
     },
     {
       "id": "part",
@@ -184,13 +192,13 @@
       "id": "countCopies",
       "signature": "countCopies(bool cond) -> int",
       "character": true,
-      "description": "Macro: the character's copies (inventory, then features) for which `cond` holds, evaluated once per copy with `copy` bound. No aggregate is bound inside its arguments."
+      "description": "Macro: the character's copies (inventory, then features) for which `cond` holds, evaluated once per copy with `copy` bound. No aggregate but `countPicks` and `countGrants` is bound inside its arguments."
     },
     {
       "id": "sumCopies",
       "signature": "sumCopies(number value, bool cond?) -> int | decimal",
       "character": true,
-      "description": "Macro: the sum of `value` over the character's copies for which `cond` holds (every copy, without it), evaluated once per copy with `copy` bound; `cond` first. Decimal when any summed value is decimal, else int. No aggregate is bound inside its arguments."
+      "description": "Macro: the sum of `value` over the character's copies for which `cond` holds (every copy, without it), evaluated once per copy with `copy` bound; `cond` first. Decimal when any summed value is decimal, else int. No aggregate but `countPicks` and `countGrants` is bound inside its arguments."
     },
     {
       "id": "maxCopies",
@@ -205,10 +213,22 @@
       "description": "Macro: the lowest `value` over the character's copies for which `cond` holds, with `copy` bound as in `sumCopies`. 0 when no copy is kept."
     },
     {
+      "id": "countPicks",
+      "signature": "countPicks(bool cond) -> int",
+      "character": true,
+      "description": "Macro: the character's saved picks of content for which `cond` holds, in file order (each copy's choice tree, features then inventory, then the rules-level tree, depth first), evaluated once per pick with `pick` bound. Picks of values and of content not in the ruleset are skipped. Bound wherever a character is, activation conditions included. Bound inside another aggregate's arguments too, evaluated once per outer element with its root bound; no aggregate is bound inside its own arguments."
+    },
+    {
+      "id": "countGrants",
+      "signature": "countGrants(bool cond) -> int",
+      "character": true,
+      "description": "Macro: the character's active holder grants for which `cond` holds, in activation order (an item once per node), evaluated once per grant with `grant` bound. Unbound in activation conditions, which decide the grants (`unknown-function`). Bound inside another aggregate's arguments too, evaluated once per outer element with its root bound; no aggregate is bound inside its own arguments."
+    },
+    {
       "id": "countFields",
       "signature": "countFields(bool cond) -> int",
       "character": true,
-      "description": "Macro: how many fields in the ruleset `cond` holds for, evaluated once per field with `f` bound to its `id`, `type` and `tags` (a static filter). No aggregate is bound inside its arguments."
+      "description": "Macro: how many fields in the ruleset `cond` holds for, evaluated once per field with `f` bound to its `id`, `type` and `tags` (a static filter). No aggregate but `countPicks` and `countGrants` is bound inside its arguments."
     },
     {
       "id": "sumFields",
@@ -231,7 +251,7 @@
     {
       "id": "countList",
       "signature": "countList(list, bool cond) -> int",
-      "description": "Macro: how many elements of the list `cond` holds for, evaluated once per element in order with `x` bound. Null elements are skipped. No aggregate is bound inside its arguments after the list; the list itself may be one."
+      "description": "Macro: how many elements of the list `cond` holds for, evaluated once per element in order with `x` bound. Null elements are skipped. No aggregate but `countPicks` and `countGrants` is bound inside its arguments after the list; the list itself may be one."
     },
     {
       "id": "sumList",
@@ -311,6 +331,11 @@
       "description": "The field a family pattern names for its keys: the pattern, a string literal with one or more `{family}` placeholders (each family once), takes one key per placeholder, in order, each put in its placeholder's place. Every field of the pattern must exist for the families' declared values and share a type, the result's; the formula reads all of them. A value another pack added is read from that pack's own field (the first added key's pack). A key that isn't a value of its family is `no-such-key`; a wrong number of keys `wrong-arity`. Bound where the formula belongs to a pack."
     },
     {
+      "id": "fieldId",
+      "signature": "fieldId(string pattern, string | int key, ...) -> string",
+      "description": "The qualified ID of the field a family pattern names for its keys, as `fieldOf` finds it, without reading it: for a computed field ID (a change's or an effect's `{ formula }` target, an `id` field parameter). A value another pack added names that pack's field (the first added key's pack). Every field of the pattern must exist for the families' declared values. A key that isn't a value of its family is `no-such-key`; a wrong number of keys `wrong-arity`. Bound where the formula belongs to a pack."
+    },
+    {
       "id": "keysOf",
       "signature": "keysOf(string family) -> list<string> | list<int>",
       "description": "A family's values, in order, with every loaded pack's additions: ints when each is a whole number, else strings. The name is a string literal; an unknown family is `unknown-name`."
@@ -332,9 +357,27 @@
     },
     {
       "id": "picksOf",
-      "signature": "picksOf(string choice) -> list",
+      "signature": "picksOf(string choice) -> list; picksOf(string content, string choice) -> list",
       "character": true,
-      "description": "The saved picks of a choice of the formula's owner (the content or rules declaring the formula, as activated: a copy's item, a template or granted content on it, picked content or an inline option, the rules), as content IDs or values in saved order, `[]` when none; saved picks whether or not the choice applies or they are eligible, so it adds no dependency and can't loop. The choice is a string literal, a choice ID or a slot's key (`class-feat-2`); a literal naming none of the owner's choices is `unknown-reference` at load where the owner is known (an item's, a template's, an inline option's formulas), else `no-such-key` when evaluated. A content type's formulas, and a rules action a copy uses, see that copy's item's choices; a rules action with no copy, and the rules' effects, follow-ups and choices, the rules-level ones. Bound in content formulas (effects, grants, prerequisites, choices, computed values, actions, follow-ups, `keepsTemplates` queries and `params`) and the rules' choices, effects, follow-ups and actions; elsewhere `unknown-function`. A query `where` calling it reads the character."
+      "description": "The saved picks of a choice of the formula's owner (the content or rules declaring the formula, as activated: a copy's item, a template or granted content on it, picked content or an inline option, the rules), as content IDs or values in saved order, `[]` when none; saved picks whether or not the choice applies or they are eligible, so it adds no dependency and can't loop. The choice is a string literal, a choice ID or a slot's key (`class-feat-2`); a literal naming none of the owner's choices is `unknown-reference` at load where the owner is known (an item's, a template's, an inline option's formulas), else `no-such-key` when evaluated. A content type's formulas, and a rules action a copy uses, see that copy's item's choices; a rules action with no copy, and the rules' effects, follow-ups and choices, the rules-level ones. Bound in content formulas (effects, grants, prerequisites, choices, computed values, actions, follow-ups, `keepsTemplates` queries and `params`) and the rules' choices, effects, follow-ups and actions; elsewhere `unknown-function`. A query `where` calling it reads the character. With two arguments, `picksOf(content, choice)`: the picks of that content's choice on every activation of it (copies, templates, picks and grants, holder and applied), in activation order, concatenated, `[]` for none; on each, a grant's preset picks where it presets the choice, else the saved ones. Both string literals; the content resolves in the formula's pack; content the pack doesn't see, or a choice it doesn't declare, is `unknown-reference` at load. Bound wherever a character is but activation conditions (field formulas, constraints, display hints and situational choices included). `picksOf('rules', choice)` (or `'<pack>:rules'`, another pack's rules) is a rules-level choice's saved picks, `[]` for none: bound wherever a character is, activation conditions included, adding no dependency; the rules of a pack it doesn't see, or a choice they don't declare, is `unknown-reference` at load."
+    },
+    {
+      "id": "grantedPicksOf",
+      "signature": "grantedPicksOf(string content, string choice) -> list",
+      "character": true,
+      "description": "The saved picks of a choice of content the formula's owner grants, as the owner's node keeps them under the granted content's prefixed key (`<content>/<choice>`), `[]` for none; a grant's preset picks aren't saved, so they aren't read. Both string literals; the content resolves in the formula's pack; content the pack doesn't see, or a choice it doesn't declare, is `unknown-reference` at load. Bound where `picksOf(choice)` is, activation conditions included: saved picks are input, so it adds no dependency."
+    },
+    {
+      "id": "itemField",
+      "signature": "itemField(string id, string name) -> any; itemField(string id, string name, any default) -> any",
+      "character": true,
+      "description": "An item field of a content item by its ID (a pick, a field's value, a literal): the item as merged at load (`extends` and overrides, its content type's defaults; no copy's templates or own values), its value as `item.<name>` would read it, a formula field reading input fields. `default` when the item doesn't have the field, or the ID names no content; without one, either is `no-such-key`. The ID resolves in the formula's pack; `name` is a string literal. At load, a name no content type the pack sees declares (nor a template field), a literal ID naming no content the pack sees, or one whose content type doesn't declare the name, is `unknown-reference`. Bound wherever a character is, activation conditions included; not in item fields or queries resolved at load (`unknown-function`)."
+    },
+    {
+      "id": "itemTags",
+      "signature": "itemTags(string id) -> list",
+      "character": true,
+      "description": "A content item's tags by its ID, as merged at load (no copy's templates); an ID naming no content is `no-such-key`. Bound where `itemField` is; a literal ID naming no content the pack sees is `unknown-reference` at load."
     }
   ]
 }

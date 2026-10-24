@@ -7,6 +7,7 @@ import {
   readsCharacter,
   reduceOf,
   staticFilterProblem,
+  unboundAggregate,
 } from './aggregates.ts';
 import type { Node } from './ast.ts';
 import { fail } from './errors.ts';
@@ -35,9 +36,30 @@ export interface CharacterQueries {
   sumState(type: string, key: string): number;
   /** Every copy as the `copy` root sees it: inventory first, then features, each in file order. */
   copies(): readonly unknown[];
+  /** Every saved pick of content as the `pick` root sees it: each copy's tree, then the rules'. */
+  picks(): readonly unknown[];
+  /**
+   * Every active holder grant as the `grant` root sees it, in activation order. Unbound during
+   * activation, which decides the grants.
+   */
+  grants?(): readonly unknown[];
   /** Every field in ruleset order, as the static filter sees it; the same array on every call. */
   fields(): readonly FieldView[];
   fieldValue(id: string): Value;
+  /**
+   * The picks of a choice on every activation of the content, in activation order: a grant's
+   * preset picks, else the saved ones. Unbound during activation.
+   */
+  contentPicks?(content: string, choice: string): readonly (string | number)[];
+  /** The saved picks of a rules-level choice, `[]` for none; bound activation conditions too. */
+  rulesPicks?(choice: string): readonly (string | number)[];
+  /**
+   * A content item as merged at load, by qualified ID: its tags and item field values (its
+   * content type's defaults included), as `item` reads them; undefined for no such content.
+   */
+  contentItem?(
+    id: string,
+  ): { tags: readonly string[]; fields: Record<string, unknown> } | undefined;
   /** Whether a listed choice draws from the content type; bound only in display hints. */
   hasChoice?(type: string): boolean;
 }
@@ -48,19 +70,34 @@ export interface CharacterQueries {
  */
 export const OWNER_PICKS = '#picks';
 
+/** `rules` or `<pack>:rules`: the owner of rules-level choices, which `picksOf` reads by it. */
+export function isRulesId(id: string): boolean {
+  return id === 'rules' || id.endsWith(':rules');
+}
+
+/**
+ * The roots key holding the saved picks of content the owner's tree holds under prefixed keys,
+ * `{ <content>: { <choice key>: picks } }`, which `grantedPicksOf` reads.
+ */
+export const OWNER_GRANTED = '#granted';
+
 export interface EvalContext {
   /** The value of a visible field, or undefined when no field has this ID. */
   field(id: string): Value | undefined;
   roots: Readonly<Record<string, unknown>>;
   character?: CharacterQueries;
-  /** Inside an aggregate's argument, where no aggregate is bound again. */
+  /** Inside an aggregate's argument, where only `countPicks` and `countGrants` are bound. */
   inAggregate?: boolean;
+  /** Inside a `countPicks` or `countGrants` within another aggregate: no aggregate is bound. */
+  nestedAggregate?: boolean;
   /** An ID literal's qualified content or field ID, or undefined; unbound: the ID as written. */
   id?(text: string): string | undefined;
   /** A family's values, by the name the formula's pack sees; unbound: none. */
   family?(name: string): readonly string[] | undefined;
   /** A family field's value, from the pack that added `key` to the family when another did. */
   familyField?(name: string, key: string, id: string): Value | undefined;
+  /** A family field's qualified ID, in the pack that added `key` to the family when another did. */
+  familyFieldId?(name: string, key: string, id: string): string | undefined;
 }
 
 export function evaluateTree(node: Node, ctx: EvalContext): Value {
@@ -427,6 +464,32 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
       return bool(hasChoice(stringArg(fn, values()[0] as Value)));
     }
     case 'picksOf': {
+      if (args.length === 2) {
+        const [content, choice] = args;
+        if (content?.type !== 'string' || choice?.type !== 'string')
+          return fail('type-mismatch', 'picksOf() takes a content ID and a choice ID');
+        if (isRulesId(content.value)) {
+          const rulesPicks = ctx.character?.rulesPicks;
+          if (!rulesPicks)
+            return fail(
+              'unknown-function',
+              "picksOf('rules', choice) is bound only where a character is",
+              {
+                function: fn,
+              },
+            );
+          return fromData(rulesPicks(choice.value));
+        }
+        const contentPicks = ctx.character?.contentPicks;
+        if (!contentPicks)
+          return fail(
+            'unknown-function',
+            'picksOf(content, choice) is not bound in activation conditions or without a character',
+            { function: fn },
+          );
+        const qid = ctx.id?.(content.value) ?? content.value;
+        return fromData(contentPicks(qid, choice.value));
+      }
       const owner = ctx.roots[OWNER_PICKS] as Record<string, unknown> | undefined;
       if (!owner)
         return fail('unknown-function', 'picksOf() is bound only where the formula has an owner', {
@@ -438,6 +501,49 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
       if (!Object.hasOwn(owner, name.value))
         return fail('no-such-key', `the owner has no choice "${name.value}"`, { key: name.value });
       return fromData(owner[name.value]);
+    }
+    case 'itemField':
+    case 'itemTags': {
+      const contentItem = ctx.character?.contentItem;
+      if (!contentItem)
+        return fail('unknown-function', `${fn}() is bound only where a character is`, {
+          function: fn,
+        });
+      const tags = fn === 'itemTags';
+      if (tags) arity(fn, args, 1);
+      else arity(fn, args, 2, 3);
+      const id = stringArg(fn, evaluateTree(args[0] as Node, ctx));
+      const name = tags ? undefined : args[1];
+      if (name !== undefined && name.type !== 'string')
+        return fail('type-mismatch', 'itemField() takes an item field name');
+      const item = contentItem(ctx.id?.(id) ?? id);
+      if (tags) {
+        if (!item) return fail('no-such-key', `no content has the ID "${id}"`, { key: id });
+        return fromData(item.tags);
+      }
+      const key = (name as { value: string }).value;
+      if (item && Object.hasOwn(item.fields, key)) return fromData(item.fields[key]);
+      if (args[2]) return evaluateTree(args[2], ctx);
+      return item
+        ? fail('no-such-key', `"${id}" has no item field "${key}"`, { key })
+        : fail('no-such-key', `no content has the ID "${id}"`, { key: id });
+    }
+    case 'grantedPicksOf': {
+      const granted = ctx.roots[OWNER_GRANTED] as
+        | Record<string, Record<string, unknown>>
+        | undefined;
+      if (!granted)
+        return fail(
+          'unknown-function',
+          'grantedPicksOf() is bound only where the formula has an owner',
+          { function: fn },
+        );
+      arity(fn, args, 2);
+      const [content, choice] = args;
+      if (content?.type !== 'string' || choice?.type !== 'string')
+        return fail('type-mismatch', 'grantedPicksOf() takes a content ID and a choice ID');
+      const qid = ctx.id?.(content.value) ?? content.value;
+      return fromData(granted[qid]?.[choice.value] ?? []);
     }
     case 'indexOf': {
       arity(fn, args, 2);
@@ -460,11 +566,12 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
           : keys.map((k) => str(k)),
       };
     }
-    case 'fieldOf': {
+    case 'fieldOf':
+    case 'fieldId': {
       const [pattern, ...keyArgs] = args as [Node, ...Node[]];
       const family = familyPattern(pattern as Node);
       if (!family)
-        return fail('type-mismatch', 'fieldOf() takes a pattern with {family} placeholders');
+        return fail('type-mismatch', `${fn}() takes a pattern with {family} placeholders`);
       arity(fn, args, family.names.length + 1);
       let id = family.text;
       let origin: { name: string; key: string } | undefined;
@@ -473,7 +580,7 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
         if (!keys) return fail('unknown-name', `no family named "${name}"`, { name });
         const key = evaluateTree(keyArgs[i] as Node, ctx);
         if (key.kind !== 'string' && key.kind !== 'int')
-          return fail('type-mismatch', 'fieldOf() needs a string or int key');
+          return fail('type-mismatch', `${fn}() needs a string or int key`);
         if (!keys.includes(String(key.value)))
           return fail('no-such-key', `"${key.value}" is not a value of the family ${name}`, {
             key: String(key.value),
@@ -481,6 +588,12 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
           });
         id = id.replace(`{${name}}`, String(key.value));
         origin ??= { name, key: String(key.value) };
+      }
+      if (fn === 'fieldId') {
+        const qid =
+          ctx.familyFieldId && origin ? ctx.familyFieldId(origin.name, origin.key, id) : id;
+        if (qid === undefined) return fail('unknown-name', `no field ${id}`, { name: id });
+        return str(qid);
       }
       const value =
         ctx.familyField && origin ? ctx.familyField(origin.name, origin.key, id) : ctx.field(id);
@@ -597,17 +710,27 @@ export function keptFields(
 
 /** `cond` is evaluated first, `value` only where it holds; `f.value` is computed on first read. */
 function aggregate(fn: string, over: Over, args: Node[], ctx: EvalContext): Value {
-  if (ctx.inAggregate || (readsCharacter(over) && !ctx.character)) {
-    const why = ctx.inAggregate ? 'inside another aggregate' : 'without a character';
-    return fail('unknown-function', `${fn}() is not bound ${why}`, { function: fn });
-  }
+  const why = unboundAggregate(over, ctx);
+  if (why || (readsCharacter(over) && !ctx.character))
+    return fail('unknown-function', `${fn}() is not bound ${why ?? 'without a character'}`, {
+      function: fn,
+    });
   const parts = aggregateArgs(fn, over, args);
-  const inner: EvalContext = { ...ctx, inAggregate: true };
+  const inner: EvalContext = ctx.inAggregate
+    ? { ...ctx, nestedAggregate: true }
+    : { ...ctx, inAggregate: true };
   const character = ctx.character as CharacterQueries;
   let elements: unknown[];
   let cond = parts.cond;
   if (over === 'copies') elements = [...character.copies()];
-  else if (over === 'fields') {
+  else if (over === 'picks') elements = [...character.picks()];
+  else if (over === 'grants') {
+    if (!character.grants)
+      return fail('unknown-function', `${fn}() is not bound in activation conditions`, {
+        function: fn,
+      });
+    elements = [...character.grants()];
+  } else if (over === 'fields') {
     elements = keptFields(fn, cond, character.fields()).map((view) => fieldRoot(view, character));
     cond = undefined;
   } else {

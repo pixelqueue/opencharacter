@@ -1,0 +1,11 @@
+# Disadvantage on the next attack roll, which ends it even when advantage cancels it.
+id: conditions.drained
+type: condition
+effects:
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    then:
+      when: applied
+      changes: [{ type: removeEffect, entry: self }]

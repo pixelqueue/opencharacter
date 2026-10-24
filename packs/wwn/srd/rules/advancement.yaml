@@ -32,6 +32,7 @@ actions:
           - when: true
             flags: { oldMax: hp.max, oldRolled: hp.rolled }
       - id: gain
+        tags: [advancement.level]
         kind: changes
         changes:
           - { type: adjust, field: level, by: 1 }
@@ -77,7 +78,7 @@ actions:
         sheet: proposed
         random: params.random
         options:
-          values: [highmage, elementalist, necromancer, invoker]
+          values: { formula: "keysOf('spellTrad') + ['invoker']" }
           where: "fieldOf('tradition.{trad}.tier', value) > 0"
         recommend: options[0]
       - id: newSpells
@@ -97,11 +98,8 @@ actions:
             type: spell
             where: >-
               item.level <= spells.maxLevel && countCopies(copy.item == item.id) == 0
-                && (item.list == 'high'
-                  || (item.list == 'elementalist' && (steps.spellTradition.picked == 'elementalist'
-                    || (steps.spellTradition.picked == 'invoker' && invoker.education == 'elementalist')))
-                  || (item.list == 'necromancer' && (steps.spellTradition.picked == 'necromancer'
-                    || (steps.spellTradition.picked == 'invoker' && invoker.education == 'necromancer'))))
+                && (item.list == 'high' || item.list == steps.spellTradition.picked
+                  || (steps.spellTradition.picked == 'invoker' && invoker.education == item.list))
         recommend: options[0]
         changes:
           - type: addItem
@@ -172,11 +170,11 @@ actions:
           - { type: adjust, when: flags.attribute, field: attributes.boosts, by: 1 }
           - type: adjust
             when: '!flags.attribute'
-            field: { formula: "'skills.' + steps.pick.picked" }
+            field: { formula: "fieldId('skills.{skill}', steps.pick.picked)" }
             by: 1
           - type: set
             when: '!flags.attribute'
-            field: { formula: "'skillCredit.' + steps.pick.picked" }
+            field: { formula: "fieldId('skillCredit.{skill}', steps.pick.picked)" }
             value: 0
           - { type: adjust, when: flags.expert > 0, field: skillPoints.expert, by: -flags.expert }
           - type: adjust

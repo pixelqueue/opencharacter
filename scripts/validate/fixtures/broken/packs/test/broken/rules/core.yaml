@@ -66,6 +66,22 @@ actions:
       - { id: lunge, kind: action, use: lunge, source: "'tricks.spin'" }
       - { id: spin, kind: action, use: whirl, entry: "'trick'" }
       - { id: hop, kind: action, use: hop, entry: "'trick'" }
+  # A group holds no group, at any depth.
+  - id: nest
+    steps:
+      - id: outer
+        kind: group
+        repeat: { while: 'false', max: 2 }
+        steps:
+          - id: fork
+            kind: branch
+            cases:
+              - when: 'true'
+                steps:
+                  - id: inner
+                    kind: group
+                    repeat: { while: 'false', max: 2 }
+                    steps: [{ id: die, kind: roll, parts: [{ dice: 1d6 }] }]
   - id: needs-kind
     params:
       kind: { type: string }
@@ -136,6 +152,7 @@ actions:
               by: -part.total,
             }
           - { type: addItem, entry: { item: "'weapons.nope'" } }
+          - { type: addItem, entry: { item: "'tricks.vanish'" } }
           - { type: equip, entry: { item: "'weapons.club'" } }
           - { type: set, field: abilities.str.score, value: 1, copies: { type: weapon } }
           - { type: removeItem, copies: { type: gadget } }
@@ -164,9 +181,9 @@ actions:
       - id: done
         kind: outcome
         result: "'seen'"
-# An option effect is for content items only.
+# A rules option effect can't limit itself to its own copy's actions.
 effects:
-  - target: { choices: [melee] }
+  - target: { choices: [melee], from: self }
     op: option
     value: { id: rest, changes: [{ type: adjust, field: abilities.str.score, by: 1 }] }
   # `then` changes the effect's copy, and a rules effect has none.
@@ -243,9 +260,12 @@ contentTypes:
       damage: { type: dice, required: true }
       skill: { type: id, of: field, default: skills.nope }
       grade: { type: enum, values: [plain, fine], default: shiny }
+      bulk: { type: integer, where: 'true' }
     state:
       ammo: { type: integer, default: item.magazinee }
       charge: { type: integer, min: 0, max: item.chargee }
+      # A list is for item fields only.
+      order: { type: list, of: string }
     # Computed values can't reuse a state key or a core property.
     computed:
       ammo: { type: integer, formula: 1 }

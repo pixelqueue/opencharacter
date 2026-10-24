@@ -1,0 +1,12 @@
+# A kit with its own unpacking, which only other actions run.
+id: kits.crate
+type: kit
+actions:
+  - id: contents
+    listed: false
+    steps:
+      - id: result
+        kind: outcome
+        sheet: proposed
+        result: item.id
+        data: { copy: self.id }

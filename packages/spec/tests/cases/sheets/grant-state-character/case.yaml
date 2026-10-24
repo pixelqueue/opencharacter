@@ -1,0 +1,39 @@
+description: "A grant's `state`, item and preset formulas are activation conditions, so they read the character functions: a species passes its picked lineage's damage type to the trait it grants with `itemField`, and the trait grants the resistance"
+specVersion: 0.2.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          species: {}
+          lineage:
+            fields:
+              damageType: { type: string, default: '' }
+          trait: {}
+        fields:
+          resistances: { type: set, of: string }
+      content:
+        - id: species.wyrmkin
+          type: species
+          grants:
+            - item: traits.resistance
+              state:
+                damageType: "size(picksOf('lineage')) > 0 ? itemField(picksOf('lineage')[0], 'damageType') : ''"
+          choices:
+            - { id: lineage, from: { type: lineage } }
+        - { id: lineages.storm, type: lineage, fields: { damageType: thunder } }
+        - id: traits.resistance
+          type: trait
+          state:
+            damageType: { type: string, default: '' }
+          effects:
+            - target: resistances
+              op: grant
+              value: { formula: self.damageType }
+              when: self.damageType != ''

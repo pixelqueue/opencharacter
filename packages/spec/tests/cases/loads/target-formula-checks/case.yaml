@@ -1,0 +1,38 @@
+description: "A target formula is a string formula checked as an activation condition: one reading a derived field is `unknown-name`, one giving a number `type-mismatch`; one reading `pick`, `self` and an input field passes, and a `set` effect's value may be of any type"
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          derived: { type: string, formula: "'a'" }
+          chosen: { type: string, input: true, default: a }
+          a: { type: integer, formula: 0 }
+          label: { type: string, formula: "''" }
+        contentTypes:
+          feat: {}
+      content:
+        - id: feats.derived
+          type: feat
+          effects:
+            - { target: { formula: derived }, op: add, value: 1 }
+        - id: feats.number
+          type: feat
+          effects:
+            - { target: { formula: '1' }, op: add, value: 1 }
+        - id: feats.fine
+          type: feat
+          effects:
+            - { target: { formula: chosen }, op: add, value: 1 }
+            - { target: { formula: "'label'" }, op: set, value: "'named'" }
+          choices:
+            - id: pick
+              from: { values: [a] }
+              effects:
+                - { target: { formula: pick.value }, op: add, value: 1 }

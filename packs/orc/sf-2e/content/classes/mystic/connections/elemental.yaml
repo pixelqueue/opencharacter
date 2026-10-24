@@ -1,6 +1,6 @@
 id: classes.mystic.connections.elemental
 type: feature
-fields: { level: 1 }
+fields: { level: 1, classOption: mystic.connection }
 effects:
   - { target: mystic.connection, op: set, value: "'elemental'" }
   - { target: spellcasting.tradition, op: set, value: "'primal'" }
@@ -100,3 +100,64 @@ grants:
   - { item: spells.falling-stars, when: 'level >= 17' }
   - { item: spells.elemental-weapon }
   - { item: feats.general.shield-block, waivePrerequisites: true }
+keepsTemplates:
+  - template: templates.elemental.air
+    content:
+      type: spell
+      where: item.id == @spells.wall-of-fire || item.id == @spells.absolute-zero
+    when: >-
+      countList(character.applied, x.active
+        && (x.source == @spells.elemental-weapon || x.source == @spells.elemental-barrier)) > 0
+        && filterList(character.applied, x.active
+          && (x.source == @spells.elemental-weapon || x.source == @spells.elemental-barrier))[0]
+          .state.element == 'air'
+  - template: templates.elemental.earth
+    content:
+      type: spell
+      where: item.id == @spells.wall-of-fire || item.id == @spells.absolute-zero
+    when: >-
+      countList(character.applied, x.active
+        && (x.source == @spells.elemental-weapon || x.source == @spells.elemental-barrier)) > 0
+        && filterList(character.applied, x.active
+          && (x.source == @spells.elemental-weapon || x.source == @spells.elemental-barrier))[0]
+          .state.element == 'earth'
+  - template: templates.elemental.fire
+    content:
+      type: spell
+      where: item.id == @spells.wall-of-fire || item.id == @spells.absolute-zero
+    when: >-
+      countList(character.applied, x.active
+        && (x.source == @spells.elemental-weapon || x.source == @spells.elemental-barrier)) > 0
+        && filterList(character.applied, x.active
+          && (x.source == @spells.elemental-weapon || x.source == @spells.elemental-barrier))[0]
+          .state.element == 'fire'
+  - template: templates.elemental.metal
+    content:
+      type: spell
+      where: item.id == @spells.wall-of-fire || item.id == @spells.absolute-zero
+    when: >-
+      countList(character.applied, x.active
+        && (x.source == @spells.elemental-weapon || x.source == @spells.elemental-barrier)) > 0
+        && filterList(character.applied, x.active
+          && (x.source == @spells.elemental-weapon || x.source == @spells.elemental-barrier))[0]
+          .state.element == 'metal'
+  - template: templates.elemental.water
+    content:
+      type: spell
+      where: item.id == @spells.wall-of-fire || item.id == @spells.absolute-zero
+    when: >-
+      countList(character.applied, x.active
+        && (x.source == @spells.elemental-weapon || x.source == @spells.elemental-barrier)) > 0
+        && filterList(character.applied, x.active
+          && (x.source == @spells.elemental-weapon || x.source == @spells.elemental-barrier))[0]
+          .state.element == 'water'
+  - template: templates.elemental.wood
+    content:
+      type: spell
+      where: item.id == @spells.wall-of-fire || item.id == @spells.absolute-zero
+    when: >-
+      countList(character.applied, x.active
+        && (x.source == @spells.elemental-weapon || x.source == @spells.elemental-barrier)) > 0
+        && filterList(character.applied, x.active
+          && (x.source == @spells.elemental-weapon || x.source == @spells.elemental-barrier))[0]
+          .state.element == 'wood'

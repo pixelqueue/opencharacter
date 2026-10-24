@@ -178,6 +178,24 @@ actions:
       - id: toll
         kind: changes
         release: { steps: [bow] }
+  # Adds a crate, then runs its own action by `source` on the proposed sheet, where the crate
+  # is a copy's own item.
+  - id: unpack
+    listed: false
+    steps:
+      - id: add
+        kind: changes
+        changes:
+          - { type: addItem, entry: { id: crate, item: "'kits.crate'" } }
+      - id: open
+        kind: action
+        sheet: proposed
+        source: "'kits.crate'"
+        use: contents
+      - id: result
+        kind: outcome
+        result: steps.open.result
+        data: { copy: steps.open.data.copy }
   # Two bows, their changes combined: equal adjusts but for the amount become one.
   - id: bows-combined
     participants:

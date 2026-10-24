@@ -43,7 +43,8 @@ describe('error and issue codes', () => {
   it('every code in the fixed sets has standard text, and so has a code without its own', () => {
     expect([...errors].filter((c) => typeof en[`errors.${c}`] !== 'string')).toEqual([]);
     expect([...issues].filter((c) => typeof en[`issues.${c}`] !== 'string')).toEqual([]);
-    expect(en['errors.other']).toContain('{code}');
+    // The fallback words any error, so it needs no data; it doesn't show the code to a player.
+    expect(en['errors.other']).toMatch(/^[^{}]+$/);
   });
 
   it('every error the engine emits gives the data its standard text names', () => {

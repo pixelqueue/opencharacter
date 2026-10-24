@@ -10,17 +10,17 @@ item values just recalculate. A version that changes the **shape** of saved stat
 Between two releases of a pack, these differences are **shape changes**, because a saved
 character could refer to something that no longer means the same:
 
-| Change                                                                           | `kind`                 | Covered by                                  |
-| -------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------- |
-| A content item is removed                                                        | `content-removed`      | `renameContent` or `removeContent`          |
-| An item's content type changes                                                   | `content-type-changed` | `removeContent`                             |
-| An input field is removed, or stops being an input                               | `field-removed`        | `renameField` or `removeField`              |
-| An input field's type changes, or an enum loses values                           | `field-type-changed`   | `mapValues` or `removeField`                |
-| A state key is removed or its type changes (on a content type, item or template) | `state-removed`        | `renameState`, `removeState` or `moveState` |
-| A choice is removed                                                              | `choice-removed`       | `renameChoice` or `removeChoice`            |
-| An option is removed from a `values` or inline-options choice                    | `option-removed`       | `renameOption`                              |
-| A new required choice appears on existing content or in the rules                | `choice-added`         | `requireChoice`                             |
-| An existing item becomes standard (a standard copies query now matches it)       | `standard-copy-added`  | `adoptStandard`                             |
+| Change                                                                           | `kind`                 | Covered by                                                  |
+| -------------------------------------------------------------------------------- | ---------------------- | ----------------------------------------------------------- |
+| A content item is removed                                                        | `content-removed`      | `renameContent` or `removeContent`                          |
+| An item's content type changes                                                   | `content-type-changed` | `removeContent`                                             |
+| An input field is removed, or stops being an input                               | `field-removed`        | `renameField` or `removeField`                              |
+| An input field's type changes, or an enum loses values                           | `field-type-changed`   | `mapValues` or `removeField`                                |
+| A state key is removed or its type changes (on a content type, item or template) | `state-removed`        | `renameState`, `removeState`, `moveState` or `stateToField` |
+| A choice is removed                                                              | `choice-removed`       | `renameChoice` or `removeChoice`                            |
+| An option is removed from a `values` or inline-options choice                    | `option-removed`       | `renameOption`                                              |
+| A new required choice appears on existing content or in the rules                | `choice-added`         | `requireChoice`                                             |
+| An existing item becomes standard (a standard copies query now matches it)       | `standard-copy-added`  | `adoptStandard`                                             |
 
 `standard-copy-added` is for an item of the pack, in both releases with the same
 type, that the standard copies queries ([content.md](content.md#standard-copies)) match in the
@@ -28,6 +28,10 @@ new release but not the old: the rules' and every item's, whichever loaded pack 
 Saved characters hold the item as an ordinary entry, which would otherwise stay beside the new
 standard copy. An item that stops being standard, and a new item that is standard from the start,
 are not shape changes.
+
+An item's state key that the item's content type declares in the new release, with the same
+type, is not removed: its copies keep their saved values (a key moved to the type, so a pack
+that depends on it can add to an open enum there).
 
 A choice's options are compared only where both releases write them. A `values` formula's
 options are known only on a sheet, so written values it replaces are not `option-removed`, nor
@@ -92,9 +96,12 @@ changes**:
 | An enum item field loses values                                               | `item-field-values-removed` | `<pack>:<type>/<field>` |
 | A tag the pack's rules declare is no longer declared                          | `tag-removed`               | `<pack>:<tag>`          |
 | A rules action is removed                                                     | `action-removed`            | `<pack>:<action>`       |
+| An open enum stops being open (packs that add to it no longer load)           | `enum-closed`               | `<pack>:<enum address>` |
+| A value or option the pack adds to a dependency's enum or choice is gone      | `extension-removed`         | `<target>/<value>`      |
 
 `checkRelease` lists them in `changes` after the shape changes, in this table's order, then by
-ID. Each needs a breaking bump, but no upgrade script: no step can migrate a removed tag, and a
+ID. An `extension-removed` ID names the dependency's enum or choice as the extension's key does
+(`orc-2e:types.weapon.fields.damageType/sonic`), not the pack itself. Each needs a breaking bump, but no upgrade script: no step can migrate a removed tag, and a
 character's homebrew that uses one is reported by `upgrade`. A step that renames the thing
 (`renameField`, `renameContentType`, `renameItemField`, `mapItemValues`, `renameTag`,
 `renameAction`) migrates homebrew that uses it.
@@ -130,10 +137,11 @@ state can refer to what it names:
 | `renameState`   | `item?`, `type?`, `from`, `to`                                                | Renames a state key in the saved state of copies, picks and granted content ([characters.md](characters.md#granted-contents-state)): of content `item`, of content of type `type`, or both when both are given (every one when neither is)                       |
 | `removeState`   | `item?`, `type?`, `key`                                                       | Drops the state key from the same places as `renameState`; a pick's or grant's `state` left empty goes, and a grant entry with it                                                                                                                                |
 | `moveState`     | `item?`, `type?`, `from`, `to?`, and `grant`, or `owner?`, `choice`, `option` | Moves state key `from` off copies (of `item`, of `type`, or both, as for `renameState`) to key `to` (default `from`) of a pick or of granted content's saved state ([below](#moving-state))                                                                      |
+| `stateToField`  | `item?`, `type?`, `from`, `to?`                                               | Moves state key `from` off copies (of `item`, of `type`, or both, as for `renameState`) to the copy's own value of item field `to` (default `from`), a field its type marks `perCopy` on the new release ([below](#state-to-a-copys-field))                      |
 | `renameChoice`  | `owner?`, `from`, `to`                                                        | Renames a choice key on entries holding `owner`, in picks of `owner`, and in prefixed keys (`<owner>/<choice>`). Without `owner`, renames a rules-level choice. A prefixed `from` moves another content's choice onto `owner`'s ([below](#prefixed-choice-keys)) |
 | `removeChoice`  | `owner?`, `choice`                                                            | Removes the choice's picks, with their nested picks, wherever `renameChoice` would rename it                                                                                                                                                                     |
 | `renameOption`  | `owner?`, `choice`, `from`, `to?`                                             | Replaces a picked option of the choice (`from`) with `to`; without `to`, removes the pick and its nested picks                                                                                                                                                   |
-| `requireChoice` | `owner?`, `choice`                                                            | Records that a new required choice exists; the upgraded character reports it as pending                                                                                                                                                                          |
+| `requireChoice` | `owner?`, `choice`                                                            | Records that a new required choice exists; the upgraded character reports it as pending. Listed in the report when the character holds `owner` (a copy or a pick of it, with picks of its own saved or not), always for a rules-level choice                     |
 | `renameTag`     | `from`, `to`                                                                  | Replaces the tag in saved `set` values of `of: tag` input fields (and in the homebrew, below)                                                                                                                                                                    |
 | `adoptStandard` | `item`                                                                        | Renames the first entry holding the item (features, then inventory, in file order) to the item's standard copy ID, keeping its state, picks and templates; nothing when an entry has that ID                                                                     |
 
@@ -193,6 +201,22 @@ goes. Where items of a type share a key that moves to different content (an elf'
 tiefling's `lineageSpell1Used`, to each one's lineage trait), one step per item with `item`
 moves each; the first step without it would drop the others'. For `state-removed`, a step with
 `item` covers only that item's key.
+
+### State to a copy's field
+
+`stateToField` is for a release that turns per-copy state into an item field a copy may set for
+itself ([content.md](content.md#per-copy-fields)): a custom stunt's `limit`, kept in state
+while every reader branched on it, becomes the field every stunt has. For each copy with a saved
+`from` (of `item`, of `type`, or both; every copy when neither is), the value leaves the copy's
+state and becomes its own value of field `to` (default `from`), in its `fields`. It is dropped
+when the copy's item on the new release has no field `to` its type marks `perCopy`, when the
+value doesn't fit the field (`wrong-type`, or an `id` naming nothing), when the copy already has
+an own value, or when it equals the item's value (else the field's default). A copy's `state`
+left empty goes. Like `moveState`, it covers the key's `state-removed`.
+
+```yaml
+- { op: stateToField, item: stunts.custom, from: limit }
+```
 
 `adoptStandard` is for a release that makes an item standard
 ([content.md](content.md#standard-copies)): entry IDs are the app's choice, so the script names
@@ -295,13 +319,13 @@ upgraded), and on `to` for the report. Each step rewrites the homebrew too, afte
 
 **Where a step looks.** The homebrew's `rules` and `content` (never `i18n`), by kind:
 
-| Kind         | Places                                                                                                                                                                                                   |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Content      | `extends` and `item` values; members of `items` lists; item field values of `id` or `set` item fields whose `of` is a content type; string literals in formulas equal to the qualified ID (see below)    |
-| Field        | `target`, `field` and `into` values; members of `fields` and `absorbedBy` lists; keys of `recommend` and of the rules' display `fields`; item field values of `of: field` item fields; names in formulas |
-| Content type | `type` and `of` values; string literals in formulas equal to the qualified ID                                                                                                                            |
-| Action       | `use` and `action` values                                                                                                                                                                                |
-| Tag          | members of `tags` lists and of effect targets' `choices`; item field values of `of: tag` item fields; string literals in formulas equal to the tag                                                       |
+| Kind         | Places                                                                                                                                                                                                        |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Content      | `extends` and `item` values; members of `items` lists; item field values of `id`, `set` or `list` item fields whose `of` is a content type; string literals in formulas equal to the qualified ID (see below) |
+| Field        | `target`, `field` and `into` values; members of `fields` and `absorbedBy` lists; keys of `recommend` and of the rules' display `fields`; item field values of `of: field` item fields; names in formulas      |
+| Content type | `type` and `of` values; string literals in formulas equal to the qualified ID                                                                                                                                 |
+| Action       | `use` and `action` values                                                                                                                                                                                     |
+| Tag          | members of `tags` lists and of effect targets' `choices`; item field values of `of: tag` item fields; string literals in formulas equal to the tag                                                            |
 
 - **Matching.** A reference matches a renamed `<pack>:<id>` when it is that qualified ID, or is
   `<id>` unqualified and the homebrew's scope doesn't resolve it to something else on `from`.

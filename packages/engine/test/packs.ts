@@ -3,15 +3,16 @@ import { join } from 'node:path';
 import { parse } from 'yaml';
 import { buildRelease, type PackRelease } from '../src/index.ts';
 
+/** In path order, as the build reads them: content order follows it. */
 function yamlFiles(dir: string): string[] {
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
-    .toSorted()
     .flatMap((name) => {
       const path = join(dir, name);
       if (statSync(path).isDirectory()) return yamlFiles(path);
       return name.endsWith('.yaml') ? [path] : [];
-    });
+    })
+    .toSorted();
 }
 
 const read = (file: string) => parse(readFileSync(file, 'utf8'));

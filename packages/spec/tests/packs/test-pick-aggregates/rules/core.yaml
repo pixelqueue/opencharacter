@@ -1,0 +1,29 @@
+# Invocations used, gifts with Effort committed, and a rest that resets the used invocations.
+fields:
+  usedInvocations:
+    type: integer
+    formula: countPicks(pick.type == 'invocation' && pick.state.used)
+  committedGifts:
+    type: integer
+    formula: countGrants(grant.type == 'gift' && grant.state.committed > 0)
+
+contentTypes:
+  class: {}
+  invocation:
+    state:
+      used: { type: boolean, default: false }
+  gift:
+    state:
+      committed: { type: integer, default: 0, min: 0 }
+
+actions:
+  - id: rest
+    steps:
+      - id: reset
+        kind: changes
+        changes:
+          - type: setState
+            picks: { where: "item.type == 'invocation' && self.used" }
+            key: used
+            value: false
+            when: countPicks(pick.type == 'invocation' && pick.state.used) > 0

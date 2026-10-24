@@ -59,9 +59,10 @@ describe('Mothership', () => {
     const worded = describeNeed(ruleset, text, need);
     expect(worded.title).toBe('Stat check');
     expect(worded.dice).toBe('2d100, keep lowest');
-    expect(worded.targets?.find((t) => t.band === 'success')).toEqual({
+    expect(worded.targets?.find((t) => t.success)).toEqual({
       band: 'success',
       name: 'Success',
+      success: true,
       condition: 'Roll under 34 (90+ always fails)',
     });
   });
@@ -100,6 +101,19 @@ describe('whole rolls', () => {
     expect(text.roll([])).toBe('');
     expect(text.roll([d(2, 6), flat(1)], { times: 2, keep: 'low' })).toBe(
       '2d6 + 1, rolled twice, keep the lower total',
+    );
+  });
+
+  it('words the items rolled again together, where the first of them is', () => {
+    const repeat = { times: 2, keep: 'high' as const, items: [1] };
+    expect(text.roll([flat(2), d(2, 6), d(1, 6)], repeat)).toBe(
+      '(2d6, rolled twice, keep the higher total) + 1d6 + 2',
+    );
+    expect(text.dice([d(1, 6), d(2, 6)], repeat)).toBe(
+      '1d6 + (2d6, rolled twice, keep the higher total)',
+    );
+    expect(text.dice([d(2, 6), flat(2)], { ...repeat, items: [0] })).toBe(
+      '2d6, rolled twice, keep the higher total',
     );
   });
 });
@@ -223,6 +237,31 @@ describe('5E', () => {
       spec: { en: { 'issues.too-many-copies': 'At most {limit}.' } },
     });
     expect(bare.issue(issue!)).toBe('At most 1.');
+  });
+
+  it('words too many copies by the type’s or item’s name without its own text', () => {
+    const type = '5e-srd-5.1:trait';
+    expect(
+      text.issue({
+        code: 'too-many-copies',
+        id: type,
+        data: { type, max: 0, count: 1, entries: ['t'], limit: 0 },
+      }),
+    ).toBe('Trait: too many are held (at most 0).');
+    expect(
+      text.issue({
+        code: 'too-many-copies',
+        id: type,
+        data: {
+          type,
+          item: '5e-srd-5.1:weapons.dagger',
+          perItem: 1,
+          count: 2,
+          entries: ['a', 'b'],
+          limit: 1,
+        },
+      }),
+    ).toBe('Dagger: too many copies are held (at most 1).');
   });
 
   it('words a constraint and an error, ids named', () => {
@@ -373,6 +412,29 @@ describe('Forged in the Dark', () => {
 describe('Fate', () => {
   const { ruleset, text } = load('fate/core');
 
+  it("names a parameter error's parameter by its label", () => {
+    const mara = parse(
+      readFileSync(join(root, 'examples', 'characters', 'fate-mara.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const result = startAction(ruleset, mara, {
+      action: { id: 'fate-core:skill-roll' },
+      params: { action: 'overcome', helpers: -1 },
+    });
+    if (!('errors' in result) || 'status' in result) throw new Error(JSON.stringify(result));
+    const [error] = result.errors;
+    expect(error).toMatchObject({
+      code: 'out-of-range',
+      data: { target: 'helpers', action: 'fate-core:skill-roll' },
+    });
+    expect(text.error(error!)).toBe('"Helpers (+1 each)" must be at least 0.');
+    expect(
+      text.error({
+        code: 'missing-param',
+        data: { param: 'action', action: 'fate-core:skill-roll' },
+      }),
+    ).toBe('The action needs "Action".');
+  });
+
   it('words Fate dice and the ladder', () => {
     const mara = parse(
       readFileSync(join(root, 'examples', 'characters', 'fate-mara.yaml'), 'utf8'),
@@ -395,16 +457,36 @@ describe('Fate', () => {
     expect(worded.targets?.at(-1)).toEqual({ band: 'terrible', name: 'Terrible (−2)' });
   });
 
-  it("names an item's own state values", () => {
-    expect(text.stateValue('fate-core:stunts.custom', 'limit', 'scene')).toBe('scene');
-    expect(text.stateValue('fate-core:stunts.custom', 'action', 'advantage')).toBe(
-      'Create an advantage',
-    );
-    expect(text.stateValue('fate-core:stunts.custom', 'action', 'unknown')).toBe('unknown');
-    expect(keys.stateValueKey('fate-core:stunts.custom', 'limit', 'scene')).toEqual({
-      pack: 'fate-core',
-      key: 'stunts.custom.state.limit.values.scene.name',
+  it("words an overcome's dice against a known opposition", () => {
+    const mara = parse(
+      readFileSync(join(root, 'examples', 'characters', 'fate-mara.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const need = paused(
+      startAction(ruleset, mara, {
+        action: { id: 'fate-core:overcome' },
+        params: { skill: 'fate-core:skills.athletics', opposition: 2 },
+        policy: { dice: 'pause' },
+      }),
+    ).needs;
+    const worded = describeNeed(ruleset, text, need);
+    expect(worded.targets?.map((t) => t.band)).toEqual(['style', 'succeed', 'tie', 'fail']);
+    expect(worded.targets?.find((t) => t.success)).toEqual({
+      band: 'succeed',
+      name: 'Succeed',
+      success: true,
+      condition: 'Beat 2',
     });
+  });
+
+  it("names an action a content type gives its items by the type's text", () => {
+    expect(text.action('fate-core:stunts.psychologist#use')).toBe('Use stunt');
+    expect(text.action('fate-core:advantages.advantage#invoke')).toBe('Invoke for free');
+    expect(text.param('fate-core:consequences.consequence#recover', 'skill')).toBe(
+      'Skill (treating yourself)',
+    );
+    expect(text.stepPrompt({ action: 'fate-core:stunts.psychologist#use', step: 'spend' })).toBe(
+      'Use stunt',
+    );
   });
 });
 
@@ -596,18 +678,62 @@ describe('codes never reach players bare', () => {
     const worded = text.error(error!);
     expect(worded).toContain('no longer has');
     expect(text.issue(error as never)).toBe(worded);
-    expect(text.issue({ code: 'not-a-code', data: {} } as never)).toBe(
-      'Something went wrong (not-a-code).',
-    );
+    expect(text.issue({ code: 'not-a-code', data: {} } as never)).toBe('Something went wrong.');
   });
 
   it('falls back to errors.other when the data misses an argument', () => {
-    expect(text.error({ code: 'not-owned', data: {} })).toBe('Something went wrong (not-owned).');
+    expect(text.error({ code: 'not-owned', data: {} })).toBe('Something went wrong.');
+  });
+
+  it("falls back to the error's own message before errors.other", () => {
+    const message = '"x" is not a value of the family skill';
+    expect(text.error({ code: 'no-such-key', data: { message } })).toBe(message);
+    expect(text.error({ code: 'not-a-code', data: { message } })).toBe(message);
+    expect(text.issue({ code: 'not-a-code', data: { message: ' ' } } as never)).toBe(
+      'Something went wrong.',
+    );
+    expect(text.error({ code: 'no-such-key', data: { key: 'x', family: 'skill', message } })).toBe(
+      'A formula refers to "x", which is not there.',
+    );
+  });
+});
+
+describe('Mörk Borg tests', () => {
+  const { ruleset, text } = load('mork-borg/core');
+
+  it('shows an applied boon in its own group', () => {
+    const agnes = parse(
+      readFileSync(join(root, 'examples', 'characters', 'mork-borg-agnes.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const sheet = computeSheet(ruleset, {
+      ...agnes,
+      applied: [{ id: 'clarity', source: 'mork-borg-core:boons.clarity' }],
+    });
+    expect(sheet.groups.find((g) => g.id === 'boons')?.items).toMatchObject([{ entry: 'clarity' }]);
+    expect(text.message('mork-borg-core', 'groups.boons.label')).toBe('Boons');
+  });
+
+  it('marks the band a test needs, not the crit listed first', () => {
+    const agnes = parse(
+      readFileSync(join(root, 'examples', 'characters', 'mork-borg-agnes.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const need = paused(
+      startAction(ruleset, agnes, {
+        action: { id: 'mork-borg-core:test' },
+        params: { ability: 'mork-borg-core:abilities.strength', dr: 12 },
+        policy: { dice: 'pause' },
+      }),
+    ).needs;
+    const targets = describeNeed(ruleset, text, need).targets ?? [];
+    expect(targets[0]?.band).toBe('crit');
+    expect(targets.filter((t) => t.success)).toEqual([
+      { band: 'success', name: 'Success', success: true, condition: 'DR 12 or higher' },
+    ]);
   });
 });
 
 describe('error text by its data', () => {
-  const { text } = load('mork-borg/core');
+  const { ruleset, text } = load('mork-borg/core');
   const target = 'mork-borg-core:hp.max';
 
   it('words a range with one bound or both', () => {
@@ -619,6 +745,36 @@ describe('error text by its data', () => {
     );
     expect(text.error({ code: 'out-of-range', data: { target, min: 1, max: 5 } })).toBe(
       '"Maximum HP" must be between 1 and 5.',
+    );
+    expect(text.error({ code: 'out-of-range', data: { target, min: 1, max: 1 } })).toBe(
+      '"Maximum HP" must be exactly 1.',
+    );
+  });
+
+  it("names an enum's values, joined as alternatives", () => {
+    const mork = parse(
+      readFileSync(join(root, 'examples', 'characters', 'mork-borg-agnes.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const result = startAction(ruleset, mork, {
+      action: { id: 'mork-borg-core:rest' },
+      params: { length: 'nap' },
+    });
+    if (!('errors' in result) || 'status' in result) throw new Error(JSON.stringify(result));
+    const [error] = result.errors;
+    expect(error).toMatchObject({ code: 'wrong-type', data: { values: ['short', 'long'] } });
+    expect(text.error(error!)).toBe('"Rest length" must be Short rest or Night\'s rest.');
+    expect(
+      text.error({ code: 'wrong-type', data: { target: 'kind', values: ['a', 'b', 'c'] } }),
+    ).toBe('"kind" must be a, b, or c.');
+  });
+
+  it("names an item's action parameter by its label", () => {
+    const action = 'mork-borg-core:classes.fanged-deserter#bite';
+    expect(
+      text.error({ code: 'wrong-type', data: { target: 'dr', expected: 'integer', action } }),
+    ).toBe('"Difficulty rating (DR)" needs a value of type integer.');
+    expect(text.error({ code: 'missing-param', data: { param: 'gone', action } })).toBe(
+      'The action needs "gone".',
     );
   });
 
@@ -670,6 +826,23 @@ describe('prerequisite text', () => {
 
 describe('FitD crew factions', () => {
   const { ruleset, text } = load('fitd/crew');
+
+  it("names a cohort's state values by its type's text", () => {
+    const gang = 'fitd-crew:cohorts.gang';
+    const cohort = 'fitd-crew:cohort';
+    expect(text.stateValue(gang, 'gangType', 'rooks', cohort)).toBe('Rooks');
+    expect(text.stateValue(gang, 'extraGangType', 'none', cohort)).toBe('None');
+    expect(text.stateValue(gang, 'gangType', 'unknown', cohort)).toBe('unknown');
+    // The type from the bundle's `content`.
+    expect(`${text.state(gang, 'gangType')}: ${text.stateValue(gang, 'gangType', 'thugs')}`).toBe(
+      'Type: Thugs',
+    );
+    expect(text.state(gang, 'nothing')).toBe('nothing');
+    expect(keys.stateValueKey(gang, 'gangType', 'rooks')).toEqual({
+      pack: 'fitd-crew',
+      key: 'cohorts.gang.state.gangType.values.rooks.name',
+    });
+  });
   const faction = 'fitd-crew:factions.faction';
 
   it("names a faction copy by the GM's label", () => {
@@ -702,5 +875,167 @@ describe('FitD crew factions', () => {
       text.content(faction),
     ]);
     expect(text.copy({ item: faction, name: ' ' })).toBe(text.content(faction));
+  });
+});
+
+describe('values named by the content an action runs for', () => {
+  const spec = load('mothership/1e').spec;
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        p: {
+          'spells.hex.options.str.name': 'Strength',
+          'spells.curse.options.str.name': 'Disadvantage with Strength',
+          'actions.cast.options.dex.name': 'Dexterity',
+        },
+      },
+    },
+    spec: { en: spec },
+  });
+
+  it("takes the content's text first, then the action's", () => {
+    expect(text.option('str', { action: 'p:cast', content: 'p:spells.hex' })).toBe('Strength');
+    expect(text.option('str', { action: 'p:cast', content: 'p:spells.curse' })).toBe(
+      'Disadvantage with Strength',
+    );
+    expect(text.option('dex', { action: 'p:cast', content: 'p:spells.hex' })).toBe('Dexterity');
+    expect(keys.contentOptionKey('p:spells.hex', 'str')).toEqual({
+      pack: 'p',
+      key: 'spells.hex.options.str.name',
+    });
+  });
+
+  it('reads needs.content in describeNeed', () => {
+    const worded = describeNeed({ content: {}, fields: {} } as never, text, {
+      kind: 'choice',
+      action: 'p:cast',
+      step: 'option',
+      options: ['str'],
+      content: 'p:spells.curse',
+    });
+    expect(worded.options).toEqual([{ id: 'str', label: 'Disadvantage with Strength' }]);
+  });
+});
+
+describe('values an add-on adds to open enums', () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        core: { 'types.weapon.fields.damageType.values.blunt.name': 'Blunt' },
+        addon: {
+          'types.weapon.fields.damageType.values.sonic.name': 'Sonic',
+          'types.weapon.state.edge.values.humming.name': 'Humming',
+          'fields.stance.values.floating.name': 'Floating',
+        },
+      },
+    },
+    spec: {},
+    enumOrigins: {
+      'core:types.weapon.fields.damageType': { sonic: 'addon' },
+      'core:types.weapon.state.edge': { humming: 'addon' },
+      'core:fields.stance': { floating: 'addon' },
+    },
+  });
+
+  it("are named by the adding pack's text, under the enum's own key", () => {
+    expect(text.value('core:weapon', 'damageType', 'sonic')).toBe('Sonic');
+    expect(text.value('core:weapon', 'damageType', 'blunt')).toBe('Blunt');
+    expect(text.fieldValue('core:stance', 'floating')).toBe('Floating');
+    expect(text.stateValue('core:weapons.club', 'edge', 'humming', 'core:weapon')).toBe('Humming');
+    expect(text.fieldValue('core:stance', 'lofty')).toBe('lofty');
+  });
+});
+
+describe('options an add-on adds to a choice', () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        core: { 'classes.warden.choices.knack.options.tracking.name': 'Tracking' },
+        addon: {
+          'classes.warden.choices.knack.options.hexing.name': 'Hexing',
+          'rules.choices.boon.options.grace.name': 'Grace',
+          'rules.options.meditate.name': 'Meditate',
+        },
+      },
+    },
+    spec: {},
+    optionOrigins: {
+      'core:classes.warden/knack': { hexing: 'addon' },
+      'core:rules/boon': { grace: 'addon' },
+    },
+  });
+
+  it("are named by the adding pack's text, under the choice's own key", () => {
+    const knack = { owner: 'core:classes.warden', id: 'knack' };
+    expect(text.option('tracking', { choice: knack })).toBe('Tracking');
+    expect(text.option('hexing', { choice: knack })).toBe('Hexing');
+    expect(text.option('grace', { choice: { owner: 'core:rules', id: 'boon' } })).toBe('Grace');
+    expect(text.option('addon:rules#meditate')).toBe('Meditate');
+  });
+});
+
+describe("an added option's prerequisite", () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        addon: {
+          'classes.warden.choices.knack.options.hexing.name': 'Hexing',
+          'classes.warden.choices.knack.options.hexing.prerequisites.wits': 'Wits 2 or more',
+        },
+      },
+    },
+    spec: { en: load('mothership/1e').spec },
+    optionOrigins: { 'core:classes.warden/knack': { hexing: 'addon' } },
+  });
+
+  it("is read from the adding pack's text", () => {
+    expect(
+      text.issue({
+        code: 'prerequisite-not-met',
+        id: 'core:classes.warden/knack/hexing/wits',
+      } as never),
+    ).toBe('Hexing requires: Wits 2 or more');
+  });
+});
+
+describe("values an add-on adds to parameters, items' state and families", () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        core: {
+          'actions.strike.params.mode.values.quick.name': 'Quick',
+          'weapons.club.state.grip.name': 'Grip',
+          'weapons.club.state.grip.values.one.name': 'One-handed',
+          'actions.pick-ward.options.fire.name': 'Fire',
+        },
+        addon: {
+          'actions.strike.params.mode.values.feint.name': 'Feint',
+          'weapons.club.state.grip.values.none.name': 'Bare',
+          'actions.pick-ward.options.storm.name': 'Storm',
+        },
+      },
+    },
+    spec: {},
+    enumOrigins: {
+      'core:actions.strike.params.mode': { feint: 'addon' },
+      'core:weapons.club.state.grip': { none: 'addon' },
+    },
+    familyOrigins: { 'core:ward': { storm: 'addon' } },
+  });
+
+  it("are named by the adding pack's text, under the core's own key", () => {
+    expect(text.paramValue('core:strike', 'mode', 'feint')).toBe('Feint');
+    expect(text.paramValue('core:strike', 'mode', 'quick')).toBe('Quick');
+    expect(text.stateValue('core:weapons.club', 'grip', 'none')).toBe('Bare');
+    expect(text.stateValue('core:weapons.club', 'grip', 'one')).toBe('One-handed');
+    expect(text.state('core:weapons.club', 'grip')).toBe('Grip');
+    expect(text.option('storm', { action: 'core:pick-ward' })).toBe('Storm');
+    expect(text.option('fire', { action: 'core:pick-ward' })).toBe('Fire');
+    expect(text.option('gale', { action: 'core:pick-ward' })).toBe('gale');
   });
 });

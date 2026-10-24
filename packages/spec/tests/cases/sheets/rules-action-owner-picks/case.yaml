@@ -1,0 +1,27 @@
+description: "A rules action no copy uses reads the rules-level choices' picks with the one-argument `picksOf` in its `available`: with the oath sworn, swearing isn't offered and breaking it is"
+specVersion: 0.2.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        choices:
+          - id: oath
+            pick: { min: 0, max: 1 }
+            required: false
+            from: { values: [valor, mercy] }
+        actions:
+          - id: swear
+            available: size(picksOf('oath')) == 0
+            steps:
+              - { id: done, kind: outcome }
+          - id: break
+            available: "'valor' in picksOf('oath')"
+            steps:
+              - { id: done, kind: outcome }
+      content: []

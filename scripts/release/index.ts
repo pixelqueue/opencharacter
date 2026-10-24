@@ -12,6 +12,7 @@ import {
 import type { BuiltPack } from '../build/index.ts';
 import { loadPack, SchemaValidator } from '../validate/load.ts';
 import { Reporter } from '../validate/report.ts';
+import { specNeed, type SpecRelease } from './spec-minimum.ts';
 
 // Release checks: packages/spec/docs/versioning.md, "The release flow".
 
@@ -72,18 +73,53 @@ function dependenciesOf(
   return [...out.values()].toReversed();
 }
 
+/** The published spec releases and the spec version in this tree (`SPEC_VERSION`). */
+export interface SpecVersions {
+  releases: SpecRelease[];
+  version: string;
+}
+
 /**
  * Checks each pack against its published releases. A pack with a pending changeset (`pending`:
  * pack ID → the version `pnpm version-packages` will give it) is checked as that version, so a
- * change to a published version passes once a changeset bumps it.
+ * change to a published version passes once a changeset bumps it. With `spec`, each pack's
+ * `specVersion` must be a spec its release is valid under; one that needs the pending spec
+ * version is raised by the version step, so it only needs a pending bump.
  */
 export function releaseCheck(
   current: BuiltPack[],
   published: (pack: BuiltPack) => PublishedReleases,
   inRange: PublishedInRange = () => undefined,
   pending: ReadonlyMap<string, string> = new Map(),
+  spec?: SpecVersions,
 ): ReleaseFinding[] {
   const findings: ReleaseFinding[] = [];
+  if (spec) {
+    const next = pending.get('spec') ?? spec.version;
+    for (const pack of current) {
+      const need = specNeed(pack, spec.releases, next);
+      if (!need) continue;
+      const declared = pack.release.manifest.specVersion;
+      const uses = need.problems.slice(0, 3).join('; ');
+      if (semver.gt(need.version, spec.version) && pending.has(pack.id)) {
+        findings.push({
+          pack: pack.id,
+          level: 'info',
+          code: 'spec-version-pending',
+          message: `${pack.id}: needs spec ${need.version} (${uses}); pnpm version-packages sets its specVersion.`,
+        });
+      } else {
+        findings.push({
+          pack: pack.id,
+          level: 'error',
+          code: 'spec-version-too-low',
+          message: semver.gt(need.version, spec.version)
+            ? `${pack.id} declares specVersion ${declared} but needs spec ${need.version} (${uses}). Add a changeset for it (pnpm changeset); pnpm version-packages sets its specVersion.`
+            : `${pack.id} declares specVersion ${declared} but needs spec ${need.version} (${uses}). Set specVersion: ${need.version} in its pack.yaml.`,
+        });
+      }
+    }
+  }
   const built = current.map((pack) => {
     const from = pack.release.manifest.version;
     const to = pending.get(pack.id);

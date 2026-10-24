@@ -14,6 +14,9 @@ cast spells, use skill actions, and buy, sell, implant and upgrade equipment. Th
 pnpm add @opencharacter/engine @opencharacter/orc-sf-2e
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the built pack (a `PackRelease`), and `i18n/en` its English
 text:
 
@@ -83,6 +86,45 @@ began as a fork of that pack's rules files, but it doesn't depend on it. A depen
 offer fantasy content. The format can hide a dependency's content only item by item, and it
 would still be in the ruleset. Where the two books print the same rule or item, this pack's
 copy has the same shape as `orc-2e`'s, and the same text where the wording matches.
+
+## Add-on packs
+
+A pack that depends on `orc-sf-2e` can add to what it offers:
+
+- **Subclasses:** a feature whose `classOption` names a class's choice (`envoy.leadership-style`,
+  `mystic.connection`, `soldier.fighting-style`, `witchwarper.paradox`, `witchwarper.anchor`)
+  joins it, and gear tagged `tool.compass` counts for Sense Direction.
+- **Open enums** (`extendEnums`): `mystic.connection` and `witchwarper.paradox`, which a new
+  connection or paradox sets with its own effect, as the core's do; weapon `group`,
+  `damageType` and `ammoKind`, ammunition `kind`, armor `group`, consumable `category`,
+  `damageType` and `persistentType`, spell damage types, affliction and persistent damage
+  condition damage types, feat `category`, and `cast-spell`'s `damageType` parameter
+  (`orc-sf-2e:actions.cast-spell.params.damageType`). A new damage type or group also needs its tag,
+  declared and named in the add-on.
+- **Choices** (`extendChoices`): written value and inline option choices take additions: the
+  operative's `specialization`, the epiphany feats' `spell` (Basic, New, Advanced, Greater and
+  Syncretic Epiphany), Additional Lore's `lore`, and the short skill lists. A new connection's
+  epiphany counts for New Epiphany, Syncretic Epiphany and Realized Epiphany through rules
+  effects on `mystic.otherExpertConnections`, `mystic.otherMasterEpiphanies` and
+  `mystic.connectionRank`.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `void` added to `orc-sf-2e:mystic.connection` is
+  `fields.mystic.connection.values.void.name: Void` (through `enumOrigins`), and a Specialized
+  Operative option `saboteur` is
+  `feats.archetype.operative.specialized-operative.choices.specialization.options.saboteur.name: Saboteur`
+  (through `optionOrigins`).
+- **Skills and Lores:** a choice of any skill reads `skills.offered` and one of any Lore
+  `skills.lores`; an add-on's Lore declares its fields (`skills.lore.<name>.rank`, `.mod`, …,
+  as `rules/skills.yaml` does) and grants its tag into both with a rules effect.
+- **Step tags** for rules-level `option` and `changes` effects: `creation.ancestry`,
+  `creation.heritage`, `creation.background`, `creation.class` and `creation.finish` (guided and
+  random creation), `level-up.gain`, and the actions' own (`strike.hit`, …).
+
+Still closed: attributes, proficiency ranks, saves, spell traditions, weapon and armor
+categories, the solarian's attunement and physical damage types for `versatile`, the game's
+fixed sets.
 
 ## License
 
@@ -213,7 +255,11 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
 - **Mystic:** Transfer Vitality moves as many Hit Points as the target is missing, up to the
   limit and what the network holds, unless the player gives an amount; the mystic archetype's
   network regains Hit Points each turn and on Refocus as the class's does; the rhythm
-  connection's 9th-rank spell (_unfathomable song_) is the fantasy core's.
+  connection's 9th-rank spell (_unfathomable song_) is the fantasy core's. Elemental weapon and
+  elemental barrier are applied to the caster with their element (Cast a Spell's `element`), the
+  record of the active spell; what they give the target is text. While one is active, the
+  elemental connection's wall of fire and absolute zero take its element's trait and first damage
+  type (electricity, bludgeoning, fire, acid, cold, poison), a kept template per element.
 - **Witchwarper:** the spellcasting attribute is the key attribute chosen; Core Memories'
   Assurance skill and In Another Life's ancestry feat are set by an action and kept until the
   player sets them again (the book's "during daily preparations").
@@ -232,7 +278,9 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
 - **Left to the app:** turns (it runs `start-turn` and `end-turn`), movement, reach, distances,
   areas and auras (who is in a burst, a quantum field, a harmony's emanation or a bond's range is
   the participants the app passes), cover and flanking (situational choices), when a condition
-  is gained, daily preparations and rests, a spell's duration and sustaining.
+  is gained, daily preparations and rests, a spell's duration and sustaining (a spell or
+  treatment for the next roll, such as guidance, sure strike or Treat Poison, ends on the roll it
+  changes).
 - **Text only:** critical specialization; the feats and features about movement, positions,
   other creatures' sheets, starships and drones; most harmony and quantum field effects; skill
   feats that change time or what the GM tells you; more than half the spells (utility,

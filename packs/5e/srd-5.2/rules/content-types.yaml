@@ -26,21 +26,32 @@ contentTypes:
               thunder,
             ],
           required: true,
+          open: true,
         }
       versatileDamage: { type: dice }
       normalRange: { type: integer }
       longRange: { type: integer }
-      ammunition: { type: enum, values: [arrow, bolt, firearm-bullet, sling-bullet, needle] }
-      mastery: { type: enum, values: [cleave, graze, nick, push, sap, slow, topple, vex] }
+      ammunition:
+        { type: enum, values: [arrow, bolt, firearm-bullet, sling-bullet, needle], open: true }
+      mastery:
+        { type: enum, values: [cleave, graze, nick, push, sap, slow, topple, vex], open: true }
       weight: { type: decimal }
       cost: { type: decimal }
     state:
       wielding: { type: enum, values: [one-handed, two-handed], default: one-handed }
       attuned: { type: boolean, default: false }
       stowed: { type: boolean, default: false }
+      usedToday: { type: set, of: string, default: [] }
     actions:
       - use: weapon-attack
     effects:
+      # An attuned item for other classes than the character's (attunementClasses).
+      - target: attunement.classUnmet
+        op: add
+        value: 1
+        when: >-
+          self.attuned && has(item.attunementClasses) && size(item.attunementClasses) > 0
+            && countList(item.attunementClasses, x in classes.held) == 0
       - id: magic-attack
         target: { rolls: [attack.melee, attack.ranged], from: self }
         op: add
@@ -73,7 +84,15 @@ contentTypes:
     state:
       attuned: { type: boolean, default: false }
       stowed: { type: boolean, default: false }
+      usedToday: { type: set, of: string, default: [] }
     effects:
+      # An attuned item for other classes than the character's (attunementClasses).
+      - target: attunement.classUnmet
+        op: add
+        value: 1
+        when: >-
+          self.attuned && has(item.attunementClasses) && size(item.attunementClasses) > 0
+            && countList(item.attunementClasses, x in classes.held) == 0
       - id: base-ac
         target: combat.ac
         op: set
@@ -122,6 +141,25 @@ contentTypes:
     copies: { perItem: 1 }
     fields:
       hitDie: { type: dice, required: true }
+      # Its own kit action gives its starting equipment.
+      startingKit: { type: boolean, default: false }
+      # The abilities multiclassing into it needs 13 in: all of these, and one of those.
+      multiclassAll: { type: set, of: string, default: [] }
+      multiclassAny: { type: set, of: string, default: [] }
+      # The abilities a random start raises first, in order.
+      abilityPriority:
+        type: list
+        of: field
+        unique: true
+        default:
+          [
+            abilities.str.score,
+            abilities.con.score,
+            abilities.dex.score,
+            abilities.wis.score,
+            abilities.int.score,
+            abilities.cha.score,
+          ]
     state:
       level: { type: integer, default: 1, min: 1, max: 20 }
       startingClass: { type: boolean, default: false }
@@ -132,16 +170,25 @@ contentTypes:
       - use: spend-hit-die
 
   subclass:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       class: { type: id, of: class, required: true }
 
-  feature: {}
+  feature:
+    grantOnly: true
 
   feat:
+    grantOnly: true
     copies: { max: 0 }
     fields:
-      category: { type: enum, values: [origin, general, fighting-style, epic-boon], required: true }
+      category:
+        {
+          type: enum,
+          values: [origin, general, fighting-style, epic-boon],
+          required: true,
+          open: true,
+        }
 
   spell:
     texts: [material, trigger]
@@ -167,6 +214,7 @@ contentTypes:
               transmutation,
             ],
           required: true,
+          open: true,
         }
       classes: { type: set, of: class }
       ritual: { type: boolean }
@@ -202,7 +250,7 @@ contentTypes:
       saveEffect: { type: enum, values: [half, none] }
       condition: { type: id, of: condition }
       applied: { type: boolean }
-      castOptions: { type: set, of: string }
+      castOptions: { type: list, of: string, unique: true }
       upcastTargets: { type: boolean }
       maxHp: { type: integer }
       upcastMaxHp: { type: integer }
@@ -225,6 +273,7 @@ contentTypes:
               slashing,
               thunder,
             ],
+          open: true,
         }
       damage: { type: dice }
       damageBonus: { type: integer }
@@ -242,7 +291,8 @@ contentTypes:
       upcastHealDice: { type: integer }
       upcastHealBonus: { type: integer }
 
-  trait: {}
+  trait:
+    grantOnly: true
 
   species:
     copies: { max: 1 }
@@ -261,6 +311,7 @@ contentTypes:
       - { id: species, target: creature.species, op: set, value: item.id }
 
   lineage:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       species: { type: id, of: species, required: true }
@@ -276,6 +327,8 @@ contentTypes:
 
   background:
     copies: { max: 1 }
+    fields:
+      startingKit: { type: boolean, default: false }
 
 fields:
   armor.untrained: { type: boolean, formula: false }

@@ -42,50 +42,12 @@ choices:
   # Asked first, so the repertoire's picks see the tradition and the free skills the bloodline's
   # trainings.
   - id: bloodline
-    from:
-      items:
-        [
-          classes.sorcerer.bloodlines.aberrant,
-          classes.sorcerer.bloodlines.angelic,
-          classes.sorcerer.bloodlines.demonic,
-          classes.sorcerer.bloodlines.diabolic,
-          classes.sorcerer.bloodlines.draconic,
-          classes.sorcerer.bloodlines.elemental,
-          classes.sorcerer.bloodlines.fey,
-          classes.sorcerer.bloodlines.hag,
-          classes.sorcerer.bloodlines.imperial,
-          classes.sorcerer.bloodlines.undead,
-        ]
+    from: { type: feature, where: "item.classOption == 'sorcerer.bloodline'" }
   - id: skills
     unique: skill-training
     pick: 2 + max(0, attributes.int.mod)
     from:
-      values:
-        [
-          skill.acrobatics,
-          skill.arcana,
-          skill.athletics,
-          skill.crafting,
-          skill.deception,
-          skill.diplomacy,
-          skill.intimidation,
-          skill.medicine,
-          skill.nature,
-          skill.occultism,
-          skill.performance,
-          skill.religion,
-          skill.society,
-          skill.stealth,
-          skill.survival,
-          skill.thievery,
-          skill.lore.academia,
-          skill.lore.circus,
-          skill.lore.farming,
-          skill.lore.legal,
-          skill.lore.scribing,
-          skill.lore.underworld,
-          skill.lore.warfare,
-        ]
+      values: { formula: skills.offered }
       where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
     effects:
       - { target: skills.chosen, op: grant, value: { formula: pick.value } }

@@ -2,56 +2,18 @@ id: feats.ancestry.fixation
 type: feat
 tags: [trait.skittermander]
 fields: { level: 1, category: ancestry, ancestry: ancestries.skittermander }
-choices:
-  - id: topic
-    from:
-      values:
-        [
-          academia,
-          alcohol,
-          android,
-          animal,
-          art,
-          augmentation,
-          barathu,
-          borai,
-          business,
-          cooking,
-          corporate,
-          games,
-          genealogy,
-          history,
-          hyperspace,
-          infosphere,
-          kasatha,
-          labor,
-          lashunta,
-          legal,
-          life-science,
-          media,
-          mining,
-          pahtra,
-          physical-science,
-          piracy,
-          plant,
-          prismeni,
-          shirren,
-          skittermander,
-          sports,
-          underworld,
-          vesk,
-          vidgame,
-          warfare,
-          ysoki,
-          custom1,
-          custom2,
-          custom3,
-        ]
 grants:
   - item: feats.skill.additional-lore
-    when: size(picksOf('topic')) > 0
     waivePrerequisites: true
-    choices: { lore: [{ option: { formula: "picksOf('topic')[0]" } }] }
   - item: feats.skill.assurance
-    when: size(picksOf('topic')) > 0
-    choices: { skill: [{ option: { formula: "'skill.lore.' + picksOf('topic')[0]" } }] }
+    when: size(grantedPicksOf('feats.skill.additional-lore', 'lore')) > 0
+    choices:
+      skill:
+        [
+          {
+            option:
+              {
+                formula: "'skill.lore.' + grantedPicksOf('feats.skill.additional-lore', 'lore')[0]",
+              },
+          },
+        ]

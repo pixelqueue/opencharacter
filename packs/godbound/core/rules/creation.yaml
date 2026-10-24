@@ -128,34 +128,26 @@ actions:
         changes:
           - type: addItem
             entry: { item: picked.id }
+      # None or any armor, then none or any shield, the gear of add-on packs included, lightest
+      # first (armor class falling, shield bonus rising).
       - id: armor
         kind: choice
-        options:
-          - id: none
-          - id: light
-            changes:
-              - type: addItem
-                entry: { item: "'armor.light'", equipped: true }
-          - id: medium
-            changes:
-              - type: addItem
-                entry: { item: "'armor.medium'", equipped: true }
-          - id: heavy
-            changes:
-              - type: addItem
-                entry: { item: "'armor.heavy'", equipped: true }
+        options: { values: { formula: "['none'] + sortList(gear.armor, -itemField(x, 'ac'))" } }
         random: params.random
         recommend: "'none'"
+        changes:
+          - type: addItem
+            when: "picked.value != 'none'"
+            entry: { item: picked.value, equipped: true }
       - id: shield
         kind: choice
-        options:
-          - id: none
-          - id: shield
-            changes:
-              - type: addItem
-                entry: { item: "'shields.shield'", equipped: true }
+        options: { values: { formula: "['none'] + sortList(gear.shields, itemField(x, 'bonus'))" } }
         random: params.random
         recommend: "'none'"
+        changes:
+          - type: addItem
+            when: "picked.value != 'none'"
+            entry: { item: picked.value, equipped: true }
       - id: weapon
         kind: choice
         options: { content: { type: weapon, where: 'item.id != @weapons.unarmed' } }
@@ -170,6 +162,7 @@ actions:
         options: { pending: {} }
         random: "params.random && choice.id == 'invocations'"
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:
@@ -187,6 +180,7 @@ actions:
     results: [advanced]
     steps:
       - id: advance
+        tags: [level.gain]
         kind: changes
         changes:
           - { type: adjust, field: level, by: 1 }

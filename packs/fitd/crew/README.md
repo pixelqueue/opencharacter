@@ -17,6 +17,9 @@ short descriptions written for the pack.
 pnpm add @opencharacter/engine @opencharacter/fitd-crew @opencharacter/fitd-scoundrel
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 A crew is its own character file, loaded with this pack instead of the scoundrel pack
 ([an example crew](https://github.com/pixelqueue/opencharacter/blob/main/examples/characters/fitd-crew-ravens.yaml)).
 Each scoundrel links to it through the scoundrel pack's `crew` slot, and the app passes the
@@ -112,8 +115,9 @@ It names no factions, people or places: the GM defines the factions.
     Leader (+1 effect).
   - `cohort-recover` heals a level of harm in downtime, two with a scoundrel's help;
     `replace-cohort` replaces a dead one for the tier + 2 coin.
-- **Advancement:** crew xp (8). A full track offers `crew-advance`: a new special ability or two
-  upgrade boxes; xp clears, and the outcome's `stash` (tier + 2) is for each member's sheet.
+- **Advancement:** crew xp (8). A full track offers `crew-advance`: a new special ability (with a
+  crew type, asked in its own `special-ability` choice only) or two upgrade boxes; xp clears, and
+  the outcome's `stash` (tier + 2) is for each member's sheet.
   `develop` on a full rep track: weak hold becomes strong, or strong hold pays the new tier × 8
   coin (half with Patron, 2 less with Hardcase) to raise the tier and drops to weak; rep clears.
 - `tier-roll`: a fortune roll of the tier (a Secure lair against an intruder).
@@ -187,6 +191,37 @@ It names no factions, people or places: the GM defines the factions.
   factions, crew creation) and content (crew type, abilities, claims with turf first, cohorts by
   kind, cohort traits, contacts with the favorite first, operations, factions). The crew-specific
   upgrades show all of them without a crew type, a homebrew type's own with one.
+
+## Add-on packs
+
+A pack that depends on `fitd-crew` (a crew-type or setting pack) adds content of its types:
+crew types, crew abilities, operations, claims, cohort traits, contacts and factions join the
+creation picks, the random start's draws and the advance's picks as the core's do (the SRD has
+no crew types, so a crew-type pack's are the ones offered).
+
+- **Gang types** are the family `fitd-crew:gang` (adepts, rooks, rovers, skulks, thugs). An
+  add-on adds one by adding it to the family (`families: { 'fitd-crew:gang': [sappers] }`),
+  declaring its `upgrades.elite.<type>` field (tagged `upgrade.special`), and adding the value to
+  the open enums that hold a gang type: `fitd-crew:types.crewType.fields.startingCohort`,
+  `fitd-crew:types.claim.fields.scaleGang`, `fitd-crew:types.cohort.state.gangType`,
+  `fitd-crew:types.cohort.state.extraGangType` and `fitd-crew:types.claim.state.trainedGang`,
+  named in its text under the core's keys. The creation's gang pick offers the family's types,
+  the add-on's named by its `actions.create-crew.options.<type>.name` (found through the
+  ruleset's `familyOrigins`), and elite and claim scale read them by key. A claim like Training Rooms sets `trainsGang` to
+  show its `trainedGang` pick.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  the gang type `sappers` is `actions.create-crew.options.sappers.name: Sappers`
+  in the creation's gang pick (through `familyOrigins`) and
+  `types.cohort.state.gangType.values.sappers.name: Sappers` as a cohort's gang type (through
+  `enumOrigins`).
+- **Tagged steps**, for an add-on's rules-level `option` effects: `creation.crew-type`,
+  `creation.ability`, `creation.operation`, `creation.more` (two upgrades or a cohort) and
+  `creation.gang` of `create-crew`, and `advance.crew` (`crew-advance`'s pick); for its
+  `changes` effects, `creation.start` (starting coin, upgrades and cohort).
+- **Closed:** a cohort's `kind` (gang or expert), a faction's hold, the six plans and the
+  payoff targets, which the core's rules read.
 
 ## Text only
 

@@ -1,6 +1,15 @@
 standardCopies:
   - { type: weapon, where: 'item.id == @weapons.unarmed' }
 
+fields:
+  # Every armor and shield of the ruleset, for creation's picks.
+  gear.armor: { type: set, of: armor }
+  gear.shields: { type: set, of: shield }
+
+effects:
+  - { target: gear.armor, op: grant, value: { query: { type: armor } } }
+  - { target: gear.shields, op: grant, value: { query: { type: shield } } }
+
 contentTypes:
   weapon:
     carried: true
@@ -20,7 +29,7 @@ contentTypes:
     carried: true
     equippable: true
     fields:
-      weight: { type: enum, values: [light, medium, heavy], required: true }
+      weight: { type: enum, values: [light, medium, heavy], required: true, open: true }
       ac: { type: integer, required: true }
       # How many saves the armor makes 4 harder: chosen on the suit, once.
       penalties: { type: integer, default: 0, min: 0, max: 2 }

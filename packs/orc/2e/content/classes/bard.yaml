@@ -56,44 +56,12 @@ grants:
 choices:
   # The muse is asked first, so the repertoire's picks follow it.
   - id: muse
-    from:
-      items:
-        [
-          classes.bard.muses.enigma,
-          classes.bard.muses.maestro,
-          classes.bard.muses.polymath,
-          classes.bard.muses.warrior,
-        ]
+    from: { type: feature, where: "item.classOption == 'bard.muse'" }
   - id: skills
     unique: skill-training
     pick: 4 + max(0, attributes.int.mod)
     from:
-      values:
-        [
-          skill.acrobatics,
-          skill.arcana,
-          skill.athletics,
-          skill.crafting,
-          skill.deception,
-          skill.diplomacy,
-          skill.intimidation,
-          skill.medicine,
-          skill.nature,
-          skill.occultism,
-          skill.performance,
-          skill.religion,
-          skill.society,
-          skill.stealth,
-          skill.survival,
-          skill.thievery,
-          skill.lore.academia,
-          skill.lore.circus,
-          skill.lore.farming,
-          skill.lore.legal,
-          skill.lore.scribing,
-          skill.lore.underworld,
-          skill.lore.warfare,
-        ]
+      values: { formula: skills.offered }
       where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
     effects:
       - { target: skills.chosen, op: grant, value: { formula: pick.value } }

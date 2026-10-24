@@ -15,15 +15,15 @@ tests/cases/<area>/<case-name>/
   expected.yaml    # the expected output
 ```
 
-| Area        | Call(s)                         | Typical inputs                                                    |
-| ----------- | ------------------------------- | ----------------------------------------------------------------- |
-| `formulas/` | parse, print, evaluate          | formula text or tree, a context (field values, `item`, `self`, …) |
-| `sheets/`   | `computeSheet`                  | packs, character, competing-option picks                          |
-| `options/`  | `listOptions`                   | packs, character, choice path                                     |
-| `changes/`  | `applyChanges`                  | packs, character, changes, `strict`                               |
-| `actions/`  | `startAction`, `continueAction` | packs, character, action, params, situational, policy, die faces  |
-| `upgrades/` | `upgrade`, `checkRelease`       | old and new packs, character                                      |
-| `loads/`    | `loadRuleset`                   | packs                                                             |
+| Area        | Call(s)                                           | Typical inputs                                                    |
+| ----------- | ------------------------------------------------- | ----------------------------------------------------------------- |
+| `formulas/` | parse, print, evaluate                            | formula text or tree, a context (field values, `item`, `self`, …) |
+| `sheets/`   | `computeSheet`                                    | packs, character, competing-option picks                          |
+| `options/`  | `listOptions`                                     | packs, character, choice path                                     |
+| `changes/`  | `applyChanges`                                    | packs, character, changes, `strict`                               |
+| `actions/`  | `startAction`, `continueAction`, `describeAction` | packs, character, action, params, situational, policy, die faces  |
+| `upgrades/` | `upgrade`, `checkRelease`                         | old and new packs, character                                      |
+| `loads/`    | `loadRuleset`                                     | packs                                                             |
 
 ## Formula cases
 
@@ -82,6 +82,18 @@ cases:
 - A copy in `character.copies` gives its `type`; missing keys take defaults: `equipped` false,
   `quantity` 1, `tags` and `templates` `[]`, `state` and `fields` `{}`, and an `id` and `item`
   of the runner's choosing. Copies are in order (inventory first, as engines list them).
+- `character.picks` and `character.grants` are the saved picks and active grants `countPicks`
+  and `countGrants` go over, each the `pick` or `grant` root: it gives `type`, and missing keys
+  take defaults (`tags` `[]`, `state` and `fields` `{}`, an `item` of the runner's choosing).
+  `activation: true` makes the case an activation condition, where `countGrants` is unbound.
+- `character.contentPicks` gives `picksOf(content, choice)` its picks, by content and choice
+  (`contentPicks: { feats.lore: { topic: [history] } }`); a content it doesn't list has none.
+  `granted` binds `grantedPicksOf` the same way, by content and choice. `character.rulesPicks`
+  gives `picksOf('rules', choice)` the rules-level choices' picks, by choice
+  (`rulesPicks: { crew-type: [crew-types.bravos] }`); a choice it doesn't list has none.
+- `character.content` gives `itemField` and `itemTags` their content items, by ID, each with
+  `tags` and `fields` (`content: { lineages.red: { fields: { damageType: fire } } }`); an ID it
+  doesn't list names no content.
 - `picks` binds `picksOf`: the formula's owner's choices by key, each a list of its picks
   (`picks: { plus-two: [str], languages: [] }`). Without it, `picksOf` is unbound.
 - The case's `fields` are also the ruleset's fields that `countFields`, `sumFields`,
@@ -118,8 +130,15 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   `eligible` and repeatable content and waived prerequisites (0092), `test-kept-templates`,
   templates content keeps on copies and on picked or granted content (the keeper's own picks, with
   its params), `test-applied`, actions that apply content and change applied entries,
-  `test-roll-twice`, rolls made more than once (`of: roll`), and `test-owner-picks`, formulas
-  reading their owner's picks with `picksOf`.
+  `test-roll-twice`, rolls made more than once (`of: roll`), `test-owner-picks`, formulas
+  reading their owner's picks with `picksOf`, `test-pick-aggregates`, formulas counting saved
+  picks and active grants (`countPicks`, `countGrants`), `test-content-picks`, formulas reading
+  another content's picks (`picksOf(content, choice)`, `grantedPicksOf`), `test-content-items`,
+  formulas reading a picked item's fields and tags by ID (`itemField`, `itemTags`),
+  `test-target-formula`, effects whose target is a formula (`target: { formula }`),
+  `test-part-rolls`, advantage and disadvantage on a roll's parts (`of: roll`), and
+  `test-roll-then`, roll effects that end themselves or spend a use once a roll used them
+  (`then`), and `test-describe`, actions as `describeAction` reads them.
 - **How outputs compare.** Only what `expected.yaml` lists is compared. A key the call doesn't
   define, in `case.yaml` or `expected.yaml`, is a mistake in the case: runners fail it rather
   than ignore it, so a case never seems to test something it doesn't.
@@ -188,6 +207,10 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   - `errors` codes, and `errorData`: per error, its `data` on the keys listed (a replay's
     `index` and `needs`).
 
+- **`describeAction`** cases put `action` (and `links`) in `case.yaml` `input`. `expected.yaml`
+  compares `errors` as codes, or `action`: each key it lists, exactly (`params` and
+  `participants` as whole lists).
+
 - **`upgrade`** cases list the old and new packs as `from` and `to`. Packs are usually written
   inline as pack releases: `{ inline: { manifest, rules, content, upgrades } }`.
   `expected.yaml` compares:
@@ -208,7 +231,11 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   each compared only when present. For packs that load, `conflicts` (when listed) is the exact
   list of the ruleset's conflicts, `creation` (when listed) the exact list of its creation
   starts, and `packs` (when listed) the exact list of its packs' `id`,
-  `version`, `license`, `credit` and `notices`, the notices in order.
+  `version`, `license`, `credit` and `notices`, the notices in order, and `enumOrigins` and `familyOrigins` (when
+  listed) its `enumOrigins` and `familyOrigins`, exactly, and `contentTypes` (when listed) the
+  `options` of each listed item field and state key, by content type, `fields` and `state` (`{}`
+  for a declaration without them), and `grantOnly` (when listed) the exact list, in content
+  order, of the items the loaded ruleset marks `grantOnly: true`.
 - **Dice** are always given as individual faces (`dice.yaml`: a list of face lists, one per pause, or a flat list consumed in order by a seeded dice function). Cases never depend on random numbers.
 - **Expected outputs** (`expected.yaml`) are compared as data. For example, `computeSheet` cases may list only the fields they check (`values: { 5e-srd-5.1:combat.ac: { value: 17 } }`); unlisted output is not compared. Errors and rules issues are compared by `code` (and `id`), never by text.
 - A case for a call that should fail lists the expected `errors` codes.

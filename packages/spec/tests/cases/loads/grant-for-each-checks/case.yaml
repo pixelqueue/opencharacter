@@ -1,0 +1,39 @@
+description: "A grant's `forEach` and item query are activation formulas: a derived field in either is `unknown-name`, and a `forEach` that isn't a list `type-mismatch`; `x` is the list's element type in `when` and the query's `where`"
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          bonus: { type: integer, formula: 0 }
+        contentTypes:
+          feat: {}
+          gift:
+            fields:
+              rank: { type: integer, default: 0 }
+      content:
+        - id: feats.fine
+          type: feat
+          grants:
+            - forEach: '[1, 2]'
+              when: x > 1
+              item: { query: { type: gift, where: item.rank == x } }
+        - id: feats.derived-list
+          type: feat
+          grants:
+            - { forEach: '[bonus]', item: gifts.ember }
+        - id: feats.derived-query
+          type: feat
+          grants:
+            - item: { query: { type: gift, where: item.rank == bonus } }
+        - id: feats.not-a-list
+          type: feat
+          grants:
+            - { forEach: '1', item: gifts.ember }
+        - { id: gifts.ember, type: gift }

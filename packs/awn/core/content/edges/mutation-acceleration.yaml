@@ -1,4 +1,28 @@
 id: edges.mutation-acceleration
 type: edge
+tags: [needs-mutant]
 prerequisites:
   - { id: mutant, when: mutations.mutant }
+fields:
+  gainPart: true
+effects:
+  - { target: mutations.points.edges, op: add, value: 2 }
+actions:
+  # Taken after creation: its two points are spent at once.
+  - id: gain-part
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: buy1
+        kind: action
+        sheet: proposed
+        when: '!character.creating && mutations.points.left >= 1'
+        use: buy-mutation
+        params: { random: params.random }
+      - id: buy2
+        kind: action
+        sheet: proposed
+        when: '!character.creating && mutations.points.left >= 1'
+        use: buy-mutation
+        params: { random: params.random }

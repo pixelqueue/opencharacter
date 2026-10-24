@@ -10,8 +10,10 @@ import semver from 'semver';
 import * as f from '../formula/index.ts';
 import type { EngineError } from './load.ts';
 import type {
+  ActionOrUse,
   CharacterDoc,
   Choice,
+  ChoiceAddition,
   ChoiceTree,
   ContentItem,
   Entry,
@@ -29,7 +31,7 @@ import { loadRuleset } from './load.ts';
 import { itemStandard, rulesStandard, standardId } from './ruleset.ts';
 import { upgradeSpec } from './spec-upgrade.ts';
 import { expandSlots, Sheet } from './sheet.ts';
-import { stateDecls } from './views.ts';
+import { copyFieldProblem, stateDecls } from './views.ts';
 
 type Step = UpgradeStep;
 
@@ -264,6 +266,27 @@ function ownerTrees(scope: TreeAt[], rules: ChoiceTree | undefined, path: OwnerP
     at = next;
   }
   return at;
+}
+
+/**
+ * Whether the character holds a choice owner: a copy or a pick of its content, or a pick of its
+ * inline option, saved picks of its own choices or not.
+ */
+function holdsOwner(c: CharacterDoc, path: OwnerPath): boolean {
+  const last = path.pairs.at(-1);
+  if (!last) {
+    if (path.head === null) return true;
+    return (
+      allEntries(c).some((e) => e.item === path.head) ||
+      trees(c).some(({ tree }) =>
+        Object.values(tree).some((picks) => picks.some((p) => p.option === path.head)),
+      )
+    );
+  }
+  const parents = ownerTrees(trees(c), c.choices, { ...path, pairs: path.pairs.slice(0, -1) });
+  return parents.some(({ tree, prefix }) =>
+    (tree[`${prefix}${last[0]}`] ?? []).some((p) => String(p.option) === last[1]),
+  );
 }
 
 const sameValue = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -592,6 +615,27 @@ function applyStep(
       if (changed) prune(c);
       return changed;
     }
+    case 'stateToField': {
+      // Onto the copy's own value of a perCopy item field, unless it has one, or the value is the
+      // item's own.
+      const key = step.from as string;
+      const field = step.to ?? key;
+      for (const e of allEntries(c)) {
+        if (!holds(e.item)) continue;
+        if (!e.state || !Object.hasOwn(e.state, key)) continue;
+        const value = e.state[key];
+        delete e.state[key];
+        changed = true;
+        const item = to.content[e.item];
+        if (!item || Object.hasOwn(e.fields ?? {}, field)) continue;
+        if (copyFieldProblem(to, item, field, value) !== undefined) continue;
+        const decl = to.contentTypes[item.type]?.fields?.[field];
+        if (sameValue(value, item.fields?.[field] ?? decl?.default)) continue;
+        e.fields = { ...e.fields, [field]: value as Literal };
+      }
+      if (changed) prune(c);
+      return changed;
+    }
     case 'renameChoice':
     case 'renameOption':
     case 'removeChoice': {
@@ -645,9 +689,7 @@ function applyStep(
       // Informational: the upgraded character reports the choice as pending. Listed when the
       // character holds the owner (or for a rules-level choice).
       if (step.owner === undefined) return true;
-      const path = ownerPath(step.owner, q);
-      if (path.pairs.length === 0) return trees(c).some((t) => t.owner === path.head);
-      return ownerTrees(trees(c), c.choices, path).length > 0;
+      return holdsOwner(c, ownerPath(step.owner, q));
     }
     default:
       return false;
@@ -685,7 +727,11 @@ export interface ShapeChange {
     | 'item-field-removed'
     | 'item-field-values-removed'
     | 'tag-removed'
-    | 'action-removed';
+    | 'action-removed'
+    // An open enum stops being open: dependents' additions no longer load.
+    | 'enum-closed'
+    // A value or option the pack added to a dependency's enum or choice is gone.
+    | 'extension-removed';
   id: string;
 }
 
@@ -763,6 +809,16 @@ function breakingBump(prev: string, next: string): boolean {
   return semver.major(prev) === 0 && semver.minor(next) > semver.minor(prev);
 }
 
+/** The option IDs a choice extension adds. */
+const added = (a: ChoiceAddition | undefined): string[] =>
+  !a
+    ? []
+    : 'items' in a
+      ? a.items
+      : 'values' in a
+        ? a.values.map(String)
+        : a.options.map((o) => o.id);
+
 /** checkRelease: compares a pack's new release with its previous one (the build check). */
 export function checkRelease(
   previous: PackRelease,
@@ -808,7 +864,11 @@ export function checkRelease(
   const prevStates = states(previous);
   const nextStates = states(next);
   for (const [id, { decl }] of prevStates) {
-    const now = nextStates.get(id);
+    // An item's key that its type declares now, of the same type, stays on its copies.
+    const slash = id.lastIndexOf('/');
+    const type = nextItems.get(id.slice(0, slash))?.type;
+    const now =
+      nextStates.get(id) ?? (type ? nextStates.get(`${type}${id.slice(slash)}`) : undefined);
     if (!now || now.decl.type !== decl.type) changes.push({ kind: 'state-removed', id });
   }
   const prevChoices = choicesOf(previous);
@@ -880,6 +940,30 @@ export function checkRelease(
   const nextTags = new Set(next.rules.tags ?? []);
   for (const tag of new Set(previous.rules.tags ?? []))
     if (!nextTags.has(tag)) interfaceChanges.push({ kind: 'tag-removed', id: tag });
+  for (const [id, def] of Object.entries(prevFields) as [string, FieldDef][])
+    if (def.open === true && nextFields[id]?.open !== true)
+      interfaceChanges.push({ kind: 'enum-closed', id: `fields.${id}` });
+  for (const [name, def] of Object.entries(prevTypes))
+    for (const of of ['fields', 'state'] as const)
+      for (const [key, decl] of Object.entries(def[of] ?? {}) as [string, ValueDecl][])
+        if (decl.open === true && nextTypes[name]?.[of]?.[key]?.open !== true)
+          interfaceChanges.push({ kind: 'enum-closed', id: `types.${name}.${of}.${key}` });
+  const nextOpen = openDecls(next);
+  for (const address of openDecls(previous))
+    if (!nextOpen.has(address)) interfaceChanges.push({ kind: 'enum-closed', id: address });
+  for (const [target, values] of Object.entries(previous.rules.extendEnums ?? {})) {
+    const kept = new Set(next.rules.extendEnums?.[target] ?? []);
+    for (const value of values)
+      if (!kept.has(value))
+        interfaceChanges.push({ kind: 'extension-removed', id: `${target}/${value}` });
+  }
+  for (const [target, choices] of Object.entries(previous.rules.extendChoices ?? {}))
+    for (const [choice, addition] of Object.entries(choices)) {
+      const kept = new Set(added(next.rules.extendChoices?.[target]?.[choice]));
+      for (const id of added(addition))
+        if (!kept.has(id))
+          interfaceChanges.push({ kind: 'extension-removed', id: `${target}/${choice}/${id}` });
+    }
   const nextActions = new Set((next.rules.actions ?? []).map((a) => a.id));
   for (const action of previous.rules.actions ?? [])
     if (!nextActions.has(action.id))
@@ -923,6 +1007,8 @@ export function checkRelease(
   const pack = next.manifest.id;
   const qualify = (change: ShapeChange): ShapeChange => {
     const id = change.id.startsWith('rules/') ? change.id.slice('rules/'.length) : change.id;
+    // A dependency's enum or choice an extension named is qualified already.
+    if (change.kind === 'extension-removed') return change;
     return { kind: change.kind, id: `${pack}:${id}` };
   };
   const order: ShapeChange['kind'][] = [
@@ -940,6 +1026,8 @@ export function checkRelease(
     'item-field-values-removed',
     'tag-removed',
     'action-removed',
+    'enum-closed',
+    'extension-removed',
   ];
   // A removed derived field is listed with the shape changes' `field-removed`.
   const out = [...changes, ...interfaceChanges]
@@ -998,7 +1086,8 @@ function covered(
         ref.startsWith(`${pack}:`) ? ref.slice(pack.length + 1) : ref;
       return has(
         (s) =>
-          (((s.op === 'renameState' || s.op === 'moveState') && s.from === key) ||
+          (((s.op === 'renameState' || s.op === 'moveState' || s.op === 'stateToField') &&
+            s.from === key) ||
             (s.op === 'removeState' && s.key === key)) &&
           (s.type === undefined || names.has(s.type)) &&
           (s.item === undefined || local(s.item) === owner),
@@ -1045,4 +1134,22 @@ function covered(
     default:
       return true;
   }
+}
+
+/** The addresses of a release's open action parameters and items' own open enums. */
+function openDecls(release: PackRelease): Set<string> {
+  const out = new Set<string>();
+  const params = (key: string, def: ActionOrUse) => {
+    if ('use' in def) return;
+    for (const [name, decl] of Object.entries(def.params ?? {}))
+      if (decl.open === true) out.add(`${key}.${def.id}.params.${name}`);
+  };
+  for (const def of release.rules.actions ?? []) params('actions', def);
+  for (const item of release.content) {
+    if (item.id === undefined) continue;
+    for (const [key, decl] of Object.entries(item.state ?? {}) as [string, ValueDecl][])
+      if (decl.open === true) out.add(`${item.id}.state.${key}`);
+    for (const def of item.actions ?? []) params(`${item.id}.actions`, def);
+  }
+  return out;
 }

@@ -1,0 +1,9 @@
+# Disadvantage on the next attack roll, then it ends.
+id: conditions.sapped
+type: condition
+effects:
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    then: [{ type: removeEffect, entry: self }]

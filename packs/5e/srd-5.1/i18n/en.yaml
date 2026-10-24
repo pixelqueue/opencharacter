@@ -17,12 +17,15 @@ types.weapon.state.wielding.values.two-handed.name: 'Two-handed'
 types.weapon.state.attuned.name: 'Attuned'
 types.weapon.state.stowed.name: 'Stowed'
 types.weapon.state.quivered.name: 'In an Efficient Quiver'
+types.weapon.state.usedToday.name: 'Used since dawn'
 types.armor.name: 'Armor'
 types.armor.state.attuned.name: 'Attuned'
 types.armor.state.stowed.name: 'Stowed'
+types.armor.state.usedToday.name: 'Used since dawn'
 types.magicItem.name: 'Magic item'
 types.magicItem.state.attuned.name: 'Attuned'
 types.magicItem.state.stowed.name: 'Stowed'
+types.magicItem.state.usedToday.name: 'Used since dawn'
 types.storedSpell.name: 'Stored spell'
 types.storedSpell.state.slot.name: 'Slot level'
 types.storedSpell.state.dc.name: 'Spell save DC'
@@ -189,6 +192,8 @@ tags.martial.name: 'Martial'
 tags.melee.name: 'Melee'
 tags.ranged.name: 'Ranged'
 tags.ammunition.name: 'Ammunition'
+tags.quiver.name: 'Quiver'
+tags.quiver.javelin.name: 'Javelin compartment'
 tags.ammunition.description: |-
   You can use a weapon that has the ammunition property to make a ranged attack only if you have ammunition to fire from the weapon. Each time you attack with the weapon, you expend one piece of ammunition. Drawing the ammunition from a quiver, case, or other container is part of the attack (you need a free hand to load a one-handed weapon). At the end of the battle, you can recover half your expended ammunition by taking a minute to search the battlefield.
 
@@ -7443,20 +7448,26 @@ subclasses.way-of-the-open-hand.description: 'Monks of the Way of the Open Hand 
 subclasses.oath-of-devotion.name: 'Oath of Devotion'
 subclasses.oath-of-devotion.description: "The Oath of Devotion binds a paladin to the loftiest ideals of justice, virtue, and order. Sometimes called cavaliers, white knights, or holy warriors, these paladins meet the ideal of the knight in shining armor, acting with honor in pursuit of justice and the greater good. They hold themselves to the highest standards of conduct, and some, for better or worse, hold the rest of the world to the same standards. Many who swear this oath are devoted to gods of law and good and use their gods' tenets as the measure of their devotion. They hold angels—the perfect servants of good—as their ideals, and incorporate images of angelic wings into their helmets or coats of arms."
 subclasses.hunter.choices.hunters-prey.prompt: "Choose a Hunter's Prey option"
-subclasses.hunter.choices.hunters-prey.options.colossus-slayer.name: 'Colossus Slayer'
-subclasses.hunter.choices.hunters-prey.options.giant-killer.name: 'Giant Killer'
-subclasses.hunter.choices.hunters-prey.options.horde-breaker.name: 'Horde Breaker'
 subclasses.hunter.choices.defensive-tactics.prompt: 'Choose a Defensive Tactics option'
-subclasses.hunter.choices.defensive-tactics.options.escape-the-horde.name: 'Escape the Horde'
-subclasses.hunter.choices.defensive-tactics.options.multiattack-defense.name: 'Multiattack Defense'
-subclasses.hunter.choices.defensive-tactics.options.steel-will.name: 'Steel Will'
 subclasses.hunter.choices.multiattack.prompt: 'Choose a Multiattack option'
-subclasses.hunter.choices.multiattack.options.volley.name: 'Volley'
-subclasses.hunter.choices.multiattack.options.whirlwind-attack.name: 'Whirlwind Attack'
 subclasses.hunter.choices.superior-hunters-defense.prompt: "Choose a Superior Hunter's Defense option"
-subclasses.hunter.choices.superior-hunters-defense.options.evasion.name: 'Evasion'
-subclasses.hunter.choices.superior-hunters-defense.options.stand-against-the-tide.name: 'Stand Against the Tide'
-subclasses.hunter.choices.superior-hunters-defense.options.uncanny-dodge.name: 'Uncanny Dodge'
+types.hunterTactic.name: "Hunter's option"
+types.hunterTactic.fields.feature.name: 'Feature'
+types.hunterTactic.fields.feature.values.hunters-prey.name: "Hunter's Prey"
+types.hunterTactic.fields.feature.values.defensive-tactics.name: 'Defensive Tactics'
+types.hunterTactic.fields.feature.values.multiattack.name: 'Multiattack'
+types.hunterTactic.fields.feature.values.superior-hunters-defense.name: "Superior Hunter's Defense"
+hunter-tactics.colossus-slayer.name: 'Colossus Slayer'
+hunter-tactics.giant-killer.name: 'Giant Killer'
+hunter-tactics.horde-breaker.name: 'Horde Breaker'
+hunter-tactics.escape-the-horde.name: 'Escape the Horde'
+hunter-tactics.multiattack-defense.name: 'Multiattack Defense'
+hunter-tactics.steel-will.name: 'Steel Will'
+hunter-tactics.volley.name: 'Volley'
+hunter-tactics.whirlwind-attack.name: 'Whirlwind Attack'
+hunter-tactics.evasion.name: 'Evasion'
+hunter-tactics.stand-against-the-tide.name: 'Stand Against the Tide'
+hunter-tactics.uncanny-dodge.name: 'Uncanny Dodge'
 subclasses.hunter.name: 'Hunter'
 subclasses.hunter.description: "Emulating the Hunter archetype means accepting your place as a bulwark between civilization and the terrors of the wilderness. As you walk the Hunter's path, you learn specialized techniques for fighting the threats you face, from rampaging ogres and hordes of orcs to towering giants and terrifying dragons."
 subclasses.thief.name: 'Thief'
@@ -8386,61 +8397,46 @@ features.sorcerer.metamagic.description: |-
   At 3rd level, you gain the ability to twist your spells to suit your needs. You gain two of the following Metamagic options of your choice. You gain another one at 10th and 17th level.
 
   You can use only one Metamagic option on a spell when you cast it, unless otherwise noted.
-
-  **Careful Spell**
-
+features.sorcerer.metamagic.choices.options.prompt: 'Choose Metamagic options'
+types.metamagic.name: 'Metamagic option'
+metamagic.careful-spell.name: 'Careful Spell'
+metamagic.careful-spell.description: |-
   When you cast a spell that forces other creatures to make a saving throw, you can protect some of those creatures from the spell's full force. To do so, you spend 1 sorcery point and choose a number of those creatures up to your Charisma modifier (minimum of one creature). A chosen creature automatically succeeds on its saving throw against the spell.
-
-  **Distant Spell**
-
+metamagic.careful-spell.options.careful.name: 'Careful Spell (1 sorcery point)'
+metamagic.distant-spell.name: 'Distant Spell'
+metamagic.distant-spell.description: |-
   When you cast a spell that has a range of 5 feet or greater, you can spend 1 sorcery point to double the range of the spell.
 
   When you cast a spell that has a range of touch, you can spend 1 sorcery point to make the range of the spell 30 feet.
-
-  **Empowered Spell**
-
+metamagic.distant-spell.options.distant.name: 'Distant Spell (1 sorcery point)'
+metamagic.empowered-spell.name: 'Empowered Spell'
+metamagic.empowered-spell.description: |-
   When you roll damage for a spell, you can spend 1 sorcery point to reroll a number of the damage dice up to your Charisma modifier (minimum of one). You must use the new rolls.
 
   You can use Empowered Spell even if you have already used a different Metamagic option during the casting of the spell.
-
-  **Extended Spell**
-
+metamagic.empowered-spell.options.empowered.name: 'Empowered Spell (1 sorcery point)'
+metamagic.extended-spell.name: 'Extended Spell'
+metamagic.extended-spell.description: |-
   When you cast a spell that has a duration of 1 minute or longer, you can spend 1 sorcery point to double its duration, to a maximum duration of 24 hours.
-
-  **Heightened Spell**
-
+metamagic.extended-spell.options.extended.name: 'Extended Spell (1 sorcery point)'
+metamagic.heightened-spell.name: 'Heightened Spell'
+metamagic.heightened-spell.description: |-
   When you cast a spell that forces a creature to make a saving throw to resist its effects, you can spend 3 sorcery points to give one target of the spell disadvantage on its first saving throw made against the spell.
-
-  **Quickened Spell**
-
+metamagic.heightened-spell.options.heightened.name: 'Heightened Spell (3 sorcery points)'
+metamagic.quickened-spell.name: 'Quickened Spell'
+metamagic.quickened-spell.description: |-
   When you cast a spell that has a casting time of 1 action, you can spend 2 sorcery points to change the casting time to 1 bonus action for this casting.
-
-  **Subtle Spell**
-
+metamagic.quickened-spell.options.quickened.name: 'Quickened Spell (2 sorcery points)'
+metamagic.subtle-spell.name: 'Subtle Spell'
+metamagic.subtle-spell.description: |-
   When you cast a spell, you can spend 1 sorcery point to cast it without any somatic or verbal components.
-
-  **Twinned Spell**
-
+metamagic.subtle-spell.options.subtle.name: 'Subtle Spell (1 sorcery point)'
+metamagic.twinned-spell.name: 'Twinned Spell'
+metamagic.twinned-spell.description: |-
   When you cast a spell that targets only one creature and doesn't have a range of self, you can spend a number of sorcery points equal to the spell's level to target a second creature in range with the same spell (1 sorcery point if the spell is a cantrip).
 
   To be eligible, a spell must be incapable of targeting more than one creature at the spell's current level. For example, *magic missile* and *scorching ray* aren't eligible, but *ray of frost* is.
-features.sorcerer.metamagic.choices.options.prompt: 'Choose Metamagic options'
-features.sorcerer.metamagic.choices.options.options.careful-spell.name: 'Careful Spell'
-features.sorcerer.metamagic.choices.options.options.distant-spell.name: 'Distant Spell'
-features.sorcerer.metamagic.choices.options.options.empowered-spell.name: 'Empowered Spell'
-features.sorcerer.metamagic.choices.options.options.extended-spell.name: 'Extended Spell'
-features.sorcerer.metamagic.choices.options.options.heightened-spell.name: 'Heightened Spell'
-features.sorcerer.metamagic.choices.options.options.quickened-spell.name: 'Quickened Spell'
-features.sorcerer.metamagic.choices.options.options.subtle-spell.name: 'Subtle Spell'
-features.sorcerer.metamagic.choices.options.options.twinned-spell.name: 'Twinned Spell'
-features.sorcerer.metamagic.options.careful.name: 'Careful Spell (1 sorcery point)'
-features.sorcerer.metamagic.options.distant.name: 'Distant Spell (1 sorcery point)'
-features.sorcerer.metamagic.options.empowered.name: 'Empowered Spell (1 sorcery point)'
-features.sorcerer.metamagic.options.extended.name: 'Extended Spell (1 sorcery point)'
-features.sorcerer.metamagic.options.heightened.name: 'Heightened Spell (3 sorcery points)'
-features.sorcerer.metamagic.options.quickened.name: 'Quickened Spell (2 sorcery points)'
-features.sorcerer.metamagic.options.subtle.name: 'Subtle Spell (1 sorcery point)'
-features.sorcerer.metamagic.options.twinned.name: "Twinned Spell (the spell's level in sorcery points, 1 for a cantrip)"
+metamagic.twinned-spell.options.twinned.name: "Twinned Spell (the spell's level in sorcery points, 1 for a cantrip)"
 features.sorcerer.sorcerous-restoration.name: 'Sorcerous Restoration'
 features.sorcerer.sorcerous-restoration.description: 'At 20th level, you regain 4 expended sorcery points whenever you finish a short rest.'
 features.sorcerer.dragon-ancestor.name: 'Dragon Ancestor'
@@ -8462,16 +8458,6 @@ features.sorcerer.dragon-ancestor.description: |-
   | Silver | Cold |
   | White | Cold |
 features.sorcerer.dragon-ancestor.choices.dragon.prompt: 'Choose a dragon ancestor'
-features.sorcerer.dragon-ancestor.choices.dragon.options.black.name: 'Black'
-features.sorcerer.dragon-ancestor.choices.dragon.options.blue.name: 'Blue'
-features.sorcerer.dragon-ancestor.choices.dragon.options.brass.name: 'Brass'
-features.sorcerer.dragon-ancestor.choices.dragon.options.bronze.name: 'Bronze'
-features.sorcerer.dragon-ancestor.choices.dragon.options.copper.name: 'Copper'
-features.sorcerer.dragon-ancestor.choices.dragon.options.gold.name: 'Gold'
-features.sorcerer.dragon-ancestor.choices.dragon.options.green.name: 'Green'
-features.sorcerer.dragon-ancestor.choices.dragon.options.red.name: 'Red'
-features.sorcerer.dragon-ancestor.choices.dragon.options.silver.name: 'Silver'
-features.sorcerer.dragon-ancestor.choices.dragon.options.white.name: 'White'
 features.sorcerer.draconic-resilience.name: 'Draconic Resilience'
 features.sorcerer.draconic-resilience.description: |-
   As magic flows through your body, it causes physical traits of your dragon ancestors to emerge. At 1st level, your hit point maximum increases by 1 and increases by 1 again whenever you gain a level in this class.
@@ -9088,20 +9074,8 @@ tags.attack.spell.name: 'Spell attack'
 tags.attack.spell.melee.name: 'Melee spell attack'
 tags.attack.spell.ranged.name: 'Ranged spell attack'
 tags.attunement.name: 'Attunement'
-tags.attunement.barbarian.name: 'Barbarian attunement'
-tags.attunement.bard.name: 'Bard attunement'
-tags.attunement.cleric.name: 'Cleric attunement'
-tags.attunement.druid.name: 'Druid attunement'
 tags.attunement.dwarf.name: 'Dwarf attunement'
-tags.attunement.fighter.name: 'Fighter attunement'
-tags.attunement.monk.name: 'Monk attunement'
-tags.attunement.paladin.name: 'Paladin attunement'
-tags.attunement.ranger.name: 'Ranger attunement'
-tags.attunement.rogue.name: 'Rogue attunement'
-tags.attunement.sorcerer.name: 'Sorcerer attunement'
 tags.attunement.spellcaster.name: 'Spellcaster attunement'
-tags.attunement.warlock.name: 'Warlock attunement'
-tags.attunement.wizard.name: 'Wizard attunement'
 tags.axe.name: 'Axe'
 tags.bow.name: 'Bow'
 tags.breath-weapon.name: 'Breath weapon'
@@ -9114,6 +9088,12 @@ tags.check.str.name: 'Strength check'
 tags.check.wis.name: 'Wisdom check'
 tags.concentration.name: 'Concentration'
 tags.creation.name: 'Creation'
+tags.creation.race.name: 'Creation: race'
+tags.creation.subrace.name: 'Creation: subrace'
+tags.creation.class.name: 'Creation: class'
+tags.creation.background.name: 'Creation: background'
+tags.creation.method.name: 'Creation: ability score method'
+tags.creation.finish.name: 'Creation: finish'
 tags.d20-test.name: 'd20 test'
 tags.damage.name: 'Damage'
 tags.damage.acid.name: 'Acid damage'
@@ -9144,6 +9124,9 @@ tags.hit-die.name: 'Hit die'
 tags.initiative.name: 'Initiative'
 tags.legendary.name: 'Legendary'
 tags.level-up.name: 'Level up'
+tags.level-up.class.name: 'Level up: class'
+tags.level-up.gain.name: 'Level up: gain'
+tags.level-up.hit-points.name: 'Level up: hit points'
 tags.luck.name: 'Luck'
 tags.magic.name: 'Magic'
 tags.magical.name: 'Magical'
@@ -9161,6 +9144,8 @@ tags.potion.name: 'Potion'
 tags.property.name: 'Weapon property'
 tags.recharge.name: 'Recharge'
 tags.rest.name: 'Rest'
+tags.rest.long.name: 'Long rest'
+tags.rest.short.name: 'Short rest'
 tags.save.name: 'Saving throw'
 tags.save-failure.name: 'Save failure'
 tags.save-half.name: 'Half damage on a save'
@@ -9308,103 +9293,163 @@ features.monk.open-hand-technique.actions.open-hand-technique.params.technique.v
 
 # Starting equipment: one question per line of the class's equipment.
 actions.starting-equipment.name: 'Starting equipment'
-actions.starting-equipment.params.class.name: 'Class'
-actions.starting-equipment.params.background.name: 'Background'
+classes.barbarian.actions.kit.name: 'Starting kit'
+classes.barbarian.actions.kit.params.random.name: 'Random'
+classes.barbarian.actions.kit.steps.barbarianMartial.prompt: 'Choose a martial melee weapon'
+classes.barbarian.actions.kit.steps.barbarianSecond.prompt: 'Second weapon: two handaxes or any simple weapon?'
+classes.barbarian.actions.kit.steps.barbarianSimple.prompt: 'Choose a simple weapon'
+classes.barbarian.actions.kit.steps.barbarianWeapon.prompt: 'Starting weapon: a greataxe or any martial melee weapon?'
+classes.barbarian.actions.kit.options.greataxe.name: 'A greataxe'
+classes.barbarian.actions.kit.options.martial-melee.name: 'Any martial melee weapon'
+classes.barbarian.actions.kit.options.simple.name: 'Any simple weapon'
+classes.barbarian.actions.kit.options.two-handaxes.name: 'Two handaxes'
+classes.bard.actions.kit.name: 'Starting kit'
+classes.bard.actions.kit.params.random.name: 'Random'
+classes.bard.actions.kit.steps.bardInstrument.prompt: 'A lute or another musical instrument?'
+classes.bard.actions.kit.steps.bardOtherInstrument.prompt: 'Choose a musical instrument'
+classes.bard.actions.kit.steps.bardPack.prompt: "A diplomat's pack or an entertainer's pack?"
+classes.bard.actions.kit.steps.bardSimple.prompt: 'Choose a simple weapon'
+classes.bard.actions.kit.steps.bardWeapon.prompt: 'Starting weapon: a rapier, a longsword or any simple weapon?'
+classes.bard.actions.kit.options.diplomats-pack.name: "A diplomat's pack"
+classes.bard.actions.kit.options.entertainers-pack.name: "An entertainer's pack"
+classes.bard.actions.kit.options.longsword.name: 'A longsword'
+classes.bard.actions.kit.options.lute.name: 'A lute'
+classes.bard.actions.kit.options.other-instrument.name: 'Another musical instrument'
+classes.bard.actions.kit.options.rapier.name: 'A rapier'
+classes.bard.actions.kit.options.simple.name: 'Any simple weapon'
+classes.cleric.actions.kit.name: 'Starting kit'
+classes.cleric.actions.kit.params.random.name: 'Random'
+classes.cleric.actions.kit.steps.clericArmor.prompt: 'Starting armor: scale mail, leather armor or chain mail (if proficient)?'
+classes.cleric.actions.kit.steps.clericPack.prompt: "A priest's pack or an explorer's pack?"
+classes.cleric.actions.kit.steps.clericRanged.prompt: 'A light crossbow and 20 bolts, or any simple weapon?'
+classes.cleric.actions.kit.steps.clericSimple.prompt: 'Choose a simple weapon'
+classes.cleric.actions.kit.steps.clericSymbol.prompt: 'Choose your holy symbol'
+classes.cleric.actions.kit.steps.clericWeapon.prompt: 'Starting weapon: a mace or a warhammer (if proficient)?'
+classes.cleric.actions.kit.options.chain-mail.name: 'Chain mail'
+classes.cleric.actions.kit.options.explorers-pack.name: "An explorer's pack"
+classes.cleric.actions.kit.options.leather-armor.name: 'Leather armor'
+classes.cleric.actions.kit.options.light-crossbow.name: 'A light crossbow and 20 bolts'
+classes.cleric.actions.kit.options.mace.name: 'A mace'
+classes.cleric.actions.kit.options.priests-pack.name: "A priest's pack"
+classes.cleric.actions.kit.options.scale-mail.name: 'Scale mail'
+classes.cleric.actions.kit.options.simple.name: 'Any simple weapon'
+classes.cleric.actions.kit.options.warhammer.name: 'A warhammer'
+classes.druid.actions.kit.name: 'Starting kit'
+classes.druid.actions.kit.params.random.name: 'Random'
+classes.druid.actions.kit.steps.druidFirst.prompt: 'A wooden shield or any simple weapon?'
+classes.druid.actions.kit.steps.druidFocus.prompt: 'Choose your druidic focus'
+classes.druid.actions.kit.steps.druidSimple.prompt: 'Choose a simple weapon'
+classes.druid.actions.kit.steps.druidSimpleMelee.prompt: 'Choose a simple melee weapon'
+classes.druid.actions.kit.steps.druidWeapon.prompt: 'A scimitar or any simple melee weapon?'
+classes.druid.actions.kit.options.scimitar.name: 'A scimitar'
+classes.druid.actions.kit.options.simple.name: 'Any simple weapon'
+classes.druid.actions.kit.options.simple-melee.name: 'Any simple melee weapon'
+classes.druid.actions.kit.options.wooden-shield.name: 'A wooden shield'
+classes.fighter.actions.kit.name: 'Starting kit'
+classes.fighter.actions.kit.params.random.name: 'Random'
+classes.fighter.actions.kit.steps.fighterArmor.prompt: 'Chain mail, or leather armor, a longbow and 20 arrows?'
+classes.fighter.actions.kit.steps.fighterMartial.prompt: 'Choose a martial weapon'
+classes.fighter.actions.kit.steps.fighterMartial2.prompt: 'Choose a second martial weapon'
+classes.fighter.actions.kit.steps.fighterPack.prompt: "A dungeoneer's pack or an explorer's pack?"
+classes.fighter.actions.kit.steps.fighterRanged.prompt: 'A light crossbow and 20 bolts, or two handaxes?'
+classes.fighter.actions.kit.steps.fighterWeapons.prompt: 'A martial weapon and a shield, or two martial weapons?'
+classes.fighter.actions.kit.options.chain-mail.name: 'Chain mail'
+classes.fighter.actions.kit.options.dungeoneers-pack.name: "A dungeoneer's pack"
+classes.fighter.actions.kit.options.explorers-pack.name: "An explorer's pack"
+classes.fighter.actions.kit.options.leather-longbow.name: 'Leather armor, a longbow and 20 arrows'
+classes.fighter.actions.kit.options.light-crossbow.name: 'A light crossbow and 20 bolts'
+classes.fighter.actions.kit.options.martial-and-shield.name: 'A martial weapon and a shield'
+classes.fighter.actions.kit.options.two-handaxes.name: 'Two handaxes'
+classes.fighter.actions.kit.options.two-martial.name: 'Two martial weapons'
+classes.monk.actions.kit.name: 'Starting kit'
+classes.monk.actions.kit.params.random.name: 'Random'
+classes.monk.actions.kit.steps.monkPack.prompt: "A dungeoneer's pack or an explorer's pack?"
+classes.monk.actions.kit.steps.monkSimple.prompt: 'Choose a simple weapon'
+classes.monk.actions.kit.steps.monkWeapon.prompt: 'Starting weapon: a shortsword or any simple weapon?'
+classes.monk.actions.kit.options.dungeoneers-pack.name: "A dungeoneer's pack"
+classes.monk.actions.kit.options.explorers-pack.name: "An explorer's pack"
+classes.monk.actions.kit.options.shortsword.name: 'A shortsword'
+classes.monk.actions.kit.options.simple.name: 'Any simple weapon'
+classes.paladin.actions.kit.name: 'Starting kit'
+classes.paladin.actions.kit.params.random.name: 'Random'
+classes.paladin.actions.kit.steps.paladinMartial.prompt: 'Choose a martial weapon'
+classes.paladin.actions.kit.steps.paladinMartial2.prompt: 'Choose a second martial weapon'
+classes.paladin.actions.kit.steps.paladinPack.prompt: "A priest's pack or an explorer's pack?"
+classes.paladin.actions.kit.steps.paladinSecond.prompt: 'Five javelins or any simple melee weapon?'
+classes.paladin.actions.kit.steps.paladinSimpleMelee.prompt: 'Choose a simple melee weapon'
+classes.paladin.actions.kit.steps.paladinSymbol.prompt: 'Choose your holy symbol'
+classes.paladin.actions.kit.steps.paladinWeapons.prompt: 'A martial weapon and a shield, or two martial weapons?'
+classes.paladin.actions.kit.options.explorers-pack.name: "An explorer's pack"
+classes.paladin.actions.kit.options.five-javelins.name: 'Five javelins'
+classes.paladin.actions.kit.options.martial-and-shield.name: 'A martial weapon and a shield'
+classes.paladin.actions.kit.options.priests-pack.name: "A priest's pack"
+classes.paladin.actions.kit.options.simple-melee.name: 'Any simple melee weapon'
+classes.paladin.actions.kit.options.two-martial.name: 'Two martial weapons'
+classes.ranger.actions.kit.name: 'Starting kit'
+classes.ranger.actions.kit.params.random.name: 'Random'
+classes.ranger.actions.kit.steps.rangerArmor.prompt: 'Starting armor: scale mail or leather armor?'
+classes.ranger.actions.kit.steps.rangerPack.prompt: "A dungeoneer's pack or an explorer's pack?"
+classes.ranger.actions.kit.steps.rangerSimpleMelee.prompt: 'Choose a simple melee weapon'
+classes.ranger.actions.kit.steps.rangerSimpleMelee2.prompt: 'Choose a second simple melee weapon'
+classes.ranger.actions.kit.steps.rangerWeapons.prompt: 'Two shortswords or two simple melee weapons?'
+classes.ranger.actions.kit.options.dungeoneers-pack.name: "A dungeoneer's pack"
+classes.ranger.actions.kit.options.explorers-pack.name: "An explorer's pack"
+classes.ranger.actions.kit.options.leather-armor.name: 'Leather armor'
+classes.ranger.actions.kit.options.scale-mail.name: 'Scale mail'
+classes.ranger.actions.kit.options.two-shortswords.name: 'Two shortswords'
+classes.ranger.actions.kit.options.two-simple-melee.name: 'Two simple melee weapons'
+classes.rogue.actions.kit.name: 'Starting kit'
+classes.rogue.actions.kit.params.random.name: 'Random'
+classes.rogue.actions.kit.steps.roguePack.prompt: "A burglar's pack, a dungeoneer's pack or an explorer's pack?"
+classes.rogue.actions.kit.steps.rogueSecond.prompt: 'A shortbow and a quiver of 20 arrows, or a shortsword?'
+classes.rogue.actions.kit.steps.rogueWeapon.prompt: 'Starting weapon: a rapier or a shortsword?'
+classes.rogue.actions.kit.options.burglars-pack.name: "A burglar's pack"
+classes.rogue.actions.kit.options.dungeoneers-pack.name: "A dungeoneer's pack"
+classes.rogue.actions.kit.options.explorers-pack.name: "An explorer's pack"
+classes.rogue.actions.kit.options.rapier.name: 'A rapier'
+classes.rogue.actions.kit.options.shortbow.name: 'A shortbow and a quiver of 20 arrows'
+classes.rogue.actions.kit.options.shortsword.name: 'A shortsword'
+classes.sorcerer.actions.kit.name: 'Starting kit'
+classes.sorcerer.actions.kit.params.random.name: 'Random'
+classes.sorcerer.actions.kit.steps.sorcererArcaneFocus.prompt: 'Choose your arcane focus'
+classes.sorcerer.actions.kit.steps.sorcererFocus.prompt: 'A component pouch or an arcane focus?'
+classes.sorcerer.actions.kit.steps.sorcererPack.prompt: "A dungeoneer's pack or an explorer's pack?"
+classes.sorcerer.actions.kit.steps.sorcererSimple.prompt: 'Choose a simple weapon'
+classes.sorcerer.actions.kit.steps.sorcererWeapon.prompt: 'A light crossbow and 20 bolts, or any simple weapon?'
+classes.sorcerer.actions.kit.options.arcane-focus.name: 'An arcane focus'
+classes.sorcerer.actions.kit.options.component-pouch.name: 'A component pouch'
+classes.sorcerer.actions.kit.options.dungeoneers-pack.name: "A dungeoneer's pack"
+classes.sorcerer.actions.kit.options.explorers-pack.name: "An explorer's pack"
+classes.sorcerer.actions.kit.options.light-crossbow.name: 'A light crossbow and 20 bolts'
+classes.sorcerer.actions.kit.options.simple.name: 'Any simple weapon'
+classes.warlock.actions.kit.name: 'Starting kit'
+classes.warlock.actions.kit.params.random.name: 'Random'
+classes.warlock.actions.kit.steps.warlockArcaneFocus.prompt: 'Choose your arcane focus'
+classes.warlock.actions.kit.steps.warlockExtra.prompt: 'Choose a simple weapon to go with your leather armor and daggers'
+classes.warlock.actions.kit.steps.warlockFocus.prompt: 'A component pouch or an arcane focus?'
+classes.warlock.actions.kit.steps.warlockPack.prompt: "A scholar's pack or a dungeoneer's pack?"
+classes.warlock.actions.kit.steps.warlockSimple.prompt: 'Choose a simple weapon'
+classes.warlock.actions.kit.steps.warlockWeapon.prompt: 'A light crossbow and 20 bolts, or any simple weapon?'
+classes.warlock.actions.kit.options.arcane-focus.name: 'An arcane focus'
+classes.warlock.actions.kit.options.component-pouch.name: 'A component pouch'
+classes.warlock.actions.kit.options.dungeoneers-pack.name: "A dungeoneer's pack"
+classes.warlock.actions.kit.options.light-crossbow.name: 'A light crossbow and 20 bolts'
+classes.warlock.actions.kit.options.scholars-pack.name: "A scholar's pack"
+classes.warlock.actions.kit.options.simple.name: 'Any simple weapon'
+classes.wizard.actions.kit.name: 'Starting kit'
+classes.wizard.actions.kit.params.random.name: 'Random'
+classes.wizard.actions.kit.steps.wizardArcaneFocus.prompt: 'Choose your arcane focus'
+classes.wizard.actions.kit.steps.wizardFocus.prompt: 'A component pouch or an arcane focus?'
+classes.wizard.actions.kit.steps.wizardPack.prompt: "A scholar's pack or an explorer's pack?"
+classes.wizard.actions.kit.steps.wizardWeapon.prompt: 'Starting weapon: a quarterstaff or a dagger?'
+classes.wizard.actions.kit.options.arcane-focus.name: 'An arcane focus'
+classes.wizard.actions.kit.options.component-pouch.name: 'A component pouch'
+classes.wizard.actions.kit.options.dagger.name: 'A dagger'
+classes.wizard.actions.kit.options.explorers-pack.name: "An explorer's pack"
+classes.wizard.actions.kit.options.quarterstaff.name: 'A quarterstaff'
+classes.wizard.actions.kit.options.scholars-pack.name: "A scholar's pack"
+backgrounds.acolyte.actions.kit.name: 'Starting kit'
+backgrounds.acolyte.actions.kit.params.random.name: 'Random'
+backgrounds.acolyte.actions.kit.steps.acolyteSymbol.prompt: 'Acolyte: choose your holy symbol'
 actions.starting-equipment.params.random.name: 'Random'
 actions.starting-equipment.results.equipped.name: 'Equipped'
-actions.starting-equipment.options.greataxe.name: 'A greataxe'
-actions.starting-equipment.options.martial-melee.name: 'Any martial melee weapon'
-actions.starting-equipment.options.two-handaxes.name: 'Two handaxes'
-actions.starting-equipment.options.simple.name: 'Any simple weapon'
-actions.starting-equipment.options.simple-melee.name: 'Any simple melee weapon'
-actions.starting-equipment.options.rapier.name: 'A rapier'
-actions.starting-equipment.options.longsword.name: 'A longsword'
-actions.starting-equipment.options.shortsword.name: 'A shortsword'
-actions.starting-equipment.options.scimitar.name: 'A scimitar'
-actions.starting-equipment.options.mace.name: 'A mace'
-actions.starting-equipment.options.warhammer.name: 'A warhammer'
-actions.starting-equipment.options.quarterstaff.name: 'A quarterstaff'
-actions.starting-equipment.options.dagger.name: 'A dagger'
-actions.starting-equipment.options.five-javelins.name: 'Five javelins'
-actions.starting-equipment.options.two-shortswords.name: 'Two shortswords'
-actions.starting-equipment.options.two-simple-melee.name: 'Two simple melee weapons'
-actions.starting-equipment.options.martial-and-shield.name: 'A martial weapon and a shield'
-actions.starting-equipment.options.two-martial.name: 'Two martial weapons'
-actions.starting-equipment.options.light-crossbow.name: 'A light crossbow and 20 bolts'
-actions.starting-equipment.options.shortbow.name: 'A shortbow and a quiver of 20 arrows'
-actions.starting-equipment.options.scale-mail.name: 'Scale mail'
-actions.starting-equipment.options.leather-armor.name: 'Leather armor'
-actions.starting-equipment.options.chain-mail.name: 'Chain mail'
-actions.starting-equipment.options.leather-longbow.name: 'Leather armor, a longbow and 20 arrows'
-actions.starting-equipment.options.wooden-shield.name: 'A wooden shield'
-actions.starting-equipment.options.lute.name: 'A lute'
-actions.starting-equipment.options.other-instrument.name: 'Another musical instrument'
-actions.starting-equipment.options.component-pouch.name: 'A component pouch'
-actions.starting-equipment.options.arcane-focus.name: 'An arcane focus'
-actions.starting-equipment.options.burglars-pack.name: "A burglar's pack"
-actions.starting-equipment.options.diplomats-pack.name: "A diplomat's pack"
-actions.starting-equipment.options.dungeoneers-pack.name: "A dungeoneer's pack"
-actions.starting-equipment.options.entertainers-pack.name: "An entertainer's pack"
-actions.starting-equipment.options.explorers-pack.name: "An explorer's pack"
-actions.starting-equipment.options.priests-pack.name: "A priest's pack"
-actions.starting-equipment.options.scholars-pack.name: "A scholar's pack"
-actions.starting-equipment.steps.barbarianWeapon.prompt: 'Starting weapon: a greataxe or any martial melee weapon?'
-actions.starting-equipment.steps.barbarianMartial.prompt: 'Choose a martial melee weapon'
-actions.starting-equipment.steps.barbarianSecond.prompt: 'Second weapon: two handaxes or any simple weapon?'
-actions.starting-equipment.steps.barbarianSimple.prompt: 'Choose a simple weapon'
-actions.starting-equipment.steps.bardWeapon.prompt: 'Starting weapon: a rapier, a longsword or any simple weapon?'
-actions.starting-equipment.steps.bardSimple.prompt: 'Choose a simple weapon'
-actions.starting-equipment.steps.bardPack.prompt: "A diplomat's pack or an entertainer's pack?"
-actions.starting-equipment.steps.bardInstrument.prompt: 'A lute or another musical instrument?'
-actions.starting-equipment.steps.bardOtherInstrument.prompt: 'Choose a musical instrument'
-actions.starting-equipment.steps.clericWeapon.prompt: 'Starting weapon: a mace or a warhammer (if proficient)?'
-actions.starting-equipment.steps.clericArmor.prompt: 'Starting armor: scale mail, leather armor or chain mail (if proficient)?'
-actions.starting-equipment.steps.clericRanged.prompt: 'A light crossbow and 20 bolts, or any simple weapon?'
-actions.starting-equipment.steps.clericSimple.prompt: 'Choose a simple weapon'
-actions.starting-equipment.steps.clericPack.prompt: "A priest's pack or an explorer's pack?"
-actions.starting-equipment.steps.clericSymbol.prompt: 'Choose your holy symbol'
-actions.starting-equipment.steps.druidFirst.prompt: 'A wooden shield or any simple weapon?'
-actions.starting-equipment.steps.druidSimple.prompt: 'Choose a simple weapon'
-actions.starting-equipment.steps.druidWeapon.prompt: 'A scimitar or any simple melee weapon?'
-actions.starting-equipment.steps.druidSimpleMelee.prompt: 'Choose a simple melee weapon'
-actions.starting-equipment.steps.druidFocus.prompt: 'Choose your druidic focus'
-actions.starting-equipment.steps.fighterArmor.prompt: 'Chain mail, or leather armor, a longbow and 20 arrows?'
-actions.starting-equipment.steps.fighterWeapons.prompt: 'A martial weapon and a shield, or two martial weapons?'
-actions.starting-equipment.steps.fighterMartial.prompt: 'Choose a martial weapon'
-actions.starting-equipment.steps.fighterMartial2.prompt: 'Choose a second martial weapon'
-actions.starting-equipment.steps.fighterRanged.prompt: 'A light crossbow and 20 bolts, or two handaxes?'
-actions.starting-equipment.steps.fighterPack.prompt: "A dungeoneer's pack or an explorer's pack?"
-actions.starting-equipment.steps.monkWeapon.prompt: 'Starting weapon: a shortsword or any simple weapon?'
-actions.starting-equipment.steps.monkSimple.prompt: 'Choose a simple weapon'
-actions.starting-equipment.steps.monkPack.prompt: "A dungeoneer's pack or an explorer's pack?"
-actions.starting-equipment.steps.paladinWeapons.prompt: 'A martial weapon and a shield, or two martial weapons?'
-actions.starting-equipment.steps.paladinMartial.prompt: 'Choose a martial weapon'
-actions.starting-equipment.steps.paladinMartial2.prompt: 'Choose a second martial weapon'
-actions.starting-equipment.steps.paladinSecond.prompt: 'Five javelins or any simple melee weapon?'
-actions.starting-equipment.steps.paladinSimpleMelee.prompt: 'Choose a simple melee weapon'
-actions.starting-equipment.steps.paladinPack.prompt: "A priest's pack or an explorer's pack?"
-actions.starting-equipment.steps.paladinSymbol.prompt: 'Choose your holy symbol'
-actions.starting-equipment.steps.rangerArmor.prompt: 'Starting armor: scale mail or leather armor?'
-actions.starting-equipment.steps.rangerWeapons.prompt: 'Two shortswords or two simple melee weapons?'
-actions.starting-equipment.steps.rangerSimpleMelee.prompt: 'Choose a simple melee weapon'
-actions.starting-equipment.steps.rangerSimpleMelee2.prompt: 'Choose a second simple melee weapon'
-actions.starting-equipment.steps.rangerPack.prompt: "A dungeoneer's pack or an explorer's pack?"
-actions.starting-equipment.steps.rogueWeapon.prompt: 'Starting weapon: a rapier or a shortsword?'
-actions.starting-equipment.steps.rogueSecond.prompt: 'A shortbow and a quiver of 20 arrows, or a shortsword?'
-actions.starting-equipment.steps.roguePack.prompt: "A burglar's pack, a dungeoneer's pack or an explorer's pack?"
-actions.starting-equipment.steps.sorcererWeapon.prompt: 'A light crossbow and 20 bolts, or any simple weapon?'
-actions.starting-equipment.steps.sorcererSimple.prompt: 'Choose a simple weapon'
-actions.starting-equipment.steps.sorcererFocus.prompt: 'A component pouch or an arcane focus?'
-actions.starting-equipment.steps.sorcererArcaneFocus.prompt: 'Choose your arcane focus'
-actions.starting-equipment.steps.sorcererPack.prompt: "A dungeoneer's pack or an explorer's pack?"
-actions.starting-equipment.steps.warlockWeapon.prompt: 'A light crossbow and 20 bolts, or any simple weapon?'
-actions.starting-equipment.steps.warlockSimple.prompt: 'Choose a simple weapon'
-actions.starting-equipment.steps.warlockFocus.prompt: 'A component pouch or an arcane focus?'
-actions.starting-equipment.steps.warlockArcaneFocus.prompt: 'Choose your arcane focus'
-actions.starting-equipment.steps.warlockPack.prompt: "A scholar's pack or a dungeoneer's pack?"
-actions.starting-equipment.steps.warlockExtra.prompt: 'Choose a simple weapon to go with your leather armor and daggers'
-actions.starting-equipment.steps.wizardWeapon.prompt: 'Starting weapon: a quarterstaff or a dagger?'
-actions.starting-equipment.steps.wizardFocus.prompt: 'A component pouch or an arcane focus?'
-actions.starting-equipment.steps.wizardArcaneFocus.prompt: 'Choose your arcane focus'
-actions.starting-equipment.steps.wizardPack.prompt: "A scholar's pack or an explorer's pack?"
-actions.starting-equipment.steps.acolyteSymbol.prompt: 'Acolyte: choose your holy symbol'

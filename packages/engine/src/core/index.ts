@@ -34,6 +34,13 @@ export type {
 } from './upgrade.ts';
 export { checkRelease, upgrade } from './upgrade.ts';
 export { applyChanges } from './changes.ts';
+export type {
+  ActionDescription,
+  DescribeActionResult,
+  DescribedParam,
+  DescribedRole,
+} from './describe.ts';
+export { describeAction } from './describe.ts';
 export type { CreateExportOptions, CreateExportResult, ReadExportResult } from './export.ts';
 export { createExport, readExport, releaseIntegrity } from './export.ts';
 export type { HomebrewResult } from './homebrew.ts';

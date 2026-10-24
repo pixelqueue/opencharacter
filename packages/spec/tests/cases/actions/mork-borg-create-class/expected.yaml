@@ -2,9 +2,9 @@
 # occult-herbmaster, wretched-royalty; the d6 rolls 6. The Royalty rolls 3d6 for each ability:
 # 12, 12, 17 (+3), 12. HP 1d6 = 5. Silver 4d6 = 6, x10. Weapon d8 7 is a bow: 3 + 10 = 13
 # arrows. Armor d3 3 is medium. The character already has a copy `weapons-bow-1`, so the bow is
-# `weapons-bow-2`. Features, asked over the class's pending choice: the d6 4 recommends Hamfund;
-# the d5 3 counts on from it to the 1st option, the blade, the 1st of the five left. Each
-# feature that is a weapon is added: Hamfund brings Eurekia, then the blade itself. Before the
+# `weapons-bow-2`. Features, asked over the class's pending choice, are drawn among its options:
+# the d6 4 draws Hamfund, then the d5 1 the blade, the 1st of the five left. The weapons the
+# features bring follow, in the class's option order: the blade itself, then Hamfund's Eurekia. Before the
 # weapon, food (d4 2 days) and the equipment tables: the d6 3 a backpack, the d12 2 Presence + 4 = 7
 # torches, the second d12 9 a shield (not equipped).
 status: finished
@@ -96,16 +96,11 @@ proposedChanges:
   - to: self
     step: features
     change:
-      type: addItem
-      entry: { id: weapons-eurekia-1, item: mork-borg-core:weapons.eurekia }
-  - to: self
-    step: features
-    change:
       type: choose
       path: { entry: classes-wretched-royalty-1, choice: [feature] }
       option: blade-of-your-ancestors
   - to: self
-    step: features
+    step: featureWeapons
     change:
       type: addItem
       entry:
@@ -113,9 +108,14 @@ proposedChanges:
           id: weapons-blade-of-your-ancestors-1,
           item: mork-borg-core:weapons.blade-of-your-ancestors,
         }
+  - to: self
+    step: featureWeapons
+    change:
+      type: addItem
+      entry: { id: weapons-eurekia-1, item: mork-borg-core:weapons.eurekia }
   - { to: self, step: finish, change: { type: finishCreation } }
 log:
-  - { step: classRoll, kind: dice, by: engine, faces: [6], total: 6 }
+  - { step: class, kind: dice, by: engine, faces: [6] }
   - { step: class, kind: choice, by: engine, option: mork-borg-core:classes.wretched-royalty }
   - { step: strength, kind: dice, faces: [4, 4, 4], total: 12 }
   - { step: agility, kind: dice, faces: [4, 4, 4], total: 12 }
@@ -131,14 +131,14 @@ log:
   - { step: equipment3, kind: dice, faces: [9], total: 9 }
   - { step: weapon, kind: dice, faces: [7], total: 7 }
   - { step: armor, kind: dice, faces: [3], total: 3 }
-  - { step: feature, kind: dice, faces: [4], total: 4 }
-  - { step: feature2, kind: dice, faces: [3], total: 3 }
+  - { step: features, kind: dice, faces: [4] }
   - step: features
     kind: choice
     by: engine
     option: hamfund
     index: 0
     choice: { entry: classes-wretched-royalty-1, choice: [feature] }
+  - { step: features, kind: dice, faces: [1] }
   - step: features
     kind: choice
     by: engine

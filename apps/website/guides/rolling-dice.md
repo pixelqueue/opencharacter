@@ -26,10 +26,53 @@ how they look, and when to ask the player something.
 - **`source`** names the content the action comes from when it isn't the entry's own item (a
   class feature, a picked ability). Pass it back as is.
 - Actions without an entry are the rules' own: saving throws, checks, rests.
-- An action whose `available` condition is false (an unequipped sword) isn't listed.
+- An action whose `available` condition is false (an unequipped sword) isn't listed, and
+  neither is one the pack marks `listed: false`: a step that only other actions run.
 
-Name them with `actions.<id>.name`, or `<item>.actions.<action>.name` for an ID with a `#`
-([Text and translation](text-and-translation.md#from-an-id-to-a-key)).
+- An ID with a `#` is an action **inline on an item or its content type**: a Fate stunt's
+  `fate-core:stunts.psychologist#use`, a free invocation's
+  `fate-core:advantages.advantage#invoke`. It isn't in `ruleset.rules.actions`: give it a button
+  like any other, and read its parameters with `describeAction` (below).
+
+Name them with `actions.<id>.name`, or for an ID with a `#`, `<item>.actions.<action>.name`,
+else its type's `types.<type>.<action>.name`
+([Text and translation](text-and-translation.md#from-an-id-to-a-key)); `text.action(id)` does
+both ([Showing text](showing-text.md)).
+
+### Describing an action
+
+`describeAction` takes an action as `computeSheet` listed it and gives what starting it takes,
+wherever it's defined:
+
+```ts
+const described = describeAction(ruleset, character, {
+  id: 'fate-core:consequences.consequence#recover',
+  entry: 'c-ribs',
+});
+// described.action:
+// {
+//   action: 'fate-core:consequences.consequence#recover', entry: 'c-ribs',
+//   definedBy: 'fate-core:consequences.consequence#recover',
+//   tags: [], results: ['recovering', 'failed'],
+//   params: [
+//     { name: 'skill', type: 'id', of: 'field', required: false,
+//       options: ['fate-core:skills.athletics', …] },   // the skills its `where` takes
+//     …
+//   ],
+//   participants: [{ role: 'healer', min: 0, max: 1 }],
+// }
+```
+
+- **`params`** in declaration order: `required` (neither optional, defaulted nor fixed),
+  `default`, `min` and `max` worked out on the sheet, an enum's `values` (an add-on's
+  included), and for a field, content or tag parameter the `options` startAction takes, its
+  `where` applied. Offer those as the picker.
+- **A parameter the item's `use` fixes** has `fixed: true` and its `value`: don't ask for it.
+- **Label each** with `text.param(definedBy, name)`, or `text.lookup` with its own `label` key.
+- **`participants`** lists the action's roles with `min` and `max`
+  ([Other characters](other-characters.md#an-app-with-one-sheet)).
+- An action computeSheet doesn't list for the character is `unknown-action`, as for
+  `startAction`.
 
 ## Running an action
 
@@ -58,14 +101,14 @@ The result is one of three things:
 ### Parameters
 
 Some actions take parameters: a target's AC, which skill to check, which rating to roll. They're
-declared on the action (`ruleset.rules.actions[id].params` for rules actions), each with a type
-and whether it's `optional`. A missing required one is the error `missing-param`; a number
+declared on the action, each with a type and whether it's `optional`;
+[`describeAction`](#describing-an-action) gives them for any listed action, with their options. A missing required one is the error `missing-param`; a number
 outside its `min`/`max` is `out-of-range` (the bounds may read the character: at most the Effort
 it has free).
 
 A **field parameter** (`type: id, of: field`) takes a field ID: a FitD action roll takes the
 rating to roll (`{ rating: 'ratings.skirmish' }`), and its `where` says which fields are allowed
-(`'rating' in item.tags`). Offer the matching fields as a picker.
+(`'rating' in item.tags`). Offer the matching fields as a picker: `describeAction`'s `options`.
 
 A **dice parameter** (`type: dice`) takes dice notation as a string (`'2d6 + 1'`) or a whole
 number: a orc-2e bomb's damage, passed whole to the Strike that throws it.
@@ -136,6 +179,13 @@ and `total` are the kept roll's, its `faces` every face you gave, and `rolls` li
 `{ total, kept, items }`, so show both and mark the kept one. `text.dice(needs.items, needs.repeat)`
 words it: "2d6, rolled twice, keep the lower total".
 
+**Rolling some parts twice.** A rule may roll only some of a roll's dice again (5E's Savage
+Attacker: the weapon's damage dice, not Sneak Attack's). Then `needs.repeat` also has `items`,
+the indices in `needs.items` of the items rolled again, and `needs.dice` lists every die of the
+first roll, then those items' dice for each later roll. Each of the log entry's `rolls` lists
+every item, the ones not rolled again the same in each. `text.dice` words it: "(2d6, rolled
+twice, keep the higher total) + 3d6".
+
 ### Checkpoint policies
 
 Every roll and every in-action choice is a **checkpoint**. The policy decides, for each one,
@@ -199,9 +249,13 @@ content option (a qualified content ID) by that item's name, and `#done` by the 
 `actions.options.done.name`.
 
 A choice can also offer plain values (a modular weapon's damage types, the character's trained
-skills). Each option is the value as a string. Name it by `<actionKey>.options.<value>.name`
-when the pack has that key; otherwise name it as a set member: a content ID by its item's name,
-a field ID by the field's, a tag by the tag's (`text.option(id, { action: needs.action })` does this).
+skills). Each option is the value as a string. When the pause has `needs.content` (the action
+runs for content, such as a spell cast through a shared action), name it by
+`<content>.options.<value>.name` when that pack has the key; else by
+`<actionKey>.options.<value>.name` when the pack has that key; otherwise name it as a set member:
+a content ID by its item's name, a field ID by the field's, a tag by the tag's
+(`text.option(id, { action: needs.action, content: needs.content })` does this, and
+`describeNeed` passes both).
 
 A character's abilities and items can add their own options to a choice. In FitD, pushing
 yourself costs 2 stress, and a scoundrel with Battleborn may mark special armor instead:
@@ -252,6 +306,7 @@ summary:
   bands:
     - { band: critical-success, when: 'roll.total < 34 && roll.total < 90 && roll.total % 11 == 0' }
     - band: success
+      success: true
       when: 'roll.total < 34 && roll.total < 90'
       tests:
         - { of: roll.total, compare: lt, value: 34 }
@@ -265,6 +320,10 @@ summary:
   worked out (the save's 34). A band that can't hold is left out, and the list stops at one
   that always holds: a 5E attack with no AC ends at `rolled`, so show the dice without a
   target.
+- `success: true` marks the band the roll needs: show it as "what you need" (Mothership's
+  success, Fate's succeed against the opposition, FitD's 4 or 5, Mörk Borg's DR). Bands above
+  it may be better (a critical) or worse (a fumble checked first). A set without the mark, Fate's
+  ladder or a FitD fortune roll, has no threshold: list its bands instead.
 - `tests` are the plain comparisons, as codes (`lt`, `le`, `gt`, `ge`, `eq`). Word them with
   the pack's `bands.<set>.<band>.condition` text when it has one (Mothership's "Roll under
   {value} (90+ always fails)"), else the spec's `compare.<code>` text ("under {value}"). A
@@ -275,7 +334,8 @@ summary:
 To show a tile before the player rolls, start the action with `policy: { dice: 'pause' }`, read
 `needs.summary` and throw the result away; nothing has changed. The first pause is the first
 roll the action reaches, which may be a nested action's (`needs.action` names it). A target set
-after the dice (Fate's opposition) is only in that later step's log entry.
+after the dice (Fate's opposition from an opponent's own roll) is only in that later step's log
+entry.
 
 ### Paused actions are data
 
@@ -340,7 +400,11 @@ you rolled with the answers, or pass a seeded dice function.
   Changes `to: 'self'` go to the acting character; changes `to: 'target'` go to whoever the
   action was aimed at; changes `to: { link }` go to the linked character named by `character`,
   such as a FitD crew ([Other characters](other-characters.md)). `step` is the path of the step
-  that proposed each one, so you can tell the damage (`deal`) from the healing in one list.
+  that proposed each one, so you can tell the damage (`deal`) from the healing in one list. A
+  roll step proposes some too: an effect that ends once a roll used it (5E's Sapped, a +1 to the
+  next check) proposes its own removal or state change with the roll's step, and an attacker's
+  effect against a target (5E's Vexed) may propose the target's change, `to: 'target'` with its
+  `character`. Apply them like any other: they are the bookkeeping of a roll that was made.
 - **`log`** lists every checkpoint: its `step` and defining `action`, each roll's `faces`,
   itemized `items`, `total` and result `band`, each choice's `option`, and `by` (`engine` or
   `app`) for who supplied it.

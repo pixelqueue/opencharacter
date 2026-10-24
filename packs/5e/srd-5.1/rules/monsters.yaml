@@ -12,6 +12,7 @@ contentTypes:
       creatureType:
         {
           type: enum,
+          open: true,
           values:
             [
               aberration,
@@ -53,6 +54,7 @@ contentTypes:
               sahuagin,
               titan,
             ],
+          open: true,
         }
       shapechanger: { type: boolean }
       swarm: { type: boolean }
@@ -145,7 +147,7 @@ contentTypes:
       cr: { type: decimal, required: true, min: 0, max: 30 }
       xp: { type: integer, min: 0 }
       legendaryActions: { type: integer, min: 1 }
-      ownCopies: { type: set, of: monsterAction, default: [] }
+      ownCopies: { type: list, of: monsterAction, unique: true, default: [] }
       innateOncePerDay: { type: set, of: spell, default: [] }
       innateTwicePerDay: { type: set, of: spell, default: [] }
       innateThricePerDay: { type: set, of: spell, default: [] }
@@ -222,6 +224,7 @@ contentTypes:
       - use: change-form
 
   monsterSpellcasting:
+    grantOnly: true
     carried: false
     fields:
       ability: { type: enum, values: [str, dex, con, int, wis, cha], required: true }
@@ -297,6 +300,7 @@ contentTypes:
               slashing,
               thunder,
             ],
+          open: true,
         }
       versatileDamage: { type: dice }
       damage2: { type: dice }
@@ -319,6 +323,7 @@ contentTypes:
               slashing,
               thunder,
             ],
+          open: true,
         }
       magical: { type: boolean }
       save: { type: enum, values: [str, dex, con, int, wis, cha] }
@@ -343,6 +348,7 @@ contentTypes:
               slashing,
               thunder,
             ],
+          open: true,
         }
       saveEffect: { type: enum, values: [half, none], default: none }
       condition: { type: id, of: condition }

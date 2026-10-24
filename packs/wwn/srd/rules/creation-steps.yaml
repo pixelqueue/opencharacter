@@ -101,15 +101,15 @@ actions:
         changes:
           - type: adjust
             when: params.points == 0
-            field: { formula: "'skills.' + flags.target" }
+            field: { formula: "fieldId('skills.{skill}', flags.target)" }
             by: 1
           - type: adjust
             when: params.points > 0 && flags.first + flags.second > 0
-            field: { formula: "'skills.' + flags.target" }
+            field: { formula: "fieldId('skills.{skill}', flags.target)" }
             by: flags.first + flags.second
           - type: set
             when: params.points > 0
-            field: { formula: "'skillCredit.' + flags.target" }
+            field: { formula: "fieldId('skillCredit.{skill}', flags.target)" }
             value: >-
               flags.second > 0 ? flags.left - flags.from - flags.first - 2 : flags.left
       - id: result

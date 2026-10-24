@@ -14,12 +14,14 @@ actions:
     available: character.creating
     steps:
       - id: race
+        tags: [creation.race]
         kind: choice
         options: { content: { type: race } }
         changes:
           - type: addItem
             entry: { id: race, item: picked.id }
       - id: subrace
+        tags: [creation.subrace]
         kind: choice
         options: { content: { type: subrace, where: item.race == steps.race.picked } }
         changes:
@@ -27,18 +29,21 @@ actions:
             path: { entry: { formula: 'steps.race.added[0]' }, choice: [subrace] }
             option: picked.id
       - id: class
+        tags: [creation.class]
         kind: choice
         options: { content: { type: class } }
         changes:
           - type: addItem
             entry: { id: class, item: picked.id, state: { level: 1, startingClass: true } }
       - id: background
+        tags: [creation.background]
         kind: choice
         options: { content: { type: background } }
         changes:
           - type: addItem
             entry: { id: background, item: picked.id }
       - id: method
+        tags: [creation.method]
         kind: choice
         options: [{ id: roll }, { id: point-buy }, { id: standard-array }]
         recommend: "'standard-array'"
@@ -95,12 +100,12 @@ actions:
       - id: equipment
         kind: action
         use: starting-equipment
-        params: { class: steps.class.picked, background: steps.background.picked }
       - id: hitDie
         kind: changes
         changes:
           - { type: set, field: hp.base, value: maxOf(steps.class.item.hitDie) }
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:
@@ -120,6 +125,7 @@ actions:
       - { id: roll5, kind: roll, tags: [creation], parts: [{ dice: 4d6dl1 }] }
       - { id: roll6, kind: roll, tags: [creation], parts: [{ dice: 4d6dl1 }] }
       - id: race
+        tags: [creation.race]
         kind: choice
         options: { content: { type: race } }
         random: true
@@ -127,6 +133,7 @@ actions:
           - type: addItem
             entry: { id: race, item: picked.id }
       - id: subrace
+        tags: [creation.subrace]
         kind: choice
         options: { content: { type: subrace, where: item.race == steps.race.picked } }
         random: true
@@ -135,6 +142,7 @@ actions:
             path: { entry: { formula: 'steps.race.added[0]' }, choice: [subrace] }
             option: picked.id
       - id: class
+        tags: [creation.class]
         kind: choice
         options: { content: { type: class } }
         random: true
@@ -142,14 +150,15 @@ actions:
           - type: addItem
             entry: { id: class, item: picked.id, state: { level: 1, startingClass: true } }
       - id: background
+        tags: [creation.background]
         kind: choice
         options: { content: { type: background } }
         random: true
         changes:
           - type: addItem
             entry: { id: background, item: picked.id }
-      # The class's ability priority: the highest roll goes to its first ability, the next to its
-      # second, and so on. A class this pack doesn't know takes the barbarian's (the first).
+      # The class's ability priority (its abilityPriority): the highest roll goes to its
+      # first ability, the next to its second, and so on.
       - id: priority
         kind: branch
         cases:
@@ -158,34 +167,7 @@ actions:
               sorted: >-
                 sortList([steps.roll1.total, steps.roll2.total, steps.roll3.total,
                   steps.roll4.total, steps.roll5.total, steps.roll6.total], -x)
-              priority: >-
-                [
-                  ['str', 'con', 'dex', 'wis', 'cha', 'int'],
-                  ['cha', 'dex', 'con', 'wis', 'int', 'str'],
-                  ['wis', 'con', 'str', 'dex', 'cha', 'int'],
-                  ['wis', 'con', 'dex', 'int', 'cha', 'str'],
-                  ['str', 'con', 'dex', 'wis', 'cha', 'int'],
-                  ['dex', 'wis', 'con', 'str', 'int', 'cha'],
-                  ['str', 'cha', 'con', 'wis', 'dex', 'int'],
-                  ['dex', 'wis', 'con', 'str', 'int', 'cha'],
-                  ['dex', 'con', 'wis', 'int', 'cha', 'str'],
-                  ['cha', 'con', 'dex', 'wis', 'int', 'str'],
-                  ['cha', 'con', 'dex', 'wis', 'int', 'str'],
-                  ['int', 'con', 'dex', 'wis', 'cha', 'str']
-                ][max(0, indexOf([
-                  @classes.barbarian,
-                  @classes.bard,
-                  @classes.cleric,
-                  @classes.druid,
-                  @classes.fighter,
-                  @classes.monk,
-                  @classes.paladin,
-                  @classes.ranger,
-                  @classes.rogue,
-                  @classes.sorcerer,
-                  @classes.warlock,
-                  @classes.wizard
-                ], steps.class.picked))]
+              priority: steps.class.item.abilityPriority
       - id: scores
         kind: allocate
         fields: { type: field, where: "'ability-base' in item.tags" }
@@ -197,21 +179,25 @@ actions:
           - steps.roll5.total
           - steps.roll6.total
         recommend:
-          'abilities.{ability}.base': flags.sorted[indexOf(flags.priority, '{ability}')]
+          'abilities.{ability}.base': flags.sorted[indexOf(flags.priority, @abilities.{ability}.score)]
       - id: picks
         kind: choice
         options: { pending: {} }
         random: "!(choice.owner == @races.half-elf && choice.id == 'ability-scores')"
-        recommend: flags.priority[minList(options, indexOf(flags.priority, x))]
+        recommend: >-
+          sortList(options, indexOf(flags.priority, [@abilities.str.score, @abilities.dex.score,
+            @abilities.con.score, @abilities.int.score, @abilities.wis.score,
+            @abilities.cha.score][indexOf(['str', 'dex', 'con', 'int', 'wis', 'cha'], x)]))[0]
       - id: equipment
         kind: action
         use: starting-equipment
-        params: { class: steps.class.picked, background: steps.background.picked, random: true }
+        params: { random: true }
       - id: hitDie
         kind: changes
         changes:
           - { type: set, field: hp.base, value: maxOf(steps.class.item.hitDie) }
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:

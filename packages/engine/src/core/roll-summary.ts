@@ -13,6 +13,7 @@ export interface RollTest {
 
 export interface SummaryBand {
   band: string;
+  success?: true;
   when: string;
   tests?: RollTest[];
 }
@@ -227,8 +228,9 @@ export function rollSummary(
     const bands: SummaryBand[] = [];
     for (const band of set.bands) {
       const tree = treeOf(band.when);
+      const success = band.success ? { success: true as const } : {};
       if (!tree) {
-        bands.push({ band: band.id, when: String(band.when) });
+        bands.push({ band: band.id, ...success, when: String(band.when) });
         continue;
       }
       const resolved = resolveRoll(tree, evaluate);
@@ -237,6 +239,7 @@ export function rollSummary(
       const tests = rollTests(resolved);
       bands.push({
         band: band.id,
+        ...success,
         when: f.print(resolved),
         ...(tests === undefined ? {} : { tests }),
       });

@@ -7,8 +7,13 @@ effects:
   - { target: creature.type, op: set, value: "'humanoid'" }
 grants:
   - item: traits.draconic-ancestry
+  # Each trait takes the lineage's damage type from its grant.
   - item: traits.breath-weapon
+    state:
+      damageType: &lineage-damage >-
+        size(picksOf('lineage')) > 0 ? itemField(picksOf('lineage')[0], 'damageType') : ''
   - item: traits.damage-resistance
+    state: { damageType: *lineage-damage }
   - item: traits.darkvision
   - item: traits.draconic-flight
 choices:

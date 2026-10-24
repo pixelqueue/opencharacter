@@ -39,6 +39,10 @@ display:
       priority: 3
       visibility: background
       members: { type: action, where: "'creation' in item.tags" }
+    - id: boons
+      kind: content
+      priority: 0
+      members: { type: boon, from: applied }
     - id: class
       kind: content
       priority: 0
@@ -78,7 +82,7 @@ display:
     - id: decoctions
       kind: content
       priority: 1
-      showWhen: "countCopies(copy.item == @classes.occult-herbmaster || copy.type == 'decoction') > 0"
+      showWhen: "countCopies(copy.type == 'decoction' || copy.type == 'class' && copy.fields.brews) > 0"
       members: { type: decoction }
     - id: companions
       kind: content
@@ -100,6 +104,9 @@ display:
         armorDie: { hidden: true }
         scrollWeaponDie: { hidden: true }
         scrollArmorDie: { hidden: true }
+        getsBetter: { hidden: true }
+        startingScroll: { hidden: true }
+        brews: { hidden: true }
       quantity: { hidden: true }
     weapon:
       state:

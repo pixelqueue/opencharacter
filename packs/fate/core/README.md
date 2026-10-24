@@ -12,6 +12,9 @@ stunts, stress and consequences, recovery, milestones, contests, extras, and NPC
 pnpm add @opencharacter/fate-core @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/fate-core/i18n/en` (also as JSON, `release.json` and `i18n/en.json`).
 
@@ -108,16 +111,24 @@ the player's choices and other characters.
     point of refresh each; fate points equal to the refresh.
   - **Random:** the SRD has players choose, so the odds are the pack's. The pyramid's ten
     ratings go to ten skills drawn without replacement (every skill equally likely, a setting
-    pack's included), and three stunts are drawn from the SRD's 17 example stunts (never the
-    custom one); no stunt is bought, so refresh and fate points are 3. Aspects not passed stay
-    blank.
+    pack's included), and three stunts are drawn from the written stunts: the SRD's 17
+    examples and any an add-on pack adds (never the custom one); no stunt is bought, so refresh
+    and fate points are 3. Aspects not passed stay blank.
 - **Rolling** (`skill-roll`, shared by every rolling action): 4dF plus the skill, or Mediocre
   without one, plus +1 per helper. After the dice the player may invoke aspects: up to three
-  rerolls, each after seeing the last (a fate point or a free invocation each), then up to four
-  +2s paid with fate points and four with free invocations. A free invocation held on the sheet is picked
-  by its copy, and a copy with none left goes. Keeping the roll is recommended, so an automatic
-  run spends nothing. A fourth reroll isn't offered: the SRD sets no limit, but each invocation
-  needs a different aspect.
+  rerolls, each after seeing the last (a fate point or a free invocation each; one `rerolling`
+  group step, its passes at `rerolling[<n>]/reroll`), then up to four +2s paid with fate points
+  and four with free invocations. A free invocation held on the sheet is picked by its copy, and
+  a copy with none left goes. Keeping the roll is recommended, so an automatic run spends
+  nothing. A fourth reroll isn't offered: the SRD sets no limit, but each invocation needs a
+  different aspect.
+  - **What you need:** when the opposition is known before the dice (passive opposition, a
+    defense against an attack's total, an `oppose` roll), the action passes it as `against` and
+    `opposition`, and the dice (and each reroll) read on the band set `check` against it: Succeed
+    with style, Succeed (the marked threshold, "Beat 2"), Tie, Fail. Against an `opponent` or a
+    `target` who rolls after, the dice read on the ladder. Either way the result's `rung` is the
+    dice total's ladder rung (the dice-less `rung` step), and the action's `final` step reads
+    the total after invocations against the opposition.
 - **Free invocations:** an `advantages.advantage` copy per aspect the character holds free
   invocations on (`label`, `invokes`, `kind`: situation aspect, boost or consequence inflicted).
   Created advantages, boosts from ties and style, and consequences an attack inflicts add them.
@@ -168,7 +179,8 @@ the player's choices and other characters.
   bring fate points up to the refresh (a session) or reset them to it (a scenario).
 - **Stunts:** a `stunt` content type with a `shape`: a +2 `bonus` (skill and action, applied
   when the situational choice `stunt` is on), a skill `swap`, a rules `exception`, or a `custom`
-  stunt the player writes. Stunts limited per conflict, scene or session, or costing a fate
+  stunt the player writes (its skill, action, limit, uses and fate point cost are the copy's own
+  field values, `setField`). Stunts limited per conflict, scene or session, or costing a fate
   point, have a `use` action. The 17 SRD example stunts, plus `custom`:
   - bonus: Hardcore Parkour, Rumormonger, Lie Whisperer, Specialist (its field is the copy's
     label), Grappler, Indomitable;
@@ -216,6 +228,35 @@ the player's choices and other characters.
 - **Sheet layout:** display groups for the actions (rolls, fate points, the copies' own actions,
   conflicts and contests, milestones, time, creation) and the content (stunts, consequences,
   aspects with free invocations by kind, extras).
+
+## Add-on packs
+
+A pack that depends on `fate-core` (a setting pack) adds to it without changing it:
+
+- **Skills** are fields tagged `skill` (with `skill.overcome`, `skill.advantage`, `skill.attack`,
+  `skill.defend` for the actions they take): the pyramid, the skill cap, milestones and every
+  roll take an added skill as the core's.
+- **Stunts and extras** are content of the `stunt` and `extra` types: creation, milestones and
+  the random start (every written stunt but the custom one) offer an added stunt.
+- **Tagged steps**, for an add-on's rules-level `option` effects: `creation.stunts` (the
+  standard start's stunt picks and the random start's draws), `milestone.benefit` (a minor
+  milestone's benefit, which every milestone runs) and `milestone.stunt` (its new stunt); for
+  its `changes` effects: `creation.finish` (the last step of both starts), and `time.conflict`,
+  `time.scene` and `time.session` (the ends of a conflict, scene and session; a longer one runs
+  the shorter ones' too).
+- **Open enum:** a stunt's `limit` (`fate-core:types.stunt.fields.limit`), a written stunt's
+  or a custom stunt's own (`setField`). The core's `use` counts an added limit's uses as its
+  own; the core's ends of a conflict, scene and session reset only theirs, so the add-on resets
+  its limit from a tagged step (a `changes` effect on `time.scene` with a `setState` of `used`
+  over the stunts with it).
+- **Still closed:** a stunt's `shape` and `action`, a consequence's slot, harm's physical and
+  mental, and the NPC kinds are the SRD's fixed sets that the core's rules read; a setting with
+  another stress track or action is a variant, not an add-on.
+- **Naming what an add-on adds:** added skills, stunts and extras are the add-on's own fields
+  and content, named in its own text (`fields.skills.hacking.name: Hacking`). An added limit
+  `day` is named under this pack's key in the add-on's text,
+  `types.stunt.fields.limit.values.day.name: Once per day`, which `createText` finds when the
+  app passes the ruleset's `enumOrigins`.
 
 ## Text only, and left to the app
 

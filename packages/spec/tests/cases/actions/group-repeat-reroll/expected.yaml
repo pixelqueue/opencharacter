@@ -1,0 +1,36 @@
+# The first pass rerolls 2 into 3, the second 3 into 5, the third stops: the total is the
+# latest reroll, though the last pass made none.
+status: finished
+outcome: { data: { total: 5, passes: 3, first: 3, last: 'no' } }
+proposedChanges:
+  - {
+      to: self,
+      step: 'reroll[0]/earlier',
+      change: { type: adjust, field: test-pack:rerolls, by: 1 },
+    }
+  - {
+      to: self,
+      step: 'reroll[1]/earlier',
+      change: { type: adjust, field: test-pack:rerolls, by: 2 },
+    }
+log:
+  - { step: roll, action: test-pack:skill-roll, kind: dice, by: engine, faces: [2], total: 2 }
+  - { step: 'reroll[0]/again', action: test-pack:skill-roll, kind: choice, by: app, option: 'yes' }
+  - {
+      step: 'reroll[0]/rerolled',
+      action: test-pack:skill-roll,
+      kind: dice,
+      by: engine,
+      faces: [3],
+      total: 3,
+    }
+  - { step: 'reroll[1]/again', action: test-pack:skill-roll, kind: choice, by: app, option: 'yes' }
+  - {
+      step: 'reroll[1]/rerolled',
+      action: test-pack:skill-roll,
+      kind: dice,
+      by: engine,
+      faces: [5],
+      total: 5,
+    }
+  - { step: 'reroll[2]/again', action: test-pack:skill-roll, kind: choice, by: app, option: 'no' }

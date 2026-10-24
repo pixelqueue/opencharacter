@@ -122,7 +122,9 @@ picks as rules-level choices instead: a new FitD scoundrel has a pending `specia
 right away (and an optional `playbook` when the table has its own).
 
 Which content a game adds and which it chooses is the pack's design. An any-game builder works
-from `pending` alone, and adds a "add content" screen per content type for the rest.
+from `pending` alone, and adds a "add content" screen per content type for the rest, leaving
+out grant-only content (`item.grantOnly`): class features, subclasses and the like come only
+from what grants or picks them, and `addItem` of one is the error `not-addable`.
 
 ## Pending choices
 
@@ -272,6 +274,11 @@ consult, and that's on purpose.
 - **Equipping** is `equip`. Effects that only apply while equipped (`when: self.equipped`) follow.
 - **Per-copy state** (charges, attunement, a lit Flame Tongue) is `setState`/`adjustState` on the
   entry. The state keys are declared by the content type, the item and its templates.
+- **Shaping a copy** (a Fate custom stunt's skill and limit) is `setField` on the entry, for
+  item fields its content type marks `perCopy` (`ruleset.contentTypes[type].fields`); `null`
+  gives the item's value back. A field with `where` lists what it takes as `options` (the
+  custom stunt's skills): offer those. The copy's merged item, with its own values, is its
+  `templated` entry.
 - **Magic properties** like +1 are **templates** applied to a copy (`applyTemplate`). To offer
   them, list the templates in the ruleset (content of type `template`) whose `appliesTo` matches
   the item; `applyChanges` rejects one that doesn't apply with `template-not-applicable`.

@@ -46,7 +46,7 @@ contentTypes:
       checkPenalty: { type: integer, default: 0, min: 0 }
       speedPenalty: { type: integer, default: 0, min: 0 }
       strength: { type: integer }
-      group: { type: enum, values: [cloth, leather, composite, chain, plate] }
+      group: { type: enum, values: [cloth, leather, composite, chain, plate], open: true }
       bulk: { type: decimal, default: 0, min: 0 }
       price: { type: decimal, min: 0 }
     # The item bonus to AC works without investing; the resilient rune's bonus and property runes
@@ -202,6 +202,7 @@ contentTypes:
     carried: true
     fields:
       category:
+        open: true
         type: enum
         values:
           [
@@ -228,6 +229,7 @@ contentTypes:
       damage: { type: dice }
       damageFlat: { type: integer, default: 0, min: 0 }
       damageType:
+        open: true
         type: enum
         values:
           [
@@ -249,6 +251,7 @@ contentTypes:
       persistent: { type: dice }
       persistentFlat: { type: integer, default: 0, min: 0 }
       persistentType:
+        open: true
         type: enum
         values: [none, acid, bleed, fire, poison]
         default: none
@@ -529,6 +532,9 @@ actions:
 
 # `trait.versatile` alone; the other damage type is the weapon's `versatile` field.
 tags:
+  - tool.compass
+  - tool.crowbar
+  - shield.against-spells
   - trait.attached
   - trait.concealable
   - trait.free-hand
