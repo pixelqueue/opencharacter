@@ -192,13 +192,13 @@
       "id": "countCopies",
       "signature": "countCopies(bool cond) -> int",
       "character": true,
-      "description": "Macro: the character's copies (inventory, then features) for which `cond` holds, evaluated once per copy with `copy` bound. No aggregate is bound inside its arguments."
+      "description": "Macro: the character's copies (inventory, then features) for which `cond` holds, evaluated once per copy with `copy` bound. No aggregate but `countPicks` and `countGrants` is bound inside its arguments."
     },
     {
       "id": "sumCopies",
       "signature": "sumCopies(number value, bool cond?) -> int | decimal",
       "character": true,
-      "description": "Macro: the sum of `value` over the character's copies for which `cond` holds (every copy, without it), evaluated once per copy with `copy` bound; `cond` first. Decimal when any summed value is decimal, else int. No aggregate is bound inside its arguments."
+      "description": "Macro: the sum of `value` over the character's copies for which `cond` holds (every copy, without it), evaluated once per copy with `copy` bound; `cond` first. Decimal when any summed value is decimal, else int. No aggregate but `countPicks` and `countGrants` is bound inside its arguments."
     },
     {
       "id": "maxCopies",
@@ -216,19 +216,19 @@
       "id": "countPicks",
       "signature": "countPicks(bool cond) -> int",
       "character": true,
-      "description": "Macro: the character's saved picks of content for which `cond` holds, in file order (each copy's choice tree, features then inventory, then the rules-level tree, depth first), evaluated once per pick with `pick` bound. Picks of values and of content not in the ruleset are skipped. Bound wherever a character is, activation conditions included. No aggregate is bound inside its arguments."
+      "description": "Macro: the character's saved picks of content for which `cond` holds, in file order (each copy's choice tree, features then inventory, then the rules-level tree, depth first), evaluated once per pick with `pick` bound. Picks of values and of content not in the ruleset are skipped. Bound wherever a character is, activation conditions included. Bound inside another aggregate's arguments too, evaluated once per outer element with its root bound; no aggregate is bound inside its own arguments."
     },
     {
       "id": "countGrants",
       "signature": "countGrants(bool cond) -> int",
       "character": true,
-      "description": "Macro: the character's active holder grants for which `cond` holds, in activation order (an item once per node), evaluated once per grant with `grant` bound. Unbound in activation conditions, which decide the grants (`unknown-function`). No aggregate is bound inside its arguments."
+      "description": "Macro: the character's active holder grants for which `cond` holds, in activation order (an item once per node), evaluated once per grant with `grant` bound. Unbound in activation conditions, which decide the grants (`unknown-function`). Bound inside another aggregate's arguments too, evaluated once per outer element with its root bound; no aggregate is bound inside its own arguments."
     },
     {
       "id": "countFields",
       "signature": "countFields(bool cond) -> int",
       "character": true,
-      "description": "Macro: how many fields in the ruleset `cond` holds for, evaluated once per field with `f` bound to its `id`, `type` and `tags` (a static filter). No aggregate is bound inside its arguments."
+      "description": "Macro: how many fields in the ruleset `cond` holds for, evaluated once per field with `f` bound to its `id`, `type` and `tags` (a static filter). No aggregate but `countPicks` and `countGrants` is bound inside its arguments."
     },
     {
       "id": "sumFields",
@@ -251,7 +251,7 @@
     {
       "id": "countList",
       "signature": "countList(list, bool cond) -> int",
-      "description": "Macro: how many elements of the list `cond` holds for, evaluated once per element in order with `x` bound. Null elements are skipped. No aggregate is bound inside its arguments after the list; the list itself may be one."
+      "description": "Macro: how many elements of the list `cond` holds for, evaluated once per element in order with `x` bound. Null elements are skipped. No aggregate but `countPicks` and `countGrants` is bound inside its arguments after the list; the list itself may be one."
     },
     {
       "id": "sumList",
@@ -359,7 +359,7 @@
       "id": "picksOf",
       "signature": "picksOf(string choice) -> list; picksOf(string content, string choice) -> list",
       "character": true,
-      "description": "The saved picks of a choice of the formula's owner (the content or rules declaring the formula, as activated: a copy's item, a template or granted content on it, picked content or an inline option, the rules), as content IDs or values in saved order, `[]` when none; saved picks whether or not the choice applies or they are eligible, so it adds no dependency and can't loop. The choice is a string literal, a choice ID or a slot's key (`class-feat-2`); a literal naming none of the owner's choices is `unknown-reference` at load where the owner is known (an item's, a template's, an inline option's formulas), else `no-such-key` when evaluated. A content type's formulas, and a rules action a copy uses, see that copy's item's choices; a rules action with no copy, and the rules' effects, follow-ups and choices, the rules-level ones. Bound in content formulas (effects, grants, prerequisites, choices, computed values, actions, follow-ups, `keepsTemplates` queries and `params`) and the rules' choices, effects, follow-ups and actions; elsewhere `unknown-function`. A query `where` calling it reads the character. With two arguments, `picksOf(content, choice)`: the picks of that content's choice on every activation of it (copies, templates, picks and grants, holder and applied), in activation order, concatenated, `[]` for none; on each, a grant's preset picks where it presets the choice, else the saved ones. Both string literals; the content resolves in the formula's pack; content the pack doesn't see, or a choice it doesn't declare, is `unknown-reference` at load. Bound wherever a character is but activation conditions (field formulas, constraints, display hints and situational choices included)."
+      "description": "The saved picks of a choice of the formula's owner (the content or rules declaring the formula, as activated: a copy's item, a template or granted content on it, picked content or an inline option, the rules), as content IDs or values in saved order, `[]` when none; saved picks whether or not the choice applies or they are eligible, so it adds no dependency and can't loop. The choice is a string literal, a choice ID or a slot's key (`class-feat-2`); a literal naming none of the owner's choices is `unknown-reference` at load where the owner is known (an item's, a template's, an inline option's formulas), else `no-such-key` when evaluated. A content type's formulas, and a rules action a copy uses, see that copy's item's choices; a rules action with no copy, and the rules' effects, follow-ups and choices, the rules-level ones. Bound in content formulas (effects, grants, prerequisites, choices, computed values, actions, follow-ups, `keepsTemplates` queries and `params`) and the rules' choices, effects, follow-ups and actions; elsewhere `unknown-function`. A query `where` calling it reads the character. With two arguments, `picksOf(content, choice)`: the picks of that content's choice on every activation of it (copies, templates, picks and grants, holder and applied), in activation order, concatenated, `[]` for none; on each, a grant's preset picks where it presets the choice, else the saved ones. Both string literals; the content resolves in the formula's pack; content the pack doesn't see, or a choice it doesn't declare, is `unknown-reference` at load. Bound wherever a character is but activation conditions (field formulas, constraints, display hints and situational choices included). `picksOf('rules', choice)` (or `'<pack>:rules'`, another pack's rules) is a rules-level choice's saved picks, `[]` for none: bound wherever a character is, activation conditions included, adding no dependency; the rules of a pack it doesn't see, or a choice they don't declare, is `unknown-reference` at load."
     },
     {
       "id": "grantedPicksOf",

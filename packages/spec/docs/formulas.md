@@ -409,7 +409,7 @@ define functions.
 | `has`                                 | (name or member) → bool                     | Macro: whether an optional value is present. The argument isn't evaluated, so a missing value is `false`, not an error                                                                                                                                                                                                                                                                |
 | `countCopies`                         | (bool cond) → int                           | Macro: the character's copies for which `cond` holds. See [Aggregates](#aggregates)                                                                                                                                                                                                                                                                                                   |
 | `sumCopies`, `maxCopies`, `minCopies` | (number value, bool cond?) → number         | Macro: the sum, highest or lowest of `value` over the copies for which `cond` holds (every copy, without it); 0 for none                                                                                                                                                                                                                                                              |
-| `countPicks`, `countGrants`           | (bool cond) → int                           | Macro: the character's saved picks of content, or its active holder grants, for which `cond` holds. See [Aggregates](#over-picks-and-grants)                                                                                                                                                                                                                                          |
+| `countPicks`, `countGrants`           | (bool cond) → int                           | Macro: the character's saved picks of content, or its active holder grants, for which `cond` holds. They nest in another aggregate. See [Aggregates](#over-picks-and-grants)                                                                                                                                                                                                          |
 | `countFields`                         | (bool cond) → int                           | Macro: the fields in the ruleset for which `cond` holds                                                                                                                                                                                                                                                                                                                               |
 | `sumFields`, `maxFields`, `minFields` | (number value, bool cond?) → number         | Macro: the sum, highest or lowest of `value` over the fields `cond` keeps (every field, without it); 0 for none                                                                                                                                                                                                                                                                       |
 | `countList`                           | (list, bool cond) → int                     | Macro: the list's elements for which `cond` holds                                                                                                                                                                                                                                                                                                                                     |
@@ -419,7 +419,7 @@ define functions.
 | `sortList`                            | (list<T>, key?) → list<T>                   | Macro: the elements in ascending order of `key` (number or string; the element itself without one), equal keys in list order (0114)                                                                                                                                                                                                                                                   |
 | `hasChoice`                           | (string type) → bool                        | Whether the character has a choice of the content type, made or pending. Bound only in display hints' `showWhen`; [below](#choices-in-display-hints)                                                                                                                                                                                                                                  |
 | `picksOf`                             | (string choice) → list                      | The saved picks of a choice of the formula's owner: content IDs or values, in saved order. The ID is a string literal. Bound where a formula has an owner; [below](#picks-of-the-owners-choices)                                                                                                                                                                                      |
-| `picksOf`                             | (string content, string choice) → list      | The picks of a content's choice on every activation of it, in activation order. String literals. Bound where a character is, but activation conditions; [below](#picks-of-other-content)                                                                                                                                                                                              |
+| `picksOf`                             | (string content, string choice) → list      | The picks of a content's choice on every activation of it, in activation order, or of a rules-level choice (`'rules'`). String literals. Bound where a character is, but activation conditions for content; [below](#picks-of-other-content)                                                                                                                                          |
 | `grantedPicksOf`                      | (string content, string choice) → list      | The saved picks of a choice of content the formula's owner grants. String literals. Bound where `picksOf(choice)` is; [below](#picks-of-other-content)                                                                                                                                                                                                                                |
 | `itemField`                           | (string id, string name, default?) → any    | An item field of content by ID, as merged at load; `default` when it has none. Bound where a character is; [below](#fields-and-tags-of-content-by-id)                                                                                                                                                                                                                                 |
 | `itemTags`                            | (string id) → list<string>                  | The tags of content by ID, as merged at load. Bound where `itemField` is; [below](#fields-and-tags-of-content-by-id)                                                                                                                                                                                                                                                                  |
@@ -541,6 +541,24 @@ grants:
   decides, so it is bound wherever a character is but activation conditions (`unknown-function`
   there, at load and when evaluated), field formulas, constraints, display hints and situational
   choices included.
+- **`picksOf('rules', choice)`** is the saved picks of a rules-level choice, as
+  `picksOf(choice)` reads them in the rules' own formulas: the ID a rules-level choice's owner
+  has, `rules` for the formula's pack and `<pack>:rules` for another's, as in
+  [`extendChoices`](content.md#adding-options-to-a-dependencys-choices). Saved picks are input,
+  so it is bound wherever a character is, activation conditions included, and adds no
+  dependency. So a constraint, a display hint or a field formula reads the rules' choices, and
+  with `itemField` the picked content's fields:
+
+  ```yaml
+  # A crew's special upgrades are its crew type's (FitD).
+  check: >-
+    size(picksOf('rules', 'crew-type')) == 0
+      || sumFields(f.id in itemField(picksOf('rules', 'crew-type')[0], 'upgrades') ? 0 : f.value,
+        'upgrade.special' in f.tags) == 0
+  ```
+
+  Content with the ID `rules` can't be read this way.
+
 - **`grantedPicksOf(content, choice)`** is the saved picks of a choice of content the formula's
   owner grants: the picks its node keeps under the granted content's prefixed key
   ([characters.md](characters.md#choices-tree)), `[]` with none. They are input, so it is
@@ -548,7 +566,9 @@ grants:
   A grant's preset picks aren't saved, so it doesn't read them; the granter knows them already.
 - **The IDs** are string literals (`type-mismatch` otherwise). The content resolves in the
   formula's pack, as an ID literal does. At load, content the pack doesn't see, or a choice key
-  (a choice ID, or a slot's `<id>-<slot>`) it doesn't declare, is `unknown-reference`.
+  (a choice ID, or a slot's `<id>-<slot>`) it doesn't declare, is `unknown-reference`; so are the
+  rules of a pack it doesn't see, a choice key those rules don't declare, and `grantedPicksOf`
+  of the rules, which are never granted.
 
 ### Fields and tags of content by ID
 
@@ -560,7 +580,7 @@ tags: [{ formula: "'damage.' + itemField(picksOf('lineage')[0], 'damageType')" }
 # A grant's when: Fire Soul for a fire lineage.
 when: "size(picksOf('lineage')) > 0 && itemField(picksOf('lineage')[0], 'damageType') == 'fire'"
 # A crew's upgrades, listed on its crew type.
-showWhen: "@upgrades.hardened in itemField(crewType.id, 'upgrades', [])"
+showWhen: "@upgrades.hardened in itemField(picksOf('rules', 'crew-type')[0], 'upgrades')"
 ```
 
 - **`itemField(id, name)`** is the item field `name` of the content with that ID, as the item
@@ -683,12 +703,14 @@ What they share:
   it is `dyn`. When evaluated, the result is a decimal if any value it went over is a decimal,
   else an int; an empty result is the int 0, which is assignable wherever a decimal is expected.
   A decimal sum is rounded to six places at each step, as `+` is.
-- **No nesting.** Inside any aggregate's arguments, no aggregate is bound (`unknown-function`),
-  but for a list function's list argument, which is evaluated once, outside the per-element
-  context.
+- **Nesting.** Inside an aggregate's arguments, only `countPicks` and `countGrants` are bound,
+  evaluated once per outer element with its root bound, so a field's or a copy's condition can
+  count the picks that name it (`sumFields(countPicks(f.id in pick.fields.upgrades) > 0 ? 0 :
+  f.value)`); inside those, no aggregate is. Any other is `unknown-function`, but for a list
+  function's list argument, which is evaluated once, outside the per-element context.
   The work is at most the number of copies, fields or list elements times the formula's size,
-  and each is bounded, so no safety limit is added for it. The deprecated functions stay bound
-  there.
+  times the saved picks or active grants for a nested one, and each is bounded, so no safety
+  limit is added for it. The deprecated functions stay bound there.
 - **Where.** The copy and field functions read the character, so they are bound where a
   character is (see [Functions](#functions)). The list functions read only their arguments and
   are bound everywhere; the list argument decides what they reach (`steps` only in actions, and

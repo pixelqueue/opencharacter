@@ -557,6 +557,14 @@ export class Sheet {
       }),
       picks: () => (this.pickData ??= this.savedPicks()),
       contentPicks: (content, choice) => this.contentPicks(content, choice),
+      rulesPicks: (choice) => {
+        this.rulesPickData ??= ownerPicks(
+          Object.values(ruleset.rules.choices) as Choice[],
+          character.choices ?? {},
+          '',
+        );
+        return Object.hasOwn(this.rulesPickData, choice) ? (this.rulesPickData[choice] ?? []) : [];
+      },
       contentItem: (qid) => this.contentItem(qid),
       grants: () => (this.grantData ??= this.grantViews()),
       fields: () => fieldViews(ruleset),
@@ -695,7 +703,9 @@ export class Sheet {
   private familyContext(
     pack: string,
     read: (qid: string) => f.Value | undefined,
-  ): Required<Omit<f.EvalContext, 'field' | 'roots' | 'character' | 'inAggregate' | 'id'>> {
+  ): Required<
+    Omit<f.EvalContext, 'field' | 'roots' | 'character' | 'inAggregate' | 'nestedAggregate' | 'id'>
+  > {
     const fieldId = (name: string, key: string, id: string) =>
       resolveField(this.ruleset, id, familyFieldPack(this.ruleset, name, key, pack));
     return {
@@ -1503,7 +1513,7 @@ export class Sheet {
     if (!('formula' in grant.item)) return undefined;
     let id: string;
     try {
-      const value = this.evaluateInput(grant.item.formula, pack, roots);
+      const value = this.evaluateActivation(grant.item.formula, pack, roots);
       if (value.kind !== 'string')
         throw new Failure({ code: 'type-mismatch', message: 'a grant item formula is a string' });
       id = value.value;
@@ -1544,7 +1554,7 @@ export class Sheet {
     };
     for (const [key, formula] of Object.entries(grant.state ?? {})) {
       try {
-        const value = this.evaluateInput(formula, pack, roots);
+        const value = this.evaluateActivation(formula, pack, roots);
         self[key] =
           value.kind === 'decimal' || value.kind === 'dice' ? f.wrapValue(value) : f.toData(value);
         defaults[key] = f.toData(value) as Literal;
@@ -1586,7 +1596,7 @@ export class Sheet {
         if (typeof pick.option !== 'object') option = pick.option;
         else {
           try {
-            const value = this.evaluateInput(pick.option.formula, pack, roots);
+            const value = this.evaluateActivation(pick.option.formula, pack, roots);
             if (value.kind !== 'string' && value.kind !== 'int' && value.kind !== 'decimal')
               throw new Failure({
                 code: 'type-mismatch',
@@ -3436,6 +3446,7 @@ export class Sheet {
   }
 
   private choicesOf: Map<Activation, ChoiceRecord[]> | undefined;
+  private rulesPickData: Record<string, (string | number)[]> | undefined;
 
   /** A choice's picks on every activation of the content, in activation order. */
   private contentPicks(content: string, choice: string): (string | number)[] {

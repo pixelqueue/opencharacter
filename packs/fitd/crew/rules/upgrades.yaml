@@ -102,8 +102,9 @@ constraints:
     data: { marked: upgrades.marked, earned: upgrades.earned }
   - id: special-upgrades
     check: >-
-      countPicks(pick.type == 'crewType') == 0
-        || sumFields(f.id in crewType.upgrades ? 0 : f.value, 'upgrade.special' in f.tags) == 0
+      size(picksOf('rules', 'crew-type')) == 0
+        || sumFields(f.id in itemField(picksOf('rules', 'crew-type')[0], 'upgrades') ? 0 : f.value,
+          'upgrade.special' in f.tags) == 0
 
 display:
   groups:
@@ -146,21 +147,21 @@ display:
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.hardened in crewType.upgrades",
+        showWhen: "size(picksOf('rules', 'crew-type')) == 0 || @upgrades.hardened in itemField(picksOf('rules', 'crew-type')[0], 'upgrades')",
       }
     upgrades.composed:
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.composed in crewType.upgrades",
+        showWhen: "size(picksOf('rules', 'crew-type')) == 0 || @upgrades.composed in itemField(picksOf('rules', 'crew-type')[0], 'upgrades')",
       }
     upgrades.rigging:
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.rigging in crewType.upgrades",
+        showWhen: "size(picksOf('rules', 'crew-type')) == 0 || @upgrades.rigging in itemField(picksOf('rules', 'crew-type')[0], 'upgrades')",
       }
     rigging.kinds: { groups: [special-upgrades], priority: 2, showWhen: upgrades.rigging > 0 }
     upgrades.prisonContacts:
@@ -168,28 +169,28 @@ display:
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.prisonContacts in crewType.upgrades",
+        showWhen: "size(picksOf('rules', 'crew-type')) == 0 || @upgrades.prisonContacts in itemField(picksOf('rules', 'crew-type')[0], 'upgrades')",
       }
     upgrades.undergroundMaps:
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.undergroundMaps in crewType.upgrades",
+        showWhen: "size(picksOf('rules', 'crew-type')) == 0 || @upgrades.undergroundMaps in itemField(picksOf('rules', 'crew-type')[0], 'upgrades')",
       }
     upgrades.camouflage:
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.camouflage in crewType.upgrades",
+        showWhen: "size(picksOf('rules', 'crew-type')) == 0 || @upgrades.camouflage in itemField(picksOf('rules', 'crew-type')[0], 'upgrades')",
       }
     'upgrades.elite.{gang}':
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.elite.{gang} in crewType.upgrades",
+        showWhen: "size(picksOf('rules', 'crew-type')) == 0 || @upgrades.elite.{gang} in itemField(picksOf('rules', 'crew-type')[0], 'upgrades')",
       }
     upgrades.workshop: { hidden: true }
     upgrades.mastery: { hidden: true }

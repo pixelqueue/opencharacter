@@ -30,6 +30,8 @@ export interface FormulaCase {
         grants?: CasePick[];
         /** Each content's choices' picks over its activations, for `picksOf(content, choice)`. */
         contentPicks?: Record<string, Record<string, (string | number)[]>>;
+        /** The rules-level choices' picks, for `picksOf('rules', choice)`. */
+        rulesPicks?: Record<string, (string | number)[]>;
         /** Content items by ID, for `itemField` and `itemTags`: `tags` and `fields`. */
         content?: Record<string, { tags?: string[]; fields?: Record<string, unknown> }>;
         choices?: string[];
@@ -138,6 +140,7 @@ function characterQueries(c: FormulaCase): f.CharacterQueries | undefined {
       return value;
     },
     picks: () => picks,
+    rulesPicks: (choice: string) => (c.character ? (c.character.rulesPicks?.[choice] ?? []) : []),
     contentItem: (id: string) => {
       const item = c.character ? c.character.content?.[id] : undefined;
       return item ? { tags: item.tags ?? [], fields: item.fields ?? {} } : undefined;
